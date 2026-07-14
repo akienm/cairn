@@ -262,6 +262,56 @@ Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
 
+## Workflow v0 + starting skills (2026-07-14)
+
+Extracted from specimen #1 — the founding conversation itself, run by hand.
+
+```
+/intent <desc> → intention conversation (unpack WHAT/HOW, trace to Telos,
+                 sort sub-intentions into dependency tree)
+→ /sorted      → CHALLENGE GATE: fire the question corpus at each intention
+                 (assumption? missing? falsifiable? collides?); failures loop
+                 back to conversation cheaply; survivors file to CairnCommons
+→ design conversation → designs + architectural requirements → decisions
+→ /ticket      → one ticket per intention, parents over children; every
+                 ticket carries its intention pointer — no freehand tickets
+→ build        → CC.0/CC.1/aider by difficulty, under the tester's network
+→ prove        → tester consumes intention + proof code, emits verdicts to
+                 commons; children prove before parents
+→ /outcome     → green: parent may prove; red: CP2 data — back to design or
+                 new questions into the corpus (kick-back is a disposition)
+```
+
+**Challenge = the intuition loop at high tempo on UNSETTLED thinking; the
+background device (later) is the same mechanism at slow tempo on SETTLED
+thinking. One mechanism, two tempos** — so the question corpus accumulates
+yield data from the first /sorted onward, months before any intuition device
+exists.
+
+Five feedback loops, each catching a distinct failure: challenge-at-sort (bad
+intentions, pre-cost); proof-on-close (hollow builds); bottom-up parent proof
+(parts green, whole hollow); question-yield tracking (the corpus improves —
+Telos 5, measured); loadslate/saveslate (session continuity).
+
+**Starting skill roster — 10, from UU's 55.** Each enters with its own charter.
+
+| Skill | Stage | Origin |
+|---|---|---|
+| /loadslate | session open | rename: context-load |
+| /saveslate | session close | rename: savestate |
+| /intent | open intention conversation | NEW |
+| /sorted | challenge gate + file to commons | graft, rebuilt |
+| /challenge | fire questions at any artifact | NEW — absorbs all 12 audit-* |
+| /ticket | cut tickets from intentions | graft (+ intention pointer) |
+| /next | what to work on | graft: query-ticket |
+| /commit | every stone | graft |
+| /outcome | record result | graft |
+| /note | capture without ceremony | graft |
+
+Not crossing (for now): sprint family (returns when a dispatcher exists to
+need it), day-close (folds into /saveslate when earned), audit-* (absorbed),
+everything unnameable (stays in quarry).
+
 ## Build order (the spine)
 
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →

@@ -41,17 +41,41 @@ world needed an authoritative device-roster memory just to decode `Granny`/
 `Hex`/`Scraps`, an orientation tax paid by every fresh mind, every session.
 Self-naming code needs no roster.
 
-## Intention taxonomy — three layers
+## Intention taxonomy — four layers
 
 Two kinds surfaced immediately (Akien): **what it will do** vs **how it will do
-it**. Formalized as three layers:
+it**. Formalized as four layers, each tracing to the one above it:
 
+0. **Telos** — Akien's charter: WHY Cairn exists and whose it is. Lives in
+   CairnCommons. (The six below.)
 1. **Laws** — system-wide invariants; how the Cairn world works. Live at the
    repo/commons root. (The eight below.)
 2. **Form** — the shape every device must have; the device contract. Lives with
    the base class. (Akien's three below.)
 3. **Charters** — per-device intentions; what THIS device does. One per device,
    in that device's directory. Written before the device is.
+
+**Traceability is the scar-tissue filter:** every charter traces to Form and
+Laws; every Law traces to the Telos. Anything that can't trace up doesn't cross
+from the quarry.
+
+## The Telos (Akien, 2026-07-14 — ratified)
+
+1. **Demonstrate inference compilation.** The research thesis — and it says
+   *demonstrate*, so it is falsifiable and will someday carry a proof.
+2. **Allow Akien to build tools that help with writing and remember things.**
+3. **Share those tools with others.**
+4. **Build something that thinks the way Akien does.** (Graph trees / Q+A nexus
+   — needs operational unpacking before it can gate anything.)
+5. **Build something that is self-improving.**
+6. **Build something that makes life suck less for everybody.** (CP4 as the
+   terminal goal — the values were always the telos showing through.)
+
+Derivations worth noting: Law 1 (resolver spent only on the novel) derives from
+Telos 1. Telos 2–3 mean Cairn has a USER, not just a builder — the librarian
+writing/memory tools are the first user-facing deliverable, which is why the
+build spine ends where it does. Telos 6 ⊃ CP4; Telos 5 is the founding property
+carried over from UU.
 
 ## The Laws (v0 — under discussion)
 
@@ -84,10 +108,10 @@ the quarry.
 1. **Each device contains and encapsulates that device. Instances are children
    of their device.** Runtime: `~/.cairn/devices/<device>/<instance>/`.
    Repo: `~/dev/src/cairn/<device>/`. No shared flat log roots, ever.
-   - Proposed refinement (unratified): repo is **class-space**, home is
-     **instance-space**. A singleton is just a device with one instance
-     (e.g. instance `0`) and still lives under `~/.cairn/devices/<device>/0/` —
-     one path shape, no special case, no state in the repo.
+   - Ratified 2026-07-14: repo is **class-space**, home is **instance-space**.
+     A singleton is just a device with one instance (e.g. instance `0`) and
+     still lives under `~/.cairn/devices/<device>/0/` — one path shape, no
+     special case, no state in the repo.
 2. **Each device reports, in order: intention, then state, then settings, then
    other things (e.g. chat) as we build it out.** One uniform introspection
    surface — the same protocol the tester probes and the web UI renders, so
@@ -102,7 +126,7 @@ the quarry.
 | Root | Holds | Rule |
 |---|---|---|
 | `~/dev/src/cairn/` (repo) | code, skills, CLAUDE.md, per-device charters + proofs | class-space; git; shareable |
-| commons (own small git repo) | intentions, decisions, tickets, proofs, slates — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it |
+| `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | intentions (incl. the Telos), decisions, tickets, proofs, slates — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it |
 | `~/.cairn/` | logs, credentials, flags, cachedstate, personal info | instance-space; never in git; composed at use-time |
 
 **The map IS the territory:** every component directory co-locates
@@ -140,11 +164,15 @@ working part at a time, proved.
 
 ## Open questions
 
-- Q1: Commons — separate git repo, or a directory of the main repo with its own
-  history discipline? (Leaning separate: shareable knowledge should outlive any
-  one code tree.)
-- Q2: Singleton path shape — ratify "always an instance, never a special case"?
+- ~~Q1: Commons its own repo?~~ **A1: yes — `CairnCommons` (Akien, 2026-07-14).**
+- ~~Q2: Singleton path shape?~~ **A2: always an instance, never a special case
+  (Akien, 2026-07-14).**
 - Q3: What of UU's memory index crosses over? (Principles yes, scar tissue no —
   needs a one-pass triage.)
 - Q4: The device introspection surface — protocol shape (bus mailbox? HTTP?
   both?) to be designed with the base class.
+- Q5: Telos 4 ("thinks the way Akien does") — what is its operational,
+  measurable form? Needs unpacking before anything can be gated on it.
+- Q6: Intention schema in CairnCommons — the envelope shape ({claim, evidence,
+  provenance_class, falsifier, horizon} was the UU direction). Design before
+  the store grows, not after.

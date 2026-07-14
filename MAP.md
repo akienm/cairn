@@ -310,6 +310,18 @@ chunking). Three named hard sub-problems decide the bet:
   the measured curve of resolver-calls-per-solved-task declining as the corpus
   grows, quality held constant. The curve bends or it doesn't.
 
+**Storage model (baked in, 2026-07-14):** fixed node envelope; nodes and edges
+each in ONE logical table (owner: the graph-tree device); **trees are
+first-class ROWS** (identity, owner, charter-pointer, birth event — calving a
+tree = inserting a row, no DDL). Cross-domain search and cross-tree
+invalidation both require edges-between-trees to be as cheap as edges within
+— which is why trees never get independent tables. Physical calving is
+allowed one layer down: Postgres partitioning by tree_id when scale demands,
+and freely-calved DERIVED structures (per-tree adjacency caches, materialized
+closures, embedding shards) — disposable, rebuildable accelerators. Rule:
+**records of truth never calve; caches may.** Exact DDL belongs to
+db_domain's charter.
+
 ## Workflow v0 + starting skills (2026-07-14)
 
 Extracted from specimen #1 — the founding conversation itself, run by hand.

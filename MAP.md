@@ -121,6 +121,43 @@ the quarry.
    spun off.** When two devices need the same thing, it becomes a service (or
    the base class), never a second copy.
 
+## Telos 4 unpacked — question-driven cognition (v0, 2026-07-14)
+
+Source: Akien's introspection + `~/.unseen_university/akien/20260714.Novelty.txt`
+(quarry, MIXED provenance: Akien's five novelty questions are first-person data;
+the other AI's "hidden LLM probe" layers and "~89% savings" are HYPOTHESIS-class
+— plausible, unmeasured, never to be cited as fact about LLM internals. They
+enter as candidate questions and earn tenure by yield, like everything else.)
+
+- **The compilable core:** "the answers vary, but the questions do not."
+  A fixed, evolving question set fired deterministically over variable content
+  is compilable cognition — this is why Telos 4 and Telos 1 are one project.
+- **Architecture:** deterministic scaffold + explicitly-marked ORACLE slots.
+  Cross-domain similarity questions ("what would fit there?") consult the
+  embeddings-over-graph-trees organ; generation consults the LLM. Every oracle
+  call is logged + provenance-stamped. **Compilation = the measured migration of
+  answers out of the oracle slots into structure.**
+- **Intuition, operationalized:** cheap approximate cross-domain retrieval +
+  expensive verification, running in the background over SETTLED structure
+  (novelty questions picking over closed nodes for missed angles — a
+  default-mode loop). A surfaced hunch carries its full causal chain: which
+  question, which nodes, which domains, what similarity.
+- **Self-aware (not sentient), buildable sense:** the device can report WHY it
+  thought what it thought. Form #2's introspection surface gains a channel:
+  reasoning provenance. Humans buy the "coherent moment" by overwriting the
+  tape; Cairn presents coherence at interfaces and keeps the intermittent
+  operations in the record (Law 7 already covers this).
+- **Questions are first-class commons artifacts** with measured YIELD (how
+  often did this question produce a hypothesis that survived verification?).
+  Promotion/retirement by yield = Telos 5 in measurable form.
+- **Reflexive:** the intention → design → tickets → build → prove workflow IS
+  this cognition — the process that builds Cairn is specimen #1 of what Cairn
+  demonstrates.
+- **Falsifiable form (draft, answers Q5):** the device surfaces missed angles
+  in settled thinking — cross-domain hypotheses neither the human nor the
+  resolver had queued — at a measured, nonzero, improving rate, every one
+  explainable end-to-end from its provenance chain.
+
 ## The tree(s) — three roots
 
 | Root | Holds | Rule |
@@ -171,8 +208,8 @@ working part at a time, proved.
   needs a one-pass triage.)
 - Q4: The device introspection surface — protocol shape (bus mailbox? HTTP?
   both?) to be designed with the base class.
-- Q5: Telos 4 ("thinks the way Akien does") — what is its operational,
-  measurable form? Needs unpacking before anything can be gated on it.
+- ~~Q5: Telos 4 operational form?~~ **A5 (v0): see "Telos 4 unpacked" —
+  falsifiable form drafted; ratification + question-schema design pending.**
 - Q6: Intention schema in CairnCommons — the envelope shape ({claim, evidence,
   provenance_class, falsifier, horizon} was the UU direction). Design before
   the store grows, not after.

@@ -121,6 +121,65 @@ the quarry.
    spun off.** When two devices need the same thing, it becomes a service (or
    the base class), never a second copy.
 
+## Sub-intentions under the six (DRAFT v0 — unratified, 2026-07-14)
+
+Structure note: the six pair into three couples — **1+4 the science** (memory,
+cognition), **2+3 the product** (first user, second user), **5+6 the
+character** (growth, care).
+
+**T1 — Demonstrate inference compilation**
+- 1.1 Answered questions live as structure (graph-tree store — baked above).
+- 1.2 Every resolver call is metered (possible because the inference domain is
+  the kernel-enforced only pipe).
+- 1.3 A cache hit verifies before it answers (canonicalization gate).
+- 1.4 Invalidation propagates: falsifier + horizon on every answer; upstream
+  change rots downstream loudly.
+- 1.5 THE DEMO: one narrow domain; resolver-calls-per-solved-task declines as
+  corpus grows, quality held constant.
+
+**T2 — Tools for Akien's writing and remembering**
+- 2.1 The librarian converses (chat over commons + graph trees).
+- 2.2 Capture is frictionless — thought → chartered store in seconds.
+- 2.3 Recall cites its nodes: answers from Akien's corpus with provenance.
+- 2.4 The librarian can go learn an area of study and file it as structure.
+- 2.5 Writing tools operate on the writing corpus as graph trees (SHAPE TBD —
+  needs its own intention conversation).
+
+**T3 — Share with others**
+- 3.1 Nothing personal can leak — by construction (three-root split).
+- 3.2 A stranger can install and boot Cairn without Akien (horizon TBD).
+- 3.3 A tool ships without the whole rack.
+- 3.4 The commons explains itself — charters are the docs.
+
+**T4 — Thinks the way Akien does** (formalizes "Telos 4 unpacked" below)
+- 4.1 Question corpus = chartered store with yield tracking.
+- 4.2 Challenge gate fires at every /sorted (high tempo, unsettled).
+- 4.3 Oracle slots explicit + logged; compilation = their measured retreat.
+- 4.4 Background loop over settled structure (slow tempo — intuition).
+- 4.5 Every hunch carries reasoning provenance.
+- 4.6 THE DEMO: missed angles at a measured, nonzero, improving rate.
+
+**T5 — Self-improving**
+- 5.1 Questions earn tenure by yield; losers retire.
+- 5.2 The failure loop closes: trouble → diagnosis → design → structure.
+- 5.3 Process artifacts (skills, charters, CLAUDE.md) are challengeable and
+  versioned like code.
+- 5.4 Measurement is base-level; nothing improvable is unmetered.
+- 5.5 Gates come off only when the proof corpus pays.
+
+**T6 — Make life suck less for everybody**
+- 6.1 CP1–6 pinned by tests, enforced in-process.
+- 6.2 Friction reduction measured on Akien FIRST (metric TBD — must be named
+  before it can be measured).
+- 6.3 No silent failure, no unsafe default: kernel chokepoints + trouble reflex.
+
+**Cross-link proposal (unratified): T2 IS the demonstration domain for T1.5.**
+The writing/memory workload is the narrow domain where the curve must bend:
+live human silent-failure detector (6.2), daily novel questions (T4 training
+data), science and product become one build.
+
+Draft debts: 2.5 shape, 3.2 horizon, 6.2 metric.
+
 ## Telos 4 unpacked — question-driven cognition (v0, 2026-07-14)
 
 Source: Akien's introspection + `~/.unseen_university/akien/20260714.Novelty.txt`

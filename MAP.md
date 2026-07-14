@@ -121,7 +121,7 @@ the quarry.
    spun off.** When two devices need the same thing, it becomes a service (or
    the base class), never a second copy.
 
-## Sub-intentions under the six (DRAFT v0 — unratified, 2026-07-14)
+## Sub-intentions under the six (v1 — RATIFIED by Akien 2026-07-14)
 
 Structure note: the six pair into three couples — **1+4 the science** (memory,
 cognition), **2+3 the product** (first user, second user), **5+6 the
@@ -173,7 +173,7 @@ character** (growth, care).
   before it can be measured).
 - 6.3 No silent failure, no unsafe default: kernel chokepoints + trouble reflex.
 
-**Cross-link proposal (unratified): T2 IS the demonstration domain for T1.5.**
+**Cross-link (ratified with the set): T2 IS the demonstration domain for T1.5.**
 The writing/memory workload is the narrow domain where the curve must bend:
 live human silent-failure detector (6.2), daily novel questions (T4 training
 data), science and product become one build.
@@ -320,6 +320,32 @@ in schema metadata at creation; an ownerless table cannot come into existence.
 Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
+
+## Two log classes + journeys — forensic-first debugging (2026-07-14)
+
+Every major state transition and every interface boundary is logged (base
+reflex, inherited). Two classes with different physics:
+
+- **Events** (bang-and-done): state changes + crossings → per-device
+  instance-space streams. Cache-class: high volume, generous rotation.
+- **Journeys** (the traveling object): workflow-carried work items — a coding
+  ticket, an inference request — get a `journey_id`; EVERY transaction along
+  the path appends to the journey record (device, inputs, outputs, decision,
+  timing). The base appends at each crossing; no device can opt out. Truth-
+  class: owned table via db_domain, retention by charter horizon, never
+  ad-hoc deletion.
+
+**Complete by construction, not compliance:** journeys are captured at the
+kernel-enforced chokepoints — there is no uninstrumented path (this is what
+UU's 804 RunRecords lacked: six raw-HTTP files never entered the recorded
+pipe).
+
+**Why this kills the fix-here-fix-there debug loop:** oscillation happens when
+each fix is made against a reconstructed guess. With the journey, cause-
+finding is a READ, not a rerun — the wrong value sits in the record at the hop
+that produced it, with its inputs. CP3 mechanically satisfied. Composition:
+trouble tickets file carrying their `journey_id` — every machine-filed failure
+arrives with its forensic tape pre-attached.
 
 ## Trouble tickets — a base-layer reflex (2026-07-14)
 

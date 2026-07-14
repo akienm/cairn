@@ -171,6 +171,22 @@ enter as candidate questions and earn tenure by yield, like everything else.)
 the directory. The tester refuses to run a component with no intention, so the
 map cannot rot apart from the code.
 
+**Stores self-describe like devices (Akien, 2026-07-14):** every artifact-type
+directory in CairnCommons carries a `_charter.json` co-locating:
+- **intention + why** — what this type is FOR, why it exists
+- **template/schema** — the current shape of a valid record, versioned
+
+Physics, not policy: the single emit chokepoint refuses to write into a
+directory that lacks a charter, and validates every record against the
+co-located template. Consequences for free: (a) no hunting for schemas — the
+current template is always at the address of the data it governs (UU ticketed
+this, `T-memory-category-templates`, and instead accumulated ~20 scattered
+schema tickets across four months — schema apart from data is the same drift
+as map apart from territory); (b) artifact-proliferation resistance — a new
+type cannot exist until someone writes down what it's for; (c) the tester
+validates a store the same way it validates a device: charter present, records
+conform, drift is red.
+
 ```
 cairn/<device>/
   intention.json    ← charter: what this is FOR

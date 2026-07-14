@@ -454,6 +454,24 @@ thinking. One mechanism, two tempos** — so the question corpus accumulates
 yield data from the first /sorted onward, months before any intuition device
 exists.
 
+**The question nexus is the workflow's primitive (named by Akien; ratified
+2026-07-14).** Every station — intent conversation, challenge gate, design,
+diagnosis, ticketing — is the same machine: a fixed question set fires at a
+variable artifact; answers route forward, failures route back; every firing
+logs yield. Stations differ ONLY in which question set loads. Nexuses are the
+living organs; graph trees are what they deposit (a trained tree = a nexus's
+firings compiled into structure — Telos 1 as anatomy).
+
+**Role-replacement staircase:** the resolver (Opus/frontier) currently
+occupies several nexuses — including intention extraction AND decomposition
+(decomposition inherently writes child intentions; machine drafts become spec
+by ratification, per the provenance rule). Each occupancy is scaffolding: an
+occupant is replaced by trained structure only when the replacement's outputs
+survive challenge at the occupant's rate — measured out, never declared out
+(the gate-removal staircase applied to the resolver itself). Planned order:
+intention extraction first. Not yet — the trees it would train on are being
+founded now.
+
 Five feedback loops, each catching a distinct failure: challenge-at-sort (bad
 intentions, pre-cost); proof-on-close (hollow builds); bottom-up parent proof
 (parts green, whole hollow); question-yield tracking (the corpus improves —

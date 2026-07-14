@@ -262,6 +262,27 @@ Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
 
+## Trouble tickets — a base-layer reflex (2026-07-14)
+
+Failure reporting is INHERITED, never hand-wired — that's what kills the
+silent-failure class (UU's dispatcher logged only to its tmux pane for weeks
+because sink-wiring was per-device; anything hand-wired can be un-wired).
+
+- **Emission is a base reflex:** error at an interface crossing → the
+  diagnostic base files a trouble ticket mechanically, evidence auto-attached
+  at the write path (device, instance, state snapshot, log tail, provenance
+  chain). Law 7 made flesh; CP2's capture mechanism.
+- **Different species from work tickets:** work tickets are cut from
+  intentions; trouble tickets are machine-filed OBSERVATIONS. One becomes the
+  other only through diagnosis at the workflow's front gate — or becomes a new
+  question in the corpus.
+- **Signature-keyed dedup** (quarry scar worth keeping: UU's watch_problems
+  auto-deposit became recurring debt): same signature → increment occurrence
+  count + freshen evidence on the existing ticket. A 400-count ticket and a
+  1-count ticket are different beasts; the count is diagnostic data.
+- **One store:** `CairnCommons/troubles/` + `_charter.json`; one emit
+  chokepoint; owner: the diagnostic base.
+
 ## CLAUDE.md discipline (2026-07-14)
 
 UU's banners (NO-IMAP, NO-SQLITE) were compensations for missing enforcement —

@@ -262,6 +262,54 @@ Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
 
+## CLAUDE.md discipline (2026-07-14)
+
+UU's banners (NO-IMAP, NO-SQLITE) were compensations for missing enforcement —
+prose shouting where physics was absent. Cairn's CLAUDE.md rules:
+
+- **A prose rule is an IOU for enforcement.** The file may contain only: the
+  Laws, pointers to charters, and rules not YET enforceable by physics — each
+  of the third class carries a ticket to become physics and leaves the file
+  when it does. (SQLite: "durable state goes through db_domain / store
+  primitives" lives once in db_domain's charter; the tester import-scan reds
+  any `sqlite3` import; CLAUDE.md then needs zero words about it.)
+- **Negative-history rules are banned as a class.** "There is no X anymore"
+  serves only minds carrying contaminated context; Cairn minds never see the
+  quarry. Nothing in Cairn's CLAUDE.md may reference what UU did wrong.
+- **Each rule lives once, at its home layer; CLAUDE.md points, never restates.**
+- CLAUDE.md has its own charter and a periodic /challenge cadence — the file
+  that briefs every session is the most-challenged artifact in the system.
+
+## The layers program + graph trees (2026-07-14)
+
+**Layers (Akien):** sort the layers of the CC dynamic — the agentic loop plus
+the internal loops that must exist in the model; each layer eventually gets an
+inspectable presence on the rack; human-like reasoning sorts on top.
+Calibration: the agentic-loop layers (context assembly → intention inference →
+planning → tool dispatch → result integration → verification → emission) are
+OBSERVABLE from transcripts — rack them directly. Claims about latent internal
+loops are hypothesis-class (the model has no introspective access; its
+self-reports would be confabulated coherence) — but that doesn't matter: we
+build the explicit version and MEASURE it. The pipeline is not an imitation of
+the model; it is the better instrument.
+
+**Graph trees — verdict: sound as a bet; hypothesis until the tiny demo.**
+For: (1) convergent evidence — intentions, tickets, and questions all
+independently landed on typed nodes + dependency edges + bottom-up validation
++ cross-links; the commons is already a hand-built graph tree. (2) Q+A is the
+right node unit: a question carries its own falsifier (re-ask and diff).
+(3) Ancestry: memoization of reasoning (ACT-R production compilation,
+chunking). Three named hard sub-problems decide the bet:
+- **Invalidation** — edges carry dependency direction; answers carry
+  falsifier + horizon; upstream change propagates rot. Without it: confidently
+  stale memory, UU's disease at cognition scale.
+- **Canonicalization** — when is a new question "the same" as a cached one?
+  Cache hits need a cheap verification step; cache precision is measurable
+  (confabulation-by-cache-hit is the graph-tree coherent-moment lie).
+- **Composition** — the falsifiable core of Telos 1: one narrow domain, and
+  the measured curve of resolver-calls-per-solved-task declining as the corpus
+  grows, quality held constant. The curve bends or it doesn't.
+
 ## Workflow v0 + starting skills (2026-07-14)
 
 Extracted from specimen #1 — the founding conversation itself, run by hand.

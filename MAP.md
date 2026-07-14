@@ -194,6 +194,64 @@ cairn/<device>/
   proofs/           ← what a hollow build couldn't pass
 ```
 
+## Repo file tree (forks ratified 2026-07-14)
+
+Decisions: **base + devices only** (a spun-off service becomes another device —
+no third category); **proof CODE beside the device, proof RECORDS in commons**;
+**skills repo-canonical + symlink, but PURGED** — a skill crosses from UU only
+if it serves Cairn (e.g. `autocompact` was decided-retired yet still squats in
+UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
+
+```
+~/dev/src/cairn/                  # class-space; git; no state, ever
+  CLAUDE.md                       # spine step 1 — stays minimal: laws + pointers, not prose
+  MAP.md                          # this file (dissolves into intentions/tickets over time)
+  pyproject.toml                  # `pip install -e .` green at all times; include = ["cairn*"]
+  cairn/                          # the single import root (one heart — UU law carries)
+    __init__.py                   # EMPTY/lazy forever (boot-order lesson: importing any
+                                  # subpackage must never eager-import a DB-bound one)
+    base/                         # the Form, embodied
+      intention.json              # charter of the base itself
+      core_values.py              # CP1–CP6 frozen contract (crosses by graft, with its pin test)
+      device.py                   # BaseDevice
+      shim.py                     # BaseShim + the one loop primitive
+      introspect.py               # Form #2 surface: intention → state → settings → …
+      store.py                    # commons access + charter enforcement primitives
+      proofs/                     # proof code for the base
+    devices/
+      __init__.py                 # empty/lazy
+      tester/                     # earliest device on the spine; owns the network
+      db_domain/                  # the only path to 5432
+      ground_loop/
+      dispatcher/                 # (UU: Granny) — functional names, no roster
+      inference_domain/           # the only path to inference
+      web_server/
+      librarian/
+      …                           # one dir per device, ALL the same shape:
+                                  #   intention.json + code + proofs/
+  skills/                         # canonical; ~/.claude/skills symlinks here; purged set only
+  launchers/                      # cairn launch/rescue scripts; symlinked onto PATH
+```
+
+No `devlab/` — CairnCommons replaces it entirely. No `docs/` — knowledge lives
+in commons, intent lives at the address it governs. Cross-cutting proofs obey
+Law 6: every proof has exactly one owner — the device that owns the seam.
+
+Companion trees (drawn once, here, for orientation):
+
+```
+~/dev/src/CairnCommons/           # knowledge; own git repo
+  intentions/  _charter.json + telos.md + …   # first charter written (Q6)
+  questions/   _charter.json + …              # the question corpus, with yield
+  decisions/ tickets/ proofs/ slates/ sessions/ notes/
+                                  # a type dir EXISTS only once its _charter.json does
+
+~/.cairn/                         # instance-space; never in git
+  devices/<device>/<instance>/    # logs/, cachedstate/, flags (singleton ⇒ instance 0)
+  vault/                          # credentials, composed at connect-time, never persisted baked
+  akien/                          # personal: inboxes, notes-in-progress
+```
+
 ## Database
 
 Fresh DB. Founding law (generalizes UU's button pattern): **every table has

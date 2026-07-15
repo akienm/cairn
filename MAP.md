@@ -578,24 +578,25 @@ of "it answered at 09:14" to consult before concluding anything. The other half 
 not mislabeling "I couldn't reach it" (measured) as "it's down" (unmeasured) — is
 CP1 discipline on the inference seam, tracked separately.
 
-## Workflow v0 + starting skills (2026-07-14)
+## Workflow + starting skills (first cast 2026-07-14, converged 2026-07-15)
 
-Extracted from specimen #1 — the founding conversation itself, run by hand.
+First cast from specimen #1 — the founding conversation itself, run by hand.
 
 ```
-/intent <desc> → intention conversation (unpack WHAT/HOW, trace to Telos,
-                 sort sub-intentions into dependency tree)
-→ /sorted      → CHALLENGE GATE: fire the question corpus at each intention
-                 (assumption? missing? falsifiable? collides?); failures loop
-                 back to conversation cheaply; survivors file to CairnCommons
-→ design conversation → designs + architectural requirements → decisions
-→ /ticket      → one ticket per intention, parents over children; every
-                 ticket carries its intention pointer — no freehand tickets
-→ build        → CC.0/CC.1/aider by difficulty, under the tester's network
-→ prove        → tester consumes intention + proof code, emits verdicts to
-                 commons; children prove before parents
-→ /outcome     → green: parent may prove; red: CP2 data — back to design or
-                 new questions into the corpus (kick-back is a disposition)
+/intent <desc>  → birth a node (a new track or an aside); unpack WHAT/HOW,
+                  trace to Telos
+  /challenge    → any time before /sorted: adversarial pass on the design /
+                  conclusions — better approach? prior art? do we back up?
+→ /sorted       → assert "all points wrapped" → inward completeness check
+                  (assumption? missing? falsifiable? collides?) → cast the node
+                  (type it → bind its class's gates) → spawn children to
+                  deconstruct, and/or reach an escalation when stuck; survivors
+                  file to CairnCommons (filing is the consequence, not /sorted)
+→ build         → CC.0/CC.1/aider by difficulty, under the tester's network
+→ prove         → the class's prove-gate: tester VALIDATION for code, quorum
+                  signature for a concept piece; children prove before parents.
+                  green → parent may prove; red → CP2 data, kick back to design
+                  or new questions into the corpus (kick-back is a disposition)
 ```
 
 **Challenge = the intuition loop at high tempo on UNSETTLED thinking; the
@@ -631,6 +632,10 @@ Telos 5, measured); loadslate/saveslate (session continuity).
 against the gates + per-node-class model, distilled to a smaller set on three axes.
 Each surviving skill enters with its own charter. (Supersedes the earlier 10.)
 
+**Skills are links into the repo, not copies.** One source of truth per skill —
+wherever a skill is installed, it points back at the file in `cairn/`. Nothing to
+sync, nothing to drift: the same no-copy reflex as cairnmap and co-located charters.
+
 | Axis | Skill | Role |
 |---|---|---|
 | **Work loop** | `/intent` | birth a new track or aside (a node opens in intention fill-state) |
@@ -653,13 +658,11 @@ working Fable path; Fable-as-configured-advisor errors on every call) · review 
 field / state-of-the-art · **ask Akien** (the signature-gate escalation). CP1 with
 teeth: stuck → escalate, don't confabulate; CP2 right behind it.
 
-**Absorbed / deferred from the ten:** `/ticket` → not a skill (casting + child-spawn
-live in `/sorted`); `/outcome` → the tester's VALIDATION (or a `/note`); `/next` →
-deferred (a graph query). Disambiguation: the **challenge gate** (the inward check
-`/sorted` fires — §4.2 above) is a different thing from the **`/challenge` skill**
-(the pre-sorted adversarial pass). The Workflow v0 pipeline's stations still hold;
-its `/ticket` and `/outcome` labels are exactly these absorptions, and its `/sorted`
-"= file" reading is corrected here (filing is downstream of the completeness check).
+**Folded into the ones above, from the ten:** `/ticket` → not a skill (casting +
+child-spawn live in `/sorted`); `/outcome` → the tester's VALIDATION (or a `/note`);
+`/next` → not in the starting set; it arrives once the graph is worth querying.
+Disambiguation: the **challenge gate** (the inward check `/sorted` fires — §4.2 above)
+is a different thing from the **`/challenge` skill** (the pre-sorted adversarial pass).
 
 Not crossing (for now): sprint family (returns when a dispatcher needs it), day-close
 (folds into `/saveslate`), audit-* (absorbed into `/challenge`), everything unnameable
@@ -761,7 +764,7 @@ docs. This is also Telos 1 on the surface people most reflexively hand to an LLM
   move: a mind is briefed by standing in a directory and reading its `intention.json`;
   a caller is briefed by standing in a context and asking cairnmap. The next scope-key
   axis is *who* (the asker's ownership, Law 6 — you see only what you may invoke):
-  designed-in, deferred until the "others" arrive. v0 is single-user.
+  designed-in, and lands when the "others" arrive. v0 is single-user.
 - **Reference only (ruling).** A pure presentation surface (Law 7): it describes
   commands, it does not run them. Invocation stays with the commands. The web UI may
   add navigation later without changing what cairnmap *is*.

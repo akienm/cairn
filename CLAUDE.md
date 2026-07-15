@@ -10,8 +10,9 @@ construction. Its charter: `CairnCommons/intentions/I-cairn-claude-md.md`.
 - `MAP.md` — the working map (transitional; dissolves into intentions + tickets).
 - `CairnCommons/intentions/telos.md` — the charter everything traces up to.
 - To be briefed on a device, **stand in its directory**: every component
-  co-locates `intention.json` + code + `proofs/`. A component without an
-  intention doesn't run.
+  co-locates `intention+why.json` + code + `proofs/`. A component without an
+  intention doesn't run. (The filename forces the why — CP3 as schema, not as a
+  field someone can leave blank.)
 
 ## The Laws
 

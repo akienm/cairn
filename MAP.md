@@ -69,6 +69,26 @@ world needed an authoritative device-roster memory just to decode `Granny`/
 `Hex`/`Scraps`, an orientation tax paid by every fresh mind, every session.
 Self-naming code needs no roster.
 
+**The name forces the content — and the naming is half the point (Akien,
+2026-07-15).** Anything in the system that carries an intention carries its
+**why**, where applicable, in the artifact itself: a component's charter is
+`intention+why.json`, a commons store's is `_charter+why.json`. A name that omits
+the why invites an artifact that omits the why — and the why is the one thing that
+lets a mind *adjudicate* rather than pattern-match (CP3: there's always a why). So
+the why is named into the file: CP3 as schema (Law 4), enforced by what the file
+is *called*, not by anyone remembering to fill a field.
+
+The naming does a second job, on the human/model side. **Languaging about a tool
+in terms of its structure is how a good tool disappears** — and this works for
+both minds in the loop, Akien's and CC's alike. Not disappears-as-forgotten (the
+IMAP-banner rot: a tool persisting *unexamined*, no why in view) but
+disappears-as-ready-to-hand: so woven into how we speak that it needs no separate
+attention. Every time either of us says "intention+why" the discipline is
+re-instantiated in that mind, for free. The why in the name is exactly what tells
+the good disappearance from the bad — the same cut the whys always draw. Fixed at
+n=1, on purpose: the rule that stops evocative names from spreading is the rule
+that stops why-less artifacts from spreading.
+
 ## Intention taxonomy — four layers
 
 Two kinds surfaced immediately (Akien): **what it will do** vs **how it will do
@@ -257,12 +277,12 @@ enter as candidate questions and earn tenure by yield, like everything else.)
 | `~/.cairn/` | logs, credentials, flags, cachedstate, personal info | instance-space; never in git; composed at use-time |
 
 **The map IS the territory:** every component directory co-locates
-`intention.json` + implementation + `proofs/`. Opus gets briefed by standing in
+`intention+why.json` + implementation + `proofs/`. Opus gets briefed by standing in
 the directory. The tester refuses to run a component with no intention, so the
 map cannot rot apart from the code.
 
 **Stores self-describe like devices (Akien, 2026-07-14):** every artifact-type
-directory in CairnCommons carries a `_charter.json` co-locating:
+directory in CairnCommons carries a `_charter+why.json` co-locating:
 - **intention + why** — what this type is FOR, why it exists
 - **template/schema** — the current shape of a valid record, versioned
 
@@ -279,9 +299,9 @@ conform, drift is red.
 
 ```
 cairn/<device>/
-  intention.json    ← charter: what this is FOR
-  *.py              ← implementation
-  proofs/           ← what a hollow build couldn't pass
+  intention+why.json  ← charter: what this is FOR **and why** (name forces the why)
+  *.py                ← implementation
+  proofs/             ← what a hollow build couldn't pass
 ```
 
 ## Repo file tree (forks ratified 2026-07-14)
@@ -301,7 +321,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
     __init__.py                   # EMPTY/lazy forever (boot-order lesson: importing any
                                   # subpackage must never eager-import a DB-bound one)
     base/                         # the Form, embodied
-      intention.json              # charter of the base itself
+      intention+why.json          # charter of the base itself (name forces the why)
       core_values.py              # CP1–CP6 frozen contract (crosses by graft, with its pin test)
       device.py                   # BaseDevice
       shim.py                     # BaseShim + the one loop primitive
@@ -318,7 +338,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
       web_server/
       librarian/
       …                           # one dir per device, ALL the same shape:
-                                  #   intention.json + code + proofs/
+                                  #   intention+why.json + code + proofs/
   skills/                         # canonical; ~/.claude/skills symlinks here; purged set only
   launchers/                      # cairn launch/rescue scripts; symlinked onto PATH
 ```
@@ -331,10 +351,10 @@ Companion trees (drawn once, here, for orientation):
 
 ```
 ~/dev/src/CairnCommons/           # knowledge; own git repo
-  intentions/  _charter.json + telos.md + …   # first charter written (Q6)
-  questions/   _charter.json + …              # the question corpus, with yield
+  intentions/  _charter+why.json + telos.md + …   # first charter written (Q6)
+  questions/   _charter+why.json + …              # the question corpus, with yield
   decisions/ tickets/ proofs/ slates/ sessions/ notes/
-                                  # a type dir EXISTS only once its _charter.json does
+                                  # a type dir EXISTS only once its _charter+why.json does
 
 ~/.cairn/                         # instance-space; never in git
   devices/<device>/<instance>/    # logs/, cachedstate/, flags (singleton ⇒ instance 0)
@@ -397,7 +417,7 @@ because sink-wiring was per-device; anything hand-wired can be un-wired).
   auto-deposit became recurring debt): same signature → increment occurrence
   count + freshen evidence on the existing ticket. A 400-count ticket and a
   1-count ticket are different beasts; the count is diagnostic data.
-- **One store:** `CairnCommons/troubles/` + `_charter.json`; one emit
+- **One store:** `CairnCommons/troubles/` + `_charter+why.json`; one emit
   chokepoint; owner: the diagnostic base.
 
 ## CLAUDE.md discipline (2026-07-14)
@@ -542,7 +562,7 @@ Riding on every node as fields (not separate artifacts):
 Wildcard: `notes/` (frictionless capture) — keep or fold later.
 
 **Format:** every artifact type is JSON — grep-able, one record per node/row,
-validated against its store's co-located `_charter.json` template. Physics, not
+validated against its store's co-located `_charter+why.json` template. Physics, not
 policy: the single emit chokepoint refuses a write that doesn't conform (the
 "stores self-describe" rule above, applied to all seven types).
 
@@ -761,7 +781,7 @@ docs. This is also Telos 1 on the surface people most reflexively hand to an LLM
   renders", above). Inherits that seam; nothing new to own (Law 6).
 - **Contextual — v0 scopes by *where*, not *who* (ruling).** It renders what is
   available *here* — surface / location / state — the runtime twin of Cairn's founding
-  move: a mind is briefed by standing in a directory and reading its `intention.json`;
+  move: a mind is briefed by standing in a directory and reading its `intention+why.json`;
   a caller is briefed by standing in a context and asking cairnmap. The next scope-key
   axis is *who* (the asker's ownership, Law 6 — you see only what you may invoke):
   designed-in, and lands when the "others" arrive. v0 is single-user.

@@ -33,6 +33,34 @@ structurally impossible. Hence Cairn.
 crosses by bulk copy; a snippet enters only inside a ticket, with an intention,
 passing a proof under the new harness.
 
+## The learning loop is the primitive; artifacts precipitate (2026-07-15)
+
+The governing stance (Akien) — foundational, not a preference to be traded away:
+**there is no certainty, only the current best guess.** Every act is an
+experiment. A result that matches expectation is a confirmation; one that doesn't
+is a learning point (CP2); a persistent irritant is an open optimization. So
+**nothing is terminal** — `validated` is not "done," it is "best guess, still
+carrying its falsifier and horizon." The state machine's back-edge
+(build → deconstruct) is not a special case; it is the universal shape.
+
+**Everything has feedback to its point of creation — not just for information,
+but for revision.** An upstream change must be able to reach and revise anything
+downstream that depends on it. This is already physics, not aspiration:
+invalidation propagates (edges carry dependency direction, answers carry
+falsifier + horizon, upstream change rots downstream loudly); the five feedback
+loops each close; CP2 is a disposition, not a sentiment.
+
+**Artifacts precipitate from the loop; they are not the point.** One constantly
+looping, self-improving system throws off three kinds, all of the same nature:
+- **process artifacts** — skills, charters, this map (the loop tuning itself);
+- **compilation artifacts** — prebuild scripts, trained trees (the loop
+  compiling its own cognition — Telos 1);
+- **end products** — the librarian and the tools (the loop serving the user).
+
+None is privileged; all are revisable precipitate of the one circle. The artifact
+taxonomy below is therefore a snapshot of what has fallen out so far, not a fixed
+ontology.
+
 ## Naming principle
 
 The evocative name belongs to the **system only**. Components get boring,
@@ -431,6 +459,82 @@ and freely-calved DERIVED structures (per-tree adjacency caches, materialized
 closures, embedding shards) — disposable, rebuildable accelerators. Rule:
 **records of truth never calve; caches may.** Exact DDL belongs to
 db_domain's charter.
+
+## Two build layers — workflow and pre-build packet (2026-07-15)
+
+A build request to an LLM fires a set of *pre-build* steps before any code is
+emitted — orient, constrain, deconstruct, plan — that the model runs as internal
+cognition and externalizes as a "build packet" (the plan plus its supporting
+structure, assembled through tool calls). Both Delta Dental's Copilot work and UU
+moved those pre-build steps out of the model into **deterministic code** — which
+is inference compilation (Telos 1) turned on the build itself.
+
+So the build has two layers, both graph-tree-destined:
+
+- **Workflow (macro, external):** intention → ticket → design → **prebuild
+  scripts** → build → prove. The lifecycle a work item travels; a build/sprint
+  driver walks it, and the node's state machine forbids skipping (Law 4 —
+  physics, not a disciplined skill).
+- **Pre-build packet (micro, internal):** the orient/constrain/deconstruct/plan
+  cognition that *produces* the prebuild scripts. Today an oracle slot the
+  resolver occupies; compiling it into deterministic scripts is the
+  role-replacement staircase applied to the pre-build nexus. Built to **mirror
+  the resolver's own internal steps — one module per step** (orientation,
+  constraints, deconstruction, plan) — so each is independently inspectable and
+  improvable as the compilation proceeds (Form #2's introspection surface,
+  Telos 5).
+
+They meet at one station: the workflow's *design → prebuild* step is where the
+packet is produced. When the internal steps compile to deterministic scripts,
+that station stops calling the oracle and runs structure — specimen #1 compiling
+its own pre-build cognition. These pre-build steps get **ticketed once tickets
+are sorted**; they are pre-build work, not lifecycle states of the intention.
+
+## Artifacts — the converged set (2026-07-15)
+
+Distilled from the "which artifacts do we actually need?" conversation.
+Supersedes the provisional type-dir sketch above: `decisions/` and any separate
+ticket layer collapse into the node.
+
+**One carrier — the intention/ticket node.** A single fixed envelope (the storage
+model already baked: *fixed node envelope, trees are first-class rows*),
+recursive: **any node may have children.** There is no structural top or leaf and
+no level-based type — a multi-month epic and a one-line fix are the same node
+kind; either can spawn children. "Intention" vs "ticket" is a **fill-state, not a
+level and not a second artifact**: casting an intention into a ticket = sorting
+its fields and answering *deconstruct further, or build?* That question is
+answerable at ANY time, including mid-build — building can reveal hidden children
+(a small UI change spawning framework fixes), which get filed as child nodes the
+parent then waits on (bottom-up proof; CP2 as structure — "this looked like a
+leaf; it wasn't").
+
+Riding on every node as fields (not separate artifacts):
+- the **intention proper** — claim, why, falsifier, horizon, provenance, trace-up edge
+- **design, at this node's level** — scope = height; a system-wide decision rides
+  on a high node, an implementation choice on a low one (so `decisions/` needs no store)
+- **state** — lifecycle position
+- a **pointer to its proof**
+- **[nodes that will build] a prebuild packet** — a subtree, one node per
+  cognitive step (orientation / constraints / deconstruction / plan), each
+  independently inspectable and improvable
+
+**Separate species (cannot ride on the node):**
+- **proof** — verdict + the artifact a hollow build couldn't pass; owned by the
+  seam's device (code beside device, record in commons); the node points at it.
+- **question** — the open dual of an intention; own corpus with yield. An
+  answered question that becomes a commitment turns into an intention node.
+- **trouble** — machine-filed failure observation (already its own species).
+
+**Continuity records (a different axis — not the build tree):**
+- **session** — the conversation as an immutable journey (truth-class).
+- **slate** — the day's cache over recent sessions (derived, rebuildable).
+
+Wildcard: `notes/` (frictionless capture) — keep or fold later.
+
+**Format:** every artifact type is JSON — grep-able, one record per node/row,
+validated against its store's co-located `_charter.json` template. Physics, not
+policy: the single emit chokepoint refuses a write that doesn't conform (the
+"stores self-describe" rule above, applied to all seven types).
 
 ## Workflow v0 + starting skills (2026-07-14)
 

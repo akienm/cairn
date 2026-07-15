@@ -508,6 +508,14 @@ answerable at ANY time, including mid-build — building can reveal hidden child
 parent then waits on (bottom-up proof; CP2 as structure — "this looked like a
 leaf; it wasn't").
 
+**The ticket is workflow-neutral (2026-07-15).** Because workflow rides on the
+node-class, not on the node's identity, "ticket" carries no domain: an inference
+ticket, a concept ticket, a review ticket, a writing ticket are the *same node*,
+differing only by class. **Everybody has tickets** — Telos/CP4's "everybody"
+reaching into the core primitive. This is why `/ticket` needn't be a skill and why
+`decisions/` folds in: both were only ever separate because "ticket" smelled like
+code. The node is the primitive; "ticket" is just its common name once cast.
+
 Riding on every node as fields (not separate artifacts):
 - the **intention proper** — claim, why, falsifier, horizon, provenance, trace-up edge
 - **design, at this node's level** — scope = height; a system-wide decision rides
@@ -619,24 +627,43 @@ intentions, pre-cost); proof-on-close (hollow builds); bottom-up parent proof
 (parts green, whole hollow); question-yield tracking (the corpus improves —
 Telos 5, measured); loadslate/saveslate (session continuity).
 
-**Starting skill roster — 10, from UU's 55.** Each enters with its own charter.
+**Starting skill roster — converged (2026-07-15).** The ten-skill sketch, run
+against the gates + per-node-class model, distilled to a smaller set on three axes.
+Each surviving skill enters with its own charter. (Supersedes the earlier 10.)
 
-| Skill | Stage | Origin |
+| Axis | Skill | Role |
 |---|---|---|
-| /loadslate | session open | rename: context-load |
-| /saveslate | session close | rename: savestate |
-| /intent | open intention conversation | NEW |
-| /sorted | challenge gate + file to commons | graft, rebuilt |
-| /challenge | fire questions at any artifact | NEW — absorbs all 12 audit-* |
-| /ticket | cut tickets from intentions | graft (+ intention pointer) |
-| /next | what to work on | graft: query-ticket |
-| /commit | every stone | graft |
-| /outcome | record result | graft |
-| /note | capture without ceremony | graft |
+| **Work loop** | `/intent` | birth a new track or aside (a node opens in intention fill-state) |
+| | `/challenge` | adversarial pass on the design / conclusions, **before** `/sorted` — harden the thinking while it forms; also runs on any artifact on cadence (e.g. CLAUDE.md) |
+| | `/sorted` | resolution pivot: assert "all points wrapped" → fire the inward completeness check → spawn children (deconstruct) and/or reach an escalation → resolve. Casting lives here; filing is a *consequence*, not the meaning |
+| **Utilities** | `/note` | frictionless capture |
+| | `/commit` | interim checkpoint (durability-of-stones is a *gate*, not this skill) |
+| | `/loadslate` | session open |
+| | `/saveslate` | session close |
 
-Not crossing (for now): sprint family (returns when a dispatcher exists to
-need it), day-close (folds into /saveslate when earned), audit-* (absorbed),
-everything unnameable (stays in quarry).
+**One pose, three placements** — why `/challenge`, `/sorted`'s check, and the
+advisor don't collide: `/challenge` is adversarial on the design *before* the claim;
+`/sorted`'s check verifies *coverage* at the claim; the advisor is adversarial *when
+stuck*. Same pose, different whys.
+
+**Escalations — reached when stuck; a ladder, not a roster skill.** Cheapest first:
+back up and re-question · **`/advisor`** (built-in, Opus, adversarial — zero build) ·
+**bounded Fable subagent** (independent *because* its context is limited — the
+working Fable path; Fable-as-configured-advisor errors on every call) · review the
+field / state-of-the-art · **ask Akien** (the signature-gate escalation). CP1 with
+teeth: stuck → escalate, don't confabulate; CP2 right behind it.
+
+**Absorbed / deferred from the ten:** `/ticket` → not a skill (casting + child-spawn
+live in `/sorted`); `/outcome` → the tester's VALIDATION (or a `/note`); `/next` →
+deferred (a graph query). Disambiguation: the **challenge gate** (the inward check
+`/sorted` fires — §4.2 above) is a different thing from the **`/challenge` skill**
+(the pre-sorted adversarial pass). The Workflow v0 pipeline's stations still hold;
+its `/ticket` and `/outcome` labels are exactly these absorptions, and its `/sorted`
+"= file" reading is corrected here (filing is downstream of the completeness check).
+
+Not crossing (for now): sprint family (returns when a dispatcher needs it), day-close
+(folds into `/saveslate`), audit-* (absorbed into `/challenge`), everything unnameable
+(stays in quarry).
 
 ## Gates, not supervisors — the workflow is gated transitions on the node (2026-07-15)
 
@@ -690,10 +717,10 @@ checkpoint in the fluid middle; the *skill* keeps that role, the *gate* takes th
 durability-of-stones role. They collide only under an exclusive-and-terminal
 reading, which the keystone forbids.)
 
-**Workflow is per-node-class, bound at ticketing (2026-07-15).** Because a pipeline
-is just the gate-set on a node-class, different *kinds* of node carry different
-workflows — selected when `/ticket` casts the intention (casting gains a step: type
-the node → bind its gate-set). Invariant across every class: it gets *proved* and it
+**Workflow is per-node-class, bound when the node is cast (2026-07-15).** Because a
+pipeline is just the gate-set on a node-class, different *kinds* of node carry
+different workflows — selected when `/sorted` casts the intention (casting is a step
+inside `/sorted`: type the node → bind its gate-set; there is no separate `/ticket`). Invariant across every class: it gets *proved* and it
 *feeds back to origin on failure* (Laws 3 + 8, the keystone). Variable per class:
 which gate, which check-type. A **concept piece** won't yield code — it is proved by
 a **quorum signature gate** (N humans review + sign), a variant of the signature

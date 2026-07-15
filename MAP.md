@@ -77,26 +77,29 @@ writing/memory tools are the first user-facing deliverable, which is why the
 build spine ends where it does. Telos 6 ⊃ CP4; Telos 5 is the founding property
 carried over from UU.
 
-## The Laws (v0 — under discussion)
+## The Laws (ratified 2026-07-14)
 
 Present-tense contracts, dependency order; telos at the root:
 
-1. **The resolver is spent only on the novel.** Every answered question becomes
-   structure; re-deriving a settled answer is a defect.
+1. **The resolver is spent on the novel, not on re-deriving the settled.** Every
+   answered question becomes structure; re-deriving a settled answer is a defect.
 2. **CP1–CP6 hold everywhere, including in the process that builds the system.**
    (Carried over intact from UU — the one part that was never the problem.)
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
-4. **Every chokepoint is physics, not policy.** If a rule matters, the kernel or
-   the schema enforces it; a rule living only in prose is a bug report waiting
-   to be measured.
+4. **A rule that matters is enforced by physics, not policy** — the kernel or the
+   schema. Until it is, it is a tracked debt (an IOU), not a resting state.
 5. **Intent and implementation share an address.** Every component carries its
    intention and proofs beside its code; a component without an intention
    doesn't run.
-6. **Everything has exactly one owner.** One writer per file, per table, per
-   record of truth.
-7. **Errors are loud at interfaces and permanent in records.** An error may
-   collapse into a success shape at an interface, never in a record of truth.
+6. **Everything has exactly one owner.** The owner alone gates writes to it;
+   delegated access and ownership transfer happen only through the owner's gate,
+   never ambiently. (The ownership model — database-granularity ownership,
+   employer-grant, node-give transfer, Postgres-roles-plus-proxy enforcement —
+   lives in db_domain's charter.)
+7. **Errors are loud at diagnostic surfaces and permanent in records of truth.**
+   A presentation surface may collapse an error into a coherent shape; a record
+   of truth never may.
 8. **Nothing enters proven-space without a proof a hollow build couldn't pass.**
    Entry from the quarry is by grafting, one ticket at a time.
 
@@ -314,8 +317,9 @@ Companion trees (drawn once, here, for orientation):
 ## Database
 
 Fresh DB. Founding law (generalizes UU's button pattern): **every table has
-exactly one owner — a class, an instance, or a human — and the owner is the only
-writer.** Tables are provisioned only through the db domain; owner is declared
+exactly one owner — a class, an instance, or a human — and the owner gates every
+write to it** (delegated access and ownership transfer happen only through that
+gate; Law 6). Tables are provisioned only through the db domain; owner is declared
 in schema metadata at creation; an ownerless table cannot come into existence.
 Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents

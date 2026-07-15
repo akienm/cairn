@@ -638,6 +638,54 @@ Not crossing (for now): sprint family (returns when a dispatcher exists to
 need it), day-close (folds into /saveslate when earned), audit-* (absorbed),
 everything unnameable (stays in quarry).
 
+## Gates, not supervisors — the workflow is gated transitions on the node (2026-07-15)
+
+The tester's prove-gate and cairnmap's recompile-gate are one pattern: a **gate**
+is a *mandatory post-condition on a state transition, enforced by physics* (Law 4)
+— not a person who remembers to check. A node cannot advance past a gate until the
+gate's condition holds.
+
+**This is the cooperative-peer model made structural (Akien's build style;
+ratified 2026-07-15).** A supervisor is policy — someone trusted to ensure a step
+happened. A gate is physics — the transition refuses until it did. Coordination
+comes not from an authority above the peers but from the shared state machine they
+all pass through: peers perform transforms, gates validate the handoffs, nothing
+supervises anything. ("Supervisor / manager" vocabulary imported a hierarchy Cairn
+does not build with — deleted.)
+
+**The pipeline is not an object; it is the shape of a node's required gates.**
+- *pipeline definition* — which gates, in what order, for a node-class — is a
+  charter, owned like any charter. One record.
+- *pipeline instance* — where THIS node is — is the node's `state` field, owned by
+  whoever owns the node. Nothing new to own.
+So *"the state of the tickets is the state of all things, always"* (Akien): no
+orchestrator holds a second copy of position to drift from the truth. The global
+"what's in which phase, consumed by which next" view is a **zero-inference query
+over node states** — the cairnmap move — derived on demand, never stored.
+
+**Ownership stays put; the baton of action passes (Law 6).** A node keeps its one
+owner (who gates writes). What moves phase-to-phase is *which peer is invited to
+act next* — and that invitation runs through the owner's gate (Law 6: delegation
+only through the owner's gate, never ambient). Next hand, same owner — not a
+transfer of ownership. This is what stops a cooperative hand-off from decaying
+into ambient write-access.
+
+**Every wall is a gate; gates differ only in check-type — none is a person with
+authority:**
+- **proof gate** — the tester: a hollow build couldn't pass (build → done).
+- **derivation gate** — cairnmap recompiles and its completeness proof is green
+  (skill → done): a skill does not ship until the help that indexes it is current.
+- **signature gate** — a named owner/ratifier signed (Akien on a map stone;
+  `/sorted`'s surviving intentions). Judgment, still physics — the transition
+  refuses without the signature.
+
+Three check-types, one shape, zero supervisors: even human judgment enters as a
+required signature on a transition, not a manager standing over the work. And the
+"rules awaiting physics" in CLAUDE.md are exactly gates whose enforcement is still
+an IOU — including durability ("every stone committed + pushed"), which belongs on
+the emit chokepoint as a gate, not on a `/commit` skill someone fires. A skill
+invented to *force a behavior* is policy standing in for a missing gate.
+
 ## Build order (the spine)
 
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →

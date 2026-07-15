@@ -711,6 +711,54 @@ reviewers`). Consequences:
   (`code-seam`, `concept-piece`, `skill`…); a class cannot exist without writing down
   what it is for. Discovered as tickets demand them, not pre-seeded.
 
+## cairnmap — the help surface, compiled from charters (2026-07-15)
+
+The system's reference: the main source of help, the answer to *"what can I do here,
+and how."* Others will use it; the query-commands built later (list open tickets, …)
+list themselves here too. Three rulings (Akien, 2026-07-15) fix what it is — **a view,
+contextual, reference-only.**
+
+**Compiled, not authored — zero inference.** cairnmap is a deterministic projection
+`render(charters, context) → surface`, no model in the loop. Law 5 already makes every
+command co-locate its charter (what it is for, why, how to invoke, state); cairnmap
+renders those. It cannot drift, because it is derived: regenerate → current. A
+hand-written help page is the exact schema-apart-from-data rot that killed the quarry's
+docs. This is also Telos 1 on the surface people most reflexively hand to an LLM —
+"explain what I can do," with the inference compiled out.
+
+- **A view, not a device (ruling).** Emitted by the same presentation surface the web
+  UI and tester render through ("the same protocol the tester probes and the web UI
+  renders", above). Inherits that seam; nothing new to own (Law 6).
+- **Contextual — v0 scopes by *where*, not *who* (ruling).** It renders what is
+  available *here* — surface / location / state — the runtime twin of Cairn's founding
+  move: a mind is briefed by standing in a directory and reading its `intention.json`;
+  a caller is briefed by standing in a context and asking cairnmap. The next scope-key
+  axis is *who* (the asker's ownership, Law 6 — you see only what you may invoke):
+  designed-in, deferred until the "others" arrive. v0 is single-user.
+- **Reference only (ruling).** A pure presentation surface (Law 7): it describes
+  commands, it does not run them. Invocation stays with the commands. The web UI may
+  add navigation later without changing what cairnmap *is*.
+- **One source, many surfaces.** Chat command *here* (v0); a key web-UI concept
+  *there* (design-only until the web server lands on the spine). Same charter truth,
+  different renders.
+
+**Its proof is the derivation gate — completeness both ways.** Falsifier: every
+charter'd command appears, and nothing without a charter appears. An undocumented
+command is *impossible* — a command with no charter can't run (the tester refuses it)
+and can't render (cairnmap won't show it). So a `skill` node does not reach `done`
+until cairnmap recompiles green; that recompile-gate is the `skill` node-class's extra
+gate (per the gates stone). cairnmap is thus not a doc you trust but a live check that
+the command-set and the help-set are the same set.
+
+**The charter is the help.** Zero inference means cairnmap can only show what the
+charter already says plainly — so a confusing help entry is a bug *in the charter*,
+fixed at source. The learning loop closes on the help surface: help quality ≡ charter
+quality, by construction, feedback landing at the point of creation.
+
+**Relation to MAP.md.** As this map dissolves into intentions + tickets, cairnmap is
+the rendered projection of those same records — the reader-side destination of that
+dissolution. The name kinship is deliberate.
+
 ## Build order (the spine)
 
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →

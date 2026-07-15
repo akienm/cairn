@@ -1,0 +1,17 @@
+{
+  "component": "skill:/loadslate",
+  "role": "charter",
+  "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "axis": "utility",
+
+  "what": "Session open: read the latest slate from CairnCommons/slates/ and restore the resumption point (in-flight work, next direction, open threads).",
+  "why": "Sessions are bounded by context limits; continuity must live in a durable artifact, not in memory of a conversation that won't survive the boundary. Loading the slate is the fifth feedback loop's open-half (loadslate/saveslate — session continuity), and it keeps the resolver from re-deriving a settled resumption point (Law 1).",
+  "invoke": "/loadslate  (at session open; or /loadslate <name> for a specific slate)",
+  "state": "v0 — first cast 2026-07-15. Pairs with /saveslate.",
+
+  "reads_from": "CairnCommons/slates/ (records shaped by that store's _charter+why.json)",
+  "traces_to": ["Law 1 (don't re-derive the settled resumption point)", "Law 3 (a slate is a snapshot to verify, not ground truth)", "the map is authoritative over memory of the conversation (MAP.md)"],
+  "owner": "the skills charter gates writes; Akien ratifies changes (signature gate)",
+  "proof": "skill node → done only when cairnmap recompiles green (derivation gate). IOU until cairnmap exists — tracked in proofs/.",
+  "provenance": "converged in the founding design conversation (MAP.md 'Workflow + starting skills', 2026-07-15)."
+}

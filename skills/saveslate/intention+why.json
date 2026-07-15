@@ -1,0 +1,18 @@
+{
+  "component": "skill:/saveslate",
+  "role": "charter",
+  "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "axis": "utility",
+
+  "what": "Session close: write a slate to CairnCommons/slates/ capturing the state of work at the boundary — in-flight, next direction, open threads — for a clean resume.",
+  "why": "Continuity that lives only in the conversation dies at the context boundary. Precipitating it into a commons artifact makes it durable AND shareable — it is knowledge the system would lose, not just CC. Closes the fifth feedback loop's save-half; the slate carries its open threads forward so nothing settled is re-derived (Law 1) and nothing unfinished is silently dropped.",
+  "invoke": "/saveslate  (at session close, or before a compaction boundary)",
+  "state": "v0 — first cast 2026-07-15. Pairs with /loadslate.",
+
+  "writes_to": "CairnCommons/slates/ (validated against that store's _charter+why.json template)",
+  "relation_to_memory": "CC's ~/.claude memory is personal + cross-session; a slate is the in-commons, shareable continuity record. They can agree; when they differ, the slate says so.",
+  "traces_to": ["Law 1 (carry the settled forward, don't re-derive it)", "the learning-loop keystone (a slate is best-guess-at-boundary, non-terminal)", "Law 7 (open threads are recorded, not collapsed into a false 'done')"],
+  "owner": "the skills charter gates writes; Akien ratifies changes (signature gate)",
+  "proof": "skill node → done only when cairnmap recompiles green (derivation gate). IOU until cairnmap exists — tracked in proofs/.",
+  "provenance": "converged in the founding design conversation; absorbed the old day-close skill (MAP.md 'Workflow + starting skills', 2026-07-15)."
+}

@@ -1,0 +1,32 @@
+{
+  "component": "launchers",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+
+  "what": "Cairn's launch/rescue scripts — canonical here, symlinked onto PATH. Currently one: superclaude, the Claude Code launcher.",
+  "why": "A single, self-describing entry point to start Claude Code with Cairn's standing session contract, so a launch is reproducible and its settings live in code, not in someone's shell history. The rescue ethos (carried from the quarry, re-derived not grafted): from parse to exec, nothing may abort — always reach Claude Code so it can help rebuild a broken box.",
+  "invoke": "superclaude [--1m | --200k] [--dry-run] [...forwarded to claude]",
+  "state": "v0 — first cast 2026-07-15. Lean by design: none of the quarry launcher's rack-server / tmux / wizard / credential machinery — added only if a measured need appears.",
+
+  "superclaude": {
+    "session_name": "<hostname>_cc_0 (singleton = instance 0)",
+    "always_on": ["--remote-control (same name)", "--dangerously-skip-permissions (trusted local box)"],
+    "context_switch": {
+      "shape": "a two-state switch (1M / 200K) where the COMMAND LINE ALWAYS WINS.",
+      "why": "Big-design stretches want 1M-as-default; small-ticket stretches want 200K-as-default and flipping should be a one-line edit (FILE_DEFAULT_200K). So the default is settable by environment or by editing the file, and the flags override it.",
+      "flags": "--1m unsets the constraint (opts UP, wins even over a 200K environment); --200k imposes it. unset — NOT =0: the disable var only ever turns 1M OFF, so =0 is a no-op that looks like it worked.",
+      "precedence": "command line > environment > file default > unconstrained (1M)",
+      "measured_caveat": "docs say unset makes 1M *available* while the [1m] model variant *selects* it; empirically unset yields 1M here (the writing session was 1M). If a --1m launch ever comes up 200K, set SUPERCLAUDE_1M_MODEL / ANTHROPIC_DEFAULT_OPUS_MODEL to a [1m] variant — not before (measure, don't pre-engineer)."
+    },
+    "passthrough": "all other args forwarded to claude unchanged",
+    "prove": "--dry-run prints the resolved context state + command without launching",
+    "env_var_provenance": "CLAUDE_CODE_DISABLE_1M_CONTEXT — from the quarry's own superclaude (UnseenUniversity/bin/superclaude), run for months; corroborated against `claude --help` + Claude Code docs (the 1M control is an env var, not a flag).",
+    "meta_lesson": "The quarry launcher carried this exact two-state logic but NOT its intent/why — so it was misread on first contact (the toggle was reverse-engineered backwards). This file now writes the why IN, a live case of the 2026-07-15 naming stone: the intent+why belong at the address, and their absence cost real work."
+  },
+
+  "path_wiring": "~/.local/bin/superclaude -> this file (that dir holds the claude-family PATH links); repo-root cairn/superclaude -> launchers/superclaude (a finder pointer, matching past practice).",
+  "traces_to": ["Telos 2 (tools Akien uses)", "Law 5 (this component carries its own why)", "the rescue ethos — always reach the tool that can help rebuild"],
+  "owner": "Akien owns the launch contract (what's always-on is his call); CC drafts.",
+  "proof": "hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified. Recorded in proofs/.",
+  "provenance": "born 2026-07-15 by Akien's spec; reimplemented fresh (not grafted) from the quarry launcher's proven interface."
+}

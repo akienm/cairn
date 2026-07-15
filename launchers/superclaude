@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# superclaude — Cairn's Claude Code launcher.
+#
+# Canonical home: cairn/launchers/superclaude  (symlinked onto PATH via ~/.local/bin;
+# a convenience pointer also sits at the repo root: cairn/superclaude).
+# Charter + why: cairn/launchers/intention+why.json
+#
+# ── WHAT ─────────────────────────────────────────────────────────────────────
+# Launches Claude Code with Cairn's standing session contract:
+#   - session name       <hostname>_cc_0   (singleton = instance 0, not a special case)
+#   - remote control      on, same name
+#   - permission prompts   bypassed (dangerous — a trusted local dev box)
+#   - context window       a two-state switch (1M / 200K); see the WHY below
+# Every other argument is forwarded to `claude` untouched.
+#
+# ── WHY the context switch is built the way it is ────────────────────────────
+# (This was learned the hard way: the quarry's launcher had this exact logic but
+#  NOT its why written down, so it got misread. The why lives here now.)
+#
+# It is a switch with TWO states, and THE COMMAND LINE ALWAYS WINS:
+#   * Some stretches are big design work — 1M-as-default is good then.
+#   * Some stretches are lots of small tickets — 200K-as-default is more convenient,
+#     and it should be a one-line edit to flip the built-in default (FILE_DEFAULT_200K).
+#   * --1m  opts UP: it *unsets* any 200K constraint, so it wins even over a 200K
+#           environment. (unset, NOT =0 — the disable var only ever turns 1M OFF;
+#           =0 is a no-op that merely looks like it worked.)
+#   * --200k opts DOWN: it imposes the 200K constraint.
+#   * If nothing decides — no flag, no environment var, no file default — it launches
+#     UNCONSTRAINED (1M). Precedence, highest first: command line > environment > file
+#     default > unconstrained.
+#
+# NOTE (measured caveat): docs say an unset constraint makes 1M *available*, while
+# the [1m] model variant is what *selects* it. Empirically, unset yields 1M in this
+# environment (the session that wrote this file was 1M). If a --1m launch ever comes
+# up 200K, that's the signal to also point the model at a [1m] variant — set
+# SUPERCLAUDE_1M_MODEL and export ANTHROPIC_DEFAULT_OPUS_MODEL below. Not before.
+#
+# NOT set -e: from here to `exec claude`, nothing may abort the launch — the prime
+# directive is to always reach Claude Code so it can help rebuild a broken box.
+set -uo pipefail
+
+# ── FILE DEFAULT — edit THIS ONE LINE to flip the built-in default ───────────
+# Applies only when neither the environment nor the command line decides.
+#   0 = no file constraint  → unconstrained (1M) when the env is silent  [big-design default]
+#   1 = default to 200K     → 200K when the env is silent               [small-ticket default]
+FILE_DEFAULT_200K=0
+
+show_help() {
+  cat <<'HELP'
+superclaude — Cairn's Claude Code launcher.
+
+  Standing contract (always applied):
+    --name <hostname>_cc_0              stable singleton session name
+    --remote-control <hostname>_cc_0    remote control on, same name
+    --dangerously-skip-permissions      bypass permission prompts
+
+  Context window — a two-state switch; the command line always wins:
+    --1m            opt UP: unset any 200K constraint (wins over a 200K environment)
+    --200k, --no-1m opt DOWN: impose the 200K constraint
+    (neither)       inherit the environment; if it's silent, the file default; if
+                    that's silent too, launch unconstrained (1M)
+
+  Launcher-only:
+    --dry-run       print the resolved context state + claude command, do not launch
+    -h, --help      this message
+
+  Flip the built-in default by editing FILE_DEFAULT_200K in this file.
+  All other arguments are forwarded to `claude` unchanged, e.g.:
+    superclaude --1m --model claude-opus-4-8
+HELP
+}
+
+# ── parse OUR flags; forward everything else ─────────────────────────────────
+want_1m=0
+want_200k=0
+dry_run=0
+pass=()
+for arg in "$@"; do
+  case "$arg" in
+    --1m)            want_1m=1 ;;
+    --200k|--no-1m)  want_200k=1 ;;
+    --dry-run)       dry_run=1 ;;
+    -h|--help)       show_help; exit 0 ;;
+    *)               pass+=("$arg") ;;
+  esac
+done
+
+# ── resolve the context switch (command line > environment > file > unconstrained)
+# The state variable IS Claude Code's own control var, CLAUDE_CODE_DISABLE_1M_CONTEXT.
+context_state=""   # for --dry-run reporting: "1M" | "200K"
+if [[ "$want_1m" -eq 1 ]]; then
+  unset CLAUDE_CODE_DISABLE_1M_CONTEXT 2>/dev/null || true       # --1m wins: unconstrained
+  context_state="1M (command line --1m)"
+elif [[ "$want_200k" -eq 1 ]]; then
+  export CLAUDE_CODE_DISABLE_1M_CONTEXT=1                        # --200k wins: 200K
+  context_state="200K (command line --200k)"
+elif [[ -n "${CLAUDE_CODE_DISABLE_1M_CONTEXT:-}" ]]; then
+  # environment already decided — leave it exactly as inherited
+  [[ "$CLAUDE_CODE_DISABLE_1M_CONTEXT" == "1" ]] \
+    && context_state="200K (environment)" \
+    || context_state="1M (environment)"
+elif [[ "$FILE_DEFAULT_200K" -eq 1 ]]; then
+  export CLAUDE_CODE_DISABLE_1M_CONTEXT=1                        # file default: 200K
+  context_state="200K (file default)"
+else
+  context_state="1M (unconstrained — nothing decided)"          # nothing said → unconstrained
+fi
+
+# ── session identity: <hostname>_cc_0 ────────────────────────────────────────
+host=$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')
+session="${host}_cc_0"
+
+# ── assemble the launch ──────────────────────────────────────────────────────
+claude_bin="${CLAUDE_BIN:-claude}"
+set -- \
+  --name "$session" \
+  --remote-control "$session" \
+  --dangerously-skip-permissions \
+  ${pass[@]+"${pass[@]}"}
+
+if [[ "$dry_run" -eq 1 ]]; then
+  echo "# superclaude --dry-run"
+  echo "# context: $context_state"
+  echo "# CLAUDE_CODE_DISABLE_1M_CONTEXT=${CLAUDE_CODE_DISABLE_1M_CONTEXT:-<unset>}"
+  printf 'exec %s' "$claude_bin"
+  printf ' %q' "$@"
+  echo
+  exit 0
+fi
+
+exec "$claude_bin" "$@"

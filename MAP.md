@@ -684,7 +684,32 @@ required signature on a transition, not a manager standing over the work. And th
 "rules awaiting physics" in CLAUDE.md are exactly gates whose enforcement is still
 an IOU — including durability ("every stone committed + pushed"), which belongs on
 the emit chokepoint as a gate, not on a `/commit` skill someone fires. A skill
-invented to *force a behavior* is policy standing in for a missing gate.
+invented to *force a behavior* is policy standing in for a missing gate. (That does
+not retire `/commit` — a commit is also an interim artifact, a non-terminal
+checkpoint in the fluid middle; the *skill* keeps that role, the *gate* takes the
+durability-of-stones role. They collide only under an exclusive-and-terminal
+reading, which the keystone forbids.)
+
+**Workflow is per-node-class, bound at ticketing (2026-07-15).** Because a pipeline
+is just the gate-set on a node-class, different *kinds* of node carry different
+workflows — selected when `/ticket` casts the intention (casting gains a step: type
+the node → bind its gate-set). Invariant across every class: it gets *proved* and it
+*feeds back to origin on failure* (Laws 3 + 8, the keystone). Variable per class:
+which gate, which check-type. A **concept piece** won't yield code — it is proved by
+a **quorum signature gate** (N humans review + sign), a variant of the signature
+check-type, and it kicks back on rejection exactly like a red build. This needs
+*zero new artifact types*: it is a different value in the node-class field, and the
+VALIDATION schema already records it (`method = "review by N experts"`, `caller = the
+reviewers`). Consequences:
+- for human-proved nodes the **verdict** (reviewers) and the **seal** (notary) are
+  *different hands* — so "verdict and seal from the same hand" is a code-proof
+  property, not universal; the tester stays notary-for-all but mechanism-for-code-only.
+- **two-walls reconciles:** Wall 1 (challenge-at-intent) is universal and identical;
+  Wall 2 (prove-at-close) is universal in existence, per-class in check-type; a class
+  may hang extra gates between them (a skill node adds the cairnmap recompile-gate).
+- **node-class definitions are themselves owned charters** — a grep-able library
+  (`code-seam`, `concept-piece`, `skill`…); a class cannot exist without writing down
+  what it is for. Discovered as tickets demand them, not pre-seeded.
 
 ## Build order (the spine)
 

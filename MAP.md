@@ -519,8 +519,10 @@ Riding on every node as fields (not separate artifacts):
   independently inspectable and improvable
 
 **Separate species (cannot ride on the node):**
-- **proof** — verdict + the artifact a hollow build couldn't pass; owned by the
-  seam's device (code beside device, record in commons); the node points at it.
+- **proof** — one species, two faces: the **artifact** a hollow build couldn't
+  pass (proof code, beside the device) and its **VALIDATION** — the commons-side
+  verdict record. Owned by the seam's device; the node points at it. The
+  VALIDATION generalizes past the build tree — see the stone below.
 - **question** — the open dual of an intention; own corpus with yield. An
   answered question that becomes a commitment turns into an intention node.
 - **trouble** — machine-filed failure observation (already its own species).
@@ -535,6 +537,38 @@ Wildcard: `notes/` (frictionless capture) — keep or fold later.
 validated against its store's co-located `_charter.json` template. Physics, not
 policy: the single emit chokepoint refuses a write that doesn't conform (the
 "stores self-describe" rule above, applied to all seven types).
+
+## VALIDATIONS — the tester's greppable record of what's proved (2026-07-15)
+
+The second face of the `proof` species, elevated to a first-class store and
+handed to the tester. **The tester stays a top-level device, and emitting
+VALIDATIONS is part of its remit.** It is the system's **notary** as well as its
+**mechanism for the work**: it does the proving (runs the proof, gates the build)
+*and* attests the result (stamps the VALIDATION into the record). The verdict and
+the seal come from the same hand. Every time it proves anything it writes one
+greppable JSON row: `claim, caller, date, method, verdict, evidence, falsifier,
+horizon`. falsifier + horizon ride along because a VALIDATION is still a
+best-guess-with-an-expiry (Law 3) — the record carries how you'd know it went
+stale, so "I validated abc on the 14th" can itself expire.
+
+**Generalized past the build tree.** A VALIDATION is not only for
+intention/ticket nodes; it covers *any measured claim*, including environmental
+facts — "the inference host answered at 09:14 with these models loaded." A
+build-node proof is one kind of VALIDATION, not the whole of it.
+
+**Two access patterns, both Law 1:**
+- **produced** automatically — the tester emits on every prove; the resolver's
+  work becomes structure instead of being re-derived.
+- **consumed** on a hint — a mind that suspects "this is already validated" greps
+  `VALIDATIONS/` instead of proving it again. Not an automatic gate; a cache you
+  consult on a hunch ("I think that's been validated" → go look).
+
+**Measured motive.** Absent this store, a failed *reach* gets reported as a
+*verdict* — "the inference box is down" — with nowhere to check its actual
+last-known state. VALIDATIONS fixes the *nowhere-to-look* half: a durable record
+of "it answered at 09:14" to consult before concluding anything. The other half —
+not mislabeling "I couldn't reach it" (measured) as "it's down" (unmeasured) — is
+CP1 discipline on the inference seam, tracked separately.
 
 ## Workflow v0 + starting skills (2026-07-14)
 

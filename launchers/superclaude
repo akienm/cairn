@@ -18,9 +18,13 @@
 #  NOT its why written down, so it got misread. The why lives here now.)
 #
 # It is a switch with TWO states, and THE COMMAND LINE ALWAYS WINS:
-#   * Some stretches are big design work — 1M-as-default is good then.
-#   * Some stretches are lots of small tickets — 200K-as-default is more convenient,
-#     and it should be a one-line edit to flip the built-in default (FILE_DEFAULT_200K).
+#   * Big design work wants 1M — opt up with --1m.
+#   * Heavy buildout (lots of small tickets) defaults to 200K. The real why, stronger
+#     than mere convenience: Claude cannot self-trigger /compact, so at 1M the context
+#     balloons past Akien's notification threshold before he is alerted. Defaulting to
+#     200K makes stewardship of resources a property of the system (physics, Law 4), not
+#     of anyone remembering to pass --200k (discipline). Flipping the built-in default is
+#     a one-line edit (FILE_DEFAULT_200K), currently 1 = 200K.
 #   * --1m  opts UP: it *unsets* any 200K constraint, so it wins even over a 200K
 #           environment. (unset, NOT =0 — the disable var only ever turns 1M OFF;
 #           =0 is a no-op that merely looks like it worked.)
@@ -43,7 +47,7 @@ set -uo pipefail
 # Applies only when neither the environment nor the command line decides.
 #   0 = no file constraint  → unconstrained (1M) when the env is silent  [big-design default]
 #   1 = default to 200K     → 200K when the env is silent               [small-ticket default]
-FILE_DEFAULT_200K=0
+FILE_DEFAULT_200K=1
 
 show_help() {
   cat <<'HELP'

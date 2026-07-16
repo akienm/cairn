@@ -16,7 +16,7 @@ Law 5: proofs beside code. Hand-run until a launcher self-test exists.
 ## v0 check (hand-run, cheap — this is the `--dry-run` path)
 
 ```
-superclaude --dry-run                 # neither flag → 1M unconstrained (FILE_DEFAULT_200K=0)
+superclaude --dry-run                 # neither flag → 200K (file default; FILE_DEFAULT_200K=1)
 superclaude --200k --dry-run          # 200K (DISABLE=1)
 superclaude --1m --dry-run            # 1M (DISABLE unset) — command line wins
 CLAUDE_CODE_DISABLE_1M_CONTEXT=1 superclaude --1m --dry-run   # 1M — --1m unsets the env 200K
@@ -26,8 +26,9 @@ superclaude --1m --model X --dry-run  # --model X forwarded after the standing f
 
 The `--dry-run` output IS the proof surface: it shows the resolved context state and
 the exact `exec claude …` line without launching. The live proof is Akien's restart —
-he launches with it and confirms the session comes up 1M/named/remote/dangerous
-(the "prove it along the way" step).
+he launches a bare `superclaude` and confirms the session comes up 200K/named/remote/
+dangerous (the "prove it along the way" step; 200K is the file default as of
+2026-07-15 — ticket default-superclaude-to-200k).
 
 ## Known omissions (v0, tracked not hidden)
 

@@ -13,7 +13,8 @@
     "always_on": ["--remote-control (same name)", "--dangerously-skip-permissions (trusted local box)"],
     "context_switch": {
       "shape": "a two-state switch (1M / 200K) where the COMMAND LINE ALWAYS WINS.",
-      "why": "Big-design stretches want 1M-as-default; small-ticket stretches want 200K-as-default and flipping should be a one-line edit (FILE_DEFAULT_200K). So the default is settable by environment or by editing the file, and the flags override it.",
+      "why": "Big-design stretches want 1M; heavy-buildout stretches default to 200K — the real why beyond convenience: Claude cannot self-trigger /compact, so at 1M context balloons past Akien's notification threshold before he is alerted; defaulting to 200K makes stewardship a system property (physics, Law 4), not a thing to remember (discipline). Flipping the built-in default is a one-line edit (FILE_DEFAULT_200K); flags always override it.",
+      "current_default": "200K (FILE_DEFAULT_200K=1) — set 2026-07-15 for the buildout stretch (ticket default-superclaude-to-200k); --1m opts up.",
       "flags": "--1m unsets the constraint (opts UP, wins even over a 200K environment); --200k imposes it. unset — NOT =0: the disable var only ever turns 1M OFF, so =0 is a no-op that looks like it worked.",
       "precedence": "command line > environment > file default > unconstrained (1M)",
       "measured_caveat": "docs say unset makes 1M *available* while the [1m] model variant *selects* it; empirically unset yields 1M here (the writing session was 1M). If a --1m launch ever comes up 200K, set SUPERCLAUDE_1M_MODEL / ANTHROPIC_DEFAULT_OPUS_MODEL to a [1m] variant — not before (measure, don't pre-engineer)."

@@ -20,6 +20,7 @@
   "gates": "proof gate (tester) — IOU: tester not built. Interim proof (proofs/PROOF.md): the projection round-trips a real record (write in CairnCommons/learning/records/ -> recalled by gate here), and its output is verifiably the fold of the records by inspection. Durability gate (code-seam): not done until tested AND committed.",
   "falsifier": "the compiled view diverges from the hand-fold of records/ (a record present but not surfaced under its gate, or a ceiling record shown as open). Wrong-shape signal (inherited): if structuring records to stay foldable makes capture stop, simplify — sparse-but-real beats rich-but-empty.",
 
+  "how_it_learns": "Reflexively — it IS the learning mechanism: it accumulates gate-attributed records and folds them (gate_view) into per-gate confidence, so the settled compiles and the raw recedes (Law 1). Its own build lives in the store it built (records 2026-07-16/17); a proof that surfaces its next rung is the code learning about itself.",
   "traces_to": ["cc-learning-store (this is its mechanism)", "I-learns-its-gates (parent)", "Law 1 (fold the settled)", "Law 4 (physics over policy)", "Law 5 (intent + code + proofs share an address)", "Telos 1 (compile inference into code) + 5 (self-improving)"],
   "owner": "CC gates writes to the mechanism; the learning intent is Akien's ratified I-learns-its-gates.",
   "proof": "hand-run recorded in proofs/PROOF.md: `python3 gate_view.py` renders all gates; `python3 gate_view.py <gate>` renders one; both match the records in CairnCommons/learning/records/ by inspection.",

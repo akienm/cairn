@@ -61,6 +61,9 @@ shrinks monotonically.
   → kernel network ownership · *ticket pending tickets-store*
 - Port 5432 is reached only through `db_domain`.
   → kernel-closed port · *ticket pending tickets-store*
+- Every component's charter answers "how does this component learn?" — "it doesn't,
+  because X" is a valid answer; silence is not.
+  → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

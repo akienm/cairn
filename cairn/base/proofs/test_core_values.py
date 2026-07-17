@@ -11,9 +11,10 @@ proofs run when it lands):
 
 Kept import-light on purpose (no DB, no device boot).
 
-OPEN EDGE (filed, not faked): the composition teeth — "no BaseDevice/BaseShim subclass
-can lack the values" — need BaseDevice/BaseShim to exist. They land with that graft;
-casting that check green now would be hollow (Law 8). See base/intention+why.json.
+Scope: this proof pins the *values* (set, order, immutability, commons agreement).
+The composition teeth — "no BaseDevice/BaseShim subclass can lack the values" — live
+in the sibling proofs/test_composition.py (they needed the bases to exist; they do
+now). See base/intention+why.json.
 """
 
 from __future__ import annotations

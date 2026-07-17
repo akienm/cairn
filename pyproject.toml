@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cairn"
+version = "0.0.0"
+description = "Cairn — compiled navigation: stones stacked so the next mind doesn't re-derive the route."
+requires-python = ">=3.12"
+dependencies = []
+
+# `pip install -e .` stays green at all times (MAP.md spine). The import root is
+# the single `cairn` package (one heart). Proofs live beside code (Law 5) and are
+# run in place — they are not shipped as importable subpackages.
+[tool.setuptools.packages.find]
+include = ["cairn*"]

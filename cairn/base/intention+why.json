@@ -1,0 +1,22 @@
+{
+  "component": "base/core_values",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+
+  "what": "The enforced form of CP1-CP6 in code: the frozen `CoreValue` record, the canonical `CORE_VALUES` tuple (the six, in order), and `CoreValuesMixin`. The base-most class of the whole spine — it composes no one and everyone composes it. `BaseDevice` and `BaseShim` mix it in, so every device and every shim carries the six structurally.",
+  "why": "Law 2 — CP1-CP6 hold everywhere, including in the process that builds the system. A value enforced by prose is policy; a value carried by a class you cannot subclass without is physics (Law 4). Placing them here is necessary but not sufficient: a value is *consumed* only when a contract turns it into a check (CP1 -> no 'done' without an honesty gate). This module guarantees only structural presence — the consumption layer is per-device charter work.",
+  "invoke": "import: `from cairn.base.core_values import CoreValuesMixin, CORE_VALUES`. Prove: `python3 cairn/base/proofs/test_core_values.py` (exit 0 = green).",
+
+  "node_class": "code-seam",
+  "entry": "GRAFT (Law 8) — carried-over-intact from the quarry `UnseenUniversity/.../diagnostic_base/core_values.py` with its pin test, not re-derived. The core values are the one part of the predecessor that was never the problem (Law 2). Ratified by Akien as Cairn's values 2026-07-14.",
+  "state": "PROVED for what n=1 covers (the contract itself: the six, in order, frozen, and matching the commons record). OPEN EDGE, filed not faked: the composition teeth — 'no device or shim can lack the values' — are a property of `BaseDevice`/`BaseShim`, which do not exist yet; they land with the next graft (base/device + base/shim). Casting that check green now would be hollow (Law 8).",
+
+  "gates": "proof gate — the pin test in proofs/test_core_values.py, runnable bare (python3) today; the tester device will own how it runs when it lands. Durability gate (code-seam): not done until proven AND committed.",
+  "falsifier": "the code and the canonical commons record (`CairnCommons/intentions/core-values.md`) disagree on the set, the order, or any narrative — a red by physics, per that record's own falsifier. Also red: `CORE_VALUES` is not exactly [CP1..CP6] in order, or the frozen `CoreValue` becomes mutable.",
+
+  "how_it_learns": "It does not learn autonomously — by design. This is a frozen, ratified contract (Law 2), the terminal floor the rest of the system stands on; nothing-is-terminal does not apply to the axioms themselves. Its horizon is a human one: the words change only when Akien re-ratifies them (see core-values.md horizon). What *does* learn is the consumption layer — each device charter answers, for itself, which CP became which enforced check, and whether that check earns its keep. The base only guarantees the six are present to be consumed.",
+  "traces_to": ["core-values.md (the canonical words this enforces)", "Law 2 (CP1-CP6 everywhere)", "Law 4 (physics over policy)", "Law 5 (intent + code + proofs share an address)", "Law 8 (entry by graft, with a proof a hollow build couldn't pass)", "Telos 6.1 (CP1-6 pinned by tests, enforced in-process)"],
+  "owner": "Akien owns the words (ratification is his gate). CC owns the enforced form (the code + its pin test) and gates writes to it.",
+  "proof": "proofs/test_core_values.py — asserts the six in order, the frozen record + lookup helper, and cross-checks the code against core-values.md (whitespace-normalized) so drift is caught by physics. Green: `python3 cairn/base/proofs/test_core_values.py`.",
+  "provenance": "born 2026-07-17 as the founding stone of the code spine — the first class-space code cast, opening the CP/diagnostic base spine step (MAP.md build order) after CLAUDE.md/skills/launchers/commons. Grafted, not authored (see entry)."
+}

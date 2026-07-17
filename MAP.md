@@ -809,6 +809,82 @@ quality, by construction, feedback landing at the point of creation.
 the rendered projection of those same records — the reader-side destination of that
 dissolution. The name kinship is deliberate.
 
+## The node state-machine — states as summons (2026-07-17)
+
+The `state` field (above, 'Gates, not supervisors': state IS the pipeline instance)
+gets a vocabulary. A node's state is not a past-tense label of where it has *been*;
+it is an **imperative that summons the peer who acts next** — the cooperative-peer
+model made literal. A peer watches a state; a node entering it wakes the peer
+(currently the resolver, occupying each socket by hand — the role-replacement
+staircase; later a trained agent, measured out at the resolver's rate). So the state
+machine *is* the dispatcher — the get-Akien-out intention becoming architecture.
+
+**The grammar carries the semantics** (naming stone: the name forces the content):
+- **`-ME` = a summons** (a demand for a peer): `THINKME` · `TICKETME` (decompose me
+  into children) · `BUILDME` · `PROVEME` · `LEARNME` (learn *from* me — I am
+  material, harvest me into the trees) · `REVIEWME` (concept-piece quorum).
+- **no `-ME` = the node's own condition** (settled or active): `PROVED` (passed its
+  gate, resting, still carrying falsifier+horizon — grazed by the background loop)
+  and `LEARNING` (a standing driver, actively collecting/transforming). Off-path
+  dispositions carry their why: `DROPPED` (no trace-up at intent), `SUPERSEDED`,
+  `RETIRED` (question lost tenure).
+
+**Two rests, both inside the one loop, neither terminal:** `PROVED` = learned-FROM
+(object, passive); `LEARNING` = learning (subject, active). There is no `RUNNING` —
+Cairn has no uninstrumented execution (journeys at every chokepoint, every driver
+carries its why, VALIDATIONS on every measured claim), so anything running is
+emitting evidence, so anything running is *learning*. "Just running" would be the UU
+silent-failure disease. Low-yield running is low-yield LEARNING — a yield measure
+(T5.1), not a separate state.
+
+**`TICKETME` vs `BUILDME` is /sorted's deconstruct-or-build fork** named as states:
+TICKETME spawns children (a parent); BUILDME is a leaf. "Waiting on children" is
+*derived* (a parent whose children aren't all PROVED), not stored — the
+zero-inference move. Back-edges need no special state: a kick-back re-enters an
+earlier `-ME` (severity = how far back; very-wrong trips the ask-Akien escalation),
+with a trouble/question attached and the loop recorded in the journey.
+
+**The workflow is a versioned, mutable, greppable string** with the cursor in
+brackets: `code-seam@v1: THINKME → TICKETME → BUILDME → PROVEME → LEARNME →
+[PROVED]`. Stored on the node — the strongest form of 'state IS the pipeline
+instance' (self-contained; no external orchestrator possible). Consequences:
+- **migration by find-and-replace.** Many workflows — and many *versions* of one —
+  run in flight; changing a workflow asks "revise those carrying it? sometimes yes,
+  sometimes no," and the answer is a string edit. Versions are immutable and
+  version-stamped, so divergence-from-current is a *named, chosen, journaled*
+  un-migration, not silent rot — a stronger anti-drift property than pure-derive,
+  which would *force* every change onto all in-flight nodes silently. Free when the
+  edit is downstream of the cursor (blind replace); a judgment call when it
+  touches/precedes the cursor (where does the cursor land?). Every edit is
+  owner-gated, chokepoint-validated against a known workflow, and journaled.
+- **class is not frozen at cast** — it *is* the current workflow string. A code
+  ticket becomes a driver by editing its terminal (`… → LEARNING`); the node that
+  *built* a sensor becomes the node that *runs* it. Identity lives in the journey,
+  not the workflow-of-the-moment.
+
+**Peers fire in two modes:**
+- **reactive** — wake on state entry (builder ⟵ BUILDME, tester ⟵ PROVEME).
+- **scheduled / batched** — wake on a threshold (interval / date / quantity /
+  a-state) and drain a queue (the harvester ⟵ LEARNME; the "sleep" consolidation ⟵
+  the PROVED graze). This is the horizon-of-awareness "sleep" cast into the peer
+  model; it needs the scheduler on the `host` device (= the spine's `rack`).
+
+**The operational-driver primitive (a node-class).** A standing node whose whole
+body is `(trigger, method-pointer, why, sources/targets)`, resting in LEARNING. No
+new code — it *wires* a PROVEN method (a sensor/transform in the method-registry) to
+a trigger and owned targets. Metrics, alarms, and the graph-tree harvest are the
+same kind, differing only in those fields — behavior as declarative data, run by one
+generic executor (**candidate: the `ground_loop` is that executor** — hypothesis,
+Law 3). Guards: the method-pointer must resolve to proven-space (Law 8 — a driver
+introduces no code); writes route through each target's owner's gate (Law 6). The
+harvester and the sleep-pass are *themselves* drivers — the primitive is
+self-hosting. This supplies plumbing three ratified intentions already demanded:
+metering (T1.2, T5.4), no-silent-failure (6.3), Form #2's state channel.
+
+Detail + implementation node: `CairnCommons/tickets/state-machine-physics.json`
+(waits on the emit-chokepoint = base-class spine step). New class:
+`node_classes/operational-driver.json`. Ratified by Akien 2026-07-17.
+
 ## Build order (the spine)
 
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →

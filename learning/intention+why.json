@@ -1,0 +1,27 @@
+{
+  "component": "learning",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+
+  "what": "The class-space code of the learning store — the mechanism half of cc-learning-store, whose data lives in the sibling CairnCommons/learning/. First rung: gate_view.py, the compiled per-gate projection.",
+  "why": "Horizon-of-awareness cast into code, not prose (Law 4 — a rule that matters is physics, not policy). A memory that only accumulates cannot be recalled from: it must fold the settled so recall stays bounded as it grows. gate_view is fold-the-settled (Law 1) made executable — raw records (cold/L3) folded by gate into a compiled view (warm/L2) so CC's finite context is spent on the relevant gate, not the corpus.",
+  "invoke": "gate_view.py [gate]   — no arg: every gate, most-evidence-first; with a gate: that gate's compiled view (sparse recall)",
+
+  "node_class": "code-seam",
+  "state": "building — rung 1 of the staircase (see staircase below). Interim-proven by inspection; tester IOU stands.",
+  "staircase": {
+    "1_fold": "DONE (interim) — gate_view.py folds records by gate. Provable by inspection: output is a deterministic fold, no inference.",
+    "2_sparse_recall": "DONE (interim) — gate_view.py <gate> surfaces one gate on demand.",
+    "3_structured_ceiling": "NEXT — the never-auto-open guardrail becomes a record field, not a prose substring. Surfaced by ci-on-github (closed by physics, but not flagged: its record says 'close hard', not 'ceiling').",
+    "4_tiered_recall": "LATER — a recall entrypoint chaining L1 slate -> L2 gate_view -> L3 raw records, escalate-cheapest-first.",
+    "5_sleep_and_gate": "DEEP END — importance-weighted nightly consolidation (produces the L2 rolling summary), and gate-confidence that actually gates CC's autonomy. Needs a scheduler and the shim/bus."
+  },
+
+  "gates": "proof gate (tester) — IOU: tester not built. Interim proof (proofs/PROOF.md): the projection round-trips a real record (write in CairnCommons/learning/records/ -> recalled by gate here), and its output is verifiably the fold of the records by inspection. Durability gate (code-seam): not done until tested AND committed.",
+  "falsifier": "the compiled view diverges from the hand-fold of records/ (a record present but not surfaced under its gate, or a ceiling record shown as open). Wrong-shape signal (inherited): if structuring records to stay foldable makes capture stop, simplify — sparse-but-real beats rich-but-empty.",
+
+  "traces_to": ["cc-learning-store (this is its mechanism)", "I-learns-its-gates (parent)", "Law 1 (fold the settled)", "Law 4 (physics over policy)", "Law 5 (intent + code + proofs share an address)", "Telos 1 (compile inference into code) + 5 (self-improving)"],
+  "owner": "CC gates writes to the mechanism; the learning intent is Akien's ratified I-learns-its-gates.",
+  "proof": "hand-run recorded in proofs/PROOF.md: `python3 gate_view.py` renders all gates; `python3 gate_view.py <gate>` renders one; both match the records in CairnCommons/learning/records/ by inspection.",
+  "provenance": "born 2026-07-17 in the horizon-of-awareness design session, answering Akien's 'how would we cast this into code?' — built as the first provable rung, prove-as-you-go. Sibling data store cast 2026-07-16 (ticket cc-learning-store)."
+}

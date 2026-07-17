@@ -56,10 +56,27 @@ gate: build-now-vs-defer  [2 records]
   spends context on the relevant gate, not the corpus (horizon-of-awareness in code).
 - **Ceiling flagged** on the three ceiling gates.
 
-## Found by this proof — the next rung
+## Found by this proof — the next rung (now closed)
 
-`ci-on-github` is a never-auto-open gate (Actions disabled by physics) but is NOT
-flagged, because its record says "close hard," not "ceiling." The prose heuristic
-missed it. This is exactly why **rung 3 makes the ceiling a structured field** — a
-never-auto-open guardrail must be physics, not a substring match (Law 4). The proof
-surfaced its own successor.
+Rung 1's proof caught its own gap: `ci-on-github` is a never-auto-open gate (Actions
+disabled by physics) but was NOT flagged, because its record said "close hard," not
+"ceiling" — the prose heuristic missed it.
+
+## Rung 3 — ceiling as a structured field (2026-07-17)
+
+Records gained a `ceiling: true/false` field; `has_ceiling` now reads it instead of
+matching prose. Re-run — `ci-on-github` now flags correctly:
+
+```
+$ python3 gate_view.py
+...
+gate: ci-on-github  [1 record]  ⚠ never-auto-opens (ceiling)
+  2026-07-16  correction    GitHub is hosting/durability only; running stays on Akien's machines.
+...
+gate: proceed-on-light-ack  [1 record]
+  2026-07-17  weak          Dogfood: CC deciding a low-ceiling gate on its own ...
+```
+
+**PASS (interim).** The guardrail is now physics: a gate is ceilinged iff a record
+asserts `ceiling: true`, ORed across the gate's records (one never-auto-open sticks).
+The fold can no longer miss a ceiling to a wording choice. Tester IOU still stands.

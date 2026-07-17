@@ -34,10 +34,11 @@ def load_records():
 
 
 def has_ceiling(rec):
-    # v0 heuristic: the ceiling guardrail is read from prose. RUNG 3 makes it a
-    # structured field — a never-auto-open guardrail must be physics, not a
-    # substring match (Law 4). Flagged here so recall can't misread it as open.
-    return "ceiling" in rec.get("confidence_move", "").lower()
+    # The ceiling guardrail is a structured field, not a prose match (rung 3): a
+    # never-auto-open gate is physics, not a substring the fold might miss (Law 4).
+    # A gate is ceilinged if ANY of its records asserts it — the fold ORs them, so
+    # one "never auto-open" sticks however much other evidence accrues.
+    return bool(rec.get("ceiling", False))
 
 
 def fold(records):

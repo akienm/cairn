@@ -113,16 +113,19 @@ def test_retention_never_touches_a_foreign_file():
 
 def test_temporary_is_physics():
     start = _NOW
-    active = _NOW
-    # Past the absolute cap → expire, even if active.
+    # The hard cap is the intent ('log in once a day') and the SOLE automatic release.
     expire, why = relay.should_expire(start, _NOW, _NOW + timedelta(hours=25), max_lifetime_s=24 * 3600)
     assert expire and "absolute cap" in why
-    # Idle past the timeout → expire.
-    expire, why = relay.should_expire(start, active, _NOW + timedelta(minutes=31), idle_timeout_s=30 * 60)
+    # By DEFAULT there is NO idle timeout: a long walk-away does NOT release root before the
+    # cap — one login lasts the day (the dedicated box is the safety net, not a timeout).
+    expire, _ = relay.should_expire(start, start, _NOW + timedelta(hours=12))  # 12h idle, under the cap
+    assert not expire, "with no idle timeout (the default), only the hard cap releases root"
+    # The idle timeout is OPT-IN: when a number is set, it still fires (the stop-sooner knob).
+    expire, why = relay.should_expire(start, start, _NOW + timedelta(minutes=31), idle_timeout_s=30 * 60)
     assert expire and "idle" in why
-    # Fresh and recently active → hold.
+    # Fresh and within the cap → hold.
     expire, _ = relay.should_expire(start, _NOW + timedelta(minutes=5), _NOW + timedelta(minutes=6))
-    assert not expire, "a fresh, active daemon must not expire — root survives a live session"
+    assert not expire, "a fresh daemon within the cap must not expire — root survives a live session"
 
 
 def test_the_window_is_visible_and_honest():
@@ -131,11 +134,13 @@ def test_the_window_is_visible_and_honest():
     s = relay.daemon_status()
     assert s["live"] is False and "not running" in s["reason"]
 
-    # A live pid (this process) reads live and exposes both deadlines.
+    # A live pid (this process) reads live and exposes the deadline. The hard cap (once-a-day)
+    # is always visible; by default there is no idle deadline, and the window says so honestly.
     relay.write_status(pid=os.getpid(), started_at=_NOW, last_activity=_NOW, now=_NOW)
     s = relay.daemon_status()
     assert s["live"] is True
-    assert "hard_expires_at" in s and "idle_expires_at" in s, "the window must be visible"
+    assert s["hard_expires_at"] is not None, "the once-a-day deadline must always be visible"
+    assert s["idle_expires_at"] is None, "no idle timeout by default — the window says so, not a fake deadline"
 
     # A dead pid reads stale, never laundered into 'up' (Law 3: measured, not assumed).
     relay.write_status(pid=2_000_000_000, started_at=_NOW, last_activity=_NOW, now=_NOW)

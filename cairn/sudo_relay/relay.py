@@ -22,11 +22,14 @@ with a non-root payload — a proof a hollow relay could not pass — while root
 enters the test. Same shape as the tester's isolation seam.
 
 TEMPORARY IS PHYSICS (Law 4), and THE WINDOW IS VISIBLE. The UU daemon held live sudo for
-4+ days because its lifetime was invisible. Here the daemon carries an idle timeout AND a
-hard absolute cap (defaults 30 min / 24 h, both settings), calls ``sudo -k`` on exit, and
-maintains a heartbeat ``daemon.status`` file so ``SudoRelayDevice.state()`` and the
+4+ days because its lifetime was invisible. Here the daemon carries a hard absolute cap
+(default 24 h — 'log in once a day', the sole automatic release), calls ``sudo -k`` on exit,
+and maintains a heartbeat ``daemon.status`` file so ``SudoRelayDevice.state()`` and the
 ``status`` command always answer 'up since when, expires in how long' — measured against a
-live-pid check, never assumed (Law 3).
+live-pid check, never assumed (Law 3). There is NO idle timeout by default: one login lasts
+the day, no re-login on a walk-away (the dedicated box is the safety net, not a timeout — the
+ratified scope rejects friction). An idle timeout stays as an opt-in knob; Ctrl-C is the
+everyday stop-sooner lever.
 
 OWNERSHIP (Law 6): CC owns this code + its proofs. The daemon's AUTHORITY is Akien's — it
 exists only while he chooses to run it, and the password act is his alone; the daemon
@@ -70,8 +73,14 @@ AUDIT_FIELDS = ("id", "date", "command", "returncode", "stdout", "stderr")
 _ID_RE = re.compile(r"^(\d{8}T\d{6})_\d{6}_\d+$")
 
 DEFAULT_RETENTION_DAYS = 31
-DEFAULT_IDLE_TIMEOUT_S = 30 * 60        # 30 minutes with no request → release root
-DEFAULT_MAX_LIFETIME_S = 24 * 60 * 60   # 24 hours absolute → release root no matter what
+# The intent is 'log in once a day' — so the ONLY automatic release is the hard cap; one
+# password lasts up to a full day of use. There is NO idle timeout by default (an idle
+# release would force a re-login after a walk-away — friction the ratified scope rejects:
+# the box + the visible audit are the safeguard, not friction). The idle timeout stays as
+# an OPT-IN knob (set idle_timeout_s to a number) for anyone who wants a stop-sooner rule;
+# the everyday stop-sooner lever is Ctrl-C.
+DEFAULT_IDLE_TIMEOUT_S = None           # off by default — opt-in; None = no idle release
+DEFAULT_MAX_LIFETIME_S = 24 * 60 * 60   # 24 hours — 'log in once a day'; the sole automatic release
 
 _STATUS_NAME = "daemon.status"
 _PENDING = "pending.sh"
@@ -273,12 +282,15 @@ def should_expire(
 ) -> tuple:
     """Should the daemon release root now? Returns ``(expire: bool, reason: str)``.
 
-    Pure so it is provable without a running daemon: the absolute cap bounds a forgotten
-    daemon (it cannot hold root for days); the idle timeout releases root after a walk-away.
+    Pure so it is provable without a running daemon. The absolute cap is the intent —
+    'log in once a day' — and by default the SOLE automatic release: one password lasts up
+    to a full day of use, no re-login on a walk-away (the dedicated box is the safety net,
+    not a timeout). The idle timeout is opt-in: when ``idle_timeout_s`` is None it never
+    fires; set it to a number for a stop-sooner rule.
     """
     if (now - started_at).total_seconds() >= max_lifetime_s:
         return True, f"absolute cap reached ({max_lifetime_s}s since start)"
-    if (now - last_activity).total_seconds() >= idle_timeout_s:
+    if idle_timeout_s is not None and (now - last_activity).total_seconds() >= idle_timeout_s:
         return True, f"idle timeout reached ({idle_timeout_s}s since last request)"
     return False, ""
 
@@ -304,7 +316,9 @@ def write_status(
         "started_at": started_at.isoformat(timespec="seconds"),
         "last_activity": last_activity.isoformat(timespec="seconds"),
         "hard_expires_at": (started_at + timedelta(seconds=max_lifetime_s)).isoformat(timespec="seconds"),
-        "idle_expires_at": (last_activity + timedelta(seconds=idle_timeout_s)).isoformat(timespec="seconds"),
+        # None when there is no idle timeout (the default) — the hard cap is then the only deadline.
+        "idle_expires_at": (last_activity + timedelta(seconds=idle_timeout_s)).isoformat(timespec="seconds")
+        if idle_timeout_s is not None else None,
         "heartbeat_at": now.isoformat(timespec="seconds"),
     }
     path = idir / _STATUS_NAME

@@ -77,9 +77,11 @@ def run() -> int:
     pid = os.getpid()
 
     _say(f"starting — instance {idir}")
+    idle = relay.DEFAULT_IDLE_TIMEOUT_S
+    idle_note = f"idle {idle}s" if idle is not None else "no idle timeout (one login lasts the day)"
     _say(
-        f"root window: idle {relay.DEFAULT_IDLE_TIMEOUT_S}s / hard cap "
-        f"{relay.DEFAULT_MAX_LIFETIME_S}s (both visible in daemon.status)"
+        f"root window: {idle_note} / hard cap {relay.DEFAULT_MAX_LIFETIME_S}s "
+        f"(= 'log in once a day'); Ctrl-C to release sooner. Visible in daemon.status."
     )
     if not _acquire_sudo():
         _say("sudo auth failed — exiting, no root acquired")
@@ -121,6 +123,10 @@ def run() -> int:
                     break
                 last_keepalive = time.monotonic()
                 relay.write_status(pid=pid, started_at=started, last_activity=last_activity, now=now)
+                # Keep the window audible: a daemon left in a terminal keeps announcing how
+                # long it will hold root, instead of going quiet after startup.
+                mins = max(0, int((hard_expires - now).total_seconds() // 60))
+                _say(f"holding root — hard-expires in {mins // 60}h{mins % 60:02d}m (Ctrl-C to release now)")
 
             record = relay.process_pending(relay.root_executor, now=now)
             if record is not None:

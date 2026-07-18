@@ -14,24 +14,30 @@ What it does today (the stone):
     date, method, verdict, evidence, falsifier, horizon``. ``verdict`` is read from
     the subject's exit code, not granted by the tester (an always-green tester is a
     hollow build; proofs/test_tester.py kills it with a red case).
+  - The tester **owns the network** (MAP.md:333): ``run_proof(..., isolation="netns")``
+    runs the subject inside a measured seal (``cairn/tester/isolation.py``) and folds
+    the seal's verdict into the record's ``method`` + ``evidence`` — no ninth field.
+    The seal is measured from inside, never assumed; an unconfirmable seal is
+    INDETERMINATE and does not earn a green on the strength of its isolation.
 
-FRESH, not grafted (a deliberate redesign, like device.py/shim.py): UU's tester
-(``unseen_university/devices/tester/`` — ~1226 lines of netpolicy / isolation /
-sandbox / seal) is the network-sandbox pillar Cairn will reach as a *later* stone.
-Only MAP's ratified VALIDATION schema crosses, and it crosses as a record shape,
-not as carried code.
+FRESH design, mechanism grafted (like device.py/shim.py were redesigns): UU's tester
+(``unseen_university/devices/tester/`` — netpolicy 381 + isolation 183 + sandbox +
+seal) is the quarry. The seal's OS plumbing crosses nearly literally (kernel truth);
+its design and the programmable Router (fixture/refuse/forward) do not — see
+``isolation.py`` for the graft-vs-fresh ruling and the deferred Router.
 
 OPEN EDGES (filed, not faked — children of this stone):
   - VALIDATIONS are **produced, not yet persisted**. A durable greppable store is
     db_domain's stone (CLAUDE.md pending rule: durable state goes through the store
     primitives). This tester returns records; it does not write them anywhere yet,
     so class-space stays state-free.
-  - The **kernel-owned network + build isolation** (UU's netpolicy/isolation) are
-    NOT built. This tester runs local proofs; it does not yet guard a build's
-    network. That is the next stone on the same pillar (MAP.md:888).
-  - The verdict **method** is exit-code only. Quorum / review-by-N-experts for
-    concept pieces (MAP.md:752) is a later method the ``method`` field already
-    names room for.
+  - The seal gives **no route** (the closed half of CLAUDE.md's "reached only through
+    the domain" rules). The **chosen route** — a Router that serves/refuses/forwards a
+    named dependency — is deferred to db_domain (FORWARD) and inference_domain
+    (FIXTURE/REFUSE). See ``isolation.py``.
+  - The verdict **method** is exit-code (+ seal) only. Quorum / review-by-N-experts
+    for concept pieces (MAP.md:752) is a later method the ``method`` field names room
+    for.
 """
 
 from __future__ import annotations
@@ -42,6 +48,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.base.device import BaseDevice
+from cairn.tester.isolation import OPEN, Seal, get_isolation
 
 GREEN = "green"
 RED = "red"
@@ -104,45 +111,72 @@ class TesterDevice(BaseDevice):
     def settings(self) -> dict:
         return {
             "interpreter": Path(sys.executable).name,
-            "isolation": "none — kernel-owned network + build sandbox not yet built "
-            "(open edge; UU's netpolicy/isolation are a later stone on this pillar)",
+            "isolation": "owned — run_proof takes isolation='netns' to run under a measured "
+            "seal (cairn/tester/isolation.py); default 'none' (bare) must be asked for by name. "
+            "The chosen-route Router (serve/refuse/forward) is deferred to db/inference domains.",
             "validations_sink": "produced-only — the durable VALIDATIONS store is db_domain's "
             "stone (CLAUDE.md pending rule); this tester returns records, it does not persist them yet",
         }
 
     # --- the one capability: prove and attest -------------------------------
 
-    def run_proof(self, proof_path, *, caller: str | None = None, timeout: int = 120) -> dict:
+    def run_proof(
+        self,
+        proof_path,
+        *,
+        caller: str | None = None,
+        timeout: int = 120,
+        isolation: str = "none",
+    ) -> dict:
         """Run ``proof_path`` as a subprocess; produce a VALIDATION of the outcome.
 
         The verdict is the subject's exit code (0 → green, else red) — read, not
-        granted. Returns the ratified eight-field record; does not persist it (the
-        store is a later stone).
+        granted. With ``isolation="netns"`` the subject runs inside a measured network
+        seal (``cairn/tester/isolation.py``): the seal is probed from inside and its
+        verdict is folded into the record's ``method`` + ``evidence`` — never a ninth
+        field. An unconfirmable seal is INDETERMINATE and is reported as such, not
+        laundered into a green. Returns the ratified eight-field record; does not
+        persist it (the store is a later stone).
         """
         proof_path = Path(proof_path)
+        iso = get_isolation(isolation)
+
+        # Measure the seal before trusting it (isolation.py: measured, never assumed).
+        # NoIsolation reports OPEN with no subprocess; netns probes from inside.
+        available, why = iso.available()
+        if iso.seals_network and not available:
+            seal = Seal("indeterminate", f"seal '{iso.name}' unavailable: {why}")
+        else:
+            seal = iso.check_seal(str(proof_path.parent))
+
+        argv = iso.wrap([sys.executable, str(proof_path)], cwd=str(proof_path.parent))
         try:
-            proc = subprocess.run(
-                [sys.executable, str(proof_path)],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-            )
+            proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
             verdict = GREEN if proc.returncode == 0 else RED
             evidence = {
                 "returncode": proc.returncode,
                 "stdout_tail": _tail(proc.stdout),
                 "stderr_tail": _tail(proc.stderr),
+                "seal": {"verdict": seal.verdict, "detail": seal.detail},
             }
         except subprocess.TimeoutExpired:
             # A proof that hangs is a red, not a crash of the notary (CP1: say what
             # happened — we measured a timeout, we did not measure a pass).
             verdict = RED
-            evidence = {"returncode": None, "stdout_tail": "", "stderr_tail": f"timed out after {timeout}s"}
+            evidence = {
+                "returncode": None,
+                "stdout_tail": "",
+                "stderr_tail": f"timed out after {timeout}s",
+                "seal": {"verdict": seal.verdict, "detail": seal.detail},
+            }
 
+        # The method names HOW the verdict was reached AND how trustworthy the seal
+        # under it is — so a reader sees seal-backing without opening the evidence.
+        seal_note = f"seal={seal.verdict}" if seal.verdict != OPEN else "unsealed (isolation='none')"
         record = self._validation(
             claim=f"proof {proof_path.name} passes under {Path(sys.executable).name}",
             caller=caller or self._device_id,
-            method="ran the proof as a subprocess; verdict = exit code (0 → green, else red)",
+            method=f"ran the proof as a subprocess ({seal_note}); verdict = exit code (0 → green, else red)",
             verdict=verdict,
             evidence=evidence,
             falsifier="the same proof exits non-zero on re-run, or the code it proves changes underneath it",

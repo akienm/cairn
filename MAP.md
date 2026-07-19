@@ -862,35 +862,42 @@ instance' (self-contained; no external orchestrator possible). Consequences:
   *built* a sensor becomes the node that *runs* it. Identity lives in the journey,
   not the workflow-of-the-moment.
 
-**Peers fire in two modes:**
-- **reactive** — wake on state entry (builder ⟵ BUILDME, tester ⟵ PROVEME).
-- **scheduled / batched** — wake on a threshold (interval / date / quantity /
-  a-state) and drain a queue (the harvester ⟵ LEARNME; the "sleep" consolidation ⟵
-  the PROVED graze). This is the horizon-of-awareness "sleep" cast into the peer
-  model; it needs the scheduler on the `host` device (= the spine's `rack`).
+**Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
+trigger-enum framing below was superseded; authoritative model:
+`CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md`.) A peer is woken by a
+CALLBACK firing — "call X when this trigger is true", where a trigger is *anything
+that evaluates to true* (not the closed `interval/date/quantity/a-state` enum, which
+was a reification). Reactive (wake on state entry: builder ⟵ BUILDME) and scheduled
+(wake on an elapsed interval / an accumulated queue / a resource line) are just
+different predicates, one firing path. Firing lives in the SHIM on the heartbeat
+pulse (`ground_loop` is ONLY the beat); the poke crosses the **bus**. The "sleep"
+consolidation is the same — a callback the PROVED graze sets.
 
 **The operational-driver primitive (a node-class).** A standing node whose whole
-body is `(trigger, method-pointer, why, sources/targets)`, resting in LEARNING. No
-new code — it *wires* a PROVEN method (a sensor/transform in the method-registry) to
-a trigger and owned targets. Metrics, alarms, and the graph-tree harvest are the
-same kind, differing only in those fields — behavior as declarative data, run by one
-generic executor (**candidate: the `ground_loop` is that executor** — hypothesis,
-Law 3). Guards: the method-pointer must resolve to proven-space (Law 8 — a driver
-introduces no code); writes route through each target's owner's gate (Law 6). The
-harvester and the sleep-pass are *themselves* drivers — the primitive is
-self-hosting. This supplies plumbing three ratified intentions already demanded:
-metering (T1.2, T5.4), no-silent-failure (6.3), Form #2's state channel.
+body is `(trigger, method-pointer, why, sources/targets)`, resting in LEARNING — the
+declarative-data idea survives, but as the CALLBACK species now (immutable worker),
+distinct from the mutable TICKET. NB the falsified hypothesis: "the `ground_loop` is
+that generic executor" was a GOOF — the ground_loop is only the heartbeat; a device
+resolves its own method internally and its shim fires it (see the design doc). The
+method-registry (proven-space, Law 8) was retired with the executor and RETURNS with
+the emit-chokepoint. Guards unchanged: a method resolves to proven-space (Law 8),
+writes route through each target's owner's gate (Law 6).
 
 Detail + implementation node: `CairnCommons/tickets/state-machine-physics.json`
-(waits on the emit-chokepoint = base-class spine step). New class:
-`node_classes/operational-driver.json`. Ratified by Akien 2026-07-17.
+(waits on the emit-chokepoint = base-class spine step). Ratified by Akien 2026-07-17,
+reshaped with him 2026-07-18.
 
 ## Build order (the spine)
 
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →
 **tester + kernel-owned network** (before the first thing it guards) →
-db domain → ground loop → rack → inference domain → web server →
-librarian-as-chatbot → graph trees (embeddings generator lives here).
+db domain → **[done: the heartbeat (ground_loop) + the bus + the base's
+callback/shim + the system device (system_rackmount)]** → inference domain →
+web server → librarian-as-chatbot → graph trees (embeddings generator lives here).
+
+(The "rack" step is subsumed: the chassis = the bus + the shims, both built
+2026-07-18; there is no separate rack device. The two runtime substrates are the
+heartbeat and the bus — `CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md`.)
 
 Workflow target: intention → design → tickets → build → test → done; each stage
 a question nexus with feedback. End state: CC.0 + CC.1 + aider (easy work), one

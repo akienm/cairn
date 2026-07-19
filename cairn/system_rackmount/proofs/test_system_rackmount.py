@@ -1,35 +1,35 @@
-"""Proof for system_rackmount — the device abstracting host system services device-independently.
+"""Proof for system_rackmount — THE SYSTEM DEVICE: advertise → subscribe → poke, Law 6.
 
-Exercises the WHOLE spine composed as a system: the tester (proven-space), db_domain (the owned
-target), ground_loop (runs one fired pass), and the system rackmount surfacing the scheduler as
-its first system service. The scheduler is reached the way a device would reach it — by name,
-through the rackmount (``service('scheduler')``) — never by importing the OS or the service
-class. The firing physics is proven WITHOUT a clock: ``tick`` takes its moment (and any observed
-context) explicitly, so a trigger's decision is a table, not a race.
+This is the capstone of the heartbeat+callback+bus rework: it composes ALL the reworked
+pieces at once — the heartbeat (ground_loop), the shim's per-pulse firing, the Callback
+primitive, the real bus (durable via db_domain), and the system device that owns the host's
+CPU predicate. It proves the worked example "alert me at 80% CPU" end to end.
 
-Teeth a hollow build could not pass:
-  - THE RACKMOUNT HANDS OUT ITS SERVICE BY NAME, and refuses a missing one LOUDLY (CP1 / Law 7).
-    A rackmount that returned None for an unmounted service, or hid the scheduler, trips this.
-  - A TRIGGER FIRES EXACTLY WHEN ITS CONDITION IS MET — interval (first tick + every N seconds),
-    date (once, at/after), quantity (count ≥ threshold), state (the reactive summons).
-  - A ONE-SHOT FIRES ONCE. INTERVAL RESPECTS THE CADENCE.
-  - A FIRED DRIVER ACTUALLY RUNS — through ground_loop, end to end: the row lands in the owned
-    target and the run-record rides in the tick-record. The service adds no execution of its own.
-  - A REFUSED DRIVER IS LOUD AND DOES NOT ABORT THE BATCH (Law 7, CP2).
-  - REACTIVE FIRES ONLY THE MATCH.
-  - THE RACKMOUNT IS A DEVICE (Law 2 / Form v0 #2) and reports its services + their state.
+Teeth a hollow system device could not pass:
+  - IT ADVERTISES A MENU. ``advertises()`` offers ``cpu_threshold`` (takes a value) — a caller
+    inspects offerings, then subscribes by menu name. An UNADVERTISED name is refused (CP1).
+  - END TO END, THROUGH THE HEARTBEAT: a caller subscribes (value 80, its address); a beat with
+    the host over the line pokes the caller's feed on the bus; a beat under the line pokes
+    no one. The system device pokes nothing itself — the SHIM fires it on the pulse.
+  - LAW 6 — THE READING NEVER LEAVES. The poke body says only THAT the caller's line (80) was
+    crossed; the actual reading (95) appears NOWHERE in what crossed the bus. The predicate was
+    evaluated INSIDE the device, on the device's own data.
+  - THE GOOF IS GONE: no SchedulerService, no service()/scheduler API, no interval/date/
+    quantity/state enum — a trigger is any predicate.
+  - IT IS A DEVICE / ITS SHIM IS A SHIM (Law 2 / Form v0 #2).
 
-Requires Postgres (db_domain) and runs the tester (subprocess proofs, to admit the method).
-Each writing test mints its OWN owned target; all are dropped on the way out.
+Requires Postgres (the real bus rides db_domain). Self-cleaning: the ephemeral bus table is
+dropped on the way out.
 
     python3 cairn/system_rackmount/proofs/test_system_rackmount.py     # exit 0 = green
 """
 
 from __future__ import annotations
 
+import json
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -37,176 +37,94 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.base.core_values import CoreValuesMixin
+from cairn.bus.bus import BusDevice
 from cairn.db_domain import store
 from cairn.ground_loop.loop import GroundLoopDevice
-from cairn.ground_loop.registry import MethodRegistry
-from cairn.ground_loop.proofs.fixtures.collect import collect
-from cairn.system_rackmount.rackmount import SystemRackmountDevice
-from cairn.system_rackmount.services.scheduler import SchedulerService, _trigger_fires
-
-_FIXTURES = _REPO_ROOT / "cairn" / "ground_loop" / "proofs" / "fixtures"
-_PROOF_COLLECT = _FIXTURES / "proof_collect.py"
+from cairn.system_rackmount.rackmount import SystemRackmountDevice, SystemRackmountShim
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_OWNER = "sensor"
-_CREATED: list[str] = []  # every target this proof mints — all dropped in _cleanup
-
-_NOW = datetime(2026, 7, 18, 12, 0, 0)
+_TABLE = f"_bus_sysrm_{_NONCE}"       # the ephemeral bus table this proof owns
 
 
-def _fresh_rackmount() -> SystemRackmountDevice:
-    """A rackmount whose scheduler fires onto a ground_loop that admits `collect` (proof passed)."""
-    reg = MethodRegistry()
-    reg.register("collect", collect, _PROOF_COLLECT)
-    return SystemRackmountDevice(GroundLoopDevice(registry=reg))
+def _rig(reading: dict):
+    """Wire the full chain: a heartbeat, a real bus, the system device (with an injected,
+    mutable reading), and its shim subscribed to the beat. Returns them for the test to drive."""
+    bus = BusDevice(table=_TABLE)
+    dev = SystemRackmountDevice(sampler=lambda: reading)
+    shim = SystemRackmountShim(dev, bus)
+    gl = GroundLoopDevice()
+    gl.subscribe(shim)
+    return gl, bus, dev
 
 
-def _scheduler() -> SchedulerService:
-    """Reach the scheduler the device-independent way — by name, through the rackmount."""
-    return _fresh_rackmount().service("scheduler")
-
-
-def _new_target() -> str:
-    """Mint a fresh owned target so each test's landed rows are its own (no cross-test bleed)."""
-    name = f"_srm_target_{_NONCE}_{len(_CREATED)}"
-    store.create_owned_table(name, _OWNER, {"value": "text"})
-    _CREATED.append(name)
-    return name
-
-
-def _driver(table: str, name="collect-driver", method="collect", owner=_OWNER):
-    return {
-        "name": name,
-        "method": method,
-        "why": "collect the reading into the owned target on the scheduler's cadence",
-        "target": {"table": table, "owner": owner},
-    }
-
-
-# --- the rackmount hands out its service by name, loudly ---------------------
-
-def test_the_rackmount_hands_out_its_service_and_refuses_a_missing_one():
-    rm = _fresh_rackmount()
-    assert rm.services() == ["scheduler"], "the scheduler is the first mounted system service"
-    assert isinstance(rm.service("scheduler"), SchedulerService), "reachable by name, device-independently"
-    assert rm.scheduler is rm.service("scheduler"), "the convenience is the same object"
+def test_it_advertises_a_menu_and_refuses_an_unadvertised_name():
+    _, _, dev = _rig({"cpu": 10})
+    menu = {item["callback"] for item in dev.advertises()}
+    assert "cpu_threshold" in menu, "the system device advertises the cpu_threshold callback"
     try:
-        rm.service("nope")
-        raise AssertionError("a missing system service must be refused loudly, not returned as None")
+        dev.subscribe("gpu_threshold", address="a/personal", why="w", value=50)
+        raise AssertionError("subscribing to an unadvertised callback must be refused (CP1)")
     except KeyError:
         pass
 
 
-# --- the firing physics, as a pure table (no clock, no stack) ---------------
+def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
+    reading = {"cpu": 95}                      # the host is hot — over the line
+    gl, bus, dev = _rig(reading)
+    dev.subscribe("cpu_threshold", address="ops/personal", why="page me when CPU is high", value=80)
 
-def test_a_trigger_fires_exactly_when_its_condition_is_met():
-    assert _trigger_fires({"kind": "interval", "seconds": 300}, _NOW, None, 0, {}) is True
-    assert _trigger_fires({"kind": "interval", "seconds": 300}, _NOW, _NOW - timedelta(seconds=299), 1, {}) is False
-    assert _trigger_fires({"kind": "interval", "seconds": 300}, _NOW, _NOW - timedelta(seconds=300), 1, {}) is True
+    gl.beat(now="t0")                          # one heartbeat drives the whole chain
 
-    at = {"kind": "date", "at": _NOW}
-    assert _trigger_fires(at, _NOW - timedelta(seconds=1), None, 0, {}) is False
-    assert _trigger_fires(at, _NOW, None, 0, {}) is True
-    assert _trigger_fires(at, _NOW + timedelta(hours=1), None, 1, {}) is False  # already fired
+    pokes = bus.read(to="ops/personal", channel="personal")
+    assert len(pokes) == 1, "a beat over the line pokes the subscriber exactly once"
+    poke = pokes[0]
+    assert poke["sender"] == "system_rackmount" and poke["why"] == "page me when CPU is high"
 
-    q = {"kind": "quantity", "source": "queue_depth", "at_least": 10}
-    assert _trigger_fires(q, _NOW, None, 0, {"queue_depth": 9}) is False
-    assert _trigger_fires(q, _NOW, None, 0, {"queue_depth": 10}) is True
+    # Law 6: the poke carries the caller's own line, but the READING (95) leaked NOWHERE.
+    assert poke["body"] == {"alert": "cpu_threshold", "crossed": 80}
+    assert "95" not in json.dumps(poke), "the raw reading must never cross the bus (Law 6)"
 
-    s = {"kind": "state", "on": "PROVEME"}
-    assert _trigger_fires(s, _NOW, None, 0, {"state": "BUILDME"}) is False
-    assert _trigger_fires(s, _NOW, None, 0, {"state": "PROVEME"}) is True
-
-
-def test_a_one_shot_fires_once_not_every_tick():
-    sched = _scheduler()
-    sched.mount(_driver(_new_target()), {"kind": "date", "at": _NOW})
-    first = sched.tick(_NOW + timedelta(seconds=1))
-    second = sched.tick(_NOW + timedelta(hours=2))
-    assert first["fired_count"] == 1, "a date trigger must fire once it is due"
-    assert second["fired_count"] == 0, "a one-shot must not re-fire on later pulses"
+    # Under the line, the same subscription pokes no one new.
+    reading["cpu"] = 50
+    gl.beat(now="t1")
+    assert len(bus.read(to="ops/personal", channel="personal")) == 1, "under the line → no new poke"
 
 
-def test_interval_respects_the_cadence():
-    sched = _scheduler()
-    sched.mount(_driver(_new_target()), {"kind": "interval", "seconds": 300})
-    a = sched.tick(_NOW)
-    b = sched.tick(_NOW + timedelta(seconds=120))
-    c = sched.tick(_NOW + timedelta(seconds=360))
-    assert (a["fired_count"], b["fired_count"], c["fired_count"]) == (1, 0, 1), \
-        "interval must fire, hold within the window, then fire again — cadence is physics"
+def test_the_scheduler_goof_is_gone():
+    _, _, dev = _rig({"cpu": 10})
+    for gone in ("service", "services", "scheduler"):
+        assert not hasattr(dev, gone), f"the central-scheduler API is deleted — {gone!r} must be gone"
+    # The old trigger-kind enum is not a live part of the device's surface. If the words appear
+    # at all in settings(), they may only appear inside the note that says they were deleted.
+    blob = json.dumps(dev.settings())
+    assert ("interval" not in blob and "quantity" not in blob) or "was deleted" in blob
 
 
-def test_a_fired_driver_actually_runs_through_ground_loop():
-    sched = _scheduler()
-    target = _new_target()
-    sched.mount(_driver(target), {"kind": "interval", "seconds": 60})
-    record = sched.tick(_NOW)
-    assert record["fired_count"] == 1
-    entry = record["fired"][0]
-    assert entry["outcome"] == "ok" and entry["run"]["wrote"] == {"value": "42"}, \
-        "a fired driver's run-record must ride in the tick-record"
-    rows = store.read(target, where="value = %s", params=("42",))
-    assert len(rows) == 1 and rows[0]["value"] == "42", "the scheduler must run, not merely schedule"
-
-
-def test_a_refused_driver_is_loud_and_does_not_abort_the_batch():
-    sched = _scheduler()
-    target = _new_target()
-    sched.mount(_driver(target, name="good"), {"kind": "interval", "seconds": 60})
-    sched.mount(_driver(target, name="bad", method="never-registered"), {"kind": "interval", "seconds": 60})
-    record = sched.tick(_NOW)
-    assert record["fired_count"] == 2, "both triggers fired — firing is separate from run outcome"
-    by_name = {e["driver"]: e for e in record["fired"]}
-    assert by_name["good"]["outcome"] == "ok", "the good driver still runs despite its neighbour"
-    assert by_name["bad"]["outcome"] == "refused", "the unproven driver is refused, not run"
-    assert "UnprovenMethod" in by_name["bad"]["error"], "the kick-back is loud and permanent (Law 7)"
-    rows = store.read(target, where="value = %s", params=("42",))
-    assert len(rows) == 1, "a refused driver must not abort the drain of the rest"
-
-
-def test_reactive_fires_only_the_match():
-    sched = _scheduler()
-    target = _new_target()
-    sched.mount(_driver(target, name="on-proveme"), {"kind": "state", "on": "PROVEME"})
-    sched.mount(_driver(target, name="on-interval"), {"kind": "interval", "seconds": 999999})
-    sched.tick(_NOW)  # interval fires once here (first eval); now on a long cadence
-    record = sched.tick(_NOW + timedelta(seconds=1), context={"state": "PROVEME"})
-    fired_names = {e["driver"] for e in record["fired"]}
-    assert fired_names == {"on-proveme"}, "a state pulse fires only the mount waiting on that state"
-
-
-def test_the_rackmount_is_a_device():
-    rm = _fresh_rackmount()
-    assert isinstance(rm, CoreValuesMixin), "a device must compose the core values (Law 2)"
-    assert [v.id for v in rm.CORE_VALUES] == ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
-    surface = rm.introspect()
-    assert list(surface) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
-    assert surface["state"]["services"] == ["scheduler"], "state surfaces the abstracted services"
-    assert surface["settings"]["scheduler"]["trigger_kinds"] == ["date", "interval", "quantity", "state"]
+def test_it_is_a_device_and_its_shim_is_a_shim():
+    _, bus, dev = _rig({"cpu": 10})
+    shim = SystemRackmountShim(dev, bus)
+    assert isinstance(dev, CoreValuesMixin) and isinstance(shim, CoreValuesMixin), "Law 2"
+    assert [v.id for v in dev.CORE_VALUES] == ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
+    assert list(dev.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
+    assert shim.device_id == "system_rackmount", "the shim is the shim OF the system device"
 
 
 def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            for table in _CREATED:
-                cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (table,))
+            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
+            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
     finally:
         conn.close()
 
 
 def _main() -> int:
     checks = [
-        test_the_rackmount_hands_out_its_service_and_refuses_a_missing_one,
-        test_a_trigger_fires_exactly_when_its_condition_is_met,
-        test_a_one_shot_fires_once_not_every_tick,
-        test_interval_respects_the_cadence,
-        test_a_fired_driver_actually_runs_through_ground_loop,
-        test_a_refused_driver_is_loud_and_does_not_abort_the_batch,
-        test_reactive_fires_only_the_match,
-        test_the_rackmount_is_a_device,
+        test_it_advertises_a_menu_and_refuses_an_unadvertised_name,
+        test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat,
+        test_the_scheduler_goof_is_gone,
+        test_it_is_a_device_and_its_shim_is_a_shim,
     ]
     try:
         for check in checks:
@@ -214,8 +132,9 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — system_rackmount: hands out the scheduler by name (device-independent); the "
-          "scheduler fires exactly when met, runs through ground_loop, a refused driver is loud")
+    print("green — system_rackmount: the system device advertises resource-threshold callbacks "
+          "and pokes subscribers through the heartbeat + bus, evaluating locally so the reading "
+          "never leaves (Law 6); the central-scheduler goof is gone")
     return 0
 
 

@@ -885,7 +885,10 @@ writes route through each target's owner's gate (Law 6).
 
 Detail + implementation node: `CairnCommons/tickets/state-machine-physics.json`
 (waits on the emit-chokepoint = base-class spine step). Ratified by Akien 2026-07-17,
-reshaped with him 2026-07-18.
+reshaped with him 2026-07-18. Ownership resolved 2026-07-21 (harbor_master /sorted):
+the chokepoint factors — **rules** stay base-class here, **authority** (clearance,
+delegable) + **truth** (the fleet register) belong to `harbor_master`; the record's
+local half is each workflow's own `history` (charter-state-history-split).
 
 ## Build order (the spine)
 
@@ -894,7 +897,18 @@ CLAUDE.md → skills → launchers → commons → CP/diagnostic base →
 db domain → **[done: the heartbeat (ground_loop) + the bus + the base's
 callback/shim + the system device (system_rackmount) + inference domain (the
 compile-once path to the host — an inference request IS a ticket, 2026-07-21)]** →
-web server → librarian-as-chatbot → graph trees (embeddings generator lives here).
+web server → **harbor_master** (the workflow harbor — grants clearance for a
+transition + keeps the fleet register; 'where we query open tickets'; unblocks the
+web server's journey pane; waits on the charter-split + the base-class emit-chokepoint)
+→ librarian-as-chatbot → graph trees (embeddings generator lives here).
+
+Cast alongside 2026-07-21 (`CairnCommons/tickets/`): **charter-state-history-split**
+— a Form change: a charter factors into a bounded `state` (cursor + window) and an
+append-only `history`, a *projector* bounds the window on append (Law 1 at charter
+scale; feeds harbor_master's aggregate). And **harbor-master** — the device above.
+The emit-chokepoint's ownership resolved into a trichotomy (rules → base-class /
+authority → harbor_master's clearance gate, delegable / truth → local `history` +
+harbor register); `state-machine-physics.json` is cross-referenced, not overwritten.
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built
 2026-07-18; there is no separate rack device. The two runtime substrates are the

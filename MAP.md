@@ -892,7 +892,8 @@ reshaped with him 2026-07-18.
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →
 **tester + kernel-owned network** (before the first thing it guards) →
 db domain → **[done: the heartbeat (ground_loop) + the bus + the base's
-callback/shim + the system device (system_rackmount)]** → inference domain →
+callback/shim + the system device (system_rackmount) + inference domain (the
+compile-once path to the host — an inference request IS a ticket, 2026-07-21)]** →
 web server → librarian-as-chatbot → graph trees (embeddings generator lives here).
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built

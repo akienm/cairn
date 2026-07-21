@@ -1,0 +1,30 @@
+{
+  "schema_version": "v0",
+  "component": "charter/projector",
+  "role": "charter machinery — the projector (a tool, not a device)",
+
+  "what": "Compile a charter's bounded `state` (a cursor + a window of recent history) from its append-only `history`, regenerated on every append. `state` is a PURE FUNCTION of `history`, so it cannot drift from the log — the window is derived, never a second copy anyone maintains.",
+  "why": "The charter had become the ticket: `state` grew to the largest, most-mutable field (measured 17-24%, 2026-07-21), so the file every mind reads first bloated without bound. Splitting `state` from `history` and compiling the window makes the bound STRUCTURAL (Law 4), not a discipline anyone remembers. It is Law 1 at charter scale — the answered question 'what is the recent state' becomes structure, so no mind re-derives it by reading the whole journal (the compile-once move, one scale in from inference_domain). `history` append-only = Law 7.",
+  "invoke": "from cairn.charter import projector; projector.append_entry(history_path, state_path, record) — the single write-door: append one record, get back the freshly-projected bounded state. The pure core (append / project) is storage-agnostic.",
+
+  "node_class": "code-seam",
+  "entry": "cairn/charter/projector.py",
+  "state": {
+    "cursor": "PROVEN 2026-07-21 — child (a) of charter-state-history-split: the schema + projector, built and proven green under the tester, VALIDATION persisted + grepped back",
+    "note": "This is the placeholder `state` FIELD. Migrating the split onto this very charter (state/history as two files here) waits on the placement edge (git-JSON vs db_domain) — ticket children b/c. Self-hosting comes then, not faked now."
+  },
+  "gates": "proof gate (tester) — proofs/test_projector.py, green under TesterDevice.run_proof; VALIDATION persisted via db_domain (store.persist_validation) and grepped back (claim 'proof test_projector.py passes under python3', verdict green, 2026-07-21T15:50:30). Durability gate: proven + persisted + committed.",
+
+  "falsifier": "the persisted `state` always equals a fresh projection of `history` (no drift); a count window holds at most N (bounded by construction); `history` only ever grows (append-only, prior records untouched); since_gate returns exactly the records since the last gate. Wrong-shape: the window is hand-maintained instead of projected (drift returns); `state` carries anything but cursor+window (the charter becomes the ticket again); `history` is edited in place (Law 7 breach).",
+  "how_it_learns": "it doesn't hold learned state itself — it is a stateless pure tool. The window RULE is what learns: DEFAULT_WINDOW (count n=5) is a guess to be adjusted against real need (Law 3 + grow-against-need); the first 'I needed more than that' moves the knob (count vs since_gate), and that adjustment is the learning, recorded on the ticket.",
+  "traces_to": [
+    "Law 1 (answered question -> structure; the window is compiled, not re-derived)",
+    "Law 7 (history append-only; a record of truth is never mutated)",
+    "Law 4 (the bound is physics — a fixed-window projector — not a discipline)",
+    "Law 5 (intent beside code; the mutable record moves to where state belongs)",
+    "tickets/charter-state-history-split.json (this is its child a); feeds tickets/harbor-master.json (the fleet-scale aggregate over these local histories)"
+  ],
+  "owner": "charter/projector — a pure tool; it owns no durable state. `history`/`state` files are owned by each charter's intention (Law 6); their placement (git vs db_domain) is a filed open edge.",
+  "proof": "cairn/charter/proofs/test_projector.py — 5 teeth: derived-not-authored (no drift), bounded-by-construction, append-only, since-gate self-sizes, cursor-tracks-head. DB-free, self-cleaning.",
+  "provenance": "built 2026-07-21 as child (a) of charter-state-history-split, cast the same day via /sorted at the close of the 'the intention+why.json files get large' design conversation. The projector-as-compiled-inference was Akien's (CC++); the window-guess-and-adjust his ruling (Law 3)."
+}

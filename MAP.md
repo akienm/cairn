@@ -402,11 +402,13 @@ original spec carried three stores we decided against in early talks:
 - `proofs/` — Law 5. The proof artifact lives **beside the device** it proves, and
   since 2026-07-22 its VALIDATION lives beside the `proofs/` it seals. A commons
   copy is the drift Law 5 exists to prevent.
-- `sessions/` — the **species survives** (see "Continuity records" below); only the
-  store was dropped. *Reconstruction, not a recorded ruling (2026-07-22):* a session
-  is the raw conversation, which lives in instance-space; the commons keeps only the
-  derived `slate`. Flagged as a hypothesis until the original reasoning is found or
-  re-ruled.
+- `sessions/` — dropped, and **the species too, 2026-07-22** (see "Continuity
+  records" below). It was **built to the tool**: compact used to wipe context, so a
+  session named the span between wipes. CC kept producing session records unprompted
+  and the taxonomy accreted around the output — nobody ever ruled that sessions
+  *should* be a species. Compact changed a month later and the boundary vanished.
+  The general failure this exposed is now a probe:
+  `CairnCommons/questions/tool-shaped-or-domain-shaped.json`.
 
 ```
 ~/.cairn/                         # instance-space; never in git
@@ -626,8 +628,18 @@ Riding on every node as fields (not separate artifacts):
 - **trouble** — machine-filed failure observation (already its own species).
 
 **Continuity records (a different axis — not the build tree):**
-- **session** — the conversation as an immutable journey (truth-class).
+- ~~**session**~~ — **RETIRED as a species, 2026-07-22.** It was pinned to a tool
+  boundary: compact used to wipe context back to load, so a session was what
+  happened between wipes and you re-oriented by reading the slate. Compact changed
+  a month later — it reduces context without severing continuity — and the boundary
+  the type named stopped existing. It had zero members, no gate, and no owner.
+  The **noun** survives: the immutable journey is real (`~/.claude/projects/*/*.jsonl`)
+  but the harness writes it, not us, so it is a **citable artifact** — and a citation
+  is a field on a node, not a species. Retirement probe:
+  `CairnCommons/questions/tool-shaped-or-domain-shaped.json`.
 - **slate** — the day's cache over recent sessions (derived, rebuildable).
+  **Unaffected; its boundary moved.** Not compact — *process start*. A new
+  conversation still carries nothing, and `/loadslate` is still what carries it.
 
 Wildcard: `notes/` (frictionless capture) — keep or fold later.
 

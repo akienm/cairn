@@ -390,7 +390,25 @@ Companion trees (drawn once, here, for orientation):
   node_classes/ tickets/ learning/ notes/ slates/
                                   # a type dir EXISTS only once its _charter+why.json does
                                   # notes/ also holds HELD NODES: birthed, traced, not cast
+```
 
+**Ruled OUT of the commons, and why** (recorded because a silent absence reads as
+an oversight and gets "fixed" by the next mind creating the directory). The
+original spec carried three stores we decided against in early talks:
+
+- `decisions/` — a decision **rides on a node**; scope is height, so a system-wide
+  ruling sits on a high node and an implementation choice on a low one. A separate
+  store would be a second home for a field. (Recorded below, "Riding on every node".)
+- `proofs/` — Law 5. The proof artifact lives **beside the device** it proves, and
+  since 2026-07-22 its VALIDATION lives beside the `proofs/` it seals. A commons
+  copy is the drift Law 5 exists to prevent.
+- `sessions/` — the **species survives** (see "Continuity records" below); only the
+  store was dropped. *Reconstruction, not a recorded ruling (2026-07-22):* a session
+  is the raw conversation, which lives in instance-space; the commons keeps only the
+  derived `slate`. Flagged as a hypothesis until the original reasoning is found or
+  re-ruled.
+
+```
 ~/.cairn/                         # instance-space; never in git
   devices/<device>/<instance>/    # logs/, cachedstate/, flags (singleton ⇒ instance 0)
   vault/                          # credentials, composed at connect-time, never persisted baked

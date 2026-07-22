@@ -989,11 +989,21 @@ CLAUDE.md → skills → launchers → commons → CP/diagnostic base →
 **tester + kernel-owned network** (before the first thing it guards) →
 db domain → **[done: the heartbeat (ground_loop) + the bus + the base's
 callback/shim + the system device (system_rackmount) + inference domain (the
-compile-once path to the host — an inference request IS a ticket, 2026-07-21)]** →
-web server → **harbor_master** (the workflow harbor — grants clearance for a
+compile-once path to the host — an inference request IS a ticket, 2026-07-21) +
+the web server (the presentation surface — nav = the heartbeat roster, panes =
+each device's active_page, rendered; v0 children a/b/c PROVEN 2026-07-22, the
+live-render horizon awaiting the launcher wiring)]** →
+**harbor_master** (the workflow harbor — grants clearance for a
 transition + keeps the fleet register; 'where we query open tickets'; unblocks the
 web server's journey pane; waits on the charter-split + the base-class emit-chokepoint)
 → librarian-as-chatbot → graph trees (embeddings generator lives here).
+
+The web server's panes are standard machinery in **BaseShim** (`active_page`) and its
+nav is **ground_loop**'s published `roster` — a device gets a page for free (the
+STATUS+SETTINGS floor from Form v0 #2) and declares any extra panes; the surface owns
+no state and escapes everything a device says (Law 7). So the librarian's chat-page +
+tool-page fall out as two declared interaction panes, not a special case — the surface
+the librarian rests on now exists, on the spine before it.
 
 Cast alongside 2026-07-21 (`CairnCommons/tickets/`): **charter-state-history-split**
 — a Form change: a charter factors into a bounded `state` (cursor + window) and an

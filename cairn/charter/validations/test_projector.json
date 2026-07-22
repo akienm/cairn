@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_projector.py passes under python3",
+    "caller": "charter/projector build 2026-07-21",
+    "date": "2026-07-21T15:50:30",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "seal": {
+        "detail": "none: no seal requested — the route is open by construction, and the record says so",
+        "verdict": "open"
+      },
+      "returncode": 0,
+      "stderr_tail": "",
+      "stdout_tail": "  PASS  test_state_is_derived_not_authored\n  PASS  test_count_window_is_bounded\n  PASS  test_history_is_append_only\n  PASS  test_since_gate_window_self_sizes\n  PASS  test_cursor_tracks_the_head\ngreen — charter/projector: state is compiled from history, bounded, append-only, drift-free"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

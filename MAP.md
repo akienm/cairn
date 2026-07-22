@@ -676,9 +676,13 @@ build-node proof is one kind of VALIDATION, not the whole of it.
 **Where they live (ruled 2026-07-22).** A VALIDATION sits beside the `proofs/`
 it seals, in the directory of the device that owns the seam — not in a
 `db_domain` table and not in a single flat store. Greppability comes from the
-tree, not from centralization. *Open debt:* the projector's own green
-VALIDATION (`test_projector.py passes under python3`, 2026-07-21T15:50:30) is
-still in the `validations` table and is the first record slated to move.
+tree, not from centralization. The write-door is `cairn/tester/validation_store.py`
+— append-only `validations/<stem>.json` beside the `proofs/` each seals, drift
+refused (a non-eight-field record is not a seal). *Done 2026-07-22:* the
+projector's own green VALIDATION (`test_projector.py passes under python3`,
+2026-07-21T15:50:30) moved to `cairn/charter/validations/test_projector.json`,
+the `validations` table was dropped, and `db_domain` no longer persists seals —
+it holds only the graph-tree / relational data now.
 
 **Measured motive.** Absent this store, a failed *reach* gets reported as a
 *verdict* — "the inference box is down" — with nowhere to check its actual

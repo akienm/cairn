@@ -1,8 +1,7 @@
 """Proof for db_domain — the owner-gated sole path to durable state.
 
 Proven UNDER the tester (dogfood): the same notary that attests every stone attests this
-one, and db_domain's first real consumer is the tester's own VALIDATIONS. Teeth a hollow
-db_domain could not pass:
+one. Teeth a hollow db_domain could not pass:
 
   - OWNERLESS IS IMPOSSIBLE (the founding law as physics). create_owned_table with no owner
     is refused; a hollow store that shrugs and creates it trips this. The refusal is
@@ -11,13 +10,15 @@ db_domain could not pass:
   - THE OWNER GATES EVERY WRITE (Law 6). A write by a non-owner is refused; a write to a
     table db_domain never created (no owner to gate it) is refused. A hollow store that
     lets anyone write trips these.
-  - VALIDATIONS ROUND-TRIP (closes the tester's produced-not-persisted edge, Law 1). A real
-    VALIDATION produced by TesterDevice.run_proof persists and greps back byte-for-byte,
-    evidence (jsonb, incl. the network seal) intact.
+  - A JSONB ROW ROUND-TRIPS AS STRUCTURE. An owned write with a jsonb column greps back a
+    dict, not a stringified blob — the property the graph-tree / relational data db_domain
+    still holds depends on. (VALIDATIONS were db_domain's first consumer; they MOVED to
+    beside-code git-JSON — cairn/tester/validation_store.py — so that round-trip is proven
+    there now, on the store that actually owns it.)
 
 Requires the one-time provisioning (an OS-named LOGIN CREATEDB role); db_domain creates the
-`cairn` database itself. Self-cleaning: ephemeral tables are dropped and test VALIDATIONS
-are deleted, so re-runs stay clean and the truth store is not polluted by proof fixtures.
+`cairn` database itself. Self-cleaning: ephemeral tables and their registry rows are dropped,
+so re-runs stay clean and the store is not polluted by proof fixtures.
 
     python3 cairn/db_domain/proofs/test_db_domain.py     # exit 0 = green
 """
@@ -35,13 +36,12 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.db_domain import store
 from cairn.db_domain.store import OwnershipError
-from cairn.tester.device import VALIDATION_FIELDS, TesterDevice
 
 # A per-run marker so parallel/re-runs never collide and cleanup is exact.
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TEST_TABLE = f"_probe_{_NONCE}"
+_JSONB_TABLE = f"_jsonb_{_NONCE}"
 _TEST_CLAIM = f"__dbtest__{_NONCE}"
-_GREEN_FIXTURE = _REPO_ROOT / "cairn" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 
 
 def test_connect_reaches_the_cairn_database():
@@ -89,30 +89,29 @@ def test_write_to_an_unowned_table_is_refused():
     raise AssertionError("a write to a table db_domain never created must be refused — no owner to gate it")
 
 
-def test_a_real_validation_round_trips():
-    # A genuine VALIDATION from the tester — not a hand-built dict — persists and greps back.
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
-    v["claim"] = _TEST_CLAIM  # mark this run's row so cleanup is exact
-    store.persist_validation(v)
+def test_a_jsonb_row_round_trips_as_structure():
+    # A real owned write with a jsonb column greps back as STRUCTURE, not a stringified blob —
+    # the property graph-tree/relational data depends on (this is what db_domain still holds
+    # now that VALIDATIONS moved to beside-code git; see cairn/tester/validation_store.py).
+    store.create_owned_table(_JSONB_TABLE, "tester", {"claim": "text", "evidence": "jsonb"})
+    payload = {"seal": {"verdict": "open"}, "returncode": 0}
+    store.write(_JSONB_TABLE, "tester", {"claim": _TEST_CLAIM, "evidence": payload})
 
-    back = store.read_validations(where="claim = %s", params=(_TEST_CLAIM,))
-    assert len(back) == 1, "the persisted VALIDATION must be greppable"
+    back = store.read(_JSONB_TABLE, where="claim = %s", params=(_TEST_CLAIM,))
+    assert len(back) == 1, "the owned row must grep back"
     stored = back[0]
-    assert set(stored) == set(VALIDATION_FIELDS), f"the durable record must carry exactly the 8 fields, got {sorted(stored)}"
-    assert stored["verdict"] == v["verdict"]
-    # evidence is jsonb — it must survive as structure, seal and all, not a stringified blob.
-    assert isinstance(stored["evidence"], dict)
-    assert stored["evidence"]["seal"]["verdict"] == v["evidence"]["seal"]["verdict"]
+    assert isinstance(stored["evidence"], dict), "jsonb must survive as a dict, not a string"
+    assert stored["evidence"]["seal"]["verdict"] == payload["seal"]["verdict"]
 
 
 def _cleanup():
-    """Drop this run's ephemeral table and delete its test VALIDATIONS — leave no fixtures."""
+    """Drop this run's ephemeral tables and registry rows — leave no fixtures behind."""
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TEST_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TEST_TABLE,))
-            cur.execute(f'DELETE FROM "{store._VALIDATIONS}" WHERE claim = %s', (_TEST_CLAIM,))
+            for tbl in (_TEST_TABLE, _JSONB_TABLE):
+                cur.execute(f'DROP TABLE IF EXISTS "{tbl}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (tbl,))
     finally:
         conn.close()
 
@@ -124,7 +123,7 @@ def _main() -> int:
         test_owned_table_records_its_owner,
         test_the_owner_gates_every_write,
         test_write_to_an_unowned_table_is_refused,
-        test_a_real_validation_round_trips,
+        test_a_jsonb_row_round_trips_as_structure,
     ]
     try:
         for check in checks:
@@ -132,7 +131,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — db_domain: ownerless is impossible, the owner gates writes, VALIDATIONS have a home")
+    print("green — db_domain: ownerless is impossible, the owner gates writes, jsonb round-trips as structure")
     return 0
 
 

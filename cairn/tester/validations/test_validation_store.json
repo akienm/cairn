@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_validation_store.py passes under python3",
+    "caller": "validations-migration 2026-07-22",
+    "date": "2026-07-22T16:15:04",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_real_validation_round_trips_beside_its_proof\n  PASS  test_append_only_a_rerun_does_not_overwrite\n  PASS  test_a_drifted_record_is_refused\ngreen — validation_store: a VALIDATION lands beside its proof, append-only, drift refused",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

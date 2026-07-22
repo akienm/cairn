@@ -26,11 +26,15 @@ seal) is the quarry. The seal's OS plumbing crosses nearly literally (kernel tru
 its design and the programmable Router (fixture/refuse/forward) do not — see
 ``isolation.py`` for the graft-vs-fresh ruling and the deferred Router.
 
+CLOSED EDGE (2026-07-22): VALIDATIONS are now **persisted**. The durable greppable home is
+``cairn/tester/validation_store.py`` — beside-code git-JSON, next to the ``proofs/`` each one
+seals (Law 5; ruling in tickets/charter-state-history-split.json child b), NOT a Postgres
+row. ``run_proof`` still returns the record and writes nothing itself (class-space stays
+state-free by run_proof); a caller — the standing-lesson gate — persists it explicitly, which
+keeps run_proof pure and testable as a table. The store refuses a drifted record, so a
+non-eight-field validation cannot land and pass for a seal.
+
 OPEN EDGES (filed, not faked — children of this stone):
-  - VALIDATIONS are **produced, not yet persisted**. A durable greppable store is
-    db_domain's stone (CLAUDE.md pending rule: durable state goes through the store
-    primitives). This tester returns records; it does not write them anywhere yet,
-    so class-space stays state-free.
   - The seal gives **no route** (the closed half of CLAUDE.md's "reached only through
     the domain" rules). The **chosen route** — a Router that serves/refuses/forwards a
     named dependency — is deferred to db_domain (FORWARD) and inference_domain
@@ -114,8 +118,9 @@ class TesterDevice(BaseDevice):
             "isolation": "owned — run_proof takes isolation='netns' to run under a measured "
             "seal (cairn/tester/isolation.py); default 'none' (bare) must be asked for by name. "
             "The chosen-route Router (serve/refuse/forward) is deferred to db/inference domains.",
-            "validations_sink": "produced-only — the durable VALIDATIONS store is db_domain's "
-            "stone (CLAUDE.md pending rule); this tester returns records, it does not persist them yet",
+            "validations_sink": "beside-code git-JSON — validation_store.py persists each "
+            "VALIDATION to validations/<stem>.json next to the proofs/ it seals (Law 5); run_proof "
+            "returns the record, the standing-lesson gate persists it, so run_proof stays state-free",
         }
 
     # --- the one capability: prove and attest -------------------------------

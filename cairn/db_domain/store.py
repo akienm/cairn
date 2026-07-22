@@ -25,6 +25,14 @@ machine-specific): the OS-named login role must exist. `CREATE ROLE <you> LOGIN 
 run once as the postgres superuser. Given that role, db_domain creates the `cairn`
 database itself (`ensure_database`), so the manual surface is exactly one role.
 
+WHAT DURABLE STATE LIVES HERE (narrowed 2026-07-22): the relational / graph-tree data —
+the trees the database is uniquely good at. VALIDATIONS used to be db_domain's first
+consumer; they MOVED OUT to beside-code git-JSON, next to the ``proofs/`` they seal
+(``cairn/tester/validation_store.py``; ruling in tickets/charter-state-history-split.json
+child b). Build-provenance is knowledge frozen at PROVED — it belongs beside the code it
+explains (Law 5), and git is already durable, so a truth record no longer sits in exactly
+one un-backed place. The database ends up holding ONLY what is genuinely relational.
+
 OPEN EDGES, filed not faked (round-three: the sole-route/owner-gate physics first):
   - Reads are not owner-gated here — Law 6 gates WRITES; a read gate (row-level, per
     consumer) is a later need no consumer has pulled yet.
@@ -52,21 +60,6 @@ _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to 
 
 # db_domain owns its own metadata table — the registry that makes ownership a fact.
 _REGISTRY = "cairn_owned"
-# The VALIDATIONS home (the tester's durable sink — closes the tester's produced-not-
-# persisted edge). Owned by the tester; columns are the ratified eight (MAP.md:569),
-# with `evidence` as jsonb so the seal/returncode structure survives round-trip intact.
-_VALIDATIONS = "validations"
-_VALIDATIONS_OWNER = "tester"
-_VALIDATION_COLUMNS = {
-    "claim": "text",
-    "caller": "text",
-    "date": "text",
-    "method": "text",
-    "verdict": "text",
-    "evidence": "jsonb",
-    "falsifier": "text",
-    "horizon": "text",
-}
 
 
 class OwnershipError(Exception):
@@ -237,31 +230,3 @@ def read(table: str, *, where: str | None = None, params: tuple = (), conn=None)
     finally:
         if conn is None:
             own_conn.close()
-
-
-# ── the tester's first consumer: a durable home for VALIDATIONS ──────────────
-
-
-def ensure_validations_home(*, conn=None) -> None:
-    """The `validations` table, owned by the tester — the durable sink for its records."""
-    create_owned_table(_VALIDATIONS, _VALIDATIONS_OWNER, _VALIDATION_COLUMNS, conn=conn)
-
-
-def persist_validation(validation: dict, *, conn=None) -> None:
-    """Store a tester-produced VALIDATION, gated as a write by its owner (the tester).
-
-    This is the stone that turns an answered proof into structure (Law 1): once here, a
-    mind greps the evidence trail instead of re-proving. Closes the tester's open edge (a).
-    """
-    own_conn = conn or connect()
-    try:
-        ensure_validations_home(conn=own_conn)
-        write(_VALIDATIONS, _VALIDATIONS_OWNER, validation, conn=own_conn)
-    finally:
-        if conn is None:
-            own_conn.close()
-
-
-def read_validations(*, where: str | None = None, params: tuple = (), conn=None) -> list[dict]:
-    """Grep the VALIDATIONS trail — the evidence store a hunch consults before re-deriving."""
-    return read(_VALIDATIONS, where=where, params=params, conn=conn)

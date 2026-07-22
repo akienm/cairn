@@ -37,7 +37,7 @@ EXPECTED_IDS = ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
 
 # The canonical words live in the sibling commons repo (three-roots invariant:
 # ~/dev/src/CairnCommons). The repo root's parent is src/.
-_COMMONS_RECORD = _REPO_ROOT.parent / "CairnCommons" / "intentions" / "core-values.md"
+_COMMONS_RECORD = _REPO_ROOT.parent / "CairnCommons" / "intentions-other" / "core-values.md"
 
 
 def _norm(text: str) -> str:

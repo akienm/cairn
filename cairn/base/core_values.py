@@ -9,7 +9,7 @@ Grafted 2026-07-14 from the quarry
 (``UnseenUniversity/.../diagnostic_base/core_values.py``), carried-over-intact:
 the core values are the one part of the predecessor that was never the problem
 (Law 2). The canonical *words* live in the commons record
-``CairnCommons/intentions/core-values.md``; this module is the *enforced* form.
+``CairnCommons/intentions-other/core-values.md``; this module is the *enforced* form.
 Any drift between the two is a red by physics, not a keep-in-sync comment - the
 pin test in ``proofs/test_core_values.py`` is the teeth (its falsifier).
 

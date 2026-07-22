@@ -9,7 +9,7 @@ construction. Its charter: `CairnCommons/intentions/I-cairn-claude-md.md`.
 **Orientation**
 
 - `MAP.md` — the working map (transitional; dissolves into intentions + tickets).
-- `CairnCommons/intentions/telos.md` — the charter everything traces up to.
+- `CairnCommons/intentions-other/telos.md` — the charter everything traces up to.
 - To be briefed on a device, **stand in its directory**: every component
   co-locates its **charter** (`intention+why.json` — the *summarized design*:
   authored, the settled why+role, changes only when the design shifts) + code +
@@ -27,7 +27,7 @@ what can't trace up doesn't belong.
 1. **The resolver is spent on the novel, not on re-deriving the settled.** Every
    answered question becomes structure; re-deriving a settled answer is a defect.
 2. **CP1–CP6 hold everywhere, including in the process that builds the system.**
-   (The six: `CairnCommons/intentions/core-values.md`.)
+   (The six: `CairnCommons/intentions-other/core-values.md`.)
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the

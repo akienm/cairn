@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_ground_loop.py passes under python3",
+    "caller": "web-server child c — ground_loop roster / nav",
+    "date": "2026-07-22T17:27:52",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_beat_pulses_every_shim_in_order\n  PASS  test_the_firing_is_the_shims_not_the_heartbeats\n  PASS  test_subscribe_is_idempotent_and_typed\n  PASS  test_one_shim_raising_cannot_stop_the_beat\n  PASS  test_the_executor_goof_is_gone\n  PASS  test_the_roster_is_the_nav_published_at_all_times\n  PASS  test_it_is_a_device\ngreen — ground_loop: the heartbeat beats and pulses subscribed shims (in order, survivably); the firing is the shim's, and the executor goof is gone",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

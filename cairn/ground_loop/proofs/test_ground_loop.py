@@ -15,6 +15,9 @@ Teeth a hollow heartbeat could not pass:
   - ONE SHIM RAISING CANNOT STOP THE BEAT reaching the others (CP2, Law 7).
   - THE GOOF IS GONE: no run_driver / no method registry — the heartbeat executes nothing.
   - IT IS A DEVICE (Law 2 / Form v0 #2).
+  - THE ROSTER IS THE NAV (web-server child c): the heartbeat publishes roster() at ALL times —
+    the devices it beats to, in order, each with live wakefulness — before the first beat too;
+    a device absent from subscriptions is absent from the roster; the roster is DATA.
 
 Runnable bare (NO DB, NO framework):
     python3 cairn/ground_loop/proofs/test_ground_loop.py     # exit 0 = green
@@ -57,6 +60,9 @@ class _Shim(BaseShim):
 
     def callbacks(self):
         return self._callbacks
+
+    def _start_device(self):
+        return object()  # a minimal woken device — enough to flip running True
 
 
 class _AngryShim(BaseShim):
@@ -131,6 +137,30 @@ def test_the_executor_goof_is_gone():
     assert not hasattr(gl, "registry"), "the heartbeat holds no method registry — that was the goof"
 
 
+def test_the_roster_is_the_nav_published_at_all_times():
+    import json
+    gl = GroundLoopDevice()
+    # Published BEFORE any subscribe or beat — an empty nav is honest, not broken.
+    empty = gl.roster()
+    assert empty == {"beats": 0, "devices": []}, "the roster is published at all times, even empty"
+
+    a, b = _Shim("alpha"), _Shim("beta")
+    gl.subscribe(a)
+    gl.subscribe(b)
+    roster = gl.roster()
+    assert [d["device"] for d in roster["devices"]] == ["alpha", "beta"], \
+        "the roster is the subscription list, in order — the nav across the top"
+    assert all(d["awake"] is False for d in roster["devices"]), "no device woken yet → all asleep in the nav"
+
+    # Wakefulness is LIVE: wake one device (deliver mail) and the nav reflects it.
+    a.deliver({"id": "e1"})
+    assert gl.roster()["devices"][0]["awake"] is True, "the roster shows live wakefulness (shim.running)"
+    # A device NOT subscribed cannot appear in the nav — you navigate to what the heartbeat beats.
+    assert "gamma" not in [d["device"] for d in gl.roster()["devices"]]
+    # The roster is DATA the web server renders — json-round-trips unchanged.
+    assert json.loads(json.dumps(roster)) == roster
+
+
 def test_it_is_a_device():
     gl = GroundLoopDevice()
     assert isinstance(gl, CoreValuesMixin), "a device must compose the core values (Law 2)"
@@ -144,6 +174,7 @@ def _main() -> int:
                   test_subscribe_is_idempotent_and_typed,
                   test_one_shim_raising_cannot_stop_the_beat,
                   test_the_executor_goof_is_gone,
+                  test_the_roster_is_the_nav_published_at_all_times,
                   test_it_is_a_device):
         check()
         print(f"  PASS  {check.__name__}")

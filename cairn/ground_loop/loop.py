@@ -72,6 +72,27 @@ class GroundLoopDevice(BaseDevice):
     def subscribers(self) -> list[str]:
         return [s.device_id for s in self._shims]
 
+    # --- the live roster: the nav across the top (web-server child c) --------
+
+    def roster(self) -> dict:
+        """The live heartbeat ROSTER — the devices this heartbeat beats to — published at ALL
+        times, as the authoritative nav for the web presentation surface (web-server child c).
+
+        The heartbeat already KNOWS its subscribers: it owns the subscription list (Law 6). This
+        is that knowledge published as DATA, no new owner and no new state — the roster IS the
+        subscription list, plus each device's live wakefulness (its shim's ``running``) so the
+        nav can show who is awake. Available before the first beat too (``beats`` 0, the current
+        subscribers): you can navigate to a device the moment it subscribes, not only once it has
+        been pulsed. A device ABSENT from the roster cannot appear in the nav — honest by
+        construction: you navigate to what the heartbeat beats."""
+        return {
+            "beats": self._beats,
+            "devices": [
+                {"device": s.device_id, "awake": bool(getattr(s, "running", False))}
+                for s in self._shims
+            ],
+        }
+
     # --- the one capability: one beat ---------------------------------------
 
     def beat(self, now, context: dict | None = None) -> dict:
@@ -127,4 +148,7 @@ class GroundLoopDevice(BaseDevice):
             "clock; the OS timer/daemon that calls beat on a real cadence is a filed thin wrapper",
             "subscription": "in-process via subscribe(shim); file-in-the-device's-tree discovery is "
             "a filed edge for when devices are separate OS processes",
+            "roster": "publishes roster() at all times — the devices it beats to, each with live "
+            "wakefulness — as the nav for the web presentation surface (web-server child c); no new "
+            "owner, it IS the subscription list this device already owns (Law 6)",
         }

@@ -162,7 +162,9 @@ the quarry.
    - Ratified 2026-07-14: repo is **class-space**, home is **instance-space**.
      A singleton is just a device with one instance (e.g. instance `0`) and
      still lives under `~/.cairn/devices/<device>/0/` — one path shape, no
-     special case, no state in the repo.
+     special case, no *runtime* state in the repo. (Build provenance — `state`,
+     `history`, validations — is knowledge, not runtime, and does live beside
+     the code; ruled 2026-07-22, see "What a charter is" below.)
 2. **Each device reports, in order: intention, then state, then settings, then
    other things (e.g. chat) as we build it out.** One uniform introspection
    surface — the same protocol the tester probes and the web UI renders, so
@@ -272,14 +274,35 @@ enter as candidate questions and earn tenure by yield, like everything else.)
 
 | Root | Holds | Rule |
 |---|---|---|
-| `~/dev/src/cairn/` (repo) | code, skills, CLAUDE.md, per-device charters + proofs | class-space; git; shareable |
+| `~/dev/src/cairn/` (repo) | code, skills, CLAUDE.md, per-device charters + `state`/`history` + proofs + validations | class-space; git; shareable; no *runtime* state |
 | `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | intentions (incl. the Telos), decisions, tickets, proofs, slates — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it |
 | `~/.cairn/` | logs, credentials, flags, cachedstate, personal info | instance-space; never in git; composed at use-time |
 
 **The map IS the territory:** every component directory co-locates
-`intention+why.json` + implementation + `proofs/`. Opus gets briefed by standing in
-the directory. The tester refuses to run a component with no intention, so the
-map cannot rot apart from the code.
+`intention+why.json` + implementation + `state` + `history` + `proofs/` and the
+validations that sealed them. Opus gets briefed by standing in the directory.
+The tester refuses to run a component with no intention, so the map cannot rot
+apart from the code.
+
+**What a charter is (ruled 2026-07-22):** a component hosts *many* intentions and
+tickets over its life, so the charter is not one intention — it is their
+**summary**. Two cadences that separate by provenance:
+
+- `intention+why.json` = the **summarized design**. Authored at the design level
+  (our chats); the settled why + role; changes only when the design genuinely
+  shifts.
+- `state` = **compiled** from the component's tickets at the operational level;
+  changes every resolution; never hand-edited.
+- `history` = the append-only voyage. When a ticket proves out its voyage
+  *freezes* here (Law 7) and its result *folds into* the charter.
+- validations sit beside the `proofs/` they seal — not in `db_domain`.
+
+These are the beside-code faces of the two levels that don't conflict (design
+above, operational below). The projector move — compile a bounded view over an
+append-only source — recurs at three scales: ticket (`history` → `state`),
+component (intentions + tickets → the charter summary), system (charters →
+the `intentions/` index). Open, deliberately: whether the middle row stays
+hand-authored or is eventually compiled too.
 
 **Stores self-describe like devices (Akien, 2026-07-14):** every artifact-type
 directory in CairnCommons carries a `_charter+why.json` co-locating:
@@ -300,20 +323,25 @@ conform, drift is red.
 ```
 cairn/<device>/
   intention+why.json  ← charter: what this is FOR **and why** (name forces the why)
+                        — the SUMMARIZED DESIGN; authored, not compiled
+  state               ← compiled from this component's tickets (never hand-edited)
+  history             ← append-only; the frozen voyages of proved tickets
   *.py                ← implementation
-  proofs/             ← what a hollow build couldn't pass
+  proofs/             ← what a hollow build couldn't pass, + the validations
+                        that sealed them
 ```
 
 ## Repo file tree (forks ratified 2026-07-14)
 
 Decisions: **base + devices only** (a spun-off service becomes another device —
-no third category); **proof CODE beside the device, proof RECORDS in commons**;
+no third category); **proof code AND proof records both beside the device**
+(the records were commons-side until the 2026-07-22 placement ruling);
 **skills repo-canonical + symlink, but PURGED** — a skill crosses from UU only
 if it serves Cairn (e.g. `autocompact` was decided-retired yet still squats in
 UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
 
 ```
-~/dev/src/cairn/                  # class-space; git; no state, ever
+~/dev/src/cairn/                  # class-space; git; no *runtime* state, ever
   CLAUDE.md                       # spine step 1 — stays minimal: laws + pointers, not prose
   MAP.md                          # this file (dissolves into intentions/tickets over time)
   pyproject.toml                  # `pip install -e .` green at all times; include = ["cairn*"]
@@ -328,17 +356,21 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
       introspect.py               # Form #2 surface: intention → state → settings → …
       store.py                    # commons access + charter enforcement primitives
       proofs/                     # proof code for the base
-    devices/
-      __init__.py                 # empty/lazy
-      tester/                     # earliest device on the spine; owns the network
-      db_domain/                  # the only path to 5432
-      ground_loop/
-      dispatcher/                 # (UU: Granny) — functional names, no roster
-      inference_domain/           # the only path to inference
-      web_server/
-      librarian/
-      …                           # one dir per device, ALL the same shape:
-                                  #   intention+why.json + code + proofs/
+                                  # devices sit directly under cairn/ — there is no
+                                  # devices/ layer (corrected 2026-07-22 against disk)
+    tester/                       # earliest device on the spine; owns the network
+    db_domain/                    # the only path to 5432
+    ground_loop/                  # the heartbeat, nothing else
+    bus/                          # the other runtime substrate
+    system_rackmount/             # the system device (host-resource predicates)
+    inference_domain/             # the only path to inference
+    charter/                      # the projector: state compiled from history
+    sudo_relay/
+    web_server/                   # cast, not yet built
+    librarian/                    # not yet built
+    …                             # one dir per device, ALL the same shape:
+                                  #   intention+why.json + code + state + history
+                                  #   + proofs/ (+ the validations beside them)
   skills/                         # canonical; ~/.claude/skills symlinks here; purged set only
   launchers/                      # cairn launch/rescue scripts; symlinked onto PATH
 ```
@@ -548,8 +580,9 @@ Riding on every node as fields (not separate artifacts):
 
 **Separate species (cannot ride on the node):**
 - **proof** — one species, two faces: the **artifact** a hollow build couldn't
-  pass (proof code, beside the device) and its **VALIDATION** — the commons-side
-  verdict record. Owned by the seam's device; the node points at it. The
+  pass (proof code, beside the device) and its **VALIDATION** — the verdict
+  record, which since 2026-07-22 also lives beside the `proofs/` it seals.
+  Owned by the seam's device; the node points at it. The
   VALIDATION generalizes past the build tree — see the stone below.
 - **question** — the open dual of an intention; own corpus with yield. An
   answered question that becomes a commitment turns into an intention node.
@@ -588,8 +621,15 @@ build-node proof is one kind of VALIDATION, not the whole of it.
 - **produced** automatically — the tester emits on every prove; the resolver's
   work becomes structure instead of being re-derived.
 - **consumed** on a hint — a mind that suspects "this is already validated" greps
-  `VALIDATIONS/` instead of proving it again. Not an automatic gate; a cache you
-  consult on a hunch ("I think that's been validated" → go look).
+  the validation records instead of proving it again. Not an automatic gate; a
+  cache you consult on a hunch ("I think that's been validated" → go look).
+
+**Where they live (ruled 2026-07-22).** A VALIDATION sits beside the `proofs/`
+it seals, in the directory of the device that owns the seam — not in a
+`db_domain` table and not in a single flat store. Greppability comes from the
+tree, not from centralization. *Open debt:* the projector's own green
+VALIDATION (`test_projector.py passes under python3`, 2026-07-21T15:50:30) is
+still in the `validations` table and is the first record slated to move.
 
 **Measured motive.** Absent this store, a failed *reach* gets reported as a
 *verdict* — "the inference box is down" — with nowhere to check its actual

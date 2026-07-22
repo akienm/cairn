@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_web_server.py passes under python3",
+    "caller": "web-server child b — the web_server device (route + render)",
+    "date": "2026-07-22T17:34:06",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -93,6 +93,17 @@ class GroundLoopDevice(BaseDevice):
             ],
         }
 
+    def shim_for(self, device_id: str):
+        """The subscribed shim for ``device_id``, or None. The heartbeat holds its subscribers'
+        shims (in-process v0), so a presentation surface can reach a device's page THROUGH the
+        heartbeat that beats it — you can only reach what is on the roster. A read accessor, no
+        new ownership: the subscription list is already this device's (Law 6). When devices are
+        separate OS processes this becomes 'address the shim over the bus', the filed edge."""
+        for s in self._shims:
+            if s.device_id == device_id:
+                return s
+        return None
+
     # --- the one capability: one beat ---------------------------------------
 
     def beat(self, now, context: dict | None = None) -> dict:

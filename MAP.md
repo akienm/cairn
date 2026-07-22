@@ -275,7 +275,7 @@ enter as candidate questions and earn tenure by yield, like everything else.)
 | Root | Holds | Rule |
 |---|---|---|
 | `~/dev/src/cairn/` (repo) | code, skills, CLAUDE.md, per-device charters + `state`/`history` + proofs + validations | class-space; git; shareable; no *runtime* state |
-| `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | intentions (incl. the Telos), decisions, tickets, proofs, slates — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it |
+| `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | `intentions-other/` (homeless intentions incl. the roots), `intentions/` (the compiled assembly point), `node_classes/`, `tickets/`, `questions/` (the probe corpus), `learning/`, `notes/`, `slates/` — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it. **The rule itself is under re-derivation** — see `notes/held-roots-as-stations-or-shelves.json` |
 | `~/.cairn/` | logs, credentials, flags, cachedstate, personal info | instance-space; never in git; composed at use-time |
 
 **The map IS the territory:** every component directory co-locates
@@ -383,10 +383,13 @@ Companion trees (drawn once, here, for orientation):
 
 ```
 ~/dev/src/CairnCommons/           # knowledge; own git repo
-  intentions/  _charter+why.json + telos.md + …   # first charter written (Q6)
-  questions/   _charter+why.json + …              # the question corpus, with yield
-  decisions/ tickets/ proofs/ slates/ sessions/ notes/
+  intentions-other/ _charter+why.json + telos.md + core-values.md + …
+                                  # the homeless: no ONE code address. Roots first by date.
+  intentions/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: IOU)
+  questions/   _charter+why.json  # the PROBE corpus, yield-tracked. Probes only — see below.
+  node_classes/ tickets/ learning/ notes/ slates/
                                   # a type dir EXISTS only once its _charter+why.json does
+                                  # notes/ also holds HELD NODES: birthed, traced, not cast
 
 ~/.cairn/                         # instance-space; never in git
   devices/<device>/<instance>/    # logs/, cachedstate/, flags (singleton ⇒ instance 0)
@@ -570,6 +573,14 @@ code. The node is the primitive; "ticket" is just its common name once cast.
 
 Riding on every node as fields (not separate artifacts):
 - the **intention proper** — claim, why, falsifier, horizon, provenance, trace-up edge
+- **the ticket/task flag** (ruled 2026-07-22, set at `/intent`) — does this intention
+  join the **fabric**, the set of records that say what the system IS? A **ticket**
+  moves the definition at cast, so its voyage is provenance and freezes beside the
+  code (Law 5). A **task** is work the system needs done that does not define it, so
+  nothing downstream is provenance of it and its record is a receipt. Decided by the
+  **seed test**: does replaying this on a bare machine help regrow the system?
+  Ticket is the fall-through; task must argue its way out. Node:
+  `CairnCommons/tickets/ticket-and-task.json`.
 - **design, at this node's level** — scope = height; a system-wide decision rides
   on a high node, an implementation choice on a low one (so `decisions/` needs no store)
 - **state** — lifecycle position
@@ -586,6 +597,14 @@ Riding on every node as fields (not separate artifacts):
   VALIDATION generalizes past the build tree — see the stone below.
 - **question** — the open dual of an intention; own corpus with yield. An
   answered question that becomes a commitment turns into an intention node.
+  **Ruled 2026-07-22 — two kinds were hiding in that sentence, which is why the
+  store went eight days unbuilt.** A **probe** is fired repeatedly at a nexus over
+  varying content (Telos 4's core: *the answers vary, but the questions do not*);
+  it never gets "answered," it gets fired again, and it earns tenure or retires by
+  yield. A **held node** is an intention in fill-state that failed `/sorted`'s
+  completeness gate — asked once, answered once, then it casts. **The discriminator
+  is yield, and it is mechanical:** yield is only computable for something fired
+  more than once. Probes → `questions/`. Held nodes → `notes/`, prefixed `held-`.
 - **trouble** — machine-filed failure observation (already its own species).
 
 **Continuity records (a different axis — not the build tree):**

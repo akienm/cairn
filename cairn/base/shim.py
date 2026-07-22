@@ -124,6 +124,62 @@ class BaseShim(CoreValuesMixin, ABC):
         return {"to": cb.to, "channel": cb.channel, "why": cb.why,
                 "outcome": "ok", "envelope": envelope["id"]}
 
+    # --- the web presentation surface: assemble the device's ACTIVE page ----
+
+    def device(self):
+        """The introspectable device this shim fronts, woken on demand.
+
+        The web server reaches a device's ACTIVE page THROUGH its always-on shim
+        (the device may be asleep); querying the page is itself a poke, so it wakes
+        the device (wake-to-a-poke). A concrete shim that already holds its device
+        directly overrides this to hand it back without the lazy start."""
+        self._ensure_device()
+        return self._device
+
+    def active_page(self) -> dict:
+        """Assemble the device's ACTIVE page as structured DATA — the STANDARD
+        machinery, here in the shim and not in each device (Law 6) and not in the web
+        server (which only renders). Returns ``{"device", "panes": [...]}`` where each
+        pane is ``{kind, label, data}``.
+
+        The STATUS + SETTINGS FLOOR is projected from the device's ``introspect()``
+        (Form v0 #2 — STATUS = intention + state, the reported side of the drift
+        detector; SETTINGS = settings). The device's ``declared_panes()`` are then
+        appended IN ORDER, multiples of a kind allowed. Payload is DATA (dicts / lists
+        / scalars), never HTML — the web server renders (Law 7).
+
+        An offered pane whose handler is ``None``, or whose handler RAISES, renders
+        ABSENT with a reason and the page still assembles (CP2, Law 7 — loud at this
+        diagnostic surface, never a silent drop, never an aborted page).
+
+        FILED EDGE (child b's job, not faked here): STATUS carries only the REPORTED
+        intention; flagging drift against the FILED ``intention+why.json`` on disk is
+        the web server's render-time comparison (it already reads disk intentions),
+        not the shim's — the shim must not couple to charter file paths."""
+        dev = self.device()
+        surface = dev.introspect()
+        panes: list[dict] = [
+            {"kind": "status", "label": "Status",
+             "data": {"intention": surface["intention"], "state": surface["state"]}},
+            {"kind": "settings", "label": "Settings", "data": surface["settings"]},
+        ]
+        for desc in dev.declared_panes():
+            kind = desc.get("kind")
+            label = desc.get("label", kind)
+            handler = desc.get("handler")
+            if handler is None:
+                panes.append({"kind": kind, "label": label, "data": None,
+                              "absent": "offered but unwired (no handler)"})
+                continue
+            try:
+                data = handler()
+            except Exception as exc:  # noqa: BLE001 — a bad pane is loud + absent, never an aborted page
+                panes.append({"kind": kind, "label": label, "data": None,
+                              "absent": f"handler refused: {type(exc).__name__}: {exc}"})
+                continue
+            panes.append({"kind": kind, "label": label, "data": data})
+        return {"device": self.device_id, "panes": panes}
+
     # --- (2)+(3) receive mail; wake the device on demand --------------------
 
     def deliver(self, envelope: dict):

@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_active_page.py passes under python3",
+    "caller": "web-server child a — active_page machinery",
+    "date": "2026-07-22T17:24:46",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_floor_is_always_present_and_pulled_from_introspect\n  PASS  test_declared_panes_append_in_order_and_multiples_of_a_kind_are_allowed\n  PASS  test_an_offered_pane_with_no_handler_renders_absent\n  PASS  test_a_handler_that_raises_is_absent_with_reason_and_the_page_survives\n  PASS  test_the_whole_page_is_data_not_html\ngreen — the ACTIVE page machinery: the STATUS+SETTINGS floor is projected from introspect(), declared panes append in order (multiples allowed), a bad pane is loud+absent not fatal, and the whole page is DATA the web server renders",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -84,3 +84,28 @@ class BaseDevice(CoreValuesMixin, ABC):
             "settings": self.settings(),
             "other": {},
         }
+
+    # --- the web presentation surface: which panes this device OFFERS --------
+
+    def declared_panes(self) -> list[dict]:
+        """The surfaces this device OFFERS beyond the STATUS + SETTINGS floor.
+
+        The web presentation surface (``web-server`` ticket, child a) renders a
+        device's ACTIVE page as a stack of standard PANES. STATUS + SETTINGS are the
+        guaranteed floor — the shim projects them from ``introspect()`` above, so a
+        device gets them for free (Form v0 #2). Beyond the floor, a device *declares*
+        which panes it fills and provides a HANDLER for each; the handler returns the
+        pane's DATA (never HTML — the web server renders; Law 7). This is the reserved
+        ``other`` channel made concrete.
+
+        Each descriptor is ``{"kind": str, "label": str, "handler": callable|None}``.
+        Panes are a declared LIST, not a fixed enum: a device may offer more than one
+        of a kind (the librarian's chat-page + tool-page are two ``interaction`` panes,
+        not a special case). A descriptor whose ``handler`` is ``None`` renders ABSENT
+        (an offered-but-unwired pane is an honest empty, not a crash).
+
+        Default empty: a device that offers only the floor is honest, not deficient.
+        The machinery that ASSEMBLES the page lives in ``BaseShim.active_page`` — one
+        home (Law 6), not re-implemented per device.
+        """
+        return []

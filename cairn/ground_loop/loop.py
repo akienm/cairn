@@ -1,7 +1,7 @@
 """ground_loop — THE HEARTBEAT. One daemon that provides a pulse, and nothing more.
 
 THE MOST BASIC MECHANISM IN CAIRN (converged with Akien 2026-07-18;
-``CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md``). The ground_loop does NOT
+``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). The ground_loop does NOT
 execute, resolve, schedule, route, or write. It BEATS. On each beat it pulses the shim of
 every subscribed device; handling the pulse — evaluating callbacks, firing the due ones —
 lives in the SHIM (``cairn/base/shim.py``), never here.

@@ -1,7 +1,7 @@
 """system_rackmount — THE SYSTEM DEVICE: owner of the host's resource predicates.
 
 The one device that stands in for the SYSTEM underneath (converged with Akien 2026-07-18;
-``CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md``). It OWNS the host-resource data
+``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). It OWNS the host-resource data
 — CPU, memory, disk — and ADVERTISES the callbacks it can serve against them. It is NOT a
 central scheduler (that framing, and the ``interval/date/quantity/state`` trigger enum, were
 the goof this rework deletes). Scheduling is the universal heartbeat + shim + callback

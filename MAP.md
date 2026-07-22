@@ -904,7 +904,7 @@ instance' (self-contained; no external orchestrator possible). Consequences:
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
-`CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md`.) A peer is woken by a
+`CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md`.) A peer is woken by a
 CALLBACK firing — "call X when this trigger is true", where a trigger is *anything
 that evaluates to true* (not the closed `interval/date/quantity/a-state` enum, which
 was a reification). Reactive (wake on state entry: builder ⟵ BUILDME) and scheduled
@@ -952,7 +952,7 @@ harbor register); `state-machine-physics.json` is cross-referenced, not overwrit
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built
 2026-07-18; there is no separate rack device. The two runtime substrates are the
-heartbeat and the bus — `CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md`.)
+heartbeat and the bus — `CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md`.)
 
 Workflow target: intention → design → tickets → build → test → done; each stage
 a question nexus with feedback. End state: CC.0 + CC.1 + aider (easy work), one

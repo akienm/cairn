@@ -1,7 +1,7 @@
 """bus — the ONE common messaging substrate for everything, made a device.
 
 THE SECOND SUBSTRATE (converged with Akien 2026-07-18;
-``CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md``). Cairn runtime hangs on
+``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). Cairn runtime hangs on
 exactly two things: the HEARTBEAT (``ground_loop`` — one pulse, nothing more) and the
 BUS (here — one messaging substrate, the sole path for inter-device communication). The
 symmetry is what makes it load-bearing:

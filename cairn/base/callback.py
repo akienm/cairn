@@ -1,7 +1,7 @@
 """Callback — the immutable "call X when this trigger is true", made a primitive.
 
 ONE OF TWO SPECIES (converged with Akien 2026-07-18;
-``CairnCommons/intentions/I-heartbeat-callbacks-and-bus.md``):
+``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``):
 
   - **Callback** (here) — *immutable, no workflow.* "Call X when this trigger is true."
     It carries no state of its own; because it is DECLARATION, it lives with the device's

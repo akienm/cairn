@@ -4,7 +4,7 @@ Compiled navigation: stones stacked so the next mind doesn't re-derive the route
 You are standing in **class-space** (`~/dev/src/cairn/`) — code and the record of
 how it got here; no *runtime* state, ever (that lives in instance-space).
 This is the first file every Cairn mind reads; it stays true and small by
-construction. Its charter: `CairnCommons/intentions/I-cairn-claude-md.md`.
+construction. Its charter: `CairnCommons/intentions-other/I-cairn-claude-md.md`.
 
 **Orientation**
 
@@ -55,13 +55,17 @@ what can't trace up doesn't belong.
 Runtime instances live at `~/.cairn/devices/<device>/<instance>/`; a singleton
 is instance `0`, not a special case.
 
-**Which root?** Ask whether the intention has code. A **code-seam** has code, so
-it berths in `cairn/` beside it — its ticket stages in `CairnCommons/tickets/`,
-then migrates beside the code to become that component's `history`. A
-**concept-piece**'s implementation *is* the prose, and a **host-seam**'s is the
-machine itself (a hook, a package, a unit file); both berth in
-`CairnCommons/intentions-other/` and never migrate. Everything we intend to
-share is a git file; the database holds only the graph trees.
+**Which root?** Ask whether the intention has **one** code address. A
+**code-seam** does, so it berths in `cairn/` beside it — its ticket stages in
+`CairnCommons/tickets/`, then migrates beside the code to become that
+component's `history`. Everything else berths in
+`CairnCommons/intentions-other/` and never migrates: a **concept-piece** (the
+prose *is* the implementation), a **host-seam** (the machine itself — a hook, a
+package, a unit file), the **roots** (`telos.md`, `core-values.md` — implemented
+by the whole system), and **spanning** intentions (plenty of code, but in many
+places at once, so no one directory can hold them). Homeless means *no* address
+or *many*. Everything we intend to share is a git file; the database holds only
+the graph trees.
 
 `intentions/` is **compiled** from `intentions-other/` plus the charters homed
 beside the code — which is what lets that one folder be carried to a bare

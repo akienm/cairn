@@ -58,10 +58,17 @@ is instance `0`, not a special case.
 **Which root?** Ask whether the intention has code. A **code-seam** has code, so
 it berths in `cairn/` beside it — its ticket stages in `CairnCommons/tickets/`,
 then migrates beside the code to become that component's `history`. A
-**concept-piece**'s implementation *is* the prose, so it stays in
-`CairnCommons/` and never migrates (different hands seal a concept than seal
-code). Everything we intend to share is a git file; the database holds only the
-graph trees.
+**concept-piece**'s implementation *is* the prose, and a **host-seam**'s is the
+machine itself (a hook, a package, a unit file); both berth in
+`CairnCommons/intentions-other/` and never migrate. Everything we intend to
+share is a git file; the database holds only the graph trees.
+
+`intentions/` is **compiled** from `intentions-other/` plus the charters homed
+beside the code — which is what lets that one folder be carried to a bare
+machine and regrow the system. A host-seam therefore carries a replayable
+`apply` recipe and a re-runnable `verify`: its implementation lives where git
+cannot see it, and its seal expires (the host drifts with nothing in git
+changing).
 
 ## Rules awaiting physics
 

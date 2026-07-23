@@ -17,9 +17,16 @@ NOT carried from the quarry (a deliberate redesign, not an omission):
     …). Cairn's contract is the three ordered reports above, not that surface; and
     ``block``/``halt`` are the UU state-model + a word Cairn dropped on purpose.
   - UU's ``DiagnosticBase`` logging machinery (loguru, per-record JSON sinks under
-    ``~/.unseen_university/logs/``). Cairn's evidence surface is VALIDATIONS + the
-    learning store + journeys, and instance-space is ``~/.cairn/``. When a device
-    needs a shared service it is spun off (Form v0 #3), never copied down here.
+    ``~/.unseen_university/logs/``). Cairn's durable evidence is VALIDATIONS + the
+    learning store + journeys, and instance-space is ``~/.cairn/``.
+    WHAT IS CARRIED (2026-07-22): a Cairn-native, transition-grade EMISSION mechanism —
+    ``DiagnosticBase`` (``cairn/base/diagnostic.py``), composed here so every device inherits
+    ``emit()`` the way it inherits CP1-CP6. At a gate contact it sends a THIN breadcrumb home to
+    CC's shim (the diagnostic mailbox, for now), pointing to the ticket and stamped to the
+    microsecond (which indexes the fuller 30-day cache-class logs). The loguru/JSON-sink backend
+    is NOT carried — only the µs-stamp mechanism; the intelligence lives in the interpreter that
+    crawls, not in the base. This is what would have SPOKEN when ``system_rackmount`` went red
+    silently (the gap that motivated it; Law 7).
 
 OPEN EDGE (filed, not faked): the return *shape* of the three reports is loose
 (``dict``) on purpose in v0 — it firms up when its consumers exist (the tester
@@ -35,13 +42,16 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from cairn.base.core_values import CoreValuesMixin
+from cairn.base.diagnostic import DiagnosticBase
 
 
-class BaseDevice(CoreValuesMixin, ABC):
+class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
     """Abstract base for every Cairn device.
 
     Composes ``CoreValuesMixin`` — every device carries CP1-CP6 structurally (Law
-    2, enforced by proofs/test_composition.py). Declares the Form v0 #2 surface:
+    2, enforced by proofs/test_composition.py) — and ``DiagnosticBase``, so every device
+    inherits ``emit()`` (the transition-grade diagnostic surface; ``cairn/base/diagnostic.py``).
+    Declares the Form v0 #2 surface:
     ``intention()`` → ``state()`` → ``settings()``, assembled in that order by the
     concrete ``introspect()``.
     """

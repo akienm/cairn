@@ -180,6 +180,23 @@ class BaseShim(CoreValuesMixin, ABC):
             panes.append({"kind": kind, "label": label, "data": data})
         return {"device": self.device_id, "panes": panes}
 
+    # --- the diagnostic mailbox: receive gate-contact breadcrumbs (for now) --
+
+    def receive_diagnostic(self, record: dict) -> None:
+        """Receive a gate's diagnostic breadcrumb, sent HOME. In the running system THIS is CC's
+        own shim (``cc_0``) — the diagnostic mailbox, *for now* (the honest stopgap until a
+        diagnostic device owns it). A device inherits ``emit`` (``cairn/base/diagnostic.py``); its
+        gates point breadcrumbs here, each tied to a ticket (``pointer``) and stamped to the
+        microsecond (which indexes the fuller 30-day logs). The interpreter crawls this mailbox.
+        Records land in arrival order; the µs stamp the emitter applied is what orders them
+        precisely, so none collide and none are lost (Law 7)."""
+        self.__dict__.setdefault("_diagnostics", []).append(record)
+
+    def diagnostics(self) -> list[dict]:
+        """The diagnostic mailbox — breadcrumbs sent home, in arrival order. The log interpreter
+        reads this, follows each ``pointer`` + µs stamp, and compiles the slice (the next build)."""
+        return list(getattr(self, "_diagnostics", []))
+
     # --- (2)+(3) receive mail; wake the device on demand --------------------
 
     def deliver(self, envelope: dict):

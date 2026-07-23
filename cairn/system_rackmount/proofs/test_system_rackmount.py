@@ -80,9 +80,15 @@ def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
     poke = pokes[0]
     assert poke["sender"] == "system_rackmount" and poke["why"] == "page me when CPU is high"
 
-    # Law 6: the poke carries the caller's own line, but the READING (95) leaked NOWHERE.
+    # Law 6: the poke carries the caller's own line (80), but the device's private READING (95)
+    # leaked NOWHERE. Scope the leak-check to what the DEVICE authored — the bus assigns the
+    # transport fields (a random uuid `id`, a timestamp `date`) a device never fills, and a random
+    # 32-char hex id contains the substring "95" ~12% of the time. Scanning the whole envelope for
+    # the reading was this proof's FLAKE: a red decided partly by a coin toss (Law 8), not a real
+    # leak — the exact-body check above already proves the payload is clean.
     assert poke["body"] == {"alert": "cpu_threshold", "crossed": 80}
-    assert "95" not in json.dumps(poke), "the raw reading must never cross the bus (Law 6)"
+    authored = {k: v for k, v in poke.items() if k not in ("id", "date")}
+    assert "95" not in json.dumps(authored), "the raw reading must never cross the bus (Law 6)"
 
     # Under the line, the same subscription pokes no one new.
     reading["cpu"] = 50

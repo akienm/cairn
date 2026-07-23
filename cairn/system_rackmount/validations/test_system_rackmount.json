@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_system_rackmount.py passes under python3",
+    "caller": "cc_0",
+    "date": "2026-07-22T19:22:32",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_it_advertises_a_menu_and_refuses_an_unadvertised_name\n  PASS  test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat\n  PASS  test_the_scheduler_goof_is_gone\n  PASS  test_it_is_a_device_and_its_shim_is_a_shim\ngreen — system_rackmount: the system device advertises resource-threshold callbacks and pokes subscribers through the heartbeat + bus, evaluating locally so the reading never leaves (Law 6); the central-scheduler goof is gone",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

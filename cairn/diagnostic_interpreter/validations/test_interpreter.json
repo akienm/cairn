@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_interpreter.py passes under python3",
+    "caller": "diagnostic_interpreter",
+    "date": "2026-07-23T15:32:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_report_gathers_one_pointers_transaction_ordered_and_isolated\n  PASS  test_the_interpreter_reads_it_does_not_mutate\n  PASS  test_a_first_miss_is_learned_and_folded_forward\n  PASS  test_a_learned_gap_that_recurs_is_loud\n  PASS  test_a_complete_report_is_clean\n  PASS  test_the_signal_is_distinguished_from_the_re_derivation\n  PASS  test_learned_completeness_persists\ngreen — diagnostic_interpreter: assembles one pointer's transaction into an ordered, isolated first-pass report, and the learning-loop folds a first miss forward (Law 1) while surfacing an already-learned recurrence LOUD (Law 7) — the special-class falsifier.",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

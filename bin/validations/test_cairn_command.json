@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_cairn_command.py passes under python3",
+    "caller": "cairn-command",
+    "date": "2026-07-23T10:40:52",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_args_reach_the_subcommand_verbatim\n  PASS  test_exit_code_is_propagated\n  PASS  test_unknown_name_fails_loud\n  PASS  test_no_wrapper_noise_on_the_success_path\ngreen — cairn-command: the dispatcher resolves a name to bin/cmd/<name>, passes argv verbatim, propagates the exit code, fails loud on an unknown name, and adds no output of its own (a dumb runner, Law 6)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# cairn compile — poke the intentions-model-compiler's write-door.
+#
+# The manual hand-crank: one of the three triggers that recompile the intentions/ MODEL
+# (the others: the /sorted pivot, and — once built — the write gate). This is child b of
+# the intentions-model-compiler ticket: a thin registration against the cairn dispatcher
+# that pokes the door, nothing more.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+cd "$REPO"
+exec python3 -m cairn.intentions_model_compiler.compiler "$@"

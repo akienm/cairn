@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# cairn — the user-facing command runner.
+#
+#   cairn <name> <args...>   execs  bin/cmd/<name> <args...>   (args verbatim, exit code intact)
+#
+# UU's `uu $1 $2 ...` pattern, Cairn's name. A dumb dispatcher: it resolves a NAME to a
+# script and hands off (Law 6 — each facility owns itself; the runner owns no logic of what
+# it runs). Unknown names fail LOUD, never a silent no-op (CP1). New verbs are just a new
+# executable in bin/cmd/ — no edit here.
+#
+# The full name lives in git; any 2-letter shorthand is a PERSONAL shell alias in your
+# dotfiles (instance-space), never baked into this shared tree.
+#
+# CAIRN_CMD_DIR overrides the command directory (used by the proof to point at a stub tree).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CMD_DIR="${CAIRN_CMD_DIR:-$HERE/cmd}"
+
+_usage() {
+  echo "cairn: usage: cairn <command> [args...]" >&2
+  echo "commands:" >&2
+  local found=0 f
+  for f in "$CMD_DIR"/*; do
+    if [ -f "$f" ] && [ -x "$f" ]; then echo "  $(basename "$f")" >&2; found=1; fi
+  done
+  [ "$found" -eq 0 ] && echo "  (none yet)" >&2
+  return 0   # never leak a non-zero from the lister — set -e would swallow the real exit code
+}
+
+if [ $# -eq 0 ]; then
+  _usage
+  exit 2
+fi
+
+name="$1"; shift
+target="$CMD_DIR/$name"
+
+if [ ! -x "$target" ]; then
+  echo "cairn: no such command: $name" >&2
+  _usage
+  exit 127
+fi
+
+exec "$target" "$@"

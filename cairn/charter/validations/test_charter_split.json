@@ -34,5 +34,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_charter_split.py passes under python3",
+    "caller": "cc_0",
+    "date": "2026-07-24T14:06:33",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "    (12 split: bin, base, bus, db_domain, diagnostic_interpreter, ground_loop, inference_domain, intentions_model_compiler, sudo_relay, system_rackmount, tester, web_server)\n  PASS  test_at_least_one_component_is_split\n  PASS  test_state_is_exactly_the_projection_of_history_no_drift\n  PASS  test_history_is_append_only_shape_monotonic_seq_from_zero\n  PASS  test_the_migrated_charter_is_pure_intention_why_no_state_field\ngreen — the charter-state-history split is faithful in situ: every split component's state.json is exactly project(history.json) (no drift, Law 1), its history is append-only (Law 7), and its charter is pure intention+why (the split is real)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

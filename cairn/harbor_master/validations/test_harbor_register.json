@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_harbor_register.py passes under python3",
+    "caller": "cc_0",
+    "date": "2026-07-24T14:24:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "    (fleet: 12 open, 13 in port)\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_harbor_sees_itself_in_both_vantages\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the boats' own records (no drift, Law 7), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

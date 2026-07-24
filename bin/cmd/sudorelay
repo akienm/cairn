@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# cairn sudorelay — start (or query) the sudo_relay daemon, Akien's one privileged act.
+#
+# A thin registration against the cairn dispatcher (Law 6 — the runner owns no logic; the
+# daemon owns itself). This is the "thing-for-akien": his whole ops role is `cairn sudorelay`
+# in a fresh window + typing his password once; CC self-serves root through it thereafter.
+# Consent model: running this IS the approval — the daemon stores no credential, and Ctrl-C
+# (or the hard 24h cap) releases root. Args pass through verbatim, so:
+#
+#   cairn sudorelay            start the daemon (prompts for the sudo password, once)
+#   cairn sudorelay --status   report the live root window (up since / expires when)
+#
+# The full protocol, audit record, and retention live in cairn/sudo_relay/relay.py and are
+# proven green without root; daemon.py is the thin privileged wrapper this command starts.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+cd "$REPO"
+exec python3 -m cairn.sudo_relay.daemon "$@"

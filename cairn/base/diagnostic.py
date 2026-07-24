@@ -36,12 +36,12 @@ and the logs (fat, timestamp-indexed) are two tiers; the emission is the tie bet
 mailbox is in-memory on the receiver; flushing to the 30-day json tier grows against need — a
 filed edge, not faked here.
 
-THE INTERPRETER DOES THE WORK — it CRAWLS. The diagnostic handler (the log interpreter, the next
-build) is where the intelligence lives, not the emission. Given a ticket it follows the pointer
-and the timestamps — as far as it needs to crawl — gathers the whole transaction (the workflow
-item AND its logging), and TRIMS it into a coherent list / narrative, presenting the json of the
-whole transaction. The emission stays dumb so the interpreter can be smart (Law 1: the diagnostic
-surface's inference is compiled once, in the interpreter — the same move as ``inference_domain``).
+THE INSPECTOR DOES THE WORK — it CRAWLS. The diagnostic inspector (``diagnostic_inspector``,
+built) is where the intelligence lives, not the emission. Reacting to a fired callback it applies
+FILTERS (by_pointer, by_gate — conjoined) to the log, gathers the whole transaction (the workflow
+item AND its logging), and TRIMS it into the FINDINGS — the coherent json slice whose audience is
+CC. The emission stays dumb so the inspector can be smart (Law 1: the diagnostic surface's
+inference is compiled once, in the inspector — the same move as ``inference_domain``).
 
 THE DISCIPLINE — targeted and TEMPORARY. You place a gate-contact instrument when you are watching
 for something specific, then TAKE IT DOWN. Not standing callbacks left hanging: a permanent
@@ -105,7 +105,7 @@ class DiagnosticBase:
             "us": f"{ts.microsecond:06d}",   # the 6th place after the decimal — none lost; indexes the logs
             "source": self.diagnostic_source,
             "gate": gate,
-            "pointer": pointer,              # the ticket's id/address — the TIE the interpreter crawls on
+            "pointer": pointer,              # the ticket's id/address — the TIE the inspector crawls on
             "values": values or {},          # a fat snapshot ONLY when watching values (norm: thin, empty)
         }
         receiver = getattr(self, "_diagnostic_receiver", None)

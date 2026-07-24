@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_inspector.py passes under python3",
+    "caller": "diagnostic_inspector",
+    "date": "2026-07-24T16:41:16",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_findings_filter_one_items_transaction_ordered_and_isolated\n  PASS  test_filters_compose_pointer_and_gate\n  PASS  test_the_inspector_reads_it_does_not_mutate\n  PASS  test_a_first_miss_is_learned_and_folded_forward\n  PASS  test_a_learned_gap_that_recurs_is_loud\n  PASS  test_a_complete_findings_is_clean\n  PASS  test_the_signal_is_distinguished_from_the_re_derivation\n  PASS  test_learned_completeness_persists\ngreen — diagnostic_inspector: filters a log into an ordered, isolated findings slice (the tokens saved — no second exploration), filters compose, and the inspector gets better over time — a first miss is folded forward (Law 1), a learned recurrence is LOUD (Law 7, the terminal falsifier).",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

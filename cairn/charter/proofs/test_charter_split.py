@@ -35,8 +35,15 @@ _CAIRN = _REPO_ROOT / "cairn"
 
 
 def _split_components() -> list[Path]:
-    """Every component directory that has taken the split (carries a history.json)."""
-    return sorted(p.parent for p in _CAIRN.glob("*/history.json"))
+    """Every component directory that has taken the split (carries a history.json).
+
+    Scans cairn/*/ (the devices) plus the repo-root bin/ (the cairn-command dispatcher, which
+    berths outside cairn/ but is a charter-carrying component like any other)."""
+    dirs = [p.parent for p in _CAIRN.glob("*/history.json")]
+    bin_hist = _REPO_ROOT / "bin" / "history.json"
+    if bin_hist.exists():
+        dirs.append(bin_hist.parent)
+    return sorted(dirs)
 
 
 def test_at_least_one_component_is_split():

@@ -13,6 +13,23 @@ any cost is spent on it (Law 1).
 The charter for this skill lives beside it in `intention+why.json`. This file is the
 live question set; the charter is its compiled face.
 
+## First: refresh + consult the model (Law 1 — the cheapest gate)
+
+Before firing the questions, read the compiled intentions model — **fresh**. The
+model is a ~0.2s compile of its sources; an out-of-band source write (a hand-edited
+charter, one written outside a skill step) may have landed since the last compile.
+So the reader **pokes the gate to refresh, then consults** — the read is the event
+that refreshes it; no daemon watches on your behalf:
+
+    $HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh
+
+Then read `CairnCommons/intentions/_model.json` and ask: is anything already here
+**like** this intent, or in **conflict** with it? Judge over the *whys* the model
+carries, not surface strings — a real collision is exclusive-and-terminal; otherwise
+it is a distinction to record. A hit here kills or reshapes the intent before any
+cost is spent on it: re-deriving a settled intention is the defect this gate stops.
+(This freshness step lives in the skill, not in the operator's memory — Law 4.)
+
 ## Fire these questions, in order
 
 1. **WHAT** — In one sentence, what is the intent? (Not the approach — the aim.)

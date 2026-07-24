@@ -3,9 +3,10 @@
 #
 # A source changed (a beside-code intention+why.json, or an intentions-other/ entry); this
 # pokes the compile door so intentions/_model.json regenerates. Shrinking-footprint: the
-# WRITER pokes the door, no poller. Invoked by the WRITE-THROUGH CONTRACT — the skills
-# (/sorted) poke it in the same act that writes a source — and by the NIGHTLY REBUILD cron
-# backstop. The host_seam recorded in this component's charter is the full contract.
+# WRITER pokes the door, no poller. Invoked by EVENTS only — /sorted pokes it on a source
+# write (write-through) and /intent pokes it before consulting the model (read-refresh); the
+# read and the write are the events, never a clock. The host_seam in this charter is the full
+# contract.
 #
 # The prior FileChanged host hook is RETIRED (measured 2026-07-23 not to fire on CC's own
 # writes); the semantic writer poking the door replaced it.
@@ -13,8 +14,8 @@
 # HOST-NOTICING-BY-DISCIPLINE for the beside-code case (the IOU, named in the charter): CC
 # poking the door after writing a charter is convention, not physics — standing in for the
 # not-yet-built owner-gate emit (the emit-chokepoint state-machine-physics.json tracks). A
-# stopgap that labels itself one; the nightly rebuild backstops it until that physics lands,
-# and its seal expires on host drift (nothing in git changes).
+# stopgap that labels itself one; the read-refresh at /intent backstops it until that physics
+# lands — the read is the event, no daemon.
 #
 # Safe for a trigger that fires often: it NEVER blocks its caller (always exits 0), adds no
 # noise on success, and — Law 7 — a compile that fails is not swallowed but RECORDED to the

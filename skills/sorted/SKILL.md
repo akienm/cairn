@@ -65,9 +65,9 @@ poke the compiled model's sole write-door in the **same act**, so the next
 `$HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh`.
 A cast that only files a `tickets/` entry is *not* a model source yet — it becomes
 one when its charter is written beside the code, and that write pokes the door then.
-Full recompile is ~0.2s; the nightly rebuild backstops anything authored outside a
-skill step. (The writer pokes the door — no filesystem watcher; see the
-intentions_model_compiler charter's host_seam.)
+Full recompile is ~0.2s; and the `/intent` read-refresh backstops anything authored
+outside a skill step (the reader pokes the gate before consulting — the read is the
+event, no daemon; see the intentions_model_compiler charter's host_seam).
 
 ## Routing
 

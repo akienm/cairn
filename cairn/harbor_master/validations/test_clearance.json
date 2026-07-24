@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_clearance.py passes under python3",
+    "caller": "tester",
+    "date": "2026-07-24T15:51:52",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_owner_may_clear_a_legal_move_and_it_is_recorded\n  PASS  test_an_unauthorized_actor_is_refused_and_nothing_is_written\n  PASS  test_clearance_is_delegable_per_operation\n  PASS  test_a_grant_is_non_ambient_it_does_not_authorize_other_operations\n  PASS  test_even_the_owner_cannot_clear_an_illegal_move\n  PASS  test_clearing_onto_an_unproven_method_is_refused\n  PASS  test_a_method_with_a_failing_proof_is_refused_admission\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

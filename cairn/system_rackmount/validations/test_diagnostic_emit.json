@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_diagnostic_emit.py passes under python3",
+    "caller": "cc_0",
+    "date": "2026-07-24T11:05:48",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_real_device_emits_at_the_subscribe_gate_and_the_interpreter_crawls_it\n  PASS  test_law6_isolation_another_subscription_does_not_bleed_in\n  PASS  test_law6_the_breadcrumb_is_thin_no_owned_reading_leaks\n  PASS  test_law7_held_never_dropped_when_no_receiver_then_sends_once_wired\ngreen — system_rackmount is the diagnostic chain's first REAL producer: it emits a thin breadcrumb at the subscribe gate (Law 6, held-never-dropped Law 7) and the interpreter crawls it into a coherent, isolated slice — the method measured in situ (Law 3)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

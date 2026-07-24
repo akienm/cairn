@@ -119,6 +119,16 @@ class SystemRackmountDevice(BaseDevice):
         )
         self._subs[sub_id] = {"name": name, "address": address, "value": value,
                               "why": why, "callback": callback}
+        # GATE CONTACT (DiagnosticBase, cairn/base/diagnostic.py): a predicate was BORN — a rare,
+        # low-frequency boundary crossing, worth a standing thin breadcrumb. NOT the per-pulse
+        # evaluation (_over/_reading), which would be the firehose the discipline forbids. Thin by
+        # design: it points to the subscription (pointer=sub_id) and stamps the time; the value and
+        # address live in state() (Law 6 — the breadcrumb carries no owned reading). Held until a
+        # receiver is wired (set_diagnostic_receiver), never silently dropped (Law 7). The
+        # line-crossing/poke emit is a FILED EDGE, not faked: the poke fires in the shim's _fire
+        # (BaseShim is not an emitter) and wants edge-detection — it grows when a real flake needs
+        # watching (the targeted-and-temporary instrument discipline).
+        self.emit("subscribe", pointer=sub_id)
         return sub_id
 
     def _resolve(self, name: str, value):

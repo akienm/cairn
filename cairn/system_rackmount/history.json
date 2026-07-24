@@ -1,0 +1,40 @@
+[
+  {
+    "at": "2026-07-18",
+    "standing": "born as cairn/rack — mislabeled: a 'rack' that was actually a trigger-firing scheduler",
+    "seq": 0
+  },
+  {
+    "at": "2026-07-18",
+    "standing": "re-homed as a SchedulerService under a service-abstraction framing",
+    "ref": "cairn 5cb593a",
+    "seq": 1
+  },
+  {
+    "at": "2026-07-18",
+    "standing": "design conversation corrected the model twice — the rack is the CHASSIS (bus+shims); THIS is the SYSTEM DEVICE (owner of host-resource predicates), NOT a scheduler. SchedulerService + the interval/date/quantity/state trigger enum DELETED",
+    "seq": 2
+  },
+  {
+    "at": "2026-07-18",
+    "standing": "reworked to the system-device shape and PROVEN — advertise→subscribe→poke with Law-6 local evaluation, through the heartbeat + bus",
+    "gate": "proven",
+    "proof": "proofs/test_system_rackmount.py",
+    "validation": "validations/test_system_rackmount.json",
+    "seq": 3
+  },
+  {
+    "at": "2026-07-22",
+    "standing": "flake found + fixed (learning specimen, Law 8): the Law-6 leak-check scanned the WHOLE envelope incl. the bus-assigned uuid, which carries '95' ~12% by chance → a red decided by a coin toss; scoped to device-authored fields, re-proven 0 red / 96 concurrent runs",
+    "gate": "reproven",
+    "seq": 4
+  },
+  {
+    "at": "2026-07-24",
+    "standing": "diagnostic PRODUCER added — subscribe() emits a thin gate-contact breadcrumb (pointer=sub_id), crawled in situ by diagnostic_interpreter: the complete-first-pass method measured in situ (Law 3). Emit additive; capstone + interpreter proofs stay green",
+    "gate": "proven",
+    "proof": "proofs/test_diagnostic_emit.py",
+    "validation": "validations/test_diagnostic_emit.json",
+    "seq": 5
+  }
+]

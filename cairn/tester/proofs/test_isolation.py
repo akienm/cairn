@@ -24,6 +24,7 @@ Runnable bare:
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -143,6 +144,31 @@ def test_run_proof_under_netns_when_available():
         assert "seal=sealed" in v["method"]
 
 
+def test_the_seal_does_not_depend_on_how_the_path_is_spelled():
+    # REGRESSION (2026-07-24). The netns seal runs the subject under `bwrap --chdir
+    # <proof.parent>`; a RELATIVE parent resolves against the namespace root (/), not the
+    # host cwd, so a relative-path call silently broke the chdir — failing the proof (false
+    # RED) and downgrading the seal to INDETERMINATE. run_proof now resolve()s the path, so
+    # the measured seal must be identical whether the caller spells the path relative or
+    # absolute (Law 4: the guarantee is physics, not a "pass an absolute path" convention).
+    iso = NetnsIsolation()
+    ok, _ = iso.available()
+    if not ok:
+        print("  skipped path-spelling regression: netns unavailable here (honest, not faked)")
+        return
+    t = TesterDevice()
+    absolute = t.run_proof(_GREEN_FIXTURE, isolation="netns")
+    rel = os.path.relpath(_GREEN_FIXTURE, os.getcwd())
+    assert not os.path.isabs(rel), "the regression needs a genuinely relative spelling"
+    relative = t.run_proof(rel, isolation="netns")
+    print(f"  abs seal={absolute['evidence']['seal']['verdict']}  rel seal={relative['evidence']['seal']['verdict']}")
+    assert relative["verdict"] == absolute["verdict"] == GREEN, "a relative path must not fail the proof"
+    assert relative["evidence"]["seal"]["verdict"] == absolute["evidence"]["seal"]["verdict"], (
+        "the seal verdict must not depend on how the caller spelled the path"
+    )
+    assert relative["evidence"]["seal"]["verdict"] == SEALED, "on a netns host both spellings must SEAL"
+
+
 def _main() -> int:
     checks = [
         test_no_isolation_is_honestly_open,
@@ -152,6 +178,7 @@ def _main() -> int:
         test_netns_really_seals_on_this_host,
         test_run_proof_records_the_seal_without_schema_drift,
         test_run_proof_under_netns_when_available,
+        test_the_seal_does_not_depend_on_how_the_path_is_spelled,
     ]
     for check in checks:
         check()

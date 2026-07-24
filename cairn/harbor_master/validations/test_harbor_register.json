@@ -16,5 +16,41 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_harbor_register.py passes under python3",
+    "caller": "tester",
+    "date": "2026-07-24T15:35:49",
+    "method": "ran the proof as a subprocess (seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "bwrap: Can't chdir to cairn/harbor_master/proofs: No such file or directory",
+      "seal": {
+        "verdict": "indeterminate",
+        "detail": "seal probe gave no clear verdict inside netns (got 'error') — CP1"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_harbor_register.py passes under python3",
+    "caller": "tester",
+    "date": "2026-07-24T15:38:15",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "    (fleet: 12 open, 13 in port)\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_harbor_sees_itself_in_both_vantages\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the boats' own records (no drift, Law 7), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

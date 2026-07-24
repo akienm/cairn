@@ -143,7 +143,14 @@ class TesterDevice(BaseDevice):
         laundered into a green. Returns the ratified eight-field record; does not
         persist it (the store is a later stone).
         """
-        proof_path = Path(proof_path)
+        # Resolve to an absolute path BEFORE anything downstream uses proof_path.parent
+        # as a cwd. The netns seal runs the subject under `bwrap --chdir <parent>`, and a
+        # RELATIVE parent resolves against the namespace root (/), not the host cwd — so a
+        # relative call silently breaks the chdir, failing the proof (false RED) and
+        # downgrading the seal to INDETERMINATE. The seal must be measured the same way no
+        # matter how the caller spelled the path (Law 4: the guarantee is physics, not a
+        # "remember to pass an absolute path" convention).
+        proof_path = Path(proof_path).resolve()
         iso = get_isolation(isolation)
 
         # Measure the seal before trusting it (isolation.py: measured, never assumed).

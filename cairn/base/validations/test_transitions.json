@@ -16,5 +16,41 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_transitions.py passes under python3",
+    "caller": "tester",
+    "date": "2026-07-24T15:35:49",
+    "method": "ran the proof as a subprocess (seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "bwrap: Can't chdir to cairn/base/proofs: No such file or directory",
+      "seal": {
+        "verdict": "indeterminate",
+        "detail": "seal probe gave no clear verdict inside netns (got 'error') — CP1"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_transitions.py passes under python3",
+    "caller": "tester",
+    "date": "2026-07-24T15:38:15",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_legal_forward_advance_journals_the_crossing\n  PASS  test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme\n  PASS  test_a_forward_skip_past_a_gate_summons_is_refused\n  PASS  test_a_target_outside_the_vocabulary_is_refused\n  PASS  test_a_no_op_self_transition_is_refused\n  PASS  test_an_unknown_class_or_version_is_refused\n  PASS  test_a_drifted_path_that_claims_v1_is_refused\n  PASS  test_a_back_edge_kickback_is_legal_and_carries_severity\n  PASS  test_it_parses_a_real_live_ticket_workflow_string\ngreen — the emit-chokepoint refuses illegal transitions (skip-past-gate, off-vocabulary, unknown class/version, no-op, drifted path), journals legal crossings append-only, version-validates against the real node-class table, and carries kick-back severity — the state vocabulary is physics (Law 4), not /sorted's prose",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

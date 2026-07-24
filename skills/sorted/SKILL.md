@@ -58,6 +58,17 @@ Survivors **file to CairnCommons** — the cast node to `tickets/`, kicked-back
 questions to the question corpus. Filing is the consequence of resolving, not a
 separate act.
 
+**Write-through the model.** If what you filed is a *model source* — a homeless
+intention in `intentions-other/`, or a beside-code `intention+why.json` charter —
+poke the compiled model's sole write-door in the **same act**, so the next
+"I intend X" dup/conflict check reads a current model (Law 1):
+`$HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh`.
+A cast that only files a `tickets/` entry is *not* a model source yet — it becomes
+one when its charter is written beside the code, and that write pokes the door then.
+Full recompile is ~0.2s; the nightly rebuild backstops anything authored outside a
+skill step. (The writer pokes the door — no filesystem watcher; see the
+intentions_model_compiler charter's host_seam.)
+
 ## Routing
 
 - Completeness red → back to design.

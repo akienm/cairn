@@ -96,7 +96,7 @@ class BaseShim(CoreValuesMixin, ABC):
         for cb in self.callbacks():
             try:
                 if cb.fires(now, context):
-                    fired.append(self._fire(cb))
+                    fired.append(self._fire(cb, context))
                 else:
                     held.append({"why": cb.why, "to": cb.to})
             except Exception as exc:  # noqa: BLE001 — record every kick-back, never abort the batch
@@ -113,14 +113,20 @@ class BaseShim(CoreValuesMixin, ABC):
         self._last_pulse = record
         return record
 
-    def _fire(self, cb: Callback) -> dict:
+    def _fire(self, cb: Callback, context: dict | None = None) -> dict:
         """Fire one callback: POKE its target on the bus (the fire path). With no bus wired, it
         records what it WOULD have posted (honest, not a silent no-op). The fire-and-die
-        separate-process spawn is a filed edge — the SHAPE (a poke onto the bus) is here."""
+        separate-process spawn is a filed edge — the SHAPE (a poke onto the bus) is here.
+
+        The body is ``cb.payload(context)``, not ``cb.body``: the callback's carrier runs HERE,
+        at fire time, against the context the trigger just saw — so what rides along is the
+        artifact as it was AT the gate, in whatever form the receiver can process."""
+        body = cb.payload(context)
         if self._bus is None:
-            return {"to": cb.to, "channel": cb.channel, "why": cb.why, "outcome": "unwired"}
+            return {"to": cb.to, "channel": cb.channel, "why": cb.why,
+                    "outcome": "unwired", "body": body}
         envelope = self._bus.post(sender=self.device_id, to=cb.to, channel=cb.channel,
-                                  why=cb.why, body=cb.body)
+                                  why=cb.why, body=body)
         return {"to": cb.to, "channel": cb.channel, "why": cb.why,
                 "outcome": "ok", "envelope": envelope["id"]}
 

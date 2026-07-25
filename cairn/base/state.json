@@ -1,20 +1,14 @@
 {
   "cursor": {
-    "at": "2026-07-24",
-    "standing": "DE-BRITTLED test_transitions.py — the live-ticket parse tooth no longer pins harbor-master's cursor to a snapshot value (it read BUILDME, then broke when the ticket legitimately advanced to PROVED as its journey view landed). Now it asserts INVARIANTS over the real on-disk ticket: node_class/version, the declared path is byte-equal to the registered v1 table (a conformance/drift check — strictly stronger than guessing one stage), and the cursor parsed to SOME real stage on that path. A proof that pins a legitimately-moving value re-derives noise (Law 1). transitions.py itself unchanged — only the proof hardened; re-sealed under a real netns.",
-    "gate": "reproven",
-    "proof": "proofs/test_transitions.py",
-    "validation": "validations/test_transitions.json",
-    "seq": 7
+    "gate": "proved",
+    "standing": "PROVED — WHAT RIDES ALONG IS A CARRIER. Callback gained `carry`: an optional (context) -> dict evaluated at FIRE time, merged over the static `body`, so a gate-watching callback can send the thing that crossed in whatever form the receiver can process. Akien 2026-07-25: 'a gate callback can say call dave back with \"ticket detected at {gatename} as {ticket}\" — whatever the callback can process in that location', and the payload need not be an artifact at all (the inference proxy's loop-count-over-N). Carriage is a CALLABLE, never a named kind — the same anti-reification the trigger already carries, one file up. by_pointer (the Law 6 default: only the address leaves) / by_copy (deep, so the receiver cannot reach back) / by_text (a format template) ship because they have consumers; a fourth carriage is a fourth function, not a schema change. Law 6 moves to the AUTHOR: sending owned data is now an explicit, greppable choice made in the owning device, exactly where the trigger's closure already puts it. A carrier that raises does NOT swallow the poke — it lands carrying carry_failed (Law 7, Akien's no-silent-failure rule). shim._fire posts cb.payload(context), so the bus's one producer now carries the moment, not the declaration.",
+    "proof": "cairn/base/proofs/test_callback_carry.py",
+    "validation": "13/13; suite 30/30",
+    "note": "The proof went red only in the SUITE (2 pokes, not 1) — the bus is durable via db_domain, so counting a live channel pinned a moving value. Fixed to the bus's own ephemeral-table pattern (nonce table + teardown); verified by running it twice.",
+    "at": "2026-07-25T17:54:29",
+    "seq": 8
   },
   "window": [
-    {
-      "at": "2026-07-18",
-      "standing": "callback.py born and shim.py reworked the same night — the Callback became its own primitive and per-pulse callback-firing moved into the shim, driven by the ground_loop heartbeat.",
-      "gate": "proven",
-      "proof": "proofs/test_shim.py",
-      "seq": 3
-    },
     {
       "at": "2026-07-22",
       "standing": "BaseShim.active_page() built as the Form v0 #2 render-side consumer (web-server child a) — projecting the STATUS+SETTINGS pane floor plus declared panes.",
@@ -45,7 +39,16 @@
       "proof": "proofs/test_transitions.py",
       "validation": "validations/test_transitions.json",
       "seq": 7
+    },
+    {
+      "gate": "proved",
+      "standing": "PROVED — WHAT RIDES ALONG IS A CARRIER. Callback gained `carry`: an optional (context) -> dict evaluated at FIRE time, merged over the static `body`, so a gate-watching callback can send the thing that crossed in whatever form the receiver can process. Akien 2026-07-25: 'a gate callback can say call dave back with \"ticket detected at {gatename} as {ticket}\" — whatever the callback can process in that location', and the payload need not be an artifact at all (the inference proxy's loop-count-over-N). Carriage is a CALLABLE, never a named kind — the same anti-reification the trigger already carries, one file up. by_pointer (the Law 6 default: only the address leaves) / by_copy (deep, so the receiver cannot reach back) / by_text (a format template) ship because they have consumers; a fourth carriage is a fourth function, not a schema change. Law 6 moves to the AUTHOR: sending owned data is now an explicit, greppable choice made in the owning device, exactly where the trigger's closure already puts it. A carrier that raises does NOT swallow the poke — it lands carrying carry_failed (Law 7, Akien's no-silent-failure rule). shim._fire posts cb.payload(context), so the bus's one producer now carries the moment, not the declaration.",
+      "proof": "cairn/base/proofs/test_callback_carry.py",
+      "validation": "13/13; suite 30/30",
+      "note": "The proof went red only in the SUITE (2 pokes, not 1) — the bus is durable via db_domain, so counting a live channel pinned a moving value. Fixed to the bus's own ephemeral-table pattern (nonce table + teardown); verified by running it twice.",
+      "at": "2026-07-25T17:54:29",
+      "seq": 8
     }
   ],
-  "count": 8
+  "count": 9
 }

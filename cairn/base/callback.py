@@ -28,17 +28,80 @@ genuinely shared data (the passage of time) reads it from ``now`` / ``context``.
 primitive does not care which; it just calls the predicate. The ownership lives in how the
 owning device BUILDS the closure — which is exactly where Law 6 says it belongs.
 
+WHAT RIDES ALONG IS A CARRIER, NOT A FIXED SHAPE (Akien 2026-07-25). ``body`` alone says
+only *that* a line was crossed. But a gate-watching callback usually wants to send the thing
+that crossed — and how it must ride depends entirely on what the RECEIVER can process there:
+a pointer, a deep copy, or a string rendering of the artifact in motion. Akien's example:
+"call dave back with 'ticket detected at {gate} as {ticket}'". And the payload is not always
+an artifact at all — something inside the inference proxy may send back a loop count over N.
+These are designed to be that flexible.
+
+So carriage gets the SAME treatment as the trigger, one paragraph up: a carrier is a
+CALLABLE ``(context) -> dict``, evaluated at fire time — never a named kind, never a closed
+enum. ``by_pointer`` / ``by_copy`` / ``by_text`` ship below because they have consumers; a
+fourth carriage is a fourth function, not a schema change. (Same shape as the diagnostic
+inspector's filters, deliberately — one idea, one spelling.)
+
+LAW 6 STILL BINDS, AND MOVES TO THE AUTHOR. ``by_pointer`` remains the default and the
+cheap, safe ride: only the address crosses, owned data stays home. ``by_copy`` and
+``by_text`` are the owner's DELIBERATE choice to send owned data across, made where Law 6
+says the decision belongs — in the owning device, as it builds the callback, exactly as the
+trigger's closure already works. The primitive does not police it; it makes the choice
+explicit and greppable instead of implicit.
+
 FIRING is stateless and fire-and-die: when the trigger is true, the callback's ``to`` /
-``channel`` / ``body`` / ``why`` are posted to the bus (the shim does the posting — see
-``cairn/base/shim.py``). Because a callback holds no state, its firing can be a separate,
-short-lived process that sends the message and terminates (the process model; a filed edge
-on the shim). The callback itself is just the immutable declaration of what to send when.
+``channel`` / ``payload(context)`` / ``why`` are posted to the bus (the shim does the
+posting — see ``cairn/base/shim.py``). Because a callback holds no state, its firing can be
+a separate, short-lived process that sends the message and terminates (the process model; a
+filed edge on the shim). The callback itself is just the immutable declaration of what to
+send when — and now, in what form.
 """
 
 from __future__ import annotations
 
+import copy as _copy
 from collections.abc import Callable
 from dataclasses import dataclass, field
+
+
+# ── the carriers: HOW the thing that crossed rides along ─────────────────────
+#
+# Each takes the fire-time ``context`` and returns a payload fragment merged over ``body``.
+# Three because three have consumers (the three Akien named); a fourth is a fourth function.
+# They read ``context`` and never mutate it — a carrier decides what to SEND, not what is.
+
+def by_pointer(key: str = "ticket", *, as_: str = "pointer") -> Callable[[dict], dict]:
+    """THE DEFAULT RIDE: only the address crosses; owned data stays home (Law 6). Use this
+    unless the receiver genuinely cannot resolve a pointer."""
+    def carrier(context: dict) -> dict:
+        item = context.get(key)
+        pointer = item.get("id") if isinstance(item, dict) else item
+        return {as_: pointer}
+    return carrier
+
+
+def by_copy(key: str = "ticket", *, as_: str = "ticket") -> Callable[[dict], dict]:
+    """A DEEP COPY of the artifact rides along — for a receiver that cannot come back and
+    resolve a pointer. Deep, so the receiver can never reach back and mutate the original;
+    the owner's deliberate choice to send owned data across (Law 6, made by the author)."""
+    def carrier(context: dict) -> dict:
+        return {as_: _copy.deepcopy(context.get(key))}
+    return carrier
+
+
+def by_text(template: str, *, as_: str = "text") -> Callable[[dict], dict]:
+    """A STRING RENDERING of the artifact in motion — for a receiver whose only vocabulary is
+    text (a human, a log line, a prompt). ``template`` is format-style over the context:
+    ``by_text("ticket detected at {gate} as {ticket}")``. A key the context lacks renders as
+    ``{missing:key}`` rather than raising — a poke must not be lost to a typo, and a visible
+    hole in the text is the loud version (Law 7)."""
+    class _Loud(dict):
+        def __missing__(self, k):
+            return "{missing:" + k + "}"
+
+    def carrier(context: dict) -> dict:
+        return {as_: template.format_map(_Loud(context))}
+    return carrier
 
 
 @dataclass(frozen=True)
@@ -54,8 +117,11 @@ class Callback:
       - ``to``      — the bus address to poke when the trigger fires.
       - ``channel`` — which of the target's channels to poke (default ``personal`` — the inbox
                       where a device is reached).
-      - ``body``    — the payload of the poke. Static by design: it says *that* the line was
-                      crossed, carrying no owned data it must not leak (Law 6).
+      - ``body``    — the STATIC part of the poke, known when the callback is declared.
+      - ``carry``   — optional ``(context) -> dict``, evaluated at fire time: what rides
+                      along, in the form the receiver can process. ANY callable; NOT a named
+                      kind. ``by_pointer`` (the Law 6 default) / ``by_copy`` / ``by_text``
+                      ship above. Absent, the poke says only *that* the line was crossed.
     """
 
     why: str
@@ -63,6 +129,7 @@ class Callback:
     to: str
     channel: str = "personal"
     body: dict = field(default_factory=dict)
+    carry: Callable[[dict], dict] | None = None
 
     def __post_init__(self) -> None:
         # CP1/CP3, at construction: a callback you cannot fire, or one with no reason, is a
@@ -74,9 +141,33 @@ class Callback:
             raise ValueError("a callback carries a why (CP3) — the reason it will poke someone")
         if not self.to:
             raise ValueError("a callback carries a 'to' — the bus address it pokes when it fires")
+        if self.carry is not None and not callable(self.carry):
+            raise TypeError("a callback's carry must be callable — carriage is a function of the "
+                            "fire-time context, not a named kind (see by_pointer/by_copy/by_text)")
 
     def fires(self, now, context: dict | None = None) -> bool:
         """Evaluate the trigger against the moment and the observed context. Pure — no side
         effect; the firing (the poke) is the shim's, so the decision stays testable as a table.
         Coerced to bool so a truthy predicate is honest about being a trigger."""
         return bool(self.trigger(now, context or {}))
+
+    def payload(self, context: dict | None = None) -> dict:
+        """What this poke actually sends: the static ``body``, with the carrier's fire-time
+        fragment merged OVER it (the moment beats the declaration — a stale static value must
+        never mask what was measured at the gate). ``body`` is copied, never mutated: the
+        callback is frozen, and a declaration that drifted per firing would stop being one.
+
+        A carrier that RAISES does not silently drop the poke (Law 7, and Akien's rule that
+        nothing fails quietly): the payload goes out carrying ``carry_failed`` — the poke
+        still lands, and it lands saying it is incomplete."""
+        out = dict(self.body)
+        if self.carry is None:
+            return out
+        try:
+            fragment = self.carry(context or {})
+        except Exception as exc:  # noqa: BLE001 — a broken carrier must not swallow the poke
+            return {**out, "carry_failed": f"{type(exc).__name__}: {exc}"}
+        if not isinstance(fragment, dict):
+            return {**out, "carry_failed": f"carrier returned {type(fragment).__name__}, not a dict"}
+        out.update(fragment)
+        return out

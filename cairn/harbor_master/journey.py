@@ -21,16 +21,27 @@ It composes the fleet REGISTER (child a) into two derived, computed-on-read stru
      vantages under one voyage, which is what lets the view show a boat that is at sea AND
      already docked: MID-JOURNEY, its migration unreconciled (register filed-edge c).
 
-THE ONE HONEST FLAG (today). The design's marker vocabulary ([R] requested, [W] waiting,
-[F] failed, [X] refused, [S] stalled) mostly needs an OWNED FACT that does not exist yet —
-the gate's queue (requests/refusals/dwell), a subscription registry (staff/starvation), a
-'waiting_on' record. Emitting those markers now would be hollow (Law 8: a marker no boat can
-wear). The single condition that is STRUCTURAL and computed-on-read TODAY is MID-JOURNEY: a
-boat showing in BOTH lanes (open + in-port). It is the honest instance of the design's
-"silently stuck" — a boat that has arrived but never left the sea (its ticket outlived its
-berth) — the very thing the broad view earns its keep by surfacing. So the view carries
-exactly two conditions now: ``underway`` (the calm default) and ``mid-journey`` (the flag).
-The rest are FILED, each with the owned fact it waits on (see ``GROW_AGAINST_NEED`` below).
+THE HONEST CONDITIONS (today), each computed-on-read from a fact on disk. The design's marker
+vocabulary ([R] requested, [W] waiting, [F] failed, [X] refused, [S] stalled) mostly needs an
+OWNED FACT that does not exist yet — the gate's queue (requests/refusals/dwell), a subscription
+registry (staff/starvation), a 'waiting_on' record — so emitting it now would be hollow (Law 8:
+a marker no boat can wear). Two conditions ARE structural today:
+
+  • BERTH-PENDING ([✓]). A boat sitting in the open lane whose cursor is at a REST stage
+    (PROVED) is not in flight — it is DONE, awaiting its berth: the physical migration beside
+    code that the auto-berther (register filed-edge c) will do. Read straight off the cursor the
+    register already parses (Law 1 — the done-ness is IN the cursor; the image compiles it, it is
+    not re-derived). These boats leave the in-flight count and the gates entirely: PROVED is a
+    rest, not a gate where work waits. This is the interim honest count until the auto-berther
+    physically berths them (which must first de-brittle the proofs that pin the live fleet).
+
+  • MID-JOURNEY ([~]). A boat in BOTH lanes (open + in-port) while STILL IN WORKFLOW (cursor not
+    yet at rest) — arrived yet unreconciled, the honest "silently stuck" the broad view earns its
+    keep by surfacing. Reading the cursor SHARPENS this: a both-lanes boat at PROVED is berth-
+    pending (done, park it), NOT stuck; the [~] alarm is reserved for one that has NOT finished.
+
+So three conditions in all — ``berth-pending`` (done), ``mid-journey`` (stuck), ``underway``
+(the calm default). The rest are FILED, each with the owned fact it waits on (``GROW_AGAINST_NEED``).
 
 OWNS NOTHING (Law 7). Like ``render`` and like ``state.json`` to ``history``, the traffic
 image is a PRESENTATION-grade projection: every field it carries is READ from the register
@@ -86,13 +97,23 @@ def _vantages_by_voyage(reg: dict) -> dict:
     return voyages
 
 
+# The formal REST stages — a cursor here means the workflow is DONE, not voyaging. ``PROVED``
+# is the code-seam rest and the concept-piece rest both; other classes' rests graft here as a
+# fleet grows to hold them (grow-against-need — not guessed ahead of a boat that wears one).
+REST_STANDINGS = {"PROVED"}
+
+
 def _condition(open_boat: dict, vantages: list[dict]) -> tuple[str, str]:
-    """The boat's condition + its marker, computed on read (no store). Today: MID-JOURNEY
-    (the boat also has an in-port vantage — arrived yet still at sea, the honest silently-stuck)
-    or UNDERWAY (the calm default). The rest of the vocabulary is FILED (``GROW_AGAINST_NEED``)
-    until its owned fact exists — a marker no boat can wear would be hollow (Law 8)."""
+    """The boat's condition + its marker, computed on read (no store). Three conditions today:
+    BERTH-PENDING (the cursor is at a REST stage — done, awaiting its berth), MID-JOURNEY (still
+    in workflow yet also holding an in-port vantage — arrived-but-unreconciled, the silently-stuck),
+    or UNDERWAY (the calm default). Berth-pending is read FIRST: a done boat that also has a berth
+    is 'park it', not 'stuck' — the cursor sharpens the flag. The rest of the vocabulary is FILED
+    (``GROW_AGAINST_NEED``) until its owned fact exists — a marker no boat can wear is hollow (Law 8)."""
+    if open_boat["standing"] in REST_STANDINGS:
+        return "berth-pending", "[✓]"   # done at a rest cursor, still in the open lane — awaiting berth
     if any(v["berth"] == "in_port" for v in vantages):
-        return "mid-journey", "[~]"     # at sea AND docked — migration unreconciled (the flag)
+        return "mid-journey", "[~]"     # at sea AND docked while STILL in workflow — the silently-stuck
     return "underway", ""               # cleared and moving — the happy path
 
 
@@ -100,14 +121,16 @@ def traffic_image(reg: dict | None = None) -> dict:
     """Compile the TRAFFIC IMAGE — state-right-now, as DATA. A pure projection over the
     register (child a); computed on read, never stored, so it cannot drift (Law 7).
 
-    Returns ``{gates, docked, counts}``:
-      - ``gates``   — the IN-FLIGHT (open) boats grouped by standing (the emergent gate). Each
-                      ``{gate, occupants, underway, flagged}``: ``underway`` a COUNT (calm),
-                      ``flagged`` the LIST of boats needing an eye (calm-when-healthy).
-      - ``docked``  — boats berthed with NO open vantage (arrived, off the gates); the quiet
-                      background of the harbour, carried as a list.
-      - ``counts``  — in_flight / gates / flagged / docked / fleet.
-    Each occupant is the register's own open-boat entry, plus the derived ``gate`` (its
+    Returns ``{gates, berth_pending, docked, counts}``:
+      - ``gates``        — the truly IN-FLIGHT open boats grouped by standing (the emergent gate).
+                           Each ``{gate, occupants, underway, flagged}``: ``underway`` a COUNT
+                           (calm), ``flagged`` the LIST needing an eye (calm-when-healthy).
+      - ``berth_pending``— open boats at a REST cursor (PROVED): DONE, awaiting berth. Off the
+                           gates and out of the in-flight count — PROVED is a rest, not a gate.
+      - ``docked``       — boats berthed with NO open vantage (arrived, off the gates); the quiet
+                           background of the harbour.
+      - ``counts``       — in_flight / berth_pending / gates / flagged / docked / fleet.
+    Each occupant/entry is the register's own open-boat entry, plus the derived ``gate`` (its
     standing), ``condition`` + ``marker``, and its stitched ``vantages`` — nothing invented.
     """
     reg = reg or register.register()
@@ -117,7 +140,9 @@ def traffic_image(reg: dict | None = None) -> dict:
     open_canons = {_canon(b["id"]) for b in reg["open"]}
     docked = [b for b in reg["in_port"] if _canon(b["id"]) not in open_canons]
 
-    # the emergent gates: open boats grouped by standing (the transition-class they share).
+    # classify every open boat, then split: berth-pending (done) leaves the gates; the rest are
+    # the emergent gates — the in-flight boats grouped by the standing (transition-class) they share.
+    berth_pending: list[dict] = []
     gates: dict[str, list[dict]] = {}
     for b in reg["open"]:
         vantages = voyages[_canon(b["id"])]
@@ -127,7 +152,10 @@ def traffic_image(reg: dict | None = None) -> dict:
         occupant["condition"] = condition        # ... its condition + marker ...
         occupant["marker"] = marker
         occupant["vantages"] = vantages          # ... and its stitched two-vantage voyage.
-        gates.setdefault(b["standing"], []).append(occupant)
+        if condition == "berth-pending":
+            berth_pending.append(occupant)       # done — off the gates, awaiting berth
+        else:
+            gates.setdefault(b["standing"], []).append(occupant)
 
     gate_list = []
     for gate in sorted(gates):
@@ -141,11 +169,14 @@ def traffic_image(reg: dict | None = None) -> dict:
         })
 
     flagged_total = sum(len(g["flagged"]) for g in gate_list)
+    in_flight = sum(len(g["occupants"]) for g in gate_list)
     return {
         "gates": gate_list,
+        "berth_pending": sorted(berth_pending, key=lambda o: o["id"]),
         "docked": sorted(docked, key=lambda o: o["id"]),
         "counts": {
-            "in_flight": len(reg["open"]),
+            "in_flight": in_flight,                   # voyaging boats only (berth-pending excluded)
+            "berth_pending": len(berth_pending),
             "gates": len(gate_list),
             "flagged": flagged_total,
             "docked": len(docked),
@@ -159,14 +190,17 @@ def journey_of(reg: dict, boat_id: str) -> dict:
     image. Normalises the id (``harbor-master`` joins ``harbor_master``) so a boat mid-journey
     returns BOTH its open ticket and its berthed history under one voyage (the join the
     register's literal ``find`` leaves open, register filed-edge e). ``mid_journey`` is True
-    when both vantages are present."""
+    when both vantages are present; ``berth_pending`` is True when the open vantage's cursor is
+    at a REST stage (done, awaiting berth) — the same cursor read the traffic image classifies by."""
     canon = _canon(boat_id)
     vantages = _vantages_by_voyage(reg).get(canon, [])
     berths = {v["berth"] for v in vantages}
+    open_v = next((v for v in vantages if v["berth"] == "open"), None)
     return {
         "voyage": canon,
         "vantages": vantages,
         "mid_journey": "open" in berths and "in_port" in berths,
+        "berth_pending": bool(open_v and open_v["standing"] in REST_STANDINGS),
     }
 
 
@@ -174,12 +208,15 @@ def _main() -> int:
     img = traffic_image()
     c = img["counts"]
     print(f"TRAFFIC IMAGE — {c['in_flight']} in flight across {c['gates']} gates "
-          f"({c['flagged']} flagged), {c['docked']} docked\n")
+          f"({c['flagged']} flagged), {c['berth_pending']} berth-pending, {c['docked']} docked\n")
     for g in img["gates"]:
         flags = "".join(f" {o['marker']}{o['id']}" for o in g["flagged"])
         tail = f"  ⚑{flags}" if g["flagged"] else ""
         print(f"  {g['gate']:12} {g['underway']} underway, {len(g['flagged'])} flagged{tail}")
-    print(f"\n  docked (arrived, off the gates): {c['docked']}")
+    if img["berth_pending"]:
+        names = ", ".join(o["id"] for o in img["berth_pending"])
+        print(f"\n  berth-pending (done, awaiting berth): {c['berth_pending']}  ✓ {names}")
+    print(f"  docked (arrived, off the gates): {c['docked']}")
     return 0
 
 

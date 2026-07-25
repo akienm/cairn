@@ -366,8 +366,9 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
     inference_domain/             # the only path to inference
     charter/                      # the projector: state compiled from history
     sudo_relay/
-    web_server/                   # cast, not yet built
-    librarian/                    # not yet built
+    web_server/                   # the presentation surface; v0 PROVEN 2026-07-22
+    harbor_master/                # the workflow harbor: register + journey view, PROVEN 2026-07-24
+    librarian/                    # NEXT — not yet built
     …                             # one dir per device, ALL the same shape:
                                   #   intention+why.json + code + state + history
                                   #   + proofs/ (+ the validations beside them)
@@ -992,11 +993,22 @@ callback/shim + the system device (system_rackmount) + inference domain (the
 compile-once path to the host — an inference request IS a ticket, 2026-07-21) +
 the web server (the presentation surface — nav = the heartbeat roster, panes =
 each device's active_page, rendered; v0 children a/b/c PROVEN 2026-07-22, the
-live-render horizon awaiting the launcher wiring)]** →
-**harbor_master** (the workflow harbor — grants clearance for a
-transition + keeps the fleet register; 'where we query open tickets'; unblocks the
-web server's journey pane; waits on the charter-split + the base-class emit-chokepoint)
-→ librarian-as-chatbot → graph trees (embeddings generator lives here).
+live-render horizon awaiting the launcher wiring) +
+**harbor_master** (the workflow harbor — the fleet REGISTER + the JOURNEY VIEW/traffic
+image, 'where we query open tickets'; child a register + child c journey-view PROVEN
+2026-07-24, the parent proves with child c, sealed under a real netns; feeds the web
+server's journey pane) + the base-class **emit-chokepoint** (the state vocabulary as
+PHYSICS, cairn/base/transitions.py, PROVEN 2026-07-24 — the RULES rung of
+state-machine-physics)]**
+→ **librarian-as-chatbot** (NEXT — the spine's remaining big effort) → graph trees
+(embeddings generator lives here).
+
+The honest fleet count reads **8 in flight, 4 berth-pending, 9 docked** (2026-07-24):
+`journey.py`'s BERTH-PENDING [✓] condition sets DONE-but-unmigrated tickets apart from
+work genuinely in flight — read straight off the cursor, no file moved (Law 1). The
+physical reconciliation (migrate a PROVED ticket beside its code) is the **auto-berther**,
+the next SMALL build (`CairnCommons/notes/held-auto-berther.json`, filed — its first task
+is de-brittling the proofs that pin the live fleet); it waits behind the librarian.
 
 The web server's panes are standard machinery in **BaseShim** (`active_page`) and its
 nav is **ground_loop**'s published `roster` — a device gets a page for free (the

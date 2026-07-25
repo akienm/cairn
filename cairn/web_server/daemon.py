@@ -5,10 +5,15 @@ rendering (``render.py``) — is proven green without a socket. Here we only bin
 and hand each GET to ``serve``. This is the OS-specific thin wrapper, exactly like ground_loop's
 wall-clock daemon and sudo_relay's daemon.py: the SHAPE is proven, the bind is instance-space.
 
-v0 is a stub wiring: it stands up a WebServerDevice over a freshly built ground_loop with no
-subscribers, so a bare run serves an honest empty nav. Wiring the REAL running heartbeat (the
-one the launcher starts, with the live devices subscribed) is the launcher's job — instance-space
-under ~/.cairn/devices/web_server/0/ — and lands with the multi-process runtime.
+v0 is a stub wiring for the per-device pages: it stands up a WebServerDevice over a freshly
+built ground_loop with no subscribers, so a bare run serves an honest empty nav. Wiring the REAL
+running heartbeat (the one the launcher starts, with the live devices subscribed) is the
+launcher's job — instance-space under ~/.cairn/devices/web_server/0/ — and lands with the
+multi-process runtime.
+
+The ⚓ HARBOR view is the exception and works NOW: harbor_master's traffic image is computed
+from disk (the fleet register), not from the running heartbeat, so a bare daemon renders the
+REAL fleet at ``/harbor`` today — the first live, human-visible Cairn surface (Telos 2).
 
 Start it:   python3 cairn/web_server/daemon.py            # binds localhost:8787
             python3 cairn/web_server/daemon.py --port 9000
@@ -29,6 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.ground_loop.loop import GroundLoopDevice
+from cairn.harbor_master import journey
 from cairn.web_server.server import WebServerDevice
 
 
@@ -54,8 +60,9 @@ def main(argv=None) -> int:
     parser.add_argument("--port", type=int, default=8787)
     args = parser.parse_args(argv)
 
-    # v0 stub wiring: an empty heartbeat → an honest empty nav. The launcher wires the real one.
-    device = WebServerDevice(GroundLoopDevice(), port=args.port)
+    # v0 wiring: an empty heartbeat → an honest empty nav (the launcher wires the real one), but
+    # the harbor source is REAL — the traffic image is computed from disk, so /harbor is live now.
+    device = WebServerDevice(GroundLoopDevice(), harbor_source=journey.traffic_image, port=args.port)
     httpd = ThreadingHTTPServer(("127.0.0.1", args.port), _handler_for(device))
     print(f"[web_server] serving on http://127.0.0.1:{args.port}  (Ctrl-C to stop)", flush=True)
     try:

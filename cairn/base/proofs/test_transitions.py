@@ -101,12 +101,17 @@ def test_a_back_edge_kickback_is_legal_and_carries_severity():
 
 
 def test_it_parses_a_real_live_ticket_workflow_string():
+    # A real on-disk ticket with trailing prose after the cursor — proves the parser survives the
+    # wild format and that the ticket is a CONFORMANT v1 instance. Asserts INVARIANTS, never the
+    # live cursor's value: a ticket's cursor legitimately moves (harbor-master advanced to PROVED
+    # when its journey view landed), and a proof that pins a moving value re-derives noise (Law 1) —
+    # so we check that whatever the cursor is, it parsed to a REAL stage on the registered path.
     ticket = json.loads((_REPO_ROOT.parent / "CairnCommons" / "tickets" / "harbor-master.json").read_text())
-    wf = transitions.parse_workflow(ticket["state"])   # has trailing "(cursor at BUILDME: ...)" prose
+    wf = transitions.parse_workflow(ticket["state"])
     assert wf.node_class == "code-seam" and wf.version == "v1"
-    assert wf.here == "BUILDME", f"cursor mis-parsed from the real string: {wf.here}"
-    # and its path conforms to the registered table (it is a valid instance)
-    transitions.validate_transition(wf, "PROVEME", class_def=transitions.load_class_def("code-seam"))
+    canonical = tuple(transitions.load_class_def("code-seam")["workflow_versions"]["v1"]["path"])
+    assert wf.path == canonical, f"the live ticket's path drifted from the registered v1 table: {wf.path}"
+    assert wf.here in canonical, f"cursor mis-parsed from the real string (not a real stage): {wf.here}"
 
 
 def _main() -> int:

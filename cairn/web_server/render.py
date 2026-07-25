@@ -35,12 +35,17 @@ def _esc(value) -> str:
     return html.escape(str(value))
 
 
-def render_nav(roster: dict, selected: str | None = None) -> str:
+def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = False) -> str:
     """The nav across the top — one entry per device the heartbeat beats to (child c's roster),
     in order, each a link to its ACTIVE page, marked awake/asleep, the selected one flagged. An
-    empty roster is an honest empty nav, not a broken page."""
+    empty roster is an honest empty nav, not a broken page. With ``harbor`` set, a leading link to
+    the harbour master's TRAFFIC IMAGE (``/harbor``, web-server child d) rides on every page — the
+    fleet-wide view is reachable from anywhere, distinct from the per-device pages."""
     beats = _esc(roster.get("beats", 0))
     items = []
+    if harbor:
+        hcls = "dev harbor" + (" selected" if selected == "harbor" else "")
+        items.append(f'<a class="{hcls}" href="/harbor" title="the traffic image">⚓ Harbor</a>')
     for entry in roster.get("devices", []):
         device = entry.get("device", "?")
         awake = entry.get("awake", False)
@@ -53,6 +58,49 @@ def render_nav(roster: dict, selected: str | None = None) -> str:
         )
     nav = "".join(items) or '<span class="empty">no devices on the heartbeat yet</span>'
     return f'<nav><span class="beats" title="heartbeats">♥ {beats}</span>{nav}</nav>'
+
+
+def render_traffic_image(img: dict) -> str:
+    """The harbour master's TRAFFIC IMAGE as HTML (web-server child d) — the whole-fleet view,
+    state-right-now, from the DATA harbor_master.journey produces. Pure ``data -> html``; the web
+    server owns nothing (Law 7), it renders the harbor's projection.
+
+    Calm when healthy (held-traffic-image): each EMERGENT GATE shows its ``underway`` as a COUNT
+    (the calm number) and its ``flagged`` boats as LINES you can read — a marker + the boat's id.
+    Every boat-derived string is escaped (Law 7: a ticket id on disk is untrusted here too). An
+    empty fleet renders an honest empty image, not a broken page."""
+    c = img.get("counts", {})
+    header = (f'<p class="tallies">{_esc(c.get("in_flight", 0))} in flight across '
+              f'{_esc(c.get("gates", 0))} gates · <strong>{_esc(c.get("flagged", 0))} flagged</strong> · '
+              f'{_esc(c.get("docked", 0))} docked</p>')
+
+    rows = []
+    for g in img.get("gates", []):
+        gate = _esc(g.get("gate", "?"))
+        underway = _esc(g.get("underway", 0))
+        flagged = g.get("flagged", [])
+        flags = "".join(
+            f'<li><span class="marker">{_esc(o.get("marker", ""))}</span> {_esc(o.get("id", "?"))}'
+            f' <span class="cond">{_esc(o.get("condition", ""))}</span></li>'
+            for o in flagged
+        )
+        flags_html = f'<ul class="flagged">{flags}</ul>' if flagged else ""
+        cls = "gate" + (" has-flags" if flagged else "")
+        rows.append(
+            f'<div class="{cls}"><div class="gate-head"><span class="gate-name">{gate}</span>'
+            f'<span class="underway">{underway} underway</span>'
+            f'<span class="flag-count">{_esc(len(flagged))} flagged</span></div>{flags_html}</div>'
+        )
+    gates_html = "".join(rows) or '<p class="empty">no boats in flight</p>'
+
+    docked = img.get("docked", [])
+    docked_names = ", ".join(_esc(b.get("id", "?")) for b in docked) or "none"
+    docked_html = (f'<section class="docked"><h2>Docked '
+                   f'<span class="count">({_esc(len(docked))})</span></h2>'
+                   f'<p class="quiet">{docked_names}</p></section>')
+
+    return (f'<div class="active harbor-view"><h1>⚓ Traffic Image</h1>{header}'
+            f'<section class="gates">{gates_html}</section>{docked_html}</div>')
 
 
 def render_pane(pane: dict) -> str:
@@ -99,6 +147,23 @@ main { padding: 1rem 1.25rem; max-width: 60rem; }
 .pane h2 { font-size: .95rem; margin: .3rem 0; text-transform: capitalize; }
 .pane pre { margin: 0; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
 .pane.absent .reason { opacity: .7; font-style: italic; }
+nav a.dev.harbor { border-color: #a86; }
+.harbor-view .tallies { opacity: .8; margin: .2rem 0 1rem; }
+.harbor-view .gates { display: flex; flex-direction: column; gap: .5rem; }
+.gate { border: 1px solid #8884; border-radius: .5rem; padding: .4rem .8rem; }
+.gate.has-flags { border-color: #a86; }
+.gate-head { display: flex; gap: .75rem; align-items: baseline; }
+.gate-head .gate-name { font-weight: 600; min-width: 7rem; }
+.gate-head .underway { opacity: .7; }
+.gate-head .flag-count { margin-left: auto; opacity: .7; font-size: .9rem; }
+.gate .flagged { list-style: none; margin: .35rem 0 0; padding: 0; }
+.gate .flagged li { padding: .1rem 0; }
+.gate .flagged .marker { font-family: ui-monospace, monospace; opacity: .9; }
+.gate .flagged .cond { opacity: .6; font-size: .85rem; }
+.docked { margin-top: 1rem; }
+.docked h2 { font-size: .95rem; margin: .3rem 0; }
+.docked .count { opacity: .6; font-weight: 400; }
+.docked .quiet { opacity: .6; margin: .2rem 0; }
 """
 
 

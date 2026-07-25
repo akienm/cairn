@@ -44,9 +44,11 @@ class WebServerDevice(BaseDevice):
     device state — every render pulls live from the roster source and the target device's shim.
     """
 
-    def __init__(self, roster_source, *, port: int = 8787, device_id: str = "web_server") -> None:
+    def __init__(self, roster_source, *, harbor_source=None, port: int = 8787,
+                 device_id: str = "web_server") -> None:
         super().__init__()
         self._roster_source = roster_source   # the ground_loop: owns roster() + the shims
+        self._harbor_source = harbor_source   # harbor_master's traffic image (INJECTED, not imported)
         self._port = port
         self._device_id = device_id
         self._served = 0
@@ -67,6 +69,19 @@ class WebServerDevice(BaseDevice):
         finder = getattr(self._roster_source, "shim_for", None)
         return finder(device) if callable(finder) else None
 
+    def _traffic_image(self) -> dict | None:
+        """The harbour master's TRAFFIC IMAGE, from the INJECTED harbor source (v0 in-process,
+        the same deferral as ``roster_source``). A plain callable ``() -> image`` or an object with
+        a ``traffic_image()`` method both work; ``None`` means the journey view is not wired here
+        yet — the route says so loudly rather than pretending (Law 7)."""
+        src = self._harbor_source
+        if src is None:
+            return None
+        if callable(src):
+            return src()
+        getter = getattr(src, "traffic_image", None)
+        return getter() if callable(getter) else None
+
     # --- the routing core: a request path -> a rendered page ----------------
 
     def serve(self, path: str) -> tuple[int, str, str]:
@@ -83,7 +98,20 @@ class WebServerDevice(BaseDevice):
         status = 200
         if path in ("/", ""):
             body = render.render_message(
-                "Cairn", "Pick a device from the heartbeat above to see its active page.")
+                "Cairn", "Pick a device from the heartbeat above, or see the ⚓ Harbor "
+                "traffic image for the whole fleet at once.")
+        elif path.rstrip("/") == "/harbor":
+            selected = "harbor"
+            img = self._traffic_image()
+            if img is None:
+                status = 404
+                body = render.render_message(
+                    "Harbor: journey view not wired",
+                    "No harbor source is attached to this surface yet (the traffic image "
+                    "grafts in when the launcher wires harbor_master). Pick a device above.")
+                selected = None
+            else:
+                body = render.render_traffic_image(img)
         elif path.startswith("/device/"):
             device = path[len("/device/"):].strip("/")
             selected = device
@@ -100,7 +128,7 @@ class WebServerDevice(BaseDevice):
             status = 404
             body = render.render_message("Not found", f"No page at {path!r}.")
 
-        nav = render.render_nav(roster, selected=selected)
+        nav = render.render_nav(roster, selected=selected, harbor=self._harbor_source is not None)
         title = f"Cairn — {selected}" if selected else "Cairn"
         document = render.render_document(title=title, nav_html=nav, body_html=body)
         return status, "text/html; charset=utf-8", document

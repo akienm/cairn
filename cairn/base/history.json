@@ -48,5 +48,13 @@
     "proof": "proofs/test_transitions.py",
     "validation": "validations/test_transitions.json",
     "seq": 6
+  },
+  {
+    "at": "2026-07-24",
+    "standing": "DE-BRITTLED test_transitions.py — the live-ticket parse tooth no longer pins harbor-master's cursor to a snapshot value (it read BUILDME, then broke when the ticket legitimately advanced to PROVED as its journey view landed). Now it asserts INVARIANTS over the real on-disk ticket: node_class/version, the declared path is byte-equal to the registered v1 table (a conformance/drift check — strictly stronger than guessing one stage), and the cursor parsed to SOME real stage on that path. A proof that pins a legitimately-moving value re-derives noise (Law 1). transitions.py itself unchanged — only the proof hardened; re-sealed under a real netns.",
+    "gate": "reproven",
+    "proof": "proofs/test_transitions.py",
+    "validation": "validations/test_transitions.json",
+    "seq": 7
   }
 ]

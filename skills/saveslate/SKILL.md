@@ -1,6 +1,6 @@
 ---
 name: saveslate
-description: Session close — write a slate to CairnCommons/slates/ capturing the state of work at the boundary (in-flight, next direction, open threads) so the next session resumes cleanly.
+description: Session close — write a slate to CairnCommons/slates/ capturing the state of work at the boundary (at-sea, next direction, open threads) so the next session resumes cleanly.
 ---
 
 # /saveslate — session close
@@ -15,7 +15,7 @@ The charter lives beside this file in `intention+why.json`.
 
 Write a slate record conforming to `CairnCommons/slates/_charter+why.json`:
 
-- **in_flight** — what's actively being worked, and its state.
+- **at_sea** — what's actively being worked, and its state.
 - **next_direction** — the intended next move.
 - **open_threads** — unresolved questions, IOUs, things to verify.
 - date, id, session, author fill in.

@@ -62,7 +62,7 @@ def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = Fals
 
 def render_traffic_image(img: dict) -> str:
     """The harbour master's TRAFFIC IMAGE as HTML (web-server child d) — the whole-fleet view,
-    state-right-now, from the DATA harbor_master.journey produces. Pure ``data -> html``; the web
+    state-right-now, from the DATA harbor_master.voyage produces. Pure ``data -> html``; the web
     server owns nothing (Law 7), it renders the harbor's projection.
 
     Calm when healthy (held-traffic-image): each EMERGENT GATE shows its ``underway`` as a COUNT
@@ -70,9 +70,9 @@ def render_traffic_image(img: dict) -> str:
     Every boat-derived string is escaped (Law 7: a ticket id on disk is untrusted here too). An
     empty fleet renders an honest empty image, not a broken page."""
     c = img.get("counts", {})
-    header = (f'<p class="tallies">{_esc(c.get("in_flight", 0))} in flight across '
+    header = (f'<p class="tallies">{_esc(c.get("at_sea", 0))} at sea across '
               f'{_esc(c.get("gates", 0))} gates · <strong>{_esc(c.get("flagged", 0))} flagged</strong> · '
-              f'{_esc(c.get("docked", 0))} docked</p>')
+              f'{_esc(c.get("berthed", 0))} berthed</p>')
 
     rows = []
     for g in img.get("gates", []):
@@ -91,16 +91,16 @@ def render_traffic_image(img: dict) -> str:
             f'<span class="underway">{underway} underway</span>'
             f'<span class="flag-count">{_esc(len(flagged))} flagged</span></div>{flags_html}</div>'
         )
-    gates_html = "".join(rows) or '<p class="empty">no boats in flight</p>'
+    gates_html = "".join(rows) or '<p class="empty">no boats at sea</p>'
 
-    docked = img.get("docked", [])
-    docked_names = ", ".join(_esc(b.get("id", "?")) for b in docked) or "none"
-    docked_html = (f'<section class="docked"><h2>Docked '
-                   f'<span class="count">({_esc(len(docked))})</span></h2>'
-                   f'<p class="quiet">{docked_names}</p></section>')
+    berthed = img.get("berthed", [])
+    berthed_names = ", ".join(_esc(b.get("id", "?")) for b in berthed) or "none"
+    berthed_html = (f'<section class="berthed"><h2>Berthed '
+                   f'<span class="count">({_esc(len(berthed))})</span></h2>'
+                   f'<p class="quiet">{berthed_names}</p></section>')
 
     return (f'<div class="active harbor-view"><h1>⚓ Traffic Image</h1>{header}'
-            f'<section class="gates">{gates_html}</section>{docked_html}</div>')
+            f'<section class="gates">{gates_html}</section>{berthed_html}</div>')
 
 
 def render_pane(pane: dict) -> str:
@@ -160,10 +160,10 @@ nav a.dev.harbor { border-color: #a86; }
 .gate .flagged li { padding: .1rem 0; }
 .gate .flagged .marker { font-family: ui-monospace, monospace; opacity: .9; }
 .gate .flagged .cond { opacity: .6; font-size: .85rem; }
-.docked { margin-top: 1rem; }
-.docked h2 { font-size: .95rem; margin: .3rem 0; }
-.docked .count { opacity: .6; font-weight: 400; }
-.docked .quiet { opacity: .6; margin: .2rem 0; }
+.berthed { margin-top: 1rem; }
+.berthed h2 { font-size: .95rem; margin: .3rem 0; }
+.berthed .count { opacity: .6; font-weight: 400; }
+.berthed .quiet { opacity: .6; margin: .2rem 0; }
 """
 
 

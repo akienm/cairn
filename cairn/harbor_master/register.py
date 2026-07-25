@@ -3,7 +3,7 @@
 harbor_master owns the HARBOR through which workflows voyage. This is its first rung —
 the TRUTH rung as an AGGREGATE: 'where you go to query open tickets', the fleet-scale
 view of what is in port and what is still at sea. (The AUTHORITY rung — clearance for a
-transition — is child b, and waits on the base-class emit-chokepoint; the JOURNEY view is
+transition — is child b, and waits on the base-class emit-chokepoint; the VOYAGE view is
 child c, deferred to meet the web_server. This file is child a alone.)
 
 Two vantages, both already git-JSON on disk, mirroring the lifecycle CLAUDE.md names —
@@ -121,9 +121,9 @@ def register(*, cairn_root: Path | str = _CAIRN, tickets_dir: Path | str = _DEFA
 
     Returns ``{open, in_port, fleet, counts}``. Not stored: recomputed from the boats
     each call, so it can never be a rival record that drifts (Law 7). ``fleet`` is the
-    union of both vantages; a boat mid-journey (an open ticket AND an early berthed
+    union of both vantages; a boat mid-voyage (an open ticket AND an early berthed
     history under one name) legitimately appears in BOTH — stitching those into one
-    journey is child c's job, not this rung's, so the register shows each source
+    voyage is child c's job, not this rung's, so the register shows each source
     faithfully rather than silently collapsing them.
     """
     in_port = _berthed_boats(Path(cairn_root))
@@ -150,8 +150,8 @@ def in_port(reg: dict) -> list[dict]:
 
 
 def find(reg: dict, boat_id: str) -> list[dict]:
-    """Every vantage of one boat by id — a LIST, because a boat mid-journey shows in both
-    (an open ticket + its berthed history). One entry: berthed or open only. Two: mid-journey."""
+    """Every vantage of one boat by id — a LIST, because a boat mid-voyage shows in both
+    (an open ticket + its berthed history). One entry: berthed or open only. Two: mid-voyage."""
     return [b for b in reg["fleet"] if b["id"] == boat_id]
 
 

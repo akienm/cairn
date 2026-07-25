@@ -14,7 +14,7 @@ The charter lives beside this file in `intention+why.json`.
 ## What it does
 
 1. Find the latest slate in `CairnCommons/slates/` (or a named one, if asked for).
-2. Read it and restate, briefly, the resumption point: in-flight work, next
+2. Read it and restate, briefly, the resumption point: at-sea work, next
    direction, open threads.
 3. Cross-check against the working map (`MAP.md`) and CC's memory index — the slate
    is authoritative for *session continuity*; the map is authoritative over memory

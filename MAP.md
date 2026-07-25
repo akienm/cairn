@@ -367,7 +367,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
     charter/                      # the projector: state compiled from history
     sudo_relay/
     web_server/                   # the presentation surface; v0 PROVEN 2026-07-22
-    harbor_master/                # the workflow harbor: register + journey view, PROVEN 2026-07-24
+    harbor_master/                # the workflow harbor: register + voyage view, PROVEN 2026-07-24
     librarian/                    # NEXT — not yet built
     …                             # one dir per device, ALL the same shape:
                                   #   intention+why.json + code + state + history
@@ -429,30 +429,30 @@ Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
 
-## Two log classes + journeys — forensic-first debugging (2026-07-14)
+## Two log classes + voyages — forensic-first debugging (2026-07-14)
 
 Every major state transition and every interface boundary is logged (base
 reflex, inherited). Two classes with different physics:
 
 - **Events** (bang-and-done): state changes + crossings → per-device
   instance-space streams. Cache-class: high volume, generous rotation.
-- **Journeys** (the traveling object): workflow-carried work items — a coding
-  ticket, an inference request — get a `journey_id`; EVERY transaction along
-  the path appends to the journey record (device, inputs, outputs, decision,
+- **Voyages** (the traveling object): workflow-carried work items — a coding
+  ticket, an inference request — get a `voyage_id`; EVERY transaction along
+  the path appends to the voyage record (device, inputs, outputs, decision,
   timing). The base appends at each crossing; no device can opt out. Truth-
   class: owned table via db_domain, retention by charter horizon, never
   ad-hoc deletion.
 
-**Complete by construction, not compliance:** journeys are captured at the
+**Complete by construction, not compliance:** voyages are captured at the
 kernel-enforced chokepoints — there is no uninstrumented path (this is what
 UU's 804 RunRecords lacked: six raw-HTTP files never entered the recorded
 pipe).
 
 **Why this kills the fix-here-fix-there debug loop:** oscillation happens when
-each fix is made against a reconstructed guess. With the journey, cause-
+each fix is made against a reconstructed guess. With the voyage, cause-
 finding is a READ, not a rerun — the wrong value sits in the record at the hop
 that produced it, with its inputs. CP3 mechanically satisfied. Composition:
-trouble tickets file carrying their `journey_id` — every machine-filed failure
+trouble tickets file carrying their `voyage_id` — every machine-filed failure
 arrives with its forensic tape pre-attached.
 
 ## Trouble tickets — a base-layer reflex (2026-07-14)
@@ -634,7 +634,7 @@ Riding on every node as fields (not separate artifacts):
   happened between wipes and you re-oriented by reading the slate. Compact changed
   a month later — it reduces context without severing continuity — and the boundary
   the type named stopped existing. It had zero members, no gate, and no owner.
-  The **noun** survives: the immutable journey is real (`~/.claude/projects/*/*.jsonl`)
+  The **noun** survives: the immutable voyage is real (`~/.claude/projects/*/*.jsonl`)
   but the harness writes it, not us, so it is a **citable artifact** — and a citation
   is a field on a node, not a species. Retirement probe:
   `CairnCommons/questions/tool-shaped-or-domain-shaped.json`.
@@ -925,7 +925,7 @@ machine *is* the dispatcher — the get-Akien-out intention becoming architectur
 
 **Two rests, both inside the one loop, neither terminal:** `PROVED` = learned-FROM
 (object, passive); `LEARNING` = learning (subject, active). There is no `RUNNING` —
-Cairn has no uninstrumented execution (journeys at every chokepoint, every driver
+Cairn has no uninstrumented execution (voyages at every chokepoint, every driver
 carries its why, VALIDATIONS on every measured claim), so anything running is
 emitting evidence, so anything running is *learning*. "Just running" would be the UU
 silent-failure disease. Low-yield running is low-yield LEARNING — a yield measure
@@ -936,24 +936,24 @@ TICKETME spawns children (a parent); BUILDME is a leaf. "Waiting on children" is
 *derived* (a parent whose children aren't all PROVED), not stored — the
 zero-inference move. Back-edges need no special state: a kick-back re-enters an
 earlier `-ME` (severity = how far back; very-wrong trips the ask-Akien escalation),
-with a trouble/question attached and the loop recorded in the journey.
+with a trouble/question attached and the loop recorded in the voyage.
 
 **The workflow is a versioned, mutable, greppable string** with the cursor in
 brackets: `code-seam@v1: THINKME → TICKETME → BUILDME → PROVEME → LEARNME →
 [PROVED]`. Stored on the node — the strongest form of 'state IS the pipeline
 instance' (self-contained; no external orchestrator possible). Consequences:
 - **migration by find-and-replace.** Many workflows — and many *versions* of one —
-  run in flight; changing a workflow asks "revise those carrying it? sometimes yes,
+  run at sea; changing a workflow asks "revise those carrying it? sometimes yes,
   sometimes no," and the answer is a string edit. Versions are immutable and
   version-stamped, so divergence-from-current is a *named, chosen, journaled*
   un-migration, not silent rot — a stronger anti-drift property than pure-derive,
-  which would *force* every change onto all in-flight nodes silently. Free when the
+  which would *force* every change onto all at-sea nodes silently. Free when the
   edit is downstream of the cursor (blind replace); a judgment call when it
   touches/precedes the cursor (where does the cursor land?). Every edit is
   owner-gated, chokepoint-validated against a known workflow, and journaled.
 - **class is not frozen at cast** — it *is* the current workflow string. A code
   ticket becomes a driver by editing its terminal (`… → LEARNING`); the node that
-  *built* a sensor becomes the node that *runs* it. Identity lives in the journey,
+  *built* a sensor becomes the node that *runs* it. Identity lives in the voyage,
   not the workflow-of-the-moment.
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
@@ -994,21 +994,31 @@ compile-once path to the host — an inference request IS a ticket, 2026-07-21) 
 the web server (the presentation surface — nav = the heartbeat roster, panes =
 each device's active_page, rendered; v0 children a/b/c PROVEN 2026-07-22, the
 live-render horizon awaiting the launcher wiring) +
-**harbor_master** (the workflow harbor — the fleet REGISTER + the JOURNEY VIEW/traffic
-image, 'where we query open tickets'; child a register + child c journey-view PROVEN
+**harbor_master** (the workflow harbor — the fleet REGISTER + the VOYAGE VIEW/traffic
+image, 'where we query open tickets'; child a register + child c voyage-view PROVEN
 2026-07-24, the parent proves with child c, sealed under a real netns; feeds the web
-server's journey pane) + the base-class **emit-chokepoint** (the state vocabulary as
+server's voyage pane) + the base-class **emit-chokepoint** (the state vocabulary as
 PHYSICS, cairn/base/transitions.py, PROVEN 2026-07-24 — the RULES rung of
 state-machine-physics)]**
 → **librarian-as-chatbot** (NEXT — the spine's remaining big effort) → graph trees
 (embeddings generator lives here).
 
-The honest fleet count reads **8 in flight, 4 berth-pending, 9 docked** (2026-07-24):
-`journey.py`'s BERTH-PENDING [✓] condition sets DONE-but-unmigrated tickets apart from
-work genuinely in flight — read straight off the cursor, no file moved (Law 1). The
-physical reconciliation (migrate a PROVED ticket beside its code) is the **auto-berther**,
-the next SMALL build (`CairnCommons/notes/held-auto-berther.json`, filed — its first task
-is de-brittling the proofs that pin the live fleet); it waits behind the librarian.
+The honest fleet count reads **9 at sea, 0 at anchor, 12 berthed** (measured 2026-07-25;
+23 in the fleet, 6 gates, 2 flagged). `voyage.py`'s AT-ANCHOR [✓] condition sets a
+DONE-but-unmigrated ticket apart from work genuinely at sea — read straight off the
+cursor (Law 1). **Zero at anchor** because the four that were waiting were PHYSICALLY
+migrated beside their code on 2026-07-25, each voyage folded through the projector's
+append door. What remains of the **auto-berther** (`CairnCommons/notes/held-auto-berther.json`)
+is only the AUTOMATED repeatable version of that hand-pass; it waits behind the bus.
+
+The vessel's progression — **at sea → at anchor → berthed** — is the nomenclature rule
+in miniature (*build-to-the-tool*): know how the words work on the water and their
+meaning here follows without being taught. It replaced `in_flight` (aviation, inside a
+nautical system), `berth_pending` (invented), `docked` (a synonym of *berth*, so nothing
+told you which of ours was which), and `journey` (which already meant CC's session
+transcript elsewhere in the tree). `underway` survives on a different axis: *at sea* is
+where a boat is, *under way* is that it is making normal progress — the calm, unflagged
+count inside a gate.
 
 The web server's panes are standard machinery in **BaseShim** (`active_page`) and its
 nav is **ground_loop**'s published `roster` — a device gets a page for free (the

@@ -34,7 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.ground_loop.loop import GroundLoopDevice
-from cairn.harbor_master import journey
+from cairn.harbor_master import voyage
 from cairn.web_server.server import WebServerDevice
 
 
@@ -62,7 +62,7 @@ def main(argv=None) -> int:
 
     # v0 wiring: an empty heartbeat → an honest empty nav (the launcher wires the real one), but
     # the harbor source is REAL — the traffic image is computed from disk, so /harbor is live now.
-    device = WebServerDevice(GroundLoopDevice(), harbor_source=journey.traffic_image, port=args.port)
+    device = WebServerDevice(GroundLoopDevice(), harbor_source=voyage.traffic_image, port=args.port)
     httpd = ThreadingHTTPServer(("127.0.0.1", args.port), _handler_for(device))
     print(f"[web_server] serving on http://127.0.0.1:{args.port}  (Ctrl-C to stop)", flush=True)
     try:

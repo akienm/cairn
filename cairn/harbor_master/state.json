@@ -1,19 +1,12 @@
 {
   "cursor": {
-    "at": "2026-07-24",
-    "standing": "BERTHED — the harbor's own ticket voyage froze into this history and CairnCommons/tickets/harbor-master.json migrated out of the open lane beside its code (the physical berth the register+journey were built to make honest; Law 5). The reflexive register proof + the transitions real-ticket proof were de-brittled to invariants (no longer pinning harbor-master as an OPEN boat) so this move is green, not red. berth-pending -> 0.",
-    "gate": "berthed",
-    "seq": 8
+    "at": "2026-07-25",
+    "standing": "VOCABULARY RENAMED to pass BUILD-TO-THE-TOOL (Akien's naming gate, 2026-07-25): a term must be DERIVABLE from its native-domain use — know how the word works on the water and its meaning here follows, with nothing to memorise. Four terms failed and were retired: `in_flight` (an AVIATION word inside a nautical system — a ship is never in flight), `berth_pending` (invented, not a maritime term), `docked` (a near-SYNONYM of berth, so nothing told a reader which of ours was which), and `journey` (which already meant CC's SESSION TRANSCRIPT elsewhere in this tree — one word, two meanings). Replaced by the real vessel progression AT SEA -> AT ANCHOR -> BERTHED, one continuous sequence any sailor knows, mapping exactly onto voyaging / arrived-awaiting-a-berth / tied-up-at-rest. `underway` SURVIVES on a different axis: at-sea is WHERE a boat is, under-way is THAT it is making normal progress (the calm unflagged count inside a gate) — the collision that killed the first proposal (`in_flight`->`under_way`) and was caught by reading before renaming. Net -3 names (falsifier 10 on bus-completion: a build adds no net new vocabulary). THIS COMPONENT: journey.py -> voyage.py, proofs/test_journey.py -> proofs/test_voyage.py, journey_of -> voyage_of, mid_journey -> mid_voyage; traffic_image now returns {gates, at_anchor, berthed, counts{at_sea, at_anchor, gates, flagged, berthed, fleet}}. NOTE FOR THE TRAIL: the sealed record validations/test_journey.json names a proof file that no longer exists — it is an honest record of a proof that ran under the FORMER name and is deliberately NOT rewritten (a record of truth never changes in place, Law 7); this entry is the link between the two names.",
+    "gate": "proven",
+    "proof": "proofs/test_voyage.py",
+    "seq": 9
   },
   "window": [
-    {
-      "at": "2026-07-24",
-      "standing": "child b PROVEN — 7 teeth a hollow build could not pass: clearance is required (unauthorized refused, nothing written), delegable per-operation (the hollow-killer: a grant for one op does not authorize another target/boat/actor), authority never buys an illegal move (even the owner, Law 4), the move's method must be proven under the tester (Law 8), and the crossing is recorded two-vantage (Law 7). Sealed under a REAL netns (green/sealed) — the invocation-independent seal from this session.",
-      "gate": "proven",
-      "proof": "proofs/test_clearance.py",
-      "validation": "validations/test_clearance.json",
-      "seq": 4
-    },
     {
       "at": "2026-07-24",
       "standing": "child c BUILT — the TRAFFIC IMAGE (journey.py): the harbour master's state-right-now main view, composed as DATA over the register (child a). Two derived, computed-on-read structures: the EMERGENT GATE (in-flight boats grouped by transition-class — many workflows share one gate) and the JOURNEY STITCH (a boat's open + berthed vantages joined across the hyphen/underscore id-spelling, register filed-edge e). The one honest flag today is MID-JOURNEY (a boat at sea AND docked — the silently-stuck, the boon of the broad view); the rest of the marker vocabulary is filed grow-against-need on the gate's-queue IOU (held-traffic-image). Owns nothing (a projection over the register, Law 7).",
@@ -42,7 +35,14 @@
       "standing": "BERTHED — the harbor's own ticket voyage froze into this history and CairnCommons/tickets/harbor-master.json migrated out of the open lane beside its code (the physical berth the register+journey were built to make honest; Law 5). The reflexive register proof + the transitions real-ticket proof were de-brittled to invariants (no longer pinning harbor-master as an OPEN boat) so this move is green, not red. berth-pending -> 0.",
       "gate": "berthed",
       "seq": 8
+    },
+    {
+      "at": "2026-07-25",
+      "standing": "VOCABULARY RENAMED to pass BUILD-TO-THE-TOOL (Akien's naming gate, 2026-07-25): a term must be DERIVABLE from its native-domain use — know how the word works on the water and its meaning here follows, with nothing to memorise. Four terms failed and were retired: `in_flight` (an AVIATION word inside a nautical system — a ship is never in flight), `berth_pending` (invented, not a maritime term), `docked` (a near-SYNONYM of berth, so nothing told a reader which of ours was which), and `journey` (which already meant CC's SESSION TRANSCRIPT elsewhere in this tree — one word, two meanings). Replaced by the real vessel progression AT SEA -> AT ANCHOR -> BERTHED, one continuous sequence any sailor knows, mapping exactly onto voyaging / arrived-awaiting-a-berth / tied-up-at-rest. `underway` SURVIVES on a different axis: at-sea is WHERE a boat is, under-way is THAT it is making normal progress (the calm unflagged count inside a gate) — the collision that killed the first proposal (`in_flight`->`under_way`) and was caught by reading before renaming. Net -3 names (falsifier 10 on bus-completion: a build adds no net new vocabulary). THIS COMPONENT: journey.py -> voyage.py, proofs/test_journey.py -> proofs/test_voyage.py, journey_of -> voyage_of, mid_journey -> mid_voyage; traffic_image now returns {gates, at_anchor, berthed, counts{at_sea, at_anchor, gates, flagged, berthed, fleet}}. NOTE FOR THE TRAIL: the sealed record validations/test_journey.json names a proof file that no longer exists — it is an honest record of a proof that ran under the FORMER name and is deliberately NOT rewritten (a record of truth never changes in place, Law 7); this entry is the link between the two names.",
+      "gate": "proven",
+      "proof": "proofs/test_voyage.py",
+      "seq": 9
     }
   ],
-  "count": 9
+  "count": 10
 }

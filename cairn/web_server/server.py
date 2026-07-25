@@ -26,7 +26,7 @@ FILED EDGES (children of this stone, not faked):
   - REPORTED-vs-FILED DRIFT on the STATUS pane: comparing a device's reported intention against
     its filed ``intention+why.json`` on disk (child a left the reported side as DATA; this surface
     reads disk intentions). A first cut can live here without coupling the shim to file paths.
-  - THE JOURNEY pane (child d, waits on harbor_master) and the SETTINGS circuit-breaker (child e,
+  - THE VOYAGE pane (child d, waits on harbor_master) and the SETTINGS circuit-breaker (child e,
     waits on the cgroup-kill sudo script) graft in when those exist.
 """
 
@@ -72,7 +72,7 @@ class WebServerDevice(BaseDevice):
     def _traffic_image(self) -> dict | None:
         """The harbour master's TRAFFIC IMAGE, from the INJECTED harbor source (v0 in-process,
         the same deferral as ``roster_source``). A plain callable ``() -> image`` or an object with
-        a ``traffic_image()`` method both work; ``None`` means the journey view is not wired here
+        a ``traffic_image()`` method both work; ``None`` means the voyage view is not wired here
         yet — the route says so loudly rather than pretending (Law 7)."""
         src = self._harbor_source
         if src is None:
@@ -106,7 +106,7 @@ class WebServerDevice(BaseDevice):
             if img is None:
                 status = 404
                 body = render.render_message(
-                    "Harbor: journey view not wired",
+                    "Harbor: voyage view not wired",
                     "No harbor source is attached to this surface yet (the traffic image "
                     "grafts in when the launcher wires harbor_master). Pick a device above.")
                 selected = None

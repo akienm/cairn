@@ -1,15 +1,15 @@
-"""Proof: the JOURNEY PANE (web-server child d) — the web surface renders harbor_master's
+"""Proof: the VOYAGE PANE (web-server child d) — the web surface renders harbor_master's
 TRAFFIC IMAGE, and is honest when no harbor is wired.
 
-The web server is a PRESENTATION surface (Law 7): it renders the DATA harbor_master.journey
+The web server is a PRESENTATION surface (Law 7): it renders the DATA harbor_master.voyage
 produces (the whole-fleet, state-right-now traffic image) and owns none of it. This proof wires
 the REAL harbor source (the live fleet register → traffic image), so it shows the whole
 route → fetch harbor DATA → render chain WITHOUT a socket, over the actual boats on disk.
 
 Teeth a hollow pane could not pass:
-  - THE ROUTE RENDERS THE EMERGENT GATES: '/harbor' shows the traffic image — the in-flight
+  - THE ROUTE RENDERS THE EMERGENT GATES: '/harbor' shows the traffic image — the at-sea
     gates by transition-class, with each gate's underway COUNT (calm) and its flagged boats as
-    readable lines (the silently-stuck mid-journey boats — the boon of the broad view).
+    readable lines (the silently-stuck mid-voyage boats — the boon of the broad view).
   - THE HARBOR IS REACHABLE FROM EVERY PAGE: the ⚓ Harbor link rides in the nav on the landing
     and on a device page, so the fleet view is one click from anywhere.
   - THE SURFACE OWNS NOTHING: what '/harbor' renders is byte-for-byte the harbor source's own
@@ -17,8 +17,8 @@ Teeth a hollow pane could not pass:
   - NOT WIRED IS SAID LOUDLY: a web server with NO harbor source answers '/harbor' with a
     coherent 404 that says why (never a crash, never a pretend-empty fleet) and drops the ⚓ link.
 
-Composes a REAL ground_loop + REAL harbor_master.journey over the live fleet. Runs bare.
-    python3 cairn/web_server/proofs/test_journey_pane.py     # exit 0 = green
+Composes a REAL ground_loop + REAL harbor_master.voyage over the live fleet. Runs bare.
+    python3 cairn/web_server/proofs/test_voyage_pane.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim
 from cairn.ground_loop.loop import GroundLoopDevice
-from cairn.harbor_master import journey
+from cairn.harbor_master import voyage
 from cairn.web_server import render
 from cairn.web_server.server import WebServerDevice
 
@@ -45,7 +45,7 @@ class _Device(BaseDevice):
         self._name = name
 
     def intention(self) -> dict:
-        return {"what": f"device {self._name}", "why": "a spec device for the journey-pane proof"}
+        return {"what": f"device {self._name}", "why": "a spec device for the voyage-pane proof"}
 
     def state(self) -> dict:
         return {"note": "resting"}
@@ -72,7 +72,7 @@ def _wired(*, with_harbor=True):
     live traffic image (or none, to prove the not-wired path)."""
     gl = GroundLoopDevice()
     gl.subscribe(_Shim(_Device("alpha")))
-    harbor = journey.traffic_image if with_harbor else None
+    harbor = voyage.traffic_image if with_harbor else None
     return WebServerDevice(gl, harbor_source=harbor, port=8798), gl
 
 
@@ -81,17 +81,17 @@ def test_harbor_route_renders_the_emergent_gates():
     status, ctype, body = web.serve("/harbor")
     assert status == 200 and "text/html" in ctype
     assert "Traffic Image" in body, "the harbor route renders the traffic image"
-    img = journey.traffic_image()
+    img = voyage.traffic_image()
     # every emergent gate name reaches the page; the calm underway count is shown.
     for g in img["gates"]:
         assert html.escape(str(g["gate"])) in body, f"gate {g['gate']} missing from the rendered image"
     assert "underway" in body, "the calm underway count is rendered"
-    # the flagged mid-journey boats — the boon — reach the page as readable lines.
+    # the flagged mid-voyage boats — the boon — reach the page as readable lines.
     flagged = [o for g in img["gates"] for o in g["flagged"]]
     assert flagged, "the live fleet has no flagged boat — this proof needs one to be meaningful"
     for o in flagged:
         assert html.escape(o["id"]) in body, f"flagged boat {o['id']} did not render"
-    assert "mid-journey" in body, "the flag condition is named on the page"
+    assert "mid-voyage" in body, "the flag condition is named on the page"
 
 
 def test_the_harbor_link_is_on_every_page():
@@ -106,7 +106,7 @@ def test_the_surface_owns_nothing_of_the_harbor():
     _s, _c, body = web.serve("/harbor")
     # what renders IS the harbor source's own image — rendered by the SAME pure function, so the
     # surface added no boat and no count of its own (Law 7: a projection, not a rival record).
-    expected = render.render_traffic_image(journey.traffic_image())
+    expected = render.render_traffic_image(voyage.traffic_image())
     assert expected in body, "the page body is not the harbor's own image — the surface invented content"
 
 

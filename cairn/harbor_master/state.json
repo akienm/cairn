@@ -1,20 +1,11 @@
 {
   "cursor": {
     "at": "2026-07-24",
-    "standing": "child c SHARPENED — the fleet count is now HONEST without moving a file (Law 1, read-side). Added the BERTH-PENDING condition [✓]: a boat in the open lane whose cursor is at a REST (PROVED) is DONE awaiting its physical berth — it leaves the in-flight count and the gates entirely, read straight off the cursor the register already parses. This sets DONE-but-unberthed boats apart from work genuinely in flight (the migration debt: a PROVED ticket still in CairnCommons/tickets/ because the auto-berther has not run). Sharpens mid-journey [~] — a both-lanes boat AT REST is berth-pending, not silently-stuck; the flag now fires only for in-workflow both-lanes boats. 5th tooth added (berth-pending is done + off the gates); the stitch tooth de-brittled to pick its subjects from the live fleet. Re-sealed under a REAL netns (green/sealed). Honest live read: 8 in flight across 6 gates (2 flagged mid-journey), 4 berth-pending, 9 docked.",
-    "gate": "proven",
-    "proof": "proofs/test_journey.py",
-    "validation": "validations/test_journey.json",
-    "seq": 7
+    "standing": "BERTHED — the harbor's own ticket voyage froze into this history and CairnCommons/tickets/harbor-master.json migrated out of the open lane beside its code (the physical berth the register+journey were built to make honest; Law 5). The reflexive register proof + the transitions real-ticket proof were de-brittled to invariants (no longer pinning harbor-master as an OPEN boat) so this move is green, not red. berth-pending -> 0.",
+    "gate": "berthed",
+    "seq": 8
   },
   "window": [
-    {
-      "at": "2026-07-24",
-      "standing": "child b BUILT — the CLEARANCE gate (clearance.py) + the re-instated METHOD-REGISTRY (registry.py, carried forward from the retired ground_loop executor cairn 584aa74, Law 1). The authority rung (Law 6): owner-gated, delegable per-operation via a non-ambient Grant, wrapping base/transitions.emit for the rules (Law 4) + truth (Law 7) rungs, and resolving the move's method against proven-space (Law 8). The harbor clears the move; it never sails it.",
-      "gate": "built",
-      "ref": "child b",
-      "seq": 3
-    },
     {
       "at": "2026-07-24",
       "standing": "child b PROVEN — 7 teeth a hollow build could not pass: clearance is required (unauthorized refused, nothing written), delegable per-operation (the hollow-killer: a grant for one op does not authorize another target/boat/actor), authority never buys an illegal move (even the owner, Law 4), the move's method must be proven under the tester (Law 8), and the crossing is recorded two-vantage (Law 7). Sealed under a REAL netns (green/sealed) — the invocation-independent seal from this session.",
@@ -45,7 +36,13 @@
       "proof": "proofs/test_journey.py",
       "validation": "validations/test_journey.json",
       "seq": 7
+    },
+    {
+      "at": "2026-07-24",
+      "standing": "BERTHED — the harbor's own ticket voyage froze into this history and CairnCommons/tickets/harbor-master.json migrated out of the open lane beside its code (the physical berth the register+journey were built to make honest; Law 5). The reflexive register proof + the transitions real-ticket proof were de-brittled to invariants (no longer pinning harbor-master as an OPEN boat) so this move is green, not red. berth-pending -> 0.",
+      "gate": "berthed",
+      "seq": 8
     }
   ],
-  "count": 8
+  "count": 9
 }

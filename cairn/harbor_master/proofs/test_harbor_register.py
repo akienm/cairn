@@ -89,17 +89,23 @@ def test_open_and_in_port_are_exhaustive_and_berth_disjoint():
     }, "counts disagree with the boats they count"
 
 
-def test_the_harbor_sees_itself_in_both_vantages():
-    """Reflexive: the harbor sees its OWN berthed history (in port) AND its own open ticket
-    (open) — the two-vantage truth of a boat mid-journey, and proof the scan reaches BOTH
-    roots (cairn/ for histories, CairnCommons/ for tickets)."""
+def test_the_scan_reaches_both_roots():
+    """Both-roots (invariant, not a pinned boat): the in-port scan reaches cairn/ — the harbor sees
+    its OWN berthed history — and the open scan reaches CairnCommons/tickets/ — there ARE open boats
+    and each resolves to a real ticket file there. harbor-master used to sit in BOTH lanes, but once
+    it berths beside code it leaves the open lane (2026-07-24); a proof that pinned it as OPEN would
+    re-derive a moving value (Law 1). What must always hold: the harbor sees its own berth, and the
+    tickets root is really scanned."""
     reg = register.register()
     mine = register.find(reg, "harbor_master")
     assert any(b["berth"] == "in_port" for b in mine), (
         "the harbor does not see its own berthed history — the in-port scan (cairn/) missed it")
-    open_ids = {b["id"] for b in reg["open"]}
-    assert "harbor-master" in open_ids, (
-        "the harbor does not see its own open ticket — the open scan (CairnCommons/tickets/) missed it")
+    assert reg["open"], (
+        "no OPEN boats — the open scan (CairnCommons/tickets/) surfaced nothing; the tickets root is unreached")
+    for b in reg["open"]:
+        assert "CairnCommons/tickets/" in b["source"] and _abs(b["source"]).exists(), (
+            f"{b['id']}: an open boat whose source is not a real CairnCommons/tickets/ file — "
+            f"the open scan did not reach the tickets root ({b['source']!r})")
 
 
 def _main() -> int:
@@ -108,7 +114,7 @@ def _main() -> int:
         test_register_is_an_index_not_a_rival_record,
         test_every_boat_points_back_to_an_existing_source,
         test_open_and_in_port_are_exhaustive_and_berth_disjoint,
-        test_the_harbor_sees_itself_in_both_vantages,
+        test_the_scan_reaches_both_roots,
     ]
     for check in checks:
         check()

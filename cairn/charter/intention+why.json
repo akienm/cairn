@@ -9,10 +9,7 @@
 
   "node_class": "code-seam",
   "entry": "cairn/charter/projector.py",
-  "state": {
-    "cursor": "PROVEN 2026-07-21 — child (a) of charter-state-history-split: the schema + projector, built and proven green under the tester, VALIDATION persisted + grepped back",
-    "note": "This is the placeholder `state` FIELD. Migrating the split onto this very charter (state/history as two files here) waits on the placement edge (git-JSON vs db_domain) — ticket children b/c. Self-hosting comes then, not faked now."
-  },
+  "state_and_history": "compiled to state.json (projected window) + history.json (append-only voyage) beside this charter — the charter-state-history split, now SELF-HOSTED 2026-07-24 (the splitter finally split itself; the placeholder `state` field is gone). This file stays pure intention+why; the operational voyage lives in the sidecars (Law 1/4/7).",
   "gates": "proof gate (tester) — proofs/test_projector.py, green under TesterDevice.run_proof; VALIDATION persisted via db_domain (store.persist_validation) and grepped back (claim 'proof test_projector.py passes under python3', verdict green, 2026-07-21T15:50:30). Durability gate: proven + persisted + committed.",
 
   "falsifier": "the persisted `state` always equals a fresh projection of `history` (no drift); a count window holds at most N (bounded by construction); `history` only ever grows (append-only, prior records untouched); since_gate returns exactly the records since the last gate. Wrong-shape: the window is hand-maintained instead of projected (drift returns); `state` carries anything but cursor+window (the charter becomes the ticket again); `history` is edited in place (Law 7 breach).",

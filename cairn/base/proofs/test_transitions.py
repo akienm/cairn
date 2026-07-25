@@ -102,16 +102,26 @@ def test_a_back_edge_kickback_is_legal_and_carries_severity():
 
 def test_it_parses_a_real_live_ticket_workflow_string():
     # A real on-disk ticket with trailing prose after the cursor — proves the parser survives the
-    # wild format and that the ticket is a CONFORMANT v1 instance. Asserts INVARIANTS, never the
-    # live cursor's value: a ticket's cursor legitimately moves (harbor-master advanced to PROVED
-    # when its journey view landed), and a proof that pins a moving value re-derives noise (Law 1) —
-    # so we check that whatever the cursor is, it parsed to a REAL stage on the registered path.
-    ticket = json.loads((_REPO_ROOT.parent / "CairnCommons" / "tickets" / "harbor-master.json").read_text())
-    wf = transitions.parse_workflow(ticket["state"])
-    assert wf.node_class == "code-seam" and wf.version == "v1"
+    # wild format and that the ticket is a CONFORMANT v1 instance. Picks ANY live code-seam@v1 ticket
+    # from CairnCommons/tickets/ rather than a pinned filename: a ticket legitimately berths beside its
+    # code and leaves the open lane (harbor-master did, 2026-07-24), so pinning one file re-derives a
+    # moving target (Law 1). Asserts INVARIANTS on whichever ticket it finds — never a live cursor value.
+    tickets_dir = _REPO_ROOT.parent / "CairnCommons" / "tickets"
     canonical = tuple(transitions.load_class_def("code-seam")["workflow_versions"]["v1"]["path"])
-    assert wf.path == canonical, f"the live ticket's path drifted from the registered v1 table: {wf.path}"
-    assert wf.here in canonical, f"cursor mis-parsed from the real string (not a real stage): {wf.here}"
+    found = None
+    for t in sorted(tickets_dir.glob("*.json")):
+        try:
+            state = json.loads(t.read_text()).get("state")
+            wf = transitions.parse_workflow(state) if isinstance(state, str) else None
+        except (ValueError, OSError):
+            continue                      # prose state / garbled ticket — not a code-seam workflow string
+        if wf and wf.node_class == "code-seam" and wf.version == "v1" and wf.path == canonical:
+            found = (t.name, wf)
+            break
+    assert found, ("no live code-seam@v1 ticket in CairnCommons/tickets/ to parse — the real-ticket tooth "
+                   "needs at least one on-disk code-seam ticket (a green over zero would be hollow, Law 8)")
+    name, wf = found
+    assert wf.here in canonical, f"cursor mis-parsed from the real string ({name}, not a real stage): {wf.here}"
 
 
 def _main() -> int:

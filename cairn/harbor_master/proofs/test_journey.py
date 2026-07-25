@@ -17,8 +17,11 @@ Five claims, each a tooth a hollow view could not pass:
      fleet, not a pinned id (a proof that names a boat reddens when that boat legitimately moves).
 
   3. BERTH-PENDING. A boat in the open lane at a REST cursor (PROVED) is DONE, awaiting its berth:
-     it leaves the in-flight count and the gates entirely (PROVED is a rest, not a gate). Non-hollow
-     (Law 8): the real fleet HAS proven tickets still voyaging — the honest count must set them apart.
+     it leaves the in-flight count and the gates entirely (PROVED is a rest, not a gate). Proven on a
+     CONSTRUCTED fleet exercising every branch of the classifier — non-hollow by construction, NOT by
+     live migration-debt: once the debt is physically berthed the live fleet holds zero berth-pending
+     (the goal, reached 2026-07-24), so a proof that required one would red on a clean fleet. A second
+     tooth checks the partition invariant on the real fleet with no such floor.
 
   4. OWNS NOTHING (Law 7). Every entry field is byte-equal to its register entry (standing, source)
      — a projection over an index, inventing nothing. Gates ∪ berth_pending == the open set exactly,
@@ -115,27 +118,76 @@ def test_the_image_owns_nothing():
             f"{d['id']}: listed docked yet also in the open lane — a boat double-counted")
 
 
-def test_berth_pending_is_done_and_off_the_gates():
+def _synthetic_reg() -> dict:
+    """A fabricated fleet that exercises every branch of ``journey._condition`` — so berth-pending
+    and the cursor-sharpening are proven NON-HOLLOW by construction, independent of what the live
+    fleet happens to carry. Once the berth-pending debt is physically berthed the live fleet may hold
+    ZERO (that is the goal), and a proof that REQUIRED a berth-pending boat would then red on a CLEAN
+    fleet — backwards. The register's own entry shapes are mirrored here (register.py)."""
+    open_ = [
+        {"id": "syn-proved", "berth": "open", "standing": "PROVED", "node_class": "code-seam",
+         "source": "CairnCommons/tickets/syn-proved.json"},
+        {"id": "syn-proved-docked", "berth": "open", "standing": "PROVED", "node_class": "code-seam",
+         "source": "CairnCommons/tickets/syn-proved-docked.json"},
+        {"id": "syn-build", "berth": "open", "standing": "BUILDME", "node_class": "code-seam",
+         "source": "CairnCommons/tickets/syn-build.json"},
+        {"id": "syn-build-docked", "berth": "open", "standing": "BUILDME", "node_class": "code-seam",
+         "source": "CairnCommons/tickets/syn-build-docked.json"},
+    ]
+    in_port = [  # the two *-docked boats also carry a berthed vantage (id underscored, per _canon)
+        {"id": "syn_proved_docked", "berth": "in_port", "standing": "berthed", "gate": "berthed",
+         "seq": 1, "source": "cairn/syn_proved_docked/history.json"},
+        {"id": "syn_build_docked", "berth": "in_port", "standing": "built", "gate": "built",
+         "seq": 1, "source": "cairn/syn_build_docked/history.json"},
+    ]
+    fleet = open_ + in_port
+    return {"open": open_, "in_port": in_port, "fleet": fleet,
+            "counts": {"open": len(open_), "in_port": len(in_port), "fleet": len(fleet)}}
+
+
+def test_berth_pending_and_the_cursor_sharpening_on_a_constructed_fleet():
+    """BERTH-PENDING (claim 3) + the cursor SHARPENING, proven on a fabricated fleet exercising every
+    branch of the classifier — non-hollow by construction, not by live migration-debt. A PROVED open
+    boat is berth-pending [✓] and OFF the gates whether or not it is also docked (the CURSOR decides,
+    not the second lane); a BUILDME boat is a gate occupant; a BUILDME boat that is ALSO docked is the
+    silently-stuck mid-journey [~]. in_flight counts only the gate occupants, and in_flight +
+    berth_pending exhausts the open lane."""
+    reg = _synthetic_reg()
+    img = journey.traffic_image(reg)
+    bp = {o["id"] for o in img["berth_pending"]}
+    assert bp == {"syn-proved", "syn-proved-docked"}, (
+        f"berth-pending is not exactly the PROVED open boats — the cursor must decide it whether one "
+        f"lane or both (a hollow image that read PROVED as a gate would fail here): {bp}")
+    for o in img["berth_pending"]:
+        assert (o["standing"] in journey.REST_STANDINGS and o["condition"] == "berth-pending"
+                and o["marker"] == "[✓]"), f"{o['id']}: wrong condition/marker for a done boat"
+    gate_ids = {o["id"] for g in img["gates"] for o in g["occupants"]}
+    assert gate_ids == {"syn-build", "syn-build-docked"}, (
+        f"gate occupants are not exactly the in-flight boats — a PROVED boat leaked onto a gate: {gate_ids}")
+    assert not (bp & gate_ids), "a boat is both berth-pending and at a gate — PROVED is a rest, not a gate"
+    flagged = {o["id"] for g in img["gates"] for o in g["flagged"]}
+    assert flagged == {"syn-build-docked"}, (
+        f"mid-journey [~] is not reserved for the in-workflow both-lanes boat (the PROVED-and-docked "
+        f"one must be berth-pending, NOT flagged): {flagged}")
+    assert img["counts"]["in_flight"] == len(gate_ids)
+    assert img["counts"]["in_flight"] + img["counts"]["berth_pending"] == len(reg["open"])
+
+
+def test_the_live_fleet_partition_is_exact():
+    """On the REAL fleet, with NO floor (the honest count legitimately holds zero berth-pending once
+    the debt is physically berthed — 2026-07-24): whatever IS berth-pending is at a rest cursor and
+    off the gates, and in_flight + berth_pending exhausts the open lane exactly."""
     reg = register.register()
     img = journey.traffic_image(reg)
-    bp = img["berth_pending"]
-    # non-hollow (Law 8): the real fleet HAS proven tickets still voyaging in CairnCommons/tickets/
-    # because the physical berth (the auto-berther, register filed-edge c) has not run — the honest
-    # count must set them apart from work genuinely in flight.
-    assert bp, ("no berth-pending boats — a green here is hollow: the fleet has PROVED tickets still "
-                "in the open lane, and they must not be counted as in-flight work")
     gate_ids = {o["id"] for g in img["gates"] for o in g["occupants"]}
-    for o in bp:
+    for o in img["berth_pending"]:
         assert o["standing"] in journey.REST_STANDINGS, (
-            f"{o['id']}: berth-pending but its cursor {o['standing']!r} is not a rest — only a DONE boat awaits berth")
-        assert o["condition"] == "berth-pending" and o["marker"] == "[✓]", f"{o['id']}: wrong condition/marker"
-        assert o["id"] not in gate_ids, (
-            f"{o['id']}: berth-pending yet still placed at a gate — PROVED is a rest, not a gate where work waits")
-    # the in-flight count is exactly the gate occupants, and in_flight + berth_pending exhausts the open lane.
+            f"{o['id']}: berth-pending but its cursor {o['standing']!r} is not a rest")
+        assert o["id"] not in gate_ids, f"{o['id']}: berth-pending yet still placed at a gate"
     assert img["counts"]["in_flight"] == len(gate_ids), "in_flight is not exactly the gate occupants"
     assert img["counts"]["in_flight"] + img["counts"]["berth_pending"] == len(reg["open"]), (
         "in_flight + berth_pending must exhaust the open lane — a boat fell out of the count")
-    print(f"    (berth-pending, off the gates: {', '.join(o['id'] for o in bp)})")
+    print(f"    (live: {img['counts']['in_flight']} in flight, {img['counts']['berth_pending']} berth-pending)")
 
 
 def test_calm_when_healthy_partition():
@@ -156,7 +208,8 @@ def _main() -> int:
     checks = [
         test_gates_are_emergent_and_shared,
         test_the_journey_stitches_across_id_spelling_and_the_flag_is_sharpened,
-        test_berth_pending_is_done_and_off_the_gates,
+        test_berth_pending_and_the_cursor_sharpening_on_a_constructed_fleet,
+        test_the_live_fleet_partition_is_exact,
         test_the_image_owns_nothing,
         test_calm_when_healthy_partition,
     ]

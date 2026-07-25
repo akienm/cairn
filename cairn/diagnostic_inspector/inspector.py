@@ -98,6 +98,28 @@ def by_gate(gate) -> _Filter:
 #   by_severity(level)    — once emissions carry severity, triage by it.
 
 
+# ── THE SEED — what a report carries before it has learned anything ──────────────────
+#
+# I-complete-diagnostic-on-first-pass names this list outright. Akien settled it in 2007;
+# a surface that re-learns it one forced second-run at a time is paying the exact tax the
+# intention exists to abolish (Law 1 — the settled is not re-derived). So the intention's
+# list is the registry's FLOOR, not its horizon: `record_miss` grows the set ABOVE the
+# seed and can never re-derive it. Imperfect and improving is the design; starting from
+# zero when the answer is already written down is not.
+#
+# Seeded registries are opt-in (``CompletenessRegistry.seeded()``) — a bare registry stays
+# empty so the learning half can still be proven in isolation.
+SEED = (
+    "identity",    # what this is about
+    "location",    # where in the system it happened
+    "code",        # the exact code at the contact
+    "expected",    # expected-vs-...
+    "actual",      # ...-actual
+    "fatality",    # does it stop the show
+    "trace",       # the full trace
+)
+
+
 class Inspector:
     """Reacts to a callback: applies FILTERS to the log, produces FINDINGS — and carries its
     learned completeness across inspections, so it gets better over time (the remit).
@@ -138,7 +160,12 @@ class Inspector:
             present: set = set()
             for r in selected:
                 if r.get("gate") == gate:
+                    # A datum COUNTS wherever the record actually carries it — in ``values``
+                    # or on the envelope itself (``source`` is carried up top, not in values).
+                    # Measuring only ``values`` would report a carried datum as missing, and a
+                    # FALSE miss folded into the registry corrupts the learning loop at its root.
                     present |= set((r.get("values") or {}).keys())
+                    present |= {k for k in r if k != "values"}
             required = self._registry.required(gate)
             missing = required - present
             per_gate[gate] = {
@@ -172,22 +199,30 @@ class CompletenessRegistry:
     a commons git-JSON store vs CC's shim when shims land — is a filed edge (ticket horizon).
     """
 
-    def __init__(self, required: dict | None = None) -> None:
+    def __init__(self, required: dict | None = None, baseline=()) -> None:
         self._required: dict[str, set] = {
             g: set(keys) for g, keys in (required or {}).items()
         }
+        self._baseline: set = set(baseline)   # asked of EVERY gate; never learned, never lost
+
+    @classmethod
+    def seeded(cls, required: dict | None = None) -> "CompletenessRegistry":
+        """A registry that starts from the intention's named list (``SEED``) rather than from
+        nothing — the settled answer arrives as structure, not as seven forced second-runs."""
+        return cls(required, baseline=SEED)
 
     def required(self, gate) -> set:
-        """The value-keys ``gate``'s findings have learned they must carry (a copy)."""
-        return set(self._required.get(gate, set()))
+        """What ``gate``'s findings must carry: the seed floor every surface owes, plus what
+        this gate has LEARNED on top of it (a copy)."""
+        return self._baseline | set(self._required.get(gate, set()))
 
     def record_miss(self, gate, key) -> str:
         """Return ``"learned"`` on a first miss (completeness grows), or ``"recurred"`` if
         ``gate``/``key`` was already learned (told once; being told again is the
         terminal-falsifier signal, Law 1 — a re-derivation of the settled)."""
         cur = self._required.setdefault(gate, set())
-        if key in cur:
-            return "recurred"
+        if key in cur or key in self._baseline:
+            return "recurred"   # a SEEDED key that goes missing was told once, at the seed
         cur.add(key)
         return "learned"
 
@@ -202,10 +237,13 @@ class CompletenessRegistry:
         return str(p)
 
     @classmethod
-    def load(cls, path) -> "CompletenessRegistry":
-        """Re-read a saved registry; a missing file is an empty registry (nothing learned
-        yet), never an error — the loop starts blank and grows."""
+    def load(cls, path, *, baseline=()) -> "CompletenessRegistry":
+        """Re-read a saved registry; a missing file is an empty registry (nothing LEARNED
+        yet), never an error — the loop starts blank and grows. Only the learned half is on
+        disk: the seed is authored (git, beside the code, traceable to the intention), so it
+        is re-supplied here rather than persisted — a seed that could rot on disk would be a
+        second copy of a settled answer."""
         p = Path(path)
         if not p.exists():
-            return cls()
-        return cls(json.loads(p.read_text(encoding="utf-8")))
+            return cls(baseline=baseline)
+        return cls(json.loads(p.read_text(encoding="utf-8")), baseline=baseline)

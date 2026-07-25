@@ -33,8 +33,43 @@ import os
 import tempfile
 from datetime import datetime
 
+from cairn.base.diagnostic import DiagnosticBase
+
 # The window rule: a first guess, adjusted against real need, not a settled law.
 DEFAULT_WINDOW = {"kind": "count", "n": 5}
+
+
+# ── the diagnostic surface at the append door ────────────────────────────────
+#
+# The append door is THE gate: every component's voyage advances through this one call, so
+# instrumenting here instruments every gate progression in Cairn at once — no per-device
+# wiring, no scan, no daemon. The progression IS the event (Law 3: the emission is the
+# measurement; the shrinking-footprint discipline: event, never poll).
+#
+# The projector is a module, not a device, so it carries the mechanism every device
+# inherits rather than a second one of its own (Law 1 — one emitter, one shape). Import
+# stays stdlib-deep: ``DiagnosticBase`` is datetime-only, so the boot-order law holds.
+#
+# Unwired by default. With no receiver the records HOLD on the surface (never dropped,
+# Law 7) — so the instrument is inert until someone attaches, which is the targeted-and-
+# temporary discipline the diagnostic charter asks for.
+class _AppendDoor(DiagnosticBase):
+    @property
+    def diagnostic_source(self) -> str:
+        return "charter.projector.append_entry"
+
+
+_door = _AppendDoor()
+
+
+def set_diagnostic_receiver(receiver) -> None:
+    """Attach (or, with ``None``, tear down) the instrument on the append door."""
+    _door.set_diagnostic_receiver(receiver)
+
+
+def held_diagnostics() -> list[dict]:
+    """Records emitted while nothing was attached — held, not lost."""
+    return _door.held_diagnostics()
 
 
 # ── the pure core: state is a function of history ────────────────────────────
@@ -121,8 +156,31 @@ def append_entry(
     """
     record = dict(record)
     record.setdefault("at", datetime.now().isoformat(timespec="seconds"))
-    history = append(read_history(history_path), record)
+    prior = read_history(history_path)
+    history = append(prior, record)
     _atomic_write(history_path, history)
     state = project(history, window=window)
     _atomic_write(state_path, state)
+    # The gate contact — emitted AFTER the write lands, so the record describes a transition
+    # that actually happened. Carries only what this door truthfully knows; whatever the seed
+    # asks for and this cannot supply shows up MISSING in the findings, which is the honest
+    # signal (a datum invented to make a report look complete is the hollow build, Law 8).
+    _door.emit(
+        "append_entry",
+        pointer=record.get("id") or record.get("ticket") or history_path,
+        values={
+            "identity": record.get("id") or record.get("ticket"),
+            "location": history_path,
+            "code": "cairn/charter/projector.py::append_entry",
+            # A TRUE expected-vs-actual for this door: the caller asked to stand at a gate;
+            # the projection is what the compiled state actually came to rest on. A divergence
+            # here means the window rule or the append dropped the caller's move on the floor.
+            "expected": record.get("gate"),
+            "actual": (state.get("cursor") or {}).get("gate"),
+            "fatality": "non-fatal",             # the write landed; a raise never reaches here
+            "seq": history[-1].get("seq"),       # assigned by append(), not by the caller
+            "entries": len(history),
+            "from": (project(prior, window=window).get("cursor") or {}).get("gate") if prior else None,
+        },
+    )
     return state

@@ -32,5 +32,13 @@
     "standing": "BERTHED + SELF-HOSTED — the splitter finally split itself: cairn/charter/ now carries this history.json + a projected state.json, its charter's placeholder `state` field removed (the self-hosting hole the ticket named is closed). CairnCommons/tickets/charter-state-history-split.json migrated out of the open lane. The scan proof now covers charter/ itself. berth-pending -> 0 for this boat.",
     "gate": "berthed",
     "seq": 4
+  },
+  {
+    "gate": "proved",
+    "standing": "PROVED — THE APPEND DOOR IS INSTRUMENTED. append_entry now emits one gate-contact record (DiagnosticBase, the mechanism every device already inherits — not a second emitter) carrying identity, location, code, a true expected-vs-actual (the gate the caller asked for vs the gate the compiled state came to rest on), fatality, the seq append() assigned, and where the cursor came from. Because this door is the SINGLE write-door, one attachment instruments every voyage advance in Cairn: the progression IS the event — no scan, no daemon, and the surface is inert (records HOLD, Law 7) until someone attaches. Proven 8/8; full suite 29/29.",
+    "proof": "cairn/charter/proofs/test_append_door_instrument.py",
+    "found": "The first live run filed CairnCommons/troubles/append-door-has-no-schema-gate.json — this door validates nothing about a record's shape, so a malformed record of truth entered silently and surfaced only as a red in another component's proof.",
+    "at": "2026-07-25T17:42:03",
+    "seq": 5
   }
 ]

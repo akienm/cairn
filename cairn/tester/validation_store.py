@@ -45,6 +45,21 @@ def validations_path_for(proof_path: str) -> str:
     return os.path.join(component_dir, "validations", f"{stem}.json")
 
 
+def validations_path_for_artifact(artifact_path: str) -> str:
+    """The validations file for an artifact that has no proof file: ``<dir>/x.md`` ->
+    ``<dir>/validations/x.json``.
+
+    A concept-piece is proved by people reading it, so there is no ``proofs/`` directory to
+    derive an address from — and until 2026-07-25 that meant the single write-door could not
+    accept one at all, which is why no concept-piece had ever been sealed. The address is still
+    DERIVED, never chosen by the caller: the seal lands beside the artifact it seals, so intent
+    and proof keep one address (Law 5).
+    """
+    directory = os.path.dirname(os.path.abspath(artifact_path))
+    stem = os.path.splitext(os.path.basename(artifact_path))[0]
+    return os.path.join(directory, "validations", f"{stem}.json")
+
+
 def read_validations(proof_path: str | None = None, *, path: str | None = None) -> list[dict]:
     """Grep the seal trail for a proof — the evidence a hunch consults before re-deriving.
 
@@ -76,20 +91,35 @@ def _atomic_write(path: str, data) -> None:
         raise
 
 
-def persist_validation(validation: dict, *, proof_path: str) -> str:
-    """The single write-door: APPEND one VALIDATION to the trail beside ``proof_path``.
+def persist_validation(
+    validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None
+) -> str:
+    """The single write-door: APPEND one VALIDATION to the trail beside what it seals.
+
+    Give ``proof_path`` for a node proved by a tester run, or ``artifact_path`` for one proved
+    by human judgment (a concept-piece — see ``cairn/tester/quorum.py``). Exactly one: the
+    address is always derived, never chosen, and a caller who names both has not decided what
+    it is sealing.
 
     Refuses a record that is not exactly the ratified eight fields (drift is not a seal).
     Appends — never overwrites — because the trail is a record of truth (Law 7) and a
     re-run's verdict is a NEW dated entry, not a replacement (Law 3). Returns the file path.
     """
+    if (proof_path is None) == (artifact_path is None):
+        raise ValueError(
+            "persist_validation seals EITHER a proof (proof_path) or a human-proved artifact "
+            f"(artifact_path) — got proof_path={proof_path!r}, artifact_path={artifact_path!r}. "
+            "One door, two addressing rules, and the caller picks which by naming one.")
     got = set(validation)
     if got != set(VALIDATION_FIELDS):
         raise ValueError(
             f"a VALIDATION carries exactly the ratified eight fields {sorted(VALIDATION_FIELDS)}; "
             f"got {sorted(got)} — a drifted record is refused, it is not a seal (Law 7)"
         )
-    path = validations_path_for(proof_path)
+    path = (
+        validations_path_for(proof_path) if proof_path is not None
+        else validations_path_for_artifact(artifact_path)
+    )
     trail = read_validations(path=path)
     trail.append(dict(validation))
     _atomic_write(path, trail)

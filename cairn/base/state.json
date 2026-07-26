@@ -1,22 +1,13 @@
 {
   "cursor": {
     "gate": "proved",
-    "standing": "PROVED — A POKE PER CROSSING, NOT PER PULSE. Akien: 'so we need an anti-bounce?' Measured yes: on_pulse fired on the LEVEL, so a trigger parked true (a CPU at 91%) poked every pulse forever — the flood rackmount.py:129 filed as 'wants edge-detection' and left. Now the default is one poke at the crossing false->true, re-arming when the line is recrossed; Callback.while_true opts back into per-pulse for the watch that means 'keep telling me while this holds'. The DECLARATION is on the frozen Callback, the MEMORY is on the shim (_was_true, keyed by Callback.identity = to/channel/why) — the same declare/evaluate split the trigger already has, and the reason crossing-detection cannot live in callback.py. A raising trigger is remembered as NEITHER side of the line, so a swallowed error never also swallows the next real poke (Law 7); a vanished or re-established watch is forgotten rather than suppressed by stale memory; every held poke now says WHICH kind of held it is.",
-    "proof": "cairn/base/proofs/test_callback_crossing.py",
-    "validation": "9/9; suite 31/31",
-    "note": "Named 'crossing', not 'edge' — 'filed edge' is already spent in this codebase on an open design question, and 'crossing' is already native (diagnostic.py's 'a boundary crossing', rackmount's {'crossed': value}). Coinage-by-selection, flagged for ratify. CHATTER (a value flapping across the line) is NOT cured by this and is deliberately NOT built — damping needs a measured width, and a wrong width silently eats real crossings. Filed with its opening condition on CairnCommons/tickets/bus-completion.json.",
-    "at": "2026-07-25T18:20:27",
-    "seq": 9
+    "standing": "PROVED — THE CROSSING NOW SAYS WHERE THE BOAT STANDS. transitions.emit derives `standing` from the target it just landed on, instead of leaving it to every caller to remember. Found by the append door's new shape gate (cairn/charter/projector.py), which refused emit's record on its first run: from/to/workflow/direction and no `standing` — the one field harbor_master's register reads to place a boat, so every such record would have been permanently unreadable. Measured: zero emit-shaped records existed in any live history, so nothing malformed was ever written; the gate caught it while it was still cheap. A caller may still override with a richer line through journal_extra — the default is a floor, not a ceiling. Proven 11/11 (2 new); full suite 31/31 green.",
+    "proof": "cairn/base/proofs/test_transitions.py",
+    "kin": "CairnCommons/troubles/append-door-has-no-schema-gate.json — the same defect class, one layer up",
+    "at": "2026-07-25T18:53:20",
+    "seq": 10
   },
   "window": [
-    {
-      "at": "2026-07-22",
-      "standing": "DiagnosticBase (diagnostic.py) landed, composed by BaseDevice so every device inherits emit() — a gate sends a us-stamped thin breadcrumb home to CC's shim, held-loud-not-lost when homeless.",
-      "gate": "proven",
-      "proof": "proofs/test_diagnostic.py",
-      "validation": "validations/test_diagnostic.json",
-      "seq": 5
-    },
     {
       "at": "2026-07-24",
       "standing": "EMIT-CHOKEPOINT added (transitions.py) — the RULES rung of the transition trichotomy: the one door a workflow's cursor moves through, validating against the class definition's versioned table + the -ME grammar, refusing the illegal (skip-past-gate / off-vocabulary / unknown class-version / no-op / drifted path), journaling the legal crossing append-only via the projector door. Turns /sorted's prose transition-refusal into physics (Law 4). AUTHORITY stays with the harbor's clearance gate (harbor-master child b), now unblocked.",
@@ -50,7 +41,15 @@
       "note": "Named 'crossing', not 'edge' — 'filed edge' is already spent in this codebase on an open design question, and 'crossing' is already native (diagnostic.py's 'a boundary crossing', rackmount's {'crossed': value}). Coinage-by-selection, flagged for ratify. CHATTER (a value flapping across the line) is NOT cured by this and is deliberately NOT built — damping needs a measured width, and a wrong width silently eats real crossings. Filed with its opening condition on CairnCommons/tickets/bus-completion.json.",
       "at": "2026-07-25T18:20:27",
       "seq": 9
+    },
+    {
+      "gate": "proved",
+      "standing": "PROVED — THE CROSSING NOW SAYS WHERE THE BOAT STANDS. transitions.emit derives `standing` from the target it just landed on, instead of leaving it to every caller to remember. Found by the append door's new shape gate (cairn/charter/projector.py), which refused emit's record on its first run: from/to/workflow/direction and no `standing` — the one field harbor_master's register reads to place a boat, so every such record would have been permanently unreadable. Measured: zero emit-shaped records existed in any live history, so nothing malformed was ever written; the gate caught it while it was still cheap. A caller may still override with a richer line through journal_extra — the default is a floor, not a ceiling. Proven 11/11 (2 new); full suite 31/31 green.",
+      "proof": "cairn/base/proofs/test_transitions.py",
+      "kin": "CairnCommons/troubles/append-door-has-no-schema-gate.json — the same defect class, one layer up",
+      "at": "2026-07-25T18:53:20",
+      "seq": 10
     }
   ],
-  "count": 10
+  "count": 11
 }

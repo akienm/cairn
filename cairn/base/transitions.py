@@ -215,6 +215,18 @@ def emit(
         record = {
             "from": wf.here,
             "to": target,
+            # WHERE THE BOAT NOW STANDS. Derived here, not asked of every caller: this
+            # function is the one place that knows the crossing landed, and ``standing``
+            # is the field a component's readers (harbor_master's register reads
+            # ``project(history).cursor["standing"]``) turn into a berth. A caller may
+            # override it with a richer line through ``journal_extra`` — the spread below
+            # sits after this key deliberately — but it can no longer be forgotten.
+            #
+            # Found by the append door's shape gate, 2026-07-25, BEFORE this emitter had
+            # ever written to a live history: every emit-shaped record on disk was zero.
+            # That is the whole argument for the gate — the same fault as the trouble it
+            # closes, caught while it was still cheap instead of permanent (Law 7).
+            "standing": target,
             "workflow": new_str,
             "direction": "back" if target_idx < wf.cursor else "forward",
             **({"severity": wf.cursor - target_idx} if target_idx < wf.cursor else {}),

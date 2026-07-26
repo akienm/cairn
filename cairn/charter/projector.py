@@ -39,6 +39,37 @@ from cairn.base.diagnostic import DiagnosticBase
 DEFAULT_WINDOW = {"kind": "count", "n": 5}
 
 
+# ── the shape gate: what a record of truth must carry ────────────────────────
+#
+# ONE FIELD, AND THE NUMBER IS MEASURED (Law 3, ratified by Akien 2026-07-25). Across all 14
+# component histories, 66 records, every author and date:
+#
+#     at, seq     100%   the door writes these ITSELF — not a schema question
+#     standing     98%   65/66; the single record missing it IS the defect this gate closes
+#     gate         80%   13 legitimate records lack it — requiring it would invalidate them
+#     proof        56%   situational
+#     validation   32%   situational
+#
+# So the universal floor is exactly ``standing`` — the field harbor_master's register actually
+# reads, carried by every component since the beginning, and the one whose silent absence let a
+# malformed record become permanent (CairnCommons/troubles/append-door-has-no-schema-gate.json).
+# Nothing else clears the bar, so nothing else is here.
+#
+# PER-COMPONENT DECLARED SHAPE IS FILED, NOT BUILT: no component today needs a field beyond the
+# floor, so the declaring surface would have zero consumers. It opens when one does, and the
+# charter is where it would be declared.
+#
+# The refusal happens BEFORE any write — a record of truth is permanent, so the only place a bad
+# one can be stopped is on the way in (Law 4: the single door is the single door precisely so a
+# rule can be enforced in one place; Law 7: the costly direction is accepting it quietly).
+UNIVERSAL_REQUIRED = ("standing",)
+
+
+class RecordRefused(ValueError):
+    """The append door turning away a record that no reader could read. Loud, and BEFORE the
+    write — the whole point, since history is append-only and cannot be edited afterwards."""
+
+
 # ── the diagnostic surface at the append door ────────────────────────────────
 #
 # The append door is THE gate: every component's voyage advances through this one call, so
@@ -155,6 +186,22 @@ def append_entry(
     never hand-edited (any prior ``state`` on disk is overwritten by the truth).
     """
     record = dict(record)
+    # THE GATE, before anything is touched. The report is complete on this one pass
+    # (I-complete-diagnostic-on-first-pass): what was refused, where it was going, what was
+    # required, what was actually present, and why the field matters — so the caller fixes it
+    # without a second run.
+    missing = [k for k in UNIVERSAL_REQUIRED if not record.get(k)]
+    if missing:
+        raise RecordRefused(
+            f"append refused: record for {history_path!r} is missing {missing} — "
+            f"required {list(UNIVERSAL_REQUIRED)}, carried {sorted(record)}. "
+            "'standing' is what a component's readers (harbor_master's register) read to "
+            "derive where a boat stands; a record without it enters the history unreadable "
+            "and CANNOT be edited out afterwards (Law 7 — append-only). "
+            "Measured floor: 65/66 records across all 14 histories carry it; the one that "
+            "did not is the trouble this gate closes "
+            "(CairnCommons/troubles/append-door-has-no-schema-gate.json)."
+        )
     record.setdefault("at", datetime.now().isoformat(timespec="seconds"))
     prior = read_history(history_path)
     history = append(prior, record)

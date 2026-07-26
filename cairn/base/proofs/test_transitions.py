@@ -52,6 +52,37 @@ def test_a_legal_forward_advance_journals_the_crossing():
         assert rec["workflow"] == new, "the journal did not record the resulting workflow string"
 
 
+def test_the_crossing_carries_where_the_boat_now_stands():
+    """The emitter derives ``standing``; no caller has to remember it.
+
+    FOUND BY THE APPEND DOOR'S SHAPE GATE, 2026-07-25, before this emitter had ever written
+    to a live history: it journaled from/to/workflow/direction and NO ``standing``, which is
+    the one field harbor_master's register reads to place a boat. Every such record would
+    have been permanently unreadable (Law 7 — append-only, no edit afterwards). The gate
+    refused it at the door instead, which is the whole reason the gate exists.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+        rec = projector.read_history(hist)[0]
+    assert rec["standing"] == "PROVEME", \
+        f"a crossing that does not say where the boat stands cannot be read — got {rec.get('standing')!r}"
+    assert all(rec.get(k) for k in projector.UNIVERSAL_REQUIRED), \
+        "the emitter's record must clear the door's floor by construction, not by luck"
+
+
+def test_a_caller_may_say_it_richer_but_may_not_drop_it():
+    """``journal_extra`` overrides the derived standing (a berth line says more than a gate
+    name) — the default is a FLOOR, not a ceiling. What it cannot do is omit it."""
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state,
+                         standing="PROVEME — green under the tester, VALIDATION sealed beside it")
+        rec = projector.read_history(hist)[0]
+    assert rec["standing"].startswith("PROVEME — green"), "the caller's richer line must win"
+    assert rec["to"] == "PROVEME", "and the machine-readable target is untouched beside it"
+
+
 def test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme():
     at_think = "code-seam@v1: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> PROVED"
     # decompose (parent) and build (leaf, skipping the skippable TICKETME) are BOTH legal
@@ -127,6 +158,8 @@ def test_it_parses_a_real_live_ticket_workflow_string():
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
+        test_the_crossing_carries_where_the_boat_now_stands,
+        test_a_caller_may_say_it_richer_but_may_not_drop_it,
         test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme,
         test_a_forward_skip_past_a_gate_summons_is_refused,
         test_a_target_outside_the_vocabulary_is_refused,

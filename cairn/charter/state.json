@@ -1,21 +1,15 @@
 {
   "cursor": {
     "gate": "proved",
-    "standing": "PROVED — THE APPEND DOOR IS INSTRUMENTED. append_entry now emits one gate-contact record (DiagnosticBase, the mechanism every device already inherits — not a second emitter) carrying identity, location, code, a true expected-vs-actual (the gate the caller asked for vs the gate the compiled state came to rest on), fatality, the seq append() assigned, and where the cursor came from. Because this door is the SINGLE write-door, one attachment instruments every voyage advance in Cairn: the progression IS the event — no scan, no daemon, and the surface is inert (records HOLD, Law 7) until someone attaches. Proven 8/8; full suite 29/29.",
+    "standing": "PROVED — THE APPEND DOOR HAS A SHAPE GATE. append_entry now REFUSES a record that omits `standing`, and refuses it BEFORE any file is touched — the only place a bad record of truth can be stopped, since history is append-only and cannot be edited afterwards (Law 7). The required set is exactly one field because that is what was MEASURED, not what looked tidy: across 14 histories / 66 records, at+seq 100% (door-written), standing 98% (the single record missing it IS the defect this closes), gate 80% (13 legitimate records lack it — requiring it would have retroactively invalidated them), proof 56%, validation 32%. The refusal names what was required, what was carried, why the field matters and where the trouble lives, so the caller fixes it without a second run (I-complete-diagnostic-on-first-pass). Proven 12/12; full suite 31/31 green.",
     "proof": "cairn/charter/proofs/test_append_door_instrument.py",
-    "found": "The first live run filed CairnCommons/troubles/append-door-has-no-schema-gate.json — this door validates nothing about a record's shape, so a malformed record of truth entered silently and surfaced only as a red in another component's proof.",
-    "at": "2026-07-25T17:42:03",
-    "seq": 5
+    "ratified_by": "akien, 2026-07-25 — 'Universal floor: standing only'; per-component declared shape FILED, not built (it would have zero consumers today; the charter is where it would be declared when one appears)",
+    "found": "THE GATE PAID FOR ITSELF ON ITS FIRST RUN. It refused cairn/base/transitions.py::emit — the state-machine chokepoint every crossing goes through — which journaled from/to/workflow/direction and NO standing, the one field harbor_master's register reads to place a boat. Measured: zero emit-shaped records exist in any live history, so the fault had never yet become permanent. Fixed at the emitter (it is the one place that knows the crossing landed; a caller may override with a richer line, but can no longer omit it), not at every caller. Same defect class as the trouble it closes, caught while it was still cheap.",
+    "closes": "CairnCommons/troubles/append-door-has-no-schema-gate.json",
+    "at": "2026-07-25T18:53:10",
+    "seq": 6
   },
   "window": [
-    {
-      "at": "2026-07-21",
-      "standing": "child a PROVEN — the two-file schema + the PROJECTOR (projector.py): state (cursor + bounded window) compiled from append-only history, single write-door (append_entry). 5 teeth green under the tester; VALIDATION persisted + grepped back.",
-      "gate": "proven",
-      "proof": "proofs/test_projector.py",
-      "validation": "validations/test_projector.json",
-      "seq": 1
-    },
     {
       "at": "2026-07-22",
       "standing": "child b PLACEMENT resolved (beside-code git-JSON; the database keeps only the graph trees) + child d (CLAUDE.md/MAP recompiled) + the spawned sibling DONE: the validations table migrated out of db_domain to a beside-code write-door (validation_store.py). Full suite green.",
@@ -43,7 +37,17 @@
       "found": "The first live run filed CairnCommons/troubles/append-door-has-no-schema-gate.json — this door validates nothing about a record's shape, so a malformed record of truth entered silently and surfaced only as a red in another component's proof.",
       "at": "2026-07-25T17:42:03",
       "seq": 5
+    },
+    {
+      "gate": "proved",
+      "standing": "PROVED — THE APPEND DOOR HAS A SHAPE GATE. append_entry now REFUSES a record that omits `standing`, and refuses it BEFORE any file is touched — the only place a bad record of truth can be stopped, since history is append-only and cannot be edited afterwards (Law 7). The required set is exactly one field because that is what was MEASURED, not what looked tidy: across 14 histories / 66 records, at+seq 100% (door-written), standing 98% (the single record missing it IS the defect this closes), gate 80% (13 legitimate records lack it — requiring it would have retroactively invalidated them), proof 56%, validation 32%. The refusal names what was required, what was carried, why the field matters and where the trouble lives, so the caller fixes it without a second run (I-complete-diagnostic-on-first-pass). Proven 12/12; full suite 31/31 green.",
+      "proof": "cairn/charter/proofs/test_append_door_instrument.py",
+      "ratified_by": "akien, 2026-07-25 — 'Universal floor: standing only'; per-component declared shape FILED, not built (it would have zero consumers today; the charter is where it would be declared when one appears)",
+      "found": "THE GATE PAID FOR ITSELF ON ITS FIRST RUN. It refused cairn/base/transitions.py::emit — the state-machine chokepoint every crossing goes through — which journaled from/to/workflow/direction and NO standing, the one field harbor_master's register reads to place a boat. Measured: zero emit-shaped records exist in any live history, so the fault had never yet become permanent. Fixed at the emitter (it is the one place that knows the crossing landed; a caller may override with a richer line, but can no longer omit it), not at every caller. Same defect class as the trouble it closes, caught while it was still cheap.",
+      "closes": "CairnCommons/troubles/append-door-has-no-schema-gate.json",
+      "at": "2026-07-25T18:53:10",
+      "seq": 6
     }
   ],
-  "count": 6
+  "count": 7
 }

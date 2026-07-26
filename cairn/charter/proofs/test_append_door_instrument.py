@@ -45,7 +45,8 @@ def _advance(tmp, box, gate="PROVEME", ident="widget"):
     h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
     projector.set_diagnostic_receiver(box)
     try:
-        state = projector.append_entry(h, s, {"id": ident, "gate": gate, "what": "advance"})
+        record = {"id": ident, "gate": gate, "standing": f"{gate} — advance", "what": "advance"}
+        state = projector.append_entry(h, s, record)
     finally:
         projector.set_diagnostic_receiver(None)   # targeted and TEMPORARY — take it down
     return state
@@ -82,8 +83,8 @@ def test_the_second_advance_carries_where_it_came_from():
         h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
         projector.set_diagnostic_receiver(box)
         try:
-            projector.append_entry(h, s, {"id": "widget", "gate": "BUILDME"})
-            projector.append_entry(h, s, {"id": "widget", "gate": "PROVEME"})
+            projector.append_entry(h, s, {"id": "widget", "gate": "BUILDME", "standing": "BUILDME"})
+            projector.append_entry(h, s, {"id": "widget", "gate": "PROVEME", "standing": "PROVEME"})
         finally:
             projector.set_diagnostic_receiver(None)
     second = box.records()[1]["values"]
@@ -138,7 +139,7 @@ def test_unattached_the_record_holds_and_is_not_lost():
     before = len(projector.held_diagnostics())
     with tempfile.TemporaryDirectory() as tmp:
         h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
-        projector.append_entry(h, s, {"id": "orphan", "gate": "THINKME"})
+        projector.append_entry(h, s, {"id": "orphan", "gate": "THINKME", "standing": "THINKME"})
     held = projector.held_diagnostics()
     assert len(held) == before + 1, "no receiver is not a licence to drop it (Law 7)"
     assert held[-1]["home"] == "held" and held[-1]["pointer"] == "orphan"
@@ -150,7 +151,7 @@ def test_the_instrument_does_not_disturb_the_door():
         h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
         projector.set_diagnostic_receiver(Mailbox())
         try:
-            state = projector.append_entry(h, s, {"id": "widget", "gate": "PROVEME"})
+            state = projector.append_entry(h, s, {"id": "widget", "gate": "PROVEME", "standing": "PROVEME"})
         finally:
             projector.set_diagnostic_receiver(None)
         on_disk = json.loads(Path(s).read_text())
@@ -159,6 +160,62 @@ def test_the_instrument_does_not_disturb_the_door():
     assert len(history) == 1 and history[0]["seq"] == 0
     assert "trace" not in history[0], "the instrument writes NOTHING into the record of truth"
 
+
+
+# ── THE SHAPE GATE (ratified by Akien 2026-07-25: universal floor, `standing` only) ──
+
+def test_a_record_without_standing_is_refused_before_the_write():
+    """The whole point: history is append-only, so the ONLY place a bad record can be stopped
+    is on the way in. Nothing may be written, not even partially."""
+    with tempfile.TemporaryDirectory() as tmp:
+        h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
+        try:
+            projector.append_entry(h, s, {"id": "widget", "gate": "PROVEME", "what": "advance"})
+        except projector.RecordRefused as e:
+            msg = str(e)
+        else:
+            raise AssertionError("the exact 2026-07-25 fault must now be refused, not accepted")
+        assert not Path(h).exists() and not Path(s).exists(), \
+            "REFUSED BEFORE THE WRITE — a half-written record of truth is worse than none"
+    for owed in ("standing", "harbor_master", "65/66", "append-door-has-no-schema-gate"):
+        assert owed in msg, f"the refusal must resolve itself on the first pass; missing {owed!r}"
+
+
+def test_an_empty_standing_is_refused_too():
+    with tempfile.TemporaryDirectory() as tmp:
+        h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
+        for bad in ("", None):
+            try:
+                projector.append_entry(h, s, {"gate": "PROVEME", "standing": bad})
+            except projector.RecordRefused:
+                pass
+            else:
+                raise AssertionError(f"standing={bad!r} is absence wearing a key, and must fail")
+
+
+def test_the_floor_is_exactly_one_field_and_the_rest_stay_free():
+    """`gate` is carried by only 80% of real records — requiring it would retroactively
+    invalidate 13 legitimate ones. The floor is what was MEASURED, not what looks tidy."""
+    assert projector.UNIVERSAL_REQUIRED == ("standing",)
+    with tempfile.TemporaryDirectory() as tmp:
+        h, s = str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
+        state = projector.append_entry(h, s, {"standing": "PROVED — bare but honest"})
+    assert state["cursor"]["standing"].startswith("PROVED"), \
+        "a record carrying only the floor is VALID — no gate, no proof, no validation needed"
+
+
+def test_every_real_history_on_disk_would_pass_the_gate():
+    """The gate is retroactively honest: it refuses nothing that is already legitimately here.
+    Reads the live histories — asserts CONFORMANCE, never a count that legitimately moves."""
+    root = Path(__file__).resolve().parents[2]
+    offenders = []
+    for hist in sorted(root.glob("*/history.json")):
+        for rec in json.loads(hist.read_text()):
+            if not all(rec.get(k) for k in projector.UNIVERSAL_REQUIRED):
+                offenders.append((hist.parent.name, rec.get("seq"), sorted(rec)))
+    assert offenders == [("diagnostic_inspector", 4, ["at", "gate", "id", "seq", "what", "why"])], \
+        f"the ONLY record that fails the floor must be the permanent one this gate exists " \
+        f"to have prevented — got {offenders}"
 
 TESTS = [
     test_a_gate_progression_emits_one_contact,
@@ -169,6 +226,10 @@ TESTS = [
     test_a_carried_datum_is_never_reported_missing,
     test_unattached_the_record_holds_and_is_not_lost,
     test_the_instrument_does_not_disturb_the_door,
+    test_a_record_without_standing_is_refused_before_the_write,
+    test_an_empty_standing_is_refused_too,
+    test_the_floor_is_exactly_one_field_and_the_rest_stay_free,
+    test_every_real_history_on_disk_would_pass_the_gate,
 ]
 
 if __name__ == "__main__":

@@ -65,6 +65,11 @@ class BaseShim(CoreValuesMixin, ABC):
         self._running = False
         self._pulses = 0
         self._last_pulse: dict | None = None
+        # Which declarations were TRUE at the last pulse — the memory that turns a level into a
+        # crossing. Lives here because a Callback is frozen and holds no state (see callback.py):
+        # the callback declares, the firer remembers. Keyed by Callback.identity, so a shim that
+        # rebuilds its callback list every pulse still recognises the same standing watch.
+        self._was_true: set = set()
 
     @property
     @abstractmethod
@@ -93,13 +98,27 @@ class BaseShim(CoreValuesMixin, ABC):
         context = context or {}
         fired: list[dict] = []
         held: list[dict] = []
+        still_true: set = set()
         for cb in self.callbacks():
             try:
-                if cb.fires(now, context):
-                    fired.append(self._fire(cb, context))
+                true_now = cb.fires(now, context)
+                if true_now:
+                    still_true.add(cb.identity)
+                    # A POKE PER CROSSING, NOT PER PULSE: a condition that STAYS true pokes once,
+                    # when it crosses. ``while_true`` opts back into per-pulse for the callback
+                    # that means "keep telling me while this holds."
+                    if cb.while_true or cb.identity not in self._was_true:
+                        fired.append(self._fire(cb, context))
+                    else:
+                        held.append({"why": cb.why, "to": cb.to, "reason": "still true — "
+                                     "already poked at the crossing"})
                 else:
-                    held.append({"why": cb.why, "to": cb.to})
+                    held.append({"why": cb.why, "to": cb.to, "reason": "trigger false"})
             except Exception as exc:  # noqa: BLE001 — record every kick-back, never abort the batch
+                # A trigger that RAISED tells us nothing about the line, so it must not be
+                # remembered as either side of it: leaving it out of ``still_true`` means the
+                # next true reading is a fresh crossing and pokes. A swallowed error must never
+                # ALSO swallow the next real poke (Law 7).
                 fired.append({"to": cb.to, "why": cb.why, "outcome": "refused",
                               "error": f"{type(exc).__name__}: {exc}"})
         record = {
@@ -109,6 +128,10 @@ class BaseShim(CoreValuesMixin, ABC):
             "fired_count": sum(1 for f in fired if f.get("outcome") == "ok"),
             "held": held,
         }
+        # Remember the line's position for the next pulse. Assigned WHOLE, so a declaration that
+        # has gone false (or vanished from callbacks() entirely) is forgotten — and therefore
+        # pokes again when it next crosses, instead of being suppressed by a stale memory.
+        self._was_true = still_true
         self._pulses += 1
         self._last_pulse = record
         return record

@@ -49,6 +49,25 @@ says the decision belongs — in the owning device, as it builds the callback, e
 trigger's closure already works. The primitive does not police it; it makes the choice
 explicit and greppable instead of implicit.
 
+A POKE PER CROSSING, NOT PER PULSE (Akien 2026-07-25, "so we need an anti-bounce?"). A
+trigger is evaluated on every heartbeat pulse, so a condition that STAYS true — a CPU parked
+at 91% — would poke on every pulse forever. That is a flood, and floods are how a diagnostic
+surface turns into noise (the shrinking-footprint discipline; ``rackmount.py`` filed exactly
+this and left it). So the default is: poke once when the trigger CROSSES false -> true, and
+not again until it has gone false and crossed back. ``while_true=True`` opts back into
+per-pulse poking, for the callback that genuinely means "keep telling me while this holds."
+
+  The DECLARATION is here; the MEMORY is on the shim. A callback is frozen and holds no
+  state — "its fire-history lives on whatever fires it, never here" — and that is exactly
+  why crossing-detection cannot be implemented in this file. The shim remembers which
+  declarations were true last pulse, keyed by ``identity`` below. Same split as the trigger:
+  the callback declares, the firer evaluates.
+
+  CROSSING IS NOT CHATTER. A value flapping across the line (89.9 / 90.1 / 89.9) produces a
+  genuine crossing each time, so this does not damp it — that wants hysteresis or a hold-down
+  window, and it is NOT built: no flapping signal has been measured yet, and damping one
+  blind would be guessing at the width. Filed, with its why, on the bus-completion ticket.
+
 FIRING is stateless and fire-and-die: when the trigger is true, the callback's ``to`` /
 ``channel`` / ``payload(context)`` / ``why`` are posted to the bus (the shim does the
 posting — see ``cairn/base/shim.py``). Because a callback holds no state, its firing can be
@@ -122,6 +141,9 @@ class Callback:
                       along, in the form the receiver can process. ANY callable; NOT a named
                       kind. ``by_pointer`` (the Law 6 default) / ``by_copy`` / ``by_text``
                       ship above. Absent, the poke says only *that* the line was crossed.
+      - ``while_true`` — poke on EVERY pulse the trigger holds true. Default ``False``: poke
+                      once at the CROSSING (see below). The declaration lives here; the
+                      memory that makes it work lives on the shim, where state belongs.
     """
 
     why: str
@@ -130,6 +152,7 @@ class Callback:
     channel: str = "personal"
     body: dict = field(default_factory=dict)
     carry: Callable[[dict], dict] | None = None
+    while_true: bool = False
 
     def __post_init__(self) -> None:
         # CP1/CP3, at construction: a callback you cannot fire, or one with no reason, is a
@@ -144,6 +167,15 @@ class Callback:
         if self.carry is not None and not callable(self.carry):
             raise TypeError("a callback's carry must be callable — carriage is a function of the "
                             "fire-time context, not a named kind (see by_pointer/by_copy/by_text)")
+
+    @property
+    def identity(self) -> tuple:
+        """What makes this the SAME declaration across pulses — so a shim can remember whether
+        it was true last time. ``callbacks()`` may rebuild its list every pulse, so object
+        identity is not it; the declaration's own content is. Deliberately excludes ``body`` /
+        ``carry``: a callback is "poke THIS target for THIS reason", and what rides along does
+        not make it a different standing watch."""
+        return (self.to, self.channel, self.why)
 
     def fires(self, now, context: dict | None = None) -> bool:
         """Evaluate the trigger against the moment and the observed context. Pure — no side

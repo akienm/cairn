@@ -85,7 +85,10 @@ shrinks monotonically.
   → tester import-scan · *ticket pending tickets-store*
 - A compiled view is never hand-edited: `state` is written only by the
   projector's append door, and a record of truth is never changed in place.
-  → single write-door + tester drift check · *ticket charter-state-history-split*
+  → write-door built (shape-gated 2026-07-25); state-vs-history drift now reds
+  every journaled PROVEME exit (build_inspector at the emit-chokepoint,
+  2026-07-27). Residue: an in-place edit of history itself, and at-rest
+  components between voyages. · *ticket charter-state-history-split*
 - The inference host is reached only through `inference_domain`.
   → kernel network ownership · *ticket pending tickets-store*
 - Port 5432 is reached only through `db_domain`.

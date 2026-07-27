@@ -2,7 +2,8 @@
 
 The gate a hollow build could not pass (tickets/state-machine-physics.json): a node whose
 workflow attempts an ILLEGAL transition is REFUSED (a skip past a gate summons, a target
-outside the vocabulary, an unknown class/version, a no-op, a drifted path); a LEGAL transition
+outside the vocabulary, an unknown class/version, a no-op, a drifted path, a PROVEME exit
+while the component reds the build_inspector); a LEGAL transition
 moves the cursor AND journals the crossing append-only; the string is version-validated against
 a KNOWN node-class definition; a back-edge (kick-back) is legal and carries its severity.
 
@@ -182,6 +183,89 @@ def test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path():
     transitions.legal_targets(wf, class_def=transitions.load_class_def("code-seam"))
 
 
+def _component(root: Path, name: str, *, charter=True) -> Path:
+    """A minimal census-visible component: code + proofs (+ charter unless withheld) — the
+    build gate judges the component AT THE CROSSING'S ADDRESS, so the fixture is a directory,
+    not a mock. A plain module (no BaseDevice), so silence is legitimately fine."""
+    d = root / name
+    (d / "proofs").mkdir(parents=True)
+    (d / "proofs" / "test_x.py").write_text("assert True\n")
+    (d / "lib.py").write_text("def helper():\n    return 1\n")
+    if charter:
+        (d / "intention+why.json").write_text('{"component": "%s"}' % name)
+    return d
+
+
+_AT_PROVE = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> LEARNME -> PROVED"
+
+
+def test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds():
+    """build_inspector edge (a) LANDED: the forward crossing OUT of PROVEME is refused while
+    the component at the crossing's own address reds the gate — and NOTHING is journaled, so
+    a refused promotion leaves no partial record. The findings ride the exception complete on
+    the first pass (no 'run the inspector for details')."""
+    with tempfile.TemporaryDirectory() as d:
+        comp = _component(Path(d), "chartless", charter=False)
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        try:
+            transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
+        except transitions.BuildGateRed as e:
+            assert [f["filter"] for f in e.findings] == ["charter_on_disk"], e.findings
+            assert "charter_on_disk" in str(e) and "Law 8" in str(e), \
+                "the refusal must carry the findings and the why, first pass, in the message"
+        else:
+            raise AssertionError("a red component crossed the PROVEME gate — the lever is not wired")
+        assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
+
+
+def test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict():
+    with tempfile.TemporaryDirectory() as d:
+        comp = _component(Path(d), "healthy")
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        new = transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
+        assert "[LEARNME]" in new
+        rec = projector.read_history(hist)[0]
+        assert rec["build_gate"].startswith("clean — build_inspector"), \
+            f"a promotion's evidence must travel with the crossing: {rec}"
+
+
+def test_a_kickback_out_of_proveme_is_never_gated():
+    # Retreating on a red is the CORRECT move — the same red component that cannot go
+    # forward must always be allowed back to BUILDME, or the gate becomes a trap.
+    with tempfile.TemporaryDirectory() as d:
+        comp = _component(Path(d), "chartless", charter=False)
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        new = transitions.emit(_AT_PROVE, "BUILDME", history_path=hist, state_path=state)
+        assert "[BUILDME]" in new and projector.read_history(hist)[0]["direction"] == "back"
+
+
+def test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only():
+    # No history_path → no journal → the record of truth does not move, so there is no
+    # component address to inspect and nothing the gate protects. (The register reads
+    # project(history); a promotion that writes no truth has not happened anywhere.)
+    assert "[LEARNME]" in transitions.emit(_AT_PROVE, "LEARNME")
+
+
+def test_an_address_the_census_cannot_see_is_refused_not_waved_through():
+    # NO SIDE DOOR (Law 8): a history homed where the census sees no component (here: a bare
+    # directory with no code — the bin/ shape) reds the crossing loudly, and the refusal
+    # names the growth path instead of silently skipping the gate.
+    with tempfile.TemporaryDirectory() as d:
+        bare = Path(d) / "codeless"
+        bare.mkdir()
+        (Path(d) / "neighbor" / "proofs").mkdir(parents=True)  # census has a world to see
+        (Path(d) / "neighbor" / "x.py").write_text("pass\n")
+        hist, state = str(bare / "history.json"), str(bare / "state.json")
+        try:
+            transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
+        except transitions.BuildGateRed as e:
+            assert "census" in str(e) and "grow" in str(e), \
+                "an uninspectable address must be refused WITH its disposition named"
+        else:
+            raise AssertionError("an uninspectable address slipped past the gate — the side door is open")
+        assert not Path(hist).exists()
+
+
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
@@ -196,13 +280,20 @@ def _main() -> int:
         test_a_back_edge_kickback_is_legal_and_carries_severity,
         test_it_parses_a_real_live_ticket_workflow_string,
         test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path,
+        test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds,
+        test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict,
+        test_a_kickback_out_of_proveme_is_never_gated,
+        test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only,
+        test_an_address_the_census_cannot_see_is_refused_not_waved_through,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
     print("green — the emit-chokepoint refuses illegal transitions (skip-past-gate, off-vocabulary, "
           "unknown class/version, no-op, drifted path), journals legal crossings append-only, "
-          "version-validates against the real node-class table, and carries kick-back severity — "
+          "version-validates against the real node-class table, carries kick-back severity, and "
+          "holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; "
+          "kick-backs never gated; no side door for an uninspectable address) — "
           "the state vocabulary is physics (Law 4), not /sorted's prose")
     return 0
 

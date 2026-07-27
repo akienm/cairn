@@ -41,7 +41,21 @@ that class definition's registered ``workflow_versions[vN]``, and a string whose
 not CONFORM to the registered path for the version it claims is refused as drifted. So a
 workflow string cannot quietly diverge from the class it claims to be an instance of.
 
-Dependency-light: pure parsing + the projector's pure core. No device, no bus, no DB.
+THE BUILD GATE (2026-07-27, build_inspector's filed edge (a) landing): a journaled FORWARD
+crossing out of ``PROVEME`` — the crossing OF the gate summons — first runs the
+build_inspector on the component at the crossing's own address (the directory holding
+``history_path``), and is refused while any filter reds. The gate lives HERE because this is
+the one door: the clearance gate wraps ``emit``, so wiring anywhere else (the tester's
+discipline, a hook CC remembers to run) would be the run-it-by-discipline gap the inspector
+exists to close. Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
+so the record of truth does not move and there is nothing to gate. Kick-backs OUT of PROVEME
+are never gated — retreating on a red is the correct move. An address the census cannot see
+is REFUSED, not skipped: a gate that silently inspects nothing passes everything (Law 8), and
+the refusal names the growth path (grow the census/filters, the learning device's move).
+
+Dependency-light AT IMPORT: pure parsing + the projector's pure core. No device, no bus, no
+DB. The build gate summons the build_inspector LAZILY, only at a journaled PROVEME exit —
+both are modules (inference-free by their own proofs), so the boot-order law holds.
 
     python3 cairn/base/proofs/test_transitions.py     # exit 0 = green
 """
@@ -68,6 +82,16 @@ class MalformedWorkflow(ValueError):
 
 class IllegalTransition(ValueError):
     """The requested transition is refused by the rules — loud, never silent (Law 7)."""
+
+
+class BuildGateRed(IllegalTransition):
+    """The forward crossing out of PROVEME is refused: the component at the crossing's own
+    address reds the build_inspector (or cannot be inspected at all — same refusal, no side
+    door). Carries ``findings`` complete on the first pass; fix or kick back, never bypass."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
 
 
 def is_summons(state: str) -> bool:
@@ -192,6 +216,54 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> None:
             f"(legal from here: {sorted(legal)}) — e.g. a forward skip past a gate summons is refused")
 
 
+def _build_gate(history_path: str) -> str:
+    """Run the build_inspector on the component at the crossing's own address; refuse on red.
+
+    The component IS its address: ``history_path`` lives beside the code it voyages for
+    (Law 5), so the directory holding it is the component and that directory's parent is the
+    tree the census measures it within. Returns the one-line gate note the journal carries
+    (the crossing's record of truth says the gate ran and what it saw); raises
+    ``BuildGateRed`` — findings complete on the first pass — before anything is written.
+
+    Provenance: 2026-07-27, build_inspector's filed edge (a) — 'today CC runs it; the lever
+    lands when a PROVEME crossing is refused while the inspector reds.' Wired at the
+    emit-chokepoint because the clearance gate wraps emit: this is the one door.
+    """
+    # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
+    # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
+    # never a poll.
+    from cairn.build_inspector.inspector import inspect as _inspect
+    from cairn.orient.orient import ScanRefused
+
+    comp_dir = Path(history_path).resolve().parent
+    try:
+        report = _inspect(root=comp_dir.parent, component=comp_dir.name)
+    except ScanRefused as e:
+        raise BuildGateRed(
+            f"PROVEME crossing refused: the census cannot measure component "
+            f"{comp_dir.name!r} at {comp_dir} — {e} A gate that silently inspects nothing "
+            "passes everything (Law 8), so an uninspectable address is refused, not waved "
+            "through. Disposition: make the component census-visible (grow the census — the "
+            "learning device's move: new blindness, new scan), or re-home its history beside "
+            "measurable code."
+        ) from e
+    if report["clean"]:
+        return (f"clean — build_inspector ran {len(report['filters_run'])} filters over "
+                f"{comp_dir.name}")
+    lines = [
+        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"{json.dumps(f['evidence'], default=str)})"
+        for f in report["findings"]
+    ]
+    raise BuildGateRed(
+        f"PROVEME crossing refused: component {comp_dir.name!r} reds the build_inspector "
+        f"({len(report['findings'])} finding(s)) — nothing enters proven-space past a red "
+        "gate (Law 8). Nothing was journaled. Fix the findings or kick back to BUILDME; "
+        "every finding is complete here, no re-run needed:\n" + "\n".join(lines),
+        findings=report["findings"],
+    )
+
+
 def render(wf: Workflow, target: str) -> str:
     """Render the workflow string with the cursor moved to ``target`` (the new instance state)."""
     idx = wf.path.index(target)
@@ -223,6 +295,12 @@ def emit(
     new_str = render(wf, target)
     if history_path and state_path:
         target_idx = wf.path.index(target)
+        # THE BUILD GATE: crossing the PROVEME summons forward runs the build_inspector on
+        # the component at this crossing's address; a red refuses BEFORE anything is written
+        # (a refused move leaves no partial record). Back-edges retreat ungated.
+        gate_note = None
+        if wf.here == "PROVEME" and target_idx > wf.cursor:
+            gate_note = _build_gate(history_path)
         record = {
             "from": wf.here,
             "to": target,
@@ -241,6 +319,9 @@ def emit(
             "workflow": new_str,
             "direction": "back" if target_idx < wf.cursor else "forward",
             **({"severity": wf.cursor - target_idx} if target_idx < wf.cursor else {}),
+            # The record of truth says the gate ran: a PROVEME exit journals what the
+            # build_inspector saw, so a promotion's evidence travels with the crossing.
+            **({"build_gate": gate_note} if gate_note else {}),
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

@@ -155,6 +155,33 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     assert wf.here in canonical, f"cursor mis-parsed from the real string ({name}, not a real stage): {wf.here}"
 
 
+def test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path():
+    """An ARROW INSIDE THE TRAILING NOTE must not extend the path. Regression, 2026-07-26.
+
+    The parser split on '->' across the whole remainder and only stopped at a segment that failed to
+    start with a state token — so a note naming another workflow appended its states to this one.
+    state-machine-physics.json's real 6-state path parsed as 9, and nothing raised: `here`,
+    `legal_targets` and every reader of `path` were handed fiction. A silent wrong answer is the
+    costly direction (Law 7), and _conform caught it only by accident of comparing whole paths.
+
+    THE TOOTH ABOVE COULD NOT CATCH THIS, and that is the instructive part: it searches for a ticket
+    whose path already equals canonical, so a ticket parsing to 9 states silently failed to match and
+    the scan moved on to a healthy one. A proof that skips the malformed case passes because of the
+    defect. This tooth asserts the path EXACTLY, on a string built to carry the trap.
+    """
+    canonical = tuple(transitions.load_class_def("code-seam")["workflow_versions"]["v1"]["path"])
+    trap = ("code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED   "
+            "(cursor at BUILDME: the concept-piece workflow THINKME -> REVIEWME -> PROVED is a "
+            "child of this node, and mentioning it here must not extend this path)")
+    wf = transitions.parse_workflow(trap)
+    assert wf.path == canonical, (
+        f"prose bled into the path: parsed {wf.path}, expected {canonical} — an arrow inside the "
+        "trailing note must not append states")
+    assert wf.here == "BUILDME", f"cursor moved under the prose: {wf.here}"
+    # And it must still CONFORM, which is the reader that got lucky last time.
+    transitions.legal_targets(wf, class_def=transitions.load_class_def("code-seam"))
+
+
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
@@ -168,6 +195,7 @@ def _main() -> int:
         test_a_drifted_path_that_claims_v1_is_refused,
         test_a_back_edge_kickback_is_legal_and_carries_severity,
         test_it_parses_a_real_live_ticket_workflow_string,
+        test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path,
     ]
     for check in checks:
         check()

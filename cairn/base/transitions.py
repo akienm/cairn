@@ -105,6 +105,17 @@ def parse_workflow(s: str) -> Workflow:
         if seg.startswith("["):
             cursor = len(path)
         path.append(sm.group(1))
+        # STOP AT THE FIRST STATE THAT CARRIES PROSE. A real ticket's note follows the LAST state
+        # in the same segment ("PROVED   (cursor at BUILDME: ...)"), so the token is taken and the
+        # walk ends here. Without this the split kept marching through the note, and any ARROW
+        # inside the prose fed phantom states onto the path — a SILENT WRONG ANSWER, not a refusal:
+        # state-machine-physics.json's note names the concept-piece path, and its 6-state workflow
+        # parsed as 9 (THINKME TICKETME BUILDME PROVEME LEARNME PROVED + BUILDME REVIEWME PROVED).
+        # It surfaced only by luck, because _conform compared paths; `here`, `legal_targets` and
+        # every reader of `path` were being handed fiction. Measured 2026-07-26 while binding
+        # stage-needs to the stage vocabulary (tickets/stage-needs.json child a).
+        if sm.end() < len(seg):
+            break
     if not path:
         raise MalformedWorkflow(f"no states in {s!r}")
     if cursor is None:

@@ -14,7 +14,12 @@
 # CAIRN_CMD_DIR overrides the command directory (used by the proof to point at a stub tree).
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve through symlinks BEFORE taking the dirname: the entry point is linked into
+# ~/.local/bin so `cairn <verb>` works from anywhere, and without readlink -f the dirname
+# is the LINK's directory (~/.local/bin), so CMD_DIR would point at a tree with no verbs
+# in it — the runner would report "(none yet)" while every verb sat in the repo. Measured
+# 2026-07-26, the first time the link was made.
+HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 CMD_DIR="${CAIRN_CMD_DIR:-$HERE/cmd}"
 
 _usage() {

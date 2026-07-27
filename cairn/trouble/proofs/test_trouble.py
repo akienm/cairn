@@ -213,6 +213,33 @@ def test_the_ticket_on_disk_is_plain_readable_json():
         "the occurrence's own detail rides on the ticket — complete on the first pass"
 
 
+def test_the_crossings_are_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the lane's
+    crossings are its three door-acts — raise, increment, clear — each a durable write.
+    The damper rations NOTIFICATION; a held breadcrumb is a record, not a demand for
+    attention, so increments breadcrumb too (Law 7, both halves). Reads emit nothing."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        assert d.held_diagnostics() == [], "construction is not a crossing"
+        d.raise_trouble(IDENT, why=WHY)
+        d.raise_trouble(IDENT, why=WHY)          # the damped occurrence STILL breadcrumbs
+        d.live(), d.all(), d.state()             # reads are not crossings
+        d.clear(IDENT, by="cc", what_changed="fixed it")
+        held = d.held_diagnostics()
+        assert [h["gate"] for h in held] == ["raise_trouble", "raise_trouble", "clear"], (
+            f"three door-acts, three breadcrumbs, got {[h['gate'] for h in held]} — "
+            "reads must add none"
+        )
+        assert held[0]["values"] == {"outcome": "raised", "count": 1}
+        assert held[1]["values"] == {"outcome": "incremented", "count": 2}, \
+            "the increment is damped as a NOTIFICATION, not as a record — it still breadcrumbs"
+        assert held[2]["values"] == {"outcome": "cleared", "standing": CLEARED}
+        assert all(h["pointer"] == IDENT for h in held), \
+            "every breadcrumb points at the ticket — the record of truth on disk"
+        assert all(h["home"] == "held" for h in held), \
+            "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+
+
 TESTS = [
     test_the_first_raise_notifies,
     test_fifty_occurrences_are_one_demand_for_attention,
@@ -229,6 +256,7 @@ TESTS = [
     test_a_near_miss_standing_increments_rather_than_being_overwritten,
     test_two_recipients_hold_it_live_until_both_clear,
     test_the_ticket_on_disk_is_plain_readable_json,
+    test_the_crossings_are_no_longer_silent,
 ]
 
 if __name__ == "__main__":

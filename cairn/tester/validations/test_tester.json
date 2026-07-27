@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_tester.py passes under python3",
+    "caller": "cc-session-2026-07-27-silent-devices",
+    "date": "2026-07-27T15:22:14",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_tester_is_a_device_carrying_the_values\n  PASS  test_introspect_reports_the_form_in_order\n  PASS  test_green_proof_validates_green\n  PASS  test_red_proof_validates_red\n  PASS  test_state_reflects_the_runs\n  PASS  test_it_exercises_the_bases_armed_trap\n  PASS  test_the_crossings_are_no_longer_silent\n  --- dogfood: the tester validates the real base proofs ---\n    VALIDATION  green  proof test_core_values.py passes under python3\n    VALIDATION  green  proof test_composition.py passes under python3\ngreen — TesterDevice runs proofs and emits VALIDATIONS; the red case bites",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

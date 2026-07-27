@@ -131,6 +131,12 @@ class WebServerDevice(BaseDevice):
         nav = render.render_nav(roster, selected=selected, harbor=self._harbor_source is not None)
         title = f"Cairn — {selected}" if selected else "Cairn"
         document = render.render_document(title=title, nav_html=nav, body_html=body)
+        # GATE CONTACT (DiagnosticBase): a request CROSSED the surface — the boundary between
+        # the outside (a browser) and the system. Per crossing (a request is an event, not a
+        # pulse); thin: pointer is the path, the one value is the status it produced — a 404
+        # rides the same breadcrumb as a 200, because the surface collapsing an error into a
+        # coherent page (Law 7) must not also collapse the record that it happened.
+        self.emit("serve", pointer=path, values={"status": status})
         return status, "text/html; charset=utf-8", document
 
     # --- Form v0 #2 surface -------------------------------------------------

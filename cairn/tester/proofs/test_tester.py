@@ -103,6 +103,32 @@ def test_it_exercises_the_bases_armed_trap():
     assert base_comp._swept_subclass_count() >= 1, "the tester should now be a swept subject"
 
 
+def test_the_crossings_are_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the
+    notary's crossing is the notary ACT — one breadcrumb per run_proof, red and green
+    alike (a red is the notary working, not an anomaly of the notary). HELD when no
+    receiver is wired, never dropped (Law 7)."""
+    t = TesterDevice()
+    assert t.held_diagnostics() == [], "construction is not a crossing"
+    g = t.run_proof(_GREEN_FIXTURE)
+    t.run_proof(_RED_FIXTURE)
+    held = t.held_diagnostics()
+    assert [h["gate"] for h in held] == ["run_proof", "run_proof"], (
+        f"one breadcrumb per attestation, got {[h['gate'] for h in held]}"
+    )
+    assert held[0]["pointer"] == str(_GREEN_FIXTURE), \
+        "the breadcrumb points at the proof that was attested"
+    assert held[0]["values"] == {"verdict": GREEN, "seal": "open"}, \
+        "thin values: verdict + seal — readable without opening the eight-field record"
+    assert held[1]["values"]["verdict"] == RED, \
+        "a red attestation breadcrumbs the same as a green — the notary narrates its acts, not its moods"
+    assert all(h["home"] == "held" for h in held), \
+        "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+    # The breadcrumb never carries the record of truth (the caller holds that).
+    assert set(held[0]["values"]) == {"verdict", "seal"} and g["evidence"], \
+        "the eight-field VALIDATION stays with the caller; the breadcrumb only points"
+
+
 def _main() -> int:
     checks = [
         test_tester_is_a_device_carrying_the_values,
@@ -111,6 +137,7 @@ def _main() -> int:
         test_red_proof_validates_red,
         test_state_reflects_the_runs,
         test_it_exercises_the_bases_armed_trap,
+        test_the_crossings_are_no_longer_silent,
     ]
     for check in checks:
         check()

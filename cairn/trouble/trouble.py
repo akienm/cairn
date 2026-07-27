@@ -157,6 +157,11 @@ class TroubleDevice(BaseDevice):
             existing["occurrences"] = (existing.get("occurrences", []) + [occurrence])[-OCCURRENCE_TAIL:]
             self._write(ident, existing)
             # NOT notified — deliberately. The record grows; the demand for attention does not.
+            # GATE CONTACT (DiagnosticBase): the increment IS still a crossing — a record of
+            # truth changed. What the damper rations is NOTIFICATION; a held breadcrumb is a
+            # record, not a demand for attention, so it is not damped (Law 7, both halves).
+            self.emit("raise_trouble", pointer=ident,
+                      values={"outcome": "incremented", "count": existing["count"]})
             return {"outcome": "incremented", "id": ident, "count": existing["count"],
                     "notified": []}
 
@@ -179,6 +184,11 @@ class TroubleDevice(BaseDevice):
             "prior_attempts": ((existing or {}).get("prior_attempts", 0) + 1) if existing else 0,
         }
         self._write(ident, ticket)
+        # GATE CONTACT (DiagnosticBase): a NEW ticket landed and attention was spent — the
+        # lane's first-class crossing. Emitted after the write lands; thin (the ticket on
+        # disk is the record of truth; the breadcrumb points at it).
+        self.emit("raise_trouble", pointer=ident,
+                  values={"outcome": "raised", "count": 1})
         return {"outcome": "raised", "id": ident, "count": 1, "notified": told}
 
     def clear(self, identity: str, *, by: str, what_changed: str) -> dict:
@@ -209,6 +219,12 @@ class TroubleDevice(BaseDevice):
             ticket["standing"] = CLEARED
             ticket["resolution"] = ticket["cleared_by"][-1]
         self._write(ident, ticket)
+        # GATE CONTACT (DiagnosticBase): a recipient said the change was made — the crossing
+        # that takes (or moves toward taking) a ticket off the live list. Reads (live/all)
+        # emit nothing: no crossing, no state change.
+        self.emit("clear", pointer=ident,
+                  values={"outcome": "cleared" if not outstanding else "partially_cleared",
+                          "standing": ticket["standing"]})
         return {"outcome": "cleared" if not outstanding else "partially_cleared",
                 "id": ident, "standing": ticket["standing"], "outstanding": outstanding}
 

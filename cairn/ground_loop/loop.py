@@ -67,6 +67,11 @@ class GroundLoopDevice(BaseDevice):
         if any(s.device_id == shim.device_id for s in self._shims):
             return
         self._shims.append(shim)
+        # GATE CONTACT (DiagnosticBase): the roster CHANGED — a device joined the beat. Once
+        # per device (the idempotent re-subscribe changes nothing and emits nothing). The
+        # beat itself never emits: a breadcrumb per pulse is the exact firehose the shim
+        # lesson forbids — the heartbeat's crossings are roster changes and pulse FAILURES.
+        self.emit("subscribe", pointer=shim.device_id)
 
     @property
     def subscribers(self) -> list[str]:
@@ -120,6 +125,12 @@ class GroundLoopDevice(BaseDevice):
             except Exception as exc:  # noqa: BLE001 — one shim failing cannot stop the heartbeat
                 pulses.append({"device": shim.device_id, "outcome": "refused",
                                "error": f"{type(exc).__name__}: {exc}"})
+                # GATE CONTACT (DiagnosticBase): a pulse FAILED — per anomaly, never per
+                # beat (a healthy beat is silent; its record already returns to the caller).
+                # The error rides the values whole: complete on first pass, no re-run to
+                # gather what already happened.
+                self.emit("pulse_refused", pointer=shim.device_id,
+                          values={"beat": self._beats + 1, "error": f"{type(exc).__name__}: {exc}"})
         record = {
             "beat": self._beats + 1,
             "date": str(now),

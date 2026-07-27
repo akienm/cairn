@@ -196,6 +196,13 @@ class TesterDevice(BaseDevice):
         )
         self._proofs_run += 1
         self._last_verdict = verdict
+        # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was
+        # attested. One breadcrumb per run (the crossing), red or green alike: a red is not
+        # an anomaly of the notary, it is the notary working. Thin: pointer is the proof;
+        # values are the two facts a reader wants without opening the eight-field record
+        # (which the caller holds and the store persists — the record of truth is not here).
+        self.emit("run_proof", pointer=str(proof_path),
+                  values={"verdict": verdict, "seal": seal.verdict})
         return record
 
     def _validation(self, *, claim, caller, method, verdict, evidence, falsifier, horizon) -> dict:

@@ -140,13 +140,35 @@ def test_the_web_server_owns_no_state_and_is_a_device():
     assert web.state()["served"] == before + 1, "the only thing it counts is its own serving"
 
 
+def test_the_crossings_are_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): a request
+    crossing the surface leaves ONE breadcrumb — per crossing (a request is an event, not
+    a pulse) — and a 404 breadcrumbs the same as a 200: the surface may collapse an error
+    into a coherent page (Law 7), never the record that it happened. HELD when no receiver
+    is wired, never dropped."""
+    web, _ = _wired()
+    assert web.held_diagnostics() == [], "construction is not a crossing"
+    web.serve("/")
+    web.serve("/device/ghost")
+    held = web.held_diagnostics()
+    assert [h["gate"] for h in held] == ["serve", "serve"], (
+        f"one breadcrumb per request, got {[h['gate'] for h in held]}"
+    )
+    assert held[0]["pointer"] == "/" and held[0]["values"] == {"status": 200}
+    assert held[1]["pointer"] == "/device/ghost" and held[1]["values"] == {"status": 404}, \
+        "the coherent 404 page does not collapse the RECORD of the 404 — the breadcrumb says it"
+    assert all(h["home"] == "held" for h in held), \
+        "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+
+
 def _main() -> int:
     for check in (test_the_nav_is_the_roster,
                   test_a_device_page_renders_its_panes,
                   test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav,
                   test_everything_a_device_says_is_escaped,
                   test_an_absent_pane_renders_its_reason,
-                  test_the_web_server_owns_no_state_and_is_a_device):
+                  test_the_web_server_owns_no_state_and_is_a_device,
+                  test_the_crossings_are_no_longer_silent):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — web_server: the nav IS the roster, a device page renders its panes pulled live "

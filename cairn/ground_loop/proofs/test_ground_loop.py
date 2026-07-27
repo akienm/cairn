@@ -18,6 +18,9 @@ Teeth a hollow heartbeat could not pass:
   - THE ROSTER IS THE NAV (web-server child c): the heartbeat publishes roster() at ALL times —
     the devices it beats to, in order, each with live wakefulness — before the first beat too;
     a device absent from subscriptions is absent from the roster; the roster is DATA.
+  - THE CROSSINGS ARE NO LONGER SILENT — and the beat is NOT a crossing. Breadcrumbs on
+    roster changes and pulse failures only; a healthy beat emits nothing (per anomaly,
+    never per pulse — the firehose is the failure mode on this device).
 
 Runnable bare (NO DB, NO framework):
     python3 cairn/ground_loop/proofs/test_ground_loop.py     # exit 0 = green
@@ -161,6 +164,44 @@ def test_the_roster_is_the_nav_published_at_all_times():
     assert json.loads(json.dumps(roster)) == roster
 
 
+def test_the_crossings_are_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the
+    heartbeat's crossings are ROSTER CHANGES and pulse FAILURES — never the beat itself.
+    A breadcrumb per beat would be the per-pulse firehose the discipline forbids; a
+    healthy beat's evidence is the beat-record it already returns. HELD when no receiver
+    is wired, never dropped (Law 7)."""
+    bus = _SpyBus()
+    gl = GroundLoopDevice()
+    s = _Shim("steady", bus)
+    gl.subscribe(s)
+    gl.subscribe(s)                      # idempotent re-subscribe: no roster change, no breadcrumb
+    gl.beat(now="t0")                    # a healthy beat is SILENT
+    assert [h["gate"] for h in gl.held_diagnostics()] == ["subscribe"], \
+        "one roster change → one breadcrumb; the healthy beat and the re-subscribe add none"
+    assert gl.held_diagnostics()[0]["pointer"] == "steady"
+
+    gl.subscribe(_AngryShim())
+    rec = gl.beat(now="t1")              # the angry shim fails ITS pulse; the beat survives (CP2)
+    held = gl.held_diagnostics()
+    assert [h["gate"] for h in held] == ["subscribe", "subscribe", "pulse_refused"], (
+        f"a FAILED pulse is the anomaly worth a breadcrumb, got {[h['gate'] for h in held]} — "
+        "per anomaly, never per beat"
+    )
+    refused = held[-1]
+    assert refused["pointer"] == "angry", "the breadcrumb points at the shim whose pulse failed"
+    assert refused["values"]["beat"] == rec["beat"] and "RuntimeError" in refused["values"]["error"], \
+        "the error rides the breadcrumb whole — complete on first pass, no re-run to gather it"
+    assert all(h["home"] == "held" for h in held), \
+        "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+    # More healthy beats: still nothing new from health.
+    gl2 = GroundLoopDevice()
+    gl2.subscribe(_Shim("quiet"))
+    for t in ("t0", "t1", "t2"):
+        gl2.beat(now=t)
+    assert [h["gate"] for h in gl2.held_diagnostics()] == ["subscribe"], \
+        "three healthy beats, zero breadcrumbs — the heartbeat does not narrate its own pulse"
+
+
 def test_it_is_a_device():
     gl = GroundLoopDevice()
     assert isinstance(gl, CoreValuesMixin), "a device must compose the core values (Law 2)"
@@ -175,6 +216,7 @@ def _main() -> int:
                   test_one_shim_raising_cannot_stop_the_beat,
                   test_the_executor_goof_is_gone,
                   test_the_roster_is_the_nav_published_at_all_times,
+                  test_the_crossings_are_no_longer_silent,
                   test_it_is_a_device):
         check()
         print(f"  PASS  {check.__name__}")

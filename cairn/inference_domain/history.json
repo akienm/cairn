@@ -11,5 +11,22 @@
     "proof": "proofs/test_inference_domain.py",
     "validation": "validations/test_inference_domain.json",
     "seq": 1
+  },
+  {
+    "standing": "HOST WIRED — the meter reads real tokens. First real traffic ever through this domain, 2026-07-26.",
+    "what": "the resolver seam filled with the live ollama host (host.py); first real meter reading",
+    "meter_reading": {
+      "calls": 11,
+      "hits": 8,
+      "misses": 3,
+      "spent": 101.0,
+      "avoided": 402.0
+    },
+    "how_measured": "domain.resolve() x5 in one process = 2 host touches (instrumented resolver, not timing); x5 again in a SECOND process = 0 touches. Cumulative above. Cost is the host's own prompt_eval_count + eval_count, carried into provenance so it can be audited rather than trusted.",
+    "the_learning": "The yield is POSITIVE on the first day of real traffic: avoided exceeds spent, and it does so because a cache hit costs zero host tokens rather than fewer. That is Telos 1 moving from thesis to measured. What it does NOT yet learn: which questions are the SAME (semantic canonicalization, T1.3) and when an answer has gone wrong (T1.4) — the falsifier is now machine-checkable, which makes T1.4 a comparison instead of a design problem.",
+    "instrument_caveat": "These numbers are honest but SMALL and self-generated: two distinct questions asked repeatedly by CC, not a workload. They prove the meter works and the cache holds; they do not yet say what the yield is under real librarian traffic. The librarian is the first heavy consumer.",
+    "validation": "cairn/inference_domain/validations/test_host.json (green, netns seal MEASURED)",
+    "at": "2026-07-26T19:59:21",
+    "seq": 2
   }
 ]

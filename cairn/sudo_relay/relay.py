@@ -8,7 +8,7 @@ UU-tree daemon; that is a STOPGAP Cairn must not depend on at runtime — this d
 its Cairn-native replacement, built fresh to Form v0 (charter + proofs), like the
 tester and db_domain.
 
-WHAT IT DOES (the stone Akien named): take a command → run it → emit a JSON **record of
+WHAT IT DOES (the stone Akien named): take a command → run it → write a JSON **record of
 truth** carrying the command line, the return code, stdout and stderr (Law 7 — a record
 of truth keeps the error permanent and uncollapsed, so stdout/stderr are stored FULL,
 never tailed). The audit folder self-cycles to a rolling one-month window
@@ -136,8 +136,13 @@ def audit_record(command: str, returncode, stdout: str, stderr: str, *, now: dat
     }
 
 
-def emit(record: dict, *, now: datetime, retention_days: int = DEFAULT_RETENTION_DAYS) -> Path:
+def write_audit(record: dict, *, now: datetime, retention_days: int = DEFAULT_RETENTION_DAYS) -> Path:
     """Write ``record`` to the audit folder as an immutable JSON, then cycle the window.
+
+    (Named ``emit`` until 2026-07-27 — a homonym of DiagnosticBase's device surface that
+    let this component pass the silent_device sweep on the word alone. This writes a
+    RECORD OF TRUTH; ``self.emit`` on the device leaves a diagnostic breadcrumb — Law 7's
+    two kinds, so neither answers for the other, and they no longer share a name.)
 
     The write is the permanent record (Law 7); the sweep afterward removes only records
     whose OWN timestamp is older than ``retention_days`` — the rolling one-month folder
@@ -212,7 +217,7 @@ def submit(command: str) -> Path:
 
 
 def process_pending(executor, *, now: datetime, retention_days: int = DEFAULT_RETENTION_DAYS):
-    """One daemon iteration: pick up a pending command, run it via ``executor``, emit the
+    """One daemon iteration: pick up a pending command, run it via ``executor``, write the
     permanent audit record, and hand the same record back to the client via ``done``.
 
     Returns the record, or ``None`` when there is nothing pending (the idle case). This is
@@ -231,7 +236,7 @@ def process_pending(executor, *, now: datetime, retention_days: int = DEFAULT_RE
 
     returncode, stdout, stderr = executor(command)
     record = audit_record(command, returncode, stdout, stderr, now=now)
-    emit(record, now=now, retention_days=retention_days)
+    write_audit(record, now=now, retention_days=retention_days)
 
     # The client's return: the full record, not just an exit code (it wants stdout/stderr too).
     (rdir / _DONE).write_text(json.dumps(record))
@@ -384,7 +389,17 @@ class SudoRelayDevice(BaseDevice):
 
     def request_root(self, command: str, *, timeout: float = 120.0) -> dict:
         """Run ``command`` as root via the daemon and return its permanent audit record."""
-        return request_root(command, timeout=timeout)
+        record = request_root(command, timeout=timeout)
+        # GATE CONTACT (DiagnosticBase): a command CROSSED to root and its record came back —
+        # per crossing, never per pulse. Emitted AFTER the round-trip lands, so the breadcrumb
+        # describes a crossing that happened; a missing daemon raises before this line (loud,
+        # no phantom breadcrumb). Thin: pointer is the audit record's id (the record of truth
+        # carries command + full stdout/stderr — Law 7's other kind; the breadcrumb never
+        # duplicates it); values carry the one fact worth reading without following the
+        # pointer. state()/settings() emit nothing — a read crosses no boundary.
+        self.emit("request_root", pointer=record["id"],
+                  values={"returncode": record["returncode"]})
+        return record
 
     # --- Form v0 #2 surface -------------------------------------------------
 

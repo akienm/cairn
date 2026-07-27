@@ -20,6 +20,9 @@ Teeth a hollow relay could not pass:
     fresh and active → do not — a daemon that could hold root forever trips this.
   - THE WINDOW IS VISIBLE AND HONEST. a live pid reads live; a dead pid reads stale, never
     laundered into 'up' (Law 3).
+  - THE CROSSING IS NO LONGER SILENT. request_root leaves ONE diagnostic breadcrumb per
+    round-trip, pointing at the audit record — the audit trail (record of truth) and the
+    device breadcrumb (diagnostic) are Law 7's two kinds; neither answers for the other.
 
     python3 cairn/sudo_relay/proofs/test_sudo_relay.py     # exit 0 = green
 """
@@ -29,6 +32,7 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -93,9 +97,9 @@ def test_folder_cycles_after_a_month_but_not_before():
     # An old record (40 days ago) and a recent one (yesterday) written directly.
     old = relay.audit_record("old-cmd", 0, "", "", now=_NOW - timedelta(days=40))
     recent = relay.audit_record("recent-cmd", 0, "", "", now=_NOW - timedelta(days=1))
-    relay.emit(old, now=_NOW - timedelta(days=40), retention_days=31)
-    # Emitting the recent one at _NOW triggers the sweep against a 31-day window.
-    relay.emit(recent, now=_NOW, retention_days=31)
+    relay.write_audit(old, now=_NOW - timedelta(days=40), retention_days=31)
+    # Writing the recent one at _NOW triggers the sweep against a 31-day window.
+    relay.write_audit(recent, now=_NOW, retention_days=31)
 
     stems = {f.stem for f in relay.audit_dir().glob("*.json")}
     assert recent["id"] in stems, "a within-the-month record must survive"
@@ -148,6 +152,51 @@ def test_the_window_is_visible_and_honest():
     assert s["live"] is False and "stale" in s["reason"]
 
 
+def test_the_crossing_is_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the ruling
+    is the DEFAULT — every device speaks the common discipline; the audit trail did not
+    answer for the device surface because they are Law 7's two different kinds (record of
+    truth vs diagnostic breadcrumb). One breadcrumb per round-trip, pointing at the audit
+    record; HELD when no receiver is wired, never dropped."""
+    import threading
+
+    _fresh_instance()
+    dev = SudoRelayDevice()
+    assert dev.held_diagnostics() == [], "construction is not a crossing"
+
+    # A one-iteration 'daemon': poll process_pending until the submitted command lands,
+    # so request_root exercises its REAL round-trip (submit → execute → done → record).
+    def _daemon_once():
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline:
+            if relay.process_pending(relay.local_executor, now=_NOW) is not None:
+                return
+            time.sleep(0.02)
+
+    t = threading.Thread(target=_daemon_once)
+    t.start()
+    try:
+        record = dev.request_root("echo crossed; exit 3", timeout=10.0)
+    finally:
+        t.join()
+
+    held = dev.held_diagnostics()
+    assert [h["gate"] for h in held] == ["request_root"], (
+        f"exactly ONE breadcrumb per round-trip, got {[h['gate'] for h in held]} — more is "
+        "the firehose the discipline forbids, fewer is the silence the inspector reds"
+    )
+    crumb = held[0]
+    assert crumb["pointer"] == record["id"], \
+        "the breadcrumb points at the audit record — the diagnostic ties to the record of truth"
+    assert crumb["values"] == {"returncode": 3}, \
+        "thin values: the one fact worth reading without following the pointer"
+    assert crumb["home"] == "held", \
+        "with no receiver wired the breadcrumb HOLDS (Law 7) — never silently dropped"
+    # Reads are not crossings: the surface emits nothing.
+    dev.state(), dev.settings()
+    assert len(dev.held_diagnostics()) == 1, "state()/settings() must not emit — no crossing"
+
+
 def test_device_is_a_device_and_reports_the_window():
     _fresh_instance()
     dev = SudoRelayDevice()
@@ -169,6 +218,7 @@ def _main() -> int:
         test_retention_never_touches_a_foreign_file,
         test_temporary_is_physics,
         test_the_window_is_visible_and_honest,
+        test_the_crossing_is_no_longer_silent,
         test_device_is_a_device_and_reports_the_window,
     ]
     for check in checks:

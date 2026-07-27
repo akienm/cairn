@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_bus.py passes under python3",
+    "caller": "CC (homonym-sharpened measure + bus instrumentation)",
+    "date": "2026-07-27T13:24:49",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_message_round_trips_with_why_and_causality\n  PASS  test_an_unknown_channel_and_a_whyless_message_are_refused\n  PASS  test_record_channel_refuses_to_collapse_diagnostic_may\n  PASS  test_transit_is_owner_gated\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\ngreen — bus: one substrate for all comms; messages round-trip with why + causality, records refuse to collapse while diagnostics may, transit is owner-gated through db_domain",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

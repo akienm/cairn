@@ -109,11 +109,15 @@ def call_sites(name: str, *, root: Path | None = None) -> dict:
 def device_census(*, root: Path | None = None) -> dict:
     """Every component directory, measured: does it subclass BaseDevice, does its
     charter exist ON DISK, how many proofs, what do its validations' verdicts SAY,
-    and how many non-proof emit() call sites does it carry.
+    and how many non-proof ``self.emit(...)`` call sites — the DiagnosticBase
+    surface, receiver checked — does it carry.
 
     Provenance: 2026-07-26/27 — three answers about system state were read from
     records (a filed edge, the map, a docstring) and were wrong about the world.
-    A census row is built only from things a filesystem call returned.
+    A census row is built only from things a filesystem call returned. Sharpened
+    2026-07-27 (same day): the generic emit-by-name count admitted two homonyms
+    (an audit function, the workflow chokepoint) — the emission measure now checks
+    the receiver is ``self``, not just the word.
     """
     root = root or (_REPO_ROOT / "cairn")
     if not root.is_dir():
@@ -130,6 +134,14 @@ def device_census(*, root: Path | None = None) -> dict:
     rows = []
     for d in components:
         subclasses = []
+        # THE DEVICE SURFACE IS ``self.emit(...)``, NOT ANY FUNCTION NAMED ``emit``.
+        # Measured 2026-07-27, the homonym discovery: of 4 generic emit() call sites, only
+        # 2 were DiagnosticBase's surface — sudo_relay's is a module-level audit function
+        # and harbor_master's is transitions.emit, the workflow chokepoint. Counting by the
+        # word let two components pass the silent_device filter on a homonym — the exact
+        # words-kept-meanings-replaced failure, in code. So the census counts the RECEIVER
+        # too: a Call on an Attribute named emit whose value is the name ``self``.
+        self_emit_sites = 0
         for p in _py_files(d):
             if "proofs" in p.parts:
                 continue
@@ -144,6 +156,14 @@ def device_census(*, root: Path | None = None) -> dict:
                     for b in node.bases
                 ):
                     subclasses.append(f"{p.name}:{node.name}")
+                elif (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "emit"
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "self"
+                ):
+                    self_emit_sites += 1
         verdicts = []
         for v in sorted(d.glob("validations/*.json")):
             # Measured shape (this scan's own census, 2026-07-27): every validation file in
@@ -159,14 +179,13 @@ def device_census(*, root: Path | None = None) -> dict:
                                  "records": len(recs) if isinstance(recs, list) else 1})
             except (json.JSONDecodeError, OSError) as e:
                 verdicts.append({"file": v.name, "verdict": f"UNREADABLE: {e}", "records": 0})
-        emit_sites = call_sites("emit", root=d)["measured"]["sites"] if _py_files(d) else []
         rows.append({
             "component": d.name,
             "charter_on_disk": (d / "intention+why.json").exists(),
             "device_subclasses": subclasses,
             "proofs": len(list(d.glob("proofs/test_*.py"))),
             "validations": verdicts,
-            "emit_call_sites_outside_proofs": sum(1 for s in emit_sites if not s["in_proofs"]),
+            "self_emit_call_sites_outside_proofs": self_emit_sites,
         })
     return {
         "scan": "device_census",

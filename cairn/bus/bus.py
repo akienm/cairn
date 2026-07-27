@@ -139,6 +139,10 @@ class BusDevice(BaseDevice):
         if not self._ensured:
             store.create_owned_table(self._table, _BUS_OWNER, _TRAFFIC_COLUMNS)
             self._ensured = True
+            # GATE CONTACT (DiagnosticBase): the transit table came into being — a durable
+            # state change, once per instance, never per message. Thin: the pointer is the
+            # table; the owner is in settings(). Held until a receiver is wired (Law 7).
+            self.emit("transit_table_ensured", pointer=self._table)
 
     # --- the one way to send ------------------------------------------------
 
@@ -166,6 +170,17 @@ class BusDevice(BaseDevice):
         store.write(self._table, _BUS_OWNER, envelope)
         self._posted += 1
         self._last_envelope = envelope
+        # GATE CONTACT (DiagnosticBase): a message CROSSED the boundary — the crossing the
+        # logging standard names first (MAP.md:434), emitted per crossing, never per pulse
+        # (the shim lesson). Emitted AFTER the write lands, so the breadcrumb describes a
+        # crossing that happened. Thin: pointer is the envelope id (the tie an inspector
+        # crawls on); values carry only the routing facts, so a held breadcrumb is readable
+        # without a DB join (complete on first pass) — the envelope itself, body and why,
+        # already rides the transit table as the record of truth. Reads emit nothing: a read
+        # crosses no boundary and changes no state.
+        self.emit("post", pointer=envelope["id"], values={
+            "sender": sender, "addressee": to, "channel": channel,
+        })
         return envelope
 
     # --- the record (full truth) and the view (collapsible) -----------------

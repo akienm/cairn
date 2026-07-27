@@ -114,6 +114,36 @@ def test_transit_is_owner_gated():
         pass
 
 
+def test_the_crossings_are_no_longer_silent():
+    """The silent_device disposition (troubles/silent-devices-2026-07-27.json, bus first):
+    a message crossing the boundary leaves a gate-contact breadcrumb, and the transit
+    table's birth leaves one — HELD when no receiver is wired, never dropped (Law 7).
+    Thin by discipline: the breadcrumb points (envelope id + routing facts); the envelope
+    itself is the record of truth in transit. Reads stay silent (no crossing, no state
+    change) — instrumentation per crossing, never per pulse."""
+    bus = _fresh_bus()
+    env = bus.post(sender="alice", to="bob", channel="personal", why="wake bob", body={"ping": 1})
+    bus.read(to="bob", channel="personal")   # a read is NOT a crossing — must emit nothing
+    held = bus.held_diagnostics()
+    gates = [h["gate"] for h in held]
+    assert gates == ["transit_table_ensured", "post"], (
+        f"expected exactly the two crossings (table birth, then the post), got {gates} — "
+        "more would be the firehose the discipline forbids, fewer is the silence the "
+        "inspector reds"
+    )
+    post = held[1]
+    assert post["pointer"] == env["id"], \
+        "the breadcrumb points at the envelope that crossed — the tie an inspector crawls on"
+    assert post["values"] == {"sender": "alice", "addressee": "bob", "channel": "personal"}, \
+        "the breadcrumb carries the routing facts thin — readable without a DB join"
+    assert all(h["home"] == "held" for h in held), \
+        "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+    # A second post on the same instance: the table-birth breadcrumb does NOT repeat.
+    bus.post(sender="bob", to="alice", channel="personal", why="answer")
+    assert [h["gate"] for h in bus.held_diagnostics()] == \
+        ["transit_table_ensured", "post", "post"], "table birth is once per instance"
+
+
 def test_it_is_a_device():
     bus = _fresh_bus()
     assert isinstance(bus, CoreValuesMixin), "a device must compose the core values (Law 2)"
@@ -137,6 +167,7 @@ def _main() -> int:
         test_an_unknown_channel_and_a_whyless_message_are_refused,
         test_record_channel_refuses_to_collapse_diagnostic_may,
         test_transit_is_owner_gated,
+        test_the_crossings_are_no_longer_silent,
         test_it_is_a_device,
     ]
     try:

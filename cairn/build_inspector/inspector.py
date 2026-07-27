@@ -98,14 +98,17 @@ def silent_device(row: dict, comp_dir: Path) -> list[dict]:
     boundary crossing is logged ('no device can opt out'); the AST measurement found
     ZERO emit() call sites in bus, the boundary named first. A device that inherits
     emit() and never fires it is silent at every crossing — the system_rackmount
-    went-red-silently gap, systemic.
+    went-red-silently gap, systemic. Sharpened same day: judges the SELF-scoped count
+    (``self.emit`` — receiver checked), after two components passed this filter on
+    emit-homonyms (an audit function; the transitions chokepoint). The word is not
+    the capability, even inside the instrument built to say so.
     """
-    if not row["device_subclasses"] or row["emit_call_sites_outside_proofs"] > 0:
+    if not row["device_subclasses"] or row["self_emit_call_sites_outside_proofs"] > 0:
         return []
     return [_finding(
         "silent_device", row["component"],
-        "subclasses BaseDevice (inherits emit()) but never calls it outside proofs",
-        {"device_subclasses": row["device_subclasses"], "emit_call_sites_outside_proofs": 0},
+        "subclasses BaseDevice (inherits emit()) but never calls self.emit() outside proofs",
+        {"device_subclasses": row["device_subclasses"], "self_emit_call_sites_outside_proofs": 0},
         "Law 7 + MAP.md:434 ('every crossing logged... no device can opt out'): a "
         "silent device fails invisibly — the exact gap that motivated DiagnosticBase. "
         "This filter is the enforcement half of that 2026-07-14 claim.",

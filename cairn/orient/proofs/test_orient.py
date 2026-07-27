@@ -51,6 +51,14 @@ def _synthetic_tree(tmp: Path) -> Path:
     )
     (comp / "proofs" / "test_dev.py").write_text("self_emit = lambda: None\nself_emit()\n")
     (comp / "validations" / "test_dev.json").write_text('[{"verdict": "green"}]')
+    # THE HOMONYM (measured on the real tree 2026-07-27): a module-level function that
+    # happens to be NAMED emit — a genuine call site of the word, but NOT the device's
+    # DiagnosticBase surface (no ``self`` receiver). sudo_relay's audit emit and
+    # harbor_master's transitions.emit both wore this shape and passed silent_device on it.
+    (comp / "audit.py").write_text(
+        "def emit(record):\n    return record\n\n\n"
+        "def run(record):\n    emit(record)\n"
+    )
     return tmp / "cairn"
 
 
@@ -58,17 +66,21 @@ def main() -> None:
     tmp = Path(tempfile.mkdtemp(prefix="orient-proof-"))
     root = _synthetic_tree(tmp)
 
-    # 1 — THE HEADLINE: capability, not mention. Five mentions, one call site.
+    # 1 — THE HEADLINE: capability, not mention. Five mentions, two call sites — the
+    #     device's self.emit AND the homonym audit call. The GENERIC scan honestly reports
+    #     both (a call site of the word IS a call site); which one is the device surface is
+    #     the CENSUS's sharper question (tooth 4).
     r = call_sites("emit", root=root)
-    outside = [s for s in r["measured"]["sites"] if not s["in_proofs"]]
-    assert len(outside) == 1 and outside[0]["line"] == 8, (
-        f"capability-not-mention breached: expected exactly the ONE real call site at "
-        f"dev.py:8, got {outside} — if this counts mentions, orient re-commits the "
-        f"2026-07-27 'logging: 0 of 13' error it exists to end"
+    outside = {(s["file"].rsplit("/", 1)[-1], s["line"])
+               for s in r["measured"]["sites"] if not s["in_proofs"]}
+    assert outside == {("dev.py", 8), ("audit.py", 6)}, (
+        f"capability-not-mention breached: expected the two real call sites, got {outside} — "
+        f"if this counts mentions, orient re-commits the 2026-07-27 'logging: 0 of 13' error "
+        f"it exists to end"
     )
 
     # 2 — a string literal and a comment are not call sites.
-    assert r["measured"]["call_sites_outside_proofs"] == 1
+    assert r["measured"]["call_sites_outside_proofs"] == 2
 
     # 3 — an unparseable file is a loud refusal, not a silently smaller world.
     (root / "fakedev" / "broken.py").write_text("def broken(:\n")
@@ -83,7 +95,10 @@ def main() -> None:
     assert row["device_subclasses"] == ["dev.py:FakeDev"], row
     assert row["proofs"] == 1
     assert row["validations"] == [{"file": "test_dev.json", "verdict": "green", "records": 1}]
-    assert row["emit_call_sites_outside_proofs"] == 1
+    # RECEIVER CHECKED: the homonym (audit.py's module-level emit, called once) does NOT
+    # count toward the device's emission — only self.emit does. Two call sites of the word
+    # in this tree (tooth 1); exactly one is the DiagnosticBase surface.
+    assert row["self_emit_call_sites_outside_proofs"] == 1
 
     # 5 — a component whose charter is MISSING reads as missing (loud in the row).
     (root / "fakedev" / "intention+why.json").unlink()
@@ -103,7 +118,7 @@ def main() -> None:
     assert real["measured"]["count"] >= 5, "the census barely saw the tree"
     for row in real["measured"]["components"]:
         assert set(row) == {"component", "charter_on_disk", "device_subclasses", "proofs",
-                            "validations", "emit_call_sites_outside_proofs"}, row
+                            "validations", "self_emit_call_sites_outside_proofs"}, row
 
     # 9 — real tree: the scan floor is enforced (a 3-file 'scan of cairn/' refuses).
     r = call_sites("emit")

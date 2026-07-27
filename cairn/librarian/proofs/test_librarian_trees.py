@@ -135,6 +135,22 @@ def test_neighbors_are_derived_and_exclude_self():
     _refuses(WalkRefused, neighbors, "no-such-node", tree="t1", table=_TABLE)
 
 
+def test_tree_state_moves_with_the_tree_and_only_with_it():
+    # The livelock-fix primitive: same members -> same digest; a deposit moves it; a
+    # DUPLICATE deposit (nothing written) leaves it exactly where it stood.
+    before = trees.tree_state("t1", table=_TABLE)
+    again = trees.tree_state("t1", table=_TABLE)
+    assert before == again, "the fingerprint is a pure function of the tree's members"
+    assert before["nodes"] > 0 and before["digest"] != "empty"
+    deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
+    moved = trees.tree_state("t1", table=_TABLE)
+    assert moved["digest"] != before["digest"] and moved["nodes"] == before["nodes"] + 1
+    deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
+    assert trees.tree_state("t1", table=_TABLE) == moved, \
+        "a duplicate writes nothing, so the fingerprint must not move"
+    assert trees.tree_state("never-touched", table=_TABLE) == {"digest": "empty", "nodes": 0}
+
+
 def test_no_edge_table_exists():
     # The derived-edges claim, pinned in the registry: nothing edge-named was ever
     # registered by this build (a hollow store quietly persisting adjacency trips this).
@@ -216,6 +232,7 @@ def _main() -> int:
         test_nearest_ranks_by_proximity_and_derives_the_path,
         test_trees_do_not_cross,
         test_neighbors_are_derived_and_exclude_self,
+        test_tree_state_moves_with_the_tree_and_only_with_it,
         test_no_edge_table_exists,
         test_the_owner_gate_holds_through_the_stack,
         test_crossings_breadcrumb_and_reads_stay_silent,

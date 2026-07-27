@@ -180,6 +180,26 @@ def deposit(content: str, vector, provenance: dict, *,
             own.close()
 
 
+def tree_state(tree: str, *, table: str = NODES, conn=None) -> dict:
+    """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
+
+    This is what makes 'same request, changed graph' DISTINGUISHABLE: the core loop folds
+    this digest into the backfill key, so a resubmit against a changed tree is a genuine
+    cache MISS while a resubmit against an unchanged tree is honestly the same question
+    (the livelock fix, filed 2026-07-27 in held-librarian's ruling section, as physics).
+    An empty tree fingerprints as ``"empty"`` — a nameable state, not an error.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, conn=own)
+        ids = sorted(r["node_id"] for r in _tree_rows(tree, table=table, conn=own))
+        digest = hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()[:16] if ids else "empty"
+        return {"digest": digest, "nodes": len(ids)}
+    finally:
+        if conn is None:
+            own.close()
+
+
 def nearest(vector, *, k: int = 5, tree: str = "commons",
             table: str = NODES, conn=None) -> list[dict]:
     """The walk: the k nodes of ``tree`` nearest the query vector, by cosine.

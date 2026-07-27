@@ -524,7 +524,18 @@ chunking). Three named hard sub-problems decide the bet:
   the measured curve of resolver-calls-per-solved-task declining as the corpus
   grows, quality held constant. The curve bends or it doesn't.
 
-**Storage model (baked in, 2026-07-14):** fixed node envelope; nodes and edges
+**Storage model — CONTESTED, NOT BAKED IN (was labelled "baked in, 2026-07-14";
+relabelled 2026-07-26).** Akien ruled this replaced his design and that absent a
+guarantee it is faster, his stands: *"if you can't guarantee that it's faster
+than my solution, we have to go back to mine."* No measurement comparing the two
+exists anywhere in the tree, so Law 3 leaves the burden with the text below.
+He then ruled the eras apart: `tree.leaf` addressing with **a table per tree** is
+his CURRENT design and supersedes TheIgors' one-node-list shape — which makes
+"nodes and edges each in ONE logical table" below a return to the SUPERSEDED era,
+not a novel replacement (CC's read, flagged). Do not build on this paragraph.
+Live node: `CairnCommons/tickets/memory-shape.json` (THINKME; three questions are
+Akien's). Kept in place rather than deleted because the substitution is the
+finding. **The superseded text follows:** fixed node envelope; nodes and edges
 each in ONE logical table (owner: the graph-tree device); **trees are
 first-class ROWS** (identity, owner, charter-pointer, birth event — calving a
 tree = inserting a row, no DDL). Cross-domain search and cross-tree

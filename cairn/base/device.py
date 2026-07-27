@@ -33,8 +33,20 @@ OPEN EDGE (filed, not faked): the return *shape* of the three reports is loose
 probes it; the web UI renders it; Form #2 says they share one protocol). Pinning a
 rigid schema now, with no consumer, would be guessing.
 
-Kept import-light on purpose: no DB, no logging backend, no device boot. Importing
-this module must never eager-import a DB-bound one (the boot-order law).
+Kept import-light on purpose: no DB, no device boot. Importing this module must never
+eager-import a DB-bound one (the boot-order law). ``DiagnosticBase`` is composed here and
+is itself stdlib-only (``datetime``), so the emission surface costs nothing at import.
+
+CORRECTED 2026-07-27 (Akien: "that is just flat wrong"). This line read "no DB, no logging
+backend, no device boot" — true for a day or two early on, made FALSE by the 2026-07-22
+paragraph twelve lines above (``DiagnosticBase`` composed, every device inherits ``emit()``),
+and left standing. The damage is not the stale fact, it is the words ON PURPOSE: a transient
+absence got written as INTENT, so every later session read "Cairn deliberately has no logging"
+as a settled design decision and built accordingly — 7 ``emit()`` call sites in the whole tree,
+none in ``bus``, against a map (MAP.md:434) that says every state transition and every boundary
+crossing is logged. Law 1 running backwards: instead of an answered question becoming structure,
+an UNBUILT thing became a justification. When a comment says "on purpose", it must name the
+purpose and the condition that ends it — otherwise it outlives its reason and starts giving orders.
 """
 
 from __future__ import annotations

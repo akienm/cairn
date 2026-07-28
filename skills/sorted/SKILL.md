@@ -69,6 +69,15 @@ Full recompile is ~0.2s; and the `/intent` read-refresh backstops anything autho
 outside a skill step (the reader pokes the gate before consulting — the read is the
 event, no daemon; see the intentions_model_compiler charter's host_seam).
 
+### 6. Close the boundary — /saveslate, then /compact
+
+A resolution pivot is a compaction-safe boundary by construction: the cast node,
+its gates, and its filings are all on disk. Fire **/saveslate** (the in-commons
+continuity record), then tell Akien the boundary is compact-safe and invite
+`/compact` — the context above the pivot is scaffolding now. /compact is a
+client command you cannot fire; making the boundary loud is the step.
+(Ruling 2026-07-28: the same close ends /sail, the build skill.)
+
 ## Routing
 
 - Completeness red → back to design.

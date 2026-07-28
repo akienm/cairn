@@ -218,6 +218,44 @@ def main() -> None:
         assert [x["judge"] for x in judge_constrain(minted)] == ["constraint_traces"]
         assert [x["judge"] for x in judge_constrain(unbounded)] == ["constraint_bounds_complete"]
         cpath.unlink()
+
+        # 17 — THE JUDGES BEFORE THE JUDGED, SECOND INSTANCE (survey-filters): a
+        #      charted survey packet with an unresolvable holding fires
+        #      survey_holdings_resolve; an empty sought or a measureless absence
+        #      fires survey_coverage_complete; a whole packet is quiet. (Installed
+        #      before the survey module exists — these fixtures ARE its acceptance
+        #      contract, the pattern constrain-filters filed at edge (b).)
+        held = {"ticket": "wire-proof",
+                "sought": ["a settled measurer of the territory"],
+                "holdings": [{"what": "the chart component", "address": "chart"}],
+                "absences": [{"what": "a survey module",
+                              "measure": "device_census rows, no such component"}]}
+        spath = p / "survey-20260728T000004-eeee.json"
+        spath.write_text(json.dumps(held))
+        assert inspect(root=root, component="charted")["clean"]
+        phantom = dict(held, holdings=[{"what": "a phantom holding",
+                                        "address": "no/such/thing.py"}])
+        spath.write_text(json.dumps(phantom))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["survey_holdings_resolve"], f
+        assert f[0]["evidence"]["address"] == "no/such/thing.py", f[0]
+        unswept = dict(held, sought=[])
+        spath.write_text(json.dumps(unswept))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["survey_coverage_complete"], f
+        unmeasured = dict(held, absences=[{"what": "a survey module"}])
+        spath.write_text(json.dumps(unmeasured))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["survey_coverage_complete"], f
+        assert "measure" in f[0]["finding"], f[0]
+
+        # 18 — one implementation, two mouths, for the survey judge too.
+        from cairn.build_inspector.inspector import judge_survey
+        assert judge_survey(held) == []
+        assert [x["judge"] for x in judge_survey(phantom)] == ["survey_holdings_resolve"]
+        assert [x["judge"] for x in judge_survey(unswept)] == ["survey_coverage_complete"]
+        assert [x["judge"] for x in judge_survey(unmeasured)] == ["survey_coverage_complete"]
+        spath.unlink()
     finally:
         _insp._CHART_BERTHS = saved_berths
 

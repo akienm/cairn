@@ -303,12 +303,15 @@ def judge_constrain(packet: dict) -> list[dict]:
     return frags
 
 
-def _judge_charted_constrain(row: dict, comp_dir: Path, judge_name: str,
-                             report_unreadable: bool = False) -> list[dict]:
-    packets, unreadable = _charted_packets(comp_dir, "constrain")
+def _judge_charted(row: dict, comp_dir: Path, stage: str, judge,
+                   judge_name: str, report_unreadable: bool = False) -> list[dict]:
+    """One wrapper for every stage's pure judge — the promotion-side mouth. Each
+    stage's filters pass their own judge fn; growing a parallel wrapper per stage
+    would be the drift the import_map correction just retired from the proofs."""
+    packets, unreadable = _charted_packets(comp_dir, stage)
     findings = _unreadable_findings(judge_name, row, unreadable) if report_unreadable else []
     for path, packet in packets:
-        for frag in judge_constrain(packet):
+        for frag in judge(packet):
             if frag["judge"] == judge_name:
                 findings.append(_finding(
                     judge_name, row["component"], frag["finding"],
@@ -326,8 +329,8 @@ def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
     ('we set up it's inspector filters first') — the failure predates the module,
     so tooth 10 holds: this filter was taught by a real, dated failure.
     """
-    return _judge_charted_constrain(row, comp_dir, "constraint_traces",
-                                    report_unreadable=True)
+    return _judge_charted(row, comp_dir, "constrain", judge_constrain,
+                          "constraint_traces", report_unreadable=True)
 
 
 def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -339,7 +342,101 @@ def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
     was missed. Installed the same day, before the constrain module exists (the
     judges-before-the-judged ordering, Akien's higher-order build-the-test-first).
     """
-    return _judge_charted_constrain(row, comp_dir, "constraint_bounds_complete")
+    return _judge_charted(row, comp_dir, "constrain", judge_constrain,
+                          "constraint_bounds_complete")
+
+
+# ── THE JUDGES BEFORE THE JUDGED, SECOND INSTANCE (ticket survey-filters) ────
+# The acceptance gate for the SURVEY brick's output, installed before the survey
+# module exists — the move constrain-filters filed as 'pattern, not rule, until a
+# second instance proves it' (edge (b)); this is that instance. Same physics: the
+# judge is the inspector's, the future berth door composes it, never the reverse.
+
+
+def judge_survey(packet: dict) -> list[dict]:
+    """The pure judge over ONE survey packet — fragments tagged by owning filter.
+    A survey asserts an inventory: HOLDINGS must be held by the world (address
+    resolves), and the sweep's COVERAGE must be on record (sought non-empty; every
+    absence carrying the measure that established it — an absence is a claim)."""
+    frags = []
+    for i, h in enumerate(packet.get("holdings") or []):
+        if not isinstance(h, dict) or not isinstance(h.get("what"), str) \
+                or not h.get("what").strip():
+            frags.append({
+                "judge": "survey_holdings_resolve",
+                "finding": "holding %d has no shape (needs non-empty 'what' + 'address')" % i,
+                "evidence": {"index": i, "got": h},
+                "why_it_matters": "a holding that names no thing can be checked "
+                                  "against nothing — uninspectable by construction.",
+            })
+            continue
+        address = h.get("address")
+        if not isinstance(address, str) or not address.strip() or not ref_exists(address):
+            frags.append({
+                "judge": "survey_holdings_resolve",
+                "finding": "holding %d names an address that does not resolve" % i,
+                "evidence": {"index": i, "what": h.get("what"), "address": address},
+                "why_it_matters": "a holding the world does not hold is state "
+                                  "reported from records (the 2026-07-26/27 class: "
+                                  "wrong about the world three times in one morning) "
+                                  "— downstream builds on an inventory of nothing.",
+            })
+    sought = packet.get("sought")
+    if (not isinstance(sought, list) or not sought
+            or any(not isinstance(s, str) or not s.strip() for s in sought)):
+        frags.append({
+            "judge": "survey_coverage_complete",
+            "finding": "sought is missing, empty, or malformed",
+            "evidence": {"got": sought},
+            "why_it_matters": "an empty sought means the sweep never ran wide — "
+                              "the stone-1 failure (2026-07-28: a parallel roster "
+                              "built because the survey that would have found the "
+                              "settled component never happened); a survey must "
+                              "say where the light was pointed.",
+        })
+    for i, a in enumerate(packet.get("absences") or []):
+        if not isinstance(a, dict) or not all(
+                isinstance(a.get(k), str) and a.get(k).strip()
+                for k in ("what", "measure")):
+            frags.append({
+                "judge": "survey_coverage_complete",
+                "finding": "absence %d lacks its measure (needs non-empty 'what' + 'measure')" % i,
+                "evidence": {"index": i, "got": a},
+                "why_it_matters": "an absence is a claim, and an unmeasured absence "
+                                  "is the most dangerous claim in the preamble — "
+                                  "'logging: 0 of 13' (2026-07-27) was an absence "
+                                  "established by word-grep; the measure must "
+                                  "travel with the claim so it can be challenged.",
+            })
+    return frags
+
+
+def survey_holdings_resolve(row: dict, comp_dir: Path) -> list[dict]:
+    """Every holding in a charted survey packet names an address that resolves —
+    through the berth gate's own ref semantics, so the two mouths agree.
+
+    Provenance: 2026-07-26/27 — system state reported from records, wrong about
+    the world three times in one morning (device_census's seeding failures); and
+    2026-07-28, stone 1's parallel charter-glob roster — a build begun without
+    surveying the settled territory. Installed 2026-07-28 BEFORE the survey
+    module exists (judges-before-the-judged, second instance — the pattern
+    constrain-filters filed at edge (b), proven by this use).
+    """
+    return _judge_charted(row, comp_dir, "survey", judge_survey,
+                          "survey_holdings_resolve", report_unreadable=True)
+
+
+def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
+    """A charted survey packet declares what it SOUGHT (non-empty), and every
+    absence claim carries the measure that established it.
+
+    Provenance: 2026-07-27 — 'logging: 0 of 13': an absence claimed from a
+    word-grep (a mention-measure that missed the capability), collapsing three
+    times in one morning. Installed 2026-07-28, before the survey module exists —
+    an absence without its measure is that failure as data.
+    """
+    return _judge_charted(row, comp_dir, "survey", judge_survey,
+                          "survey_coverage_complete")
 
 
 FILTERS = {
@@ -350,6 +447,8 @@ FILTERS = {
     "charted_refs_resolve": charted_refs_resolve,
     "constraint_traces": constraint_traces,
     "constraint_bounds_complete": constraint_bounds_complete,
+    "survey_holdings_resolve": survey_holdings_resolve,
+    "survey_coverage_complete": survey_coverage_complete,
 }
 
 

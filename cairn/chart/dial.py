@@ -29,6 +29,7 @@ import os
 import re
 
 import cairn.chart.constrain as _constrain
+import cairn.chart.survey as _survey
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
@@ -41,6 +42,7 @@ _PACKET_RE = re.compile(r"^([a-z][a-z0-9_]*)-(\d{8}T\d{6})-([0-9a-f]+)\.json$")
 STAGE_FIELDS = {
     "orient": AUTHORED_FIELDS,
     "constrain": _constrain.AUTHORED_FIELDS,
+    "survey": _survey.AUTHORED_FIELDS,
 }
 
 

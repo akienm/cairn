@@ -1,10 +1,10 @@
 # /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. Two stages carry today — the
-**orient brick** then the **constrain brick**. Stages land one at a time; each
-stage's prompt is template-filled from the previous stage's validated file, so a
-skipped stage is a build error, not a lapse.
+schema-gated stages instead of invisible reasoning. Three stages carry today —
+the **orient brick**, the **constrain brick**, then the **survey brick**. Stages
+land one at a time; each stage's prompt is template-filled from the previous
+stage's validated file, so a skipped stage is a build error, not a lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -171,9 +171,82 @@ The bounds become the constrain tree's memory of this class of request.
 
 ### 6. Hand forward
 
-The chain ends at constrain today: report both berths and carry the bounds as
-hard edges for whatever runs next. Later stages (survey, …) template-fill from
-the constrain berth as each brick lands.
+Carry the constrain berth path — stage 3 template-fills from it.
+
+## Stage 3 — SURVEY
+
+One narrow question: **what already EXISTS that bears on this request?** Not
+what is asked, not what bounds it, not how to split it. This is where the
+territory legitimately OPENS (orient's curtain lifts here). This brick was
+built UNDER pre-installed judges (`survey_holdings_resolve` +
+`survey_coverage_complete`, proved before the module existed).
+
+### 1. The floor — template-filled from stage 2's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.survey import survey_floor
+print(json.dumps(survey_floor(sys.argv[1]), indent=2))
+" <the constrain berth path>
+```
+
+It surfaces each ref'd component's **device_census row verbatim** (measured
+state: charter, proofs, validations, devices, emit sites — constrain already
+surfaced the authored charter text; survey reads what is provably THERE) plus
+existence-measured non-component refs, found vs missing kept apart, under the
+stage-2 bounds. The chain is re-checked whole: a broken link refuses.
+
+### 2. The tree — walk before you sweep
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' survey
+```
+
+What past sweeps of this class of request found, floor labeled as always.
+
+### 3. The ceiling — the wide sweep that earns its keep
+
+Sweep as wide as the request needs — parsimony must NOT squeeze the survey
+(loose process, tight output). Assemble:
+
+- **constrain_ref** — the constrain berth path (provenance `floor`).
+- **sought** — where you pointed the light, non-empty. An empty sought is the
+  sweep that never ran wide (the stone-1 parallel-roster failure) and the
+  judges refuse it.
+- **holdings** — each `{what, address}`: what exists that bears on the request;
+  the address must RESOLVE (the judges re-check it at promotion — a holding the
+  world doesn't hold is state-reported-from-records).
+- **absences** — each `{what, measure}`: what was sought and NOT found, with
+  the measure that established it. **An absence is a claim** — '0 of 13' was an
+  absence established by word-grep; the judges refuse a measureless one.
+- **unknowns / confidence / provenance** — as before; provenance covers
+  constrain_ref, sought, holdings, absences, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.survey import write_survey
+print(write_survey(json.load(open(sys.argv[1]))))
+" <scratchpad>/survey_packet.json
+```
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the survey berth path>
+```
+
+The inventory becomes the survey tree's memory of this class of request.
+
+### 6. Hand forward
+
+The chain ends at survey today: report the three berths and carry the
+inventory — holdings are what downstream composes, absences are what it may
+have to build. Later stages (decompose, …) template-fill from the survey berth
+as each brick lands.
 
 ## Stay honest
 

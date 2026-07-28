@@ -31,6 +31,7 @@ file into the graph — deposit only, every passage anchored to shelf + passage 
     python3 -m cairn.librarian.live loop "a question" [tree]   # ground your own question
     python3 -m cairn.librarian.live shelve               # acquire the founding collection
     python3 -m cairn.librarian.live learn <address> [tree]     # fold one shelved file in
+    python3 -m cairn.librarian.live summarize <tree> "question"   # the transducer, live
     # exit 0 = the walk ranked / the verb returned; 1 = nothing surfaced
 """
 
@@ -44,6 +45,7 @@ from cairn.inference_domain import domain, host
 from cairn.librarian.library import learn as learn_verb
 from cairn.librarian.library import shelve
 from cairn.librarian.loop import resolve_query
+from cairn.librarian.summarize import summarize
 from cairn.librarian.trees import LibrarianDevice
 
 DEFAULT_MODEL = "nomic-embed-text"
@@ -160,6 +162,21 @@ def _learn(argv: list[str]) -> int:
     return 0
 
 
+def _summarize(argv: list[str]) -> int:
+    """The SUMMARIZE verb, live: a dense region of a real tree rendered into cited prose
+    by the drafting model, landing back in the graph. The verdict prints whole, whichever
+    way it lands — a loud refusal here is a finding, not a failure of the wiring."""
+    if len(argv) < 2:
+        print("usage: live summarize <tree> \"question\"", file=sys.stderr)
+        return 1
+    tree, question = argv[0], argv[1]
+    dev = LibrarianDevice()
+    got = summarize(question, resolve=dual_seam(), tree=tree, dev=dev)
+    print(json.dumps({"summarize": got, "breadcrumbs": dev.held_diagnostics(),
+                      "yield": domain.yield_report()}, indent=2, default=str))
+    return 0
+
+
 def _main(argv: list[str]) -> int:
     if argv and argv[0] == "loop":
         return _loop(argv[1:])
@@ -167,6 +184,8 @@ def _main(argv: list[str]) -> int:
         return _shelve_collection(argv[1:])
     if argv and argv[0] == "learn":
         return _learn(argv[1:])
+    if argv and argv[0] == "summarize":
+        return _summarize(argv[1:])
     embed = embed_via_domain()
     dev = LibrarianDevice()
     _seed(dev, embed)

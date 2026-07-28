@@ -28,18 +28,27 @@ import json
 import os
 import re
 
+import cairn.chart.constrain as _constrain
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
 _PACKET_RE = re.compile(r"^([a-z][a-z0-9_]*)-(\d{8}T\d{6})-([0-9a-f]+)\.json$")
 
+# Each stage authors its own fields; the dial reads a packet against ITS stage's
+# shape (a constrain packet judged by orient's fields would be a false finding).
+# A berthed stage with no registered shape is reported loudly — stage 3 registers
+# here when it lands, and silence would hide a whole nexus from the reading.
+STAGE_FIELDS = {
+    "orient": AUTHORED_FIELDS,
+    "constrain": _constrain.AUTHORED_FIELDS,
+}
 
-def _fractions(provenance: dict) -> dict:
+
+def _fractions(provenance: dict, fields) -> dict:
     counts = {s: 0 for s in STRATA}
-    for field in AUTHORED_FIELDS:
+    for field in fields:
         counts[provenance[field]] += 1
-    n = len(AUTHORED_FIELDS)
-    return {s: round(counts[s] / n, 4) for s in STRATA}
+    return {s: round(counts[s] / len(fields), 4) for s in STRATA}
 
 
 def dial(instance_dir: str = INSTANCE_DIR) -> dict:
@@ -58,10 +67,15 @@ def dial(instance_dir: str = INSTANCE_DIR) -> dict:
             continue  # not packet-shaped: not this instrument's jurisdiction
         nexus, stamp = m.group(1), m.group(2)
         try:
+            fields = STAGE_FIELDS.get(nexus)
+            if fields is None:
+                raise ValueError(
+                    f"no registered field-shape for stage {nexus!r} — the stage "
+                    "registers in STAGE_FIELDS when it lands")
             with open(os.path.join(berth, name), encoding="utf-8") as fh:
                 packet = json.load(fh)
             provenance = packet["provenance"]
-            bad = [f for f in AUTHORED_FIELDS
+            bad = [f for f in fields
                    if provenance.get(f) not in STRATA]
             if bad:
                 raise ValueError(
@@ -69,7 +83,7 @@ def dial(instance_dir: str = INSTANCE_DIR) -> dict:
         except Exception as e:  # a berthed packet that fails its own gate is a finding
             out["unreadable"].append({"packet": name, "why": str(e)})
             continue
-        entry = {"packet": name, "at": stamp, **_fractions(provenance)}
+        entry = {"packet": name, "at": stamp, **_fractions(provenance, fields)}
         out["nexi"].setdefault(nexus, []).append(entry)
         out["packets"] += 1
 

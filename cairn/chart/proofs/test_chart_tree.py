@@ -166,8 +166,10 @@ def test_the_librarians_tools_are_the_only_door():
     allowed = {
         tree.__file__: ("__future__", "os", "re", "cairn.chart.orient",
                         "cairn.librarian.trees", "cairn.librarian.loop"),
+        # cairn.chart.constrain joined 2026-07-28 (chart-constrain): the dial reads
+        # each stage's packets against that stage's own field-shape.
         dial_mod.__file__: ("__future__", "json", "os", "re", "sys",
-                            "cairn.chart.orient"),
+                            "cairn.chart.constrain", "cairn.chart.orient"),
     }
     for path, allow in allowed.items():
         seen = []

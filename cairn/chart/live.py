@@ -19,9 +19,11 @@ deposit-back — the whole embed cost of the stratum, readable in the yield repo
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import date
 
+from cairn.chart.constrain import constrain_node_content, deposit_constrain
 from cairn.chart.dial import dial
 from cairn.chart.moreabout import expand, signal
 from cairn.chart.tree import counsel, deposit_packet
@@ -49,11 +51,19 @@ def _learn(argv: list[str]) -> int:
     if not argv:
         print("usage: live learn <berth-path> [nexus]", file=sys.stderr)
         return 1
-    berth, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
+    berth = argv[0]
     with open(berth, encoding="utf-8") as fh:
         packet = json.load(fh)
-    got = deposit_packet(packet, embed_via_domain()(packet["intent"]),
-                         berth_path=berth, nexus=nexus)
+    if os.path.basename(berth).startswith("constrain-"):
+        # Stage 2's deposit-back: the vector embeds the SAME rendering the node
+        # deposits (constrain_node_content — one rendering, no drift).
+        nexus = "constrain"
+        got = deposit_constrain(packet, embed_via_domain()(constrain_node_content(packet)),
+                                berth_path=berth)
+    else:
+        nexus = argv[1] if len(argv) > 1 else "orient"
+        got = deposit_packet(packet, embed_via_domain()(packet["intent"]),
+                             berth_path=berth, nexus=nexus)
     print(json.dumps({"learn": got, "berth": berth, "nexus": nexus,
                       "dial": dial()["nexi"].get(nexus, {}).get("aggregate")},
                      indent=2, default=str))

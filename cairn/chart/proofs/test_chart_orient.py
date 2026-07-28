@@ -15,7 +15,7 @@ import tempfile
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
 
 from cairn.chart.orient import (AUTHORED_FIELDS, OrientRefused, component_roster,
-                                floor_facts, validate_orient, write_packet)
+                                floor_facts, ref_exists, validate_orient, write_packet)
 
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
 ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time", "pathlib",
@@ -142,6 +142,23 @@ def test_floor_composes_the_orient_instrument(root):
     fire, 2026-07-28 — the floor's own parallel roster caught its builder
     having never surveyed cairn/orient."""
     assert component_roster(root) == ["alpha", "beta"]
+
+
+def test_ticket_claim_is_gated(root):
+    """A packet may claim its ticket only if the ticket is ON FILE in
+    CairnCommons/tickets/ (packet-inspector-wire, 2026-07-28) — a packet claiming
+    an unfiled ticket is fabricated attribution (the 2026-07-26 class). The
+    synthetic root has no commons beside it, so any claim there refuses; the
+    live-root pass is a membership invariant against a committed ticket."""
+    minted = dict(good_packet(), ticket="no-such-ticket")
+    expect_refusal(lambda: validate_orient(minted, root=root), "no-such-ticket")
+    hollow = dict(good_packet(), ticket="")
+    expect_refusal(lambda: validate_orient(hollow, root=root), "ticket")
+    live = dict(good_packet(), refs=["chart"], ticket="moreabout")
+    assert validate_orient(live) is live, \
+        "a claim naming a filed ticket passes (moreabout.json is committed)"
+    assert ref_exists("chart") and not ref_exists("minted/nowhere.py"), \
+        "the public ref semantics are the gate's own (one implementation, two mouths)"
 
 
 def test_import_allowlist(root):

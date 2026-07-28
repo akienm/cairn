@@ -146,6 +146,81 @@ def main() -> None:
         "the inspector consults no oracle — a gate that asks Hex is not a gate"
     )
 
+    # 13 — PACKET JURISDICTION (packet-inspector-wire, 2026-07-28): the gate finds a
+    #      build's charted packets via history -> ticket -> berth and judges the
+    #      charted refs at promotion. Fire-and-stay-quiet, berths on a synthetic root.
+    import cairn.build_inspector.inspector as _insp
+    berths = tmp / "berths"
+    (berths / "0" / "packets").mkdir(parents=True)
+    saved_berths = _insp._CHART_BERTHS
+    _insp._CHART_BERTHS = berths
+    try:
+        charted = _component(root, "charted")
+        h2, s2 = charted / "history.json", charted / "state.json"
+        projector.append_entry(str(h2), str(s2),
+                               {"standing": "BUILDME", "note": "born", "ticket": "wire-proof"})
+        p = berths / "0" / "packets"
+        # A berth claiming ANOTHER ticket is outside this build's jurisdiction: quiet.
+        (p / "orient-20260728T000000-aaaa.json").write_text(
+            json.dumps({"ticket": "someone-else", "refs": ["no/such/ref.py"]}))
+        assert inspect(root=root, component="charted")["clean"]
+        # A berth claiming THIS ticket whose charted ref no longer resolves: fires,
+        # and the finding separates missing from still-resolving (complete first pass).
+        (p / "orient-20260728T000001-bbbb.json").write_text(
+            json.dumps({"ticket": "wire-proof", "refs": ["chart", "no/such/ref.py"]}))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["charted_refs_resolve"], f
+        assert f[0]["evidence"]["missing"] == ["no/such/ref.py"], f[0]
+        # The world matching the chart again: quiet again.
+        (p / "orient-20260728T000001-bbbb.json").write_text(
+            json.dumps({"ticket": "wire-proof", "refs": ["chart"]}))
+        assert inspect(root=root, component="charted")["clean"]
+
+        # 14 — an UNREADABLE berth is a named finding on the berth owner (chart)
+        #      exactly once — never on every component's crossing, never skipped.
+        _component(root, "chart")
+        (p / "orient-20260728T000002-cccc.json").write_text("{not json")
+        assert inspect(root=root, component="charted")["clean"], \
+            "an unreadable berth must not fire on other components' crossings"
+        f = inspect(root=root, component="chart")["findings"]
+        assert [x["filter"] for x in f] == ["charted_refs_resolve"], f
+        assert "unreadable" in f[0]["finding"], f[0]
+        # 15 — THE JUDGES BEFORE THE JUDGED (constrain-filters): a charted constrain
+        #      packet with an unresolvable source fires constraint_traces; an empty
+        #      bounds.out fires constraint_bounds_complete; a whole packet is quiet.
+        #      (Installed before the constrain module exists — the fixtures here ARE
+        #      the module's acceptance contract.)
+        whole = {"ticket": "wire-proof",
+                 "constraints": [{"text": "stay off the network", "source": "chart",
+                                  "kind": "charter"}],
+                 "bounds": {"in": ["the gate only"], "out": ["everything else"]}}
+        cpath = p / "constrain-20260728T000003-dddd.json"
+        cpath.write_text(json.dumps(whole))
+        assert inspect(root=root, component="charted")["clean"]
+        minted = dict(whole, constraints=[{"text": "obey the minted rule",
+                                           "source": "no/such/charter.json",
+                                           "kind": "charter"}])
+        cpath.write_text(json.dumps(minted))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["constraint_traces"], f
+        assert f[0]["evidence"]["source"] == "no/such/charter.json", f[0]
+        unbounded = dict(whole, bounds={"in": ["the gate only"], "out": []})
+        cpath.write_text(json.dumps(unbounded))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["constraint_bounds_complete"], f
+        assert f[0]["evidence"]["side"] == "out", f[0]
+
+        # 16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry filters report exactly
+        #      what the pure judge reports — no drift between door and gate is
+        #      possible because there is nothing to drift between.
+        from cairn.build_inspector.inspector import judge_constrain
+        assert judge_constrain(whole) == []
+        assert [x["judge"] for x in judge_constrain(minted)] == ["constraint_traces"]
+        assert [x["judge"] for x in judge_constrain(unbounded)] == ["constraint_bounds_complete"]
+        cpath.unlink()
+    finally:
+        _insp._CHART_BERTHS = saved_berths
+
     print("build_inspector proofs: all teeth green")
 
 

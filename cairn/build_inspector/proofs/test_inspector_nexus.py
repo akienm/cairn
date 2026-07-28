@@ -133,9 +133,15 @@ def test_a_proposal_never_touches_the_registry():
 
 
 def test_the_fire_path_never_reaches_the_tree():
+    # cairn.chart.orient joined 2026-07-28 (packet-inspector-wire): the packet
+    # jurisdiction composes the berth gate's own ref semantics. It is a TREE-FREE
+    # module (its own allowlist tooth pins stdlib + cairn.orient.orient only), so
+    # the verdict path stays structurally unable to reach tree machinery —
+    # transitively, which the assert below the loop pins.
     allowed = {
         inspector.__file__: ("__future__", "json", "sys", "pathlib",
-                             "cairn.charter", "cairn.orient.orient"),
+                             "cairn.charter", "cairn.chart.orient",
+                             "cairn.orient.orient"),
         nexus.__file__: ("__future__", "cairn.chart.tree"),
     }
     for path, allow in allowed.items():
@@ -151,6 +157,15 @@ def test_the_fire_path_never_reaches_the_tree():
             f"{Path(path).name} imports outside its allowlist: {offenders} — the "
             "verdict path may never reach the tree (a verdict is always hardware), and "
             "the graft's only cairn door is chart's nexus verbs")
+    # The transitive half: the one chart module the verdict path composes must
+    # itself be tree-free — if chart/orient.py ever imports tree machinery, the
+    # separation breaks one hop away and THIS tooth is the one that says so.
+    import cairn.chart.orient as chart_orient
+    chart_orient_src = Path(chart_orient.__file__).read_text(encoding="utf-8")
+    for tree_door in ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain"):
+        assert tree_door not in chart_orient_src, (
+            f"cairn.chart.orient reaches {tree_door} — the verdict path's composed "
+            "module must stay tree-free (the wire's standing condition)")
 
 
 def _cleanup():

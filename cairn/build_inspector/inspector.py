@@ -38,6 +38,9 @@ sys.path.insert(0, str(_REPO_ROOT))
 # orient's filed edge (e) — scans-vs-filters as one shared library — earned by use, not
 # merged on symmetry. The registries stay separate: a scan MEASURES, a filter JUDGES.
 from cairn.charter import projector  # noqa: E402
+from cairn.chart.orient import ref_exists  # noqa: E402  (tree-free module — the verdict
+#   path stays structurally unable to reach tree machinery; the packet jurisdiction
+#   composes the berth gate's OWN ref semantics so the two mouths cannot disagree)
 from cairn.orient.orient import ScanRefused, device_census  # noqa: E402
 
 
@@ -163,11 +166,190 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+# ── PACKET JURISDICTION (ticket packet-inspector-wire, 2026-07-28) ───────────
+# A build is judged against the packet that charted it. The walk is the wire's whole
+# claim: the packet claims its ticket (gated at the berth door), the component's own
+# history names its tickets (crossings carry them) — so the gate finds a build's
+# charted packets by reading two records that already exist. No new side channel.
+
+_CHART_BERTHS = Path.home() / ".cairn" / "devices" / "chart"
+
+
+def _component_tickets(comp_dir: Path) -> set:
+    h = comp_dir / "history.json"
+    if not h.exists():
+        return set()
+    try:
+        entries = json.loads(h.read_text())
+    except json.JSONDecodeError:
+        return set()  # state_is_projection owns the unreadable-history finding
+    if not isinstance(entries, list):
+        return set()
+    return {e["ticket"] for e in entries
+            if isinstance(e, dict) and isinstance(e.get("ticket"), str)}
+
+
+def _charted_packets(comp_dir: Path, stage: str):
+    """The berthed <stage>-*.json packets claiming this component's tickets, plus
+    the berths that could not be read at all (owned by chart's own inspection —
+    an unreadable berth names no ticket, so its finding lands with the berth
+    owner, not on every component's crossing)."""
+    tickets = _component_tickets(comp_dir)
+    packets, unreadable = [], []
+    if not _CHART_BERTHS.is_dir():
+        return packets, unreadable
+    for path in sorted(_CHART_BERTHS.glob("*/packets/%s-*.json" % stage)):
+        try:
+            packet = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError) as e:
+            unreadable.append((path, "%s: %s" % (type(e).__name__, e)))
+            continue
+        if isinstance(packet, dict) and tickets and packet.get("ticket") in tickets:
+            packets.append((path, packet))
+    return packets, unreadable
+
+
+def _unreadable_findings(filter_name: str, row: dict, unreadable) -> list[dict]:
+    if row["component"] != "chart":
+        return []  # the berth owner carries the finding, exactly once per sweep
+    return [_finding(
+        filter_name, row["component"],
+        "berthed packet %s is unreadable" % path.name,
+        {"berth": str(path), "why": why},
+        "Law 7: a record the gate cannot read is a named finding, never a silent "
+        "skip — an unreadable chart could be hiding any claim.",
+    ) for path, why in unreadable]
+
+
+def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
+    """A promoted build must still match what its packet charted: every ref the
+    orient packet carried must resolve at promotion time.
+
+    Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
+    sharpest claim-vs-world drift on record). The packet is the claim, the
+    promotion is the moment, this filter is the comparison — through the berth
+    gate's own ref semantics (cairn.chart.orient.ref_exists), so the judge and
+    the gate that admitted the refs cannot disagree.
+    """
+    packets, unreadable = _charted_packets(comp_dir, "orient")
+    findings = _unreadable_findings("charted_refs_resolve", row, unreadable)
+    for path, packet in packets:
+        refs = packet.get("refs")
+        if not isinstance(refs, list):
+            continue  # shaped at the berth door; unreachable through it
+        missing = [r for r in refs if not isinstance(r, str) or not ref_exists(r)]
+        if missing:
+            findings.append(_finding(
+                "charted_refs_resolve", row["component"],
+                "charted refs no longer resolve at promotion: %s" % ", ".join(map(str, missing)),
+                {"berth": str(path), "ticket": packet.get("ticket"), "missing": missing},
+                "Law 8 + the 2026-07-24 failure: the world drifted from the chart "
+                "between berth and promotion — a build promoted over refs that no "
+                "longer exist is a hollow claim.",
+            ))
+    return findings
+
+
+# ── THE JUDGES BEFORE THE JUDGED (ticket constrain-filters, 2026-07-28) ──────
+# Akien's higher-order build-the-test-first: the acceptance gate for the constrain
+# brick's output, installed and proved BEFORE the constrain module exists. The judge
+# is the inspector's — behind the inspector's write-gate — and the future constrain
+# berth door COMPOSES it (imports judge_constrain; never the reverse), so the module
+# structurally cannot shape its own acceptance criteria. One implementation, two
+# mouths: the door refuses at berth time, these filters re-judge at promotion.
+
+
+def judge_constrain(packet: dict) -> list[dict]:
+    """The pure judge over ONE constrain packet — fragments tagged by which filter
+    owns them ({judge, finding, evidence, why_it_matters}). Composed by the berth
+    door and wrapped by the gate filters below; if the two mouths ever disagree,
+    this function's singleness is the broken claim."""
+    frags = []
+    for i, c in enumerate(packet.get("constraints") or []):
+        if not isinstance(c, dict):
+            frags.append({
+                "judge": "constraint_traces",
+                "finding": "constraint %d is not a dict" % i,
+                "evidence": {"index": i, "got": type(c).__name__},
+                "why_it_matters": "a constraint that has no shape can name no source "
+                                  "— untraceable by construction.",
+            })
+            continue
+        source = c.get("source")
+        if not isinstance(source, str) or not source.strip() or not ref_exists(source):
+            frags.append({
+                "judge": "constraint_traces",
+                "finding": "constraint %d names a source that does not resolve" % i,
+                "evidence": {"index": i, "source": source, "text": c.get("text")},
+                "why_it_matters": "an invented constraint is fabricated attribution "
+                                  "wearing a bound's costume (the 2026-07-26 class): "
+                                  "a bound nobody set binds nobody, and a bound that "
+                                  "cites nothing cannot be challenged.",
+            })
+    bounds = packet.get("bounds")
+    for side in ("in", "out"):
+        vals = bounds.get(side) if isinstance(bounds, dict) else None
+        if (not isinstance(vals, list) or not vals
+                or any(not isinstance(x, str) or not x.strip() for x in vals)):
+            frags.append({
+                "judge": "constraint_bounds_complete",
+                "finding": "bounds.%s is missing, empty, or malformed" % side,
+                "evidence": {"side": side, "got": vals},
+                "why_it_matters": "the founding failure (the 2026-07-28 carrier miss) "
+                                  "was bounds-checking that never ran to completion — "
+                                  "an empty side is exactly that failure as data; a "
+                                  "packet must say what is OUT, not just what is in.",
+            })
+    return frags
+
+
+def _judge_charted_constrain(row: dict, comp_dir: Path, judge_name: str,
+                             report_unreadable: bool = False) -> list[dict]:
+    packets, unreadable = _charted_packets(comp_dir, "constrain")
+    findings = _unreadable_findings(judge_name, row, unreadable) if report_unreadable else []
+    for path, packet in packets:
+        for frag in judge_constrain(packet):
+            if frag["judge"] == judge_name:
+                findings.append(_finding(
+                    judge_name, row["component"], frag["finding"],
+                    dict(frag["evidence"], berth=str(path), ticket=packet.get("ticket")),
+                    frag["why_it_matters"]))
+    return findings
+
+
+def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
+    """Every constraint in a charted constrain packet names a source that resolves.
+
+    Provenance: 2026-07-26 — the fabricated-attribution class (an echo label
+    attesting an unhappened push; a misattributed ruling the same week). Installed
+    2026-07-28 BEFORE the constrain module exists, on Akien's ordering ruling
+    ('we set up it's inspector filters first') — the failure predates the module,
+    so tooth 10 holds: this filter was taught by a real, dated failure.
+    """
+    return _judge_charted_constrain(row, comp_dir, "constraint_traces",
+                                    report_unreadable=True)
+
+
+def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
+    """A charted constrain packet declares BOTH in-bounds and out-of-bounds,
+    non-empty — an empty 'out' is bounds-checking that never ran to completion.
+
+    Provenance: 2026-07-28 — the web-server carrier miss (CC--): premature
+    convergence collapsed the bounds question into pattern-match and the carrier
+    was missed. Installed the same day, before the constrain module exists (the
+    judges-before-the-judged ordering, Akien's higher-order build-the-test-first).
+    """
+    return _judge_charted_constrain(row, comp_dir, "constraint_bounds_complete")
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
     "silent_device": silent_device,
     "state_is_projection": state_is_projection,
+    "charted_refs_resolve": charted_refs_resolve,
+    "constraint_traces": constraint_traces,
+    "constraint_bounds_complete": constraint_bounds_complete,
 }
 
 

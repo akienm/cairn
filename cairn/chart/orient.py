@@ -123,6 +123,35 @@ def floor_facts(request: str, root: str = CAIRN_ROOT) -> dict:
     }
 
 
+def ref_exists(ref: str, root: str = CAIRN_ROOT) -> bool:
+    """The ONE semantics for 'this ref resolves' — the public face of the berth
+    gate's own resolution, composed by the build_inspector's packet jurisdiction
+    (ticket packet-inspector-wire). A judge resolving refs by different rules than
+    the gate that admitted them would make the two mouths disagree — so there is
+    exactly one implementation, and this is its door."""
+    return _ref_exists(ref, root, set(component_roster(root)))
+
+
+def ticket_claim_error(packet: dict, root: str = CAIRN_ROOT) -> str | None:
+    """The ticket-claim rule, shared by every packet gate: an optional 'ticket'
+    field must name a ticket ON FILE in CairnCommons/tickets/ — a packet claiming
+    an unfiled ticket is fabricated attribution (the 2026-07-26 class). Returns
+    the refusal text, or None when the claim is absent or holds."""
+    if "ticket" not in packet:
+        return None
+    claim = packet["ticket"]
+    if isinstance(claim, str) and _TICKET_RE.match(claim):
+        filed = os.path.join(os.path.dirname(root), "CairnCommons", "tickets",
+                             claim + ".json")
+        if os.path.isfile(filed):
+            return None
+    return ("ticket claim %r names no ticket on file in CairnCommons/tickets/ — "
+            "a packet may not attribute itself to an unfiled voyage" % (claim,))
+
+
+_TICKET_RE = re.compile(r"^[a-z][a-z0-9-]*$")
+
+
 def _ref_exists(ref: str, root: str, roster: set) -> bool:
     if not isinstance(ref, str) or not ref.strip():
         return False
@@ -183,6 +212,10 @@ def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
     if invented:
         raise OrientRefused("orient packet refused — refs the floor cannot verify exist: %s"
                             % ", ".join(invented))
+
+    claim_error = ticket_claim_error(packet, root)
+    if claim_error:
+        raise OrientRefused("orient packet refused — " + claim_error)
 
     return packet
 

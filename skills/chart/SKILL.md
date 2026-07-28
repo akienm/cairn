@@ -1,10 +1,10 @@
-# /chart — run the pre-build preamble as question nexi
+# /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. v0 carries ONE stage — the
-**orient nexus**. Stages land one at a time; each stage's prompt is template-filled
-from the previous stage's validated file, so a skipped stage is a build error, not
-a lapse.
+schema-gated stages instead of invisible reasoning. Two stages carry today — the
+**orient brick** then the **constrain brick**. Stages land one at a time; each
+stage's prompt is template-filled from the previous stage's validated file, so a
+skipped stage is a build error, not a lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -103,10 +103,77 @@ aggregate: the floor/tree/claude fractions the whole intention is measured by.
 
 ### 7. Hand forward
 
-v0 ends at orient: report the packet (its fields, its berth path) to the user
-and carry it in-conversation as the grounding for whatever runs next. Later
-stages (constrain, survey, …) will template-fill from the berthed file as each
-nexus lands.
+Carry the berth path — stage 2 template-fills from it, never from this
+conversation.
+
+## Stage 2 — CONSTRAIN
+
+One narrow question: **what BOUNDS this request?** Not what to build, not how —
+later stages. This brick was built UNDER pre-installed judges (the inspector's
+`constraint_traces` + `constraint_bounds_complete`, proved before the module
+existed): a packet the door passes is a packet the promotion gate passes.
+
+### 1. The floor — template-filled from stage 1's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.constrain import constrain_floor
+print(json.dumps(constrain_floor(sys.argv[1]), indent=2))
+" <the orient berth path>
+```
+
+It surfaces each ref'd component's charter **falsifier / gates / owner
+verbatim, with its address**. The floor surfaces text; you decide what applies.
+A paraphrased constraint is a constraint with laundered provenance — quote or
+point, don't reword the charter.
+
+### 2. The tree — walk before you reason
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' constrain
+```
+
+Prior bounds for this class of request, floor labeled as always.
+
+### 3. The ceiling — assemble the bounds
+
+- **intent_ref** — the orient berth path (provenance `floor`).
+- **constraints** — each `{text, source, kind}`: the text states the bound, the
+  source must RESOLVE (the judges refuse invented sources), kind is an open
+  string (law | charter | ticket | memory | ruling…).
+- **bounds** — `{in: [...], out: [...]}` — BOTH non-empty. An empty `out` is
+  the founding failure (bounds-checking that never ran to completion) and the
+  judges refuse it. Saying what is OUT is the work.
+- **unknowns / confidence / provenance** — as in stage 1; provenance covers
+  intent_ref, constraints, bounds, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.constrain import write_constrain
+print(write_constrain(json.load(open(sys.argv[1]))))
+" <scratchpad>/constrain_packet.json
+```
+
+The door runs the inspector's own judges — a refusal names the judge; fix the
+packet, don't argue with the gate.
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the constrain berth path>
+```
+
+The bounds become the constrain tree's memory of this class of request.
+
+### 6. Hand forward
+
+The chain ends at constrain today: report both berths and carry the bounds as
+hard edges for whatever runs next. Later stages (survey, …) template-fill from
+the constrain berth as each brick lands.
 
 ## Stay honest
 

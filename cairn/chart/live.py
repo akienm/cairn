@@ -6,9 +6,11 @@ inference_domain, metered and cached; the vector then feeds chart/tree.py's pure
 One embed per /chart crossing (the request, cached on repeat), one per fresh
 deposit-back — the whole embed cost of the stratum, readable in the yield report.
 
-    python3 -m cairn.chart.live counsel "<request>" [nexus]   # the walk, live
-    python3 -m cairn.chart.live learn <berth-path> [nexus]    # deposit-back one packet
+    python3 -m cairn.chart.live counsel "<request>" [nexus] [owner]  # the walk, live
+    python3 -m cairn.chart.live learn <berth-path> [nexus]           # deposit-back one packet
     # exit 0 = the verb returned; a refusal prints loud and exits 1
+    # [owner] serves the grafted tenants: `counsel "<text>" corrections orient` walks
+    # orient's correction corpus; default is chart's own nexi.
 """
 from __future__ import annotations
 
@@ -22,10 +24,11 @@ from cairn.librarian.live import embed_via_domain
 
 def _counsel(argv: list[str]) -> int:
     if not argv:
-        print('usage: live counsel "<request>" [nexus]', file=sys.stderr)
+        print('usage: live counsel "<request>" [nexus] [owner]', file=sys.stderr)
         return 1
     request, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
-    got = counsel(embed_via_domain()(request), nexus=nexus)
+    kw = {"owner": argv[2]} if len(argv) > 2 else {}
+    got = counsel(embed_via_domain()(request), nexus=nexus, **kw)
     print(json.dumps({
         "request": request,
         "counsel": {k: v for k, v in got.items() if k != "walk"},

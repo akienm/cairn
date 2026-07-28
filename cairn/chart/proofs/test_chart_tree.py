@@ -167,11 +167,12 @@ def test_the_librarians_tools_are_the_only_door():
         tree.__file__: ("__future__", "os", "re", "cairn.chart.orient",
                         "cairn.librarian.trees", "cairn.librarian.loop"),
         # cairn.chart.constrain joined 2026-07-28 (chart-constrain), cairn.chart.survey
-        # the same day (chart-survey): the dial reads each stage's packets against
-        # that stage's own field-shape — a stage registers here when it lands.
+        # and cairn.chart.decompose the same day (chart-survey, chart-decompose):
+        # the dial reads each stage's packets against that stage's own field-shape
+        # — a stage registers here when it lands.
         dial_mod.__file__: ("__future__", "json", "os", "re", "sys",
-                            "cairn.chart.constrain", "cairn.chart.orient",
-                            "cairn.chart.survey"),
+                            "cairn.chart.constrain", "cairn.chart.decompose",
+                            "cairn.chart.orient", "cairn.chart.survey"),
     }
     # Composed over orient's import_map (installed 2026-07-28 through the brick loop,
     # seeded by THIS tooth's own twice-fired red): the allowlist matches the module

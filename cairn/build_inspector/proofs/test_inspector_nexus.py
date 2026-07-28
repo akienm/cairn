@@ -139,9 +139,12 @@ def test_the_fire_path_never_reaches_the_tree():
     # the verdict path stays structurally unable to reach tree machinery —
     # transitively, which the assert below the loop pins.
     allowed = {
-        inspector.__file__: ("__future__", "json", "sys", "pathlib",
+        inspector.__file__: ("__future__", "json", "os", "sys", "pathlib",
                              "cairn.charter", "cairn.chart.orient",
                              "cairn.orient.orient"),
+        # os joined 2026-07-28 (decompose-filters): judge_decompose reads the
+        # packet's survey_ref berth with its OWN minimal open — importing chart's
+        # chain reader back would let the judged family shape the judge.
         nexus.__file__: ("__future__", "cairn.chart.tree"),
     }
     # Composed over orient's import_map (installed 2026-07-28 through the brick

@@ -256,6 +256,55 @@ def main() -> None:
         assert [x["judge"] for x in judge_survey(unswept)] == ["survey_coverage_complete"]
         assert [x["judge"] for x in judge_survey(unmeasured)] == ["survey_coverage_complete"]
         spath.unlink()
+
+        # 19 — THE JUDGES BEFORE THE JUDGED, THIRD APPLICATION (decompose-filters):
+        #      a compose piece using an address the survey berth does not hold fires
+        #      decompose_composes_holdings; a build piece filling an unmeasured
+        #      absence fires decompose_builds_absences; a broken survey_ref is a
+        #      loud finding; a derived split is quiet. (Installed before the
+        #      decompose module exists — these fixtures ARE its acceptance contract.)
+        sb = tmp / "survey_berth_fixture.json"
+        sb.write_text(json.dumps({
+            "holdings": [{"what": "the chart component", "address": "chart"}],
+            "absences": [{"what": "a decompose module",
+                          "measure": "path check, absent"}]}))
+        derived = {"ticket": "wire-proof", "survey_ref": str(sb),
+                   "sub_problems": [
+                       {"what": "compose the chart door", "why": "it is held",
+                        "kind": "compose", "uses": ["chart"]},
+                       {"what": "build the module", "why": "measured absent",
+                        "kind": "build", "fills": "a decompose module"}]}
+        dpath = p / "decompose-20260728T000005-ffff.json"
+        dpath.write_text(json.dumps(derived))
+        assert inspect(root=root, component="charted")["clean"]
+        rebuilt = dict(derived, sub_problems=[
+            {"what": "compose a phantom", "why": "it is not held",
+             "kind": "compose", "uses": ["no/such/thing.py"]}])
+        dpath.write_text(json.dumps(rebuilt))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["decompose_composes_holdings"], f
+        assert f[0]["evidence"]["uses"] == "no/such/thing.py", f[0]
+        invented = dict(derived, sub_problems=[
+            {"what": "build a whim", "why": "nobody measured it",
+             "kind": "build", "fills": "a thing never sought"}])
+        dpath.write_text(json.dumps(invented))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["decompose_builds_absences"], f
+        assert f[0]["evidence"]["fills"] == "a thing never sought", f[0]
+        broken = dict(derived, survey_ref=str(tmp / "gone.json"))
+        dpath.write_text(json.dumps(broken))
+        f = inspect(root=root, component="charted")["findings"]
+        assert "decompose_composes_holdings" in [x["filter"] for x in f], f
+        assert any("survey berth" in x["finding"] for x in f), f
+        dpath.unlink()
+
+        # 20 — one implementation, two mouths, for the decompose judge too.
+        from cairn.build_inspector.inspector import judge_decompose
+        assert judge_decompose(derived) == []
+        assert [x["judge"] for x in judge_decompose(rebuilt)] == ["decompose_composes_holdings"]
+        assert [x["judge"] for x in judge_decompose(invented)] == ["decompose_builds_absences"]
+        assert [x["judge"] for x in judge_decompose(broken)] and \
+            judge_decompose(broken)[0]["judge"] == "decompose_composes_holdings"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

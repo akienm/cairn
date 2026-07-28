@@ -1,10 +1,11 @@
 # /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. Three stages carry today —
-the **orient brick**, the **constrain brick**, then the **survey brick**. Stages
-land one at a time; each stage's prompt is template-filled from the previous
-stage's validated file, so a skipped stage is a build error, not a lapse.
+schema-gated stages instead of invisible reasoning. Four stages carry today —
+the **orient brick**, the **constrain brick**, the **survey brick**, then the
+**decompose brick**. Stages land one at a time; each stage's prompt is
+template-filled from the previous stage's validated file, so a skipped stage is
+a build error, not a lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -243,10 +244,78 @@ The inventory becomes the survey tree's memory of this class of request.
 
 ### 6. Hand forward
 
-The chain ends at survey today: report the three berths and carry the
-inventory — holdings are what downstream composes, absences are what it may
-have to build. Later stages (decompose, …) template-fill from the survey berth
-as each brick lands.
+Carry the survey berth path — stage 4 template-fills from it.
+
+## Stage 4 — DECOMPOSE
+
+One narrow question: **how does this request SPLIT?** Not what to build with
+the pieces — that is /sail's voyage. This brick was built UNDER pre-installed
+judges (`decompose_composes_holdings` + `decompose_builds_absences`, proved
+before the module existed). Known-vs-novel is physics here: every piece's kind
+is a claim the survey berth can check.
+
+### 1. The floor — template-filled from stage 3's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.decompose import decompose_floor
+print(json.dumps(decompose_floor(sys.argv[1]), indent=2))
+" <the survey berth path>
+```
+
+It re-reads the chain whole (depth 4 — a broken link anywhere refuses) and
+hands you the **judges' vocabularies verbatim**: `holding_addresses` (what a
+compose piece may use) and `absence_whats` (what a build piece may fill),
+with the intent and bounds they operate under. The floor never decides the
+split; the seams are yours.
+
+### 2. The tree — walk before you split
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' decompose
+```
+
+How past requests of this class divided, floor labeled as always.
+
+### 3. The ceiling — the split
+
+- **survey_ref** — the survey berth path (provenance `floor`).
+- **sub_problems** — each `{what, why, kind, ...}`:
+  - `kind: "compose"` — `uses` lists holding addresses the survey berth
+    carries. Composing outside the inventory is refused — if a piece needs
+    it, the survey must hold it first (the chain pushes back up).
+  - `kind: "build"` — `fills` names a measured absence, **verbatim** from the
+    berth. Build-minimal is physics: only what was measured absent may be
+    built. A build piece may also list `uses` (holdings it composes).
+  - the `why` is forced per piece — a piece that cannot say why it exists
+    cannot be adjudicated.
+- **unknowns / confidence / provenance** — as before; provenance covers
+  survey_ref, sub_problems, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.decompose import write_decompose
+print(write_decompose(json.load(open(sys.argv[1]))))
+" <scratchpad>/decompose_packet.json
+```
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the decompose berth path>
+```
+
+The split becomes the decompose tree's memory of how this class divides.
+
+### 6. Hand forward
+
+The chain ends at decompose today: report the four berths. The split is
+/sail's input — pieces in hand, bounds hard, vocabularies checked. Later
+stages (triage, …) template-fill from the decompose berth as each brick lands.
 
 ## Stay honest
 

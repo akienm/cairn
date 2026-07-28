@@ -26,6 +26,7 @@ from datetime import date
 from cairn.chart.constrain import constrain_node_content, deposit_constrain
 from cairn.chart.dial import dial
 from cairn.chart.moreabout import expand, signal
+from cairn.chart.decompose import decompose_node_content, deposit_decompose
 from cairn.chart.survey import deposit_survey, survey_node_content
 from cairn.chart.tree import counsel, deposit_packet
 from cairn.librarian.live import embed_via_domain
@@ -65,6 +66,10 @@ def _learn(argv: list[str]) -> int:
         nexus = "survey"
         got = deposit_survey(packet, embed_via_domain()(survey_node_content(packet)),
                              berth_path=berth)
+    elif os.path.basename(berth).startswith("decompose-"):
+        nexus = "decompose"
+        got = deposit_decompose(packet, embed_via_domain()(decompose_node_content(packet)),
+                                berth_path=berth)
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),

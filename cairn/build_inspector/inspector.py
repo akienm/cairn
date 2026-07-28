@@ -27,6 +27,7 @@ Exit 0 = clean, 1 = findings — gate-able by anything that can read an exit cod
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -439,6 +440,159 @@ def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
                           "survey_coverage_complete")
 
 
+# ── THE JUDGES BEFORE THE JUDGED, THIRD APPLICATION (ticket decompose-filters) ──
+# The acceptance gate for the DECOMPOSE brick's output, installed before the
+# decompose module exists — the ordering is routine now (proven at n=2 by
+# survey-filters). Same physics: the judge is the inspector's, the future berth
+# door composes it, never the reverse. The judge reads the packet's survey_ref
+# berth with its OWN minimal read — importing chart's chain reader would be the
+# inspector importing from the module family it judges.
+
+
+def judge_decompose(packet: dict) -> list[dict]:
+    """The pure judge over ONE decompose packet — fragments tagged by owning
+    filter. A decomposition derives from the chain or it is invented: a
+    'compose' piece may only use addresses the survey berth HOLDS, a 'build'
+    piece may only fill an absence the survey MEASURED — known-vs-novel as
+    physics, a stage early."""
+    frags = []
+    holding_addrs, absence_whats, chain_ok = set(), set(), False
+    ref = packet.get("survey_ref")
+    try:
+        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+            berth = json.load(fh)
+        holdings, absences = berth.get("holdings"), berth.get("absences")
+        if isinstance(holdings, list) and isinstance(absences, list):
+            holding_addrs = {h.get("address") for h in holdings
+                             if isinstance(h, dict)}
+            absence_whats = {a.get("what") for a in absences
+                             if isinstance(a, dict)}
+            chain_ok = True
+    except (TypeError, OSError, ValueError):
+        pass
+    if not chain_ok:
+        frags.append({
+            "judge": "decompose_composes_holdings",
+            "finding": "survey_ref does not read as a survey berth",
+            "evidence": {"survey_ref": ref},
+            "why_it_matters": "the chain broke — a split that cannot be checked "
+                              "against the inventory that grounds it is a split "
+                              "filled from the conversation, the step-skipping "
+                              "the chain exists to make a build error.",
+        })
+    sub_problems = packet.get("sub_problems")
+    if not isinstance(sub_problems, list) or not sub_problems:
+        frags.append({
+            "judge": "decompose_builds_absences",
+            "finding": "sub_problems is missing, empty, or malformed",
+            "evidence": {"got": sub_problems},
+            "why_it_matters": "an empty decomposition hands downstream the whole "
+                              "request ungrounded — every piece it then builds is "
+                              "unmeasured against the inventory (the stone-1 "
+                              "parallel-roster failure, wholesale).",
+        })
+        return frags
+    for i, sp in enumerate(sub_problems):
+        if not isinstance(sp, dict) or not all(
+                isinstance(sp.get(k), str) and sp.get(k).strip()
+                for k in ("what", "why")) or sp.get("kind") not in ("compose", "build"):
+            frags.append({
+                "judge": "decompose_composes_holdings",
+                "finding": "sub-problem %d has no shape (needs non-empty 'what' + "
+                           "'why' + kind compose|build)" % i,
+                "evidence": {"index": i, "got": sp},
+                "why_it_matters": "a piece without its why cannot be adjudicated "
+                                  "(the why is forced structurally, never a blank "
+                                  "field), and a piece without a kind makes no "
+                                  "checkable claim against the inventory.",
+            })
+            continue
+        uses = sp.get("uses")
+        if sp["kind"] == "compose":
+            if (not isinstance(uses, list) or not uses
+                    or any(not isinstance(u, str) or not u.strip() for u in uses)):
+                frags.append({
+                    "judge": "decompose_composes_holdings",
+                    "finding": "compose sub-problem %d lists nothing it composes" % i,
+                    "evidence": {"index": i, "what": sp["what"], "uses": uses},
+                    "why_it_matters": "a compose claim with no addresses is a "
+                                      "build wearing compose's costume — "
+                                      "unchallengeable by construction.",
+                })
+                uses = []
+        else:
+            fills = sp.get("fills")
+            if not isinstance(fills, str) or not fills.strip():
+                frags.append({
+                    "judge": "decompose_builds_absences",
+                    "finding": "build sub-problem %d names no absence it fills" % i,
+                    "evidence": {"index": i, "what": sp["what"], "fills": fills},
+                    "why_it_matters": "build-minimal means building against a "
+                                      "MEASURED absence — a build that cites none "
+                                      "is work invented, not derived (the "
+                                      "2026-07-24 substitution class).",
+                })
+            elif chain_ok and fills not in absence_whats:
+                frags.append({
+                    "judge": "decompose_builds_absences",
+                    "finding": "build sub-problem %d fills %r — not a measured "
+                               "absence in the survey berth" % (i, fills),
+                    "evidence": {"index": i, "what": sp["what"], "fills": fills,
+                                 "measured_absences": sorted(
+                                     a for a in absence_whats if a)},
+                    "why_it_matters": "what was never measured absent is either "
+                                      "already held (stone 1's parallel roster, "
+                                      "2026-07-28) or invented (2026-07-24 "
+                                      "done-while-unmoved) — either way the piece "
+                                      "bypassed the sweep.",
+                })
+            uses = uses if isinstance(uses, list) else []
+        if chain_ok:
+            for u in uses:
+                if u not in holding_addrs:
+                    frags.append({
+                        "judge": "decompose_composes_holdings",
+                        "finding": "sub-problem %d uses %r — not a holding the "
+                                   "survey berth carries" % (i, u),
+                        "evidence": {"index": i, "what": sp["what"], "uses": u},
+                        "why_it_matters": "composition outside the measured "
+                                          "inventory bypasses the sweep — the "
+                                          "one-web-server drift (2026-07-28: the "
+                                          "exception paralleled instead of the "
+                                          "rule composed); if the piece needs it, "
+                                          "the survey must hold it first.",
+                    })
+    return frags
+
+
+def decompose_composes_holdings(row: dict, comp_dir: Path) -> list[dict]:
+    """Every 'compose' piece in a charted decompose packet uses only addresses
+    the survey berth actually holds, every piece has its shape, and the chain
+    to the survey berth reads.
+
+    Provenance: 2026-07-28 — stone 1's parallel charter-glob roster (a settled
+    component rebuilt because the sweep went unreferenced) and the one-web-server
+    drift (CC--: the /harbor exception paralleled instead of the pane rule
+    composed). Installed 2026-07-28 BEFORE the decompose module exists — the
+    judges-before-the-judged ordering, routine since survey-filters proved it.
+    """
+    return _judge_charted(row, comp_dir, "decompose", judge_decompose,
+                          "decompose_composes_holdings", report_unreadable=True)
+
+
+def decompose_builds_absences(row: dict, comp_dir: Path) -> list[dict]:
+    """Every 'build' piece in a charted decompose packet fills an absence the
+    survey berth MEASURED, verbatim — build-minimal as physics.
+
+    Provenance: 2026-07-24 — done-while-unmoved (a substituted mechanism: work
+    invented rather than derived from what the chain established; the cascade
+    the chosen path implies IS the task). Installed 2026-07-28, before the
+    decompose module exists.
+    """
+    return _judge_charted(row, comp_dir, "decompose", judge_decompose,
+                          "decompose_builds_absences")
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -449,6 +603,8 @@ FILTERS = {
     "constraint_bounds_complete": constraint_bounds_complete,
     "survey_holdings_resolve": survey_holdings_resolve,
     "survey_coverage_complete": survey_coverage_complete,
+    "decompose_composes_holdings": decompose_composes_holdings,
+    "decompose_builds_absences": decompose_builds_absences,
 }
 
 

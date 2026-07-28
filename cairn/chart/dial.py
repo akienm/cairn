@@ -29,6 +29,7 @@ import os
 import re
 
 import cairn.chart.constrain as _constrain
+import cairn.chart.decompose as _decompose
 import cairn.chart.survey as _survey
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
 
@@ -43,6 +44,7 @@ STAGE_FIELDS = {
     "orient": AUTHORED_FIELDS,
     "constrain": _constrain.AUTHORED_FIELDS,
     "survey": _survey.AUTHORED_FIELDS,
+    "decompose": _decompose.AUTHORED_FIELDS,
 }
 
 

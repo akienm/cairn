@@ -38,8 +38,11 @@ import math
 from cairn.base.device import BaseDevice
 from cairn.db_domain import store
 
-# The librarian's one table (a `tree` column partitions the forest — the grant model for
-# other owners' trees is a filed edge, not a second table guessed at now).
+# The librarian's one table (a `tree` column partitions the forest). The filed edge about
+# "other owners' trees" landed 2026-07-28 (ticket chart-tree), and simpler than a grant:
+# every function takes an ``owner`` (default: the librarian), so a second tenant — chart's
+# nexi first — reaches ITS OWN table through the same tools and db_domain's same gate
+# (Law 6 held per-tenant; the ratified unification: one tool set, many owners).
 NODES = "librarian_nodes"
 OWNER = "librarian"
 
@@ -109,9 +112,9 @@ def cosine(a: list[float], b: list[float]) -> float:
     return dot / (math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b)))
 
 
-def ensure_trees(*, table: str = NODES, conn=None) -> None:
+def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
     """The table, owner-gated into existence. Idempotent; ownership is recorded at birth."""
-    store.create_owned_table(table, OWNER, _COLUMNS, conn=conn)
+    store.create_owned_table(table, owner, _COLUMNS, conn=conn)
 
 
 def _tree_rows(tree: str, *, table: str, conn) -> list[dict]:
@@ -119,7 +122,8 @@ def _tree_rows(tree: str, *, table: str, conn) -> list[dict]:
 
 
 def deposit(content: str, vector, provenance: dict, *,
-            tree: str = "commons", table: str = NODES, conn=None) -> dict:
+            tree: str = "commons", table: str = NODES, owner: str = OWNER,
+            conn=None) -> dict:
     """The deposit door: one node in, judged before it lands.
 
     Returns ``{"node_id", "duplicate": bool, "dim"}``. A duplicate (same tree + content)
@@ -148,7 +152,7 @@ def deposit(content: str, vector, provenance: dict, *,
 
     own = conn or store.connect()
     try:
-        ensure_trees(table=table, conn=own)
+        ensure_trees(table=table, owner=owner, conn=own)
         nid = node_id_for(tree, content)
         existing = store.read(table, where="node_id = %s", params=(nid,), conn=own)
         if existing:
@@ -166,7 +170,7 @@ def deposit(content: str, vector, provenance: dict, *,
                     "mixed-dimension tree cannot be walked; refusing (the first deposit "
                     "set the tree's dimension)."
                 )
-        store.write(table, OWNER, {
+        store.write(table, owner, {
             "node_id": nid,
             "tree": tree,
             "content": content,
@@ -180,7 +184,7 @@ def deposit(content: str, vector, provenance: dict, *,
             own.close()
 
 
-def tree_state(tree: str, *, table: str = NODES, conn=None) -> dict:
+def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) -> dict:
     """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
 
     This is what makes 'same request, changed graph' DISTINGUISHABLE: the core loop folds
@@ -191,7 +195,7 @@ def tree_state(tree: str, *, table: str = NODES, conn=None) -> dict:
     """
     own = conn or store.connect()
     try:
-        ensure_trees(table=table, conn=own)
+        ensure_trees(table=table, owner=owner, conn=own)
         ids = sorted(r["node_id"] for r in _tree_rows(tree, table=table, conn=own))
         digest = hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()[:16] if ids else "empty"
         return {"digest": digest, "nodes": len(ids)}
@@ -201,7 +205,7 @@ def tree_state(tree: str, *, table: str = NODES, conn=None) -> dict:
 
 
 def nearest(vector, *, k: int = 5, tree: str = "commons",
-            table: str = NODES, conn=None) -> list[dict]:
+            table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
     """The walk: the k nodes of ``tree`` nearest the query vector, by cosine.
 
     THE derived edge — nothing is looked up, proximity is computed (the embedding is the
@@ -212,7 +216,7 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
     v = _check_vector(vector, who="nearest")
     own = conn or store.connect()
     try:
-        ensure_trees(table=table, conn=own)
+        ensure_trees(table=table, owner=owner, conn=own)
         rows = _tree_rows(tree, table=table, conn=own)
         if not rows:
             return []
@@ -235,7 +239,7 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
 
 
 def neighbors(node_id: str, *, k: int = 5, tree: str = "commons",
-              table: str = NODES, conn=None) -> list[dict]:
+              table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
     """A node's derived edges: its k nearest siblings, itself excluded.
 
     Asking for the neighbors of a node that is not there is refused loudly — a ghost has
@@ -243,7 +247,7 @@ def neighbors(node_id: str, *, k: int = 5, tree: str = "commons",
     """
     own = conn or store.connect()
     try:
-        ensure_trees(table=table, conn=own)
+        ensure_trees(table=table, owner=owner, conn=own)
         home = store.read(table, where="node_id = %s AND tree = %s",
                           params=(node_id, tree), conn=own)
         if not home:

@@ -276,6 +276,7 @@ class LibrarianDevice(BaseDevice):
         self._deposits = 0
         self._verdicts = {"DEPOSITED": 0, "DUPLICATE": 0}
         self._last_node: str | None = None
+        self._chat = None        # the conversational face — attached by the shim at wake
 
     @property
     def device_id(self) -> str:
@@ -303,6 +304,39 @@ class LibrarianDevice(BaseDevice):
     def neighbors(self, node_id: str, *, k: int = 5, tree: str = "commons",
                   table: str = NODES, conn=None) -> list[dict]:
         return neighbors(node_id, k=k, tree=tree, table=table, conn=conn)
+
+    # --- the chat window: a surface the base shim class understands ---------
+
+    def attach_chat(self, session) -> None:
+        """Wire the conversational face (a ChatSession). Live composition happens in
+        the SHIM at wake time — this device stays import-pure toward the host. The
+        chat window is a declared PANE (below): the librarian owns a page the ONE web
+        server displays through the standard shim machinery — never a server, a
+        route, or a port of its own."""
+        self._chat = session
+
+    def declared_panes(self) -> list[dict]:
+        """The chat window, offered as a pane. Unattached (nobody woke the face) it
+        is honestly ABSENT-with-reason on the page, not a missing surface."""
+        return [{"kind": "chat", "label": "Chat",
+                 "handler": None if self._chat is None else self._chat.page}]
+
+    def receive(self, envelope: dict) -> dict:
+        """Incoming mail (web_server → shim → here: the designed path, in-process
+        v0). Channel ``chat`` carries one utterance to the face. Anything this
+        device cannot honestly process refuses loudly — mail never vanishes
+        (Law 7)."""
+        channel = envelope.get("channel")
+        if channel != "chat":
+            raise ValueError(
+                f"librarian: no handler for channel {channel!r} — this device "
+                "receives 'chat' (one utterance per envelope)")
+        if self._chat is None:
+            raise RuntimeError(
+                "librarian: a chat envelope arrived but no face is attached — the "
+                "shim wires the ChatSession at wake; an unwired face refuses, it "
+                "does not pretend")
+        return self._chat.turn(str((envelope.get("body") or {}).get("utterance", "")))
 
     # --- Form v0 #2 surface -------------------------------------------------
 

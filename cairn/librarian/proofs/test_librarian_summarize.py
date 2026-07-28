@@ -221,6 +221,16 @@ def test_a_fence_is_wrapping_not_content():
     assert prose == "The fenced line still cites [1]." and cited == [1]
 
 
+def test_comma_grouped_marks_are_citations_not_invention():
+    """Measured live 2026-07-28: qwen2.5:7b writes [1, 6] — one bracket, two anchors.
+    That is grouping (a presentation quirk, like the fence), not an unanchored draft;
+    and an out-of-range member of a group is still a minted citation."""
+    _prose, cited = parse_summary("The board shows audit results [1, 3] and runs them [2].", 3)
+    assert cited == [1, 2, 3], "every member of a grouped mark anchors"
+    msg = _refuses(SummaryRefused, parse_summary, "A grouped mint [2, 9].", 3)
+    assert "[9]" in msg, "grouping does not launder a mark the region never held"
+
+
 def test_the_summarize_crossing_breadcrumbs():
     over, rows = _geometry()
     dev = LibrarianDevice()
@@ -288,6 +298,7 @@ def _main() -> int:
         test_a_minted_citation_refuses_loudly,
         test_depth_travels_with_the_artifact,
         test_a_fence_is_wrapping_not_content,
+        test_comma_grouped_marks_are_citations_not_invention,
         test_the_summarize_crossing_breadcrumbs,
         test_no_seam_and_no_question_refuse,
         test_the_render_prompt_carries_the_region_whole,

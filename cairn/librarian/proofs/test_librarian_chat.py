@@ -15,6 +15,11 @@ wearing a librarian's charter (the parent ticket's named wrong-shape) could not 
   - The transcript accumulates in order and ``page()`` is DATA a surface can render;
     the chat crossing breadcrumbs thin (the loop and transducer carry their own detail);
     no seam / empty utterance refuse at the caller; import purity by AST allowlist.
+  - THE WINDOW IS A SURFACE THE BASE SHIM UNDERSTANDS: the device DECLARES the chat
+    pane (absent-with-reason until a face is attached), routes ``chat`` mail to the
+    face and refuses every other channel loudly — and the SHIM starts the device if it
+    is not running (wake-to-a-poke), attaching the live face at the wake. One web
+    server displays this; the librarian owns a page, never a route or a port.
 
 The dual seam is a fake in inference_domain's shape (deterministic embeds, scripted
 drafts); the DB is the real one through db_domain (nonce table, self-cleaning), as in
@@ -40,6 +45,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.db_domain import store
 from cairn.librarian import chat as chat_module
 from cairn.librarian.chat import ChatRefused, ChatSession, chat_turn, route
+from cairn.librarian.shim import LibrarianShim
 from cairn.librarian.trees import LibrarianDevice
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
@@ -189,6 +195,54 @@ def test_the_chat_crossing_breadcrumbs_thin():
         "thin on purpose — the loop and the transducer breadcrumb their own detail"
 
 
+def test_the_chat_window_is_a_declared_pane():
+    dev = LibrarianDevice()
+    panes = dev.declared_panes()
+    assert panes == [{"kind": "chat", "label": "Chat", "handler": None}], \
+        "the window is OFFERED from birth — unattached, its handler is honestly None " \
+        "(the shim machinery renders that absent-with-reason, never a missing surface)"
+    session = ChatSession(resolve=fake_seam(["unused"]), tree="paned", table=_TABLE, dev=dev)
+    dev.attach_chat(session)
+    handler = dev.declared_panes()[0]["handler"]
+    assert handler() == session.page(), \
+        "attached, the pane's DATA is the session's page — the one web server renders it"
+
+
+def test_receive_routes_chat_mail_and_refuses_the_rest():
+    dev = LibrarianDevice()
+    _seed(dev, "mailed", [(_A, [0.95, 0.05, 0.0])])
+    session = ChatSession(resolve=fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]}),
+                          tree="mailed", table=_TABLE, dev=dev)
+    dev.attach_chat(session)
+    turn = dev.receive({"sender": "web_server", "to": "librarian", "channel": "chat",
+                        "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
+    assert turn["kind"] == "resolve" and turn["reply"]["verdict"] == "RESOLVED"
+    assert session.page()["turns"] == [turn], "the delivered turn landed in the transcript"
+    msg = _refuses(ValueError, dev.receive, {"channel": "bogus", "body": {}})
+    assert "bogus" in msg, "mail the device cannot process refuses loudly, never vanishes"
+    _refuses(RuntimeError, LibrarianDevice().receive,
+             {"channel": "chat", "body": {"utterance": _Q}})
+
+
+def test_the_shim_wakes_the_device_on_demand():
+    seam = fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]})
+    shim = LibrarianShim(session_factory=lambda dev: ChatSession(
+        resolve=seam, tree="woken", table=_TABLE, dev=dev))
+    assert not shim.running, "the shim is the always-on front; the device sleeps"
+    page = shim.active_page()
+    assert shim.running, "querying the page is a poke — the shim STARTS its device"
+    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "chat"], \
+        "the woken device's page carries the floor + the declared chat window"
+    dev = shim.device()
+    _seed(dev, "woken", [(_A, [0.95, 0.05, 0.0])])
+    shim.deliver({"sender": "web_server", "to": "librarian", "channel": "chat",
+                  "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
+    assert shim.device() is dev, "one wake — every poke after it reaches the SAME device"
+    chat_pane = shim.active_page()["panes"][2]
+    assert len(chat_pane["data"]["turns"]) == 1, \
+        "the delivered turn shows on the page the surface will render"
+
+
 def test_no_seam_and_no_utterance_refuse():
     _refuses(ChatRefused, chat_turn, _Q, resolve=None, table=_TABLE)
     _refuses(ChatRefused, chat_turn, "   ", resolve=fake_seam(["x"]), table=_TABLE)
@@ -229,6 +283,9 @@ def _main() -> int:
         test_a_refusal_is_a_reply_and_the_session_survives_it,
         test_the_page_is_data_a_surface_can_render,
         test_the_chat_crossing_breadcrumbs_thin,
+        test_the_chat_window_is_a_declared_pane,
+        test_receive_routes_chat_mail_and_refuses_the_rest,
+        test_the_shim_wakes_the_device_on_demand,
         test_no_seam_and_no_utterance_refuse,
         test_chat_opens_no_door_of_its_own,
     ]
@@ -240,8 +297,9 @@ def _main() -> int:
         _cleanup()
     print("green — librarian/chat: the route is physics, a warm turn spends nothing, a "
           "miss teaches the graph and the graph remembers, summarize-when-asked lands "
-          "cited prose, a refusal is a reply the session survives, and chat opens no "
-          "door of its own")
+          "cited prose, a refusal is a reply the session survives, the window is a "
+          "declared pane whose mail routes through the shim that wakes the device, and "
+          "chat opens no door of its own")
     return 0
 
 

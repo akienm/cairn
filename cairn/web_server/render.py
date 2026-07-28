@@ -35,19 +35,16 @@ def _esc(value) -> str:
     return html.escape(str(value))
 
 
-def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = False,
-               chat: bool = False) -> str:
+def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = False) -> str:
     """The nav across the top — one entry per device the heartbeat beats to (child c's roster),
     in order, each a link to its ACTIVE page, marked awake/asleep, the selected one flagged. An
     empty roster is an honest empty nav, not a broken page. With ``harbor`` set, a leading link to
     the harbour master's TRAFFIC IMAGE (``/harbor``, web-server child d) rides on every page — the
-    fleet-wide view is reachable from anywhere, distinct from the per-device pages. With ``chat``
-    set, a leading link to the librarian's conversation (``/chat``) rides the same way."""
+    fleet-wide view is reachable from anywhere, distinct from the per-device pages. (There is no
+    special chat entry: the librarian rides the roster like any device — ONE web server, and every
+    device's surfaces live on its own page.)"""
     beats = _esc(roster.get("beats", 0))
     items = []
-    if chat:
-        ccls = "dev chat" + (" selected" if selected == "chat" else "")
-        items.append(f'<a class="{ccls}" href="/chat" title="the librarian chat">📚 Librarian</a>')
     if harbor:
         hcls = "dev harbor" + (" selected" if selected == "harbor" else "")
         items.append(f'<a class="{hcls}" href="/harbor" title="the traffic image">⚓ Harbor</a>')
@@ -109,11 +106,11 @@ def render_traffic_image(img: dict) -> str:
 
 
 def _render_chat_reply(kind: str, reply: dict) -> str:
-    """One turn's reply as HTML, by kind — the librarian's DATA rendered, never touched.
+    """One chat turn's reply as HTML, by kind — the device's DATA rendered, never touched.
     A resolve reply is the graph's WALK (the answer comes from structure — nodes with
     their measured similarities, the floor visible per Law 3); a summarize reply is the
     cited prose with its code-built citations and its depth; a refusal renders LOUDLY as
-    the reply it honestly is. Everything the librarian said is escaped, like any device."""
+    the reply it honestly is. Everything the device said is escaped, like any device."""
     if kind == "refused":
         return f'<p class="refused">refused — {_esc(reply.get("refusal"))}</p>'
     if kind == "summarize":
@@ -141,49 +138,59 @@ def _render_chat_reply(kind: str, reply: dict) -> str:
     return head + (f'<ol class="walk">{walk}</ol>' if walk else "")
 
 
-def render_chat(page: dict, *, trouble: str | None = None) -> str:
-    """The librarian's conversation as HTML — the transcript (each turn's utterance, then
-    its reply by kind), the ask form, and the affordance SAID on the surface (the
-    ``summarize:`` prefix is legible, not memorized). Pure ``data -> html`` over the
-    session's ``page()``; the surface owns no transcript and no knowledge. A ``trouble``
-    (a turn that died) renders loudly ABOVE the still-intact conversation (Law 7)."""
+def _render_chat_pane(pane: dict) -> str:
+    """The CHAT pane — the first interaction pane with its own rich view (the generic
+    renderer shows DATA as pretty JSON; a conversation earns a transcript + form). The
+    pane's DATA is the session's page (``{"tree", "turns"}``); the form POSTs back to
+    the device's own page (``action=""`` — the current URL) with a hidden ``channel``
+    field naming the device's mail channel, and the ``summarize:`` affordance is SAID
+    on the surface, not memorized. Pure data -> html; the surface owns nothing."""
+    data = pane.get("data") or {}
     turns = []
-    for t in page.get("turns", []):
+    for t in data.get("turns", []):
         kind = str(t.get("kind", "?"))
         turns.append(
             f'<section class="turn"><p class="utterance">{_esc(t.get("utterance"))}</p>'
             f'{_render_chat_reply(kind, t.get("reply") or {})}</section>')
     transcript = "".join(turns) or \
         '<p class="empty">nothing said yet — the graph is listening.</p>'
-    trouble_html = f'<p class="refused">{_esc(trouble)}</p>' if trouble else ""
     form = (
-        '<form class="ask" method="post" action="/chat">'
+        '<form class="ask" method="post" action="">'
+        '<input type="hidden" name="channel" value="chat">'
         '<input type="text" name="utterance" autofocus autocomplete="off" '
-        'placeholder="ask the librarian — or start with &quot;summarize:&quot; for cited prose">'
+        'placeholder="ask — or start with &quot;summarize:&quot; for cited prose">'
         '<button type="submit">send</button></form>')
-    tree = _esc(page.get("tree", "?"))
-    return (f'<div class="active chat-view"><h1>📚 Librarian '
-            f'<span class="count">tree: {tree}</span></h1>{trouble_html}'
-            f'<section class="transcript">{transcript}</section>{form}</div>')
+    label = _esc(pane.get("label", "Chat"))
+    tree = _esc(data.get("tree", "?"))
+    return (f'<section class="pane chat" data-kind="chat"><h2>{label} '
+            f'<span class="count">tree: {tree}</span></h2>'
+            f'<div class="transcript">{transcript}</div>{form}</section>')
 
 
 def render_pane(pane: dict) -> str:
     """One pane of a device's ACTIVE page: its label, then its DATA — or, if it could not be
-    built, its ABSENT reason (loud, never silent; child a produced the reason)."""
+    built, its ABSENT reason (loud, never silent; child a produced the reason). A pane kind
+    with its own rich view (chat, the first) dispatches to it; every other kind renders its
+    DATA as pretty JSON — honest and complete for introspection."""
     label = _esc(pane.get("label", pane.get("kind", "pane")))
     kind = _esc(pane.get("kind", ""))
     if pane.get("absent"):
         return (f'<section class="pane absent" data-kind="{kind}">'
                 f'<h2>{label}</h2><p class="reason">absent — {_esc(pane["absent"])}</p></section>')
+    if pane.get("kind") == "chat":
+        return _render_chat_pane(pane)
     return (f'<section class="pane" data-kind="{kind}">'
             f'<h2>{label}</h2><pre>{_esc(pane.get("data"))}</pre></section>')
 
 
-def render_active_page(page: dict) -> str:
-    """A device's ACTIVE page — the pane stack (child a's assembled DATA), in order."""
+def render_active_page(page: dict, *, trouble: str | None = None) -> str:
+    """A device's ACTIVE page — the pane stack (child a's assembled DATA), in order. A
+    ``trouble`` (a POSTed delivery that died) renders loudly ABOVE the still-intact page
+    (Law 7: the surface collapses the error into a legible shape, never into silence)."""
     device = _esc(page.get("device", "?"))
+    trouble_html = f'<p class="refused">{_esc(trouble)}</p>' if trouble else ""
     panes = "".join(render_pane(p) for p in page.get("panes", []))
-    return f'<div class="active"><h1>{device}</h1>{panes}</div>'
+    return f'<div class="active"><h1>{device}</h1>{trouble_html}{panes}</div>'
 
 
 def render_message(title: str, body: str) -> str:
@@ -228,24 +235,23 @@ nav a.dev.harbor { border-color: #a86; }
 .berthed h2 { font-size: .95rem; margin: .3rem 0; }
 .berthed .count { opacity: .6; font-weight: 400; }
 .berthed .quiet { opacity: .6; margin: .2rem 0; }
-nav a.dev.chat { border-color: #69a; }
-.chat-view .count { opacity: .6; font-weight: 400; font-size: .9rem; }
-.chat-view .transcript { display: flex; flex-direction: column; gap: .6rem; }
-.chat-view .turn { border: 1px solid #8884; border-radius: .5rem; padding: .4rem .8rem; }
-.chat-view .utterance { font-weight: 600; margin: .3rem 0; }
-.chat-view .verdict { opacity: .8; margin: .2rem 0; }
-.chat-view .walk { margin: .3rem 0; padding-left: 1.4rem; }
-.chat-view .walk .sim { font-family: ui-monospace, monospace; opacity: .8; }
-.chat-view .cond { opacity: .6; font-size: .85rem; }
-.chat-view .prose { margin: .3rem 0; }
-.chat-view .citations { list-style: none; margin: .3rem 0; padding: 0;
+.pane.chat .count { opacity: .6; font-weight: 400; font-size: .9rem; }
+.pane.chat .transcript { display: flex; flex-direction: column; gap: .6rem; }
+.pane.chat .turn { border: 1px solid #8884; border-radius: .5rem; padding: .4rem .8rem; }
+.pane.chat .utterance { font-weight: 600; margin: .3rem 0; }
+.pane.chat .verdict { opacity: .8; margin: .2rem 0; }
+.pane.chat .walk { margin: .3rem 0; padding-left: 1.4rem; }
+.pane.chat .walk .sim { font-family: ui-monospace, monospace; opacity: .8; }
+.pane.chat .cond { opacity: .6; font-size: .85rem; }
+.pane.chat .prose { margin: .3rem 0; }
+.pane.chat .citations { list-style: none; margin: .3rem 0; padding: 0;
                         font-family: ui-monospace, monospace; font-size: .85rem; }
-.chat-view .depth { opacity: .6; font-size: .85rem; margin: .2rem 0; }
-.chat-view .refused, .refused { color: #b55; margin: .3rem 0; }
-.chat-view .ask { display: flex; gap: .5rem; margin-top: 1rem; }
-.chat-view .ask input { flex: 1; padding: .45rem .7rem; border: 1px solid #8884;
+.pane.chat .depth { opacity: .6; font-size: .85rem; margin: .2rem 0; }
+.refused { color: #b55; margin: .3rem 0; }
+.pane.chat .ask { display: flex; gap: .5rem; margin-top: 1rem; }
+.pane.chat .ask input { flex: 1; padding: .45rem .7rem; border: 1px solid #8884;
                         border-radius: .4rem; font: inherit; background: Canvas; color: inherit; }
-.chat-view .ask button { padding: .45rem .9rem; border: 1px solid #8884;
+.pane.chat .ask button { padding: .45rem .9rem; border: 1px solid #8884;
                          border-radius: .4rem; font: inherit; background: Canvas;
                          color: inherit; cursor: pointer; }
 """

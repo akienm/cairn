@@ -16,5 +16,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_librarian_summarize.py passes under python3",
+    "caller": "cc-session-librarian-summarizer",
+    "date": "2026-07-28T09:54:03",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_transducer_renders_a_cited_summary\n  PASS  test_the_summary_deposits_back_and_a_walk_finds_it\n  PASS  test_the_transducer_never_eats_its_own_output_and_rewrites_nothing\n  PASS  test_an_empty_region_refuses\n  PASS  test_an_unanchored_draft_refuses_loudly\n  PASS  test_a_minted_citation_refuses_loudly\n  PASS  test_depth_travels_with_the_artifact\n  PASS  test_a_fence_is_wrapping_not_content\n  PASS  test_comma_grouped_marks_are_citations_not_invention\n  PASS  test_the_summarize_crossing_breadcrumbs\n  PASS  test_no_seam_and_no_question_refuse\n  PASS  test_the_render_prompt_carries_the_region_whole\n  PASS  test_summarize_opens_no_door_of_its_own\ngreen — librarian/summarize: citations are code-built and traceable, the summary lands back in the graph and a walk finds it, the transducer never eats its own output and rewrites nothing, unanchored and minted drafts refuse loudly, depth travels with the artifact, and summarize opens no door of its own",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

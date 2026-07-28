@@ -16,8 +16,8 @@ device carries — the SHAPE (route → fetch device DATA → render) is here an
 
 WHAT IS PROVEN HERE vs THE FILED DAEMON: ``serve(path)`` — route a request to (status,
 content_type, body) — is pure logic over injected sources, proven green without a socket. The
-actual ``http.server`` binding a localhost port lives in ``daemon.py``, the thin OS wrapper the
-proof cannot exercise (like ground_loop's wall-clock daemon and sudo_relay's daemon.py).
+actual ``http.server`` binding a localhost port lives in ``listener.py``, the thin OS wrapper the
+proof cannot exercise — a LISTENER, not a daemon: it acts only when an external call arrives.
 
 FILED EDGES (children of this stone, not faked):
   - THE BUS TRANSPORT: fetching a device's active_page over the bus (a request/reply envelope to
@@ -42,16 +42,15 @@ class WebServerDevice(BaseDevice):
     """The web presentation surface as a device (carries CP1-CP6; reports intention/state/settings).
 
     Given a ``roster_source`` (the ground_loop) it routes an HTTP path to a rendered HTML page.
-    Owns its listening PORT (a setting; the socket itself is the daemon's, a filed edge). Holds no
+    Owns its listening PORT (a setting; the socket itself is the listener's, a filed edge). Holds no
     device state — every render pulls live from the roster source and the target device's shim.
     """
 
-    def __init__(self, roster_source, *, harbor_source=None, chat_source=None,
-                 port: int = 8787, device_id: str = "web_server") -> None:
+    def __init__(self, roster_source, *, harbor_source=None, port: int = 8787,
+                 device_id: str = "web_server") -> None:
         super().__init__()
         self._roster_source = roster_source   # the ground_loop: owns roster() + the shims
         self._harbor_source = harbor_source   # harbor_master's traffic image (INJECTED, not imported)
-        self._chat_source = chat_source       # the librarian's ChatSession (INJECTED, not imported)
         self._port = port
         self._device_id = device_id
         self._served = 0
@@ -90,13 +89,15 @@ class WebServerDevice(BaseDevice):
     def serve(self, path: str, method: str = "GET", body: str | None = None) -> tuple[int, str, str]:
         """Route one request to ``(status, content_type, html)`` — pure over the injected sources,
         no socket. ``/`` is the landing (nav + pick-a-device); ``/device/<id>`` is that device's
-        ACTIVE page; ``/chat`` is the librarian's conversation (GET shows it, POST takes a turn).
-        An unknown device is a loud, coherent 404 that STILL renders the nav, so you can navigate
-        away (Law 7 — a presentation surface collapses the error into a legible shape, never a raw
-        crash). Any other path is a 404 the same way."""
+        ACTIVE page — GET renders it, POST hands the form to the device THROUGH ITS SHIM
+        (``deliver``; the librarian's chat window is the first pane that posts). An unknown device
+        is a loud, coherent 404 that STILL renders the nav, so you can navigate away (Law 7 — a
+        presentation surface collapses the error into a legible shape, never a raw crash). Any
+        other path is a 404 the same way."""
         self._served += 1
         self._last_path = path
         roster = self._roster()
+        request_body = body
 
         selected = None
         status = 200
@@ -104,11 +105,6 @@ class WebServerDevice(BaseDevice):
             body = render.render_message(
                 "Cairn", "Pick a device from the heartbeat above, or see the ⚓ Harbor "
                 "traffic image for the whole fleet at once.")
-        elif path.rstrip("/") == "/chat":
-            selected = "chat"
-            status, body = self._serve_chat(method, body)
-            if status == 404:
-                selected = None
         elif path.rstrip("/") == "/harbor":
             selected = "harbor"
             img = self._traffic_image()
@@ -132,14 +128,17 @@ class WebServerDevice(BaseDevice):
                     "No device by that name is beating. Pick one from the nav above.")
                 selected = None
             else:
-                body = render.render_active_page(shim.active_page())
+                trouble = None
+                if method == "POST":
+                    trouble = self._deliver(shim, device, request_body)
+                    if trouble:
+                        status = 500
+                body = render.render_active_page(shim.active_page(), trouble=trouble)
         else:
             status = 404
             body = render.render_message("Not found", f"No page at {path!r}.")
 
-        nav = render.render_nav(roster, selected=selected,
-                                harbor=self._harbor_source is not None,
-                                chat=self._chat_source is not None)
+        nav = render.render_nav(roster, selected=selected, harbor=self._harbor_source is not None)
         title = f"Cairn — {selected}" if selected else "Cairn"
         document = render.render_document(title=title, nav_html=nav, body_html=body)
         # GATE CONTACT (DiagnosticBase): a request CROSSED the surface — the boundary between
@@ -150,30 +149,27 @@ class WebServerDevice(BaseDevice):
         self.emit("serve", pointer=path, values={"status": status})
         return status, "text/html; charset=utf-8", document
 
-    def _serve_chat(self, method: str, body: str | None) -> tuple[int, str]:
-        """The librarian's conversation page: GET renders the transcript + the ask form;
-        POST takes one turn through the INJECTED session, then renders the same page.
-        The surface owns nothing — the transcript is the session's, the knowledge is the
-        graph's; this route only carries the utterance across and renders the DATA back.
-        A turn that dies (the host unreachable, the DB gone) is collapsed into a legible
-        500 WITH the conversation still on screen (Law 7: a presentation surface may
-        collapse an error into a coherent shape — the breadcrumb still records the 500)."""
-        if self._chat_source is None:
-            return 404, render.render_message(
-                "Chat: the librarian is not wired",
-                "No chat session is attached to this surface yet (the daemon wires the "
-                "librarian's ChatSession when the spine is up). Pick a device above.")
-        trouble = None
-        if method == "POST":
-            utterance = parse_qs(body or "").get("utterance", [""])[0]
-            if utterance.strip():
-                try:
-                    self._chat_source.turn(utterance)
-                except Exception as e:  # noqa: BLE001 — the surface collapses, the record stands
-                    trouble = f"the turn failed: {e}"
-        page = self._chat_source.page()
-        html = render.render_chat(page, trouble=trouble)
-        return (500 if trouble else 200), html
+    def _deliver(self, shim, device: str, body: str | None) -> str | None:
+        """Hand a POSTed form to the device THROUGH ITS SHIM — ``deliver`` is the mail
+        door BaseShim already owns (and it starts the device if it is not running:
+        wake-to-a-poke). v0 is the same in-process deferral as every fetch here; the
+        designed path is browser ⟷ HTTP ⟷ bus ⟷ shim. The form's fields become the
+        envelope's body; a hidden ``channel`` field names the device's channel; a form
+        with nothing to say crosses nothing. The surface adds NO routing intelligence —
+        the device decides what its mail means. Returns trouble text if the delivery
+        died: the page still renders, legibly, and the 500 breadcrumbs (Law 7 — the
+        surface may collapse the error, never the record of it)."""
+        fields = {k: v[0] for k, v in parse_qs(body or "").items()}
+        channel = fields.pop("channel", "page")
+        if not any(v.strip() for v in fields.values()):
+            return None
+        envelope = {"sender": self._device_id, "to": device, "channel": channel,
+                    "why": "a POST crossed the web surface", "body": fields}
+        try:
+            shim.deliver(envelope)
+        except Exception as e:  # noqa: BLE001 — the surface collapses, the record stands
+            return f"delivery to {device} failed: {e}"
+        return None
 
     # --- Form v0 #2 surface -------------------------------------------------
 
@@ -205,6 +201,7 @@ class WebServerDevice(BaseDevice):
             "device's, reached through the heartbeat that holds it",
             "transport": "v0 reaches devices in-process through the ground_loop; the browser ⟷ HTTP "
             "⟷ bus ⟷ shim request/reply transport is a filed edge (separate-process deferral)",
-            "daemon": "the http.server binding this port lives in daemon.py — the thin OS wrapper "
-            "the proof does not exercise; serve() (route → render) is proven green without a socket",
+            "listener": "the http.server binding this port lives in listener.py — the thin OS "
+            "wrapper the proof does not exercise, and NOT a daemon: it acts only on external "
+            "calls; serve() (route → render) is proven green without a socket",
         }

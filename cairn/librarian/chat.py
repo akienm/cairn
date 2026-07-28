@@ -29,8 +29,10 @@ ONE UTTERANCE IS ONE QUESTION (v0). Conversation -> questions decomposition stay
 core-loop ticket's filed edge (d) — grow against a measured need, not ahead of it.
 
 Import-pure like the rest of the spine: both seams arrive through the one injected
-``resolve`` callable (inference_domain's shape); live wiring in live.py / the web_server
-daemon, never here.
+``resolve`` callable (inference_domain's shape); live wiring in live.py / the librarian's
+SHIM (which wakes the device and attaches this face), never here. The chat window itself
+is a PANE the base shim class understands — the one web server displays it at the
+librarian's own page; there is no chat route and no second server.
 """
 
 from __future__ import annotations

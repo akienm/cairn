@@ -42,7 +42,11 @@ from cairn.librarian.trees import LibrarianDevice, NODES, tree_state
 # via neighbors() is a filed edge — grow against need.
 SUMMARY_REGION_K = 8
 
-_MARKER = re.compile(r"\[(\d+)\]")
+# A citation mark: [3] — and the comma-grouped form [1, 6] the drafting model actually
+# produces (measured live 2026-07-28: a genuinely anchored draft was refused as unanchored
+# under the single-number pattern). Like the markdown fence, grouping is a presentation
+# quirk, not content: [1, 6] anchors to passages 1 and 6.
+_MARKER = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
 
 
 class SummaryRefused(RuntimeError):
@@ -101,7 +105,7 @@ def parse_summary(raw: str, region_size: int) -> tuple[str, list[int]]:
         if text.rstrip().endswith("```"):
             text = text.rstrip()[:-3]
     text = text.strip()
-    marks = [int(m) for m in _MARKER.findall(text)]
+    marks = [int(n) for group in _MARKER.findall(text) for n in group.split(",")]
     if not text or not marks:
         raise SummaryRefused(
             "summarize: the draft anchors to nothing — no [n] citation marks a passage, "

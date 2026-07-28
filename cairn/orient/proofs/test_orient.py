@@ -16,7 +16,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.orient.orient import (  # noqa: E402
-    SCANS, ScanRefused, call_sites, deepen, device_census, repo_truth,
+    SCANS, ScanRefused, call_sites, deepen, device_census, import_map, repo_truth,
 )
 
 
@@ -139,7 +139,8 @@ def main() -> None:
     #      provenance is a check nobody was taught by.
     args = {"call_sites": lambda: call_sites("emit", root=root),
             "device_census": lambda: device_census(root=root),
-            "repo_truth": lambda: repo_truth(repos=[_REPO_ROOT])}
+            "repo_truth": lambda: repo_truth(repos=[_REPO_ROOT]),
+            "import_map": lambda: import_map(Path(__file__))}
     assert set(args) == set(SCANS), "a scan joined the registry without joining this tooth"
     for name in SCANS:
         res = args[name]()
@@ -176,6 +177,37 @@ def main() -> None:
         f"orient.py imports {imported & outbound} — the failover must go through the "
         "injected inference_domain seam, never a direct line to the host"
     )
+
+    # 16 — IMPORT_MAP measures the CAPABILITY, not the spelling: the loose package
+    #      form, the precise form, and the from-module-import-name form of the same
+    #      module all measure identically (the 2026-07-28 twice-fired red, ended);
+    #      an unresolvable name honestly records its prefix; refusals stay loud.
+    fixture_root = tmp / "imp"
+    (fixture_root / "a").mkdir(parents=True)
+    (fixture_root / "a" / "b.py").write_text("name = 1\n")
+    spellings = {
+        "loose.py": "from a import b\n",
+        "precise.py": "import a.b\n",
+        "from_name.py": "from a.b import name\n",
+    }
+    measured = {}
+    for fname, src in spellings.items():
+        (fixture_root / fname).write_text(src)
+        measured[fname] = import_map(fixture_root / fname,
+                                     root=fixture_root)["measured"]["imports"]
+    assert measured["loose.py"] == measured["precise.py"] == measured["from_name.py"] \
+        == ["a.b"], (
+        f"three spellings of one module must measure as one capability: {measured}")
+    (fixture_root / "stdlibish.py").write_text("from os import path\n")
+    assert import_map(fixture_root / "stdlibish.py",
+                      root=fixture_root)["measured"]["imports"] == ["os"], \
+        "an unresolvable name records its stated prefix — measured, not guessed"
+    _refuses(lambda: import_map(fixture_root / "ghost.py", root=fixture_root),
+             "a scan of a missing file must refuse, not report an empty import list")
+    (fixture_root / "broken.py").write_text("def (\n")
+    _refuses(lambda: import_map(fixture_root / "broken.py", root=fixture_root),
+             "an unparseable file has an unknowable import list — refusing beats "
+             "narrating a smaller one")
 
     print("orient proofs: all teeth green")
 

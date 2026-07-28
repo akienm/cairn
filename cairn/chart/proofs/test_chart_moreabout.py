@@ -158,14 +158,11 @@ def test_a_repeat_ask_is_readable_frequency():
 
 
 def test_a_walk_never_a_rerun_import_physics():
+    # Composed over orient's import_map (installed 2026-07-28): the allowlist
+    # matches the module that ACTUALLY ENTERS, not the spelling.
+    from cairn.orient.orient import import_map
     allow = ("__future__", "json", "os", "cairn.chart.tree")
-    seen = []
-    src = Path(moreabout_mod.__file__).read_text(encoding="utf-8")
-    for node in ast.walk(ast.parse(src)):
-        if isinstance(node, ast.Import):
-            seen.extend(a.name for a in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            seen.append(node.module or "")
+    seen = import_map(moreabout_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
     assert not offenders, (

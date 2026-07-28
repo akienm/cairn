@@ -216,16 +216,14 @@ def test_deposit_back_is_gated(root, orient_berth):
 
 
 def test_import_allowlist(root, orient_berth):
+    # Composed over orient's import_map (installed 2026-07-28, seeded by the red
+    # this proof's build fired): the allowlist matches the module that ACTUALLY
+    # ENTERS, not the spelling.
+    from cairn.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
              "cairn.build_inspector.inspector", "cairn.chart.orient",
              "cairn.chart.tree")
-    seen = []
-    src = Path(constrain_mod.__file__).read_text(encoding="utf-8")
-    for node in ast.walk(ast.parse(src)):
-        if isinstance(node, ast.Import):
-            seen.extend(a.name for a in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            seen.append(node.module or "")
+    seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
     assert not offenders, (

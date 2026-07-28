@@ -238,7 +238,68 @@ def repo_truth(*, repos: list[Path] | None = None) -> dict:
     }
 
 
-SCANS = {"call_sites": call_sites, "device_census": device_census, "repo_truth": repo_truth}
+def import_map(path, *, root: Path | None = None) -> dict:
+    """Which modules ACTUALLY ENTER a file — imports measured as capability, with
+    the loose package form resolved to the module it binds.
+
+    Provenance: 2026-07-28 — the same red twice in one day: import-allowlist teeth
+    recorded ``ast.ImportFrom.module`` verbatim, so ``from cairn.chart import
+    constrain`` recorded as the prefix ``cairn.chart`` and was refused, though the
+    module entering is exactly ``cairn.chart.constrain`` — the identical module the
+    precise spelling admits. The teeth measured the SPELLING, not the capability;
+    the fix applied twice was a respelling, treating the symptom. The corpus walk
+    placed this beside the echo-label and emit-homonym scars: one family,
+    word-not-capability, third member. Measured before the fix: 70 loose-form
+    cairn-internal imports repo-wide — the form is the house idiom, so the
+    measurement RESOLVES it rather than banning it. First correction to ride
+    orient's own brick loop end to end (node cd9e57c05b35661b -> propose_scan ->
+    this installation); ratified by Akien 2026-07-28 ('i like it').
+    """
+    root = root or _REPO_ROOT
+    p = Path(path)
+    if not p.is_file():
+        raise ScanRefused(
+            f"import_map({str(path)!r}): no such file — a scan of nothing must "
+            "refuse, not report an empty import list.")
+    try:
+        tree = ast.parse(p.read_text(encoding="utf-8"))
+    except SyntaxError as e:
+        raise ScanRefused(
+            f"import_map({str(path)!r}): does not parse ({e}) — an unparseable file "
+            "has an unknowable import list; refusing beats narrating a smaller one."
+        ) from None
+    entering = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            entering.update(a.name for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            recorded = ("." * node.level) + (node.module or "")
+            base = (Path(root, *node.module.split("."))
+                    if node.module and not node.level else None)
+            for a in node.names:
+                if base is not None and ((base / (a.name + ".py")).is_file()
+                                         or (base / a.name).is_dir()):
+                    entering.add(node.module + "." + a.name)  # the loose form, resolved
+                else:
+                    entering.add(recorded)
+    return {
+        "scan": "import_map",
+        "question": f"which modules actually enter {p.name}?",
+        "measured": {"path": str(p), "imports": sorted(entering)},
+        "provenance": "2026-07-28: allowlist teeth read the import's SPELLING, so the "
+                      "loose form 'from cairn.chart import constrain' recorded as its "
+                      "prefix and refused — twice in one day — though the module "
+                      "entering is exactly the one the precise spelling admits. Third "
+                      "member of the word-not-capability family (echo-label, "
+                      "emit-homonym). 70 loose-form imports measured repo-wide: the "
+                      "form is the house idiom, so the measurement resolves it rather "
+                      "than banning it. First correction through orient's own brick "
+                      "loop; ratified by Akien 2026-07-28.",
+    }
+
+
+SCANS = {"call_sites": call_sites, "device_census": device_census,
+         "repo_truth": repo_truth, "import_map": import_map}
 
 
 # ── the failover seam: Hex, on the miss, through the one door ────────────────
@@ -272,7 +333,7 @@ def deepen(question: str, *, resolve) -> dict:
 
 
 def _main(argv: list[str]) -> int:
-    if not argv or argv[0] not in {"census", "calls", "git"}:
+    if not argv or argv[0] not in {"census", "calls", "git", "imports"}:
         print(__doc__)
         return 2
     if argv[0] == "census":
@@ -284,6 +345,11 @@ def _main(argv: list[str]) -> int:
         print(json.dumps(call_sites(argv[1]), indent=2))
     elif argv[0] == "git":
         print(json.dumps(repo_truth(), indent=2))
+    elif argv[0] == "imports":
+        if len(argv) < 2:
+            print("imports <file> — which file?", file=sys.stderr)
+            return 2
+        print(json.dumps(import_map(argv[1]), indent=2))
     return 0
 
 

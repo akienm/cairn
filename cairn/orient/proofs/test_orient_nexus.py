@@ -128,17 +128,16 @@ def test_a_proposal_never_touches_the_registry():
 
 
 def test_the_fire_path_never_reaches_the_tree():
+    # Composed over orient's own import_map scan (installed 2026-07-28 through this
+    # very brick's loop): the allowlist matches the module that ACTUALLY ENTERS,
+    # not the spelling — the loose package form resolves before matching, so a
+    # respelling can neither cause nor dodge a red.
     allowed = {
         orient.__file__: ("__future__", "ast", "json", "subprocess", "sys", "pathlib"),
         nexus.__file__: ("__future__", "cairn.chart.tree"),
     }
     for path, allow in allowed.items():
-        seen = []
-        for node in ast.walk(ast.parse(Path(path).read_text(encoding="utf-8"))):
-            if isinstance(node, ast.Import):
-                seen.extend(a.name for a in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                seen.append(node.module or "")
+        seen = orient.import_map(path)["measured"]["imports"]
         offenders = [m for m in seen
                      if not any(m == p or m.startswith(p + ".") for p in allow)]
         assert not offenders, (

@@ -163,16 +163,13 @@ def test_ticket_claim_is_gated(root):
 
 def test_import_allowlist(root):
     """Stdlib plus EXACTLY ONE door into the house: cairn.orient.orient (the
-    settled measurer). Any other cairn import is a second door or a re-derivation."""
-    tree = ast.parse(open(ORIENT_PY).read())
-    seen = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            seen.update(alias.name.split(".")[0] for alias in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            module = node.module or ""
-            seen.add(module if module.startswith("cairn") else module.split(".")[0])
-    stray = seen - ALLOWED_IMPORTS
+    settled measurer). Any other cairn import is a second door or a re-derivation.
+    Composed over that same measurer's import_map (installed 2026-07-28): the
+    allowlist matches the module that ACTUALLY ENTERS, not the spelling."""
+    from cairn.orient.orient import import_map
+    seen = import_map(ORIENT_PY)["measured"]["imports"]
+    stray = [m for m in seen
+             if not any(m == p or m.startswith(p + ".") for p in ALLOWED_IMPORTS)]
     assert not stray, "orient.py imports outside its allowlist: %s" % sorted(stray)
 
 

@@ -171,13 +171,12 @@ def test_the_librarians_tools_are_the_only_door():
         dial_mod.__file__: ("__future__", "json", "os", "re", "sys",
                             "cairn.chart.constrain", "cairn.chart.orient"),
     }
+    # Composed over orient's import_map (installed 2026-07-28 through the brick loop,
+    # seeded by THIS tooth's own twice-fired red): the allowlist matches the module
+    # that ACTUALLY ENTERS, not the spelling.
+    from cairn.orient.orient import import_map
     for path, allow in allowed.items():
-        seen = []
-        for node in ast.walk(ast.parse(Path(path).read_text(encoding="utf-8"))):
-            if isinstance(node, ast.Import):
-                seen.extend(a.name for a in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                seen.append(node.module or "")
+        seen = import_map(path)["measured"]["imports"]
         offenders = [m for m in seen
                      if not any(m == p or m.startswith(p + ".") for p in allow)]
         assert not offenders, (

@@ -144,13 +144,12 @@ def test_the_fire_path_never_reaches_the_tree():
                              "cairn.orient.orient"),
         nexus.__file__: ("__future__", "cairn.chart.tree"),
     }
+    # Composed over orient's import_map (installed 2026-07-28 through the brick
+    # loop): the allowlist matches the module that ACTUALLY ENTERS, not the
+    # spelling — the loose package form resolves before matching.
+    from cairn.orient.orient import import_map
     for path, allow in allowed.items():
-        seen = []
-        for node in ast.walk(ast.parse(Path(path).read_text(encoding="utf-8"))):
-            if isinstance(node, ast.Import):
-                seen.extend(a.name for a in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                seen.append(node.module or "")
+        seen = import_map(path)["measured"]["imports"]
         offenders = [m for m in seen
                      if not any(m == p or m.startswith(p + ".") for p in allow)]
         assert not offenders, (

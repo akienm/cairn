@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_web_server_chat.py passes under python3",
+    "caller": "cc-session-librarian-chat-surface",
+    "date": "2026-07-27T21:02:48",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_source_is_a_loud_404_and_no_nav_entry\n  PASS  test_get_renders_the_conversation_and_the_affordance\n  PASS  test_post_takes_a_turn_with_the_body_decoded\n  PASS  test_an_empty_utterance_takes_no_turn\n  PASS  test_everything_the_librarian_says_is_escaped\n  PASS  test_a_dying_turn_is_a_legible_500_and_the_record_stands\ngreen — web_server/chat: an unwired chat 404s loudly, GET renders the conversation with the affordance said, POST hands the decoded utterance to the session, empty says nothing, every librarian string is escaped, and a dying turn is a legible 500 whose breadcrumb stands",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

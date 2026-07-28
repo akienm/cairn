@@ -15,6 +15,11 @@ The ⚓ HARBOR view is the exception and works NOW: harbor_master's traffic imag
 from disk (the fleet register), not from the running heartbeat, so a bare daemon renders the
 REAL fleet at ``/harbor`` today — the first live, human-visible Cairn surface (Telos 2).
 
+The 📚 LIBRARIAN chat works the same way: it needs the DB and the inference host, not the
+heartbeat, so a bare daemon carries the real conversation at ``/chat`` — learning always
+(every turn is a core-loop crossing over the library tree), summarizing when asked (the
+``summarize:`` prefix routes to the transducer). GET shows the transcript, the form POSTs.
+
 Start it:   python3 cairn/web_server/daemon.py            # binds localhost:8787
             python3 cairn/web_server/daemon.py --port 9000
 Stop it:    Ctrl-C
@@ -40,14 +45,21 @@ from cairn.web_server.server import WebServerDevice
 
 def _handler_for(device: WebServerDevice):
     class _Handler(BaseHTTPRequestHandler):
-        def do_GET(self):  # noqa: N802 — http.server's contract
-            status, content_type, body = device.serve(self.path)
+        def _respond(self, status, content_type, body):
             encoded = body.encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(encoded)))
             self.end_headers()
             self.wfile.write(encoded)
+
+        def do_GET(self):  # noqa: N802 — http.server's contract
+            self._respond(*device.serve(self.path))
+
+        def do_POST(self):  # noqa: N802 — the chat form's door; serve() routes it
+            length = int(self.headers.get("Content-Length") or 0)
+            raw = self.rfile.read(length).decode("utf-8", errors="replace")
+            self._respond(*device.serve(self.path, method="POST", body=raw))
 
         def log_message(self, *args):  # keep the console quiet; the bus is the real record
             pass
@@ -62,7 +74,18 @@ def main(argv=None) -> int:
 
     # v0 wiring: an empty heartbeat → an honest empty nav (the launcher wires the real one), but
     # the harbor source is REAL — the traffic image is computed from disk, so /harbor is live now.
-    device = WebServerDevice(GroundLoopDevice(), harbor_source=voyage.traffic_image, port=args.port)
+    # The CHAT source is real too: the librarian's session over the library tree, both verbs
+    # through inference_domain's one door. Wiring is cheap (no host/DB touched until a turn);
+    # if the spine cannot compose here, the surface says so at /chat instead of pretending.
+    chat = None
+    try:
+        from cairn.librarian.chat import ChatSession
+        from cairn.librarian.live import dual_seam
+        chat = ChatSession(resolve=dual_seam(), tree="library")
+    except Exception as e:  # noqa: BLE001 — a missing spine is loud, not fatal to the surface
+        print(f"[web_server] chat not wired: {e}", flush=True)
+    device = WebServerDevice(GroundLoopDevice(), harbor_source=voyage.traffic_image,
+                             chat_source=chat, port=args.port)
     httpd = ThreadingHTTPServer(("127.0.0.1", args.port), _handler_for(device))
     print(f"[web_server] serving on http://127.0.0.1:{args.port}  (Ctrl-C to stop)", flush=True)
     try:

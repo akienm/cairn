@@ -19,19 +19,30 @@ model is set ON THE REQUEST, so it is part of the cache key (two models never co
 one canonical form). The verdict prints whole, whichever way it lands — an UNRESOLVED
 here is a finding, not a failure of the wiring.
 
+THE SHELVE MODE is the library's first acquisition job: the founding collection
+(~/TheIgorsProject/Akien — curated by Akien, quarry-stamped until shelved) copied file by
+file into the ratified room at ~/.cairn/devices/librarian/0/library/, each at a stable
+citable address, each digest frozen in the register. THE LEARN MODE folds one shelved
+file into the graph — deposit only, every passage anchored to shelf + passage + digest.
+
     python3 -m cairn.librarian.live                      # the founding demo
     python3 -m cairn.librarian.live "some query text"    # walk the founding tree yourself
     python3 -m cairn.librarian.live loop                 # the core loop, live
-    python3 -m cairn.librarian.live loop "a question"    # ground your own question
-    # exit 0 = the walk ranked / the loop returned a verdict; 1 = nothing surfaced
+    python3 -m cairn.librarian.live loop "a question" [tree]   # ground your own question
+    python3 -m cairn.librarian.live shelve               # acquire the founding collection
+    python3 -m cairn.librarian.live learn <address> [tree]     # fold one shelved file in
+    # exit 0 = the walk ranked / the verb returned; 1 = nothing surfaced
 """
 
 from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 from cairn.inference_domain import domain, host
+from cairn.librarian.library import learn as learn_verb
+from cairn.librarian.library import shelve
 from cairn.librarian.loop import resolve_query
 from cairn.librarian.trees import LibrarianDevice
 
@@ -98,7 +109,8 @@ def _loop(argv: list[str]) -> int:
     _seed(dev, lambda text: resolve({"kind": "embed", "prompt": text})["answer"]["vector"])
 
     question = argv[0] if argv else LOOP_QUERY
-    verdict = resolve_query(question, resolve=resolve, tree=TREE, dev=dev)
+    tree = argv[1] if len(argv) > 1 else TREE
+    verdict = resolve_query(question, resolve=resolve, tree=tree, dev=dev)
     print(json.dumps({
         "verdict": {k: v for k, v in verdict.items() if k != "nodes"},
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],
@@ -109,9 +121,52 @@ def _loop(argv: list[str]) -> int:
     return 0
 
 
+# The founding collection: Akien's curated folder, quarry-stamped until shelved here.
+COLLECTION = Path.home() / "TheIgorsProject" / "Akien"
+
+
+def _shelve_collection(argv: list[str]) -> int:
+    """The first acquisition job: every file of the founding collection onto the shelf,
+    rooms mirroring its own layout (DATED/, ideas/, Readings/...) — shallow stable
+    shelving; the graph is the catalog."""
+    root = Path(argv[0]) if argv else COLLECTION
+    shelved = duplicates = 0
+    failures = []
+    for src in sorted(p for p in root.rglob("*") if p.is_file()):
+        room = str(src.parent.relative_to(root)) if src.parent != root else "unfiled"
+        try:
+            r = shelve(src, room)
+        except Exception as e:  # a refusal is a finding, not a stop — report complete
+            failures.append({"source": str(src), "refusal": str(e)})
+            continue
+        duplicates += r["duplicate"]
+        shelved += not r["duplicate"]
+    print(json.dumps({"collection": str(root), "shelved": shelved,
+                      "duplicates": duplicates, "failures": failures}, indent=2))
+    return 0 if (shelved or duplicates) and not failures else 1
+
+
+def _learn(argv: list[str]) -> int:
+    """The LEARN verb, live: one shelved file folded into the graph. Deposit only."""
+    if not argv:
+        print("usage: live learn <shelf-address> [tree]", file=sys.stderr)
+        return 1
+    address, tree = argv[0], (argv[1] if len(argv) > 1 else "library")
+    dev = LibrarianDevice()
+    resolve = dual_seam()
+    got = learn_verb(address, resolve=resolve, tree=tree, dev=dev)
+    print(json.dumps({"learn": got, "breadcrumbs": dev.held_diagnostics(),
+                      "yield": domain.yield_report()}, indent=2, default=str))
+    return 0
+
+
 def _main(argv: list[str]) -> int:
     if argv and argv[0] == "loop":
         return _loop(argv[1:])
+    if argv and argv[0] == "shelve":
+        return _shelve_collection(argv[1:])
+    if argv and argv[0] == "learn":
+        return _learn(argv[1:])
     embed = embed_via_domain()
     dev = LibrarianDevice()
     _seed(dev, embed)

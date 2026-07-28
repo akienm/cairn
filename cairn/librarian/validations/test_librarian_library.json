@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_librarian_library.py passes under python3",
+    "caller": "cc-session-librarian-library-learn",
+    "date": "2026-07-27T18:39:23",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_shelve_freezes_a_copy_and_registers_its_digest\n  PASS  test_reshelve_same_content_writes_nothing\n  PASS  test_a_standing_address_never_changes_meaning\n  PASS  test_room_addresses_are_disciplined\n  PASS  test_passages_cite_raw_positions_forever\n  PASS  test_learn_deposits_every_passage_anchored_to_the_shelf\n  PASS  test_relearn_writes_nothing\n  PASS  test_learn_refuses_the_unshelved_the_missing_and_the_rotted\n  PASS  test_binary_shelves_but_refuses_to_learn\n  PASS  test_learned_nodes_resolve_with_their_citation_intact\n  PASS  test_the_learn_crossing_breadcrumbs\n  PASS  test_library_opens_no_door_of_its_own\ngreen — librarian/library: shelved is frozen, rot is loud, citations are positions in the frozen file, learn is deposit-only and anchored, learned nodes resolve as structure with their citations intact, and the library opens no door of its own",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

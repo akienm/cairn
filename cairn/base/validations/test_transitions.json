@@ -196,5 +196,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_transitions.py passes under python3",
+    "caller": "ticket a-voyage-names-its-ticket",
+    "date": "2026-07-29T11:56:07",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_unknown_class_or_version_is_refused\n  PASS  test_a_drifted_path_that_claims_v1_is_refused\n  PASS  test_a_back_edge_kickback_is_legal_and_carries_severity\n  PASS  test_it_parses_a_real_live_ticket_workflow_string\n  PASS  test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path\n  PASS  test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds\n  PASS  test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict\n  PASS  test_a_kickback_out_of_proveme_is_never_gated\n  PASS  test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only\n  PASS  test_an_address_the_census_cannot_see_is_refused_not_waved_through\n  PASS  test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket\n  PASS  test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict\n  PASS  test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated\n  PASS  test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still\n  PASS  test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict\n  PASS  test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean\n  PASS  test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_four_gate_exceptions_are_siblings_not_a_hierarchy\ngreen — the emit-chokepoint refuses illegal transitions (skip-past-gate, off-vocabulary, unknown class/version, no-op, drifted path), journals legal crossings append-only, version-validates against the real node-class table, carries kick-back severity, and holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; kick-backs never gated; no side door for an uninspectable address), and holds the ENTRY GATE at the BUILDME entry (a cast ticket with no berthed chart chain → refused, nothing written), and holds the EXIT GATE at the PROVED entry (a claimed ticket with an unanswered chart → refused, record byte-identical; a FAILED criterion refuses by name; unclaimed gated-and-clean on the record) — and now THE JURISDICTION TIGHTENS (ticket a-voyage-names-its-ticket) at BOTH doors: a forward BUILDME/PROVED crossing naming no ticket, or a named-but-uncast one, refuses before anything is written (TicketRequiredRed, distinct wording, sibling to the three gates above, never each other); the explicit _EXEMPT_ROSTER (empty in v0) passes gated-and-clean, never silently — the state vocabulary is physics (Law 4), not /sorted's prose",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

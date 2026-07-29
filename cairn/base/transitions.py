@@ -245,6 +245,82 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> None:
 
 _TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
 
+# THE EXEMPT ROSTER (ticket a-voyage-names-its-ticket, 2026-07-29): call-site
+# component names allowed to cross forward into BUILDME/PROVED with NO ticket
+# named at all. Structure ahead of any real entry — a future exemption is a
+# roster ENTRY (explicit, journaled), never an ambient pass. EMPTY IN V0 BY
+# MEASURE: `grep -rn 'BUILDME|PROVED' --include=*.py cairn/` (excluding
+# proofs/ and this module's own gate branches), 2026-07-29 — zero in-repo
+# call sites cross forward ticketless today; every real crossing already
+# names its ticket. Consulted ONLY inside ``_require_named_ticket`` below,
+# and only when the crossing names NO ticket at all — a NAMED-but-uncast
+# ticket is never exempt (naming one is a claim to be judged, not waived by
+# coincidence of address).
+_EXEMPT_ROSTER: frozenset[str] = frozenset()
+
+
+class TicketRequiredRed(IllegalTransition):
+    """The forward crossing into BUILDME or PROVED is refused: no cast ticket is
+    named on the crossing, and the crossing's component is not on the explicit
+    exempt roster (``_EXEMPT_ROSTER``, EMPTY in v0) — or a ticket IS named but
+    is not cast. Both failure classes raise this ONE exception (the fourth
+    sibling of ``EntryGateRed``/``BuildGateRed``/``ExitGateRed`` — sharing the
+    ``IllegalTransition`` parent, not each other, so a handler for one gate
+    cannot silently catch another) with DISTINCT wording: unnamed routes to
+    casting the work (/sorted); named-but-uncast names what is missing,
+    never exempted by coincidence of address. Nothing is written before this
+    raises (Law 8: a voyage that cannot show its ticket is the side door this
+    closes).
+
+    Provenance: 2026-07-29, ticket a-voyage-names-its-ticket — build_inspector
+    charter edge (k)'s 'the stricter every-journaled-BUILDME-names-a-ticket
+    rule waits for a dated need'; the need is the budget stage-split plan,
+    delegating builds to agents most likely to omit the name innocently.
+    """
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
+def _require_named_ticket(target: str, ticket: object, *, history_path: str) -> str | None:
+    """The one precondition BOTH doors share (replacing the two former opt-in
+    ``isinstance`` checks): a forward crossing into BUILDME or PROVED must
+    name a CAST ticket, or refuse before anything is written.
+
+    Returns an exemption note — journaled through the same ``entry_gate``/
+    ``exit_gate`` key the real gate below uses, so an exempt pass is
+    gated-and-clean on the record, never silent — when the crossing's own
+    component name is on the explicit ``_EXEMPT_ROSTER`` and NO ticket was
+    named at all. Returns ``None`` when a named, cast ticket is present — the
+    caller proceeds into the standing entry/exit gate exactly as before this
+    stone. Raises ``TicketRequiredRed`` otherwise: no ticket and no roster
+    match (routes to /sorted), or a named ticket that is not cast (never
+    exempt — naming one is a claim to be judged, not a claim to be waived).
+    """
+    if ticket is None:
+        comp = Path(history_path).resolve().parent.name
+        if comp in _EXEMPT_ROSTER:
+            return f"exempt — {comp!r} is on the explicit ticketless roster (_EXEMPT_ROSTER)"
+        raise TicketRequiredRed(
+            f"{target} crossing refused: no ticket is named on the crossing — a forward "
+            "crossing into BUILDME or PROVED must name a cast ticket (Law 8: nothing enters "
+            "proven-space without showing its ticket; the side door for a delegated build "
+            "that omits the name closes here). Nothing was journaled. Cast the work as a "
+            f"ticket (/sorted), name it on the crossing (ticket=<id>), then cross again — or, "
+            f"if this component's crossings are a legitimate exception, add {comp!r} to "
+            "_EXEMPT_ROSTER explicitly, never silently."
+        )
+    if not isinstance(ticket, str) or not (_TICKETS / (ticket + ".json")).exists():
+        raise TicketRequiredRed(
+            f"{target} crossing refused: named ticket {ticket!r} is not cast — no file at "
+            f"{_TICKETS / (str(ticket) + '.json')}. A named-but-uncast ticket is an error to "
+            "fix, never an exemption (naming one is a claim to be judged, not waived by "
+            "coincidence of address). Cast it via /sorted, or correct the name, then cross "
+            "again. Nothing was journaled."
+        )
+    return None
+
 
 def _entry_gate(ticket: str) -> str:
     """A cast ticket crossing forward into BUILDME must be claimed by a berthed chart
@@ -404,25 +480,30 @@ def emit(
         gate_note = None
         if wf.here == "PROVEME" and target_idx > wf.cursor:
             gate_note = _build_gate(history_path)
-        # THE ENTRY GATE: crossing forward INTO the BUILDME summons with a named, cast
-        # ticket requires a berthed chart chain claiming that ticket; a red refuses
-        # BEFORE anything is written. Back-edges into BUILDME retreat ungated, and a
-        # crossing naming no ticket (or an un-cast one) is not gated — v0 jurisdiction.
+        # THE ENTRY GATE: crossing forward INTO the BUILDME summons requires a named,
+        # CAST ticket — or the crossing's own component on the explicit exempt
+        # roster — else it refuses BEFORE anything is written (ticket
+        # a-voyage-names-its-ticket, 2026-07-29; retires charter edge (k)'s v0
+        # opt-in jurisdiction). A named, cast ticket then requires a berthed chart
+        # chain claiming it, same as before this stone. Back-edges into BUILDME
+        # retreat ungated (never subject to either check).
         entry_note = None
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
-            if isinstance(_ticket, str) and (_TICKETS / (_ticket + ".json")).exists():
-                entry_note = _entry_gate(_ticket)
-        # THE EXIT GATE: crossing forward INTO PROVED with a named, cast ticket
-        # requires the claiming chart ANSWERED (verdict artifact complete and
-        # passing); a red refuses BEFORE anything is written. Back-edges retreat
-        # ungated; an unnamed, un-cast, or unclaimed ticket is not gated — the
-        # same v0 jurisdiction as the entry gate above.
+            _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
+            entry_note = _exempt if _exempt is not None else _entry_gate(_ticket)
+        # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
+        # — or the crossing's own component on the explicit exempt roster — else it
+        # refuses BEFORE anything is written (ticket a-voyage-names-its-ticket,
+        # 2026-07-29; retires charter edge (k)'s v0 opt-in jurisdiction). A named,
+        # cast ticket then requires the claiming chart ANSWERED (verdict artifact
+        # complete and passing), same as before this stone. Back-edges retreat
+        # ungated (never subject to either check).
         exit_note = None
         if target == "PROVED" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
-            if isinstance(_ticket, str) and (_TICKETS / (_ticket + ".json")).exists():
-                exit_note = _exit_gate(_ticket)
+            _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
+            exit_note = _exempt if _exempt is not None else _exit_gate(_ticket)
         record = {
             "from": wf.here,
             "to": target,

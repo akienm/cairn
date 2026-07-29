@@ -329,32 +329,77 @@ def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
             transitions._TICKETS, _insp._CHART_BERTHS = saved
 
 
-def test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated():
-    # v0 jurisdiction is the crossing's own NAMED, CAST ticket: an unnamed ticket, an
-    # un-cast one, and a kick-back INTO BUILDME (retreating is the correct move) all
-    # cross ungated — a gate that fires on healthy motion gets unwired (tooth 1).
-    import cairn.build_inspector.inspector as _insp
+def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
+    """ticket a-voyage-names-its-ticket, 2026-07-29: REWRITES the tooth above, which
+    asserted the OPPOSITE — unnamed/uncast crossed ungated. The jurisdiction inverted:
+    an unnamed forward BUILDME crossing now refuses (routing to /sorted), a
+    named-but-uncast one refuses with DISTINCT wording (never treated as exempt), and
+    both refuse BEFORE anything is written (no history file exists at all — the
+    exit-gate tooth below covers the byte-identical-with-a-prior-record case). A
+    kick-back INTO BUILDME (retreating is the correct move) is UNTOUCHED — still
+    crosses ungated, exactly as before this stone (bounds: back-edges are OUT)."""
     with tempfile.TemporaryDirectory() as d:
-        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        tickets, _ = _entry_world(Path(d), cast=("widget",), claims=())
+        saved = transitions._TICKETS
+        transitions._TICKETS = tickets
         try:
             base = Path(d)
-            for i, extra in enumerate([{}, {"ticket": "ghost-never-cast"}]):
-                hist, state = str(base / f"h{i}.json"), str(base / f"s{i}.json")
-                new = transitions.emit(_AT_TICKET, "BUILDME",
-                                       history_path=hist, state_path=state, **extra)
-                assert "[BUILDME]" in new
-                assert "entry_gate" not in projector.read_history(hist)[0], \
-                    "an ungated crossing must not claim the gate ran"
-            hist, state = str(base / "hb.json"), str(base / "sb.json")
-            new = transitions.emit(_AT_PROVE, "BUILDME",
-                                   history_path=hist, state_path=state, ticket="widget")
-            rec = projector.read_history(hist)[0]
+            # unnamed: refuses, routes to /sorted, nothing journaled
+            hist, state = str(base / "h_unnamed.json"), str(base / "s_unnamed.json")
+            try:
+                transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state)
+            except transitions.TicketRequiredRed as e:
+                unnamed_msg = str(e)
+                assert "no ticket is named" in unnamed_msg and "/sorted" in unnamed_msg
+            else:
+                raise AssertionError("an unnamed forward BUILDME crossed — the door is not wired")
+            assert not Path(hist).exists(), "a refused crossing must write no record of truth"
+            # named-but-uncast: refuses too, but with DISTINCT wording — never exempt
+            hist2, state2 = str(base / "h_uncast.json"), str(base / "s_uncast.json")
+            try:
+                transitions.emit(_AT_TICKET, "BUILDME", history_path=hist2, state_path=state2,
+                                 ticket="ghost-never-cast")
+            except transitions.TicketRequiredRed as e:
+                uncast_msg = str(e)
+                assert "not cast" in uncast_msg and "ghost-never-cast" in uncast_msg
+                assert "no ticket is named" not in uncast_msg, "wording must differ from the unnamed case"
+                assert "not cast" not in unnamed_msg, "wording must differ from the uncast case"
+            else:
+                raise AssertionError("a named-but-uncast BUILDME crossed — treated as exempt, wrongly")
+            assert not Path(hist2).exists(), "a refused crossing must write no record of truth"
+            # a kick-back INTO BUILDME, no ticket at all — still crosses ungated (untouched)
+            hist3, state3 = str(base / "hb.json"), str(base / "sb.json")
+            new = transitions.emit(_AT_PROVE, "BUILDME", history_path=hist3, state_path=state3)
+            rec = projector.read_history(hist3)[0]
             assert "[BUILDME]" in new and rec["direction"] == "back"
             assert "entry_gate" not in rec, "a kick-back into BUILDME is never gated"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            transitions._TICKETS = saved
+
+
+def test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean():
+    """The explicit exempt roster (ticket a-voyage-names-its-ticket): EMPTY in v0 by
+    measure (asserted below as an invariant on the shipped module), but a FIXTURE
+    entry proves the machinery — an unnamed crossing whose own component name is on
+    the roster passes, and the pass is JOURNALED as an exemption (gated-and-clean,
+    never silent), through the same ``entry_gate`` key the real gate uses."""
+    assert transitions._EXEMPT_ROSTER == frozenset(), \
+        "the shipped roster must be empty by measure — a real entry is a deliberate act"
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "legacy-component"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"legacy-component"})
+        try:
+            new = transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state)
+            assert "[BUILDME]" in new
+            rec = projector.read_history(hist)[0]
+            assert rec["entry_gate"].startswith("exempt —"), \
+                f"an exempt pass must journal its exemption, never silently: {rec}"
+            assert "legacy-component" in rec["entry_gate"]
+        finally:
+            transitions._EXEMPT_ROSTER = saved
 
 
 _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
@@ -409,7 +454,10 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             # a real prior record on disk — the refusal must leave it byte-identical
-            transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state)
+            # (named here — ticket a-voyage-names-its-ticket tightened the entry door
+            # this setup rides too, so its scaffolding crossing names its ticket now)
+            transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state,
+                             ticket="widget")
             before = _hashlib.sha256(Path(hist).read_bytes()).hexdigest()
             try:
                 transitions.emit(_AT_LEARN, "PROVED",
@@ -461,12 +509,16 @@ def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
             transitions._TICKETS, _insp._CHART_BERTHS = saved
 
 
-def test_the_exit_gate_jurisdiction_unnamed_uncast_and_unclaimed_never_refused():
-    # v0 jurisdiction is the crossing's own NAMED, CAST ticket (inheriting the
-    # entry gate's whole, charter edge (k)): an unnamed or un-cast ticket is never
-    # gated. A CAST ticket NO chart claims crosses too — but the gate RAN and the
-    # record says so honestly ("no unanswered chart claim stands"): a voyage that
-    # promised nothing owes nothing, and the journal does not pretend otherwise.
+def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean():
+    """ticket a-voyage-names-its-ticket, 2026-07-29: REWRITES the tooth above, which
+    asserted unnamed/uncast crossed ungated. Inverted: unnamed and named-but-uncast
+    forward PROVED crossings now refuse (TicketRequiredRed, distinct wording), and a
+    PRIOR record on disk is left byte-identical (sha256) — the same discipline the
+    unanswered-PROVED tooth pins. UNTOUCHED: a CAST ticket no chart claims still
+    crosses PROVED gated-and-clean (the gate ran, the record says so honestly) — that
+    behavior belongs to ``_exit_gate`` below the new precondition and this stone does
+    not touch it."""
+    import hashlib as _hashlib
     import cairn.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
@@ -474,22 +526,84 @@ def test_the_exit_gate_jurisdiction_unnamed_uncast_and_unclaimed_never_refused()
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
         try:
             base = Path(d)
-            for i, extra in enumerate([{}, {"ticket": "ghost-never-cast"}]):
-                hist, state = str(base / f"h{i}.json"), str(base / f"s{i}.json")
-                new = transitions.emit(_AT_LEARN, "PROVED",
-                                       history_path=hist, state_path=state, **extra)
-                assert "[PROVED]" in new
-                assert "exit_gate" not in projector.read_history(hist)[0], \
-                    "an ungated crossing must not claim the gate ran"
-            hist, state = str(base / "hu.json"), str(base / "su.json")
+            hist, state = str(base / "history.json"), str(base / "state.json")
+            # a real prior record on disk — refusal must leave it byte-identical. A
+            # neutral non-BUILDME/PROVED crossing builds it (untouched by this stone,
+            # so it needs no ticket) rather than a BUILDME/PROVED crossing, which would
+            # now collide with the very rule this tooth tests.
+            transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+            before = _hashlib.sha256(Path(hist).read_bytes()).hexdigest()
+            # unnamed: refuses, routes to /sorted
+            try:
+                transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state)
+            except transitions.TicketRequiredRed as e:
+                unnamed_msg = str(e)
+                assert "no ticket is named" in unnamed_msg and "/sorted" in unnamed_msg
+            else:
+                raise AssertionError("an unnamed forward PROVED crossed — the door is not wired")
+            assert _hashlib.sha256(Path(hist).read_bytes()).hexdigest() == before, \
+                "a refused crossing must leave the record of truth byte-identical"
+            # named-but-uncast: refuses too, with DISTINCT wording — never exempt
+            try:
+                transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
+                                 ticket="ghost-never-cast")
+            except transitions.TicketRequiredRed as e:
+                uncast_msg = str(e)
+                assert "not cast" in uncast_msg and "ghost-never-cast" in uncast_msg
+                assert "no ticket is named" not in uncast_msg, "wording must differ from the unnamed case"
+            else:
+                raise AssertionError("a named-but-uncast PROVED crossed — treated as exempt, wrongly")
+            assert _hashlib.sha256(Path(hist).read_bytes()).hexdigest() == before, \
+                "a refused crossing must leave the record of truth byte-identical"
+            # UNTOUCHED: a cast ticket NO chart claims still crosses, gated-and-clean
+            hist2, state2 = str(base / "hu.json"), str(base / "su.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
-                                   history_path=hist, state_path=state, ticket="widget")
-            rec = projector.read_history(hist)[0]
+                                   history_path=hist2, state_path=state2, ticket="widget")
+            rec = projector.read_history(hist2)[0]
             assert "[PROVED]" in new
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
-                "a cast-but-unclaimed crossing is gated-and-clean, on the record"
+                "a cast-but-unclaimed crossing is gated-and-clean, on the record — untouched by this stone"
         finally:
             transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
+    """The explicit exempt roster reaches the exit door too (the same helper serves
+    both — ticket a-voyage-names-its-ticket): a fixture roster entry proves an
+    unnamed forward PROVED crossing at that component's address passes, journaled as
+    an exemption through the ``exit_gate`` key, never silently. No prior crossing is
+    needed at this address (mirrors the other exit-gate-only teeth above) — a fresh
+    history is the cleanest proof that nothing but the roster let this pass."""
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "legacy-component"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"legacy-component"})
+        try:
+            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state)
+            assert "[PROVED]" in new
+            rec = projector.read_history(hist)[0]
+            assert rec["exit_gate"].startswith("exempt —"), \
+                f"an exempt pass must journal its exemption, never silently: {rec}"
+            assert "legacy-component" in rec["exit_gate"]
+        finally:
+            transitions._EXEMPT_ROSTER = saved
+
+
+def test_the_four_gate_exceptions_are_siblings_not_a_hierarchy():
+    """The four gate exceptions (``EntryGateRed``, ``BuildGateRed``, ``ExitGateRed``,
+    and the new ``TicketRequiredRed``) each subclass ``IllegalTransition`` directly —
+    none subclasses another. A handler written for one gate must not silently catch
+    another (the discipline the docstrings claim, pinned as an isolation invariant)."""
+    siblings = [transitions.EntryGateRed, transitions.BuildGateRed,
+                transitions.ExitGateRed, transitions.TicketRequiredRed]
+    for s in siblings:
+        assert issubclass(s, transitions.IllegalTransition), f"{s} must share the parent"
+    for a in siblings:
+        for b in siblings:
+            if a is not b:
+                assert not issubclass(a, b), f"{a} must not subclass sibling {b}"
 
 
 def _main() -> int:
@@ -513,10 +627,13 @@ def _main() -> int:
         test_an_address_the_census_cannot_see_is_refused_not_waved_through,
         test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket,
         test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict,
-        test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated,
+        test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated,
+        test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean,
         test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still,
         test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict,
-        test_the_exit_gate_jurisdiction_unnamed_uncast_and_unclaimed_never_refused,
+        test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean,
+        test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean,
+        test_the_four_gate_exceptions_are_siblings_not_a_hierarchy,
     ]
     for check in checks:
         check()
@@ -527,11 +644,14 @@ def _main() -> int:
           "holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; "
           "kick-backs never gated; no side door for an uninspectable address), and holds the "
           "ENTRY GATE at the BUILDME entry (a cast ticket with no berthed chart chain → refused, "
-          "nothing written; unnamed/un-cast tickets and kick-backs ungated), and holds the "
-          "EXIT GATE at the PROVED entry (a claimed ticket with an unanswered chart → refused, "
-          "record byte-identical; a FAILED criterion refuses by name; unnamed/un-cast ungated, "
-          "unclaimed gated-and-clean on the record) — the state vocabulary is physics (Law 4), "
-          "not /sorted's prose")
+          "nothing written), and holds the EXIT GATE at the PROVED entry (a claimed ticket with "
+          "an unanswered chart → refused, record byte-identical; a FAILED criterion refuses by "
+          "name; unclaimed gated-and-clean on the record) — and now THE JURISDICTION TIGHTENS "
+          "(ticket a-voyage-names-its-ticket) at BOTH doors: a forward BUILDME/PROVED crossing "
+          "naming no ticket, or a named-but-uncast one, refuses before anything is written "
+          "(TicketRequiredRed, distinct wording, sibling to the three gates above, never each "
+          "other); the explicit _EXEMPT_ROSTER (empty in v0) passes gated-and-clean, never "
+          "silently — the state vocabulary is physics (Law 4), not /sorted's prose")
     return 0
 
 

@@ -530,6 +530,78 @@ def main() -> None:
         assert buildme_rides_the_chart("lonely", berths_root=eroot / "nope")
         assert "buildme_rides_the_chart" not in _FILTERS, \
             "crossing-jurisdiction: the promotion sweep must not run the entry check"
+
+        # 28 — THE EXIT GATE (proved-answers-the-chart, 2026-07-29): the loop's
+        #      other hand. UNCLAIMED is GREEN (the inversion of tooth 27: entry
+        #      demands a chart exists, exit only judges the chart that claims);
+        #      claimed-and-unanswered is red naming each unanswered item; only a
+        #      complete, passing verdict artifact answering the CLAIMING berth
+        #      greens. Same crossing-jurisdiction, same NOT-in-FILTERS reason.
+        from cairn.build_inspector.inspector import proved_answers_the_chart
+        xroot = tmp / "exit-berths"
+        xp = xroot / "0" / "packets"
+        xp.mkdir(parents=True)
+        # unclaimed ticket: green, even on an empty (or nonexistent) root
+        assert proved_answers_the_chart("sworn", berths_root=xroot) == []
+        assert proved_answers_the_chart("sworn", berths_root=xroot / "nope") == []
+        # the claiming chain: hypothesize berth <- validate berth claiming 'sworn'
+        hyp = xp / "hypothesize-20260729T000000-aaaa.json"
+        hyp.write_text(json.dumps({"hypotheses": [
+            {"piece": "p1", "expect": "e1", "falsifier": "f", "instrument": "i"}]}))
+        val = xp / "validate-20260729T000001-bbbb.json"
+        val.write_text(json.dumps({"ticket": "sworn", "hypothesize_ref": str(hyp),
+                                   "criteria": [{"claim": "c1", "instrument": "cmd",
+                                                 "covers": ["p1"]}]}))
+        # claimed, no verdict artifact: ONE red naming the missing answer + disposition
+        xf = proved_answers_the_chart("sworn", berths_root=xroot)
+        assert [x["filter"] for x in xf] == ["proved_answers_the_chart"], xf
+        assert "no verdict artifact" in xf[0]["finding"] and \
+            str(val) in xf[0]["evidence"]["claiming"] and \
+            "write_verdict" in xf[0]["why_it_matters"], xf[0]
+        # a verdict answering someone ELSE's chart: red, not an answer here
+        stray = xp / "verdict-20260729T000002-cccc.json"
+        stray.write_text(json.dumps(
+            {"ticket": "sworn", "validate_ref": str(xp / "elsewhere.json"),
+             "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
+                           "evidence": "seen"}],
+             "dispositions": [{"piece": "p1", "expect": "e1",
+                               "disposition": "confirmed", "by": "obs"}]}))
+        xf = proved_answers_the_chart("sworn", berths_root=xroot)
+        assert xf and "does not claim this ticket" in xf[0]["finding"], xf
+        # narration (empty evidence) is malformed, loudly — done may not live there
+        stray.unlink()
+        bad = xp / "verdict-20260729T000003-dddd.json"
+        bad.write_text(json.dumps(
+            {"ticket": "sworn", "validate_ref": str(val),
+             "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
+                           "evidence": ""}],
+             "dispositions": []}))
+        xf = proved_answers_the_chart("sworn", berths_root=xroot)
+        assert xf and "malformed" in xf[0]["finding"] and \
+            "narration" in xf[0]["finding"], xf
+        # answered-and-FAILED + undispositioned: one complete finding EACH, first pass
+        bad.unlink()
+        half = xp / "verdict-20260729T000004-eeee.json"
+        half.write_text(json.dumps(
+            {"ticket": "sworn", "validate_ref": str(val),
+             "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "fail",
+                           "evidence": "it broke"}],
+             "dispositions": []}))
+        xf = proved_answers_the_chart("sworn", berths_root=xroot)
+        assert len(xf) == 2, xf
+        assert "FAILED" in xf[0]["finding"] and "kick-back" in xf[0]["finding"], xf[0]
+        assert "undispositioned" in xf[1]["finding"] and "p1" in xf[1]["finding"], xf[1]
+        # the complete answer stands: LATEST artifact wins, green, empty findings
+        (xp / "verdict-20260729T000005-ffff.json").write_text(json.dumps(
+            {"ticket": "sworn", "validate_ref": str(val),
+             "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
+                           "evidence": "seen: exit 0 twice"}],
+             "dispositions": [{"piece": "p1", "expect": "e1",
+                               "disposition": "killed", "by": "the second run"}]}))
+        assert proved_answers_the_chart("sworn", berths_root=xroot) == []
+        # and the check stays OUT of FILTERS (crossing-jurisdiction, tooth-1 reason)
+        assert "proved_answers_the_chart" not in _FILTERS, \
+            "crossing-jurisdiction: the promotion sweep must not run the exit check"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

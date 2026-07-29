@@ -528,8 +528,10 @@ The criteria become the validate tree's memory of what done means here.
 **The chain is complete**: report the seven berths. The charted course —
 grounded ask, hard bounds, measured territory, derived split, reasoned order,
 killable claims, instrumented done — is /sail's input, whole. Executing the
-criteria at PROVED is /sail's filed growth (chart-validate edge (a)), on
-Akien's word.
+criteria at PROVED is physics since 2026-07-29 (ticket proved-answers-the-chart,
+chart-validate edge (a) LANDED): the emit chokepoint refuses a claimed ticket's
+PROVED crossing until every criterion carries a passing run verdict and every
+hypothesis is dispositioned — the verdict artifact is /sail's step-6 act.
 
 ## Stay honest
 

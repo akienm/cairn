@@ -139,9 +139,12 @@ def test_the_fire_path_never_reaches_the_tree():
     # the verdict path stays structurally unable to reach tree machinery —
     # transitively, which the assert below the loop pins.
     allowed = {
+        # cairn.chart.verdict joined 2026-07-29 (proved-answers-the-chart): the
+        # exit gate composes the ONE verdict-artifact validator — tree-free like
+        # chart.orient, pinned transitively below.
         inspector.__file__: ("__future__", "json", "os", "sys", "pathlib",
                              "cairn.charter", "cairn.chart.orient",
-                             "cairn.orient.orient"),
+                             "cairn.chart.verdict", "cairn.orient.orient"),
         # os joined 2026-07-28 (decompose-filters): judge_decompose reads the
         # packet's survey_ref berth with its OWN minimal open — importing chart's
         # chain reader back would let the judged family shape the judge.
@@ -159,15 +162,18 @@ def test_the_fire_path_never_reaches_the_tree():
             f"{Path(path).name} imports outside its allowlist: {offenders} — the "
             "verdict path may never reach the tree (a verdict is always hardware), and "
             "the graft's only cairn door is chart's nexus verbs")
-    # The transitive half: the one chart module the verdict path composes must
-    # itself be tree-free — if chart/orient.py ever imports tree machinery, the
-    # separation breaks one hop away and THIS tooth is the one that says so.
+    # The transitive half: the chart modules the verdict path composes must
+    # themselves be tree-free — if chart/orient.py (or chart/verdict.py, joined
+    # 2026-07-29) ever imports tree machinery, the separation breaks one hop
+    # away and THIS tooth is the one that says so.
     import cairn.chart.orient as chart_orient
-    chart_orient_src = Path(chart_orient.__file__).read_text(encoding="utf-8")
-    for tree_door in ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain"):
-        assert tree_door not in chart_orient_src, (
-            f"cairn.chart.orient reaches {tree_door} — the verdict path's composed "
-            "module must stay tree-free (the wire's standing condition)")
+    import cairn.chart.verdict as chart_verdict
+    for mod in (chart_orient, chart_verdict):
+        mod_src = Path(mod.__file__).read_text(encoding="utf-8")
+        for tree_door in ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain"):
+            assert tree_door not in mod_src, (
+                f"{mod.__name__} reaches {tree_door} — the verdict path's composed "
+                "module must stay tree-free (the wire's standing condition)")
 
 
 def _cleanup():

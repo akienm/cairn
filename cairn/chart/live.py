@@ -26,13 +26,43 @@ from datetime import date
 from cairn.chart.constrain import constrain_node_content, deposit_constrain
 from cairn.chart.dial import dial
 from cairn.chart.moreabout import expand, signal
+from cairn.chart.orient import CAIRN_ROOT
 from cairn.chart.decompose import decompose_node_content, deposit_decompose
 from cairn.chart.hypothesize import deposit_hypothesize, hypothesize_node_content
 from cairn.chart.survey import deposit_survey, survey_node_content
-from cairn.chart.tree import counsel, deposit_packet
+from cairn.chart.tree import counsel, deposit_learning, deposit_packet
 from cairn.chart.triage import deposit_triage, triage_node_content
 from cairn.chart.validate import deposit_validate, validate_node_content
+from cairn.chart.verdict import (VerdictRefused, validate_verdict,
+                                 verdict_node_content)
 from cairn.librarian.live import embed_via_domain
+
+
+def deposit_verdict(artifact: dict, vector, *, berth_path: str,
+                    root: str = CAIRN_ROOT, conn=None) -> dict:
+    """The verdict face on the deposit door (ticket proved-answers-the-chart): the
+    dispositions become the HYPOTHESIZE tree's memory of what killed which — the
+    'one day' deposit_hypothesize's docstring has promised since the brick landed.
+
+    Lives HERE and not in verdict.py by construction: verdict.py is the tree-free
+    validator both the exit gate and this face compose (the fire path from the
+    chokepoint may never reach tree machinery — a verdict is always hardware);
+    the tree side of the split is this module's side. Gate before seed, like
+    every face: the artifact re-validates at the ONE door, and the berth must
+    exist on disk."""
+    validate_verdict(artifact, root=root)
+    if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
+        raise VerdictRefused(
+            "deposit_verdict: berth %r does not exist on disk — a node whose "
+            "provenance points at nothing is fabricated attribution one layer up"
+            % (berth_path,))
+    content = verdict_node_content(artifact)
+    provenance = {
+        "source": berth_path,
+        "validate_ref": artifact["validate_ref"],
+        "ticket": artifact["ticket"],
+    }
+    return deposit_learning("hypothesize", content, vector, provenance, conn=conn)
 
 
 def _counsel(argv: list[str]) -> int:
@@ -87,6 +117,12 @@ def _learn(argv: list[str]) -> int:
         got = deposit_validate(packet,
                                embed_via_domain()(validate_node_content(packet)),
                                berth_path=berth)
+    elif os.path.basename(berth).startswith("verdict-"):
+        # The exit gate's write-back: what killed which lands in the HYPOTHESIZE
+        # tree (the loop the brick promised), rendered once by verdict_node_content.
+        nexus = "hypothesize"
+        got = deposit_verdict(packet, embed_via_domain()(verdict_node_content(packet)),
+                              berth_path=berth)
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),

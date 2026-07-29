@@ -107,6 +107,20 @@ class BuildGateRed(IllegalTransition):
         self.findings = findings or []
 
 
+class ExitGateRed(IllegalTransition):
+    """The forward crossing into PROVED is refused: the crossing names a cast ticket
+    whose claiming chart is not yet ANSWERED — a criterion without a passing run
+    verdict, or a hypothesis nobody dispositioned. Carries ``findings`` complete on
+    the first pass; run the criteria and write the verdict artifact, never bypass.
+    Sibling of ``EntryGateRed`` and ``BuildGateRed``, not a subclass: the three
+    gates refuse different crossings (entry vs promotion vs close) and a handler
+    for one must not silently catch another."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 def is_summons(state: str) -> bool:
     """The grammar: a state that ends in ``-ME`` is a SUMMONS (demands a peer); else a rest."""
     return state.endswith("ME")
@@ -268,6 +282,43 @@ def _entry_gate(ticket: str) -> str:
     )
 
 
+def _exit_gate(ticket: str) -> str:
+    """A cast ticket crossing forward into PROVED must have ANSWERED the chart that
+    claims it — every criterion of the claiming validate berth a passing run verdict,
+    every hypothesis dispositioned confirmed-or-killed, all in a durable verdict
+    artifact (cairn/chart/verdict.py). Returns the one-line gate note the journal
+    carries; raises ``ExitGateRed`` — findings complete on the first pass — before
+    anything is written.
+
+    Provenance: 2026-07-29, ticket proved-answers-the-chart — the exit half of the
+    loop whose entry half is ``_entry_gate`` above ('agreed and go!', the 64% stake's
+    other hand): a voyage is charted at BUILDME and measured at PROVED, both by
+    physics. The gate shape-checks the artifact on disk only — it runs no
+    instruments and reaches no tree or host, so a netns-sealed crossing gates
+    identically to a live one.
+    """
+    # Lazy on purpose, same boot-order law as the gates below: the check's cost
+    # lands only at the rare journaled PROVED entry — an event, never a poll.
+    from cairn.build_inspector.inspector import proved_answers_the_chart as _check
+
+    findings = _check(ticket)
+    if not findings:
+        return "clean — no unanswered chart claim stands against ticket %r" % ticket
+    lines = [
+        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"{json.dumps(f['evidence'], default=str)})"
+        for f in findings
+    ]
+    raise ExitGateRed(
+        f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
+        "PROVED asserts done, and done is verified in the world by the instrument, "
+        "never the narration. Nothing was journaled. Run the claiming validate berth's "
+        "criteria, write the verdict artifact (cairn.chart.verdict.write_verdict), "
+        "deposit it, then cross again:\n" + "\n".join(lines),
+        findings=findings,
+    )
+
+
 def _build_gate(history_path: str) -> str:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
@@ -362,6 +413,16 @@ def emit(
             _ticket = journal_extra.get("ticket")
             if isinstance(_ticket, str) and (_TICKETS / (_ticket + ".json")).exists():
                 entry_note = _entry_gate(_ticket)
+        # THE EXIT GATE: crossing forward INTO PROVED with a named, cast ticket
+        # requires the claiming chart ANSWERED (verdict artifact complete and
+        # passing); a red refuses BEFORE anything is written. Back-edges retreat
+        # ungated; an unnamed, un-cast, or unclaimed ticket is not gated — the
+        # same v0 jurisdiction as the entry gate above.
+        exit_note = None
+        if target == "PROVED" and target_idx > wf.cursor:
+            _ticket = journal_extra.get("ticket")
+            if isinstance(_ticket, str) and (_TICKETS / (_ticket + ".json")).exists():
+                exit_note = _exit_gate(_ticket)
         record = {
             "from": wf.here,
             "to": target,
@@ -386,6 +447,9 @@ def emit(
             # The record of truth says the entry gate ran: a gated BUILDME entry
             # journals that its chart claim was checked and found standing.
             **({"entry_gate": entry_note} if entry_note else {}),
+            # The record of truth says the exit gate ran: a gated PROVED entry
+            # journals that the chart's claims were answered before the close.
+            **({"exit_gate": exit_note} if exit_note else {}),
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

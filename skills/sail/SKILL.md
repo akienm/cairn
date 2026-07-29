@@ -63,27 +63,45 @@ If the component has a live face, fire it for real once — the proof pins the
 contract, the live fire catches what the fixture world was too clean to show
 (the pattern holds: first live fires keep catching their builders).
 
-## 6. Journal PROVED and settle the records
+## 6. Answer the chart — BEFORE the PROVED crossing (physics since 2026-07-29)
 
-- Cross PROVED with a note worth reading in a year.
+Run the claiming validate berth's **criteria by their instruments**, then write
+the **verdict artifact** through `cairn.chart.verdict.write_verdict`: every
+criterion a run verdict (claim verbatim, instrument, outcome, evidence — a
+verdict without both instrument and evidence is narration and the door refuses
+it), every hypothesis in the chain dispositioned `confirmed`|`killed` with the
+deciding observation. A **failed** criterion is a kick-back, not a crossing.
+Then deposit it (`python3 -m cairn.chart.live learn <verdict-berth>`) — the
+kills become the hypothesize tree's memory of what killed which.
+
+Skipping this is a build error the door itself throws (ticket
+proved-answers-the-chart): the emit chokepoint REFUSES a claimed ticket's
+forward crossing into PROVED without a complete, passing verdict artifact
+(`ExitGateRed`) — the mirror of step 0's entry gate, done verified by
+instrument at the close.
+
+## 7. Journal PROVED and settle the records
+
+- Cross PROVED with a note worth reading in a year — the exit gate reads the
+  crossing's ticket and journals its verdict on the record.
 - Ticket cursor → `[PROVED]` with the story-bearing distinctions.
 - Charter delta ONLY if the design shifted — and any charter write pokes
   `cairn/intentions_model_compiler/recompile_gate.sh` in the same act.
 
-## 7. Deposit the learnings
+## 8. Deposit the learnings
 
 `python3 -m cairn.chart.live learn <berth>` for each berth of this voyage (the
 trees are the durable memory; skipping starves them). A correction surfaced
 mid-build rides orient's brick loop (deposit → counsel → propose), never a
 quiet local fix.
 
-## 8. Commit and push
+## 9. Commit and push
 
 Committed is part of done. Commit autonomously, push at smells-like-done, then
 verify with the instrument (`python3 -m cairn.orient.orient git`), never from
 the narration.
 
-## 9. Close the boundary — /saveslate, then /compact
+## 10. Close the boundary — /saveslate, then /compact
 
 Fire **/saveslate** (the in-commons continuity record — at_sea, next_direction,
 open_threads). Then tell Akien the boundary is **compact-safe** and invite

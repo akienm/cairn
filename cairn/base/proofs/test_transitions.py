@@ -357,6 +357,141 @@ def test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated():
             transitions._TICKETS, _insp._CHART_BERTHS = saved
 
 
+_AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
+
+
+def _exit_world(d: Path, *, cast=("widget",), claim=True, verdict=None):
+    """A fixture commons-tickets + chart-berths pair for the EXIT GATE teeth — a
+    claiming chain deep enough to owe answers (hypothesize <- validate), plus an
+    optional verdict artifact in the named shape. Both chokepoint globals patched
+    by the caller, so no tooth reads live instance-space."""
+    tickets = d / "tickets"
+    tickets.mkdir()
+    for t in cast:
+        (tickets / f"{t}.json").write_text("{}")
+    berths = d / "berths"
+    packets = berths / "0" / "packets"
+    packets.mkdir(parents=True)
+    if claim:
+        hyp = packets / "hypothesize-20260729T000000-feed.json"
+        hyp.write_text(json.dumps({"hypotheses": [
+            {"piece": "p1", "expect": "e1", "falsifier": "f", "instrument": "i"}]}))
+        val = packets / "validate-20260729T000001-feed.json"
+        val.write_text(json.dumps({"ticket": "widget", "hypothesize_ref": str(hyp),
+                                   "criteria": [{"claim": "c1", "instrument": "cmd",
+                                                 "covers": ["p1"]}]}))
+        if verdict is not None:
+            (packets / "verdict-20260729T000002-feed.json").write_text(json.dumps(
+                {"ticket": "widget", "validate_ref": str(val), **verdict}))
+    return tickets, berths
+
+
+_ANSWERED = {
+    "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
+                  "evidence": "seen: exit 0 twice"}],
+    "dispositions": [{"piece": "p1", "expect": "e1", "disposition": "confirmed",
+                      "by": "the run observed"}],
+}
+
+
+def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still():
+    """proved-answers-the-chart LANDED: the forward crossing INTO PROVED naming a cast,
+    CLAIMED ticket is refused while the chart is unanswered — and the record of truth
+    is byte-identical after the refusal (nothing journaled, nothing touched). The
+    findings ride the exception complete on the first pass; a FAILED criterion refuses
+    as loudly as an unanswered one (PROVED asserts done; a fail is a kick-back)."""
+    import hashlib as _hashlib
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _exit_world(Path(d), verdict=None)  # claimed, never answered
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            # a real prior record on disk — the refusal must leave it byte-identical
+            transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state)
+            before = _hashlib.sha256(Path(hist).read_bytes()).hexdigest()
+            try:
+                transitions.emit(_AT_LEARN, "PROVED",
+                                 history_path=hist, state_path=state, ticket="widget")
+            except transitions.ExitGateRed as e:
+                assert [f["filter"] for f in e.findings] == ["proved_answers_the_chart"], \
+                    e.findings
+                assert "widget" in str(e) and "write_verdict" in str(e), \
+                    "the refusal must name the ticket and the disposition, first pass"
+            else:
+                raise AssertionError("an unanswered PROVED crossed — the exit gate is not wired")
+            assert _hashlib.sha256(Path(hist).read_bytes()).hexdigest() == before, \
+                "a REFUSED crossing must leave the record of truth byte-identical"
+            # answered-and-FAILED: still refused, and the refusal says FAILED
+            packets = berths / "0" / "packets"
+            (packets / "verdict-20260729T000002-feed.json").write_text(json.dumps(
+                {"ticket": "widget",
+                 "validate_ref": str(packets / "validate-20260729T000001-feed.json"),
+                 "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "fail",
+                               "evidence": "it broke"}],
+                 "dispositions": _ANSWERED["dispositions"]}))
+            try:
+                transitions.emit(_AT_LEARN, "PROVED",
+                                 history_path=hist, state_path=state, ticket="widget")
+            except transitions.ExitGateRed as e:
+                assert "FAILED" in str(e), "a failed criterion must refuse BY NAME"
+            else:
+                raise AssertionError("a FAILED criterion crossed into PROVED")
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            new = transitions.emit(_AT_LEARN, "PROVED",
+                                   history_path=hist, state_path=state, ticket="widget")
+            assert "[PROVED]" in new
+            rec = projector.read_history(hist)[0]
+            assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
+                f"the crossing's evidence must say the exit gate ran: {rec}"
+            assert rec["ticket"] == "widget"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_the_exit_gate_jurisdiction_unnamed_uncast_and_unclaimed_never_refused():
+    # v0 jurisdiction is the crossing's own NAMED, CAST ticket (inheriting the
+    # entry gate's whole, charter edge (k)): an unnamed or un-cast ticket is never
+    # gated. A CAST ticket NO chart claims crosses too — but the gate RAN and the
+    # record says so honestly ("no unanswered chart claim stands"): a voyage that
+    # promised nothing owes nothing, and the journal does not pretend otherwise.
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            base = Path(d)
+            for i, extra in enumerate([{}, {"ticket": "ghost-never-cast"}]):
+                hist, state = str(base / f"h{i}.json"), str(base / f"s{i}.json")
+                new = transitions.emit(_AT_LEARN, "PROVED",
+                                       history_path=hist, state_path=state, **extra)
+                assert "[PROVED]" in new
+                assert "exit_gate" not in projector.read_history(hist)[0], \
+                    "an ungated crossing must not claim the gate ran"
+            hist, state = str(base / "hu.json"), str(base / "su.json")
+            new = transitions.emit(_AT_LEARN, "PROVED",
+                                   history_path=hist, state_path=state, ticket="widget")
+            rec = projector.read_history(hist)[0]
+            assert "[PROVED]" in new
+            assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
+                "a cast-but-unclaimed crossing is gated-and-clean, on the record"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
@@ -379,6 +514,9 @@ def _main() -> int:
         test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket,
         test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict,
         test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated,
+        test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still,
+        test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict,
+        test_the_exit_gate_jurisdiction_unnamed_uncast_and_unclaimed_never_refused,
     ]
     for check in checks:
         check()
@@ -389,8 +527,11 @@ def _main() -> int:
           "holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; "
           "kick-backs never gated; no side door for an uninspectable address), and holds the "
           "ENTRY GATE at the BUILDME entry (a cast ticket with no berthed chart chain → refused, "
-          "nothing written; unnamed/un-cast tickets and kick-backs ungated) — "
-          "the state vocabulary is physics (Law 4), not /sorted's prose")
+          "nothing written; unnamed/un-cast tickets and kick-backs ungated), and holds the "
+          "EXIT GATE at the PROVED entry (a claimed ticket with an unanswered chart → refused, "
+          "record byte-identical; a FAILED criterion refuses by name; unnamed/un-cast ungated, "
+          "unclaimed gated-and-clean on the record) — the state vocabulary is physics (Law 4), "
+          "not /sorted's prose")
     return 0
 
 

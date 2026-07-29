@@ -42,6 +42,10 @@ from cairn.charter import projector  # noqa: E402
 from cairn.chart.orient import ref_exists  # noqa: E402  (tree-free module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
 #   composes the berth gate's OWN ref semantics so the two mouths cannot disagree)
+from cairn.chart.verdict import unanswered, verdict_error  # noqa: E402  (joined
+#   2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
+#   verdict-artifact validator the deposit face also composes — tree-free like
+#   chart.orient, pinned transitively by the inspector-nexus allowlist tooth)
 from cairn.orient.orient import ScanRefused, device_census  # noqa: E402
 
 
@@ -1079,6 +1083,92 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
         "refuse. Disposition: run /chart for this request (the validate berth carries "
         "the claim), then cross again.",
     )]
+
+
+# ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
+# The loop's other hand: the entry gate above demands a chart EXISTS before a
+# build begins; this demands the chart is ANSWERED before the voyage may close.
+# A claimed cast ticket crossing forward into PROVED must show a verdict
+# artifact (cairn/chart/verdict.py — the ONE validator, shared with the deposit
+# face) in which every criterion of the claiming validate berth carries a run
+# verdict with outcome pass, and every hypothesis of the chain is dispositioned
+# confirmed-or-killed with the deciding observation.
+#
+# Deliberately NOT in FILTERS, same measured reason as the entry gate: the
+# promotion sweep has no crossing context and would retro-red every component
+# whose voyages predate the chart chain. Jurisdiction is ONE crossing's own
+# claimed ticket; called from the emit chokepoint's PROVED entry, exactly as the
+# entry check is called from its BUILDME entry and the census from its PROVEME
+# exit. An UNCLAIMED ticket passes ungated (v0 — inherits the entry gate's
+# jurisdiction, charter edge (k)).
+#
+# Provenance: installed 2026-07-29 on Akien's word ("agreed and go!" — the exit
+# half of the 64%-stake trust transfer). Retires the sail steps' narrated done
+# into physics at the close (Law 4; the 2026-07-24 correction as schema).
+
+
+def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff no chart claims ``ticket``, or a readable
+    verdict artifact answers the claiming chart completely (every criterion
+    passing, every hypothesis dispositioned).
+
+    Red returns findings complete on the first pass — one naming each unanswered
+    item, or one naming the missing/malformed artifact — nothing to re-run.
+    """
+    root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
+    claiming = []
+    artifacts = []
+    if root.is_dir():
+        for pattern, into in (("*/packets/validate-*.json", claiming),
+                              ("*/packets/verdict-*.json", artifacts)):
+            for path in sorted(root.glob(pattern)):
+                try:
+                    packet = json.loads(path.read_text())
+                except (OSError, json.JSONDecodeError):
+                    continue  # an unreadable berth names no claim; the berth owner's sweep carries that finding
+                if isinstance(packet, dict) and packet.get("ticket") == ticket:
+                    into.append((path, packet))
+    if not claiming:
+        return []  # unclaimed — ungated (v0 jurisdiction, inherited from the entry gate)
+    disposition = ("Disposition: run the claiming validate berth's criteria by their "
+                   "instruments, write the verdict artifact through "
+                   "cairn.chart.verdict.write_verdict, deposit it, then cross again.")
+    if not artifacts:
+        return [_finding(
+            "proved_answers_the_chart", ticket,
+            "no verdict artifact answers the chart claiming ticket %r — the voyage "
+            "is closing on narration" % ticket,
+            {"ticket": ticket, "searched": str(root),
+             "claiming": [str(p) for p, _ in claiming],
+             "wanted": "*/packets/verdict-*.json with a 'ticket' field naming this ticket"},
+            "Law 3 + Law 4: PROVED asserts done, and done is verified in the world by "
+            "the instrument, never the narration. " + disposition)]
+    path, artifact = artifacts[-1]  # the latest answer is the one that stands
+    err = verdict_error(artifact)
+    if err:
+        return [_finding(
+            "proved_answers_the_chart", ticket,
+            "the verdict artifact is malformed — %s" % err,
+            {"ticket": ticket, "artifact": str(path)},
+            "A verdict without its instrument and evidence is narration wearing a "
+            "filename (Law 7: loud at the surface, permanent in the record). " + disposition)]
+    if artifact.get("validate_ref") not in {str(p) for p, _ in claiming}:
+        return [_finding(
+            "proved_answers_the_chart", ticket,
+            "the verdict artifact answers a chart that does not claim this ticket "
+            "(validate_ref %r is not a claiming berth)" % artifact.get("validate_ref"),
+            {"ticket": ticket, "artifact": str(path),
+             "claiming": [str(p) for p, _ in claiming]},
+            "An answer to someone else's chart answers nothing here (Law 6: the claim "
+            "and its answer share an owner). " + disposition)]
+    return [_finding(
+        "proved_answers_the_chart", ticket,
+        item,
+        {"ticket": ticket, "artifact": str(path),
+         "validate_ref": artifact["validate_ref"]},
+        "Law 3 as the close: an unanswered claim leaves the voyage a hypothesis, and "
+        "a hypothesis may not rest at PROVED. " + disposition)
+        for item in unanswered(artifact)]
 
 
 FILTERS = {

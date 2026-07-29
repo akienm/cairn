@@ -91,3 +91,7 @@ cannot fire it; making the boundary loud is the step.
   proxy metric, never the narration.
 - Report reds with their output; a skipped step is reported as skipped.
 - The cheapest path is not the default — get it really right, then move on.
+
+## After everything else
+
+/compact

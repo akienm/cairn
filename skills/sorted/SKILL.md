@@ -92,3 +92,7 @@ client command you cannot fire; making the boundary loud is the step.
 - "Verdict and seal from the same hand" holds only for code (the tester). For a
   human-proved class the reviewers are the verdict and the notary is the seal —
   different hands. Don't collapse them.
+
+## Finally, when all else done
+
+/compact

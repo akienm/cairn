@@ -31,6 +31,7 @@ from cairn.chart.hypothesize import deposit_hypothesize, hypothesize_node_conten
 from cairn.chart.survey import deposit_survey, survey_node_content
 from cairn.chart.tree import counsel, deposit_packet
 from cairn.chart.triage import deposit_triage, triage_node_content
+from cairn.chart.validate import deposit_validate, validate_node_content
 from cairn.librarian.live import embed_via_domain
 
 
@@ -81,6 +82,11 @@ def _learn(argv: list[str]) -> int:
         got = deposit_hypothesize(packet,
                                   embed_via_domain()(hypothesize_node_content(packet)),
                                   berth_path=berth)
+    elif os.path.basename(berth).startswith("validate-"):
+        nexus = "validate"
+        got = deposit_validate(packet,
+                               embed_via_domain()(validate_node_content(packet)),
+                               berth_path=berth)
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),

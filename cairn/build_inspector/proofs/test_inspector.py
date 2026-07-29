@@ -431,6 +431,73 @@ def main() -> None:
             ["hypothesize_falsifiable_measured"]
         assert judge_hypothesize(chainless_h) and \
             judge_hypothesize(chainless_h)[0]["judge"] == "hypothesize_covers_the_ranked"
+
+        # 25 — THE JUDGES BEFORE THE JUDGED, SIXTH APPLICATION
+        #      (validate-filters): a criterion without its instrument fires
+        #      validate_measures_done naming all missing fields; a covers entry
+        #      on an unclaimed piece fires validate_covers_the_build; a claimed
+        #      piece no criterion covers fires the same judge naming every
+        #      uncovered piece; a broken hypothesize_ref is loud; a complete
+        #      measured criteria set is quiet. (Installed before the validate
+        #      module exists — these fixtures ARE its acceptance contract.)
+        hb = tmp / "hypothesize_berth_fixture.json"
+        hb.write_text(json.dumps({
+            "triage_ref": str(tb),
+            "hypotheses": [
+                {"piece": "build the module",
+                 "expect": "the module's teeth pass twice",
+                 "falsifier": "any tooth red on either run",
+                 "instrument": "python3 proofs/test_module.py, twice"},
+                {"piece": "compose the chart door",
+                 "expect": "the door refuses a phantom ref",
+                 "falsifier": "a phantom ref berths",
+                 "instrument": "the door's own gate, fixture ref"}]}))
+        done_set = {"ticket": "wire-proof", "hypothesize_ref": str(hb),
+                    "criteria": [
+                        {"claim": "the whole build is green under seal",
+                         "instrument": "the tester's netns seal, both proofs",
+                         "covers": ["build the module"]},
+                        {"claim": "the composed door holds at promotion",
+                         "instrument": "inspect(component=...), clean",
+                         "covers": ["compose the chart door"]}]}
+        vpath = p / "validate-20260728T000008-efef.json"
+        vpath.write_text(json.dumps(done_set))
+        assert inspect(root=root, component="charted")["clean"]
+        unmeasured_c = dict(done_set, criteria=[
+            dict(done_set["criteria"][0], instrument=" "),
+            done_set["criteria"][1]])
+        vpath.write_text(json.dumps(unmeasured_c))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["validate_measures_done"], f
+        assert f[0]["evidence"]["lacking"] == ["instrument"], f[0]
+        unclaimed = dict(done_set, criteria=done_set["criteria"] + [
+            {"claim": "a whim gleams", "instrument": "a glance",
+             "covers": ["polish a whim"]}])
+        vpath.write_text(json.dumps(unclaimed))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["validate_covers_the_build"], f
+        assert f[0]["evidence"]["covers"] == "polish a whim", f[0]
+        partial = dict(done_set, criteria=done_set["criteria"][:1])
+        vpath.write_text(json.dumps(partial))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["validate_covers_the_build"], f
+        assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
+        chainless_v = dict(done_set, hypothesize_ref=str(tmp / "gone.json"))
+        vpath.write_text(json.dumps(chainless_v))
+        f = inspect(root=root, component="charted")["findings"]
+        assert "validate_covers_the_build" in [x["filter"] for x in f], f
+        assert any("hypothesize berth" in x["finding"] for x in f), f
+        vpath.unlink()
+
+        # 26 — one implementation, two mouths, for the validate judge too.
+        from cairn.build_inspector.inspector import judge_validate
+        assert judge_validate(done_set) == []
+        assert [x["judge"] for x in judge_validate(unmeasured_c)] == \
+            ["validate_measures_done"]
+        assert [x["judge"] for x in judge_validate(partial)] == \
+            ["validate_covers_the_build"]
+        assert judge_validate(chainless_v) and \
+            judge_validate(chainless_v)[0]["judge"] == "validate_covers_the_build"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

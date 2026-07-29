@@ -887,6 +887,155 @@ def hypothesize_falsifiable_measured(row: dict, comp_dir: Path) -> list[dict]:
                           "hypothesize_falsifiable_measured")
 
 
+# ── THE JUDGES BEFORE THE JUDGED, SIXTH APPLICATION (ticket validate-filters) ──
+# The acceptance gate for the VALIDATE brick's output, installed before the
+# validate module exists. Same physics: the judge is the inspector's, the future
+# berth door composes it, never the reverse. The coverage vocabulary COMPOSES
+# THE PREVIOUS GATE'S INVARIANT — a berthed hypothesize covering equals the
+# ranked set (hypothesize-filters enforced it), so this judge reads ONE link
+# with one minimal open; each judge stays small by standing on the gate below.
+
+
+def judge_validate(packet: dict) -> list[dict]:
+    """The pure judge over ONE validate packet — fragments tagged by owning
+    filter. Done gets an instrument or it is narration: every criterion carries
+    its claim and its named instrument; every criterion's covers entries name
+    pieces the hypothesize berth claims; and the union of covers equals that
+    piece set — every piece's done is measured by at least one criterion."""
+    frags = []
+    claimed, chain_ok = set(), False
+    ref = packet.get("hypothesize_ref")
+    try:
+        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+            berth = json.load(fh)
+        hypotheses = berth.get("hypotheses")
+        if isinstance(hypotheses, list):
+            claimed = {h.get("piece") for h in hypotheses
+                       if isinstance(h, dict) and isinstance(h.get("piece"), str)}
+            chain_ok = True
+    except (TypeError, OSError, ValueError):
+        pass
+    if not chain_ok:
+        frags.append({
+            "judge": "validate_covers_the_build",
+            "finding": "hypothesize_ref does not read as a hypothesize berth",
+            "evidence": {"hypothesize_ref": ref},
+            "why_it_matters": "the chain broke — acceptance criteria that "
+                              "cannot be checked against the claimed work are "
+                              "criteria filled from the conversation, the "
+                              "step-skipping the chain exists to make a build "
+                              "error.",
+        })
+    criteria = packet.get("criteria")
+    if not isinstance(criteria, list) or not criteria:
+        frags.append({
+            "judge": "validate_covers_the_build",
+            "finding": "criteria is missing, empty, or malformed",
+            "evidence": {"got": criteria},
+            "why_it_matters": "a build with no acceptance criteria is a build "
+                              "whose done is narration — the 2026-07-24 class, "
+                              "wholesale.",
+        })
+        return frags
+    covered = set()
+    for i, c in enumerate(criteria):
+        if not isinstance(c, dict):
+            frags.append({
+                "judge": "validate_measures_done",
+                "finding": "criterion %d is not a dict" % i,
+                "evidence": {"index": i, "got": type(c).__name__},
+                "why_it_matters": "a criterion with no shape can name no "
+                                  "instrument — unmeasurable by construction.",
+            })
+            continue
+        lacking = [k for k in ("claim", "instrument")
+                   if not isinstance(c.get(k), str) or not c.get(k).strip()]
+        if lacking:
+            frags.append({
+                "judge": "validate_measures_done",
+                "finding": "criterion %d lacks: %s" % (i, ", ".join(lacking)),
+                "evidence": {"index": i, "claim": c.get("claim"),
+                             "lacking": lacking},
+                "why_it_matters": "done is verified in the world by the "
+                                  "instrument, never the narration — the "
+                                  "2026-07-24 done-while-unmoved class: DONE "
+                                  "was reported from a proxy while the real "
+                                  "files stood unmoved; the instrument was "
+                                  "never run.",
+            })
+        covers = c.get("covers")
+        if (not isinstance(covers, list) or not covers
+                or any(not isinstance(w, str) or not w.strip() for w in covers)):
+            frags.append({
+                "judge": "validate_covers_the_build",
+                "finding": "criterion %d covers nothing" % i,
+                "evidence": {"index": i, "claim": c.get("claim"),
+                             "covers": covers},
+                "why_it_matters": "a criterion tied to no piece closes "
+                                  "nothing — the acceptance run cannot say "
+                                  "what it validated.",
+            })
+            continue
+        for w in covers:
+            covered.add(w)
+            if chain_ok and w not in claimed:
+                frags.append({
+                    "judge": "validate_covers_the_build",
+                    "finding": "criterion %d covers %r — not a piece the "
+                               "hypothesize berth claims" % (i, w),
+                    "evidence": {"index": i, "covers": w,
+                                 "claimed_pieces": sorted(claimed)},
+                    "why_it_matters": "acceptance for work the chain never "
+                                      "claimed is invention at the acceptance "
+                                      "stage — the substitution class at its "
+                                      "last door.",
+                })
+    if chain_ok:
+        uncovered = sorted(claimed - covered)
+        if uncovered:
+            frags.append({
+                "judge": "validate_covers_the_build",
+                "finding": "claimed pieces no criterion covers: %s"
+                           % ", ".join(repr(w) for w in uncovered),
+                "evidence": {"uncovered": uncovered,
+                             "claimed_pieces": sorted(claimed)},
+                "why_it_matters": "the unvalidated piece is the 2026-07-24 "
+                                  "piece — the one whose done was narrated; "
+                                  "coverage is what makes acceptance a "
+                                  "measurement of the whole build.",
+            })
+    return frags
+
+
+def validate_measures_done(row: dict, comp_dir: Path) -> list[dict]:
+    """Every criterion in a charted validate packet carries its claim and its
+    named instrument — missing fields reported completely in one finding.
+
+    Provenance: 2026-07-24 — done-while-unmoved (the sharpest correction on
+    record: DONE reported from a proxy while the real files stood unmoved; the
+    instrument — ls of the actual files — was never run). Installed 2026-07-28
+    BEFORE the validate module exists — judges-before-the-judged, sixth
+    application.
+    """
+    return _judge_charted(row, comp_dir, "validate", judge_validate,
+                          "validate_measures_done", report_unreadable=True)
+
+
+def validate_covers_the_build(row: dict, comp_dir: Path) -> list[dict]:
+    """Every criterion's covers entries name pieces the hypothesize berth
+    claims, the union of covers equals that piece set, and the chain to the
+    hypothesize berth reads.
+
+    Provenance: 2026-07-24 — the dropped piece was also the unvalidated piece
+    (the substitution survived because no acceptance measured the whole); and
+    the wire's filed edge (a), 2026-07-28 — success_criteria as an IOU from the
+    day packet jurisdiction landed, coming due at the stage whose question they
+    answer. Installed 2026-07-28, before the validate module exists.
+    """
+    return _judge_charted(row, comp_dir, "validate", judge_validate,
+                          "validate_covers_the_build")
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -903,6 +1052,8 @@ FILTERS = {
     "triage_reasons_the_order": triage_reasons_the_order,
     "hypothesize_covers_the_ranked": hypothesize_covers_the_ranked,
     "hypothesize_falsifiable_measured": hypothesize_falsifiable_measured,
+    "validate_measures_done": validate_measures_done,
+    "validate_covers_the_build": validate_covers_the_build,
 }
 
 

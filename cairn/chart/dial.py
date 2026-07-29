@@ -33,6 +33,7 @@ import cairn.chart.decompose as _decompose
 import cairn.chart.hypothesize as _hypothesize
 import cairn.chart.survey as _survey
 import cairn.chart.triage as _triage
+import cairn.chart.validate as _validate
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
@@ -49,6 +50,7 @@ STAGE_FIELDS = {
     "decompose": _decompose.AUTHORED_FIELDS,
     "triage": _triage.AUTHORED_FIELDS,
     "hypothesize": _hypothesize.AUTHORED_FIELDS,
+    "validate": _validate.AUTHORED_FIELDS,
 }
 
 

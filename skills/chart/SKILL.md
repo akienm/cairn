@@ -1,12 +1,12 @@
 # /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. Six stages carry today —
+schema-gated stages instead of invisible reasoning. The chain is **complete**:
 the **orient brick**, the **constrain brick**, the **survey brick**, the
-**decompose brick**, the **triage brick**, then the **hypothesize brick**.
-Stages land one at a time; each stage's prompt is template-filled from the
-previous stage's validated file, so a skipped stage is a build error, not a
-lapse.
+**decompose brick**, the **triage brick**, the **hypothesize brick**, then the
+**validate brick** — the full preamble, seven proven stages. Each stage's
+prompt is template-filled from the previous stage's validated file, so a
+skipped stage is a build error, not a lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -454,10 +454,77 @@ The claims become the hypothesize tree's memory of what this class expects.
 
 ### 6. Hand forward
 
-The chain ends at hypothesize today: report the six berths. The measured
-expectations are /sail's input — pieces in hand, first things first, every
-claim carrying its kill-switch. validate template-fills from the hypothesize
-berth when it lands.
+Carry the hypothesize berth path — stage 7 template-fills from it.
+
+## Stage 7 — VALIDATE
+
+One narrow question: **what does DONE mean for this request, measured?** Not
+the pieces, their order, or what each will do — what the WHOLE must
+demonstrate at acceptance. This brick was built UNDER pre-installed judges
+(`validate_measures_done` + `validate_covers_the_build`, proved before the
+module existed). The 2026-07-24 correction as schema: done is verified in the
+world by the instrument, never the narration.
+
+### 1. The floor — template-filled from stage 6's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.validate import validate_floor
+print(json.dumps(validate_floor(sys.argv[1]), indent=2))
+" <the hypothesize berth path>
+```
+
+It re-reads the chain whole (depth 7 — a broken link anywhere refuses) and
+hands you the hypotheses verbatim (their instruments are composable), the
+order, the expectations' unknowns, and the **acceptance vocabulary**:
+`claimed_pieces` — the exact set your criteria's covers must exhaust.
+
+### 2. The tree — walk before you accept
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' validate
+```
+
+What done meant for past requests of this class, floor labeled as always.
+
+### 3. The ceiling — the criteria
+
+- **hypothesize_ref** — the hypothesize berth path (provenance `floor`).
+- **criteria** — what the whole must show: each `{claim, instrument, covers}`.
+  The `instrument` is the measure that will be RUN — a command, a gate, a
+  proof path; composing a hypothesis's instrument beats inventing a parallel
+  one. `covers` lists the pieces this criterion closes, **verbatim**; the
+  union across criteria must exhaust the claimed pieces — the unvalidated
+  piece is the piece whose done gets narrated.
+- **unknowns / confidence / provenance** — as before; provenance covers
+  hypothesize_ref, criteria, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.validate import write_validate
+print(write_validate(json.load(open(sys.argv[1]))))
+" <scratchpad>/validate_packet.json
+```
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the validate berth path>
+```
+
+The criteria become the validate tree's memory of what done means here.
+
+### 6. Hand forward
+
+**The chain is complete**: report the seven berths. The charted course —
+grounded ask, hard bounds, measured territory, derived split, reasoned order,
+killable claims, instrumented done — is /sail's input, whole. Executing the
+criteria at PROVED is /sail's filed growth (chart-validate edge (a)), on
+Akien's word.
 
 ## Stay honest
 

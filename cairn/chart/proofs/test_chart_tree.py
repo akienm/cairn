@@ -169,13 +169,15 @@ def test_the_librarians_tools_are_the_only_door():
         # cairn.chart.constrain joined 2026-07-28 (chart-constrain), cairn.chart.survey
         # and cairn.chart.decompose the same day (chart-survey, chart-decompose),
         # cairn.chart.triage the same day again (chart-triage), then
-        # cairn.chart.hypothesize (chart-hypothesize): the dial reads each
-        # stage's packets against that stage's own field-shape — a stage registers
-        # here when it lands.
+        # cairn.chart.hypothesize and cairn.chart.validate (chart-hypothesize,
+        # chart-validate — the chain complete): the dial reads each stage's
+        # packets against that stage's own field-shape — a stage registers here
+        # when it lands.
         dial_mod.__file__: ("__future__", "json", "os", "re", "sys",
                             "cairn.chart.constrain", "cairn.chart.decompose",
                             "cairn.chart.hypothesize", "cairn.chart.orient",
-                            "cairn.chart.survey", "cairn.chart.triage"),
+                            "cairn.chart.survey", "cairn.chart.triage",
+                            "cairn.chart.validate"),
     }
     # Composed over orient's import_map (installed 2026-07-28 through the brick loop,
     # seeded by THIS tooth's own twice-fired red): the allowlist matches the module

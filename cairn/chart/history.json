@@ -365,5 +365,53 @@
     "note": "deposit as physics: the exit-gate-clean PROVED crossing enqueues its verdict berth on an append-only pending ledger; chart.live drains it on its next read (compile-on-read, no clock, no daemon) — building inside the seven berths of 20260729T1126-1132",
     "at": "2026-07-29T12:07:22",
     "seq": 32
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> LEARNME -> PROVED",
+    "direction": "forward",
+    "ticket": "the-deposit-rides-the-read",
+    "note": "ledger + enqueue seam + drain built; 8 new teeth green twice bare (3 at the chokepoint, 5 at the ledger/drain), nexus pin and inspector proof re-green; the latest-claimer rule has one implementation",
+    "at": "2026-07-29T12:10:20",
+    "seq": 33
+  },
+  {
+    "from": "PROVEME",
+    "to": "LEARNME",
+    "standing": "LEARNME",
+    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 17 filters over chart",
+    "ticket": "the-deposit-rides-the-read",
+    "note": "sealed under the tester in a netns twice each (transitions, chart verdict, inspector nexus) — six green/sealed records, validations persisted beside the code; the build gate ran clean over chart",
+    "at": "2026-07-29T12:11:18",
+    "seq": 34
+  },
+  {
+    "from": "LEARNME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> [PROVED]",
+    "direction": "forward",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-deposit-rides-the-read'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260729T121532-f211b9365e93.json",
+    "ticket": "the-deposit-rides-the-read",
+    "note": "the deposit rides the read: the PROVED crossing now enqueues its verdict berth on an append-only file ledger (tree-free, netns-identical) and chart.live drains it through the one deposit door at its next real door entry — the obligation is physics on both sides, and this crossing is the first real enqueue onto that ledger",
+    "at": "2026-07-29T12:15:49",
+    "seq": 35
+  },
+  {
+    "from": "PROVED",
+    "to": "LEARNME",
+    "standing": "LEARNME",
+    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "ticket": "the-deposit-rides-the-read",
+    "note": "BACK-EDGE OFF A FALSIFIED PROVED — this stone's own verdict artifact said 'a red there falsifies and rewrites this verdict', and the red came. The machinery is proven and fired correctly in anger: the PROVED crossing appended exactly one enqueued line naming verdict-20260729T121532-f211b9365e93.json, and the drain ran at all seven real door entries that followed. What failed is one layer below and predates this stone: the embed host refuses the rendering. MEASURED — nomic-embed-text carries nomic-bert.context_length=2048; a binary search over this exact content accepted 7403 chars and refused at 7447; the rendering is 11283 chars; the sibling verdict that landed earlier today was 6772 chars and is the largest node in the hypothesize tree, so this ceiling had never been touched before. Law 7 held exactly as designed across all seven entries: the enqueued line stands, pending() still derives it, the ledger is byte-unchanged at 187 bytes, every door named the failure loudly on stderr and in its payload, and every verb still served. So: criterion 3 (the loop closes in anger) FAILS on its second half, and hypothesis 5 is KILLED by its own named falsifier ('the real drain fails on the real artifact'). Bounding a rendering against an embed context is a fresh design question touching every deposit face in chart and librarian; it is not in these berths and a builder may not settle it mid-close. Kicked back to the orchestrator with the diagnostic whole.",
+    "at": "2026-07-29T12:20:34",
+    "seq": 36
   }
 ]

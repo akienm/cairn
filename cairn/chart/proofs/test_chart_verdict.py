@@ -23,6 +23,24 @@ Teeth a hollow build could not pass:
   - TREE-FREE BY IMPORT: verdict.py's allowlist is stdlib + chart.orient only —
     the fire path from the chokepoint may never reach tree machinery.
 
+And since 2026-07-29 (ticket the-deposit-rides-the-read) the deposit itself is
+physics, so its two halves have teeth here too:
+
+  - THE LEDGER IS APPEND-ONLY AND PENDING DERIVES BY READ: an enqueue appends,
+    a deposit appends the second kind, and the earlier bytes are a PREFIX of the
+    later file — nothing is ever edited, truncated, or removed; a berth already
+    deposited never becomes pending again (idempotence by the record, not by
+    mutation); an unparseable line is named, never silently dropped.
+  - THE ENQUEUE KEYS ON THE ARTIFACT, NEVER ON THE NOTE: a ticket no verdict
+    artifact claims enqueues nothing and leaves no ledger behind.
+  - THE LATEST-CLAIMER RULE HAS ONE IMPLEMENTATION: the gate and the enqueue
+    read the same function BY IDENTITY, so they cannot disagree about which
+    artifact answered.
+  - THE DRAIN LANDS THROUGH THE ONE DOOR, ONCE: a pending verdict deposits with
+    its berth as provenance and is marked; a second drain finds nothing and the
+    tree stands still; a FAILED deposit leaves its entry standing, names itself,
+    and does not stop the drain from returning.
+
 DB teeth need the one-time provisioning (as the tree proof). Self-cleaning.
 
     python3 cairn/chart/proofs/test_chart_verdict.py     # exit 0 = green
@@ -44,10 +62,11 @@ if str(_REPO_ROOT) not in sys.path:
 import cairn.build_inspector.inspector as inspector_mod
 from cairn.chart import verdict as verdict_mod
 from cairn.chart.verdict import (
-    VerdictRefused, unanswered, validate_verdict, verdict_error,
-    verdict_node_content, write_verdict,
+    VerdictRefused, claiming_packets, enqueue_verdict, latest_claiming_artifact,
+    mark_deposited, pending, read_ledger, unanswered, validate_verdict,
+    verdict_error, verdict_node_content, write_verdict,
 )
-from cairn.chart.live import deposit_verdict
+from cairn.chart.live import deposit_verdict, drain_pending
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
@@ -235,11 +254,155 @@ def test_the_deposit_face_is_gated(root, berths, val):
     assert rows[0]["provenance"]["ticket"] == "sworn"
 
 
+def _berth_a_verdict(berths, artifact, stamp):
+    """Land a verdict artifact where the latest-claimer rule globs, with a stamp we
+    choose (the filename carries the order — sorted IS chronological)."""
+    path = os.path.join(berths, "0", "packets", "verdict-%s-feedfeedfeed.json" % stamp)
+    with open(path, "w") as fh:
+        json.dump(artifact, fh)
+    return path
+
+
+def test_the_ledger_is_append_only_and_pending_derives_by_read(root, berths, val):
+    """The record-of-truth discipline at the ledger (Law 7): every motion is an
+    APPEND, so the file's earlier bytes are always a prefix of its later bytes, and
+    'drained' is a second record kind — never an edit, a removal, or a truncation.
+    Pending is therefore a READ (enqueued minus deposited), which is also why a
+    re-enqueue of an already-deposited berth cannot resurrect it."""
+    ledger = os.path.join(root, "instance", "ledger", "verdict-deposits.jsonl")
+    art = _berth_a_verdict(berths, good_artifact(val), "20260729T010000")
+    berth = enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger)
+    assert berth == art, (berth, art)
+    after_enqueue = open(ledger).read()
+    entries = pending(ledger_path=ledger)
+    assert len(entries) == 1 and entries[0]["berth"] == art, entries
+    assert entries[0]["kind"] == "enqueued" and entries[0]["ticket"] == "sworn"
+    mark_deposited(art, "node-abc", ledger_path=ledger)
+    after_deposit = open(ledger).read()
+    assert after_deposit.startswith(after_enqueue), \
+        "the ledger is append-only — an earlier read must be a PREFIX of a later one"
+    assert len(after_deposit) > len(after_enqueue), "the deposited record must land"
+    assert pending(ledger_path=ledger) == [], "a deposited berth is no longer pending"
+    kinds = [r["kind"] for r in read_ledger(ledger_path=ledger)]
+    assert kinds == ["enqueued", "deposited"], kinds
+    # a re-enqueue of a deposited berth never becomes pending again — idempotence
+    # by the deposited RECORD, not by mutating anything
+    enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger)
+    assert pending(ledger_path=ledger) == [], \
+        "a berth already deposited must never be pending again (idempotence by record)"
+    assert open(ledger).read().startswith(after_deposit), "still append-only"
+    # an unparseable line is NAMED, never silently dropped, and never edited away
+    with open(ledger, "a") as fh:
+        fh.write("{not json at all\n")
+    named = [r for r in read_ledger(ledger_path=ledger) if r["kind"] == "unreadable"]
+    assert len(named) == 1 and "not json" in named[0]["raw"], named
+    assert pending(ledger_path=ledger) == [], "a bad line must not break the read"
+    os.unlink(art)
+    os.unlink(ledger)
+
+
+def test_the_enqueue_keys_on_the_artifact_never_on_the_note(root, berths, val):
+    """The kill the exit stone taught, honored as physics: the gate's note is CLEAN
+    both when a chart was answered and when NO chart claims the ticket at all — so
+    an enqueue keyed on the note would file a pending deposit for an artifact that
+    does not exist. Keyed on the artifact, an unclaimed ticket enqueues nothing and
+    leaves no ledger behind at all."""
+    ledger = os.path.join(root, "instance", "ledger2", "verdict-deposits.jsonl")
+    assert enqueue_verdict("never-charted", berths_root=berths, ledger_path=ledger) is None
+    assert not os.path.exists(ledger), \
+        "an enqueue with no artifact must write nothing — not even an empty ledger"
+
+
+def test_the_latest_claimer_rule_has_exactly_one_implementation(root, berths, val):
+    """One implementation, two mouths, BY IDENTITY: the exit gate locates the
+    artifact that stands with the same function the crossing's enqueue calls. A gate
+    that judged one artifact while the enqueue deposited another would be the
+    two-mouths defect in the one place nobody would look for it."""
+    assert inspector_mod.claiming_packets is claiming_packets
+    ledger = os.path.join(root, "instance", "ledger3", "verdict-deposits.jsonl")
+    older = _berth_a_verdict(berths, good_artifact(val), "20260729T020000")
+    later = dict(good_artifact(val))
+    later["verdicts"] = [dict(v, evidence=v["evidence"] + " (the second answer)")
+                         for v in later["verdicts"]]
+    newer = _berth_a_verdict(berths, later, "20260729T030000")
+    found = claiming_packets("sworn", "verdict", berths_root=berths)
+    assert [p for p, _ in found] == [older, newer], found
+    assert latest_claiming_artifact("sworn", berths_root=berths)[0] == newer
+    assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == newer, \
+        "the enqueue files the LATEST claiming artifact — the answer that stands"
+    os.unlink(older)
+    os.unlink(newer)
+    os.unlink(ledger)
+
+
+def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val):
+    """The read is the event: a pending verdict deposits through deposit_verdict
+    (the ONE door — no parallel writer), lands with its berth as provenance, is
+    marked deposited, and a SECOND drain finds nothing pending, so the tree stands
+    exactly still. Scratch nexus, fixed vector: the LIVE hypothesize tree is never
+    a fixture and no embed host is on this tooth's path."""
+    ledger = os.path.join(root, "instance", "ledger4", "verdict-deposits.jsonl")
+    # Its OWN artifact text: the deposit door dedups by (tree, content), so reusing
+    # the gated-face tooth's artifact would land a DUPLICATE carrying that tooth's
+    # provenance — a green that proved nothing about this drain (measured on the
+    # first run of this tooth, 2026-07-29).
+    drained_artifact = dict(good_artifact(val))
+    drained_artifact["verdicts"] = [dict(v, evidence=v["evidence"] + " — drained")
+                                    for v in drained_artifact["verdicts"]]
+    art = _berth_a_verdict(berths, drained_artifact, "20260729T040000")
+    assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
+    table = nexus_table(_NEXUS)
+    drained = drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 1.0, 0.0],
+                            ledger_path=ledger)
+    assert len(drained) == 1 and drained[0]["berth"] == art, drained
+    assert "failed" not in drained[0] and drained[0]["duplicate"] is False, drained
+    node_id = drained[0]["deposited"]
+    rows = store.read(table, where="node_id = %s", params=(node_id,))
+    assert rows and rows[0]["provenance"]["source"] == art, rows
+    assert rows[0]["provenance"]["ticket"] == "sworn"
+    assert rows[0]["content"] == verdict_node_content(drained_artifact)
+    assert pending(ledger_path=ledger) == [], "the landed berth is marked, not pending"
+    standing = trees.tree_state(_NEXUS, table=table, owner="chart")
+    assert drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 1.0, 0.0],
+                         ledger_path=ledger) == [], "a second drain has nothing to do"
+    assert trees.tree_state(_NEXUS, table=table, owner="chart") == standing, \
+        "a re-drain must never double-deposit — the tree stands exactly still"
+    os.unlink(art)
+
+
+def test_a_failed_deposit_stands_pending_and_is_named(root, berths, val):
+    """Law 7 at this seam: the deposit refuses (the artifact stopped validating),
+    so the ENQUEUED line stands — the obligation is permanent in the record — while
+    the failure is named in what the door serves. The drain RETURNS instead of
+    raising: a counsel read must still serve, and the tree is untouched."""
+    ledger = os.path.join(root, "instance", "ledger5", "verdict-deposits.jsonl")
+    bad = _berth_a_verdict(berths, dict(good_artifact(val), dispositions=[]),
+                           "20260729T050000")
+    assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == bad
+    table = nexus_table(_NEXUS)
+    before = trees.tree_state(_NEXUS, table=table, owner="chart")
+    drained = drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 0.0, 1.0],
+                            ledger_path=ledger)
+    assert len(drained) == 1 and "failed" in drained[0], drained
+    assert "undispositioned" in drained[0]["failed"], drained
+    assert drained[0]["still_pending"] is True
+    assert [e["berth"] for e in pending(ledger_path=ledger)] == [bad], \
+        "a failed deposit leaves its entry STANDING — nothing vanishes"
+    assert not [r for r in read_ledger(ledger_path=ledger) if r["kind"] == "deposited"], \
+        "nothing may claim a landing that did not happen"
+    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before, \
+        "a refused deposit leaves the tree standing"
+    os.unlink(bad)
+    os.unlink(ledger)
+
+
 def test_import_allowlist_tree_free(root, berths, val):
     # Composed over orient's import_map: verdict.py is TREE-FREE like
-    # chart.orient — the exit gate's fire path can never reach the trees.
+    # chart.orient — the exit gate's fire path can never reach the trees. ``glob``
+    # joined 2026-07-29 with the latest-claimer rule (stdlib; the ledger and the
+    # locator are files, by the netns constraint that split the deposit in two).
     from cairn.orient.orient import import_map
-    allow = ("__future__", "hashlib", "json", "os", "time", "cairn.chart.orient")
+    allow = ("__future__", "glob", "hashlib", "json", "os", "time", "cairn.chart.orient")
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
@@ -269,6 +432,11 @@ def _main() -> int:
         test_the_berth_lands_and_the_door_holds,
         test_the_rendering_carries_the_kill_and_its_evidence,
         test_the_deposit_face_is_gated,
+        test_the_ledger_is_append_only_and_pending_derives_by_read,
+        test_the_enqueue_keys_on_the_artifact_never_on_the_note,
+        test_the_latest_claimer_rule_has_exactly_one_implementation,
+        test_the_drain_lands_through_the_one_door_and_never_twice,
+        test_a_failed_deposit_stands_pending_and_is_named,
         test_import_allowlist_tree_free,
     ]
     try:
@@ -283,7 +451,14 @@ def _main() -> int:
           "the exit gate and the deposit face are ONE validator by identity, the "
           "berth round-trips, the rendering carries every kill with its deciding "
           "observation, the deposit face is gated, and the validator is tree-free "
-          "by import — the answer a voyage owes its chart has physics")
+          "by import — the answer a voyage owes its chart has physics; and THE "
+          "DEPOSIT RIDES THE READ (ticket the-deposit-rides-the-read): the pending "
+          "ledger is append-only with pending derived by read (a re-enqueue of a "
+          "deposited berth never resurrects it; a bad line is named, never dropped), "
+          "the enqueue keys on the ARTIFACT never the clean note, the latest-claimer "
+          "rule has exactly one implementation (gate and enqueue by identity), and "
+          "the drain lands through the ONE door exactly once — a failed deposit "
+          "stands pending, names itself, and still lets the door serve")
     return 0
 
 

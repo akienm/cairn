@@ -591,6 +591,119 @@ def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
             transitions._EXEMPT_ROSTER = saved
 
 
+def _ledger_world(d: Path, **kw):
+    """The exit world plus a FIXTURE ledger path and berths root patched into
+    cairn.chart.verdict — the enqueue's two module globals, so no tooth here can
+    touch the live instance-space ledger. Returns (tickets, berths, ledger)."""
+    import cairn.chart.verdict as _verdict
+    tickets, berths = _exit_world(d, **kw)
+    ledger = d / "ledger" / "verdict-deposits.jsonl"
+    return tickets, berths, ledger, _verdict
+
+
+def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
+    """the-deposit-rides-the-read LANDED: the deposit of a verdict into the tree
+    stops being a sail step someone remembers. An exit-gate-CLEAN forward crossing
+    into PROVED appends exactly ONE enqueued record naming the artifact that
+    answered — and the crossing's own journal carries the berth it filed, so the
+    obligation and the crossing share an address (Law 5). File-only: nothing on
+    this path reaches a db, an embed host, or the network, which is why a
+    netns-sealed crossing enqueues identically (build_inspector edge (l))."""
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=_ANSWERED)
+        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            artifact = str(berths / "0" / "packets" / "verdict-20260729T000002-feed.json")
+            transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
+                             ticket="widget")
+            lines = [json.loads(line) for line in
+                     ledger.read_text(encoding="utf-8").splitlines() if line.strip()]
+            assert len(lines) == 1, f"a clean crossing enqueues EXACTLY one record: {lines}"
+            assert lines[0]["kind"] == "enqueued" and lines[0]["berth"] == artifact, lines
+            assert lines[0]["ticket"] == "widget" and lines[0]["at"], lines
+            rec = projector.read_history(hist)[0]
+            assert rec["deposit_enqueued"] == artifact, \
+                f"the crossing must name the deposit it filed: {rec}"
+        finally:
+            (transitions._TICKETS, _insp._CHART_BERTHS,
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+
+
+def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
+    """The three silences, each measured. A REFUSED crossing writes no record of
+    truth and no ledger line (the gate raises before the enqueue). An UNCLAIMED
+    cast ticket crosses gated-and-CLEAN — and enqueues nothing, because the enqueue
+    keys on the ARTIFACT, never on the clean note (the exit stone's kill: a clean
+    note does not imply an artifact exists; keying on the note would file a pending
+    deposit for a file nobody wrote). A BACK-EDGE is never gated and never
+    enqueues — retreating owes the tree nothing."""
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        # (1) refusal: claimed, unanswered
+        tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=None)
+        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        try:
+            hist, state = str(Path(d) / "h1.json"), str(Path(d) / "s1.json")
+            _expect_refused(lambda: transitions.emit(
+                _AT_LEARN, "PROVED", history_path=hist, state_path=state,
+                ticket="widget"), transitions.ExitGateRed)
+            assert not ledger.exists(), \
+                "a REFUSED crossing must leave no ledger line — not even an empty file"
+            # (3) back-edge out of LEARNME: ungated, and owes nothing
+            hist3, state3 = str(Path(d) / "h3.json"), str(Path(d) / "s3.json")
+            transitions.emit(_AT_LEARN, "BUILDME", history_path=hist3, state_path=state3)
+            rec = projector.read_history(hist3)[0]
+            assert rec["direction"] == "back" and "deposit_enqueued" not in rec
+            assert not ledger.exists(), "a back-edge must enqueue nothing"
+        finally:
+            (transitions._TICKETS, _insp._CHART_BERTHS,
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+    with tempfile.TemporaryDirectory() as d:
+        # (2) unclaimed: cast ticket, NO claiming chart — gated-and-clean, no artifact
+        tickets, berths, ledger, _verdict = _ledger_world(Path(d), claim=False)
+        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        try:
+            hist, state = str(Path(d) / "h2.json"), str(Path(d) / "s2.json")
+            transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
+                             ticket="widget")
+            rec = projector.read_history(hist)[0]
+            assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), rec
+            assert "deposit_enqueued" not in rec, \
+                "a clean note is not an artifact — an unclaimed crossing files nothing"
+            assert not ledger.exists(), "an unclaimed gated-and-clean crossing enqueues nothing"
+        finally:
+            (transitions._TICKETS, _insp._CHART_BERTHS,
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+
+
+def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
+    """The netns constraint as structure (build_inspector edge (l)): the enqueue's
+    only door is cairn.chart.verdict — itself tree-free by its own allowlist tooth —
+    and the chokepoint's source names no tree, db, embed, or inference machinery at
+    all. If a future edit reaches a host from here, sealed crossings stop enqueueing
+    identically to live ones and THIS tooth is what says so."""
+    src = Path(transitions.__file__).read_text(encoding="utf-8")
+    for host_door in ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain",
+                      "cairn.inference_domain", "embed_via_domain"):
+        assert host_door not in src, (
+            f"transitions.py reaches {host_door} — the crossing side of the deposit "
+            "writes a FILE and nothing else; a host on the fire path breaks netns "
+            "sealing, which is the whole reason the deposit is split in two")
+    assert "from cairn.chart.verdict import enqueue_verdict" in src, \
+        "the enqueue's one door is chart's tree-free ledger module, lazily imported"
+
+
 def test_the_four_gate_exceptions_are_siblings_not_a_hierarchy():
     """The four gate exceptions (``EntryGateRed``, ``BuildGateRed``, ``ExitGateRed``,
     and the new ``TicketRequiredRed``) each subclass ``IllegalTransition`` directly —
@@ -633,6 +746,9 @@ def _main() -> int:
         test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict,
         test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean,
         test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean,
+        test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth,
+        test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing,
+        test_the_enqueue_seam_stays_file_only_on_the_fire_path,
         test_the_four_gate_exceptions_are_siblings_not_a_hierarchy,
     ]
     for check in checks:
@@ -651,7 +767,14 @@ def _main() -> int:
           "naming no ticket, or a named-but-uncast one, refuses before anything is written "
           "(TicketRequiredRed, distinct wording, sibling to the three gates above, never each "
           "other); the explicit _EXEMPT_ROSTER (empty in v0) passes gated-and-clean, never "
-          "silently — the state vocabulary is physics (Law 4), not /sorted's prose")
+          "silently — and THE DEPOSIT RIDES THE CROSSING (ticket "
+          "the-deposit-rides-the-read): an exit-gate-clean answered PROVED entry "
+          "appends exactly one enqueued record naming the artifact that answered and "
+          "journals the berth it filed, while a refusal, an unclaimed gated-and-clean "
+          "crossing (the enqueue keys on the ARTIFACT, never the clean note) and a "
+          "back-edge each enqueue nothing; the seam stays file-only, so a sealed "
+          "crossing enqueues identically to a live one — the state vocabulary is "
+          "physics (Law 4), not /sorted's prose")
     return 0
 
 

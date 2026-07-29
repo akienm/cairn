@@ -42,10 +42,14 @@ from cairn.charter import projector  # noqa: E402
 from cairn.chart.orient import ref_exists  # noqa: E402  (tree-free module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
 #   composes the berth gate's OWN ref semantics so the two mouths cannot disagree)
-from cairn.chart.verdict import unanswered, verdict_error  # noqa: E402  (joined
-#   2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
+from cairn.chart.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
+#   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
-#   chart.orient, pinned transitively by the inspector-nexus allowlist tooth)
+#   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
+#   claiming_packets joined 2026-07-29 (the-deposit-rides-the-read): the
+#   latest-claimer rule this gate used to own privately now lives beside the
+#   validator, so the gate and the crossing's deposit-enqueue cannot disagree
+#   about WHICH artifact answered.
 from cairn.orient.orient import ScanRefused, device_census  # noqa: E402
 
 
@@ -1116,18 +1120,11 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     item, or one naming the missing/malformed artifact — nothing to re-run.
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
-    claiming = []
-    artifacts = []
-    if root.is_dir():
-        for pattern, into in (("*/packets/validate-*.json", claiming),
-                              ("*/packets/verdict-*.json", artifacts)):
-            for path in sorted(root.glob(pattern)):
-                try:
-                    packet = json.loads(path.read_text())
-                except (OSError, json.JSONDecodeError):
-                    continue  # an unreadable berth names no claim; the berth owner's sweep carries that finding
-                if isinstance(packet, dict) and packet.get("ticket") == ticket:
-                    into.append((path, packet))
+    # THE ONE LATEST-CLAIMER RULE, composed (ticket the-deposit-rides-the-read):
+    # this gate's private glob loop retired into cairn.chart.verdict, where the
+    # crossing's deposit-enqueue reads it too — one implementation, two mouths.
+    claiming = claiming_packets(ticket, "validate", berths_root=root)
+    artifacts = claiming_packets(ticket, "verdict", berths_root=root)
     if not claiming:
         return []  # unclaimed — ungated (v0 jurisdiction, inherited from the entry gate)
     disposition = ("Disposition: run the claiming validate berth's criteria by their "

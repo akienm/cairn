@@ -33,13 +33,14 @@ from cairn.chart.survey import deposit_survey, survey_node_content
 from cairn.chart.tree import counsel, deposit_learning, deposit_packet
 from cairn.chart.triage import deposit_triage, triage_node_content
 from cairn.chart.validate import deposit_validate, validate_node_content
-from cairn.chart.verdict import (VerdictRefused, validate_verdict,
-                                 verdict_node_content)
+from cairn.chart.verdict import (VerdictRefused, mark_deposited, pending,
+                                 validate_verdict, verdict_node_content)
 from cairn.librarian.live import embed_via_domain
 
 
 def deposit_verdict(artifact: dict, vector, *, berth_path: str,
-                    root: str = CAIRN_ROOT, conn=None) -> dict:
+                    root: str = CAIRN_ROOT, nexus: str = "hypothesize",
+                    conn=None) -> dict:
     """The verdict face on the deposit door (ticket proved-answers-the-chart): the
     dispositions become the HYPOTHESIZE tree's memory of what killed which — the
     'one day' deposit_hypothesize's docstring has promised since the brick landed.
@@ -62,7 +63,59 @@ def deposit_verdict(artifact: dict, vector, *, berth_path: str,
         "validate_ref": artifact["validate_ref"],
         "ticket": artifact["ticket"],
     }
-    return deposit_learning("hypothesize", content, vector, provenance, conn=conn)
+    return deposit_learning(nexus, content, vector, provenance, conn=conn)
+
+
+def drain_pending(*, root: str = CAIRN_ROOT, nexus: str = "hypothesize",
+                  embed=None, ledger_path: str | None = None, conn=None) -> list[dict]:
+    """THE DRAIN (ticket the-deposit-rides-the-read, 2026-07-29): every verdict the
+    emit chokepoint enqueued and nobody has deposited, landed through the ONE
+    deposit door above — run by both door verbs BEFORE they serve.
+
+    THE READ IS THE EVENT. Nothing polls and nothing schedules: the drain fires
+    inside a door entry that was already happening, which is where the tree is
+    already open and the db cost is already being paid (Law 1; 'reach for the
+    event that already fires, never a clock'). The crossing side stayed tree-free
+    so a netns-sealed crossing could enqueue identically — this is the other half,
+    on the tree side, where the db is allowed.
+
+    Law 7 at this exact seam: a deposit that raises leaves its ENQUEUED line
+    standing (the record of truth keeps the obligation) and rides back named in
+    the result (the presentation surface says so loudly) — and the verb still
+    serves. A landing appends a ``deposited`` record, which is also the whole
+    idempotence story: the second drain finds nothing pending, so no berth is ever
+    deposited twice, and no line was ever edited to make that true.
+
+    Returns one entry per pending berth: ``{"berth", "deposited"|"failed", ...}``.
+    """
+    embed = embed or embed_via_domain()
+    drained = []
+    for entry in pending(ledger_path=ledger_path):
+        berth = entry["berth"]
+        try:
+            with open(os.path.expanduser(berth), encoding="utf-8") as fh:
+                artifact = json.load(fh)
+            got = deposit_verdict(artifact, embed(verdict_node_content(artifact)),
+                                  berth_path=berth, root=root, nexus=nexus, conn=conn)
+            mark_deposited(berth, got["node_id"], ledger_path=ledger_path)
+            drained.append({"berth": berth, "deposited": got["node_id"],
+                            "duplicate": got.get("duplicate"), "nexus": nexus})
+        except Exception as e:  # noqa: BLE001 — deliberate: the door must still serve
+            drained.append({"berth": berth, "failed": "%s: %s" % (type(e).__name__, e),
+                            "still_pending": True})
+    return drained
+
+
+def _drain_before_serving() -> list[dict]:
+    """The one call both verbs make. Failures are named on stderr as well as in the
+    served payload — a diagnostic surface is loud (Law 7), and a counsel read that
+    quietly ate a failed deposit would be the silent lapse this stone exists to end."""
+    drained = drain_pending()
+    for entry in drained:
+        if "failed" in entry:
+            print("DEPOSIT FAILED — %s STANDS PENDING on the ledger: %s"
+                  % (entry["berth"], entry["failed"]), file=sys.stderr)
+    return drained
 
 
 def _counsel(argv: list[str]) -> int:
@@ -71,9 +124,11 @@ def _counsel(argv: list[str]) -> int:
         return 1
     request, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
     kw = {"owner": argv[2]} if len(argv) > 2 else {}
+    drained = _drain_before_serving()  # pending verdicts land before the walk reads
     got = counsel(embed_via_domain()(request), nexus=nexus, **kw)
     print(json.dumps({
         "request": request,
+        "drained": drained,
         "counsel": {k: v for k, v in got.items() if k != "walk"},
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],
                   "standing": n["standing"], "provenance": n["provenance"]}
@@ -87,6 +142,7 @@ def _learn(argv: list[str]) -> int:
         print("usage: live learn <berth-path> [nexus]", file=sys.stderr)
         return 1
     berth = argv[0]
+    drained = _drain_before_serving()  # pending verdicts land before this deposit
     with open(berth, encoding="utf-8") as fh:
         packet = json.load(fh)
     if os.path.basename(berth).startswith("constrain-"):
@@ -128,6 +184,7 @@ def _learn(argv: list[str]) -> int:
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),
                              berth_path=berth, nexus=nexus)
     print(json.dumps({"learn": got, "berth": berth, "nexus": nexus,
+                      "drained": drained,
                       "dial": dial()["nexi"].get(nexus, {}).get("aggregate")},
                      indent=2, default=str))
     return 0

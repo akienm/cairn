@@ -395,6 +395,36 @@ def _exit_gate(ticket: str) -> str:
     )
 
 
+def _enqueue_verdict(ticket: str) -> str | None:
+    """THE DEPOSIT ENQUEUE (ticket the-deposit-rides-the-read, 2026-07-29): an
+    exit-gate-clean forward crossing into PROVED files its answering verdict berth
+    on chart's append-only pending ledger, so the deposit into the hypothesize tree
+    stops being a sail step someone remembers and becomes a CONSEQUENCE of the
+    crossing. The tree side is paid at chart.live's next door entry (the read is
+    the event — no clock, no daemon); an undeposited verdict is a measurable
+    pending entry, never a silent lapse.
+
+    A FILE WRITE ONLY. Coupling this door to the db/embed hosts is exactly what
+    build_inspector edge (l) says would break netns sealing, so the crossing writes
+    the cheap durable half and never reaches a host: a sealed crossing enqueues
+    identically to a live one.
+
+    Keys on the ARTIFACT, never on the gate's clean note: the exit gate is clean
+    both when a chart was answered AND when no chart claims the ticket at all, so
+    the unclaimed gated-and-clean crossing has no artifact and enqueues nothing
+    (returns None). Refusals never reach here, and back-edges are never gated.
+
+    A ledger write that fails propagates LOUDLY (nothing is journaled): a deposit
+    obligation that could not be recorded must not be swallowed into a green
+    crossing (Law 7).
+    """
+    # Lazy on purpose, same boot-order law as the gates: the cost lands only at a
+    # journaled PROVED entry — an event, never a poll.
+    from cairn.chart.verdict import enqueue_verdict as _enqueue
+
+    return _enqueue(ticket)
+
+
 def _build_gate(history_path: str) -> str:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
@@ -500,10 +530,19 @@ def emit(
         # complete and passing), same as before this stone. Back-edges retreat
         # ungated (never subject to either check).
         exit_note = None
+        # THE DEPOSIT ENQUEUE: an exit-gate-CLEAN crossing files its answering
+        # verdict berth on chart's pending ledger before the record is written, so
+        # the crossing's own journal names the deposit it owes (ticket
+        # the-deposit-rides-the-read). Nothing is enqueued for an exempt crossing
+        # (it names no ticket), for an unclaimed one (no artifact exists), or for
+        # a refusal (the gate raises above this line).
+        enqueued = None
         if target == "PROVED" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
             _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
             exit_note = _exempt if _exempt is not None else _exit_gate(_ticket)
+            if _exempt is None:
+                enqueued = _enqueue_verdict(_ticket)
         record = {
             "from": wf.here,
             "to": target,
@@ -531,6 +570,10 @@ def emit(
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),
+            # The record of truth says the deposit was filed: a gated PROVED entry
+            # that answered a chart names the berth now standing on chart's pending
+            # ledger, so the obligation and the crossing share an address (Law 5).
+            **({"deposit_enqueued": enqueued} if enqueued else {}),
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

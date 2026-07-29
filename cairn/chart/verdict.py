@@ -35,9 +35,18 @@ The artifact (verdict-<stamp>-<digest>.json, berthed beside the stage packets):
                   expect verbatim from the chain's hypothesize berth; ``by`` is
                   the observation that decided it (a kill nobody can point at is
                   a narrated kill)
+
+THE PENDING LEDGER (2026-07-29, ticket the-deposit-rides-the-read) berths at the
+bottom of this file: the crossing side of the deposit split. The exit gate
+shape-checks the artifact on disk, but the DEPOSIT of it into the hypothesize
+tree used to be a sail step a builder remembered — and coupling the chokepoint to
+the db/embed hosts would break netns sealing (build_inspector edge (l)). So the
+crossing writes the cheap durable half (one appended line in a FILE) and the tree
+side pays the db cost at its own door, on its own next read.
 """
 from __future__ import annotations
 
+import glob
 import hashlib
 import json
 import os
@@ -180,3 +189,152 @@ def verdict_node_content(artifact: dict) -> str:
                       for d in artifact["dispositions"]) or "none"
     return ("VERDICT for ticket %s — the chart answered at PROVED. CRITERIA: %s. "
             "HYPOTHESES: %s" % (artifact["ticket"], ran, fates))
+
+
+# ── WHICH BERTH CLAIMS THIS TICKET — THE ONE LATEST-CLAIMER RULE ─────────────
+# Factored here 2026-07-29 (ticket the-deposit-rides-the-read) out of the exit
+# gate, which owned the only copy: the gate globs berthed packets for a ticket
+# claim and takes the LAST as the answer that stands. The enqueue below needs
+# the identical rule — so it is composed by import, never mirrored. A gate and
+# an enqueue that disagreed about WHICH artifact answered would deposit one
+# verdict while the gate judged another (the two-mouths defect, in a place
+# nobody would look for it).
+#
+# ~/.cairn/devices/chart — the chart device's berths, one directory per instance
+# (INSTANCE_DIR is instance 0's packets/ child; a singleton is instance 0, not a
+# special case).
+BERTHS_ROOT = os.path.dirname(os.path.dirname(INSTANCE_DIR))
+
+
+def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:
+    """Every readable berthed ``<stage>-*.json`` packet whose ``ticket`` field names
+    ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
+    chronological and the LAST entry is the one that stands.
+
+    An unreadable berth names no claim and is skipped here (the berth owner's own
+    sweep carries that finding — a gate must not invent a claim it cannot read).
+    Returns ``[(path, packet), ...]`` with paths as strings."""
+    root = os.path.expanduser(str(berths_root if berths_root is not None else BERTHS_ROOT))
+    found = []
+    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "%s-*.json" % stage))):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                packet = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(packet, dict) and packet.get("ticket") == ticket:
+            found.append((path, packet))
+    return found
+
+
+def latest_claiming_artifact(ticket: str, *, berths_root=None):
+    """The verdict artifact that STANDS for ``ticket`` — ``(path, artifact)`` or
+    ``None`` when nothing claims it. The latest answer is the one that stands
+    (verdict multiplicity beyond latest-wins is the exit ticket's filed edge (b))."""
+    found = claiming_packets(ticket, "verdict", berths_root=berths_root)
+    return found[-1] if found else None
+
+
+# ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────
+# An append-only JSONL in chart's instance-space, TWO RECORD KINDS and no third
+# motion: ``enqueued`` (a crossing named a verdict berth that owes the tree a
+# deposit) and ``deposited`` (the door landed it, with the node it became).
+# PENDING IS DERIVED BY READ — enqueued minus deposited — never by editing or
+# removing a line: a record of truth is never changed in place (Law 7), so a
+# failed deposit leaves its enqueued line standing and loud instead of vanishing.
+#
+# Law 6: chart owns the ledger. Both writers (the chokepoint's enqueue and the
+# live door's deposited-mark) append through THIS module; nothing else touches
+# the file. Tree-free by construction, like everything else here — the crossing
+# side of the deposit may never reach the db or the embed host, which is the
+# whole reason the deposit is split in two.
+
+LEDGER_PATH = os.path.join(os.path.dirname(INSTANCE_DIR), "verdict-deposits.jsonl")
+
+
+def _stamp() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S")
+
+
+def _append(record: dict, ledger_path: str) -> dict:
+    """The ONE write: open in append mode, one JSON object per line. Nothing on
+    disk is read, rewritten, or truncated by a write — the file only grows."""
+    parent = os.path.dirname(ledger_path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(ledger_path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record, sort_keys=True) + "\n")
+    return record
+
+
+def read_ledger(*, ledger_path: str | None = None) -> list[dict]:
+    """Every record on the ledger, in append order. A missing ledger is an honest
+    empty list (nothing has ever been enqueued). A line that cannot be parsed is
+    NEVER dropped silently — it rides back as ``{"kind": "unreadable", ...}`` so a
+    reader can name it, and the line itself stays exactly where it is."""
+    path = os.path.expanduser(ledger_path if ledger_path is not None else LEDGER_PATH)
+    if not os.path.isfile(path):
+        return []
+    records = []
+    with open(path, encoding="utf-8") as fh:
+        for n, line in enumerate(fh, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as e:
+                records.append({"kind": "unreadable", "line": n, "raw": line.rstrip("\n"),
+                                "why": "%s: %s" % (type(e).__name__, e)})
+                continue
+            records.append(record if isinstance(record, dict)
+                           else {"kind": "unreadable", "line": n, "raw": line.rstrip("\n"),
+                                 "why": "a ledger line must be a JSON object"})
+    return records
+
+
+def pending(*, ledger_path: str | None = None) -> list[dict]:
+    """The enqueued records no ``deposited`` record answers, in enqueue order, one
+    per berth — DERIVED BY READ, which is why nothing ever has to be edited."""
+    records = read_ledger(ledger_path=ledger_path)
+    landed = {r.get("berth") for r in records if r.get("kind") == "deposited"}
+    out, seen = [], set()
+    for r in records:
+        berth = r.get("berth")
+        if r.get("kind") != "enqueued" or not isinstance(berth, str):
+            continue
+        if berth in landed or berth in seen:
+            continue
+        seen.add(berth)
+        out.append(r)
+    return out
+
+
+def enqueue_verdict(ticket: str, *, berths_root=None,
+                    ledger_path: str | None = None) -> str | None:
+    """Append ONE ``enqueued`` record naming the verdict artifact that answers
+    ``ticket``. Returns the berth enqueued, or ``None`` when nothing claims the
+    ticket — and that ``None`` is the load-bearing case: the exit gate is CLEAN
+    both when a chart was answered and when no chart claims the ticket at all, so
+    an enqueue keyed on the clean note would file a pending deposit for an
+    artifact that does not exist. The key is the ARTIFACT.
+
+    File-only by construction: a netns-sealed crossing enqueues identically to a
+    live one, which is the constraint that split this deposit in two."""
+    found = latest_claiming_artifact(ticket, berths_root=berths_root)
+    if found is None:
+        return None
+    berth = found[0]
+    _append({"kind": "enqueued", "berth": berth, "ticket": ticket, "at": _stamp()},
+            os.path.expanduser(ledger_path if ledger_path is not None else LEDGER_PATH))
+    return berth
+
+
+def mark_deposited(berth: str, node_id: str, *,
+                   ledger_path: str | None = None) -> dict:
+    """Append the SECOND record kind after the tree door landed the verdict. The
+    enqueued line is never touched — 'drained' is a record appended by the
+    depositor, so the ledger reads as the whole story of every deposit."""
+    return _append({"kind": "deposited", "berth": berth, "node_id": node_id,
+                    "at": _stamp()},
+                   os.path.expanduser(ledger_path if ledger_path is not None
+                                      else LEDGER_PATH))

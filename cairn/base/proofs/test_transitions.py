@@ -117,6 +117,41 @@ def test_a_drifted_path_that_claims_v1_is_refused():
     _expect_refused(lambda: transitions.emit(drifted, "PROVEME"), exc=transitions.MalformedWorkflow)
 
 
+_SKILL_V1 = "skill@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
+
+
+def test_a_skill_v1_workflow_validates_and_journals_a_crossing_at_a_fixture_skill_address():
+    """ticket skills-ride-the-chokepoint: class skill@v1 is now registered
+    (CairnCommons/node_classes/skill.json), so a skill node rides the SAME
+    chokepoint a code-seam does — zero new code paths, only the registry the
+    loader already reads. A fixture skill address (skills/fixture-skill/) proves
+    it journals exactly like a code-seam crossing: workflow/standing/direction
+    all present, the append door happy."""
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "skills" / "fixture-skill"
+        comp.mkdir(parents=True)
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        new = transitions.emit(_SKILL_V1, "PROVEME", history_path=hist, state_path=state)
+        assert "[PROVEME]" in new and "[BUILDME]" not in new, f"cursor did not move: {new}"
+        rec = projector.read_history(hist)[0]
+        assert rec["from"] == "BUILDME" and rec["to"] == "PROVEME" and rec["direction"] == "forward"
+        assert rec["standing"] == "PROVEME" and rec["workflow"] == new
+
+
+def test_a_drifted_skill_path_that_claims_v1_is_refused():
+    # claims skill@v1 but the path is mangled (TICKETME dropped) — not a valid v1 instance,
+    # the same conformance check code-seam@v1 rides, applied to the new class with zero
+    # new code (_conform reads node_classes/skill.json's registered path generically).
+    drifted = "skill@v1: THINKME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
+    _expect_refused(lambda: transitions.emit(drifted, "PROVEME"), exc=transitions.MalformedWorkflow)
+
+
+def test_an_unknown_class_still_refuses_after_skill_registration():
+    # Registering class skill must not widen the door for a class that was never
+    # registered at all — the fix must not widen the door (the ticket's falsifier).
+    _expect_refused(lambda: transitions.emit("never-registered@v1: [THINKME] -> PROVED", "PROVED"))
+
+
 def test_a_back_edge_kickback_is_legal_and_carries_severity():
     at_prove = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> LEARNME -> PROVED"
     with tempfile.TemporaryDirectory() as d:
@@ -400,6 +435,58 @@ def test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean():
             assert "legacy-component" in rec["entry_gate"]
         finally:
             transitions._EXEMPT_ROSTER = saved
+
+
+_AT_TICKET_SKILL = "skill@v1: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> LEARNME -> PROVED"
+
+
+def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
+    """ticket skills-ride-the-chokepoint: the entry gate is class-agnostic — it keys
+    on the crossing's own named ticket, never on node_class — so a skill-class
+    voyage naming a cast ticket with no berthed chart chain refuses IDENTICALLY to
+    a code-seam one (mirrors test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket
+    above, skill@v1 in place of code-seam@v1)."""
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            try:
+                transitions.emit(_AT_TICKET_SKILL, "BUILDME",
+                                 history_path=hist, state_path=state, ticket="widget")
+            except transitions.EntryGateRed as e:
+                assert [f["filter"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert "widget" in str(e) and "/chart" in str(e), \
+                    "the refusal must name the ticket and the disposition, first pass"
+            else:
+                raise AssertionError("a chartless skill-class BUILDME crossed — the entry gate is not wired for class skill")
+            assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict():
+    """The mirror pass: a skill-class voyage naming a cast ticket a berthed chart
+    chain DOES claim crosses gated-and-clean, journal shape identical to a
+    code-seam crossing — the entry gate is physics over the ticket, not the class."""
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            new = transitions.emit(_AT_TICKET_SKILL, "BUILDME",
+                                   history_path=hist, state_path=state, ticket="widget")
+            assert "[BUILDME]" in new
+            rec = projector.read_history(hist)[0]
+            assert rec["entry_gate"].startswith("clean — a berthed chart chain claims"), \
+                f"the crossing's evidence must say the entry gate ran: {rec}"
+            assert rec["ticket"] == "widget"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
 
 
 _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
@@ -730,6 +817,9 @@ def _main() -> int:
         test_a_no_op_self_transition_is_refused,
         test_an_unknown_class_or_version_is_refused,
         test_a_drifted_path_that_claims_v1_is_refused,
+        test_a_skill_v1_workflow_validates_and_journals_a_crossing_at_a_fixture_skill_address,
+        test_a_drifted_skill_path_that_claims_v1_is_refused,
+        test_an_unknown_class_still_refuses_after_skill_registration,
         test_a_back_edge_kickback_is_legal_and_carries_severity,
         test_it_parses_a_real_live_ticket_workflow_string,
         test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path,
@@ -742,6 +832,8 @@ def _main() -> int:
         test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict,
         test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated,
         test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean,
+        test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket,
+        test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict,
         test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still,
         test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict,
         test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean,
@@ -774,7 +866,14 @@ def _main() -> int:
           "crossing (the enqueue keys on the ARTIFACT, never the clean note) and a "
           "back-edge each enqueue nothing; the seam stays file-only, so a sealed "
           "crossing enqueues identically to a live one — the state vocabulary is "
-          "physics (Law 4), not /sorted's prose")
+          "physics (Law 4), not /sorted's prose. AND NOW A SECOND CLASS RIDES THE SAME "
+          "DOOR (ticket skills-ride-the-chokepoint): class skill@v1 registered in "
+          "node_classes/skill.json alone (ZERO changes to this module) — a skill "
+          "crossing validates, journals, and drifts identically to a code-seam one, "
+          "an unknown class still refuses after the registration, and the entry gate "
+          "fires identically on a skill-class voyage naming a cast ticket (chartless "
+          "refuses, charted crosses gated-and-clean) — the registry is the door, proven "
+          "on a second tenant")
     return 0
 
 

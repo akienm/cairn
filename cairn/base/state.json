@@ -1,25 +1,18 @@
 {
   "cursor": {
-    "from": "PROVEME",
-    "to": "LEARNME",
-    "standing": "LEARNME",
-    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED",
+    "from": "LEARNME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> [PROVED]",
     "direction": "forward",
-    "build_gate": "clean — build_inspector ran 17 filters over base",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'skills-ride-the-chokepoint'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260729T154748-81183b31057f.json",
     "ticket": "skills-ride-the-chokepoint",
-    "note": "LEARNME: live fire done — skills/sail/history.json + state.json created via the projector append door, journaling the sail skill's first real crossing (THINKME->BUILDME, ticket skills-ride-the-chokepoint); state_is_projection filter clean over the new pair. Records settle next: ticket cursor, both charter deltas + recompile poke, chart berth deposits, commit+push.",
-    "at": "2026-07-29T12:33:44",
-    "seq": 14
+    "note": "class skill@v1 rides the same door as a code-seam — registered in node_classes/skill.json ALONE, zero changes to transitions.py, proven on a second tenant. /sail record born at skills/sail/. Closed inline on Opus after the builder was cut off by imminent usage exhaustion. TWO FINDINGS on the ticket: build_inspector cannot see skills/ at all (census is cairn/-scoped, so no filter has jurisdiction there — carried to ticket nothing-rides-loose as a prerequisite measured false), and the same-act recompile poke was missed for the sail charter delta (invariant held; the gate is on-read).",
+    "at": "2026-07-29T15:48:15",
+    "seq": 15
   },
   "window": [
-    {
-      "gate": "proved",
-      "standing": "PROVED — THE CROSSING NOW SAYS WHERE THE BOAT STANDS. transitions.emit derives `standing` from the target it just landed on, instead of leaving it to every caller to remember. Found by the append door's new shape gate (cairn/charter/projector.py), which refused emit's record on its first run: from/to/workflow/direction and no `standing` — the one field harbor_master's register reads to place a boat, so every such record would have been permanently unreadable. Measured: zero emit-shaped records existed in any live history, so nothing malformed was ever written; the gate caught it while it was still cheap. A caller may still override with a richer line through journal_extra — the default is a floor, not a ceiling. Proven 11/11 (2 new); full suite 31/31 green.",
-      "proof": "cairn/base/proofs/test_transitions.py",
-      "kin": "CairnCommons/troubles/append-door-has-no-schema-gate.json — the same defect class, one layer up",
-      "at": "2026-07-25T18:53:20",
-      "seq": 10
-    },
     {
       "gate": "proved",
       "standing": "PROVED — THE BUILD GATE HOLDS THE PROVEME EXIT. transitions.emit now runs the build_inspector on the component at a journaled crossing's own address before any forward move out of PROVEME, and refuses on red BEFORE anything is written (build_inspector filed edge (a), landed). Wired at the emit-chokepoint because the clearance gate wraps emit — this is the one door, so 'CC runs it by discipline' is retired for every journaled promotion. Kick-backs out of PROVEME are never gated (retreat on red is correct); an unaddressed exit is a string calculation (no journal, no jurisdiction); an address the census cannot see is REFUSED with its growth path named, never waved through (Law 8 — no side door). A clean exit journals its gate verdict in the crossing record (build_gate field). Live-fired on the real tree: bus's promotion REFUSED by silent_device, history untouched. Proven 17/17 (5 new teeth) under the tester's netns seal; inspector/orient/clearance/append-door proofs all green beside it.",
@@ -63,7 +56,20 @@
       "note": "LEARNME: live fire done — skills/sail/history.json + state.json created via the projector append door, journaling the sail skill's first real crossing (THINKME->BUILDME, ticket skills-ride-the-chokepoint); state_is_projection filter clean over the new pair. Records settle next: ticket cursor, both charter deltas + recompile poke, chart berth deposits, commit+push.",
       "at": "2026-07-29T12:33:44",
       "seq": 14
+    },
+    {
+      "from": "LEARNME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> [PROVED]",
+      "direction": "forward",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'skills-ride-the-chokepoint'",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260729T154748-81183b31057f.json",
+      "ticket": "skills-ride-the-chokepoint",
+      "note": "class skill@v1 rides the same door as a code-seam — registered in node_classes/skill.json ALONE, zero changes to transitions.py, proven on a second tenant. /sail record born at skills/sail/. Closed inline on Opus after the builder was cut off by imminent usage exhaustion. TWO FINDINGS on the ticket: build_inspector cannot see skills/ at all (census is cairn/-scoped, so no filter has jurisdiction there — carried to ticket nothing-rides-loose as a prerequisite measured false), and the same-act recompile poke was missed for the sail charter delta (invariant held; the gate is on-read).",
+      "at": "2026-07-29T15:48:15",
+      "seq": 15
     }
   ],
-  "count": 15
+  "count": 16
 }

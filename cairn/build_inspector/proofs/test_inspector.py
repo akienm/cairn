@@ -498,6 +498,38 @@ def main() -> None:
             ["validate_covers_the_build"]
         assert judge_validate(chainless_v) and \
             judge_validate(chainless_v)[0]["judge"] == "validate_covers_the_build"
+
+        # 27 — THE ENTRY GATE (buildme-rides-the-chart, 2026-07-29): green iff a
+        #      READABLE VALIDATE berth claims the ticket; red is ONE finding carrying
+        #      ticket + searched root + the /chart disposition, complete first pass.
+        #      Crossing-jurisdiction, deliberately NOT in FILTERS — a promotion sweep
+        #      would retro-red every pre-chain component (the tooth-1 failure).
+        from cairn.build_inspector.inspector import FILTERS as _FILTERS
+        from cairn.build_inspector.inspector import buildme_rides_the_chart
+        eroot = tmp / "entry-berths"
+        ep = eroot / "0" / "packets"
+        ep.mkdir(parents=True)
+        ef = buildme_rides_the_chart("lonely", berths_root=eroot)
+        assert [x["filter"] for x in ef] == ["buildme_rides_the_chart"], ef
+        assert ef[0]["evidence"]["ticket"] == "lonely" and \
+            ef[0]["evidence"]["searched"] == str(eroot) and \
+            "/chart" in ef[0]["why_it_matters"], ef[0]
+        # a claim on ANOTHER ticket, an unreadable berth, a non-validate stage: still red
+        (ep / "validate-20260729T000000-aaaa.json").write_text(
+            json.dumps({"ticket": "someone-else"}))
+        (ep / "validate-20260729T000001-bbbb.json").write_text("{not json")
+        (ep / "hypothesize-20260729T000002-cccc.json").write_text(
+            json.dumps({"ticket": "lonely"}))
+        assert buildme_rides_the_chart("lonely", berths_root=eroot), \
+            "only a READABLE VALIDATE berth claiming the ticket is a charted course"
+        # the real claim lands: green, empty findings
+        (ep / "validate-20260729T000003-dddd.json").write_text(
+            json.dumps({"ticket": "lonely"}))
+        assert buildme_rides_the_chart("lonely", berths_root=eroot) == []
+        # a nonexistent root reds, never crashes; and the check stays OUT of FILTERS
+        assert buildme_rides_the_chart("lonely", berths_root=eroot / "nope")
+        assert "buildme_rides_the_chart" not in _FILTERS, \
+            "crossing-jurisdiction: the promotion sweep must not run the entry check"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

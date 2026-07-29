@@ -84,6 +84,19 @@ class IllegalTransition(ValueError):
     """The requested transition is refused by the rules — loud, never silent (Law 7)."""
 
 
+class EntryGateRed(IllegalTransition):
+    """The forward crossing into BUILDME is refused: the crossing names a cast ticket
+    that no berthed chart chain claims — the build has no charted course. Carries
+    ``findings`` complete on the first pass; run /chart for the request, never bypass.
+    Sibling of ``BuildGateRed``, not a subclass: the two gates refuse different
+    crossings (entry vs promotion) and a handler for one must not silently catch
+    the other."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 class BuildGateRed(IllegalTransition):
     """The forward crossing out of PROVEME is refused: the component at the crossing's own
     address reds the build_inspector (or cannot be inspected at all — same refusal, no side
@@ -216,6 +229,45 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> None:
             f"(legal from here: {sorted(legal)}) — e.g. a forward skip past a gate summons is refused")
 
 
+_TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+
+
+def _entry_gate(ticket: str) -> str:
+    """A cast ticket crossing forward into BUILDME must be claimed by a berthed chart
+    chain — the entry half of packet jurisdiction (the PROVEME exit below is the
+    promotion half). Returns the one-line gate note the journal carries; raises
+    ``EntryGateRed`` — findings complete on the first pass — before anything is
+    written.
+
+    Provenance: 2026-07-29, ticket buildme-rides-the-chart — the sail step-0 prose
+    refusal ('no berths → run /chart first') retired into physics (Law 4), on
+    Akien's word with the stake in numbers (Fable at 64% of usage). Wired at the
+    emit-chokepoint because this is the one door; jurisdiction is the crossing's
+    own named, cast ticket — an un-cast or unnamed ticket is not gated (v0; the
+    stricter require-a-ticket edge is filed on the ticket).
+    """
+    # Lazy on purpose, same boot-order law as the build gate below: the check's cost
+    # lands only at the rare journaled BUILDME entry — an event, never a poll.
+    from cairn.build_inspector.inspector import buildme_rides_the_chart as _check
+
+    findings = _check(ticket)
+    if not findings:
+        return "clean — a berthed chart chain claims ticket %r" % ticket
+    lines = [
+        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"{json.dumps(f['evidence'], default=str)})"
+        for f in findings
+    ]
+    raise EntryGateRed(
+        f"BUILDME crossing refused: cast ticket {ticket!r} has no berthed chart chain "
+        "claiming it — skipping /chart is a build error, the same physics that refuses "
+        "skipping a stage inside the chain. Nothing was journaled. Run /chart for this "
+        "request (its validate berth carries the claim), then cross again:\n"
+        + "\n".join(lines),
+        findings=findings,
+    )
+
+
 def _build_gate(history_path: str) -> str:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
@@ -301,6 +353,15 @@ def emit(
         gate_note = None
         if wf.here == "PROVEME" and target_idx > wf.cursor:
             gate_note = _build_gate(history_path)
+        # THE ENTRY GATE: crossing forward INTO the BUILDME summons with a named, cast
+        # ticket requires a berthed chart chain claiming that ticket; a red refuses
+        # BEFORE anything is written. Back-edges into BUILDME retreat ungated, and a
+        # crossing naming no ticket (or an un-cast one) is not gated — v0 jurisdiction.
+        entry_note = None
+        if target == "BUILDME" and target_idx > wf.cursor:
+            _ticket = journal_extra.get("ticket")
+            if isinstance(_ticket, str) and (_TICKETS / (_ticket + ".json")).exists():
+                entry_note = _entry_gate(_ticket)
         record = {
             "from": wf.here,
             "to": target,
@@ -322,6 +383,9 @@ def emit(
             # The record of truth says the gate ran: a PROVEME exit journals what the
             # build_inspector saw, so a promotion's evidence travels with the crossing.
             **({"build_gate": gate_note} if gate_note else {}),
+            # The record of truth says the entry gate ran: a gated BUILDME entry
+            # journals that its chart claim was checked and found standing.
+            **({"entry_gate": entry_note} if entry_note else {}),
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

@@ -69,6 +69,11 @@ filled and honest*. Actively assemble (never bare-lookup):
 - **refs** — pointers (paths, component names) downstream will need. ONLY
   floor-verifiable refs — the gate refuses invented ones. References beat
   restatement: point, don't quote.
+- **ticket** — if this chart serves a cast ticket, claim it
+  (`"ticket": "<id>"`) and CARRY THE CLAIM THROUGH EVERY STAGE to validate:
+  the /sail entry gate (buildme-rides-the-chart, 2026-07-29) finds the chain
+  by the validate berth's claim, so an unclaimed chart cannot open the BUILDME
+  door. The gate refuses a claim on an unfiled ticket — /sorted casts first.
 - **unknowns** — what orient could NOT ground. An honest non-empty list
   outranks a confident hollow one.
 - **confidence** — a float in [0,1], as data, not hedging prose.

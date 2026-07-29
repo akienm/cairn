@@ -10,22 +10,28 @@ The charter lives beside this file in `intention+why.json`.
 
 ARGUMENTS: the request being built (the `<something>` a /chart already grounded).
 
-## 0. The chain is the input — refuse without it
+## 0. The chain is the input — and the refusal is now PHYSICS
 
 Template-fill from the LAST berthed stage for this request
-(`~/.cairn/devices/chart/0/packets/`, deepest link first: survey → constrain →
-orient). **No berths → run /chart first.** Building from the conversation
-instead of the berths is the step-skipping the chain exists to make a build
-error — same physics as every stage gate.
+(`~/.cairn/devices/chart/0/packets/`, deepest link first: validate →
+hypothesize → triage → decompose → survey → constrain → orient). **No berths →
+run /chart first.** This is no longer only prose: since 2026-07-29 (ticket
+buildme-rides-the-chart) the emit chokepoint REFUSES a cast ticket's BUILDME
+crossing unless a berthed validate packet claims the ticket — building from
+the conversation is a build error the door itself throws (`EntryGateRed`).
 
 Also required: a **cast ticket** (`CairnCommons/tickets/<id>.json`). Casting is
-/sorted's job, not this skill's — un-cast → route through /sorted first.
+/sorted's job, not this skill's — and the order is taught by physics: the
+chart doors refuse a claim on an unfiled ticket, so **/sorted casts BEFORE
+/chart claims**, and the chart's packets carry `"ticket": "<id>"` so the entry
+gate can find them.
 
 ## 1. Journal BUILDME
 
 Every crossing rides the emit chokepoint (`cairn.base.transitions.emit`) at the
-component's own address, carrying the ticket. The record of truth moves before
-the code does.
+component's own address, carrying the ticket — the ticket on the crossing is
+what the entry gate reads, so an unnamed ticket is an ungated (and unclaimed)
+build. The record of truth moves before the code does.
 
 ## 2. Build inside the berths
 

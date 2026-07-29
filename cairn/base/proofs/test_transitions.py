@@ -266,6 +266,97 @@ def test_an_address_the_census_cannot_see_is_refused_not_waved_through():
         assert not Path(hist).exists()
 
 
+_AT_TICKET = "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> LEARNME -> PROVED"
+
+
+def _entry_world(d: Path, *, cast=("widget",), claims=()):
+    """A fixture commons-tickets + chart-berths pair for the ENTRY GATE teeth —
+    both chokepoint globals patched, so no tooth reads live instance-space."""
+    tickets = d / "tickets"
+    tickets.mkdir()
+    for t in cast:
+        (tickets / f"{t}.json").write_text("{}")
+    berths = d / "berths"
+    (berths / "0" / "packets").mkdir(parents=True)
+    for i, t in enumerate(claims):
+        (berths / "0" / "packets" / f"validate-20260729T00000{i}-feed.json").write_text(
+            json.dumps({"ticket": t}))
+    return tickets, berths
+
+
+def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
+    """buildme-rides-the-chart LANDED: the forward crossing INTO BUILDME naming a cast
+    ticket is refused while no berthed chart chain claims it — and NOTHING is journaled.
+    The findings ride the exception complete on the first pass; the refusal names the
+    disposition (run /chart), the same physics as skipping a stage inside the chain."""
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            try:
+                transitions.emit(_AT_TICKET, "BUILDME",
+                                 history_path=hist, state_path=state, ticket="widget")
+            except transitions.EntryGateRed as e:
+                assert [f["filter"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert "widget" in str(e) and "/chart" in str(e), \
+                    "the refusal must name the ticket and the disposition, first pass"
+            else:
+                raise AssertionError("a chartless BUILDME crossed — the entry gate is not wired")
+            assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            new = transitions.emit(_AT_TICKET, "BUILDME",
+                                   history_path=hist, state_path=state, ticket="widget")
+            assert "[BUILDME]" in new
+            rec = projector.read_history(hist)[0]
+            assert rec["entry_gate"].startswith("clean — a berthed chart chain claims"), \
+                f"the crossing's evidence must say the entry gate ran: {rec}"
+            assert rec["ticket"] == "widget"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
+def test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated():
+    # v0 jurisdiction is the crossing's own NAMED, CAST ticket: an unnamed ticket, an
+    # un-cast one, and a kick-back INTO BUILDME (retreating is the correct move) all
+    # cross ungated — a gate that fires on healthy motion gets unwired (tooth 1).
+    import cairn.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            base = Path(d)
+            for i, extra in enumerate([{}, {"ticket": "ghost-never-cast"}]):
+                hist, state = str(base / f"h{i}.json"), str(base / f"s{i}.json")
+                new = transitions.emit(_AT_TICKET, "BUILDME",
+                                       history_path=hist, state_path=state, **extra)
+                assert "[BUILDME]" in new
+                assert "entry_gate" not in projector.read_history(hist)[0], \
+                    "an ungated crossing must not claim the gate ran"
+            hist, state = str(base / "hb.json"), str(base / "sb.json")
+            new = transitions.emit(_AT_PROVE, "BUILDME",
+                                   history_path=hist, state_path=state, ticket="widget")
+            rec = projector.read_history(hist)[0]
+            assert "[BUILDME]" in new and rec["direction"] == "back"
+            assert "entry_gate" not in rec, "a kick-back into BUILDME is never gated"
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+
+
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
@@ -285,6 +376,9 @@ def _main() -> int:
         test_a_kickback_out_of_proveme_is_never_gated,
         test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only,
         test_an_address_the_census_cannot_see_is_refused_not_waved_through,
+        test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket,
+        test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict,
+        test_the_entry_gate_jurisdiction_unnamed_uncast_and_backedges_never_gated,
     ]
     for check in checks:
         check()
@@ -293,7 +387,9 @@ def _main() -> int:
           "unknown class/version, no-op, drifted path), journals legal crossings append-only, "
           "version-validates against the real node-class table, carries kick-back severity, and "
           "holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; "
-          "kick-backs never gated; no side door for an uninspectable address) — "
+          "kick-backs never gated; no side door for an uninspectable address), and holds the "
+          "ENTRY GATE at the BUILDME entry (a cast ticket with no berthed chart chain → refused, "
+          "nothing written; unnamed/un-cast tickets and kick-backs ungated) — "
           "the state vocabulary is physics (Law 4), not /sorted's prose")
     return 0
 

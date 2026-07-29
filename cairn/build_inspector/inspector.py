@@ -1036,6 +1036,51 @@ def validate_covers_the_build(row: dict, comp_dir: Path) -> list[dict]:
                           "validate_covers_the_build")
 
 
+# ── THE ENTRY GATE (ticket buildme-rides-the-chart, 2026-07-29) ──────────────
+# The other end of packet jurisdiction: promotion judges a build AGAINST its chart;
+# this judges that a chart EXISTS before the build may begin. A cast ticket crossing
+# forward into BUILDME must be claimed by a berthed chart chain — the validate berth
+# (stage 7) carries the claim, and a validate berth on disk means the whole preamble
+# held at its doors, so one direct claim-check is the chain-check (no ref-walk).
+#
+# Deliberately NOT in FILTERS: that registry's jurisdiction is the promotion sweep
+# over components, which has no crossing context and would retro-red every component
+# whose tickets predate the chart chain (a healthy component drawing a finding — the
+# always-fires failure tooth 1 exists to refuse). This check's jurisdiction is ONE
+# crossing's own ticket, so it is called from the emit chokepoint's BUILDME entry,
+# exactly as the census is called from its PROVEME exit.
+#
+# Provenance: installed 2026-07-29 on Akien's word, the stake in numbers (Fable at
+# 64% of usage — what the gate enforces, the model no longer spends context
+# remembering). Retires the sail step-0 prose refusal into physics (Law 4).
+
+
+def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff a readable berthed validate packet claims ``ticket``.
+
+    Red returns ONE finding naming the ticket, the searched root, and the
+    disposition — complete on the first pass, nothing to re-run.
+    """
+    root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
+    if root.is_dir():
+        for path in sorted(root.glob("*/packets/validate-*.json")):
+            try:
+                packet = json.loads(path.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue  # an unreadable berth names no claim; the berth owner's sweep carries that finding
+            if isinstance(packet, dict) and packet.get("ticket") == ticket:
+                return []
+    return [_finding(
+        "buildme_rides_the_chart", ticket,
+        "no berthed chart chain claims ticket %r — the build has no charted course" % ticket,
+        {"ticket": ticket, "searched": str(root), "wanted": "*/packets/validate-*.json with a 'ticket' field naming this ticket"},
+        "Law 4 + Law 1: the preamble is compiled once into berths and the build runs "
+        "inside them; a BUILDME with no chart is the step-skipping the chain exists to "
+        "refuse. Disposition: run /chart for this request (the validate berth carries "
+        "the claim), then cross again.",
+    )]
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,

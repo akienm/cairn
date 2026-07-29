@@ -30,6 +30,7 @@ import re
 
 import cairn.chart.constrain as _constrain
 import cairn.chart.decompose as _decompose
+import cairn.chart.hypothesize as _hypothesize
 import cairn.chart.survey as _survey
 import cairn.chart.triage as _triage
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
@@ -47,6 +48,7 @@ STAGE_FIELDS = {
     "survey": _survey.AUTHORED_FIELDS,
     "decompose": _decompose.AUTHORED_FIELDS,
     "triage": _triage.AUTHORED_FIELDS,
+    "hypothesize": _hypothesize.AUTHORED_FIELDS,
 }
 
 

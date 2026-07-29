@@ -366,6 +366,71 @@ def main() -> None:
             frs[0]["evidence"] == {"what": "build the module", "ordered": 2, "split": 1}, frs
         assert judge_triage(chainless) and \
             judge_triage(chainless)[0]["judge"] == "triage_covers_the_split"
+
+        # 23 — THE JUDGES BEFORE THE JUDGED, FIFTH APPLICATION
+        #      (hypothesize-filters): a ranked piece with no hypothesis fires
+        #      hypothesize_covers_the_ranked naming every uncovered piece; a
+        #      hypothesis on an invented piece fires the same judge; a claim
+        #      missing falsifier/instrument fires hypothesize_falsifiable_measured
+        #      naming ALL missing fields at once; a broken triage_ref is loud; a
+        #      full measured covering is quiet. (Installed before the hypothesize
+        #      module exists — these fixtures ARE its acceptance contract.)
+        tb = tmp / "triage_berth_fixture.json"
+        tb.write_text(json.dumps({
+            "decompose_ref": str(db),
+            "order": [
+                {"what": "build the module",
+                 "why_now": "the layer below solidifies first"},
+                {"what": "compose the chart door",
+                 "why_now": "rides on the module once it stands"}]}))
+        expected = {"ticket": "wire-proof", "triage_ref": str(tb),
+                    "hypotheses": [
+                        {"piece": "build the module",
+                         "expect": "the module's teeth pass twice",
+                         "falsifier": "any tooth red on either run",
+                         "instrument": "python3 proofs/test_module.py, twice"},
+                        {"piece": "compose the chart door",
+                         "expect": "the door refuses a phantom ref",
+                         "falsifier": "a phantom ref berths",
+                         "instrument": "the door's own gate, fixture ref"}]}
+        hpath = p / "hypothesize-20260728T000007-cdcd.json"
+        hpath.write_text(json.dumps(expected))
+        assert inspect(root=root, component="charted")["clean"]
+        uncovered = dict(expected, hypotheses=expected["hypotheses"][:1])
+        hpath.write_text(json.dumps(uncovered))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
+        invented_h = dict(expected, hypotheses=expected["hypotheses"] + [
+            {"piece": "polish a whim", "expect": "it gleams",
+             "falsifier": "it does not", "instrument": "a glance"}])
+        hpath.write_text(json.dumps(invented_h))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert f[0]["evidence"]["piece"] == "polish a whim", f[0]
+        unmeasured_h = dict(expected, hypotheses=[
+            dict(expected["hypotheses"][0], falsifier="", instrument="  "),
+            expected["hypotheses"][1]])
+        hpath.write_text(json.dumps(unmeasured_h))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["hypothesize_falsifiable_measured"], f
+        assert f[0]["evidence"]["lacking"] == ["falsifier", "instrument"], f[0]
+        chainless_h = dict(expected, triage_ref=str(tmp / "gone.json"))
+        hpath.write_text(json.dumps(chainless_h))
+        f = inspect(root=root, component="charted")["findings"]
+        assert "hypothesize_covers_the_ranked" in [x["filter"] for x in f], f
+        assert any("triage berth" in x["finding"] for x in f), f
+        hpath.unlink()
+
+        # 24 — one implementation, two mouths, for the hypothesize judge too.
+        from cairn.build_inspector.inspector import judge_hypothesize
+        assert judge_hypothesize(expected) == []
+        assert [x["judge"] for x in judge_hypothesize(uncovered)] == \
+            ["hypothesize_covers_the_ranked"]
+        assert [x["judge"] for x in judge_hypothesize(unmeasured_h)] == \
+            ["hypothesize_falsifiable_measured"]
+        assert judge_hypothesize(chainless_h) and \
+            judge_hypothesize(chainless_h)[0]["judge"] == "hypothesize_covers_the_ranked"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

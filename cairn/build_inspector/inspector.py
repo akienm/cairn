@@ -746,6 +746,147 @@ def triage_reasons_the_order(row: dict, comp_dir: Path) -> list[dict]:
                           "triage_reasons_the_order")
 
 
+# ── THE JUDGES BEFORE THE JUDGED, FIFTH APPLICATION (ticket hypothesize-filters) ──
+# The acceptance gate for the HYPOTHESIZE brick's output, installed before the
+# hypothesize module exists. Same physics: the judge is the inspector's, the
+# future berth door composes it, never the reverse. The judge reads the packet's
+# triage_ref berth with its OWN minimal read — same reason as the judges above.
+
+
+def judge_hypothesize(packet: dict) -> list[dict]:
+    """The pure judge over ONE hypothesize packet — fragments tagged by owning
+    filter. Law 3 as schema: every hypothesis attaches to a RANKED piece
+    (verbatim) and every ranked piece carries at least one hypothesis (a
+    covering — the piece with none is the piece whose wrong landing reds
+    nothing); and every hypothesis carries its expect, its falsifier, and its
+    instrument, so the claim can be challenged."""
+    frags = []
+    ranked, chain_ok = set(), False
+    ref = packet.get("triage_ref")
+    try:
+        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+            berth = json.load(fh)
+        order = berth.get("order")
+        if isinstance(order, list):
+            ranked = {e.get("what") for e in order
+                      if isinstance(e, dict) and isinstance(e.get("what"), str)}
+            chain_ok = True
+    except (TypeError, OSError, ValueError):
+        pass
+    if not chain_ok:
+        frags.append({
+            "judge": "hypothesize_covers_the_ranked",
+            "finding": "triage_ref does not read as a triage berth",
+            "evidence": {"triage_ref": ref},
+            "why_it_matters": "the chain broke — expectations that cannot be "
+                              "checked against the ranked work they claim to "
+                              "cover are expectations filled from the "
+                              "conversation, the step-skipping the chain "
+                              "exists to make a build error.",
+        })
+    hypotheses = packet.get("hypotheses")
+    if not isinstance(hypotheses, list) or not hypotheses:
+        frags.append({
+            "judge": "hypothesize_covers_the_ranked",
+            "finding": "hypotheses is missing, empty, or malformed",
+            "evidence": {"got": hypotheses},
+            "why_it_matters": "a build with no stated expectations is a build "
+                              "whose wrong landing reds nothing — the "
+                              "2026-07-26/27 wrong-about-the-world class, "
+                              "wholesale.",
+        })
+        return frags
+    covered = set()
+    for i, h in enumerate(hypotheses):
+        if not isinstance(h, dict) or not isinstance(h.get("piece"), str) \
+                or not h.get("piece").strip():
+            frags.append({
+                "judge": "hypothesize_covers_the_ranked",
+                "finding": "hypothesis %d has no shape (needs a non-empty "
+                           "'piece')" % i,
+                "evidence": {"index": i, "got": h},
+                "why_it_matters": "a hypothesis that names no piece covers "
+                                  "nothing — uncheckable against the ranking "
+                                  "by construction.",
+            })
+            continue
+        piece = h["piece"]
+        covered.add(piece)
+        if chain_ok and piece not in ranked:
+            frags.append({
+                "judge": "hypothesize_covers_the_ranked",
+                "finding": "hypothesis %d attaches to %r — not a piece the "
+                           "ranking carries" % (i, piece),
+                "evidence": {"index": i, "piece": piece,
+                             "ranked_pieces": sorted(ranked)},
+                "why_it_matters": "an expectation about work the chain never "
+                                  "derived is invention at the claim stage — "
+                                  "the substitution class, one stage later "
+                                  "again.",
+            })
+        lacking = [k for k in ("expect", "falsifier", "instrument")
+                   if not isinstance(h.get(k), str) or not h.get(k).strip()]
+        if lacking:
+            frags.append({
+                "judge": "hypothesize_falsifiable_measured",
+                "finding": "hypothesis %d (%r) lacks: %s"
+                           % (i, piece, ", ".join(lacking)),
+                "evidence": {"index": i, "piece": piece, "lacking": lacking},
+                "why_it_matters": "an unmeasured claim is a hypothesis only "
+                                  "when LABELED as one (Law 3) — without its "
+                                  "falsifier and named instrument it cannot "
+                                  "be challenged ('0 of 13', 2026-07-27: the "
+                                  "instrument was a word-grep and nobody "
+                                  "could tell).",
+            })
+    if chain_ok:
+        uncovered = sorted(ranked - covered)
+        if uncovered:
+            frags.append({
+                "judge": "hypothesize_covers_the_ranked",
+                "finding": "ranked pieces carry no hypothesis: %s"
+                           % ", ".join(repr(w) for w in uncovered),
+                "evidence": {"uncovered": uncovered,
+                             "ranked_pieces": sorted(ranked)},
+                "why_it_matters": "the piece nobody predicted is the piece "
+                                  "that lands wrong silently — the covering "
+                                  "is what makes a kill a FINDING instead of "
+                                  "a surprise.",
+            })
+    return frags
+
+
+def hypothesize_covers_the_ranked(row: dict, comp_dir: Path) -> list[dict]:
+    """Every hypothesis in a charted hypothesize packet attaches to a piece the
+    triage berth's order carries, every ranked piece carries at least one
+    hypothesis, and the chain to the triage berth reads.
+
+    Provenance: 2026-07-26/27 — the wrong-about-the-world mornings (expectations
+    never instrumented; three false state claims before noon), and the
+    2026-07-24 substitution class (work invented rather than derived — here, an
+    expectation about underived work). Installed 2026-07-28 BEFORE the
+    hypothesize module exists — judges-before-the-judged, fifth application.
+    """
+    return _judge_charted(row, comp_dir, "hypothesize", judge_hypothesize,
+                          "hypothesize_covers_the_ranked", report_unreadable=True)
+
+
+def hypothesize_falsifiable_measured(row: dict, comp_dir: Path) -> list[dict]:
+    """Every hypothesis in a charted hypothesize packet carries its expect, its
+    falsifier, and its named instrument — missing fields reported completely in
+    one finding.
+
+    Provenance: 2026-07-27 — 'logging: 0 of 13' (a claim whose instrument was a
+    word-grep; unchallengeable because unnamed), plus the falsifier-defect proof
+    lessons (the pinned-cursor spurious red; the coin-toss leak-scan) — the
+    falsifier is part of the claim, not an afterthought. /sorted's 'no
+    falsifier, not ready to cast' gate, moved one stage earlier and one rung
+    down. Installed 2026-07-28, before the hypothesize module exists.
+    """
+    return _judge_charted(row, comp_dir, "hypothesize", judge_hypothesize,
+                          "hypothesize_falsifiable_measured")
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -760,6 +901,8 @@ FILTERS = {
     "decompose_builds_absences": decompose_builds_absences,
     "triage_covers_the_split": triage_covers_the_split,
     "triage_reasons_the_order": triage_reasons_the_order,
+    "hypothesize_covers_the_ranked": hypothesize_covers_the_ranked,
+    "hypothesize_falsifiable_measured": hypothesize_falsifiable_measured,
 }
 
 

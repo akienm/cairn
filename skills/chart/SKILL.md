@@ -1,11 +1,12 @@
 # /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. Five stages carry today —
+schema-gated stages instead of invisible reasoning. Six stages carry today —
 the **orient brick**, the **constrain brick**, the **survey brick**, the
-**decompose brick**, then the **triage brick**. Stages land one at a time; each
-stage's prompt is template-filled from the previous stage's validated file, so
-a skipped stage is a build error, not a lapse.
+**decompose brick**, the **triage brick**, then the **hypothesize brick**.
+Stages land one at a time; each stage's prompt is template-filled from the
+previous stage's validated file, so a skipped stage is a build error, not a
+lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -381,10 +382,82 @@ The order becomes the triage tree's memory of how this class ranks.
 
 ### 6. Hand forward
 
-The chain ends at triage today: report the five berths. The ranked split is
-/sail's input — pieces in hand, first things first, standards stated. Later
-stages (hypothesize, validate) template-fill from the triage berth as each
-brick lands.
+Carry the triage berth path — stage 6 template-fills from it.
+
+## Stage 6 — HYPOTHESIZE
+
+One narrow question: **what do we EXPECT of each ranked piece, and how would
+we know we're wrong?** Not what the pieces are, not their order, not what done
+means for the whole (validate — a later brick). This brick was built UNDER
+pre-installed judges (`hypothesize_covers_the_ranked` +
+`hypothesize_falsifiable_measured`, proved before the module existed). Law 3
+as schema: an unmeasured claim is a hypothesis and is LABELED as one — here
+the label has fields the gate refuses without.
+
+### 1. The floor — template-filled from stage 5's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.hypothesize import hypothesize_floor
+print(json.dumps(hypothesize_floor(sys.argv[1]), indent=2))
+" <the triage berth path>
+```
+
+It re-reads the chain whole (depth 6 — a broken link anywhere refuses) and
+hands you the order verbatim (whats and why_nows), the underlying split
+pieces, the ranking's unknowns, and the **covering vocabulary**:
+`ranked_whats` — the exact set your hypotheses must cover. The floor never
+decides the expectations; the claims are yours.
+
+### 2. The tree — walk before you claim
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' hypothesize
+```
+
+What past requests of this class expected (and, as the loop closes, what
+killed which), floor labeled as always.
+
+### 3. The ceiling — the claims
+
+- **triage_ref** — the triage berth path (provenance `floor`).
+- **hypotheses** — a covering of the ranked pieces: each
+  `{piece, expect, falsifier, instrument}`, the `piece` **verbatim** from the
+  order. Every ranked piece gets at least one (the piece nobody predicted is
+  the piece that lands wrong silently); several per piece are welcome. The
+  `falsifier` names the observation that would KILL the claim (not a vibe —
+  a falsifier that fires on normal motion is the pinned-cursor defect). The
+  `instrument` names the measure that would be run, concretely enough to
+  challenge ('the tester' is too coarse; the command or gate is the
+  instrument).
+- **unknowns / confidence / provenance** — as before; provenance covers
+  triage_ref, hypotheses, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.hypothesize import write_hypothesize
+print(write_hypothesize(json.load(open(sys.argv[1]))))
+" <scratchpad>/hypothesize_packet.json
+```
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the hypothesize berth path>
+```
+
+The claims become the hypothesize tree's memory of what this class expects.
+
+### 6. Hand forward
+
+The chain ends at hypothesize today: report the six berths. The measured
+expectations are /sail's input — pieces in hand, first things first, every
+claim carrying its kill-switch. validate template-fills from the hypothesize
+berth when it lands.
 
 ## Stay honest
 

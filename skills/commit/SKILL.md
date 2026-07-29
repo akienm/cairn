@@ -18,7 +18,7 @@ The charter lives beside this file in `intention+why.json`.
 3. Commit with a clear message describing the checkpoint, ending with:
 
    ```
-   Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+   Co-Authored-By: <the model actually writing the commit> <noreply@anthropic.com>
    ```
 4. Push, if a remote is configured.
 
@@ -36,7 +36,8 @@ rather than committing straight to it.
 
 ## Stay honest
 
-- Commit/push is an outward, hard-to-fully-reverse act — do it when the work asks
-  for a checkpoint, and (per standing guidance) when Akien has asked. Don't push to
-  an external remote on inertia.
+- **Err toward committing.** The two errors are not symmetric: an unnecessary commit
+  costs a line of history, an uncommitted one can cost the work. So checkpoint often
+  and autonomously — waiting to be asked put Akien back in the operator role the
+  founding intention removes him from.
 - The message says what this checkpoint *is*, not "done" unless a gate actually closed.

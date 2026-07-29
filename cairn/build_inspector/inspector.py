@@ -593,6 +593,159 @@ def decompose_builds_absences(row: dict, comp_dir: Path) -> list[dict]:
                           "decompose_builds_absences")
 
 
+# ── THE JUDGES BEFORE THE JUDGED, FOURTH APPLICATION (ticket triage-filters) ──
+# The acceptance gate for the TRIAGE brick's output, installed before the triage
+# module exists. Same physics: the judge is the inspector's, the future berth
+# door composes it, never the reverse. The judge reads the packet's decompose_ref
+# berth with its OWN minimal read — same reason as judge_decompose above.
+
+
+def judge_triage(packet: dict) -> list[dict]:
+    """The pure judge over ONE triage packet — fragments tagged by owning
+    filter. A triage either ranks the derived work or quietly reshapes it: the
+    ORDER must be a complete permutation of the split's pieces (nothing dropped,
+    invented, or double-ordered — coverage as a multiset), and every entry must
+    carry its why_now (the ranking standard stated, so the order can be
+    adjudicated)."""
+    frags = []
+    piece_counts, chain_ok = {}, False
+    ref = packet.get("decompose_ref")
+    try:
+        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+            berth = json.load(fh)
+        sub_problems = berth.get("sub_problems")
+        if isinstance(sub_problems, list):
+            for sp in sub_problems:
+                if isinstance(sp, dict) and isinstance(sp.get("what"), str):
+                    piece_counts[sp["what"]] = piece_counts.get(sp["what"], 0) + 1
+            chain_ok = True
+    except (TypeError, OSError, ValueError):
+        pass
+    if not chain_ok:
+        frags.append({
+            "judge": "triage_covers_the_split",
+            "finding": "decompose_ref does not read as a decompose berth",
+            "evidence": {"decompose_ref": ref},
+            "why_it_matters": "the chain broke — a ranking that cannot be "
+                              "checked against the split that grounds it is a "
+                              "ranking filled from the conversation, the "
+                              "step-skipping the chain exists to make a build "
+                              "error.",
+        })
+    order = packet.get("order")
+    if not isinstance(order, list) or not order:
+        frags.append({
+            "judge": "triage_covers_the_split",
+            "finding": "order is missing, empty, or malformed",
+            "evidence": {"got": order},
+            "why_it_matters": "an empty triage ranks nothing — downstream "
+                              "starts wherever is cheapest, which is the "
+                              "unstated-standard reflex this gate exists to "
+                              "stop.",
+        })
+        return frags
+    ordered_counts = {}
+    for i, entry in enumerate(order):
+        if not isinstance(entry, dict) or not isinstance(entry.get("what"), str) \
+                or not entry.get("what").strip():
+            frags.append({
+                "judge": "triage_covers_the_split",
+                "finding": "order entry %d has no shape (needs non-empty 'what' "
+                           "+ 'why_now')" % i,
+                "evidence": {"index": i, "got": entry},
+                "why_it_matters": "an entry that names no piece covers nothing "
+                                  "— uncheckable against the split by "
+                                  "construction.",
+            })
+            continue
+        what = entry["what"]
+        ordered_counts[what] = ordered_counts.get(what, 0) + 1
+        why_now = entry.get("why_now")
+        if not isinstance(why_now, str) or not why_now.strip():
+            frags.append({
+                "judge": "triage_reasons_the_order",
+                "finding": "order entry %d (%r) carries no why_now" % (i, what),
+                "evidence": {"index": i, "what": what, "why_now": why_now},
+                "why_it_matters": "an unreasoned rank cannot be adjudicated — "
+                                  "the cheap-first reflex (the standing "
+                                  "get-it-right-not-cheap CC--) hides exactly "
+                                  "in unstated ranking standards; the 2026-07-23 "
+                                  "solidify-the-layer-below inversion was "
+                                  "adjudicable only because its why was stated.",
+            })
+    if chain_ok:
+        for what, n in ordered_counts.items():
+            have = piece_counts.get(what, 0)
+            if have == 0:
+                frags.append({
+                    "judge": "triage_covers_the_split",
+                    "finding": "the order ranks %r — not a piece the split "
+                               "carries" % what,
+                    "evidence": {"what": what,
+                                 "split_pieces": sorted(piece_counts)},
+                    "why_it_matters": "a ranked piece the split never derived "
+                                      "is work invented at the ranking stage — "
+                                      "the 2026-07-24 substitution class, one "
+                                      "stage later.",
+                })
+            elif n > have:
+                frags.append({
+                    "judge": "triage_covers_the_split",
+                    "finding": "the order ranks %r %d times; the split carries "
+                               "it %d" % (what, n, have),
+                    "evidence": {"what": what, "ordered": n, "split": have},
+                    "why_it_matters": "a double-ordered piece is two copies of "
+                                      "one truth — the bookkeeping drift "
+                                      "position-is-rank exists to prevent.",
+                })
+        dropped = sorted(w for w, n in piece_counts.items()
+                         if ordered_counts.get(w, 0) < n)
+        if dropped:
+            frags.append({
+                "judge": "triage_covers_the_split",
+                "finding": "the order drops pieces the split carries: %s"
+                           % ", ".join(repr(w) for w in dropped),
+                "evidence": {"dropped": dropped,
+                             "split_pieces": sorted(piece_counts)},
+                "why_it_matters": "a silent drop at triage is descoping without "
+                                  "the word — the 2026-07-24 done-while-unmoved "
+                                  "class (the expensive implied piece quietly "
+                                  "deprioritized out of existence); descoping "
+                                  "is a bounds question for Akien, never a "
+                                  "ranking.",
+            })
+    return frags
+
+
+def triage_covers_the_split(row: dict, comp_dir: Path) -> list[dict]:
+    """The order in a charted triage packet is a complete permutation of the
+    decompose berth's pieces — nothing dropped, invented, or double-ordered —
+    and the chain to the decompose berth reads.
+
+    Provenance: 2026-07-24 — done-while-unmoved (the expensive piece the chosen
+    path implied was silently dropped for a cheaper substitute; the drop began
+    as a triage defect). Installed 2026-07-28 BEFORE the triage module exists —
+    the judges-before-the-judged ordering, fourth application.
+    """
+    return _judge_charted(row, comp_dir, "triage", judge_triage,
+                          "triage_covers_the_split", report_unreadable=True)
+
+
+def triage_reasons_the_order(row: dict, comp_dir: Path) -> list[dict]:
+    """Every entry in a charted triage packet's order carries its non-empty
+    why_now — the ranking standard travels with the rank.
+
+    Provenance: the standing get-it-right-not-cheap CC-- (the reflex ordering
+    is by cost-to-me, hidden in unstated standards) and 2026-07-23 —
+    solidify-the-layer-below (the rackmount flake ranked ahead of the librarian
+    spine: the honest order inverted the appealing one, and only its STATED why
+    made the inversion adjudicable). Installed 2026-07-28, before the triage
+    module exists.
+    """
+    return _judge_charted(row, comp_dir, "triage", judge_triage,
+                          "triage_reasons_the_order")
+
+
 FILTERS = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -605,6 +758,8 @@ FILTERS = {
     "survey_coverage_complete": survey_coverage_complete,
     "decompose_composes_holdings": decompose_composes_holdings,
     "decompose_builds_absences": decompose_builds_absences,
+    "triage_covers_the_split": triage_covers_the_split,
+    "triage_reasons_the_order": triage_reasons_the_order,
 }
 
 

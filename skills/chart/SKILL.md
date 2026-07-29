@@ -1,11 +1,11 @@
 # /chart — run the pre-build preamble as stackable learning bricks
 
 You are firing the **chart chain**: the pre-build preamble run as explicit,
-schema-gated stages instead of invisible reasoning. Four stages carry today —
-the **orient brick**, the **constrain brick**, the **survey brick**, then the
-**decompose brick**. Stages land one at a time; each stage's prompt is
-template-filled from the previous stage's validated file, so a skipped stage is
-a build error, not a lapse.
+schema-gated stages instead of invisible reasoning. Five stages carry today —
+the **orient brick**, the **constrain brick**, the **survey brick**, the
+**decompose brick**, then the **triage brick**. Stages land one at a time; each
+stage's prompt is template-filled from the previous stage's validated file, so
+a skipped stage is a build error, not a lapse.
 
 The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
 beside this file.
@@ -313,9 +313,78 @@ The split becomes the decompose tree's memory of how this class divides.
 
 ### 6. Hand forward
 
-The chain ends at decompose today: report the four berths. The split is
-/sail's input — pieces in hand, bounds hard, vocabularies checked. Later
-stages (triage, …) template-fill from the decompose berth as each brick lands.
+Carry the decompose berth path — stage 5 template-fills from it.
+
+## Stage 5 — TRIAGE
+
+One narrow question: **in what order is the split attacked, and by what stated
+standard?** Not what the pieces are (decompose), not what outcome each will
+have (hypothesize — a later brick). This brick was built UNDER pre-installed
+judges (`triage_covers_the_split` + `triage_reasons_the_order`, proved before
+the module existed). Position IS the rank — no numeric priority field exists
+to drift against the list.
+
+### 1. The floor — template-filled from stage 4's berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.triage import triage_floor
+print(json.dumps(triage_floor(sys.argv[1]), indent=2))
+" <the decompose berth path>
+```
+
+It re-reads the chain whole (depth 5 — a broken link anywhere refuses) and
+hands you the pieces verbatim, the split's unknowns, and the **coverage
+vocabulary**: `piece_whats` — the exact multiset your order must cover. The
+floor never decides the order; the standard is yours.
+
+### 2. The tree — walk before you rank
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' triage
+```
+
+How past requests of this class ranked, floor labeled as always.
+
+### 3. The ceiling — the order
+
+- **decompose_ref** — the decompose berth path (provenance `floor`).
+- **order** — a complete permutation of the split's pieces, first-to-last:
+  each `{what, why_now}`, the `what` **verbatim** from the berth. Nothing
+  dropped (a silent drop is descoping without the word — that is a bounds
+  change through Akien's gate, never a ranking), nothing invented, nothing
+  double-ordered. The `why_now` is forced per entry — the ranking standard
+  travels with the rank, so the order can be adjudicated (the cheap-first
+  reflex hides exactly in unstated standards; the honest order often inverts
+  the appealing one — solidify the layer below).
+- **unknowns / confidence / provenance** — as before; provenance covers
+  decompose_ref, order, unknowns.
+
+### 4. The gate and the berth
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -c "
+import json, sys
+from cairn.chart.triage import write_triage
+print(write_triage(json.load(open(sys.argv[1]))))
+" <scratchpad>/triage_packet.json
+```
+
+### 5. Deposit back
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the triage berth path>
+```
+
+The order becomes the triage tree's memory of how this class ranks.
+
+### 6. Hand forward
+
+The chain ends at triage today: report the five berths. The ranked split is
+/sail's input — pieces in hand, first things first, standards stated. Later
+stages (hypothesize, validate) template-fill from the triage berth as each
+brick lands.
 
 ## Stay honest
 

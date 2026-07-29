@@ -31,6 +31,7 @@ import re
 import cairn.chart.constrain as _constrain
 import cairn.chart.decompose as _decompose
 import cairn.chart.survey as _survey
+import cairn.chart.triage as _triage
 from cairn.chart.orient import AUTHORED_FIELDS, INSTANCE_DIR, STRATA
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
@@ -45,6 +46,7 @@ STAGE_FIELDS = {
     "constrain": _constrain.AUTHORED_FIELDS,
     "survey": _survey.AUTHORED_FIELDS,
     "decompose": _decompose.AUTHORED_FIELDS,
+    "triage": _triage.AUTHORED_FIELDS,
 }
 
 
@@ -52,7 +54,10 @@ def _fractions(provenance: dict, fields) -> dict:
     counts = {s: 0 for s in STRATA}
     for field in fields:
         counts[provenance[field]] += 1
-    return {s: round(counts[s] / len(fields), 4) for s in STRATA}
+    # Full precision here too (not just the aggregate): rounding thirds to 4
+    # decimals broke the sum-to-1 invariant the reading is trusted by — found
+    # 2026-07-28 by the first berthed packet with a three-way provenance split.
+    return {s: counts[s] / len(fields) for s in STRATA}
 
 
 def dial(instance_dir: str = INSTANCE_DIR) -> dict:

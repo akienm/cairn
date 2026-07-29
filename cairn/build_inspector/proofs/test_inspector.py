@@ -305,6 +305,67 @@ def main() -> None:
         assert [x["judge"] for x in judge_decompose(invented)] == ["decompose_builds_absences"]
         assert [x["judge"] for x in judge_decompose(broken)] and \
             judge_decompose(broken)[0]["judge"] == "decompose_composes_holdings"
+
+        # 21 — THE JUDGES BEFORE THE JUDGED, FOURTH APPLICATION (triage-filters):
+        #      an order dropping a split piece fires triage_covers_the_split
+        #      naming the dropped piece; an invented or double-ordered piece fires
+        #      the same judge; a why_now-less entry fires triage_reasons_the_order;
+        #      a broken decompose_ref is a loud finding; a complete reasoned order
+        #      is quiet. (Installed before the triage module exists — these
+        #      fixtures ARE its acceptance contract.)
+        db = tmp / "decompose_berth_fixture.json"
+        db.write_text(json.dumps({
+            "survey_ref": str(sb),
+            "sub_problems": [
+                {"what": "compose the chart door", "why": "it is held",
+                 "kind": "compose", "uses": ["chart"]},
+                {"what": "build the module", "why": "measured absent",
+                 "kind": "build", "fills": "a decompose module"}]}))
+        ranked = {"ticket": "wire-proof", "decompose_ref": str(db),
+                  "order": [
+                      {"what": "build the module",
+                       "why_now": "the layer below solidifies first"},
+                      {"what": "compose the chart door",
+                       "why_now": "rides on the module once it stands"}]}
+        tpath = p / "triage-20260728T000006-abab.json"
+        tpath.write_text(json.dumps(ranked))
+        assert inspect(root=root, component="charted")["clean"]
+        dropped = dict(ranked, order=ranked["order"][:1])
+        tpath.write_text(json.dumps(dropped))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["triage_covers_the_split"], f
+        assert f[0]["evidence"]["dropped"] == ["compose the chart door"], f[0]
+        invented_rank = dict(ranked, order=ranked["order"] + [
+            {"what": "polish a whim", "why_now": "it would be nice"}])
+        tpath.write_text(json.dumps(invented_rank))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["triage_covers_the_split"], f
+        assert f[0]["evidence"]["what"] == "polish a whim", f[0]
+        unreasoned = dict(ranked, order=[
+            dict(ranked["order"][0], why_now=""), ranked["order"][1]])
+        tpath.write_text(json.dumps(unreasoned))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["filter"] for x in f] == ["triage_reasons_the_order"], f
+        assert f[0]["evidence"]["what"] == "build the module", f[0]
+        chainless = dict(ranked, decompose_ref=str(tmp / "gone.json"))
+        tpath.write_text(json.dumps(chainless))
+        f = inspect(root=root, component="charted")["findings"]
+        assert "triage_covers_the_split" in [x["filter"] for x in f], f
+        assert any("decompose berth" in x["finding"] for x in f), f
+        tpath.unlink()
+
+        # 22 — one implementation, two mouths, for the triage judge too; and the
+        #      double-order fires with its counts in evidence.
+        from cairn.build_inspector.inspector import judge_triage
+        assert judge_triage(ranked) == []
+        assert [x["judge"] for x in judge_triage(dropped)] == ["triage_covers_the_split"]
+        assert [x["judge"] for x in judge_triage(unreasoned)] == ["triage_reasons_the_order"]
+        doubled = dict(ranked, order=ranked["order"] + [ranked["order"][0]])
+        frs = judge_triage(doubled)
+        assert [x["judge"] for x in frs] == ["triage_covers_the_split"] and \
+            frs[0]["evidence"] == {"what": "build the module", "ordered": 2, "split": 1}, frs
+        assert judge_triage(chainless) and \
+            judge_triage(chainless)[0]["judge"] == "triage_covers_the_split"
     finally:
         _insp._CHART_BERTHS = saved_berths
 

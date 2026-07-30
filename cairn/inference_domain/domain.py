@@ -156,7 +156,18 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                 },
                 conn=own,
             )
-            return {"answer": prior["answer"], "hit": True, "canonical": canonical}
+            # `cost` and `provenance` ride back ADDITIVELY (2026-07-29, ticket
+            # a-node-holds-one-claim): the host reports real counters
+            # (prompt_eval_count) and this door has always RECORDED them in the row
+            # while returning only the answer — so a caller wanting to know what a
+            # call actually cost in tokens had no way to ask, and the embed ceiling
+            # stayed folklore ("about 7400 chars") measured by an operator's eye.
+            # On a hit the provenance is the served_from marker, and the cost is the
+            # spend AVOIDED — both the stored values, unchanged (Law 7: a cache that
+            # mutated what it serves would be worse than none).
+            return {"answer": prior["answer"], "hit": True, "canonical": canonical,
+                    "cost": prior["cost"],
+                    "provenance": {"served_from": str(prior["created"])}}
 
         # MISS — the one place the host is touched. Meter (this row) + resolve + record, as one
         # append: the answer, its falsifier/horizon (so it can later be invalidated, T1.4), its
@@ -176,7 +187,9 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             },
             conn=own,
         )
-        return {"answer": result["answer"], "hit": False, "canonical": canonical}
+        return {"answer": result["answer"], "hit": False, "canonical": canonical,
+                "cost": result.get("cost", 0),
+                "provenance": result.get("provenance") or {}}
     finally:
         if conn is None:
             own.close()

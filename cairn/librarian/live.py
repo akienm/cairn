@@ -79,6 +79,37 @@ def embed_via_domain(model: str = DEFAULT_MODEL):
     return embed
 
 
+def embed_metered_via_domain(model: str = DEFAULT_MODEL):
+    """The embed seam WITH ITS METER (2026-07-29, ticket a-node-holds-one-claim):
+    text -> ``{"vector", "tokens"}``, where tokens is the host's own
+    prompt_eval_count for that input.
+
+    Why this exists beside embed_via_domain rather than replacing it: the embed
+    ceiling has been FOLKLORE. The host has always reported the real token count
+    (/api/embed is the door precisely because /api/embeddings reports no counters,
+    measured 2026-07-26), the domain has always recorded it — and the seam threw it
+    away, so every operator sizing a rendering against the ceiling guessed from
+    character length. That guess is what left Stone C's close hand-trimmed and
+    Stone A's verdict refused. Reading the number the host already sends is the
+    difference between a measured bound and a rule of thumb (Law 3).
+
+    ``tokens`` is None on a cache HIT — the served row carries served_from, not
+    counters, and inventing a number for it would be a proxy metric wearing a
+    measurement's clothes. None means "not reported on this path" and says so;
+    it is never a zero and never a guess.
+
+    embed_via_domain's vector-only contract is deliberately untouched, so nothing
+    that depends on it moves."""
+    resolver = host.ollama_resolver(model=model)
+    def embed(text: str) -> dict:
+        got = domain.resolve({"kind": "embed", "prompt": text}, resolver=resolver)
+        counters = (got.get("provenance") or {}).get("counters") or {}
+        return {"vector": got["answer"]["vector"],
+                "tokens": counters.get("prompt_eval_count"),
+                "hit": got.get("hit")}
+    return embed
+
+
 def dual_seam(embed_model: str = DEFAULT_MODEL, generate_model: str = GENERATE_MODEL):
     """Both verbs, one door. The model is stamped ON THE REQUEST by kind — embed requests
     ride the embedding model, generate requests the drafting model — so the model is part

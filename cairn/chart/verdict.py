@@ -177,16 +177,57 @@ def write_verdict(artifact: dict, *, instance_dir: str = INSTANCE_DIR,
     return path
 
 
+def _criterion_part(v: dict) -> str:
+    return "%s -> %s [by %s: %s]" % (v["claim"], v["outcome"],
+                                     v["instrument"], v["evidence"])
+
+
+def _disposition_part(d: dict) -> str:
+    return "%s: %s — decided by: %s" % (d["disposition"].upper(), d["piece"], d["by"])
+
+
+def verdict_node_parts(artifact: dict) -> list[tuple[str, str]]:
+    """A NODE HOLDS ONE CLAIM (ticket a-node-holds-one-claim, 2026-07-29): the
+    verdict rendered as its PARTS — one entry per criterion run verdict, one per
+    hypothesis disposition — so each lands as its own node with its own honest
+    vector. Returns ``[(kind, content), ...]`` with kind in criterion|disposition.
+
+    WHY PARTS AND NOT ONE NODE. Measured: an eight-claim verdict rendered whole is
+    11283 chars and the embed host refuses it outright (nomic-embed-text carries
+    context_length 2048; a binary search over that exact content accepted 7403 and
+    refused at 7447), while its largest single part is 2113 — every part clears
+    with ~3.5x headroom. But size was the messenger, not the defect: ONE vector
+    over eight distinct claims is a centroid pointing nowhere in particular, so
+    eight vectors each pointing at one claim is MORE ACCURATE, not merely smaller.
+
+    THE PARTS ARE BARE ON PURPOSE — no ticket, no berth, no framing prose. Two
+    reasons, and the second is the load-bearing one. (1) The whole rendering below
+    is a pure JOIN over these exact strings, so the two renderings are one function
+    and cannot drift into the two-mouths defect. (2) node_id_for is a content hash,
+    so attribution baked into content would make every part unique BY
+    CONSTRUCTION — which is exactly the property that makes a monolith undedupable
+    and is the thing this stone exists to end. A recurring disposition shape must
+    be able to land on an existing node and corroborate it. Attribution therefore
+    rides the node's PROVENANCE, which is where it belongs and where the deposit
+    door already gates it."""
+    return ([("criterion", _criterion_part(v)) for v in artifact["verdicts"]]
+            + [("disposition", _disposition_part(d)) for d in artifact["dispositions"]])
+
+
 def verdict_node_content(artifact: dict) -> str:
-    """The ONE rendering of a verdict as a tree node's content — what killed
-    which, with the deciding observation VERBATIM beside each disposition, so a
-    future counsel hit reads the kill and its evidence, not a summary of one."""
-    ran = "; ".join("%s -> %s [by %s: %s]" % (v["claim"], v["outcome"],
-                                              v["instrument"], v["evidence"])
-                    for v in artifact["verdicts"]) or "nothing"
-    fates = "; ".join("%s: %s — decided by: %s" % (d["disposition"].upper(),
-                                                   d["piece"], d["by"])
-                      for d in artifact["dispositions"]) or "none"
+    """The whole-verdict rendering — what killed which, with the deciding
+    observation VERBATIM beside each disposition, so a future counsel hit reads the
+    kill and its evidence, not a summary of one.
+
+    DERIVED FROM THE PARTS since 2026-07-29, not built beside them: this is a join
+    over verdict_node_parts, so there is exactly one place that formats a criterion
+    and one that formats a disposition. Kept because the exit gate and the human
+    record still want the whole; it is NOT what the tree stores (nothing anywhere
+    reassembles a verdict from tree nodes — measured at this stone's survey, which
+    is why the composition half was never built)."""
+    parts = verdict_node_parts(artifact)
+    ran = "; ".join(c for kind, c in parts if kind == "criterion") or "nothing"
+    fates = "; ".join(c for kind, c in parts if kind == "disposition") or "none"
     return ("VERDICT for ticket %s — the chart answered at PROVED. CRITERIA: %s. "
             "HYPOTHESES: %s" % (artifact["ticket"], ran, fates))
 
@@ -329,12 +370,34 @@ def enqueue_verdict(ticket: str, *, berths_root=None,
     return berth
 
 
-def mark_deposited(berth: str, node_id: str, *,
+def mark_deposited(berth: str, node_ids, *,
                    ledger_path: str | None = None) -> dict:
     """Append the SECOND record kind after the tree door landed the verdict. The
     enqueued line is never touched — 'drained' is a record appended by the
-    depositor, so the ledger reads as the whole story of every deposit."""
-    return _append({"kind": "deposited", "berth": berth, "node_id": node_id,
+    depositor, so the ledger reads as the whole story of every deposit.
+
+    MANY NODES PER BERTH since 2026-07-29 (ticket a-node-holds-one-claim): a verdict
+    now lands as its PARTS, so the record names every node the berth became. This
+    record is what makes pending() stop returning the berth, so it may only be
+    written when EVERY part landed — a single-id shape left a partial landing with
+    nowhere honest to sit: mark it and the ledger lies about a verdict that is only
+    half in the tree, or never mark it and the berth re-deposits forever.
+
+    An empty landing is refused rather than recorded: 'deposited nothing' would
+    close a berth that never reached the tree, which is the silent lapse the ledger
+    exists to end. A lone string is accepted and wrapped — the old call shape stays
+    honest rather than becoming a list of characters.
+
+    Records written before this change carry ``node_id`` (singular) and are read
+    correctly forever: pending() has only ever keyed on ``kind`` and ``berth``, and
+    an append-only file is never rewritten to make an old line look new (Law 7)."""
+    ids = [node_ids] if isinstance(node_ids, str) else list(node_ids)
+    if not ids or not all(isinstance(n, str) and n.strip() for n in ids):
+        raise VerdictRefused(
+            "mark_deposited: berth %r landed no node ids (%r) — a 'deposited' record "
+            "is what closes a berth, so recording an empty landing would close a "
+            "verdict that never reached the tree" % (berth, node_ids))
+    return _append({"kind": "deposited", "berth": berth, "node_ids": ids,
                     "at": _stamp()},
                    os.path.expanduser(ledger_path if ledger_path is not None
                                       else LEDGER_PATH))

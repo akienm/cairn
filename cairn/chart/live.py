@@ -34,11 +34,11 @@ from cairn.chart.tree import counsel, deposit_learning, deposit_packet
 from cairn.chart.triage import deposit_triage, triage_node_content
 from cairn.chart.validate import deposit_validate, validate_node_content
 from cairn.chart.verdict import (VerdictRefused, mark_deposited, pending,
-                                 validate_verdict, verdict_node_content)
-from cairn.librarian.live import embed_via_domain
+                                 validate_verdict, verdict_node_parts)
+from cairn.librarian.live import embed_metered_via_domain, embed_via_domain
 
 
-def deposit_verdict(artifact: dict, vector, *, berth_path: str,
+def deposit_verdict(artifact: dict, embed, *, berth_path: str,
                     root: str = CAIRN_ROOT, nexus: str = "hypothesize",
                     conn=None) -> dict:
     """The verdict face on the deposit door (ticket proved-answers-the-chart): the
@@ -50,20 +50,68 @@ def deposit_verdict(artifact: dict, vector, *, berth_path: str,
     chokepoint may never reach tree machinery — a verdict is always hardware);
     the tree side of the split is this module's side. Gate before seed, like
     every face: the artifact re-validates at the ONE door, and the berth must
-    exist on disk."""
+    exist on disk.
+
+    PART BY PART since 2026-07-29 (ticket a-node-holds-one-claim). Takes the EMBED
+    CALLABLE rather than a finished vector, because there is no longer one vector:
+    each part is embedded and deposited on its own, and the content deposited is
+    the very string that was embedded — the same object, never re-rendered between
+    the two, so a vector can never describe bytes its node does not hold.
+
+    THE HOST'S REFUSAL IS THE BOUND, and no length is measured anywhere in this
+    path. The pre-flight this stone was cast to build turned out to be impossible:
+    the host reports prompt_eval_count only in a SUCCESSFUL body, so nothing can
+    ask "how many tokens is this" without doing the work. The refusal we already
+    observe does the job better than a guess would — it fires exactly when it
+    should, it is already loud, and it costs nothing. A part the host refuses
+    raises; it is NEVER split further, summarised, or truncated to fit (a truncated
+    part is a vector describing bytes the node does not hold — the permanent
+    resident the provenance gate exists to refuse).
+
+    A refusal mid-way therefore leaves EARLIER PARTS ALREADY LANDED, and that is
+    safe by construction rather than by luck: no ``deposited`` record is written
+    unless every part landed, so the berth stays pending and the next door read
+    retries the whole verdict — where the already-landed parts dedupe on their
+    content hash and the table does not grow. The duplicate path stops being
+    incidental and becomes the retry's physics.
+
+    Returns ``{"node_ids", "parts", "duplicates", "tokens"}``."""
     validate_verdict(artifact, root=root)
     if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
         raise VerdictRefused(
             "deposit_verdict: berth %r does not exist on disk — a node whose "
             "provenance points at nothing is fabricated attribution one layer up"
             % (berth_path,))
-    content = verdict_node_content(artifact)
-    provenance = {
-        "source": berth_path,
-        "validate_ref": artifact["validate_ref"],
-        "ticket": artifact["ticket"],
+    parts = verdict_node_parts(artifact)
+    if not parts:
+        raise VerdictRefused(
+            "deposit_verdict: %r renders to no parts — a verdict that answers "
+            "nothing has nothing to teach the tree" % (berth_path,))
+    landed = []
+    for i, (kind, content) in enumerate(parts):
+        provenance = {
+            "source": berth_path,
+            "validate_ref": artifact["validate_ref"],
+            "ticket": artifact["ticket"],
+            "part": kind,
+            "part_index": i,
+            "part_count": len(parts),
+        }
+        got = embed(content)
+        # The seam may be metered ({"vector", "tokens"}) or bare (a vector). Both
+        # are honest; only the metered one can say what the ceiling really is.
+        vector = got["vector"] if isinstance(got, dict) else got
+        tokens = got.get("tokens") if isinstance(got, dict) else None
+        node = deposit_learning(nexus, content, vector, provenance, conn=conn)
+        landed.append({"part": kind, "part_index": i, "node_id": node["node_id"],
+                       "duplicate": node.get("duplicate"), "tokens": tokens,
+                       "chars": len(content)})
+    return {
+        "node_ids": [p["node_id"] for p in landed],
+        "parts": landed,
+        "duplicates": sum(1 for p in landed if p["duplicate"]),
+        "tokens": [p["tokens"] for p in landed],
     }
-    return deposit_learning(nexus, content, vector, provenance, conn=conn)
 
 
 def drain_pending(*, root: str = CAIRN_ROOT, nexus: str = "hypothesize",
@@ -86,20 +134,35 @@ def drain_pending(*, root: str = CAIRN_ROOT, nexus: str = "hypothesize",
     idempotence story: the second drain finds nothing pending, so no berth is ever
     deposited twice, and no line was ever edited to make that true.
 
+    PART BY PART since 2026-07-29 (ticket a-node-holds-one-claim): the drain hands
+    the deposit door the EMBED SEAM rather than one finished vector, because a
+    verdict lands as many nodes and each is embedded on its own. The seam defaults
+    to the METERED one, so an ordinary drain reports what each part actually cost
+    in host tokens — the number that makes the embed ceiling a measured fact
+    instead of an operator's rule of thumb.
+
+    The Law 7 story above is unchanged and now covers a PARTIAL landing too: if the
+    host refuses part 6 of 8, five nodes are already in the tree, no ``deposited``
+    record is written, the berth stays pending and says so loudly — and the next
+    door read re-deposits the whole verdict, where the five already-landed parts
+    dedupe on content hash. Retry is idempotent by the tree's own physics, not by
+    bookkeeping.
+
     Returns one entry per pending berth: ``{"berth", "deposited"|"failed", ...}``.
     """
-    embed = embed or embed_via_domain()
+    embed = embed or embed_metered_via_domain()
     drained = []
     for entry in pending(ledger_path=ledger_path):
         berth = entry["berth"]
         try:
             with open(os.path.expanduser(berth), encoding="utf-8") as fh:
                 artifact = json.load(fh)
-            got = deposit_verdict(artifact, embed(verdict_node_content(artifact)),
-                                  berth_path=berth, root=root, nexus=nexus, conn=conn)
-            mark_deposited(berth, got["node_id"], ledger_path=ledger_path)
-            drained.append({"berth": berth, "deposited": got["node_id"],
-                            "duplicate": got.get("duplicate"), "nexus": nexus})
+            got = deposit_verdict(artifact, embed, berth_path=berth, root=root,
+                                  nexus=nexus, conn=conn)
+            mark_deposited(berth, got["node_ids"], ledger_path=ledger_path)
+            drained.append({"berth": berth, "deposited": got["node_ids"],
+                            "parts": got["parts"], "duplicates": got["duplicates"],
+                            "tokens": got["tokens"], "nexus": nexus})
         except Exception as e:  # noqa: BLE001 — deliberate: the door must still serve
             drained.append({"berth": berth, "failed": "%s: %s" % (type(e).__name__, e),
                             "still_pending": True})
@@ -175,10 +238,11 @@ def _learn(argv: list[str]) -> int:
                                berth_path=berth)
     elif os.path.basename(berth).startswith("verdict-"):
         # The exit gate's write-back: what killed which lands in the HYPOTHESIZE
-        # tree (the loop the brick promised), rendered once by verdict_node_content.
+        # tree (the loop the brick promised) — as ONE NODE PER CLAIM since
+        # 2026-07-29, so the metered seam goes in whole rather than a finished
+        # vector, and the berth's landing is the list of ids it became.
         nexus = "hypothesize"
-        got = deposit_verdict(packet, embed_via_domain()(verdict_node_content(packet)),
-                              berth_path=berth)
+        got = deposit_verdict(packet, embed_metered_via_domain(), berth_path=berth)
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),

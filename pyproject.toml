@@ -7,10 +7,28 @@ name = "cairn"
 version = "0.0.0"
 description = "Cairn — compiled navigation: stones stacked so the next mind doesn't re-derive the route."
 requires-python = ">=3.12"
-dependencies = []
+# MEASURED 2026-07-30: this list read `[]` while cairn/db_domain/ imported psycopg2, which
+# was present only by accident of this box (2.9.12, system-installed). An undeclared import
+# is a hypothesis that the next machine happens to be this one (Law 3) — on a bare box the
+# install went green and db_domain then failed at import time, far from the cause.
+#
+# `psycopg2-binary`, not `psycopg2`: the binary wheel needs no libpq-dev and no compiler, so
+# the bootstrap can bring the floor up on a bare box without a build toolchain. That serves
+# the rescue ethos (launchers/intention+why.json) — the tier below the system's machinery
+# must work when the machinery does not.
+dependencies = [
+  "psycopg2-binary>=2.9",
+]
 
 # `pip install -e .` stays green at all times (MAP.md spine). The import root is
 # the single `cairn` package (one heart). Proofs live beside code (Law 5) and are
 # run in place — they are not shipped as importable subpackages.
+#
+# That claim was FALSE from 2026-07-15 to 2026-07-30 and nothing caught it: the install had
+# never been performed, `cairn` imported only because cwd happened to be the repo root, and
+# PEP 668 (/usr/lib/python3.12/EXTERNALLY-MANAGED) refuses the install into system python
+# outright — so the promise could not have been kept where it was being made. The venv the
+# bootstrap builds (cairn/launchers/bootstrap.sh) is what makes this line true rather than
+# aspirational; `cairn test cairn/launchers/proofs/test_bootstrap.py` is what keeps it true.
 [tool.setuptools.packages.find]
 include = ["cairn*"]

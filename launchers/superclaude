@@ -66,7 +66,14 @@ superclaude — Cairn's Claude Code launcher.
 
   Launcher-only:
     --dry-run       print the resolved context state + claude command, do not launch
+    --no-preflight  skip the floor check entirely (rescue hatch: use if the preflight
+                    itself is what's broken — the launch must always be reachable)
     -h, --help      this message
+
+  Preflight — superclaude gets itself started (cairn/launchers/bootstrap.sh):
+    Brings up the venv + editable install so `cairn` imports from anywhere, then
+    hands Claude a report of whatever it could NOT fix, so the session opens already
+    knowing. Silent when the floor is up. It can never abort the launch.
 
   Flip the built-in default by editing FILE_DEFAULT_200K in this file.
   All other arguments are forwarded to `claude` unchanged, e.g.:
@@ -78,12 +85,14 @@ HELP
 want_1m=0
 want_200k=0
 dry_run=0
+no_preflight=0
 pass=()
 for arg in "$@"; do
   case "$arg" in
     --1m)            want_1m=1 ;;
     --200k|--no-1m)  want_200k=1 ;;
     --dry-run)       dry_run=1 ;;
+    --no-preflight)  no_preflight=1 ;;
     -h|--help)       show_help; exit 0 ;;
     *)               pass+=("$arg") ;;
   esac
@@ -114,12 +123,47 @@ fi
 host=$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')
 session="${host}_cc_0"
 
+# ── preflight: get ourselves started ─────────────────────────────────────────
+# "Launch with as many of the things as you can already working" (Akien, 2026-07-30) —
+# then TELL CLAUDE what you couldn't fix, so the tool is invisible when it works and
+# actionable when it doesn't. Anything the launcher silently swallows becomes tokens
+# some future session spends re-deriving; that is the defect this whole block exists for.
+#
+# THE PRIME DIRECTIVE STILL RULES. Nothing here may abort the launch: the bootstrap sets
+# no -e, every call is guarded, and each branch falls through to exec. A broken preflight
+# must still deliver Claude Code to a broken box — that is the tier's entire purpose.
+preflight_arg=()
+if [[ "$no_preflight" -eq 0 ]]; then
+  bootstrap="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/bootstrap.sh"
+  if [[ -r "$bootstrap" ]]; then
+    # shellcheck source=/dev/null
+    source "$bootstrap" || true
+    if declare -F cairn_bootstrap_verify >/dev/null 2>&1; then
+      # verify first: the warm path is ~90ms and does no work. apply only on a real miss,
+      # so the common launch pays a rounding error rather than a pip run (Law 1 — the
+      # settled floor is not re-derived on every launch).
+      cairn_bootstrap_verify >/dev/null 2>&1 || cairn_bootstrap_apply >/dev/null 2>&1 || true
+      # The venv goes on PATH ahead of system python, so `python3` inside the session IS
+      # the floor we just laid. Without this the session would still reach system python
+      # and the whole preflight would be theatre.
+      venv_bin="$(cairn_venv_dir)/bin"
+      [[ -d "$venv_bin" ]] && export PATH="$venv_bin:$PATH"
+      residue="$(cairn_bootstrap_report 2>/dev/null)" || true
+      [[ -n "$residue" ]] && preflight_arg=(--append-system-prompt "$residue")
+    fi
+  else
+    # Loud, never silent (CP1) — but still not fatal.
+    echo "superclaude: preflight skipped — bootstrap.sh not readable at $bootstrap" >&2
+  fi
+fi
+
 # ── assemble the launch ──────────────────────────────────────────────────────
 claude_bin="${CLAUDE_BIN:-claude}"
 set -- \
   --name "$session" \
   --remote-control "$session" \
   --dangerously-skip-permissions \
+  ${preflight_arg[@]+"${preflight_arg[@]}"} \
   ${pass[@]+"${pass[@]}"}
 
 if [[ "$dry_run" -eq 1 ]]; then

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# cairn test — run proofs through the tester and report the verdicts.
+#
+# The address that was empty on 2026-07-30 and cost a session four tool calls to work
+# around (cairn/tester/cli.py carries the measurement). A thin registration against the
+# dispatcher, matching bin/cmd/compile: resolve the interpreter, hand off, keep the exit
+# code. It owns no logic about what it runs (Law 6).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+# Prefer the bootstrapped floor. Outside a superclaude session the venv is not on PATH,
+# so `python3` would be system python — which cannot import cairn and, under PEP 668,
+# never could. Sourcing the seam is what makes this verb work from any directory rather
+# than only from the repo root; without it the command would carry the exact cwd-accident
+# it exists to retire.
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tester.cli "$@"

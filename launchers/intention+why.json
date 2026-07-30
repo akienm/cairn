@@ -3,10 +3,10 @@
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
 
-  "what": "Cairn's launch/rescue scripts — canonical here, symlinked onto PATH. Currently one: superclaude, the Claude Code launcher.",
-  "why": "A single, self-describing entry point to start Claude Code with Cairn's standing session contract, so a launch is reproducible and its settings live in code, not in someone's shell history. The rescue ethos (carried from the quarry, re-derived not grafted): from parse to exec, nothing may abort — always reach Claude Code so it can help rebuild a broken box.",
-  "invoke": "superclaude [--1m | --200k] [--dry-run] [...forwarded to claude]",
-  "state": "v0 — first cast 2026-07-15. Lean by design: none of the quarry launcher's rack-server / tmux / wizard / credential machinery — added only if a measured need appears.",
+  "what": "Cairn's launch/rescue scripts — canonical here, symlinked onto PATH. Two: superclaude (the Claude Code launcher) and bootstrap.sh (the host-seam it stands on, which brings the python floor up before handing off).",
+  "why": "A single, self-describing entry point to start Claude Code with Cairn's standing session contract, so a launch is reproducible and its settings live in code, not in someone's shell history. The rescue ethos (carried from the quarry, re-derived not grafted): from parse to exec, nothing may abort — always reach Claude Code so it can help rebuild a broken box. Since 2026-07-30 the entry point also GETS ITSELF STARTED: it brings up as much of the floor as it can and hands Claude a report of the rest, so a session opens knowing rather than discovering.",
+  "invoke": "superclaude [--1m | --200k] [--dry-run] [--no-preflight] [...forwarded to claude]",
+  "state": "v0 — first cast 2026-07-15; preflight added 2026-07-30 (ticket superclaude-starts-itself). Still lean by design: none of the quarry launcher's rack-server / tmux / wizard / credential machinery — added only if a measured need appears. The preflight itself was scoped by Akien to the import root and the verb; verifying the other host-seams (postgres, sudo_relay, bwrap) is a later rung the shape already accommodates.",
 
   "superclaude": {
     "session_name": "<hostname>_cc_0 (singleton = instance 0)",
@@ -25,10 +25,20 @@
     "meta_lesson": "The quarry launcher carried this exact two-state logic but NOT its intent/why — so it was misread on first contact (the toggle was reverse-engineered backwards). This file now writes the why IN, a live case of the 2026-07-15 naming stone: the intent+why belong at the address, and their absence cost real work."
   },
 
-  "path_wiring": "~/.local/bin/superclaude -> this file (that dir holds the claude-family PATH links); repo-root cairn/superclaude -> launchers/superclaude (a finder pointer, matching past practice).",
-  "how_it_learns": "By measured launch outcomes, not preference: a default (200K vs 1M) is a gate that moves only when a launch is MEASURED to need it (the 200K default came from a measured stewardship need, recorded in proofs/). It does not learn per-session; changes are deliberate charter edits backed by a proof (Law 3).",
+  "bootstrap": {
+    "what": "A HOST-SEAM (CLAUDE.md taxonomy): its implementation lives where git cannot see it — a venv of machine-specific compiled bytes — so it carries a replayable `apply` and a re-runnable `verify`, and its seal EXPIRES as the host drifts with nothing in this repo changing.",
+    "artifact": "~/.cairn/venv (or $CAIRN_VENV) — instance-space, never the repo. A venv is runtime state, and class-space holds none of that. The tell is general: a thing that would need gitignoring is a thing in the wrong root.",
+    "guarantee": "`import cairn` resolves from ANY directory, and every dependency pyproject declares is actually present. Before this, cairn imported only because cwd happened to be the repo root — and PEP 668 refused the editable install into system python outright, so pyproject's standing promise that '`pip install -e .` stays green at all times' could not have been true where it was written.",
+    "never_fatal": "Sourced by superclaude, so it sets NO -e (that would leak into the caller's shell and let one failed probe kill a launch). Every function returns a code; none exit. The prime directive outranks the floor: a broken preflight still delivers Claude Code to a broken box.",
+    "the_report": "What it could not fix rides into the session on --append-system-prompt, and is also written to ~/.cairn/logs/preflight.json. Each finding carries what a fixer needs on the FIRST report — the probe, the measured output, and a repair — because a diagnostic that forces a second run to gather more has failed at its job. SILENT when the floor is up: the tool is invisible when it works and speaks only when there is something for Claude to fix (Akien, 2026-07-30).",
+    "clean_venv": "--system-site-packages was considered and REFUSED. It would satisfy psycopg2 from the host with no download — tempting for an offline rescue — but it makes the floor's contents a function of what the box happens to have, which is the exact hypothesis that caused the defect, and mixing psycopg2 with psycopg2-binary in one import namespace is a known shadowing footgun.",
+    "cost": "warm verify ~90ms (a real import, not a stamp — Law 3: a matching stamp over a broken venv is a lie); the stamp gates only the expensive rebuild. Cold apply ~6s, once."
+  },
+
+  "path_wiring": "~/.local/bin/superclaude -> this file (that dir holds the claude-family PATH links); repo-root cairn/superclaude -> launchers/superclaude (a finder pointer, matching past practice). ~/.local/bin/cairn -> bin/cairn, which is how `cairn test` is reachable from anywhere.",
+  "how_it_learns": "By measured launch outcomes, not preference: a default (200K vs 1M) is a gate that moves only when a launch is MEASURED to need it (the 200K default came from a measured stewardship need, recorded in proofs/). It does not learn per-session; changes are deliberate charter edits backed by a proof (Law 3). The preflight learns the same way and has already done so once: its venv-create finding asserted 'usually the missing ensurepip package' over an error that was ENOENT on the parent directory, and a finding that names a cause it did not measure is worse than one that stays quiet (Law 7) — the hint now names candidates behind the measured output, with a regression case pinning it.",
   "traces_to": ["Telos 2 (tools Akien uses)", "Law 5 (this component carries its own why)", "the rescue ethos — always reach the tool that can help rebuild"],
   "owner": "Akien owns the launch contract (what's always-on is his call); CC drafts.",
-  "proof": "hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified. Recorded in proofs/.",
+  "proof": "proofs/test_bootstrap.py (14 cases, `cairn test launchers/proofs/test_bootstrap.py`) — the floor is measured by importing from a cwd that is NOT the repo root, a broken preflight is measured still reaching `exec claude` with its report attached, and a working one is measured adding nothing to the launch line. Non-vacuity was checked, not assumed: pointed at an unrepairable venv path the proof exits 1 with exactly the four in-situ cases failing. Also hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified.",
   "provenance": "born 2026-07-15 by Akien's spec; reimplemented fresh (not grafted) from the quarry launcher's proven interface."
 }

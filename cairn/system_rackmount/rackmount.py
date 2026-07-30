@@ -1,22 +1,22 @@
 """system_rackmount — THE SYSTEM DEVICE: owner of the host's resource predicates.
 
 The one device that stands in for the SYSTEM underneath (converged with Akien 2026-07-18;
-``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). It OWNS the host-resource data
-— CPU, memory, disk — and ADVERTISES the callbacks it can serve against them. It is NOT a
+``CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md``). It OWNS the host-resource data
+— CPU, memory, disk — and ADVERTISES the probes it can serve against them. It is NOT a
 central scheduler (that framing, and the ``interval/date/quantity/state`` trigger enum, were
-the goof this rework deletes). Scheduling is the universal heartbeat + shim + callback
+the goof this rework deletes). Scheduling is the universal heartbeat + shim + probe
 mechanism; this device is just the OWNER of one kind of data other devices want triggers on.
 
 THE WORKED EXAMPLE, made physics — "alert me at 80% CPU":
-  1. ADVERTISE. The system device publishes a menu: "I accept a ``cpu_threshold`` callback,
+  1. ADVERTISE. The system device publishes a menu: "I accept a ``cpu_threshold`` probe,
      takes a value" — one item in ``advertises()`` (part of its Form v0 #2 surface).
   2. SUBSCRIBE. A caller says "I'll take one of those — value 80, here's my address." It
      never learns the system device's internal method; it names a MENU ITEM, a value, and a
      poke address.
-  3. RESOLVE INTERNALLY. The system device builds the predicate ITSELF — a ``Callback`` whose
+  3. RESOLVE INTERNALLY. The system device builds the predicate ITSELF — a ``Probe`` whose
      trigger closes over ``self._reading()["cpu"] >= 80``. The caller's ``object.object.method``
      ignorance is preserved.
-  4. POKE. On each heartbeat pulse, the device's shim evaluates that callback. The reading is
+  4. POKE. On each heartbeat pulse, the device's shim evaluates that probe. The reading is
      the system device's OWN data, sampled INSIDE the device (Law 6 — evaluated where its data
      is owned); the caller's raw CPU number NEVER crosses the bus. Only the POKE does — and its
      body says only THAT the caller's line was crossed, never the reading that crossed it.
@@ -30,7 +30,7 @@ FILED EDGES (children of this stone, not faked):
     sampler). ``memory``/``disk`` predicates are the SAME shape — they mount here when a
     consumer asks; privilege (sudo_relay) is a host service in this same family, built
     standalone first, migrating behind this device when a second consumer makes the seam pay.
-  - Subscriptions are LEVEL-triggered (a callback pokes while its predicate holds). Edge-
+  - Subscriptions are LEVEL-triggered (a probe pokes while its predicate holds). Edge-
     triggering (poke once on the crossing) and unsubscribe are refinements that wait on a real
     consumer's need.
   - ADVERTISE / SUBSCRIBE are direct calls today; expressing them as bus messages (like the
@@ -44,7 +44,7 @@ from __future__ import annotations
 
 import os
 
-from cairn.base.callback import Callback
+from cairn.base.probe import Probe
 from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim
 
@@ -63,7 +63,7 @@ def _default_sampler() -> dict:
 
 class SystemRackmountDevice(BaseDevice):
     """The system device (carries CP1-CP6; reports intention/state/settings). It owns the
-    host-resource data and serves threshold callbacks on it: ``advertises`` the menu,
+    host-resource data and serves threshold probes on it: ``advertises`` the menu,
     ``subscribe`` wires a caller's request into a device-local predicate, and the shim pokes
     the subscriber when the predicate holds — the reading never leaving the device (Law 6)."""
 
@@ -81,7 +81,7 @@ class SystemRackmountDevice(BaseDevice):
         super().__init__()
         self._sampler = sampler or _default_sampler
         self._device_id = device_id
-        self._subs: dict[str, dict] = {}   # sub_id -> {name, address, value, why, callback}
+        self._subs: dict[str, dict] = {}   # sub_id -> {name, address, value, why, probe}
         self._counter = 0
 
     @property
@@ -91,26 +91,26 @@ class SystemRackmountDevice(BaseDevice):
     # --- (1) advertise the menu ---------------------------------------------
 
     def advertises(self) -> list[dict]:
-        """The callbacks this device offers — a caller inspects this, then subscribes by menu
+        """The probes this device offers — a caller inspects this, then subscribes by menu
         name. Part of the Form v0 #2 surface (inspecting the device shows what it can serve)."""
-        return [{"callback": name, **spec} for name, spec in self.ADVERTISED.items()]
+        return [{"probe": name, **spec} for name, spec in self.ADVERTISED.items()]
 
     # --- (2)+(3) subscribe; resolve the method internally -------------------
 
     def subscribe(self, name: str, *, address: str, why: str, value,
                   channel: str = "personal") -> str:
-        """Wire a caller's request into a device-local callback and return its subscription id.
+        """Wire a caller's request into a device-local probe and return its subscription id.
         The caller names a MENU ITEM (`name`), a `value`, and a poke `address` — never an
         internal method. The device RESOLVES ITS OWN PREDICATE (`_resolve`) and bakes the
         caller's value into it. An unadvertised name is refused loudly (CP1). The poke body will
         say only THAT the line was crossed, carrying the caller's own value, never the reading."""
         if name not in self.ADVERTISED:
-            raise KeyError(f"no advertised callback {name!r}; this device offers "
+            raise KeyError(f"no advertised probe {name!r}; this device offers "
                            f"{sorted(self.ADVERTISED)} (inspect advertises())")
         trigger = self._resolve(name, value)   # internal — the caller never sees this
         self._counter += 1
         sub_id = f"{name}#{self._counter}"
-        callback = Callback(
+        probe = Probe(
             why=why,
             trigger=trigger,
             to=address,
@@ -118,7 +118,7 @@ class SystemRackmountDevice(BaseDevice):
             body={"alert": name, "crossed": value},  # the caller's line, NOT the owned reading
         )
         self._subs[sub_id] = {"name": name, "address": address, "value": value,
-                              "why": why, "callback": callback}
+                              "why": why, "probe": probe}
         # GATE CONTACT (DiagnosticBase, cairn/base/diagnostic.py): a predicate was BORN — a rare,
         # low-frequency boundary crossing, worth a standing thin breadcrumb. NOT the per-pulse
         # evaluation (_over/_reading), which would be the firehose the discipline forbids. Thin by
@@ -150,23 +150,23 @@ class SystemRackmountDevice(BaseDevice):
         physics is provable without the real host."""
         return self._sampler()
 
-    def subscription_callbacks(self) -> list[Callback]:
-        """The live subscriptions as callbacks — what this device's shim fires on each pulse."""
-        return [sub["callback"] for sub in self._subs.values()]
+    def subscription_probes(self) -> list[Probe]:
+        """The live subscriptions as probes — what this device's shim fires on each pulse."""
+        return [sub["probe"] for sub in self._subs.values()]
 
     # --- Form v0 #2 surface -------------------------------------------------
 
     def intention(self) -> dict:
         return {
             "what": "The system device — owner of the host's resource predicates (CPU, memory, "
-            "disk). It advertises the threshold callbacks it can serve, and pokes a subscriber "
+            "disk). It advertises the threshold probes it can serve, and pokes a subscriber "
             "when their line is crossed — evaluating the predicate locally, so the host's raw "
             "metrics never leave the device.",
             "why": "So any device can get a trigger on a host resource WITHOUT the host's data "
             "being exported and without coupling to the OS (Law 6): the reading stays home, only "
             "the wake-up crosses the bus. This is 'abstract host services device-independently' "
             "made concrete — and it is NOT a central scheduler (that was the goof); scheduling is "
-            "the universal heartbeat + shim + callback mechanism.",
+            "the universal heartbeat + shim + probe mechanism.",
         }
 
     def state(self) -> dict:
@@ -187,16 +187,16 @@ class SystemRackmountDevice(BaseDevice):
             "sampler": "best-effort load-average CPU (dependency-free); the real host sampler and "
             "memory/disk predicates are filed edges — the predicate physics is proven by injection",
             "not": "NOT a central scheduler and NOT a service registry — the interval/date/"
-            "quantity/state enum was deleted; a trigger is any predicate (cairn/base/callback.py)",
+            "quantity/state enum was deleted; a trigger is any predicate (cairn/base/probe.py)",
         }
 
 
 class SystemRackmountShim(BaseShim):
     """The system device's shim — always on, subscribed to the heartbeat. On each pulse it fires
-    the device's live subscription-callbacks (each sampling the device's own reading, Law 6) and
+    the device's live subscription-probes (each sampling the device's own reading, Law 6) and
     pokes the subscribers whose line is crossed, onto the bus. This is where the system device's
     'scheduling' actually happens: not in a bespoke scheduler, but in the universal shim-fires-
-    callbacks-on-the-beat mechanism every device shares."""
+    probes-on-the-beat mechanism every device shares."""
 
     def __init__(self, device: SystemRackmountDevice, bus) -> None:
         super().__init__(bus=bus)
@@ -206,5 +206,5 @@ class SystemRackmountShim(BaseShim):
     def device_id(self) -> str:
         return self._sysdev.device_id
 
-    def callbacks(self) -> list[Callback]:
-        return self._sysdev.subscription_callbacks()
+    def probes(self) -> list[Probe]:
+        return self._sysdev.subscription_probes()

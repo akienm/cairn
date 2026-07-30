@@ -1,14 +1,14 @@
-"""BaseShim — the device's always-on front: fires its callbacks, receives its mail, wakes it.
+"""BaseShim — the device's always-on front: fires its probes, receives its mail, wakes it.
 
 Every Cairn device is its OWN PROCESS, and it does not spin — it sleeps when idle and is
 woken on demand (converged with Akien 2026-07-18;
-``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). The SHIM is the piece that is
+``CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md``). The SHIM is the piece that is
 always on: one per device, lightweight, and it does three things.
 
-  1. **Fires the device's due callbacks on each heartbeat pulse.** The ``ground_loop`` is
+  1. **Fires the device's due probes on each heartbeat pulse.** The ``ground_loop`` is
      ONLY the heartbeat — it beats and pulses shims; the FIRING lives here (this is the
      correction of the goof where the ground_loop was an executor). On ``on_pulse`` the shim
-     evaluates each of its device's callbacks (a callback's trigger is evaluated where its
+     evaluates each of its device's probes (a probe's trigger is evaluated where its
      data is owned — Law 6) and POKES the target of each one that fires, onto the bus.
   2. **Receives incoming bus messages for its device.**
   3. **Starts the device (the heavier process) on demand** when a message arrives and the
@@ -20,19 +20,19 @@ process that WAKES TO A POKE, not a daemon that spins.
 
 RESOLVED: the one-loop primitive. Last session filed "BaseShim's one-loop primitive" as an
 open edge (a UU ``ShimLoopThread`` would have been a hollow build before Cairn's loop was
-designed). It is now designed and built: the shim's "loop" IS the per-pulse callback-firing,
+designed). It is now designed and built: the shim's "loop" IS the per-pulse probe-firing,
 driven by the ground_loop heartbeat — no bespoke thread, no ``RUNNING`` state. The state
-machine (PROVED/LEARNING) is the TICKET species' concern (a different thing from a callback —
-see ``cairn/base/callback.py``); the shim fires callbacks, it does not run workflows.
+machine (PROVED/LEARNING) is the TICKET species' concern (a different thing from a probe —
+see ``cairn/base/probe.py``); the shim fires probes, it does not run workflows.
 
 Still composes ``CoreValuesMixin`` — every shim carries CP1-CP6 structurally (Law 2,
 proofs/test_composition.py). Kept import-light: the bus is INJECTED, not imported, so this
-module still pulls in no DB and no daemon threads (only the callback primitive, which is
+module still pulls in no DB and no daemon threads (only the probe primitive, which is
 itself import-light).
 
 FILED EDGES (children of this stone, not faked):
   - Each device its own OS PROCESS: ``_start_device`` is the wake hook; today a concrete shim
-    may instantiate its device in-process. Spawning a real separate process (and a callback
+    may instantiate its device in-process. Spawning a real separate process (and a probe
     firing as a separate short-lived process that posts and terminates) is the process-model
     edge — the SHAPE is here (start-on-demand, fire-and-poke), the OS plumbing grows against
     a real multi-process need, like sudo_relay's daemon is the one unprovable-without-the-OS part.
@@ -45,7 +45,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from cairn.base.callback import Callback
+from cairn.base.probe import Probe
 from cairn.base.core_values import CoreValuesMixin
 
 
@@ -53,7 +53,7 @@ class BaseShim(CoreValuesMixin, ABC):
     """Abstract base for every Cairn device shim.
 
     Composes ``CoreValuesMixin`` (CP1-CP6, Law 2). Pins ``device_id`` (one shim per device).
-    Carries the per-pulse callback-firing (``on_pulse``), message receipt (``deliver``), and
+    Carries the per-pulse probe-firing (``on_pulse``), message receipt (``deliver``), and
     on-demand device start (``_start_device``). The bus is injected so firing has somewhere to
     poke; a shim with no bus records what it *would* have fired (honest, not silent).
     """
@@ -66,49 +66,80 @@ class BaseShim(CoreValuesMixin, ABC):
         self._pulses = 0
         self._last_pulse: dict | None = None
         # Which declarations were TRUE at the last pulse — the memory that turns a level into a
-        # crossing. Lives here because a Callback is frozen and holds no state (see callback.py):
-        # the callback declares, the firer remembers. Keyed by Callback.identity, so a shim that
-        # rebuilds its callback list every pulse still recognises the same standing watch.
+        # crossing. Lives here because a Probe is frozen and holds no state (see probe.py):
+        # the probe declares, the firer remembers. Keyed by Probe.identity, so a shim that
+        # rebuilds its probe list every pulse still recognises the same standing watch.
         self._was_true: set = set()
+        # Which declarations have GATHERED ENOUGH and are retired for good. A DIFFERENT memory
+        # from ``_was_true`` on purpose: that one is the anti-bounce resting state (the watch
+        # stands, the next crossing pokes), this one is terminal (the watch is over). Kept as
+        # its own set so the two can never be read for each other — the distinguishability the
+        # enough-condition is worthless without. Also keyed by Probe.identity.
+        self._cleared: set = set()
 
     @property
     @abstractmethod
     def device_id(self) -> str:
         """The id of the device this shim manages — one shim per device."""
 
-    # --- the device's declared callbacks ------------------------------------
+    # --- the device's declared probes ------------------------------------
 
-    def callbacks(self) -> list[Callback]:
-        """The device's callbacks — the immutable declarations the shim fires on each pulse.
+    def probes(self) -> list[Probe]:
+        """The device's probes — the immutable declarations the shim fires on each pulse.
 
-        Default empty: a device with no callbacks is honest, not broken (it simply is not
-        driven by the beat). A concrete shim overrides this to expose its device's callbacks
+        Default empty: a device with no probes is honest, not broken (it simply is not
+        driven by the beat). A concrete shim overrides this to expose its device's probes
         (e.g. the system device's live threshold subscriptions)."""
         return []
 
-    # --- (1) fire due callbacks on a heartbeat pulse ------------------------
+    def cleared(self) -> set:
+        """The identities of probes that GATHERED ENOUGH and are retired — read-only, and
+        deliberately a separate surface from the anti-bounce memory. An operator (or a tooth)
+        asking "did this watch end, or is it just resting?" gets a different answer from a
+        different place, which is the whole point of the split."""
+        return set(self._cleared)
+
+    # --- (1) fire due probes on a heartbeat pulse ------------------------
 
     def on_pulse(self, now, context: dict | None = None) -> dict:
-        """One heartbeat pulse reaching this shim. Evaluate every callback (Law 6 — a trigger
+        """One heartbeat pulse reaching this shim. Evaluate every probe (Law 6 — a trigger
         reads its owned data where it lives) and POKE the target of each that fires, onto the
         bus. Returns a PULSE-RECORD — what fired, what held, what kicked back — so a pulse is
         itself evidence (LEARNING, not silent RUNNING). A batch drainer must not die on one bad
-        callback: a trigger that raises or a poke that is refused becomes a permanent, loud
+        probe: a trigger that raises or a poke that is refused becomes a permanent, loud
         entry and the rest keep firing (CP2, Law 7)."""
         context = context or {}
         fired: list[dict] = []
         held: list[dict] = []
         still_true: set = set()
-        for cb in self.callbacks():
+        for cb in self.probes():
             try:
+                # CLEARED IS TERMINAL and is checked FIRST: a retired declaration is not
+                # evaluated at all, so its trigger costs nothing on every later pulse. The
+                # reason is its own string — never "trigger false", which is the re-armed
+                # resting state and means the opposite (the watch still stands).
+                if cb.identity in self._cleared:
+                    held.append({"why": cb.why, "to": cb.to,
+                                 "reason": "cleared — gathered enough, retired"})
+                    continue
                 true_now = cb.fires(now, context)
                 if true_now:
                     still_true.add(cb.identity)
                     # A POKE PER CROSSING, NOT PER PULSE: a condition that STAYS true pokes once,
-                    # when it crosses. ``while_true`` opts back into per-pulse for the callback
+                    # when it crosses. ``while_true`` opts back into per-pulse for the probe
                     # that means "keep telling me while this holds."
                     if cb.while_true or cb.identity not in self._was_true:
                         fired.append(self._fire(cb, context))
+                        # ASKED ONLY AFTER A FIRE: a probe that has not poked has gathered
+                        # nothing. A broken enough leaves the watch STANDING (Law 7) and the
+                        # kick-back is recorded rather than swallowed — the poke already landed,
+                        # so this must not fall into the outer handler and be read as a refusal.
+                        try:
+                            if cb.gathered_enough(context):
+                                self._cleared.add(cb.identity)
+                                fired[-1]["cleared"] = "gathered enough — retired"
+                        except Exception as exc:  # noqa: BLE001 — a broken stop must not stop the watch
+                            fired[-1]["enough_failed"] = f"{type(exc).__name__}: {exc}"
                     else:
                         held.append({"why": cb.why, "to": cb.to, "reason": "still true — "
                                      "already poked at the crossing"})
@@ -129,19 +160,19 @@ class BaseShim(CoreValuesMixin, ABC):
             "held": held,
         }
         # Remember the line's position for the next pulse. Assigned WHOLE, so a declaration that
-        # has gone false (or vanished from callbacks() entirely) is forgotten — and therefore
+        # has gone false (or vanished from probes() entirely) is forgotten — and therefore
         # pokes again when it next crosses, instead of being suppressed by a stale memory.
         self._was_true = still_true
         self._pulses += 1
         self._last_pulse = record
         return record
 
-    def _fire(self, cb: Callback, context: dict | None = None) -> dict:
-        """Fire one callback: POKE its target on the bus (the fire path). With no bus wired, it
+    def _fire(self, cb: Probe, context: dict | None = None) -> dict:
+        """Fire one probe: POKE its target on the bus (the fire path). With no bus wired, it
         records what it WOULD have posted (honest, not a silent no-op). The fire-and-die
         separate-process spawn is a filed edge — the SHAPE (a poke onto the bus) is here.
 
-        The body is ``cb.payload(context)``, not ``cb.body``: the callback's carrier runs HERE,
+        The body is ``cb.payload(context)``, not ``cb.body``: the probe's carrier runs HERE,
         at fire time, against the context the trigger just saw — so what rides along is the
         artifact as it was AT the gate, in whatever form the receiver can process."""
         body = cb.payload(context)

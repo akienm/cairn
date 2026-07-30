@@ -969,18 +969,18 @@ instance' (self-contained; no external orchestrator possible). Consequences:
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
-`CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md`.) A peer is woken by a
-CALLBACK firing — "call X when this trigger is true", where a trigger is *anything
+`CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md`.) A peer is woken by a
+PROBE firing — "call X when this trigger is true", where a trigger is *anything
 that evaluates to true* (not the closed `interval/date/quantity/a-state` enum, which
 was a reification). Reactive (wake on state entry: builder ⟵ BUILDME) and scheduled
 (wake on an elapsed interval / an accumulated queue / a resource line) are just
 different predicates, one firing path. Firing lives in the SHIM on the heartbeat
 pulse (`ground_loop` is ONLY the beat); the poke crosses the **bus**. The "sleep"
-consolidation is the same — a callback the PROVED graze sets.
+consolidation is the same — a probe the PROVED graze sets.
 
 **The operational-driver primitive (a node-class).** A standing node whose whole
 body is `(trigger, method-pointer, why, sources/targets)`, resting in LEARNING — the
-declarative-data idea survives, but as the CALLBACK species now (immutable worker),
+declarative-data idea survives, but as the PROBE species now (immutable worker),
 distinct from the mutable TICKET. NB the falsified hypothesis: "the `ground_loop` is
 that generic executor" was a GOOF — the ground_loop is only the heartbeat; a device
 resolves its own method internally and its shim fires it (see the design doc). The
@@ -1000,7 +1000,7 @@ local half is each workflow's own `history` (charter-state-history-split).
 CLAUDE.md → skills → launchers → commons → CP/diagnostic base →
 **tester + kernel-owned network** (before the first thing it guards) →
 db domain → **[done: the heartbeat (ground_loop) + the bus + the base's
-callback/shim + the system device (system_rackmount) + inference domain (the
+probe/shim + the system device (system_rackmount) + inference domain (the
 compile-once path to the host — an inference request IS a ticket, 2026-07-21) +
 the web server (the presentation surface — nav = the heartbeat roster, panes =
 each device's active_page, rendered; v0 children a/b/c PROVEN 2026-07-22, the
@@ -1048,7 +1048,7 @@ harbor register); `state-machine-physics.json` is cross-referenced, not overwrit
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built
 2026-07-18; there is no separate rack device. The two runtime substrates are the
-heartbeat and the bus — `CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md`.)
+heartbeat and the bus — `CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md`.)
 
 Workflow target: intention → design → tickets → build → test → done; each stage
 a question nexus with feedback. End state: CC.0 + CC.1 + aider (easy work), one

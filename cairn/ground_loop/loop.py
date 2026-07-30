@@ -1,15 +1,15 @@
 """ground_loop — THE HEARTBEAT. One daemon that provides a pulse, and nothing more.
 
 THE MOST BASIC MECHANISM IN CAIRN (converged with Akien 2026-07-18;
-``CairnCommons/intentions-other/I-heartbeat-callbacks-and-bus.md``). The ground_loop does NOT
+``CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md``). The ground_loop does NOT
 execute, resolve, schedule, route, or write. It BEATS. On each beat it pulses the shim of
-every subscribed device; handling the pulse — evaluating callbacks, firing the due ones —
+every subscribed device; handling the pulse — evaluating probes, firing the due ones —
 lives in the SHIM (``cairn/base/shim.py``), never here.
 
 THIS FILE CORRECTS A GOOF. The first ground_loop (584aa74) was a generic driver-EXECUTOR
 (``run_driver``: resolve a method against a proven-space registry, run it, write through
 db_domain). That collapsed three roles — heartbeat + firing + scheduling — into one device
-and lost the property that made the design worth having: *a callback is the same unit no
+and lost the property that made the design worth having: *a probe is the same unit no
 matter what fires it.* The ground_loop is only the heartbeat; a single daemon structure
 everyone else hangs their own handlers on. All state stays on disk (via db_domain), reached
 by the devices the shim wakes — the heartbeat itself holds none.
@@ -17,7 +17,7 @@ by the devices the shim wakes — the heartbeat itself holds none.
 WHY SO SMALL: because a rule enforced by a big mechanism is a big mechanism to get wrong.
 The heartbeat's whole contract is "pulse the subscribed shims, in order, and leave a legible
 beat-record." Everything a device DOES hangs off its own shim's response to the pulse, where
-the device's own data and callbacks live (Law 6). The heartbeat carries no device's logic.
+the device's own data and probes live (Law 6). The heartbeat carries no device's logic.
 
 ``beat`` takes ``now`` (and an optional shared ``context``) EXPLICITLY, so the pulse physics
 is provable WITHOUT a wall clock — the same discipline as the tester taking its proof-path
@@ -28,7 +28,7 @@ the OS) — a filed edge, not code here.
 FILED EDGES (children of this stone, not faked):
   - SUBSCRIPTION by a file in the device's own folder tree: today a device subscribes its
     shim in-process via ``subscribe(shim)``; discovering subscribers by scanning device code
-    trees for a callback-declaration file grows when devices are separate OS processes and the
+    trees for a probe-declaration file grows when devices are separate OS processes and the
     heartbeat cannot hold in-process references to them.
   - The wall-clock DAEMON that pulses ``beat`` on a cadence — the OS-specific backing, a thin
     wrapper this stays provable without.
@@ -147,9 +147,9 @@ class GroundLoopDevice(BaseDevice):
         return {
             "what": "The heartbeat — one daemon that provides a pulse, and nothing more. On each "
             "beat it pulses the shim of every subscribed device; the handling (firing due "
-            "callbacks) lives in the shim, not here.",
+            "probes) lives in the shim, not here.",
             "why": "A single daemon structure everyone else hangs their own handlers on. Keeping "
-            "the heartbeat to ONLY a pulse means a callback is the same unit no matter what fires "
+            "the heartbeat to ONLY a pulse means a probe is the same unit no matter what fires "
             "it, and no device's logic rots inside the beat — the goof (an executor here) collapsed "
             "three roles into one and lost that.",
         }

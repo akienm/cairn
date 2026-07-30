@@ -2,7 +2,7 @@
 
 Akien, 2026-07-25: "so we need an anti-bounce?" — asked after a durable-bus proof went red
 on residue. Measured: yes, but for a different reason than the one that prompted it. The
-shim evaluated every callback on every pulse and poked on the LEVEL, so a condition that
+shim evaluated every probe on every pulse and poked on the LEVEL, so a condition that
 stays true — a CPU parked at 91% — poked forever. ``rackmount.py:129`` filed exactly this
 ("wants edge-detection") and left it.
 
@@ -13,18 +13,18 @@ already native here (``diagnostic.py``'s "a boundary crossing", rackmount's ``{"
 WHAT THIS PROVES:
   - A STANDING TRUE POKES ONCE. Five pulses with the trigger true = one poke, not five.
   - IT RE-ARMS. False, then true again, is a NEW crossing and pokes again.
-  - ``while_true`` OPTS BACK IN, for the callback that means "keep telling me while this holds."
+  - ``while_true`` OPTS BACK IN, for the probe that means "keep telling me while this holds."
   - THE MEMORY IS THE SHIM'S. Two shims watching the same declaration do not share suppression;
-    the Callback stays frozen and stateless.
-  - A REBUILT CALLBACK LIST IS STILL THE SAME WATCH — identity is the declaration's content, not
-    the object, because ``callbacks()`` may rebuild every pulse.
+    the Probe stays frozen and stateless.
+  - A REBUILT PROBE LIST IS STILL THE SAME WATCH — identity is the declaration's content, not
+    the object, because ``probes()`` may rebuild every pulse.
   - A RAISING TRIGGER DOES NOT SWALLOW THE NEXT POKE. An error tells us nothing about the line,
     so it is remembered as neither side of it (Law 7 — a swallowed error must not also swallow
     the next real message).
   - WHAT IS HELD SAYS WHY. "still true — already poked" and "trigger false" are different facts
     and the pulse-record distinguishes them (a silent hold is the thing we are removing).
 
-    python3 cairn/base/proofs/test_callback_crossing.py     # exit 0 = green
+    python3 cairn/base/proofs/test_probe_crossing.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -34,28 +34,28 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from cairn.base.callback import Callback
+from cairn.base.probe import Probe
 from cairn.base.shim import BaseShim
 
 
 class _Shim(BaseShim):
-    """A shim whose callbacks read a mutable dial, so a proof can move the line under it."""
+    """A shim whose probes read a mutable dial, so a proof can move the line under it."""
 
-    def __init__(self, callbacks, device_id="watcher"):
+    def __init__(self, probes, device_id="watcher"):
         super().__init__(bus=None)          # unwired: _fire records what it WOULD have posted
-        self._cbs = callbacks
+        self._cbs = probes
         self._id = device_id
 
     @property
     def device_id(self) -> str:
         return self._id
 
-    def callbacks(self):
+    def probes(self):
         return list(self._cbs)              # a FRESH list every pulse, as a real shim may build
 
 
 def _cb(dial, *, why="cpu over 90", **kw):
-    return Callback(why=why, trigger=lambda now, ctx: dial["over"], to="dave", **kw)
+    return Probe(why=why, trigger=lambda now, ctx: dial["over"], to="dave", **kw)
 
 
 def _pokes(record):
@@ -100,17 +100,17 @@ def test_a_held_poke_says_which_kind_of_held_it_is():
         "suppressed-because-standing and never-fired are different facts, said out loud"
 
 
-def test_the_memory_is_the_shims_and_the_callback_stays_frozen():
+def test_the_memory_is_the_shims_and_the_probe_stays_frozen():
     dial = {"over": True}
     cb = _cb(dial)
     a, b = _Shim([cb], device_id="a"), _Shim([cb], device_id="b")
     assert _pokes(a.on_pulse(now="t0")) and _pokes(b.on_pulse(now="t0")), \
         "two shims watching the same declaration do not share suppression"
-    assert not hasattr(cb, "_was_true"), "the Callback holds no fire-history — it is frozen"
+    assert not hasattr(cb, "_was_true"), "the Probe holds no fire-history — it is frozen"
 
 
-def test_a_rebuilt_callback_is_recognised_as_the_same_watch():
-    """callbacks() may rebuild every pulse, so identity is the declaration, not the object."""
+def test_a_rebuilt_probe_is_recognised_as_the_same_watch():
+    """probes() may rebuild every pulse, so identity is the declaration, not the object."""
     dial = {"over": True}
     shim = _Shim([_cb(dial)])
     assert _pokes(shim.on_pulse(now="t0"))
@@ -134,7 +134,7 @@ def test_a_raising_trigger_does_not_swallow_the_next_poke():
             raise RuntimeError("the reading was unavailable")
         return state["over"]
 
-    shim = _Shim([Callback(why="cpu over 90", trigger=trigger, to="dave")])
+    shim = _Shim([Probe(why="cpu over 90", trigger=trigger, to="dave")])
     first = shim.on_pulse(now="t0")
     assert first["fired"][0]["outcome"] == "refused", "the kick-back is loud and permanent"
     state["boom"] = False
@@ -142,7 +142,7 @@ def test_a_raising_trigger_does_not_swallow_the_next_poke():
         "an error says NOTHING about the line — the next true reading is a fresh crossing"
 
 
-def test_a_vanished_callback_is_forgotten_and_pokes_when_it_returns():
+def test_a_vanished_probe_is_forgotten_and_pokes_when_it_returns():
     dial = {"over": True}
     cb = _cb(dial)
     shim = _Shim([cb])
@@ -159,11 +159,11 @@ TESTS = [
     test_it_re_arms_when_the_line_is_recrossed,
     test_while_true_opts_back_into_every_pulse,
     test_a_held_poke_says_which_kind_of_held_it_is,
-    test_the_memory_is_the_shims_and_the_callback_stays_frozen,
-    test_a_rebuilt_callback_is_recognised_as_the_same_watch,
+    test_the_memory_is_the_shims_and_the_probe_stays_frozen,
+    test_a_rebuilt_probe_is_recognised_as_the_same_watch,
     test_a_different_why_is_a_different_watch,
     test_a_raising_trigger_does_not_swallow_the_next_poke,
-    test_a_vanished_callback_is_forgotten_and_pokes_when_it_returns,
+    test_a_vanished_probe_is_forgotten_and_pokes_when_it_returns,
 ]
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 """Proof for system_rackmount — THE SYSTEM DEVICE: advertise → subscribe → poke, Law 6.
 
-This is the capstone of the heartbeat+callback+bus rework: it composes ALL the reworked
-pieces at once — the heartbeat (ground_loop), the shim's per-pulse firing, the Callback
+This is the capstone of the heartbeat+probe+bus rework: it composes ALL the reworked
+pieces at once — the heartbeat (ground_loop), the shim's per-pulse firing, the Probe
 primitive, the real bus (durable via db_domain), and the system device that owns the host's
 CPU predicate. It proves the worked example "alert me at 80% CPU" end to end.
 
@@ -59,11 +59,11 @@ def _rig(reading: dict):
 
 def test_it_advertises_a_menu_and_refuses_an_unadvertised_name():
     _, _, dev = _rig({"cpu": 10})
-    menu = {item["callback"] for item in dev.advertises()}
-    assert "cpu_threshold" in menu, "the system device advertises the cpu_threshold callback"
+    menu = {item["probe"] for item in dev.advertises()}
+    assert "cpu_threshold" in menu, "the system device advertises the cpu_threshold probe"
     try:
         dev.subscribe("gpu_threshold", address="a/personal", why="w", value=50)
-        raise AssertionError("subscribing to an unadvertised callback must be refused (CP1)")
+        raise AssertionError("subscribing to an unadvertised probe must be refused (CP1)")
     except KeyError:
         pass
 
@@ -138,7 +138,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — system_rackmount: the system device advertises resource-threshold callbacks "
+    print("green — system_rackmount: the system device advertises resource-threshold probes "
           "and pokes subscribers through the heartbeat + bus, evaluating locally so the reading "
           "never leaves (Law 6); the central-scheduler goof is gone")
     return 0

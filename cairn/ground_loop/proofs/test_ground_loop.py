@@ -1,7 +1,7 @@
 """Proof for ground_loop — THE HEARTBEAT. One pulse; nothing more.
 
 This proof exercises the corrected shape: the heartbeat beats and pulses the shim of every
-subscribed device; the FIRING lives in the shim. It composes the real BaseShim + Callback +
+subscribed device; the FIRING lives in the shim. It composes the real BaseShim + Probe +
 a spy bus, so the full beat → on_pulse → fire → poke chain is shown WITHOUT a DB (the
 heartbeat holds no durable state — that is the whole point). The durable bus is proven
 separately (cairn/bus/proofs/test_bus.py).
@@ -9,7 +9,7 @@ separately (cairn/bus/proofs/test_bus.py).
 Teeth a hollow heartbeat could not pass:
   - A BEAT PULSES EVERY SUBSCRIBED SHIM, IN ORDER, and leaves a legible beat-record naming
     who was pulsed — a beat is evidence (LEARNING, not silent RUNNING).
-  - THE FIRING IS THE SHIM'S: a callback due on this beat pokes the bus THROUGH its shim; one
+  - THE FIRING IS THE SHIM'S: a probe due on this beat pokes the bus THROUGH its shim; one
     not due holds. The heartbeat itself pokes nothing.
   - SUBSCRIBE IS IDEMPOTENT by device_id; only a shim (device_id + on_pulse) may subscribe.
   - ONE SHIM RAISING CANNOT STOP THE BEAT reaching the others (CP2, Law 7).
@@ -35,7 +35,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.base.callback import Callback
+from cairn.base.probe import Probe
 from cairn.base.core_values import CoreValuesMixin
 from cairn.base.shim import BaseShim
 from cairn.ground_loop.loop import GroundLoopDevice
@@ -52,17 +52,17 @@ class _SpyBus:
 
 
 class _Shim(BaseShim):
-    def __init__(self, device_id, bus=None, callbacks=None) -> None:
+    def __init__(self, device_id, bus=None, probes=None) -> None:
         super().__init__(bus=bus)
         self._id = device_id
-        self._callbacks = callbacks or []
+        self._probes = probes or []
 
     @property
     def device_id(self) -> str:
         return self._id
 
-    def callbacks(self):
-        return self._callbacks
+    def probes(self):
+        return self._probes
 
     def _start_device(self):
         return object()  # a minimal woken device — enough to flip running True
@@ -92,18 +92,18 @@ def test_a_beat_pulses_every_shim_in_order():
 
 def test_the_firing_is_the_shims_not_the_heartbeats():
     bus = _SpyBus()
-    due = Callback(why="wake ops", trigger=lambda now, ctx: ctx.get("hot"), to="ops/personal")
-    idle = Callback(why="wake night", trigger=lambda now, ctx: False, to="night/personal")
+    due = Probe(why="wake ops", trigger=lambda now, ctx: ctx.get("hot"), to="ops/personal")
+    idle = Probe(why="wake night", trigger=lambda now, ctx: False, to="night/personal")
     gl = GroundLoopDevice()
-    gl.subscribe(_Shim("sensor", bus, callbacks=[due, idle]))
+    gl.subscribe(_Shim("sensor", bus, probes=[due, idle]))
 
     gl.beat(now="t0", context={"hot": True})
 
     assert len(bus.posted) == 1 and bus.posted[0]["to"] == "ops/personal", \
-        "the due callback pokes the bus through its shim; the heartbeat itself pokes nothing"
+        "the due probe pokes the bus through its shim; the heartbeat itself pokes nothing"
     # A beat where nothing is due pokes nobody.
     gl.beat(now="t1", context={"hot": False})
-    assert len(bus.posted) == 1, "no callback due → no poke"
+    assert len(bus.posted) == 1, "no probe due → no poke"
 
 
 def test_subscribe_is_idempotent_and_typed():
@@ -123,8 +123,8 @@ def test_one_shim_raising_cannot_stop_the_beat():
     bus = _SpyBus()
     gl = GroundLoopDevice()
     gl.subscribe(_AngryShim())
-    gl.subscribe(_Shim("healthy", bus, callbacks=[
-        Callback(why="still fires", trigger=lambda now, ctx: True, to="ok/personal")]))
+    gl.subscribe(_Shim("healthy", bus, probes=[
+        Probe(why="still fires", trigger=lambda now, ctx: True, to="ok/personal")]))
 
     rec = gl.beat(now="t0")
 

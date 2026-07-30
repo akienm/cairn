@@ -13,7 +13,7 @@ a port of its own. Subscribe this shim to the ground loop and the librarian ride
 roster like any device: the surface reaches it through ``active_page()``, a POSTed
 utterance reaches it through ``deliver()``.
 
-No callbacks yet: the librarian is not driven by the beat — it wakes to pokes (a walk,
+No probes yet: the librarian is not driven by the beat — it wakes to pokes (a walk,
 a deposit, a chat turn). It rides the heartbeat so the system can reach it, not so a
 clock can spin it (NO DAEMONS).
 """

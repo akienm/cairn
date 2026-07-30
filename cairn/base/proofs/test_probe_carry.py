@@ -1,9 +1,9 @@
 """WHAT RIDES ALONG is a carrier — a callable, not a named kind.
 
-Akien, 2026-07-25: "a gate watching callback will send a copy of it's ticket thru... but
+Akien, 2026-07-25: "a gate watching probe will send a copy of it's ticket thru... but
 something inside of the inference proxy may send back a loop count over n or something. they
-are designed to be that flexible. so a gate callback can say 'call dave back with "ticket
-detected at {gatename} as {ticket}"' whatever the callback can process in that location."
+are designed to be that flexible. so a gate probe can say 'call dave back with "ticket
+detected at {gatename} as {ticket}"' whatever the probe can process in that location."
 
 WHAT THIS PROVES:
   - CARRIAGE IS OPEN, NOT AN ENUM. Any ``(context) -> dict`` is a carrier; the shipped three
@@ -14,12 +14,12 @@ WHAT THIS PROVES:
     only vocabulary is a string).
   - THE MOMENT BEATS THE DECLARATION. The carrier runs at FIRE time against the context the
     trigger just saw, and its fragment merges OVER the static body.
-  - THE DECLARATION NEVER DRIFTS. The callback is frozen; firing it twice against different
+  - THE DECLARATION NEVER DRIFTS. The probe is frozen; firing it twice against different
     contexts leaves ``body`` untouched.
   - A BROKEN CARRIER DOES NOT SWALLOW THE POKE (Law 7 / no silent failure). The poke lands
     carrying ``carry_failed``, and a template hole renders visibly rather than raising.
 
-    python3 cairn/base/proofs/test_callback_carry.py     # exit 0 = green
+    python3 cairn/base/proofs/test_probe_carry.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from cairn.base.callback import Callback, by_copy, by_pointer, by_text
+from cairn.base.probe import Probe, by_copy, by_pointer, by_text
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_bus_traffic_{_NONCE}"     # the ephemeral transit table this proof owns
@@ -51,7 +51,7 @@ ALWAYS = lambda now, ctx: True   # noqa: E731 — a trigger is a predicate, not 
 
 
 def _cb(**kw):
-    return Callback(why="a gate was crossed", trigger=ALWAYS, to="dave", **kw)
+    return Probe(why="a gate was crossed", trigger=ALWAYS, to="dave", **kw)
 
 
 def test_no_carrier_says_only_that_the_line_was_crossed():
@@ -150,8 +150,8 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
         def device_id(self) -> str:
             return "watcher"
 
-        def callbacks(self):
-            return [Callback(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
+        def probes(self):
+            return [Probe(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
                              to="dave", carry=by_text("ticket detected at {gate} as {ticket}"))]
 
     # An EPHEMERAL transit table this proof owns — the durable bus is shared, so counting a

@@ -37,14 +37,14 @@ mailbox is in-memory on the receiver; flushing to the 30-day json tier grows aga
 filed edge, not faked here.
 
 THE INSPECTOR DOES THE WORK — it CRAWLS. The diagnostic inspector (``diagnostic_inspector``,
-built) is where the intelligence lives, not the emission. Reacting to a fired callback it applies
+built) is where the intelligence lives, not the emission. Reacting to a fired probe it applies
 FILTERS (by_pointer, by_gate — conjoined) to the log, gathers the whole transaction (the workflow
 item AND its logging), and TRIMS it into the FINDINGS — the coherent json slice whose audience is
 CC. The emission stays dumb so the inspector can be smart (Law 1: the diagnostic surface's
 inference is compiled once, in the inspector — the same move as ``inference_domain``).
 
 THE DISCIPLINE — targeted and TEMPORARY. You place a gate-contact instrument when you are watching
-for something specific, then TAKE IT DOWN. Not standing callbacks left hanging: a permanent
+for something specific, then TAKE IT DOWN. Not standing probes left hanging: a permanent
 firehose turns CC's mailbox into noise (the shrinking-footprint principle — instrument on demand,
 event not poll). Put one to catch a flake; remove it once caught.
 

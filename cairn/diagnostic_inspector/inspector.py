@@ -12,9 +12,9 @@ THREE PARTS OF THE DIAGNOSTIC SURFACE (Akien's factoring):
     records of what crossed. State, so its durable home is instance-space (the ~/.cairn/
     cache-class json log; ``Mailbox`` here is the v0 in-memory stand-in for it — a proof
     fixture, never the runtime home).
-  - CALLBACK — when a watched thing happens (a red, a watched gate-contact) a callback FIRES.
+  - PROBE — when a watched thing happens (a red, a watched gate-contact) a probe FIRES.
     Event, not poll (the shrinking-footprint discipline). It says "inspect now."
-  - INSPECTOR — this module. It REACTS to that callback: applies FILTERS to the log and
+  - INSPECTOR — this module. It REACTS to that probe: applies FILTERS to the log and
     produces FINDINGS. It reads; it never emits (Law 6 — that would collapse the
     dumb-breadcrumb / smart-reader split). Filters are selection AT inspection time inside a
     fired run — never a standing scan (that would be the firehose/poll we reject).
@@ -121,7 +121,7 @@ SEED = (
 
 
 class Inspector:
-    """Reacts to a callback: applies FILTERS to the log, produces FINDINGS — and carries its
+    """Reacts to a probe: applies FILTERS to the log, produces FINDINGS — and carries its
     learned completeness across inspections, so it gets better over time (the remit).
 
     ``inspect(log, *filters)`` selects the records matching EVERY filter (conjunction),

@@ -166,6 +166,84 @@ def watchme_spec_error(ticket: dict) -> str | None:
     return None
 
 
+def spec_for(ticket: dict, obj: str) -> dict | None:
+    """The one spec on this ticket that describes the watch named ``obj``, or None."""
+    declared = ticket.get("watchme")
+    specs = declared if isinstance(declared, list) else ([declared] if declared else [])
+    for spec in specs:
+        if isinstance(spec, dict) and spec.get("object") == obj:
+            return spec
+    return None
+
+
+def armed_error(spec: dict, *, root: Path | str = _REPO_ROOT) -> str | None:
+    """IS THE PROBE THIS SPEC PROMISED ACTUALLY ARMED? Returns the refusal text, or None.
+
+    ARMED IS MEASURED, NOT ASSERTED (Law 3). A path that exists is not a probe; a module that
+    imports is not an emitter. So all three are checked and every fault is reported together
+    (Law 7 — complete on the first pass, never re-run the gate to find the next fault):
+
+      1. the berth is on disk and imports,
+      2. it declares module-level ``PROBE``, a real ``cairn.base.probe.Probe``,
+      3. that Probe can EMIT and can STOP — it carries a ``carry`` and an ``enough``.
+
+    WHY (3) IS PART OF ARMED, and not a nicety. "Emission, not accumulation" is the ticket's
+    own phrase for the failure this gate exists to stop. A probe with no carrier pokes to say
+    only THAT a line was crossed — nothing is gathered, so the efficacy question the WATCHME
+    was carried for cannot be answered by it. A probe with no ``enough`` can never clear,
+    which is the standing pulse-cost the shrinking-footprint discipline refuses. The spec
+    PROMISED both fields at ticketing; this is where the promise is measured against the code.
+
+    WHY A PATH AND NOT A REGISTRY. Deliberate and bounded: asking a live device roster "is
+    this probe armed?" would make the chokepoint reach outward at a crossing, and a registry
+    is explicitly OUT of this ticket's constrain. A berth is a file in class-space, so ARMED
+    answers from the same repo the crossing is journaled in — no device, no bus, no network.
+    Importing a declaration module IS the measurement, and a probe berth is a declaration by
+    construction (see probe.py's header).
+    """
+    import importlib.util
+
+    from cairn.base.probe import Probe
+
+    berth = spec.get(BERTH_FIELD)
+    if not (isinstance(berth, str) and berth.strip()):
+        return "the spec names no %r berth, so ARMED cannot be measured at all" % BERTH_FIELD
+    p = Path(berth)
+    if not p.is_absolute():
+        p = Path(root) / berth
+    if not p.is_file():
+        return ("no probe is berthed at %s — the ticket promised one at %r and the world does "
+                "not hold it (done is verified in the world, never in the record)" % (p, berth))
+
+    try:
+        mod_spec = importlib.util.spec_from_file_location(f"_probe_berth_{p.stem}", p)
+        module = importlib.util.module_from_spec(mod_spec)
+        mod_spec.loader.exec_module(module)
+    except Exception as exc:  # noqa: BLE001 — a berth that cannot load is not armed
+        return "the berth at %s does not load (%s: %s)" % (p, type(exc).__name__, exc)
+
+    probe = getattr(module, "PROBE", None)
+    if probe is None:
+        return ("the berth at %s declares no module-level PROBE — a probe berth is a "
+                "DECLARATION module, and the gate reads the declaration rather than running "
+                "construction logic it cannot predict" % p)
+    if not isinstance(probe, Probe):
+        return ("the berth at %s declares PROBE as %s, not a cairn.base.probe.Probe"
+                % (p, type(probe).__name__))
+
+    faults = []
+    if probe.carry is None:
+        faults.append("it carries no `carry`, so its poke says only THAT a line was crossed — "
+                      "nothing is gathered, which is exactly the accumulation-without-emission "
+                      "shape this gate refuses")
+    if probe.enough is None:
+        faults.append("it declares no `enough`, so the watch can never clear — the spec "
+                      "promised an enough-condition at ticketing")
+    if faults:
+        return "the probe at %s is berthed but not armed: %s" % (p, "; and ".join(faults))
+    return None
+
+
 def require_watchme_spec(ticket: dict) -> None:
     """The refusing face, for a caller that wants the raise rather than the text."""
     err = watchme_spec_error(ticket)

@@ -132,6 +132,78 @@ class ExitGateRed(IllegalTransition):
         self.findings = findings or []
 
 
+class WatchmeEmissionRed(IllegalTransition):
+    """The forward crossing OUT of WATCHME is refused: the watch the node carried did not
+    EMIT — no ticket to read the spec from, no spec for the object the boat stands at, or a
+    spec whose promised probe is not berthed and armed. Carries ``findings`` complete on the
+    first pass; berth and arm the probe, never bypass.
+
+    Sibling of ``EntryGateRed`` / ``BuildGateRed`` / ``ExitGateRed`` — sharing the
+    ``IllegalTransition`` parent, not each other, so a handler written for one gate cannot
+    silently swallow a different gate's refusal. This is the FIFTH seat at the chokepoint,
+    and the first that guards a FREE summons: the other four sit at fixed backbone crossings,
+    which is why 'mandatory to satisfy ONCE CARRIED' needed a gate of its own rather than a
+    clause bolted onto an existing one.
+
+    Provenance: 2026-07-30, ticket watchme-emits-a-probe piece (c-i). Its falsifier (1): *a
+    WATCHME crossing is accepted that emitted no armed probe* — the clause that makes 'not
+    optional once present' physics rather than prose."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
+def _emission_gate(obj: str | None, ticket: object) -> str:
+    """A node crossing FORWARD out of a WATCHME it carried must have EMITTED its probe.
+    Returns the one-line gate note the journal carries; raises ``WatchmeEmissionRed`` before
+    anything is written.
+
+    EMISSION, NOT ACCUMULATION — the ticket's own phrase. The failure this refuses is a node
+    that walks past its own watch having gathered nothing: the LEARNME shape that v1 measured
+    and that this whole node dissolves. LEARNME sat in the backbone, forced on every node, and
+    carried NO GATE at all — so it was crossed by every voyage and satisfied by none.
+
+    WHY A CROSSING WITH NO TICKET IS REFUSED RATHER THAN WAVED THROUGH. The spec lives on the
+    ticket, so without one the gate cannot know whether a probe was emitted — and 'cannot
+    know' must never render as 'clean' (Law 3). There is no exempt roster here on purpose: the
+    other gates' roster exists for call sites that legitimately cross ticketless, and a
+    ticketless node cannot have carried a WATCHME in the first place (the spec is what put it
+    in the string).
+
+    Back-edges INTO a WATCHME retreat ungated — that is the owner's act of re-arming a watch
+    whose verdict came back failed, and gating a retreat would trap the boat at the one state
+    it is supposed to be able to return to."""
+    from cairn.base import watchme_spec
+
+    if not isinstance(ticket, str) or not (_TICKETS / (ticket + ".json")).exists():
+        raise WatchmeEmissionRed(
+            f"WATCHME({obj}) crossing refused: the crossing names no cast ticket, so the "
+            "watch's spec cannot be read and emission cannot be measured — a watch that "
+            "cannot be checked is not a watch (Law 3). Nothing was journaled. Name the "
+            "ticket on the crossing (ticket=<id>).")
+
+    data = json.loads((_TICKETS / (ticket + ".json")).read_text(encoding="utf-8"))
+    spec = watchme_spec.spec_for(data, obj)
+    if spec is None:
+        raise WatchmeEmissionRed(
+            f"WATCHME({obj}) crossing refused: ticket {ticket!r} carries no watchme spec for "
+            f"object {obj!r}. Optional to carry, MANDATORY TO SATISFY once carried — the "
+            "string says this node has this watch. Nothing was journaled. Add the spec "
+            "(trigger, enough, carrier, nexus, consumer, probe) to the ticket.",
+            [{"judge": "watchme_spec", "detail": watchme_spec.watchme_spec_error(data)}])
+
+    err = watchme_spec.armed_error(spec)
+    if err:
+        raise WatchmeEmissionRed(
+            f"WATCHME({obj}) crossing refused: {err}. Nothing was journaled. The watch is "
+            "carried, so it is owed a probe that can be fired — berth and arm it, or "
+            "back-edge and drop the watch from the string through the owner's gate.",
+            [{"judge": "armed", "detail": err, "berth": spec.get("probe")}])
+    return "clean — WATCHME(%s) emitted the probe berthed at %s (ticket %r)" % (
+        obj, spec.get("probe"), ticket)
+
+
 def is_summons(state: str) -> bool:
     """The grammar: a state that ends in ``-ME`` is a SUMMONS (demands a peer); else a rest."""
     return state.endswith("ME")
@@ -609,6 +681,18 @@ def emit(
         # complete and passing), same as before this stone. Back-edges retreat
         # ungated (never subject to either check).
         exit_note = None
+        # THE EMISSION GATE (ticket watchme-emits-a-probe, 2026-07-30): crossing
+        # FORWARD out of a WATCHME the node carried requires that the watch actually
+        # EMITTED — its ticket carries a spec for this object, and the probe that spec
+        # promised is berthed and armed. Refuses before anything is written. THE FIFTH
+        # SEAT, and the first at a FREE summons: the other four sit at fixed backbone
+        # crossings, so 'mandatory to satisfy ONCE CARRIED' needed its own seat rather
+        # than a clause on someone else's. Back-edges INTO a WATCHME retreat ungated —
+        # re-arming a failed watch is the owner's act (Law 6), and gating the retreat
+        # would trap the boat at the one state it must be able to return to.
+        emission_note = None
+        if wf.here == "WATCHME" and target_idx > wf.cursor:
+            emission_note = _emission_gate(wf.here_object, journal_extra.get("ticket"))
         # THE DEPOSIT ENQUEUE: an exit-gate-CLEAN crossing files its answering
         # verdict berth on chart's pending ledger before the record is written, so
         # the crossing's own journal names the deposit it owes (ticket
@@ -649,6 +733,10 @@ def emit(
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),
+            # The record of truth says the emission gate ran: a gated WATCHME exit
+            # journals WHICH probe answered for the watch, so a year later the record
+            # names the berth rather than asserting that something was learned.
+            **({"emission_gate": emission_note} if emission_note else {}),
             # The record of truth says the deposit was filed: a gated PROVED entry
             # that answered a chart names the berth now standing on chart's pending
             # ledger, so the obligation and the crossing share an address (Law 5).

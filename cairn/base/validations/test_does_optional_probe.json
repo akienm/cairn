@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_does_optional_probe.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:21:06",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_watch_can_never_clear_before_it_could_fire\n  ok   test_fire_and_clear_are_mutually_exclusive\n  ok   test_the_floor_binds_both_predicates_and_neither_is_redundant\n  ok   test_the_owning_ticket_is_not_in_its_own_corpus\n  ok   test_the_survey_is_internally_consistent\n  ok   test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  ok   test_the_datum_points_at_the_ticket_and_does_not_copy_it\n  ok   test_it_reads_class_space_only\n\n8/8 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

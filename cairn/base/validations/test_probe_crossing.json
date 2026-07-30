@@ -16,5 +16,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_probe_crossing.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:21:07",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_standing_true_pokes_once_not_every_pulse\n  ok   test_it_re_arms_when_the_line_is_recrossed\n  ok   test_while_true_opts_back_into_every_pulse\n  ok   test_a_held_poke_says_which_kind_of_held_it_is\n  ok   test_the_memory_is_the_shims_and_the_probe_stays_frozen\n  ok   test_a_rebuilt_probe_is_recognised_as_the_same_watch\n  ok   test_a_different_why_is_a_different_watch\n  ok   test_a_raising_trigger_does_not_swallow_the_next_poke\n  ok   test_a_vanished_probe_is_forgotten_and_pokes_when_it_returns\n\n9/9 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

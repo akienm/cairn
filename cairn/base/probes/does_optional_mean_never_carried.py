@@ -41,16 +41,28 @@ _TICKETS = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "ticket
 # say "none, because X" is a plausible run of honest answers; twelve is a pattern.
 _ENOUGH = 12
 
+# The node this probe was compiled from. Excluded from its own corpus — see survey_the_corpus.
+_OWNING_TICKET = "watchme-emits-a-probe"
+
 
 def survey_the_corpus() -> dict:
     """Count, over tickets claiming a version whose vocabulary can carry a watch: how many
     CARRY one, and how many recorded "none, because X". Reads class-space files only — no
-    device, no bus, no network, so the probe stays cheap enough to sit on a pulse."""
+    device, no bus, no network, so the probe stays cheap enough to sit on a pulse.
+
+    THE OWNING TICKET IS EXCLUDED, and that exclusion is the whole honesty of the count.
+    Caught by this node's own live fire, 2026-07-30: the first pulse reported
+    ``{carried: 1, eligible: 1}`` — and the one was ``watchme-emits-a-probe`` itself, the
+    node that INVENTED the mechanism, counting its own participation as evidence that
+    authors participate. That is home-field advantage as a measurement: the maximally
+    motivated author is the one sample. The question is about OTHER authors, so the
+    author is not in the corpus.
+    """
     from cairn.base.watchme_spec import workflow_objects
 
     carried = declined = 0
     for p in sorted(_TICKETS.glob("*.json")):
-        if p.name.startswith("_"):
+        if p.name.startswith("_") or p.stem == _OWNING_TICKET:
             continue
         try:
             t = json.loads(p.read_text(encoding="utf-8"))
@@ -75,12 +87,26 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    """CLEARED once ANY node has carried a watch. At that moment the question is answered —
-    optional does not mean never — and a standing watch on a settled question is the
-    re-derivation Law 1 refuses. If the answer later goes bad again, that is a NEW watch a
-    node carries deliberately, not this one silently resuming."""
+    """CLEARED once the corpus is big enough to judge AND some other node has carried a watch.
+    At that moment the question is answered — optional does not mean never — and a standing
+    watch on a settled question is the re-derivation Law 1 refuses. If the answer later goes
+    bad again, that is a NEW watch a node carries deliberately, not this one silently resuming.
+
+    THE CORPUS FLOOR IS ON BOTH CLAUSES SINCE 2026-07-30, and it was not before. This read
+    ``return s["carried"] > 0`` — no floor at all — while ``_trigger`` next door required
+    ``eligible >= _ENOUGH``. The asymmetry was fatal in the quiet direction: the watch could
+    CLEAR at n=1 but could not FIRE until n=12, so it was guaranteed to retire before it
+    could ever bite. This node's live fire proved it — ``enough`` returned True on the very
+    first pulse, against a corpus of exactly one ticket, which was this one.
+
+    Two independent bugs met at that line and either alone would have been enough: the
+    corpus counted the owning ticket (fixed in ``survey_the_corpus``), and the clear had no
+    sample-size floor (fixed here). A watch that clears before it can fire is the v1 failure
+    wearing this node's own clothes — a summons crossed by everybody and satisfied by
+    nobody — which is precisely what this probe exists to detect.
+    """
     s = context.get("corpus") or survey_the_corpus()
-    return s["carried"] > 0
+    return s["eligible"] >= _ENOUGH and s["carried"] > 0
 
 
 def _carry(context: dict) -> dict:

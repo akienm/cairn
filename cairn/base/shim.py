@@ -77,6 +77,16 @@ class BaseShim(CoreValuesMixin, ABC):
         # its own set so the two can never be read for each other — the distinguishability the
         # enough-condition is worthless without. Also keyed by Probe.identity.
         self._cleared: set = set()
+        # THE SILENCE MEMORY (ticket watchme-emits-a-probe falsifier clause (2), 2026-07-30).
+        # A THIRD memory, and a third one on purpose: ``_was_true`` is the resting state of a
+        # standing watch and ``_cleared`` is a watch that ended well, but a watch that has
+        # NEVER FIRED is neither — it looks exactly like a healthy resting watch from both of
+        # those, which is precisely the silent failure the clause names. ``_first_seen`` is
+        # the pulse index a declaration was first evaluated at; ``_ever_fired`` is every
+        # identity that has ever poked. Overdue = declared a horizon, never fired, and more
+        # pulses than the horizon have passed since it was first seen.
+        self._first_seen: dict = {}
+        self._ever_fired: set = set()
 
     @property
     @abstractmethod
@@ -100,6 +110,42 @@ class BaseShim(CoreValuesMixin, ABC):
         different place, which is the whole point of the split."""
         return set(self._cleared)
 
+    def overdue(self, probes: list[Probe] | None = None) -> list[dict]:
+        """THE LOUD SURFACE FOR A WATCH THAT NEVER FIRED — every armed probe that declared a
+        ``horizon``, has never poked, and has now stood more pulses than its horizon allows.
+
+        Ticket ``watchme-emits-a-probe`` falsifier clause (2): *"A probe is armed and never
+        fires, and nothing is loud about it — a watcher emitted into a heartbeat nobody runs
+        learns nothing while LOOKING like learning."* Nothing in ``_was_true`` or
+        ``_cleared`` can answer this: a watch resting correctly and a watch that has been
+        dead since the day it was armed have byte-identical resting states there. This is the
+        third reading, and it is the one that goes loud.
+
+        A READ IS AN EVENT, so this is callable on demand and not only from a pulse — the
+        pulse-record carries it too, but a heartbeat that never runs cannot report its own
+        absence, so the read-side door is the one that catches the worst case. No clock, no
+        sweep, no registry: bounded OUT, and unnecessary — the shim already counts pulses.
+
+        A probe with no ``horizon`` is NEVER overdue. That is the declaration's own choice
+        (a standing watch with no deadline is legitimate), not a gap in this check."""
+        out = []
+        for cb in (self.probes() if probes is None else probes):
+            if cb.horizon is None or cb.identity in self._ever_fired:
+                continue
+            if cb.identity in self._cleared:
+                continue          # retired deliberately — an ending, not a silence
+            first = self._first_seen.get(cb.identity)
+            if first is None:
+                continue          # never yet evaluated: no silence to measure against
+            stood = self._pulses - first
+            if stood > cb.horizon:
+                out.append({"why": cb.why, "to": cb.to, "horizon": cb.horizon,
+                            "pulses_stood": stood,
+                            "finding": "ARMED AND NEVER FIRED past its horizon — this watch "
+                                       "has looked like learning for %d pulses and has "
+                                       "gathered nothing (Law 7)" % stood})
+        return out
+
     # --- (1) fire due probes on a heartbeat pulse ------------------------
 
     def on_pulse(self, now, context: dict | None = None) -> dict:
@@ -116,8 +162,14 @@ class BaseShim(CoreValuesMixin, ABC):
         fired: list[dict] = []
         held: list[dict] = []
         still_true: set = set()
-        for cb in self.probes():
+        declared = self.probes()
+        for cb in declared:
             try:
+                # WHEN THIS WATCH STARTED STANDING — stamped before anything can skip the
+                # rest of the body, including the cleared branch and a raising trigger, so a
+                # probe that has been broken since birth still has a silence that can be
+                # measured (a trigger that always raises is the loudest never-fires there is).
+                self._first_seen.setdefault(cb.identity, self._pulses)
                 # CLEARED IS TERMINAL and is checked FIRST: a retired declaration is not
                 # evaluated at all, so its trigger costs nothing on every later pulse. The
                 # reason is its own string — never "trigger false", which is the re-armed
@@ -134,6 +186,11 @@ class BaseShim(CoreValuesMixin, ABC):
                     # that means "keep telling me while this holds."
                     if cb.while_true or cb.identity not in self._was_true:
                         fired.append(self._fire(cb, context))
+                        # It has poked at least once, so its silence is over for good — a
+                        # watch that fired and then went quiet is a DIFFERENT question
+                        # (that is the trigger's resting state), and clause (2) is only
+                        # about the watcher that never spoke at all.
+                        self._ever_fired.add(cb.identity)
                         # ASKED ONLY AFTER A FIRE: a probe that has not poked has gathered
                         # nothing. A broken enough leaves the watch STANDING (Law 7) and the
                         # kick-back is recorded rather than swallowed — the poke already landed,
@@ -168,6 +225,11 @@ class BaseShim(CoreValuesMixin, ABC):
         # pokes again when it next crosses, instead of being suppressed by a stale memory.
         self._was_true = still_true
         self._pulses += 1
+        # Computed AFTER the count advances, so the record answers for the pulse that just
+        # happened. Its own key, never folded into ``held``: a watch resting correctly and a
+        # watch that has been silent since it was armed must not read the same (Law 7 — loud
+        # at a diagnostic surface, and a pulse-record is one).
+        record["overdue"] = self.overdue(declared)
         self._last_pulse = record
         return record
 

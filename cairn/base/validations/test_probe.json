@@ -34,5 +34,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_probe.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T15:16:57",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

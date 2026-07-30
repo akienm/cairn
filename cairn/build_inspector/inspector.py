@@ -39,9 +39,13 @@ sys.path.insert(0, str(_REPO_ROOT))
 # orient's filed edge (e) — scans-vs-filters as one shared library — earned by use, not
 # merged on symmetry. The registries stay separate: a scan MEASURES, a filter JUDGES.
 from cairn.charter import projector  # noqa: E402
-from cairn.chart.orient import ref_exists  # noqa: E402  (tree-free module — the verdict
+from cairn.chart.orient import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
+                                ticket_path)             #   module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
-#   composes the berth gate's OWN ref semantics so the two mouths cannot disagree)
+#   composes the berth gate's OWN ref semantics so the two mouths cannot disagree.
+#   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
+#   forwarding order lives on the ticket, and WHERE a ticket lives already had one
+#   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
 from cairn.chart.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
@@ -183,6 +187,11 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
 
 _CHART_BERTHS = Path.home() / ".cairn" / "devices" / "chart"
 
+# Where this gate looks up a ticket. A constant so a proof can swap it (the
+# _CHART_BERTHS pattern), and composed through chart.orient's ticket_path so the
+# reader that OPENS a ticket and this gate cannot disagree about which file that is.
+_TICKETS_ROOT = CAIRN_ROOT
+
 
 def _component_tickets(comp_dir: Path) -> set:
     h = comp_dir / "history.json"
@@ -230,9 +239,152 @@ def _unreadable_findings(filter_name: str, row: dict, unreadable) -> list[dict]:
     ) for path, why in unreadable]
 
 
+# ── THE FORWARDING ORDER (ticket watchme-emits-a-probe, 2026-07-30) ──────────
+# A charted address can stop resolving two ways, and until this voyage the gate
+# could only see one of them.
+#
+#   DRIFT — the world moved and the chart did not know. This is the 2026-07-24
+#   failure the ref filters were built for: 'done' reported while the files stood
+#   unmoved. The address names nothing and nothing else names it either.
+#
+#   A MOVE — the build's own charted plan renamed the thing. Measured here, in
+#   anger: this ticket's decompose piece (f) was 'the CALLBACK -> PROBE rename,
+#   run FIRST so nothing else is built on the retired word', and running it first
+#   is exactly what falsified the chart's own orient refs and survey holdings.
+#   Five findings, all correct, none of them drift. The berths are records of
+#   truth and may not be edited to look consistent, so the disposition cannot be
+#   a quieter chart — it has to be a named successor.
+#
+# So: a missing address is a finding UNLESS the ticket that charted it records
+# where it WENT. The tolerance is not a softening — the gate still measures the
+# world, it just measures the far end of a declared move instead of the near end,
+# and both ends are checked. An order that forwards to nothing, or forwards an
+# address that still resolves, disposes nothing and reds by its own name.
+
+
+def _forwarding_map(ticket_id) -> dict:
+    """The VALID entries of a ticket's forwarding order, ``{from: to}``.
+
+    Only well-shaped entries whose ``to`` resolves and whose ``from`` does not are
+    returned, so a broken order grants no tolerance at all — the charted-ref
+    finding stands AND ``forwarding_order_resolves`` fires. Two loud records
+    beat one silent pass."""
+    filed = ticket_path(ticket_id, root=_TICKETS_ROOT)
+    if filed is None:
+        return {}
+    try:
+        with open(filed, encoding="utf-8") as fh:
+            ticket = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return {}  # forwarding_order_resolves owns the unreadable-ticket finding
+    order = ticket.get("forwarding")
+    if not isinstance(order, dict):
+        return {}
+    good = {}
+    for old, entry in order.items():
+        if not isinstance(old, str) or not old.strip() or not isinstance(entry, dict):
+            continue
+        to, why = entry.get("to"), entry.get("why")
+        if not all(isinstance(v, str) and v.strip() for v in (to, why)):
+            continue
+        if ref_exists(old) or not ref_exists(to):
+            continue
+        good[old] = to
+    return good
+
+
+def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
+    """A ticket's forwarding order is checked in the world at both ends: every
+    entry says where an address WENT (``to``, which must resolve) and WHY, and
+    forwards an address that genuinely no longer resolves.
+
+    Provenance: 2026-07-30 — ticket watchme-emits-a-probe's own WATCHME crossing
+    was refused with five findings (one orient ref, four survey holdings) naming
+    cairn/base/callback.py, its crossing proof, and the homeless intention — the
+    three addresses the ticket's OWN decompose piece (f) had renamed hours
+    earlier. A chart that plans a rename falsifies its own refs by succeeding,
+    and the ref filters could not tell that from the drift they were taught by.
+    This filter is the other half: the tolerance exists only where a ticket has
+    named the successor, permanently, on the record of truth. Forwarding to
+    something that is not there, or forwarding a live address out from under
+    itself, is exactly the laundering the tolerance must not enable — so both
+    red here rather than passing quietly through the filters that consult it.
+    """
+    findings = []
+    for tid in sorted(_component_tickets(comp_dir)):
+        filed = ticket_path(tid, root=_TICKETS_ROOT)
+        if filed is None:
+            continue  # a ticket not on file is another gate's finding, not this one's
+        try:
+            with open(filed, encoding="utf-8") as fh:
+                ticket = json.load(fh)
+        except (OSError, json.JSONDecodeError) as e:
+            findings.append(_finding(
+                "forwarding_order_resolves", row["component"],
+                "ticket %r cannot be read (%s: %s)" % (tid, type(e).__name__, e),
+                {"ticket": tid, "path": filed},
+                "Law 7: a record of truth the gate cannot read is a named finding, "
+                "never a silent skip — an unreadable ticket could be forwarding "
+                "anything anywhere.",
+            ))
+            continue
+        order = ticket.get("forwarding")
+        if order is None:
+            continue  # most tickets move nothing; absence is the normal case
+        if not isinstance(order, dict):
+            findings.append(_finding(
+                "forwarding_order_resolves", row["component"],
+                "ticket %r's forwarding order is not a map of from -> {to, why}" % tid,
+                {"ticket": tid, "got": order},
+                "a forwarding order the gate cannot read entry-by-entry cannot be "
+                "checked at both ends — and an unreadable order that silently "
+                "granted tolerance would be the laundering this filter exists to stop.",
+            ))
+            continue
+        for old, entry in order.items():
+            ev = {"ticket": tid, "from": old, "entry": entry}
+            if not isinstance(old, str) or not old.strip() or not isinstance(entry, dict):
+                findings.append(_finding(
+                    "forwarding_order_resolves", row["component"],
+                    "forwarding entry %r has no shape (needs a non-empty address "
+                    "mapping to {to, why})" % (old,), ev,
+                    "an entry that names no address forwards nothing and can be "
+                    "checked against nothing.",
+                ))
+                continue
+            to, why = entry.get("to"), entry.get("why")
+            if not all(isinstance(v, str) and v.strip() for v in (to, why)):
+                findings.append(_finding(
+                    "forwarding_order_resolves", row["component"],
+                    "forwarding entry %r lacks 'to' and/or 'why'" % old, ev,
+                    "the why is forced structurally: a move nobody can justify at "
+                    "the gate is a move nobody can adjudicate in a year (CP3).",
+                ))
+                continue
+            if not ref_exists(to):
+                findings.append(_finding(
+                    "forwarding_order_resolves", row["component"],
+                    "forwarding %r -> %r: the successor does not resolve" % (old, to), ev,
+                    "Law 8 + the 2026-07-24 failure: forwarding to an address the "
+                    "world does not hold is the same hollow claim as the missing "
+                    "ref it was offered to dispose, one indirection later.",
+                ))
+                continue
+            if ref_exists(old):
+                findings.append(_finding(
+                    "forwarding_order_resolves", row["component"],
+                    "forwarding %r -> %r: the FROM address still resolves" % (old, to), ev,
+                    "a forwarding order is for what MOVED. Pointing a live address "
+                    "somewhere else would let a chart's claim be re-aimed at a "
+                    "different thing while the original sits there untouched.",
+                ))
+    return findings
+
+
 def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
     """A promoted build must still match what its packet charted: every ref the
-    orient packet carried must resolve at promotion time.
+    orient packet carried must resolve at promotion time — or the ticket must say
+    where it went (see the forwarding order above).
 
     Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
     sharpest claim-vs-world drift on record). The packet is the claim, the
@@ -246,7 +398,9 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
         refs = packet.get("refs")
         if not isinstance(refs, list):
             continue  # shaped at the berth door; unreachable through it
+        forwarded = _forwarding_map(packet.get("ticket"))
         missing = [r for r in refs if not isinstance(r, str) or not ref_exists(r)]
+        missing = [r for r in missing if not (isinstance(r, str) and r in forwarded)]
         if missing:
             findings.append(_finding(
                 "charted_refs_resolve", row["component"],
@@ -430,9 +584,20 @@ def survey_holdings_resolve(row: dict, comp_dir: Path) -> list[dict]:
     surveying the settled territory. Installed 2026-07-28 BEFORE the survey
     module exists (judges-before-the-judged, second instance — the pattern
     constrain-filters filed at edge (b), proven by this use).
+
+    THE FORWARDING ORDER IS CONSULTED HERE, NOT IN THE JUDGE, and the asymmetry
+    is the point (2026-07-30). ``judge_survey`` is also the BERTH DOOR's mouth,
+    and at berth time every holding resolves by definition — that is what makes
+    it a holding. Teaching the pure judge about successors would hand the door a
+    tolerance it has no moment to need, and would let a packet be berthed naming
+    an address that was already gone. So the door keeps the flat rule and only
+    the promotion side, which alone stands downstream of a move, disposes.
     """
-    return _judge_charted(row, comp_dir, "survey", judge_survey,
-                          "survey_holdings_resolve", report_unreadable=True)
+    findings = _judge_charted(row, comp_dir, "survey", judge_survey,
+                              "survey_holdings_resolve", report_unreadable=True)
+    return [f for f in findings
+            if f["evidence"].get("address") not in
+            _forwarding_map(f["evidence"].get("ticket"))]
 
 
 def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -1173,6 +1338,7 @@ FILTERS = {
     "proofs_exist": proofs_exist,
     "silent_device": silent_device,
     "state_is_projection": state_is_projection,
+    "forwarding_order_resolves": forwarding_order_resolves,
     "charted_refs_resolve": charted_refs_resolve,
     "constraint_traces": constraint_traces,
     "constraint_bounds_complete": constraint_bounds_complete,

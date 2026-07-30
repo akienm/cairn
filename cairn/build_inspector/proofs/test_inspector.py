@@ -499,6 +499,97 @@ def main() -> None:
         assert judge_validate(chainless_v) and \
             judge_validate(chainless_v)[0]["judge"] == "validate_covers_the_build"
 
+        # 26b — THE FORWARDING ORDER (watchme-emits-a-probe, 2026-07-30). A charted
+        #       address stops resolving two ways: the world DRIFTED (the 2026-07-24
+        #       failure these ref filters were built for), or the build's own charted
+        #       plan MOVED it. Measured in anger: that ticket's decompose piece (f)
+        #       was 'the CALLBACK -> PROBE rename, run FIRST', and running it first
+        #       falsified the chart's own orient ref and four survey holdings. The
+        #       disposition is a named successor on the ticket — and it is checked at
+        #       BOTH ends, so it can never become a way to launder a missing address.
+        fwd_tickets = tmp / "CairnCommons" / "tickets"
+        fwd_tickets.mkdir(parents=True)
+        saved_troot = _insp._TICKETS_ROOT
+        _insp._TICKETS_ROOT = str(root)          # ticket_path reads root/../CairnCommons
+        tfile = fwd_tickets / "fwd-proof.json"
+
+        def _order(order):
+            tfile.write_text(json.dumps({"id": "fwd-proof", "forwarding": order}))
+
+        moved = _component(root, "moved")
+        h3, s3 = moved / "history.json", moved / "state.json"
+        projector.append_entry(str(h3), str(s3),
+                               {"standing": "BUILDME", "note": "born", "ticket": "fwd-proof"})
+        mp = berths / "0" / "packets"
+        (mp / "orient-20260730T000000-1111.json").write_text(
+            json.dumps({"ticket": "fwd-proof", "refs": ["chart", "gone/away.py"]}))
+        (mp / "survey-20260730T000001-2222.json").write_text(json.dumps(
+            {"ticket": "fwd-proof", "sought": ["the moved thing"],
+             "holdings": [{"what": "the thing that moved", "address": "gone/away.py"}],
+             "absences": [{"what": "nothing", "measure": "census rows"}]}))
+
+        # (i) NO ORDER: both mouths red. The tolerance is opt-in, never the default.
+        names = lambda comp: sorted(x["filter"] for x in           # noqa: E731
+                                    inspect(root=root, component=comp)["findings"])
+        assert names("moved") == ["charted_refs_resolve", "survey_holdings_resolve"], \
+            "a missing charted address with no forwarding order must still red"
+
+        # (ii) A WHOLE ORDER: both disposed, and nothing else is loosened.
+        _order({"gone/away.py": {"to": "chart", "why": "renamed by piece (f)"}})
+        assert names("moved") == [], inspect(root=root, component="moved")["findings"]
+
+        # (iii) FORWARDING TO NOTHING: the order reds by its own name AND disposes
+        #       nothing — the missing-ref findings stand. Two loud records, never one
+        #       silent pass; a successor the world does not hold is the same hollow
+        #       claim as the ref it was offered to dispose, one indirection later.
+        _order({"gone/away.py": {"to": "also/gone.py", "why": "renamed by piece (f)"}})
+        assert names("moved") == ["charted_refs_resolve", "forwarding_order_resolves",
+                                  "survey_holdings_resolve"], names("moved")
+
+        # (iv) FORWARDING A LIVE ADDRESS: reds. A forwarding order is for what MOVED;
+        #      re-aiming a resolving address would let a chart's claim be pointed at a
+        #      different thing while the original sits there untouched.
+        _order({"chart": {"to": "base", "why": "not a move at all"}})
+        assert "forwarding_order_resolves" in names("moved"), names("moved")
+        assert "still resolves" in [x["finding"] for x in
+                                    inspect(root=root, component="moved")["findings"]
+                                    if x["filter"] == "forwarding_order_resolves"][0]
+
+        # (v) THE WHY IS FORCED STRUCTURALLY (CP3), and so is the shape.
+        for broken in ({"gone/away.py": {"to": "chart"}},
+                       {"gone/away.py": {"why": "no successor named"}},
+                       {"gone/away.py": "chart"},
+                       {"gone/away.py": {"to": "chart", "why": "   "}}):
+            _order(broken)
+            assert "forwarding_order_resolves" in names("moved"), (broken, names("moved"))
+            assert "charted_refs_resolve" in names("moved"), \
+                ("a broken order must grant no tolerance at all", broken)
+        tfile.write_text(json.dumps({"id": "fwd-proof", "forwarding": ["not", "a", "map"]}))
+        assert "forwarding_order_resolves" in names("moved"), names("moved")
+        tfile.write_text("{not json")
+        assert "forwarding_order_resolves" in names("moved"), \
+            "an unreadable record of truth is a named finding, never a silent skip"
+
+        # (vi) THE BERTH DOOR DOES NOT INHERIT THE TOLERANCE. judge_survey is the
+        #      door's mouth too, and at berth time every holding resolves by
+        #      definition — a successor is meaningless there, and teaching the pure
+        #      judge about one would let a packet be berthed naming an address that
+        #      was already gone. Asserted against a WHOLE order, the case where the
+        #      promotion side is quiet: only the promotion side may dispose.
+        _order({"gone/away.py": {"to": "chart", "why": "renamed by piece (f)"}})
+        assert names("moved") == [], "the promotion side disposes a whole order"
+        berthed = json.loads((mp / "survey-20260730T000001-2222.json").read_text())
+        assert [x["judge"] for x in judge_survey(berthed)] == ["survey_holdings_resolve"], \
+            "the berth door must still refuse a holding the world does not hold"
+
+        # (vii) A TICKET THAT MOVES NOTHING is the normal case and says nothing.
+        tfile.write_text(json.dumps({"id": "fwd-proof"}))
+        assert names("moved") == ["charted_refs_resolve", "survey_holdings_resolve"]
+        (mp / "orient-20260730T000000-1111.json").unlink()
+        (mp / "survey-20260730T000001-2222.json").unlink()
+        tfile.unlink()
+        _insp._TICKETS_ROOT = saved_troot
+
         # 27 — THE ENTRY GATE (buildme-rides-the-chart, 2026-07-29): green iff a
         #      READABLE VALIDATE berth claims the ticket; red is ONE finding carrying
         #      ticket + searched root + the /chart disposition, complete first pass.

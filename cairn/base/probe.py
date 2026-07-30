@@ -214,6 +214,28 @@ class Probe:
                       kind. Absent, the probe is a standing watch with no end, which is a
                       legitimate declaration and must stay the default so no existing probe
                       acquires a stopping condition it never asked for.
+      - ``horizon`` — optional positive int: HOW MANY PULSES THIS WATCH MAY STAND WITHOUT
+                      EVER HAVING FIRED before its own silence is a finding. Absent, the
+                      probe is a watch with no horizon — legitimate, and the default for
+                      exactly the reason ``enough`` defaults to None: no existing probe may
+                      acquire a deadline it never declared.
+
+    THE HORIZON, AND WHY IT IS A DECLARATION AND NOT A SWEEP (ticket
+    ``watchme-emits-a-probe`` falsifier clause (2), 2026-07-30). The clause: *"A probe is
+    armed and never fires, and nothing is loud about it — a watcher emitted into a heartbeat
+    nobody runs learns nothing while LOOKING like learning."* That is this design's own way
+    of re-committing the ``LEARNME`` failure it was built to kill: a summons carried by
+    everybody and satisfied by nobody, one level up. So the horizon is the number the shim
+    measures silence against, and it is declared HERE beside the trigger — the only place
+    that knows what "too long" means for this particular question.
+
+    Counted in PULSES, not seconds, and that is the whole point: a new clock, scheduler or
+    registry sweep for probes is bounded OUT (a probe fires where the subject already
+    fires). The shim already counts its own pulses, so silence is measured against the beat
+    that was going to happen anyway — the same event-not-poll rule the rest of the system
+    keeps. A probe held past its horizon surfaces at ``BaseShim.overdue()`` and in every
+    pulse-record under its own key; the shim holds the counting, because a Probe is frozen
+    and holds no state.
     """
 
     why: str
@@ -224,6 +246,7 @@ class Probe:
     carry: Callable[[dict], dict] | None = None
     while_true: bool = False
     enough: Callable[[dict], bool] | None = None
+    horizon: int | None = None
 
     def __post_init__(self) -> None:
         # CP1/CP3, at construction: a probe you cannot fire, or one with no reason, is a
@@ -241,6 +264,15 @@ class Probe:
         if self.enough is not None and not callable(self.enough):
             raise TypeError("a probe's enough must be callable — an enough-condition is a "
                             "predicate over the fire-time context, not a named kind or a count")
+        # A horizon of 0 or a negative one is a probe that is overdue before it is ever
+        # evaluated — that reads as loud-about-everything, which is the same as loud about
+        # nothing (Law 7 cuts both ways). Refused at n=1 rather than discovered as noise.
+        if self.horizon is not None and (not isinstance(self.horizon, int)
+                                         or isinstance(self.horizon, bool)
+                                         or self.horizon < 1):
+            raise ValueError("a probe's horizon is a positive whole number of PULSES it may "
+                             "stand without ever firing before its silence is a finding — "
+                             "omit it for a watch with no horizon, never 0 or a duration")
 
     @property
     def identity(self) -> tuple:

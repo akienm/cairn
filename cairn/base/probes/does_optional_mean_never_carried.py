@@ -123,6 +123,22 @@ def _carry(context: dict) -> dict:
                         "to write"}
 
 
+# THE HORIZON, and the residual it does NOT cover (falsifier clause (2), added 2026-07-30 at
+# this node's own validate step). This watch cannot answer until the corpus reaches 12
+# eligible v2 tickets — many voyages away — so it is exactly the shape clause (2) warns
+# about: armed, correct, and silent for a long time. Without a declared horizon its silence
+# would be indistinguishable from health forever, so it declares one.
+#
+# WHY A ROUND NUMBER AND NOT A DERIVED ONE: the unit is PULSES because the shim counts pulses
+# and a clock is bounded OUT — but the wall-clock backing that would call ``beat`` on a
+# cadence is a FILED EDGE, not built (cairn/ground_loop/loop.py header). So today nothing
+# pulses this shim at all, no pulse-record is ever produced, and the loudness rides the
+# READ-SIDE door (``BaseShim.overdue()``) alone. 1000 is "clearly a long standing" against
+# any beat rate we would plausibly pick; it is honest as a placeholder and dishonest as a
+# measurement, and it MUST be re-tuned when the beat becomes a real number. That re-tune is
+# the tracked debt this comment exists to carry.
+_HORIZON = 1000
+
 PROBE = Probe(
     why="did making the watch OPTIONAL make it never carried? — the mirror failure of the "
         "LEARNME shape this node replaced, and the one way this design fails silently",
@@ -131,4 +147,5 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy"},
     carry=_carry,
     enough=_enough,
+    horizon=_HORIZON,
 )

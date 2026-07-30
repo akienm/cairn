@@ -8,7 +8,10 @@ separately (cairn/bus/proofs/test_bus.py).
 
 Teeth a hollow heartbeat could not pass:
   - A BEAT PULSES EVERY SUBSCRIBED SHIM, IN ORDER, and leaves a legible beat-record naming
-    who was pulsed — a beat is evidence (LEARNING, not silent RUNNING).
+    who was pulsed — a beat is evidence, a record, never a silent ``RUNNING``. (This line
+    said "LEARNING, not silent RUNNING" until 2026-07-30, when ticket watchme-emits-a-probe
+    dissolved ``LEARNING`` as a node state; the tooth never changed — EVIDENCE was always
+    what a beat yields.)
   - THE FIRING IS THE SHIM'S: a probe due on this beat pokes the bus THROUGH its shim; one
     not due holds. The heartbeat itself pokes nothing.
   - SUBSCRIBE IS IDEMPOTENT by device_id; only a shim (device_id + on_pulse) may subscribe.

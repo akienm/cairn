@@ -25,9 +25,18 @@ The grammar carries the semantics, so most of the table is DERIVED, not stored:
     PROVEME LEARNME REVIEWME`` …
   - no ``-ME`` = the node's own CONDITION/REST: ``PROVED`` (passed its gate, grazed by the
     background loop) and ``LEARNING`` (a standing driver). Neither terminal.
-The ONE thing the grammar cannot derive — which summons is an optional FORK (``TICKETME``
-is skippable: a leaf goes THINKME->BUILDME; a parent goes THINKME->TICKETME) — is the one
-thing the class definition declares (``skippable_summons``). Everything else falls out:
+What the grammar cannot derive, the class definition declares — and there are exactly TWO
+such facts, orthogonal on purpose:
+  - ``skippable_summons`` — which summons is an optional FORK at runtime (``TICKETME``: a
+    leaf goes THINKME->BUILDME; a parent goes THINKME->TICKETME).
+  - ``free_summons`` — which summons may appear ZERO OR MORE TIMES AT ANY POSITION in the
+    authored string (``WATCHME``, from v2). Skippable is about the fork a node TAKES; free
+    is about the shape the ticket AUTHORED. A free summons is lifted out of the string
+    before the backbone is compared to the registered path, so "a drifted string is refused"
+    stays true while it roams — and it must NAME ITS OBJECT (``WATCHME(what-it-watches)``),
+    because learning without an object is inert. Being free does NOT make it skippable:
+    optional to CARRY, mandatory to SATISFY once carried.
+Everything else falls out:
 
   - forward: advance to the next state, or skip forward over ONLY skippable summonses (the
     leaf fork). Skipping a NON-skippable summons (a gate like PROVEME) is refused.
@@ -73,7 +82,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _NODE_CLASSES = _REPO_ROOT.parent / "CairnCommons" / "node_classes"
 
 _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
-_STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)\]?")              # a state token, maybe bracketed, prose after ignored
+# A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)".
+# Prose after the token is ignored (see the walk in parse_workflow).
+_STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)(?:\(([^)]*)\))?\]?")
 
 
 class MalformedWorkflow(ValueError):
@@ -132,10 +143,20 @@ class Workflow:
     version: str
     path: tuple[str, ...]
     cursor: int          # index into ``path`` of the bracketed state
+    # THE OBJECT EACH POSITION CARRIES, parallel to ``path`` — None where a state names none.
+    # A FREE SUMMONS (see ``_conform``) is refused without one: "learning without an object is
+    # inert" (Akien 2026-07-30) — a bare token cannot state what is being learned, so nothing
+    # can check it. Parallel rather than a dict because a free summons may repeat, and two
+    # occurrences of WATCHME watching different things are two different obligations.
+    objects: tuple[str | None, ...] = ()
 
     @property
     def here(self) -> str:
         return self.path[self.cursor]
+
+    @property
+    def here_object(self) -> str | None:
+        return self.objects[self.cursor] if self.cursor < len(self.objects) else None
 
 
 def parse_workflow(s: str) -> Workflow:
@@ -147,6 +168,7 @@ def parse_workflow(s: str) -> Workflow:
         raise MalformedWorkflow(f"no 'class@version:' header in {s!r}")
     node_class, version = m.group(1), m.group(2)
     path: list[str] = []
+    objects: list[str | None] = []
     cursor: int | None = None
     for seg in rest.split("->"):
         seg = seg.strip()
@@ -156,6 +178,8 @@ def parse_workflow(s: str) -> Workflow:
         if seg.startswith("["):
             cursor = len(path)
         path.append(sm.group(1))
+        obj = sm.group(2)
+        objects.append(obj.strip() if obj and obj.strip() else None)
         # STOP AT THE FIRST STATE THAT CARRIES PROSE. A real ticket's note follows the LAST state
         # in the same segment ("PROVED   (cursor at BUILDME: ...)"), so the token is taken and the
         # walk ends here. Without this the split kept marching through the note, and any ARROW
@@ -171,7 +195,7 @@ def parse_workflow(s: str) -> Workflow:
         raise MalformedWorkflow(f"no states in {s!r}")
     if cursor is None:
         raise MalformedWorkflow(f"no bracketed cursor in {s!r}")
-    return Workflow(node_class, version, tuple(path), cursor)
+    return Workflow(node_class, version, tuple(path), cursor, tuple(objects))
 
 
 def load_class_def(node_class: str, *, root: Path | str = _NODE_CLASSES) -> dict:
@@ -194,13 +218,59 @@ def _registered_workflow(class_def: dict, version: str) -> dict:
 
 def _conform(wf: Workflow, class_def: dict) -> dict:
     """The node's path must match the registered path for the version it claims — else it is a
-    drifted string, refused (validate against a KNOWN versioned definition)."""
+    drifted string, refused (validate against a KNOWN versioned definition).
+
+    A FREE SUMMONS (``free_summons``, ticket ``watchme-emits-a-probe`` 2026-07-30) is the ONE
+    exception, and it is a class-declared fact the grammar cannot derive — the same category
+    as ``skippable_summons``, not a second mechanism. It may appear ZERO OR MORE TIMES AT ANY
+    POSITION, so it is lifted out before the backbone is compared: what remains must still
+    match the registered path exactly, which is what keeps "a drifted string is refused" true
+    while ``WATCHME`` roams. Skippable is about the FORK a node takes at runtime; free is
+    about the SHAPE the ticket authored. A state can be neither, either, or both.
+
+    AND A FREE SUMMONS MUST NAME ITS OBJECT. "Learning without an object is inert" — a bare
+    ``WATCHME`` cannot say what is being watched, so nothing downstream can check it, and a
+    blank field is exactly the shape ``intention+why.json`` exists to refuse. This is caught
+    HERE rather than in ``parse_workflow`` because the parser does not know the class, and
+    therefore cannot know which of its states are free — the grammar stays classless on
+    purpose (hardcoding ``WATCHME`` into the parser would be the reification the whole
+    -ME grammar avoids)."""
     reg = _registered_workflow(class_def, wf.version)
-    if list(wf.path) != list(reg["path"]):
+    free = set(reg.get("free_summons", []))
+    if free:
+        for i, state in enumerate(wf.path):
+            if state in free and not (wf.objects[i] if i < len(wf.objects) else None):
+                raise MalformedWorkflow(
+                    f"{wf.node_class}@{wf.version} carries a bare {state!r} at position {i} — a "
+                    f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); learning "
+                    f"without an object is inert, and a blank object cannot be checked")
+    backbone = [s for s in wf.path if s not in free]
+    if backbone != list(reg["path"]):
         raise MalformedWorkflow(
             f"{wf.node_class}@{wf.version} string path {list(wf.path)} does not conform to the "
-            f"registered path {reg['path']} — a drifted workflow is not a valid instance")
+            f"registered path {reg['path']} — a drifted workflow is not a valid instance"
+            + (f" (free summonses {sorted(free)} lifted out first; backbone read as {backbone})"
+               if free else ""))
     return reg
+
+
+def resolve_target(wf: Workflow, target: str) -> int:
+    """Which POSITION does naming ``target`` mean? For a state occurring once — every state
+    before free summonses existed — this is just ``path.index``. A free summons may repeat,
+    so a name can be ambiguous, and a silently-wrong index would move the cursor to the wrong
+    obligation (the failure class the parse-walk fix of 2026-07-26 already paid for once).
+
+    THE RULE: the NEAREST occurrence, FORWARD FIRST. A transition names progress by default,
+    so an occurrence after the cursor wins over one before it; among several on the same side,
+    the closest wins. Deliberately not "refuse the ambiguous": a node carrying two watches
+    would then be un-crossable, which is worse than a stated, provable rule."""
+    after = [i for i, s in enumerate(wf.path) if s == target and i > wf.cursor]
+    if after:
+        return after[0]
+    before = [i for i, s in enumerate(wf.path) if s == target and i < wf.cursor]
+    if before:
+        return before[-1]
+    return wf.path.index(target)
 
 
 def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
@@ -234,7 +304,10 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> None:
     if target not in wf.path:
         raise IllegalTransition(
             f"{target!r} is not in the {wf.node_class}@{wf.version} vocabulary {list(wf.path)}")
-    if target == wf.here:
+    # A NO-OP IS A POSITION, NOT A NAME. Once a free summons may repeat, a node standing at
+    # one WATCHME and moving to the NEXT one is a real crossing that happens to share a name;
+    # refusing it on the name would make a two-watch node un-crossable at its first watch.
+    if resolve_target(wf, target) == wf.cursor:
         raise IllegalTransition(f"{target!r} -> {target!r} is a no-op, not a transition")
     legal = legal_targets(wf, class_def=class_def)
     if target not in legal:
@@ -474,9 +547,15 @@ def _build_gate(history_path: str) -> str:
 
 
 def render(wf: Workflow, target: str) -> str:
-    """Render the workflow string with the cursor moved to ``target`` (the new instance state)."""
-    idx = wf.path.index(target)
-    states = [f"[{s}]" if k == idx else s for k, s in enumerate(wf.path)]
+    """Render the workflow string with the cursor moved to ``target`` (the new instance state).
+    Objects ride back out verbatim — the string is the record, so a round-trip that dropped
+    ``WATCHME(x)`` down to ``WATCHME`` would erase the obligation while looking like a move."""
+    idx = resolve_target(wf, target)
+    states = []
+    for k, s in enumerate(wf.path):
+        obj = wf.objects[k] if k < len(wf.objects) else None
+        tok = f"{s}({obj})" if obj else s
+        states.append(f"[{tok}]" if k == idx else tok)
     return f"{wf.node_class}@{wf.version}: " + " -> ".join(states)
 
 
@@ -503,7 +582,7 @@ def emit(
     validate_transition(wf, target, class_def=class_def)
     new_str = render(wf, target)
     if history_path and state_path:
-        target_idx = wf.path.index(target)
+        target_idx = resolve_target(wf, target)
         # THE BUILD GATE: crossing the PROVEME summons forward runs the build_inspector on
         # the component at this crossing's address; a red refuses BEFORE anything is written
         # (a refused move leaves no partial record). Back-edges retreat ungated.

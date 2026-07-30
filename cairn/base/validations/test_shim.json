@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_shim.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:13:33",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_pulse_fires_due_probes_and_holds_the_rest\n  PASS  test_a_batch_does_not_die_on_one_bad_probe\n  PASS  test_the_device_is_started_on_demand\n  PASS  test_a_shim_with_no_start_hook_refuses_loudly\n  PASS  test_it_is_a_shim\ngreen — BaseShim: a pulse fires due probes onto the bus (holding the rest), a bad probe can't abort the batch, and the device is woken on demand",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

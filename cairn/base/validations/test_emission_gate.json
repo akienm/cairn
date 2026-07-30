@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_emission_gate.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:13:33",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_an_emitted_watch_crosses_and_the_journal_names_the_berth\n  ok   test_a_crossing_with_no_ticket_cannot_be_measured_so_it_is_refused\n  ok   test_a_carried_watch_with_no_spec_on_the_ticket_is_refused\n  ok   test_a_promised_probe_the_world_does_not_hold_is_refused\n  ok   test_a_berth_that_declares_no_probe_is_not_armed\n  ok   test_a_probe_that_cannot_gather_is_berthed_but_not_armed\n  ok   test_a_back_edge_into_watchme_is_ungated\n  ok   test_a_refusal_journals_absolutely_nothing\n  ok   test_it_is_a_sibling_not_a_subclass_of_the_other_four\n  ok   test_a_node_that_carries_no_watch_is_untouched\n  ok   test_the_gate_reads_the_watch_the_boat_STANDS_at\n  ok   test_the_real_berth_in_this_repo_is_armed\n\n12/12 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

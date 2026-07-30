@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_watchme_spec.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:13:34",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  ok   test_the_real_ticket_corpus_is_not_retro_redded\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n\n13/13 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

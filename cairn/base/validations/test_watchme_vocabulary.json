@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_watchme_vocabulary.py passes under python3",
+    "caller": "watchme-emits-a-probe",
+    "date": "2026-07-30T14:13:34",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_carried_watchme_parses_conforms_and_is_a_summons_by_grammar_alone\n  ok   test_zero_watchmes_conforms_too_optional_to_carry\n  ok   test_a_carried_watchme_cannot_be_skipped_mandatory_to_satisfy\n  ok   test_a_bare_watchme_is_refused_and_says_what_is_missing\n  ok   test_any_position_not_just_the_tail\n  ok   test_two_watches_are_two_obligations_not_a_no_op\n  ok   test_the_object_survives_the_round_trip\n  ok   test_a_drifted_v2_path_is_still_refused\n  ok   test_v1_is_untouched_beside_it\n  ok   test_skill_v2_is_minted_the_same_way\n  ok   test_a_real_v2_crossing_journals_the_object_through_the_real_door\n\n11/11 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

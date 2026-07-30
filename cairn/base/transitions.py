@@ -204,6 +204,79 @@ def _emission_gate(obj: str | None, ticket: object) -> str:
         obj, spec.get("probe"), ticket)
 
 
+def migrate_to_v2(workflow_str: str, *, watch: str | None = None) -> str:
+    """A v1 node's string, expressed in v2. Pure — returns the new string, writes nothing.
+
+    Ticket ``watchme-emits-a-probe`` piece (b), 2026-07-30. v1's ``LEARNME`` sat in the
+    backbone, mandatory and ungated; v2 dissolves it and offers ``WATCHME(<object>)`` as a
+    free summons instead. Every node at sea today rides v1, so the vocabulary change needs a
+    way across that does not rewrite anybody's past.
+
+    MIGRATION RIDES THE NEXT CROSSING — it is not a sweep. There is no script that walks the
+    repo rewriting state files: a node's version changes at the one moment it was going to
+    write a record anyway (``emit_migrated`` below), so past entries stay byte-identical and
+    nothing is edited in place (Law 7). A node resting on v1 and never crossing again simply
+    stays v1, correctly: v1 is frozen, not broken, and a version is immutable.
+
+    WHERE A BOAT STANDING AT LEARNME LANDS — the one real decision here, and it is PROVEME.
+    Standing at LEARNME meant the node had passed the PROVEME summons and not yet been
+    promoted; LEARNME itself was ungated, so standing there is not evidence that anything was
+    learned. Under v2's vocabulary that position IS PROVEME: one forward crossing from PROVED,
+    with the build gate still owed. Re-running that gate is a cost, not a defect — it is
+    exactly the check that asks "may this be promoted", asked of a boat that never was.
+
+    THE DROP IS NOT SILENT, which is the part Law 7 cares about: ``emit_migrated`` journals
+    ``migrated_from`` carrying the old string verbatim, so the record of truth shows the
+    version change at the crossing where it happened.
+
+    ``watch`` CARRIES A WATCHME INSTEAD OF DROPPING — for a node that genuinely wants to keep
+    learning. It is opt-in on purpose. Making it the default would retro-impose an armed-probe
+    obligation on every boat mid-voyage and refuse its next crossing out of the watch: the
+    same retro-red that the spec check (piece c-ii) already paid for once. "Every intention
+    gets a keep-learning step by default" is a rule AT TICKETING, where an author is present
+    to answer it — not a rule applied to the past."""
+    wf = parse_workflow(workflow_str)
+    if wf.version != "v1":
+        raise IllegalTransition(
+            f"migrate_to_v2 refused: {workflow_str!r} claims {wf.version}, not v1 — a version "
+            "is immutable, so there is nothing to migrate and nothing to guess at")
+
+    path, objects, cursor = [], [], wf.cursor
+    for i, state in enumerate(wf.path):
+        if state == "LEARNME":
+            if watch:
+                path.append("WATCHME")
+                objects.append(watch)
+                continue
+            if i < wf.cursor:
+                cursor -= 1            # a state dropped from behind the boat moves it up one
+            elif i == wf.cursor:
+                cursor = len(path) - 1  # AT LEARNME -> land on the state before it (PROVEME)
+            continue
+        path.append(state)
+        objects.append(wf.objects[i] if i < len(wf.objects) else None)
+
+    rendered = " -> ".join(
+        ("[%s]" if j == cursor else "%s") % (f"{s}({o})" if o else s)
+        for j, (s, o) in enumerate(zip(path, objects)))
+    return f"{wf.node_class}@v2: {rendered}"
+
+
+def emit_migrated(workflow_str: str, target: str, *, watch: str | None = None, **kw) -> str:
+    """Cross, migrating v1 -> v2 in the same act. THE ONE DOOR for a migration crossing.
+
+    Two things must happen together or the record lies: the string moves to v2, and the
+    journal says it did. Leaving that to caller discipline would make "the migration is on the
+    record" a policy someone remembers rather than physics (Law 4) — so it is one call, and
+    ``migrated_from`` cannot be forgotten. An already-v2 string passes straight through, so
+    this is safe to call on a node whose version you have not checked."""
+    try:
+        migrated = migrate_to_v2(workflow_str, watch=watch)
+    except IllegalTransition:
+        return emit(workflow_str, target, **kw)          # already v2 — nothing to record
+    return emit(migrated, target, migrated_from=workflow_str, **kw)
+
+
 def is_summons(state: str) -> bool:
     """The grammar: a state that ends in ``-ME`` is a SUMMONS (demands a peer); else a rest."""
     return state.endswith("ME")

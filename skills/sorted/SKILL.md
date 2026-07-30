@@ -42,6 +42,32 @@ defect this gate exists to stop.
   origin on failure** (Laws 3 + 8). Variable per class: which gate, which check-type
   (proof gate for code; quorum signature gate for a concept-piece; a skill node also
   hangs the cairnmap recompile gate).
+- **Answer the watch — BY DEFAULT, CAST ONE.** How will we know this intention
+  actually *worked*? For a class whose version vocabulary carries `WATCHME`
+  (`code-seam@v2`, `skill@v2`), the default is to carry one: put
+  `WATCHME(<object>)` in the workflow string and write its spec on the ticket
+  under `watchme`, keyed by that object —
+
+      "watchme": {"object": "<the same object named in the string>",
+                  "trigger":  "when does it fire",
+                  "enough":   "when has it learned enough to stop",
+                  "carrier":  "what rides back (default: a verdict artifact
+                               against THIS ticket's falsifier; another shape is
+                               legal only if it names its shape AND its consumer)",
+                  "nexus":    "which tree/target it teaches",
+                  "consumer": "who reads it"}
+
+  **Optional to carry, mandatory to satisfy once carried** — a `WATCHME` in the
+  string with any spec field missing is refused at the crossing, not here. And if
+  this node genuinely does not want one, `"watchme": "none, because <X>"` is the
+  **only other legal answer**; silence is not one. If the efficacy measure is
+  *unspecifiable*, that is a **RED on this completeness gate** (the falsifier is
+  unwritable, so the node is not ready to cast). If it is specifiable but not yet,
+  **drop a ticket and carry the IOU**.
+
+  The probe berths **with what it watches**, not beside this ticket — and it
+  carries **no authority**: it deposits and pokes, and the back-edge is the
+  owner's act (Law 6).
 
 A cast node is a **ticket** — the universal work unit. Its `state` field *is* the
 pipeline instance; nothing else holds a second copy of where it stands.

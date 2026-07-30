@@ -82,9 +82,11 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
     def state(self) -> dict:
         """The device's current condition — reported second (Form v0 #2).
 
-        Carries the node state-machine vocabulary as that lands (PROVED / LEARNING
-        / the ``-ME`` summonses; MAP.md:812). v0: whatever the device can honestly
-        say about where it rests right now.
+        Carries the node state-machine vocabulary as that lands (``PROVED`` — the
+        one rest since 2026-07-30, ticket watchme-emits-a-probe dissolved
+        ``LEARNING`` — plus the ``-ME`` summonses; MAP.md, "Gates, not
+        supervisors"). v0: whatever the
+        device can honestly say about where it rests right now.
         """
 
     @abstractmethod

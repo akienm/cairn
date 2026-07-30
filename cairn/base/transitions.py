@@ -1,7 +1,7 @@
 """base/transitions.py — the EMIT-CHOKEPOINT: the one door a workflow transition passes through.
 
 A node's ``state`` is a versioned, mutable, greppable workflow string with the cursor in
-brackets — ``code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED``
+brackets — ``code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED``
 (MAP.md 'The node state-machine — states as summons'). Moving that cursor is not a free
 string edit anyone may make: it is a TRANSITION, and a transition is physics, not policy
 (Law 4). This module is the chokepoint that makes it so.
@@ -22,9 +22,19 @@ The emit-chokepoint factors into three rungs (resolved in the harbor_master /sor
 
 The grammar carries the semantics, so most of the table is DERIVED, not stored:
   - ``-ME`` = a SUMMONS (a demand for the peer who acts next). ``THINKME TICKETME BUILDME
-    PROVEME LEARNME REVIEWME`` …
+    PROVEME WATCHME REVIEWME`` …
   - no ``-ME`` = the node's own CONDITION/REST: ``PROVED`` (passed its gate, grazed by the
-    background loop) and ``LEARNING`` (a standing driver). Neither terminal.
+    background loop). NOT terminal — a back-edge re-opens it.
+    ONE REST, NOT TWO, since 2026-07-30 (ticket watchme-emits-a-probe). There used to be a
+    second: ``LEARNING``, "a standing driver, actively collecting". It is DISSOLVED, not
+    renamed — a node does not BECOME a watcher, it EMITS one and rests. A proved
+    intention's efficacy data can only accumulate AFTER it rests, so a node that turned
+    into its own watcher would never rest and would never be the thing measured. The
+    standing worker is a PROBE (``cairn/base/probe.py``), which is a different species from
+    a node: immutable, carrying no authority, and outliving the crossing that emitted it.
+    That deletes a state rather than adding one. ``LEARNME``/``LEARNING`` survive only in
+    v1 strings, in history, and in the migration's own record — a record of truth is never
+    edited to hide the shape it used to have (Law 7).
 What the grammar cannot derive, the class definition declares — and there are exactly TWO
 such facts, orthogonal on purpose:
   - ``skippable_summons`` — which summons is an optional FORK at runtime (``TICKETME``: a

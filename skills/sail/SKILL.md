@@ -80,7 +80,27 @@ forward crossing into PROVED without a complete, passing verdict artifact
 (`ExitGateRed`) — the mirror of step 0's entry gate, done verified by
 instrument at the close.
 
-## 7. Journal PROVED and settle the records
+## 7. Cross `WATCHME` — emit the probe (only if the ticket carries one)
+
+`WATCHME(<object>)` is a **free summons** (`code-seam@v2`, 2026-07-30): zero or
+more times, any position, and it is in the string only if the ticket's author put
+it there. **Optional to carry, mandatory to satisfy once carried** — it is not in
+`skippable_summons`, so the chokepoint's forward walk cannot step over it.
+
+- **No `WATCHME` in the string → there is nothing to do here.** The obligation was
+  discharged at `/sorted`, where the ticket recorded either a watch or
+  `"none, because X"`. Silence there is the failure, not here.
+- **A `WATCHME` in the string →** the probe must be **armed before the crossing**:
+  a module at the berth the ticket's spec names, declaring a module-level `PROBE`
+  (a frozen `cairn.base.probe.Probe`) that carries both a `carry` and an `enough`.
+  A probe berths **with what it watches**, not with the ticket it was compiled
+  from. Then cross — the emission gate reads the crossing's ticket, finds the spec
+  for that object, and refuses an unarmed one (`WatchmeEmissionRed`).
+
+**The probe carries no authority.** It deposits and pokes; the back-edge that
+re-opens a node whose intention did not work is the **owner's** act (Law 6).
+
+## 8. Journal PROVED and settle the records
 
 - Cross PROVED with a note worth reading in a year — the exit gate reads the
   crossing's ticket and journals its verdict on the record.
@@ -88,20 +108,28 @@ instrument at the close.
 - Charter delta ONLY if the design shifted — and any charter write pokes
   `cairn/intentions_model_compiler/recompile_gate.sh` in the same act.
 
-## 8. Deposit the learnings
+## 9. Deposit the learnings
 
 `python3 -m cairn.chart.live learn <berth>` for each berth of this voyage (the
 trees are the durable memory; skipping starves them). A correction surfaced
 mid-build rides orient's brick loop (deposit → counsel → propose), never a
 quiet local fix.
 
-## 9. Commit and push
+**This step is BOOKKEEPING THE CLOSE DOES — it is not a summons, and it never
+was.** Until 2026-07-30 the workflow carried a mandatory, ungated `LEARNME` that
+this deposit was doing duty for, which is precisely how that crossing came to be
+filled with close-bookkeeping instead of efficacy data. Depositing this voyage's
+berths tells the trees what was *decided*; it says nothing about whether the
+intention *worked*. That question is step 7's, and it is answered later, by a
+probe, against the ticket's own falsifier.
+
+## 10. Commit and push
 
 Committed is part of done. Commit autonomously, push at smells-like-done, then
 verify with the instrument (`python3 -m cairn.orient.orient git`), never from
 the narration.
 
-## 10. Close the boundary — /saveslate, then /compact
+## 11. Close the boundary — /saveslate, then /compact
 
 Fire **/saveslate** (the in-commons continuity record — at_sea, next_direction,
 open_threads). Then tell Akien the boundary is **compact-safe** and invite

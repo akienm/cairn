@@ -115,8 +115,11 @@ class GroundLoopDevice(BaseDevice):
         """One beat: pulse every subscribed shim once, in order, and return a BEAT-RECORD — what
         was pulsed and what each pulse did. A shim that raises before its own batch-safe firing
         becomes a loud, permanent entry and does NOT stop the beat reaching the others (CP2,
-        Law 7). The record is the legibility surface: a beat is evidence (LEARNING, not silent
-        RUNNING) — the heartbeat is observable by construction."""
+        Law 7). The record is the legibility surface: a beat is evidence — a record, never a
+        silent ``RUNNING`` — so the heartbeat is observable by construction. (This line said
+        "LEARNING, not silent RUNNING" until 2026-07-30, when ticket watchme-emits-a-probe
+        dissolved ``LEARNING`` as a node state; EVIDENCE is what a beat actually yields, and
+        was always the point.)"""
         context = context or {}
         pulses: list[dict] = []
         for shim in self._shims:

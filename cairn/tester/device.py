@@ -105,8 +105,9 @@ class TesterDevice(BaseDevice):
         }
 
     def state(self) -> dict:
-        # Honest, live condition — no faked node-state vocabulary (PROVED/LEARNING
-        # land with the emit-chokepoint, MAP.md:832; not wired here yet).
+        # Honest, live condition — no faked node-state vocabulary (``PROVED``, the one
+        # rest since ticket watchme-emits-a-probe dissolved ``LEARNING`` on 2026-07-30,
+        # lands with the emit-chokepoint; not wired here yet).
         return {
             "proofs_run": self._proofs_run,
             "last_verdict": self._last_verdict,  # None until it has run one

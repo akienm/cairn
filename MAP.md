@@ -926,21 +926,44 @@ machine *is* the dispatcher — the get-Akien-out intention becoming architectur
 
 **The grammar carries the semantics** (naming stone: the name forces the content):
 - **`-ME` = a summons** (a demand for a peer): `THINKME` · `TICKETME` (decompose me
-  into children) · `BUILDME` · `PROVEME` · `LEARNME` (learn *from* me — I am
-  material, harvest me into the trees) · `REVIEWME` (concept-piece quorum).
-- **no `-ME` = the node's own condition** (settled or active): `PROVED` (passed its
-  gate, resting, still carrying falsifier+horizon — grazed by the background loop)
-  and `LEARNING` (a standing driver, actively collecting/transforming). Off-path
-  dispositions carry their why: `DROPPED` (no trace-up at intent), `SUPERSEDED`,
-  `RETIRED` (question lost tenure).
+  into children) · `BUILDME` · `PROVEME` · `WATCHME(<object>)` (**emits a probe** —
+  a watch on whether my own intention actually worked) · `REVIEWME` (concept-piece
+  quorum).
+- **no `-ME` = the node's own condition**: `PROVED` (passed its gate, resting, still
+  carrying falsifier+horizon — grazed by the background loop). Off-path dispositions
+  carry their why: `DROPPED` (no trace-up at intent), `SUPERSEDED`, `RETIRED`
+  (question lost tenure).
 
-**Two rests, both inside the one loop, neither terminal:** `PROVED` = learned-FROM
-(object, passive); `LEARNING` = learning (subject, active). There is no `RUNNING` —
-Cairn has no uninstrumented execution (voyages at every chokepoint, every driver
-carries its why, VALIDATIONS on every measured claim), so anything running is
-emitting evidence, so anything running is *learning*. "Just running" would be the UU
-silent-failure disease. Low-yield running is low-yield LEARNING — a yield measure
-(T5.1), not a separate state.
+**One rest, inside the one loop, not terminal** (RESHAPED 2026-07-30, ticket
+`watchme-emits-a-probe`): `PROVED` = learned-FROM. There used to be a second,
+`LEARNING` = learning (subject, active), and it is **dissolved, not renamed**. A
+node does not *become* a watcher; it *emits* one and rests. The reason is a timing
+fact: a proved intention's efficacy data can only accumulate **after** it rests, so
+a node that turned into its own watcher would never rest and would never be the
+thing being measured. The standing worker is a **probe** — a different species from
+a node (immutable, carrying no authority, outliving the crossing that emitted it).
+That deletes a state rather than adding one.
+
+The claim underneath `LEARNING` survives it, because it was never about a state:
+there is no `RUNNING` — Cairn has no uninstrumented execution (voyages at every
+chokepoint, every driver carries its why, VALIDATIONS on every measured claim), so
+anything running is emitting evidence, so anything running is *learning*. "Just
+running" would be the UU silent-failure disease. Low-yield running is low-yield
+learning — a yield measure (T5.1), which is exactly why it never needed a state.
+
+**`LEARNME` → `WATCHME`, and it is not the same seat.** v1's `LEARNME` ("learn
+*from* me — I am material, harvest me into the trees") sat in the backbone:
+mandatory for every code-seam and carrying **no gate** — the one summons that was
+forced and unchecked, so the crossing got filled with whatever was at hand. `WATCHME`
+inverts both halves: **optional to carry, mandatory to satisfy once carried**, and
+it must name its object (a bare `WATCHME` is refused — learning without an object is
+inert). It is a *free summons*: zero or more times, any position, absent from the
+registered `path` and declared in `free_summons` instead. Optional-to-carry is the
+ticket author's choice of string; mandatory-to-satisfy is that it is **not** in
+`skippable_summons`, so the chokepoint's forward walk cannot step over it — the
+emission gate reads the ticket's spec and refuses a crossing whose probe is not
+armed. A node that carries no watch must still record `"none, because X"`; silence
+is not a legal answer.
 
 **`TICKETME` vs `BUILDME` is /sorted's deconstruct-or-build fork** named as states:
 TICKETME spawns children (a parent); BUILDME is a leaf. "Waiting on children" is
@@ -950,8 +973,8 @@ earlier `-ME` (severity = how far back; very-wrong trips the ask-Akien escalatio
 with a trouble/question attached and the loop recorded in the voyage.
 
 **The workflow is a versioned, mutable, greppable string** with the cursor in
-brackets: `code-seam@v1: THINKME → TICKETME → BUILDME → PROVEME → LEARNME →
-[PROVED]`. Stored on the node — the strongest form of 'state IS the pipeline
+brackets: `code-seam@v2: THINKME → TICKETME → BUILDME → PROVEME →
+WATCHME(does-the-drain-ever-run) → [PROVED]`. Stored on the node — the strongest form of 'state IS the pipeline
 instance' (self-contained; no external orchestrator possible). Consequences:
 - **migration by find-and-replace.** Many workflows — and many *versions* of one —
   run at sea; changing a workflow asks "revise those carrying it? sometimes yes,
@@ -961,11 +984,21 @@ instance' (self-contained; no external orchestrator possible). Consequences:
   which would *force* every change onto all at-sea nodes silently. Free when the
   edit is downstream of the cursor (blind replace); a judgment call when it
   touches/precedes the cursor (where does the cursor land?). Every edit is
-  owner-gated, chokepoint-validated against a known workflow, and journaled.
-- **class is not frozen at cast** — it *is* the current workflow string. A code
-  ticket becomes a driver by editing its terminal (`… → LEARNING`); the node that
-  *built* a sensor becomes the node that *runs* it. Identity lives in the voyage,
-  not the workflow-of-the-moment.
+  owner-gated, chokepoint-validated against a known workflow, and journaled. **This
+  is no longer prose** (2026-07-30): `code-seam@v1 → v2` has an instrument,
+  `transitions.migrate_to_v2` + `emit_migrated`, and it is *event-not-poll* — the
+  version changes at a crossing that was going to write a record anyway, so no
+  sweep script exists and the old string rides the journal as `migrated_from`.
+  The judgment call was real and is recorded: a boat standing **at** `LEARNME`
+  lands at `PROVEME`, because `LEARNME` was ungated, so standing there was never
+  evidence that anything had been learned.
+- **class is not frozen at cast** — it *is* the current workflow string; the node
+  that *built* a sensor can become the node that *runs* it. Identity lives in the
+  voyage, not the workflow-of-the-moment. **The worked example is currently
+  vacant**: it used to be "a code ticket becomes a driver by editing its terminal
+  (`… → LEARNING`)", and `LEARNING` is dissolved. What replaces it is an **open
+  question for Akien's signature gate**, recorded on the `operational-driver` class
+  charter rather than guessed at here — see below.
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
@@ -979,9 +1012,17 @@ pulse (`ground_loop` is ONLY the beat); the poke crosses the **bus**. The "sleep
 consolidation is the same — a probe the PROVED graze sets.
 
 **The operational-driver primitive (a node-class).** A standing node whose whole
-body is `(trigger, method-pointer, why, sources/targets)`, resting in LEARNING — the
-declarative-data idea survives, but as the PROBE species now (immutable worker),
-distinct from the mutable TICKET. NB the falsified hypothesis: "the `ground_loop` is
+body is `(trigger, method-pointer, why, sources/targets)` — the declarative-data
+idea survives, but as the PROBE species now (immutable worker), distinct from the
+mutable TICKET. **Its resting state is an open question** (2026-07-30): the class
+charter said "resting in `LEARNING`", and `LEARNING` is dissolved. The class has
+zero members and registers no `workflow_versions`, so nothing is at sea under it
+and nothing is broken by the vacancy — but a class definition is ratified by
+Akien's signature gate, so what replaces the clause is his call, not this file's.
+The question is recorded on `CairnCommons/node_classes/operational-driver.json`
+under `open_ruling`; the honest candidates are named there (the class retires into
+the probe primitive · it keeps a rest under a new name · it is a probe-with-a-charter
+and was never a node-class). NB the falsified hypothesis: "the `ground_loop` is
 that generic executor" was a GOOF — the ground_loop is only the heartbeat; a device
 resolves its own method internally and its shim fires it (see the design doc). The
 method-registry (proven-space, Law 8) was retired with the executor and RETURNS with

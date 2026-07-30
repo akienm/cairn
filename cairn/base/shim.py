@@ -22,7 +22,8 @@ RESOLVED: the one-loop primitive. Last session filed "BaseShim's one-loop primit
 open edge (a UU ``ShimLoopThread`` would have been a hollow build before Cairn's loop was
 designed). It is now designed and built: the shim's "loop" IS the per-pulse probe-firing,
 driven by the ground_loop heartbeat — no bespoke thread, no ``RUNNING`` state. The state
-machine (PROVED/LEARNING) is the TICKET species' concern (a different thing from a probe —
+machine (whose one rest is ``PROVED``, since ticket watchme-emits-a-probe dissolved
+``LEARNING`` on 2026-07-30) is the TICKET species' concern (a different thing from a probe —
 see ``cairn/base/probe.py``); the shim fires probes, it does not run workflows.
 
 Still composes ``CoreValuesMixin`` — every shim carries CP1-CP6 structurally (Law 2,
@@ -105,7 +106,10 @@ class BaseShim(CoreValuesMixin, ABC):
         """One heartbeat pulse reaching this shim. Evaluate every probe (Law 6 — a trigger
         reads its owned data where it lives) and POKE the target of each that fires, onto the
         bus. Returns a PULSE-RECORD — what fired, what held, what kicked back — so a pulse is
-        itself evidence (LEARNING, not silent RUNNING). A batch drainer must not die on one bad
+        itself evidence — a record, never a silent ``RUNNING``. (Until 2026-07-30 this line
+        said "LEARNING, not silent RUNNING", naming a node state; ticket watchme-emits-a-probe
+        dissolved it — what a pulse yields is EVIDENCE, which was always the claim here.)
+        A batch drainer must not die on one bad
         probe: a trigger that raises or a poke that is refused becomes a permanent, loud
         entry and the rest keep firing (CP2, Law 7)."""
         context = context or {}

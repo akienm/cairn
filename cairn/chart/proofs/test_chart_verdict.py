@@ -680,8 +680,11 @@ def test_import_allowlist_tree_free(root, berths, val):
     # chart.orient — the exit gate's fire path can never reach the trees. ``glob``
     # joined 2026-07-29 with the latest-claimer rule (stdlib; the ledger and the
     # locator are files, by the netns constraint that split the deposit in two).
+    # ``re`` joined 2026-07-30 with the falsifier form (stdlib; segmenting a
+    # ticket's numbered RED clauses — still a file read, still no tree).
     from cairn.orient.orient import import_map
-    allow = ("__future__", "glob", "hashlib", "json", "os", "time", "cairn.chart.orient")
+    allow = ("__future__", "glob", "hashlib", "json", "os", "re", "time",
+             "cairn.chart.orient")
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
@@ -691,13 +694,51 @@ def test_import_allowlist_tree_free(root, berths, val):
         "(live.py), not here")
 
 
+def test_the_deposit_lands_in_the_nexus_the_artifact_names(root, berths, val):
+    """THE NEXUS IS A SPECIFIED PARAMETER (ticket watchme-emits-a-probe piece (d)).
+    It was the string ``"hypothesize"`` written into this face and into the learn
+    verb — correct for every verdict answering a chart chain, wrong for a probe's
+    verdict, and impossible for a consumer outside this toolchain.
+
+    Three-part precedence, measured against the TREE and not the return value: an
+    explicit argument wins, then the artifact's field, then the default. The
+    return value is checked too, because the drain now reports the RESOLVED nexus
+    (one drain can land two berths in two different trees)."""
+    berth_dir = os.path.join(root, "instance", "nexus_berth")
+    fixed = lambda text: [0.0, 0.5, 0.5]  # noqa: E731
+    named = _NEXUS + "_named"
+    a = dict(good_artifact(val), nexus=named)
+    berth = write_verdict(a, instance_dir=berth_dir, root=root)
+
+    before_named = trees.tree_state(named, table=nexus_table(named), owner="chart")
+    got = deposit_verdict(a, fixed, berth_path=berth, root=root)
+    assert got["nexus"] == named, got["nexus"]
+    after_named = trees.tree_state(named, table=nexus_table(named), owner="chart")
+    assert after_named != before_named, \
+        "the artifact named its tree and the deposit landed somewhere else"
+
+    # An explicit argument still wins — the caller is closer to the truth than a
+    # file, and every existing drain call in this proof depends on that holding.
+    before_scratch = trees.tree_state(_NEXUS, table=nexus_table(_NEXUS), owner="chart")
+    got = deposit_verdict(a, fixed, berth_path=berth, root=root, nexus=_NEXUS)
+    assert got["nexus"] == _NEXUS, got["nexus"]
+    assert trees.tree_state(_NEXUS, table=nexus_table(_NEXUS), owner="chart") \
+        != before_scratch, "the explicit argument was ignored"
+
+    # And an artifact that says nothing resolves to where it always landed — the
+    # non-regression that makes this field additive rather than a migration.
+    assert verdict_mod.verdict_nexus(good_artifact(val)) == "hypothesize"
+
+
 def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            t = nexus_table(_NEXUS)
-            cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
+            for name in (_NEXUS, _NEXUS + "_named"):
+                t = nexus_table(name)
+                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
+                            (t,))
     finally:
         conn.close()
 
@@ -722,6 +763,7 @@ def _main() -> int:
         test_the_latest_claimer_rule_has_exactly_one_implementation,
         test_the_drain_lands_through_the_one_door_and_never_twice,
         test_a_failed_deposit_stands_pending_and_is_named,
+        test_the_deposit_lands_in_the_nexus_the_artifact_names,
         test_import_allowlist_tree_free,
     ]
     try:
@@ -753,7 +795,10 @@ def _main() -> int:
           "records still honoured), a refused part loud and leaving the berth "
           "standing pending until a retry lands the rest as duplicates-plus-two, "
           "no character ceiling consulted anywhere in the deposit path — and the "
-          "granularity tooth going RED against a hollowed renderer")
+          "granularity tooth going RED against a hollowed renderer; and THE NEXUS "
+          "IS A SPECIFIED PARAMETER (ticket watchme-emits-a-probe piece (d)): the "
+          "artifact names the tree its verdict teaches, an explicit argument still "
+          "wins, and an artifact that names nothing lands where it always did")
     return 0
 
 

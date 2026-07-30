@@ -34,12 +34,13 @@ from cairn.chart.tree import counsel, deposit_learning, deposit_packet
 from cairn.chart.triage import deposit_triage, triage_node_content
 from cairn.chart.validate import deposit_validate, validate_node_content
 from cairn.chart.verdict import (VerdictRefused, mark_deposited, pending,
-                                 validate_verdict, verdict_node_parts)
+                                 validate_verdict, verdict_nexus,
+                                 verdict_node_parts)
 from cairn.librarian.live import embed_metered_via_domain, embed_via_domain
 
 
 def deposit_verdict(artifact: dict, embed, *, berth_path: str,
-                    root: str = CAIRN_ROOT, nexus: str = "hypothesize",
+                    root: str = CAIRN_ROOT, nexus: str | None = None,
                     conn=None) -> dict:
     """The verdict face on the deposit door (ticket proved-answers-the-chart): the
     dispositions become the HYPOTHESIZE tree's memory of what killed which — the
@@ -75,8 +76,19 @@ def deposit_verdict(artifact: dict, embed, *, berth_path: str,
     content hash and the table does not grow. The duplicate path stops being
     incidental and becomes the retry's physics.
 
-    Returns ``{"node_ids", "parts", "duplicates", "tokens"}``."""
+    THE NEXUS IS THE ARTIFACT'S TO NAME since 2026-07-30 (ticket
+    watchme-emits-a-probe piece (d)). It used to default to the string
+    ``"hypothesize"`` right here, which was correct for every verdict that answers
+    a chart chain and wrong for the one this ticket built: a probe's verdict
+    against its ticket's falsifier may belong in a different tree, and a device
+    outside this toolchain has no reason to own a tree called hypothesize at all.
+    An explicit ``nexus=`` still wins (the caller is closer to the truth than the
+    file), then the artifact's own field, then the default — so an artifact that
+    says nothing lands exactly where it always did.
+
+    Returns ``{"node_ids", "parts", "duplicates", "tokens", "nexus"}``."""
     validate_verdict(artifact, root=root)
+    nexus = nexus or verdict_nexus(artifact)
     if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
         raise VerdictRefused(
             "deposit_verdict: berth %r does not exist on disk — a node whose "
@@ -111,10 +123,11 @@ def deposit_verdict(artifact: dict, embed, *, berth_path: str,
         "parts": landed,
         "duplicates": sum(1 for p in landed if p["duplicate"]),
         "tokens": [p["tokens"] for p in landed],
+        "nexus": nexus,
     }
 
 
-def drain_pending(*, root: str = CAIRN_ROOT, nexus: str = "hypothesize",
+def drain_pending(*, root: str = CAIRN_ROOT, nexus: str | None = None,
                   embed=None, ledger_path: str | None = None, conn=None) -> list[dict]:
     """THE DRAIN (ticket the-deposit-rides-the-read, 2026-07-29): every verdict the
     emit chokepoint enqueued and nobody has deposited, landed through the ONE
@@ -160,9 +173,12 @@ def drain_pending(*, root: str = CAIRN_ROOT, nexus: str = "hypothesize",
             got = deposit_verdict(artifact, embed, berth_path=berth, root=root,
                                   nexus=nexus, conn=conn)
             mark_deposited(berth, got["node_ids"], ledger_path=ledger_path)
+            # The RESOLVED nexus, not the argument — the drain reports where each
+            # berth actually landed, and with the artifact now able to name its own
+            # tree, one drain can land two berths in two different ones.
             drained.append({"berth": berth, "deposited": got["node_ids"],
                             "parts": got["parts"], "duplicates": got["duplicates"],
-                            "tokens": got["tokens"], "nexus": nexus})
+                            "tokens": got["tokens"], "nexus": got["nexus"]})
         except Exception as e:  # noqa: BLE001 — deliberate: the door must still serve
             drained.append({"berth": berth, "failed": "%s: %s" % (type(e).__name__, e),
                             "still_pending": True})
@@ -237,12 +253,14 @@ def _learn(argv: list[str]) -> int:
                                embed_via_domain()(validate_node_content(packet)),
                                berth_path=berth)
     elif os.path.basename(berth).startswith("verdict-"):
-        # The exit gate's write-back: what killed which lands in the HYPOTHESIZE
-        # tree (the loop the brick promised) — as ONE NODE PER CLAIM since
-        # 2026-07-29, so the metered seam goes in whole rather than a finished
-        # vector, and the berth's landing is the list of ids it became.
-        nexus = "hypothesize"
+        # The exit gate's write-back: what killed which lands in the tree the
+        # ARTIFACT names (default hypothesize — the loop the brick promised), as
+        # ONE NODE PER CLAIM since 2026-07-29, so the metered seam goes in whole
+        # rather than a finished vector, and the berth's landing is the list of
+        # ids it became. This branch is the only one that does not hardwire its
+        # nexus, because it is the only one whose berth is not a chart stage.
         got = deposit_verdict(packet, embed_metered_via_domain(), berth_path=berth)
+        nexus = got["nexus"]
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
         got = deposit_packet(packet, embed_via_domain()(packet["intent"]),

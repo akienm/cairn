@@ -132,6 +132,20 @@ def ref_exists(ref: str, root: str = CAIRN_ROOT) -> bool:
     return _ref_exists(ref, root, set(component_roster(root)))
 
 
+def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
+    """WHERE A TICKET LIVES — the one implementation, so a reader that OPENS a
+    ticket and the gate that merely checks it is on file can never disagree about
+    which file that is (ticket watchme-emits-a-probe piece (d), which taught the
+    verdict door to read a ticket's falsifier). Returns the path for a
+    well-formed claim naming a filed ticket, else None — the None carries both
+    'malformed' and 'not on file', because the caller's refusal is the same."""
+    if not isinstance(claim, str) or not _TICKET_RE.match(claim):
+        return None
+    filed = os.path.join(os.path.dirname(root), "CairnCommons", "tickets",
+                         claim + ".json")
+    return filed if os.path.isfile(filed) else None
+
+
 def ticket_claim_error(packet: dict, root: str = CAIRN_ROOT) -> str | None:
     """The ticket-claim rule, shared by every packet gate: an optional 'ticket'
     field must name a ticket ON FILE in CairnCommons/tickets/ — a packet claiming
@@ -140,11 +154,8 @@ def ticket_claim_error(packet: dict, root: str = CAIRN_ROOT) -> str | None:
     if "ticket" not in packet:
         return None
     claim = packet["ticket"]
-    if isinstance(claim, str) and _TICKET_RE.match(claim):
-        filed = os.path.join(os.path.dirname(root), "CairnCommons", "tickets",
-                             claim + ".json")
-        if os.path.isfile(filed):
-            return None
+    if ticket_path(claim, root):
+        return None
     return ("ticket claim %r names no ticket on file in CairnCommons/tickets/ — "
             "a packet may not attribute itself to an unfiled voyage" % (claim,))
 

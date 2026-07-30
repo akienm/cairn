@@ -25,7 +25,16 @@ The artifact (verdict-<stamp>-<digest>.json, berthed beside the stage packets):
   ticket        — the cast ticket this verdict answers (REQUIRED here, unlike
                   the stages where a claim is optional: an unattributed verdict
                   answers nobody)
-  validate_ref  — the claiming validate berth whose criteria were run
+  validate_ref  — WHERE THE OBLIGATIONS COME FROM, in one of two forms: the
+                  claiming validate berth whose criteria were run, or
+                  ``falsifier@<ticket-id>`` — the ticket's own falsifier, clause
+                  by clause, for a verdict written long after the chart chain
+                  went cold (a WATCHME probe's answer to "did the intention
+                  WORK?"). ONE contract either way; see FALSIFIER_REF below
+  nexus         — OPTIONAL: which tree this verdict teaches, default
+                  ``hypothesize``. Unconstrained to any roster on purpose — a
+                  consumer outside this toolchain has no reason to own a tree by
+                  one of our names
   verdicts      — [{claim, instrument, outcome: pass|fail, evidence}] — claim
                   verbatim from the berth's criteria; instrument what was RUN;
                   evidence what was OBSERVED (a verdict without both is
@@ -50,15 +59,41 @@ import glob
 import hashlib
 import json
 import os
+import re
 import time
 
-from cairn.chart.orient import CAIRN_ROOT, INSTANCE_DIR, ticket_claim_error
+from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, ticket_claim_error,
+                                ticket_path)
 
 OUTCOMES = ("pass", "fail")
 DISPOSITIONS = ("confirmed", "killed")
 
 _VERDICT_FIELDS = ("claim", "instrument", "outcome", "evidence")
 _DISPOSITION_FIELDS = ("piece", "expect", "disposition", "by")
+
+# THE SECOND PROVENANCE FORM (ticket watchme-emits-a-probe piece (d), 2026-07-30).
+# A verdict's obligations came from exactly one place until now: a berthed chart
+# validate packet. But a WATCHME probe fires long after the voyage that built the
+# node has closed and its chart chain has gone cold — the question it answers is
+# "did the intention WORK?", and the artifact that states that in falsifiable form
+# is the ticket's own ``falsifier``, not an acceptance packet. So ``validate_ref``
+# admits ``falsifier@<ticket-id>`` and the criteria are derived from the ticket.
+#
+# ONE CONTRACT, NOT TWO (the ticket's own falsifier clause (6): "a verdict written
+# by a probe cannot pass validate_verdict, or needs a second schema to do so — one
+# contract or the design failed"). Everything above this line is untouched: the
+# shape gate does not know this form exists, the ticket claim is required exactly
+# as before, and coverage is still "every obligation answered and passing". Only
+# WHERE the obligations are read from forks — which is why the fork lives in
+# ``_read_chain`` and nowhere else.
+FALSIFIER_REF = "falsifier@"
+DEFAULT_NEXUS = "hypothesize"
+
+# A falsifier states its RED conditions as numbered clauses: "RED on any of: (1) …
+# (2) …". Consecutive numbering from 1 is REQUIRED, not assumed — a falsifier this
+# reader cannot segment refuses rather than silently mis-segmenting, because a
+# mis-segmented obligation is an obligation quietly dropped (Law 8).
+_CLAUSE_RE = re.compile(r"\((\d+)\)\s*")
 
 
 class VerdictRefused(RuntimeError):
@@ -91,14 +126,122 @@ def verdict_error(artifact) -> str | None:
             if entry[vocab_field] not in vocab:
                 return ("verdict artifact refused — %s[%d].%s must be one of %s, got %r"
                         % (field, i, vocab_field, "|".join(vocab), entry[vocab_field]))
+    if "nexus" in artifact and (not isinstance(artifact["nexus"], str)
+                                or not artifact["nexus"].strip()):
+        return ("verdict artifact refused — nexus, when named, must be a non-empty "
+                "string (omit it to take the default rather than naming nothing)")
     return None
 
 
-def _read_chain(artifact) -> tuple[list, list, str | None]:
+def verdict_nexus(artifact: dict) -> str:
+    """WHICH TREE THIS VERDICT TEACHES. Named by the artifact, defaulting to
+    ``hypothesize`` — the tree a chart-sourced verdict has always taught, so an
+    artifact that says nothing lands exactly where it landed before this field
+    existed (ticket watchme-emits-a-probe piece (d): "nexus becomes a specified
+    parameter rather than the hardwired hypothesize").
+
+    DELIBERATELY UNCONSTRAINED to any roster. The same ticket's falsifier clause
+    (8) makes that a RED: a nexus that can only name one of our own devices would
+    mean the design works for the toolchain watching itself and nowhere else. The
+    value is a name the consumer resolves, and this door does not adjudicate it."""
+    named = artifact.get("nexus")
+    return named.strip() if isinstance(named, str) and named.strip() else DEFAULT_NEXUS
+
+
+def falsifier_criteria(ticket_id: str, root: str = CAIRN_ROOT) -> tuple[list, str | None]:
+    """Derive a criteria list from a filed ticket's ``falsifier``, one criterion per
+    numbered RED clause. Returns (criteria, error).
+
+    PUBLIC ON PURPOSE — the same reason ``verdict_error`` is: the door that READS
+    the obligations and the probe that WRITES the answers must derive the claims
+    by one implementation, or the claim strings drift apart and every falsifier
+    verdict is refused as unanswered while looking word-for-word correct. The
+    writer calls this to learn what it owes; the door calls it to check.
+
+    A criterion's ``instrument`` is deliberately NOT synthesised here. The falsifier
+    states the observation that would kill the claim; naming the measure that was
+    actually run is the writer's act, and the shape gate already refuses a verdict
+    that omits it. Inventing one would be this module putting words in the
+    voyage's mouth."""
+    path = ticket_path(ticket_id, root)
+    if path is None:
+        return [], ("validate_ref %s%s names no ticket on file in "
+                    "CairnCommons/tickets/ — an obligation read from nowhere is "
+                    "fabricated attribution" % (FALSIFIER_REF, ticket_id))
+    try:
+        with open(path, encoding="utf-8") as fh:
+            ticket = json.load(fh)
+    except (OSError, json.JSONDecodeError) as e:
+        return [], ("ticket %r cannot be read (%s: %s) — an unreadable obligation "
+                    "refuses, it does not vanish" % (ticket_id, type(e).__name__, e))
+    text = ticket.get("falsifier")
+    if not isinstance(text, str) or not text.strip():
+        return [], ("ticket %r carries no falsifier — there is nothing for a "
+                    "falsifier-sourced verdict to answer, and an empty obligation "
+                    "would pass everything" % (ticket_id,))
+    marks = list(_CLAUSE_RE.finditer(text))
+    if not marks:
+        return [], ("ticket %r's falsifier states no numbered clauses — this form "
+                    "answers clause by clause, and one undivided paragraph cannot "
+                    "be answered clause by clause" % (ticket_id,))
+    if [int(m.group(1)) for m in marks] != list(range(1, len(marks) + 1)):
+        return [], ("ticket %r's falsifier numbers its clauses %s, not 1..%d — a "
+                    "falsifier this reader cannot segment refuses rather than "
+                    "silently mis-segmenting"
+                    % (ticket_id, [m.group(1) for m in marks], len(marks)))
+    criteria = []
+    for i, m in enumerate(marks):
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
+        clause = text[m.end():end].strip()
+        if not clause:
+            return [], ("ticket %r's falsifier clause (%d) is empty — a RED "
+                        "condition that says nothing cannot be answered"
+                        % (ticket_id, i + 1))
+        criteria.append({"claim": clause,
+                         "source": "%s%s clause (%d)" % (FALSIFIER_REF, ticket_id, i + 1)})
+    return criteria, None
+
+
+def _read_falsifier_chain(artifact, root: str) -> tuple[list, list, str | None]:
+    """The second reader. Criteria come from the ticket's falsifier; there are NO
+    hypotheses, because this provenance has no hypothesize berth to disposition
+    against — the chart chain it would have come from is cold, which is the whole
+    reason this form exists.
+
+    THE VACUOUS HALF IS NAMED, NOT HIDDEN. An empty hypotheses list makes the
+    dispositions obligation trivially satisfied, and a gate that inspects nothing
+    passes everything (Law 8). What keeps this honest is the other half: the
+    criteria obligation refuses outright unless the ticket yields at least one
+    numbered clause, and EVERY clause must be answered and passing. The falsifier
+    is the whole RED set; answering half of it is answering none of it, because
+    the unanswered half is exactly where the failure hides.
+
+    A verdict may not read one ticket's falsifier while claiming another's voyage —
+    that is laundered provenance, and it refuses here rather than at no point."""
+    ticket_id = artifact["validate_ref"][len(FALSIFIER_REF):].strip()
+    claim = artifact.get("ticket")
+    if ticket_id != claim:
+        return [], [], ("validate_ref %r reads the falsifier of %r while the verdict "
+                        "claims ticket %r — a verdict answers its own ticket's "
+                        "falsifier or it is answering somebody else's question"
+                        % (artifact["validate_ref"], ticket_id, claim))
+    criteria, err = falsifier_criteria(ticket_id, root)
+    if err:
+        return [], [], err
+    return criteria, [], None
+
+
+def _read_chain(artifact, root: str = CAIRN_ROOT) -> tuple[list, list, str | None]:
     """Read what must be answered: the claiming validate berth's criteria and its
     hypothesize berth's hypotheses. Returns (criteria, hypotheses, error) — a
     chain that cannot be read is an error, never an empty obligation (a gate that
-    silently inspects nothing passes everything, Law 8)."""
+    silently inspects nothing passes everything, Law 8).
+
+    THE FORK, and the only one in this module: a ``validate_ref`` of the form
+    ``falsifier@<ticket-id>`` reads the ticket instead of a berth (see above)."""
+    ref = artifact.get("validate_ref")
+    if isinstance(ref, str) and ref.startswith(FALSIFIER_REF):
+        return _read_falsifier_chain(artifact, root)
     try:
         with open(os.path.expanduser(artifact["validate_ref"]), encoding="utf-8") as fh:
             vpacket = json.load(fh)
@@ -113,11 +256,15 @@ def _read_chain(artifact) -> tuple[list, list, str | None]:
     return criteria, hypotheses, None
 
 
-def unanswered(artifact) -> list[str]:
+def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
     """Coverage: every criterion answered (and PASSING — an answered-and-failed
     criterion is a kick-back, not a crossing), every hypothesis dispositioned.
-    Returns one line per unanswered item, complete on the first pass."""
-    criteria, hypotheses, err = _read_chain(artifact)
+    Returns one line per unanswered item, complete on the first pass.
+
+    ``root`` reaches only the falsifier form (a berth ref is an absolute path and
+    needs no root), and it is the LAST positional this door will ever grow — the
+    inspector composes this function by identity, so its arity is a shared surface."""
+    criteria, hypotheses, err = _read_chain(artifact, root)
     if err:
         return [err]
     items = []
@@ -153,7 +300,7 @@ def validate_verdict(artifact, root: str = CAIRN_ROOT) -> dict:
     claim_error = ticket_claim_error(artifact, root)
     if claim_error:
         raise VerdictRefused("verdict artifact refused — " + claim_error)
-    items = unanswered(artifact)
+    items = unanswered(artifact, root)
     if items:
         raise VerdictRefused(
             "verdict artifact refused — the chart is not yet answered:\n  "

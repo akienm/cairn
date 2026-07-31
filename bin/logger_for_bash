@@ -1,0 +1,383 @@
+#!/usr/bin/env bash
+# logger_for_bash — the flight recorder for bash.
+#
+# Canonical home: cairn/bin/logger_for_bash   ·   Charter: cairn/bin/intention+why.json
+# Lineage: grafted from ~/dev/src/akientools/bin/logger_for_bash + logcmd (Akien, 2024).
+#
+# ── WHAT ─────────────────────────────────────────────────────────────────────
+# Source it. Then every command you route through `logrun` leaves a durable record of
+# what it tried, what came back, and what it returned — appended to one file, capped at
+# the last N lines, safe across concurrent shells.
+#
+#   source logger_for_bash
+#   logrun cairn_bootstrap_verify        # runs it, logs it, RETURNS ITS CODE
+#   lognote "about to lay the floor"     # a line with no command behind it
+#   logbash_attach                       # interactive: log every typed line + its code
+#
+# ── WHY IT IS NOT THE ORIGINAL ───────────────────────────────────────────────
+# The original is 19 lines and correct in intent. MEASURED 2026-07-30, four defects,
+# each verified by running it rather than reading it:
+#
+#   1. `$@ | tee` then `result_code=$?` reads TEE's exit code. `logcmd false` recorded
+#      `result_code=0`. The single field the tool exists for was always 0 — a log that
+#      reports success for everything is worse than no log, because it is BELIEVED.
+#      Fixed here by ${PIPESTATUS[0]}, and pinned by a proof case that runs `false`.
+#   2. stderr was never captured — `$@ | tee` pipes stdout only. The failure text you
+#      most want at 3am reached the terminal and missed the file. Fixed by `2>&1`.
+#   3. `$@` unquoted word-splits: `echo "one two" three` logged as `echo one two three`.
+#      Fixed by "$@" throughout, which also removes the `eval` (see THE EVAL TRADE).
+#   4. `export logcmd` does not export a function (that is `export -f`), so no child
+#      shell ever saw it. Silent no-op. Fixed — and the proof asserts a child can see it.
+#
+#   And the one that matters most for .bashrc: line 18 was `echo "" > "${logtarget}"`,
+#   which TRUNCATES ON EVERY SOURCE. Sourced from .bashrc, every new terminal wiped the
+#   history — the exact opposite of "keep the last 1000 lines." Nothing here truncates
+#   on source; the ONLY writer that shortens the file is logtrim, and it keeps the TAIL.
+#
+# ── THE EVAL TRADE (a deliberate difference from the original) ───────────────
+# The original ran `eval "$command_line"`, which let `. logcmd FOO="bar"` set a variable
+# in the caller. That is what made quoting bug #3 unfixable there. Here `logrun` runs
+# "$@" directly: quoting survives exactly, and nothing is re-parsed. The cost is that
+# shell constructs are not commands — `logrun a | b` logs only `a`. Say what you mean:
+#   logrun bash -c 'a | b'
+#
+# ── NEVER `set -e` / `set -u` IN THIS FILE ───────────────────────────────────
+# Same constraint as launchers/bootstrap.sh, for the same reason and one more. This is
+# SOURCED — by ~/.bashrc (where an abort costs you the shell) and by superclaude (whose
+# prime directive is that nothing between parse and exec may abort the launch). A `set`
+# in a sourced file leaks into the CALLER. Every function below RETURNS a code; not one
+# of them exits, and none of them can turn a working shell into a broken one.
+#
+# It also prints NOTHING on source. A logger that announces itself in every new terminal
+# is a logger that gets commented out of .bashrc within a week.
+
+CAIRN_LOGGER_SOURCED=1
+
+# ── where the record lives ───────────────────────────────────────────────────
+# Resolution, highest first:  CAIRN_LOGTARGET > logtarget > $CAIRN_LOGDIR/bash
+#
+# `logtarget` (lowercase) is honoured because Akien's akientools scripts already set it
+# and a decade of muscle memory is a real interface. But lowercase env vars collide with
+# ordinary shell locals — any script that happens to use `logtarget` as a working
+# variable silently redirects this log, and the failure is invisible. So CAIRN_LOGTARGET
+# is the one to reach for in new code, and it wins.
+#
+# ROOT NOTE (a deliberate deviation, flagged rather than smuggled): the sketch said
+# ~/logs/bash. Logs are runtime state, and Cairn has exactly three roots — ~/.cairn/ is
+# the one that holds logs (CLAUDE.md). A fourth root would be drift, and the first
+# question a future mind asks about ~/logs is "which root is this?" One env var moves it
+# for anyone who wants it elsewhere.
+: "${CAIRN_LOGDIR:=$HOME/.cairn/logs}"
+
+# How many LINES to keep. Lines, not entries: an entry is multi-line and unbounded (one
+# command can emit ten thousand lines), so "1000 entries" is not a bound on anything.
+# Lines are exactly the thing that costs disk and the thing `tail` counts.
+: "${CAIRN_LOGLEN:=${loglen:-1000}}"
+
+# Trim is amortised: rewriting the file on every command would make the logger cost
+# O(file) per command — a poll disguised as a write. We let it drift 25% over the cap and
+# then cut back to it, so the rewrite happens once per ~250 lines instead of once per
+# line. Event-driven (the write is the event), never a clock.
+: "${CAIRN_LOG_SLACK_PCT:=25}"
+
+logtarget_path() {
+  if [[ -n "${CAIRN_LOGTARGET:-}" ]]; then echo "$CAIRN_LOGTARGET"
+  elif [[ -n "${logtarget:-}" ]]; then echo "$logtarget"
+  else echo "$CAIRN_LOGDIR/bash"; fi
+}
+
+# ── the stamp: <yyyymmdd.hhmmss.uuuuuu>.<pid> ────────────────────────────────
+# Built from EPOCHREALTIME + printf's %()T — both bash builtins, so a stamp costs ZERO
+# forks. `date +%6N` would fork a process per line; on a boot script emitting a few
+# hundred lines that is a few hundred processes to write a log nobody may ever read.
+# The standing aim is a shrinking compute footprint, and this is where it is cheap.
+#
+# EPOCHREALTIME uses the LOCALE's radix character — it is "1753900381,681880" under
+# de_DE. Splitting on '.' alone would silently produce a stamp with no microseconds in
+# half the world. Both separators are handled.
+_logbash_stamp() {
+  local er="${EPOCHREALTIME:-}" secs usec
+  if [[ -z "$er" ]]; then                       # bash < 5.0: fall back, correctness first
+    printf -v _LOGBASH_STAMP '%s.%s' "$(date +%Y%m%d.%H%M%S.%6N)" "$$"
+    return 0
+  fi
+  secs="${er%%[.,]*}"
+  usec="${er##*[.,]}"
+  [[ "$usec" == "$er" ]] && usec="000000"       # no radix at all → no sub-second half
+  printf -v _LOGBASH_STAMP '%(%Y%m%d.%H%M%S)T.%s.%s' "$secs" "$usec" "$$"
+}
+
+# ── the write door ───────────────────────────────────────────────────────────
+# EVERY line carries its own stamp+pid prefix.
+#
+# The sketch put the stamp on a header line with the body unprefixed beneath it. That is
+# right for one shell and wrong for this file, because the whole point is that many
+# shells append to ONE namespace. Two concurrent boots interleave, and an unprefixed
+# output line is then unattributable — you cannot tell whose failure you are reading,
+# which is the moment the log had one job. With the pid on every line, `grep '\.12345:'`
+# reconstructs one shell's whole session out of the braid, and the line cap means exactly
+# what it says. It costs ~30 bytes a line and buys the file its integrity under concurrency.
+_logbash_write() {
+  local target; target="$(logtarget_path)"
+  local dir="${target%/*}"
+  [[ "$dir" != "$target" && ! -d "$dir" ]] && mkdir -p "$dir" 2>/dev/null
+  _logbash_stamp
+  # ONE RECORD IS ONE LINE, whatever it was handed. Caught 2026-07-30 wiring the boot
+  # probe: superclaude logged an exec line whose argv contained a multi-line preflight
+  # report, and everything after the first newline landed in the file with no stamp and no
+  # pid — unattributable, and uncounted by a cap that counts lines. The invariant cannot be
+  # "callers must pass single-line text", because the interesting messages are exactly the
+  # ones carrying captured output. Embedded newlines collapse to ' | ' here, at the door,
+  # where it holds for every caller instead of for the ones who remembered.
+  local msg="$*"
+  msg="${msg//$'\n'/ | }"
+  msg="${msg//$'\r'/}"
+  # A logger that cannot write must never take the caller down with it (CP1: say so, do
+  # not die). One warning to stderr, then get out of the way.
+  if ! printf '%s: %s\n' "$_LOGBASH_STAMP" "$msg" >> "$target" 2>/dev/null; then
+    if [[ -z "${_LOGBASH_WARNED:-}" ]]; then
+      _LOGBASH_WARNED=1
+      echo "logger_for_bash: cannot append to $target — logging is off for this shell" >&2
+    fi
+    return 1
+  fi
+  return 0
+}
+
+lognote() { _logbash_write "$*"; }
+logecho() { _logbash_write "$*"; }   # the original's name, kept: same meaning, same use
+
+# ── logrun — the tier that captures everything ───────────────────────────────
+# Runs the command, streams its stdout AND stderr to both the terminal and the log with
+# per-line stamps, and RETURNS THE COMMAND'S OWN EXIT CODE so `logrun foo || repair` is
+# a correct thing to write. That last property is the whole fix for defect #1: the code
+# comes from ${PIPESTATUS[0]}, the head of the pipeline, never from the tail.
+#
+# Live output, no temp file: the original's sibling (`logcmd`) buffered to a FIXED path,
+# /tmp/contarget.log, so two shells running it at once overwrote each other's output and
+# then rm -f'd it. One shared mutable temp path is a data race with a filename.
+logrun() {
+  [[ $# -eq 0 ]] && return 0
+  local target; target="$(logtarget_path)"
+  local quiet="${CAIRN_LOG_QUIET:-0}"
+
+  _logbash_write "\$ $(_logbash_render "$@")"
+
+  local rc
+  if [[ "$quiet" == "1" ]]; then
+    "$@" 2>&1 | _logbash_prefix >> "$target"
+  else
+    "$@" 2>&1 | _logbash_prefix | tee -a "$target"
+  fi
+  rc=${PIPESTATUS[0]}
+
+  _logbash_write "= $rc"
+  logtrim
+  return "$rc"
+}
+logcmd() { logrun "$@"; }   # the original's name, kept
+
+# Renders argv so the RECORD is as unambiguous as the execution.
+#
+# Caught in my own smoke test 2026-07-30: I fixed defect #3 by running "$@" — correct —
+# and then wrote the log line with `$*`, which re-joins on spaces and throws the argument
+# boundaries away again. `logrun echo "one two" three` still recorded `echo one two three`.
+# Half a fix reads exactly like a whole one, because the bug lives in the artifact and the
+# artifact is the thing nobody re-checks.
+#
+# %q quotes only what needs it, so ordinary lines stay readable and a line you paste back
+# into a shell runs the command that actually ran. That round-trip IS the property: a log
+# entry you cannot re-execute is a description of a command, not a record of one.
+_logbash_render() {
+  local out="" a
+  for a in "$@"; do printf -v a '%q' "$a"; out+="${out:+ }$a"; done
+  printf '%s' "$out"
+}
+
+# Stamps each line as it arrives, so the timestamps are the times the output actually
+# appeared — not the time the command finished. On a boot that stalls, the gap between
+# two lines IS the diagnostic.
+#
+# `|| [[ -n "$line" ]]` catches a final line with no trailing newline; without it, the
+# last thing a crashing program printed — usually the interesting part — is dropped.
+_logbash_prefix() {
+  local line
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    _logbash_stamp
+    printf '%s: %s\n' "$_LOGBASH_STAMP" "$line"
+  done
+}
+
+# ── logtrim — keep the LAST n lines ──────────────────────────────────────────
+# Rewrites IN PLACE (`cat > file`), deliberately not `mv tmp file`. A rename swaps the
+# inode, and every other shell holding an open append fd keeps writing to the orphaned
+# one — their records vanish into a file with no name while the log looks healthy.
+#
+# The flock serialises trims against each other. It does NOT serialise a trim against a
+# plain append, because `tee -a` holds no lock — so a line can be lost in the instant
+# between the tail and the rewrite. That is stated, not papered over: this file is a
+# DIAGNOSTIC SURFACE, not a record of truth (Law 7 draws the line exactly here), and
+# paying a lock on every append to close a once-per-250-lines window would be the wrong
+# trade. If a record of truth is ever wanted here, it does not get retrofitted onto this
+# function — it gets its own door.
+logtrim() {
+  local target; target="$(logtarget_path)"
+  [[ -f "$target" ]] || return 0
+  local len="${CAIRN_LOGLEN:-1000}"
+  [[ "$len" =~ ^[0-9]+$ ]] || return 0
+  [[ "$len" -eq 0 ]] && return 0
+
+  local n; n=$(wc -l < "$target" 2>/dev/null) || return 0
+  local cap=$(( len + (len * ${CAIRN_LOG_SLACK_PCT:-25} / 100) ))
+  [[ "$n" -le "$cap" ]] && return 0
+
+  # THE WATCH (see the charter): 1000 is a guess, and the way a retention window is wrong
+  # is that someone reaches for a record the window already dropped — which is only
+  # visible in hindsight and only if the discard left a trace. So each trim records what
+  # it threw away and how far back the surviving window now reaches. "We needed a boot
+  # from Tuesday and the file only held six hours" then becomes a measurement instead of
+  # an anecdote. Written BEFORE the cut, or the oldest-surviving line is already gone.
+  local oldest
+  oldest="$(tail -n "$len" "$target" 2>/dev/null | head -1 | cut -d: -f1)"
+  # n+1, not n: this mark is itself a line, appended before the cut, and it survives the cut
+  # (it is the newest). Counting the file as it was a moment ago would under-report by one
+  # forever — a small lie, but this number's whole job is to be trusted later.
+  _logbash_write "logtrim: discarded $(( n + 1 - len )) lines, window now starts at ${oldest:-?} (cap=$len)"
+
+  local tmp="${target}.trim.$$"
+  {
+    flock -x -w 5 9 || exit 0
+    tail -n "$len" "$target" > "$tmp" 2>/dev/null && cat "$tmp" > "$target" 2>/dev/null
+    rm -f "$tmp" 2>/dev/null
+  } 9>"${target}.lock" 2>/dev/null
+  return 0
+}
+
+# ── logbash_attach — the automatic tier, and an honest boundary ──────────────
+# "just to have that running in the background" — this is that, for interactive shells:
+# every line you type is logged with its real exit code, no wrapping, nothing to remember.
+#
+# WHAT IT CANNOT DO, MEASURED AND STATED RATHER THAN IMPLIED: it does not capture OUTPUT.
+# Bash offers no hook that sees a command's output — DEBUG fires before, PROMPT_COMMAND
+# after, and neither is in the data path. The only ways to get interactive output are to
+# run the session under a pty recorder (script(1) — a terminal stream: escape codes, no
+# command boundaries) or to redirect the shell's own stdout through a tee (which every
+# full-screen program then fights). Both are real options and neither is free; if the
+# output of typed commands turns out to be what is wanted, that is a separate stone with
+# its own trade to make, not a flag to bolt on here.
+#
+# So: `logrun` when you want the output (scripts, boots — where it matters), `attach`
+# when you want the trail (interactive — where 90% of the value is knowing WHAT ran).
+#
+# Implemented on PROMPT_COMMAND alone, no DEBUG trap. A DEBUG trap fires on every simple
+# command everywhere — inside functions, inside completion, inside itself — and costs you
+# that on every keystroke's worth of work. PROMPT_COMMAND fires once per prompt, reads the
+# whole typed line from history, and costs nothing between prompts.
+logbash_attach() {
+  [[ -n "${_LOGBASH_ATTACHED:-}" ]] && return 0
+  _LOGBASH_ATTACHED=1
+  _LOGBASH_LASTNUM=""
+  # NOT PRIMED YET — see _logbash_prompt. Seeding the number HERE cannot work and the
+  # attempt is worth recording: bash reads ~/.bashrc BEFORE it loads HISTFILE, so `history 1`
+  # during attach returns nothing at all. The inherited entry only becomes visible at the
+  # first prompt, which is exactly where it has to be discarded.
+  unset _LOGBASH_PRIMED
+  # Prepended, and the existing value preserved: PROMPT_COMMAND is shared ground (git
+  # prompts, direnv, window titles all live there). Clobbering it is how a logger breaks
+  # someone's shell and gets blamed for it.
+  PROMPT_COMMAND="_logbash_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+  return 0
+}
+
+logbash_detach() {
+  [[ -z "${_LOGBASH_ATTACHED:-}" ]] && return 0
+  PROMPT_COMMAND="${PROMPT_COMMAND/_logbash_prompt; /}"
+  PROMPT_COMMAND="${PROMPT_COMMAND/_logbash_prompt/}"
+  unset _LOGBASH_ATTACHED
+  return 0
+}
+
+# $? is read on the FIRST line — anything before it, including a local declaration,
+# overwrites the very code we are here to record.
+_logbash_prompt() {
+  local rc=$?
+  local h num cmd
+  h=$(HISTTIMEFORMAT='' history 1 2>/dev/null) || return 0
+  # THE FIRST PROMPT IS A PRIMING PASS, NOT A RECORD. Measured on the first real install,
+  # 2026-07-30: a fresh login shell opened its record with `$ nohup plasmashell ...` / `= 0` —
+  # the last line of ~/.bash_history, a command this shell never ran, stamped with an exit
+  # code it never produced. Bash prints prompt #1 before you have typed anything, and by then
+  # HISTFILE is loaded, so `history 1` is somebody else's last command. A recorder whose
+  # opening entry is fabricated is the same defect that fired a probe about a floor that never
+  # existed an hour earlier, arriving through a different door — so the first pass swallows
+  # the inherited number and writes nothing. It runs once per shell and costs one comparison
+  # thereafter. Note this is deliberately NOT keyed on _LOGBASH_LASTNUM being empty: a shell
+  # with no history at all has no number to swallow, and skipping its first real command to
+  # protect against an entry that does not exist would be trading a fabricated record for a
+  # missing one.
+  if [[ -z "${_LOGBASH_PRIMED:-}" ]]; then
+    _LOGBASH_PRIMED=1
+    h="${h#"${h%%[![:space:]]*}"}"
+    _LOGBASH_LASTNUM="${h%%[[:space:]]*}"
+    return 0
+  fi
+  [[ -z "$h" ]] && return 0
+  h="${h#"${h%%[![:space:]]*}"}"        # strip leading pad
+  num="${h%%[[:space:]]*}"
+  cmd="${h#*[[:space:]]}"
+  cmd="${cmd#"${cmd%%[![:space:]]*}"}"
+  # Keyed on the history NUMBER, not the text: keying on text would silently swallow a
+  # command you deliberately ran twice, and "the log skipped one" is a lie that costs
+  # more than a duplicate. An empty line (just Enter) advances no number and logs nothing.
+  [[ "$num" == "${_LOGBASH_LASTNUM:-}" ]] && return 0
+  _LOGBASH_LASTNUM="$num"
+  _logbash_write "\$ $cmd"
+  _logbash_write "= $rc"
+  logtrim
+  return 0
+}
+
+# ── the host seam: sourcing this from ~/.bashrc ──────────────────────────────
+# ~/.bashrc is the host, and git cannot see it — so per CLAUDE.md this carries a
+# replayable `apply` and a re-runnable `verify`, and its seal EXPIRES (the host drifts
+# with nothing in this repo changing). Delimited block, idempotent, backup first: an
+# installer that edits a file people have hand-tuned for years must be reversible by
+# hand, by eye, without this tool present.
+CAIRN_LOGGER_MARK_BEGIN="# >>> cairn logger_for_bash >>>"
+CAIRN_LOGGER_MARK_END="# <<< cairn logger_for_bash <<<"
+
+cairn_logger_installed() {
+  local rc="${1:-$HOME/.bashrc}"
+  [[ -f "$rc" ]] || return 1
+  grep -qF "$CAIRN_LOGGER_MARK_BEGIN" "$rc" 2>/dev/null
+}
+
+cairn_logger_install() {
+  local rc="${1:-$HOME/.bashrc}"
+  local self; self="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)/logger_for_bash"
+  [[ -r "$self" ]] || { echo "logger_for_bash: cannot resolve own path" >&2; return 1; }
+  if cairn_logger_installed "$rc"; then return 0; fi
+  cp -p "$rc" "${rc}.pre-cairn-logger" 2>/dev/null
+  {
+    echo ""
+    echo "$CAIRN_LOGGER_MARK_BEGIN"
+    echo "# Flight recorder for bash. Remove this block to uninstall; a backup of the"
+    echo "# pre-install .bashrc sits beside it as .bashrc.pre-cairn-logger."
+    echo "if [ -r \"$self\" ]; then"
+    echo "  . \"$self\""
+    echo "  case \$- in *i*) logbash_attach ;; esac"
+    echo "fi"
+    echo "$CAIRN_LOGGER_MARK_END"
+  } >> "$rc" || return 1
+  return 0
+}
+
+cairn_logger_uninstall() {
+  local rc="${1:-$HOME/.bashrc}"
+  cairn_logger_installed "$rc" || return 0
+  local tmp="${rc}.cairn-logger.$$"
+  sed "/^${CAIRN_LOGGER_MARK_BEGIN}$/,/^${CAIRN_LOGGER_MARK_END}$/d" "$rc" > "$tmp" 2>/dev/null \
+    && cat "$tmp" > "$rc"
+  rm -f "$tmp" 2>/dev/null
+  return 0
+}

@@ -2,7 +2,7 @@
 
 Every Cairn device is its OWN PROCESS, and it does not spin — it sleeps when idle and is
 woken on demand (converged with Akien 2026-07-18;
-``CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md``). The SHIM is the piece that is
+``CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md``). The SHIM is the piece that is
 always on: one per device, lightweight, and it does three things.
 
   1. **Fires the device's due probes on each heartbeat pulse.** The ``ground_loop`` is

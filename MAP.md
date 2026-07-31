@@ -275,7 +275,7 @@ enter as candidate questions and earn tenure by yield, like everything else.)
 | Root | Holds | Rule |
 |---|---|---|
 | `~/dev/src/cairn/` (repo) | code, skills, CLAUDE.md, per-device charters + `state`/`history` + proofs + validations | class-space; git; shareable; no *runtime* state |
-| `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | `intentions-other/` (homeless intentions incl. the roots), `intentions/` (the compiled assembly point), `node_classes/`, `tickets/`, `questions/` (the probe corpus), `learning/`, `notes/`, `slates/` — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it. **The rule itself is under re-derivation** — see `notes/held-roots-as-stations-or-shelves.json` |
+| `~/dev/src/CairnCommons/` (own repo — ratified 2026-07-14) | `intentions-not-beside-code/` (homeless intentions incl. the roots), `intentions-congruency-lab/` (the compiled assembly point), `node_classes/`, `tickets/`, `questions/` (the probe corpus), `learning/`, `notes/`, `slates/` — grep-able JSON | *if losing it loses knowledge, it's commons*; the tester consumes from and emits to it. **The rule itself is under re-derivation** — see `notes/held-roots-as-stations-or-shelves.json` |
 | `~/.cairn/` | logs, credentials, flags, cachedstate, personal info | instance-space; never in git; composed at use-time |
 
 **The map IS the territory:** every component directory co-locates
@@ -301,7 +301,7 @@ These are the beside-code faces of the two levels that don't conflict (design
 above, operational below). The projector move — compile a bounded view over an
 append-only source — recurs at three scales: ticket (`history` → `state`),
 component (intentions + tickets → the charter summary), system (charters →
-the `intentions/` index). Open, deliberately: whether the middle row stays
+the `intentions-congruency-lab/` index). Open, deliberately: whether the middle row stays
 hand-authored or is eventually compiled too.
 
 **Stores self-describe like devices (Akien, 2026-07-14):** every artifact-type
@@ -343,7 +343,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
 ```
 ~/dev/src/cairn/                  # class-space; git; no *runtime* state, ever
   CLAUDE.md                       # spine step 1 — stays minimal: laws + pointers, not prose
-  MAP.md                          # this file (dissolves into intentions/tickets over time)
+  MAP.md                          # this file (dissolves into intentions-congruency-lab/tickets over time)
   pyproject.toml                  # `pip install -e .` green at all times; include = ["cairn*"]
   cairn/                          # the single import root (one heart — UU law carries)
     __init__.py                   # EMPTY/lazy forever (boot-order lesson: importing any
@@ -384,9 +384,9 @@ Companion trees (drawn once, here, for orientation):
 
 ```
 ~/dev/src/CairnCommons/           # knowledge; own git repo
-  intentions-other/ _charter+why.json + telos.md + core-values.md + …
+  intentions-not-beside-code/ _charter+why.json + telos.md + core-values.md + …
                                   # the homeless: no ONE code address. Roots first by date.
-  intentions/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: IOU)
+  intentions-congruency-lab/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: IOU)
   questions/   _charter+why.json  # the PROBE corpus, yield-tracked. Probes only — see below.
   node_classes/ tickets/ learning/ notes/ slates/
                                   # a type dir EXISTS only once its _charter+why.json does
@@ -1012,7 +1012,7 @@ instance' (self-contained; no external orchestrator possible). Consequences:
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
-`CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md`.) A peer is woken by a
+`CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md`.) A peer is woken by a
 PROBE firing — "call X when this trigger is true", where a trigger is *anything
 that evaluates to true* (not the closed `interval/date/quantity/a-state` enum, which
 was a reification). Reactive (wake on state entry: builder ⟵ BUILDME) and scheduled
@@ -1099,7 +1099,7 @@ harbor register); `state-machine-physics.json` is cross-referenced, not overwrit
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built
 2026-07-18; there is no separate rack device. The two runtime substrates are the
-heartbeat and the bus — `CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md`.)
+heartbeat and the bus — `CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md`.)
 
 Workflow target: intention → design → tickets → build → test → done; each stage
 a question nexus with feedback. End state: CC.0 + CC.1 + aider (easy work), one

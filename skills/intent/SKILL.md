@@ -23,7 +23,7 @@ that refreshes it; no daemon watches on your behalf:
 
     $HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh
 
-Then read `CairnCommons/intentions/_model.json` and ask: is anything already here
+Then read `CairnCommons/intentions-congruency-lab/_model.json` and ask: is anything already here
 **like** this intent, or in **conflict** with it? Judge over the *whys* the model
 carries, not surface strings — a real collision is exclusive-and-terminal; otherwise
 it is a distinction to record. A hit here kills or reshapes the intent before any

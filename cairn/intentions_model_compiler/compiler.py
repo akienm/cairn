@@ -1,19 +1,19 @@
-"""intentions_model_compiler/compiler.py — the ``intentions/`` MODEL is COMPILED
+"""intentions_model_compiler/compiler.py — the ``intentions-congruency-lab/`` MODEL is COMPILED
 from its sources, never authored by hand.
 
 This is the OUTER row of the three-scale projector recursion (the store charter,
-``CairnCommons/intentions/_charter+why.json``, names it):
+``CairnCommons/intentions-congruency-lab/_charter+why.json``, names it):
 
   - ticket scale:    a charter's ``history`` -> its bounded ``state`` window
                      (``cairn/charter/projector.py`` — the kin, built and green)
   - component scale:  a component's design -> its charter (authored precipitate)
-  - SYSTEM scale:     ALL sources -> ``intentions/`` (this module)
+  - SYSTEM scale:     ALL sources -> ``intentions-congruency-lab/`` (this module)
 
 Same move each time (Law 1): compile a bounded view over an append-only source so no
 mind re-derives it by reading everything. Here the "source" is the whole intent corpus,
 in two places at once:
 
-  1. ``CairnCommons/intentions-other/``  — the homeless intentions (the roots, the
+  1. ``CairnCommons/intentions-not-beside-code/``  — the homeless intentions (the roots, the
      concept-pieces, the host-seams, the spanning ones); the prose IS the implementation
      or the machine-readiness that a bare repo needs to actually RUN.
   2. ``cairn/*/intention+why.json``      — the beside-code charters (the code-seams).
@@ -24,7 +24,7 @@ that does not run. So the compiled model EMBEDS each source's content: the one a
 self-contained.
 
 The contract (why this door exists):
-  - ONE write-door: ``compile_to_disk`` is the sole writer of ``intentions/_model.json``
+  - ONE write-door: ``compile_to_disk`` is the sole writer of ``intentions-congruency-lab/_model.json``
     (Law 6 — exactly one owner gates writes to the compiled view; the IOU in CLAUDE.md
     'Rules awaiting physics' is closed by physics the day the tester import-scans for a
     second writer). A hand-edit to the model is REVERTED on the next compile — the view
@@ -64,7 +64,7 @@ _UNBORN = "9999-12-31T23:59:59+00:00"
 _DO_NOT_EDIT = (
     "COMPILED VIEW — do not hand-edit. Written only by "
     "intentions_model_compiler.compile_to_disk; any edit here is reverted on the next "
-    "compile. To change the model, change a source in intentions-other/ or a charter "
+    "compile. To change the model, change a source in intentions-not-beside-code/ or a charter "
     "beside its code, then recompile (Law 4 / Law 7)."
 )
 
@@ -84,7 +84,7 @@ def compile_model(sources: list[dict]) -> dict:
     ordered = sorted(sources, key=lambda s: (s.get("born", _UNBORN), s["source"]))
     return {
         "_do_not_edit": _DO_NOT_EDIT,
-        "compiled_from": ["intentions-other/", "cairn/*/intention+why.json"],
+        "compiled_from": ["intentions-not-beside-code/", "cairn/*/intention+why.json"],
         "count": len(ordered),
         "intentions": [
             {
@@ -107,7 +107,7 @@ def _born(path: str) -> str:
     survives a fresh checkout (file mtime does not).
 
     ``--follow`` is load-bearing, not a nicety: intentions RELOCATE. The roots were born
-    2026-07-14 ('the Telos as first stone') and only MOVED into ``intentions-other/`` on
+    2026-07-14 ('the Telos as first stone') and only MOVED into ``intentions-not-beside-code/`` on
     2026-07-22 ('the roots come home'). Plain first-add sees the move (2026-07-22) and
     sinks the frame into the middle of the model; ``--follow`` traces past the rename to
     the true birth (2026-07-14), which is what makes 'roots surface first' hold by physics
@@ -147,13 +147,13 @@ def _read_content(path: str):
 def gather_sources(commons_root: str, code_root: str) -> list[dict]:
     """Read both source trees into the pure core's source shape.
 
-    intentions-other/  -> every file NOT prefixed ``_`` (the ``_charter+why.json`` that
+    intentions-not-beside-code/  -> every file NOT prefixed ``_`` (the ``_charter+why.json`` that
                           governs the store is not itself an intention).
     cairn/*/            -> every ``intention+why.json`` beside a component's code.
     """
     sources: list[dict] = []
 
-    other = os.path.join(commons_root, "intentions-other")
+    other = os.path.join(commons_root, "intentions-not-beside-code")
     if os.path.isdir(other):
         for name in sorted(os.listdir(other)):
             if name.startswith("_") or name.startswith("."):
@@ -165,7 +165,7 @@ def gather_sources(commons_root: str, code_root: str) -> list[dict]:
             sources.append({
                 "id": stem,
                 "kind": "homeless",
-                "source": f"intentions-other/{name}",
+                "source": f"intentions-not-beside-code/{name}",
                 "born": _born(path),
                 "content": _read_content(path),
             })
@@ -216,7 +216,7 @@ def _default_roots() -> tuple[str, str]:
 
 def model_path(commons_root: str) -> str:
     """The single compiled artifact — beside the store's own charter, never overwriting it."""
-    return os.path.join(commons_root, "intentions", "_model.json")
+    return os.path.join(commons_root, "intentions-congruency-lab", "_model.json")
 
 
 def compile_to_disk(
@@ -226,8 +226,8 @@ def compile_to_disk(
 ) -> dict:
     """THE ONE WRITE-DOOR: gather both source trees, project, write the model. Returns it.
 
-    This is the sole writer of ``intentions/_model.json``. It touches nothing else in
-    ``intentions/`` — the store's ``_charter+why.json`` is a hand-authored source, left
+    This is the sole writer of ``intentions-congruency-lab/_model.json``. It touches nothing else in
+    ``intentions-congruency-lab/`` — the store's ``_charter+why.json`` is a hand-authored source, left
     alone. Any prior model on disk (including a hand-edit) is overwritten by the fresh
     projection: the view is never authoritative (Law 7).
     """
@@ -243,5 +243,5 @@ def compile_to_disk(
 
 if __name__ == "__main__":       # a bare hand-crank: `python3 -m ...compiler` compiles once
     m = compile_to_disk()
-    print(f"compiled {m['count']} intentions -> intentions/_model.json "
+    print(f"compiled {m['count']} intentions -> intentions-congruency-lab/_model.json "
           f"(roots first: {[i['id'] for i in m['intentions'][:2]]})")

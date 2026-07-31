@@ -163,7 +163,7 @@ def test_the_real_intention_is_a_real_file_the_gate_can_address():
     Asserts the INVARIANT (it exists, the address derives beside it), never its seal state —
     that legitimately moves the moment it is signed."""
     art = Path(__file__).resolve().parents[3].parent / "CairnCommons" / \
-        "intentions-other" / "I-complete-diagnostic-on-first-pass.md"
+        "intentions-not-beside-code" / "I-complete-diagnostic-on-first-pass.md"
     assert art.exists(), f"the concept-piece must be a real artifact, not a plan: {art}"
     seal_path = Path(validations_path_for_artifact(str(art)))
     assert seal_path.parent.parent == art.parent and seal_path.name.endswith(".json")

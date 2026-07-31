@@ -1,4 +1,4 @@
-"""Proof for intentions_model_compiler — the ``intentions/`` MODEL is COMPILED from its
+"""Proof for intentions_model_compiler — the ``intentions-congruency-lab/`` MODEL is COMPILED from its
 sources and cannot drift.
 
 Teeth a hollow compiler could not pass:
@@ -19,7 +19,7 @@ Teeth a hollow compiler could not pass:
     NEVER touched. A hollow build that trusted on-disk model, or clobbered the charter,
     trips this.
   - READS BOTH SOURCE TREES (the seed claim). ``gather_sources`` on the real repo picks up
-    intentions-other/ AND the beside-code charters, and excludes the ``_``-prefixed store
+    intentions-not-beside-code/ AND the beside-code charters, and excludes the ``_``-prefixed store
     charter. A hollow build that compiled only one tree regrows a repo that does not run.
 
 Self-contained (synthetic sources in a temp dir) except the last tooth, which reads the
@@ -44,7 +44,7 @@ from cairn.intentions_model_compiler import compiler
 
 
 def _src(id, born, content, kind="homeless"):
-    return {"id": id, "kind": kind, "source": f"intentions-other/{id}.md",
+    return {"id": id, "kind": kind, "source": f"intentions-not-beside-code/{id}.md",
             "born": born, "content": content}
 
 
@@ -103,18 +103,18 @@ def test_one_write_door_reverts_a_hand_edit_and_spares_the_charter():
         commons = os.path.join(d, "CairnCommons")
         code = os.path.join(d, "cairn")
         # a minimal source tree
-        os.makedirs(os.path.join(commons, "intentions-other"))
-        os.makedirs(os.path.join(commons, "intentions"))
+        os.makedirs(os.path.join(commons, "intentions-not-beside-code"))
+        os.makedirs(os.path.join(commons, "intentions-congruency-lab"))
         os.makedirs(os.path.join(code, "base"))
-        with open(os.path.join(commons, "intentions-other", "telos.md"), "w") as f:
+        with open(os.path.join(commons, "intentions-not-beside-code", "telos.md"), "w") as f:
             f.write("the frame")
         with open(os.path.join(code, "base", "intention+why.json"), "w") as f:
             json.dump({"what": "substrate"}, f)
         # a hand-authored store charter that must be left ALONE, and a junk model to be reverted
-        charter_path = os.path.join(commons, "intentions", "_charter+why.json")
+        charter_path = os.path.join(commons, "intentions-congruency-lab", "_charter+why.json")
         with open(charter_path, "w") as f:
             f.write("HAND-AUTHORED — do not touch")
-        out = os.path.join(commons, "intentions", "_model.json")
+        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
         with open(out, "w") as f:
             f.write("HAND-EDITED GARBAGE")
 
@@ -153,7 +153,7 @@ def _main() -> int:
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — intentions_model_compiler: the intentions/ model is a deterministic, lossless "
+    print("green — intentions_model_compiler: the intentions-congruency-lab/ model is a deterministic, lossless "
           "projection of BOTH source trees; roots surface first by born timestamp (Law 4); one "
           "write-door reverts a hand-edit and spares the store charter (Law 6/7)")
     return 0

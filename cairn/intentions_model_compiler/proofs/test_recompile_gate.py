@@ -35,10 +35,10 @@ def _tree(d: str) -> tuple[str, str]:
     """A minimal two-tree source layout the gate can compile."""
     commons = os.path.join(d, "CairnCommons")
     code = os.path.join(d, "cairn")
-    os.makedirs(os.path.join(commons, "intentions-other"))
-    os.makedirs(os.path.join(commons, "intentions"))
+    os.makedirs(os.path.join(commons, "intentions-not-beside-code"))
+    os.makedirs(os.path.join(commons, "intentions-congruency-lab"))
     os.makedirs(os.path.join(code, "base"))
-    with open(os.path.join(commons, "intentions-other", "telos.md"), "w") as f:
+    with open(os.path.join(commons, "intentions-not-beside-code", "telos.md"), "w") as f:
         f.write("the frame")
     with open(os.path.join(code, "base", "intention+why.json"), "w") as f:
         json.dump({"what": "substrate"}, f)
@@ -54,7 +54,7 @@ def _run(commons: str, code: str, out: str, logdir: str) -> subprocess.Completed
 def test_the_gate_pokes_the_door():
     with tempfile.TemporaryDirectory() as d:
         commons, code = _tree(d)
-        out = os.path.join(commons, "intentions", "_model.json")
+        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
         r = _run(commons, code, out, os.path.join(d, "logs"))
         assert r.returncode == 0, f"the gate must exit 0, got {r.returncode}: {r.stderr!r}"
         with open(out, encoding="utf-8") as f:
@@ -66,7 +66,7 @@ def test_the_gate_pokes_the_door():
 def test_the_gate_reverts_a_stale_model():
     with tempfile.TemporaryDirectory() as d:
         commons, code = _tree(d)
-        out = os.path.join(commons, "intentions", "_model.json")
+        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
         with open(out, "w") as f:
             f.write("HAND-EDITED GARBAGE")
         _run(commons, code, out, os.path.join(d, "logs"))

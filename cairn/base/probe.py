@@ -1,7 +1,7 @@
 """Probe — the immutable "call X when this trigger is true", made a primitive.
 
 ONE OF TWO SPECIES (converged with Akien 2026-07-18;
-``CairnCommons/intentions-other/I-heartbeat-probes-and-bus.md``):
+``CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md``):
 
   - **Probe** (here) — *immutable, no workflow.* "Call X when this trigger is true."
     It carries no state of its own. Every recurring wake-up — an interval, a wall-clock

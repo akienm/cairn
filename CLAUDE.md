@@ -4,12 +4,12 @@ Compiled navigation: stones stacked so the next mind doesn't re-derive the route
 You are standing in **class-space** (`~/dev/src/cairn/`) — code and the record of
 how it got here; no *runtime* state, ever (that lives in instance-space).
 This is the first file every Cairn mind reads; it stays true and small by
-construction. Its charter: `CairnCommons/intentions-other/I-cairn-claude-md.md`.
+construction. Its charter: `CairnCommons/intentions-not-beside-code/I-cairn-claude-md.md`.
 
 **Orientation**
 
 - `MAP.md` — the working map (transitional; dissolves into intentions + tickets).
-- `CairnCommons/intentions-other/telos.md` — the charter everything traces up to.
+- `CairnCommons/intentions-not-beside-code/telos.md` — the charter everything traces up to.
 - To be briefed on a device, **stand in its directory**: every component
   co-locates its **charter** (`intention+why.json` — the *summarized design*:
   authored, the settled why+role, changes only when the design shifts) + code +
@@ -27,7 +27,7 @@ what can't trace up doesn't belong.
 1. **The resolver is spent on the novel, not on re-deriving the settled.** Every
    answered question becomes structure; re-deriving a settled answer is a defect.
 2. **CP1–CP6 hold everywhere, including in the process that builds the system.**
-   (The six: `CairnCommons/intentions-other/core-values.md`.)
+   (The six: `CairnCommons/intentions-not-beside-code/core-values.md`.)
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the
@@ -59,7 +59,7 @@ is instance `0`, not a special case.
 **code-seam** does, so it berths in `cairn/` beside it — its ticket stages in
 `CairnCommons/tickets/`, then migrates beside the code to become that
 component's `history`. Everything else berths in
-`CairnCommons/intentions-other/` and never migrates: a **concept-piece** (the
+`CairnCommons/intentions-not-beside-code/` and never migrates: a **concept-piece** (the
 prose *is* the implementation), a **host-seam** (the machine itself — a hook, a
 package, a unit file), the **roots** (`telos.md`, `core-values.md` — implemented
 by the whole system), and **spanning** intentions (plenty of code, but in many
@@ -67,7 +67,7 @@ places at once, so no one directory can hold them). Homeless means *no* address
 or *many*. Everything we intend to share is a git file; the database holds only
 the graph trees.
 
-`intentions/` is **compiled** from `intentions-other/` plus the charters homed
+`intentions-congruency-lab/` is **compiled** from `intentions-not-beside-code/` plus the charters homed
 beside the code — which is what lets that one folder be carried to a bare
 machine and regrow the system. A host-seam therefore carries a replayable
 `apply` recipe and a re-runnable `verify`: its implementation lives where git

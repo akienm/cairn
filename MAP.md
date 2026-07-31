@@ -651,7 +651,8 @@ Riding on every node as fields (not separate artifacts):
   `CairnCommons/questions/tool-shaped-or-domain-shaped.json`.
 - **slate** — the day's cache over recent sessions (derived, rebuildable).
   **Unaffected; its boundary moved.** Not compact — *process start*. A new
-  conversation still carries nothing, and `/loadslate` is still what carries it.
+  conversation still carries nothing, and `cairn slate` — fired by the
+  SessionStart hook, no longer typed — is what carries it.
 
 Wildcard: `notes/` (frictionless capture) — keep or fold later.
 
@@ -751,7 +752,8 @@ founded now.
 Five feedback loops, each catching a distinct failure: challenge-at-sort (bad
 intentions, pre-cost); proof-on-close (hollow builds); bottom-up parent proof
 (parts green, whole hollow); question-yield tracking (the corpus improves —
-Telos 5, measured); loadslate/saveslate (session continuity).
+Telos 5, measured); `cairn slate`/`/saveslate` (session continuity — the open
+half compiled out of the skill roster into a hook, 2026-07-31).
 
 **Starting skill roster — converged (2026-07-15).** The ten-skill sketch, run
 against the gates + per-node-class model, distilled to a smaller set on three axes.
@@ -768,8 +770,16 @@ sync, nothing to drift: the same no-copy reflex as cairnmap and co-located chart
 | | `/sorted` | resolution pivot: assert "all points wrapped" → fire the inward completeness check → spawn children (deconstruct) and/or reach an escalation → resolve. Casting lives here; filing is a *consequence*, not the meaning |
 | **Utilities** | `/note` | frictionless capture |
 | | `/commit` | interim checkpoint (durability-of-stones is a *gate*, not this skill) |
-| | `/loadslate` | session open |
-| | `/saveslate` | session close |
+| | `/saveslate` | session close (the open half is no longer a skill — see below) |
+
+**`/loadslate` retired 2026-07-31 — the first skill to leave this roster.** It was
+deleted, not shelved (Akien's ruling: "git is the record"). What it did is now
+`bin/cmd/slate`, fired by a checked-in SessionStart hook, so session open is no
+longer something anyone has to remember. The half that did NOT compile is the
+drift-check between the slate and this map — the slates charter requires drift be
+"named, not silently reconciled", and judgment cannot be a program. That check now
+has no skill and no owner but the reader; the program's footer says so out loud
+every session.
 
 **One pose, three placements** — why `/challenge`, `/sorted`'s check, and the
 advisor don't collide: `/challenge` is adversarial on the design *before* the claim;

@@ -6,8 +6,18 @@ description: Session close — write a slate to CairnCommons/slates/ capturing t
 # /saveslate — session close
 
 Precipitate the session's continuity into a durable artifact. Write a slate to
-`CairnCommons/slates/` capturing where things stand, so the next session (`/loadslate`)
-resumes without re-deriving.
+`CairnCommons/slates/` capturing where things stand, so the next session resumes
+without re-deriving.
+
+**You are now writing for a program, not for a skill.** Since 2026-07-31 the read
+half is `bin/cmd/slate`, fired by a SessionStart hook — the newest slate's
+`at_sea`, `next_direction` and `open_threads` are injected into the next session
+whether anyone asks for them or not. Two consequences worth holding while you
+write: the slate is read EVERY session, so its length is a standing context cost
+(~2,700 est. tokens at present); and the reader is no longer free to skip it, so a
+field padded with narration is padding that everyone pays for, forever. Extra keys
+beyond those three are NOT read — put it in one of the three or accept that nothing
+will see it.
 
 The charter lives beside this file in `intention+why.json`.
 

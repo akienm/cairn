@@ -96,21 +96,22 @@ shrinks monotonically.
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
-- A concern raised about work in flight is **not dispositioned in the message that
-  raises it** — raising it ends the turn. Whether it blocks is the owner's call
-  (Law 6); "one thing to point out… anyway, here's the plan" takes that call
-  ambiently, which is how a manager silently becomes a debugger. A *label* is not
-  a halt: "unproven", "hypothesis", "my own damage" followed by a proposal is the
-  same defect wearing Law 3's clothes.
+- Something goes wrong → it goes to exactly one of **two** places: **fixed now**, if
+  its functionality is needed now; otherwise **a ticket**, and it blocks before the
+  current thing is done. Not because an owner ruled it a blocker — because we build
+  on a solid foundation, always. The defect is the third path, where a concern is
+  raised and lands in neither: "one thing to point out… anyway, here's the plan".
+  A *label* is not a disposition — "unproven", "hypothesis", "my own damage"
+  followed by a proposal is the same defect wearing Law 3's clothes.
   → Stop-hook scan BUILT 2026-07-31 (`bin/cmd/turnscan`, wired in
   `.claude/settings.json`, proof 23/23). Measured before it was built, as the IOU
   asked: 466 real turns, 6 reds, 1.3%. The scan fires unconditionally — that half
-  is physics. It deliberately does **not** block: whether a concern blocks is the
-  owner's call, so a halting detector would take that call ambiently and commit
-  the defect it measures. Residue: the code floor cannot tell a concern about work
-  in flight from the word "caveat" in a retrospective; the host's prompt-type hook
-  (an LLM adjudicates) is the ceiling when that residue is shown to matter.
-  · *ticket pending — sibling of the `troubles/` drain below*
+  is physics. It does **not** block: it detects a missing disposition, and cannot
+  tell which of the two is owed (that turns on whether the functionality is needed
+  now), so it names the gap rather than choosing. Residue: the code floor cannot
+  tell a concern about work in flight from the word "caveat" in a retrospective;
+  the host's prompt-type hook (an LLM adjudicates) is the ceiling when that residue
+  is shown to matter. · *ticket pending — sibling of the `troubles/` drain below*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

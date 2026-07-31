@@ -5,11 +5,12 @@ TEETH A HOLLOW BUILD COULD NOT PASS (Law 8):
 
   1. IT MUST NOT BLOCK, AND THAT IS THE LOAD-BEARING ONE. A Stop hook may return
      ``{"decision": "block"}``. The obvious build does, because "enforcement"
-     sounds like stopping. But the rule being measured says whether a concern
-     blocks is THE OWNER'S CALL — so a detector that halted the turn would take
-     Akien's call ambiently, committing the exact defect it exists to catch, one
-     level up. Case 4 fails any build that emits a decision key. This is the
-     tooth most likely to be "fixed" by someone who thinks it is a bug.
+     sounds like stopping. But a concern owes one of TWO dispositions — fixed now
+     if its functionality is needed now, else a ticket — and which one is owed
+     turns on a fact that is not in the text. A halting detector would silently
+     pick "fix now" every time, including for the many that are tickets. Case 4
+     fails any build that emits a decision key. This is the tooth most likely to
+     be "fixed" by someone who thinks it is a bug.
   2. USE vs MENTION. Measured, not imagined: the first red the crude detector
      produced was a message QUOTING the rule to explain it. A build without a
      quote-stripper reds every discussion of the rule — which taxes exactly the
@@ -125,12 +126,13 @@ def main() -> int:
           scan("Here's the plan — I'll write the shape gate, then wire it.")[0] is None)
 
     # ── 4. IT MUST NOT BLOCK ──────────────────────────────────────────────────
-    print("\n4. the scan raises; it never decides (Law 6 — the owner's call)")
+    print("\n4. the scan names the missing disposition; it never picks one")
     check("no decision key on a red", out is not None and "decision" not in out,
           f"a blocking build lands here: {out}")
     check("no continue:false on a red", (out or {}).get("continue") is not False)
-    check("the receipt says the call is the owner's",
-          "your call" in (out or {}).get("systemMessage", "").lower(),
+    rmsg = (out or {}).get("systemMessage", "").lower()
+    check("the receipt names BOTH dispositions, choosing neither",
+          "fixed now" in rmsg and "ticket" in rmsg,
           f"got {(out or {}).get('systemMessage')!r}")
 
     # ── 5. THE RECEIPT CARRIES ITS EVIDENCE ───────────────────────────────────

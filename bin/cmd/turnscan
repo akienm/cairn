@@ -13,19 +13,25 @@ and a forward proposal in the same message is a red (falsifiable by transcript
 grep, so the rule can be measured BEFORE it is built)". So it was — see --corpus
 and the numbers in the proof. 466 turns of real transcript, 7 reds, 1.5%.
 
-WHY IT DOES NOT BLOCK, which is the whole design. A Stop hook may return
-``{"decision": "block"}`` and force the turn to be rewritten. This one never
-does, and refusing that power is not timidity — it is the rule applied to
-itself. The rule says whether a concern blocks is THE OWNER'S CALL. A detector
-that halted the turn would be deciding that this concern blocks, ambiently, on
-Akien's behalf — committing the exact defect it exists to catch, at one remove.
-So turnscan raises and stops. Akien rules. (Law 6: no enforcer, only a gate.)
+WHAT THE DEFECT ACTUALLY IS (Akien, 2026-07-31, correcting an earlier reading of
+this file that made it a question of authority): something goes wrong, and it
+goes to exactly ONE OF TWO places — fixed now, if its functionality is needed
+now; otherwise a ticket, and it blocks before the current thing is done. It is
+not a blocker because an owner said so. It is a blocker because we build on a
+solid foundation, always. The defect is the THIRD path — raised, and landing in
+neither — which is what "one thing to point out… anyway, here's the plan" does.
 
-WHAT IT IS NOT. It is not a judge of whether the concern was right, or whether
-dispositioning it was wrong. It reports one measurable SHAPE: a concern marker,
-and later in the same message, a forward proposal. That shape is evidence, and
-Law 3 says evidence is not a verdict. The receipt says "your call" because that
-is literally true.
+WHY IT DOES NOT BLOCK. Not deference: ignorance, of the honest kind. The two
+dispositions are told apart by whether the functionality is needed NOW, and that
+is not in the text of the message. So the scan can see that a disposition is
+MISSING while being unable to see which one is owed — and a detector that halted
+on that would be picking "fix now" by default, every time, for a concern that may
+well be a ticket. It names the gap. It does not choose.
+
+WHAT IT IS NOT. It is not a judge of whether the concern was right. It reports
+one measurable SHAPE: a concern marker, and later in the same message, a forward
+proposal, with no disposition between them. Law 3: that is evidence, not a
+verdict.
 
 QUOTED MATERIAL IS NOT AN UTTERANCE. Measured, and it is the reason this file
 has a stripper: the very first red the crude detector produced was a message
@@ -141,9 +147,9 @@ def scan(message: str) -> dict | None:
 
 def receipt(red: dict) -> str:
     return (f"⚖ turn-shape: \"{red['concern']['text']}\" … then "
-            f"\"{red['forward']['text']}\" ({red['gap']} chars later) — "
-            f"a concern raised ends the turn (CLAUDE.md). Evidence, not a verdict: "
-            f"whether it blocks is your call.")
+            f"\"{red['forward']['text']}\" ({red['gap']} chars later) — raised, "
+            f"dispositioned nowhere. It owes one of two: FIXED NOW if its "
+            f"functionality is needed now, else a TICKET (CLAUDE.md).")
 
 
 # ── corpus mode: the falsifier, kept re-runnable ──────────────────────────────

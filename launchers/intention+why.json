@@ -2,15 +2,16 @@
   "component": "launchers",
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
-
   "what": "Cairn's launch/rescue scripts — canonical here, symlinked onto PATH. Two: superclaude (the Claude Code launcher) and bootstrap.sh (the host-seam it stands on, which brings the python floor up before handing off).",
   "why": "A single, self-describing entry point to start Claude Code with Cairn's standing session contract, so a launch is reproducible and its settings live in code, not in someone's shell history. The rescue ethos (carried from the quarry, re-derived not grafted): from parse to exec, nothing may abort — always reach Claude Code so it can help rebuild a broken box. Since 2026-07-30 the entry point also GETS ITSELF STARTED: it brings up as much of the floor as it can and hands Claude a report of the rest, so a session opens knowing rather than discovering.",
   "invoke": "superclaude [--1m | --200k] [--dry-run] [--no-preflight] [...forwarded to claude]",
   "state": "v0 — first cast 2026-07-15; preflight added 2026-07-30 (ticket superclaude-starts-itself). Still lean by design: none of the quarry launcher's rack-server / tmux / wizard / credential machinery — added only if a measured need appears. The preflight itself was scoped by Akien to the import root and the verb; verifying the other host-seams (postgres, sudo_relay, bwrap) is a later rung the shape already accommodates.",
-
   "superclaude": {
     "session_name": "<hostname>_cc_0 (singleton = instance 0)",
-    "always_on": ["--remote-control (same name)", "--dangerously-skip-permissions (trusted local box)"],
+    "always_on": [
+      "--remote-control (same name)",
+      "--dangerously-skip-permissions (trusted local box)"
+    ],
     "context_switch": {
       "shape": "a two-state switch (1M / 200K) where the COMMAND LINE ALWAYS WINS.",
       "why": "Big-design stretches want 1M; heavy-buildout stretches default to 200K — the real why beyond convenience: Claude cannot self-trigger /compact, so at 1M context balloons past Akien's notification threshold before he is alerted; defaulting to 200K makes stewardship a system property (physics, Law 4), not a thing to remember (discipline). Flipping the built-in default is a one-line edit (FILE_DEFAULT_200K); flags always override it.",
@@ -24,7 +25,6 @@
     "env_var_provenance": "CLAUDE_CODE_DISABLE_1M_CONTEXT — from the quarry's own superclaude (UnseenUniversity/bin/superclaude), run for months; corroborated against `claude --help` + Claude Code docs (the 1M control is an env var, not a flag).",
     "meta_lesson": "The quarry launcher carried this exact two-state logic but NOT its intent/why — so it was misread on first contact (the toggle was reverse-engineered backwards). This file now writes the why IN, a live case of the 2026-07-15 naming stone: the intent+why belong at the address, and their absence cost real work."
   },
-
   "bootstrap": {
     "what": "A HOST-SEAM (CLAUDE.md taxonomy): its implementation lives where git cannot see it — a venv of machine-specific compiled bytes — so it carries a replayable `apply` and a re-runnable `verify`, and its seal EXPIRES as the host drifts with nothing in this repo changing.",
     "artifact": "~/.cairn/venv (or $CAIRN_VENV) — instance-space, never the repo. A venv is runtime state, and class-space holds none of that. The tell is general: a thing that would need gitignoring is a thing in the wrong root.",
@@ -34,11 +34,30 @@
     "clean_venv": "--system-site-packages was considered and REFUSED. It would satisfy psycopg2 from the host with no download — tempting for an offline rescue — but it makes the floor's contents a function of what the box happens to have, which is the exact hypothesis that caused the defect, and mixing psycopg2 with psycopg2-binary in one import namespace is a known shadowing footgun.",
     "cost": "warm verify ~90ms (a real import, not a stamp — Law 3: a matching stamp over a broken venv is a lie); the stamp gates only the expensive rebuild. Cold apply ~6s, once."
   },
-
   "path_wiring": "~/.local/bin/superclaude -> this file (that dir holds the claude-family PATH links); repo-root cairn/superclaude -> launchers/superclaude (a finder pointer, matching past practice). ~/.local/bin/cairn -> bin/cairn, which is how `cairn test` is reachable from anywhere.",
   "how_it_learns": "By measured launch outcomes, not preference: a default (200K vs 1M) is a gate that moves only when a launch is MEASURED to need it (the 200K default came from a measured stewardship need, recorded in proofs/). It does not learn per-session; changes are deliberate charter edits backed by a proof (Law 3). The preflight learns the same way and has already done so once: its venv-create finding asserted 'usually the missing ensurepip package' over an error that was ENOENT on the parent directory, and a finding that names a cause it did not measure is worse than one that stays quiet (Law 7) — the hint now names candidates behind the measured output, with a regression case pinning it.",
-  "traces_to": ["Telos 2 (tools Akien uses)", "Law 5 (this component carries its own why)", "the rescue ethos — always reach the tool that can help rebuild"],
+  "traces_to": [
+    "Telos 2 (tools Akien uses)",
+    "Law 5 (this component carries its own why)",
+    "the rescue ethos — always reach the tool that can help rebuild"
+  ],
   "owner": "Akien owns the launch contract (what's always-on is his call); CC drafts.",
-  "proof": "proofs/test_bootstrap.py (14 cases, `cairn test launchers/proofs/test_bootstrap.py`) — the floor is measured by importing from a cwd that is NOT the repo root, a broken preflight is measured still reaching `exec claude` with its report attached, and a working one is measured adding nothing to the launch line. Non-vacuity was checked, not assumed: pointed at an unrepairable venv path the proof exits 1 with exactly the four in-situ cases failing. Also hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified.",
-  "provenance": "born 2026-07-15 by Akien's spec; reimplemented fresh (not grafted) from the quarry launcher's proven interface."
+  "proof": "proofs/test_bootstrap.py (14 cases, `cairn test launchers/proofs/test_bootstrap.py`) — the floor is measured by importing from a cwd that is NOT the repo root, a broken preflight is measured still reaching `exec claude` with its report attached, and a working one is measured adding nothing to the launch line. Non-vacuity was checked, not assumed: pointed at an unrepairable venv path the proof exits 1 with exactly the four in-situ cases failing. Also hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified. The probe's wiring is measured end-to-end in four states (warm / cold / unfixable / logger-absent); with bin/logger_for_bash removed entirely the launch is unchanged, which is the property that keeps the recorder from ever becoming load-bearing.",
+  "provenance": "born 2026-07-15 by Akien's spec; reimplemented fresh (not grafted) from the quarry launcher's proven interface.",
+  "the_probe": {
+    "what": "Every launch appends what it tried, what came back, and what it cost to ~/.cairn/logs/boot, via bin/logger_for_bash. superclaude exports the namespace (it is a child process, so the scoping is free) and bootstrap.sh logs each probe and each repair step at its decision point.",
+    "why_a_probe_and_not_a_proof": "The report answers 'what is broken NOW' and a proof answers what is deterministically true. Neither can answer the question this seam actually raises: does a floor that was REPORTED but could not be fixed ACTUALLY GET FIXED — or does the same finding ride in on --append-system-prompt launch after launch, a diagnostic everyone has learned to scroll past? That needs TIME and many launches, so it is a probe living where it watches (Law 3), not a check.",
+    "how_to_read_it": "`grep 'report: unfixed' ~/.cairn/logs/boot` — the same finding text recurring across launches with different pids IS the measurement: reported, and not fixed. `grep 'apply: begin'` twice for one cause is a repair that is not repairing. `grep 'preflight: bypassed'` is the sharpest line in the file: someone routed around the floor check, which means it got broken enough to be in the way.",
+    "why_the_recorder_is_sourced_outside_the_preflight_branch": "--no-preflight is the rescue hatch, and a launch that used it is the most interesting record this probe can capture. Recording only the launches that took the happy path would make the probe blind to precisely its own failure mode.",
+    "the_last_line_is_exec": "`exec:` is written immediately before the shell is replaced, rendered with %q so it can be pasted back and re-run. The prime directive says a launch always reaches Claude Code; a boot log whose final entry is not `exec:` is therefore a defect with a timestamp on it.",
+    "cost": "MEASURED 2026-07-30: warm launch 123ms -> 130ms (the recorder costs ~7ms and eight appends). Cold, floor built from nothing: 6.0s, every step of the repair in the record. Unfixable floor: 78ms, two findings recorded as unfixed, and the launch still reached exec.",
+    "logrun_is_not_used_on_the_bootstrap_functions": "logrun runs its argument in a PIPELINE, hence a subshell. Wrapping cairn_bootstrap_verify would have silently discarded CAIRN_BOOTSTRAP_FINDINGS and left the report empty — a logging tool erasing the thing being logged. Real subprocesses get logrun; state-mutating shell functions get lognote at their decision points."
+  },
+  "the_watch": {
+    "berth": "launchers/probes/reported_but_unfixed_floor.py — the WATCHME ticket superclaude-starts-itself carries. Destination (i), checked in beside the code it watches, NOT instance-space: the rule sorts on what is WATCHED (the launcher's design, which every install needs working), not on where the data lives. An instance-space berth would be an absolute path in a ticket's spec, so the WATCHME gate would red on every other box that cloned the commons.",
+    "question": "Does a floor this seam REPORTED but could not fix actually get fixed — or does the same finding ride in on --append-system-prompt launch after launch until 'the tool is invisible' has quietly become 'the tool is ignored'? The repair half is proved; the reporting half is a bet on a human-and-model loop no proof can reach.",
+    "measure": "A launch is a pid. Fires when >= 5 launches reported something AND some finding survived >= 3 separate launches. `preflight: bypassed` is the sharper signal and rides in the carried datum, not the predicate — one bypass is a legitimate rescue, which is what the hatch is for.",
+    "proof": "launchers/proofs/test_reported_but_unfixed_probe.py",
+    "what_its_first_live_fire_found": "THE TEST SUITE, NOT THE WORLD. The first pulse reported a floor unfixed through twelve launches; the finding was test_bootstrap.py's own fixture, written twelve times because the harness inherited the environment and bootstrap.sh writes to ${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}. The harness now owns its own namespace, and the containment tooth is STRUCTURAL — every child goes through _env() — because the first version grepped for one remembered fixture string and missed six records from the other fixture in the same file."
+  }
 }

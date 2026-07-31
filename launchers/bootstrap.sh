@@ -61,6 +61,34 @@ CAIRN_REPO_ROOT="$(cd "$CAIRN_LAUNCHERS_DIR/.." && pwd)"
 # contract below). Reset by verify, appended to by apply.
 CAIRN_BOOTSTRAP_FINDINGS=()
 
+# ── THE PROBE (WATCHME) ──────────────────────────────────────────────────────
+# The report answers "what is broken NOW". This answers the question that needed TIME:
+# does a floor this seam REPORTED but could not fix actually get fixed — or does the same
+# finding ride in on --append-system-prompt launch after launch, a diagnostic everyone has
+# learned to scroll past? That is unanswerable from any single run and from anything in
+# git, so it is not a proof; it is a probe that lives where it watches (Law 3).
+#
+# It writes to its own namespace, ~/.cairn/logs/boot, so a boot's trail is greppable apart
+# from ordinary shell traffic. Every launch appends what was tried, what came back, and
+# what it cost; the last 1000 lines are the evidence.
+if [[ -z "${CAIRN_LOGGER_SOURCED:-}" && -r "$CAIRN_REPO_ROOT/bin/logger_for_bash" ]]; then
+  # shellcheck source=/dev/null
+  source "$CAIRN_REPO_ROOT/bin/logger_for_bash" 2>/dev/null || true
+fi
+
+# Saves and restores CAIRN_LOGTARGET around every call rather than exporting it once.
+# This file is SOURCED — setting the namespace globally would hijack the logging of any
+# interactive shell that sourced it, and keep it hijacked. A child process gets its own
+# namespace for free by exporting; a sourced file has to put it back.
+_cairn_boot_log() {
+  declare -F lognote >/dev/null 2>&1 || return 0
+  local _save="${CAIRN_LOGTARGET:-}" _had="${CAIRN_LOGTARGET+set}"
+  CAIRN_LOGTARGET="${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}"
+  lognote "$@" 2>/dev/null
+  if [[ -n "$_had" ]]; then CAIRN_LOGTARGET="$_save"; else unset CAIRN_LOGTARGET; fi
+  return 0
+}
+
 cairn_venv_dir() {
   echo "${CAIRN_VENV:-$HOME/.cairn/venv}"
 }
@@ -97,13 +125,16 @@ cairn_bootstrap_verify() {
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
   vpy="$venv/bin/python3"
+  _cairn_boot_log "verify: begin — venv=$venv root=$CAIRN_REPO_ROOT"
 
   if ! command -v python3 >/dev/null 2>&1; then
     CAIRN_BOOTSTRAP_FINDINGS+=("NO PYTHON3 ON PATH — nothing below can be measured. PATH=$PATH")
+    _cairn_boot_log "verify: FAIL no-python3 — PATH=$PATH"
     return 1
   fi
 
   if [[ ! -x "$vpy" ]]; then
+    _cairn_boot_log "verify: FAIL venv-absent — $vpy is not executable"
     CAIRN_BOOTSTRAP_FINDINGS+=("VENV ABSENT at $venv (no $vpy). Nothing is installed; \`cairn\` imports only from the repo root, and only by cwd accident. Repair: cairn_bootstrap_apply, or \`python3 -m venv $venv && $venv/bin/pip install -e $CAIRN_REPO_ROOT\`.")
     return 1
   fi
@@ -112,6 +143,7 @@ cairn_bootstrap_verify() {
   # the repo? Running this from / is the whole point — importing from the repo root proves
   # nothing, because that is the accident we are trying to stop relying on.
   out="$(cd / && "$vpy" -c 'import cairn, sys; print(cairn.__file__)' 2>&1)"; rc=$?
+  _cairn_boot_log "verify: probe import-cairn-from-/ -> rc=$rc out=${out//$'\n'/ | }"
   if [[ $rc -ne 0 ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("IMPORT ROOT BROKEN — \`$vpy -c 'import cairn'\` run from / exited $rc. Output: ${out//$'\n'/ | }. The venv exists but the editable install is missing or points elsewhere. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
     return 1
@@ -119,10 +151,13 @@ cairn_bootstrap_verify() {
   # A venv that imports SOME OTHER checkout's cairn is a subtler wrong than none at all.
   case "$out" in
     "$CAIRN_REPO_ROOT"/*) : ;;
-    *) CAIRN_BOOTSTRAP_FINDINGS+=("IMPORT ROOT POINTS ELSEWHERE — \`import cairn\` resolves to $out but this launcher lives under $CAIRN_REPO_ROOT. The venv is installed against a different checkout. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT") ; return 1 ;;
+    *) CAIRN_BOOTSTRAP_FINDINGS+=("IMPORT ROOT POINTS ELSEWHERE — \`import cairn\` resolves to $out but this launcher lives under $CAIRN_REPO_ROOT. The venv is installed against a different checkout. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
+       _cairn_boot_log "verify: FAIL import-points-elsewhere — $out is not under $CAIRN_REPO_ROOT"
+       return 1 ;;
   esac
 
   out="$(cd / && "$vpy" -c 'import psycopg2; print(psycopg2.__version__)' 2>&1)"; rc=$?
+  _cairn_boot_log "verify: probe import-psycopg2 -> rc=$rc out=${out//$'\n'/ | }"
   if [[ $rc -ne 0 ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("psycopg2 MISSING from the venv — exited $rc. Output: ${out//$'\n'/ | }. cairn/db_domain/ imports it at module scope, so the db domain will fail far from this cause. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
     return 1
@@ -130,9 +165,11 @@ cairn_bootstrap_verify() {
 
   if [[ "$(cat "$(_cairn_stamp_file)" 2>/dev/null)" != "$(_cairn_stamp_want)" ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("FLOOR IS STALE — the venv works but its stamp does not match the current pyproject.toml / python / checkout path. Dependencies may have moved since it was built. Repair: cairn_bootstrap_apply")
+    _cairn_boot_log "verify: FAIL stamp-mismatch — a rebuild is owed"
     return 1
   fi
 
+  _cairn_boot_log "verify: OK floor is up"
   return 0
 }
 
@@ -142,6 +179,9 @@ cairn_bootstrap_apply() {
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
   vpy="$venv/bin/python3"
+  # The probe's sharpest signal: apply running AT ALL means the previous launch's floor did
+  # not survive. Two applies in a row for the same reason is a repair that is not repairing.
+  _cairn_boot_log "apply: begin — the floor was not up"
 
   if ! command -v python3 >/dev/null 2>&1; then
     CAIRN_BOOTSTRAP_FINDINGS+=("CANNOT REPAIR — no python3 on PATH to build a venv with. This is below Cairn's floor; it needs a host fix (apt install python3) before anything here can run.")
@@ -155,6 +195,7 @@ cairn_bootstrap_apply() {
     # its own parent rather than reporting a failure it could have prevented.
     mkdir -p "$(dirname "$venv")" 2>/dev/null
     out="$(python3 -m venv "$venv" 2>&1)"; rc=$?
+    _cairn_boot_log "apply: step create-venv \`python3 -m venv $venv\` -> rc=$rc out=${out//$'\n'/ | }"
     if [[ $rc -ne 0 ]]; then
       # The hint names CANDIDATES, never a cause. An earlier draft asserted "usually the
       # missing ensurepip package" and was measured saying exactly that over an ENOENT on
@@ -170,6 +211,7 @@ cairn_bootstrap_apply() {
   # install would freeze today's bytes and every later edit would be invisible to anything
   # importing cairn from outside the repo — a silent lie, the worst kind (Law 7).
   out="$("$vpy" -m pip install --quiet --editable "$CAIRN_REPO_ROOT" 2>&1)"; rc=$?
+  _cairn_boot_log "apply: step editable-install \`$vpy -m pip install -e $CAIRN_REPO_ROOT\` -> rc=$rc out=${out//$'\n'/ | }"
   if [[ $rc -ne 0 ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("EDITABLE INSTALL FAILED — \`$vpy -m pip install -e $CAIRN_REPO_ROOT\` exited $rc. Output: ${out//$'\n'/ | }. If this is a network failure the box is offline and the floor cannot be built from PyPI; the venv itself is fine and the repo-root cwd path still works.")
     return 1
@@ -180,7 +222,9 @@ cairn_bootstrap_apply() {
   _cairn_stamp_want > "$(_cairn_stamp_file)" 2>/dev/null
 
   cairn_bootstrap_verify
-  return $?
+  rc=$?
+  _cairn_boot_log "apply: end -> rc=$rc (0 = the floor is up after repair)"
+  return $rc
 }
 
 # ── the report — what reaches Claude ─────────────────────────────────────────
@@ -215,6 +259,15 @@ json.dump({
 }, open(sys.argv[1], "w"), indent=2)
 ' "$logdir/preflight.json" 2>/dev/null
   fi
+
+  # The probe's payload line. Findings here are the ones that SURVIVED apply — the set that
+  # reaches Claude and asks to be fixed. Grep `report:` in ~/.cairn/logs/boot and the same
+  # finding text recurring across launches is the measurement: reported, and not fixed.
+  _cairn_boot_log "report: findings=${#CAIRN_BOOTSTRAP_FINDINGS[@]} floor_up=$([[ ${#CAIRN_BOOTSTRAP_FINDINGS[@]} -eq 0 ]] && echo yes || echo no)"
+  local f
+  for f in ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"}; do
+    _cairn_boot_log "report: unfixed — $f"
+  done
 
   [[ ${#CAIRN_BOOTSTRAP_FINDINGS[@]} -eq 0 ]] && return 0
 

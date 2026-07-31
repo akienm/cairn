@@ -22,6 +22,7 @@ Deliberately dependency-light: subprocess + bash + json. Runs bare.
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 import subprocess
@@ -38,16 +39,49 @@ SUPERCLAUDE = REPO / "launchers" / "superclaude"
 # negative fixture and not a slow one.
 UNCREATABLE = "/proc/cairn-no-such-dir/venv"
 
+# The other synthetic input this file feeds the seam. Named once so the containment tooth
+# below reads it from here rather than carrying its own copy to go stale (Law 1).
+_SYNTHETIC_FINDING = "SYNTHETIC FINDING for the proof"
+
 _failures: list[str] = []
+
+# THE PROOF OWNS ITS OWN NAMESPACE, and this is not hygiene — it is the difference between a
+# probe measuring the world and a probe measuring its own test suite.
+#
+# MEASURED, 2026-07-30, on the FIRST live fire of launchers/probes/reported_but_unfixed_floor.py:
+# the probe read the real boot log and reported a finding that had ridden UNFIXED through
+# twelve separate launches. The finding was "SYNTHETIC FINDING for the proof" — this file's
+# own fixture, written twelve times by twelve runs of this suite. Nothing in the record marked
+# it as synthetic, because to the recorder it was not: bootstrap.sh writes to
+# ${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}, this harness inherited the environment, so every
+# proof run had been appending to the production flight recorder since the probe was wired.
+# The probe was moments from poking the owner about a floor that never existed.
+#
+# THE FIX IS THE DESIGN, NOT A GUARD. "A new process can set its own log target, and now the
+# namespace has changed until that process completes" is the recorder's own contract, so the
+# test harness taking a namespace of its own is the mechanism working, not an exception to it.
+# The alternative — teaching the probe to recognise synthetic text — would be a filter that
+# fails open on the next fixture nobody thought to name.
+_PROOF_BOOT_LOG = str(Path(tempfile.gettempdir()) / f"cairn-proof-boot-{os.getpid()}")
+_REAL_BOOT_LOG = Path(os.environ.get("CAIRN_BOOT_LOG") or Path.home() / ".cairn" / "logs" / "boot")
+_REAL_BOOT_LOG_SIZE_AT_START = _REAL_BOOT_LOG.stat().st_size if _REAL_BOOT_LOG.is_file() else 0
+
+
+def _env(extra: dict | None = None) -> dict:
+    """The environment every child of this proof runs in: inherited, plus a boot namespace
+    that belongs to this run and nothing else."""
+    e = dict(os.environ)
+    e["CAIRN_BOOT_LOG"] = _PROOF_BOOT_LOG
+    if extra:
+        e.update(extra)
+    return e
 
 
 def _sh(script: str, env: dict | None = None) -> subprocess.CompletedProcess:
     """Run bash with bootstrap.sh sourced. Returns the completed process."""
     full = f"source {BOOTSTRAP!s} || exit 99\n{script}"
-    e = dict(os.environ)
-    if env:
-        e.update(env)
-    return subprocess.run(["bash", "-c", full], capture_output=True, text=True, env=e, timeout=120)
+    return subprocess.run(["bash", "-c", full], capture_output=True, text=True,
+                          env=_env(env), timeout=120)
 
 
 def check(name: str, fn) -> None:
@@ -113,14 +147,14 @@ def test_the_report_is_silent_when_the_floor_is_up() -> None:
 
 
 def test_the_report_is_loud_when_it_is_not() -> None:
-    r = _sh('CAIRN_BOOTSTRAP_FINDINGS=("SYNTHETIC FINDING for the proof"); cairn_bootstrap_report; echo "RC=$?"')
+    r = _sh(f'CAIRN_BOOTSTRAP_FINDINGS=("{_SYNTHETIC_FINDING}"); cairn_bootstrap_report; echo "RC=$?"')
     assert "RC=1" in r.stdout, "the report returned success while carrying a finding"
     assert "SYNTHETIC FINDING" in r.stdout, "the finding did not reach the report body"
     assert "CAIRN PREFLIGHT" in r.stdout, "the report has no header naming where it came from"
 
 
 def test_the_report_leaves_a_durable_record() -> None:
-    r = _sh('CAIRN_BOOTSTRAP_FINDINGS=("SYNTHETIC FINDING for the proof"); cairn_bootstrap_report >/dev/null')
+    r = _sh(f'CAIRN_BOOTSTRAP_FINDINGS=("{_SYNTHETIC_FINDING}"); cairn_bootstrap_report >/dev/null')
     assert r.returncode in (0, 1), f"report crashed: {r.stderr!r}"
     rec = Path.home() / ".cairn" / "logs" / "preflight.json"
     assert rec.is_file(), f"no durable record at {rec}"
@@ -143,9 +177,8 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
     """The one thing the launcher may never do is fail to launch. A preflight that cannot
     repair must still hand off, carrying its report — 'always reach Claude Code so it can
     help rebuild a broken box' (launchers/intention+why.json)."""
-    e = dict(os.environ)
-    e["CAIRN_VENV"] = UNCREATABLE
-    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True, env=e, timeout=180)
+    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+                       env=_env({"CAIRN_VENV": UNCREATABLE}), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} with a broken preflight — {r.stderr!r}"
     assert "exec claude" in r.stdout, f"the launch was aborted by the preflight — {r.stdout!r}"
     # ...and it does not go silently: the residue rides into the session.
@@ -155,7 +188,8 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
 
 def test_a_working_preflight_adds_nothing_to_the_launch() -> None:
     """Invisible when it works — the launch line is byte-identical to the pre-preflight one."""
-    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True, timeout=180)
+    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+                       env=_env(), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} — {r.stderr!r}"
     assert "exec claude" in r.stdout, "no launch line"
     if "--append-system-prompt" in r.stdout:
@@ -255,6 +289,81 @@ def test_every_third_party_import_is_declared() -> None:
         "happens to have them, which is the defect this ticket was opened for: "
         + "; ".join(f"{m} (first seen {p})" for m, p in sorted(undeclared.items()))
     )
+
+
+# --- CONTAINMENT: the proof must not become the evidence --------------------
+# Defined LAST on purpose — the runner walks globals() in definition order, so by the time
+# this runs every case above has already shelled out and had its chance to leak.
+def test_this_proof_wrote_nothing_into_the_real_flight_recorder() -> None:
+    """THE TOOTH FOR THE 2026-07-30 CONTAMINATION, and it is a tooth rather than a comment
+    because the failure was completely silent: the record looked exactly like a real launch,
+    and the only thing that noticed was a probe about to poke the owner with a fabricated
+    finding twelve launches old.
+
+    TWO HALVES, and the second is what keeps the first from being vacuous:
+      (a) the real boot namespace holds none of this file's synthetic fixture text;
+      (b) this run's OWN namespace received records — so (a) is green because the writes went
+          somewhere else, not because nothing was written at all. Without (b) this passes
+          perfectly on a build where the recorder is missing entirely.
+
+    Checked by MARKER, not by file size: a concurrent real launch legitimately grows the file
+    and a concurrent trim legitimately shrinks it, and a proof that reds on either is the
+    pinned-moving-value defect, not a containment check.
+
+    AND CHECKED AT THE SOURCE, which is the half that generalises. Grepping for known fixture
+    text catches only the fixtures someone remembered to list — measured immediately, when the
+    first version of this tooth grepped for "SYNTHETIC FINDING", went green, and left six
+    ``report: unfixed — VENV ABSENT at /proc/...`` records sitting in the real recorder from
+    the OTHER fixture in this same file. So the structural half asserts the mechanism instead
+    of the symptom: every child this file spawns must go through ``_env()``, because that is
+    the one place the namespace is redirected. A new case that forgets it reds here at
+    authoring time rather than in a probe's poke six weeks later."""
+    ours = Path(_PROOF_BOOT_LOG)
+    assert ours.is_file() and ours.stat().st_size > 0, (
+        f"nothing was recorded to this proof's own namespace ({_PROOF_BOOT_LOG}) — the "
+        "containment check below would pass for the wrong reason, because the recorder is "
+        "not writing anywhere at all"
+    )
+
+    # (i) STRUCTURAL: no child escapes the redirect.
+    src = Path(__file__).read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    escapees = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "run"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "subprocess"):
+            continue
+        env_kw = next((k for k in node.keywords if k.arg == "env"), None)
+        ok = (env_kw is not None and isinstance(env_kw.value, ast.Call)
+              and isinstance(env_kw.value.func, ast.Name) and env_kw.value.func.id == "_env")
+        if not ok:
+            escapees.append(node.lineno)
+    assert not escapees, (
+        f"subprocess.run at line(s) {escapees} does not pass env=_env(...) — that child "
+        "inherits CAIRN_BOOT_LOG from the shell and writes its synthetic launch into the "
+        "real flight recorder, which is the contamination this tooth exists to stop"
+    )
+
+    # (ii) BY MARKER, SCOPED TO THE RECORDS THE PROBE ACTUALLY READS — the `report: unfixed`
+    # findings, not the whole file. Scoping is not a softening; an unscoped substring scan is
+    # a coin-toss red, and this one landed on its author within the hour: the decontamination
+    # note written to clear the first contamination QUOTES the fixture string while explaining
+    # it, so a whole-file grep redded on the very note recording the fix. The fixtures are read
+    # from the constants above so a rename cannot leave a stale copy here.
+    if _REAL_BOOT_LOG.is_file():
+        findings = [line.partition(": ")[2] for line in
+                    _REAL_BOOT_LOG.read_text(encoding="utf-8", errors="replace").splitlines()
+                    if ": report: unfixed" in line]
+        for marker in (_SYNTHETIC_FINDING, UNCREATABLE):
+            hit = next((f for f in findings if marker in f), None)
+            assert hit is None, (
+                f"{marker!r} is a reported finding in the REAL flight recorder "
+                f"({_REAL_BOOT_LOG}): {hit!r} — this harness is contaminating the record that "
+                "launchers/probes/reported_but_unfixed_floor.py reads, so the probe is "
+                "measuring the suite"
+            )
 
 
 def _main() -> int:

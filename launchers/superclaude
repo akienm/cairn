@@ -132,6 +132,27 @@ session="${host}_cc_0"
 # THE PRIME DIRECTIVE STILL RULES. Nothing here may abort the launch: the bootstrap sets
 # no -e, every call is guarded, and each branch falls through to exec. A broken preflight
 # must still deliver Claude Code to a broken box — that is the tier's entire purpose.
+#
+# IT ALSO KEEPS THE FLIGHT RECORDER (the WATCHME probe). Booting is exactly the situation
+# where nothing else is up yet to observe you, so the launcher observes itself: what it
+# tried, what came back, what it could not fix, into ~/.cairn/logs/boot. superclaude is a
+# CHILD PROCESS, so exporting the namespace here scopes it to this launch and leaves the
+# calling shell's own log untouched — the "a new process renames the namespace until it
+# completes" property, which costs nothing because it is just how export works.
+export CAIRN_LOGTARGET="${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}"
+_sc_log() { declare -F lognote >/dev/null 2>&1 && lognote "$@"; return 0; }
+
+# Sourced OUTSIDE the preflight branch on purpose. --no-preflight is the rescue hatch, and
+# a launch that used it is the single most interesting line this probe can capture: it means
+# the floor check got broken enough that someone routed around it. Recording only the
+# launches that took the happy path would make the probe blind to its own failure mode.
+_sc_logger="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../bin/logger_for_bash"
+if [[ -r "$_sc_logger" ]]; then
+  # shellcheck source=/dev/null
+  source "$_sc_logger" 2>/dev/null || true
+fi
+_sc_log "launch: argv=[$*] session=$session context=$context_state preflight=$([[ "$no_preflight" -eq 1 ]] && echo bypassed || echo on)"
+
 preflight_arg=()
 if [[ "$no_preflight" -eq 0 ]]; then
   bootstrap="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/bootstrap.sh"
@@ -142,6 +163,7 @@ if [[ "$no_preflight" -eq 0 ]]; then
       # verify first: the warm path is ~90ms and does no work. apply only on a real miss,
       # so the common launch pays a rounding error rather than a pip run (Law 1 — the
       # settled floor is not re-derived on every launch).
+      preflight_t0="${EPOCHREALTIME:-0}"
       cairn_bootstrap_verify >/dev/null 2>&1 || cairn_bootstrap_apply >/dev/null 2>&1 || true
       # The venv goes on PATH ahead of system python, so `python3` inside the session IS
       # the floor we just laid. Without this the session would still reach system python
@@ -150,11 +172,19 @@ if [[ "$no_preflight" -eq 0 ]]; then
       [[ -d "$venv_bin" ]] && export PATH="$venv_bin:$PATH"
       residue="$(cairn_bootstrap_report 2>/dev/null)" || true
       [[ -n "$residue" ]] && preflight_arg=(--append-system-prompt "$residue")
+      # The cost, every launch, in the record — so "the preflight got slow" is a thing
+      # someone can SEE rather than suspect. A tool that is invisible when it works has
+      # to prove it stayed cheap, or invisible eventually means unaccountable.
+      _sc_log "preflight: done in $(awk -v a="${EPOCHREALTIME:-0}" -v b="$preflight_t0" \
+        'BEGIN{printf "%.0f", (a-b)*1000}' 2>/dev/null)ms · residue=$([[ -n "$residue" ]] && echo yes || echo none)"
     fi
   else
     # Loud, never silent (CP1) — but still not fatal.
     echo "superclaude: preflight skipped — bootstrap.sh not readable at $bootstrap" >&2
+    _sc_log "preflight: SKIPPED — bootstrap.sh not readable at $bootstrap"
   fi
+else
+  _sc_log "preflight: skipped by --no-preflight"
 fi
 
 # ── assemble the launch ──────────────────────────────────────────────────────
@@ -165,6 +195,17 @@ set -- \
   --dangerously-skip-permissions \
   ${preflight_arg[@]+"${preflight_arg[@]}"} \
   ${pass[@]+"${pass[@]}"}
+
+# The last line before the shell is replaced. If a launch ever vanishes without reaching
+# Claude Code, this is the line that says how far it got — and the prime directive says it
+# always should, so a boot log whose last entry is not `exec:` is a defect with a timestamp.
+# Rendered with %q rather than interpolated: the argv can carry a whole multi-line
+# preflight report, and the point of this line is that it can be pasted back and re-run.
+if declare -F _logbash_render >/dev/null 2>&1; then
+  _sc_log "exec: $(_logbash_render "$claude_bin" "$@")"
+else
+  _sc_log "exec: $claude_bin $*"
+fi
 
 if [[ "$dry_run" -eq 1 ]]; then
   echo "# superclaude --dry-run"

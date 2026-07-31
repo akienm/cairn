@@ -96,6 +96,15 @@ shrinks monotonically.
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
+- A concern raised about work in flight is **not dispositioned in the message that
+  raises it** — raising it ends the turn. Whether it blocks is the owner's call
+  (Law 6); "one thing to point out… anyway, here's the plan" takes that call
+  ambiently, which is how a manager silently becomes a debugger. A *label* is not
+  a halt: "unproven", "hypothesis", "my own damage" followed by a proposal is the
+  same defect wearing Law 3's clothes.
+  → Stop-hook scan: a concern-marker and a forward proposal in the same message is
+  a red (falsifiable by transcript grep, so the rule can be measured before it is
+  built) · *ticket pending — sibling of the `troubles/` drain below*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

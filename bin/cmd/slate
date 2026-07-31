@@ -40,6 +40,27 @@ session-open announcement that can kill session open is a worse defect than the
 silence it replaces; loud-and-continue is Law 7's diagnostic half without taking
 the session down with it.
 
+--hook: THE OWNER CAN SEE IT RAN. Measured 2026-07-31: the hook fired correctly
+and Akien could not tell. SessionStart stdout reaches the model's context and
+nothing else, so a dead hook and a healthy one look IDENTICAL from the one seat
+that would care — the invisible-failure shape this whole program exists to kill,
+reintroduced one layer up. The host already answers it: any hook may return JSON
+with a ``systemMessage`` field, which the CLI prints to the user. So under
+--hook this emits one JSON object carrying BOTH halves — the banner to the model
+via ``additionalContext``, a one-line receipt to Akien via ``systemMessage``.
+
+THE RECEIPT NAMES WHAT IT DID, and that is the whole point of it. A marker that
+only ever says "complete" is a check that goes green for the wrong reason: it
+confirms a hook fired, not that a slate was read, and it would print just as
+cheerfully over a silently wrong answer. So the receipt carries the slate's own
+id and the live-trouble count — the two values that MOVE. Akien reads the wrong
+slate name and knows instantly; a hollow build that hardcodes a fixed string
+fails the proof (case 10).
+
+Plain text remains the default. Running this by hand is the fallback diagnostic
+for exactly the failure --hook is meant to surface, and JSON in a terminal at
+9am is not a diagnostic.
+
     python3 bin/proofs/test_slate.py     # exit 0 = green
 """
 
@@ -67,6 +88,9 @@ TROUBLES = os.environ.get("CAIRN_TROUBLES_DIR") or None       # None → the dev
 CARRIED = ("at_sea", "next_direction", "open_threads")
 
 WIDTH = 78
+
+# Opt IN to the hook's JSON shape. Default stays plain text: see the module docstring.
+HOOK_FLAG = "--hook"
 
 
 def _rule(ch: str = "─") -> str:
@@ -156,7 +180,20 @@ def _live_troubles() -> tuple[list[dict], str | None]:
         return [], f"trouble lane failed to read: {exc}"
 
 
-def main() -> int:
+def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None) -> str:
+    """The one line Akien sees. Carries the two values that MOVE — which slate was
+    chosen, and how many troubles are live — so a wrong answer is visible at a
+    glance. A fixed string here would be a receipt for having a hook, not for
+    having read the slate."""
+    which = "NO SLATE RESTORED" if slate is None else str(slate.get("id") or (path.stem if path else "?"))
+    lane = "trouble lane UNREACHABLE" if t_err else f"{len(troubles)} live trouble(s)"
+    return f"🪝 slate · {which} · {lane}"
+
+
+def build() -> tuple[str, str]:
+    """Return ``(banner, receipt)``. Split out from main so the two output shapes
+    (plain text by hand, JSON under the hook) render the SAME bytes — a second
+    renderer would be a second owner of what session-open says (Law 6)."""
     lines: list[str] = []
 
     troubles, t_err = _live_troubles()
@@ -187,8 +224,7 @@ def main() -> int:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
         lines.append(_rule("═"))
-        print("\n".join(lines))
-        return 0
+        return "\n".join(lines), _receipt(None, None, troubles, t_err)
 
     if s_warn:
         lines.append(f"!! {s_warn}")
@@ -216,13 +252,34 @@ def main() -> int:
         "that check is yours, it did not compile.", ""))
     lines.append(_rule("═"))
 
-    print("\n".join(lines))
+    return "\n".join(lines), _receipt(slate, path, troubles, t_err)
+
+
+def main(argv: list[str]) -> int:
+    banner, receipt = build()
+    if HOOK_FLAG in argv:
+        # One object, both audiences. additionalContext is what stdout used to be.
+        print(json.dumps({
+            "systemMessage": receipt,
+            "hookSpecificOutput": {
+                "hookEventName": "SessionStart",
+                "additionalContext": banner,
+            },
+        }, ensure_ascii=False))
+    else:
+        print(banner)
     return 0
 
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        sys.exit(main(sys.argv[1:]))
     except Exception as exc:                # never wedge session open (see module docstring)
+        # Under the hook, stderr goes nowhere Akien will look and an empty stdout is
+        # SILENT — the exact failure this program exists to end. Pay the receipt out
+        # of the crash path too, so a broken slate announces itself to its owner.
+        if HOOK_FLAG in sys.argv[1:]:
+            print(json.dumps({"systemMessage": f"🪝 slate FAILED: {type(exc).__name__}: {exc}"},
+                             ensure_ascii=False))
         print(f"!! cairn slate failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         sys.exit(0)

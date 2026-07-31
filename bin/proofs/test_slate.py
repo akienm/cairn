@@ -23,6 +23,17 @@ way this could be built that LOOKS right and is not:
      record with a missing standing as live. This program must not re-derive that
      rule or quietly drop the record — that would be a second owner of what LIVE
      means (Law 6).
+  6. THE RECEIPT IS FALSIFIABLE, NOT A MARKER. The cheap build prints a fixed
+     "complete" string, which would go green over a silently wrong answer — it
+     attests that a hook fired, not that a slate was read. Case 10 runs TWO
+     different fixtures and requires the receipts to DISAGREE, and requires the
+     one live value (the trouble count) to ride along. A hardcoded marker cannot
+     pass both halves.
+  7. THE HOOK SHAPE IS PINNED WITHOUT A RESTART. Whether the CLI honours the JSON
+     is the host's half and needs a real session open. OURS is checkable now:
+     stdout must PARSE, must nest the banner under hookSpecificOutput.additional-
+     Context, and must name hookEventName. Getting that nesting wrong loses the
+     slate silently while still printing a cheerful receipt — so it is pinned.
 
 INVARIANTS, NOT SNAPSHOTS. Every case runs against a temp tree this proof owns, so
 nothing here pins a value that legitimately moves. The one live-data assertion (case
@@ -59,11 +70,12 @@ def check(label: str, condition: bool, detail: str = "") -> None:
         FAILURES.append(label)
 
 
-def run(slates_dir: Path | str, troubles_dir: Path | str) -> subprocess.CompletedProcess:
+def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str) -> subprocess.CompletedProcess:
     env = dict(os.environ)
     env["CAIRN_SLATES_DIR"] = str(slates_dir)
     env["CAIRN_TROUBLES_DIR"] = str(troubles_dir)
-    return subprocess.run([sys.executable, str(SLATE)], capture_output=True, text=True, env=env)
+    return subprocess.run([sys.executable, str(SLATE), *args],
+                          capture_output=True, text=True, env=env)
 
 
 def write_slate(d: Path, name: str, **fields) -> Path:
@@ -198,6 +210,57 @@ def main() -> int:
         check("emits a trouble verdict (either shape)",
               ("LIVE TROUBLE" in r.stdout) or ("no live troubles" in r.stdout))
         check("carries the Law 3 footer", "POINTER TO VERIFY" in r.stdout)
+
+        # ── 10. --hook: the JSON shape, and a receipt that can be WRONG ───────────
+        print("\n10. --hook emits the host's JSON shape with a falsifiable receipt")
+        r = run(s1, t_live, "--hook")
+        check("exit 0 under --hook", r.returncode == 0, f"rc={r.returncode} err={r.stderr[:200]}")
+        try:
+            payload = json.loads(r.stdout)
+        except Exception as exc:
+            payload = None
+            check("stdout parses as JSON", False, f"{exc} — stdout={r.stdout[:200]}")
+        if payload is not None:
+            check("stdout parses as JSON", True)
+            hso = payload.get("hookSpecificOutput") or {}
+            check("names the hook event", hso.get("hookEventName") == "SessionStart",
+                  f"got {hso.get('hookEventName')!r}")
+            ctx = hso.get("additionalContext") or ""
+            check("the BANNER rides in additionalContext", "CAIRN — SESSION OPEN" in ctx,
+                  "wrong nesting loses the slate silently — stdout={}".format(r.stdout[:200]))
+            check("the slate rides in additionalContext, not the receipt", "REAL" in ctx)
+            check("troubles still precede the slate inside the context",
+                  -1 < ctx.find("LIVE TROUBLE") < ctx.find("SLATE  "))
+
+            receipt = payload.get("systemMessage") or ""
+            check("a receipt is present", bool(receipt), f"got {receipt!r}")
+            check("the receipt names the CHOSEN slate", "REAL" in receipt, f"got {receipt!r}")
+            # 3 records, one CLEARED → 2 live. The well-formed one carries count=3
+            # OCCURRENCES; a build that reported occurrences, or that counted the
+            # cleared record, lands here. These two numbers being different is the
+            # whole reason this tooth is worth having.
+            check("the receipt counts LIVE TROUBLES, not occurrences",
+                  "2 live trouble(s)" in receipt,
+                  f"got {receipt!r} — expected 2 live (3 records, 1 CLEARED); "
+                  f"'3' would be the occurrence count of one record")
+            check("the receipt is not the whole banner", "CAIRN — SESSION OPEN" not in receipt)
+
+            # THE ANTI-MARKER TOOTH: a different tree must produce a different receipt.
+            r2 = run(s5, t_empty, "--hook")           # s5 = the EMPTY slate store
+            receipt2 = (json.loads(r2.stdout) or {}).get("systemMessage") or ""
+            check("a different tree yields a DIFFERENT receipt", receipt2 != receipt,
+                  f"a hardcoded marker lands here: {receipt2!r}")
+            check("the empty store is named in the receipt", "NO SLATE RESTORED" in receipt2,
+                  f"got {receipt2!r}")
+            check("zero troubles reads as zero", "0 live trouble(s)" in receipt2,
+                  f"got {receipt2!r}")
+
+        # ── 11. plain text remains the DEFAULT (the fallback diagnostic) ──────────
+        print("\n11. without --hook the output is still plain text, not JSON")
+        r = run(s1, t_live)
+        check("bare run starts with the banner rule", r.stdout.lstrip().startswith("═"),
+              r.stdout[:120])
+        check("bare run is not JSON", not r.stdout.lstrip().startswith("{"))
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

@@ -232,16 +232,30 @@ def _live_nodes() -> list[tuple[str, dict]]:
 
 def test_every_needs_block_on_disk_conforms():
     """Scans, so it covers each node that adopts the shape without being edited. A hand-authored
-    need on a stage that does not exist, or a mark someone typed without a measurement, turns red."""
+    need on a stage that does not exist, or a mark someone typed without a measurement, turns red.
+
+    REPORTS EVERY NONCONFORMANCE, NOT THE FIRST — and that is a repair, not a flourish. This tooth
+    raised on ``a-node-holds-one-claim.json`` and stopped, so eleven more tickets in exactly the
+    same condition sat invisible behind alphabetical order and the finding read as one stale ticket
+    for a day. The real finding was structural: 33 chart-keyed PROSE entries had been written into
+    the field this door owns (they live in ``chart_notes`` now, gated at
+    ``cairn/chart/chain.py``). A diagnostic surface delivers ALL the data on its INITIAL pass;
+    re-running to gather the rest is the re-derivation Law 1 refuses
+    (I-complete-diagnostic-on-first-pass)."""
     checked = 0
+    bad = []
     for name, node in _live_nodes():
         if not node.get("stage_needs"):
             continue
         try:
             needs.validate_needs(node)
         except (NeedRefused, ValueError) as e:
-            raise AssertionError(f"{name}: live needs block does not conform — {e}") from None
+            bad.append(f"  {name}: {e}")
         checked += 1
+    if bad:
+        raise AssertionError(
+            f"{len(bad)} of {checked} live needs blocks do not conform:\n" + "\n".join(bad)
+        )
     assert checked, ("NO live node declares stage_needs — the shape exists but nothing uses it, "
                      "which is a hollow pass (Law 8): the falsifier demands a REAL case end to end")
 

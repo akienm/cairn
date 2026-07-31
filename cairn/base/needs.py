@@ -66,6 +66,20 @@ STATUSES = ("DONE", "MISSING")
 # append door makes: the door writes what the door knows).
 REQUIRED_MARK_FIELDS = ("need", "status", "when", "how_measured")
 
+# THE COLLISION THIS DOOR SPENT A DAY BEING BLAMED FOR, now a one-line diagnostic. Twelve tickets
+# had written chart-leg PROSE into this field — "when you reach survey, settle a3 first" — because
+# "stage needs" reads plausibly in the chart's dialect too. The door was right to refuse them and
+# the message pointed only at the workflow vocabulary, so the finding read as a stale stage name
+# rather than as a field carrying two different animals. A STRING value is the tell, and it earns
+# the pointer. Named, not imported: base does not depend on chart (the gate lives at
+# cairn/chart/chain.py, which owns the leg vocabulary — Law 6).
+_CHART_HINT = (
+    " — the value here is a STRING, which is the tell: this is prose addressed to a leg of the "
+    "CHART chain, not a dependency of a workflow stage. It belongs in `chart_notes`, gated by "
+    "cairn/chart/chain.py. A need is a list of {need, marks} and gets MEASURED; a chart note is "
+    "guidance and never does."
+)
+
 # A how_measured that says nothing is a bare [DONE] with extra words. The floor is deliberately
 # LOW (a length, not a grammar) because the falsifier is 'a reader can re-run this', which no
 # regex can decide — but 'ok' and '' can be refused outright, and are.
@@ -115,6 +129,7 @@ def validate_needs(node: dict, *, node_class_root=transitions._NODE_CLASSES) -> 
                 f"stage {stage!r} is not in this node's workflow vocabulary {list(path)} — "
                 f"a need cannot attach to a stage the node does not have. "
                 f"(node {node.get('id')!r}, state {node['state'].split('(')[0].strip()!r})"
+                + (_CHART_HINT if isinstance(needs, str) else "")
             )
         if not isinstance(needs, list) or not needs:
             raise NeedRefused(

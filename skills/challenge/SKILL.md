@@ -1,6 +1,6 @@
 ---
 name: challenge
-description: Adversarial pass on a design or conclusion BEFORE you commit to it — better approach? prior art? hidden assumption? real collision? do we back up? Also runs on any artifact on cadence.
+description: Adversarial pass on a design, plan, or conclusion BEFORE committing to it — is there a better approach, prior art, a hidden assumption, a real collision, a reason to back up? Fire before any consequential build or design decision, and on any artifact due for its cadence challenge (CLAUDE.md included).
 ---
 
 # /challenge — harden the thinking while it still forms

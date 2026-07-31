@@ -1,3 +1,8 @@
+---
+name: sail
+description: Run the build under the charted course — the voyage a charted request earns, spent inside what the /chart chain settled. Requires a completed chart chain; refusal on a missing one is physics, not preference.
+---
+
 # /sail — run the build under the charted course
 
 You are firing the **build stage**: the voyage a charted request earns. /chart

@@ -1,3 +1,8 @@
+---
+name: moreabout
+description: The learning door — a scoped expansion of something too compressed, resolved by walking the upstream nexus's already-deposited state rather than re-running it. The invocation is itself the training signal, written back to that nexus's tree in the same act.
+---
+
 # /moreabout — the learning door
 
 You are firing the **moreabout door**: a SCOPED expansion of something too

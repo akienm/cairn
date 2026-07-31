@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""cairn turnscan — the Stop-hook scan for the turn-shape rule.
+
+THE RULE IT MEASURES (CLAUDE.md, "Rules awaiting physics"):
+
+    A concern raised about work in flight is *not dispositioned in the message
+    that raises it* — raising it ends the turn. Whether it blocks is the owner's
+    call (Law 6); "one thing to point out… anyway, here's the plan" takes that
+    call ambiently, which is how a manager silently becomes a debugger.
+
+The IOU beside it named this program and named its falsifier: "a concern-marker
+and a forward proposal in the same message is a red (falsifiable by transcript
+grep, so the rule can be measured BEFORE it is built)". So it was — see --corpus
+and the numbers in the proof. 466 turns of real transcript, 7 reds, 1.5%.
+
+WHY IT DOES NOT BLOCK, which is the whole design. A Stop hook may return
+``{"decision": "block"}`` and force the turn to be rewritten. This one never
+does, and refusing that power is not timidity — it is the rule applied to
+itself. The rule says whether a concern blocks is THE OWNER'S CALL. A detector
+that halted the turn would be deciding that this concern blocks, ambiently, on
+Akien's behalf — committing the exact defect it exists to catch, at one remove.
+So turnscan raises and stops. Akien rules. (Law 6: no enforcer, only a gate.)
+
+WHAT IT IS NOT. It is not a judge of whether the concern was right, or whether
+dispositioning it was wrong. It reports one measurable SHAPE: a concern marker,
+and later in the same message, a forward proposal. That shape is evidence, and
+Law 3 says evidence is not a verdict. The receipt says "your call" because that
+is literally true.
+
+QUOTED MATERIAL IS NOT AN UTTERANCE. Measured, and it is the reason this file
+has a stripper: the very first red the crude detector produced was a message
+where I QUOTED THE RULE — *"one thing to point out… anyway, here's the plan"* —
+to explain the defect. A detector that cannot tell use from mention reds every
+message that discusses the rule, which would make discussing the rule expensive
+and the detector hated. Code fences, inline code, blockquotes and short
+double-quoted spans are removed before scanning.
+
+THE FLOOR, NOT THE CEILING. This is the code stratum: two lexical classes and an
+ordering. It cannot tell a concern about work in flight from the word "caveat" in
+a retrospective, and it never will. The host also offers prompt-type hooks (an
+LLM adjudicates the condition), which is where this goes when the floor's residue
+is measured and found to matter. Recording that here so the next mind does not
+mistake a floor for a finished thing.
+
+    echo '{"last_assistant_message":"..."}' | bin/cmd/turnscan   # hook mode
+    bin/cmd/turnscan --corpus                                    # re-measure
+    python3 bin/proofs/test_turnscan.py                          # exit 0 = green
+"""
+
+from __future__ import annotations
+
+import glob
+import json
+import os
+import re
+import sys
+
+# ── the two lexical classes ───────────────────────────────────────────────────
+# Calibrated against 466 real end_turn messages. The crude unordered version of
+# these fired on 4.7% of turns and was mostly noise ("hypothesis" inside a report
+# of past work); requiring the proposal to come AFTER the concern took it to 1.5%
+# and the hand-reviewed hits went from mostly-wrong to mostly-right.
+
+CONCERN = [
+    r"one thing i want",
+    r"one thing to (point|flag|name)",
+    r"\bmy own damage\b",
+    r"\bi'?d flag\b",
+    r"worth flagging",
+    r"\bcaveat\b",
+    r"want on the table",
+    r"before (that|this|it|anything) (gets|goes|moves|is built)",
+    r"\bmy concern\b",
+    r"\bone concern\b",
+    r"\bthe concern is\b",
+]
+
+FORWARD = [
+    r"\banyway\b",
+    r"\bso let'?s\b",
+    r"here'?s the plan",
+    r"\bnext i'?ll\b",
+    r"\bi'?ll go ahead\b",
+    r"\bproceeding\b",
+    r"\bmoving on\b",
+    r"\bthat said\b",
+    r"\bregardless\b",
+    r"\bi'?ll (build|wire|write|start)\b",
+    r"\bthe plan is\b",
+]
+
+_CONCERN = [re.compile(p, re.I) for p in CONCERN]
+_FORWARD = [re.compile(p, re.I) for p in FORWARD]
+
+# A quoted span longer than this is prose, not a citation — leave it alone.
+QUOTE_MAX = 240
+
+
+def strip_quoted(text: str) -> str:
+    """Remove mention so only use is scanned. Replaces with spaces rather than
+    deleting, so offsets stay comparable to the original for reporting."""
+
+    def blank(m: re.Match) -> str:
+        return " " * len(m.group(0))
+
+    text = re.sub(r"```.*?```", blank, text, flags=re.S)      # fenced code
+    text = re.sub(r"`[^`\n]*`", blank, text)                   # inline code
+    text = re.sub(r"^\s*>.*$", blank, text, flags=re.M)        # blockquote lines
+    text = re.sub(r'"[^"\n]{1,%d}"' % QUOTE_MAX, blank, text)  # short "quotes"
+    text = re.sub(r'“[^”\n]{1,%d}”' % QUOTE_MAX, blank, text)
+    return text
+
+
+def scan(message: str) -> dict | None:
+    """Return the red, or None. The red carries BOTH markers and their excerpt —
+    a finding that does not show its evidence is a finding nobody can falsify
+    (Law 3), and a complete diagnostic on the first pass is the standing method."""
+    if not message or not message.strip():
+        return None
+    hay = strip_quoted(message)
+
+    found_c = [(m.start(), p.pattern, m.group(0)) for p in _CONCERN
+               for m in [p.search(hay)] if m]
+    if not found_c:
+        return None
+    c_at, c_pat, c_txt = min(found_c)
+
+    found_f = [(m.start(), p.pattern, m.group(0)) for p in _FORWARD
+               for m in p.finditer(hay) if m.start() > c_at]
+    if not found_f:
+        return None
+    f_at, f_pat, f_txt = min(found_f)
+
+    return {
+        "concern": {"at": c_at, "pattern": c_pat, "text": c_txt.strip()},
+        "forward": {"at": f_at, "pattern": f_pat, "text": f_txt.strip()},
+        "gap": f_at - c_at,
+        "excerpt": " ".join(message[max(0, c_at - 60):c_at + 200].split()),
+    }
+
+
+def receipt(red: dict) -> str:
+    return (f"⚖ turn-shape: \"{red['concern']['text']}\" … then "
+            f"\"{red['forward']['text']}\" ({red['gap']} chars later) — "
+            f"a concern raised ends the turn (CLAUDE.md). Evidence, not a verdict: "
+            f"whether it blocks is your call.")
+
+
+# ── corpus mode: the falsifier, kept re-runnable ──────────────────────────────
+
+def corpus(pattern: str) -> int:
+    files = sorted(glob.glob(pattern))
+    if not files:
+        print(f"no transcripts matched {pattern}", file=sys.stderr)
+        return 1
+    turns, reds = 0, []
+    for f in files:
+        with open(f, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("type") != "assistant":
+                    continue
+                m = d.get("message", {})
+                if m.get("stop_reason") != "end_turn":
+                    continue
+                txt = "\n".join(b.get("text", "") for b in m.get("content", [])
+                                if isinstance(b, dict) and b.get("type") == "text")
+                if not txt.strip():
+                    continue
+                turns += 1
+                r = scan(txt)
+                if r:
+                    reds.append((os.path.basename(f)[:8], r))
+    print(f"{len(files)} transcript(s)   {turns} end_turn message(s)")
+    pct = (100.0 * len(reds) / turns) if turns else 0.0
+    print(f"{len(reds)} red ({pct:.1f}%)")
+    for src, r in reds:
+        print(f"\n  {src}  gap={r['gap']}")
+        print(f"    concern: {r['concern']['text']!r}")
+        print(f"    forward: {r['forward']['text']!r}")
+        print(f"    …{r['excerpt'][:180]}")
+    return 0
+
+
+DEFAULT_CORPUS = os.path.expanduser("~/.claude/projects/-home-akien-dev-src-cairn/*.jsonl")
+
+
+def main(argv: list[str]) -> int:
+    if "--corpus" in argv:
+        i = argv.index("--corpus")
+        pat = argv[i + 1] if len(argv) > i + 1 else DEFAULT_CORPUS
+        return corpus(pat)
+
+    raw = sys.stdin.read()
+    try:
+        payload = json.loads(raw) if raw.strip() else {}
+    except Exception as exc:
+        # A malformed hook input is the host's business, not a reason to shout at
+        # Akien every turn. Loud on the diagnostic surface, silent on the receipt.
+        print(f"turnscan: unreadable hook input: {exc}", file=sys.stderr)
+        return 0
+
+    # Never re-fire into a turn this hook already acted on.
+    if payload.get("stop_hook_active"):
+        return 0
+
+    red = scan(payload.get("last_assistant_message") or "")
+    if red:
+        # systemMessage ONLY. No "decision": see the module docstring — blocking
+        # would take the owner's call, which is the defect being measured.
+        print(json.dumps({"systemMessage": receipt(red)}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except Exception as exc:      # a scan must never be able to wedge a turn
+        print(f"turnscan failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        sys.exit(0)

@@ -102,9 +102,15 @@ shrinks monotonically.
   ambiently, which is how a manager silently becomes a debugger. A *label* is not
   a halt: "unproven", "hypothesis", "my own damage" followed by a proposal is the
   same defect wearing Law 3's clothes.
-  → Stop-hook scan: a concern-marker and a forward proposal in the same message is
-  a red (falsifiable by transcript grep, so the rule can be measured before it is
-  built) · *ticket pending — sibling of the `troubles/` drain below*
+  → Stop-hook scan BUILT 2026-07-31 (`bin/cmd/turnscan`, wired in
+  `.claude/settings.json`, proof 23/23). Measured before it was built, as the IOU
+  asked: 466 real turns, 6 reds, 1.3%. The scan fires unconditionally — that half
+  is physics. It deliberately does **not** block: whether a concern blocks is the
+  owner's call, so a halting detector would take that call ambiently and commit
+  the defect it measures. Residue: the code floor cannot tell a concern about work
+  in flight from the word "caveat" in a retrospective; the host's prompt-type hook
+  (an LLM adjudicates) is the ceiling when that residue is shown to matter.
+  · *ticket pending — sibling of the `troubles/` drain below*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

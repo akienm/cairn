@@ -1,0 +1,228 @@
+#!/usr/bin/env python3
+"""cairn slate — print the resumption point. THE SESSION-OPEN PROGRAM.
+
+Akien 2026-07-31, on being shown that SessionStart hooks exist: "it should fire
+itself. i didn't know it could!" — and then, on how far it compiles: "Full."
+
+WHAT THIS REPLACES. Until now the first link in the workflow chain was a skill
+(/loadslate) that only ran if Akien remembered to type it. Every session that
+opened without it opened cold, and nothing anywhere said so. That is discipline
+doing a job physics should do (Law 4), and it had been doing it for two weeks
+because nobody knew the host already offered the hook.
+
+WHY IT IS A PROGRAM AND NOT A SKILL. A SessionStart hook cannot invoke a skill —
+it runs a command and injects stdout into the session's context. So "fires
+itself" necessarily means the settled part of the work stops being something the
+resolver re-derives by reading files and becomes structure (Law 1). Finding the
+newest slate and reading five fields out of it is settled. It compiles.
+
+WHAT DOES *NOT* COMPILE, and is therefore not here: the drift-check between the
+slate and MAP.md. The slates charter is explicit that "drift between them is
+named, not silently reconciled" — naming drift is judgment, and a program that
+tried it would either be silent (the failure) or wrong (the worse failure). This
+program prints the slate's own claims and says nothing about whether they hold.
+
+EVERY LINE HERE IS A POINTER, NOT A PROOF (Law 3). The slates charter says it
+outright: "a slate that names a file/flag/ticket is a pointer to verify, not a
+proof." The banner says so too, in the output, every session — because the one
+reader who most needs reminding is the one who just had it handed to them for
+free.
+
+THE TROUBLE LANE'S FIRST READER. cairn/trouble/ has been PROVED and orphaned
+since 2026-07-25: nothing outside the device imports it, so troubles were raised
+into a corpus with an intake and no drain — "worse than no corpus, it is the
+APPEARANCE of capture" (the questions store charter). This program is the drain.
+Live troubles print at the TOP, above the slate, because a blocked thing you
+learn about after reading the plan is a thing you learn about too late.
+
+IT NEVER WEDGES THE SESSION. Every failure path prints loudly and exits 0. A
+session-open announcement that can kill session open is a worse defect than the
+silence it replaces; loud-and-continue is Law 7's diagnostic half without taking
+the session down with it.
+
+    python3 bin/proofs/test_slate.py     # exit 0 = green
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent.parent          # <...>/cairn
+COMMONS = REPO.parent / "CairnCommons"
+
+# Injectable roots, the same idiom bin/cairn uses for CAIRN_CMD_DIR ("used by the proof
+# to point at a stub tree"). Without these the proof would have to read the real commons,
+# and a proof over live data can only assert invariants — it could never pin the ONE
+# behaviour most worth pinning here (newest-by-date-not-by-mtime), because that needs a
+# fixture where the two orders disagree.
+SLATES = Path(os.environ.get("CAIRN_SLATES_DIR") or (COMMONS / "slates"))
+TROUBLES = os.environ.get("CAIRN_TROUBLES_DIR") or None       # None → the device's own default
+
+# The fields the slates store charter ratifies as the resumption point. Kept in the
+# charter's own order, and named here rather than "everything in the file" so a slate
+# that grew an extra key (two have) does not silently widen what every session reads.
+CARRIED = ("at_sea", "next_direction", "open_threads")
+
+WIDTH = 78
+
+
+def _rule(ch: str = "─") -> str:
+    return ch * WIDTH
+
+
+def _wrap(text: str, indent: str = "  ") -> str:
+    """Fold prose to WIDTH. Long single tokens (paths, ids) are never broken —
+    a path split across a line is a path nobody can copy."""
+    out, line = [], indent
+    for word in str(text).split():
+        if len(line) + len(word) + 1 > WIDTH and line.strip():
+            out.append(line.rstrip())
+            line = indent + word + " "
+        else:
+            line += word + " "
+    if line.strip():
+        out.append(line.rstrip())
+    return "\n".join(out)
+
+
+def _render(value, indent: str = "  ") -> str:
+    """A slate field is prose, a list of prose, or a dict. Render each honestly
+    rather than json.dumps-ing the lot: this is read by a human at 9am."""
+    if isinstance(value, str):
+        return _wrap(value, indent)
+    if isinstance(value, list):
+        parts = []
+        for item in value:
+            if isinstance(item, str):
+                body = _wrap(item, indent + "  ")
+                parts.append(indent + "· " + body.lstrip())
+            else:
+                parts.append(indent + "· " + json.dumps(item, ensure_ascii=False))
+        return "\n".join(parts)
+    if isinstance(value, dict):
+        parts = []
+        for k, v in value.items():
+            parts.append(f"{indent}{k}:")
+            parts.append(_render(v, indent + "  "))
+        return "\n".join(parts)
+    return _wrap(value, indent)
+
+
+def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
+    """Newest by the slate's own ``date`` field, tiebroken by filename.
+
+    NOT by mtime: 14 slates were bulk-touched at 2026-07-29 18:03 by an unrelated
+    edit, so mtime would have named the wrong slate as current — a ranking the
+    records themselves already answer correctly.
+    """
+    if not SLATES.is_dir():
+        return None, None, f"no slates directory at {SLATES}"
+    files = [p for p in sorted(SLATES.glob("*.json")) if not p.name.startswith("_")]
+    if not files:
+        return None, None, f"no slates in {SLATES}"
+
+    best, best_key, unreadable = None, None, []
+    for p in files:
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:                       # a corrupt slate is loud, not fatal
+            unreadable.append(f"{p.name}: {exc}")
+            continue
+        key = (str(data.get("date") or ""), p.name)
+        if best_key is None or key > best_key:
+            best, best_key = (p, data), key
+
+    warn = ("unreadable slate file(s): " + "; ".join(unreadable)) if unreadable else None
+    if best is None:
+        return None, None, warn or "every slate failed to parse"
+    return best[0], best[1], warn
+
+
+def _live_troubles() -> tuple[list[dict], str | None]:
+    """Ask the device, never the directory. The trouble lane owns what LIVE means —
+    ``live()`` counts a missing or malformed standing as live on purpose, and
+    re-deriving that rule here would be a second owner of it (Law 6)."""
+    sys.path.insert(0, str(REPO))
+    try:
+        from cairn.trouble.trouble import TroubleDevice
+    except Exception as exc:
+        return [], f"trouble lane unreachable: {exc}"
+    try:
+        return TroubleDevice(TROUBLES).live(), None
+    except Exception as exc:
+        return [], f"trouble lane failed to read: {exc}"
+
+
+def main() -> int:
+    lines: list[str] = []
+
+    troubles, t_err = _live_troubles()
+    path, slate, s_warn = _newest_slate()
+
+    lines.append(_rule("═"))
+    lines.append("CAIRN — SESSION OPEN".center(WIDTH))
+    lines.append(_rule("═"))
+
+    # Troubles FIRST. A blocked thing learned about after the plan is learned too late.
+    if t_err:
+        lines.append(f"!! {t_err}")
+        lines.append("")
+    elif troubles:
+        lines.append(f"!! {len(troubles)} LIVE TROUBLE(S) — these stay in the inbox until cleared:")
+        for t in troubles:
+            ident = t.get("id", "<no id>")
+            count = t.get("count", "?")
+            why = t.get("why", "<no why recorded>")
+            lines.append(f"   [{count}x] {ident}")
+            lines.append(_render(why, "        "))
+        lines.append("")
+    else:
+        lines.append("   no live troubles. (the normal operating state is zero — this is it.)")
+        lines.append("")
+
+    if slate is None:
+        lines.append(f"!! NO SLATE RESTORED: {s_warn}")
+        lines.append("   Opening cold. Orient from MAP.md.")
+        lines.append(_rule("═"))
+        print("\n".join(lines))
+        return 0
+
+    if s_warn:
+        lines.append(f"!! {s_warn}")
+        lines.append("")
+
+    lines.append(f"SLATE  {slate.get('id', path.stem)}")
+    lines.append(f"       {slate.get('date', '?')}   author: {slate.get('author', '?')}   file: {path.name}")
+    lines.append("")
+
+    for field in CARRIED:
+        if field not in slate:
+            lines.append(f"{field.upper()}:")
+            lines.append("  (absent from this slate)")
+            lines.append("")
+            continue
+        lines.append(f"{field.upper()}:")
+        lines.append(_render(slate[field]))
+        lines.append("")
+
+    lines.append(_rule())
+    lines.append(_wrap(
+        "Every line above is a POINTER TO VERIFY, not a proof (Law 3). The slate is "
+        "authoritative for session continuity; MAP.md is authoritative over memory of "
+        "the conversation. Drift between them is NAMED, never silently reconciled — "
+        "that check is yours, it did not compile.", ""))
+    lines.append(_rule("═"))
+
+    print("\n".join(lines))
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Exception as exc:                # never wedge session open (see module docstring)
+        print(f"!! cairn slate failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        sys.exit(0)

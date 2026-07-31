@@ -2,7 +2,7 @@
 # recompile_gate.sh — child c of intentions-model-compiler: the WRITE GATE's command.
 #
 # A source changed (a beside-code intention+why.json, or an intentions-other/ entry); this
-# pokes the compile door so intentions/_model.json regenerates. Shrinking-footprint: the
+# pokes the copy door so intentions-congruency-lab/ regenerates. Shrinking-footprint: the
 # WRITER pokes the door, no poller. Invoked by EVENTS only — /sorted pokes it on a source
 # write (write-through) and /intent pokes it before consulting the model (read-refresh); the
 # read and the write are the events, never a clock. The host_seam in this charter is the full
@@ -22,7 +22,7 @@
 # instance-space log (loud in the record even as the surface stays quiet).
 #
 # Testable + real-by-default: with no env set it compiles the real model; the proof points
-# CAIRN_COMMONS_ROOT / CAIRN_CODE_ROOT / CAIRN_MODEL_OUT (and CAIRN_LOG_DIR) at a temp tree.
+# CAIRN_COMMONS_ROOT / CAIRN_CODE_ROOT / CAIRN_LAB_OUT (and CAIRN_LOG_DIR) at a temp tree.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,11 +32,11 @@ LOG="${CAIRN_LOG_DIR:-$HOME/.cairn/logs}/recompile-gate.log"
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 
 if ! out="$(cd "$REPO" && python3 -c 'import os
-from cairn.intentions_model_compiler.compiler import compile_to_disk
-compile_to_disk(
+from cairn.intentions_model_compiler.compiler import copy_to_lab
+copy_to_lab(
     commons_root=os.environ.get("CAIRN_COMMONS_ROOT") or None,
     code_root=os.environ.get("CAIRN_CODE_ROOT") or None,
-    out_path=os.environ.get("CAIRN_MODEL_OUT") or None,
+    out_dir=os.environ.get("CAIRN_LAB_OUT") or None,
 )' 2>&1)"; then
   printf '%s recompile-gate FAILED: %s\n' "$(date -Iseconds)" "$out" >> "$LOG" 2>/dev/null || true
 fi

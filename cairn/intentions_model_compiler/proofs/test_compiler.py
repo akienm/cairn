@@ -1,28 +1,28 @@
-"""Proof for intentions_model_compiler — the ``intentions-congruency-lab/`` MODEL is COMPILED from its
-sources and cannot drift.
+"""Proof for intentions_model_compiler — ``intentions-congruency-lab/`` is a folder of COPIES
+of every intention+why, and it cannot drift from what it copies.
 
-Teeth a hollow compiler could not pass:
+Teeth a hollow copier could not pass:
 
-  - LOSSLESS + INVENTS NOTHING (Law 8). Every source lands in the model with its content
-    verbatim; the model holds exactly the sources' ids, no more. A hollow build that
-    dropped a source or fabricated one trips this.
-  - ROOTS SURFACE FIRST BY PHYSICS (Law 4). Ordered by born timestamp, the oldest source
-    sorts to the top — the frame is first by construction, not a special case. A hollow
-    build that ordered by name or insertion trips this.
-  - A CHANGED SOURCE CHANGES THE MODEL / A REMOVED SOURCE LEAVES NO TRACE. The projection
-    is regenerated whole, so drift and removal both propagate. A hollow build that carried
-    stale output trips this.
-  - DETERMINISTIC (no drift, Law 1). Same sources -> byte-identical model. A hollow build
-    with nondeterministic ordering trips this.
-  - ONE WRITE-DOOR, HAND-EDIT REVERTED (Law 6 / Law 7). A hand-edited model is overwritten
-    by the next compile; the store's ``_charter+why.json`` (a hand-authored source) is
-    NEVER touched. A hollow build that trusted on-disk model, or clobbered the charter,
-    trips this.
-  - READS BOTH SOURCE TREES (the seed claim). ``gather_sources`` on the real repo picks up
-    intentions-not-beside-code/ AND the beside-code charters, and excludes the ``_``-prefixed store
-    charter. A hollow build that compiled only one tree regrows a repo that does not run.
+  - A COPY IS BYTE-IDENTICAL TO ITS SOURCE (Law 8). Not "contains the content", not
+    "embeds it in an envelope" — the same bytes. A build that re-serialised a json charter
+    (reordering keys, changing indentation) trips this. This is the tooth that makes the
+    lab readable by anything that reads the originals, which is the whole point.
+  - EVERY intention+why IN THE REPO IS COPIED, not just ``cairn/*/``. Measured 2026-07-31:
+    the old scan reached 19 of 32, silently leaving all nine ``skills/*/`` plus ``bin/``,
+    ``learning/``, ``launchers/`` and ``press_office/`` out of the folder whose stated job
+    is to regrow the system. A build that walks only the package dir trips this.
+  - A REMOVED SOURCE REMOVES ITS COPY. The lab is regenerated whole. A build that only ever
+    writes — the easy build — leaves a deleted intention standing in the lab forever, which
+    is exactly the stale-record failure (Law 7). This is the tooth most likely to be missing.
+  - A NAME COLLISION IS LOUD, NEVER LAST-WRITE-WINS. Two charters both named
+    ``intention+why.json`` must not silently overwrite each other in a flat folder. A build
+    that keyed on the bare filename trips this by losing one.
+  - THE ``_``-PREFIXED STORE RECORDS ARE NEVER TOUCHED (Law 6). ``_charter+why.json`` is a
+    hand-authored source that happens to live in the lab; a copier that regenerates the
+    folder "whole" without excluding it deletes the store's own charter.
+  - DETERMINISTIC (Law 1). Same sources -> same plan, whatever order they arrive in.
 
-Self-contained (synthetic sources in a temp dir) except the last tooth, which reads the
+Self-contained (synthetic sources in a temp dir) except the reach tooth, which reads the
 real repo. Self-cleaning.
 
     python3 cairn/intentions_model_compiler/proofs/test_compiler.py     # exit 0 = green
@@ -43,119 +43,145 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.intentions_model_compiler import compiler
 
 
-def _src(id, born, content, kind="homeless"):
-    return {"id": id, "kind": kind, "source": f"intentions-not-beside-code/{id}.md",
-            "born": born, "content": content}
+def _tree(d: str) -> tuple[str, str]:
+    """A minimal two-tree source layout: commons homeless dir + a repo with charters."""
+    commons = os.path.join(d, "CairnCommons")
+    code = os.path.join(d, "cairn")
+    os.makedirs(os.path.join(commons, "intentions-not-beside-code"))
+    os.makedirs(os.path.join(commons, "intentions-congruency-lab"))
+    os.makedirs(os.path.join(code, "cairn", "base"))
+    os.makedirs(os.path.join(code, "skills", "intent"))
+    with open(os.path.join(commons, "intentions-not-beside-code", "telos.md"), "w") as f:
+        f.write("the frame\n")
+    # Deliberately awkward json: unsorted keys, 3-space indent, a trailing newline. A copy
+    # keeps it exactly; anything that parses-and-rewrites does not.
+    with open(os.path.join(code, "cairn", "base", "intention+why.json"), "w") as f:
+        f.write('{\n   "what": "substrate",\n   "a_later_key": 1,\n   "b": 2\n}\n')
+    with open(os.path.join(code, "skills", "intent", "intention+why.json"), "w") as f:
+        f.write('{"what": "the skill"}')
+    return commons, code
 
 
-def test_lossless_and_invents_nothing():
-    sources = [
-        _src("telos", "2026-07-14T09:00:00+00:00", "the charter everything traces to"),
-        _src("base", "2026-07-20T09:00:00+00:00", {"what": "the substrate"}, kind="component-charter"),
-    ]
-    model = compiler.compile_model(sources)
-    assert model["count"] == 2
-    ids = {i["id"] for i in model["intentions"]}
-    assert ids == {"telos", "base"}, "exactly the sources' ids — nothing dropped or invented"
-    by_id = {i["id"]: i for i in model["intentions"]}
-    assert by_id["telos"]["content"] == "the charter everything traces to", "content carried verbatim"
-    assert by_id["base"]["content"] == {"what": "the substrate"}, "a json source is carried as its object"
-    assert by_id["base"]["kind"] == "component-charter"
-
-
-def test_roots_surface_first_by_born_timestamp():
-    # Deliberately hand the compiler the roots LAST and out of name order — physics, not order-in.
-    sources = [
-        _src("web-server", "2026-07-21T00:00:00+00:00", "a late arrival"),
-        _src("core-values", "2026-07-14T00:00:01+00:00", "the six"),
-        _src("telos", "2026-07-14T00:00:00+00:00", "the frame"),
-    ]
-    model = compiler.compile_model(sources)
-    top_two = [i["id"] for i in model["intentions"][:2]]
-    assert top_two == ["telos", "core-values"], f"the oldest (the roots) surface first, got {top_two}"
-
-
-def test_a_changed_source_changes_the_model():
-    base = [_src("x", "2026-07-15T00:00:00+00:00", "before")]
-    changed = [_src("x", "2026-07-15T00:00:00+00:00", "after")]
-    assert compiler.compile_model(base) != compiler.compile_model(changed), "content change flows through"
-
-
-def test_a_removed_source_leaves_no_trace():
-    two = [_src("a", "2026-07-15T00:00:00+00:00", "A"), _src("b", "2026-07-16T00:00:00+00:00", "B")]
-    one = [two[0]]
-    ids = {i["id"] for i in compiler.compile_model(one)["intentions"]}
-    assert ids == {"a"}, "the removed source 'b' is absent — regenerated whole, no stale carry-over"
-
-
-def test_deterministic_to_the_byte():
-    sources = [
-        _src("b", "2026-07-16T00:00:00+00:00", "B"),
-        _src("a", "2026-07-15T00:00:00+00:00", "A"),
-    ]
-    a = json.dumps(compiler.compile_model(sources), ensure_ascii=False, indent=2, sort_keys=False)
-    b = json.dumps(compiler.compile_model(list(reversed(sources))), ensure_ascii=False, indent=2, sort_keys=False)
-    assert a == b, "same sources (any input order) -> byte-identical model"
-
-
-def test_one_write_door_reverts_a_hand_edit_and_spares_the_charter():
+def test_a_copy_is_byte_identical_to_its_source():
     with tempfile.TemporaryDirectory() as d:
-        commons = os.path.join(d, "CairnCommons")
-        code = os.path.join(d, "cairn")
-        # a minimal source tree
-        os.makedirs(os.path.join(commons, "intentions-not-beside-code"))
-        os.makedirs(os.path.join(commons, "intentions-congruency-lab"))
-        os.makedirs(os.path.join(code, "base"))
-        with open(os.path.join(commons, "intentions-not-beside-code", "telos.md"), "w") as f:
-            f.write("the frame")
-        with open(os.path.join(code, "base", "intention+why.json"), "w") as f:
-            json.dump({"what": "substrate"}, f)
-        # a hand-authored store charter that must be left ALONE, and a junk model to be reverted
-        charter_path = os.path.join(commons, "intentions-congruency-lab", "_charter+why.json")
-        with open(charter_path, "w") as f:
-            f.write("HAND-AUTHORED — do not touch")
-        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
-        with open(out, "w") as f:
-            f.write("HAND-EDITED GARBAGE")
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
 
-        model = compiler.compile_to_disk(commons_root=commons, code_root=code, out_path=out)
-
-        with open(out, encoding="utf-8") as f:
-            on_disk = json.load(f)
-        assert on_disk == model, "the hand-edit is gone — the door rewrote the model from the sources"
-        assert {i["id"] for i in on_disk["intentions"]} == {"telos", "base"}, "both trees compiled in"
-        with open(charter_path, encoding="utf-8") as f:
-            assert f.read() == "HAND-AUTHORED — do not touch", "the store charter was NOT clobbered"
+        src = Path(code, "cairn", "base", "intention+why.json").read_bytes()
+        cp = Path(lab, "cairn-base--intention+why.json").read_bytes()
+        assert cp == src, "the copy is the same BYTES — not a re-serialisation of the same data"
+        assert Path(lab, "telos.md").read_bytes() == Path(
+            commons, "intentions-not-beside-code", "telos.md").read_bytes()
 
 
-def test_gather_reads_both_trees_on_the_real_repo():
+def test_every_charter_in_the_repo_is_copied_not_just_the_package():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        r = compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+        assert "skills-intent--intention+why.json" in r["copied"], (
+            "a charter OUTSIDE cairn/*/ is copied — this is the 19-of-32 defect, measured "
+            f"2026-07-31 and fixed here; got {r['copied']}")
+        assert r["count"] == 3, r["copied"]
+
+
+def test_a_removed_source_removes_its_copy():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+        assert os.path.exists(os.path.join(lab, "skills-intent--intention+why.json"))
+
+        os.remove(os.path.join(code, "skills", "intent", "intention+why.json"))
+        r = compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        assert not os.path.exists(os.path.join(lab, "skills-intent--intention+why.json")), (
+            "a write-only copier leaves a deleted intention standing in the lab forever")
+        assert r["removed"] == ["skills-intent--intention+why.json"], r["removed"]
+
+
+def test_a_hand_edited_copy_is_overwritten():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+        Path(lab, "telos.md").write_text("HAND-EDITED GARBAGE")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+        assert Path(lab, "telos.md").read_text() == "the frame\n", (
+            "the lab is a view, never a record of truth (Law 7)")
+
+
+def test_the_store_charter_is_never_touched():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        charter = os.path.join(lab, "_charter+why.json")
+        Path(charter).write_text("HAND-AUTHORED — do not touch")
+        r = compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+        assert Path(charter).read_text() == "HAND-AUTHORED — do not touch", (
+            "regenerating the folder 'whole' must not eat the store's own charter (Law 6)")
+        assert "_charter+why.json" not in r["removed"]
+
+
+def test_a_name_collision_is_loud_never_last_write_wins():
+    a = {"id": "dup", "kind": "component-charter", "source": "x/intention+why.json",
+         "path": "/one/intention+why.json"}
+    b = {"id": "dup", "kind": "component-charter", "source": "y/intention+why.json",
+         "path": "/two/intention+why.json"}
+    try:
+        compiler.plan_copies([a, b])
+    except ValueError as exc:
+        assert "collision" in str(exc)
+    else:
+        raise AssertionError("two sources claiming one lab filename must RAISE, not silently "
+                             "drop one — a flat folder makes this reachable")
+
+
+def test_the_plan_is_deterministic():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        s = compiler.gather_sources(commons, code)
+        assert compiler.plan_copies(s) == compiler.plan_copies(list(reversed(s))), (
+            "same sources, any input order -> same plan")
+
+
+def test_the_real_repo_reaches_both_trees_and_every_charter():
     commons = str(Path(_REPO_ROOT).parent / "CairnCommons")
-    code = str(Path(_REPO_ROOT) / "cairn")     # the package dir where components berth
-    sources = compiler.gather_sources(commons_root=commons, code_root=code)
+    sources = compiler.gather_sources(commons_root=commons, code_root=str(_REPO_ROOT))
     ids = {s["id"] for s in sources}
     kinds = {s["kind"] for s in sources}
     assert "telos" in ids and "core-values" in ids, "the homeless roots are gathered"
-    assert "base" in ids, "the beside-code charters are gathered"
+    assert "cairn-base" in ids, "a package charter is gathered"
+    assert "skills-intent" in ids, "a charter outside the package is gathered"
     assert kinds == {"homeless", "component-charter"}, "both source kinds present"
-    assert not any(s["id"].startswith("_") for s in sources), "the _-prefixed store charter is excluded"
+    assert not any(os.path.basename(s["source"]).startswith("_") for s in sources), (
+        "the _-prefixed store charter is not copied")
+    # Invariant, not a snapshot: the corpus grows. Every intention+why on disk is reached.
+    on_disk = sum(1 for p in Path(_REPO_ROOT).rglob("intention+why.json")
+                  if not any(part in compiler._SKIP_DIRS for part in p.parts))
+    gathered = sum(1 for s in sources if s["kind"] == "component-charter")
+    assert gathered == on_disk, f"gathered {gathered} of {on_disk} charters on disk"
 
 
 def _main() -> int:
     checks = [
-        test_lossless_and_invents_nothing,
-        test_roots_surface_first_by_born_timestamp,
-        test_a_changed_source_changes_the_model,
-        test_a_removed_source_leaves_no_trace,
-        test_deterministic_to_the_byte,
-        test_one_write_door_reverts_a_hand_edit_and_spares_the_charter,
-        test_gather_reads_both_trees_on_the_real_repo,
+        test_a_copy_is_byte_identical_to_its_source,
+        test_every_charter_in_the_repo_is_copied_not_just_the_package,
+        test_a_removed_source_removes_its_copy,
+        test_a_hand_edited_copy_is_overwritten,
+        test_the_store_charter_is_never_touched,
+        test_a_name_collision_is_loud_never_last_write_wins,
+        test_the_plan_is_deterministic,
+        test_the_real_repo_reaches_both_trees_and_every_charter,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — intentions_model_compiler: the intentions-congruency-lab/ model is a deterministic, lossless "
-          "projection of BOTH source trees; roots surface first by born timestamp (Law 4); one "
-          "write-door reverts a hand-edit and spares the store charter (Law 6/7)")
+    print("green — intentions_model_compiler: intentions-congruency-lab/ holds a BYTE-IDENTICAL "
+          "copy of every intention+why in both trees (all of them, not just cairn/*/); a removed "
+          "source removes its copy; a hand-edit is overwritten; a name collision raises; the "
+          "store's own _charter+why.json is never touched (Law 6/7)")
     return 0
 
 

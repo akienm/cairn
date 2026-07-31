@@ -23,9 +23,10 @@ that refreshes it; no daemon watches on your behalf:
 
     $HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh
 
-Then read `CairnCommons/intentions-congruency-lab/_model.json` and ask: is anything already here
-**like** this intent, or in **conflict** with it? Judge over the *whys* the model
-carries, not surface strings — a real collision is exclusive-and-terminal; otherwise
+Then read `CairnCommons/intentions-congruency-lab/` — it holds a COPY of every
+intention+why in the system, one file each — and ask: is anything already here
+**like** this intent, or in **conflict** with it? Judge over the *whys* those files
+carry, not surface strings — a real collision is exclusive-and-terminal; otherwise
 it is a distinction to record. A hit here kills or reshapes the intent before any
 cost is spent on it: re-deriving a settled intention is the defect this gate stops.
 (This freshness step lives in the skill, not in the operator's memory — Law 4.)

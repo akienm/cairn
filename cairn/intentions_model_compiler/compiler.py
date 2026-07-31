@@ -1,247 +1,177 @@
-"""intentions_model_compiler/compiler.py — the ``intentions-congruency-lab/`` MODEL is COMPILED
-from its sources, never authored by hand.
+"""intentions_model_compiler/compiler.py — ``intentions-congruency-lab/`` holds COPIES of
+every intention+why in the system. That is the whole job.
 
-This is the OUTER row of the three-scale projector recursion (the store charter,
-``CairnCommons/intentions-congruency-lab/_charter+why.json``, names it):
+  gather every intention -> copy each one into the lab, one file per source.
 
-  - ticket scale:    a charter's ``history`` -> its bounded ``state`` window
-                     (``cairn/charter/projector.py`` — the kin, built and green)
-  - component scale:  a component's design -> its charter (authored precipitate)
-  - SYSTEM scale:     ALL sources -> ``intentions-congruency-lab/`` (this module)
+THE SEED CLAIM (the store charter, ``CairnCommons/intentions-congruency-lab/_charter+why.json``):
+take this one folder to a bare machine and regrow the system. A folder of the actual
+intention files satisfies that directly — you read them the way you read them anywhere
+else. Nothing is aggregated, nothing is re-shaped, nothing is invented.
 
-Same move each time (Law 1): compile a bounded view over an append-only source so no
-mind re-derives it by reading everything. Here the "source" is the whole intent corpus,
-in two places at once:
+WHAT THIS USED TO DO, AND WHY IT DOESN'T (Akien, 2026-07-31, unambiguous): it compiled all
+the sources into ONE artifact, ``_model.json``, embedding each source's content inside a
+JSON envelope ordered by git birth date. That file is DELETED and does not come back. The
+envelope was machinery the job never asked for — a second shape for the same bytes, which
+is a thing that can drift from what it copies. Copies cannot.
 
-  1. ``CairnCommons/intentions-not-beside-code/``  — the homeless intentions (the roots, the
-     concept-pieces, the host-seams, the spanning ones); the prose IS the implementation
-     or the machine-readiness that a bare repo needs to actually RUN.
-  2. ``cairn/*/intention+why.json``      — the beside-code charters (the code-seams).
+The contract:
+  - ONE write-door: ``copy_to_lab`` is the sole writer of ``intentions-congruency-lab/``.
+    It never touches the store's own hand-authored ``_charter+why.json`` (that is a source,
+    not a copy) and never touches anything prefixed ``_``.
+  - THE LAB IS REGENERATED WHOLE. A copy whose source is gone is DELETED on the next run,
+    so a removed intention removes its copy — no stale carry-over. A hand-edit to a copy is
+    overwritten. The lab is never a record of truth (Law 7); the sources are.
+  - EVERY intention+why IN THE REPO IS COPIED, not just ``cairn/*/``. Measured 2026-07-31:
+    the old ``cairn/*/`` scan reached 19 of 32, leaving all nine ``skills/*/`` plus
+    ``bin/``, ``learning/``, ``launchers/`` and ``press_office/`` out of the folder that
+    claims it can regrow the system. A copier that misses 40% of what it copies fails its
+    own charter, so the walk is the whole repo.
+  - A NAME COLLISION IS LOUD, NEVER LAST-WRITE-WINS (Law 7). Two sources claiming one lab
+    filename raises; it does not silently drop one.
 
-The seed claim (the store charter): take this one folder to a bare machine and regrow the
-system. That only works if BOTH sources compile in — the charters alone regrow a repo
-that does not run. So the compiled model EMBEDS each source's content: the one artifact is
-self-contained.
-
-The contract (why this door exists):
-  - ONE write-door: ``compile_to_disk`` is the sole writer of ``intentions-congruency-lab/_model.json``
-    (Law 6 — exactly one owner gates writes to the compiled view; the IOU in CLAUDE.md
-    'Rules awaiting physics' is closed by physics the day the tester import-scans for a
-    second writer). A hand-edit to the model is REVERTED on the next compile — the view
-    is never a record of truth (Law 7); the sources are.
-  - DETERMINISTIC + LOSSLESS: same sources -> same bytes; every source represented,
-    nothing invented; a removed source removes its projection (the model is regenerated
-    whole, so removal propagates for free — no stale carry-over).
-  - ROOTS SURFACE FIRST BY PHYSICS (Law 4, the store charter, Akien 2026-07-22): the
-    compile is ordered by each source's BORN timestamp, so ``telos.md`` and
-    ``core-values.md`` (the oldest records, the day the repo was founded) sort to the top
-    of the model — the frame is first by construction, not by a special case.
-
-Kin, not merged (ticket intentions-model-compiler, cross-ref charter-state-history-split):
-the projector compiles one component's state from its own history; this compiles the
-system-wide model from all sources. Same pattern, different corpus and owner. If the two
-ever share real projection machinery, factor the core out THEN — not before the second
-member proves the seam.
-
-The BORN timestamp's source is a today-shape (like the projector's file layer): git's
-first-commit date for the file — deterministic, and it SURVIVES a fresh checkout (file
-mtime does not; on a bare machine every file's mtime is checkout time). An uncommitted or
-git-less file sorts LAST (a far-future sentinel): not yet born in the record. The pure
-core does not know about git — it takes ``born`` as data, so it stays testable without a
-repo, and the timestamp source is swappable.
+Kin, not merged: ``cairn/charter/projector.py`` compiles one component's state from its own
+history — a real projection, with a bounded window and a shape of its own. This is not that.
+This is a copy. Naming them the same thing is what grew ``_model.json``.
 """
 
 from __future__ import annotations
 
-import json
 import os
-import subprocess
-import tempfile
+import shutil
 
-# A source not yet in the git record sorts last — "not yet born" — deterministically.
-_UNBORN = "9999-12-31T23:59:59+00:00"
+# A homeless intention's filename already stands alone, so it is kept. A beside-code
+# charter is always literally ``intention+why.json``, so it is prefixed by the component
+# that owns it — otherwise every one of them would claim the same lab filename.
+_CHARTER = "intention+why.json"
 
-_DO_NOT_EDIT = (
-    "COMPILED VIEW — do not hand-edit. Written only by "
-    "intentions_model_compiler.compile_to_disk; any edit here is reverted on the next "
-    "compile. To change the model, change a source in intentions-not-beside-code/ or a charter "
-    "beside its code, then recompile (Law 4 / Law 7)."
-)
+_SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", "proofs",
+              "validations"}
 
-
-# ── the pure core: the model is a function of its sources ─────────────────────
+_LAB = "intentions-congruency-lab"
 
 
-def compile_model(sources: list[dict]) -> dict:
-    """Compile the system-scale model from ``sources`` — deterministic, lossless.
+def lab_filename(source: dict) -> str:
+    """The one name a source claims in the lab. Pure — no disk."""
+    if source["kind"] == "homeless":
+        return os.path.basename(source["source"])
+    return f"{source['id']}--{_CHARTER}"
 
-    Each source is ``{"id", "kind", "source", "born", "content"}``. The model orders them
-    by (born, source) so the roots (oldest) surface first by physics (Law 4), ties broken
-    by path for a stable, byte-deterministic result. Every source is represented and its
-    content carried verbatim; nothing is invented. Same sources in -> same model out,
-    which is exactly why the persisted view can never diverge from the truth.
+
+def plan_copies(sources: list[dict]) -> dict[str, str]:
+    """Pure core: sources -> {lab filename: absolute source path}.
+
+    Raises on a name collision rather than picking a winner — two intentions cannot share
+    one address, and a copier that quietly drops one is the silent-wrong-answer failure
+    (Law 7). Deterministic: same sources in, same plan out.
     """
-    ordered = sorted(sources, key=lambda s: (s.get("born", _UNBORN), s["source"]))
-    return {
-        "_do_not_edit": _DO_NOT_EDIT,
-        "compiled_from": ["intentions-not-beside-code/", "cairn/*/intention+why.json"],
-        "count": len(ordered),
-        "intentions": [
-            {
-                "id": s["id"],
-                "kind": s["kind"],
-                "source": s["source"],
-                "born": s.get("born", _UNBORN),
-                "content": s["content"],
-            }
-            for s in ordered
-        ],
-    }
+    plan: dict[str, str] = {}
+    for s in sorted(sources, key=lambda x: x["source"]):
+        name = lab_filename(s)
+        if name in plan and plan[name] != s["path"]:
+            raise ValueError(
+                f"lab filename collision: {name!r} claimed by both {plan[name]!r} "
+                f"and {s['path']!r}"
+            )
+        plan[name] = s["path"]
+    return plan
 
 
-# ── the today-shape: read the two source trees, born from git, one write-door ─
-
-
-def _born(path: str) -> str:
-    """The file's BIRTH (author) date, traced through renames — deterministic, and it
-    survives a fresh checkout (file mtime does not).
-
-    ``--follow`` is load-bearing, not a nicety: intentions RELOCATE. The roots were born
-    2026-07-14 ('the Telos as first stone') and only MOVED into ``intentions-not-beside-code/`` on
-    2026-07-22 ('the roots come home'). Plain first-add sees the move (2026-07-22) and
-    sinks the frame into the middle of the model; ``--follow`` traces past the rename to
-    the true birth (2026-07-14), which is what makes 'roots surface first' hold by physics
-    (Law 4) rather than needing a hand-placed born marker.
-
-    Falls back to the far-future sentinel for an uncommitted or git-less file, so a
-    not-yet-recorded source sorts last rather than crashing the compile (CP2 — a missing
-    timestamp is a disposition, not a fatal).
-    """
-    directory = os.path.dirname(path) or "."
-    try:
-        out = subprocess.run(
-            ["git", "-C", directory, "log", "--follow", "--format=%aI", "--",
-             os.path.basename(path)],
-            capture_output=True, text=True, check=True,
-        ).stdout.strip().splitlines()
-        return out[-1] if out else _UNBORN     # the LAST line is the earliest (birth) commit
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
-        return _UNBORN
-
-
-def _read_content(path: str):
-    """Embed a source verbatim: a .json source as its parsed object, anything else as text.
-
-    Parsing json keeps the model queryable; carrying prose (.md) as text keeps it lossless.
-    """
-    with open(path, encoding="utf-8") as f:
-        raw = f.read()
-    if path.endswith(".json"):
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError:
-            return raw                          # a malformed json source is carried as-is,
-    return raw                                  # loud by staying unparsed, never dropped
+# ── the today-shape: walk both source trees ───────────────────────────────────
 
 
 def gather_sources(commons_root: str, code_root: str) -> list[dict]:
     """Read both source trees into the pure core's source shape.
 
-    intentions-not-beside-code/  -> every file NOT prefixed ``_`` (the ``_charter+why.json`` that
-                          governs the store is not itself an intention).
-    cairn/*/            -> every ``intention+why.json`` beside a component's code.
+    ``intentions-not-beside-code/`` -> every file NOT prefixed ``_`` (the ``_charter+why.json``
+    that governs the store is a source of its own, not an intention to copy).
+    ``<repo>/**/intention+why.json`` -> every beside-code charter, anywhere in the repo.
     """
     sources: list[dict] = []
 
-    other = os.path.join(commons_root, "intentions-not-beside-code")
-    if os.path.isdir(other):
-        for name in sorted(os.listdir(other)):
+    homeless_dir = os.path.join(commons_root, "intentions-not-beside-code")
+    if os.path.isdir(homeless_dir):
+        for name in sorted(os.listdir(homeless_dir)):
             if name.startswith("_") or name.startswith("."):
                 continue
-            path = os.path.join(other, name)
+            path = os.path.join(homeless_dir, name)
             if not os.path.isfile(path):
                 continue
-            stem = name.rsplit(".", 1)[0]
             sources.append({
-                "id": stem,
+                "id": name.rsplit(".", 1)[0],
                 "kind": "homeless",
                 "source": f"intentions-not-beside-code/{name}",
-                "born": _born(path),
-                "content": _read_content(path),
+                "path": path,
             })
 
-    for component in sorted(os.listdir(code_root) if os.path.isdir(code_root) else []):
-        charter = os.path.join(code_root, component, "intention+why.json")
-        if os.path.isfile(charter):
-            sources.append({
-                "id": component,
-                "kind": "component-charter",
-                "source": f"{os.path.basename(code_root)}/{component}/intention+why.json",
-                "born": _born(charter),
-                "content": _read_content(charter),
-            })
+    for dirpath, dirnames, filenames in os.walk(code_root):
+        dirnames[:] = sorted(d for d in dirnames if d not in _SKIP_DIRS
+                             and not d.startswith("."))
+        if _CHARTER not in filenames:
+            continue
+        path = os.path.join(dirpath, _CHARTER)
+        rel = os.path.relpath(dirpath, code_root)
+        # The owning component's address, flattened: cairn/librarian -> cairn-librarian.
+        component = "repo-root" if rel == "." else rel.replace(os.sep, "-")
+        sources.append({
+            "id": component,
+            "kind": "component-charter",
+            "source": os.path.relpath(path, code_root),
+            "path": path,
+        })
 
     return sources
 
 
-def _atomic_write(path: str, data) -> None:
-    """Write JSON via temp file + rename, so a reader never sees a half-written model."""
-    directory = os.path.dirname(path) or "."
-    os.makedirs(directory, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.remove(tmp)
-        raise
+def lab_path(commons_root: str) -> str:
+    return os.path.join(commons_root, _LAB)
 
 
 def _default_roots() -> tuple[str, str]:
-    """code_root = the cairn PACKAGE dir (where components berth); commons_root = its
-    sibling CairnCommons repo (both overridable).
-
-    Derived from ``__file__`` so the door needs no absolute paths baked in — the same way
-    the proofs compute their root — and works after a fresh clone. The beside-code charters
-    live at ``<repo>/cairn/<component>/intention+why.json``, so the scan root is the
-    package dir ``<repo>/cairn``, not the repo root.
-    """
-    code_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # <repo>/cairn
-    repo_root = os.path.dirname(code_root)                                    # <repo>
-    commons_root = os.path.join(os.path.dirname(repo_root), "CairnCommons")   # sibling repo
-    return commons_root, code_root
+    """code_root = the REPO (charters berth all over it, not only under the package);
+    commons_root = its sibling CairnCommons. Derived from ``__file__`` so the door needs no
+    absolute paths baked in and works after a fresh clone."""
+    package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # <repo>/cairn
+    repo_root = os.path.dirname(package_dir)                                   # <repo>
+    commons_root = os.path.join(os.path.dirname(repo_root), "CairnCommons")
+    return commons_root, repo_root
 
 
-def model_path(commons_root: str) -> str:
-    """The single compiled artifact — beside the store's own charter, never overwriting it."""
-    return os.path.join(commons_root, "intentions-congruency-lab", "_model.json")
-
-
-def compile_to_disk(
+def copy_to_lab(
     commons_root: str | None = None,
     code_root: str | None = None,
-    out_path: str | None = None,
+    out_dir: str | None = None,
 ) -> dict:
-    """THE ONE WRITE-DOOR: gather both source trees, project, write the model. Returns it.
+    """THE ONE WRITE-DOOR: gather every intention, copy each into the lab, delete the stale.
 
-    This is the sole writer of ``intentions-congruency-lab/_model.json``. It touches nothing else in
-    ``intentions-congruency-lab/`` — the store's ``_charter+why.json`` is a hand-authored source, left
-    alone. Any prior model on disk (including a hand-edit) is overwritten by the fresh
-    projection: the view is never authoritative (Law 7).
+    Returns ``{"copied": [...], "removed": [...], "count": n}``. Anything in the lab that is
+    not a current copy is REMOVED, so the folder is exactly the corpus — except names
+    prefixed ``_``, which are the store's own hand-authored records and are never touched.
     """
     d_commons, d_code = _default_roots()
     commons_root = commons_root or d_commons
     code_root = code_root or d_code
-    out_path = out_path or model_path(commons_root)
+    out_dir = out_dir or lab_path(commons_root)
 
-    model = compile_model(gather_sources(commons_root, code_root))
-    _atomic_write(out_path, model)
-    return model
+    plan = plan_copies(gather_sources(commons_root, code_root))
+    os.makedirs(out_dir, exist_ok=True)
+
+    for name, src in plan.items():
+        shutil.copyfile(src, os.path.join(out_dir, name))
+
+    removed = []
+    for name in sorted(os.listdir(out_dir)):
+        if name.startswith("_") or name.startswith("."):
+            continue
+        if name not in plan:
+            target = os.path.join(out_dir, name)
+            if os.path.isfile(target):
+                os.remove(target)
+                removed.append(name)
+
+    return {"copied": sorted(plan), "removed": removed, "count": len(plan)}
 
 
-if __name__ == "__main__":       # a bare hand-crank: `python3 -m ...compiler` compiles once
-    m = compile_to_disk()
-    print(f"compiled {m['count']} intentions -> intentions-congruency-lab/_model.json "
-          f"(roots first: {[i['id'] for i in m['intentions'][:2]]})")
+if __name__ == "__main__":       # a bare hand-crank: `python3 -m ...compiler` copies once
+    r = copy_to_lab()
+    print(f"copied {r['count']} intention+why files -> {_LAB}/"
+          + (f"; removed {len(r['removed'])} stale: {r['removed']}" if r["removed"] else ""))

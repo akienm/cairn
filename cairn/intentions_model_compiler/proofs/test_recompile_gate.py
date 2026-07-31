@@ -37,43 +37,41 @@ def _tree(d: str) -> tuple[str, str]:
     code = os.path.join(d, "cairn")
     os.makedirs(os.path.join(commons, "intentions-not-beside-code"))
     os.makedirs(os.path.join(commons, "intentions-congruency-lab"))
-    os.makedirs(os.path.join(code, "base"))
+    os.makedirs(os.path.join(code, "cairn", "base"))
     with open(os.path.join(commons, "intentions-not-beside-code", "telos.md"), "w") as f:
         f.write("the frame")
-    with open(os.path.join(code, "base", "intention+why.json"), "w") as f:
+    with open(os.path.join(code, "cairn", "base", "intention+why.json"), "w") as f:
         json.dump({"what": "substrate"}, f)
     return commons, code
 
 
 def _run(commons: str, code: str, out: str, logdir: str) -> subprocess.CompletedProcess:
     env = {**os.environ, "CAIRN_COMMONS_ROOT": commons, "CAIRN_CODE_ROOT": code,
-           "CAIRN_MODEL_OUT": out, "CAIRN_LOG_DIR": logdir}
+           "CAIRN_LAB_OUT": out, "CAIRN_LOG_DIR": logdir}
     return subprocess.run(["bash", str(_GATE)], capture_output=True, text=True, env=env)
 
 
 def test_the_gate_pokes_the_door():
     with tempfile.TemporaryDirectory() as d:
         commons, code = _tree(d)
-        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
-        r = _run(commons, code, out, os.path.join(d, "logs"))
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        r = _run(commons, code, lab, os.path.join(d, "logs"))
         assert r.returncode == 0, f"the gate must exit 0, got {r.returncode}: {r.stderr!r}"
-        with open(out, encoding="utf-8") as f:
-            model = json.load(f)
-        assert {i["id"] for i in model["intentions"]} == {"telos", "base"}, \
-            "both source trees compiled in via the gate — a no-op gate writes no model"
+        got = {n for n in os.listdir(lab) if not n.startswith("_")}
+        assert got == {"telos.md", "cairn-base--intention+why.json"}, \
+            f"both source trees copied in via the gate — a no-op gate copies nothing; got {got}"
 
 
-def test_the_gate_reverts_a_stale_model():
+def test_the_gate_reverts_a_hand_edited_copy():
     with tempfile.TemporaryDirectory() as d:
         commons, code = _tree(d)
-        out = os.path.join(commons, "intentions-congruency-lab", "_model.json")
-        with open(out, "w") as f:
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        with open(os.path.join(lab, "telos.md"), "w") as f:
             f.write("HAND-EDITED GARBAGE")
-        _run(commons, code, out, os.path.join(d, "logs"))
-        with open(out, encoding="utf-8") as f:
-            model = json.load(f)     # would raise if still garbage
-        assert {i["id"] for i in model["intentions"]} == {"telos", "base"}, \
-            "the stale model was reverted to the true projection (drift does not survive a gate firing)"
+        _run(commons, code, lab, os.path.join(d, "logs"))
+        with open(os.path.join(lab, "telos.md"), encoding="utf-8") as f:
+            assert f.read() == "the frame", \
+                "the hand-edit was reverted to the source (drift does not survive a gate firing)"
 
 
 def test_non_blocking_but_loud_in_the_record():
@@ -83,7 +81,7 @@ def test_non_blocking_but_loud_in_the_record():
         blocker = os.path.join(d, "blocker")
         with open(blocker, "w") as f:
             f.write("x")
-        out = os.path.join(blocker, "cannot", "_model.json")
+        out = os.path.join(blocker, "cannot", "lab")
         logdir = os.path.join(d, "logs")
         r = _run(commons, code, out, logdir)
         assert r.returncode == 0, "a failed recompile never blocks the session (exit 0)"
@@ -95,14 +93,14 @@ def test_non_blocking_but_loud_in_the_record():
 def _main() -> int:
     checks = [
         test_the_gate_pokes_the_door,
-        test_the_gate_reverts_a_stale_model,
+        test_the_gate_reverts_a_hand_edited_copy,
         test_non_blocking_but_loud_in_the_record,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — recompile_gate: the write gate pokes the compile door (the model appears "
-          "and reverts drift), never blocks a save, and records a failed compile rather than "
+    print("green — recompile_gate: the write gate pokes the copy door (the lab fills and "
+          "reverts drift), never blocks a save, and records a failed run rather than "
           "swallowing it (Law 7). Host-noticing, not owner-emitting — the IOU is in the charter.")
     return 0
 

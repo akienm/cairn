@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# cairn ruling — the ruling intake gate's front door.
+#
+# A thin registration against the dispatcher, matching bin/cmd/test: resolve the
+# interpreter, hand off, keep the exit code. It owns no logic about what it runs (Law 6).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+# Same interpreter resolution as `cairn test`: outside a superclaude session the venv is
+# not on PATH, so bare python3 is system python and cannot import cairn.
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.ruling.cli "$@"

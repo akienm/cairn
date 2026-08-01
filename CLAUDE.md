@@ -112,6 +112,22 @@ shrinks monotonically.
   tell a concern about work in flight from the word "caveat" in a retrospective;
   the host's prompt-type hook (an LLM adjudicates) is the ceiling when that residue
   is shown to matter. · *ticket pending — sibling of the `troubles/` drain below*
+- Akien's intent outranks the code. Code and its green proofs are evidence of what was
+  **built**, never of what is **intended** — a proof means conformance to a spec, and a
+  spec is exactly what a ruling changes. So a ruling enters through one door: a packet
+  carrying **his words verbatim** beside a one-line reading, **what dies**, and **what
+  conforms** — which he confirms before any code moves.
+  → `cairn ruling` BUILT 2026-07-31 (`cairn/ruling/`, proof 15/15), records in
+  `CairnCommons/decisions/`. The intake door refuses a self-confirmed packet, an invented
+  path, or a padded reading, and reports every refusal on the first pass; a Stop hook reds
+  every turn while a ruling is unconfirmed or contradicted on disk. Built the day the code
+  won four arguments against the spec — two hours on one of them. What is **not** physics
+  and never will be: whether the reading is right. The gate makes a misreading cost thirty
+  seconds instead of two hours; it does not make it rarer. Residue: **nothing makes me open
+  a packet** — the hook sees packets that exist, not rulings never recorded. Measured before
+  reaching for a detector, as the turnscan IOU taught: ruling-shaped language fires on 28.5%
+  of 855 real prompts, so the lexical route is noise. The host's LLM-adjudicated prompt hook
+  is the ceiling. · *ticket pending — sibling of the turn-shape scan above*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

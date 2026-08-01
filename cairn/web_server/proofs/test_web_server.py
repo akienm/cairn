@@ -33,6 +33,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+# The trace wire fires on every serve(); a proof run is not a real firing, so its
+# records go to a scratch berth — the live denominator stays honest.
+import os, tempfile  # noqa: E401
+os.environ["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="ws-proof-traces-")
+
 from cairn.base.core_values import CoreValuesMixin
 from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim
@@ -161,6 +166,21 @@ def test_the_crossings_are_no_longer_silent():
         "with no receiver wired the records HOLD (Law 7) — never silently dropped"
 
 
+def test_the_trace_wire_counts_a_pass_and_a_refusal():
+    """Deploy pass 2026-08-01: a 200 traces door_pass, a 404 traces send_back with the
+    lack named — the denominator exists, greens included (the Leah rule)."""
+    from cairn.learning_block import learning_block as lb
+    web, _ = _wired()
+    seen_before = len(lb.read_trace("web_server"))
+    web.serve("/device/alpha")
+    web.serve("/device/ghost")
+    recs = lb.read_trace("web_server")[seen_before:]
+    events = [r["event"] for r in recs]
+    assert events == ["door_pass", "send_back"], f"both firings counted: {events}"
+    assert "404" in recs[1]["data"]["lacks"][0], "the refusal names its lack"
+    assert all(r["consumer"] == "training" for r in recs), "the denominator must not expire"
+
+
 def _main() -> int:
     for check in (test_the_nav_is_the_roster,
                   test_a_device_page_renders_its_panes,
@@ -168,7 +188,8 @@ def _main() -> int:
                   test_everything_a_device_says_is_escaped,
                   test_an_absent_pane_renders_its_reason,
                   test_the_web_server_owns_no_state_and_is_a_device,
-                  test_the_crossings_are_no_longer_silent):
+                  test_the_crossings_are_no_longer_silent,
+                  test_the_trace_wire_counts_a_pass_and_a_refusal):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — web_server: the nav IS the roster, a device page renders its panes pulled live "

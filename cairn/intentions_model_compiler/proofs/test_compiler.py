@@ -40,6 +40,10 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+# The trace wire fires on every copy_to_lab call; a proof run is not a real firing,
+# so its records go to a scratch berth — the live denominator stays honest.
+os.environ["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="imc-proof-traces-")
+
 from cairn.intentions_model_compiler import compiler
 
 

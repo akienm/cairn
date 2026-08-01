@@ -52,6 +52,10 @@ def _bash(script: str, *, logger: Path | None = None, env: dict | None = None,
     src = logger if logger is not None else _LOGGER
     base = {k: v for k, v in os.environ.items()
             if k not in ("CAIRN_LOGTARGET", "logtarget", "CAIRN_LOGLEN", "loglen")}
+    # The trace wire fires once per sourced shell; a proof shell is not a real firing,
+    # so its records go to a scratch berth — the live denominator stays honest.
+    base["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="lfb-proof-traces-")
+    base["PYTHONPATH"] = str(_LOGGER.parents[1])
     full = f'source "{src}"\n{script}\n'
     return subprocess.run(["bash", "-c", full], capture_output=True, text=True,
                           env={**base, **(env or {})}, cwd=cwd)
@@ -405,6 +409,45 @@ def test_a_shell_with_no_history_still_records_its_first_command():
             f"a shell with no inherited history lost its first real command:\n{body}")
 
 
+def test_the_trace_wire_fires_once_per_shell_green_and_red():
+    """Deploy pass 2026-08-01: first successful write traces door_pass, an unwritable
+    target traces send_back naming the target — once per shell each, backgrounded,
+    never fatal. The wire is asynchronous, so the tooth waits for the record."""
+    import json
+    import time
+
+    def _wait_records(root: str, want: int, timeout: float = 10.0) -> list:
+        path = Path(root) / "logger_for_bash.jsonl"
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if path.exists():
+                recs = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+                if len(recs) >= want:
+                    return recs
+            time.sleep(0.1)
+        return []
+
+    with tempfile.TemporaryDirectory() as d:
+        troot = tempfile.mkdtemp(prefix="lfb-wire-green-")
+        r = _bash('lognote one; lognote two; wait',
+                  env={"CAIRN_LOGTARGET": _log(d), "CAIRN_LB_TRACE_ROOT": troot})
+        assert r.returncode == 0
+        recs = _wait_records(troot, 1)
+        assert [x["event"] for x in recs] == ["door_pass"], \
+            f"two writes, ONE door_pass (grain is the shell, not the line): {recs}"
+
+    troot = tempfile.mkdtemp(prefix="lfb-wire-red-")
+    r = _bash('lognote will-fail; lognote again; wait',
+              env={"CAIRN_LOGTARGET": "/proc/no-such/impossible",
+                   "CAIRN_LB_TRACE_ROOT": troot})
+    assert r.returncode == 0, "an unwritable target must still never kill the caller"
+    recs = _wait_records(troot, 1)
+    assert [x["event"] for x in recs] == ["send_back"], \
+        f"the refusal is counted once: {recs}"
+    assert "/proc/no-such/impossible" in recs[0]["data"]["lacks"][0], \
+        "the send_back names what could not be written"
+
+
 def _main() -> int:
     checks = [
         test_the_original_defects_are_real,          # non-vacuity first
@@ -428,6 +471,7 @@ def _main() -> int:
         test_two_shells_writing_at_once_keep_both_records,
         test_a_child_process_renames_the_namespace_without_touching_the_parents,
         test_the_install_is_idempotent_and_reversible,
+        test_the_trace_wire_fires_once_per_shell_green_and_red,
     ]
     for check in checks:
         check()

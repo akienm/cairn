@@ -138,8 +138,24 @@ _logbash_write() {
     if [[ -z "${_LOGBASH_WARNED:-}" ]]; then
       _LOGBASH_WARNED=1
       echo "logger_for_bash: cannot append to $target — logging is off for this shell" >&2
+      # THE TRACE WIRE (deploy pass, approved 2026-08-01): the one-per-shell warning
+      # used to be the ONLY record of a logger that couldn't log, and stderr scrolls
+      # away. Now the refusal is COUNTED — once per shell, fire-and-forget, and it can
+      # never take the caller down (`|| true` in a backgrounded subshell: this file's
+      # own never-abort law extends to its wire).
+      ( python3 -m cairn.learning_block trace logger_for_bash send_back write \
+          "cannot append to $target" >/dev/null 2>&1 || true ) &
+      disown 2>/dev/null || true
     fi
     return 1
+  fi
+  # Green half of the same wire, same grain (once per shell, at the FIRST successful
+  # write — not per line; the denominator is shells-that-logged, and greens count too).
+  if [[ -z "${_LOGBASH_TRACED:-}" ]]; then
+    _LOGBASH_TRACED=1
+    ( python3 -m cairn.learning_block trace logger_for_bash door_pass first_write \
+        >/dev/null 2>&1 || true ) &
+    disown 2>/dev/null || true
   fi
   return 0
 }

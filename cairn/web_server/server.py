@@ -32,9 +32,11 @@ FILED EDGES (children of this stone, not faked):
 
 from __future__ import annotations
 
+import sys
 from urllib.parse import parse_qs
 
 from cairn.base.device import BaseDevice
+from cairn.learning_block.learning_block import write_trace
 from cairn.web_server import render
 
 
@@ -147,6 +149,21 @@ class WebServerDevice(BaseDevice):
         # rides the same breadcrumb as a 200, because the surface collapsing an error into a
         # coherent page (Law 7) must not also collapse the record that it happened.
         self.emit("serve", pointer=path, values={"status": status})
+        # THE TRACE WIRE (deploy pass, approved 2026-08-01): a request is a firing at
+        # this surface's door. 200 traces door_pass; a 404/500 traces send_back with the
+        # lack named — the surface still collapses the error into a coherent page
+        # (Law 7); the wire only makes sure the refusal is COUNTED. Best-effort by the
+        # surface's own law: a broken wire is loud on stderr, never a broken page.
+        try:
+            if status == 200:
+                write_trace("web_server", "door_pass", "training",
+                            {"op": "serve", "path": path})
+            else:
+                write_trace("web_server", "send_back", "training",
+                            {"op": "serve", "path": path,
+                             "lacks": [f"{status} at {path!r}"]})
+        except Exception as e:  # noqa: BLE001 — the page renders; the miss is loud
+            print(f"web_server: trace wire failed: {e}", file=sys.stderr)
         return status, "text/html; charset=utf-8", document
 
     def _deliver(self, shim, device: str, body: str | None) -> str | None:

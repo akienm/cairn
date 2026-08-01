@@ -207,6 +207,24 @@ else
   _sc_log "exec: $claude_bin $*"
 fi
 
+# ── THE TRACE WIRE (deploy pass, approved 2026-08-01): a launch is a firing ──
+# door_pass on a clean floor; send_back with the lack NAMED when the preflight was
+# bypassed or left residue — launched anyway (the prime directive is untouched), but
+# COUNTED: the boot log tells one launch's story, the trace makes launches a rate.
+# Backgrounded and `|| true` by the same directive: the wire may never slow or abort
+# the launch. A dry-run is not a launch and traces nothing.
+if [[ "$dry_run" -eq 0 ]]; then
+  _sc_wire_event="door_pass"; _sc_wire_lacks=()
+  if [[ "$no_preflight" -eq 1 ]]; then
+    _sc_wire_event="send_back"; _sc_wire_lacks+=("preflight bypassed by --no-preflight")
+  elif [[ -n "${residue:-}" ]]; then
+    _sc_wire_event="send_back"; _sc_wire_lacks+=("preflight residue: $residue")
+  fi
+  ( python3 -m cairn.learning_block trace superclaude "$_sc_wire_event" launch \
+      ${_sc_wire_lacks[@]+"${_sc_wire_lacks[@]}"} >/dev/null 2>&1 || true ) &
+  disown 2>/dev/null || true
+fi
+
 if [[ "$dry_run" -eq 1 ]]; then
   echo "# superclaude --dry-run"
   echo "# context: $context_state"

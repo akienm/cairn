@@ -152,21 +152,27 @@ def copy_to_lab(
     code_root = code_root or d_code
     out_dir = out_dir or lab_path(commons_root)
 
-    plan = plan_copies(gather_sources(commons_root, code_root))
-    os.makedirs(out_dir, exist_ok=True)
+    # THE TRACE WIRE (deploy pass, approved 2026-08-01): the write-door is a firing.
+    # A clean copy traces door_pass; a refusal (the collision raise) traces send_back
+    # with the lack named, and still raises exactly as before — the wire observes,
+    # never swallows.
+    from cairn.learning_block.learning_block import traced
+    with traced("intentions_model_compiler", "copy_to_lab"):
+        plan = plan_copies(gather_sources(commons_root, code_root))
+        os.makedirs(out_dir, exist_ok=True)
 
-    for name, src in plan.items():
-        shutil.copyfile(src, os.path.join(out_dir, name))
+        for name, src in plan.items():
+            shutil.copyfile(src, os.path.join(out_dir, name))
 
-    removed = []
-    for name in sorted(os.listdir(out_dir)):
-        if name.startswith("_") or name.startswith("."):
-            continue
-        if name not in plan:
-            target = os.path.join(out_dir, name)
-            if os.path.isfile(target):
-                os.remove(target)
-                removed.append(name)
+        removed = []
+        for name in sorted(os.listdir(out_dir)):
+            if name.startswith("_") or name.startswith("."):
+                continue
+            if name not in plan:
+                target = os.path.join(out_dir, name)
+                if os.path.isfile(target):
+                    os.remove(target)
+                    removed.append(name)
 
     return {"copied": sorted(plan), "removed": removed, "count": len(plan)}
 

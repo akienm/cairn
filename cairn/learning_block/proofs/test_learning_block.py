@@ -279,6 +279,46 @@ def test_dial_is_none_before_any_verdict_and_mutates_nothing():
     assert before == after, "a dial read touched the world (a view that writes is a device)"
 
 
+# ── trace-wire teeth (the deploy pass's retrofit idiom) ──────────────────────
+
+def test_traced_wire_green_and_red_and_reraise():
+    root = world()
+    with lb.traced("wired", "op-green", now=NOW, root=root):
+        pass
+    try:
+        with lb.traced("wired", "op-red", now=NOW, root=root):
+            raise ValueError("the lack itself")
+        raise AssertionError("traced() must re-raise — the wire observes, never swallows")
+    except ValueError:
+        pass
+    recs = lb.read_trace("wired", root=root)
+    events = [r["event"] for r in recs]
+    assert events == ["door_pass", "send_back"], f"green then red, both firings: {events}"
+    assert recs[0]["data"] == {"op": "op-green"}
+    assert recs[1]["data"]["lacks"] == ["ValueError: the lack itself"], \
+        "a send_back names its lack"
+    assert all(r["consumer"] == "training" for r in recs), \
+        "the wire's default consumer is training — the denominator must not expire"
+
+
+def test_shell_door_traces_and_refuses():
+    import os as _os
+    import subprocess
+    root = world()
+    env = dict(_os.environ, CAIRN_LB_TRACE_ROOT=str(root), PYTHONPATH=str(REPO))
+    run = lambda *args: subprocess.run(  # noqa: E731
+        [sys.executable, "-m", "cairn.learning_block", *args],
+        env=env, capture_output=True, text=True)
+    assert run("trace", "sh", "door_pass", "launch").returncode == 0
+    assert run("trace", "sh", "send_back", "launch", "the lack").returncode == 0
+    r = run("trace", "sh", "send_back", "launch")           # a refusal without its lack
+    assert r.returncode == 2 and "lack" in r.stderr, "an unnamed refusal teaches nothing"
+    r = run("trace", "sh", "finding", "x")                  # not a firing event
+    assert r.returncode == 2 and "firing" in r.stderr
+    d = json.loads(run("dial", "sh").stdout)
+    assert d["firings"] == 2 and d["send_backs"] == 1, f"the shell door feeds the dial: {d}"
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]

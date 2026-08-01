@@ -31,6 +31,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+# The trace wire fires on every serve(); a proof run is not a real firing, so its
+# records go to a scratch berth — the live denominator stays honest.
+import os, tempfile  # noqa: E401
+os.environ["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="ws-proof-traces-")
+
 from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim
 from cairn.ground_loop.loop import GroundLoopDevice

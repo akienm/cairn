@@ -46,7 +46,9 @@ def _tree(d: str) -> tuple[str, str]:
 
 
 def _run(commons: str, code: str, out: str, logdir: str) -> subprocess.CompletedProcess:
-    env = {**os.environ, "CAIRN_COMMONS_ROOT": commons, "CAIRN_CODE_ROOT": code,
+    # A proof-poked gate run is not a real firing: its trace goes to a scratch berth.
+    env = {**os.environ, "CAIRN_LB_TRACE_ROOT": tempfile.mkdtemp(prefix="rg-proof-traces-"),
+           "CAIRN_COMMONS_ROOT": commons, "CAIRN_CODE_ROOT": code,
            "CAIRN_LAB_OUT": out, "CAIRN_LOG_DIR": logdir}
     return subprocess.run(["bash", str(_GATE)], capture_output=True, text=True, env=env)
 

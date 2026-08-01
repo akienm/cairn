@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -133,6 +134,28 @@ def write_trace(block: str, event: str, consumer: str, data: dict, *,
     tmp.write_text("\n".join(kept) + "\n")
     os.replace(tmp, path)
     return record
+
+
+@contextmanager
+def traced(block: str, op: str, *, consumer: str = "training",
+           now: datetime | None = None, root: Path | None = None):
+    """THE TRACE WIRE — one line retrofits an existing door (deploy pass, approved
+    2026-08-01): wrap the door's work; a clean exit traces ``door_pass``, an
+    exception traces ``send_back`` with the refusal named as the lack, then
+    re-raises untouched. The dial counts both as firings.
+
+    Consumer defaults to ``training`` deliberately: greens are the denominator
+    (the Leah rule) and must not expire the way debug records do — a decaying
+    denominator would silently bend every rate the dial reports.
+    """
+    try:
+        yield
+    except BaseException as exc:
+        write_trace(block, "send_back", consumer,
+                    {"op": op, "lacks": [f"{type(exc).__name__}: {exc}"]},
+                    now=now, root=root)
+        raise
+    write_trace(block, "door_pass", consumer, {"op": op}, now=now, root=root)
 
 
 def read_trace(block: str, *, root: Path | None = None) -> list[dict]:

@@ -16,5 +16,23 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_compiler.py passes under python3",
+    "caller": "fable:fix-the-recompile (ticket intentions-model-compiler close, Akien: fix the recompile / approved go go go)",
+    "date": "2026-08-01T12:51:01",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\ngreen — intentions_model_compiler: intentions-congruency-lab/ holds a BYTE-IDENTICAL copy of every intention+why in both trees (all of them, not just cairn/*/); a removed source removes its copy; a hand-edit is overwritten; a name collision raises; the store's own _charter+why.json is never touched (Law 6/7)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

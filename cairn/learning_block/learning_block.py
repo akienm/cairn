@@ -324,3 +324,35 @@ def dial(block: str, *, root: Path | None = None) -> dict:
     judged = counts["approvals"] + counts["disproves"]
     counts["match_rate"] = (counts["approvals"] / judged) if judged else None
     return counts
+
+
+# ── THE GATE QUEUE — what stands awaiting a verdict ──────────────────────────
+
+def pending_findings(gate: str | None = None, *, root: Path | None = None) -> list[dict]:
+    """Every finding no approve/disprove has answered, oldest first.
+
+    The pendingness rule (settled at the 2026-08-01 recordverdict chart): a
+    QUESTION does not clear a finding — a question is the gate owner asking,
+    not disposing, so the finding stays at the gate until an approve or
+    disprove names its id. Pure read, the dial's own law: no write, no sweep,
+    no mutation — session open and the bare command may call this freely.
+    """
+    base = root if root is not None else trace_root()
+    if not base.is_dir():
+        return []
+    findings: list[dict] = []
+    answered: set[str] = set()
+    for path in sorted(base.glob("*.jsonl")):
+        for rec in read_trace(path.stem, root=base):
+            event = rec.get("event")
+            if event == "finding":
+                findings.append(rec)
+            elif event == "verdict":
+                data = rec.get("data") or {}
+                if data.get("signal") in ("approve", "disprove") and data.get("finding_id"):
+                    answered.add(data["finding_id"])
+    pend = [f for f in findings if f.get("id") not in answered]
+    if gate is not None:
+        pend = [f for f in pend if f.get("block") == gate]
+    pend.sort(key=lambda r: str(r.get("when", "")))
+    return pend

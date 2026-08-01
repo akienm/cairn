@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_slate.py passes under python3",
+    "caller": "sail:recordverdict-cli-door",
+    "date": "2026-08-01T13:03:07",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   bare run starts with the banner rule\n  ok   bare run is not JSON\n\n12. a finding awaiting his verdict prints at the gate, above the slate\n  ok   the lane announces the gate\n  ok   the finding's block and bullet ride along\n  ok   the answering command is named\n  ok   the gate prints ABOVE the slate\n  ok   exit 0\n  ok   the receipt counts the gate\n\n13. an empty gate adds nothing to the banner\n  ok   no gate section\n  ok   the receipt still carries the moving value\n\n14. an unreadable trace berth says so and the session still opens\n  ok   the failure is named\n  ok   the banner survives (never-wedge)\n\n50/50 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

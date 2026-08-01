@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# cairn recordverdict — Akien's gate act from his own shell (ticket recordverdict-cli-door).
+#
+# A thin registration against the cairn dispatcher: exec into the primitive's shell
+# door, args verbatim, exit code intact. NO logic here — the learning_block owns the
+# door (Law 6), and this wrapper adds no second path into CairnCommons/learning/.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+cd "$REPO"
+exec python3 -m cairn.learning_block recordverdict "$@"

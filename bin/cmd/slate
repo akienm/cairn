@@ -180,14 +180,32 @@ def _live_troubles() -> tuple[list[dict], str | None]:
         return [], f"trouble lane failed to read: {exc}"
 
 
-def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None) -> str:
-    """The one line Akien sees. Carries the two values that MOVE — which slate was
-    chosen, and how many troubles are live — so a wrong answer is visible at a
-    glance. A fixed string here would be a receipt for having a hook, not for
-    having read the slate."""
+def _at_the_gate() -> tuple[list[dict], str | None]:
+    """Findings awaiting Akien's verdict. The learning_block owns pendingness
+    (a question keeps a finding at the gate; only approve/disprove clear it) —
+    this lane only renders what the primitive's own reader says (Law 6), the
+    same never-a-second-owner rule the trouble lane lives by."""
+    sys.path.insert(0, str(REPO))
+    try:
+        from cairn.learning_block.learning_block import pending_findings
+    except Exception as exc:
+        return [], f"gate lane unreachable: {exc}"
+    try:
+        return pending_findings(), None
+    except Exception as exc:
+        return [], f"gate lane failed to read: {exc}"
+
+
+def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None,
+             pending: list, g_err: str | None) -> str:
+    """The one line Akien sees. Carries the values that MOVE — which slate was
+    chosen, how many troubles are live, and how many findings stand at his gate
+    — so a wrong answer is visible at a glance. A fixed string here would be a
+    receipt for having a hook, not for having read the slate."""
     which = "NO SLATE RESTORED" if slate is None else str(slate.get("id") or (path.stem if path else "?"))
     lane = "trouble lane UNREACHABLE" if t_err else f"{len(troubles)} live trouble(s)"
-    return f"🪝 slate · {which} · {lane}"
+    gate = "gate lane UNREACHABLE" if g_err else f"{len(pending)} at the gate"
+    return f"🪝 slate · {which} · {lane} · {gate}"
 
 
 def build() -> tuple[str, str]:
@@ -197,6 +215,7 @@ def build() -> tuple[str, str]:
     lines: list[str] = []
 
     troubles, t_err = _live_troubles()
+    pending, g_err = _at_the_gate()
     path, slate, s_warn = _newest_slate()
 
     lines.append(_rule("═"))
@@ -220,11 +239,28 @@ def build() -> tuple[str, str]:
         lines.append("   no live troubles. (the normal operating state is zero — this is it.)")
         lines.append("")
 
+    # The gate, second — above the plan for the same reason troubles are: a finding
+    # awaiting his verdict is work only HE can move, and it must not hide below the
+    # slate. Zero pending prints NOTHING (the tool is invisible when it works).
+    if g_err:
+        lines.append(f"!! {g_err}")
+        lines.append("")
+    elif pending:
+        lines.append(f"⚖  AT AKIEN'S GATE — {len(pending)} finding(s) awaiting his verdict:")
+        for f in pending:
+            lines.append(f"   [{f.get('block', '?')}] {f.get('id', '?')}"
+                         f"  {str(f.get('when', ''))[:19]}")
+            for b in (f.get("data") or {}).get("bullets", []):
+                lines.append(_render(f"· {b.get('text', '')}", "        "))
+        lines.append(_wrap('answer with: cairn recordverdict [<block-or-id>] '
+                           '"<your words>"', "   "))
+        lines.append("")
+
     if slate is None:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
         lines.append(_rule("═"))
-        return "\n".join(lines), _receipt(None, None, troubles, t_err)
+        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err)
 
     if s_warn:
         lines.append(f"!! {s_warn}")
@@ -252,7 +288,7 @@ def build() -> tuple[str, str]:
         "that check is yours, it did not compile.", ""))
     lines.append(_rule("═"))
 
-    return "\n".join(lines), _receipt(slate, path, troubles, t_err)
+    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err)
 
 
 def main(argv: list[str]) -> int:

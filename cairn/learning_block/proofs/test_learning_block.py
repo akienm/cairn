@@ -319,6 +319,85 @@ def test_shell_door_traces_and_refuses():
     assert d["firings"] == 2 and d["send_backs"] == 1, f"the shell door feeds the dial: {d}"
 
 
+
+def test_pending_findings_rule():
+    """A finding stands at the gate until an approve or disprove names it —
+    a QUESTION does not clear it (a question is asking, not disposing)."""
+    root = world()
+    records = world()
+    a = lb.emit_finding("b1", [{"stratum": "code", "text": "alpha"}], now=NOW, root=root)
+    b = lb.emit_finding("b2", [{"stratum": "code", "text": "beta"}],
+                        now=NOW + timedelta(seconds=1), root=root)
+    c = lb.emit_finding("b2", [{"stratum": "tree", "text": "gamma"}],
+                        now=NOW + timedelta(seconds=2), root=root)
+    lb.record_verdict("b1", a, "approve", "Approved - alpha is right", session="proof",
+                      now=NOW + timedelta(seconds=3), records_dir=records, trace_dir=root)
+    lb.record_verdict("b2", b, "question", "question: why beta?", session="proof",
+                      now=NOW + timedelta(seconds=4), records_dir=records, trace_dir=root)
+    pend = lb.pending_findings(root=root)
+    assert [f["id"] for f in pend] == [b["id"], c["id"]], (
+        f"approve clears, question keeps, unanswered stays — got {[f['id'] for f in pend]}")
+    assert all(f["block"] == "b2" for f in lb.pending_findings("b2", root=root))
+    assert lb.pending_findings("b1", root=root) == [], "b1 was approved — nothing pends"
+
+
+def test_recordverdict_shell_door():
+    """The gate owner's own hand: bare lists, ambiguity refuses LISTING candidates,
+    an invented target refuses against the berth, empty/unparseable words refuse
+    with the lack named, and a recorded verdict derives its gate from the
+    finding's block (the lb-20260801-f4f21cbb mislabel, killed)."""
+    import os as _os
+    import subprocess
+    root = world()
+    parent = world()                      # CAIRN_ROOTS_PARENT -> parent/CairnCommons/learning/records
+    env = dict(_os.environ, CAIRN_LB_TRACE_ROOT=str(root),
+               CAIRN_ROOTS_PARENT=str(parent), PYTHONPATH=str(REPO))
+    run = lambda *args: subprocess.run(  # noqa: E731
+        [sys.executable, "-m", "cairn.learning_block", "recordverdict", *args],
+        env=env, capture_output=True, text=True)
+
+    lb.emit_finding("b1", [{"stratum": "code", "text": "alpha"}], now=NOW, root=root)
+    lb.emit_finding("b2", [{"stratum": "code", "text": "beta"}],
+                    now=NOW + timedelta(seconds=1), root=root)
+
+    r = run()                                            # bare = the gate, listed
+    assert r.returncode == 0 and "2 finding(s)" in r.stdout and "[b1]" in r.stdout
+
+    r = run("Approved - looks right")                    # two pending, no target
+    assert r.returncode == 2 and "[b1]" in r.stderr and "[b2]" in r.stderr, (
+        "an ambiguous act is refused LISTING the candidates")
+
+    r = run("nope-such-finding", "Approved - x")         # invented target
+    assert r.returncode == 2 and "matches nothing pending" in r.stderr
+
+    r = run("")                                          # empty words
+    assert r.returncode == 2 and "empty" in r.stderr
+
+    r = run("b1", "hmm interesting")                     # words say no signal
+    assert r.returncode == 2 and "no signal" in r.stderr
+
+    r = run("b1", "Approved - alpha holds")              # the act, from the shell
+    assert r.returncode == 0 and "approve" in r.stdout, r.stderr
+    store = parent / "CairnCommons" / "learning" / "records"
+    docs = list(store.glob("*.json"))
+    assert len(docs) == 1, f"one store file: {docs}"
+    rec = json.loads(docs[0].read_text())["records"][-1]
+    assert rec["gate"] == "b1", "the gate is DERIVED from the finding's block, never typed"
+    assert rec["signal"]["verbatim"] == "Approved - alpha holds"
+    assert rec["session"].startswith("shell:"), "a shell act says it came from the shell"
+
+    r = run("b2", "question", "question or not, why beta?")   # explicit signal
+    assert r.returncode == 0
+    r = run()
+    assert "1 finding(s)" in r.stdout and "[b2]" in r.stdout, (
+        "a question keeps the finding at the gate")
+
+    r = run("b2", "disprove", "no - beta is wrong")
+    assert r.returncode == 0
+    r = run()
+    assert "nothing stands at the gate" in r.stdout
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]

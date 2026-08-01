@@ -74,12 +74,33 @@ def test_no_wrapper_noise_on_the_success_path():
         assert r.stdout == "ONLY-THIS\n", f"the dispatcher added output of its own: {r.stdout!r}"
 
 
+def test_recordverdict_registration_is_wired_end_to_end():
+    """The REAL bin/cmd/recordverdict (no stub): args and exit codes ride intact
+    through dispatcher -> wrapper -> the primitive's shell door. Scratch-rooted so
+    the live berth and the real learning store are never touched."""
+    with tempfile.TemporaryDirectory() as tmp:
+        traces = os.path.join(tmp, "traces")
+        os.makedirs(traces)
+        env = {**os.environ, "CAIRN_LB_TRACE_ROOT": traces, "CAIRN_ROOTS_PARENT": tmp}
+        env.pop("CAIRN_CMD_DIR", None)                       # the real verb directory
+        r = subprocess.run([str(_DISPATCHER), "recordverdict"],
+                           capture_output=True, text=True, env=env)
+        assert r.returncode == 0 and "nothing stands at the gate" in r.stdout, (
+            f"bare against an empty berth: rc={r.returncode} out={r.stdout!r} err={r.stderr!r}")
+        r = subprocess.run([str(_DISPATCHER), "recordverdict", "Approved - but nothing pends"],
+                           capture_output=True, text=True, env=env)
+        assert r.returncode == 2 and "nothing stands at the gate" in r.stderr, (
+            "a verdict with no finding to judge is refused, and the exit code survives "
+            f"the wrapper: rc={r.returncode} err={r.stderr!r}")
+
+
 def _main() -> int:
     checks = [
         test_args_reach_the_subcommand_verbatim,
         test_exit_code_is_propagated,
         test_unknown_name_fails_loud,
         test_no_wrapper_noise_on_the_success_path,
+        test_recordverdict_registration_is_wired_end_to_end,
     ]
     for check in checks:
         check()

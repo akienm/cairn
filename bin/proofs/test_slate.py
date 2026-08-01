@@ -70,10 +70,16 @@ def check(label: str, condition: bool, detail: str = "") -> None:
         FAILURES.append(label)
 
 
-def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str) -> subprocess.CompletedProcess:
+def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
+        traces_dir: Path | str | None = None) -> subprocess.CompletedProcess:
     env = dict(os.environ)
     env["CAIRN_SLATES_DIR"] = str(slates_dir)
     env["CAIRN_TROUBLES_DIR"] = str(troubles_dir)
+    # The gate lane reads the trace berth; every case runs against a berth this
+    # proof owns (empty unless the case says otherwise) so a REAL pending finding
+    # can never rewrite fixture output.
+    env["CAIRN_LB_TRACE_ROOT"] = str(traces_dir if traces_dir is not None
+                                     else Path(env["CAIRN_SLATES_DIR"]).parent / "traces_empty")
     return subprocess.run([sys.executable, str(SLATE), *args],
                           capture_output=True, text=True, env=env)
 
@@ -261,6 +267,46 @@ def main() -> int:
         check("bare run starts with the banner rule", r.stdout.lstrip().startswith("═"),
               r.stdout[:120])
         check("bare run is not JSON", not r.stdout.lstrip().startswith("{"))
+
+        # ── 12. the AT-YOUR-GATE lane: a pending finding reaches session open ─────
+        print("\n12. a finding awaiting his verdict prints at the gate, above the slate")
+        g1 = root / "traces_pending"
+        g1.mkdir()
+        (g1 / "some-block.jsonl").write_text(json.dumps({
+            "block": "some-block", "event": "finding", "id": "f1e2d3c4b5a6",
+            "when": "2026-08-01T10:00:00+00:00", "consumer": "training",
+            "data": {"bullets": [{"stratum": "code", "text": "the wire landed"}]},
+        }) + "\n", encoding="utf-8")
+        r = run(s1, t_empty, traces_dir=g1)
+        check("the lane announces the gate", "AT AKIEN'S GATE" in r.stdout, r.stdout[:400])
+        check("the finding's block and bullet ride along",
+              "some-block" in r.stdout and "the wire landed" in r.stdout)
+        check("the answering command is named", "cairn recordverdict" in r.stdout)
+        check("the gate prints ABOVE the slate",
+              r.stdout.index("AT AKIEN'S GATE") < r.stdout.index("REAL"),
+              "a thing only HE can move must not hide below the plan")
+        check("exit 0", r.returncode == 0, f"rc={r.returncode}")
+        rj = run(s1, t_empty, "--hook", traces_dir=g1)
+        receipt = json.loads(rj.stdout)["systemMessage"]
+        check("the receipt counts the gate", "1 at the gate" in receipt, receipt)
+
+        # ── 13. zero pending is SILENT (the tool is invisible when it works) ───────
+        print("\n13. an empty gate adds nothing to the banner")
+        r = run(s1, t_empty)
+        check("no gate section", "AT AKIEN'S GATE" not in r.stdout)
+        rj = run(s1, t_empty, "--hook")
+        receipt = json.loads(rj.stdout)["systemMessage"]
+        check("the receipt still carries the moving value", "0 at the gate" in receipt, receipt)
+
+        # ── 14. a broken gate lane is LOUD and never wedges session open ───────────
+        print("\n14. an unreadable trace berth says so and the session still opens")
+        g_bad = root / "traces_bad"
+        g_bad.mkdir()
+        (g_bad / "corrupt.jsonl").write_text("this is not json\n", encoding="utf-8")
+        r = run(s1, t_empty, traces_dir=g_bad)
+        check("the failure is named", "gate lane" in r.stdout, r.stdout[:400])
+        check("the banner survives (never-wedge)", "REAL" in r.stdout and r.returncode == 0,
+              f"rc={r.returncode}")
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

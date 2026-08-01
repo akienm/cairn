@@ -8,6 +8,7 @@ moves; memory: proof-over-live-data-assert-invariants).
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -112,6 +113,35 @@ def main() -> None:
     # 7 — census refuses an empty/wrong root rather than reporting an empty world.
     _refuses(lambda: device_census(root=tmp / "nowhere"),
              "a census of a nonexistent root must refuse, not report zero components")
+
+    # 7b — A COMPONENT IS NOT A PYTHON PACKAGE. Widened 2026-08-01 at the first skill to
+    #      cross PROVEME: skills/intent/ carries a charter, history, state, proofs/ and
+    #      probes/, and NO top-level .py — the old filter reported that whole root as
+    #      empty and the build gate refused an address it could not measure. Both halves
+    #      are pinned here because the union is the point: the charter admits the
+    #      markdown-implemented component, AND the charterless .py directory stays
+    #      visible (dropping it would blind cairnmap --gate to exactly the row it reads).
+    markdowncomp = root / "zz_markdown_only"
+    (markdowncomp / "proofs").mkdir(parents=True)
+    (markdowncomp / "intention+why.json").write_text('{"component": "zz_markdown_only"}')
+    (markdowncomp / "SKILL.md").write_text("# a component whose implementation is prose\n")
+    (markdowncomp / "proofs" / "test_zz.py").write_text("pass\n")
+    charterless = root / "zz_no_charter"
+    charterless.mkdir()
+    (charterless / "code.py").write_text("x = 1\n")
+    names = {r["component"]: r for r in device_census(root=root)["measured"]["components"]}
+    assert "zz_markdown_only" in names, (
+        "a directory carrying a charter is a component even with no top-level .py — "
+        f"the census saw only {sorted(names)}; this is the blindness that refused "
+        "skills/intent's PROVEME crossing on 2026-08-01"
+    )
+    assert names["zz_markdown_only"]["proofs"] == 1, names["zz_markdown_only"]
+    assert names["zz_no_charter"]["charter_on_disk"] is False, (
+        "the widening must be a UNION, not a swap — a .py directory with no charter has "
+        "to stay measurable, because charter_on_disk=False IS the finding"
+    )
+    for d in (markdowncomp, charterless):
+        shutil.rmtree(d)
 
     # 8 — REAL TREE, invariants only: floor honored, every row complete-shaped.
     real = device_census()

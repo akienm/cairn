@@ -566,21 +566,29 @@ def _entry_gate(ticket: str) -> str:
     """
     # Lazy on purpose, same boot-order law as the build gate below: the check's cost
     # lands only at the rare journaled BUILDME entry — an event, never a poll.
-    from cairn.build_inspector.inspector import buildme_rides_the_chart as _check
+    from cairn.build_inspector.inspector import buildme_rides_the_chart as _chart
+    from cairn.build_inspector.inspector import buildme_rides_the_intent as _intent
 
-    findings = _check(ticket)
+    # BOTH checks run, and their findings are reported TOGETHER. Not two gates in
+    # sequence: a caller missing both a chart and an /intent berth must learn both on
+    # the first pass, or fixing one only earns the right to be refused for the other
+    # (the complete-diagnostic-on-first-pass method, and Law 7 at a diagnostic surface).
+    findings = _chart(ticket) + _intent(ticket)
     if not findings:
-        return "clean — a berthed chart chain claims ticket %r" % ticket
+        return (
+            "clean — a berthed chart chain claims ticket %r, and the ticket names its "
+            "/intent firing" % ticket
+        )
     lines = [
         f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
         for f in findings
     ]
     raise EntryGateRed(
-        f"BUILDME crossing refused: cast ticket {ticket!r} has no berthed chart chain "
-        "claiming it — skipping /chart is a build error, the same physics that refuses "
-        "skipping a stage inside the chain. Nothing was journaled. Run /chart for this "
-        "request (its validate berth carries the claim), then cross again:\n"
+        f"BUILDME crossing refused for cast ticket {ticket!r} — {len(findings)} "
+        "finding(s), all named on this first pass. Skipping /chart or /intent is a build "
+        "error, the same physics that refuses skipping a stage inside the chain. Nothing "
+        "was journaled. Fix what is named below, then cross again:\n"
         + "\n".join(lines),
         findings=findings,
     )

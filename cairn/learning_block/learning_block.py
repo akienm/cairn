@@ -182,11 +182,23 @@ def declare_contract(block: str, requires: dict[str, str]) -> dict:
 
 
 def check_input(contract: dict, payload: dict) -> list[dict]:
-    """Every lack, in one pass. A dribbled refusal costs the sender a round-trip per field."""
+    """Every lack, in one pass. A dribbled refusal costs the sender a round-trip per field.
+
+    AN EMPTY COLLECTION IS A LACK (added 2026-08-01, ticket intent-becomes-a-learning-block).
+    ``bullets: []`` is not a bullet list — it is the *absence* of one wearing the field's
+    name, and without this it sailed through the door as "present". Found while wiring the
+    first skill onto the primitive: the alternative was a second check beside ``fire_door``,
+    which would have made the door two doors (Law 6). Fixing the organ keeps it one.
+    """
     lacks = []
     for field, why in contract["requires"].items():
         value = payload.get(field)
-        if value is None or (isinstance(value, str) and not value.strip()):
+        empty = (
+            value is None
+            or (isinstance(value, str) and not value.strip())
+            or (isinstance(value, (list, tuple, dict, set)) and not value)
+        )
+        if empty:
             lacks.append({"field": field, "why": why})
     return lacks
 

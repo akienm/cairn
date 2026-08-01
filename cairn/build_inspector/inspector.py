@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -1252,6 +1253,130 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
         "refuse. Disposition: run /chart for this request (the validate berth carries "
         "the claim), then cross again.",
     )]
+
+
+# ── THE INTENT GATE (ticket intent-becomes-a-learning-block, 2026-08-01) ─────
+# Akien's ruling, 2026-08-01: "no cast without /intent" — the door is PHYSICS, not
+# policy. He selected it over a self-checking door, knowing the cost: /intent becomes
+# mandatory before any cast, which gates CC's casting and not his direction.
+#
+# WHY THE CLAIM TRAVELS THE OPPOSITE WAY FROM THE CHART'S. buildme_rides_the_chart
+# globs berths for a packet CLAIMING a ticket. That cannot work here: /intent fires
+# BEFORE /sorted casts, so an intent berth can never know a ticket id that does not
+# exist yet. So the ticket names its berth instead. Field and check are one act — a
+# field nothing reads is policy wearing physics' clothes, which is the defect this
+# whole ticket exists to close.
+#
+# THE NAMED EXEMPTION, AND THE NUMBER THAT FORCED IT. Measured before wiring, as the
+# turnscan IOU taught: 25 of 70 filed tickets sit at or before BUILDME and ZERO carry
+# an intent_berth. A gate that reds on absence reds a quarter of the backlog. So the
+# gate accepts "none, because <X>" — the same shape /sorted already uses for watchme,
+# where silence is the failure and a named exemption is legal. You must say something;
+# what you may not do is say nothing. The exemption is recorded in the gate note, so
+# an exempted crossing is visible in the journal rather than indistinguishable from a
+# berthed one.
+
+
+_EXEMPT_PREFIX = "none, because "
+# Matched on the RAW value, not a stripped one: `"none, because "` — the exemption with
+# nothing after it — loses its trailing space to .strip() and then fails a
+# startswith(_EXEMPT_PREFIX) test, so the blank exemption fell through to the path
+# branch and was refused as an unreadable berth. Same red, wrong reason, and a wrong
+# reason at a diagnostic surface sends the reader to fix a path that was never a path.
+_EXEMPT_RE = re.compile(r"^\s*none,\s+because\b", re.IGNORECASE)
+
+
+def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff the cast ticket names an /intent firing — either a
+    readable berth for skill ``intent``, or an explicit ``none, because <X>`` exemption.
+
+    Red returns ONE finding naming the ticket, what was wanted and what was found —
+    complete on the first pass, nothing to re-run.
+    """
+    # Lazy, the same boot-order law the entry/exit gates already follow: the cost lands
+    # only at a journaled BUILDME entry, and the inspector does not grow a load-time
+    # dependency on the seam it merely reads.
+    from cairn.skill_block.skill_block import read_berth
+
+    root = tickets_root if tickets_root is not None else _TICKETS_ROOT
+    filed = ticket_path(ticket, root=root)
+    if filed is None:
+        return []
+    try:
+        doc = json.loads(Path(filed).read_text())
+    except (OSError, json.JSONDecodeError):
+        # Not this gate's finding to make: an unfiled or unreadable ticket is already
+        # the chokepoint's own refusal ("a named-but-uncast ticket is an error to fix"),
+        # and two filters reporting one fault is noise at the diagnostic surface.
+        return []
+
+    berth = doc.get("intent_berth") if isinstance(doc, dict) else None
+    why = (
+        "Akien's ruling 2026-08-01: /intent is the cheapest gate in the system and an "
+        "intention that shouldn't exist dies there, before any cost is spent on it "
+        "(Law 1). A ticket that cannot name its /intent firing was cast without one — "
+        "or with one nobody recorded, which is the same thing to every later reader "
+        "(Law 3). Disposition: fire /intent for this request and put its berth path in "
+        "the ticket's 'intent_berth', or record an explicit exemption "
+        f"('{_EXEMPT_PREFIX}<why>') — silence is the one answer that is not legal."
+    )
+
+    if berth is None:
+        return [_finding(
+            "buildme_rides_the_intent", ticket,
+            "ticket %r names no /intent firing — no 'intent_berth' field at all" % ticket,
+            {"ticket": ticket, "ticket_file": str(filed), "found": None,
+             "wanted": "an 'intent_berth' path to a berthed /intent firing, or "
+                       f"'{_EXEMPT_PREFIX}<why>'"},
+            why,
+        )]
+
+    if not isinstance(berth, str) or not berth.strip():
+        return [_finding(
+            "buildme_rides_the_intent", ticket,
+            "ticket %r carries an empty or non-string 'intent_berth'" % ticket,
+            {"ticket": ticket, "ticket_file": str(filed), "found": berth,
+             "wanted": "a berth path, or " + f"'{_EXEMPT_PREFIX}<why>'"},
+            why,
+        )]
+
+    exempt = _EXEMPT_RE.match(berth)
+    if exempt:
+        reason = berth[exempt.end():].strip()
+        if not reason:
+            return [_finding(
+                "buildme_rides_the_intent", ticket,
+                "ticket %r claims an /intent exemption with no reason after "
+                "'%s'" % (ticket, _EXEMPT_PREFIX),
+                {"ticket": ticket, "ticket_file": str(filed), "found": berth},
+                "An exemption whose reason is blank is silence with a prefix on it. The "
+                "whole point of the named exemption is that a later reader can judge it.",
+            )]
+        return []
+
+    doc_berth = read_berth(berth)
+    if doc_berth is None:
+        return [_finding(
+            "buildme_rides_the_intent", ticket,
+            "ticket %r names an /intent berth that does not read: %s" % (ticket, berth),
+            {"ticket": ticket, "ticket_file": str(filed), "intent_berth": berth,
+             "found": "missing or unparseable"},
+            "A berth path that resolves to nothing is state reported from records — the "
+            "gate would be passing on a promise. " + why,
+        )]
+
+    if doc_berth.get("skill") != "intent":
+        return [_finding(
+            "buildme_rides_the_intent", ticket,
+            "ticket %r names a berth for skill %r, not 'intent'"
+            % (ticket, doc_berth.get("skill")),
+            {"ticket": ticket, "ticket_file": str(filed), "intent_berth": berth,
+             "found_skill": doc_berth.get("skill")},
+            "The gate reads which skill actually fired, not which one the field is named "
+            "after — otherwise any berth at all would satisfy it. " + why,
+        )]
+
+    return []
 
 
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────

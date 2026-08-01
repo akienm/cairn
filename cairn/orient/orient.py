@@ -125,9 +125,23 @@ def device_census(*, root: Path | None = None) -> dict:
             f"device_census: {root} is not a directory — a census of nowhere must refuse, "
             "not report zero components (a clean-looking empty world is the proxy error)."
         )
+    # WHAT MAKES A DIRECTORY A COMPONENT — widened 2026-08-01, at the first skill to
+    # cross PROVEME through the build gate. The old test was "top-level *.py", which is
+    # a test for PYTHON, not for a component: skills/intent/ carries a charter, a
+    # history, a state, proofs/ and probes/ — everything CLAUDE.md names — and its only
+    # .py files live one level down, so the census reported skills/ as EMPTY and the
+    # build gate refused the crossing rather than pass an address it could not measure.
+    # The disposition the gate itself named was "grow the census", and CLAUDE.md already
+    # says what a component is: "A component without an intention doesn't run." So the
+    # charter is the other admission door. Measured before widening: under cairn/ the
+    # two tests select the SAME 23 directories (no row added, none dropped), and under
+    # skills/ the charter test finds the 9 that were invisible. Kept as a UNION, not a
+    # swap — a directory with .py and no charter must stay visible, because
+    # charter_on_disk=False on a real row is exactly the finding cairnmap --gate reads.
     components = sorted(
         d for d in root.iterdir()
-        if d.is_dir() and d.name != "__pycache__" and list(d.glob("*.py"))
+        if d.is_dir() and d.name != "__pycache__"
+        and (list(d.glob("*.py")) or (d / "intention+why.json").is_file())
     )
     if not components:
         raise ScanRefused(f"device_census: no component directories under {root} — wrong root?")

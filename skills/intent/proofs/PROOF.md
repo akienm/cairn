@@ -1,23 +1,36 @@
-# Proof obligation — skill:/intent
+# Proof — skill:/intent
 
-Law 5: every component carries its proofs beside its code. This records the
-obligation until the mechanism that discharges it exists.
+**The obligation is discharged. This file is now a pointer, not an IOU.**
 
-## The gate this node must pass
+    python3 skills/intent/proofs/test_intent_skill.py     # exit 0 = green
 
-A `skill`-class node reaches `done` only when **cairnmap recompiles green** — the
-derivation gate (MAP.md, "Gates, not supervisors"). Completeness both ways:
+Eight teeth: the anatomy is a *call* the markdown fires (not a paragraph about
+one), both exits are instructed including the kill, SKILL.md and the charter's
+`input_contract` cannot drift apart, every contract field carries a why worth
+reading, a real firing against the real charter traces its green and emits a
+finding, the kill exit fires the same door, an incomplete packet is refused with
+every lack named at once, and the skill class's derivation gate is green.
 
-- **falsifier** — cairnmap renders this skill from `intention+why.json`, AND no
-  charter-less command renders. An undocumented command is impossible by
-  construction.
-- **status** — IOU. cairnmap is not built yet (it lands with the presentation
-  surface, near the web server on the spine). Until then this obligation is
-  recorded, not enforced — a tracked debt (Law 4), not a resting state.
+The v0 hand-run behavioral checks this file used to carry are now teeth: "fires
+the five nexus questions in order" is the drift tooth (the questions are checked
+against the charter's contract, both directions), and "a description that traces
+to nothing is routed out, not massaged into belonging" is the kill-exit tooth —
+which is stronger than the hand-run version, because the kill now leaves a berth
+behind instead of leaving the conversation.
 
-## v0 behavioral check (hand-run, until the gate is physics)
+## What this file used to say, and why that matters
 
-- `/intent <desc>` fires the five nexus questions in order.
-- A description that traces to nothing is routed **out** (not filed), not massaged
-  into belonging.
-- Nothing is cast or filed to commons by `/intent` alone.
+Until 2026-08-01 it recorded an IOU: *"cairnmap is not built yet… until then this
+obligation is recorded, not enforced."* That was **stale** — `cairn cairnmap
+--gate` had been built and runnable, and nothing here noticed, because a hand-run
+obligation note has no way to notice anything.
+
+Writing the tooth is what found it: the tooth was authored asserting the debt
+still stood, and it went red on its first run. Its first *real* run then caught a
+live defect — `cairn/skill_block/` had been built with no charter, which by
+CLAUDE.md means it does not run. Fixed at the point of discovery.
+
+That is the whole argument for an executable proof over a recorded obligation: a
+note cannot go stale loudly.
+
+Ticket: `intent-becomes-a-learning-block` (child b of `skills-migrate-one-blow`).

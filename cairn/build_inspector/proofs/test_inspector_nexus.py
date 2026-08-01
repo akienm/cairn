@@ -142,9 +142,19 @@ def test_the_fire_path_never_reaches_the_tree():
         # cairn.chart.verdict joined 2026-07-29 (proved-answers-the-chart): the
         # exit gate composes the ONE verdict-artifact validator — tree-free like
         # chart.orient, pinned transitively below.
-        inspector.__file__: ("__future__", "json", "os", "sys", "pathlib",
+        # re joined 2026-08-01 (intent-becomes-a-learning-block): the intent gate
+        # matches the "none, because <why>" exemption on the RAW field, and a
+        # hand-rolled prefix test on a stripped string is exactly how the blank
+        # exemption slipped into the wrong branch. stdlib, tree-free by definition.
+        # cairn.skill_block joined 2026-08-01 (same ticket): the intent gate reads a
+        # skill firing's berth through the seam's OWN reader rather than re-deriving
+        # the berth layout here — one address rule, two mouths that cannot disagree.
+        # It is tree-free, and so is the learning_block primitive beneath it; both
+        # are pinned transitively below.
+        inspector.__file__: ("__future__", "json", "os", "re", "sys", "pathlib",
                              "cairn.charter", "cairn.chart.orient",
-                             "cairn.chart.verdict", "cairn.orient.orient"),
+                             "cairn.chart.verdict", "cairn.orient.orient",
+                             "cairn.skill_block"),
         # os joined 2026-07-28 (decompose-filters): judge_decompose reads the
         # packet's survey_ref berth with its OWN minimal open — importing chart's
         # chain reader back would let the judged family shape the judge.
@@ -168,7 +178,9 @@ def test_the_fire_path_never_reaches_the_tree():
     # away and THIS tooth is the one that says so.
     import cairn.chart.orient as chart_orient
     import cairn.chart.verdict as chart_verdict
-    for mod in (chart_orient, chart_verdict):
+    import cairn.learning_block.learning_block as lb
+    import cairn.skill_block.skill_block as skill_block
+    for mod in (chart_orient, chart_verdict, skill_block, lb):
         mod_src = Path(mod.__file__).read_text(encoding="utf-8")
         for tree_door in ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain"):
             assert tree_door not in mod_src, (

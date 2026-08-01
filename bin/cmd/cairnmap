@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# cairn cairnmap — the help surface, compiled from charters.
+#
+# A thin registration against the dispatcher, matching bin/cmd/ruling: resolve the
+# interpreter, hand off, keep the exit code. It owns no logic of what it runs (Law 6).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+# NO `cd "$REPO"` here, unlike bin/cmd/ruling: cairnmap's context IS the caller's cwd
+# (the ruling: contextual, scoped by WHERE you stand). The import path comes via
+# PYTHONPATH instead, so standing in a component's directory still briefs on it.
+export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+exec "$PY" -m cairn.cairnmap.cli "$@"

@@ -878,6 +878,13 @@ reviewers`). Consequences:
 
 ## cairnmap — the help surface, compiled from charters (2026-07-15)
 
+**BUILT 2026-07-31** (`cairn/cairnmap/`, proof 14/14, ratified that night): `cairn
+cairnmap` renders the map, contextual by cwd; `cairn cairnmap --gate` is the
+derivation gate below — green on its first live run after its first four reds
+(uncharted commands: compile, slate, sudorelay, turnscan) were fixed at source, in
+the charters. Filed edges: the web-UI surface, and the PROVEME-crossing wiring that
+fires the gate automatically. The section below is the design it was built to.
+
 The system's reference: the main source of help, the answer to *"what can I do here,
 and how."* Others will use it; the query-commands built later (list open tickets, …)
 list themselves here too. Three rulings (Akien, 2026-07-15) fix what it is — **a view,

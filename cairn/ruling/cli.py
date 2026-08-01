@@ -30,7 +30,7 @@ _USAGE = """cairn ruling — the ruling intake gate (CairnCommons/decisions/)
   cairn ruling open <packet.json>   intake: refuse with every reason, or write
   cairn ruling list                 every ruling and its verdict
   cairn ruling verify <id>          the mechanical verdict for one
-  cairn ruling confirm <id>         Akien's sign-off on my reading
+  cairn ruling confirm <id> "<his words>"   his sign-off, with its source recorded
 """
 
 
@@ -75,9 +75,9 @@ def _cmd_verify(ruling_id: str) -> int:
     return 1
 
 
-def _cmd_confirm(ruling_id: str) -> int:
+def _cmd_confirm(ruling_id: str, evidence: list[str]) -> int:
     try:
-        path = ruling.confirm(ruling_id)
+        path = ruling.confirm(ruling_id, " ".join(evidence))
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -111,6 +111,10 @@ def _hook() -> int:
 def main(argv: list[str]) -> int:
     if "--hook" in argv:
         return _hook()
+    if "--corpus" in argv:
+        from cairn.ruling import corpus
+        i = argv.index("--corpus")
+        return corpus.report(argv[i + 1] if len(argv) > i + 1 else corpus.DEFAULT_CORPUS)
     if not argv:
         print(_USAGE, file=sys.stderr)
         return 2
@@ -122,8 +126,8 @@ def main(argv: list[str]) -> int:
         return _cmd_list()
     if verb == "verify" and rest:
         return _cmd_verify(rest[0])
-    if verb == "confirm" and rest:
-        return _cmd_confirm(rest[0])
+    if verb == "confirm" and len(rest) >= 2:
+        return _cmd_confirm(rest[0], rest[1:])
 
     print(f"cairn ruling: unknown or incomplete: {' '.join(argv)!r}\n", file=sys.stderr)
     print(_USAGE, file=sys.stderr)

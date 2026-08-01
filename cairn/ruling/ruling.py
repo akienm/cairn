@@ -255,8 +255,24 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
     return path
 
 
-def confirm(ruling_id: str, roots_parent: str | None = None) -> str:
-    """Akien's act. Flips ``confirmed`` and nothing else."""
+def confirm(ruling_id: str, evidence: str, roots_parent: str | None = None) -> str:
+    """Akien's act. Flips ``confirmed`` and records WHO SAID SO, verbatim.
+
+    ``evidence`` is required and refused empty. A bare ``confirmed: true`` would be the
+    same defect this whole component exists to fix, one layer up: a confirmation with no
+    written source, which the next reader can only reconstruct from whoever ran the
+    command. Recorded 2026-07-31, the first time the verb was used for real — Akien typed
+    the confirm command into the session rather than a shell, so the act was genuinely his
+    but the hand on the keyboard was mine, and nothing in the record could tell the
+    difference. Now the record carries his instruction and the mediator, and the two are
+    separate fields because they are separate facts.
+    """
+    if not isinstance(evidence, str) or not evidence.strip():
+        raise ValueError(
+            "confirm requires the EVIDENCE of Akien's confirmation, verbatim — a "
+            "confirmation with no written source is the defect this gate exists to fix, "
+            "one layer up (`cairn ruling confirm <id> \"<his words>\"`)")
+
     rp = roots_parent or _roots_parent()
     path = os.path.join(store_dir(rp), f"{ruling_id}.json")
     if not os.path.exists(path):
@@ -264,6 +280,8 @@ def confirm(ruling_id: str, roots_parent: str | None = None) -> str:
     with open(path, encoding="utf-8") as fh:
         record = json.load(fh)
     record["confirmed"] = True
+    record["confirmed_by"] = record.get("ruled_by", "Akien")
+    record["confirmation_verbatim"] = evidence.strip()
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(record, fh, indent=2, ensure_ascii=False)
         fh.write("\n")

@@ -25,11 +25,20 @@ Teeth a hollow gate could not pass:
     that cost two hours — rule a file dead, kill it (green), then regenerate it — must go
     RED. If this test passes on a build that never notices the file came back, the gate is
     ornamental.
+  - A CONFIRMATION CARRIES ITS OWN SOURCE. ``confirm`` refuses an empty evidence string and
+    records his words verbatim beside the flag. Found the first time the verb was used for
+    real: Akien typed the confirm command into the session rather than a shell, so the act
+    was his and the keystroke was mine, and a bare ``confirmed: true`` could not tell those
+    apart — this gate's own defect, one layer up.
   - THE OLDER NARRATIVE DECISIONS ARE NOT EATEN. ``kind: "decision"`` records in the same
     store are skipped, not migrated and not verified. A scanner that assumed the store was
     all its own trips this.
   - NON-VACUITY: a correct packet over a correct world is GREEN. Without this every tooth
     above could be passing because the gate reds unconditionally.
+  - THE RESIDUE MEASUREMENT STILL RUNS. Filed edge (b)'s falsifier is re-runnable, so the
+    28.5% cited in CLAUDE.md cannot decay into folklore. It asserts the INSTRUMENT, never
+    the value — the corpus grows, and pinning a legitimately-moving number turns a normal
+    day into a spurious red.
   - THE HOOK NEVER WEDGES A TURN and names what is open. Exit 0 with a systemMessage
     carrying the ruling's id; silent when nothing is red.
 
@@ -182,7 +191,7 @@ def test_the_day_this_was_built():
     with tempfile.TemporaryDirectory() as d:
         _world(d)
         ruling.open_ruling(_packet(), d)
-        ruling.confirm("2026-07-31-model-json-is-retired", d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
 
         model = os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json")
         os.remove(model)
@@ -199,11 +208,43 @@ def test_the_day_this_was_built():
             verdict["failures"]
 
 
+def test_a_confirmation_carries_its_own_source():
+    """The defect found the first time the verb was used for real, 2026-07-31.
+
+    Akien typed `cairn ruling confirm <id>` into the session rather than into a shell, so
+    the act was genuinely his and the hand on the keyboard was mine — and a bare
+    ``confirmed: true`` could not tell those apart. That is this component's own defect
+    one layer up: a confirmation with no written source, reconstructible only from whoever
+    ran the command.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(), d)
+
+        for empty in ("", "   ", None):
+            try:
+                ruling.confirm("2026-07-31-model-json-is-retired", empty, d)
+            except ValueError as exc:
+                assert "EVIDENCE" in str(exc), exc
+            else:
+                raise AssertionError(
+                    f"confirm({empty!r}) must RAISE — an unsourced confirmation is the "
+                    "defect this gate exists to fix, wearing the gate's own clothes")
+
+        ruling.confirm("2026-07-31-model-json-is-retired", "  yes, do that  ", d)
+        record = ruling.load_all(d)[0]
+        assert record["confirmed"] is True
+        assert record["confirmation_verbatim"] == "yes, do that", record
+        assert record["confirmed_by"] == "Akien", (
+            "who confirmed and what they said are SEPARATE facts — the ruler's name comes "
+            f"from the packet, the words from the act; got {record}")
+
+
 def test_an_untouched_conformer_is_red():
     with tempfile.TemporaryDirectory() as d:
         _world(d)
         ruling.open_ruling(_packet(), d)
-        ruling.confirm("2026-07-31-model-json-is-retired", d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
         os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
 
         verdict = ruling.verify(ruling.load_all(d)[0], d)
@@ -216,7 +257,7 @@ def test_a_conformer_deleted_by_mistake_is_red():
     with tempfile.TemporaryDirectory() as d:
         _world(d)
         ruling.open_ruling(_packet(), d)
-        ruling.confirm("2026-07-31-model-json-is-retired", d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
         os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
         os.remove(os.path.join(d, "cairn/cairn/compiler_thing/compiler.py"))
 
@@ -245,6 +286,33 @@ def test_absolute_paths_are_refused():
             _packet(what_dies=[os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json")]), d)
         assert any("absolute path" in r for r in bad), (
             f"a packet must survive a clone to another machine; got {bad}")
+
+
+def test_the_residue_measurement_still_runs():
+    """Filed edge (b)'s falsifier is re-runnable, so its number cannot become folklore.
+
+    A rate cited in CLAUDE.md whose script was deleted is a measurement that has to be
+    re-derived to be trusted — a Law 1 defect, and exactly how a loose number gets loose.
+    This does not assert the 28.5%: the corpus grows, so pinning the value would be
+    pinning a legitimately-moving number. It asserts the instrument still works.
+    """
+    from cairn.ruling import corpus
+
+    with tempfile.TemporaryDirectory() as d:
+        rows = [
+            {"type": "user", "message": {"content": "no, that's wrong"}},        # negate
+            {"type": "user", "message": {"content": "what does the compiler do?"}},
+            {"type": "user", "message": {"content": "<system-reminder>x</system-reminder>"}},
+            {"type": "assistant", "message": {"content": [{"type": "text", "text": "stop"}]}},
+        ]
+        Path(d, "t.jsonl").write_text("\n".join(json.dumps(r) for r in rows))
+        r = corpus.measure(os.path.join(d, "*.jsonl"))
+
+        assert r["prompts"] == 2, (
+            f"harness lines are not Akien talking, and counting them would inflate the "
+            f"denominator in the direction that flatters the hook; got {r}")
+        assert r["any"] == 1 and r["by_tier"]["negate"] == 1, r
+        assert r["rate"] == 0.5, r
 
 
 def test_the_hook_names_what_is_open_and_never_wedges_a_turn():
@@ -279,10 +347,12 @@ def _main() -> int:
         test_the_fingerprints_are_measured_not_authored,
         test_unconfirmed_is_red_over_a_perfect_tree,
         test_the_day_this_was_built,
+        test_a_confirmation_carries_its_own_source,
         test_an_untouched_conformer_is_red,
         test_a_conformer_deleted_by_mistake_is_red,
         test_the_older_narrative_decisions_are_not_eaten,
         test_absolute_paths_are_refused,
+        test_the_residue_measurement_still_runs,
         test_the_hook_names_what_is_open_and_never_wedges_a_turn,
     ]
     for check in checks:

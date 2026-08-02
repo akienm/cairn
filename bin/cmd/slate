@@ -81,6 +81,7 @@ COMMONS = REPO.parent / "CairnCommons"
 # fixture where the two orders disagree.
 SLATES = Path(os.environ.get("CAIRN_SLATES_DIR") or (COMMONS / "slates"))
 TROUBLES = os.environ.get("CAIRN_TROUBLES_DIR") or None       # None → the device's own default
+ADJUDICATIONS = Path(os.environ.get("CAIRN_ADJUDICATIONS_DIR") or (COMMONS / "adjudications"))
 
 # The fields the slates store charter ratifies as the resumption point. Kept in the
 # charter's own order, and named here rather than "everything in the file" so a slate
@@ -196,8 +197,40 @@ def _at_the_gate() -> tuple[list[dict], str | None]:
         return [], f"gate lane failed to read: {exc}"
 
 
+def _unadjudicated() -> tuple[list[dict], str | None]:
+    """THE LAP — things needing a decision by Akien, CC, or both, before they can be
+    anything else. Akien, 2026-08-02: "akien asks what's next? surface what's in that
+    folder."
+
+    Read straight off the directory, deliberately: this store has no device and does not
+    need one. An item is unresolved iff ``resolved`` is null/absent, which is a rule the
+    store's own charter states and nothing else owns — so reading it here is not a second
+    owner, it is the only one. When the store grows a device this moves behind it, exactly
+    as the trouble lane did.
+
+    A malformed item counts as UNRESOLVED and says so, the same direction the trouble
+    lane chose: a decision nobody can read is not a decision that got made (Law 7).
+    """
+    if not ADJUDICATIONS.is_dir():
+        return [], None                 # not every clone has one yet; silence, not noise
+    out, bad = [], []
+    for p in sorted(ADJUDICATIONS.glob("*.json")):
+        if p.name.startswith("_"):
+            continue
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:
+            bad.append(f"{p.name}: {exc}")
+            out.append({"id": p.stem, "what": "UNREADABLE — counts as unresolved",
+                        "whose": "?", "blocks": "?"})
+            continue
+        if not d.get("resolved"):
+            out.append(d)
+    return out, ("unreadable adjudication(s): " + "; ".join(bad)) if bad else None
+
+
 def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None,
-             pending: list, g_err: str | None) -> str:
+             pending: list, g_err: str | None, unadj: list | None = None) -> str:
     """The one line Akien sees. Carries the values that MOVE — which slate was
     chosen, how many troubles are live, and how many findings stand at his gate
     — so a wrong answer is visible at a glance. A fixed string here would be a
@@ -205,7 +238,8 @@ def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str |
     which = "NO SLATE RESTORED" if slate is None else str(slate.get("id") or (path.stem if path else "?"))
     lane = "trouble lane UNREACHABLE" if t_err else f"{len(troubles)} live trouble(s)"
     gate = "gate lane UNREACHABLE" if g_err else f"{len(pending)} at the gate"
-    return f"🪝 slate · {which} · {lane} · {gate}"
+    lap = f" · {len(unadj)} in the lap" if unadj else ""
+    return f"🪝 slate · {which} · {lane} · {gate}{lap}"
 
 
 def build() -> tuple[str, str]:
@@ -216,6 +250,7 @@ def build() -> tuple[str, str]:
 
     troubles, t_err = _live_troubles()
     pending, g_err = _at_the_gate()
+    unadj, a_err = _unadjudicated()
     path, slate, s_warn = _newest_slate()
 
     lines.append(_rule("═"))
@@ -256,11 +291,29 @@ def build() -> tuple[str, str]:
                            '"<your words>"', "   "))
         lines.append("")
 
+    # THE LAP, third — same tier as the gate and for the same reason: a thing that cannot
+    # be ticketed until somebody decides it is work only a person can move. Zero prints
+    # NOTHING. Akien, 2026-08-02: "akien asks what's next? surface what's in that folder."
+    if a_err:
+        lines.append(f"!! {a_err}")
+        lines.append("")
+    if unadj:
+        lines.append(f"🤝 NEEDS ADJUDICATION — {len(unadj)} item(s) in the lap:")
+        for a in unadj:
+            lines.append(f"   [{a.get('whose', '?')}] {a.get('id', '?')}")
+            lines.append(_render(a.get("what", "<no what recorded>"), "        "))
+            blocks = a.get("blocks")
+            if blocks:
+                lines.append(_render(f"blocks: {blocks}", "        "))
+        lines.append(_wrap("decide, then record `resolved` and which door it became "
+                           "(IDEA / INTENT / TICKET).", "   "))
+        lines.append("")
+
     if slate is None:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
         lines.append(_rule("═"))
-        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err)
+        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj)
 
     if s_warn:
         lines.append(f"!! {s_warn}")
@@ -288,7 +341,7 @@ def build() -> tuple[str, str]:
         "that check is yours, it did not compile.", ""))
     lines.append(_rule("═"))
 
-    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err)
+    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err, unadj)
 
 
 def main(argv: list[str]) -> int:

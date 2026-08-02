@@ -34,6 +34,10 @@ way this could be built that LOOKS right and is not:
      stdout must PARSE, must nest the banner under hookSpecificOutput.additional-
      Context, and must name hookEventName. Getting that nesting wrong loses the
      slate silently while still printing a cheerful receipt — so it is pinned.
+  8. THE LAP HIDES BY THE FIELD, NOT BY THE FILE. An adjudication leaves by recording
+     `resolved` and STAYING on disk, so the discriminator is that field. A build that
+     prints every file passes an "it surfaces" check and never stops shouting; one
+     that skips the malformed record loses a decision nobody can read.
 
 INVARIANTS, NOT SNAPSHOTS. Every case runs against a temp tree this proof owns, so
 nothing here pins a value that legitimately moves. The one live-data assertion (case
@@ -71,10 +75,18 @@ def check(label: str, condition: bool, detail: str = "") -> None:
 
 
 def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
-        traces_dir: Path | str | None = None) -> subprocess.CompletedProcess:
+        traces_dir: Path | str | None = None,
+        adjudications_dir: Path | str | None = None) -> subprocess.CompletedProcess:
     env = dict(os.environ)
     env["CAIRN_SLATES_DIR"] = str(slates_dir)
     env["CAIRN_TROUBLES_DIR"] = str(troubles_dir)
+    # The lap lane, same reason as the trace berth below: unset, every case would read
+    # the REAL CairnCommons/adjudications/ and fixture output would move whenever a real
+    # item was filed. A proof over live data can only assert invariants, and these cases
+    # assert exact text.
+    env["CAIRN_ADJUDICATIONS_DIR"] = str(
+        adjudications_dir if adjudications_dir is not None
+        else Path(env["CAIRN_SLATES_DIR"]).parent / "adjudications_empty")
     # The gate lane reads the trace berth; every case runs against a berth this
     # proof owns (empty unless the case says otherwise) so a REAL pending finding
     # can never rewrite fixture output.
@@ -307,6 +319,69 @@ def main() -> int:
         check("the failure is named", "gate lane" in r.stdout, r.stdout[:400])
         check("the banner survives (never-wedge)", "REAL" in r.stdout and r.returncode == 0,
               f"rc={r.returncode}")
+
+        # ── 15. THE LAP ───────────────────────────────────────────────────────────
+        # Akien, 2026-08-02: "akien asks what's next? surface what's in that folder."
+        # The whole value is that an undecided thing is IMPOSSIBLE to miss at session
+        # open, so the teeth are: unresolved surfaces, resolved does not, and the two
+        # are told apart by the field rather than by the file existing.
+        print("\n15. the lap surfaces what is undecided and hides what is decided")
+        a1 = root / "adjudications"
+        a1.mkdir()
+        (a1 / "_charter+why.json").write_text(
+            json.dumps({"store": "adjudications", "what": "CHARTERTEXT"}), encoding="utf-8")
+        (a1 / "undecided.json").write_text(json.dumps({
+            "id": "LAPOPENZZ", "whose": "akien", "what": "decide the thing",
+            "blocks": "BLOCKSTEXT", "resolved": None}), encoding="utf-8")
+        (a1 / "decided.json").write_text(json.dumps({
+            "id": "LAPSHUTZZ", "whose": "akien", "what": "already settled",
+            "resolved": {"at": "2026-08-02", "by": "akien", "became": "TICKET"}}),
+            encoding="utf-8")
+        r = run(s1, t_empty, adjudications_dir=a1)
+        check("an unresolved item surfaces", "LAPOPENZZ" in r.stdout, r.stdout[:400])
+        check("what it BLOCKS surfaces (an item that blocks nothing is a note)",
+              "BLOCKSTEXT" in r.stdout, r.stdout[:400])
+        check("a RESOLVED item does not surface", "LAPSHUTZZ" not in r.stdout,
+              "resolved is the discriminator, not the file's existence")
+        check("_-prefixed store files are not items", "CHARTERTEXT" not in r.stdout)
+        check("the count is the unresolved count", "1 item(s) in the lap" in r.stdout,
+              r.stdout[:400])
+
+        print("\n16. an unreadable item counts as UNRESOLVED, and is never silent")
+        # Same direction the trouble lane chose: a decision nobody can read is not a
+        # decision that got made (Law 7). The dangerous build is the one that skips it.
+        a2 = root / "adjudications_bad"
+        a2.mkdir()
+        (a2 / "corrupt.json").write_text("{not json", encoding="utf-8")
+        r = run(s1, t_empty, adjudications_dir=a2)
+        check("the unreadable file is named", "unreadable adjudication" in r.stdout,
+              r.stdout[:400])
+        check("it still COUNTS as in the lap", "1 item(s) in the lap" in r.stdout,
+              "a build that skips the malformed case passes hollow (Law 8)")
+        check("the banner survives (never-wedge)", "REAL" in r.stdout and r.returncode == 0,
+              f"rc={r.returncode}")
+
+        print("\n17. an empty lap — or none at all — is total silence")
+        # Both shapes are the same claim: nothing undecided, nothing printed. A fresh
+        # clone has no folder yet and must not open the session shouting.
+        a3 = root / "adjudications_empty_case"
+        a3.mkdir()
+        for label, d in (("empty", a3), ("absent", root / "no_such_dir")):
+            r = run(s1, t_empty, adjudications_dir=d)
+            check(f"{label}: no lap section, no lap receipt, no error claimed",
+                  "NEEDS ADJUDICATION" not in r.stdout
+                  and "in the lap" not in r.stdout
+                  and "unreadable adjudication" not in r.stdout, r.stdout[:300])
+            check(f"{label}: the banner survives", "REAL" in r.stdout and r.returncode == 0)
+
+        print("\n18. the receipt carries the lap count (it MOVES, so it cannot be fixed text)")
+        r = run(s1, t_empty, "--hook", adjudications_dir=a1)
+        payload = json.loads(r.stdout)
+        check("systemMessage names the lap", "1 in the lap" in payload.get("systemMessage", ""),
+              payload.get("systemMessage", ""))
+        check("the banner reaches the model via additionalContext",
+              "LAPOPENZZ" in payload.get("additionalContext", "")
+              or "LAPOPENZZ" in json.dumps(payload), json.dumps(payload)[:300])
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

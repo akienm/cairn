@@ -1,14 +1,21 @@
 ---
 name: intent
-description: Birth a node — a new track or an aside. Unpack WHAT/HOW and trace it to the Telos. The work loop's entry point; run before /challenge and /sorted.
+description: Birth a node — a new track or an aside. Unpack WHAT/HOW and trace it to the Telos. ONE OF THREE entry points (IDEA, INTENT, TICKET); run before /challenge and /sorted. A bug does not come here — it goes straight to TICKET.
 ---
 
 # /intent — birth a node
 
 You are firing the **intent nexus**: a fixed question set aimed at a fresh piece
-of work. Answers route it forward; failure to trace routes it out. This is the
-cheapest gate in the system — an intention that shouldn't exist dies here, before
-any cost is spent on it (Law 1).
+of work. Answers route it forward; failure to trace routes it out. An intention
+that shouldn't exist dies here, before any cost is spent on it (Law 1).
+
+**One of three entry points** (ruling 2026-08-02): **IDEA** — pre-intention design,
+where a thing is still being imagined; **INTENT** — this, where a piece of work is
+born and traced; **TICKET** — where a *bug* enters, directly. Not all three are
+skills yet. Do not route a bug through here: if editing lines of code fixes it, it
+is a ticket. Only if new information breaks the harmony of the system — an
+intention implemented contrary to the actual intention — is it **structural**, and
+structural is reconciled with Akien, not filed around.
 
 The charter for this skill lives beside it in `intention+why.json`. This file is the
 live question set; the charter is its compiled face.

@@ -49,10 +49,22 @@ in the existing code and is already built as ``cairn/orient/``. The intention na
 as distinct steps with one module each, and names Survey as the one that gets skipped;
 today measured that Orient is the one that gets OVERWRITTEN — by Survey's own output.
 
+SUPERSESSION IS THE RETIREMENT DOOR (grown 2026-08-02, against the first superseded
+ruling, exactly as filed edge (d) predicted). A misfiled packet cannot be edited in
+place — it carries Akien's ``confirmed: true`` and his verbatim confirmation, and
+rewriting a confirmed record erases his act (Law 7). And it cannot just sit red: a
+permanent red the hook prints every turn is noise, and noise gets trained away while
+still LOOKING like coverage. So retirement is an act through the door, like confirm:
+``supersede`` stamps the SUPERSEDING packet — never the retired one — with what it
+retires and the evidence for retiring it. The retired packet stays on disk, byte-
+identical, forever; it simply stops being OPEN, because a confirmed successor answers
+for it. ``list`` still shows it, marked, so the history is visible rather than silent.
+
     cairn ruling open <packet.json>      # intake: refuse or write
     cairn ruling list                    # what is open or red
     cairn ruling verify <id>             # the mechanical verdict
     cairn ruling confirm <id>            # Akien's act, not mine
+    cairn ruling supersede <old> <new>   # retire a misfiled packet, evidence required
     python3 cairn/ruling/proofs/test_ruling.py    # exit 0 = green
 """
 
@@ -288,6 +300,79 @@ def confirm(ruling_id: str, evidence: str, roots_parent: str | None = None) -> s
     return path
 
 
+def supersede(old_id: str, new_id: str, evidence: str,
+              roots_parent: str | None = None) -> str:
+    """THE RETIREMENT DOOR: retire ``old_id`` by stamping ``new_id`` as its successor.
+
+    Writes ONLY to the superseding record — the retired packet is never touched, so
+    Akien's confirmation on it survives byte-identical. Refuses with EVERY reason at
+    once, matching the intake door:
+
+      - evidence is required and refused empty, same rule as ``confirm`` and for the
+        same reason: an unsourced retirement is reconstructible only from whoever ran
+        the command;
+      - both packets must exist in the store, and a packet cannot supersede itself;
+      - the successor must be CONFIRMED — an unconfirmed reading cannot retire a
+        confirmed act; that would be my guess outvoting his signature;
+      - the successor must not itself be retired — a retired ruling answers for
+        nothing;
+      - the old packet must not already be retired — a second supersession of the same
+        id would silently overwrite the first act's evidence.
+    """
+    if not isinstance(evidence, str) or not evidence.strip():
+        raise ValueError(
+            "supersede requires the EVIDENCE for the retirement, verbatim — an "
+            "unsourced retirement is the confirm defect one layer up "
+            "(`cairn ruling supersede <old> <new> \"<why, in his words>\"`)")
+
+    rp = roots_parent or _roots_parent()
+    records = load_all(rp)
+    by_id = {r.get("id"): r for r in records}
+    retired = retired_ids(records)
+
+    out: list[str] = []
+    if old_id not in by_id:
+        out.append(f"no such ruling to retire: {old_id!r}")
+    if new_id not in by_id:
+        out.append(f"no such superseding ruling: {new_id!r}")
+    if old_id == new_id:
+        out.append("a ruling cannot supersede itself")
+    new = by_id.get(new_id)
+    if new is not None:
+        if not new.get("confirmed"):
+            out.append(f"{new_id} is UNCONFIRMED — an unconfirmed reading cannot "
+                       "retire a confirmed act")
+        if new_id in retired:
+            out.append(f"{new_id} is itself retired — a retired ruling answers for "
+                       "nothing")
+    if old_id in retired:
+        out.append(f"{old_id} is already retired — a second supersession would "
+                   "silently overwrite the first act's evidence")
+    if out:
+        raise ValueError("supersede refused (" + str(len(out)) + "):\n  - "
+                         + "\n  - ".join(out))
+
+    record = dict(new)
+    record["supersedes"] = {"id": old_id, "evidence": evidence.strip()}
+    path = os.path.join(store_dir(rp), f"{new_id}.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(record, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+    return path
+
+
+def retired_ids(records: list[dict]) -> set[str]:
+    """Every id retired by a CONFIRMED successor. A store-level fact, deliberately not
+    part of ``verify`` — the mechanical verdict stays record-local, and whether anyone
+    still has to ACT on that verdict is a property of the whole store."""
+    out: set[str] = set()
+    for r in records:
+        sup = r.get("supersedes")
+        if r.get("confirmed") and isinstance(sup, dict) and isinstance(sup.get("id"), str):
+            out.add(sup["id"])
+    return out
+
+
 def verify(record: dict, roots_parent: str | None = None) -> dict:
     """The mechanical verdict. ``{"id":…, "green": bool, "failures": [...]}``.
 
@@ -348,6 +433,12 @@ def load_all(roots_parent: str | None = None) -> list[dict]:
 
 
 def open_rulings(roots_parent: str | None = None) -> list[dict]:
-    """Every ruling whose verdict is red — unconfirmed, or contradicted on disk."""
+    """Every ruling whose verdict is red AND still anyone's to act on — unconfirmed,
+    or contradicted on disk, and not retired by a confirmed successor. A superseded
+    packet stays on disk and stays red under ``verify``; it is simply no longer OPEN,
+    because its successor answers for it."""
     rp = roots_parent or _roots_parent()
-    return [v for v in (verify(r, rp) for r in load_all(rp)) if not v["green"]]
+    records = load_all(rp)
+    retired = retired_ids(records)
+    return [v for v in (verify(r, rp) for r in records if r.get("id") not in retired)
+            if not v["green"]]

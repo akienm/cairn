@@ -31,6 +31,8 @@ _USAGE = """cairn ruling — the ruling intake gate (CairnCommons/decisions/)
   cairn ruling list                 every ruling and its verdict
   cairn ruling verify <id>          the mechanical verdict for one
   cairn ruling confirm <id> "<his words>"   his sign-off, with its source recorded
+  cairn ruling supersede <old-id> <new-id> "<evidence>"   retire a misfiled packet:
+                                    stamps the successor, never touches the retired
 """
 
 
@@ -52,8 +54,16 @@ def _cmd_list() -> int:
     if not records:
         print("no rulings in the store")
         return 0
+    # Presentation may collapse a retired packet's reds into one line (Law 7 allows a
+    # surface to do that); the record itself is untouched and verify still reds on it.
+    superseded_by = {r["supersedes"]["id"]: r["id"] for r in records
+                     if r.get("confirmed") and isinstance(r.get("supersedes"), dict)}
     red = 0
     for record in records:
+        if record.get("id") in superseded_by:
+            print(f"  ret'd  {record['id']}")
+            print(f"         → superseded by {superseded_by[record['id']]}")
+            continue
         verdict = ruling.verify(record)
         mark = "green" if verdict["green"] else "RED"
         print(f"  {mark:5}  {record['id']}")
@@ -61,7 +71,7 @@ def _cmd_list() -> int:
         for failure in verdict["failures"]:
             print(f"         ! {failure}")
         red += 0 if verdict["green"] else 1
-    print(f"\n{len(records)} ruling(s) · {red} red")
+    print(f"\n{len(records)} ruling(s) · {red} red · {len(superseded_by)} retired")
     return 0
 
 
@@ -82,6 +92,17 @@ def _cmd_confirm(ruling_id: str, evidence: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 1
     print(f"confirmed: {path}")
+    return 0
+
+
+def _cmd_supersede(old_id: str, new_id: str, evidence: list[str]) -> int:
+    try:
+        path = ruling.supersede(old_id, new_id, " ".join(evidence))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"retired: {old_id} — successor stamped at {path}")
+    print("the retired packet itself is untouched; `cairn ruling list` still shows it")
     return 0
 
 
@@ -128,6 +149,8 @@ def main(argv: list[str]) -> int:
         return _cmd_verify(rest[0])
     if verb == "confirm" and len(rest) >= 2:
         return _cmd_confirm(rest[0], rest[1:])
+    if verb == "supersede" and len(rest) >= 3:
+        return _cmd_supersede(rest[0], rest[1], rest[2:])
 
     print(f"cairn ruling: unknown or incomplete: {' '.join(argv)!r}\n", file=sys.stderr)
     print(_USAGE, file=sys.stderr)

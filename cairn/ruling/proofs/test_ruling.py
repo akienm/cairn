@@ -41,6 +41,12 @@ Teeth a hollow gate could not pass:
     day into a spurious red.
   - THE HOOK NEVER WEDGES A TURN and names what is open. Exit 0 with a systemMessage
     carrying the ruling's id; silent when nothing is red.
+  - RETIREMENT NEVER TOUCHES THE RETIRED (grown 2026-08-02 against the first
+    superseded ruling, as filed edge (d) predicted): ``supersede`` stamps the
+    confirmed successor and leaves the misfiled packet byte-identical; the retired
+    packet leaves the hook but stays on disk and stays red under ``verify``; an
+    unsourced, unconfirmed, doubled, or retired-by-the-retired supersession is
+    refused with every reason at once; an unrelated red is not silenced.
 
 Self-contained (a synthetic two-root world in a temp dir) and self-cleaning: the live
 CairnCommons store is never read or written.
@@ -315,6 +321,154 @@ def test_the_residue_measurement_still_runs():
         assert r["rate"] == 0.5, r
 
 
+def _misfile_world(d: str) -> tuple[str, str]:
+    """The 2026-08-02 scenario, replayed: a confirmed packet that misfiled a living
+    file under ``what_dies`` (red forever, hand-edit forbidden), and its confirmed,
+    conforming successor. Returns (misfiled_id, successor_id)."""
+    _world(d)
+    ruling.open_ruling(_packet(), d)
+    ruling.confirm("2026-07-31-model-json-is-retired", "i confirm all that", d)
+    # the misfiled packet is now RED: _model.json was "ruled dead" and is on disk.
+    ruling.open_ruling(_packet(
+        id="2026-08-01-the-refile", date="2026-08-01", what_dies=[],
+        what_conforms=["cairn/cairn/compiler_thing/compiler.py"]), d)
+    Path(d, "cairn/cairn/compiler_thing/compiler.py").write_text("# conformed\n")
+    ruling.confirm("2026-08-01-the-refile", "i confirm the refile", d)
+    return "2026-07-31-model-json-is-retired", "2026-08-01-the-refile"
+
+
+def test_supersede_refuses_with_every_reason():
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+
+        for empty in ("", "   ", None):
+            try:
+                ruling.supersede(old, new, empty, d)
+            except ValueError as exc:
+                assert "EVIDENCE" in str(exc), exc
+            else:
+                raise AssertionError("an unsourced retirement is the confirm defect "
+                                     "one layer up and must RAISE")
+
+        try:
+            ruling.supersede("2026-01-01-nope", "2026-01-01-nope", "words", d)
+        except ValueError as exc:
+            msg = str(exc)
+            assert "no such ruling to retire" in msg and "cannot supersede itself" in msg, (
+                f"EVERY refusal on the first pass, not twenty questions; got {msg}")
+        else:
+            raise AssertionError("unknown ids and self-supersession must refuse")
+
+        # an unconfirmed successor cannot retire a confirmed act
+        ruling.open_ruling(_packet(
+            id="2026-08-01-my-guess", date="2026-08-01", what_dies=[],
+            what_conforms=["cairn/cairn/compiler_thing/compiler.py"]), d)
+        try:
+            ruling.supersede(old, "2026-08-01-my-guess", "trust me", d)
+        except ValueError as exc:
+            assert "UNCONFIRMED" in str(exc), exc
+        else:
+            raise AssertionError("my unconfirmed guess outvoted his signature")
+
+
+def test_supersede_writes_only_to_the_superseding_record():
+    """The ticket's falsifier, clause (a): retiring must not edit the confirmed record."""
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        old_path = os.path.join(ruling.store_dir(d), f"{old}.json")
+        before = Path(old_path).read_bytes()
+
+        ruling.supersede(old, new, "  he said the file was never meant to die  ", d)
+
+        assert Path(old_path).read_bytes() == before, (
+            "the retired packet must stay BYTE-IDENTICAL — an in-place edit of a "
+            "confirmed record erases his act, which is the thing Law 7 forbids")
+        successor = [r for r in ruling.load_all(d) if r["id"] == new][0]
+        assert successor["supersedes"] == {
+            "id": old, "evidence": "he said the file was never meant to die"}, (
+            "the act lands on the SUCCESSOR, with its evidence, verbatim and stripped")
+
+
+def test_a_superseded_ruling_leaves_the_hook_but_not_the_disk():
+    """The ticket's falsifier, clause (b): the hook stops naming it — while verify,
+    the record-local verdict, stays honestly red and the file stays on disk."""
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        assert [v["id"] for v in ruling.open_rulings(d)] == [old], (
+            "PRECONDITION: before the act, the misfiled packet is the one open red")
+
+        ruling.supersede(old, new, "misfiled what_dies; the successor carries it", d)
+
+        assert ruling.open_rulings(d) == [], (
+            "a retired packet is no longer anyone's to act on — this red printing "
+            "every turn forever is exactly the noise the ticket names")
+        old_record = [r for r in ruling.load_all(d) if r["id"] == old][0]
+        assert not ruling.verify(old_record, d)["green"], (
+            "verify stays record-local and honestly red — supersession changes who "
+            "must ACT, never what the record says")
+        assert os.path.exists(os.path.join(ruling.store_dir(d), f"{old}.json")), (
+            "retired is not deleted; the record of truth is permanent")
+
+
+def test_a_retired_ruling_answers_for_nothing():
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        ruling.supersede(old, new, "misfiled; successor carries it", d)
+
+        try:
+            ruling.supersede(old, new, "again, differently", d)
+        except ValueError as exc:
+            assert "already retired" in str(exc), exc
+        else:
+            raise AssertionError("a second supersession would silently overwrite the "
+                                 "first act's evidence")
+
+        ruling.open_ruling(_packet(
+            id="2026-08-01-a-third", date="2026-08-01", what_dies=[],
+            what_conforms=["cairn/cairn/compiler_thing/compiler.py"]), d)
+        ruling.confirm("2026-08-01-a-third", "yes", d)
+        try:
+            ruling.supersede("2026-08-01-a-third", old, "retire by the retired", d)
+        except ValueError as exc:
+            assert "itself retired" in str(exc), exc
+        else:
+            raise AssertionError("a retired ruling cannot retire another — that is "
+                                 "the two-act mutual-silencing hole")
+
+
+def test_supersession_does_not_silence_an_unrelated_red():
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        ruling.open_ruling(_packet(
+            id="2026-08-01-still-unconfirmed", date="2026-08-01", what_dies=[],
+            what_conforms=["cairn/cairn/compiler_thing/compiler.py"]), d)
+
+        ruling.supersede(old, new, "misfiled; successor carries it", d)
+
+        assert [v["id"] for v in ruling.open_rulings(d)] == ["2026-08-01-still-unconfirmed"], (
+            "retirement is one packet's, not a mute button — the unrelated red stays")
+
+
+def test_the_hook_goes_quiet_after_a_cli_supersession():
+    """Clause (b) at the real surface: the verb through the CLI, then --hook silent."""
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        env = {**os.environ, "CAIRN_ROOTS_PARENT": d, "PYTHONPATH": str(_REPO_ROOT)}
+        run = lambda *args: subprocess.run(
+            [sys.executable, "-m", "cairn.ruling.cli", *args], input="{}",
+            capture_output=True, text=True, cwd=str(_REPO_ROOT), env=env)
+
+        loud = run("--hook")
+        assert old in loud.stdout, f"PRECONDITION: the hook names the misfiled red; {loud.stdout!r}"
+
+        act = run("supersede", old, new, "misfiled", "what_dies;", "successor", "carries", "it")
+        assert act.returncode == 0, act.stderr
+
+        quiet = run("--hook")
+        assert quiet.returncode == 0 and quiet.stdout.strip() == "", (
+            f"the retired packet must leave the hook; got {quiet.stdout!r}")
+
+
 def test_the_hook_names_what_is_open_and_never_wedges_a_turn():
     with tempfile.TemporaryDirectory() as d:
         _world(d)
@@ -353,6 +507,12 @@ def _main() -> int:
         test_the_older_narrative_decisions_are_not_eaten,
         test_absolute_paths_are_refused,
         test_the_residue_measurement_still_runs,
+        test_supersede_refuses_with_every_reason,
+        test_supersede_writes_only_to_the_superseding_record,
+        test_a_superseded_ruling_leaves_the_hook_but_not_the_disk,
+        test_a_retired_ruling_answers_for_nothing,
+        test_supersession_does_not_silence_an_unrelated_red,
+        test_the_hook_goes_quiet_after_a_cli_supersession,
         test_the_hook_names_what_is_open_and_never_wedges_a_turn,
     ]
     for check in checks:

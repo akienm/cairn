@@ -77,57 +77,30 @@ changing).
 ## Rules awaiting physics
 
 Prose here is an IOU for enforcement. Each rule's home is its device's charter;
-this file points. Each retires the moment the tester enforces it — this section
-shrinks monotonically.
+this file points. Each retires the moment enforcement covers it — this section
+shrinks monotonically, and when a rule ships, only its **residue** stays.
+An IOU without a real ticket is itself the defect this section is made of.
 
 - Durable *relational* state — the graph trees — goes through `db_domain` / the
   store primitives; shareable provenance is git-JSON beside the code, not a row.
-  → tester import-scan · *ticket pending tickets-store*
-- A compiled view is never hand-edited: `state` is written only by the
-  projector's append door, and a record of truth is never changed in place.
-  → write-door built (shape-gated 2026-07-25); state-vs-history drift now reds
-  every journaled PROVEME exit (build_inspector at the emit-chokepoint,
-  2026-07-27). Residue: an in-place edit of history itself, and at-rest
-  components between voyages. · *ticket charter-state-history-split*
-- The inference host is reached only through `inference_domain`.
-  → kernel network ownership · *ticket pending tickets-store*
-- Port 5432 is reached only through `db_domain`.
-  → kernel-closed port · *ticket pending tickets-store*
+  → tester import-scan · *ticket owed*
+- The inference host is reached only through `inference_domain`; port 5432 only
+  through `db_domain`.
+  → kernel network ownership, kernel-closed port · *ticket owed*
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
-- Something goes wrong → it goes to exactly one of **two** places: **fixed now**, if
-  its functionality is needed now; otherwise **a ticket**, and it blocks before the
-  current thing is done. Not because an owner ruled it a blocker — because we build
-  on a solid foundation, always. The defect is the third path, where a concern is
-  raised and lands in neither: "one thing to point out… anyway, here's the plan".
-  A *label* is not a disposition — "unproven", "hypothesis", "my own damage"
-  followed by a proposal is the same defect wearing Law 3's clothes.
-  → Stop-hook scan BUILT 2026-07-31 (`bin/cmd/turnscan`, wired in
-  `.claude/settings.json`, proof 23/23). Measured before it was built, as the IOU
-  asked: 466 real turns, 6 reds, 1.3%. The scan fires unconditionally — that half
-  is physics. It does **not** block: it detects a missing disposition, and cannot
-  tell which of the two is owed (that turns on whether the functionality is needed
-  now), so it names the gap rather than choosing. Residue: the code floor cannot
-  tell a concern about work in flight from the word "caveat" in a retrospective;
-  the host's prompt-type hook (an LLM adjudicates) is the ceiling when that residue
-  is shown to matter. · *ticket pending — sibling of the `troubles/` drain below*
-- Akien's intent outranks the code. Code and its green proofs are evidence of what was
-  **built**, never of what is **intended** — a proof means conformance to a spec, and a
-  spec is exactly what a ruling changes. So a ruling enters through one door: a packet
-  carrying **his words verbatim** beside a one-line reading, **what dies**, and **what
-  conforms** — which he confirms before any code moves.
-  → `cairn ruling` BUILT 2026-07-31 (`cairn/ruling/`, proof 15/15), records in
-  `CairnCommons/decisions/`. The intake door refuses a self-confirmed packet, an invented
-  path, or a padded reading, and reports every refusal on the first pass; a Stop hook reds
-  every turn while a ruling is unconfirmed or contradicted on disk. Built the day the code
-  won four arguments against the spec — two hours on one of them. What is **not** physics
-  and never will be: whether the reading is right. The gate makes a misreading cost thirty
-  seconds instead of two hours; it does not make it rarer. Residue: **nothing makes me open
-  a packet** — the hook sees packets that exist, not rulings never recorded. Measured before
-  reaching for a detector, as the turnscan IOU taught: ruling-shaped language fires on 28.5%
-  of 855 real prompts, so the lexical route is noise. The host's LLM-adjudicated prompt hook
-  is the ceiling. · *ticket pending — sibling of the turn-shape scan above*
+
+**Residues.** These rules ARE physics and are deliberately not restated here —
+what remains is only the part enforcement cannot yet reach. Read the rule at its
+charter, never from this file.
+
+- `state`/`history` (append door + PROVEME drift check) → an in-place edit of
+  *history* itself, and at-rest components between voyages. · *ticket owed*
+- turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
+  in flight from "caveat" in a retrospective. · *ticket owed*
+- ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees
+  packets that exist, not rulings never recorded. · *ticket owed*
 
 This file has its own charter and stands the `/challenge` gate on a cadence —
 the file that briefs every session is the most-challenged artifact in the system.

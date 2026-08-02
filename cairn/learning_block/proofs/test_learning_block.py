@@ -398,6 +398,211 @@ def test_recordverdict_shell_door():
     assert "nothing stands at the gate" in r.stdout
 
 
+# ── engine teeth (ticket engine-runs-one-block, 2026-08-02) ──────────────────
+# The uniform inner loop: fixture specs only — the LIVE tenant spec berths beside its
+# own component and is exercised at live fire, never here (the corpus the probe counts
+# must be real work, not this file's fixtures — the home-field lesson).
+
+from cairn.learning_block import engine as eng  # noqa: E402
+
+
+def _spec_brew():
+    """Fixture block one: pick a brew method. Competition is real — the cheap candidate
+    dies to a constraint whenever the measured water is 'hard'."""
+    return {
+        "block": "fixture:brew",
+        "question": "which brew method does this water need?",
+        "input_contract": {"water": "the measured fact every candidate is judged against"},
+        "candidates": [
+            {"name": "quick_steep", "why": "cheapest when the water allows it",
+             "provides": {"works_with": ["soft"], "kettle": "any"}},
+            {"name": "full_boil", "why": "always sound, costs the most",
+             "provides": {"works_with": ["soft", "hard"], "kettle": "any"}},
+        ],
+        "constraints": [
+            {"name": "matches_water", "why": "a method wrong for the measured water "
+                                             "makes an undrinkable cup",
+             "requires": {"works_with": {"fact": "water"}}},
+        ],
+        "escalation": "the kitchen's owner",
+    }
+
+
+def _spec_route():
+    """Fixture block two: a different domain with different fields — what the
+    byte-identity tooth runs through the SAME engine."""
+    return {
+        "block": "fixture:route",
+        "question": "which path carries this parcel?",
+        "input_contract": {"weight": "the fact the axle constraint resolves against"},
+        "candidates": [
+            {"name": "bike", "why": "cheapest and cleanest",
+             "provides": {"carries": ["light"]}},
+            {"name": "van", "why": "carries anything",
+             "provides": {"carries": ["light", "heavy"]}},
+        ],
+        "constraints": [
+            {"name": "axle_limit", "why": "an overloaded carrier fails mid-route",
+             "requires": {"carries": {"fact": "weight"}}},
+        ],
+        "escalation": "dispatch",
+    }
+
+
+def test_engine_spec_door_refuses_every_lack_at_once():
+    """An insufficient spec is refused ONCE with every lack named — shallow, deep and
+    purity together — and the send-back is traced (the refusal rate must be measurable)."""
+    root = world()
+    bad = {"block": "fixture:brew",
+           "candidates": [{"why": "unnamed and propertyless"}],
+           "constraints": [{"name": "hollow"}]}          # no question/escalation either
+    try:
+        eng.run_block(bad, {}, root=root, now=NOW)
+        raise AssertionError("an insufficient spec must refuse")
+    except lb.DoorRefused as exc:
+        fields = {l["field"] for l in exc.lacks}
+    assert {"question", "escalation", "candidates[0].name", "candidates[0].provides",
+            "constraints[0].requires"} <= fields, f"every lack in ONE pass: {fields}"
+    recs = lb.read_trace("fixture:brew", root=root)
+    assert [r["event"] for r in recs] == ["send_back"], "the refusal itself is traced"
+
+    unpure = _spec_brew()
+    unpure["candidates"][0]["provides"]["works_with"] = lambda: "soft"   # code, not data
+    try:
+        eng.run_block(unpure, {"water": "soft"}, root=world(), now=NOW)
+        raise AssertionError("a spec carrying code must refuse")
+    except lb.DoorRefused as exc:
+        assert any("JSON round-trip" in l["why"] for l in exc.lacks), (
+            "the data-only refusal names the round-trip")
+
+
+def test_engine_one_shape_two_specs_source_untouched():
+    """The wrong-shape tell, mechanical: two different blocks run through the SAME engine
+    with its source bytes untouched between them — and no fixture block's name appears
+    anywhere in engine code (the spec carries the difference, or this red fires)."""
+    src_path = Path(eng.__file__)
+    before = src_path.read_bytes()
+    eng.run_block(_spec_brew(), {"water": "hard"}, root=world(), now=NOW)
+    eng.run_block(_spec_route(), {"weight": "heavy"}, root=world(), now=NOW)
+    assert src_path.read_bytes() == before, "engine source moved between two tenants"
+    src = before.decode()
+    for name in ("fixture:brew", "fixture:route", "quick_steep", "bike",
+                 "intentions_model_compiler"):
+        assert name not in src, f"block-specific knowledge {name!r} found INSIDE the engine"
+
+
+def test_engine_forced_competition_rejects_with_killer_named():
+    """Hard water kills the cheap candidate: the loser lands in the record as REJECTED
+    with the constraint that killed it named, and the winner carries its why."""
+    root = world()
+    rec = eng.run_block(_spec_brew(), {"water": "hard"}, root=root, now=NOW)
+    by_name = {c["name"]: c for c in rec["data"]["candidates"]}
+    assert by_name["quick_steep"]["outcome"] == "rejected"
+    assert by_name["quick_steep"]["killed_by"] == ["matches_water"]
+    assert rec["data"]["winner"]["name"] == "full_boil"
+    assert "why" in rec["data"]["winner"] and rec["data"]["winner"]["why"].strip()
+
+
+def test_engine_run_traces_training_and_answers_five_questions():
+    """One run -> one training-typed engine_run record whose fields answer all five
+    mechanical questions — read back from the store, not from the return value."""
+    root = world()
+    eng.run_block(_spec_brew(), {"water": "hard"}, root=root, now=NOW)
+    recs = [r for r in lb.read_trace("fixture:brew", root=root)
+            if r["event"] == eng.RUN_EVENT]
+    assert len(recs) == 1 and recs[0]["consumer"] == "training"
+    assert eng.answers_five_questions(recs[0]) == []
+
+
+def test_engine_outranked_is_not_rejected():
+    """Soft water: both candidates survive; the loser is OUTRANKED (preference, not a
+    constraint) and says by whom — killed_by stays empty, five questions still answer."""
+    root = world()
+    rec = eng.run_block(_spec_brew(), {"water": "soft"}, root=root, now=NOW)
+    by_name = {c["name"]: c for c in rec["data"]["candidates"]}
+    assert rec["data"]["winner"]["name"] == "quick_steep", "preference is the spec's order"
+    assert by_name["full_boil"]["outcome"] == "outranked"
+    assert by_name["full_boil"]["killed_by"] == []
+    assert by_name["full_boil"]["outranked_by"] == "quick_steep"
+    assert eng.answers_five_questions(rec) == []
+
+
+def test_engine_escalation_traces_as_loudly():
+    """A run every candidate dies in escalates to the spec's named gate — and its record
+    is exactly as complete as a deciding run's (the denominator must exist)."""
+    root = world()
+    rec = eng.run_block(_spec_brew(), {"water": "salt"}, root=root, now=NOW)
+    assert rec["data"]["winner"] is None
+    assert rec["data"]["escalation"]["to"] == "the kitchen's owner"
+    assert "quick_steep killed by matches_water" in rec["data"]["escalation"]["why"]
+    assert all(c["outcome"] == "rejected" for c in rec["data"]["candidates"])
+    assert eng.answers_five_questions(rec) == []
+    stored = [r for r in lb.read_trace("fixture:brew", root=root)
+              if r["event"] == eng.RUN_EVENT]
+    assert len(stored) == 1, "an escalating run traces exactly like a deciding one"
+
+
+def test_engine_hollow_record_fails_the_checker():
+    """The checker's own teeth: a wire-thin record cannot pass. Strip each answer and
+    the missing question is NAMED — a checker that greens on a hollow record would make
+    every downstream green (proof, verdict, probe) a coin-toss."""
+    root = world()
+    rec = eng.run_block(_spec_brew(), {"water": "hard"}, root=root, now=NOW)
+    import copy
+    hollow = copy.deepcopy(rec); hollow["data"]["candidates"][0]["killed_by"] = []
+    assert any(m.startswith("3:") for m in eng.answers_five_questions(hollow))
+    hollow = copy.deepcopy(rec); del hollow["data"]["input"]
+    assert any(m.startswith("1:") for m in eng.answers_five_questions(hollow))
+    hollow = copy.deepcopy(rec); del hollow["data"]["escalation"]
+    assert any(m.startswith("5:") for m in eng.answers_five_questions(hollow))
+    hollow = copy.deepcopy(rec); hollow["data"]["winner"] = None
+    assert any(m.startswith("4:") for m in eng.answers_five_questions(hollow))
+    legacy = {"data": {"op": "copy_to_lab"}}             # the wire-thin shape, measured
+    assert len(eng.answers_five_questions(legacy)) >= 3, (
+        "the pre-engine trace shape must fail loudly, or the corpus count lies")
+
+
+def test_engine_nonvacuity_reds_on_a_hollow_engine():
+    """The mutant demonstration, standing: with evaluation stubbed to accept-first, the
+    corpus gains ZERO rejected candidates — the exact count the PROVED criterion and the
+    probe read — while the real engine yields >= 1. Both halves asserted, so a future
+    hollowing of the evaluation loop turns this tooth red, not the live corpus silent."""
+    root = world()
+    real = eng._satisfies
+    try:
+        eng._satisfies = lambda *a: True                  # the hollow engine
+        eng.run_block(_spec_brew(), {"water": "hard"}, root=root, now=NOW)
+        hollow_count = eng.rejected_count(lb.read_trace("fixture:brew", root=root))
+        assert hollow_count == 0, "the mutant must look exactly like never-evaluating"
+    finally:
+        eng._satisfies = real
+    root2 = world()
+    eng.run_block(_spec_brew(), {"water": "hard"}, root=root2, now=NOW)
+    assert eng.rejected_count(lb.read_trace("fixture:brew", root=root2)) >= 1, (
+        "the real engine under competition must reject — non-vacuity")
+
+
+def test_engine_input_door_fires_the_spec_contract():
+    """The spec's input_contract is a real door: a payload missing the declared fact is
+    sent back with the spec's own why, and the send-back is traced."""
+    root = world()
+    try:
+        eng.run_block(_spec_brew(), {}, root=root, now=NOW)
+        raise AssertionError("a payload missing the declared fact must refuse")
+    except lb.DoorRefused as exc:
+        assert [l["field"] for l in exc.lacks] == ["water"]
+    events = [r["event"] for r in lb.read_trace("fixture:brew", root=root)]
+    assert events == ["send_back"]
+
+
+def test_engine_probe_is_armed():
+    """The WATCHME crossing's own measurement, run here first: the berthed probe imports,
+    declares a frozen PROBE with carry and enough — armed_error returns None."""
+    from cairn.base.watchme_spec import armed_error
+    err = armed_error({"probe": "cairn/learning_block/probes/engine_trace_corpus.py"})
+    assert err is None, f"the probe must be armed by the chokepoint's own measure: {err}"
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]

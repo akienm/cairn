@@ -1,0 +1,266 @@
+"""THE SORTED DOOR — the cast stops being a paragraph and becomes a refusable packet.
+
+/sorted is tenant #2 of the ``cairn.skill_block`` seam (ticket
+``sorted-becomes-a-learning-block``, opus-pass rank 3 ruled spec 2026-08-03). The flat
+contract in ``skills/sorted/intention+why.json`` is the seam's half; this module is the
+other half: the SEMANTIC judges the flat {field: why} shape cannot express —
+
+- the node class must RESOLVE in ``CairnCommons/node_classes/`` (the same
+  ``load_class_def`` the emit chokepoint runs — one implementation, two mouths);
+- the workflow string must PARSE and CONFORM to the class's registered version, with
+  its cursor still at the cast (a drifted string refused here costs one fix; the same
+  string refused at its first crossing costs a dead voyage);
+- the watchme spec must carry all five fields, agree with the workflow's own
+  ``WATCHME(<object>)``, or take the named exemption with a JUDGEABLE reason — one
+  carrying at least one resolvable referent (a path on disk, a cast ticket id, a
+  roster command). 'none, because <one plausible sentence>' is the measured hollow
+  pass this door exists to stop;
+- ``exit`` and ``disposition`` must cohere, so the seam's two-exit vocabulary never
+  flattens /sorted's three real outcomes.
+
+ONE PASS, BY CONSTRUCTION: the flat lacks (the primitive's own ``check_input``) and the
+semantic lacks are collected together and refused in a SINGLE ``DoorRefused`` whose
+send_back is traced under ``skill:sorted`` — so a refusal is a datum the
+``sorted-door-refusals`` probe can count, never a lost moment. A clean packet rides
+``skill_block.fire`` unchanged: the seam berths, traces and emits the finding exactly as
+it does for /intent. ZERO seam change is this build's own falsifier (the template claim).
+
+Fire from bash (the door skills actually use):
+
+    PYTHONPATH=$HOME/dev/src/cairn python3 skills/sorted/door.py <packet.json>
+
+exit 0 recorded (berth printed), 2 refused (every lack named), and an unwritable
+recording root follows the seam's convention: the recording never wedges the work.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+_REPO = Path(__file__).resolve().parents[2]
+if str(_REPO) not in sys.path:                       # script-invoked beside the skill
+    sys.path.insert(0, str(_REPO))
+
+from cairn.base.transitions import (                  # noqa: E402
+    IllegalTransition,
+    MalformedWorkflow,
+    _conform,
+    load_class_def,
+    parse_workflow,
+)
+from cairn.build_inspector.inspector import reason_has_referent  # noqa: E402
+from cairn.learning_block.learning_block import (     # noqa: E402
+    DoorRefused,
+    check_input,
+    write_trace,
+)
+from cairn.skill_block import skill_block as sb       # noqa: E402
+
+_COMMONS = _REPO.parent / "CairnCommons"
+_EXEMPT_RE = re.compile(r"^none,\s*because\s+", re.IGNORECASE)
+_WATCHME_RE = re.compile(r"WATCHME\(([^)]*)\)")
+_WATCHME_FIELDS = ("object", "trigger", "enough", "carrier", "consumer")
+
+# The cast fires at the resolution pivot, so the cursor is at or before the crossing
+# casting performs. A string arriving with its cursor already downstream is a record
+# of a voyage that never sailed — fiction the chokepoint would trust.
+_CAST_CURSORS = ("THINKME", "TICKETME")
+
+
+def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
+                 repo: Path | None = None, commons: Path | None = None) -> list[dict]:
+    """Every SEMANTIC lack, one pass — {field, why} dicts, the door's own vocabulary.
+
+    Judges only fields that are PRESENT; absence is the flat contract's finding, and
+    reporting it twice would be two doors disagreeing about one lack.
+    """
+    lacks: list[dict] = []
+    kw = {"root": node_class_root} if node_class_root is not None else {}
+
+    node_class = payload.get("node_class")
+    class_def = None
+    if isinstance(node_class, str) and node_class.strip():
+        try:
+            class_def = load_class_def(node_class.strip(), **kw)
+        except (IllegalTransition, OSError, json.JSONDecodeError) as exc:
+            lacks.append({"field": "node_class",
+                          "why": f"does not resolve: {exc} — an unknown class is a demand "
+                                 "to write one FIRST, not a value to improvise"})
+
+    workflow = payload.get("workflow")
+    wf = None
+    if isinstance(workflow, str) and workflow.strip():
+        try:
+            wf = parse_workflow(workflow)
+        except MalformedWorkflow as exc:
+            lacks.append({"field": "workflow", "why": f"does not parse: {exc}"})
+        if wf is not None:
+            if class_def is not None:
+                if wf.node_class != node_class.strip():
+                    lacks.append({"field": "workflow",
+                                  "why": f"names class {wf.node_class!r} while the packet casts "
+                                         f"{node_class!r} — one node, one class"})
+                else:
+                    try:
+                        _conform(wf, class_def)
+                    except (IllegalTransition, MalformedWorkflow) as exc:
+                        lacks.append({"field": "workflow",
+                                      "why": f"does not conform to the registered "
+                                             f"{wf.node_class}@{wf.version}: {exc}"})
+            if wf.here not in _CAST_CURSORS:
+                lacks.append({"field": "workflow",
+                              "why": f"cursor stands at {wf.here!r} — a cast fires at the pivot "
+                                     f"({' or '.join(_CAST_CURSORS)}); a cursor already "
+                                     "downstream records a voyage that never sailed"})
+
+    watchme = payload.get("watchme")
+    summons = _WATCHME_RE.search(workflow) if isinstance(workflow, str) else None
+    empty_watchme = (watchme is None or watchme == {} or
+                     (isinstance(watchme, str) and not watchme.strip()))
+    if empty_watchme:
+        pass  # absence is the flat contract's lack; a second report would be a second door
+    elif not isinstance(watchme, (dict, str)):
+        lacks.append({"field": "watchme",
+                      "why": f"carries a {type(watchme).__name__} — the legal shapes are the "
+                             "five-field object or the exemption string 'none, because <X>'"})
+    elif isinstance(watchme, dict):
+        missing = [f for f in _WATCHME_FIELDS if not str(watchme.get(f) or "").strip()]
+        if missing:
+            lacks.append({"field": "watchme",
+                          "why": "spec is missing " + ", ".join(missing) + " — five fields or "
+                                 "the named exemption; a partial spec is a watch nobody can arm"})
+        if summons and str(watchme.get("object", "")).strip() and \
+                watchme["object"].strip() != summons.group(1).strip():
+            lacks.append({"field": "watchme",
+                          "why": f"spec watches {watchme.get('object')!r} but the workflow "
+                                 f"summons WATCHME({summons.group(1)}) — the emission gate "
+                                 "reads the spec BY the summons object; they must agree"})
+        if not summons and wf is not None:
+            lacks.append({"field": "watchme",
+                          "why": "a five-field spec with no WATCHME(<object>) in the workflow "
+                                 "is a watch no crossing will ever demand — carry the summons "
+                                 "or take the named exemption"})
+    elif isinstance(watchme, str) and watchme.strip():
+        m = _EXEMPT_RE.match(watchme.strip())
+        if not m:
+            lacks.append({"field": "watchme",
+                          "why": "a string watchme must be the named exemption "
+                                 "'none, because <X>' — anything else is silence with "
+                                 "extra words"})
+        else:
+            reason = watchme.strip()[m.end():].strip()
+            if not reason:
+                lacks.append({"field": "watchme",
+                              "why": "exemption with no reason after 'none, because' — "
+                                     "silence with a prefix on it"})
+            elif not reason_has_referent(reason, repo=repo or _REPO,
+                                         commons=commons or _COMMONS):
+                lacks.append({"field": "watchme",
+                              "why": "exemption reason points at nothing checkable — it must "
+                                     "carry at least one resolvable referent: a path on disk, "
+                                     "a cast ticket id, or a roster command (bin/cmd/<name>). "
+                                     "A plausible sentence a later reader cannot go verify is "
+                                     "the hollow pass this door was built against"})
+            if summons:
+                lacks.append({"field": "watchme",
+                              "why": f"the workflow summons WATCHME({summons.group(1)}) but the "
+                                     "spec is the exemption — a carried summons is mandatory to "
+                                     "satisfy; drop it from the string or write the five fields"})
+
+    exit_value = payload.get("exit")
+    disposition = payload.get("disposition")
+    if isinstance(exit_value, str) and exit_value.strip():
+        if exit_value not in sb.EXITS:
+            lacks.append({"field": "exit",
+                          "why": f"{exit_value!r} is not one of {sb.EXITS} — named here so the "
+                                 "seam's own refusal is never a second trip"})
+        elif isinstance(disposition, str) and disposition.strip():
+            d = disposition.strip()
+            if exit_value == "routed_forward" and d != "cast":
+                lacks.append({"field": "disposition",
+                              "why": f"routed_forward carries disposition {d!r} — a forward "
+                                     "routing IS the cast; anything else is a route wearing "
+                                     "the wrong exit"})
+            if exit_value == "routed_out" and not (d == "back-to-design" or
+                                                   d.startswith("escalated:")):
+                lacks.append({"field": "disposition",
+                              "why": f"routed_out carries disposition {d!r} — the real route is "
+                                     "'back-to-design' or 'escalated:<rung>', so the two-exit "
+                                     "vocabulary never flattens the three real outcomes"})
+
+    return lacks
+
+
+def fire(payload: dict, *, now=None, skills_root=None, berths=None, trace_root=None,
+         node_class_root=None, repo=None, commons=None) -> dict:
+    """Gate the cast — flat AND semantic lacks in ONE refusal — then ride the seam.
+
+    The refusal's send_back is traced here (same block, same shape as the primitive's)
+    because the semantic judges run before the seam's door and their refusals must be
+    countable by the same denominator. A clean packet reaches ``sb.fire`` and is traced
+    there — exactly one trace record per firing, either way.
+    """
+    contract = sb.load_contract("sorted", skills_root=skills_root)
+    flat = check_input(contract, payload)
+    semantic = judge_packet(payload, node_class_root=node_class_root,
+                            repo=repo, commons=commons)
+    lacks = flat + semantic
+    if lacks:
+        write_trace(contract["block"], "send_back", "training",
+                    {"lacks": lacks, "judge": "sorted-door",
+                     "payload_fields": sorted(payload.keys())},
+                    now=now, root=trace_root)
+        raise DoorRefused(contract["block"], lacks)
+    return sb.fire("sorted", payload, now=now, skills_root=skills_root,
+                   berths=berths, trace_root=trace_root)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if len(args) != 1 or args[0] in ("-h", "--help"):
+        print("usage: python3 skills/sorted/door.py <packet.json>\n"
+              "The packet carries /sorted's input_contract fields — see\n"
+              "  python3 -m cairn.skill_block contract sorted", file=sys.stderr)
+        return 2
+    try:
+        payload = json.loads(Path(args[0]).read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"packet {args[0]!r} unreadable — {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(payload, dict):
+        print(f"packet {args[0]!r} must be a JSON object", file=sys.stderr)
+        return 2
+    try:
+        result = fire(payload)
+    except OSError as exc:
+        # The seam's convention, inherited on purpose: the recording never wedges the
+        # work — exit 0, no berth printed, the loss loud and surfacing later at the
+        # BUILDME gate for a ticket that cannot name a berth.
+        print(f"/sorted: the firing could not be RECORDED — {exc}\n"
+              "  no berth exists for this cast; the ticket's sorted_berth cannot be\n"
+              "  filled and buildme_rides_the_sorted will refuse its BUILDME until\n"
+              "  this is fixed or the named exemption is recorded.", file=sys.stderr)
+        print(json.dumps({"berth": None, "recorded": False, "reason": str(exc)},
+                         indent=2, sort_keys=True))
+        return 0
+    except DoorRefused as exc:
+        lacks = getattr(exc, "lacks", None) or []
+        lines = [f"  - {l['field']}: {l['why']}" for l in lacks] or [f"  - {exc}"]
+        print("/sorted cast refused — every lack named on this one pass:\n"
+              + "\n".join(lines)
+              + "\n(the refusal is recorded; fix the packet and fire again — the door "
+              "re-judges the WHOLE packet, so one fix cannot earn a new first-pass "
+              "refusal for something already named)", file=sys.stderr)
+        return 2
+    except sb.SkillBlockRefused as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

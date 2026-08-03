@@ -568,16 +568,19 @@ def _entry_gate(ticket: str) -> str:
     # lands only at the rare journaled BUILDME entry — an event, never a poll.
     from cairn.build_inspector.inspector import buildme_rides_the_chart as _chart
     from cairn.build_inspector.inspector import buildme_rides_the_intent as _intent
+    from cairn.build_inspector.inspector import buildme_rides_the_sorted as _sorted
 
-    # BOTH checks run, and their findings are reported TOGETHER. Not two gates in
-    # sequence: a caller missing both a chart and an /intent berth must learn both on
-    # the first pass, or fixing one only earns the right to be refused for the other
-    # (the complete-diagnostic-on-first-pass method, and Law 7 at a diagnostic surface).
-    findings = _chart(ticket) + _intent(ticket)
+    # ALL checks run, and their findings are reported TOGETHER. Not three gates in
+    # sequence: a caller missing a chart, an /intent berth AND a /sorted berth must
+    # learn all three on the first pass, or fixing one only earns the right to be
+    # refused for the next (the complete-diagnostic-on-first-pass method, and Law 7
+    # at a diagnostic surface). The third addend joined 2026-08-03 (ticket
+    # sorted-becomes-a-learning-block).
+    findings = _chart(ticket) + _intent(ticket) + _sorted(ticket)
     if not findings:
         return (
             "clean — a berthed chart chain claims ticket %r, and the ticket names its "
-            "/intent firing" % ticket
+            "/intent firing and its /sorted door firing" % ticket
         )
     lines = [
         f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
@@ -586,9 +589,10 @@ def _entry_gate(ticket: str) -> str:
     ]
     raise EntryGateRed(
         f"BUILDME crossing refused for cast ticket {ticket!r} — {len(findings)} "
-        "finding(s), all named on this first pass. Skipping /chart or /intent is a build "
-        "error, the same physics that refuses skipping a stage inside the chain. Nothing "
-        "was journaled. Fix what is named below, then cross again:\n"
+        "finding(s), all named on this first pass. Skipping /chart, /intent or the "
+        "/sorted door is a build error, the same physics that refuses skipping a stage "
+        "inside the chain. Nothing was journaled. Fix what is named below, then cross "
+        "again:\n"
         + "\n".join(lines),
         findings=findings,
     )

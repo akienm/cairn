@@ -1379,6 +1379,151 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
     return []
 
 
+def reason_has_referent(reason: str, *, repo: Path | None = None,
+                        commons: Path | None = None) -> bool:
+    """The floor-form of 'judgeable': the reason points at something CHECKABLE — a path
+    on disk, a cast ticket id, or a roster command (bin/cmd/<name>).
+
+    ONE implementation, two mouths (the read_berth rule): the sorted door
+    (skills/sorted/door.py) judges a cast's watchme exemption with this, and
+    ``buildme_rides_the_sorted`` below judges a ticket's sorted_berth exemption with
+    the same function — so the cast-time door and the crossing-time gate cannot
+    disagree about what a judgeable reason is. The system's existing rule is 'sources
+    must resolve' (the constrain judges refuse invented ones); this bends that rule to
+    prose. Quality of the reason stays the model's (the engine track's thesis);
+    EXISTENCE of a checkable referent is a floor, and floors are physics.
+    Provenance: ticket sorted-becomes-a-learning-block (opus-pass rank 3, ruled
+    2026-08-03) — the measured hollow pass was 'none, because <one plausible
+    sentence>'.
+    """
+    repo = Path(repo) if repo is not None else _REPO_ROOT
+    # CAIRN_ROOT is the cairn REPO root (chart.orient's, string, os.path lineage);
+    # the commons sits beside it — same derivation ticket_path uses.
+    commons = (Path(commons) if commons is not None
+               else Path(CAIRN_ROOT).parent / "CairnCommons")
+    for raw in str(reason).split():
+        token = raw.strip("'\"`.,;:()[]{}")
+        if not token:
+            continue
+        if "/" in token or token.endswith((".py", ".json", ".md", ".sh")):
+            p = Path(token).expanduser()
+            if p.is_absolute() and p.exists():
+                return True
+            if (repo / token).exists() or (commons / token).exists():
+                return True
+        if (commons / "tickets" / f"{token}.json").exists():
+            return True
+        if (repo / "bin" / "cmd" / token).exists():
+            return True
+    return False
+
+
+def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff the cast ticket names its /sorted door firing — either
+    a readable berth for skill ``sorted``, or the ``none, because <X>`` exemption whose
+    reason carries a resolvable referent.
+
+    The third leg of the sorted door (ticket sorted-becomes-a-learning-block): without
+    this, the door is policy — a cast that skipped it files a ticket no gate ever
+    questions. Red returns ONE finding naming the ticket, what was wanted and what was
+    found — complete on the first pass, nothing to re-run. Census at install
+    (2026-08-03): 76 tickets, 0 carrying the field, 30 at or before BUILDME — each
+    rides the exemption or its own next crossing, never edited ambiently.
+    """
+    from cairn.skill_block.skill_block import read_berth
+
+    root = tickets_root if tickets_root is not None else _TICKETS_ROOT
+    filed = ticket_path(ticket, root=root)
+    if filed is None:
+        return []
+    try:
+        doc = json.loads(Path(filed).read_text())
+    except (OSError, json.JSONDecodeError):
+        # The chokepoint's own refusal already covers an unreadable ticket; two filters
+        # reporting one fault is noise at the diagnostic surface.
+        return []
+
+    berth = doc.get("sorted_berth") if isinstance(doc, dict) else None
+    why = (
+        "Ticket sorted-becomes-a-learning-block (2026-08-03): the cast rides a door, so "
+        "a partial cast survives on disk instead of dying with the context (Law 1) and "
+        "the completeness answers are a record, not a memory. A ticket that cannot name "
+        "its /sorted firing was cast around the door. Disposition: fire the cast packet "
+        "through skills/sorted/door.py and put the printed berth path in the ticket's "
+        "'sorted_berth', or record an explicit exemption "
+        f"('{_EXEMPT_PREFIX}<why>' — the why must carry a resolvable referent: a path, "
+        "a cast ticket id, or a roster command) — silence is the one answer that is "
+        "not legal."
+    )
+
+    if berth is None:
+        return [_finding(
+            "buildme_rides_the_sorted", ticket,
+            "ticket %r names no /sorted door firing — no 'sorted_berth' field at all" % ticket,
+            {"ticket": ticket, "ticket_file": str(filed), "found": None,
+             "wanted": "a 'sorted_berth' path to a berthed /sorted firing, or "
+                       f"'{_EXEMPT_PREFIX}<why>'"},
+            why,
+        )]
+
+    if not isinstance(berth, str) or not berth.strip():
+        return [_finding(
+            "buildme_rides_the_sorted", ticket,
+            "ticket %r carries an empty or non-string 'sorted_berth'" % ticket,
+            {"ticket": ticket, "ticket_file": str(filed), "found": berth,
+             "wanted": "a berth path, or " + f"'{_EXEMPT_PREFIX}<why>'"},
+            why,
+        )]
+
+    exempt = _EXEMPT_RE.match(berth)
+    if exempt:
+        reason = berth[exempt.end():].strip()
+        if not reason:
+            return [_finding(
+                "buildme_rides_the_sorted", ticket,
+                "ticket %r claims a /sorted exemption with no reason after "
+                "'%s'" % (ticket, _EXEMPT_PREFIX),
+                {"ticket": ticket, "ticket_file": str(filed), "found": berth},
+                "An exemption whose reason is blank is silence with a prefix on it. " + why,
+            )]
+        if not reason_has_referent(reason):
+            return [_finding(
+                "buildme_rides_the_sorted", ticket,
+                "ticket %r claims a /sorted exemption whose reason points at nothing "
+                "checkable" % ticket,
+                {"ticket": ticket, "ticket_file": str(filed), "found": berth,
+                 "wanted": "a reason carrying a resolvable referent — a path on disk, "
+                           "a cast ticket id, or a roster command (bin/cmd/<name>)"},
+                "A plausible sentence a later reader cannot go verify is the hollow pass "
+                "the sorted door was built against (opus-pass rank 3). " + why,
+            )]
+        return []
+
+    doc_berth = read_berth(berth)
+    if doc_berth is None:
+        return [_finding(
+            "buildme_rides_the_sorted", ticket,
+            "ticket %r names a /sorted berth that does not read: %s" % (ticket, berth),
+            {"ticket": ticket, "ticket_file": str(filed), "sorted_berth": berth,
+             "found": "missing or unparseable"},
+            "A berth path that resolves to nothing is state reported from records — the "
+            "gate would be passing on a promise. " + why,
+        )]
+
+    if doc_berth.get("skill") != "sorted":
+        return [_finding(
+            "buildme_rides_the_sorted", ticket,
+            "ticket %r names a berth for skill %r, not 'sorted'"
+            % (ticket, doc_berth.get("skill")),
+            {"ticket": ticket, "ticket_file": str(filed), "sorted_berth": berth,
+             "found_skill": doc_berth.get("skill")},
+            "The gate reads which skill actually fired, not which one the field is named "
+            "after — otherwise any berth at all would satisfy it. " + why,
+        )]
+
+    return []
+
+
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.

@@ -75,10 +75,14 @@ filled and honest*. Actively assemble (never bare-lookup):
   floor-verifiable refs — the gate refuses invented ones. References beat
   restatement: point, don't quote.
 - **ticket** — if this chart serves a cast ticket, claim it
-  (`"ticket": "<id>"`) and CARRY THE CLAIM THROUGH EVERY STAGE to validate:
-  the /sail entry gate (buildme-rides-the-chart, 2026-07-29) finds the chain
-  by the validate berth's claim, so an unclaimed chart cannot open the BUILDME
-  door. The gate refuses a claim on an unfiled ticket — /sorted casts first.
+  (`"ticket": "<id>"`). On a claimed chain THE CLAIM RIDES EVERY LINK — and
+  that is physics, not instruction (ticket the-claim-rides-every-link,
+  2026-08-03): every follower door refuses a claimless packet whose ref'd
+  berth claims, naming the one-field fix — the claim may enter mid-chain, it
+  may never silently vanish. The /sail entry gate (buildme-rides-the-chart,
+  2026-07-29) finds the chain by the validate berth's claim, so an unclaimed
+  chart cannot open the BUILDME door. The gate refuses a claim on an unfiled
+  ticket — /sorted casts first.
 - **unknowns** — what orient could NOT ground. An honest non-empty list
   outranks a confident hollow one.
 - **confidence** — a float in [0,1], as data, not hedging prose.

@@ -313,8 +313,11 @@ def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth, surve
 
 
 def test_request_identity_is_physics(root, orient_berth, constrain_berth, survey_berth):
-    """Ticket berths-carry-request-identity: a packet claiming ticket A over a berth
-    claiming ticket B is refused with the mismatch named in the one-pass refusal."""
+    """Tickets berths-carry-request-identity + the-claim-rides-every-link: a packet
+    claiming ticket A over a berth claiming ticket B is refused (MISMATCH), and a
+    CLAIMLESS packet over that same claimed berth is refused (VANISH — Akien's
+    verdict on cbbadb13530f: no warns, refuse and send back) — both named in the
+    one-pass refusal."""
     foreign_doc = json.load(open(survey_berth))
     foreign_doc["ticket"] = "tkt-b"
     foreign = os.path.join(root, "foreign-decompose-ref.json")
@@ -329,6 +332,15 @@ def test_request_identity_is_physics(root, orient_berth, constrain_berth, survey
     except DecomposeRefused as e:
         msg = str(e)
         assert "request-identity mismatch" in msg and "tkt-b" in msg, msg
+    silent = good_packet(survey_berth)
+    silent.pop("ticket", None)
+    silent["survey_ref"] = foreign
+    try:
+        validate_decompose(silent, root=root)
+        raise AssertionError("claimless packet passed over a claimed berth")
+    except DecomposeRefused as e:
+        msg = str(e)
+        assert "request-identity vanished" in msg and "tkt-b" in msg, msg
 
 
 def _main() -> int:

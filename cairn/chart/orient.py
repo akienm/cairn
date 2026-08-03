@@ -178,23 +178,39 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
 
 
 def identity_lack(packet: dict, berth_doc, ref_name: str):
-    """Request identity on a chain link (ticket berths-carry-request-identity): when
-    BOTH the claiming packet and the berth it refs claim tickets and they disagree,
-    the chain would sail green under another request — the one silent-corruption
-    path the opus pass ranked first. Returns the lack message, or None when either
-    side is claimless (jurisdiction: identity is asserted only where both sides
-    claim — nothing already sailing unclaimed is retro-redded).
+    """Request identity on a chain link (tickets berths-carry-request-identity +
+    the-claim-rides-every-link): two clauses, one home, six mouths (every
+    follower door) — the same rule buildme_rides_the_chart already applies at
+    the chain's end, extended inward.
 
-    ONE implementation, six mouths (every follower door) — the same rule
-    buildme_rides_the_chart already applies at the chain's end, extended inward."""
+    MISMATCH — both sides claim and disagree: the chain would sail green under
+    another request (the one silent-corruption path the opus pass ranked first).
+
+    VANISH — the upstream berth claims and this packet is silent: on a claimed
+    chain the claim rides every link (Akien's verdict on cbbadb13530f,
+    2026-08-03: 'no warns, refuse and send back to sender'). A claim may ENTER
+    mid-chain (packet claims, upstream silent — legal), it may never silently
+    vanish. The author's claim stays AUTHORED, never door-copied: it is the one
+    witness the berth cannot contaminate, which is what gives the mismatch
+    clause something to check.
+
+    Returns the lack message, or None when the upstream is claimless
+    (jurisdiction: nothing already sailing unclaimed is retro-redded)."""
     mine = packet.get("ticket")
     theirs = berth_doc.get("ticket") if isinstance(berth_doc, dict) else None
-    if isinstance(mine, str) and mine.strip() \
-            and isinstance(theirs, str) and theirs.strip() and mine != theirs:
+    has_mine = isinstance(mine, str) and mine.strip()
+    has_theirs = isinstance(theirs, str) and theirs.strip()
+    if has_mine and has_theirs and mine != theirs:
         return ("request-identity mismatch: this packet claims ticket %r but its %s "
                 "berth claims %r — every door would pass and the voyage would sail "
                 "under another request's chain; recover the RIGHT chain with: "
                 "python3 -m cairn.chart.live chain %s" % (mine, ref_name, theirs, mine))
+    if has_theirs and not has_mine:
+        return ("request-identity vanished: this chain is claimed by ticket %r (its %s "
+                "berth carries the claim) but this packet is claimless — on a claimed "
+                "chain the claim rides every link; add \"ticket\": %r to this packet, "
+                "or recover the chain with: python3 -m cairn.chart.live chain %s"
+                % (theirs, ref_name, theirs, theirs))
     return None
 
 

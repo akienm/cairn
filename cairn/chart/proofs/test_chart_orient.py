@@ -203,15 +203,24 @@ def test_refusal_is_one_pass_complete(root):
 
 
 def test_request_identity_helper(root):
-    """Ticket berths-carry-request-identity: both sides claim and disagree -> the
-    lack names both tickets and the resolver; either side claimless -> None."""
+    """Tickets berths-carry-request-identity + the-claim-rides-every-link:
+    MISMATCH (both claim, disagree) names both tickets and the resolver;
+    VANISH (upstream claims, packet silent) names the upstream claim and the
+    one-field fix — INVERTED 2026-08-03 from the old both-sides-claim None by
+    Akien's verdict on cbbadb13530f ('no warns, refuse and send back');
+    claim ENTRY (packet claims, upstream silent) and unclaimed links stay None."""
     from cairn.chart.orient import identity_lack
     msg = identity_lack({"ticket": "tkt-a"}, {"ticket": "tkt-b"}, "intent_ref")
     assert msg and "tkt-a" in msg and "tkt-b" in msg and "chain tkt-a" in msg, msg
+    vanish = identity_lack({}, {"ticket": "tkt-b"}, "intent_ref")
+    assert vanish and "vanished" in vanish and "tkt-b" in vanish \
+        and "chain tkt-b" in vanish, vanish
+    assert identity_lack({"ticket": ""}, {"ticket": "tkt-b"}, "intent_ref"), \
+        "an empty-string claim is silence, not a claim"
     assert identity_lack({"ticket": "tkt-a"}, {"ticket": "tkt-a"}, "intent_ref") is None
-    assert identity_lack({}, {"ticket": "tkt-b"}, "intent_ref") is None
     assert identity_lack({"ticket": "tkt-a"}, {}, "intent_ref") is None
     assert identity_lack({"ticket": "tkt-a"}, None, "intent_ref") is None
+    assert identity_lack({}, {}, "intent_ref") is None
 
 
 def main():

@@ -27,9 +27,13 @@ PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live chain <ticket-id>
 prints the standing chain (per stage, the latest berth claiming the ticket); the
 deepest non-None entry is your input, deepest link first: validate →
 hypothesize → triage → decompose → survey → constrain → orient. An all-None
-chain means **no berths → run /chart first.** And the identity is physics both
-ways: every chart door refuses a packet whose ref'd berth claims a DIFFERENT
-ticket, so a stale berth from another request reds instead of sailing. This is no longer only prose: since 2026-07-29 (ticket
+chain means **no berths → run /chart first.** And the identity is physics all
+three ways (tickets berths-carry-request-identity + the-claim-rides-every-link):
+every chart door refuses a packet whose ref'd berth claims a DIFFERENT ticket
+(a stale berth from another request reds instead of sailing), and refuses a
+CLAIMLESS packet whose ref'd berth claims (on a claimed chain the claim rides
+every link — it may enter mid-chain, never silently vanish; Akien's ruling:
+no warns, refuse and send back). This is no longer only prose: since 2026-07-29 (ticket
 buildme-rides-the-chart) the emit chokepoint REFUSES a cast ticket's BUILDME
 crossing unless a berthed validate packet claims the ticket — building from
 the conversation is a build error the door itself throws (`EntryGateRed`).

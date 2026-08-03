@@ -319,8 +319,11 @@ def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth):
 
 
 def test_request_identity_is_physics(root, orient_berth, constrain_berth):
-    """Ticket berths-carry-request-identity: a packet claiming ticket A over a berth
-    claiming ticket B is refused with the mismatch named in the one-pass refusal."""
+    """Tickets berths-carry-request-identity + the-claim-rides-every-link: a packet
+    claiming ticket A over a berth claiming ticket B is refused (MISMATCH), and a
+    CLAIMLESS packet over that same claimed berth is refused (VANISH — Akien's
+    verdict on cbbadb13530f: no warns, refuse and send back) — both named in the
+    one-pass refusal."""
     foreign_doc = json.load(open(constrain_berth))
     foreign_doc["ticket"] = "tkt-b"
     foreign = os.path.join(root, "foreign-survey-ref.json")
@@ -335,6 +338,15 @@ def test_request_identity_is_physics(root, orient_berth, constrain_berth):
     except SurveyRefused as e:
         msg = str(e)
         assert "request-identity mismatch" in msg and "tkt-b" in msg, msg
+    silent = good_packet(constrain_berth)
+    silent.pop("ticket", None)
+    silent["constrain_ref"] = foreign
+    try:
+        validate_survey(silent, root=root)
+        raise AssertionError("claimless packet passed over a claimed berth")
+    except SurveyRefused as e:
+        msg = str(e)
+        assert "request-identity vanished" in msg and "tkt-b" in msg, msg
 
 
 def _main() -> int:

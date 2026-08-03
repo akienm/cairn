@@ -55,7 +55,9 @@ import time
 from cairn.build_inspector.inspector import judge_validate
 from cairn.chart.hypothesize import _read_triage_berth
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
-                                ticket_claim_error)
+                                ticket_claim_error,
+                                common_shape_lacks, render_lacks,
+                                CHAIN_REMEDY)
 from cairn.chart.tree import deposit_learning
 
 AUTHORED_FIELDS = ("hypothesize_ref", "criteria", "unknowns")
@@ -76,7 +78,7 @@ def _read_hypothesize_berth(path: str) -> dict:
         raise ValidateRefused(
             "validate refuses — hypothesize_ref %r is not a berthed packet on "
             "disk; stage 7 template-fills from stage 6's validated file, never "
-            "from the conversation" % (path,))
+            "from the conversation" % (path,) + CHAIN_REMEDY)
     try:
         with open(os.path.expanduser(path), encoding="utf-8") as fh:
             packet = json.load(fh)
@@ -89,7 +91,7 @@ def _read_hypothesize_berth(path: str) -> dict:
         raise ValidateRefused(
             "validate refuses — hypothesize_ref %r is not a hypothesize berth "
             "(no triage_ref/hypotheses/unknowns); the chain fills from "
-            "validated stages only" % (path,))
+            "validated stages only" % (path,) + CHAIN_REMEDY)
     try:
         triage_packet = _read_triage_berth(packet["triage_ref"])
     except Exception as e:
@@ -126,51 +128,29 @@ def validate_floor(hypothesize_ref: str, root: str = CAIRN_ROOT) -> dict:
 
 
 def validate_validate(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The exit gate: shape first, then THE COMPOSED JUDGES — judge_validate is
-    the inspector's, so a packet this door passes is a packet the promotion
-    gate passes (one implementation, two mouths). The doubled name is the
-    honest mirror of every stage's validate_<stage> door — consistency over
-    euphony. Refusals are loud and complete on first pass."""
+    """The exit gate, two tiers, each complete in one pass (ticket
+    chart-doors-refuse-in-one-pass): every SHAPE lack is accumulated and raised in
+    ONE refusal — a dribbled refusal costs the sender a round-trip per field — and
+    THE COMPOSED JUDGES (judge_validate is the inspector's, so a packet this door
+    passes is a packet the promotion gate passes — one implementation, two mouths)
+    already report every finding together once shape holds.
+    The doubled name is the honest mirror of every stage's validate_<stage> door — consistency over euphony."""
     if not isinstance(packet, dict):
         raise ValidateRefused("validate packet must be a dict, got %s"
-                              % type(packet).__name__)
-    missing = [f for f in REQUIRED_FIELDS if f not in packet]
-    if missing:
-        raise ValidateRefused("validate packet refused — missing fields: %s"
-                              % ", ".join(missing))
+                    % type(packet).__name__)
 
-    _read_hypothesize_berth(packet["hypothesize_ref"])
+    lacks = []
+    if "hypothesize_ref" in packet:
+        try:
+            _read_hypothesize_berth(packet["hypothesize_ref"])
+        except RuntimeError as e:
+            lacks.append(str(e))
 
-    for field in ("criteria", "unknowns"):
-        if not isinstance(packet[field], list):
-            raise ValidateRefused("validate packet refused — %s must be a list"
-                                  % field)
-    if any(not isinstance(x, str) for x in packet["unknowns"]):
-        raise ValidateRefused(
-            "validate packet refused — unknowns must be a list of strings")
-
-    confidence = packet["confidence"]
-    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-            or not 0.0 <= float(confidence) <= 1.0:
-        raise ValidateRefused(
-            "validate packet refused — confidence must be a number in [0, 1]")
-
-    provenance = packet["provenance"]
-    if not isinstance(provenance, dict):
-        raise ValidateRefused(
-            "validate packet refused — provenance must be a dict of field -> stratum")
-    uncovered = [f for f in AUTHORED_FIELDS if f not in provenance]
-    if uncovered:
-        raise ValidateRefused("validate packet refused — provenance does not cover: %s"
-                              % ", ".join(uncovered))
-    bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-    if bad:
-        raise ValidateRefused("validate packet refused — unknown stratum in provenance: %s"
-                              % ", ".join(bad))
-
-    claim_error = ticket_claim_error(packet, root)
-    if claim_error:
-        raise ValidateRefused("validate packet refused — " + claim_error)
+    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
+                                authored_fields=AUTHORED_FIELDS,
+                                list_fields=('criteria', 'unknowns'), root=root)
+    if lacks:
+        raise ValidateRefused(render_lacks("validate", lacks))
 
     verdicts = judge_validate(packet)
     if verdicts:

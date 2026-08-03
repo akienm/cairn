@@ -49,7 +49,9 @@ import time
 from cairn.build_inspector.inspector import judge_triage
 from cairn.chart.decompose import _read_survey_berth
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
-                                ticket_claim_error)
+                                ticket_claim_error,
+                                common_shape_lacks, render_lacks,
+                                CHAIN_REMEDY)
 from cairn.chart.tree import deposit_learning
 
 AUTHORED_FIELDS = ("decompose_ref", "order", "unknowns")
@@ -70,7 +72,7 @@ def _read_decompose_berth(path: str) -> dict:
         raise TriageRefused(
             "triage refuses — decompose_ref %r is not a berthed packet on disk; "
             "stage 5 template-fills from stage 4's validated file, never from "
-            "the conversation" % (path,))
+            "the conversation" % (path,) + CHAIN_REMEDY)
     try:
         with open(os.path.expanduser(path), encoding="utf-8") as fh:
             packet = json.load(fh)
@@ -83,7 +85,7 @@ def _read_decompose_berth(path: str) -> dict:
         raise TriageRefused(
             "triage refuses — decompose_ref %r is not a decompose berth (no "
             "survey_ref/sub_problems/unknowns); the chain fills from validated "
-            "stages only" % (path,))
+            "stages only" % (path,) + CHAIN_REMEDY)
     try:
         survey_packet = _read_survey_berth(packet["survey_ref"])
     except Exception as e:
@@ -118,50 +120,28 @@ def triage_floor(decompose_ref: str, root: str = CAIRN_ROOT) -> dict:
 
 
 def validate_triage(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The exit gate: shape first, then THE COMPOSED JUDGES — judge_triage is
-    the inspector's, so a packet this door passes is a packet the promotion
-    gate passes (one implementation, two mouths). Refusals are loud and
-    complete on first pass."""
+    """The exit gate, two tiers, each complete in one pass (ticket
+    chart-doors-refuse-in-one-pass): every SHAPE lack is accumulated and raised in
+    ONE refusal — a dribbled refusal costs the sender a round-trip per field — and
+    THE COMPOSED JUDGES (judge_triage is the inspector's, so a packet this door
+    passes is a packet the promotion gate passes — one implementation, two mouths)
+    already report every finding together once shape holds."""
     if not isinstance(packet, dict):
         raise TriageRefused("triage packet must be a dict, got %s"
-                            % type(packet).__name__)
-    missing = [f for f in REQUIRED_FIELDS if f not in packet]
-    if missing:
-        raise TriageRefused("triage packet refused — missing fields: %s"
-                            % ", ".join(missing))
+                    % type(packet).__name__)
 
-    _read_decompose_berth(packet["decompose_ref"])
+    lacks = []
+    if "decompose_ref" in packet:
+        try:
+            _read_decompose_berth(packet["decompose_ref"])
+        except RuntimeError as e:
+            lacks.append(str(e))
 
-    for field in ("order", "unknowns"):
-        if not isinstance(packet[field], list):
-            raise TriageRefused("triage packet refused — %s must be a list"
-                                % field)
-    if any(not isinstance(x, str) for x in packet["unknowns"]):
-        raise TriageRefused(
-            "triage packet refused — unknowns must be a list of strings")
-
-    confidence = packet["confidence"]
-    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-            or not 0.0 <= float(confidence) <= 1.0:
-        raise TriageRefused(
-            "triage packet refused — confidence must be a number in [0, 1]")
-
-    provenance = packet["provenance"]
-    if not isinstance(provenance, dict):
-        raise TriageRefused(
-            "triage packet refused — provenance must be a dict of field -> stratum")
-    uncovered = [f for f in AUTHORED_FIELDS if f not in provenance]
-    if uncovered:
-        raise TriageRefused("triage packet refused — provenance does not cover: %s"
-                            % ", ".join(uncovered))
-    bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-    if bad:
-        raise TriageRefused("triage packet refused — unknown stratum in provenance: %s"
-                            % ", ".join(bad))
-
-    claim_error = ticket_claim_error(packet, root)
-    if claim_error:
-        raise TriageRefused("triage packet refused — " + claim_error)
+    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
+                                authored_fields=AUTHORED_FIELDS,
+                                list_fields=('order', 'unknowns'), root=root)
+    if lacks:
+        raise TriageRefused(render_lacks("triage", lacks))
 
     verdicts = judge_triage(packet)
     if verdicts:

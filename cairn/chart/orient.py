@@ -177,56 +177,112 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
     return os.path.exists(os.path.join(commons, ref))
 
 
-def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The schema gate at the handoff — the append-door pattern (Law 4).
+CHAIN_REMEDY = (
+    " REMEDIATION: re-fire the broken link's own stage for THIS request and hand "
+    "the NEW berth path forward (the chain re-berths from the repaired link down) "
+    "- stage 1 orient: write_packet / 2 constrain: write_constrain / 3 survey: "
+    "write_survey / 4 decompose: write_decompose / 5 triage: write_triage / "
+    "6 hypothesize: write_hypothesize, each fired as PYTHONPATH=$HOME/dev/src/cairn "
+    "python3 -c 'from cairn.chart.<stage> import <writer>; ...' <packet.json> - "
+    "see the /chart skill for the full step."
+)
 
-    Refuses loudly on: missing fields, empty authored strings, malformed
-    confidence, provenance that does not cover every authored field or names an
-    unknown stratum, and any ref the floor cannot verify EXISTS (an invented
-    pointer must never reach downstream)."""
-    if not isinstance(packet, dict):
-        raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
 
-    missing = [f for f in REQUIRED_FIELDS if f not in packet]
+def common_shape_lacks(packet: dict, *, required_fields, authored_fields,
+                       list_fields=(), root: str = CAIRN_ROOT) -> list:
+    """Every SHARED shape lack, accumulated — the one implementation of the checks
+    all seven stage doors run (missing fields, list shapes, unknowns, confidence,
+    provenance coverage and strata, the ticket claim), so the doors cannot drift
+    apart again: the copied-cascade defect this replaces began as one hand-written
+    tier copied six times (ticket chart-doors-refuse-in-one-pass).
+
+    Returns messages, never raises — each caller appends its stage-specific lacks
+    and raises ONCE with everything named. Checks guard on field presence: an
+    absent field is reported by the missing-fields lack alone, not twice.
+    """
+    lacks = []
+    missing = [f for f in required_fields if f not in packet]
     if missing:
-        raise OrientRefused("orient packet refused — missing fields: %s" % ", ".join(missing))
+        lacks.append("missing fields: %s" % ", ".join(missing))
 
-    for field in ("intent", "domain", "scope"):
-        value = packet[field]
-        if not isinstance(value, str) or not value.strip():
-            raise OrientRefused("orient packet refused — field %r must be a non-empty string" % field)
+    for field in list_fields:
+        if field in packet and not isinstance(packet[field], list):
+            lacks.append("%s must be a list" % field)
 
-    for field in ("refs", "unknowns"):
-        value = packet[field]
-        if not isinstance(value, list) or any(not isinstance(x, str) for x in value):
-            raise OrientRefused("orient packet refused — field %r must be a list of strings" % field)
+    if isinstance(packet.get("unknowns"), list) and any(
+            not isinstance(x, str) for x in packet["unknowns"]):
+        lacks.append("unknowns must be a list of strings")
 
-    confidence = packet["confidence"]
-    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-            or not 0.0 <= float(confidence) <= 1.0:
-        raise OrientRefused("orient packet refused — confidence must be a number in [0, 1]")
+    if "confidence" in packet:
+        confidence = packet["confidence"]
+        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
+                or not 0.0 <= float(confidence) <= 1.0:
+            lacks.append("confidence must be a number in [0, 1]")
 
-    provenance = packet["provenance"]
-    if not isinstance(provenance, dict):
-        raise OrientRefused("orient packet refused — provenance must be a dict of field -> stratum")
-    uncovered = [f for f in AUTHORED_FIELDS if f not in provenance]
-    if uncovered:
-        raise OrientRefused("orient packet refused — provenance does not cover: %s"
-                            % ", ".join(uncovered))
-    bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-    if bad:
-        raise OrientRefused("orient packet refused — unknown stratum in provenance: %s (must be one of %s)"
-                            % (", ".join(bad), "|".join(STRATA)))
-
-    roster = set(component_roster(root))
-    invented = [r for r in packet["refs"] if not _ref_exists(r, root, roster)]
-    if invented:
-        raise OrientRefused("orient packet refused — refs the floor cannot verify exist: %s"
-                            % ", ".join(invented))
+    if "provenance" in packet:
+        provenance = packet["provenance"]
+        if not isinstance(provenance, dict):
+            lacks.append("provenance must be a dict of field -> stratum")
+        else:
+            uncovered = [f for f in authored_fields if f not in provenance]
+            if uncovered:
+                lacks.append("provenance does not cover: %s" % ", ".join(uncovered))
+            bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
+            if bad:
+                lacks.append("unknown stratum in provenance: %s (must be one of %s)"
+                             % (", ".join(bad), "|".join(STRATA)))
 
     claim_error = ticket_claim_error(packet, root)
     if claim_error:
-        raise OrientRefused("orient packet refused — " + claim_error)
+        lacks.append(claim_error)
+    return lacks
+
+
+def render_lacks(stage: str, lacks: list) -> str:
+    """One refusal carrying every lack — the header a fixer reads first, then one
+    line per lack. The count is in the header so 'did I get them all' is answerable
+    without re-firing."""
+    return ("%s packet refused — %d lack(s), all named on this one pass "
+            "(fix them together, then fire again):\n  - %s"
+            % (stage, len(lacks), "\n  - ".join(lacks)))
+
+
+def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """The schema gate at the handoff — the append-door pattern (Law 4).
+
+    Refuses on: missing fields, empty authored strings, malformed confidence,
+    provenance that does not cover every authored field or names an unknown
+    stratum, and any ref the floor cannot verify EXISTS (an invented pointer must
+    never reach downstream). EVERY lack is accumulated and raised in ONE refusal
+    (ticket chart-doors-refuse-in-one-pass) — a dribbled refusal costs the sender
+    a round-trip per field."""
+    if not isinstance(packet, dict):
+        raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
+
+    lacks = []
+    for field in ("intent", "domain", "scope"):
+        if field in packet:
+            value = packet[field]
+            if not isinstance(value, str) or not value.strip():
+                lacks.append("field %r must be a non-empty string" % field)
+
+    for field in ("refs", "unknowns"):
+        if field in packet:
+            value = packet[field]
+            if not isinstance(value, list) or any(not isinstance(x, str) for x in value):
+                lacks.append("field %r must be a list of strings" % field)
+
+    if isinstance(packet.get("refs"), list) and all(
+            isinstance(r, str) for r in packet["refs"]):
+        roster = set(component_roster(root))
+        invented = [r for r in packet["refs"] if not _ref_exists(r, root, roster)]
+        if invented:
+            lacks.append("refs the floor cannot verify exist: %s" % ", ".join(invented))
+
+    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
+                                authored_fields=AUTHORED_FIELDS, root=root)
+    if lacks:
+        raise OrientRefused(render_lacks("orient", lacks))
 
     return packet
 

@@ -278,9 +278,43 @@ def _cleanup():
         conn.close()
 
 
+
+def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth, survey_berth):
+    """Ticket chart-doors-refuse-in-one-pass: a multi-defective packet learns EVERY
+    shape lack in ONE refusal, a second identical firing names the identical set
+    (no whack-a-mole), and a broken chain read names its remediation."""
+    bad = good_packet(survey_berth)
+    del bad["sub_problems"]
+    bad["confidence"] = 2.0
+    bad["provenance"] = dict(bad["provenance"], intruder="martian")
+
+    def lack_set():
+        try:
+            validate_decompose(bad, root=root)
+        except DecomposeRefused as e:
+            msg = str(e)
+            assert "all named on this one pass" in msg, msg
+            return frozenset(l.strip() for l in msg.splitlines()
+                             if l.strip().startswith("- "))
+        raise AssertionError("multi-defective packet passed the gate")
+
+    first, second = lack_set(), lack_set()
+    assert first == second, (first, second)
+    assert len(first) >= 3, first
+    joined = " ".join(first)
+    for needle in ("missing fields", "confidence", "stratum"):
+        assert needle in joined, (needle, joined)
+    try:
+        decompose_floor(os.path.join(root, "no-such-berth.json"))
+        raise AssertionError("floor read a berth that does not exist")
+    except DecomposeRefused as e:
+        assert "REMEDIATION" in str(e), str(e)
+
+
 def _main() -> int:
     root, orient_berth, constrain_berth, survey_berth = make_root()
     checks = [
+        test_refusal_is_one_pass_complete,
         test_the_chain_is_physics_at_depth_4,
         test_floor_hands_the_judges_vocabularies_verbatim,
         test_schema_gate_refuses_hollow_shapes,

@@ -41,7 +41,9 @@ import time
 
 from cairn.build_inspector.inspector import judge_constrain
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster,
-                                ticket_claim_error)
+                                ticket_claim_error,
+                                common_shape_lacks, render_lacks,
+                                CHAIN_REMEDY)
 from cairn.chart.tree import deposit_learning
 
 AUTHORED_FIELDS = ("intent_ref", "constraints", "bounds", "unknowns")
@@ -60,7 +62,7 @@ def _read_orient_berth(path: str) -> dict:
         raise ConstrainRefused(
             "constrain refuses — intent_ref %r is not a berthed packet on disk; "
             "stage 2 template-fills from stage 1's validated file, never from "
-            "the conversation" % (path,))
+            "the conversation" % (path,) + CHAIN_REMEDY)
     try:
         with open(os.path.expanduser(path), encoding="utf-8") as fh:
             packet = json.load(fh)
@@ -71,7 +73,7 @@ def _read_orient_berth(path: str) -> dict:
     if not isinstance(packet, dict) or "intent" not in packet:
         raise ConstrainRefused(
             "constrain refuses — intent_ref %r is not an orient berth (no intent "
-            "field); the chain fills from validated stages only" % (path,))
+            "field); the chain fills from validated stages only" % (path,) + CHAIN_REMEDY)
     return packet
 
 
@@ -115,58 +117,43 @@ def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
 
 
 def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The exit gate: shape first, then THE COMPOSED JUDGES — judge_constrain is
-    the inspector's, so a packet this door passes is a packet the promotion gate
-    passes (one implementation, two mouths). Refusals are loud and complete on
-    first pass."""
+    """The exit gate, two tiers, each complete in one pass (ticket
+    chart-doors-refuse-in-one-pass): every SHAPE lack is accumulated and raised in
+    ONE refusal — a dribbled refusal costs the sender a round-trip per field — and
+    THE COMPOSED JUDGES (judge_constrain is the inspector's, so a packet this door
+    passes is a packet the promotion gate passes — one implementation, two mouths)
+    already report every finding together once shape holds."""
     if not isinstance(packet, dict):
         raise ConstrainRefused("constrain packet must be a dict, got %s"
-                               % type(packet).__name__)
-    missing = [f for f in REQUIRED_FIELDS if f not in packet]
-    if missing:
-        raise ConstrainRefused("constrain packet refused — missing fields: %s"
-                               % ", ".join(missing))
+                    % type(packet).__name__)
 
-    _read_orient_berth(packet["intent_ref"])
+    lacks = []
+    if "intent_ref" in packet:
+        try:
+            _read_orient_berth(packet["intent_ref"])
+        except RuntimeError as e:
+            lacks.append(str(e))
 
-    constraints = packet["constraints"]
-    if not isinstance(constraints, list) or not constraints:
-        raise ConstrainRefused(
-            "constrain packet refused — constraints must be a non-empty list: every "
-            "Cairn request is bounded by at least one charter or Law; an empty list "
-            "means the bounds question never ran")
-    for i, c in enumerate(constraints):
-        if not isinstance(c, dict) or not all(
-                isinstance(c.get(k), str) and c.get(k).strip()
-                for k in ("text", "source", "kind")):
-            raise ConstrainRefused(
-                "constrain packet refused — constraint %d must carry non-empty "
-                "text, source, and kind" % i)
+    if "constraints" in packet:
+        constraints = packet["constraints"]
+        if not isinstance(constraints, list) or not constraints:
+            lacks.append(
+                "constraints must be a non-empty list: every Cairn request is bounded "
+                "by at least one charter or Law; an empty list means the bounds "
+                "question never ran")
+        else:
+            for i, c in enumerate(constraints):
+                if not isinstance(c, dict) or not all(
+                        isinstance(c.get(k), str) and c.get(k).strip()
+                        for k in ("text", "source", "kind")):
+                    lacks.append("constraint %d must carry non-empty text, source, "
+                                 "and kind" % i)
 
-    if not isinstance(packet["unknowns"], list) or any(
-            not isinstance(x, str) for x in packet["unknowns"]):
-        raise ConstrainRefused("constrain packet refused — unknowns must be a list of strings")
-
-    confidence = packet["confidence"]
-    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-            or not 0.0 <= float(confidence) <= 1.0:
-        raise ConstrainRefused("constrain packet refused — confidence must be a number in [0, 1]")
-
-    provenance = packet["provenance"]
-    if not isinstance(provenance, dict):
-        raise ConstrainRefused("constrain packet refused — provenance must be a dict of field -> stratum")
-    uncovered = [f for f in AUTHORED_FIELDS if f not in provenance]
-    if uncovered:
-        raise ConstrainRefused("constrain packet refused — provenance does not cover: %s"
-                               % ", ".join(uncovered))
-    bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-    if bad:
-        raise ConstrainRefused("constrain packet refused — unknown stratum in provenance: %s"
-                               % ", ".join(bad))
-
-    claim_error = ticket_claim_error(packet, root)
-    if claim_error:
-        raise ConstrainRefused("constrain packet refused — " + claim_error)
+    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
+                                authored_fields=AUTHORED_FIELDS,
+                                list_fields=(), root=root)
+    if lacks:
+        raise ConstrainRefused(render_lacks("constrain", lacks))
 
     verdicts = judge_constrain(packet)
     if verdicts:

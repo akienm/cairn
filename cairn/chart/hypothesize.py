@@ -51,7 +51,9 @@ import time
 
 from cairn.build_inspector.inspector import judge_hypothesize
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
-                                ticket_claim_error)
+                                ticket_claim_error,
+                                common_shape_lacks, render_lacks,
+                                CHAIN_REMEDY)
 from cairn.chart.tree import deposit_learning
 from cairn.chart.triage import _read_decompose_berth
 
@@ -73,7 +75,7 @@ def _read_triage_berth(path: str) -> dict:
         raise HypothesizeRefused(
             "hypothesize refuses — triage_ref %r is not a berthed packet on "
             "disk; stage 6 template-fills from stage 5's validated file, never "
-            "from the conversation" % (path,))
+            "from the conversation" % (path,) + CHAIN_REMEDY)
     try:
         with open(os.path.expanduser(path), encoding="utf-8") as fh:
             packet = json.load(fh)
@@ -86,7 +88,7 @@ def _read_triage_berth(path: str) -> dict:
         raise HypothesizeRefused(
             "hypothesize refuses — triage_ref %r is not a triage berth (no "
             "decompose_ref/order/unknowns); the chain fills from validated "
-            "stages only" % (path,))
+            "stages only" % (path,) + CHAIN_REMEDY)
     try:
         decompose_packet = _read_decompose_berth(packet["decompose_ref"])
     except Exception as e:
@@ -123,52 +125,28 @@ def hypothesize_floor(triage_ref: str, root: str = CAIRN_ROOT) -> dict:
 
 
 def validate_hypothesize(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The exit gate: shape first, then THE COMPOSED JUDGES — judge_hypothesize
-    is the inspector's, so a packet this door passes is a packet the promotion
-    gate passes (one implementation, two mouths). Refusals are loud and
-    complete on first pass."""
+    """The exit gate, two tiers, each complete in one pass (ticket
+    chart-doors-refuse-in-one-pass): every SHAPE lack is accumulated and raised in
+    ONE refusal — a dribbled refusal costs the sender a round-trip per field — and
+    THE COMPOSED JUDGES (judge_hypothesize is the inspector's, so a packet this door
+    passes is a packet the promotion gate passes — one implementation, two mouths)
+    already report every finding together once shape holds."""
     if not isinstance(packet, dict):
         raise HypothesizeRefused("hypothesize packet must be a dict, got %s"
-                                 % type(packet).__name__)
-    missing = [f for f in REQUIRED_FIELDS if f not in packet]
-    if missing:
-        raise HypothesizeRefused("hypothesize packet refused — missing fields: %s"
-                                 % ", ".join(missing))
+                    % type(packet).__name__)
 
-    _read_triage_berth(packet["triage_ref"])
+    lacks = []
+    if "triage_ref" in packet:
+        try:
+            _read_triage_berth(packet["triage_ref"])
+        except RuntimeError as e:
+            lacks.append(str(e))
 
-    for field in ("hypotheses", "unknowns"):
-        if not isinstance(packet[field], list):
-            raise HypothesizeRefused("hypothesize packet refused — %s must be a list"
-                                     % field)
-    if any(not isinstance(x, str) for x in packet["unknowns"]):
-        raise HypothesizeRefused(
-            "hypothesize packet refused — unknowns must be a list of strings")
-
-    confidence = packet["confidence"]
-    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-            or not 0.0 <= float(confidence) <= 1.0:
-        raise HypothesizeRefused(
-            "hypothesize packet refused — confidence must be a number in [0, 1]")
-
-    provenance = packet["provenance"]
-    if not isinstance(provenance, dict):
-        raise HypothesizeRefused(
-            "hypothesize packet refused — provenance must be a dict of field -> stratum")
-    uncovered = [f for f in AUTHORED_FIELDS if f not in provenance]
-    if uncovered:
-        raise HypothesizeRefused(
-            "hypothesize packet refused — provenance does not cover: %s"
-            % ", ".join(uncovered))
-    bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-    if bad:
-        raise HypothesizeRefused(
-            "hypothesize packet refused — unknown stratum in provenance: %s"
-            % ", ".join(bad))
-
-    claim_error = ticket_claim_error(packet, root)
-    if claim_error:
-        raise HypothesizeRefused("hypothesize packet refused — " + claim_error)
+    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
+                                authored_fields=AUTHORED_FIELDS,
+                                list_fields=('hypotheses', 'unknowns'), root=root)
+    if lacks:
+        raise HypothesizeRefused(render_lacks("hypothesize", lacks))
 
     verdicts = judge_hypothesize(packet)
     if verdicts:

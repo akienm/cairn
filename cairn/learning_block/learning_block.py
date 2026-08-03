@@ -49,13 +49,17 @@ SIGNALS = {
 
 
 class DoorRefused(ValueError):
-    """Insufficient input at a block's door. Carries EVERY lack, named."""
+    """Insufficient input at a block's door. Carries EVERY lack, named — and the
+    message renders each as ``field: why`` so a caller that only prints ``str(exc)``
+    hands the executor the remedy, not a list of names to go look up (ticket
+    chart-doors-refuse-in-one-pass, folding opus-pass rank 7: the whys used to ride
+    only ``.lacks`` and were dropped by exactly the callers who needed them most)."""
 
     def __init__(self, block: str, lacks: list[dict]):
         self.block, self.lacks = block, lacks
-        names = ", ".join(l["field"] for l in lacks)
+        rendered = "; ".join(f"{l['field']}: {l['why']}" for l in lacks)
         super().__init__(f"door refused for block {block!r} — {len(lacks)} lack(s), "
-                         f"all named on this first pass: {names}")
+                         f"all named on this first pass: {rendered}")
 
 
 class TraceRefused(ValueError):

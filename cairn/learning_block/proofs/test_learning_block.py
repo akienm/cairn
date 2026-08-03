@@ -603,6 +603,17 @@ def test_engine_probe_is_armed():
     assert err is None, f"the probe must be armed by the chokepoint's own measure: {err}"
 
 
+def test_door_refused_renders_field_and_why():
+    """Ticket chart-doors-refuse-in-one-pass (folding opus-pass rank 7): str() of a
+    DoorRefused carries each lack's WHY beside its field — a caller that only prints
+    the exception hands the executor the remedy, not a list of names to look up."""
+    exc = lb.DoorRefused("blk", [{"field": "alpha", "why": "alpha is load-bearing"},
+                                 {"field": "beta", "why": "beta names the falsifier"}])
+    msg = str(exc)
+    for needle in ("alpha: alpha is load-bearing", "beta: beta names the falsifier"):
+        assert needle in msg, (needle, msg)
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]

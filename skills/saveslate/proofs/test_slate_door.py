@@ -130,6 +130,22 @@ def main() -> int:
         ok("written_at is the door's own instant, not a re-derived day",
            l["written_at"] == "2026-08-03T16:41:35", l["written_at"])
 
+        # 8c. an author-supplied stamp is refused WITH THE TRUE WHY. The charter
+        # template names written_at, so a packet-composer will plausibly supply it.
+        # The refusal must not say "a key nothing reads" — the reader reads it;
+        # it is refused because only the door may mint it (an author-supplied
+        # value could backdate the record — the two-witness argument again).
+        try:
+            door.fire(dict(GOOD, slate_id="2026-08-03-fixture-backdate",
+                           written_at="1999-01-01T00:00:00"), **roots)
+            ok("author-supplied written_at refused", False)
+        except DoorRefused as exc:
+            ok("author-supplied written_at refused", "written_at" in fields_of(exc))
+            ok("...with the true why, not 'a key nothing reads'",
+               "backdate" in str(exc) and "nothing reads" not in str(exc), str(exc)[:200])
+        ok("the backdate refusal wrote no slate",
+           not (slates / "2026-08-03-fixture-backdate.json").exists())
+
         # 9. id collision refuses (a slate is never an overwrite)
         try:
             door.fire(dict(GOOD), **roots)

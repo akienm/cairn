@@ -58,7 +58,13 @@ _SLATES = _COMMONS / "slates"
 
 # The reader's closed set (bin/cmd/slate CARRIED) + the store template's envelope.
 CARRIED = ("at_sea", "next_direction", "open_threads")
-ENVELOPE = ("id", "date", "session", "author")
+ENVELOPE = ("id", "date", "written_at", "session", "author")
+
+# Envelope fields only the DOOR may mint. written_at is the rank key the reader
+# trusts (bin/cmd/slate); an author-supplied value could backdate a record of
+# truth — the same two-witness argument that killed auto-inherit (cbbadb13530f):
+# the stamp must come from the one hand the packet cannot contaminate.
+DOOR_MINTED = ("id", "date", "written_at", "author")
 
 # Measured at install over 50 slates: min 2211 / median 6880 / max 12878 chars.
 CEILING = 10_000
@@ -123,6 +129,20 @@ def judge_packet(payload: dict, *, heads: dict | None = None,
              if k not in CARRIED and k not in
              ("slate_id", "instruments_read", "bullets", "exit", "disposition",
               "session")]
+    minted = [k for k in extra if k in DOOR_MINTED]
+    if minted:
+        # NOT "a key nothing reads" — the reader reads these. They are refused
+        # because the door mints them at write time (id from slate_id, the rest
+        # from the clock and the world); written_at is the rank key, and an
+        # author-supplied stamp could backdate the record. Say the true why.
+        lacks.append({"field": ", ".join(sorted(minted)),
+                      "why": "door-minted envelope fields — the door stamps these at the "
+                             "write (id from your slate_id; date/written_at from its own "
+                             "clock; author). written_at is the rank key the session-open "
+                             "reader trusts, so an author-supplied value could backdate a "
+                             "record of truth. Drop them; supply slate_id and let the door "
+                             "stamp the rest."})
+    extra = [k for k in extra if k not in DOOR_MINTED]
     if extra:
         lacks.append({"field": ", ".join(sorted(extra)),
                       "why": "keys the reader does not read — bin/cmd/slate consumes a "

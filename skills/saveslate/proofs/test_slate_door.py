@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
@@ -104,9 +105,30 @@ def main() -> int:
         ok("the slate is written by the same act", slate_path.exists())
         rec = json.loads(slate_path.read_text())
         ok("the slate carries exactly the template keys",
-           sorted(rec) == sorted(("id", "date", "session", "author",
+           sorted(rec) == sorted(("id", "date", "written_at", "session", "author",
                                   "at_sea", "next_direction", "open_threads"))
            and rec["session"] == "sess-1" and rec["id"] == GOOD["slate_id"], rec)
+
+        # 8b. written_at is the INSTANT, not the day again. The hollow build stamps
+        # when.date() into it: the key exists, the shape looks right, and the reader
+        # still cannot rank two slates written the same day — which is the entire
+        # defect this field was added for (2026-08-03: three slates, one date, the
+        # 15:50 one named current over the 16:41 one). So two fires on the SAME DAY
+        # must produce written_at values that differ and order in write order.
+        d1, d2 = datetime(2026, 8, 3, 15, 50, 12), datetime(2026, 8, 3, 16, 41, 35)
+        r1 = door.fire(dict(GOOD, slate_id="2026-08-03-fixture-earlier"),
+                       now=d1, **roots)
+        r2 = door.fire(dict(GOOD, slate_id="2026-08-03-fixture-later"),
+                       now=d2, **roots)
+        e = json.loads(Path(r1["slate"]).read_text())
+        l = json.loads(Path(r2["slate"]).read_text())
+        ok("same-day writes share a date", e["date"] == l["date"] == "2026-08-03")
+        ok("written_at still tells them apart",
+           e["written_at"] != l["written_at"], (e["written_at"], l["written_at"]))
+        ok("written_at orders in write order", e["written_at"] < l["written_at"],
+           (e["written_at"], l["written_at"]))
+        ok("written_at is the door's own instant, not a re-derived day",
+           l["written_at"] == "2026-08-03T16:41:35", l["written_at"])
 
         # 9. id collision refuses (a slate is never an overwrite)
         try:

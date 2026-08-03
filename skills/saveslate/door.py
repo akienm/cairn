@@ -165,6 +165,12 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
     record = {
         "id": payload["slate_id"].strip(),
         "date": when.date().isoformat(),
+        # The instant of the write, not the day of it. `date` alone cannot rank two
+        # slates from the same day, and the reader's filename tiebreak is alphabetical
+        # on the TITLE — which on 2026-08-03 named the 15:50 slate current over the
+        # 16:41 one and opened the next session a voyage behind. The door already
+        # holds this instant; it was being thrown away at day granularity.
+        "written_at": when.isoformat(timespec="seconds"),
         "session": session or payload.get("session", ""),
         "author": "CC",
         "at_sea": payload["at_sea"],

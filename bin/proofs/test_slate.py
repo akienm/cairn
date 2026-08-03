@@ -34,7 +34,15 @@ way this could be built that LOOKS right and is not:
      stdout must PARSE, must nest the banner under hookSpecificOutput.additional-
      Context, and must name hookEventName. Getting that nesting wrong loses the
      slate silently while still printing a cheerful receipt — so it is pinned.
-  8. THE LAP HIDES BY THE FIELD, NOT BY THE FILE. An adjudication leaves by recording
+  8. THE DAY IS NOT THE RANK. Date-then-filename is the build that shipped, and it
+     passes every case above because they all use distinct dates. On 2026-08-03 three
+     slates shared a date and the alphabetical title tiebreak named the 15:50 one
+     current over the 16:41 one — the session opened a voyage behind and did not know
+     /challenge had shipped. Case 19 makes filename order and write order DISAGREE, so
+     only a written_at build lands right; and when a day genuinely cannot be ranked it
+     requires the reader to SAY the answer is a guess (Law 7) without warning on the
+     lone unstamped slate that is the whole historical corpus.
+  9. THE LAP HIDES BY THE FIELD, NOT BY THE FILE. An adjudication leaves by recording
      `resolved` and STAYING on disk, so the discriminator is that field. A build that
      prints every file passes an "it surfaces" check and never stops shouting; one
      that skips the malformed record loses a decision nobody can read.
@@ -382,6 +390,73 @@ def main() -> int:
         check("the banner reaches the model via additionalContext",
               "LAPOPENZZ" in payload.get("additionalContext", "")
               or "LAPOPENZZ" in json.dumps(payload), json.dumps(payload)[:300])
+
+        # ── 19. within a date, written_at ranks — and an unrankable day says so ────
+        # The build this is written against is the one that SHIPPED: date + filename.
+        # Every case above uses distinct dates, so it passes all of them and still
+        # named the 15:50 slate current over the 16:41 one on 2026-08-03. Here the
+        # filename order and the write order DISAGREE, so only a written_at build
+        # lands on LATER.
+        print("\n19. same-day slates rank by written_at, not by filename")
+        s_day = root / "slates_sameday"
+        s_day.mkdir()
+        write_slate(s_day, "2026-08-03-aaa-the-later-one.json", id="LATER",
+                    date="2026-08-03", written_at="2026-08-03T16:41:35", author="CC",
+                    at_sea="the later voyage", next_direction="later next",
+                    open_threads=["later thread"])
+        write_slate(s_day, "2026-08-03-zzz-the-earlier-one.json", id="EARLIER",
+                    date="2026-08-03", written_at="2026-08-03T15:50:12", author="CC",
+                    at_sea="the earlier voyage", next_direction="earlier next",
+                    open_threads=["earlier thread"])
+        r = run(s_day, t_empty)
+        check("picks the later WRITTEN_AT", "LATER" in r.stdout, r.stdout[:300])
+        check("does NOT pick the alphabetically-last filename",
+              "EARLIER" not in r.stdout, "a date+filename build lands here")
+        check("no ambiguity warning when the winner is stamped",
+              "written_at" not in r.stdout, r.stdout[:300])
+        check("exit 0", r.returncode == 0, f"rc={r.returncode}")
+
+        # A record written before the stamp existed must not outrank one written after
+        # it on the same day — the stamped record is by construction the later writer.
+        print("\n    ...and an unstamped record of the same day ranks below a stamped one")
+        write_slate(s_day, "2026-08-03-mmm-no-stamp.json", id="UNSTAMPED",
+                    date="2026-08-03", author="CC", at_sea="legacy at sea",
+                    next_direction="legacy next", open_threads=["legacy thread"])
+        r = run(s_day, t_empty)
+        check("stamped still wins", "LATER" in r.stdout, r.stdout[:300])
+        check("unstamped does not win", "UNSTAMPED" not in r.stdout, r.stdout[:300])
+
+        # The honest half: when the day CANNOT be ranked, the reader must not present
+        # its guess as the answer. It still picks (a wrong slate beats no slate) and
+        # still exits 0 — it just refuses to be silent about the guess (Law 7).
+        print("\n    ...and a day of only-unstamped slates is named as a guess, not an answer")
+        s_amb = root / "slates_ambiguous"
+        s_amb.mkdir()
+        for nm, ident in (("2026-08-03-aaa-one.json", "AMBONE"),
+                          ("2026-08-03-zzz-two.json", "AMBTWO")):
+            write_slate(s_amb, nm, id=ident, date="2026-08-03", author="CC",
+                        at_sea=f"{ident} at sea", next_direction="next",
+                        open_threads=["thread"])
+        r = run(s_amb, t_empty)
+        check("says the ranking fell back to filename order",
+              "written_at" in r.stdout and "alphabetical" in r.stdout, r.stdout[:400])
+        check("names how many slates share the date", "2 slates share date" in r.stdout,
+              r.stdout[:400])
+        check("still restores a slate", "AMBTWO" in r.stdout, r.stdout[:300])
+        check("still exit 0", r.returncode == 0, f"rc={r.returncode}")
+
+        # No false alarm: one unstamped slate on its day is the whole historical corpus.
+        # A build that warns on every legacy slate is noise, and noise gets ignored.
+        print("\n    ...and a lone unstamped slate does not cry ambiguity")
+        s_lone = root / "slates_lone"
+        s_lone.mkdir()
+        write_slate(s_lone, "2026-07-01-alone.json", id="ALONE", date="2026-07-01",
+                    author="CC", at_sea="alone at sea", next_direction="next",
+                    open_threads=["thread"])
+        r = run(s_lone, t_empty)
+        check("no warning for a lone unstamped slate",
+              "alphabetical" not in r.stdout, r.stdout[:300])
+        check("restores it", "ALONE" in r.stdout, r.stdout[:200])
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

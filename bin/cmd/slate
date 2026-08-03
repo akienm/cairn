@@ -137,11 +137,21 @@ def _render(value, indent: str = "  ") -> str:
 
 
 def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
-    """Newest by the slate's own ``date`` field, tiebroken by filename.
+    """Newest by the slate's own ``date``, then its own ``written_at``, then filename.
 
     NOT by mtime: 14 slates were bulk-touched at 2026-07-29 18:03 by an unrelated
     edit, so mtime would have named the wrong slate as current — a ranking the
     records themselves already answer correctly.
+
+    ``date`` alone does not: three slates were written on 2026-08-03 and the
+    filename tiebreak (alphabetical on the TITLE, which carries no time) named the
+    15:50 slate over the 16:41 one, so that session opened one voyage behind and
+    did not know /challenge had shipped. ``written_at`` is the door's own stamp of
+    the instant it wrote. Slates written before the stamp existed carry none; they
+    sort below any stamped slate of the same day (correct — a stamped slate is by
+    construction the later writer), and a day of only-unstamped slates falls back
+    to the old filename order and SAYS SO rather than presenting a guess as the
+    answer (Law 7's diagnostic half).
     """
     if not SLATES.is_dir():
         return None, None, f"no slates directory at {SLATES}"
@@ -149,21 +159,33 @@ def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
     if not files:
         return None, None, f"no slates in {SLATES}"
 
-    best, best_key, unreadable = None, None, []
+    ranked, unreadable = [], []
     for p in files:
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
         except Exception as exc:                       # a corrupt slate is loud, not fatal
             unreadable.append(f"{p.name}: {exc}")
             continue
-        key = (str(data.get("date") or ""), p.name)
-        if best_key is None or key > best_key:
-            best, best_key = (p, data), key
+        key = (str(data.get("date") or ""), str(data.get("written_at") or ""), p.name)
+        ranked.append((key, p, data))
 
-    warn = ("unreadable slate file(s): " + "; ".join(unreadable)) if unreadable else None
-    if best is None:
-        return None, None, warn or "every slate failed to parse"
-    return best[0], best[1], warn
+    warns = []
+    if unreadable:
+        warns.append("unreadable slate file(s): " + "; ".join(unreadable))
+    if not ranked:
+        return None, None, (" | ".join(warns) if warns else "every slate failed to parse")
+
+    key, path, data = max(ranked, key=lambda r: r[0])
+    if not data.get("written_at"):
+        same_day = sum(1 for k, _, _ in ranked if k[0] == key[0])
+        if same_day > 1:
+            warns.append(
+                f"{same_day} slates share date {key[0]} and the chosen one carries no "
+                f"written_at — this ranking fell back to alphabetical filename order and "
+                f"may be naming the wrong slate as current. Verify before trusting it as "
+                f"ground truth; the next door-written slate carries the stamp and settles "
+                f"it.")
+    return path, data, (" | ".join(warns) if warns else None)
 
 
 def _live_troubles() -> tuple[list[dict], str | None]:

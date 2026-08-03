@@ -102,5 +102,7 @@ charter, never from this file.
 - ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees
   packets that exist, not rulings never recorded. · *ticket owed*
 
-This file has its own charter and stands the `/challenge` gate on a cadence —
-the file that briefs every session is the most-challenged artifact in the system.
+This file has its own charter and answers to `/challenge` — whose firing event
+is every node birth at `/intent` (ticket challenge-fires-at-intent); as a settled
+artifact this file is challenged deliberately, in hand, no clock — and remains
+the most-challenged artifact in the system.

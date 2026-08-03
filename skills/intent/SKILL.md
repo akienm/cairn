@@ -1,6 +1,6 @@
 ---
 name: intent
-description: Birth a node — a new track or an aside. Unpack WHAT/HOW and trace it to the Telos. ONE OF THREE entry points (IDEA, INTENT, TICKET); run before /challenge and /sorted. A bug does not come here — it goes straight to TICKET.
+description: Birth a node — a new track or an aside. Unpack WHAT/HOW and trace it to the Telos, then stand the /challenge pass (required at every birth — the door refuses a packet without its answers) before /sorted. ONE OF THREE entry points (IDEA, INTENT, TICKET). A bug does not come here — it goes straight to TICKET.
 ---
 
 # /intent — birth a node
@@ -52,6 +52,34 @@ cost is spent on it: re-deriving a settled intention is the defect this gate sto
 5. **Falsifier** — What would tell us this is done, or tell us it was the wrong
    intent? (A first-cut horizon; refined at `/sorted`.)
 
+## Then CHALLENGE the newborn — required at every birth; the door enforces it
+
+The adversarial pass runs on the five answers BEFORE the packet fires. This is
+/challenge's firing event (ticket challenge-fires-at-intent): a node being born
+is the event that already fires, so the pass rides it — never a clock, and never
+an optional route (which fired zero times while one measured session stumbled
+three times onto already-solved work). Answer the five challenge
+questions against the newborn intent:
+
+- **better_approach** — a cleaner, simpler, smaller way to the same aim? Name
+  it, or say honestly that you looked and this is it.
+- **prior_art** — solved already? The model-consult above feeds this (a
+  congruency-lab hit IS prior art); check in-house first, then the field. A hit
+  kills or reshapes the intent NOW, while changing it is cheap (Law 1).
+- **hidden_assumption** — what is this taking for granted that could be false?
+- **real_collision** — does it conflict with an intention, Law, or decision —
+  *really*? The why of each side; exclusive-and-terminal, or it is a
+  distinction to record.
+- **back_up** — proceed, revise, or abandon: name the disposition.
+
+The answers ride the packet's `challenge` field, and the door REFUSES a birth
+without them — required-ness is the contract, not this paragraph, and softening
+it back to optional reds the seam's own proofs. A kill here is a win (CP2): fire
+with `exit: routed_out` and the pass's finding in the bullets. The honesty
+floor: "considered, none found" with nothing actually consulted is the hollow
+answer the ticket's horizon watches for — the trace records the answers
+verbatim, and they stand at Akien's gate.
+
 ## Then FIRE THE DOOR — the firing is the answer, not a note about it
 
 The five answers above are not held in the conversation. They are a packet, and
@@ -71,6 +99,10 @@ The packet is a JSON object carrying, exactly:
   routes-back edge is a recorded exit, not a silence.
 - **shape** — `new track` or `aside`.
 - **falsifier** — question 5, first-cut horizon.
+- **challenge** — the adversarial pass, an object carrying the five answers
+  (`better_approach`, `prior_art`, `hidden_assumption`, `real_collision`,
+  `back_up`). Required at BOTH exits — a kill that never stood the pass is an
+  unexamined kill.
 - **exit** — `routed_forward` or `routed_out`. The kill is the exit that has been
   vanishing into conversation; an unnamed exit is how it goes on vanishing.
 - **bullets** — a list of `{"text": ..., "stratum": "code"|"tree"}`: what this
@@ -101,10 +133,11 @@ opens the build door later. A cast with no /intent firing behind it can still be
 made honest — `"none, because <why>"` is the one other legal value — but the
 judgeable reason is the price, and silence is not on the menu.
 
-The natural next moves:
+The natural next move:
 
-- **`/challenge`** — if the design wants an adversarial pass before you commit to it.
-- **`/sorted`** — when the points feel wrapped and you're ready for the resolution pivot.
+- **`/sorted`** — when the points feel wrapped and you're ready for the resolution
+  pivot. (`/challenge` has already fired — it is a step of this skill, not a route
+  out of it; the adversarial escalation for a genuinely stuck design is `/advisor`.)
 
 ## Stay honest
 

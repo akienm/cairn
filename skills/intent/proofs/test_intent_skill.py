@@ -60,6 +60,11 @@ GOOD = {
     "traces_to": "Law 8 — nothing enters proven-space without a proof",
     "shape": "aside",
     "falsifier": "the door refuses this packet",
+    # Required since ticket challenge-fires-at-intent (2026-08-03): a birth stands
+    # the adversarial pass, and the REAL contract this proof fires against demands it.
+    "challenge": {"better_approach": "none — a wire proof has one shape",
+                  "prior_art": "the seam's own teeth", "hidden_assumption": "none",
+                  "real_collision": "none", "back_up": "proceed"},
     "exit": "routed_forward",
     "bullets": [{"text": "the /intent contract admits a complete firing", "stratum": "code"}],
 }
@@ -98,8 +103,13 @@ def test_the_markdown_and_the_charter_cannot_drift():
         assert field in CONTRACT, f"question {question!r} has no contract field {field!r}"
         assert re.search(rf"\*\*{field}\*\*", SKILL_MD), \
             f"contract field {field!r} is never named in the packet section"
-    extra = set(CONTRACT) - set(QUESTIONS.values()) - {"exit", "bullets"}
+    # `challenge` is not one of the five birth questions — it is the adversarial PASS
+    # over their answers (ticket challenge-fires-at-intent), with its own step section;
+    # the field must still be named where the executor fills the packet.
+    extra = set(CONTRACT) - set(QUESTIONS.values()) - {"exit", "bullets", "challenge"}
     assert not extra, f"contract fields with no question behind them: {sorted(extra)}"
+    assert re.search(r"\*\*challenge\*\*", SKILL_MD), \
+        "contract field 'challenge' is never named in the packet section"
 
 
 def test_every_contract_field_carries_its_why():

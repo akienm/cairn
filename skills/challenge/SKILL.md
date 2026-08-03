@@ -1,6 +1,6 @@
 ---
 name: challenge
-description: Adversarial pass on a design, plan, or conclusion BEFORE committing to it — is there a better approach, prior art, a hidden assumption, a real collision, a reason to back up? Fire before any consequential build or design decision, and on any artifact due for its cadence challenge (CLAUDE.md included).
+description: Adversarial pass on a design, plan, or conclusion BEFORE committing to it — is there a better approach, prior art, a hidden assumption, a real collision, a reason to back up? FIRES at every node birth — /intent carries it as a required step (ticket challenge-fires-at-intent) — and deliberately on any settled artifact in hand (CLAUDE.md included).
 ---
 
 # /challenge — harden the thinking while it still forms
@@ -38,12 +38,23 @@ The charter lives beside this file in `intention+why.json`.
 - **Abandon → out:** if it can't survive the pass, it doesn't get cast. That's a
   win, not a loss (CP2).
 
-## Also: the cadence use
+## The firing event — a node being born
 
-The same nexus runs on any *settled* artifact on a cadence — CLAUDE.md is the
-most-challenged artifact in the system by charter. Same machine, slower tempo: the
-question corpus accumulates yield either way (challenge-at-tempo now, background
-device later). Log what the pass caught.
+This nexus FIRES at `/intent`, as a required step of every birth (ticket
+challenge-fires-at-intent, 2026-08-03): the five answers ride the intent
+packet's `challenge` field, and the intent door refuses a birth without them.
+The event was chosen because it already fires — a node being born — never a
+clock: the earlier "on a cadence" framing described a schedule nothing ran, and
+in eleven days as an optional route this skill fired zero times while one
+measured session re-derived already-solved work three times.
+
+## Also: the settled-artifact use
+
+The same nexus runs on any *settled* artifact — CLAUDE.md is the most-challenged
+artifact in the system by charter. There is deliberately NO mechanical trigger
+for this use: fire it on the artifact in hand when you are working it (the read
+is the event). Same machine, slower tempo; the question corpus accumulates yield
+either way. Log what the pass caught.
 
 ## Stay honest
 

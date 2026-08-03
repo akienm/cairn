@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "proof test_challenge_wiring.py passes under python3",
+    "caller": "sail:challenge-fires-at-intent",
+    "date": "2026-08-03T16:38:43",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_no_live_clock_is_claimed\n  green  test_the_door_this_skill_rides_actually_requires_it\n  green  test_the_two_skills_question_sets_cannot_drift\n  green  test_this_skill_names_its_own_firing_event\n\n4/4 teeth green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

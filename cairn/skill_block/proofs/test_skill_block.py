@@ -261,6 +261,11 @@ LIVE_GOOD = {
     "falsifier": "the CLI exits non-zero",
     "exit": "routed_forward",
     "bullets": [{"text": "the wire is reachable from bash", "stratum": "code"}],
+    # The real contract requires the challenge pass (ticket challenge-fires-at-intent);
+    # a live-wire tooth without it would red for the packet, not the wire.
+    "challenge": {"better_approach": "none — a CLI reach test has one shape",
+                  "prior_art": "this proof file", "hidden_assumption": "none load-bearing",
+                  "real_collision": "none", "back_up": "proceed"},
 }
 
 
@@ -324,6 +329,56 @@ def test_the_wire_is_not_fatal_when_the_ROOTS_are_unwritable():
 def test_cli_refuses_an_unreadable_packet_by_name():
     r = _cli("fire", "intent", "/nonexistent/packet.json")
     assert r.returncode == 2 and "unreadable" in r.stderr, r.stderr
+
+
+# ── challenge fires at intent (ticket challenge-fires-at-intent) ─────────────
+# Falsifier clause 1 as teeth: /challenge is a REQUIRED step of /intent, and an
+# edit softening it back to optional goes RED here. The first two read the REAL
+# charter and the REAL skill text — membership/absence invariants, never sentence
+# snapshots, so a legitimate rewording survives and only a softening reds.
+
+def test_challenge_is_required_at_the_real_intent_door():
+    """The door reads the contract from the live charter at fire time, so THIS
+    membership assert is the required-ness: drop the field and the door goes cold."""
+    c = sb.load_contract("intent")
+    assert "challenge" in c["requires"], (
+        "skills/intent/intention+why.json input_contract no longer requires "
+        "'challenge' — the softening edit falsifier clause 1 exists to catch")
+
+
+def test_door_refuses_an_unchallenged_firing_naming_the_lack():
+    """The mechanism, in a fixture world: a contract carrying challenge refuses a
+    firing without it, the lack NAMED in the one-pass list."""
+    root = skills_tree("alpha", contract=dict(CONTRACT, challenge="why the pass is forced"))
+    berths, traces = world(), world()
+    try:
+        sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root,
+                berths=berths, trace_root=traces)
+    except lb.DoorRefused as exc:
+        assert {l["field"] for l in exc.lacks} == {"challenge"}, exc.lacks
+    else:
+        raise AssertionError("an unchallenged firing must be refused")
+    # NON-VACUITY: the same fixture passes once the answers ride along.
+    out = sb.fire("alpha", dict(GOOD, challenge={"prior_art": "none found, consulted x"}),
+                  now=NOW, skills_root=root, berths=berths, trace_root=traces)
+    assert Path(out["berth"]).is_file()
+
+
+def test_the_live_text_carries_challenge_as_required():
+    """The executor is an LLM reading markdown — the step must stand in the text the
+    door will point at. Invariants: the optional-route phrasing is GONE, and some line
+    names /challenge together with required-ness. The charter's routing must not call
+    it optional either."""
+    text = (REPO / "skills" / "intent" / "SKILL.md").read_text()
+    assert "if the design wants" not in text, (
+        "the optional-route phrasing is back in skills/intent/SKILL.md")
+    assert any("challenge" in ln.lower() and "required" in ln.lower()
+               for ln in text.splitlines()), (
+        "no line in skills/intent/SKILL.md states the challenge step as required")
+    charter = json.loads((REPO / "skills" / "intent" / "intention+why.json").read_text())
+    routes = json.dumps(charter.get("nexus", {}))
+    assert "optional adversarial pass" not in routes, (
+        "the charter's routing still calls /challenge optional")
 
 
 # ── the intent gate at the chokepoint (ticket falsifier 6) ───────────────────

@@ -7,7 +7,16 @@
   "why": "Continuity that lives only in the conversation dies at the context boundary. Precipitating it into a commons artifact makes it durable AND shareable — it is knowledge the system would lose, not just CC. Closes the fifth feedback loop's save-half; the slate carries its open threads forward so nothing settled is re-derived (Law 1) and nothing unfinished is silently dropped.",
   "invoke": "/saveslate  (at session close, or before a compaction boundary)",
   "state": "v0 — first cast 2026-07-15. Paired with /loadslate until 2026-07-31, when the read half was compiled into bin/cmd/slate and fired by a SessionStart hook; /saveslate is now the only SKILL in the continuity loop, and it writes for a program that reads unconditionally every session.",
-  "writes_to": "CairnCommons/slates/ (validated against that store's _charter+why.json template)",
+  "writes_to": "CairnCommons/slates/ — THROUGH THE DOOR ONLY since 2026-08-03 (ticket slate-compiles-from-the-world): skills/saveslate/door.py validates against the store's _charter+why.json template, the reader's closed set, and the measured length ceiling, then berths the firing and writes the slate in one act. There is no second path.",
+  "input_contract": {
+    "slate_id": "the record's id (kebab, date-led) — refused if a slate file already carries it: a slate is a NEW record at a boundary, never an overwrite (Law 7).",
+    "at_sea": "what is actively being worked and its state — compiled FROM the instruments (the git log since session open, the cursors touched), not from the transcript's impression of them.",
+    "next_direction": "the intended next move — named files/tickets/gates, my-read vs ratified flagged, relative dates made absolute.",
+    "open_threads": "the unresolved list — every IOU and thing-to-verify; the field whose silent drops cost the next session a re-derivation.",
+    "instruments_read": "the evidence the writer looked at the WORLD: git_heads (both repos' live HEAD hashes — the coined verifiable-evidence convention, first used here: a field the door can check against the world, impossible to fill from the transcript alone), plus cursors_touched and chain notes. Stale heads refuse the write.",
+    "bullets": "the exit-time finding — {text, stratum} list standing at Akien's gate; what this close learned that he should see.",
+    "exit": "routed_forward (the slate writes) — /saveslate has no kill exit; a close that cannot fill the fields is a close that runs the instruments again, and routed_out records exactly that with `disposition` in the bullets."
+  },
   "relation_to_memory": "CC's ~/.claude memory is personal + cross-session; a slate is the in-commons, shareable continuity record. They can agree; when they differ, the slate says so.",
   "how_it_learns": "By what the next session actually uses. The signal changed shape on 2026-07-31: the read half is now bin/cmd/slate, which reads a CLOSED SET of three fields (at_sea, next_direction, open_threads) every session whether wanted or not. So the importance signal is no longer 'which fields did the next /loadslate lean on' — it is (a) whether a session still re-derived something after the injection, which names what the slate failed to carry, and (b) the standing token cost of what it did carry, which is now paid unconditionally and is therefore measurable as waste. This is the L1 tier of the memory hierarchy (learning/README) learning its own contents. Endpoint into cc-learning-store; interim by-hand.",
   "traces_to": [
@@ -17,5 +26,5 @@
   ],
   "owner": "the skills charter gates writes; Akien ratifies changes (signature gate)",
   "proof": "skill node → done only when cairnmap recompiles green (derivation gate). IOU until cairnmap exists — tracked in proofs/.",
-  "provenance": "converged in the founding design conversation; absorbed the old day-close skill (MAP.md 'Workflow + starting skills', 2026-07-15)."
+  "provenance": "converged in the founding design conversation; absorbed the old day-close skill (MAP.md 'Workflow + starting skills', 2026-07-15). AMENDED 2026-08-03 (ticket slate-compiles-from-the-world, opus-pass rank 5 ruled spec): tenant #3 of the skill_block seam — the slate compiles from instruments and writes through the door; the store charter's promised 'commons emit chokepoint' becomes physics for this write path."
 }

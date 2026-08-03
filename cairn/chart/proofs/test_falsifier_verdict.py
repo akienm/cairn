@@ -286,6 +286,32 @@ def test_the_real_ticket_that_built_this_form_yields_its_clauses(root, tickets):
         assert c["source"].endswith("clause (%d)" % (i + 1)), c["source"]
 
 
+
+def test_the_resolver_returns_the_standing_chain(root, tickets):
+    """Ticket berths-carry-request-identity: chain_for_ticket returns the LATEST
+    claiming berth per stage, absence as None, and never errors on a claimless
+    ticket."""
+    import tempfile as _tf
+    from cairn.chart.verdict import chain_for_ticket
+    with _tf.TemporaryDirectory() as td:
+        pk = os.path.join(td, "0", "packets")
+        os.makedirs(pk)
+        for name, doc in [
+            ("orient-20260101T000000-aaaaaaaaaaaa.json", {"ticket": "tkt-r", "intent": "x"}),
+            ("validate-20260101T000000-bbbbbbbbbbbb.json", {"ticket": "tkt-r"}),
+            ("validate-20260202T000000-cccccccccccc.json", {"ticket": "tkt-r"}),
+            ("validate-20260303T000000-dddddddddddd.json", {"ticket": "other"}),
+        ]:
+            with open(os.path.join(pk, name), "w") as fh:
+                json.dump(doc, fh)
+        chain = chain_for_ticket("tkt-r", berths_root=td)
+        assert chain["validate"].endswith("cccccccccccc.json"), chain["validate"]
+        assert chain["orient"].endswith("aaaaaaaaaaaa.json")
+        assert chain["constrain"] is None and chain["verdict"] is None
+        empty = chain_for_ticket("nobody-claims-me", berths_root=td)
+        assert all(v is None for v in empty.values()), empty
+
+
 def _main():
     root, tickets = make_root()
     checks = [v for k, v in sorted(globals().items()) if k.startswith("test_")]

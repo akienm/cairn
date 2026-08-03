@@ -311,9 +311,30 @@ def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth, surve
         assert "REMEDIATION" in str(e), str(e)
 
 
+
+def test_request_identity_is_physics(root, orient_berth, constrain_berth, survey_berth):
+    """Ticket berths-carry-request-identity: a packet claiming ticket A over a berth
+    claiming ticket B is refused with the mismatch named in the one-pass refusal."""
+    foreign_doc = json.load(open(survey_berth))
+    foreign_doc["ticket"] = "tkt-b"
+    foreign = os.path.join(root, "foreign-decompose-ref.json")
+    with open(foreign, "w") as fh:
+        json.dump(foreign_doc, fh)
+    bad = good_packet(survey_berth)
+    bad["ticket"] = "tkt-a"
+    bad["survey_ref"] = foreign
+    try:
+        validate_decompose(bad, root=root)
+        raise AssertionError("claim-A packet passed over a claim-B berth")
+    except DecomposeRefused as e:
+        msg = str(e)
+        assert "request-identity mismatch" in msg and "tkt-b" in msg, msg
+
+
 def _main() -> int:
     root, orient_berth, constrain_berth, survey_berth = make_root()
     checks = [
+        test_request_identity_is_physics,
         test_refusal_is_one_pass_complete,
         test_the_chain_is_physics_at_depth_4,
         test_floor_hands_the_judges_vocabularies_verbatim,

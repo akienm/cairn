@@ -43,7 +43,7 @@ from cairn.build_inspector.inspector import judge_constrain
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster,
                                 ticket_claim_error,
                                 common_shape_lacks, render_lacks,
-                                CHAIN_REMEDY)
+                                CHAIN_REMEDY, identity_lack)
 from cairn.chart.tree import deposit_learning
 
 AUTHORED_FIELDS = ("intent_ref", "constraints", "bounds", "unknowns")
@@ -130,9 +130,13 @@ def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
     lacks = []
     if "intent_ref" in packet:
         try:
-            _read_orient_berth(packet["intent_ref"])
+            _ref_doc = _read_orient_berth(packet["intent_ref"])
         except RuntimeError as e:
             lacks.append(str(e))
+        else:
+            _mismatch = identity_lack(packet, _ref_doc, "intent_ref")
+            if _mismatch:
+                lacks.append(_mismatch)
 
     if "constraints" in packet:
         constraints = packet["constraints"]

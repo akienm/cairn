@@ -49,7 +49,7 @@ from cairn.build_inspector.inspector import judge_survey
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
                                 component_roster, ref_exists, ticket_claim_error,
                                 common_shape_lacks, render_lacks,
-                                CHAIN_REMEDY)
+                                CHAIN_REMEDY, identity_lack)
 from cairn.chart.tree import deposit_learning
 from cairn.orient.orient import device_census
 
@@ -154,9 +154,13 @@ def validate_survey(packet: dict, root: str = CAIRN_ROOT) -> dict:
     lacks = []
     if "constrain_ref" in packet:
         try:
-            _read_constrain_berth(packet["constrain_ref"])
+            _ref_doc = _read_constrain_berth(packet["constrain_ref"])
         except RuntimeError as e:
             lacks.append(str(e))
+        else:
+            _mismatch = identity_lack(packet, _ref_doc, "constrain_ref")
+            if _mismatch:
+                lacks.append(_mismatch)
 
     lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
                                 authored_fields=AUTHORED_FIELDS,

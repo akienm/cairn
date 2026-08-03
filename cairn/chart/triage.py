@@ -51,7 +51,7 @@ from cairn.chart.decompose import _read_survey_berth
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
                                 ticket_claim_error,
                                 common_shape_lacks, render_lacks,
-                                CHAIN_REMEDY)
+                                CHAIN_REMEDY, identity_lack)
 from cairn.chart.tree import deposit_learning
 
 AUTHORED_FIELDS = ("decompose_ref", "order", "unknowns")
@@ -133,9 +133,13 @@ def validate_triage(packet: dict, root: str = CAIRN_ROOT) -> dict:
     lacks = []
     if "decompose_ref" in packet:
         try:
-            _read_decompose_berth(packet["decompose_ref"])
+            _ref_doc = _read_decompose_berth(packet["decompose_ref"])
         except RuntimeError as e:
             lacks.append(str(e))
+        else:
+            _mismatch = identity_lack(packet, _ref_doc, "decompose_ref")
+            if _mismatch:
+                lacks.append(_mismatch)
 
     lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
                                 authored_fields=AUTHORED_FIELDS,

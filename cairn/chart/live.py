@@ -289,7 +289,23 @@ def _moreabout(argv: list[str]) -> int:
     return 0
 
 
+def _chain(argv: list[str]) -> int:
+    """The resolver verb (ticket berths-carry-request-identity): print the standing
+    chain for a ticket — per stage, the latest claiming berth. Tree-free and
+    host-free by construction (a pure glob walk), so it works on a machine where
+    the embed host is down: recovery must not depend on the fanciest dependency."""
+    if not argv:
+        print("usage: python3 -m cairn.chart.live chain <ticket>", file=sys.stderr)
+        return 1
+    from cairn.chart.verdict import chain_for_ticket
+    print(json.dumps({"ticket": argv[0], "chain": chain_for_ticket(argv[0])},
+                     indent=2))
+    return 0
+
+
 def _main(argv: list[str]) -> int:
+    if argv and argv[0] == "chain":
+        return _chain(argv[1:])
     if argv and argv[0] == "counsel":
         return _counsel(argv[1:])
     if argv and argv[0] == "learn":

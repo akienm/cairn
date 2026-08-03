@@ -177,6 +177,27 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
     return os.path.exists(os.path.join(commons, ref))
 
 
+def identity_lack(packet: dict, berth_doc, ref_name: str):
+    """Request identity on a chain link (ticket berths-carry-request-identity): when
+    BOTH the claiming packet and the berth it refs claim tickets and they disagree,
+    the chain would sail green under another request — the one silent-corruption
+    path the opus pass ranked first. Returns the lack message, or None when either
+    side is claimless (jurisdiction: identity is asserted only where both sides
+    claim — nothing already sailing unclaimed is retro-redded).
+
+    ONE implementation, six mouths (every follower door) — the same rule
+    buildme_rides_the_chart already applies at the chain's end, extended inward."""
+    mine = packet.get("ticket")
+    theirs = berth_doc.get("ticket") if isinstance(berth_doc, dict) else None
+    if isinstance(mine, str) and mine.strip() \
+            and isinstance(theirs, str) and theirs.strip() and mine != theirs:
+        return ("request-identity mismatch: this packet claims ticket %r but its %s "
+                "berth claims %r — every door would pass and the voyage would sail "
+                "under another request's chain; recover the RIGHT chain with: "
+                "python3 -m cairn.chart.live chain %s" % (mine, ref_name, theirs, mine))
+    return None
+
+
 CHAIN_REMEDY = (
     " REMEDIATION: re-fire the broken link's own stage for THIS request and hand "
     "the NEW berth path forward (the chain re-berths from the repaired link down) "

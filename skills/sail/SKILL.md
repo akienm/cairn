@@ -17,10 +17,19 @@ ARGUMENTS: the request being built (the `<something>` a /chart already grounded)
 
 ## 0. The chain is the input — and the refusal is now PHYSICS
 
-Template-fill from the LAST berthed stage for this request
-(`~/.cairn/devices/chart/0/packets/`, deepest link first: validate →
-hypothesize → triage → decompose → survey → constrain → orient). **No berths →
-run /chart first.** This is no longer only prose: since 2026-07-29 (ticket
+Template-fill from the LAST berthed stage for this request — found by COMMAND,
+never by eyeballing the packets directory (ticket berths-carry-request-identity):
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live chain <ticket-id>
+```
+
+prints the standing chain (per stage, the latest berth claiming the ticket); the
+deepest non-None entry is your input, deepest link first: validate →
+hypothesize → triage → decompose → survey → constrain → orient. An all-None
+chain means **no berths → run /chart first.** And the identity is physics both
+ways: every chart door refuses a packet whose ref'd berth claims a DIFFERENT
+ticket, so a stale berth from another request reds instead of sailing. This is no longer only prose: since 2026-07-29 (ticket
 buildme-rides-the-chart) the emit chokepoint REFUSES a cast ticket's BUILDME
 crossing unless a berthed validate packet claims the ticket — building from
 the conversation is a build error the door itself throws (`EntryGateRed`).

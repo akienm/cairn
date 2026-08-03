@@ -423,6 +423,25 @@ def latest_claiming_artifact(ticket: str, *, berths_root=None):
     return found[-1] if found else None
 
 
+CHAIN_STAGES = ("orient", "constrain", "survey", "decompose", "triage",
+                "hypothesize", "validate", "verdict")
+
+
+def chain_for_ticket(ticket: str, *, berths_root=None) -> dict:
+    """THE RESOLVER (ticket berths-carry-request-identity): the standing chain for a
+    ticket — per stage, the path of the LATEST berth claiming it, or None where
+    nothing claims. The post-compact recovery becomes a command instead of an
+    eyeballed directory listing: /sail step 0's 'deepest link first' is answered by
+    the deepest non-None entry here. Absence is an answer, never an error — a ticket
+    nothing claims returns an all-None chain, which is exactly the state 'run /chart
+    first' describes."""
+    chain = {}
+    for stage in CHAIN_STAGES:
+        found = claiming_packets(ticket, stage, berths_root=berths_root)
+        chain[stage] = found[-1][0] if found else None
+    return chain
+
+
 # ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────
 # An append-only JSONL in chart's instance-space, TWO RECORD KINDS and no third
 # motion: ``enqueued`` (a crossing named a verdict berth that owes the tree a

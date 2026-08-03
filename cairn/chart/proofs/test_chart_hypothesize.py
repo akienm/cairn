@@ -332,9 +332,30 @@ def test_refusal_is_one_pass_complete(root, decompose_berth, triage_berth):
         assert "REMEDIATION" in str(e), str(e)
 
 
+
+def test_request_identity_is_physics(root, decompose_berth, triage_berth):
+    """Ticket berths-carry-request-identity: a packet claiming ticket A over a berth
+    claiming ticket B is refused with the mismatch named in the one-pass refusal."""
+    foreign_doc = json.load(open(triage_berth))
+    foreign_doc["ticket"] = "tkt-b"
+    foreign = os.path.join(root, "foreign-hypothesize-ref.json")
+    with open(foreign, "w") as fh:
+        json.dump(foreign_doc, fh)
+    bad = good_packet(triage_berth)
+    bad["ticket"] = "tkt-a"
+    bad["triage_ref"] = foreign
+    try:
+        validate_hypothesize(bad, root=root)
+        raise AssertionError("claim-A packet passed over a claim-B berth")
+    except HypothesizeRefused as e:
+        msg = str(e)
+        assert "request-identity mismatch" in msg and "tkt-b" in msg, msg
+
+
 def _main() -> int:
     root, decompose_berth, triage_berth = make_root()
     checks = [
+        test_request_identity_is_physics,
         test_refusal_is_one_pass_complete,
         test_the_chain_is_physics_at_depth_6,
         test_floor_hands_the_covering_vocabulary_verbatim,

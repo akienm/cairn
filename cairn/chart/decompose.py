@@ -49,7 +49,7 @@ from cairn.build_inspector.inspector import judge_decompose
 from cairn.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA,
                                 ticket_claim_error,
                                 common_shape_lacks, render_lacks,
-                                CHAIN_REMEDY)
+                                CHAIN_REMEDY, identity_lack)
 from cairn.chart.survey import _read_constrain_berth
 from cairn.chart.tree import deposit_learning
 
@@ -133,9 +133,13 @@ def validate_decompose(packet: dict, root: str = CAIRN_ROOT) -> dict:
     lacks = []
     if "survey_ref" in packet:
         try:
-            _read_survey_berth(packet["survey_ref"])
+            _ref_doc = _read_survey_berth(packet["survey_ref"])
         except RuntimeError as e:
             lacks.append(str(e))
+        else:
+            _mismatch = identity_lack(packet, _ref_doc, "survey_ref")
+            if _mismatch:
+                lacks.append(_mismatch)
 
     lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
                                 authored_fields=AUTHORED_FIELDS,

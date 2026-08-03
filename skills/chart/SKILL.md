@@ -116,7 +116,7 @@ aggregate: the floor/tree/claude fractions the whole intention is measured by.
 ### 7. Hand forward
 
 Carry the berth path — stage 2 template-fills from it, never from this
-conversation.
+conversation. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 2 — CONSTRAIN
 
@@ -183,7 +183,7 @@ The bounds become the constrain tree's memory of this class of request.
 
 ### 6. Hand forward
 
-Carry the constrain berth path — stage 3 template-fills from it.
+Carry the constrain berth path — stage 3 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 3 — SURVEY
 
@@ -255,7 +255,7 @@ The inventory becomes the survey tree's memory of this class of request.
 
 ### 6. Hand forward
 
-Carry the survey berth path — stage 4 template-fills from it.
+Carry the survey berth path — stage 4 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 4 — DECOMPOSE
 
@@ -324,7 +324,7 @@ The split becomes the decompose tree's memory of how this class divides.
 
 ### 6. Hand forward
 
-Carry the decompose berth path — stage 5 template-fills from it.
+Carry the decompose berth path — stage 5 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 5 — TRIAGE
 
@@ -392,7 +392,7 @@ The order becomes the triage tree's memory of how this class ranks.
 
 ### 6. Hand forward
 
-Carry the triage berth path — stage 6 template-fills from it.
+Carry the triage berth path — stage 6 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 6 — HYPOTHESIZE
 
@@ -464,7 +464,7 @@ The claims become the hypothesize tree's memory of what this class expects.
 
 ### 6. Hand forward
 
-Carry the hypothesize berth path — stage 7 template-fills from it.
+Carry the hypothesize berth path — stage 7 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 7 — VALIDATE
 
@@ -530,7 +530,7 @@ The criteria become the validate tree's memory of what done means here.
 
 ### 6. Hand forward
 
-**The chain is complete**: report the seven berths. The charted course —
+**The chain is complete**: report the seven berths — and the resolver can re-list them any time: `python3 -m cairn.chart.live chain <ticket>` (ticket berths-carry-request-identity). The charted course —
 grounded ask, hard bounds, measured territory, derived split, reasoned order,
 killable claims, instrumented done — is /sail's input, whole. Executing the
 criteria at PROVED is physics since 2026-07-29 (ticket proved-answers-the-chart,

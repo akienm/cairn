@@ -1,4 +1,18 @@
-"""BaseShim — the device's always-on front: fires its probes, receives its mail, wakes it.
+"""BaseShim — the device's always-on front, and its ROUTER for everything it has to route.
+
+THE PATTERN, RULED 2026-08-04 by Akien
+(``CairnCommons/decisions/2026-08-04-the-shim-routes-everything.json``): *"each device
+should own its own everything as much as possible, that's encapsulation... since the shim
+knows about the device, it should know exactly how everything should be routed. not even
+just messages."*
+
+Read the list below as ONE job, not four. The shim is the single thing that knows both the
+bus and the device, so every question of the form "where does this go for that device" is
+answered here — mail, predicates, page assembly, and whatever comes next. That is why a
+device never registers its predicate inside a FOREIGN device to get it fired: it declares
+the probe, and its own shim fires it. When something wants a second path around this class,
+the second path is the defect (``system_rackmount``'s advertise/subscribe broker was that
+defect, and the ruling deleted it).
 
 Every Cairn device is its OWN PROCESS, and it does not spin — it sleeps when idle and is
 woken on demand (converged with Akien 2026-07-18;

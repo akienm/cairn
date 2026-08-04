@@ -43,6 +43,10 @@ what can't trace up doesn't belong.
    of truth never may.
 8. **Nothing enters proven-space without a proof a hollow build couldn't pass.**
    Entry from outside is by grafting, one ticket at a time.
+9. **Red is the default; green is earned.** Nothing is green until it is in code
+   and running — a newly minted idea is born red. Anything anywhere that prevents
+   the system working as designed is red, and there is no triage authority: not
+   *environmental*, not *pre-existing*, not *out of scope*.
 
 ## The three roots
 
@@ -90,6 +94,10 @@ An IOU without a real ticket is itself the defect this section is made of.
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
+- **Law 9 itself.** Red is a word a reader has to remember to apply; nothing derives it.
+  A component whose code has stopped matching its charter still reads as whatever it
+  last said about itself.
+  → green derived from a live seal + evidence it runs · *ticket green-is-earned-not-assumed*
 
 **Residues.** These rules ARE physics and are deliberately not restated here —
 what remains is only the part enforcement cannot yet reach. Read the rule at its

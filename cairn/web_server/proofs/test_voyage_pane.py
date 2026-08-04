@@ -34,7 +34,8 @@ if str(_REPO_ROOT) not in sys.path:
 # The trace wire fires on every serve(); a proof run is not a real firing, so its
 # records go to a scratch berth — the live denominator stays honest.
 import os, tempfile  # noqa: E401
-os.environ["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="ws-proof-traces-")
+from cairn.tester.scratch import scratch_dir  # noqa: E402
+os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
 from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim

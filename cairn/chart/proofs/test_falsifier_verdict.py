@@ -30,7 +30,6 @@ import ast
 import json
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -41,6 +40,7 @@ from cairn.chart import verdict as verdict_mod
 from cairn.chart.verdict import (DEFAULT_NEXUS, FALSIFIER_REF, VerdictRefused,
                                  falsifier_criteria, unanswered, validate_verdict,
                                  verdict_error, verdict_nexus, write_verdict)
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _FALSIFIER = ("RED on any of: (1) the door admits a claim its instrument never "
               "ran. (2) A clause is dropped in segmentation and nobody is loud "
@@ -50,7 +50,7 @@ _FALSIFIER = ("RED on any of: (1) the door admits a claim its instrument never "
 def make_root():
     """A synthetic world: two filed tickets — one carrying a three-clause
     falsifier, one carrying none at all (the empty-obligation case)."""
-    tmp = tempfile.mkdtemp(prefix="falsifier_verdict_proof_")
+    tmp = str(scratch_dir("falsifier_verdict_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
     tickets = os.path.join(tmp, "CairnCommons", "tickets")
@@ -113,7 +113,7 @@ def test_the_writer_and_the_door_derive_the_same_claims(root, tickets):
 
 
 def test_the_berth_round_trips(root, tickets):
-    berths = tempfile.mkdtemp(prefix="falsifier_berths_")
+    berths = str(scratch_dir("falsifier_berths_"))
     path = write_verdict(artifact_for("watched", root), instance_dir=berths, root=root)
     assert os.path.basename(path).startswith("verdict-")
     with open(path) as fh:

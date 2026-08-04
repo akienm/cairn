@@ -27,8 +27,11 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
+
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 BOOTSTRAP = REPO / "launchers" / "bootstrap.sh"
@@ -62,7 +65,11 @@ _failures: list[str] = []
 # test harness taking a namespace of its own is the mechanism working, not an exception to it.
 # The alternative — teaching the probe to recognise synthetic text — would be a filter that
 # fails open on the next fixture nobody thought to name.
-_PROOF_BOOT_LOG = str(Path(tempfile.gettempdir()) / f"cairn-proof-boot-{os.getpid()}")
+# The namespace goes INSIDE a swept scratch directory rather than beside it in /tmp. The
+# pid suffix that used to make it unique is gone with it — mkdtemp is already unique, and
+# the pid was doing double duty as a name and as a (failed) cleanup story: 18 of these logs
+# were still sitting in /tmp on 2026-08-03, one per run since the probe was wired.
+_PROOF_BOOT_LOG = str(scratch_dir("cairn-proof-boot-") / "boot")
 _REAL_BOOT_LOG = Path(os.environ.get("CAIRN_BOOT_LOG") or Path.home() / ".cairn" / "logs" / "boot")
 _REAL_BOOT_LOG_SIZE_AT_START = _REAL_BOOT_LOG.stat().st_size if _REAL_BOOT_LOG.is_file() else 0
 

@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import os
 import sys
-import tempfile
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -43,13 +42,14 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.base.core_values import CoreValuesMixin
 from cairn.sudo_relay import relay
 from cairn.sudo_relay.relay import AUDIT_FIELDS, SudoRelayDevice
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NOW = datetime(2026, 7, 18, 12, 0, 0)
 
 
 def _fresh_instance() -> str:
     """A scratch instance dir, wired via env so nothing touches real instance-space."""
-    d = tempfile.mkdtemp(prefix="sudo_relay_proof_")
+    d = str(scratch_dir("sudo_relay_proof_"))
     os.environ["CAIRN_SUDO_RELAY_DIR"] = d
     return d
 

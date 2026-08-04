@@ -10,12 +10,12 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
 
 from cairn.chart.orient import (AUTHORED_FIELDS, OrientRefused, component_roster,
                                 floor_facts, ref_exists, validate_orient, write_packet)
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
 ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time", "pathlib",
@@ -23,7 +23,7 @@ ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time", "pathlib
 
 
 def make_root():
-    root = tempfile.mkdtemp(prefix="chart_orient_proof_")
+    root = str(scratch_dir("chart_orient_proof_"))
     # gamma carries code but NO charter — the census sees it, the roster must not
     for comp in ("alpha", "beta", "gamma"):
         os.makedirs(os.path.join(root, "cairn", comp))

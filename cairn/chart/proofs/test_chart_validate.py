@@ -35,7 +35,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -53,6 +52,7 @@ from cairn.chart.validate import (
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NEXUS = f"validate_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
@@ -61,7 +61,7 @@ def make_root():
     """A synthetic world: the six-link chain stage 7 fills through — orient,
     constrain, survey, decompose, triage, and a hypothesize berth claiming
     both ranked pieces."""
-    tmp = tempfile.mkdtemp(prefix="chart_validate_proof_")
+    tmp = str(scratch_dir("chart_validate_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
     berth_dir = os.path.join(root, "instance", "packets")

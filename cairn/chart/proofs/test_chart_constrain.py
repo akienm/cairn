@@ -33,7 +33,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -50,6 +49,7 @@ from cairn.chart.constrain import (
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NEXUS = f"constrain_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
@@ -57,7 +57,7 @@ _NEXUS = f"constrain_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 def make_root():
     """A synthetic world: two chartered components (alpha with falsifier/gates/owner,
     beta with a broken charter) plus a berthed orient packet to fill from."""
-    root = tempfile.mkdtemp(prefix="chart_constrain_proof_")
+    root = str(scratch_dir("chart_constrain_proof_"))
     for comp in ("alpha", "beta"):
         os.makedirs(os.path.join(root, "cairn", comp))
         with open(os.path.join(root, "cairn", comp, comp + ".py"), "w") as fh:

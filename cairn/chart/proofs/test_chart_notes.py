@@ -33,6 +33,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 from cairn.chart import chain
 from cairn.chart.chain import ChartNoteRefused
 
@@ -168,7 +169,7 @@ def test_the_scan_reports_EVERY_offender_not_the_first():
     assert names == ["aaa.json", "broken.json", "mmm.json", "zzz.json"], \
         f"the scan did not report every offender exactly once: {names}"
     assert all(f["why"] for f in found), "a finding carried no reason"
-    assert chain.scan(str(Path(tempfile.gettempdir()) / "definitely-not-here-9f3a")) == [], \
+    assert chain.scan(str(scratch_dir("no-such-chain-") / "definitely-not-here-9f3a")) == [], \
         "an absent directory is reported as a finding — a missing store is not a defect"
 
 

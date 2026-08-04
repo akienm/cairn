@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -19,6 +18,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.orient.orient import (  # noqa: E402
     SCANS, ScanRefused, call_sites, deepen, device_census, import_map, repo_truth,
 )
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 
 def _refuses(fn, because):
@@ -64,7 +64,7 @@ def _synthetic_tree(tmp: Path) -> Path:
 
 
 def main() -> None:
-    tmp = Path(tempfile.mkdtemp(prefix="orient-proof-"))
+    tmp = scratch_dir("orient-proof-")
     root = _synthetic_tree(tmp)
 
     # 1 — THE HEADLINE: capability, not mention. Five mentions, two call sites — the

@@ -42,7 +42,6 @@ import datetime
 import importlib.util
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -55,6 +54,7 @@ SUT = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SUT)
 
 from cairn.base.probe import Probe  # noqa: E402
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime.datetime(2026, 7, 30, tzinfo=datetime.timezone.utc)
 _failures: list[str] = []
@@ -70,7 +70,7 @@ def _at(reporting: int, worst: int) -> dict:
 def _log(records: list[tuple[str, str]]) -> Path:
     """A boot namespace on disk in the recorder's real grammar, so the reader is proved
     against the format ``bin/logger_for_bash`` actually writes, not against a paraphrase."""
-    p = Path(tempfile.mkdtemp(prefix="cairn-probe-proof-")) / "boot"
+    p = scratch_dir("cairn-probe-proof-") / "boot"
     p.write_text("".join(f"20260730.120000.{i:06d}.{pid}: {msg}\n"
                          for i, (pid, msg) in enumerate(records)), encoding="utf-8")
     return p
@@ -153,7 +153,7 @@ def test_an_unparseable_line_is_skipped_not_guessed_at() -> None:
 
 def test_an_absent_record_is_not_a_finding() -> None:
     """A box where the seam has never run must be silent, not accusatory."""
-    s = SUT.survey_the_boot_log(Path(tempfile.gettempdir()) / "cairn-no-such-boot-log")
+    s = SUT.survey_the_boot_log(scratch_dir("no-such-boot-log-") / "cairn-no-such-boot-log")
     assert s == {"launches": 0, "reporting": 0, "bypassed": 0, "worst": 0,
                  "worst_finding": None, "distinct_findings": 0}, s
     assert not SUT._trigger(NOW, {"boot_log": s}) and not SUT._enough({"boot_log": s})

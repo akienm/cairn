@@ -36,7 +36,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -53,6 +52,7 @@ from cairn.chart.survey import (
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NEXUS = f"survey_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
@@ -61,7 +61,7 @@ def make_root():
     """A synthetic world: two components (alpha chartered with a proof, beta
     bare code), a berthed orient packet, and a berthed constrain packet chained
     to it — the two links stage 3 fills through."""
-    tmp = tempfile.mkdtemp(prefix="chart_survey_proof_")
+    tmp = str(scratch_dir("chart_survey_proof_"))
     root = os.path.join(tmp, "repo")
     # A commons sibling: the floor must resolve refs by the GATE'S semantics
     # (commons fallback included) — its first live fire reported filed tickets

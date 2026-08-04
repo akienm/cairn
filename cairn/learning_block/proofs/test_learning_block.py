@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -22,12 +21,13 @@ REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
 
 from cairn.learning_block import learning_block as lb  # noqa: E402
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime(2026, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
 
 
 def world():
-    return Path(tempfile.mkdtemp(prefix="lb-proof-"))
+    return scratch_dir("lb-proof-")
 
 
 # ── trace teeth ──────────────────────────────────────────────────────────────

@@ -51,7 +51,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -71,6 +70,7 @@ from cairn.chart.live import deposit_verdict, drain_pending
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NEXUS = f"verdict_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
@@ -78,7 +78,7 @@ _NEXUS = f"verdict_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 def make_root():
     """A synthetic world: a filed ticket, a claiming chain (hypothesize <-
     validate), berthed where the exit gate globs."""
-    tmp = tempfile.mkdtemp(prefix="chart_verdict_proof_")
+    tmp = str(scratch_dir("chart_verdict_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
     tickets = os.path.join(tmp, "CairnCommons", "tickets")

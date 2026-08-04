@@ -30,7 +30,6 @@ import hashlib
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -44,10 +43,11 @@ from cairn.librarian.library import (
     LearnRefused, ShelfRefused, learn, passages, shelf_entry, shelve,
 )
 from cairn.librarian.trees import LibrarianDevice
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_library_{_NONCE}"
-_TMP = Path(tempfile.mkdtemp(prefix=f"cairn_library_{_NONCE}_"))
+_TMP = scratch_dir(f"cairn_library_{_NONCE}_")
 _SHELF = _TMP / "library"
 _SRC = _TMP / "sources"
 _SRC.mkdir(parents=True)

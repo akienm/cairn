@@ -40,7 +40,6 @@ import importlib.util
 import json
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -53,6 +52,7 @@ SUT = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SUT)
 
 from cairn.base.probe import Probe  # noqa: E402
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime.datetime(2026, 7, 30, tzinfo=datetime.timezone.utc)
 _failures: list[str] = []
@@ -65,7 +65,7 @@ def _at(turned: int, peepholes: int) -> dict:
 
 
 def _dir(files: dict[str, str]) -> Path:
-    root = Path(tempfile.mkdtemp(prefix="cairn-retention-proof-"))
+    root = scratch_dir("cairn-retention-proof-")
     for name, body in files.items():
         p = root / name
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -175,7 +175,7 @@ def test_a_surviving_trim_mark_counts_as_turnover_on_its_own() -> None:
 
 
 def test_an_absent_log_directory_is_not_a_finding() -> None:
-    s = SUT.survey_the_namespaces(Path(tempfile.gettempdir()) / "cairn-no-such-logdir")
+    s = SUT.survey_the_namespaces(scratch_dir("no-such-logdir-") / "cairn-no-such-logdir")
     assert s["namespaces"] == [] and s["turned_over"] == 0 and s["peepholes"] == 0, s
 
 

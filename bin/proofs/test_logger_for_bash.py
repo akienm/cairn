@@ -39,8 +39,15 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
+
+# This proof is documented as runnable bare (see the header), so it cannot lean on an
+# externally-set PYTHONPATH to reach cairn.*. bin/proofs -> the repo root.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _LOGGER = Path(__file__).resolve().parents[1] / "logger_for_bash"   # bin/proofs -> bin
 _ORIGINAL = Path.home() / "dev/src/akientools/bin/logger_for_bash"  # the graft's source
@@ -54,7 +61,7 @@ def _bash(script: str, *, logger: Path | None = None, env: dict | None = None,
             if k not in ("CAIRN_LOGTARGET", "logtarget", "CAIRN_LOGLEN", "loglen")}
     # The trace wire fires once per sourced shell; a proof shell is not a real firing,
     # so its records go to a scratch berth — the live denominator stays honest.
-    base["CAIRN_LB_TRACE_ROOT"] = tempfile.mkdtemp(prefix="lfb-proof-traces-")
+    base["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("lfb-proof-traces-"))
     base["PYTHONPATH"] = str(_LOGGER.parents[1])
     full = f'source "{src}"\n{script}\n'
     return subprocess.run(["bash", "-c", full], capture_output=True, text=True,
@@ -428,7 +435,7 @@ def test_the_trace_wire_fires_once_per_shell_green_and_red():
         return []
 
     with tempfile.TemporaryDirectory() as d:
-        troot = tempfile.mkdtemp(prefix="lfb-wire-green-")
+        troot = str(scratch_dir("lfb-wire-green-"))
         r = _bash('lognote one; lognote two; wait',
                   env={"CAIRN_LOGTARGET": _log(d), "CAIRN_LB_TRACE_ROOT": troot})
         assert r.returncode == 0
@@ -436,7 +443,7 @@ def test_the_trace_wire_fires_once_per_shell_green_and_red():
         assert [x["event"] for x in recs] == ["door_pass"], \
             f"two writes, ONE door_pass (grain is the shell, not the line): {recs}"
 
-    troot = tempfile.mkdtemp(prefix="lfb-wire-red-")
+    troot = str(scratch_dir("lfb-wire-red-"))
     r = _bash('lognote will-fail; lognote again; wait',
               env={"CAIRN_LOGTARGET": "/proc/no-such/impossible",
                    "CAIRN_LB_TRACE_ROOT": troot})

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -20,6 +19,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.build_inspector.inspector import FILTERS, inspect  # noqa: E402
 from cairn.charter import projector  # noqa: E402
 from cairn.orient.orient import ScanRefused  # noqa: E402
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _FINDING_SHAPE = {"filter", "component", "finding", "evidence", "why_it_matters"}
 
@@ -50,7 +50,7 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
 
 
 def main() -> None:
-    tmp = Path(tempfile.mkdtemp(prefix="inspector-proof-"))
+    tmp = scratch_dir("inspector-proof-")
     root = tmp / "cairn"
 
     # A healthy component and one broken per filter.

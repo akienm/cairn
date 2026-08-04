@@ -33,7 +33,6 @@ from __future__ import annotations
 import json
 import re
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -43,6 +42,7 @@ sys.path.insert(0, str(REPO))
 
 from cairn.learning_block.learning_block import DoorRefused  # noqa: E402
 from cairn.skill_block import skill_block as sb  # noqa: E402
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 SKILL_MD = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 CHARTER = json.loads((SKILL_DIR / "intention+why.json").read_text(encoding="utf-8"))
@@ -71,7 +71,7 @@ GOOD = {
 
 
 def world():
-    return Path(tempfile.mkdtemp(prefix="intent-proof-"))
+    return scratch_dir("intent-proof-")
 
 
 def test_the_anatomy_is_a_CALL_not_a_paragraph_about_one():

@@ -25,8 +25,14 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
+
+# Runnable bare, so it cannot lean on an externally-set PYTHONPATH to reach cairn.*.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _GATE = Path(__file__).resolve().parents[1] / "recompile_gate.sh"
 
@@ -47,7 +53,7 @@ def _tree(d: str) -> tuple[str, str]:
 
 def _run(commons: str, code: str, out: str, logdir: str) -> subprocess.CompletedProcess:
     # A proof-poked gate run is not a real firing: its trace goes to a scratch berth.
-    env = {**os.environ, "CAIRN_LB_TRACE_ROOT": tempfile.mkdtemp(prefix="rg-proof-traces-"),
+    env = {**os.environ, "CAIRN_LB_TRACE_ROOT": str(scratch_dir("rg-proof-traces-")),
            "CAIRN_COMMONS_ROOT": commons, "CAIRN_CODE_ROOT": code,
            "CAIRN_LAB_OUT": out, "CAIRN_LOG_DIR": logdir}
     return subprocess.run(["bash", str(_GATE)], capture_output=True, text=True, env=env)

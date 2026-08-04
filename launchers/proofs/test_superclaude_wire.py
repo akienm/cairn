@@ -15,11 +15,15 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
+# Runnable bare, so it cannot lean on an externally-set PYTHONPATH to reach cairn.*.
+sys.path.insert(0, str(_REPO))
+
+from cairn.tester.scratch import scratch_dir  # noqa: E402
+
 _LAUNCHER = _REPO / "launchers" / "superclaude"
 
 
@@ -46,7 +50,7 @@ def _wait_records(troot: str, want: int = 1, timeout: float = 15.0) -> list[dict
 
 
 def test_a_bypassed_preflight_is_a_named_send_back():
-    troot = tempfile.mkdtemp(prefix="sc-wire-bypass-")
+    troot = str(scratch_dir("sc-wire-bypass-"))
     r = _launch("--no-preflight", troot=troot)
     assert r.returncode == 0, f"the launch must reach exec: {r.stderr}"
     recs = _wait_records(troot)
@@ -56,7 +60,7 @@ def test_a_bypassed_preflight_is_a_named_send_back():
 
 
 def test_a_real_launch_fires_exactly_once_with_an_honest_event():
-    troot = tempfile.mkdtemp(prefix="sc-wire-launch-")
+    troot = str(scratch_dir("sc-wire-launch-"))
     r = _launch(troot=troot)
     assert r.returncode == 0, f"the launch must reach exec: {r.stderr}"
     recs = _wait_records(troot)
@@ -69,7 +73,7 @@ def test_a_real_launch_fires_exactly_once_with_an_honest_event():
 
 
 def test_a_dry_run_is_not_a_launch_and_traces_nothing():
-    troot = tempfile.mkdtemp(prefix="sc-wire-dry-")
+    troot = str(scratch_dir("sc-wire-dry-"))
     r = _launch("--dry-run", "--no-preflight", troot=troot)
     assert r.returncode == 0 and "exec" in r.stdout
     time.sleep(1.0)                                      # give a wrong wire time to land

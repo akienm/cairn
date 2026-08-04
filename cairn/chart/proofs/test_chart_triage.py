@@ -36,7 +36,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -54,6 +53,7 @@ from cairn.chart.triage import (
 from cairn.chart.tree import nexus_table
 from cairn.db_domain import store
 from cairn.librarian import trees
+from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 _NEXUS = f"triage_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
@@ -62,7 +62,7 @@ def make_root():
     """A synthetic world: the four-link chain stage 5 fills through — orient,
     constrain, survey (holding one address, measuring one absence), and a
     decompose berth splitting the work into one compose + one build piece."""
-    tmp = tempfile.mkdtemp(prefix="chart_triage_proof_")
+    tmp = str(scratch_dir("chart_triage_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
     berth_dir = os.path.join(root, "instance", "packets")

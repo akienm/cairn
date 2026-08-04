@@ -138,13 +138,30 @@ def device_census(*, root: Path | None = None) -> dict:
     # skills/ the charter test finds the 9 that were invisible. Kept as a UNION, not a
     # swap — a directory with .py and no charter must stay visible, because
     # charter_on_disk=False on a real row is exactly the finding cairnmap --gate reads.
-    components = sorted(
-        d for d in root.iterdir()
-        if d.is_dir() and d.name != "__pycache__"
-        and (list(d.glob("*.py")) or (d / "intention+why.json").is_file())
-    )
+    # AN UNREADABLE DIRECTORY IS MEASURED, NOT FATAL — and never silently skipped.
+    # Measured 2026-08-03: ``Path.is_file()`` PROPAGATES PermissionError here, so a single
+    # unreadable sibling (systemd's per-service private dirs under /tmp) crashed the whole
+    # census with a bare traceback. A scan that dies on one entry reports nothing about the
+    # other twenty-two, and a raw traceback is not a diagnostic (Law 7: loud at diagnostic
+    # surfaces means legible, not merely noisy). Both alternatives were worse: crashing loses
+    # the census, and skipping quietly is the "gate that inspects nothing passes everything"
+    # fault the inspector's own refusal already names. So it RIDES THE RETURN as its own
+    # roster, and a caller that cares (build_inspector) can red on it.
+    # Shape borrowed, not invented: the validations walk below already reports "UNREADABLE: e".
+    components, unreadable = [], []
+    for d in sorted(root.iterdir()):
+        try:
+            if not d.is_dir() or d.name == "__pycache__":
+                continue
+            if list(d.glob("*.py")) or (d / "intention+why.json").is_file():
+                components.append(d)
+        except OSError as e:                     # unreadable, vanished mid-walk, bad symlink
+            unreadable.append({"path": str(d), "why": f"UNREADABLE: {e}"})
     if not components:
-        raise ScanRefused(f"device_census: no component directories under {root} — wrong root?")
+        raise ScanRefused(
+            f"device_census: no component directories under {root} — wrong root?"
+            + (f" ({len(unreadable)} entr{'y' if len(unreadable) == 1 else 'ies'} could not "
+               f"be read: {[u['path'] for u in unreadable]})" if unreadable else ""))
     rows = []
     for d in components:
         subclasses = []
@@ -204,7 +221,7 @@ def device_census(*, root: Path | None = None) -> dict:
     return {
         "scan": "device_census",
         "question": "what does each component MEASURABLY have?",
-        "measured": {"components": rows, "count": len(rows)},
+        "measured": {"components": rows, "count": len(rows), "unreadable": unreadable},
         "provenance": "2026-07-26/27: system state was reported from records three times and "
                       "was wrong about the world each time. Census rows come from the "
                       "filesystem only.",

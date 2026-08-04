@@ -98,9 +98,20 @@ class _Corpus:
 
 
 def _cross(workflow, target, *, ticket=None, td=None):
-    """Cross through the REAL chokepoint at a throwaway address. Returns (new_str, history)."""
+    """Cross through the REAL chokepoint at a throwaway address. Returns (new_str, history).
+
+    THE ADDRESS IS NESTED ONE LEVEL ON PURPOSE. ``_build_gate`` reads the component as the
+    directory holding ``history_path`` and censuses that directory's PARENT. A history written
+    straight into ``td`` therefore made the parent ``/tmp`` — so a PROVEME crossing censused
+    every temp directory on the box, and one unreadable systemd private dir crashed the run
+    (measured 2026-08-03: 11/12, and it read as environmental for two sessions). Nesting makes
+    the censused tree exactly ``td``, which the fixture owns. The census's own crash on an
+    unreadable entry was the other half and is fixed at the census (orient.device_census).
+    """
     extra = {"ticket": ticket} if ticket is not None else {}
-    hist, state = f"{td}/history.json", f"{td}/state.json"
+    comp = Path(td) / "fixture_component"
+    comp.mkdir(exist_ok=True)
+    hist, state = f"{comp}/history.json", f"{comp}/state.json"
     new = transitions.emit(workflow, target, history_path=hist, state_path=state,
                            why="the watch is answered", **extra)
     return new, projector.read_history(hist)
@@ -206,14 +217,30 @@ def test_it_is_a_sibling_not_a_subclass_of_the_other_four():
 
 
 def test_a_node_that_carries_no_watch_is_untouched():
-    bare = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
+    """The crossing must COMPLETE, not merely avoid this seat's refusal.
+
+    STRENGTHENED 2026-08-03. It used to cross PROVEME -> PROVED and accept any
+    ``IllegalTransition`` as "some other gate's business". That made it green for a weaker
+    reason than it claimed: PROVEME-forward is the BUILD gate's crossing, so the tooth was
+    passing because ``BuildGateRed`` refused first — it never reached a state where the
+    emission gate's silence was the thing being observed. A synthetic fixture can never clear
+    the build gate (no charter, no proofs), so the answer is not a richer fixture: it is to
+    cross where NO OTHER GATE SITS. BUILDME -> PROVEME is that crossing — the build gate reads
+    ``here == PROVEME``, the entry gate ``target == BUILDME``, the exit gate
+    ``target == PROVED``, and none of them is this. What is left is exactly this seat, silent,
+    and a completed crossing proves the silence.
+    """
+    bare = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
     with _Corpus({}), tempfile.TemporaryDirectory() as td:
         try:
-            _cross(bare, "PROVED", ticket="nope", td=td)
-        except transitions.WatchmeEmissionRed:
-            raise AssertionError("the emission gate fired at a crossing with no WATCHME in it")
-        except transitions.IllegalTransition:
-            pass          # some OTHER gate's business — correct, and not this seat's
+            new, hist = _cross(bare, "PROVEME", ticket="nope", td=td)
+        except transitions.WatchmeEmissionRed as e:
+            raise AssertionError(
+                f"the emission gate fired at a crossing with no WATCHME in it: {e}") from e
+        assert "[PROVEME]" in new, new
+        assert "emission_gate" not in hist[-1], \
+            "a crossing that carries no watch must journal no emission_gate note — a gate " \
+            f"that annotates a crossing it does not govern is claiming jurisdiction: {hist[-1]}"
 
 
 def test_the_gate_reads_the_watch_the_boat_STANDS_at():

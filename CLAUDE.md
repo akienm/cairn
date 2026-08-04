@@ -43,14 +43,18 @@ what can't trace up doesn't belong.
    of truth never may.
 8. **Nothing enters proven-space without a proof a hollow build couldn't pass.**
    Entry from outside is by grafting, one ticket at a time.
-9. **Red is the default; green is earned.** The spec is the picture in Akien's
-   head — a fixed one — and every artifact here, this file included, is a
-   *translation* of it. So red measures distance from that spec, not brokenness:
-   a building site starts wholly red and turns green one inspected piece at a
-   time. Nothing is green until it is built, running, and inspected; a newly
-   minted idea is born red. There is no triage authority — not *environmental*,
-   not *pre-existing*, not *out of scope* — and **no past artifact outranks him
-   now**, because an older translation is not evidence about the source.
+9. **Red is the default; green is earned.** This is **CP6** turned on the corpus:
+   the world is not a safe place, and safety is built and cared for as we go —
+   never the resting state. The spec is the picture in Akien's head — a fixed one
+   — and every artifact here, this file included, is a *translation* of it. So red
+   measures distance from that spec, not brokenness: a building site starts wholly
+   red and turns green one inspected piece at a time. Nothing is green until it is
+   built, running, and inspected; a newly minted idea is born red. There is no
+   triage authority — not *environmental*, not *pre-existing*, not *out of scope*
+   — and **no past artifact outranks him now**, because an older translation is
+   not evidence about the source. He owes no argument for calling a thing red:
+   *"nope, a little more left"* is a complete input. Challenging the design is
+   what's supposed to happen, and it never gates his correction.
 
 ## The three roots
 

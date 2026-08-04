@@ -58,6 +58,36 @@ and nothing needs to.
 
 ---
 
+### A probe is never deployed alone
+
+A probe is always part of a triple, and all three roles are named when it is created:
+
+- **the probed** — what is watched. One endpoint.
+- **the probe** — the edge itself: who to call, what to tell them, when, and whether
+  it persists.
+- **the responder** (or learner) — where the feedback lands and something happens.
+  The other endpoint.
+
+Never two of the three. **A probe with no responder is not a probe** — it is a
+watcher reporting into nowhere, which is precisely the silent-failure shape this
+system exists to prevent. Naming the responder is part of creating the probe, not a
+lookup performed later when feedback shows up.
+
+And the responder does not have to be a machine. **In the debugging case the
+responder is CC** — a person or an agent is a legitimate, named responder, the same
+way a router's ladder resolves at the top to a human terminal rather than to an
+absence. That matters for sequencing: probes are useful before any automated learner
+exists, because a named human responder is a complete triple.
+
+Two consequences worth stating plainly:
+
+- **`learn` has an address by construction.** Its judge is the probe's other end, and
+  that end was named at creation. Nothing has to be resolved when feedback arrives.
+- **`watchme`'s completion predicate gets teeth.** "The probe is created" means *all
+  three roles are bound* — which is checkable, where "a probe object exists" was not.
+  A probe missing an endpoint should never come into being, so there are no dangling
+  ends to sweep up afterward.
+
 ## 2. How a step is defined
 
 Every step in the catalog answers the same eight questions. **A step is a process.**
@@ -437,6 +467,25 @@ measured rather than asserted, on the date given.
 
 Count: eight gates, two with contracts compiled from a charter; two inspectors, no
 base class between them, and zero of them bound to a gate.
+
+### The refit
+
+Existing filters were written before this definition existed, and they have to be
+refitted to it. Reusing and simplifying what is already here beats building beside
+it — an answered question should become structure, not a second structure.
+
+Measured 2026-08-04, the surface is smaller than "everywhere":
+
+| site | what it is today | what it becomes |
+|---|---|---|
+| `build_inspector` | 8 rules in a module-level dict; pass encoded as an empty list | a reporting stack with a typed per-rule result |
+| `diagnostic_inspector` | a class with `(record) -> bool` predicates and a rule registry | a selecting stack, already close |
+| `chart` — seven doors | schema gates per stage, described as "pre-installed judges"; declares no contract | the largest site, and the least filter-shaped today |
+| `librarian` — the walk | over-fetches to hold a region at *k* after narrowing | a small selecting stack |
+
+Everything else that says "filter" says it in a comment or a ticket name. Three real
+sites and one small one — and the largest, `chart`, is also the one whose gates this
+document currently cannot read.
 
 ---
 

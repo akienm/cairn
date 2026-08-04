@@ -219,6 +219,48 @@ Filters emit nothing durable and must stay cheap; a stack of dozens is normal.
 
 New filters arrive by accretion: *we find a new thing, we add a new filter.*
 
+### Two kinds of stack
+
+A filter is a **pass/fail rule over one candidate**. It emits nothing durable, holds
+no opinion about consequences, and cannot rank — a selector needs the whole surviving
+set to compare, and a filter only ever sees one thing. Alone it is nearly useless.
+Filters are used in stacks.
+
+There are two ways to stack them, and they are the same primitive applied along
+opposite axes:
+
+|  | **selecting stack** | **reporting stack** |
+|---|---|---|
+| what varies | the **candidates** — one rule set, run over many | the **rules** — one subject, many questions |
+| output | **one** answer, the best possible | **a list**: rule name → pass/fail |
+| what it keeps | the survivors; failures drop out silently | the **results**; the failures are the point |
+| durability | nothing — dozens per call is normal, must stay cheap | a **finding**, which is a record |
+| example | routing a request to a model | *here are the build rules and how each measured* |
+
+The transpose is the whole distinction. A selecting stack holds the questions still
+and moves candidates past them. A reporting stack holds the subject still and moves
+questions past it.
+
+An **inspector is a reporting stack.** A code-smell inspector hands back a list of
+named rules with their verdicts and its evidence, and that is where its job ends.
+**Someone else is responsible for what happens to that information** — that is not a
+gap in the design, it is the cooperative system working. The inspector may stop work
+but never change it; a janitor may change things, but only inside a commons nobody
+else owns; a gate may admit or refuse. None of them is the inspector, and the
+inspector is none of them.
+
+Which is why a reporting stack's output must carry evidence and the *why it matters*
+alongside the verdict: its reader is a different component, deciding without the
+ability to re-derive.
+
+**The typed outcome lives at different levels in the two.** A selecting stack can
+fail to resolve at all, so the outcome belongs to the *stack* — *no candidate is
+capable*, *a capable one exists but nothing is serving it*, *this resolves to a
+person*. A reporting stack always returns one result per rule, so it has no stack-level
+no-result; its outcomes are **per rule**: pass, fail, or *this rule could not be
+evaluated here*. And rules in a reporting stack cannot conflict — they are
+independent observations of one subject. Conflict is a selecting-stack problem.
+
 ### A stack resolves; a filter never has an opinion
 
 A filter is never asked whether it knows. It narrows, or it doesn't. What carries a
@@ -363,16 +405,15 @@ measured rather than asserted, on the date given.
   scripted-plus-inference with no trigger: there is no outcome kind for the
   inference call to fire on. The fix is not a third value on a filter — a filter is
   never asked. It is a resolved outcome on the stack.
-- **There is no base class, and the two existing inspectors have already
-  diverged — including on what "filter" means.** `build_inspector` keeps a
-  module-level dict of filters and a module-level `inspect()`; its filters are
-  `(row, dir) -> list[findings]`, which makes them *judges*, not filters.
-  `diagnostic_inspector` is already a class, and its filters are
-  `(record) -> bool` — genuine selection, which is what the word is supposed to
-  mean. One word, two primitives, and the one that took the wrong meaning is the
-  one that gates builds. A common base class cannot be written over both, which is
-  why the base class is not tidying-up: it is what forces the vocabulary to become
-  physics.
+- **There is no base class, and the two existing inspectors have diverged.**
+  `build_inspector` keeps a module-level dict of rules and a module-level
+  `inspect()`; `diagnostic_inspector` is already a class with `(record) -> bool`
+  predicates. Their filters look incompatible — but they are the two *subtypes*
+  above, not two different primitives: `build_inspector` is a reporting stack and
+  `diagnostic_inspector` uses a selecting stack to narrow a log. The real defect is
+  narrower and shared: **neither carries a typed per-rule result.**
+  `build_inspector` encodes pass as an empty list, so *this rule could not be
+  evaluated* is indistinguishable from *this rule passed*.
 - **The only built inspector cannot move.** `build_inspector` rests in a dissolved
   state with no door out. The gate model for the whole workflow depends on the one
   inspector that exists, and it is stuck.

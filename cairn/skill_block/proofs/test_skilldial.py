@@ -28,6 +28,7 @@ _REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO))
 
 from cairn.skill_block import skill_block as sb          # noqa: E402
+from cairn.skill_block import counters                    # noqa: E402
 from cairn.skill_block import skilldial                   # noqa: E402
 
 PASSES = 0
@@ -118,11 +119,151 @@ def main() -> int:
     ok("THE PURE-READ TOOTH: the trace is byte-identical after three reads",
        trace_file.read_bytes() == before)
 
+    # ── COUNTED ELSEWHERE (2026-08-04) ────────────────────────────────────────
+    #
+    # THE MEASUREMENT THAT ADDED THIS SECTION: five of the six skills this file called
+    # "not countable" had been recording every firing all along — in git, in chart's own
+    # packet berths, in the commons, in the tenant trees. The roster saw 19 of ~408. The
+    # fix that looked obvious (give the six a contract) would have built six doors to
+    # re-derive existing counts and berthed chart and commit TWICE per firing.
+    #
+    # So a third row shape exists now, and the teeth below exist because it is the row
+    # shape most able to lie: it carries a real number, which makes every EMPTY column
+    # beside it look like a measurement too.
+
+    (skills / "elsewhere").mkdir()
+    packets = tmp / "packets"
+    packets.mkdir()
+    for door, n in (("alpha", 3), ("beta", 2)):
+        for i in range(n):
+            (packets / f"{door}-2026080{i+1}T12000{i}-abc.json").write_text("{}")
+    (skills / "elsewhere" / "intention+why.json").write_text(json.dumps(
+        {"counted_by": {"reader": "files", "address": "tmp/packets",
+                        "group_by_prefix": True,
+                        "what_it_counts": "one packet per firing"}}))
+
+    (skills / "dark").mkdir()
+    (skills / "dark" / "intention+why.json").write_text(json.dumps(
+        {"counted_by": {"reader": "none", "address": None,
+                        "what_it_counts": "NOTHING — leaves no record anywhere"}}))
+
+    (skills / "bogus").mkdir()
+    (skills / "bogus" / "intention+why.json").write_text(json.dumps(
+        {"counted_by": {"reader": "invented-by-the-charter-author", "address": "tmp/x"}}))
+
+    (skills / "gone").mkdir()
+    (skills / "gone" / "intention+why.json").write_text(json.dumps(
+        {"counted_by": {"reader": "files", "address": "tmp/never-created"}}))
+
+    roots = {"tmp": tmp}
+    rows2 = {r["skill"]: r for r in skilldial.roster(
+        skills_root=skills, traces=traces, roots=roots)}
+
+    ok("a skill with counted_by is COUNTABLE without any input_contract",
+       rows2["elsewhere"]["countable"] is True, str(rows2["elsewhere"]))
+    ok("its count is the real one, re-derived from the declared store",
+       rows2["elsewhere"]["firings"] == 5)
+    ok("`via` names the reader, so the number's provenance rides the row",
+       rows2["elsewhere"]["via"] == "files")
+    ok("`judged` is False — the store knows THAT, not how well",
+       rows2["elsewhere"]["judged"] is False)
+    ok("the per-door breakdown survives into detail",
+       rows2["elsewhere"]["detail"] == {"alpha": 3, "beta": 2})
+
+    # THE TOOTH THIS SECTION EXISTS FOR. A judged row carries send_backs/findings/
+    # match_rate. An elsewhere-counted row must carry NONE of them — because the moment
+    # one exists as 0, the surface is claiming this door has never refused anything, for
+    # a door that cannot refuse at all.
+    for k in ("send_backs", "findings", "match_rate", "approvals"):
+        ok(f"THE INVENTED-JUDGEMENT TOOTH: no {k!r} key on an elsewhere-counted row",
+           k not in rows2["elsewhere"], str(rows2["elsewhere"]))
+
+    ok("reader 'none' is NOT countable — a declared absence is still an absence",
+       rows2["dark"]["countable"] is False)
+    ok("a declared-but-empty store reads differently from a never-wired skill",
+       rows2["dark"]["why_not_countable"] != rows2["unwired"]["why_not_countable"])
+    ok("an unimplemented reader is refused as a CHARTER defect, not as zero",
+       rows2["bogus"]["countable"] is False and
+       "not one of" in rows2["bogus"]["why_not_countable"])
+    ok("a declared store that is MISSING reads unreadable, never 0",
+       rows2["gone"]["countable"] is False and
+       "does not exist" in rows2["gone"]["why_not_countable"])
+    ok("...and it says which reader was declared, so the fix is obvious in one pass",
+       rows2["gone"].get("declared") == "files")
+
+    rendered2 = skilldial.render(list(rows2.values()))
+    line = next(l for l in rendered2.splitlines() if l.startswith("elsewhere"))
+    ok("THE RENDER TOOTH: the elsewhere row prints its real count", " 5 " in f" {line} ")
+    ok("...and three dashes beside it, not three zeros",
+       line.count("—") == 3, line)
+    ok("a dark row prints no number at all",
+       next(l for l in rendered2.splitlines() if l.startswith("dark")).count("—") >= 4)
+    ok("the summary separates judged from counted-elsewhere",
+       "judged at a door" in rendered2 and "counted elsewhere" in rendered2)
+    ok("the summary explains what the beside-dashes mean",
+       "not how it went" in rendered2)
+
+    # ── the template filter: a shared folder is not a usage count ─────────────
+    #
+    # 25 files sit in CairnCommons/notes/ and 3 of them are notes. Counting the folder
+    # would have reported /note as the second-busiest skill in Cairn on the strength of
+    # 22 hand-written design documents that merely share its address.
+    store = tmp / "store"
+    store.mkdir()
+    (store / "_charter+why.json").write_text(json.dumps(
+        {"template": {"id": "string", "text": "the note itself",
+                      "relates_to": "optional — what it hangs off"}}))
+    (store / "real-1.json").write_text(json.dumps({"id": "a", "text": "t", "date": "2026-08-01"}))
+    (store / "real-2.json").write_text(json.dumps({"id": "b", "text": "t", "date": "2026-08-02"}))
+    for i in range(6):
+        (store / f"held-{i}.json").write_text(json.dumps({"id": f"h{i}", "the_view": "prose"}))
+
+    got = counters.count({"reader": "files", "address": "tmp/store",
+                          "conform_to_template": True}, roots=roots)
+    ok("THE TEMPLATE TOOTH: only conforming records count", got["firings"] == 2, str(got))
+    ok("...and the discarded majority stays visible in detail",
+       got["detail"]["in_directory"] == 8 and got["detail"]["conforming"] == 2)
+    ok("an optional field is not required to conform",
+       "relates_to" not in got["detail"]["required_fields"])
+    ok("last_fired comes from the record's own date",
+       got["last_fired"] == "2026-08-02")
+
+    no_tmpl = tmp / "no-template"
+    no_tmpl.mkdir()
+    (no_tmpl / "x.json").write_text("{}")
+    got = counters.count({"reader": "files", "address": "tmp/no-template",
+                          "conform_to_template": True}, roots=roots)
+    ok("conform_to_template with nothing to conform TO is unreadable, not 1",
+       "unreadable" in got, str(got))
+
+    # ── an unreachable store is never zero (Law 7) ────────────────────────────
+    def _dead_connect():
+        raise RuntimeError("could not connect to server: Connection refused")
+
+    got = counters.count({"reader": "tree-nodes", "provenance_kind": "moreabout_signal"},
+                         connect=_dead_connect)
+    ok("THE LAW 7 TOOTH: a stopped database reads unreadable, NOT 0 signals",
+       "unreadable" in got and "firings" not in got, str(got))
+    ok("...and says so in words a reader can act on",
+       "not zero" in got["unreadable"].lower())
+
+    # ── an address is a rooted token, not a filesystem path ───────────────────
+    try:
+        counters.resolve("/home/somebody/.cairn/devices/x", roots)
+        ok("a bare absolute path is refused as an address", False)
+    except counters.Unreadable as exc:
+        ok("a bare absolute path is refused as an address", "not one of" in str(exc))
+
     # ── the live surface still renders ────────────────────────────────────────
     live = skilldial.roster()
     ok("the live roster covers every real skill",
        {"intent", "sorted", "idea", "design", "note"} <= {r["skill"] for r in live})
     ok("the live render does not crash", isinstance(skilldial.render(live), str))
+    ok("every live skill is now either countable or says why not",
+       all(r["countable"] or r.get("why_not_countable") for r in live))
+    ok("LIVE: /sail is the only skill left with no store at all",
+       [r["skill"] for r in live if not r["countable"]] == ["sail"],
+       str([r["skill"] for r in live if not r["countable"]]))
 
     print(f"GREEN — {PASSES} teeth")
     return 0

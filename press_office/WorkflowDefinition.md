@@ -531,14 +531,35 @@ measured rather than asserted, on the date given.
 - **The only built inspector cannot move.** `build_inspector` rests in a dissolved
   state with no door out. The gate model for the whole workflow depends on the one
   inspector that exists, and it is stuck.
-- **Most of the doors cannot be counted at all.** Measured 2026-08-04: 11 skills on
-  disk, **5 countable** (`design`, `idea`, `intent`, `saveslate`, `sorted`) and **6
-  not** (`challenge`, `chart`, `commit`, `moreabout`, `note`, `sail`). A skill that
-  declares no `input_contract` fires no door, so it leaves no trace, so its usage is
-  not zero — it is **no measurement**, and `skilldial` prints it that way rather than
-  as a 0. This is the live limit on the disuse clause: `/note` is one of the six, so
-  *"could wind up being excised through disuse"* is a rule that cannot yet be
-  evaluated on the skill it was said about.
+- ~~**Most of the doors cannot be counted at all.**~~ **Retired the same day it was
+  written — and the way it was wrong is the finding.** The first measurement said 5 of
+  11 skills countable and 6 not, reasoning that a skill with no `input_contract` fires
+  no door, leaves no trace, and therefore cannot be counted. The first two clauses are
+  true and the conclusion does not follow. Re-measured 2026-08-04 by going and looking
+  in the stores those skills actually write to: `commit` **192** (git's
+  `Co-Authored-By` trailer, a proxy that overcounts and says so), `chart` **170**
+  (its own packet berths, per-door), `note` **3**, `moreabout` **2**, `challenge`
+  **3 of 10** intent births. Five of the six had been recording every firing all
+  along. The roster could see 19 firings out of ~408; it now sees 389, and **`/sail`
+  is the only skill in Cairn that leaves no record anywhere** — which is the worst
+  place for the hole, since `build` is the most expensive firing in the workflow.
+  Not being *judged at a door* was silently read as not being *counted*, and those
+  are different facts. The repair was not six new doors — that would have re-derived
+  existing counts and berthed `chart` and `commit` twice per firing (Law 1) — but a
+  `counted_by` declaration in each charter naming where its count already lives, read
+  on demand by `skilldial`. **The disuse clause therefore has a baseline:** `/note` = 3
+  firings as of 2026-08-04, and a disuse call before that clock has run is a call made
+  on no evidence.
+- **`/chart`'s own numbers carry a second finding nobody built anything to read.**
+  orient 25 → survey 24 → constrain 23 → decompose 22 → triage 21 → hypothesize 20 →
+  validate 19 → verdict 16. Twenty-five chains started, sixteen reached a verdict — 64%.
+  Where a chain dies is readable straight off a directory listing.
+- **The notes store's declared gate does not exist.** Its charter says *"the single
+  commons emit chokepoint validates every record against the template below (Law 6)."*
+  Measured 2026-08-04: **3 of 25 records conform**; the other 22 are hand-written
+  design documents sharing the address. Either the chokepoint is not wired for this
+  store or it is being bypassed. This is exactly the shape Law 4 names — a rule that
+  matters, enforced by prose.
 - **Neither new door has ever been fired in anger.** `design` and `idea` count 0 —
   which is a real zero, not an absence, and it is what it says: built, proven,
   unused. Law 9 applies to them exactly as written.

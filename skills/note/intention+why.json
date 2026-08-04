@@ -8,12 +8,22 @@
   "invoke": "/note <the thought>   (optionally: what it relates to)",
   "state": "v0 — first cast 2026-07-15.",
   "writes_to": "CairnCommons/notes/ (validated against that store's _charter+why.json template)",
-  "how_it_learns": "Barely, and honestly so: /note is a thin capture utility; its only feedback is friction — notes that never get picked up signal format drag, so simplify. It accrues no gate-confidence of its own. Doesn't meaningfully learn, because thin. AS OF 2026-08-04 this skill is NOT a cairn.skill_block tenant: it declares no input_contract, fires no door, and leaves no trace. So its usage count is not zero — it is UNMEASURABLE, and bin/cmd/skilldial reports it as such rather than as 0. Wiring it to the seam is the precondition for the disuse clause above.",
+  "how_it_learns": "Barely, and honestly so: /note is a thin capture utility; its only feedback is friction — notes that never get picked up signal format drag, so simplify. It accrues no gate-confidence of its own. Doesn't meaningfully learn, because thin. CORRECTED 2026-08-04, same day: this skill is not a cairn.skill_block tenant, and the first version of this sentence concluded from that it was UNMEASURABLE. That was wrong, and wrong in the direction that matters — the firings were on disk the whole time, as records in CairnCommons/notes/. Not being a seam tenant means it is not JUDGED at a door; it never meant it was not counted. The count is 3 (see counted_by), and the disuse clause has had a number available to it since before it was written.",
   "traces_to": [
     "Law 5 (a thought worth keeping gets an address)",
     "the fluid-middle stance — non-terminal capture (learning-loop keystone)"
   ],
   "owner": "the skills charter gates writes; Akien ratifies changes (signature gate)",
+  "counted_by": {
+    "reader": "files",
+    "address": "commons/notes",
+    "address_in_words": "CairnCommons/notes/*.json, records conforming to that store's declared template",
+    "conform_to_template": true,
+    "what_it_counts": "records carrying the store template's required fields (id, date, author, text) — which is what a /note firing produces. Measured 2026-08-04: 3 of 25 records conform. The other 22 are held design documents written straight into the store with arbitrary hand-authored shapes, and counting them as /note firings would be a count that is green for the wrong reason.",
+    "THE_RED_THIS_MEASUREMENT_EXPOSED": "the notes store charter says 'the single commons emit chokepoint validates every record against the template below (Law 6)'. Twenty-two of twenty-five records prove it does not. Either the chokepoint is not wired for this store or it is being bypassed — filed as a trouble, not fixed here.",
+    "why_not_the_seam": "the note record IS the firing artifact, and it is durable commons rather than instance-space — a better home than a berth that dies with the box. But this is the one skill where a seam door would ALSO be defensible, because the record is only note-shaped by convention today. If the chokepoint red gets fixed by enforcement, this stays; if it gets fixed by moving /note onto the seam, this declaration is what gets deleted.",
+    "the_number_is_the_disuse_clause": "3 firings, and the narrowing that produced the clause happened the same day the count was first taken. So the clock on 'could wind up being excised through disuse' starts 2026-08-04 with a baseline of 3, and a disuse call made before that clock has run is a call made on no evidence."
+  },
   "proof": "skill node → done only when cairnmap recompiles green (derivation gate). IOU until cairnmap exists — tracked in proofs/.",
   "provenance": "converged in the founding design conversation (MAP.md 'Workflow + starting skills', 2026-07-15) — 'anything in discussion not tracked elsewhere goes to notes'.",
   "narrowed_2026_08_04": "Akien, ruling the split when skill:/idea was built: 'slash note becomes more for historical or short term operational notes. could wind up being excised through disuse.' Before this, this charter's own why said a note 'later gets picked up by /intent if it grows into work' — which is now /idea's job, and /intent cites the idea in its from_idea field. What is left here is the short-half-life capture: the operational fact, the state of a thing at a moment. THE DISUSE CLAUSE IS NOT A DEPRECATION: this skill is not marked dying, it is marked COUNTABLE — and it can only be excised on measured disuse, never on an impression of it. A skill that is dying and a skill that was never wired look identical in an uncounted system."

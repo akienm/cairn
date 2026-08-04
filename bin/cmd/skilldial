@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# cairn skilldial — usage metrics per skill (Akien, 2026-08-04: "not just efficacy, but
+# how many times. metrics.").
+#
+# A thin registration against the cairn dispatcher: exec into the projection, args
+# verbatim, exit code intact. NO logic here — every number is re-derived from the trace
+# on read, and this wrapper adds no second path to it.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root
+
+cd "$REPO"
+exec python3 -m cairn.skill_block.skilldial "$@"

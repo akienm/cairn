@@ -11,8 +11,9 @@ that shouldn't exist dies here, before any cost is spent on it (Law 1).
 
 **One of three entry points** (ruling 2026-08-02): **IDEA** — pre-intention design,
 where a thing is still being imagined; **INTENT** — this, where a piece of work is
-born and traced; **TICKET** — where a *bug* enters, directly. Not all three are
-skills yet. Do not route a bug through here: if editing lines of code fixes it, it
+born and traced; **TICKET** — where a *bug* enters, directly. IDEA became a real door
+on 2026-08-04 (`/idea`, writing to `CairnCommons/ideas/`), and this skill now cites it
+in `from_idea`; TICKET is still not a skill. Do not route a bug through here: if editing lines of code fixes it, it
 is a ticket. Only if new information breaks the harmony of the system — an
 intention implemented contrary to the actual intention — is it **structural**, and
 structural is reconciled with Akien, not filed around.
@@ -87,11 +88,17 @@ the packet goes through a gate that refuses an incomplete one. Write it to your
 scratchpad and fire:
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.skill_block fire intent <scratchpad>/intent_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 skills/intent/door.py <scratchpad>/intent_packet.json
 ```
 
 The packet is a JSON object carrying, exactly:
 
+- **from_idea** — the captured idea this came from: an id under `CairnCommons/ideas/`,
+  a path to one, or `"none, because <X>"` where X carries something checkable. The
+  door reads it — an origin that cannot be opened is refused, because the whole point
+  of the field is that siblings born of one idea can find each other and the prose
+  that bore them. If the idea was never captured, capture it first with **`/idea`**;
+  it costs one command.
 - **what** — question 1, one sentence, the aim.
 - **how** — question 2, first-cut.
 - **traces_to** — question 3. Name the Telos aim or Law. If *nothing* traces, say

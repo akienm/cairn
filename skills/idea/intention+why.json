@@ -1,0 +1,36 @@
+{
+  "component": "skill:/idea",
+  "role": "charter",
+  "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "axis": "work-loop",
+
+  "what": "Capture an idea, verbatim, at a known address. Write the prose down and move on — interpretation is deferred on purpose.",
+  "why": "The workflow's first step (press_office/WorkflowDefinition.md, `capture`) and the only one whose input is outside the system: nothing upstream can fire it. Akien, 2026-08-04: 'it's a one and done. its end state is just when you and I move on to the next thing. the gate is just captured text that I can interpret later.' Without it an idea is spoken, the conversation moves on, and there is no address to reach for — which is the lived symptom, and it is also why this is the SMALLEST contract in the system. A capture door that asks questions is a capture door that stops being used, and an unused capture door loses ideas exactly as reliably as no door at all.",
+  "invoke": "/idea <the idea, in prose>",
+  "state": "v0 — first cast 2026-08-04, building out the workflow's two missing end doors (the middle of the workflow was built first; both ends were absent, which is precisely where a person and the system work together).",
+
+  "produces": "an idea record in CairnCommons/ideas/ — the durable, shareable artifact — plus a berth under ~/.cairn/devices/skill_block/0/berths/idea/ recording the firing. Two artifacts, two roots, by law: the record is knowledge (commons, git) and the berth is instance-space (never git). /intent cites the RECORD, not the berth, because a berth dies with the box.",
+
+  "nexus": {
+    "note": "SKILL.md carries the live invocation; this is the charter-face record of it.",
+    "routes_forward": "/intent [idea] — the next door, which may kill the idea on the trace question. That is a legal and cheap outcome.",
+    "routes_back": "none. Capture has no route back: there is no judgement here to fail. An idea that should not exist is discovered at /intent, not here."
+  },
+
+  "input_contract": {
+    "prose": "the idea, in the author's own words, verbatim — NOT summarized, NOT tidied. The spec lives in Akien's head and every artifact here is a lossy translation of it; summarizing at capture spends the one moment where the translation loss is zero. This is the whole gate: captured text that can be interpreted later.",
+    "author": "who had the idea (Akien | CC | …). Load-bearing rather than bookkeeping: an idea authored by Akien IS the source, and one authored by CC is already a translation — a later reader who cannot tell them apart cannot tell the spec from a guess at it.",
+    "bullets": "the exit-time finding — a list of {text, stratum} with stratum in code|tree, standing at Akien's gate. What was NOTICED while writing it down (a collision, a prior-art hit, a neighbouring ticket), never what the idea MEANS: interpretation is the thing this step defers. 'Nothing noticed at capture' is a legal and common bullet, and it is what keeps the field from turning capture into analysis."
+  },
+
+  "not_in_the_contract": {
+    "exit": "capture has one exit. There is nothing here to route out of — the kill lives at /intent, where the trace question can reach it. A two-exit vocabulary on a one-exit step would be ceremony.",
+    "why_it_is_for": "an idea does not have to justify itself. Requiring it at capture would move /intent's trace gate one step earlier, to the moment it is most expensive to answer and least likely to be right."
+  },
+
+  "how_it_learns": "By what /intent does with what this captures. Two signals, neither built yet and both named rather than implied: an idea that /intent routes OUT (the trace question kills it) says something about what is being captured; an idea that never gets reached for at all says something about whether the queue is being worked. Both are readable today only by walking CairnCommons/ideas/ against the `from_idea` field on /intent's berths — there is no collector, and building one before the queue has any depth would be building a manager for an empty room. NOT-YET: the second signal needs a notion of an idea's age, which needs the queue to have been used.",
+  "traces_to": ["Telos", "Law 1 (an answered question becomes structure — an idea with no address is re-derived or lost)", "Law 5 (intent and its record share an address)"],
+  "owner": "the skills charter gates writes to this file; Akien ratifies changes (signature gate)",
+  "proof": "proofs/test_idea_door.py — the door writes the record, refuses an empty capture, and never pollutes the live trace or the live commons. The class gate (cairnmap recompiles green) remains an IOU until cairnmap is built.",
+  "provenance": "Akien's fill of the workflow catalog's empty cells, 2026-08-04: 'capture gets /idea [prose]'. Prior art consulted before building: skills/note (frictionless capture, same shape, different use) — the distinction is recorded in CairnCommons/ideas/_charter+why.json under `the_distinction_from_notes` rather than left silent, and it is open to being collapsed."
+}

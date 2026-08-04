@@ -162,26 +162,53 @@ def test_the_real_ticket_corpus_is_not_retro_redded():
 
 
 def test_the_clean_sweep_is_not_a_vacuous_check():
-    """A clean sweep proves the rule holds OR that it never fires. This row separates them: the
-    ONE thing the exemption turns on is the claimed version, so retag the real corpus to v2 and
-    the same sweep must go loudly RED."""
+    """A clean sweep proves the rule holds OR that it never fires. This row separates them by
+    REMOVING the exemption from real ticket bodies and demanding the same sweep go loudly RED.
+
+    THE MECHANISM CHANGED 2026-08-03 BECAUSE ITS FIXTURE DID. This row used to retag the real
+    ``@v1`` tickets to v2 — which worked only while v1 tickets existed on disk. Akien's scrub
+    sweep migrated the last of them, so the old row retagged NOTHING and went red announcing
+    "the rule bit only 0 tickets": a non-vacuity check that had itself gone vacuous.
+
+    What it turns on now is what the exemption turns on now: a v2 claim the ticketer COMPOSED
+    versus one a sweep APPLIED. So take the real v2 bodies, strip ``migrated_from`` (present
+    them as authored), drop any ``watchme`` answer, and the rule must bite. Same claim as
+    before — the clean sweep is caused by the stated exemptions and by nothing else — read
+    against the corpus as it actually is."""
     import json
 
-    tickets = sorted(ws._TICKETS.glob("*.json"))
     bit, exempt = 0, 0
-    for p in tickets:
+    for p in sorted(ws._TICKETS.glob("*.json")):
         if p.name.startswith("_"):
             continue
         t = json.loads(p.read_text(encoding="utf-8"))
         state = t.get("state")
-        if not (isinstance(state, str) and "@v1:" in state):
+        if not (isinstance(state, str) and "@v2:" in state) or "WATCHME" in state:
             exempt += 1
             continue
-        t["state"] = state.replace("@v1:", "@v2:", 1).replace("LEARNME", "PROVEME", 1)
+        t.pop("migrated_from", None)      # present it as an AUTHORED v2 claim
+        t.pop("watchme", None)            # and as one whose author answered nothing
         if ws.watchme_spec_error(t):
             bit += 1
-    assert bit > 20, f"retagged to v2 the rule bit only {bit} tickets — a check that passes " \
-                     f"everything is not a check ({exempt} were unparseable/v0)"
+    assert bit > 20, f"stripped to an authored v2 claim the rule bit only {bit} tickets — a " \
+                     f"check that passes everything is not a check ({exempt} carried no " \
+                     f"parseable v2 claim, or carried a watch)"
+
+
+def test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not():
+    """THE NEW EXEMPTION, both directions, on one body. A ticket whose v2 claim was applied by
+    a sweep (``migrated_from``) owes nothing: nobody asked its author. The SAME ticket without
+    that field owes the answer. One field is the whole difference, which is what makes this a
+    stated rule rather than a grandfather list."""
+    swept = {"state": _V2_BARE, "migrated_from": "code-seam@v1 — swept 2026-08-03"}
+    assert ws.watchme_spec_error(swept) is None, \
+        "a swept version claim retro-imposed a ticketing-time obligation on an absent author"
+
+    authored = {"state": _V2_BARE}
+    err = ws.watchme_spec_error(authored)
+    assert err and "none, because" in err, \
+        f"an AUTHORED v2 claim with no answer must still be refused — the exemption widened " \
+        f"past its stated rule (got: {err!r})"
 
 
 TESTS = [
@@ -198,6 +225,7 @@ TESTS = [
     test_a_lone_dict_is_read_as_one_spec,
     test_the_real_ticket_corpus_is_not_retro_redded,
     test_the_clean_sweep_is_not_a_vacuous_check,
+    test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not,
 ]
 
 if __name__ == "__main__":

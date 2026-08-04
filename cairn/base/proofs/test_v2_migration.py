@@ -161,20 +161,35 @@ def test_the_past_is_byte_identical_after_the_migration_crossing():
 
 def test_every_v1_boat_on_disk_reaches_a_conforming_v2():
     """NON-HOLLOW: the real components and the real ticket corpus, not strings I invented."""
-    boats = []
+    boats, scanned = [], []
     for p in sorted(_REPO_ROOT.glob("cairn/*/state.json")):
         cur = (json.loads(p.read_text(encoding="utf-8")).get("cursor") or {})
         w = cur.get("workflow")
+        scanned.append(p)
         if isinstance(w, str) and "@v1:" in w:
             boats.append((str(p.relative_to(_REPO_ROOT)), w))
     for p in sorted(_TICKETS.glob("*.json")):
         if p.name.startswith("_"):
             continue
         w = json.loads(p.read_text(encoding="utf-8")).get("state")
+        scanned.append(p)
         if isinstance(w, str) and "@v1:" in w:
             boats.append((p.name, w))
 
-    assert len(boats) > 20, f"only {len(boats)} v1 boats found — this is not reading the repo"
+    # THE FLOOR IS NOT A COUNT (2026-08-03). It used to be `> 20`, which was the corpus of the
+    # day and went red the moment Akien's scrub sweep drained the ticket store of v1 strings —
+    # a snapshot pinned as if it were an invariant. Two DIFFERENT facts have to be separated,
+    # because one is a defect and the other is progress: "the scan is broken / not reading the
+    # repo" (loud) versus "the migration has fewer subjects left than it used to" (expected,
+    # and the whole point of running it). So assert the DENOMINATOR — the scan really walked a
+    # real corpus — and then assert at least one real boat still exercises the migration.
+    assert len(scanned) > 40, (f"the scan read only {len(scanned)} state-carrying files — it is "
+                               "not reading the repo (this is the broken-scan case, not the "
+                               "nothing-left-to-migrate case)")
+    assert boats, ("zero v1 boats anywhere on disk. NOT automatically a defect: it is what "
+                   "completing the migration looks like, and at that point this row has no "
+                   "subject and should be RETIRED with the migration rather than kept green "
+                   "over nothing (Law 8). Red here is the prompt to make that call.")
     for name, w in boats:
         if transitions.parse_workflow(w).node_class not in _classes_by_registration()[0]:
             continue                        # see the row below — a NAMED gap, never a silent skip
@@ -201,7 +216,17 @@ def test_three_classes_register_no_workflow_at_all_and_that_is_named_here():
 
 
 def test_build_inspector_and_the_deposit_ticket_are_the_two_at_learnme():
-    """The two the ticket names, measured rather than assumed — and both land legally."""
+    """WHO IS STILL PARKED IN THE DISSOLVED STATE — measured, never assumed.
+
+    RE-MEASURED 2026-08-03. The row used to demand BOTH names the ticket predicted. One of
+    them, ``the-deposit-rides-the-read``, has since crossed and carries a WATCHME, so the old
+    assertion redded on a boat that had done exactly what the migration wanted — the failure
+    mode this repo has paid for before: a proof over live state pinning a SNAPSHOT instead of
+    an INVARIANT. The invariant is: whoever is parked there is parked LEGALLY, and the roster
+    only shrinks. ``build_inspector`` is the one left, and it is left for a stated reason —
+    ``emit_migrated`` needs a CROSSING, ``migrate_to_v2`` lands it on PROVEME, and its only
+    legal forward target is PROVED, which would be a fabricated close. That is a real blocker
+    on a real boat, not a fixture, and it is what this row now pins."""
     at_learnme = []
     for p in sorted(_REPO_ROOT.glob("cairn/*/state.json")):
         cur = (json.loads(p.read_text(encoding="utf-8")).get("cursor") or {})
@@ -212,9 +237,13 @@ def test_build_inspector_and_the_deposit_ticket_are_the_two_at_learnme():
                 json.loads(p.read_text(encoding="utf-8")).get("state")):
             at_learnme.append(p.stem)
 
-    assert "build_inspector" in at_learnme and "the-deposit-rides-the-read" in at_learnme, \
-        f"the ticket names these two; the disk says {at_learnme}"
-    for name in at_learnme:
+    assert set(at_learnme) <= {"build_inspector", "the-deposit-rides-the-read"}, (
+        f"a NEW boat is parked in the dissolved state: {sorted(set(at_learnme) - {chr(0)})}. "
+        "The roster only shrinks — nothing may enter a state that no longer exists.")
+    assert "build_inspector" in at_learnme, (
+        "build_inspector has left the dissolved state — which is the WIN this row is waiting "
+        f"for (disk says {at_learnme}). Retire this row and the migration debt with it.")
+    for _name, w in ((n, None) for n in at_learnme):
         pass          # the landing itself is proved above; this row pins WHO is standing there
 
 

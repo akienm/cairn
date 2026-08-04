@@ -21,12 +21,19 @@ STRING — the record of truth — so a spec cannot drift onto a watch the node 
 and a watch cannot be carried with no spec behind it. Both directions are checked; one
 direction would let the pair rot in the unchecked half.
 
-WHY v1 TICKETS ARE EXEMPT BY A STATED RULE, not by luck. Every ticket cast before 2026-07-30
-claims ``<class>@v1``, whose registered vocabulary contains no WATCHME at all — so the
-obligation cannot attach, and the exemption is a consequence of the version the string
-claims rather than a grandfather list someone maintains. This is the promotion-filter
-jurisdiction failure the entry-gate stone already paid for once: a check that retro-reds
-every open boat is a check that gets disabled.
+WHY SOME TICKETS ARE EXEMPT BY A STATED RULE, not by luck. There are two exemptions and
+they are ONE rule: the obligation attaches at TICKETING, to a version the ticketer composed
+whose vocabulary contains WATCHME.
+  - ``@v1`` — the registered vocabulary contains no WATCHME at all, so the obligation cannot
+    attach. A consequence of the version the string claims, not a grandfather list.
+  - ``migrated_from`` present — the version claim was applied TO the ticket by a sweep, not
+    composed by its ticketer, so nobody was ever asked the question. Akien's ruling of
+    2026-08-03 is the authority: "a workflow is composed at ticketing time by the ticketer
+    based on the needs of the ticket."
+Both exist for the same reason, and it is the promotion-filter jurisdiction failure the
+entry-gate stone already paid for once: A CHECK THAT RETRO-REDS EVERY OPEN BOAT IS A CHECK
+THAT GETS DISABLED. Measured twice now — the second time on 2026-08-03, when the scrub sweep
+retagged 50 cast tickets to v2 in one act and this rule redded all 50.
 
 STILL AN IOU AT ONE END, and it is named rather than papered over: CASTING HAS NO
 CHOKEPOINT. ``/sorted`` files a ticket by writing a file; nothing refuses the write. So this
@@ -116,6 +123,26 @@ def watchme_spec_error(ticket: dict) -> str | None:
     if not objects:
         if version == "v1":
             return None          # the vocabulary has no WATCHME — the obligation cannot attach
+        if ticket.get("migrated_from"):
+            # A SWEPT VERSION CLAIM IS NOT AN AUTHORED ONE — the second stated rule, added
+            # 2026-08-03 with Akien's scrub sweep, and it is the same rule as the v1 one, not
+            # a second mechanism. The obligation attaches AT TICKETING, where an author is
+            # present to answer "does this intention need a watch?". A ticket carrying
+            # `migrated_from` had its version claim applied TO it by a sweep; nobody was asked.
+            # Akien's own ruling the same day settles which it is: "a workflow is composed at
+            # ticketing time by the ticketer based on the needs of the ticket" — so a string
+            # the ticketer did not compose carries no ticketing-time obligation.
+            #
+            # THIS LOSES NO ENFORCEMENT. It is the static corpus scan that stands down, not a
+            # gate: a swept ticket carries no WATCHME (that is what the sweep did), and the
+            # crossing-time gate (transitions._emission_gate) only fires on a string that DOES
+            # carry one. The moment an author edits this string to carry a watch, the watch is
+            # authored and every check below applies in full.
+            #
+            # Without this rule the 2026-08-03 sweep retro-redded 50 cast tickets at once —
+            # exactly "a check that retro-reds every open boat is a check that gets disabled",
+            # which this module's own header names as the failure it was built to avoid.
+            return None
         if isinstance(declared, str) and _NONE_RE.match(declared.strip()):
             return None
         return ("workflow claims %s and carries no WATCHME, so the ticket must record "

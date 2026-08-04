@@ -4,7 +4,8 @@ Berth for the WATCHME that ticket ``watchme-emits-a-probe`` carries. Berthed her
 ``cairn/base``, because that is WHAT IT WATCHES; the ticket it was compiled from lives in
 CairnCommons and the probe deliberately does not follow it there.
 
-THE EFFICACY QUESTION, and why it is this one. v1 measured a real failure: ``LEARNME`` sat in
+THE EFFICACY QUESTION, and why it is this one. v1 measured a real failure: its fifth summons
+(dissolved; see ``CairnCommons/tickets/watchme-emits-a-probe.json``, its one record) sat in
 the backbone, MANDATORY for every node, and carried NO GATE — so every voyage crossed it and
 no voyage satisfied it. The fix inverts both halves: optional to carry, gated once carried.
 That fix has an obvious way to fail, and it is the exact mirror of what it replaced — if
@@ -141,7 +142,8 @@ _HORIZON = 1000
 
 PROBE = Probe(
     why="did making the watch OPTIONAL make it never carried? — the mirror failure of the "
-        "LEARNME shape this node replaced, and the one way this design fails silently",
+        "forced-and-ungated shape this node replaced, and the one way this design fails "
+        "silently",
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},

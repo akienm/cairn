@@ -110,7 +110,7 @@ per-pulse poking, for the probe that genuinely means "keep telling me while this
   blind would be guessing at the width. Filed, with its why, on the bus-completion ticket.
 
 AND IT CAN SAY WHEN IT HAS GATHERED ENOUGH (ticket ``watchme-emits-a-probe``, 2026-07-30).
-A ``WATCHME`` node emits a probe to gather efficacy data for its own intention, and a
+A ``WATCHME`` ticket CREATES a probe to gather efficacy data for its own intention, and a
 gatherer with no stopping condition is a watcher that runs forever — the standing cost the
 shrinking-footprint discipline exists to refuse. So ``enough`` is a THIRD open predicate,
 spelled exactly like ``trigger`` and ``carry``: ``enough(context) -> bool``, no enum of
@@ -224,7 +224,7 @@ class Probe:
     ``watchme-emits-a-probe`` falsifier clause (2), 2026-07-30). The clause: *"A probe is
     armed and never fires, and nothing is loud about it — a watcher emitted into a heartbeat
     nobody runs learns nothing while LOOKING like learning."* That is this design's own way
-    of re-committing the ``LEARNME`` failure it was built to kill: a summons carried by
+    of re-committing the forced-and-ungated failure it was built to kill: a summons carried by
     everybody and satisfied by nobody, one level up. So the horizon is the number the shim
     measures silence against, and it is declared HERE beside the trigger — the only place
     that knows what "too long" means for this particular question.

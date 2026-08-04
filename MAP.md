@@ -943,7 +943,7 @@ machine *is* the dispatcher — the get-Akien-out intention becoming architectur
 
 **The grammar carries the semantics** (naming stone: the name forces the content):
 - **`-ME` = a summons** (a demand for a peer): `THINKME` · `TICKETME` (decompose me
-  into children) · `BUILDME` · `PROVEME` · `WATCHME(<object>)` (**emits a probe** —
+  into children) · `BUILDME` · `PROVEME` · `WATCHME(<object>)` (**creates a probe** —
   a watch on whether my own intention actually worked) · `REVIEWME` (concept-piece
   quorum).
 - **no `-ME` = the node's own condition**: `PROVED` (passed its gate, resting, still
@@ -952,28 +952,41 @@ machine *is* the dispatcher — the get-Akien-out intention becoming architectur
   (question lost tenure).
 
 **One rest, inside the one loop, not terminal** (RESHAPED 2026-07-30, ticket
-`watchme-emits-a-probe`): `PROVED` = learned-FROM. There used to be a second,
-`LEARNING` = learning (subject, active), and it is **dissolved, not renamed**. A
-node does not *become* a watcher; it *emits* one and rests. The reason is a timing
-fact: a proved intention's efficacy data can only accumulate **after** it rests, so
-a node that turned into its own watcher would never rest and would never be the
-thing being measured. The standing worker is a **probe** — a different species from
-a node (immutable, carrying no authority, outliving the crossing that emitted it).
-That deletes a state rather than adding one.
+`watchme-emits-a-probe`; **wording corrected 2026-08-03 by Akien's ruling**):
+`PROVED` = learned-FROM. There used to be a second rest — a standing driver,
+subject and active — and it is **dissolved, not renamed**. A **ticket** does not
+*become* a watcher; it **creates** one and rests. (*Emission* was the wrong word,
+and `node` is the wrong noun: this system has several kinds of node, and the
+workflow one is a ticket.) The reason is a timing fact: a proved intention's
+efficacy data can only accumulate **after** it rests, so a ticket that turned into
+its own watcher would never rest and would never be the thing being measured. The
+standing worker is a **probe** — a different species from a ticket (immutable,
+carrying no authority, outliving the crossing that created it). That deletes a
+state rather than adding one.
 
-The claim underneath `LEARNING` survives it, because it was never about a state:
+**The mechanism, in Akien's words (2026-08-03).** The `WATCHME` state causes the
+**creation** of a probe — to wherever one needs to be: a gateway, a time, a future
+event, whatever — in order to send back feedback about the intention. **Once that
+probe is created, the state is complete.** The ticket then crosses a gate with its
+probe attached; the probe fires there and calls back the thing that put it there,
+or another target designated at creation time.
+
+The claim underneath that dissolved rest survives it, because it was never about a
+state:
 there is no `RUNNING` — Cairn has no uninstrumented execution (voyages at every
 chokepoint, every driver carries its why, VALIDATIONS on every measured claim), so
 anything running is emitting evidence, so anything running is *learning*. "Just
 running" would be the UU silent-failure disease. Low-yield running is low-yield
 learning — a yield measure (T5.1), which is exactly why it never needed a state.
 
-**`LEARNME` → `WATCHME`, and it is not the same seat.** v1's `LEARNME` ("learn
-*from* me — I am material, harvest me into the trees") sat in the backbone:
-mandatory for every code-seam and carrying **no gate** — the one summons that was
-forced and unchecked, so the crossing got filled with whatever was at hand. `WATCHME`
+**The fifth summons → `WATCHME`, and it is not the same seat.** v1's fifth
+summons ("harvest me into the trees") sat in the backbone: mandatory for every
+code-seam and carrying **no gate** — the one summons that was forced and unchecked,
+so the crossing got filled with whatever was at hand. It is dissolved; the dead
+token is deliberately not reprinted here, and
+`CairnCommons/tickets/watchme-emits-a-probe.json` is its one record. `WATCHME`
 inverts both halves: **optional to carry, mandatory to satisfy once carried**, and
-it must name its object (a bare `WATCHME` is refused — learning without an object is
+it must name its object (a bare `WATCHME` is refused — a watch without an object is
 inert). It is a *free summons*: zero or more times, any position, absent from the
 registered `path` and declared in `free_summons` instead. Optional-to-carry is the
 ticket author's choice of string; mandatory-to-satisfy is that it is **not** in
@@ -1006,16 +1019,17 @@ instance' (self-contained; no external orchestrator possible). Consequences:
   `transitions.migrate_to_v2` + `emit_migrated`, and it is *event-not-poll* — the
   version changes at a crossing that was going to write a record anyway, so no
   sweep script exists and the old string rides the journal as `migrated_from`.
-  The judgment call was real and is recorded: a boat standing **at** `LEARNME`
-  lands at `PROVEME`, because `LEARNME` was ungated, so standing there was never
-  evidence that anything had been learned.
+  The judgment call was real and is recorded: a boat standing **at** the dissolved
+  fifth summons lands at `PROVEME`, because that summons was ungated, so standing
+  there was never evidence that anything had been learned. (The migration code still
+  matches the dead token literally — a sweep cannot strip a token it may not name.)
 - **class is not frozen at cast** — it *is* the current workflow string; the node
   that *built* a sensor can become the node that *runs* it. Identity lives in the
   voyage, not the workflow-of-the-moment. **The worked example is currently
   vacant**: it used to be "a code ticket becomes a driver by editing its terminal
-  (`… → LEARNING`)", and `LEARNING` is dissolved. What replaces it is an **open
-  question for Akien's signature gate**, recorded on the `operational-driver` class
-  charter rather than guessed at here — see below.
+  to the standing-driver rest", and that rest is dissolved. What replaces it is an
+  **open question for Akien's signature gate**, recorded on the `operational-driver`
+  class charter rather than guessed at here — see below.
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
@@ -1032,10 +1046,12 @@ consolidation is the same — a probe the PROVED graze sets.
 body is `(trigger, method-pointer, why, sources/targets)` — the declarative-data
 idea survives, but as the PROBE species now (immutable worker), distinct from the
 mutable TICKET. **Its resting state is an open question** (2026-07-30): the class
-charter said "resting in `LEARNING`", and `LEARNING` is dissolved. The class has
-zero members and registers no `workflow_versions`, so nothing is at sea under it
-and nothing is broken by the vacancy — but a class definition is ratified by
-Akien's signature gate, so what replaces the clause is his call, not this file's.
+charter named the standing-driver rest, and that rest is dissolved. The class has
+zero members, so nothing is at sea under it. It registers no `workflow_versions` —
+and since Akien's 2026-08-03 ruling ("a workflow is composed at ticketing time by
+the ticketer based on the needs of the ticket") that is the **correct shape, not a
+vacancy**. A class definition is still ratified by Akien's signature gate, so what
+replaces the clause is his call, not this file's.
 The question is recorded on `CairnCommons/node_classes/operational-driver.json`
 under `open_ruling`; the honest candidates are named there (the class retires into
 the probe primitive · it keeps a rest under a new name · it is a probe-with-a-charter

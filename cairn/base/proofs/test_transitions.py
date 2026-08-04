@@ -173,8 +173,14 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     # from CairnCommons/tickets/ rather than a pinned filename: a ticket legitimately berths beside its
     # code and leaves the open lane (harbor-master did, 2026-07-24), so pinning one file re-derives a
     # moving target (Law 1). Asserts INVARIANTS on whichever ticket it finds — never a live cursor value.
+    # VERSION-AGNOSTIC SINCE 2026-08-03, and that is the same lesson twice. This tooth already
+    # stopped pinning a FILENAME (a ticket berths beside its code and leaves the lane); it was
+    # still pinning a VERSION, and Akien's scrub sweep migrated the last v1 ticket off the disk,
+    # so it went red announcing an absent fixture rather than a defect. The parser does not care
+    # which version a string claims — take any live code-seam ticket and conform it against the
+    # registered path for the version IT claims. Asserts INVARIANTS, never a live cursor value.
     tickets_dir = _REPO_ROOT.parent / "CairnCommons" / "tickets"
-    canonical = tuple(transitions.load_class_def("code-seam")["workflow_versions"]["v1"]["path"])
+    versions = transitions.load_class_def("code-seam")["workflow_versions"]
     found = None
     for t in sorted(tickets_dir.glob("*.json")):
         try:
@@ -182,13 +188,19 @@ def test_it_parses_a_real_live_ticket_workflow_string():
             wf = transitions.parse_workflow(state) if isinstance(state, str) else None
         except (ValueError, OSError):
             continue                      # prose state / garbled ticket — not a code-seam workflow string
-        if wf and wf.node_class == "code-seam" and wf.version == "v1" and wf.path == canonical:
-            found = (t.name, wf)
+        if not (wf and wf.node_class == "code-seam" and wf.version in versions):
+            continue
+        reg = versions[wf.version]
+        free = set(reg.get("free_summons", []))
+        if [x for x in wf.path if x not in free] == list(reg["path"]):
+            found = (t.name, wf, tuple(reg["path"]), free)
             break
-    assert found, ("no live code-seam@v1 ticket in CairnCommons/tickets/ to parse — the real-ticket tooth "
-                   "needs at least one on-disk code-seam ticket (a green over zero would be hollow, Law 8)")
-    name, wf = found
-    assert wf.here in canonical, f"cursor mis-parsed from the real string ({name}, not a real stage): {wf.here}"
+    assert found, ("no live code-seam ticket in CairnCommons/tickets/ conforms to any registered "
+                   "version — the real-ticket tooth needs at least one on-disk code-seam ticket "
+                   "(a green over zero would be hollow, Law 8)")
+    name, wf, canonical, free = found
+    assert wf.here in canonical or wf.here in free, \
+        f"cursor mis-parsed from the real string ({name}, not a real stage): {wf.here}"
 
 
 def test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path():

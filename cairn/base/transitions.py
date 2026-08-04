@@ -26,15 +26,18 @@ The grammar carries the semantics, so most of the table is DERIVED, not stored:
   - no ``-ME`` = the node's own CONDITION/REST: ``PROVED`` (passed its gate, grazed by the
     background loop). NOT terminal — a back-edge re-opens it.
     ONE REST, NOT TWO, since 2026-07-30 (ticket watchme-emits-a-probe). There used to be a
-    second: ``LEARNING``, "a standing driver, actively collecting". It is DISSOLVED, not
-    renamed — a node does not BECOME a watcher, it EMITS one and rests. A proved
-    intention's efficacy data can only accumulate AFTER it rests, so a node that turned
-    into its own watcher would never rest and would never be the thing measured. The
-    standing worker is a PROBE (``cairn/base/probe.py``), which is a different species from
-    a node: immutable, carrying no authority, and outliving the crossing that emitted it.
-    That deletes a state rather than adding one. ``LEARNME``/``LEARNING`` survive only in
-    v1 strings, in history, and in the migration's own record — a record of truth is never
-    edited to hide the shape it used to have (Law 7).
+    second: a standing-driver rest, "actively collecting". It is DISSOLVED, not renamed —
+    a ticket does not BECOME a watcher, it CREATES one and rests. A proved intention's
+    efficacy data can only accumulate AFTER it rests, so a ticket that turned into its own
+    watcher would never rest and would never be the thing measured. The standing worker is
+    a PROBE (``cairn/base/probe.py``), a different species from a ticket: immutable,
+    carrying no authority, and outliving the crossing that created it.
+    That deletes a state rather than adding one. WORDING, ruled by Akien 2026-08-03: the
+    state CAUSES THE CREATION of a probe (*emission* was the wrong word), and once the
+    probe is created THE STATE IS COMPLETE. The dead tokens survive only in v1 strings, in
+    history, and in the migration code below that has to match them literally in order to
+    strip them — a record of truth is never edited to hide the shape it used to have
+    (Law 7), and a sweep cannot remove a token it may not name.
 What the grammar cannot derive, the class definition declares — and there are exactly TWO
 such facts, orthogonal on purpose:
   - ``skippable_summons`` — which summons is an optional FORK at runtime (``TICKETME``: a
@@ -44,7 +47,7 @@ such facts, orthogonal on purpose:
     is about the shape the ticket AUTHORED. A free summons is lifted out of the string
     before the backbone is compared to the registered path, so "a drifted string is refused"
     stays true while it roams — and it must NAME ITS OBJECT (``WATCHME(what-it-watches)``),
-    because learning without an object is inert. Being free does NOT make it skippable:
+    because a watch without an object is inert. Being free does NOT make it skippable:
     optional to CARRY, mandatory to SATISFY once carried.
 Everything else falls out:
 
@@ -170,8 +173,8 @@ def _emission_gate(obj: str | None, ticket: object) -> str:
     anything is written.
 
     EMISSION, NOT ACCUMULATION — the ticket's own phrase. The failure this refuses is a node
-    that walks past its own watch having gathered nothing: the LEARNME shape that v1 measured
-    and that this whole node dissolves. LEARNME sat in the backbone, forced on every node, and
+    that walks past its own watch having gathered nothing: the forced-and-ungated shape that v1
+    measured and that this whole node dissolves. That summons sat in the backbone, forced, and
     carried NO GATE at all — so it was crossed by every voyage and satisfied by none.
 
     WHY A CROSSING WITH NO TICKET IS REFUSED RATHER THAN WAVED THROUGH. The spec lives on the
@@ -299,8 +302,8 @@ class Workflow:
     path: tuple[str, ...]
     cursor: int          # index into ``path`` of the bracketed state
     # THE OBJECT EACH POSITION CARRIES, parallel to ``path`` — None where a state names none.
-    # A FREE SUMMONS (see ``_conform``) is refused without one: "learning without an object is
-    # inert" (Akien 2026-07-30) — a bare token cannot state what is being learned, so nothing
+    # A FREE SUMMONS (see ``_conform``) is refused without one: a watch without an object is
+    # inert (Akien 2026-07-30) — a bare token cannot state what is being watched, so nothing
     # can check it. Parallel rather than a dict because a free summons may repeat, and two
     # occurrences of WATCHME watching different things are two different obligations.
     objects: tuple[str | None, ...] = ()
@@ -383,7 +386,7 @@ def _conform(wf: Workflow, class_def: dict) -> dict:
     while ``WATCHME`` roams. Skippable is about the FORK a node takes at runtime; free is
     about the SHAPE the ticket authored. A state can be neither, either, or both.
 
-    AND A FREE SUMMONS MUST NAME ITS OBJECT. "Learning without an object is inert" — a bare
+    AND A FREE SUMMONS MUST NAME ITS OBJECT. A watch without an object is inert — a bare
     ``WATCHME`` cannot say what is being watched, so nothing downstream can check it, and a
     blank field is exactly the shape ``intention+why.json`` exists to refuse. This is caught
     HERE rather than in ``parse_workflow`` because the parser does not know the class, and
@@ -397,7 +400,7 @@ def _conform(wf: Workflow, class_def: dict) -> dict:
             if state in free and not (wf.objects[i] if i < len(wf.objects) else None):
                 raise MalformedWorkflow(
                     f"{wf.node_class}@{wf.version} carries a bare {state!r} at position {i} — a "
-                    f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); learning "
+                    f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); a watch "
                     f"without an object is inert, and a blank object cannot be checked")
     backbone = [s for s in wf.path if s not in free]
     if backbone != list(reg["path"]):

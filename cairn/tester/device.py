@@ -106,7 +106,7 @@ class TesterDevice(BaseDevice):
 
     def state(self) -> dict:
         # Honest, live condition — no faked node-state vocabulary (``PROVED``, the one
-        # rest since ticket watchme-emits-a-probe dissolved ``LEARNING`` on 2026-07-30,
+        # rest since ticket watchme-emits-a-probe dissolved the second one on 2026-07-30,
         # lands with the emit-chokepoint; not wired here yet).
         return {
             "proofs_run": self._proofs_run,

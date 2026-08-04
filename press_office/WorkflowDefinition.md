@@ -20,9 +20,9 @@ column below **cites** what a door requires; it never re-authors it.
 
 | step | trigger skill | completes skill | gate requires |
 |---|---|---|---|
-| **capture** | `/idea [prose]` — *not built* | — (we move on) | prose exists; interpretation deferred |
-| **intend** | `/intent [idea]` | fire intent | 8 fields, compiled live |
-| **design** | `/design [intention]` — *not built* | `/sorted` | 12 fields, compiled live |
+| **capture** | `/idea [prose]` | — (we move on) | 3 fields, compiled live |
+| **intend** | `/intent [idea]` | fire intent | 9 fields, compiled live |
+| **design** | `/design [intention]` | `/sorted` | 5 fields at the opening, 12 at the close — both compiled live |
 | **chart** | `/chart` | 7 chart doors | unreadable — schemas in code |
 | **build** | `/sail` | `/sail` | not declared |
 | **test** | probe watching `VALIDATEME` | `persist_validation` | 8 VALIDATION fields |
@@ -119,10 +119,17 @@ rule — see §4.
 - **completes:** one and done — *"its end state is just when you and I move on to
   the next thing."* The only completion predicate in the catalog with no artifact
   and no observer: it is true by abandonment.
-- **gate:** captured text that can be interpreted later. This is a real gate, not an
-  empty one — the predicate is *non-empty prose at a known address*. What is
-  deferred is **interpretation**, not admission, and deferring interpretation is the
-  entire point of the step.
+- **gate:** `skill:idea` — **built 2026-08-04**. Captured text that can be interpreted
+  later: a real gate, not an empty one — the predicate is *non-empty prose at a known
+  address*. 3 fields, compiled live from `skills/idea/intention+why.json`, the
+  smallest contract in the system on purpose. What is deferred is **interpretation**,
+  not admission, and deferring interpretation is the entire point of the step.
+- **the known address:** `CairnCommons/ideas/` — knowledge, so it is git, not
+  instance-space. The berth the firing leaves is the receipt; the commons record is
+  the work, and an unwritable commons is a loss rather than a hiccup.
+- **note:** the door asks nothing beyond the three fields, and the prose is stored
+  byte-identical. Capture is the one moment in the workflow where translation loss is
+  zero; a door that tidied, summarised or interrogated would spend it.
 
 ### intend — an idea becomes a traced intention
 - **trigger:** reaching for an idea *is* the event. Ideas sit in a queue; the door is
@@ -130,11 +137,17 @@ rule — see §4.
 - **emits:** one berth per firing — a node in intention fill-state, traced and
   challenged. One idea may yield many intentions, but by many firings, not by one
   firing emitting many: the door's fields are singular per node, so a fan-out from a
-  single firing would have to collapse five answers into one.
+  single firing would have to collapse five answers into one. **Each firing names the
+  idea it came from** (`from_idea`), so the three say they are siblings by pointing at
+  one record rather than by anyone remembering.
 - **completes:** the berth path is printed by the door.
-- **gate:** `skill:intent` — **built**. Requires 8 fields, compiled live from
+- **gate:** `skill:intent` — **built**. Requires 9 fields, compiled live from
   `skills/intent/intention+why.json`. A refusal names *every* lack in one pass and
-  is itself recorded.
+  is itself recorded. Two of the nine are judged rather than merely present
+  (`skills/intent/door.py`, 2026-08-04): `from_idea` must **resolve** to a record
+  under `CairnCommons/ideas/` or carry a reason with a referent something can open,
+  and `challenge` must carry **all five** answers — the charter had declared that
+  floor in prose while a one-key object satisfied the door.
 - **exits:** routed forward · **routed out** — the kill, which is forced to carry
   bullets and an adversarial pass. A node killed here with no record of why teaches
   nobody.
@@ -144,11 +157,22 @@ rule — see §4.
   predicate on a berth — something a shim can fire on, not something to remember.
 - **consumes:** a berth · **emits:** cast tickets, typed, with gates bound
 - **completes:** the cast packet passes `/sorted`.
-- **gate:** `skill:sorted` — **built**. 12 fields, the largest contract in the
-  system, including the completeness question answered *in substance*: a one-word
-  pass is the hollow check the door exists to stop.
+- **gate, at the opening:** `skill:design` — **built 2026-08-04**. 5 fields, compiled
+  live from `skills/design/intention+why.json`. The berth must resolve, must have come
+  from `/intent`, and must not have exited `routed_out` — designing on a node the
+  cheapest gate in the system already killed is the waste Law 1 names, and a corpse
+  reads as a perfectly well-formed berth to anything that only checks presence.
+- **gate, at the close:** `skill:sorted` — **built**. 12 fields, the largest contract
+  in the system, including the completeness question answered *in substance*: a
+  one-word pass is the hollow check the door exists to stop.
 - **note:** the only step with a different skill at each end. `/design` opens the
-  joint work; `/sorted` closes it.
+  joint work; `/sorted` closes it. The opening door records **no exit** — every exit
+  of this step is `/sorted`'s to record, and two components recording one outcome is
+  how they come to disagree about it.
+- **the back edge is countable.** `/design`'s `entering_from` is either `intent` or
+  `sorted:<berth>`, so a second pass is distinguishable from a first. That count is
+  the only signal there is about which of `/intent`'s questions are letting things
+  through — prose in the field would erase it.
 
 ### chart — a cast ticket becomes a build packet
 - **trigger:** `/chart`. Downstream refuses without a chart chain, so the refusal is
@@ -418,9 +442,22 @@ measured rather than asserted, on the date given.
 - **Its findings already cite their rule.** Each carries `filter`, `component`,
   `finding`, `evidence`, and `why_it_matters`. Rule (1) is satisfied in the one
   place an inspector actually runs.
-- The externality is already physics at two doors: `intend`'s and `design`'s
-  contracts compile live from the *charter*, not from the door's code. The door
-  cites a rule it did not write.
+- The externality is already physics at four doors: `capture`'s, `intend`'s and
+  `design`'s two contracts compile live from the *charter*, not from the door's code.
+  The door cites a rule it did not write.
+- **Both end doors now exist** — `/idea` and `/design`, built 2026-08-04, with an
+  ideas store at `CairnCommons/ideas/` for `capture` to write to. Proofs beside each
+  (26 and 30 teeth), run twice.
+- **The fan-out has an edge.** `intend`'s `from_idea` must resolve to a real record
+  or carry a reason with an openable referent, so a claim of common origin is
+  checkable rather than remembered.
+- **The challenge floor is physics.** All five adversarial answers are required at
+  the door, at both exits. It was declared in the charter and enforced by nothing;
+  a partial pass is the pass not having run.
+- **Skill usage is countable** — `bin/cmd/skilldial`, built 2026-08-04 on the trace
+  the doors already write. Firings, refusals, findings, match rate, last fired, per
+  skill, re-derived on every read. No registry: the roster *is* the `skills/`
+  directory, so nothing can enrol and nothing can fall out of sync.
 
 **Red:**
 
@@ -447,14 +484,23 @@ measured rather than asserted, on the date given.
 - **The only built inspector cannot move.** `build_inspector` rests in a dissolved
   state with no door out. The gate model for the whole workflow depends on the one
   inspector that exists, and it is stuck.
-- **The fan-out has no edge.** None of `intend`'s 8 fields records which idea the
-  intention came from; the trace points *up* to a Law, never *back*. The moment one
-  idea becomes three intentions, the three cannot say they are siblings, and none
-  can point at the prose that bore them.
-- **Two named doors do not exist.** No `/idea`, no `/design`, and no ideas queue for
-  `capture` to write to. Every *built* door is in the middle of the workflow; both
-  missing ones are at the ends — which is exactly where a person and the system work
-  together.
+- **Most of the doors cannot be counted at all.** Measured 2026-08-04: 11 skills on
+  disk, **5 countable** (`design`, `idea`, `intent`, `saveslate`, `sorted`) and **6
+  not** (`challenge`, `chart`, `commit`, `moreabout`, `note`, `sail`). A skill that
+  declares no `input_contract` fires no door, so it leaves no trace, so its usage is
+  not zero — it is **no measurement**, and `skilldial` prints it that way rather than
+  as a 0. This is the live limit on the disuse clause: `/note` is one of the six, so
+  *"could wind up being excised through disuse"* is a rule that cannot yet be
+  evaluated on the skill it was said about.
+- **Neither new door has ever been fired in anger.** `design` and `idea` count 0 —
+  which is a real zero, not an absence, and it is what it says: built, proven,
+  unused. Law 9 applies to them exactly as written.
+- **And neither has a voyage behind it.** They were built out-of-band, on a direct
+  instruction, so no ticket bore them and there is nothing to compile: `skills/idea/`
+  and `skills/design/` carry a charter, code, proofs and a seal, but no `state` and no
+  `history`. That is the honest condition and it is not repaired by writing one —
+  state compiles from tickets and is never hand-edited. Two doors that gate the
+  workflow have not been through it.
 - **`chart`'s gate is unreadable from here.** Its seven doors are schemas in code
   and its charter declares no contract, so the most-gated step in the workflow is
   the one this document can see least of.
@@ -465,8 +511,29 @@ measured rather than asserted, on the date given.
 - **No probe has ever fired anything.** The runtime spine has not run. Everything in
   §1 about probes is design, not observation.
 
-Count: eight gates, two with contracts compiled from a charter; two inspectors, no
-base class between them, and zero of them bound to a gate.
+Count: eight gates, **four** with contracts compiled from a charter; two inspectors,
+no base class between them, and zero of them bound to a gate.
+
+### Measuring the doors — ruled 2026-08-04
+
+*"we have to be measuring each skills usage as we go. not just efficacy, but how many
+times. metrics."*
+
+Two numbers, not one. **Efficacy** was already there — the trace records a verdict
+against every finding, so a door's match rate is derivable. **Count** was not, and
+count is what the disuse clause runs on: a door is excised because nobody uses it,
+which is a claim about frequency.
+
+`bin/cmd/skilldial` reports both, and its own falsifier is the distinction it must
+never collapse: **unmeasured is not zero.** A door nobody wired and a door nobody uses
+look identical in an uncounted system, and excising the second by mistake removes a
+door that was never tried. So the roster prints `—` and *not countable* where it has
+no measurement, and reserves `0` for a real one. That is Law 7 at a diagnostic
+surface: the surface may not collapse the error into a coherent shape.
+
+The number that follows from it: **six of eleven skills are currently invisible**, and
+the only fix is the one the seam was built for — a skill becomes countable by
+declaring `input_contract` in its charter, which is a charter edit, not a code edit.
 
 ### The refit
 

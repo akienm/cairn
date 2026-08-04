@@ -35,13 +35,60 @@ facts that shape everything else.
 
 ### The trigger column has exactly two values
 
-Look down it. Either **a person types a command**, or **a probe fires**. There is no
-third kind of arrow in the system.
+Look down it. Either **a person types a command**, or **a probe fires**. Nothing else
+*starts* a step.
 
 That is not a stylistic observation. `watchme` *creates* a probe; `test` *is fired
 by* one. Probes appear at both ends of the catalog, doing the same job in opposite
 directions — which means a probe is not a special artifact belonging to one step. It
-is the general mechanism by which one step reaches the next.
+is the general mechanism by which one step **is started**.
+
+### But starting is not the only arrow — measured 2026-08-04
+
+This document used to end that paragraph with *"there is no third kind of arrow in
+the system."* That was measured and found false. There is a third, it is running
+today, and it is the only kind that has ever run.
+
+A **citation** is a berth reference carried on the next packet and judged at the door
+that receives it. It fires nothing. It *refuses* work that cannot name where it came
+from. Where a probe **initiates**, a citation **admits** — two different jobs, and
+calling both "edge" is what let this section read as a complete account of connection
+when it was half of one.
+
+| step | admits on | judged where |
+|---|---|---|
+| **capture** | — (nothing upstream) | — |
+| **intend** | `from_idea` → the commons idea record | `skills/intent/door.py` |
+| **design** | `intent_berth`, or `entering_from: sorted:<berth>` on the back edge | `skills/design/door.py` |
+| **chart** | — (not declared) | — |
+| **build** | `buildme_rides_the_chart` + `buildme_rides_the_intent` + `buildme_rides_the_sorted` at the BUILDME crossing | `cairn/build_inspector/inspector.py` |
+| **test** | — (not declared) | — |
+| **watchme** | — (not declared) | — |
+| **learn** | — (not declared) | — |
+
+**The measured asymmetry, and it is stark.** Every edge in the first half of the
+catalog is a citation, and all six of them run. Every edge in the second half is a
+probe, and **not one has ever fired** — the runtime spine has never run (a live
+trouble). The citations point *backward*: a step names where it came from. The probes
+point *forward*: a step fires the next one. The arrows that work are the ones pointing
+back.
+
+That is not a coincidence, and it follows from having no daemons. A backward edge
+needs nobody awake — it is checked by a door that was going to run anyway, at the
+moment work arrives, and it costs nothing while nothing is happening. A forward edge
+needs something watching.
+
+**Open, not ruled:** whether the back half should carry citations too — `test` citing
+the build packet it seals, `watchme` citing the validation, `learn` citing the probe.
+If it did, the whole catalog would be one refusal chain walkable backward from any
+built component to the prose that was spoken, and probes would demote from *the
+mechanism* to *an accelerator* that says when you could proceed rather than whether
+you may. The cost is real and belongs in the open: a purely-backward system never
+starts anything, and the founding intention is to get Akien out of running it. Both
+halves are needed; only the order is in question. **Note also that the three steps
+with no citation are exactly the three steps with no named door** (§6) — a citation
+needs an address to point at, so the back half is probe-connected partly because
+there is nothing back there to name.
 
 ### So a workflow is a set of edges, composed per ticket
 
@@ -495,12 +542,20 @@ measured rather than asserted, on the date given.
 - **Neither new door has ever been fired in anger.** `design` and `idea` count 0 —
   which is a real zero, not an absence, and it is what it says: built, proven,
   unused. Law 9 applies to them exactly as written.
-- **And neither has a voyage behind it.** They were built out-of-band, on a direct
-  instruction, so no ticket bore them and there is nothing to compile: `skills/idea/`
-  and `skills/design/` carry a charter, code, proofs and a seal, but no `state` and no
-  `history`. That is the honest condition and it is not repaired by writing one —
-  state compiles from tickets and is never hand-edited. Two doors that gate the
-  workflow have not been through it.
+- **And neither voyage was sailed — both are documented.** They were built
+  out-of-band on a direct instruction, so no ticket bore them and there was nothing to
+  compile. Ruled the same day: *"you can document it and still capture the intention
+  and why and so on, it's only forgery if it's not approved as documentation."* So
+  `skills/idea/` and `skills/design/` now carry a `history` written through the append
+  door, two records each, standing at **PROVEME** — and every record says in its own
+  body that it is retroactive, names the ruling that approved it, and stamps the true
+  build time read from git rather than the clock at write time. **What the records
+  admit is the point:** `entry_gate` is *NONE — no ticket, no berth, no /intent firing
+  behind it*, and TICKETME is recorded as the crossing that did not happen. A
+  documented voyage earns its standing by naming what it did not do; that is the line
+  between documentation and forgery, and it is drawn inside the record, not around it.
+  Both boats then rest at PROVEME with the exit gate **refused for want of a probe** —
+  neither declares one, so WATCHME has nothing to enter with.
 - **`chart`'s gate is unreadable from here.** Its seven doors are schemas in code
   and its charter declares no contract, so the most-gated step in the workflow is
   the one this document can see least of.

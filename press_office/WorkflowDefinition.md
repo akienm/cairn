@@ -219,6 +219,41 @@ Filters emit nothing durable and must stay cheap; a stack of dozens is normal.
 
 New filters arrive by accretion: *we find a new thing, we add a new filter.*
 
+### A stack resolves; a filter never has an opinion
+
+A filter is never asked whether it knows. It narrows, or it doesn't. What carries a
+verdict is **the stack**, and a stack always returns a **typed outcome** — never a
+bare nothing.
+
+That distinction is the load-bearing one, and it is borrowed rather than invented:
+the same shape is worked out in an inference router, where a request is narrowed by
+four stacks in sequence and the resolver returns a decision whose `kind` is the
+single thing any caller may switch on. Three properties come with it:
+
+- **Every dimension has a sole home.** Reachability lives on one stack, capability on
+  another, cost on a third; the engine holds no rule literals at all. For an
+  inspector, that means each class of rule has one address, and the base class knows
+  none of them.
+- **The no-result kinds are distinguished, and collapsing them is the bug.** In the
+  router, "nothing capable exists" and "something capable exists but nothing is
+  serving it" once both came back as nothing, so the caller had to guess — it
+  re-read a ceiling as an outage, retried a doomed path, and halted with a message
+  that was false. An inspector has the same three: *no rule applies*, *rules
+  conflict*, *evidence insufficient*. They are not one outcome, and the moment they
+  collapse, the gate starts guessing.
+- **A person is a typed outcome, not a failure.** The router's ladder resolves at the
+  top to a human terminal — strictly above every model rung, returned as its own
+  kind rather than as an absence. An inspector's genuinely undecidable case resolves
+  the same way: to a person, named as such.
+
+And the resolver **raises no alarm of its own**. A no-path is silent data that flows
+up to the single owner, which alarms once at its terminal. Three components each
+alarming about the same failure is a bug with three mouths (Law 7 at a diagnostic
+surface, Law 6 about whose failure it is).
+
+*Pattern borrowed and cited, not code grafted — the source system is a failed path,
+and bytes crossing into proven-space would need a ticket and a proof of their own.*
+
 ### Scripted plus inference — where the answer comes from
 
 An inspector may call inference. It may not get its **answer** from inference.
@@ -321,10 +356,13 @@ measured rather than asserted, on the date given.
   inspector's finding carries a citation but is wired to no gate. The door's
   finding fires at every gate but carries only text and a stratum — no citation
   field. Neither is the whole thing.
-- **A script cannot say "I don't know."** A filter returns a list of findings; empty
-  means pass. There is no third value for *this cannot be decided
-  deterministically* — which is exactly the signal the inference call needs in order
-  to fire. Scripted-plus-inference has no trigger until that value exists.
+- **No stack has a typed outcome.** Today a filter returns findings-or-empty, and
+  empty means pass — so *nothing applied*, *the rules disagreed* and *there was not
+  enough evidence* are all indistinguishable from *this is fine*. That is the same
+  collapse the inference router had to undo, and it is what leaves
+  scripted-plus-inference with no trigger: there is no outcome kind for the
+  inference call to fire on. The fix is not a third value on a filter — a filter is
+  never asked. It is a resolved outcome on the stack.
 - **There is no base class, and the two existing inspectors have already
   diverged — including on what "filter" means.** `build_inspector` keeps a
   module-level dict of filters and a module-level `inspect()`; its filters are

@@ -45,7 +45,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 # Read the live roots the way the components themselves do — env first, default second —
 # so an instance that moved its roots is measured where it actually lives, not where this
@@ -61,7 +61,7 @@ _BERTH_DEFAULT = Path.home() / ".cairn/devices/skill_block/0/berths"
 # twenty firings of the work loop's entry point is weeks of real work, not a sprint.
 _ENOUGH = 20
 
-_TICKET = "intent-becomes-a-learning-block"
+_TICKET = owning_ticket("intent-becomes-a-learning-block")
 
 
 def survey_the_firings() -> dict:

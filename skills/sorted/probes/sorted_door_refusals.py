@@ -33,7 +33,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 # Live roots read the way the components read them — env first, default second,
 # resolved per call, never captured at import (the sibling's rule).
@@ -45,7 +45,7 @@ _TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
 # a pattern rather than a run of well-formed packets.
 _ENOUGH = 12
 
-_TICKET = "sorted-becomes-a-learning-block"
+_TICKET = owning_ticket("sorted-becomes-a-learning-block")
 
 
 def survey_the_firings() -> dict:

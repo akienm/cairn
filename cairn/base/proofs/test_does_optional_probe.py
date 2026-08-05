@@ -177,9 +177,16 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it():
 
 
 def test_the_datum_points_at_the_ticket_and_does_not_copy_it():
-    """Law 6 — the ticket belongs to the commons; a probe carries a pointer to it."""
+    """Law 6 — the ticket belongs to the commons; a probe carries a pointer to it.
+
+    AND SINCE 2026-08-05 THE POINTER IS THE PATH (Akien: "the carriers are all files. so the
+    file path is the link"). Before, this shipped the bare id and the receiver had to know
+    where tickets live before it could open one — a resolver, which is a registry in
+    disguise. The tooth now demands an address that opens, not a name that looks right."""
     got = SUT._carry(_at(0, SUT._ENOUGH))
-    assert got["ticket"] == SUT._OWNING_TICKET
+    assert got["ticket"].endswith(f"{SUT._OWNING_TICKET}.json"), got["ticket"]
+    assert Path(got["ticket"]).is_file(), \
+        f"the pointer must be openable by the receiver as handed: {got['ticket']}"
     blob = json.dumps(got)
     for owned in ("intention", "falsifier", "provenance", "children"):
         assert f'"{owned}"' not in blob, f"the datum copied the ticket's {owned!r} field"

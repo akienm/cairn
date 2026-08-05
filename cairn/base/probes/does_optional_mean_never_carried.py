@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 _TICKETS = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "tickets"
 
@@ -43,6 +43,11 @@ _TICKETS = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "ticket
 _ENOUGH = 12
 
 # The node this probe was compiled from. Excluded from its own corpus — see survey_the_corpus.
+# A BARE ID BECAUSE THIS IS AN IDENTITY, NOT AN ADDRESS: it is matched against `p.stem`
+# below to keep the owning ticket out of its own corpus. What RIDES is the path built from
+# it — see `_carry`, and the 2026-08-05 ruling "the file path is the link". This probe was
+# the seventh carrier shipping a bare id, and the one an id-shaped scan missed, because it
+# spelled the id as a literal in the payload rather than as this constant.
 _OWNING_TICKET = "watchme-emits-a-probe"
 
 
@@ -116,7 +121,7 @@ def _carry(context: dict) -> dict:
     s = context.get("corpus") or survey_the_corpus()
     return {"finding": "no v2 node has carried a WATCHME",
             "counts": s,
-            "ticket": "watchme-emits-a-probe",
+            "ticket": owning_ticket(_OWNING_TICKET),
             "against_falsifier": "optional to carry became never carried — the mirror of the "
                                  "v1 failure this node replaced",
             "suggests": "back-edge watchme-emits-a-probe to WATCHME and re-open the design: "

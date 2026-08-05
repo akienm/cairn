@@ -12,6 +12,10 @@ WHAT THIS PROVES:
   - THE THREE RIDES ARE REAL AND DIFFERENT. pointer (Law 6 default: only the address leaves),
     deep copy (the receiver cannot reach back and mutate the original), text (a receiver whose
     only vocabulary is a string).
+  - AND THE POINTER IS A FILE PATH (Akien, ruled 2026-08-05: "the carriers are all files. so
+    the file path is the link."). An id is refused as a pointer and rendered as a visible
+    hole, because resolving an id is what a registry does. The corpus tooth at the bottom
+    holds the whole roster to it, so an eighth hand-rolled carrier reds on arrival.
   - THE MOMENT BEATS THE DECLARATION. The carrier runs at FIRE time against the context the
     trigger just saw, and its fragment merges OVER the static body.
   - THE DECLARATION NEVER DRIFTS. The probe is frozen; firing it twice against different
@@ -25,13 +29,15 @@ WHAT THIS PROVES:
 from __future__ import annotations
 
 import os
+import re
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from cairn.base.probe import Probe, by_copy, by_pointer, by_text
+from cairn.base.probe import Probe, by_copy, by_pointer, by_text, owning_ticket
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_bus_traffic_{_NONCE}"     # the ephemeral transit table this proof owns
@@ -62,13 +68,78 @@ def test_no_carrier_says_only_that_the_line_was_crossed():
 
 def test_by_pointer_sends_the_address_and_nothing_else():
     cb = _cb(carry=by_pointer("ticket"))
-    out = cb.payload({"ticket": {"id": "T-1", "secret": "owned data that stays home"}})
-    assert out == {"pointer": "T-1"}
+    out = cb.payload({"ticket": {"path": "/x/tickets/T-1.json",
+                                 "secret": "owned data that stays home"}})
+    assert out == {"pointer": "/x/tickets/T-1.json"}
     assert "secret" not in str(out), "the cheap, safe ride: owned data does not leave (Law 6)"
 
 
-def test_by_pointer_passes_a_bare_id_through():
-    assert _cb(carry=by_pointer("ticket")).payload({"ticket": "T-9"}) == {"pointer": "T-9"}
+def test_by_pointer_passes_a_bare_path_through():
+    assert _cb(carry=by_pointer("ticket")).payload({"ticket": "/x/T-9.json"}) \
+        == {"pointer": "/x/T-9.json"}
+    assert _cb(carry=by_pointer("ticket")).payload({"ticket": Path("/x/T-9.json")}) \
+        == {"pointer": "/x/T-9.json"}, "a Path renders as the path it is"
+
+
+def test_an_ID_is_no_longer_a_pointer_and_the_hole_is_VISIBLE():
+    """Akien 2026-08-05: 'the carriers are all files. so the file path is the link.' An id
+    obliges the receiver to resolve it, and a resolver over ids is a registry in disguise.
+    Loud, not fatal — the poke lands saying what it could not carry (Law 7)."""
+    out = _cb(carry=by_pointer("ticket")).payload({"ticket": {"id": "T-1", "gates": []}})
+    assert out["pointer"].startswith("{unresolvable:T-1"), out
+    assert "FILE PATH" in out["pointer"], "the hole says what a pointer must be"
+
+
+def test_owning_ticket_renders_a_path_when_the_ticket_is_there():
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "a-real-ticket.json").write_text("{}")
+        got = owning_ticket("a-real-ticket", tickets_root=root)
+        assert got == str(root / "a-real-ticket.json"), got
+        assert Path(got).exists(), "the whole point: the receiver opens it, resolving nothing"
+
+
+def test_a_MIGRATED_ticket_is_a_hole_that_names_where_it_looked():
+    """A ticket moves beside its code to become that component's history (CLAUDE.md), so a
+    probe outliving its ticket's berth is normal. The complete-diagnostic rule: the first
+    report carries what is needed to act — which is the address that came up empty."""
+    with tempfile.TemporaryDirectory() as td:
+        got = owning_ticket("gone-to-history", tickets_root=Path(td))
+        assert got.startswith("{unresolvable:"), got
+        assert str(Path(td) / "gone-to-history.json") in got, "it names the address it tried"
+        assert "history" in got, "and names the ordinary reason it is absent"
+
+
+def test_every_live_probe_carries_its_ticket_as_a_PATH_not_an_id():
+    """THE RULING, MEASURED OVER THE CORPUS rather than asserted file by file. Before
+    2026-08-05 all seven live carriers hand-rolled `"ticket": <bare id>` — seven
+    re-derivations of one rule, and the concrete registry-in-disguise. This tooth is what
+    makes an eighth one red on arrival."""
+    repo = Path(__file__).resolve().parents[3]
+    offenders, checked = [], 0
+    for path in sorted(repo.glob("**/probes/*.py")):
+        if "__pycache__" in str(path) or path.name.startswith("_"):
+            continue
+        src = path.read_text(encoding="utf-8")
+        if "carry=" not in src:
+            continue
+        # THE CORPUS IS WHAT IS CARRIED, NOT WHAT IS NAMED. A probe may hold a bare id for
+        # some other job — `does_optional_mean_never_carried` matches one against `p.stem` to
+        # keep its owning ticket out of its own corpus — and that is an identity, not an
+        # address. Only a value that RIDES as the ticket has to be a path.
+        carried = set(re.findall(r'"ticket":\s*(_[A-Z_]+)', src))
+        literals = re.findall(r'"ticket":\s*"([^"/]+)"', src)
+        if not carried and not literals:
+            continue
+        checked += 1
+        rel = path.relative_to(repo)
+        for name in sorted(carried):
+            if f"{name} = owning_ticket(" not in src:
+                offenders.append(f"{rel}: carries {name}, which is not built by owning_ticket()")
+        for lit in literals:
+            offenders.append(f"{rel}: carries the bare id {lit!r} as a literal")
+    assert checked >= 6, f"only {checked} ticket-carrying probe(s) found — the scan lost its corpus"
+    assert not offenders, "\n".join(offenders)
 
 
 def test_by_copy_sends_the_artifact_and_it_is_deep():
@@ -171,7 +242,11 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
 TESTS = [
     test_no_carrier_says_only_that_the_line_was_crossed,
     test_by_pointer_sends_the_address_and_nothing_else,
-    test_by_pointer_passes_a_bare_id_through,
+    test_by_pointer_passes_a_bare_path_through,
+    test_an_ID_is_no_longer_a_pointer_and_the_hole_is_VISIBLE,
+    test_owning_ticket_renders_a_path_when_the_ticket_is_there,
+    test_a_MIGRATED_ticket_is_a_hole_that_names_where_it_looked,
+    test_every_live_probe_carries_its_ticket_as_a_PATH_not_an_id,
     test_by_copy_sends_the_artifact_and_it_is_deep,
     test_by_text_renders_the_artifact_in_motion,
     test_a_template_hole_is_visible_not_fatal,

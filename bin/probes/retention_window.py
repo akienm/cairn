@@ -44,7 +44,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 DEFAULT_LOGDIR = Path(os.environ.get("CAIRN_LOGDIR")
                       or Path.home() / ".cairn" / "logs")
@@ -68,7 +68,7 @@ _MIN_RUNS = 2
 # is unexercised and any verdict is taste. The same floor is on both predicates — see _enough.
 _ENOUGH_TURNED = 2
 
-_OWNING_TICKET = "logger-for-bash"
+_OWNING_TICKET = owning_ticket("logger-for-bash")
 
 
 def _pids_and_marks(path: Path) -> tuple[int, int, int] | None:

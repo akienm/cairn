@@ -33,7 +33,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 from cairn.learning_block.engine import RUN_EVENT, answers_five_questions, rejected_count
 
 # Env-first, default second, resolved PER CALL — a probe that froze the path at import
@@ -45,7 +45,7 @@ _TRACE_DEFAULT = Path.home() / ".cairn" / "devices" / "learning_block" / "0" / "
 # hypothesis ('5-10 traces suffice to compile' is what child 2's cast TESTS first).
 _ENOUGH = 5
 
-_TICKET = "engine-runs-one-block"
+_TICKET = owning_ticket("engine-runs-one-block")
 
 
 def survey_the_corpus() -> dict:

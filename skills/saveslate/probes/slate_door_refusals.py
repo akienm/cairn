@@ -26,7 +26,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
 _TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
@@ -35,7 +35,7 @@ _TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
 # enough to call "never refused" a pattern.
 _ENOUGH = 12
 
-_TICKET = "slate-compiles-from-the-world"
+_TICKET = owning_ticket("slate-compiles-from-the-world")
 
 
 def survey_the_firings() -> dict:

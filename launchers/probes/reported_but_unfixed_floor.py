@@ -51,7 +51,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
-from cairn.base.probe import Probe
+from cairn.base.probe import Probe, owning_ticket
 
 # The namespace ``superclaude`` exports for its own launch. Resolved the same way the shell
 # side resolves it (``launchers/superclaude``) so the probe and the recorder cannot develop
@@ -71,7 +71,7 @@ _PATIENCE = 3
 # and the reason this file states the relationship instead of picking two numbers by taste.
 _FLOOR = 5
 
-_OWNING_TICKET = "superclaude-starts-itself"
+_OWNING_TICKET = owning_ticket("superclaude-starts-itself")
 
 _UNFIXED = "report: unfixed — "
 _BYPASSED = ("preflight: bypassed", "preflight: skipped by --no-preflight")

@@ -79,9 +79,25 @@ These are designed to be that flexible.
 
 So carriage gets the SAME treatment as the trigger, one paragraph up: a carrier is a
 CALLABLE ``(context) -> dict``, evaluated at fire time — never a named kind, never a closed
-enum. ``by_pointer`` / ``by_copy`` / ``by_text`` ship below because they have consumers; a
-fourth carriage is a fourth function, not a schema change. (Same shape as the diagnostic
-inspector's filters, deliberately — one idea, one spelling.)
+enum. ``by_pointer`` / ``by_copy`` / ``by_text`` ship below; a fourth carriage is a fourth
+function, not a schema change. (Same shape as the diagnostic inspector's filters,
+deliberately — one idea, one spelling.)
+
+  "BECAUSE THEY HAVE CONSUMERS" WAS A CLAIM, AND IT MEASURED FALSE (2026-08-05, Law 3 on
+  this file's own prose). Counted across the corpus: ``by_copy`` had ZERO live consumers,
+  and every one of the seven live ``carry=`` closures was hand-rolled — seven private
+  functions each shipping a bare ticket id under the same key, which is seven
+  re-derivations of one rule (Law 1's defect) and the concrete registry-in-disguise the
+  ruling below kills. The three carriers were the design's guess at what would be needed,
+  not a count of what was.
+
+AND THE POINTER IS A FILE PATH (Akien, ruled 2026-08-05 —
+``CairnCommons/decisions/2026-08-05-the-file-path-is-the-link-rescoped.json``): *"the
+carriers are all files. so the file path is the link."* The filesystem is the index and no
+receiver resolves anything, so an id — which obliges a receiver to look something up — is
+refused as a pointer and rendered as a visible hole. See ``as_a_path``. ``by_copy`` narrows
+in the same act to a receiver that genuinely cannot read that filesystem; a copy sent to a
+receiver that can is a stale snapshot of a thing still moving.
 
 LAW 6 STILL BINDS, AND MOVES TO THE AUTHOR. ``by_pointer`` remains the default and the
 cheap, safe ride: only the address crosses, owned data stays home. ``by_copy`` and
@@ -145,6 +161,13 @@ from __future__ import annotations
 import copy as _copy
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path, PurePath
+
+# Where a staged ticket berths. The three roots are Cairn's physics (CLAUDE.md), so this is
+# derived from where THIS file sits rather than configured: cairn/base/probe.py ->
+# ~/dev/src/cairn -> its sibling ~/dev/src/CairnCommons. An override rides `owning_ticket`'s
+# keyword so a proof can build a corpus without writing into the live commons.
+_TICKETS = Path(__file__).resolve().parents[2].parent / "CairnCommons" / "tickets"
 
 
 # ── the carriers: HOW the thing that crossed rides along ─────────────────────
@@ -153,20 +176,86 @@ from dataclasses import dataclass, field
 # Three because three have consumers (the three Akien named); a fourth is a fourth function.
 # They read ``context`` and never mutate it — a carrier decides what to SEND, not what is.
 
+def as_a_path(item) -> str:
+    """The ONE self-resolving rendering of a pointer: a file path (Akien 2026-08-05, ruling
+    ``the-file-path-is-the-link``). *"The carriers are all files. So the file path is the
+    link."*
+
+    A ``Path`` renders as itself; a ``str`` renders as itself; a dict renders from its
+    ``path`` key. A dict carrying only an ``id`` — which is what this carrier shipped until
+    today — renders as a VISIBLE HOLE, spelled exactly like ``by_text``'s missing key,
+    because that is the failure the ruling names: an id obliges the receiver to resolve it,
+    and a resolver over ids is a registry in disguise (``no-enforcer-gated-ownership``).
+    Loud rather than fatal: the poke still lands, and it lands saying what it could not
+    carry (Law 7)."""
+    if isinstance(item, dict):
+        for k in ("path", "file", "address"):
+            if isinstance(item.get(k), (str, PurePath)) and str(item[k]).strip():
+                return str(item[k])
+        ident = item.get("id")
+        return ("{unresolvable:" + str(ident) + " — a pointer is a FILE PATH (ruled "
+                "2026-08-05); an id obliges the receiver to resolve it, and that resolver "
+                "is a registry in disguise}")
+    if isinstance(item, PurePath):
+        return str(item)
+    return item
+
+
+def owning_ticket(name: str, *, tickets_root=None) -> str:
+    """THE PATH OF THE TICKET A PROBE WAS COMPILED FROM — the one thing every live probe in
+    this corpus wanted to say, said once.
+
+    MEASURED 2026-08-05: all seven live ``carry=`` closures hand-rolled the same line,
+    ``"ticket": _TICKET``, over a module constant holding a bare id
+    (``intent-becomes-a-learning-block``, ``logger-for-bash``, ``engine-runs-one-block``,
+    …). Seven re-derivations of one rule is Law 1's defect, and shipping the id rather than
+    the address is exactly what Akien's ruling names: the receiver had to know where tickets
+    live before it could open one.
+
+    A MISSING TICKET IS A VISIBLE HOLE NAMING THE PATH IT LOOKED AT, not a silent string.
+    A ticket migrates — CLAUDE.md: it stages in the commons and moves beside the code to
+    become that component's ``history`` — so a probe outliving its ticket's berth is a
+    normal event, and the poke that says *where it looked* is the one an operator can act
+    on (Law 7, and the complete-diagnostic rule: everything needed to resolve it, first
+    report).
+
+    This is NOT the resolver the ruling refuses. It runs in the SENDER, once, at fire time,
+    inside the device that already knows which ticket it was compiled from; what crosses
+    the bus is the finished path. A resolver is what a RECEIVER would have to run.
+    """
+    root = PurePath(tickets_root) if tickets_root is not None else _TICKETS
+    path = Path(root) / f"{name}.json"
+    if path.exists():
+        return str(path)
+    return ("{unresolvable:" + str(path) + " — the owning ticket is not at this address; it "
+            "has migrated beside its code as history, or the name drifted}")
+
+
 def by_pointer(key: str = "ticket", *, as_: str = "pointer") -> Callable[[dict], dict]:
     """THE DEFAULT RIDE: only the address crosses; owned data stays home (Law 6). Use this
-    unless the receiver genuinely cannot resolve a pointer."""
+    unless the receiver genuinely cannot resolve a pointer.
+
+    AND THE ADDRESS IS A FILE PATH — see ``as_a_path``. The filesystem is the index, so the
+    receiver opens what it was handed and resolves nothing. This is Law 5 taken literally:
+    intent, voyage and proofs share an ADDRESS, and a path is that address said out loud."""
     def carrier(context: dict) -> dict:
-        item = context.get(key)
-        pointer = item.get("id") if isinstance(item, dict) else item
-        return {as_: pointer}
+        return {as_: as_a_path(context.get(key))}
     return carrier
 
 
 def by_copy(key: str = "ticket", *, as_: str = "ticket") -> Callable[[dict], dict]:
-    """A DEEP COPY of the artifact rides along — for a receiver that cannot come back and
-    resolve a pointer. Deep, so the receiver can never reach back and mutate the original;
-    the owner's deliberate choice to send owned data across (Law 6, made by the author)."""
+    """A DEEP COPY of the artifact rides along. Deep, so the receiver can never reach back
+    and mutate the original; the owner's deliberate choice to send owned data across (Law 6,
+    made by the author).
+
+    NARROWED 2026-08-05 BY THE SAME RULING, and the narrowing is the whole of what is left
+    of it: *"by_copy narrows to a receiver that cannot read that filesystem, else it goes."*
+    Every carrier in this system rides a file, so a receiver sharing the filesystem already
+    has the artifact — the copy buys it nothing and costs it a stale snapshot of something
+    that is still moving. MEASURED at the ruling: zero live consumers. It survives for the
+    receiver on the other side of a boundary the path cannot cross (another host, a prompt,
+    a process with no read access), and a use with a same-filesystem receiver is a defect,
+    not a preference."""
     def carrier(context: dict) -> dict:
         return {as_: _copy.deepcopy(context.get(key))}
     return carrier

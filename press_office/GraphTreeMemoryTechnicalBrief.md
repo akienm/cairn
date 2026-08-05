@@ -69,10 +69,10 @@ That is the whole thesis. Everything below is mechanism.
 
 ## 2. Section A — the graph trees as a cache
 
-### 2.1 Two layers: the node and the leaf
+### 2.1 Three layers: the node, the embedding, and the leaf
 
 This distinction is the one to get right before anything else, because almost
-every confusion downstream is a collapse of these two into one.
+every confusion downstream is a collapse of these into one.
 
 ```
 node = {                    # THE THING BEING REMEMBERED
@@ -81,18 +81,42 @@ node = {                    # THE THING BEING REMEMBERED
   standing:   "hypothesis" | "earned"
 }                           # has an IDENTITY. Never belongs to a tree.
 
+embedding = {               # A RENDERING OF IT, AS COORDINATES
+  node:       → a node's identity — and the node points back
+  vector:     float[d]      — one way of putting that claim in space
+}                           # MANY PER NODE. Derived, therefore regenerable.
+
 leaf = {                    # THE THING INDEXING IT
-  node:       → a node's identity
-  vector:     float[d]      — where this leaf sits in this tree's space
+  embedding:  → one embedding
   weights, edges: → other leaf addresses, two-way
 }                           # has an ADDRESS: database.tree.leaf
 ```
 
-**A node is what is remembered. A leaf is how it is found.** The address
+**A node is what is remembered. An embedding is one way of rendering it as
+coordinates. A leaf is how it is found.** The address
 `database.tree.leaf` is a *locator*, and it changes when a tree reorganizes. The
 node's identity does not. One node can be indexed by many leaves in many trees —
 differently in the name of different needs, and what lets the same claim sit in
 different neighborhoods depending on which axis you are asking along.
+
+**Why the embedding is its own layer and not a column on the leaf.** A leaf was
+doing two unrelated jobs at once — holding the coordinates *and* holding the
+connections — and separating them buys three things that are otherwise awkward or
+impossible:
+
+- **A node can have more than one rendering.** The measured defect in §2.5 is a
+  diagram-shaped passage that ranks poorly against a prose question it directly
+  answers. With one vector per node you must *choose* which rendering wins; with
+  many you keep the raw and the prose rendering both, and retrieval sees both.
+- **The thorough tier gets a table to run on.** An exhaustive search over the
+  embedding layer needs no trees at all (§2.6), which is what makes it an
+  independent second mechanism rather than a slower path through the same one.
+- **It settles where the vector lives** — a question §4.4 previously carried open.
+  Neither node nor leaf: its own layer, that both point at.
+
+And an embedding is *derived*. Regenerate it from the node and you get it back;
+nothing about it is a record of truth. That matters in §4.4, where it means the
+only layer index maintenance can reach is the one that is cheap to rebuild.
 
 Three properties of the node layer:
 
@@ -112,8 +136,8 @@ touches only leaves, **index maintenance can never damage a record of truth.**
 The trees can be split, renumbered and rebuilt as often as you like; provenance
 cannot drift, because provenance is not in the layer that moves.
 
-*(The running store has not made this split yet — it is one table where the node
-and the leaf are the same row. §4 says what that costs.)*
+*(The running store has made none of this split yet — it is one table where the
+node, the vector and the leaf are all the same row. §4 says what that costs.)*
 
 ### 2.2 The core loop
 
@@ -196,23 +220,43 @@ resolver spend per unit of *novel* work falls, not that it goes to zero.
 
 ### 2.4 The vector *is* the path — and calving is what creates it
 
-Similarity edges are **never stored**. `nearest(q, k)` derives them at walk time
-by cosine against the leaves in scope; `neighbors(ℓ, k)` does the same from a
-leaf. There is no similarity-edge table, and the proof asserts that nothing
-shaped like one is ever registered.
+Similarity structure **is** stored — **bounded and weighted**. Two claims get
+welded together here, and only one of them is carried by the measurement. What
+killed the previous build (§4.0) was an edge structure with **no bound per item**:
+2.5 M bigram edges over 70,000 words and climbing, so the work of ingesting one
+memory grew with everything already learned. *Unboundedness* is what is ruled out.
 
-So how does a walk have a *path* at all, if no edge exists to follow? Because the
-path is neither stored nor looked up. **The query vector, run against the
-attractors, generates the route** — and the sequence of choices it produces *is*
-the path. Two decisions:
+A neighbor list capped at $k$ is a different object with different arithmetic. At
+$k = 8$, a calve moving half of a 5,000-leaf tree rewrites on the order of tens of
+thousands of link entries — the same order as the ~10,000 §4.4 already accepts for
+articulated edges at degree 4 — and that number does not move when the corpus
+doubles. Bounded degree is exactly the property the dead build lacked.
+*(Arithmetic, not a measurement. Law 3 — and it is cheap to check.)*
+
+So how does a walk have a *path*? Two decisions and one learned structure:
 
 1. **Which tree** — compare the query against each tree's *dominant attractor*
    (the centroid of its leaves).
-2. **Which leaves within it** — compare against that tree's leaf vectors.
+2. **Which leaves within it** — follow the weighted links, and fall back to
+   comparing against the tree's leaf vectors when they come up short.
 
-Nothing to maintain, nothing to invalidate, and it re-derives itself correctly
-after any reorganization. That last property is why similarity edges can be free
-while articulated ones (§4.4) cost a fixup.
+**The weights are the index.** Paths that resolve get stronger, so the *route*
+improves with use and not merely the contents. This is the difference between a
+memory that grows and a memory that learns: with derivation alone the corpus gets
+larger while the retrieval mechanism stays exactly as good — and exactly as
+expensive — at query #1,000,000 as at query #1. Inference spent once compiles into
+the index itself, instead of into one more row a brute-force comparison must still
+find. A cosine scan over a partition is not an index; it is the absence of one.
+
+Weights are stored state that has to survive a renumbering, which by §2.6's own
+rule puts them on the **stored** side of the line — so the two-way shear machinery
+in §4.4 already covers them, and no new maintenance mechanism is owed.
+
+*(Status, under Law 3: none of the above is built. `nearest()` today loads every
+leaf in the tree and sorts by cosine, so the running "walk" is exactly two
+comparisons — which tree, which leaf — over a scan. Until weights land, the title
+of this section is a design claim and not an earned one, and falsifier 7 is the
+test that would earn it.)*
 
 **The arithmetic, and it is not about multiply-adds.** At $d = 768$, float32,
 $N = 2.5\text{M}$ leaves, bound $B = 5{,}000$ → about 500 trees:
@@ -247,8 +291,10 @@ Two consequences worth stating:
 
 *(Today the walk is O(n) in Python, correct and slow, over a single flat store,
 and every deposit re-reads it for a dimension check. `pgvector` — proximity
-computed where the vectors live — is a filed edge waiting on a real load. It is
-not installed.)*
+computed where the vectors live, both exact and approximate — is **precedent, not
+speculation**: it is what the predecessor system in §4.0 ran on, and it is the
+off-the-shelf answer for the thorough tier in §2.6. It is still not installed
+here.)*
 
 ### 2.5 The three intake paths
 
@@ -314,7 +360,10 @@ learned into 16 anchored passages, and a question about its content resolved at
 flow diagram (arrows, numbered steps) scored 0.4943 against a prose question it
 directly answers — *below* two less relevant prose passages. Structured layout
 does not embed like the prose it depicts. The fix is a prose rendering before
-embedding, not a lower floor.
+embedding, not a lower floor — and with the embedding layer of §2.1 it stops
+being a choice: keep the raw rendering *and* the prose one, both pointing at the
+one node, and let retrieval find whichever the question is shaped like. One vector
+per node forces you to pick which rendering wins; many does not.
 
 ### 2.6 How nodes are deposited, indexed, and retrieved
 
@@ -342,22 +391,61 @@ and it lands with the tenure loop.
 **Index** — the leaf layer *is* the index, and it holds two kinds of connection
 that are worth keeping apart:
 
-- **Similarity edges: derived, never stored.** The embedding is the path (§2.4).
-  A stored similarity table would be a **second record of the same truth**, and
-  two records of one truth drift. We pay compute per walk and buy an invariant
-  that cannot go stale.
-- **Articulated edges: stored, directed, and two-way.** These are the authored
-  connections — *this node cites that passage*, *this summary rendered those
-  leaves* — and they live leaf-to-leaf with both halves present.
+- **Similarity edges: learned — bounded, weighted, stored.** Each leaf keeps a
+  short neighbor list, $k$ entries and not $n$, and each entry carries a weight
+  that moves with use.
 
-The dividing line is not a preference; it is decided by §4.4. **An edge that must
-survive a renumbering is an edge you are storing. An edge you regenerate is one
-you are not.** Which gives the clean rule: *edges are a property of the index,
-never of the remembered thing.* Nodes have no edges at all.
+  The argument that once ruled this out was **single-record integrity**: a stored
+  similarity table is a second record of a truth the vectors already contain, and
+  two records of one truth drift. That argument is correct — *about an unweighted
+  table*. An unweighted neighbor list is pure redundancy: recomputable from the
+  vectors, so it can only ever drift away from them, and it buys nothing for the
+  risk. A **weight** is not recomputable from the vectors. It is the record of
+  what actually resolved, which no amount of cosine will tell you. It is a first
+  record of something new, not a second record of something old — and it is the
+  only place the index's own learning can live.
+- **Articulated edges: authored — stored, directed, and two-way.** *This node
+  cites that passage*, *this summary rendered those leaves*. They live leaf-to-leaf
+  with both halves present.
 
-**Retrieve** — `nearest(v, k)` over the routed trees, `neighbors(leaf, k)` derived
-identically, and `tree_state(tree)` = a digest that is a pure function of
-membership (this is the value that makes the backfill cache key safe).
+Both kinds are now stored, so **the maintenance rule is the same for both** — the
+one §4.4 decides: *an edge that must survive a renumbering is an edge you are
+storing.* Weights must survive one, so similarity edges ride the same shear the
+articulated ones do. What still separates the two kinds is not cost but
+**authorship**: an articulated edge is *asserted* by someone and is wrong if it
+misstates them; a similarity edge is *learned* from proximity and use, and is
+wrong only if it stops predicting. And the clean rule underneath holds unchanged:
+*edges are a property of the index, never of the remembered thing.* Nodes have no
+edges at all.
+
+**Retrieve — three tiers, which is §3.5's recursion turned on retrieval itself.**
+The strata ladder says judgment should migrate from the model to the tree to code;
+run that on the act of finding things and you get:
+
+1. **The weighted path** — compiled, near-free. For routes that have proven out.
+2. **The scan** — exhaustive cosine over the leaves in scope, or over the
+   embedding layer directly with no tree involved at all. Slower, and it **cannot
+   miss**: a comparison against everything has no reachability condition, where a
+   traversal reaches only what it happens to be linked to. This is the tier you
+   *fall back to*, and it is never the tier you replace. Its thoroughness is the
+   whole reason it is worth its cost.
+3. **Inference** — genuine novelty; the backfill loop of §2.2.
+
+There is also a fourth thing that is not a tier of the same ladder but belongs
+beside it: **lexical search over node content** — the literal string match. It
+catches exact terms, names, identifiers and quoted phrases, which is to say the
+things embeddings routinely smear away. It is the only one of these that finds
+what vectors *structurally* cannot, and it is nearly free.
+
+**How often tier 2 fires is itself a dial**, and one of the more informative ones:
+if the fallback fires constantly, the weighted index is not learning, and §4.0's
+wall has been rebuilt with extra steps. Tier 2 is affordable exactly as long as it
+stays rare — scan every embedding in the corpus on every query and you are back at
+§2.4's 7.7 GB, the number that fits nowhere.
+
+The verbs themselves: `nearest(v, k)` over the routed trees, `neighbors(leaf, k)`,
+and `tree_state(tree)` = a digest that is a pure function of membership (this is
+the value that makes the backfill cache key safe).
 
 **And a fourth verb: SUMMARIZE**, the transducer across the storage axis. It takes
 a *dense region* of the graph — the k nearest source nodes around a question — and
@@ -559,6 +647,12 @@ So the program is not "add learning blocks to things." It is **move the inspecto
 and the memory out of a person's head and into the system's own organs** — and the
 migration rate is how you tell whether it is happening.
 
+**And the recursion has a second place to land, one layer down: retrieval itself.**
+Run the same three strata on the act of finding something and you get the weighted
+path, the scan, and inference (§2.6) — which makes retrieval a learning block in
+its own right, measured by the same migration rate as everything else, rather than
+a fixed mechanism the learning blocks merely call.
+
 ---
 
 ## 4. Section C — graph tree structure and the database optimizations
@@ -578,19 +672,29 @@ The mechanism is unremarkable, which is the point. Ingesting one memory means ma
 a write lock, each syncing. And **the cost grows with the corpus.** The system got
 slower exactly as it learned more, which is the one direction a memory must not
 move. A different engine buys perhaps an order of magnitude and then meets the same
-wall, because the wall is *storing edges at all*.
+wall, because the wall is not the engine.
+
+**Name the wall precisely, because it is easy to name too broadly.** The wall is
+*a link structure with no bound per item* — 2.5 M edges over 70,000 words, the
+work of each ingest rising with everything already learned. It is **not** "storing
+links at all." Reading it the broad way is how you end up forbidding the one thing
+that would make the index learn (§2.4), on the authority of a number that never
+measured it. A structure capped at $k$ links per leaf has none of the mechanism
+above: $k$ is a constant, and a constant does not care how much the system knows.
 
 So the design makes one trade, and everything in §4 follows from it:
 
 | | write cost | read cost |
 |---|---|---|
-| stored edges | **grows with the corpus** | cheap |
-| derived edges + bounded trees | **constant in corpus size** | bounded by the bound, not the corpus |
+| unbounded edges | **grows with the corpus** | cheap |
+| bounded edges + bounded trees | **constant in corpus size** | bounded by the bound, not the corpus |
 
-Adding a memory writes one node row and one leaf row. No similarity edge is
-updated, because none exists to update. The price moved from write time to read
-time, and at read time it is capped by the calving bound instead of by how much has
-been learned.
+The operative word is **unbounded**, not *stored*. Adding a memory writes one node
+row, one embedding row, one leaf row, and a neighbor list of $k$ entries — $k$
+being a constant we choose, where the build that died wrote a list that grew with
+everything it had ever learned. Nothing whose size depends on the corpus is
+touched. The price moved from write time to read time, and at read time it is
+capped by the calving bound instead of by how much has been learned.
 
 This is also why the falsifier at the end of this section names 2.5 M nodes. That
 is not a projected scale — it is the corpus size at which the previous build died.
@@ -620,10 +724,12 @@ leaf tables buy:
 - The walk is bounded by the *tree*, not the corpus (§2.4).
 - Calving is a table operation on leaves, not a mass rewrite of remembered things.
 - Two different tree sets can index **one node set** — the same claims organized
-  along different axes, with no duplication of the claims themselves. This is only
-  possible because the vector lives on the *leaf*: if it lived on the node, every
-  tree would place that node at identical coordinates and a second tree set would
-  buy nothing.
+  along different axes, with no duplication of the claims themselves. This used to
+  rest on the vector living on the *leaf* — the worry being that a node-side vector
+  would place that node at identical coordinates in every tree, so a second tree
+  set would buy nothing. The embedding layer (§2.1) removes the worry rather than
+  answering it: a node with several renderings has several placements natively,
+  and the leaf is free to be purely an address with connections on it.
 
 The default is **private-down, grant-up**: a tree indexes into what is below it
 privately, and reaching upward into shared material is an explicit grant.
@@ -676,6 +782,13 @@ need calving.
 leaf operation. The things being remembered are not read and not written. Index
 maintenance cannot damage a record of truth because it never reaches one.
 
+The embedding layer makes that argument *stronger* rather than complicating it. A
+calve may well have to touch an embedding's back-references — and that is the
+acceptable case, because an embedding is derived: damage one and you regenerate it
+from the node. A node cannot be regenerated from anything. So the deepest layer
+index maintenance can reach is exactly the layer that is cheap to rebuild, and the
+layer it must never reach is the one it structurally cannot.
+
 Three further notes:
 
 - **The bound** is provisionally 5,000 leaves. An earlier generation used 1,000,
@@ -700,9 +813,13 @@ there is currently nothing for a shear to renumber and nowhere for an articulate
 edge to live. The node/leaf split is a *prerequisite* for calving, not a detail of
 it. What remains open is named rather than papered over:
 
-1. **Where the vector lives** is stated above as leaf-side. That is derived from
-   the design rather than ratified within it, and it is the load-bearing derivation
-   in §4.2.
+1. **How fast a weight falls.** A weight that strengthens whenever its path
+   resolves is a positive feedback loop, and §2.7 is already a story about one: a
+   wrong route that resolves once gets stronger, is likelier to be chosen next
+   time, and manufactures its own confirmation with a ratchet on it. The
+   correction is the asymmetry §3.2 already demands of gates — **counter-evidence
+   lowers a weight faster than confirmation raises it** — and *how much* faster is
+   unmeasured. It is a dial, and it is born red.
 2. **Cross-tree in-links are cross-owner writes.** If a leaf in tree B points into
    tree T, T's calve must rewrite a row B's owner gates — and under one-owner-per-
    store the shear cannot reach in. Two-way links make this tractable (T knows
@@ -712,6 +829,10 @@ it. What remains open is named rather than papered over:
    it one read — but then a calve *does* write nodes, and the property two
    paragraphs up holds only if it doesn't.
 4. **The bound**: one parameter or two.
+
+*(An item that stood on this list until recently — **where the vector lives** — is
+now settled rather than quietly dropped: neither node nor leaf, but its own layer,
+§2.1.)*
 
 **And the falsifier, which is the part an architect should hold us to:** this must
 be measured **at the scale it was designed for** — on the order of 2.5 M nodes —
@@ -884,6 +1005,13 @@ These are the questions to ask us in six months.
    cache but "the vector becomes the path" is decoration. This is the cheapest
    falsifier on the list and should be run first: take text whose correct node is
    known, compute both vectors, see which one retrieves it.
+
+   **Run it against the weighted route, not against the scan.** Composing over a
+   path selected by cosine means averaging vectors already chosen for being near
+   the query, so the composed vector lands near the query close to tautologically
+   — as specified against today's build, this test is rigged to pass and tells you
+   nothing. Weights are what give it something *learned* to compose with, and only
+   then is it measuring a claim rather than its own setup.
 8. **Router recall@$k$ is poor.** Then §2.8's manufactured novelty is live, tier-1
    miss detection is measuring the router rather than the corpus, and the
    self-extension loop is feeding on its own routing errors.
@@ -895,14 +1023,16 @@ These are the questions to ask us in six months.
 | term | meaning here |
 |---|---|
 | **node** | the thing remembered: one claim + provenance + standing. Has an identity; belongs to no tree |
-| **leaf** | the thing indexing a node: address + vector + weights + two-way edges. Lives in exactly one tree |
+| **embedding** | one rendering of a node as coordinates: a vector, its own record, pointing at its node and the node back at it. Many per node; derived, so regenerable |
+| **leaf** | the thing indexing a node: address + an embedding + weights + two-way edges. Lives in exactly one tree |
 | **tree** | a physical table of *leaves*, organized along one axis, over the shared node list |
 | **leaf address** | `database.tree.leaf` — a locator, not an identity; the address carries its table |
 | **attractor** | a tree's own vector (its leaves' centroid); what a query steers by when choosing a tree |
-| **similarity edge** | derived at walk time from leaf vectors; never stored, so a shear never touches it |
+| **similarity edge** | learned leaf→leaf link; stored, **bounded** ($k$ per leaf, never unbounded) and **weighted**; the weight is what a cosine cannot recompute |
 | **articulated edge** | authored leaf→leaf link; stored, directed, two-way; what a shear repairs |
+| **weight** | how much a link has proven out in use; the index's own learning, and the thing that makes retrieval improve rather than merely grow |
 | **in-link** | the mirror half of an articulated edge — what makes the shear's affected set addressable |
-| **walk** | route to trees by attractor, then traverse leaves by cosine; the vector generates the path |
+| **walk** | route to trees by attractor, then follow the weighted links within one — falling back to cosine over the tree's leaves when they come up short |
 | **floor (θ)** | the cosine below which a walk is a miss (0.65, a labeled guess) |
 | **backfill** | asking the resolver for *nodes*, on a miss — never for the answer |
 | **calving** | a tree past its bound splitting along dominant attractors — the operation that creates the path |

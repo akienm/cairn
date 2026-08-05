@@ -40,9 +40,11 @@ expire.
 
 We describe the expansion operator, the admission constraints that make an
 expanding graph auditable rather than merely growing, and the storage design that
-keeps derived-edge traversal viable at scale: a separation of *nodes* (what is
-remembered) from *leaves* (how it is found), per-tree leaf tables, addressed
-leaves with two-way articulated links, and attractor-directed calving. That
+keeps traversal viable at scale: a separation of *nodes* (what is remembered),
+*embeddings* (renderings of a node as coordinates, many per node) and *leaves*
+(how it is found), per-tree leaf tables, addressed leaves carrying bounded
+weighted similarity links and two-way articulated links, and attractor-directed
+calving. That
 separation is not incidental to the novelty mechanism — it is what guarantees that
 reorganizing the index cannot perturb the provenance the mechanism adjudicates on. We give a worked example, an evaluation
 protocol with ablations, and the falsifiers we hold ourselves to. Applying the
@@ -155,16 +157,29 @@ $\sigma_n \in \{\textsf{hypothesis},\textsf{earned}\}$ its standing. Every node 
 born `hypothesis`. Nodes live in a single per-database set $\mathcal{N}$ and
 **belong to no tree**.
 
+An **embedding** is one rendering of a node as coordinates:
+
+$$e = \langle \nu(e) \in \mathcal{N},\; v_e \in \mathbb{R}^d \rangle$$
+
+Embeddings are **many per node** and point back to it as it points to them: one
+claim may be rendered raw, as prose, or under any other transform, and each
+rendering is separately findable. §5 reports a measured case where this matters —
+a diagram-shaped passage scoring below less relevant prose, where one vector per
+node would force a choice of rendering and several do not. An embedding is
+**derived**: it is recoverable from its node, and holds no record of truth.
+
 A **leaf** is the unit of indexing:
 
-$$\ell = \langle a_\ell,\; \nu(\ell) \in \mathcal{N},\; v_\ell \in \mathbb{R}^d,\; E_\ell \rangle$$
+$$\ell = \langle a_\ell,\; e_\ell,\; \Lambda_\ell,\; E_\ell \rangle$$
 
-where $a_\ell$ is its **address** `database.tree.leaf`, $\nu(\ell)$ the node it
-indexes, $v_\ell$ its embedding, and $E_\ell$ its articulated edges to other
-leaves. A **tree** $T$ is a set of leaves. The map $\nu$ is many-to-one: one node
-may be indexed by many leaves across many trees, which is what allows two tree
-sets over one node set — and it is why $v_\ell$ is a property of the *leaf*, since
-a node-side vector would place a node identically in every tree that indexed it.
+where $a_\ell$ is its **address** `database.tree.leaf`, $e_\ell$ the embedding it
+indexes (write $v_\ell$ for that embedding's vector and $\nu(\ell)$ for its node),
+$\Lambda_\ell$ its bounded weighted similarity links (§6.2), and $E_\ell$ its articulated
+edges to other leaves. A **tree** $T$ is a set of leaves. The map $\nu$ is
+many-to-one: one node may be indexed by many leaves across many trees, which is
+what allows two tree sets over one node set. Placing the vector in its own layer
+rather than on the node is what makes those placements independent — a node-side
+vector would place a node identically in every tree that indexed it.
 
 Address and identity are distinct throughout. $a_\ell$ is a **locator** and changes
 under reorganization (§6.4); node identity does not.
@@ -178,10 +193,13 @@ $$s(q,\ell) = \cos(v_q, v_\ell), \qquad s^*(q,T) = \max_{\ell \in T} s(q,\ell).$
 Since a corpus is partitioned across many trees, a walk is preceded by a **routing
 function** $\rho(q) \subseteq \{T_1,\dots,T_M\}$ selecting which trees to walk,
 by proximity to each tree's **dominant attractor** $\alpha(T)$ — the centroid of
-its leaves. This is the sense in which the vector *is* the path: no edge is
-followed and no route is stored; $v_q$ run against $\{\alpha(T)\}$ and then against
-$\{v_\ell\}$ *generates* the traversal. §4.1 notes what $\rho$ does to novelty
-detection, and it is not benign.
+its leaves. This is the sense in which the vector *is* the path: no route is
+stored as a route; $v_q$ run against $\{\alpha(T)\}$ *generates* the choice of
+trees. Within a tree the traversal follows the weighted similarity links of §6.2,
+falling back to comparison against $\{v_\ell\}$ where those come up short — the
+weights being what allow the traversal itself, and not merely its contents, to
+improve with use. §4.1 notes what $\rho$ does to novelty detection, and it is not
+benign.
 
 The **mint relation** $\mu$ is the piece that does the work in this paper. For a
 node created during an expansion triggered by query $q$, $\mu(n) = q$; for a node
@@ -444,7 +462,7 @@ E7 conditions the interpretation of E2 rather than sitting beside it.
 
 ---
 
-## 6. Storage: making derived edges survive scale
+## 6. Storage: making a link structure survive scale
 
 The mechanism above assumes a graph you can walk cheaply. That assumption has to be
 paid for.
@@ -460,28 +478,58 @@ The mechanism is unremarkable and that is the point: ingesting one memory issues
 many updates against a multi-million-row edge table, each an index seek or scan,
 each taking a write lock, each syncing — and **the cost grows with the corpus.**
 The system slowed down exactly as it learned more. A different engine buys perhaps
-an order of magnitude before meeting the same wall, because the wall is *storing
-edges at all*.
+an order of magnitude before meeting the same wall, because the wall is not the
+engine.
+
+The wall is worth naming precisely: **a link structure with no bound on degree**,
+so that the work of one ingest rises with everything already learned. It is not
+"storing links at all," and the difference decides §6.2. A structure capped at $k$
+links per leaf exhibits none of the mechanism above, because $k$ is a constant and
+a constant does not care how much the system has learned.
 
 The resulting trade is the whole of §6:
 
 | | write cost | read cost |
 |---|---|---|
-| stored edges | **grows with the corpus** | cheap |
-| derived edges + bounded trees | **constant in corpus size** | bounded by $B$, not by $N$ |
+| unbounded edges | **grows with the corpus** | cheap |
+| bounded edges + bounded trees | **constant in corpus size** | bounded by $B$, not by $N$ |
 
-Depositing a memory writes one node row and one leaf row; no similarity edge is
-updated because none exists. The price moves from write time to read time, where a
-bound can cap it. This also fixes the scale at which the design must be evaluated:
-$2.5 \times 10^6$ is not a projection, it is the size at which the predecessor died.
+Depositing a memory writes one node row, one embedding row, one leaf row, and a
+neighbor list of $k$ entries — $k$ chosen, where the predecessor wrote a list that
+grew with everything it had ever learned. The price moves from write time to read
+time, where a bound can cap it. This also fixes the scale at which the design must
+be evaluated: $2.5 \times 10^6$ is not a projection, it is the size at which the
+predecessor died.
 
-### 6.2 Similarity edges are derived, never stored
+### 6.2 Similarity edges are stored — bounded and weighted
 
-`nearest` and `neighbors` compute proximity at walk time. No similarity-edge table
-exists, and the implementation is tested to ensure none can be registered. Beyond
-the write-cost argument above, the motivation is **single-record integrity**: a
-stored similarity table is a second record of a truth the vectors already contain,
-and two records of one truth drift apart.
+Each leaf keeps a short neighbor list, $k$ entries and not $n$, each entry
+carrying a **weight** that moves with use: links whose paths resolve get stronger.
+
+This supersedes an earlier ruling that similarity edges were derived at walk time
+and never stored, which rested on **single-record integrity** — a stored
+similarity table being a second record of a truth the vectors already contain, and
+two records of one truth drifting apart. That argument is sound *about an
+unweighted table*, which is recomputable from the vectors and therefore risks
+drift while buying nothing. It does not reach a weighted one. A weight is not
+recomputable from any vector: it records what actually resolved, which is new
+information and a first record rather than a second. It is also the only place the
+index's own learning can live — without it the corpus grows while the retrieval
+mechanism stays exactly as good, and exactly as expensive, at query $10^6$ as at
+query 1.
+
+Because weights are stored state that must survive a renumbering, similarity edges
+now ride the same shear as articulated ones (§6.4). What still distinguishes the
+two is authorship, not cost: an articulated edge is asserted and is wrong if it
+misstates its author; a similarity edge is learned and is wrong only if it stops
+predicting.
+
+*Status:* designed, not built. The running `nearest` and `neighbors` compute
+proximity by exhaustive cosine at walk time, and the proof asserting that no
+similarity-edge table can be registered is still green — it pins the superseded
+half of the ruling and is to be retired deliberately, with a successor asserting
+the new invariant: **bounded and weighted; nothing of unbounded degree
+registrable.**
 
 ### 6.3 Which makes a bound mandatory
 
@@ -498,7 +546,7 @@ the bytes a single query must touch:
 
 The ratio is ~470×, but the operative fact is categorical rather than
 proportional: 7.7 GB per query fits in no cache and streams from main memory,
-while 16.5 MB stays resident. So the design that removes the edge table is the
+while 16.5 MB stays resident. So the design that bounds the edge structure is the
 design that requires bounded trees. **These are one decision, not two.**
 
 Note also that $M$ scales as $N/B$, so flat routing over attractors remains cheap
@@ -554,6 +602,12 @@ provenance and standing, the audit substrate the whole novelty mechanism rests o
 cannot be perturbed by index maintenance. Records of truth and the structures that
 locate them are modified by disjoint operations.
 
+The embedding layer sharpens this rather than qualifying it. A calve may have to
+touch an embedding's back-references; that is admissible precisely because an
+embedding is derived and can be regenerated from its node, where a node can be
+regenerated from nothing. The deepest layer reorganization can reach is therefore
+the layer that is cheap to rebuild.
+
 **Correctness condition on the mirror.** If a link's two halves can be written
 independently they can drift, and a drifted in-link means a shear misses a leaf —
 whose stale pointer then does not dangle but *silently retargets* to whatever
@@ -563,12 +617,16 @@ without its mirror. Monotonic leaf-number allocation (never reusing a number aft
 a shear) converts any residual miss from a silent retarget into a loud dangle.
 
 **Status and burden of proof.** The running store is a single-table form in which
-the node and the leaf are the same row, with no link columns — so the node/leaf
-separation is a *prerequisite* for calving rather than a refinement of it. Open and
-named as open: the bound (provisionally 5,000 leaves, moved from 1,000 in an
-earlier generation, which is evidence it is a parameter to learn rather than a
-constant to fix); whether a node carries back-references to its leaves, which
-decides whether the never-touches-a-node property survives; and the fact that
+the node, the vector and the leaf are all the same row, with no link columns — so
+the node/embedding/leaf separation is a *prerequisite* for calving rather than a
+refinement of it. Open and named as open: the bound (provisionally 5,000 leaves,
+moved from 1,000 in an earlier generation, which is evidence it is a parameter to
+learn rather than a constant to fix); the rate at which a similarity weight falls,
+since a weight that only rises on resolution is a positive feedback loop and
+requires counter-evidence to lower it faster than confirmation raises it — a
+constant we have not measured; whether a node carries back-references to its
+leaves, which decides whether the never-touches-a-node property survives; and the
+fact that
 cross-tree in-links are **cross-owner writes**, so under one-owner-per-store a
 shear's fixup must travel through the other owner's gate. Two-way links make that
 tractable — the shear knows exactly whom to notify — but not free. **The design
@@ -633,6 +691,14 @@ becomes the path" is not doing work, and §6's structure is justified only by co
 This is the cheapest experiment in the list and the one whose negative result would
 be most informative.
 
+*Validity condition, and it is not optional:* **compose over the weighted route,
+not over a cosine ranking.** Averaging leaves that were selected *for* proximity to
+the seed returns a vector near the seed close to tautologically, so run against the
+present unweighted implementation the experiment is confirmatory by construction
+and measures nothing. The weights of §6.2 are what supply something learned to
+compose over; until they exist, E8 is not runnable in a form that could refute
+anything.
+
 **Ablations.** (a) No deposit — plain retrieval-augmented generation. (b) Semantic
 answer cache. (c) Deposit without tenure — the naive self-extending system, which
 we expect to show high E2. (d) Deposit with tenure. (e) GraphRAG-style baseline.
@@ -688,11 +754,12 @@ before submission.
 4. **An admission-constraint layer** that makes an expanding graph auditable:
    provenance as a gate, dimension as physics, content addressing, single
    ownership, code-built citations, and non-rotting source addresses.
-5. **A storage design** in which derived edges and bounded, attractor-calved trees
+5. **A storage design** in which bounded edges and bounded, attractor-calved trees
    are shown to be a single coupled decision rather than two independent ones —
-   together with a **node/leaf separation** under which reorganization is confined
-   to the index layer, so that the provenance and standing the novelty mechanism
-   depends on cannot be perturbed by index maintenance. The two-way articulated
+   together with a **node/embedding/leaf separation** under which reorganization is
+   confined to the index layer, so that the provenance and standing the novelty
+   mechanism depends on cannot be perturbed by index maintenance; what maintenance
+   *can* reach is the embedding layer, which is derived and therefore regenerable. The two-way articulated
    edge is what makes the shear's affected set addressable rather than merely
    small, reducing cumulative reorganization cost from quadratic to linear in
    corpus size.
@@ -711,10 +778,13 @@ before submission.
 |---|---|
 | $\mathcal{N}$ | the node set: one per database, shared by all trees |
 | $n = \langle c, \pi, \sigma\rangle$ | node — *what is remembered*: content, provenance, standing. Has identity, no tree |
-| $\ell = \langle a, \nu, v, E\rangle$ | leaf — *how it is found*: address, the node it indexes, vector, articulated edges |
+| $e = \langle \nu, v\rangle$ | embedding — one rendering of a node as coordinates: the node it renders, and a vector. Many per node; derived, therefore regenerable |
+| $\ell = \langle a, e, \Lambda, E\rangle$ | leaf — *how it is found*: address, the embedding it indexes, bounded weighted similarity links, articulated edges |
 | $T$ | a tree: a set of leaves |
 | $a_\ell$ | leaf address `database.tree.leaf` — a locator, not an identity |
-| $\nu(\ell)$ | the node leaf $\ell$ indexes; many-to-one |
+| $\nu(\ell)$ | the node leaf $\ell$ indexes, via its embedding; many-to-one |
+| $v_\ell$ | the vector of $\ell$'s embedding |
+| $\Lambda_\ell$ | $\ell$'s similarity links: at most $k$, each carrying a weight that moves with use |
 | $\alpha(T)$ | tree $T$'s dominant attractor (centroid of its leaves) |
 | $\rho(q)$ | the routing function: trees selected for $q$ by proximity to $\alpha$ |
 | $d$ | embedding dimension |

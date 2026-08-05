@@ -41,7 +41,16 @@ which makes its quorum unusually concrete: **the reader is the gate.**
 - **method** — review by Akien first (signature gate), then the named reader. His
   restated-back summary is the evidence. A follow-up question that reveals a
   misunderstanding is data routed back here, not a conversation to have and drop.
-- **status** — IOU, hand-run. Not signed.
+- **status** — IOU, hand-run. Not signed. **Revision 2026-08-05, and the gate is
+  already earning its keep:** Akien's first pass found that the draft (and the
+  ticket behind it, and the running store) had collapsed **node** and **leaf** into
+  one thing — writing `node` where the design means `leaf`, and treating
+  `database.tree.leaf` as an identity when it is an address. Both pieces were
+  rewritten around the separation; §2.1, §2.4, §2.6, §2.8 and all of §4 changed.
+  The gate caught a substantive design error before an outside reader saw it, which
+  is exactly what the signature gate is for — and it is worth recording that the
+  error was *mine and consistent across every artifact*, so no amount of internal
+  cross-checking would have surfaced it. Only the author reading it did.
 
 ## NoveltyDrivenGraphTreeExpansion.md
 

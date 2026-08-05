@@ -29,8 +29,9 @@ is a hypothesis and is labeled as one"*), and the brief is written under it.
 An LLM is the most expensive component in any system that contains one, and the
 conventional architecture throws away everything it produces the moment the
 response is rendered. We treat every answered question as something that should
-become **structure** — a node in a graph tree, addressable, provenance-carrying,
-and cheap to reach again. A query is answered by **walking the graph**. Inference
+become **structure** — a node holding one claim with its provenance, indexed by
+leaves in graph trees so it is addressable and cheap to reach again. A query is
+answered by **walking the graph**. Inference
 is what we spend when the walk fails, and when we spend it we do not ask the model
 for the answer; we ask it for **the nodes that would let the graph answer**, deposit
 those, and resubmit the original question. The proof that the expansion worked is
@@ -68,18 +69,33 @@ That is the whole thesis. Everything below is mechanism.
 
 ## 2. Section A — the graph trees as a cache
 
-### 2.1 What a node is
+### 2.1 Two layers: the node and the leaf
 
-Four fields, and each one is load-bearing:
+This distinction is the one to get right before anything else, because almost
+every confusion downstream is a collapse of these two into one.
 
 ```
-node = {
-  content:    text  — one claim, in natural language
-  vector:     float[d] — its embedding
+node = {                    # THE THING BEING REMEMBERED
+  content:    text          — one claim, in natural language
   provenance: {source, ...} — where it came from, always
   standing:   "hypothesis" | "earned"
-}
+}                           # has an IDENTITY. Never belongs to a tree.
+
+leaf = {                    # THE THING INDEXING IT
+  node:       → a node's identity
+  vector:     float[d]      — where this leaf sits in this tree's space
+  weights, edges: → other leaf addresses, two-way
+}                           # has an ADDRESS: database.tree.leaf
 ```
+
+**A node is what is remembered. A leaf is how it is found.** The address
+`database.tree.leaf` is a *locator*, and it changes when a tree reorganizes. The
+node's identity does not. One node can be indexed by many leaves in many trees —
+which is what makes "two tree sets over one node set" a mechanism rather than a
+slogan, and what lets the same claim sit in different neighborhoods depending on
+which axis you are asking along.
+
+Three properties of the node layer:
 
 - **One claim per node.** A node holding three claims cannot be cited, corrected,
   or expired independently of the other two.
@@ -92,12 +108,21 @@ node = {
   by resolving questions. (See §2.6; this loop is designed and **not yet built**,
   and until it is, every node in the store honestly still reads `hypothesis`.)
 
+And one property of the leaf layer that pays off in §4.4: because reorganization
+touches only leaves, **index maintenance can never damage a record of truth.**
+The trees can be split, renumbered and rebuilt as often as you like; provenance
+cannot drift, because provenance is not in the layer that moves.
+
+*(The running store has not made this split yet — it is one table where the node
+and the leaf are the same row. §4 says what that costs.)*
+
 ### 2.2 The core loop
 
 ```mermaid
 flowchart TD
     Q["query q"] --> E["embed q"]
-    E --> W["walk tree T:\ns* = max cos(v_q, v_n)"]
+    E --> R["route: nearest tree attractors\n(§2.4)"]
+    R --> W["walk the leaves of those trees:\ns* = max cos(v_q, v_leaf)"]
     W --> D{"s* ≥ θ?"}
     D -->|yes| A["ANSWER from structure\n(no inference in the answer path)"]
     D -->|no| B["ask the resolver for NODES\nnot for the answer"]
@@ -143,7 +168,7 @@ Let
 - $c_g$ = cost of one generation (tokens, latency, dollars),
 - $c_w$ = cost of one walk,
 - $h_t$ = hit rate at time $t$,
-- $d$ = embedding dimension, $n$ = nodes in the walked tree.
+- $d$ = embedding dimension, $n$ = leaves in the walked tree.
 
 Then expected cost per query is
 
@@ -170,33 +195,61 @@ expectation is not $h_t \to 1$; it is $h_t \to$ the head-mass of the distributio
 fast, and then a long slow climb on the tail. The claim to test is that the
 resolver spend per unit of *novel* work falls, not that it goes to zero.
 
-### 2.4 Walk cost, and why calving pays for it
+### 2.4 The vector *is* the path — and calving is what creates it
 
-Edges are **never stored**. `nearest(q, k)` derives them at walk time by cosine
-against every node in the tree; `neighbors(n, k)` does the same from a node.
-There is no edge table, and the proof asserts that nothing shaped like one is
-ever registered.
+Similarity edges are **never stored**. `nearest(q, k)` derives them at walk time
+by cosine against the leaves in scope; `neighbors(ℓ, k)` does the same from a
+leaf. There is no similarity-edge table, and the proof asserts that nothing
+shaped like one is ever registered.
 
-The arithmetic that makes this defensible — and the arithmetic that eventually
-kills it:
+So how does a walk have a *path* at all, if no edge exists to follow? Because the
+path is neither stored nor looked up. **The query vector, run against the
+attractors, generates the route** — and the sequence of choices it produces *is*
+the path. Two decisions:
 
-| tree size $n$ | multiply-adds per walk ($n \cdot d$, $d = 768$) | verdict |
-|---|---|---|
-| 5,000 | 3.84 M | microseconds; nothing to maintain, nothing to invalidate |
-| 2,500,000 | 1.92 G | no longer free; now you want an index |
+1. **Which tree** — compare the query against each tree's *dominant attractor*
+   (the centroid of its leaves).
+2. **Which leaves within it** — compare against that tree's leaf vectors.
 
-So: **the bound on tree size is what pays for having no edge table.** Calving
-(§4.4) is not a storage convenience — it is the mechanism that keeps walk cost
-$O(B \cdot d)$ with $B$ the bound, instead of $O(N \cdot d)$ with $N$ the whole
-corpus. The two design decisions are one decision.
+Nothing to maintain, nothing to invalidate, and it re-derives itself correctly
+after any reorganization. That last property is why similarity edges can be free
+while articulated ones (§4.4) cost a fixup.
 
-The cost that replaces it is **tree selection** — with $T$ trees you must decide
-which to walk. That routing question is open and named as open; it is the same
-question as cross-tree resolution in §2.6.
+**The arithmetic, and it is not about multiply-adds.** At $d = 768$, float32,
+$N = 2.5\text{M}$ leaves, bound $B = 5{,}000$ → about 500 trees:
 
-*(Today the walk is O(n) in Python, correct and slow, and every deposit re-reads
-the tree for its dimension check. `pgvector` — proximity computed where the
-vectors live — is a filed edge waiting on a real load. It is not installed.)*
+| what a query touches | bytes |
+|---|---|
+| flat, over every leaf in the corpus | $2.5\text{M} \times 768 \times 4$ = **7.7 GB** |
+| the tree attractors | $500 \times 768 \times 4$ = 1.5 MB |
+| one tree's leaves | $5{,}000 \times 768 \times 4$ = 15 MB |
+| **two-level total** | **≈ 16.5 MB** |
+
+The ratio (~470×) is not the interesting number. The interesting number is that
+**7.7 GB per query fits nowhere and 16.5 MB sits in cache and stays hot.** That is
+the difference between a memory that answers in milliseconds and one that streams
+RAM on every question.
+
+**Which reframes what calving is for.** It is tempting to read the bound as a cost
+cap — keep the tree small so the walk stays cheap. It is the other way round:
+**calving along dominant attractors is the operation that creates the path.**
+Before the first calve a tree is flat and there is no route to walk, only a scan.
+Each calve mints an attractor, and an attractor is what a query steers by. The
+cost bound is a side effect of building structure, not the reason for it.
+
+Two consequences worth stating:
+
+- **A tree needs a dominant-attractor vector of its own** — a tree-level object a
+  query compares against before it touches any leaf. (The running store has no
+  place for one; §4.)
+- **Flat-over-trees is fine for a long time.** 500 attractors is 1.5 MB. You would
+  not want a tree *of* trees until roughly 100,000 trees, which is 500 M leaves.
+  There is no hierarchy to build yet.
+
+*(Today the walk is O(n) in Python, correct and slow, over a single flat store,
+and every deposit re-reads it for a dimension check. `pgvector` — proximity
+computed where the vectors live — is a filed edge waiting on a real load. It is
+not installed.)*
 
 ### 2.5 The three intake paths
 
@@ -275,8 +328,10 @@ embedding, not a lower floor.
    mismatched deposit *or query* is refused loudly. A 4-dim query against 768-dim
    nodes is a wrong question, and answering it would return a confident wrong
    answer.
-4. **Identity.** `node_id = hash(tree, normalized content)`. Content-addressed, so
-   the same claim is the same node.
+4. **Identity.** `node_id = hash(normalized content)`, per database. Content-
+   addressed and **tree-free**, so the same claim is the same node no matter how
+   many trees index it. (Identity is not address: the address is the leaf's, and
+   only the leaf's.)
 5. **Dedupe.** A duplicate writes **nothing** and says so. The cheapest deposit is
    the one never made.
 
@@ -285,13 +340,23 @@ second independent source saying the same thing is *corroboration*, which is
 precisely the evidence tenure needs. The correct behavior is a provenance append,
 and it lands with the tenure loop.
 
-**Index** — there isn't one, by design. *The embedding is the path.* Edges are
-derived at walk time. The reason is not performance (it costs performance today);
-it is that a stored edge table is a **second record of the same truth**, and two
-records of one truth drift. The tradeoff is stated plainly: we pay O(n) per walk
-and buy an invariant that cannot go stale.
+**Index** — the leaf layer *is* the index, and it holds two kinds of connection
+that are worth keeping apart:
 
-**Retrieve** — `nearest(v, k)` within a tree, `neighbors(node, k)` derived
+- **Similarity edges: derived, never stored.** The embedding is the path (§2.4).
+  A stored similarity table would be a **second record of the same truth**, and
+  two records of one truth drift. We pay compute per walk and buy an invariant
+  that cannot go stale.
+- **Articulated edges: stored, directed, and two-way.** These are the authored
+  connections — *this node cites that passage*, *this summary rendered those
+  leaves* — and they live leaf-to-leaf with both halves present.
+
+The dividing line is not a preference; it is decided by §4.4. **An edge that must
+survive a renumbering is an edge you are storing. An edge you regenerate is one
+you are not.** Which gives the clean rule: *edges are a property of the index,
+never of the remembered thing.* Nodes have no edges at all.
+
+**Retrieve** — `nearest(v, k)` over the routed trees, `neighbors(leaf, k)` derived
 identically, and `tree_state(tree)` = a digest that is a pure function of
 membership (this is the value that makes the backfill cache key safe).
 
@@ -346,6 +411,31 @@ Three consequences, all now designed in:
 
 We consider this the most useful thing we have measured, and it generalizes to
 anyone building a self-extending retrieval system.
+
+### 2.8 Its twin, which we have *not* measured
+
+Stated separately because the honesty contract requires it: **the following is a
+prediction derived from §2.4's routing step, not an observation.** We include it
+because it is cheap to test and expensive to discover late.
+
+Once a walk begins with *choosing a tree*, the choice can be wrong — and a wrong
+choice produces a low $s^*$, which is exactly the trigger for backfill. So **a
+routing error is indistinguishable from genuine novelty.** The system mints nodes
+for something it already knows, files them in the wrong neighborhood, and those
+mints then win the similarity race for their own question next time.
+
+That is the mirror of §2.7. Manufactured *resolution* is a high score that is not
+evidence. Manufactured *novelty* is a miss that is not absence — and it is the
+worse of the two, because it compounds: every routing miss deposits material that
+makes the wrong tree slightly more attractive.
+
+Both the softener and the instrument are cheap:
+
+- **Probe the top-$k$ trees, not the top one.** At $k = 5$ a walk touches 75 MB
+  instead of 15 MB — still nothing.
+- **Measure router recall@$k$ directly**: take queries whose correct leaf is known
+  and count how often the router lands on its tree. A retrieval system that
+  extends itself needs this number before it needs almost anything else.
 
 ---
 
@@ -474,12 +564,38 @@ migration rate is how you tell whether it is happening.
 
 ## 4. Section C — graph tree structure and the database optimizations
 
-The four ideas in this section came from a load problem that was actually hit, not
-from a design conversation: *"i designed my system because just the reading,
-nothing else, was overwhelming the usual way of doing it. it wasn't theoretical,
-it was an experiential adaptation."* That provenance matters, because it sets
-where the burden of proof sits: any replacement has to be measured against it, at
-the scale the original was designed for.
+### 4.0 The load problem this came from
+
+The ideas in this section came from a system that was built the ordinary way and
+died. The numbers are worth having in front of you, because they set where the
+burden of proof sits.
+
+The conventional build — conventional tables, a stored edge table — reached
+**70,000 words and 2.5 M bigram edges**, at which point **every single edge update
+took over 30 seconds.**
+
+The mechanism is unremarkable, which is the point. Ingesting one memory means many
+`UPDATE`s against a 2.5 M-row edge table: each an index seek or a scan, each taking
+a write lock, each syncing. And **the cost grows with the corpus.** The system got
+slower exactly as it learned more, which is the one direction a memory must not
+move. A different engine buys perhaps an order of magnitude and then meets the same
+wall, because the wall is *storing edges at all*.
+
+So the design makes one trade, and everything in §4 follows from it:
+
+| | write cost | read cost |
+|---|---|---|
+| stored edges | **grows with the corpus** | cheap |
+| derived edges + bounded trees | **constant in corpus size** | bounded by the bound, not the corpus |
+
+Adding a memory writes one node row and one leaf row. No similarity edge is
+updated, because none exists to update. The price moved from write time to read
+time, and at read time it is capped by the calving bound instead of by how much has
+been learned.
+
+This is also why the falsifier at the end of this section names 2.5 M nodes. That
+is not a projected scale — it is the corpus size at which the previous build died.
+Re-running there is re-running the thing that failed.
 
 ### 4.1 One owner per store; one node list per database
 
@@ -489,78 +605,122 @@ with no owner cannot come into existence, and there is no second door. Not a
 convention, not a code review rule: a `CHECK` in the database and one module that
 holds the connection.
 
-Within a database there is **one node list**. Nodes are the shared substrate; what
-varies is how they are organized above that.
+Within a database there is **one node list** — one table of remembered things,
+shared by every tree above it, and *not* partitioned by tree. Nodes are the
+substrate; what varies is how they are indexed.
 
-### 4.2 Trees get their own tables
+### 4.2 Trees get their own tables — of leaves
 
-Each tree is a **physical table**, not a row in a table of trees.
+Each tree is a **physical table of leaves**, not a row in a table of trees. The
+node list sits underneath, unpartitioned; each tree table indexes into it.
 
-This is the load-bearing choice and it is worth being explicit about why, because
-the obvious objection is "then cross-tree edges are expensive." Under this design
-they are not — see §4.3. What per-tree tables buy:
+This is the load-bearing choice, and the obvious objection is "then cross-tree
+edges are expensive." Under this design they are not — see §4.3. What per-tree
+leaf tables buy:
 
-- The walk is bounded by the *tree*, not the corpus (§2.4 arithmetic).
-- Calving is a table operation, not a mass row update.
-- Two different tree sets can index **one node set** — the same nodes organized
-  along different axes, without duplicating the nodes.
+- The walk is bounded by the *tree*, not the corpus (§2.4).
+- Calving is a table operation on leaves, not a mass rewrite of remembered things.
+- Two different tree sets can index **one node set** — the same claims organized
+  along different axes, with no duplication of the claims themselves. This is only
+  possible because the vector lives on the *leaf*: if it lived on the node, every
+  tree would place that node at identical coordinates and a second tree set would
+  buy nothing.
 
 The default is **private-down, grant-up**: a tree indexes into what is below it
 privately, and reaching upward into shared material is an explicit grant.
 
 ### 4.3 Leaf addresses are `database.tree.leaf`
 
-A node's address **carries its table**. Consequences:
+A leaf's address **carries its table**. Consequences:
 
-- Reaching a node is **addressing, not searching**. No index traversal, no lookup
+- Reaching a leaf is **addressing, not searching**. No index traversal, no lookup
   by content, no growth in access variance as the graph grows. That constant-time,
-  constant-variance property is the whole point of the design — it is what "just
-  the reading was overwhelming" was the symptom of losing.
+  constant-variance property is the whole point of the design — it is what
+  30-seconds-per-edge-update was the symptom of losing.
 - **A cross-tree link is just a leaf address with a different table part.** The
   standard objection to per-tree tables — "you'll need an edge index to cross
   trees" — assumes you must *search* for edges. Addressing eliminates the search,
   so the objection does not bind against this design specifically.
+- **And the address is not an identity.** A leaf has both: an identity of its own
+  and an address that can change. The node it points at has only an identity. Keep
+  these apart and calving is cheap; collapse them and every reorganization becomes
+  a re-identification pass across the whole corpus.
 
-### 4.4 Trees calve on dominant attractors
+### 4.4 Trees calve on dominant attractors, and the shear runs on two-way links
 
-A tree that grows past its bound **calves**: it splits, and the split follows the
-**dominant attractors** in the tree — the regions the content has actually
-clustered into, rather than an arbitrary partition. A **shear** then renumbers
-leaf addresses along the split, updating the small number of affected nodes.
+A tree that grows past its bound **calves**: it splits along the **dominant
+attractors** — the regions the content has actually clustered into, rather than an
+arbitrary partition. A **shear** then renumbers leaf addresses along the split.
 
-- **The bound** is provisionally 5,000 nodes. An earlier generation of this design
-  used 1,000, which is evidence the threshold moves with the content — so it is a
-  parameter to learn, not a constant to enshrine. (Whether it is one bound or two
-  — size *and* depth — is an open question.)
-- **Why calving is structural, not housekeeping:** §2.4. With derived edges, walk
-  cost is linear in tree size. The bound is what keeps that linear cost small. A
-  system that stores its edges can defer partitioning; one that derives them
-  cannot.
-- **Splitting on attractors rather than on size alone** keeps each post-calve tree
-  semantically coherent, which is what makes tree *selection* tractable at query
-  time. A split down the middle of a cluster would push the routing cost straight
+**Why the links are two-way.** A moved leaf leaves stale pointers behind it, and
+the question is how you find their holders. Because every articulated edge is
+mirrored, **a moved leaf's in-link list *is* the exact set of holders** — the
+affected set is not merely small, it is *addressable*. One-way, that set exists
+with no address, and you find it by reading every leaf's out-links in the
+database: the searching this whole design exists to eliminate, reappearing in the
+reverse direction.
+
+The cost difference compounds. With bound $B$ and corpus $N$, growing to $N$ costs
+about $N/B$ calves:
+
+| | per calve | over growth to $N$ |
+|---|---|---|
+| one-way links | full scan, $O(N)$ | $O(N^2 g / B)$ |
+| two-way links | incident edges only, $O(B\,g)$ | $O(N g)$ |
+
+At $B = 5{,}000$, $N = 2.5\text{M}$, articulated degree $g \approx 4$: about 500
+calves, ~10,000 edge-entry rewrites each. Quadratic versus linear — and the
+quadratic version gets expensive precisely as the corpus grows large enough to
+need calving.
+
+**And the property that matters most: a calve never touches a node.** It is a pure
+leaf operation. The things being remembered are not read and not written. Index
+maintenance cannot damage a record of truth because it never reaches one.
+
+Three further notes:
+
+- **The bound** is provisionally 5,000 leaves. An earlier generation used 1,000,
+  which is evidence the threshold moves with the content — a parameter to learn,
+  not a constant to enshrine. (One bound or two — size *and* depth — is open.)
+- **Splitting on attractors rather than on size alone** is what keeps each
+  post-calve tree semantically coherent, which is what keeps *routing* (§2.4)
+  tractable. A split down the middle of a cluster pushes the routing cost straight
   back up.
+- **Both halves of a link need one door.** If the out-half and in-half can be
+  written separately they can drift, and a drifted back-reference means the shear
+  misses a leaf — whose stale pointer then does not dangle but *silently
+  retargets* to whatever now occupies that address. So: one operation writes both
+  halves or the link does not exist, and the falsifier is "an out-link with no
+  mirror in-link." Cheap insurance regardless: never reuse leaf numbers after a
+  shear, so anything missed dangles loudly instead of retargeting quietly.
 
-**Honest status on this section:** the per-tree tables, the bound, and the shear
-are the **restore target**, and the running store today is a single node table
-with a tree column and derived edges. The open questions are named rather than
-papered over:
+**Honest status on this section.** The per-tree leaf tables, the bound, and the
+shear are the **restore target**. The running store today is a single table in
+which the node and the leaf are the same row, with no link columns at all — so
+there is currently nothing for a shear to renumber and nowhere for an articulated
+edge to live. The node/leaf split is a *prerequisite* for calving, not a detail of
+it. What remains open is named rather than papered over:
 
-1. When a shear renumbers leaf addresses, what happens to **inbound links from
-   other trees**? Fixed up along the shear, indirected through something stable, or
-   does private-down/grant-up mean inbound cross-tree links only ever point at
-   things that don't shear?
-2. **Edges: stored, derived, or both?** The candidate reconciliation — *articulated*
-   edges stored (directed, typed, what invalidation propagates along) and
-   *similarity* edges derived — is proposed and unratified.
-3. **The bound**: one parameter or two.
+1. **Where the vector lives** is stated above as leaf-side. That is derived from
+   the design rather than ratified within it, and it is the load-bearing derivation
+   in §4.2.
+2. **Cross-tree in-links are cross-owner writes.** If a leaf in tree B points into
+   tree T, T's calve must rewrite a row B's owner gates — and under one-owner-per-
+   store the shear cannot reach in. Two-way links make this tractable (T knows
+   exactly whom to notify) but not free; the fixup still travels through B's gate.
+3. **Does a node carry back-references to its leaves?** "Where is this node
+   indexed?" is otherwise a lookup against every tree table. Storing the list makes
+   it one read — but then a calve *does* write nodes, and the property two
+   paragraphs up holds only if it doesn't.
+4. **The bound**: one parameter or two.
 
 **And the falsifier, which is the part an architect should hold us to:** this must
 be measured **at the scale it was designed for** — on the order of 2.5 M nodes —
-and must show node access that does not degrade with graph size. Proving the shape
+and it is two-sided, because the baseline is two-sided. Access must not degrade
+with graph size, *and* write cost must not grow with corpus size. Proving the shape
 on a few hundred rows fails this outright. Our largest live measurement to date is
-far below that. Until that test runs, §4 is a design with a good provenance and no
-benchmark, and we say so.
+far below that. Until that test runs, §4 is a design with an unusually good
+provenance and no benchmark, and we say so.
 
 ---
 
@@ -710,13 +870,24 @@ These are the questions to ask us in six months.
    self-confirming and the resolution numbers mean nothing.
 3. **Answers come from inference when the graph already holds the structure.**
    That is the librarian demoted to a vector cache with extra steps.
-4. **Node access degrades with graph size at 2.5 M nodes.** Then the addressing
-   design did not deliver the property it exists for, and §4 reopens.
+4. **Node access degrades with graph size at 2.5 M nodes — or write cost grows
+   with corpus size.** Either one means the addressing design did not deliver the
+   property it exists for, measured against the baseline that motivated it (§4.0),
+   and §4 reopens.
 5. **Hit rate does not climb** on a real, stationary question stream. The
    amortization argument in §2.3 is the thesis; if $h_t$ is flat, the thesis is
    wrong.
 6. **The gates never refuse.** A door that never sends anything back is vacuous,
    and the refusal rate is measured precisely so that this cannot hide.
+7. **The composed embedding is no better than the seed embedding.** The walk is
+   supposed to *produce* a representation, not merely retrieve with one (§2.4). If
+   composing over the walked path beats nothing, the trees are still a defensible
+   cache but "the vector becomes the path" is decoration. This is the cheapest
+   falsifier on the list and should be run first: take text whose correct node is
+   known, compute both vectors, see which one retrieves it.
+8. **Router recall@$k$ is poor.** Then §2.8's manufactured novelty is live, tier-1
+   miss detection is measuring the router rather than the corpus, and the
+   self-extension loop is feeding on its own routing errors.
 
 ---
 
@@ -724,14 +895,19 @@ These are the questions to ask us in six months.
 
 | term | meaning here |
 |---|---|
-| **node** | one claim: content + vector + provenance + standing |
-| **tree** | a physical table of nodes organized along one axis |
-| **leaf address** | `database.tree.leaf` — the address carries its table |
-| **walk** | cosine traversal of a tree; edges derived, never stored |
+| **node** | the thing remembered: one claim + provenance + standing. Has an identity; belongs to no tree |
+| **leaf** | the thing indexing a node: address + vector + weights + two-way edges. Lives in exactly one tree |
+| **tree** | a physical table of *leaves*, organized along one axis, over the shared node list |
+| **leaf address** | `database.tree.leaf` — a locator, not an identity; the address carries its table |
+| **attractor** | a tree's own vector (its leaves' centroid); what a query steers by when choosing a tree |
+| **similarity edge** | derived at walk time from leaf vectors; never stored, so a shear never touches it |
+| **articulated edge** | authored leaf→leaf link; stored, directed, two-way; what a shear repairs |
+| **in-link** | the mirror half of an articulated edge — what makes the shear's affected set addressable |
+| **walk** | route to trees by attractor, then traverse leaves by cosine; the vector generates the path |
 | **floor (θ)** | the cosine below which a walk is a miss (0.65, a labeled guess) |
 | **backfill** | asking the resolver for *nodes*, on a miss — never for the answer |
-| **calving** | a tree past its bound splitting along dominant attractors |
-| **shear** | the renumbering of leaf addresses along a calve |
+| **calving** | a tree past its bound splitting along dominant attractors — the operation that creates the path |
+| **shear** | the renumbering of leaf addresses along a calve; touches leaves only, never nodes |
 | **standing** | `hypothesis` (born) → `earned` (tenure paid) |
 | **tenure** | promotion earned by resolving questions the node was not minted from |
 | **Learning Block** | door → work → trace → finding → verdict → dial |

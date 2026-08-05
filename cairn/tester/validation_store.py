@@ -19,6 +19,40 @@ overwrite the old seal — it APPENDS a fresh dated one. The file is the seal's 
 the newest entry is the current verdict. There is no update-in-place and no delete, because
 a record of truth has neither. The single write-door is ``persist_validation``.
 
+AND THE DOOR IS NOW THE ONLY PATH — BY PHYSICS, IN TWO LAYERS (2026-08-05, ticket
+validation-store-door-is-the-only-path, drained from a live trouble). Until today the
+door's guarantee rested on everyone remembering to use it: the trail was a plain 0644 JSON
+file, so ``json.dump(fresh, open(path, "w"))`` from anywhere destroyed a proof's entire seal
+history *silently and permanently*, and the result looked exactly like a fresh seal. Law 7's
+worst direction. The two layers answer two different failure modes and neither substitutes
+for the other:
+
+  - THE MODE BIT stops the accident. A written trail is dropped to 0444, so the naive
+    overwrite raises PermissionError at the ``open`` instead of succeeding. The door still
+    writes because ``os.replace`` needs the DIRECTORY, not the file.
+  - THE CHAIN makes the deliberate loud and permanent. Every record carries a ``trail_link``
+    minted HERE — a sha256 over the whole trail beneath it plus the record itself. Only this
+    door mints one, so a record that lacks a link, or whose link no longer matches what is
+    under it, did not come through the door and ``standing`` refuses the whole trail rather
+    than reading a verdict out of it. A hand-write can no longer pass for a seal, which is the
+    exact sentence the trouble used to describe the defect.
+
+  - AND NO SECOND WRITER EXISTS IN THE CORPUS, checked at build time by a proof tooth that
+    censuses every module for a write aimed at a ``validations/`` address. The two layers
+    above catch a bypass that already ran; this one refuses the bypass being BUILT.
+
+The 73 trails that predated links were ADOPTED (``adopt_chain``) rather than tolerated. The
+first draft tolerated an unlinked leading prefix as "prehistory", and its own proof killed
+that in one firing: an overwrite that drops every link is then indistinguishable from a legacy
+trail — and a total overwrite is exactly the destroy-the-history shape the trouble described.
+A tolerance is a forger's costume whenever the forger can produce the thing being tolerated.
+What a retro-minted link honestly claims is narrower, and is stated rather than glossed: it
+attests the trail's content AS OF ADOPTION, not as of each entry's sealing.
+
+What none of it claims: the bytes are not unwritable to a caller running as the same uid, and
+nothing here can un-destroy a trail. That is what git is for — the trail is a committed file,
+so a destroyed history is recoverable, and the chain is what tells you to go recover it.
+
 FIELD-SET IS PHYSICS, not convention (mirrors the Postgres CHECK it replaces): a record that
 is not exactly the ratified eight fields is REFUSED here, so a drifted validation cannot land
 beside the code and quietly pass for a seal.
@@ -47,6 +81,10 @@ import os
 import tempfile
 
 from cairn.tester.device import GREEN, VALIDATION_FIELDS
+
+# The one key inside `evidence` that belongs to the DOOR and not to the caller. It rides
+# inside evidence rather than becoming a ninth field because the eight are ratified.
+TRAIL_LINK = "trail_link"
 
 
 def validations_path_for(proof_path: str) -> str:
@@ -152,6 +190,18 @@ def standing(proof_path: str) -> dict:
     red is history, not standing.
     """
     trail = read_validations(proof_path)
+    # THE TRAIL'S OWN INTEGRITY IS CHECKED BEFORE ITS CONTENT. A verdict read out of a
+    # trail that was written around the door is not a measurement of anything — and this
+    # is the surface where that matters, because harbor_master turns a True here straight
+    # into a crossing's clearance. Broken chain, no clearance (Law 8).
+    breaks = verify_trail(trail)
+    if breaks:
+        return {"proven": False, "seal": trail[-1] if trail else None, "why": (
+            f"the seal trail at {validations_path_for(proof_path)} DID NOT COME WHOLE THROUGH "
+            f"persist_validation — {len(breaks)} break(s): " + "; ".join(breaks) +
+            ". A record of truth that was written around its own door proves nothing about the "
+            "code; what it proves is that something else has been writing here. Recover the "
+            "trail from git and re-run the proof")}
     if not trail:
         return {"proven": False, "seal": None, "why": (
             f"no VALIDATION has ever sealed {proof_path} — the trail at "
@@ -181,17 +231,134 @@ def standing(proof_path: str) -> dict:
         f"fingerprint still matches what was proved ({recorded[:12]}…)")}
 
 
+def _canonical(obj) -> bytes:
+    """One spelling for one value — sorted keys, no incidental whitespace.
+
+    A digest over JSON is only a digest over the VALUE if the encoding is fixed; otherwise
+    re-indenting the file would 'break' the chain and a real tamper could hide behind the
+    same excuse. This is the fixed encoding, used for nothing else.
+    """
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+
+
+def chain_digest(prefix: list) -> str:
+    """The digest of everything already on the trail — what the next link commits to."""
+    return hashlib.sha256(_canonical(prefix)).hexdigest()
+
+
+def _link_for(prefix: list, record: dict) -> str:
+    """This record's link: sha256(everything before it, then the record itself sans link).
+
+    The record is hashed WITHOUT its own link, because a value cannot contain its own digest.
+    """
+    body = dict(record)
+    body["evidence"] = {k: v for k, v in (body.get("evidence") or {}).items()
+                        if k != TRAIL_LINK}
+    return hashlib.sha256(
+        chain_digest(prefix).encode("ascii") + b"\0" + _canonical(body)).hexdigest()
+
+
+def verify_trail(trail: list) -> list[str]:
+    """Complaints about a trail's chain — empty means EVERY entry still carries a valid link.
+
+    NO PREHISTORY CLAUSE, and that is a decision the first draft got wrong. Tolerating
+    unlinked entries as a leading PREFIX seemed like the honest way to carry the 73 trails
+    that predated links — but the proof found the hole in one firing: a total overwrite that
+    drops every link is then indistinguishable from a legacy trail, and a total overwrite is
+    exactly the destroy-the-whole-history shape the trouble described. A tolerance is a
+    forger's costume whenever the forger can produce the thing being tolerated.
+
+    So the legacy trails were ADOPTED instead (``adopt_chain``), once, and from then on a
+    missing link is a break like any other. What adoption honestly claims is narrower than a
+    seal-time link and is written down rather than glossed: a retro-minted link attests the
+    trail's content AS OF ADOPTION, not as of the moment each entry was sealed. Nothing can
+    attest the latter after the fact, and pretending otherwise would be the same costume.
+
+    Returns complaints rather than raising, because the caller decides the surface: the
+    reader turns them into a refusal, a diagnostic prints them (Law 7 — loud where it
+    diagnoses, and the record itself is never rewritten to look clean).
+    """
+    complaints = []
+    for i, rec in enumerate(trail):
+        if not isinstance(rec, dict):
+            complaints.append(f"entry {i} is a {type(rec).__name__}, not a VALIDATION record")
+            continue
+        link = (rec.get("evidence") or {}).get(TRAIL_LINK)
+        if link is None:
+            complaints.append(
+                f"entry {i} ({rec.get('date')}, {rec.get('verdict')}) carries no {TRAIL_LINK} — "
+                f"persist_validation is the only hand that mints one, so a record without a link "
+                f"did not come through the door")
+            continue
+        expected = _link_for(trail[:i], rec)
+        if link != expected:
+            complaints.append(
+                f"entry {i} ({rec.get('date')}, {rec.get('verdict')}) carries link "
+                f"{str(link)[:12]}… but the trail beneath it hashes to {expected[:12]}… — either "
+                f"this entry or something before it was changed after it was sealed")
+    return complaints
+
+
+def adopt_chain(path: str) -> int:
+    """ONE-TIME ADOPTION: mint links over a trail written before links existed. Returns how
+    many entries it linked (0 = already fully chained, so it is safe to re-run).
+
+    Not a repair tool and deliberately not usable as one: an entry that ALREADY carries a
+    link which no longer verifies makes this refuse the whole file. A break is a finding to
+    act on — recover the trail from git — and a migration that quietly re-linked a tampered
+    trail would erase precisely the evidence the chain exists to preserve (Law 7).
+    """
+    trail = read_validations(path=path)
+    for i, rec in enumerate(trail):
+        link = (rec.get("evidence") or {}).get(TRAIL_LINK) if isinstance(rec, dict) else None
+        if link is not None and link != _link_for(trail[:i], rec):
+            raise ValueError(
+                f"{path} entry {i} carries a link that does not verify — this is a BREAK, not an "
+                "unadopted trail. adopt_chain will not overwrite it; recover from git.")
+    minted = 0
+    for i, rec in enumerate(trail):
+        if not isinstance(rec, dict) or not isinstance(rec.get("evidence"), dict):
+            raise ValueError(f"{path} entry {i} is not a VALIDATION record with dict evidence")
+        if TRAIL_LINK in rec["evidence"]:
+            continue
+        rec["evidence"][TRAIL_LINK] = _link_for(trail[:i], rec)
+        minted += 1
+    if minted:
+        _atomic_write(path, trail)
+    return minted
+
+
 def _atomic_write(path: str, data) -> None:
-    """Write JSON via temp-file + rename, so a reader never sees a half-written trail."""
+    """Write JSON via temp-file + rename, then drop the file to read-only.
+
+    THE MODE BIT IS THE CHEAP HALF OF THE GATE (2026-08-05, ticket
+    validation-store-door-is-the-only-path). A record of truth declared append-only was a
+    plain 0644 JSON file, so ``json.dump(trail, open(path, "w"))`` from anywhere destroyed a
+    proof's whole seal history and looked exactly like a fresh seal. At 0444 that call raises
+    PermissionError at the open — the ORDINARY bypass, the one nobody intended, stops being
+    possible rather than being detected afterwards.
+
+    It does not stop a deliberate one (same uid can chmod), and it is not meant to: that is
+    the chain's job, above. The two halves answer different failure modes — accident and
+    forgery — and neither substitutes for the other.
+
+    RESIDUE, stated because git cannot carry it: git tracks only the executable bit, so a
+    fresh clone lands these files at 0644 and they are unprotected until the door next
+    appends. The mode is a property of the working tree, not of the record. The chain is the
+    half that survives a clone.
+    """
     directory = os.path.dirname(path) or "."
     os.makedirs(directory, exist_ok=True)
     fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(tmp, path)
+        os.chmod(tmp, 0o444)
+        os.replace(tmp, path)  # rename over a read-only file needs the DIRECTORY, not the file
     except BaseException:
         if os.path.exists(tmp):
+            os.chmod(tmp, 0o644)
             os.remove(tmp)
         raise
 
@@ -221,11 +388,27 @@ def persist_validation(
             f"a VALIDATION carries exactly the ratified eight fields {sorted(VALIDATION_FIELDS)}; "
             f"got {sorted(got)} — a drifted record is refused, it is not a seal (Law 7)"
         )
+    evidence = validation.get("evidence")
+    if not isinstance(evidence, dict):
+        raise ValueError(
+            f"a VALIDATION's `evidence` is a structure, not a blob — got {type(evidence).__name__}. "
+            "The door mints the trail link INSIDE evidence (the eight fields are ratified and it "
+            "may not become a ninth), so a non-dict evidence has nowhere to carry its own seal.")
+    if TRAIL_LINK in evidence:
+        raise ValueError(
+            f"the caller supplied {TRAIL_LINK!r} — the link is MINTED BY THIS DOOR and by nothing "
+            "else. A record arriving with one pre-filled is either a replay of an existing entry "
+            "or a hand-built forgery; in both cases the door is not the hand that sealed it "
+            "(Law 6: the owner alone gates writes).")
     path = (
         validations_path_for(proof_path) if proof_path is not None
         else validations_path_for_artifact(artifact_path)
     )
     trail = read_validations(path=path)
-    trail.append(dict(validation))
+    record = dict(validation)
+    # THE LINK COMMITS TO EVERYTHING BENEATH IT — including a prehistory written before links
+    # existed. Minted here, at the one door, which is what makes its absence evidence.
+    record["evidence"] = dict(evidence, **{TRAIL_LINK: _link_for(trail, record)})
+    trail.append(record)
     _atomic_write(path, trail)
     return path

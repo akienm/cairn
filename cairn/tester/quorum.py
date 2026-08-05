@@ -39,7 +39,8 @@ from __future__ import annotations
 from datetime import datetime
 
 from cairn.tester.device import GREEN, RED
-from cairn.tester.validation_store import persist_validation
+from cairn.tester.validation_store import (persist_validation, read_validations,
+                                           validations_path_for_artifact)
 
 
 class QuorumRefused(ValueError):
@@ -137,5 +138,10 @@ def seal(
         "falsifier": falsifier,
         "horizon": horizon,
     }
+    # WHAT COMES BACK IS WHAT LANDED, not what was built. Since 2026-08-05 the door mints a
+    # trail_link into `evidence` as it seals, so the dict assembled above is no longer the
+    # record on disk — and handing a caller a second, unlinked copy is how a store grows a
+    # rival source of truth (the same defect MethodRegistry was). Read it back through the
+    # door's own reader; the trail's newest entry IS the seal.
     persist_validation(validation, artifact_path=artifact_path)
-    return validation
+    return read_validations(path=validations_path_for_artifact(artifact_path))[-1]

@@ -1,10 +1,10 @@
 # The memory system: graph trees as an inference cache
 
-*A technical brief for an enterprise architect.*
+*A technical brief.*
 
 **Audience:** someone who builds AI systems for a living and wants the mechanism,
 not the pitch. Math where math is clearer than prose.
-**Author:** Akien MacIain · **Status:** draft, awaiting signature gate · **Date:** 2026-08-05
+**Author:** Akien Maciain · **Status:** final · **Date:** 2026-08-05
 
 ---
 
@@ -12,8 +12,8 @@ not the pitch. Math where math is clearer than prose.
 
 This brief describes the memory architecture **as intended**, because the
 intention is the thing that is explainable and the thing worth evaluating. The
-implementation is at different depths in different places, and pretending
-otherwise would waste your time.
+implementation is at different depths in different places, since we adopted our
+new approach.
 
 So: where a mechanism is running and has been measured, the measurement appears
 with its actual numbers, including the ones that came out badly. Where a
@@ -91,9 +91,8 @@ leaf = {                    # THE THING INDEXING IT
 **A node is what is remembered. A leaf is how it is found.** The address
 `database.tree.leaf` is a *locator*, and it changes when a tree reorganizes. The
 node's identity does not. One node can be indexed by many leaves in many trees —
-which is what makes "two tree sets over one node set" a mechanism rather than a
-slogan, and what lets the same claim sit in different neighborhoods depending on
-which axis you are asking along.
+differently in the name of different needs, and what lets the same claim sit in
+different neighborhoods depending on which axis you are asking along.
 
 Three properties of the node layer:
 

@@ -1,19 +1,10 @@
 {
   "cursor": {
-    "at": "2026-07-25",
-    "standing": "VOCABULARY RENAMED to pass BUILD-TO-THE-TOOL (Akien's naming gate, 2026-07-25): a term must be DERIVABLE from its native-domain use — know how the word works on the water and its meaning here follows, with nothing to memorise. Four terms failed and were retired: `in_flight` (an AVIATION word inside a nautical system — a ship is never in flight), `berth_pending` (invented, not a maritime term), `docked` (a near-SYNONYM of berth, so nothing told a reader which of ours was which), and `journey` (which already meant CC's SESSION TRANSCRIPT elsewhere in this tree — one word, two meanings). Replaced by the real vessel progression AT SEA -> AT ANCHOR -> BERTHED, one continuous sequence any sailor knows, mapping exactly onto voyaging / arrived-awaiting-a-berth / tied-up-at-rest. `underway` SURVIVES on a different axis: at-sea is WHERE a boat is, under-way is THAT it is making normal progress (the calm unflagged count inside a gate) — the collision that killed the first proposal (`in_flight`->`under_way`) and was caught by reading before renaming. Net -3 names (falsifier 10 on bus-completion: a build adds no net new vocabulary). THIS COMPONENT: journey.py -> voyage.py, proofs/test_journey.py -> proofs/test_voyage.py, journey_of -> voyage_of, mid_journey -> mid_voyage; traffic_image now returns {gates, at_anchor, berthed, counts{at_sea, at_anchor, gates, flagged, berthed, fleet}}. NOTE FOR THE TRAIL: the sealed record validations/test_journey.json names a proof file that no longer exists — it is an honest record of a proof that ran under the FORMER name and is deliberately NOT rewritten (a record of truth never changes in place, Law 7); this entry is the link between the two names.",
-    "gate": "proven",
-    "proof": "proofs/test_voyage.py",
-    "seq": 9
+    "at": "2026-08-05",
+    "standing": "THE SEAM PROVED, AND THE RUNG MEASURED UNRUN. Working item 1 of the build order ('wire the gate') began by verifying its stated blocker — 'wiring needs a live system_rackmount instance the harbor can reach' — and found it false: ask() is a plain method on the device, no bus, no daemon, no instance. proofs/test_harbor_asks_the_real_host.py (5 teeth, green, sealed under a real netns) now puts the REAL SystemRackmountDevice behind clear(resources=...): every HARBOR_LINES name is a probe the device advertises on the ask door; the device's own predicate drives the refusal in BOTH directions (cpu crosses up, memory crosses down); the refusal names the harbor's line and never the device's reading, in the message text too; and a quiet box clears, recorded. Teeth mutation-checked. AND THE LARGER FACT UNDERNEATH: 0 of 229 journaled records across 21 histories carry cleared_by — no crossing in the system's recorded life has passed this rung, and clear() has no production caller at all. That is this charter's own falsifier condition ('if devices advance workflows AROUND it once the clearance gate lands, the authority rung has failed') met continuously since the gate was built. Filed: CairnCommons/troubles/every-crossing-goes-around-the-clearance-gate.json. Wiring resources= was never the missing step; a caller is.",
+    "seq": 10
   },
   "window": [
-    {
-      "at": "2026-07-24",
-      "standing": "child c BUILT — the TRAFFIC IMAGE (journey.py): the harbour master's state-right-now main view, composed as DATA over the register (child a). Two derived, computed-on-read structures: the EMERGENT GATE (in-flight boats grouped by transition-class — many workflows share one gate) and the JOURNEY STITCH (a boat's open + berthed vantages joined across the hyphen/underscore id-spelling, register filed-edge e). The one honest flag today is MID-JOURNEY (a boat at sea AND docked — the silently-stuck, the boon of the broad view); the rest of the marker vocabulary is filed grow-against-need on the gate's-queue IOU (held-traffic-image). Owns nothing (a projection over the register, Law 7).",
-      "gate": "built",
-      "ref": "child c",
-      "seq": 5
-    },
     {
       "at": "2026-07-24",
       "standing": "child c PROVEN — and the harbor_master PARENT proves with it (child c was the last rung). 4 teeth a hollow view could not pass: the emergent gate is SHARED (a gate holds >1 boat over the real fleet, non-hollow, Law 8); the journey STITCHES a boat's two vantages across id-spelling and flags the silently-stuck (mid-journey boats actually surface — the boon); the image OWNS NOTHING (each occupant byte-equal to its register entry, gates exactly the open set, Law 7); the calm/flagged partition is exact per gate. Sealed under a REAL netns (green/sealed). Live: 12 in flight across 7 gates, 4 flagged mid-journey, 9 docked.",
@@ -42,7 +33,12 @@
       "gate": "proven",
       "proof": "proofs/test_voyage.py",
       "seq": 9
+    },
+    {
+      "at": "2026-08-05",
+      "standing": "THE SEAM PROVED, AND THE RUNG MEASURED UNRUN. Working item 1 of the build order ('wire the gate') began by verifying its stated blocker — 'wiring needs a live system_rackmount instance the harbor can reach' — and found it false: ask() is a plain method on the device, no bus, no daemon, no instance. proofs/test_harbor_asks_the_real_host.py (5 teeth, green, sealed under a real netns) now puts the REAL SystemRackmountDevice behind clear(resources=...): every HARBOR_LINES name is a probe the device advertises on the ask door; the device's own predicate drives the refusal in BOTH directions (cpu crosses up, memory crosses down); the refusal names the harbor's line and never the device's reading, in the message text too; and a quiet box clears, recorded. Teeth mutation-checked. AND THE LARGER FACT UNDERNEATH: 0 of 229 journaled records across 21 histories carry cleared_by — no crossing in the system's recorded life has passed this rung, and clear() has no production caller at all. That is this charter's own falsifier condition ('if devices advance workflows AROUND it once the clearance gate lands, the authority rung has failed') met continuously since the gate was built. Filed: CairnCommons/troubles/every-crossing-goes-around-the-clearance-gate.json. Wiring resources= was never the missing step; a caller is.",
+      "seq": 10
     }
   ],
-  "count": 10
+  "count": 11
 }

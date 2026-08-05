@@ -64,14 +64,57 @@ class OrientRefused(RuntimeError):
     """The loud refusal — a packet or request that cannot be grounded says so."""
 
 
+_ROSTER_MEMO: dict[str, list[str]] = {}
+
+
+def forget_roster(root: str | None = None) -> None:
+    """Drop the memo below — the whole one, or one root's. The door for a caller that
+    KNOWS the tree changed under it (a proof that just wrote a component; a process that
+    installed one). Not a timer, not a poll: the write is the event."""
+    if root is None:
+        _ROSTER_MEMO.clear()
+    else:
+        _ROSTER_MEMO.pop(root, None)
+
+
 def component_roster(root: str = CAIRN_ROOT) -> list[str]:
     """The components that carry a charter beside their code, derived from the
     orient instrument's census — the floor asks the settled measurer, it does not
     scan in parallel. (A component without an intention doesn't run, so only
-    charter-on-disk rows ride the roster.)"""
+    charter-on-disk rows ride the roster.)
+
+    MEASURED ONCE PER PROCESS, PER ROOT (2026-08-05). Law 1 is not a performance note
+    here, it is the correctness argument: ``ref_exists`` called this on EVERY ref, so a
+    single ``inspect(component='base')`` ran ``device_census`` **168 times** — 15,960
+    ``ast.parse`` calls, 30.3s of wall clock for ONE component, and 99.3% of the profile
+    under this one line. That is not one measurement taken slowly; it is 168 different
+    measurements of 168 different instants, stitched together and reported as one census.
+    A judge that re-derives its world between two of its own findings can contradict
+    itself and be right both times.
+
+    The lived symptom, which is how this was found: ``cairn/build_inspector`` was the one
+    proof in the corpus the tester could not finish — RED at its 120s wall, every tooth
+    green when run alone at 2m47s. The gate that stands at every forward PROVEME crossing
+    was, itself, the slowest thing in the system.
+
+    THE RESIDUE, named rather than glossed: this memo has no invalidation event. Every
+    caller today is a short-lived CLI or gate invocation, where "the tree at the moment
+    this process started" is exactly the right world to judge against — but a long-lived
+    holder (a shim, the ground loop) would keep a roster past a real install. ``forget_roster``
+    is the door for a caller that knows; a FileChanged-hook-fired clear is the physics that
+    would retire the residue, and it is an IOU, not a resting state (Law 4).
+    """
+    hit = _ROSTER_MEMO.get(root)
+    if hit is not None:
+        return list(hit)
+    # A REFUSAL IS NEVER MEMOIZED. device_census raises ScanRefused on a root that is not
+    # a world; caching that would turn one bad call into a permanently broken process, and
+    # the second caller would be told about a scan it never ran (Law 7).
     census = device_census(root=Path(root) / "cairn")
-    return sorted(row["component"] for row in census["measured"]["components"]
-                  if row["charter_on_disk"])
+    roster = sorted(row["component"] for row in census["measured"]["components"]
+                    if row["charter_on_disk"])
+    _ROSTER_MEMO[root] = roster
+    return list(roster)
 
 
 def skill_roster(root: str = CAIRN_ROOT) -> list[str]:

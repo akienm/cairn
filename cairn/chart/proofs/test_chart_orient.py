@@ -144,6 +144,55 @@ def test_floor_composes_the_orient_instrument(root):
     assert component_roster(root) == ["alpha", "beta"]
 
 
+def test_the_roster_is_measured_ONCE_per_process_and_forgetting_re_measures(root):
+    """Ticket residue of the 2026-08-05 measurement: ``ref_exists`` asked
+    ``component_roster`` on EVERY ref, and the roster ran a full-tree
+    ``device_census`` every time — 168 censuses for ONE ``inspect(component='base')``,
+    15,960 ``ast.parse`` calls, 30.3s of wall clock, 99.3% of the profile under one
+    line. The lived symptom was ``cairn/build_inspector``: the only proof in the corpus
+    the tester could not finish, RED at its 120s wall, every tooth green when run alone.
+
+    The tooth measures the two halves of the fix as PHYSICS, not as speed: the census
+    is taken once per root per process (so a judge cannot re-derive its world between
+    two of its own findings and contradict itself), and ``forget_roster`` really
+    re-measures (so the memo has a door, and the residue is a named IOU rather than a
+    trap). It counts CALLS INTO the measurer — the receiver, not the clock — because a
+    timing assertion would go red on a slow box and green on a fast one holding the
+    identical defect."""
+    import cairn.chart.orient as orient_mod
+    calls = []
+    real = orient_mod.device_census
+
+    def counted(**kwargs):
+        calls.append(kwargs.get("root"))
+        return real(**kwargs)
+
+    orient_mod.device_census = counted
+    try:
+        orient_mod.forget_roster(root)
+        first = orient_mod.component_roster(root)
+        again = orient_mod.component_roster(root)
+        third = orient_mod.component_roster(root)
+        assert first == again == third == ["alpha", "beta"], (first, again, third)
+        assert len(calls) == 1, \
+            "three asks, %d censuses — the roster is re-deriving the settled" % len(calls)
+
+        orient_mod.forget_roster(root)
+        after = orient_mod.component_roster(root)
+        assert after == first and len(calls) == 2, \
+            "forget_roster must re-measure, else the memo has no door out"
+
+        # A HANDED-BACK LIST IS A COPY. A caller that mutates what it got must not be
+        # editing every later caller's world — the memo is a record, not shared mutable
+        # state (Law 6: one owner, and this one gates its own writes).
+        after.append("intruder")
+        assert orient_mod.component_roster(root) == first, \
+            "a caller mutating its copy reached into the memo"
+    finally:
+        orient_mod.device_census = real
+        orient_mod.forget_roster(root)
+
+
 def test_ticket_claim_is_gated(root):
     """A packet may claim its ticket only if the ticket is ON FILE in
     CairnCommons/tickets/ (packet-inspector-wire, 2026-07-28) — a packet claiming

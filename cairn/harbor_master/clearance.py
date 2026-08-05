@@ -25,22 +25,62 @@ re-instated method-registry (registry.py) and refuses an unproven one. It only R
 method (confirms it is proven) — it never CALLS it: the harbor clears the move, the crew
 sails it. A harbor that executed would be the ground_loop-executor goof the ticket warns of.
 
-So the gate binds three refusals before a cursor moves — unauthorized (Law 6), unproven
-(Law 8), illegal (Law 4, via the wrapped chokepoint) — and only then does the truth get
-written (Law 7). Cooperative, not policed: there is no enforcer here, only a gate the one
-owner holds (the db_domain pattern — no other door). Forgery is not the threat model on a
-single-owner cooperative box; AMBIENT authority is — an actor moving a boat with no grant,
-or reusing one grant across operations. That is exactly what a per-operation grant refuses.
+So the gate binds FOUR refusals before a cursor moves — unauthorized (Law 6), unproven
+(Law 8), illegal (Law 4, via the wrapped chokepoint), and unresourced — and only then does
+the truth get written (Law 7). Cooperative, not policed: there is no enforcer here, only a
+gate the one owner holds (the db_domain pattern — no other door). Forgery is not the threat
+model on a single-owner cooperative box; AMBIENT authority is — an actor moving a boat with
+no grant, or reusing one grant across operations. That is exactly what a per-operation grant
+refuses.
+
+THE FOURTH REFUSAL — UNRESOURCED (ratified by Akien 2026-08-04). A move that summons a
+builder onto a host with no room for it fails as surely as an illegal one, just louder and
+later. Measured from experience: past ~6 concurrent builders this box crawls, past 8 it heads
+for a hard crash. The gate that already holds up the license to advance is where that is
+answered — "it's not asking the system anymore, it's asking the harbormaster, because that's
+the entity that would hold up the license to advance."
+
+Three things this is NOT, each load-bearing:
+  - NOT A COUNT. Nothing here or anywhere counts live builders — that would be a manager, and
+    a manager is what this system does not have. Admission is decided from PRESSURE, which is
+    directly observable, not from POPULATION, which would need a census someone owns. The
+    fleet register (child a) is never consulted to gate a build; it reports, it does not
+    manage.
+  - NOT A READING. system_rackmount answers a VERDICT — "your line is crossed" — never a
+    number. The harbor owns the LINE; the system device owns the METRIC. Either can change
+    without the other knowing (Law 6).
+  - NOT A SCHEDULER. The gate answers when asked. It never dispatches, never assigns, never
+    starts anything. Initiative stays with the boat: each device owns its own task of checking
+    whether it can start, and this is the door it checks at.
 
     python3 cairn/harbor_master/proofs/test_clearance.py     # exit 0 = green
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 
 from cairn.base.transitions import emit
 from cairn.harbor_master.registry import MethodRegistry
+
+# How long a minted grant stays spendable. RULED BY AKIEN AT 10 SECONDS, 2026-08-04: "the thing
+# asks for it, and has 10 seconds to take it to the build gate."
+#
+# The floor on this number is how long a launch takes to become VISIBLE to the resource owner:
+# a grant that lapses before the thing it cleared shows up in the reading leaves the next asker
+# blind for the gap. MEASURED: system_rackmount's runnable-count reading reflects a new load in
+# under a second, so 10s clears that floor with room to spare. It would NOT have cleared it
+# against the decaying load average that device served until today (~60s to reflect the same
+# event) — the TTL and the metric swap are one decision, not two.
+GRANT_TTL_SECONDS = 10.0
+
+# The harbor's OWN lines — the values it holds up against system_rackmount's verdicts. The
+# harbor owns these; the system device owns how they are measured, and neither needs the other's
+# half. cpu: 6 of 8 cores runnable is 75%, the top of the range Akien measured as still workable.
+# memory: a HYPOTHESIS, not a measurement (Law 3) — no one has yet measured what a builder needs
+# to not thrash, so this is a placeholder holding the seam open, labelled as one.
+HARBOR_LINES: dict[str, float] = {"cpu_threshold": 75.0, "memory_floor": 1024.0}
 
 
 class Unauthorized(Exception):
@@ -50,20 +90,49 @@ class Unauthorized(Exception):
     failure this gate exists to make impossible."""
 
 
+class GrantExpired(Unauthorized):
+    """The grant was real and named exactly this operation — and it lapsed before it was spent.
+
+    A subclass of ``Unauthorized`` on purpose: an expired grant authorizes nothing, so every
+    guarantee that holds for "no grant" must hold identically here, including that the refused
+    move leaves NO record. The distinct name exists so a caller can tell "you were never
+    allowed" from "you waited too long" — those want different responses from the asker."""
+
+
+class Unresourced(Exception):
+    """The host has no room for what this move would summon — the fourth refusal.
+
+    Not an authority failure and not a rules failure: the actor was entitled, the move was
+    legal, and the answer is still no. It carries no reading, because the gate never received
+    one — only which line was crossed (Law 6)."""
+
+
 @dataclass(frozen=True)
 class Grant:
     """A per-operation delegation: the owner authorizes ONE actor to make ONE transition on
-    ONE boat. Frozen and specific by construction — it cannot be widened after minting, and
-    it authorizes nothing but the exact (boat, target, actor) it names. Non-ambient physics:
-    authority is a thing you hold FOR an operation, not a standing capability you keep."""
+    ONE boat, WITHIN A WINDOW. Frozen and specific by construction — it cannot be widened after
+    minting, and it authorizes nothing but the exact (boat, target, actor) it names, for as long
+    as it names. Non-ambient physics: authority is a thing you hold FOR an operation, not a
+    standing capability you keep — and the expiry is what stops "for an operation" from quietly
+    becoming "forever" whenever an operation is slow to happen.
+
+    The window is also what makes a lagging instrument safe. A resource verdict is true when it
+    is given and decays from there; a grant that never expired would let a builder bank a yes
+    from a quiet moment and spend it into a loaded box. Ten seconds is the leash on that."""
 
     boat_id: str
     target: str
     to_actor: str
     by_owner: str
+    issued_at: float = field(default_factory=time.monotonic)
+    ttl_seconds: float = GRANT_TTL_SECONDS
 
     def authorizes(self, *, boat_id: str, target: str, actor: str, owner: str) -> bool:
-        """True only for the exact operation this grant names, issued by this boat's owner."""
+        """True only for the exact operation this grant names, issued by this boat's owner.
+
+        IDENTITY ONLY — it deliberately does not consider the clock. "This grant was never for
+        you" and "this grant lapsed" are different answers to the asker, so the gate asks them
+        separately and refuses with different names."""
         return (
             self.by_owner == owner
             and self.boat_id == boat_id
@@ -71,16 +140,31 @@ class Grant:
             and self.to_actor == actor
         )
 
+    def expired(self, now: float | None = None) -> bool:
+        """Has the window closed? ``now`` is injectable so the expiry is provable without a
+        sleep — a proof that waits on a wall clock is a flake with a schedule."""
+        if now is None:
+            now = time.monotonic()
+        return (now - self.issued_at) >= self.ttl_seconds
 
-def mint_grant(*, owner: str, boat_id: str, to_actor: str, target: str) -> Grant:
+
+def mint_grant(*, owner: str, boat_id: str, to_actor: str, target: str,
+               now: float | None = None, ttl_seconds: float = GRANT_TTL_SECONDS) -> Grant:
     """The owner delegates ONE operation — the only door delegation passes through (Law 6).
 
     Minting IS the owner's act: on a cooperative single-owner box the authority is that the
     boat's rightful owner is the one constructing the capability. The gate later checks the
     grant was minted BY this boat's owner (``by_owner == boat_owner``), so a grant carrying
     someone else's name authorizes nothing.
+
+    The mint stamps the clock. There is no way to mint an unexpiring grant — the window is a
+    property of the capability, not an option a caller can decline.
     """
-    return Grant(boat_id=boat_id, target=target, to_actor=to_actor, by_owner=owner)
+    return Grant(
+        boat_id=boat_id, target=target, to_actor=to_actor, by_owner=owner,
+        issued_at=time.monotonic() if now is None else now,
+        ttl_seconds=ttl_seconds,
+    )
 
 
 def clear(
@@ -96,18 +180,29 @@ def clear(
     history_path: str | None = None,
     state_path: str | None = None,
     node_class_root=None,
+    resources=None,
+    lines: dict | None = None,
+    now: float | None = None,
 ) -> str:
     """Clear a transition, or refuse it — the authority rung wrapping the rules+truth chokepoint.
 
-    Binds three refusals before the cursor may move, then records the crossing:
+    Binds four refusals before the cursor may move, then records the crossing:
       1. AUTHORITY (Law 6): ``actor`` must be the boat's owner, or hold a ``grant`` that
-         authorizes exactly this (boat_id, target, actor) and was minted by ``boat_owner``.
-         Otherwise → ``Unauthorized``. Checked first: an actor with no standing here is
-         turned away before anything else is inspected.
+         authorizes exactly this (boat_id, target, actor), was minted by ``boat_owner``, and
+         has not lapsed. Otherwise → ``Unauthorized`` (or ``GrantExpired``, its subclass, when
+         the grant named the right operation but its window closed). Checked first: an actor
+         with no standing here is turned away before anything else is inspected.
       2. PROVEN-SPACE (Law 8): ``method`` must resolve in ``registry`` (its proof passed
          under the tester). Otherwise → ``UnprovenMethod``. The method is resolved, never
          called — the harbor clears the move, it does not sail it.
-      3. RULES + TRUTH (Law 4/7): ``emit`` validates legality against the class's versioned
+      3. RESOURCES: if this harbor was wired to a resource owner, every line in ``lines`` is
+         put to it and a crossed line refuses the move → ``Unresourced``. ``resources`` is
+         anything with ``ask(name, value) -> bool`` (system_rackmount's may-I door). The
+         harbor holds the LINES; the resource owner holds the METRICS and answers only a
+         verdict, so neither half can drift into the other (Law 6). Left un-wired
+         (``resources=None``) this gate does not run, and the harbor is honestly a harbor with
+         no view of the host — not a harbor that decided there was room.
+      4. RULES + TRUTH (Law 4/7): ``emit`` validates legality against the class's versioned
          table and, only if legal, journals the crossing through the projector's write-door
          (append-only, carrying ``cleared_by`` and whether it was delegated). An illegal
          move → ``IllegalTransition`` and NOTHING is written — authority never buys an
@@ -115,7 +210,7 @@ def clear(
 
     Returns the new workflow string (cursor moved to ``target``). Every refusal raises before
     ``emit`` is reached, so a refused move leaves no partial record (unauthorised OR unproven
-    OR illegal ⇒ un-recorded).
+    OR unresourced OR illegal ⇒ un-recorded).
     """
     # 1. AUTHORITY (Law 6) — owner acts directly, or a matching per-operation grant delegates.
     if actor != boat_owner:
@@ -127,11 +222,29 @@ def clear(
                 f"({boat_owner!r}), and holds no grant for THIS operation — authority is "
                 f"per-operation and non-ambient (Law 6)"
             )
+        if grant.expired(now):
+            raise GrantExpired(
+                f"{actor!r} holds a grant for boat {boat_id!r} -> {target!r} that LAPSED: "
+                f"minted with a {grant.ttl_seconds}s window and spent after it closed. Ask "
+                f"again — a stale yes is not a yes, because what it was true about has moved"
+            )
 
     # 2. PROVEN-SPACE (Law 8) — the method the move summons must already be proven.
     registry.resolve(method)  # raises UnprovenMethod if it never cleared the tester's gate
 
-    # 3. RULES + TRUTH (Law 4/7) — wrap the chokepoint: it refuses the illegal, journals the legal.
+    # 3. RESOURCES — the fourth refusal. The harbor asks the resource owner about ITS OWN lines
+    #    and receives a verdict, never a reading. Nothing here counts anything: a line is about
+    #    PRESSURE on the host, and pressure is observable without a census of who is causing it.
+    if resources is not None:
+        for name, value in (HARBOR_LINES if lines is None else lines).items():
+            if resources.ask(name, value):
+                raise Unresourced(
+                    f"the host has no room to move boat {boat_id!r} to {target!r}: the harbor's "
+                    f"{name} line ({value}) is crossed. The move is authorized, proven and legal "
+                    f"— and still refused. Ask again when the box is quieter"
+                )
+
+    # 4. RULES + TRUTH (Law 4/7) — wrap the chokepoint: it refuses the illegal, journals the legal.
     emit_kwargs = {}
     if node_class_root is not None:
         emit_kwargs["node_class_root"] = node_class_root

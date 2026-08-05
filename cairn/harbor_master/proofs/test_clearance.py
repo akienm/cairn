@@ -19,9 +19,14 @@ could not pass (mapped to the parent falsifier, tickets/harbor-master.json):
     refused; a method is admitted to the registry only if its proof passes UNDER THE TESTER
     (a red-proof method is refused at register time). Proven-space is the tester's, not a
     claim.
-  - THE MOVEMENT IS RECORDED, TWO VANTAGES (Law 7): a cleared crossing appends to the boat's
-    own history carrying WHO cleared it; the fleet register (child a), computed over that
-    history, then reflects the new standing — no rival record.
+  - A GRANT LAPSES (Law 6): a grant that names the right operation and was minted by the right
+    owner is STILL refused once its window closes. A build that treated the grant as a standing
+    capability passes every operation-identity tooth above and dies here.
+  - THE HOST CAN REFUSE (the fourth refusal): a move that is authorized, proven and legal is
+    still refused when the harbor's resource line is crossed. THE HOLLOW-KILLERS: the gate
+    receives a VERDICT and never a reading (a fake that raises on any door but ``ask`` proves
+    it), and NOTHING COUNTS BUILDERS anywhere in the chain — the fake also raises on every
+    census-shaped door, so a build that decided admission from a population dies here.
 
 Runs bare (the registry's gate is the real tester; the green/red fixtures are the tester's):
     python3 cairn/harbor_master/proofs/test_clearance.py     # exit 0 = green
@@ -39,7 +44,15 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.base.transitions import IllegalTransition
 from cairn.charter import projector
-from cairn.harbor_master.clearance import Unauthorized, clear, mint_grant
+from cairn.harbor_master.clearance import (
+    GRANT_TTL_SECONDS,
+    HARBOR_LINES,
+    GrantExpired,
+    Unauthorized,
+    Unresourced,
+    clear,
+    mint_grant,
+)
 from cairn.harbor_master.registry import MethodRegistry, UnprovenMethod
 
 # The real code-seam@v1 string, cursor at BUILDME. Legal forward from here: PROVEME (the next
@@ -189,6 +202,115 @@ def test_a_method_with_a_failing_proof_is_refused_admission():
     raise AssertionError("a method whose proof fails under the tester must be refused admission (Law 8)")
 
 
+class _ResourceOwner:
+    """A stand-in for system_rackmount's may-I door, built to catch a gate reaching for more
+    than a verdict. It answers ``ask`` with a fixed verdict and RAISES on every other shape a
+    hollow build might reach for — the raw reading, and any census of who is running. Those
+    raises are the teeth: they are the two designs this one is not."""
+
+    def __init__(self, crossed: bool) -> None:
+        self._crossed = crossed
+        self.asked: list[tuple] = []
+
+    def ask(self, name: str, value) -> bool:
+        self.asked.append((name, value))
+        return self._crossed
+
+    def _forbidden(self, *_a, **_k):
+        raise AssertionError(
+            "the gate reached past the verdict — it must never pull a reading, and it must "
+            "never count builders (admission is decided from pressure, not population)"
+        )
+
+    reading = _reading = state = _forbidden          # the raw number: not this gate's business
+    builders = count = active_builders = _forbidden  # the census that would make this a manager
+
+
+def test_a_lapsed_grant_is_refused_and_nothing_is_written():
+    # The window is part of the capability. This grant names exactly the right operation and was
+    # minted by the right owner — the only thing wrong with it is that it is old.
+    reg = _proven_registry()
+    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        try:
+            clear(
+                _WF, "PROVEME",
+                actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
+                method="build", registry=reg, grant=grant,
+                now=1000.0 + GRANT_TTL_SECONDS + 0.1,   # spent just past the window
+                history_path=hp, state_path=sp,
+            )
+        except GrantExpired:
+            assert not Path(hp).exists(), "a lapsed grant writes no record — it authorizes nothing"
+            return
+        raise AssertionError("a grant spent after its window must be refused (Law 6)")
+
+
+def test_the_same_grant_inside_its_window_still_clears():
+    # The other half of the tooth above: the expiry must refuse the STALE, not the DELEGATED.
+    # A build that broke delegation outright would pass the lapse test and die right here.
+    reg = _proven_registry()
+    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        new = clear(
+            _WF, "PROVEME",
+            actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
+            method="build", registry=reg, grant=grant,
+            now=1000.0 + GRANT_TTL_SECONDS - 0.1,       # spent just inside it
+            history_path=hp, state_path=sp,
+        )
+        assert "[PROVEME]" in new, "a grant inside its window must still clear the move"
+
+
+def test_a_crossed_resource_line_refuses_an_otherwise_perfect_move():
+    # THE FOURTH REFUSAL. Owner acting directly, proven method, legal target — every other gate
+    # is wide open, and the host still says no.
+    reg = _proven_registry()
+    host = _ResourceOwner(crossed=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        try:
+            clear(
+                _WF, "PROVEME",
+                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                method="build", registry=reg, resources=host,
+                history_path=hp, state_path=sp,
+            )
+        except Unresourced:
+            assert not Path(hp).exists(), "a move refused for want of room writes no record"
+            assert host.asked, "the gate must actually ask the resource owner, not assume"
+            assert host.asked[0][0] in HARBOR_LINES, "it asks by ADVERTISED MENU NAME, not method"
+            return
+        raise AssertionError("a crossed resource line must refuse the move — the fourth refusal")
+
+
+def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
+    # THE HOLLOW-KILLER for this stone. _ResourceOwner raises on every door but `ask` — on the
+    # raw reading (which would export the metric's semantics into the harbor, Law 6) and on
+    # every census shape (which would make this a manager). A build that reached for either
+    # dies here even though the happy path below is identical.
+    reg = _proven_registry()
+    host = _ResourceOwner(crossed=False)
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        new = clear(
+            _WF, "PROVEME",
+            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            method="build", registry=reg, resources=host,
+            history_path=hp, state_path=sp,
+        )
+        assert "[PROVEME]" in new, "room on the host → the move clears"
+        assert host.asked == [(name, value) for name, value in HARBOR_LINES.items()], (
+            "every line the harbor holds must be put to the resource owner — one unasked line "
+            "is a gate that does not gate"
+        )
+        for name, value in host.asked:
+            assert isinstance(value, (int, float)), "the harbor sends its LINE, a number it owns"
+        assert projector.read_history(hp)[0]["to"] == "PROVEME"
+
+
 def _main() -> int:
     checks = [
         test_the_owner_may_clear_a_legal_move_and_it_is_recorded,
@@ -198,13 +320,17 @@ def _main() -> int:
         test_even_the_owner_cannot_clear_an_illegal_move,
         test_clearing_onto_an_unproven_method_is_refused,
         test_a_method_with_a_failing_proof_is_refused_admission,
+        test_a_lapsed_grant_is_refused_and_nothing_is_written,
+        test_the_same_grant_inside_its_window_still_clears,
+        test_a_crossed_resource_line_refuses_an_otherwise_perfect_move,
+        test_the_gate_asks_for_a_verdict_and_never_counts_anything,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — the clearance gate binds authority (Law 6), proven-space (Law 8), and the "
-          "wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — "
-          "the harbor clears the move, it never sails it")
+    print("green — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, "
+          "and the wrapped rules (Law 4) before a cursor moves, and records the crossing "
+          "(Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet")
     return 0
 
 

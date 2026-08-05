@@ -25,11 +25,21 @@ So the advertise/subscribe/poke protocol + Law-6-local-evaluation are what "abst
 services device-independently" actually cashes out to: any device can ask the system device
 for a resource trigger, and the host's metrics stay home.
 
+TWO DOORS, ONE PREDICATE (the second added 2026-08-04, ratified by Akien). The menu above is
+the POKE-ME-WHEN door: you subscribe and the shim wakes you. ``ask()`` is the MAY-I door: the
+same advertised item, the same device-resolved predicate, pulled instead of pushed. It returns
+a VERDICT — "your line is crossed", true or false — never the reading. That is the whole point:
+a caller that receives the number receives the METRIC'S SEMANTICS too, and this device could
+then never change how it measures without touching every caller. A caller that receives a
+verdict is coupled to its own line and nothing else. The raw-number door ("tell me about
+yourself" — introspection, for curiosity/self-exploration) is a THIRD shape, named and
+deliberately NOT built: it has no customer yet, and unlike these two it exports semantics by
+design, which is safe only because no gate would depend on it.
+
 FILED EDGES (children of this stone, not faked):
-  - Only ``cpu_threshold`` is advertised (via a dependency-free best-effort load-average
-    sampler). ``memory``/``disk`` predicates are the SAME shape — they mount here when a
-    consumer asks; privilege (sudo_relay) is a host service in this same family, built
-    standalone first, migrating behind this device when a second consumer makes the seam pay.
+  - ``disk`` is not sampled — same shape as the two below, mounts when a consumer asks.
+    Privilege (sudo_relay) is a host service in this same family, built standalone first,
+    migrating behind this device when a second consumer makes the seam pay.
   - Subscriptions are LEVEL-triggered (a probe pokes while its predicate holds). Edge-
     triggering (poke once on the crossing) and unsubscribe are refinements that wait on a real
     consumer's need.
@@ -49,16 +59,51 @@ from cairn.base.device import BaseDevice
 from cairn.base.shim import BaseShim
 
 
-def _default_sampler() -> dict:
-    """Best-effort, dependency-free host reading: CPU as the 1-minute load average normalized
-    by core count, as a percent. The one part that needs the real host — injected in proofs so
-    the predicate physics is provable without it. memory/disk are filed edges (not sampled yet)."""
+def _cpu_percent() -> float | None:
+    """Host CPU pressure RIGHT NOW: the RUNNABLE count (field 4 of /proc/loadavg, the
+    ``running/total`` pair) normalized by core count, as a percent.
+
+    WHY NOT THE LOAD AVERAGE — MEASURED 2026-08-04. This device used to serve
+    ``os.getloadavg()[0]``, which the kernel recomputes only every 5s as a ~60s exponentially
+    decaying average. Four CPU burners on this 8-core box (truth ~50%) read: 5.5% at t=0, 9.1%
+    at t=1s and unchanged through t=5s, 12.4% at t=8s, 15.4% at t=12s. Twelve seconds after the
+    box was half-consumed the served metric still said 15%. An admission gate reading that
+    number lets every builder in, because the previous builder is still invisible when the next
+    one asks. The adjacent field went 2 -> 6 within one second of the same event. The gate needs
+    to see a launch before the next asker arrives; only the instantaneous field does that.
+
+    The reading process is itself runnable, so an idle box floors at ``1/cores``, not 0 — an
+    honest offset, not a fudge, and small enough that no line worth setting sits under it."""
     try:
-        load1 = os.getloadavg()[0]
-        cores = os.cpu_count() or 1
-        return {"cpu": round(load1 / cores * 100, 1)}
-    except (OSError, AttributeError):  # getloadavg is Unix-only — say so, don't fake a number (CP1)
-        return {"cpu": None}
+        with open("/proc/loadavg") as fh:
+            runnable = int(fh.read().split()[3].split("/")[0])
+    except (OSError, IndexError, ValueError):
+        return None  # not a Linux /proc host — say so, don't fake a number (CP1)
+    cores = os.cpu_count() or 1
+    return round(runnable / cores * 100, 1)
+
+
+def _memory_available_mb() -> float | None:
+    """Memory a new process could actually claim, in MB — ``MemAvailable`` from /proc/meminfo.
+
+    Instantaneous (no averaging anywhere in its derivation), so it carries none of the lag the
+    CPU note above documents. ``MemAvailable``, not ``MemFree``: free memory on a warm box is
+    near zero because the kernel holds reclaimable cache, and a gate reading MemFree would
+    refuse every build on a perfectly healthy host."""
+    try:
+        with open("/proc/meminfo") as fh:
+            for line in fh:
+                if line.startswith("MemAvailable:"):
+                    return round(int(line.split()[1]) / 1024, 1)
+    except (OSError, IndexError, ValueError):
+        return None
+    return None  # the field is absent on kernels < 3.14 — honestly unavailable, never a guess
+
+
+def _default_sampler() -> dict:
+    """Best-effort, dependency-free host reading. The one part that needs the real host —
+    injected in proofs so the predicate physics is provable without it. disk is a filed edge."""
+    return {"cpu": _cpu_percent(), "memory_available_mb": _memory_available_mb()}
 
 
 class SystemRackmountDevice(BaseDevice):
@@ -68,12 +113,24 @@ class SystemRackmountDevice(BaseDevice):
     the subscriber when the predicate holds — the reading never leaving the device (Law 6)."""
 
     # The menu this device advertises. Each entry names what a caller passes — never an internal
-    # method. Minimal today (cpu); memory/disk are the same shape, filed until a consumer asks.
+    # method — and which DOORS serve it: "subscribe" (poke me when) and "ask" (may I, right now).
+    # Both doors run the SAME device-resolved predicate; disk is the same shape, filed until a
+    # consumer asks. memory mounted 2026-08-04 when admission control became its first consumer.
     ADVERTISED: dict[str, dict] = {
         "cpu_threshold": {
             "takes": ["value"],
-            "why": "poke you when CPU crosses your line — evaluated here, your value never "
-            "leaves as a number (Law 6)",
+            "units": "percent of cores runnable",
+            "doors": ["subscribe", "ask"],
+            "why": "your line is crossed when CPU pressure is AT OR OVER your value — evaluated "
+            "here, your value never leaves as a number (Law 6)",
+        },
+        "memory_floor": {
+            "takes": ["value"],
+            "units": "MB available",
+            "doors": ["subscribe", "ask"],
+            "why": "your line is crossed when available memory falls BELOW your value — the "
+            "opposite direction from a threshold, which is why it is its own menu item and not "
+            "a flag on one (a caller should never have to know which way a metric runs)",
         },
     }
 
@@ -131,19 +188,49 @@ class SystemRackmountDevice(BaseDevice):
         self.emit("subscribe", pointer=sub_id)
         return sub_id
 
+    # --- (2') ask: the same predicate, pulled ------------------------------
+
+    def ask(self, name: str, value) -> bool:
+        """THE MAY-I DOOR. Is the caller's line crossed RIGHT NOW? Returns the same verdict the
+        poke would carry — a bool, never the reading (Law 6).
+
+        No new machinery: it resolves the caller's line into the device's own predicate exactly
+        as ``subscribe`` does, and evaluates it once instead of every pulse. That is the whole
+        implementation, and it is the argument for the shape — an ask door that returned the
+        NUMBER would have needed a second, different thing to exist.
+
+        Deliberately NOT emitting a diagnostic breadcrumb: ``subscribe`` emits because a
+        predicate being BORN is rare and low-frequency; an ask fires on every admission check,
+        which is the firehose the instrument discipline forbids. It is the answer that matters
+        and the caller records what it did with it."""
+        if name not in self.ADVERTISED:
+            raise KeyError(f"no advertised probe {name!r}; this device offers "
+                           f"{sorted(self.ADVERTISED)} (inspect advertises())")
+        return bool(self._resolve(name, value)(None, None))
+
     def _resolve(self, name: str, value):
         """Map an advertised menu name to the device's OWN predicate, closing over device-local
         data so the reading stays home (Law 6). This is the method-resolution the caller is kept
-        ignorant of — it only ever named the menu item."""
+        ignorant of — it only ever named the menu item. Both doors resolve through here, so a
+        subscription and an ask on the same item can never drift apart."""
         if name == "cpu_threshold":
             return lambda now, context: self._over("cpu", value)
-        raise KeyError(name)  # unreachable — subscribe validated the name
+        if name == "memory_floor":
+            return lambda now, context: self._under("memory_available_mb", value)
+        raise KeyError(name)  # unreachable — subscribe/ask validated the name
 
     def _over(self, metric: str, value) -> bool:
         """Is the OWNED reading of ``metric`` at/over ``value``? Samples inside the device; a
         None reading (metric unavailable on this host) is honestly NOT-over, never a fake fire."""
         reading = self._reading().get(metric)
         return reading is not None and reading >= value
+
+    def _under(self, metric: str, value) -> bool:
+        """Is the OWNED reading of ``metric`` BELOW ``value``? The floor direction. A None
+        reading is honestly NOT-below — same rule as ``_over``: an unavailable metric never
+        manufactures a crossing, in either direction."""
+        reading = self._reading().get(metric)
+        return reading is not None and reading < value
 
     def _reading(self) -> dict:
         """The device's own, unexported host data. The sampler is injectable so the predicate
@@ -159,9 +246,10 @@ class SystemRackmountDevice(BaseDevice):
     def intention(self) -> dict:
         return {
             "what": "The system device — owner of the host's resource predicates (CPU, memory, "
-            "disk). It advertises the threshold probes it can serve, and pokes a subscriber "
-            "when their line is crossed — evaluating the predicate locally, so the host's raw "
-            "metrics never leave the device.",
+            "disk). It advertises the threshold probes it can serve, and answers on two doors: "
+            "it pokes a subscriber when their line is crossed, and it answers an asker whether "
+            "their line is crossed right now — evaluating the predicate locally in both cases, "
+            "so the host's raw metrics never leave the device.",
             "why": "So any device can get a trigger on a host resource WITHOUT the host's data "
             "being exported and without coupling to the OS (Law 6): the reading stays home, only "
             "the wake-up crosses the bus. This is 'abstract host services device-independently' "
@@ -184,8 +272,13 @@ class SystemRackmountDevice(BaseDevice):
             "advertises": self.advertises(),
             "evaluation": "LOCAL — a threshold predicate reads the host metric INSIDE this device "
             "(Law 6); only the poke crosses the bus, never the reading",
-            "sampler": "best-effort load-average CPU (dependency-free); the real host sampler and "
-            "memory/disk predicates are filed edges — the predicate physics is proven by injection",
+            "doors": "TWO, one predicate: subscribe (poke me when your line is crossed) and ask "
+            "(is my line crossed right now?). Both return a VERDICT; neither returns a reading. "
+            "A raw-number introspection door is named and NOT built — no consumer yet",
+            "sampler": "dependency-free /proc: CPU as the RUNNABLE count over cores (instantaneous "
+            "— the decaying load average it replaced lagged a real load change by ~60s, measured), "
+            "memory as MemAvailable. disk is a filed edge — the predicate physics is proven by "
+            "injection, not by the host",
             "not": "NOT a central scheduler and NOT a service registry — the interval/date/"
             "quantity/state enum was deleted; a trigger is any predicate (cairn/base/probe.py)",
         }

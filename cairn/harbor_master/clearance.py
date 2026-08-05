@@ -20,10 +20,28 @@ A workflow-transition factors into THREE rungs (the emit-chokepoint trichotomy, 
     that history on demand — so the movement is recorded in both vantages with no rival copy.
 
 And Law 8 binds here too: a cleared move summons a peer who ACTS, and the code that acts
-must already be in proven-space. The gate resolves the fulfilling method against the
-re-instated method-registry (registry.py) and refuses an unproven one. It only RESOLVES the
-method (confirms it is proven) — it never CALLS it: the harbor clears the move, the crew
-sails it. A harbor that executed would be the ground_loop-executor goof the ticket warns of.
+must already be in proven-space. The caller names that code by its PROOF's address, and the
+gate reads the seal beside it. It only READS the seal (confirms the code is proven) — it
+never CALLS anything: the harbor clears the move, the crew sails it. A harbor that executed
+would be the ground_loop-executor goof the ticket warns of.
+
+NO REGISTRY (Akien, 2026-08-05: "methodregistry is a registry. generally we frown on
+registries. why do we need one here?" — and we did not). Until today this rung asked an
+in-memory ``MethodRegistry``, re-instated from the ground_loop driver-executor, which had
+DISPATCHED and so genuinely needed a name -> callable map. That executor role was stripped as
+a goof; the registry came back with its map intact and its consumer changed, and this gate
+threw the callable away on the line it received it — it only ever wanted a yes or no. Law 1
+forbids re-deriving a settled answer; it does not license carrying one forward when the
+question moved. Three things the removal buys, none of them tidiness:
+
+  - NO SECOND COPY. "This passed under the tester" already lives beside the proof, at an
+    address DERIVED from the proof's own path (73 trails on disk). There was nothing to look
+    up; the registry held a rival record of a fact that attaches at its own endpoint (Law 6).
+  - THE HORIZON IS ENFORCED. A registry entry cached a bool with no expiry and kept answering
+    green after the code moved. The seal carries a source fingerprint, so a stale green is a
+    REFUSAL now (Law 3 — a VALIDATION expires).
+  - NOTHING TO POPULATE. The registry admitted a method by RE-RUNNING its proof at wiring
+    time; a restart lost the lot. Reading a seal costs a file read and survives everything.
 
 So the gate binds FOUR refusals before a cursor moves — unauthorized (Law 6), unproven
 (Law 8), illegal (Law 4, via the wrapped chokepoint), and unresourced — and only then does
@@ -62,7 +80,7 @@ import time
 from dataclasses import dataclass, field
 
 from cairn.base.transitions import emit
-from cairn.harbor_master.registry import MethodRegistry
+from cairn.tester.validation_store import standing
 
 # How long a minted grant stays spendable. RULED BY AKIEN AT 10 SECONDS, 2026-08-04: "the thing
 # asks for it, and has 10 seconds to take it to the build gate."
@@ -97,6 +115,16 @@ class GrantExpired(Unauthorized):
     guarantee that holds for "no grant" must hold identically here, including that the refused
     move leaves NO record. The distinct name exists so a caller can tell "you were never
     allowed" from "you waited too long" — those want different responses from the asker."""
+
+
+class Unproven(Exception):
+    """The code this move would summon is not in proven-space RIGHT NOW (Law 8).
+
+    Replaces ``registry.UnprovenMethod``, and the rename is the design change: there is no
+    METHOD name any more, only the address of a proof and the seal beside it. Four ways to
+    earn this refusal, and the reader (``validation_store.standing``) says which in one pass —
+    never sealed, newest seal red, sealed green but carrying no fingerprint, or sealed green
+    with the horizon closed because the code moved underneath it."""
 
 
 class Unresourced(Exception):
@@ -174,8 +202,7 @@ def clear(
     actor: str,
     boat_id: str,
     boat_owner: str,
-    method: str,
-    registry: MethodRegistry,
+    proven_by: str,
     grant: Grant | None = None,
     history_path: str | None = None,
     state_path: str | None = None,
@@ -192,9 +219,12 @@ def clear(
          has not lapsed. Otherwise → ``Unauthorized`` (or ``GrantExpired``, its subclass, when
          the grant named the right operation but its window closed). Checked first: an actor
          with no standing here is turned away before anything else is inspected.
-      2. PROVEN-SPACE (Law 8): ``method`` must resolve in ``registry`` (its proof passed
-         under the tester). Otherwise → ``UnprovenMethod``. The method is resolved, never
-         called — the harbor clears the move, it does not sail it.
+      2. PROVEN-SPACE (Law 8): ``proven_by`` is the ADDRESS OF A PROOF — the code this move
+         summons is the component that proof lives in. The seal beside it must be green AND
+         still describe the code as it stands (the source fingerprint the tester recorded).
+         Otherwise → ``Unproven``. The seal is read, nothing is called — the harbor clears the
+         move, it does not sail it. There is no registry to populate: the proof's address IS
+         the key, and a stale green refuses (Law 3).
       3. RESOURCES: if this harbor was wired to a resource owner, every line in ``lines`` is
          put to it and a crossed line refuses the move → ``Unresourced``. ``resources`` is
          anything with ``ask(name, value) -> bool`` (system_rackmount's may-I door). The
@@ -229,8 +259,14 @@ def clear(
                 f"again — a stale yes is not a yes, because what it was true about has moved"
             )
 
-    # 2. PROVEN-SPACE (Law 8) — the method the move summons must already be proven.
-    registry.resolve(method)  # raises UnprovenMethod if it never cleared the tester's gate
+    # 2. PROVEN-SPACE (Law 8) — the code the move summons must be proven, and still be the code
+    #    that was proven. One file read at a derived address; no registry, nothing to populate.
+    proven = standing(proven_by)
+    if not proven["proven"]:
+        raise Unproven(
+            f"{actor!r} may not move boat {boat_id!r} to {target!r} onto code that is not in "
+            f"proven-space: {proven['why']}. The harbor clears only onto proven code (Law 8)"
+        )
 
     # 3. RESOURCES — the fourth refusal. The harbor asks the resource owner about ITS OWN lines
     #    and receives a verdict, never a reading. Nothing here counts anything: a line is about
@@ -254,7 +290,11 @@ def clear(
         history_path=history_path,
         state_path=state_path,
         cleared_by=actor,
-        method=method,
+        # The record of truth names the PROOF the clearance leaned on and the seal's date, so a
+        # reader a year out can go and look at the same evidence the gate looked at rather than
+        # taking "it was proven" on the record's word (Law 5 — the proof shares the address).
+        proven_by=proven_by,
+        proven_seal_date=proven["seal"]["date"],
         delegated=(actor != boat_owner),
         **emit_kwargs,
     )

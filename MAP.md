@@ -1058,9 +1058,16 @@ the probe primitive · it keeps a rest under a new name · it is a probe-with-a-
 and was never a node-class). NB the falsified hypothesis: "the `ground_loop` is
 that generic executor" was a GOOF — the ground_loop is only the heartbeat; a device
 resolves its own method internally and its shim fires it (see the design doc). The
-method-registry (proven-space, Law 8) was retired with the executor and RETURNS with
-the emit-chokepoint. Guards unchanged: a method resolves to proven-space (Law 8),
-writes route through each target's owner's gate (Law 6).
+method-registry (proven-space, Law 8) was retired with the executor, RETURNED with
+the emit-chokepoint, and was **ripped out again 2026-08-05** (Akien: "methodregistry
+is a registry. generally we frown on registries. why do we need one here?"). It came
+back carrying a map — name → callable — that only a DISPATCHER needs, and the
+dispatcher was the goof; its one consumer discarded the callable. Proven-space is
+now a TRAVERSAL, not a lookup: `clear(..., proven_by=<the proof's path>)` asks
+`tester/validation_store.standing()`, which reads the seal that already lives at the
+derived address beside that proof — and enforces the horizon the cache never could.
+Guards unchanged: a method resolves to proven-space (Law 8), writes route through
+each target's owner's gate (Law 6).
 
 Detail + implementation node: `CairnCommons/tickets/state-machine-physics.json`
 (waits on the emit-chokepoint = base-class spine step). Ratified by Akien 2026-07-17,

@@ -16,5 +16,24 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_clearance.py passes under python3",
+    "caller": "tester",
+    "date": "2026-08-05T13:17:35",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_owner_may_clear_a_legal_move_and_it_is_recorded\n  PASS  test_an_unauthorized_actor_is_refused_and_nothing_is_written\n  PASS  test_clearance_is_delegable_per_operation\n  PASS  test_a_grant_is_non_ambient_it_does_not_authorize_other_operations\n  PASS  test_even_the_owner_cannot_clear_an_illegal_move\n  PASS  test_clearing_onto_code_that_was_never_sealed_is_refused\n  PASS  test_clearing_onto_code_whose_proof_went_red_is_refused\n  PASS  test_a_green_seal_whose_code_has_moved_underneath_it_is_refused\n  PASS  test_the_record_names_the_proof_the_clearance_leaned_on\n  PASS  test_a_lapsed_grant_is_refused_and_nothing_is_written\n  PASS  test_the_same_grant_inside_its_window_still_clears\n  PASS  test_a_crossed_resource_line_refuses_an_otherwise_perfect_move\n  PASS  test_the_gate_asks_for_a_verdict_and_never_counts_anything\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "fb2315b45672178a5c4ab0abc481c8a995755fccbe2f557efe9d74608fbfddc7"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

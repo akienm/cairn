@@ -15,10 +15,14 @@ could not pass (mapped to the parent falsifier, tickets/harbor-master.json):
   - AUTHORITY NEVER BUYS AN ILLEGAL MOVE (Law 4): even the OWNER, with a proven method,
     cannot clear a rules-illegal transition (a skip past a gate summons) — the wrapped
     chokepoint refuses it and nothing is written. Authority and rules are separate gates.
-  - THE MOVE'S METHOD MUST BE PROVEN (Law 8): clearing onto a method not in proven-space is
-    refused; a method is admitted to the registry only if its proof passes UNDER THE TESTER
-    (a red-proof method is refused at register time). Proven-space is the tester's, not a
-    claim.
+  - THE CODE THE MOVE SUMMONS MUST BE PROVEN, AND STILL BE THE CODE THAT WAS PROVEN (Law 8 +
+    Law 3). The caller names a PROOF's address and the gate reads the seal beside it — there
+    is no registry to populate (ripped out 2026-08-05). Three refusals: never sealed, sealed
+    red, and THE HOLLOW-KILLER — sealed GREEN and then the component's code changed, so the
+    VALIDATION's own horizon ('valid until the proof file or the code it proves changes') has
+    closed. That last tooth is exactly what the in-memory registry could not do: it cached a
+    bool with no description of what it was about, so it answered yes forever. A build that
+    reads the verdict and skips the fingerprint dies there.
   - A GRANT LAPSES (Law 6): a grant that names the right operation and was minted by the right
     owner is STILL refused once its window closes. A build that treated the grant as a standing
     capability passes every operation-identity tooth above and dies here.
@@ -28,7 +32,9 @@ could not pass (mapped to the parent falsifier, tickets/harbor-master.json):
     it), and NOTHING COUNTS BUILDERS anywhere in the chain — the fake also raises on every
     census-shaped door, so a build that decided admission from a population dies here.
 
-Runs bare (the registry's gate is the real tester; the green/red fixtures are the tester's):
+Runs bare. The proven-space fixtures are REAL: scratch component trees whose validation
+trails are written by the real tester through the real single write-door, so a build that
+faked a seal or a verdict dies before the teeth even start.
     python3 cairn/harbor_master/proofs/test_clearance.py     # exit 0 = green
 """
 
@@ -49,11 +55,14 @@ from cairn.harbor_master.clearance import (
     HARBOR_LINES,
     GrantExpired,
     Unauthorized,
+    Unproven,
     Unresourced,
     clear,
     mint_grant,
 )
-from cairn.harbor_master.registry import MethodRegistry, UnprovenMethod
+from cairn.tester.device import TesterDevice
+from cairn.tester.scratch import scratch_dir
+from cairn.tester.validation_store import persist_validation
 
 # The real code-seam@v1 string, cursor at BUILDME. Legal forward from here: PROVEME (the next
 # summons). Illegal: LEARNME (a skip PAST the PROVEME gate). Validated against the REAL
@@ -68,12 +77,39 @@ _FIXTURES = _REPO_ROOT / "cairn" / "tester" / "proofs" / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"
 _RED_FIXTURE = _FIXTURES / "red_proof.py"
 
+# Scratch components for the proven-space teeth. NOT hand-written seals: each is a real
+# component tree whose validation trail is produced by the REAL tester and landed through the
+# REAL single write-door, so a build that faked either dies here. Swept at process exit by
+# cairn.tester.scratch — the corpus's own door for this, and test_scratch.py enforces its use.
+_SCRATCH = scratch_dir("clearance-proven-space-")
 
-def _proven_registry():
-    """A registry with one method ('build') admitted through the REAL tester gate."""
-    reg = MethodRegistry()
-    reg.register("build", method=lambda: "built", proof_path=_GREEN_FIXTURE)
-    return reg
+
+def _component(name: str, fixture: Path) -> str:
+    """Build a component tree ``<scratch>/<name>/proofs/test_<name>.py`` and return the proof."""
+    proofs = Path(_SCRATCH) / name / "proofs"
+    proofs.mkdir(parents=True, exist_ok=True)
+    proof = proofs / f"test_{name}.py"
+    proof.write_text(fixture.read_text(), encoding="utf-8")
+    return str(proof)
+
+
+def _seal(proof: str) -> dict:
+    """Run it under the real tester and append the verdict through the real store's write-door."""
+    validation = TesterDevice().run_proof(proof)
+    persist_validation(validation, proof_path=proof)
+    return validation
+
+
+# Sealed GREEN, fingerprint current — the code a move may be cleared onto.
+_PROVEN = _component("proven", _GREEN_FIXTURE)
+_seal(_PROVEN)
+
+# Never sealed at all: a component with a proof and no trail beside it.
+_UNSEALED = _component("unsealed", _GREEN_FIXTURE)
+
+# Sealed, and the tester said RED. It was measured, and it failed.
+_REDDED = _component("redded", _RED_FIXTURE)
+_seal(_REDDED)
 
 
 def _paths(tmp: str):
@@ -81,13 +117,12 @@ def _paths(tmp: str):
 
 
 def test_the_owner_may_clear_a_legal_move_and_it_is_recorded():
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
             actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-            method="build", registry=reg, history_path=hp, state_path=sp,
+            proven_by=_PROVEN, history_path=hp, state_path=sp,
         )
         assert "[PROVEME]" in new, "the cursor must have moved to PROVEME"
         history = projector.read_history(hp)
@@ -99,14 +134,13 @@ def test_the_owner_may_clear_a_legal_move_and_it_is_recorded():
 
 
 def test_an_unauthorized_actor_is_refused_and_nothing_is_written():
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
                 actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,  # igor, no grant
-                method="build", registry=reg, history_path=hp, state_path=sp,
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
             )
         except Unauthorized:
             assert not Path(hp).exists(), "a refused move must leave NO record (no ambient advance)"
@@ -115,14 +149,13 @@ def test_an_unauthorized_actor_is_refused_and_nothing_is_written():
 
 
 def test_clearance_is_delegable_per_operation():
-    reg = _proven_registry()
     grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
             actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
-            method="build", registry=reg, grant=grant, history_path=hp, state_path=sp,
+            proven_by=_PROVEN, grant=grant, history_path=hp, state_path=sp,
         )
         assert "[PROVEME]" in new
         rec = projector.read_history(hp)[0]
@@ -133,12 +166,11 @@ def test_a_grant_is_non_ambient_it_does_not_authorize_other_operations():
     # THE HOLLOW-KILLER. A grant for (this boat, PROVEME, this igor) must NOT authorize a
     # different target, a different boat, or a different actor. An ambient authority model
     # (a grant that lets the igor do anything) passes every happy path and dies right here.
-    reg = _proven_registry()
     grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
     other_actor = "igor_9"
 
     def _refused(**overrides):
-        kw = dict(actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER, method="build", registry=reg, grant=grant)
+        kw = dict(actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER, proven_by=_PROVEN, grant=grant)
         kw.update(overrides)
         try:
             clear(_WF, kw.pop("target_state", "PROVEME"), **kw)
@@ -157,14 +189,13 @@ def test_a_grant_is_non_ambient_it_does_not_authorize_other_operations():
 def test_even_the_owner_cannot_clear_an_illegal_move():
     # Authority never overrides the base-class rules (Law 4). LEARNME is a skip PAST the
     # PROVEME gate — illegal — and the owner's authority does not buy it.
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "LEARNME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, history_path=hp, state_path=sp,
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
             )
         except IllegalTransition:
             assert not Path(hp).exists(), "an illegal move, even by the owner, writes no record"
@@ -172,34 +203,85 @@ def test_even_the_owner_cannot_clear_an_illegal_move():
         raise AssertionError("a rules-illegal move must be refused regardless of authority (Law 4)")
 
 
-def test_clearing_onto_an_unproven_method_is_refused():
-    # Law 8: the method a cleared move summons must be in proven-space. An unregistered name
-    # never cleared the tester's gate, so the move cannot be cleared onto it.
-    reg = _proven_registry()
+def _refused_for_proven_space(proven_by: str) -> str:
+    """Clear an otherwise-perfect move onto ``proven_by``; return the refusal text. Asserts the
+    refusal wrote nothing — a move turned away at Law 8 leaves no more record than one turned
+    away at Law 6."""
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="not_registered", registry=reg, history_path=hp, state_path=sp,
+                proven_by=proven_by, history_path=hp, state_path=sp,
             )
-        except UnprovenMethod:
-            assert not Path(hp).exists(), "a move refused for an unproven method writes no record"
-            return
-        raise AssertionError("clearing onto an unproven method must be refused (Law 8)")
+        except Unproven as exc:
+            assert not Path(hp).exists(), "a move refused for want of proven-space writes no record"
+            return str(exc)
+        raise AssertionError(
+            f"clearing onto {proven_by} must be refused — the harbor clears only onto proven "
+            f"code (Law 8)")
 
 
-def test_a_method_with_a_failing_proof_is_refused_admission():
-    # Proven-space is the TESTER's, not a label: a method whose proof reds under the tester
-    # is refused at register time, so it can never be resolved for a clearance.
-    reg = MethodRegistry()
-    try:
-        reg.register("bogus", method=lambda: None, proof_path=_RED_FIXTURE)
-    except UnprovenMethod:
-        assert "bogus" not in reg.names(), "a red-proof method must not enter proven-space"
-        return
-    raise AssertionError("a method whose proof fails under the tester must be refused admission (Law 8)")
+def test_clearing_onto_code_that_was_never_sealed_is_refused():
+    # Law 8, the plainest way in: nobody ever ran this proof, so proven-space has not spoken
+    # about this code. Silence is not a pass.
+    why = _refused_for_proven_space(_UNSEALED)
+    assert "no VALIDATION has ever sealed" in why, f"the refusal must say WHICH lack it is: {why}"
+
+
+def test_clearing_onto_code_whose_proof_went_red_is_refused():
+    # Proven-space is the TESTER's, not a label anyone can claim: this component's proof was
+    # actually run and it actually failed, and the seal beside it says so.
+    why = _refused_for_proven_space(_REDDED)
+    assert "did not pass" in why, f"the refusal must name the red verdict it read: {why}"
+
+
+def test_a_green_seal_whose_code_has_moved_underneath_it_is_refused():
+    # THE HOLLOW-KILLER FOR THIS STONE, and the whole reason the registry went (2026-08-05).
+    # Every VALIDATION promises a horizon — "valid until the proof file or the code it proves
+    # changes" — and until today nothing checked it. An in-memory registry CANNOT: it cached a
+    # bool at wiring time with no description of what it was about, so it kept answering yes
+    # forever. Here the seal is real, green, and freshly written by the real tester; the only
+    # thing that happens is that the component's code changes afterwards. A build that reads
+    # the verdict and skips the fingerprint passes every other tooth in this file and dies here.
+    drifting = _component("drifting", _GREEN_FIXTURE)
+    _seal(drifting)
+
+    # Sanity: before anything moves, this same code clears. Without this the tooth below could
+    # pass because `drifting` was never clearable in the first place.
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        assert "[PROVEME]" in clear(
+            _WF, "PROVEME",
+            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            proven_by=drifting, history_path=hp, state_path=sp,
+        ), "a freshly-sealed green component must clear before its code moves"
+
+    # Now the code moves. Not the proof — a sibling module, which is the likelier drift by far
+    # and the one a proof-only hash would miss entirely.
+    (Path(drifting).parent.parent / "worker.py").write_text(
+        "# the code the proof proves, edited after the seal\n", encoding="utf-8")
+
+    why = _refused_for_proven_space(drifting)
+    assert "HORIZON HAS CLOSED" in why, f"the refusal must name the expiry, not a vaguer lack: {why}"
+    assert "fingerprint" in why, f"and must say what moved: {why}"
+
+
+def test_the_record_names_the_proof_the_clearance_leaned_on():
+    # Law 5: the crossing and its evidence share an address. A record that said only "proven"
+    # would make a reader take the gate's word for it a year later; this one hands over the
+    # proof path and the seal's date, so the same evidence can be re-read.
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        clear(
+            _WF, "PROVEME",
+            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            proven_by=_PROVEN, history_path=hp, state_path=sp,
+        )
+        rec = projector.read_history(hp)[0]
+        assert rec["proven_by"] == _PROVEN, "the record must name the proof that backed the clearance"
+        assert rec["proven_seal_date"], "and the date of the seal it read, so the trail entry is findable"
 
 
 class _ResourceOwner:
@@ -229,7 +311,6 @@ class _ResourceOwner:
 def test_a_lapsed_grant_is_refused_and_nothing_is_written():
     # The window is part of the capability. This grant names exactly the right operation and was
     # minted by the right owner — the only thing wrong with it is that it is old.
-    reg = _proven_registry()
     grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
@@ -237,7 +318,7 @@ def test_a_lapsed_grant_is_refused_and_nothing_is_written():
             clear(
                 _WF, "PROVEME",
                 actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, grant=grant,
+                proven_by=_PROVEN, grant=grant,
                 now=1000.0 + GRANT_TTL_SECONDS + 0.1,   # spent just past the window
                 history_path=hp, state_path=sp,
             )
@@ -250,14 +331,13 @@ def test_a_lapsed_grant_is_refused_and_nothing_is_written():
 def test_the_same_grant_inside_its_window_still_clears():
     # The other half of the tooth above: the expiry must refuse the STALE, not the DELEGATED.
     # A build that broke delegation outright would pass the lapse test and die right here.
-    reg = _proven_registry()
     grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
             actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
-            method="build", registry=reg, grant=grant,
+            proven_by=_PROVEN, grant=grant,
             now=1000.0 + GRANT_TTL_SECONDS - 0.1,       # spent just inside it
             history_path=hp, state_path=sp,
         )
@@ -267,7 +347,6 @@ def test_the_same_grant_inside_its_window_still_clears():
 def test_a_crossed_resource_line_refuses_an_otherwise_perfect_move():
     # THE FOURTH REFUSAL. Owner acting directly, proven method, legal target — every other gate
     # is wide open, and the host still says no.
-    reg = _proven_registry()
     host = _ResourceOwner(crossed=True)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
@@ -275,7 +354,7 @@ def test_a_crossed_resource_line_refuses_an_otherwise_perfect_move():
             clear(
                 _WF, "PROVEME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, resources=host,
+                proven_by=_PROVEN, resources=host,
                 history_path=hp, state_path=sp,
             )
         except Unresourced:
@@ -291,14 +370,13 @@ def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
     # raw reading (which would export the metric's semantics into the harbor, Law 6) and on
     # every census shape (which would make this a manager). A build that reached for either
     # dies here even though the happy path below is identical.
-    reg = _proven_registry()
     host = _ResourceOwner(crossed=False)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
             actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-            method="build", registry=reg, resources=host,
+            proven_by=_PROVEN, resources=host,
             history_path=hp, state_path=sp,
         )
         assert "[PROVEME]" in new, "room on the host → the move clears"
@@ -318,8 +396,10 @@ def _main() -> int:
         test_clearance_is_delegable_per_operation,
         test_a_grant_is_non_ambient_it_does_not_authorize_other_operations,
         test_even_the_owner_cannot_clear_an_illegal_move,
-        test_clearing_onto_an_unproven_method_is_refused,
-        test_a_method_with_a_failing_proof_is_refused_admission,
+        test_clearing_onto_code_that_was_never_sealed_is_refused,
+        test_clearing_onto_code_whose_proof_went_red_is_refused,
+        test_a_green_seal_whose_code_has_moved_underneath_it_is_refused,
+        test_the_record_names_the_proof_the_clearance_leaned_on,
         test_a_lapsed_grant_is_refused_and_nothing_is_written,
         test_the_same_grant_inside_its_window_still_clears,
         test_a_crossed_resource_line_refuses_an_otherwise_perfect_move,

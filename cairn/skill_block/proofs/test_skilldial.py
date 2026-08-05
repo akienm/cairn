@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
@@ -30,6 +29,7 @@ sys.path.insert(0, str(_REPO))
 from cairn.skill_block import skill_block as sb          # noqa: E402
 from cairn.skill_block import counters                    # noqa: E402
 from cairn.skill_block import skilldial                   # noqa: E402
+from cairn.tester.scratch import scratch_dir                # noqa: E402
 
 PASSES = 0
 
@@ -44,7 +44,7 @@ def ok(name: str, cond: bool, detail: str = ""):
 
 
 def main() -> int:
-    tmp = Path(tempfile.mkdtemp(prefix="skilldial-proof-"))
+    tmp = scratch_dir("skilldial-proof-")
     skills, traces, berths = tmp / "skills", tmp / "traces", tmp / "berths"
 
     # A tenant, a non-tenant, and a skill with no charter at all.

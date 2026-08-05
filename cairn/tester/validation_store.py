@@ -22,15 +22,31 @@ a record of truth has neither. The single write-door is ``persist_validation``.
 FIELD-SET IS PHYSICS, not convention (mirrors the Postgres CHECK it replaces): a record that
 is not exactly the ratified eight fields is REFUSED here, so a drifted validation cannot land
 beside the code and quietly pass for a seal.
+
+THE READ SIDE (2026-08-05, when MethodRegistry was ripped out). For three weeks this store
+had 73 trails on disk and ZERO readers — every seal was written and none was ever consulted,
+so "is this proven?" was answered elsewhere, by an in-memory registry holding a second copy.
+``standing`` is the reader that makes the copy unnecessary: the proof's own address IS the
+key (``validations_path_for`` derives it), so proven-space is a traversal, not a lookup table
+someone has to populate and keep (Law 6 — the fact attaches at its endpoint).
+
+And the reader enforces the HORIZON the cache could not. Every VALIDATION already promises
+"valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)" —
+a promise nothing checked. ``source_fingerprint`` makes it checkable: one sha256 over every
+``*.py`` under the component root, which is exactly the scope the horizon names (the proof
+file AND the code it proves). The tester records it at seal time; ``standing`` recomputes it
+at read time. A seal whose fingerprint no longer matches is EXPIRED, not green — the code
+moved under it, which is the whole content of the horizon.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
 
-from cairn.tester.device import VALIDATION_FIELDS
+from cairn.tester.device import GREEN, VALIDATION_FIELDS
 
 
 def validations_path_for(proof_path: str) -> str:
@@ -74,6 +90,95 @@ def read_validations(proof_path: str | None = None, *, path: str | None = None) 
         return []
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def component_root_for(proof_path: str) -> str:
+    """The component a proof belongs to: ``.../<component>/proofs/<stem>.py`` -> ``.../<component>``.
+
+    The same derivation ``validations_path_for`` uses, named once so the seal's address and the
+    seal's SCOPE cannot drift apart — a fingerprint taken over a different tree than the one the
+    validation files under would expire for reasons no reader could explain."""
+    return os.path.dirname(os.path.dirname(os.path.abspath(proof_path)))
+
+
+def source_fingerprint(proof_path: str) -> str:
+    """One sha256 over every ``*.py`` under the proof's component root — the horizon, made checkable.
+
+    SCOPE IS THE HORIZON'S OWN WORDING: "valid until the proof file OR THE CODE IT PROVES
+    changes." Hashing only the proof would miss the likelier drift by far (code edited, proof
+    untouched), so the walk covers the whole component — proof included, since it lives there.
+
+    Path AND content go into the digest, so a rename or a deletion moves the number as surely
+    as an edit does; a file that vanished cannot be an unnoticed change. Sorted by relative
+    path, so the digest is deterministic across filesystems.
+
+    Deliberately NOT git: a seal must expire the moment the working tree diverges, not when
+    someone commits. An uncommitted edit is exactly the state where a stale green does harm.
+    """
+    root = component_root_for(proof_path)
+    digest = hashlib.sha256()
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
+        for name in sorted(filenames):
+            if not name.endswith(".py"):
+                continue
+            full = os.path.join(dirpath, name)
+            digest.update(os.path.relpath(full, root).encode("utf-8"))
+            digest.update(b"\0")
+            with open(full, "rb") as f:
+                digest.update(f.read())
+            digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def standing(proof_path: str) -> dict:
+    """Is this proof's code in proven-space RIGHT NOW? The reader that replaced MethodRegistry.
+
+    Returns ``{"proven": bool, "why": str, "seal": dict | None}``. ``why`` is a complete
+    sentence naming what was looked at and what was found, because the one consumer turns a
+    False straight into a refusal a human has to act on
+    (I-complete-diagnostic-on-first-pass — no second call to find out which of the four
+    reasons it was).
+
+    Four outcomes, and only the first is proven-space:
+      - sealed green, fingerprint matches      -> proven
+      - never sealed                           -> not proven (the trail does not exist)
+      - newest seal is red                     -> not proven (it was measured and it failed)
+      - sealed green, fingerprint has moved    -> NOT PROVEN, the horizon closed. This is the
+        one an in-memory registry could not reach: it cached a bool with no expiry, so it kept
+        answering yes after the code changed underneath it (Law 3 — a VALIDATION expires).
+
+    The NEWEST entry is the verdict; the trail is append-only, so an old green under a newer
+    red is history, not standing.
+    """
+    trail = read_validations(proof_path)
+    if not trail:
+        return {"proven": False, "seal": None, "why": (
+            f"no VALIDATION has ever sealed {proof_path} — the trail at "
+            f"{validations_path_for(proof_path)} does not exist. Proven-space is the tester's "
+            f"and it has not spoken about this code (Law 8)")}
+    seal = trail[-1]
+    if seal.get("verdict") != GREEN:
+        return {"proven": False, "seal": seal, "why": (
+            f"the newest seal on {proof_path} is {seal.get('verdict')!r}, dated "
+            f"{seal.get('date')} — the code was measured and it did not pass")}
+    recorded = (seal.get("evidence") or {}).get("source_fingerprint")
+    if recorded is None:
+        return {"proven": False, "seal": seal, "why": (
+            f"the newest seal on {proof_path} is green, dated {seal.get('date')}, but records "
+            f"no source_fingerprint — so whether the code still matches what was proved is "
+            f"UNKNOWABLE from the trail. Unknown is not green (Law 9). Re-run the proof to "
+            f"seal a fingerprint")}
+    current = source_fingerprint(proof_path)
+    if current != recorded:
+        return {"proven": False, "seal": seal, "why": (
+            f"the newest seal on {proof_path} is green, dated {seal.get('date')} — and its "
+            f"HORIZON HAS CLOSED: the component's source fingerprint was "
+            f"{recorded[:12]}… when it was sealed and is {current[:12]}… now, so the code moved "
+            f"under the proof. Re-run the proof (Law 3: a VALIDATION expires)")}
+    return {"proven": True, "seal": seal, "why": (
+        f"sealed green {seal.get('date')} by {seal.get('caller')}, and the component's source "
+        f"fingerprint still matches what was proved ({recorded[:12]}…)")}
 
 
 def _atomic_write(path: str, data) -> None:

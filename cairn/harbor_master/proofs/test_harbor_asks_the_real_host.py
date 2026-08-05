@@ -47,14 +47,21 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.charter import projector
 from cairn.harbor_master.clearance import HARBOR_LINES, Unresourced, clear
-from cairn.harbor_master.registry import MethodRegistry
 from cairn.system_rackmount.rackmount import SystemRackmountDevice
+from cairn.tester.device import TesterDevice
+from cairn.tester.scratch import scratch_dir
+from cairn.tester.validation_store import persist_validation
 
 _WF = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 _OWNER = "akiendelllinux_cc_0"
 _BOAT = "some-code-seam"
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "tester" / "proofs" / "fixtures" / "green_proof.py"
+
+# The code a cleared move lands onto. A real component tree, proved by the REAL tester and
+# sealed through the REAL write-door — so the Law 8 rung these teeth pass THROUGH is the
+# shipped one, not a stub that answers yes. Swept at process exit by cairn.tester.scratch.
+_SCRATCH = scratch_dir("harbor-seam-proven-space-")
 
 # Fixtured host readings. The SAMPLER is injected, never the verdict: everything between this
 # dict and the gate's yes/no is the device's real code. Distinctive digits so the leak tooth
@@ -64,10 +71,17 @@ _CPU_PRESSED = {"cpu": 93.7, "memory_available_mb": 7654.3}
 _MEMORY_SPENT = {"cpu": 12.3, "memory_available_mb": 511.9}
 
 
-def _proven_registry():
-    reg = MethodRegistry()
-    reg.register("build", method=lambda: "built", proof_path=_GREEN_FIXTURE)
-    return reg
+def _proven() -> str:
+    proofs = Path(_SCRATCH) / "proven" / "proofs"
+    proofs.mkdir(parents=True, exist_ok=True)
+    proof = proofs / "test_proven.py"
+    proof.write_text(_GREEN_FIXTURE.read_text(), encoding="utf-8")
+    validation = TesterDevice().run_proof(str(proof))
+    persist_validation(validation, proof_path=str(proof))
+    return str(proof)
+
+
+_PROVEN = _proven()
 
 
 def _host(reading: dict) -> SystemRackmountDevice:
@@ -101,14 +115,13 @@ def test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door():
 def test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_line():
     # The fourth refusal, end to end through the shipped predicate: owner acting directly, proven
     # method, legal target — and the host says no.
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, resources=_host(_CPU_PRESSED),
+                proven_by=_PROVEN, resources=_host(_CPU_PRESSED),
                 history_path=hp, state_path=sp,
             )
         except Unresourced as exc:
@@ -124,14 +137,13 @@ def test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_li
 def test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal():
     # DIRECTION. A build that ran every line as "reading >= value" sees 511.9 < 1024.0, calls it
     # uncrossed, and admits a builder onto a box with half a gig left. It passes the tooth above.
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, resources=_host(_MEMORY_SPENT),
+                proven_by=_PROVEN, resources=_host(_MEMORY_SPENT),
                 history_path=hp, state_path=sp,
             )
         except Unresourced as exc:
@@ -151,14 +163,13 @@ def test_the_refusal_names_the_line_and_never_the_reading():
     # Law 6 in the error text. The harbor's own line (75.0) is its to publish; the device's
     # reading (93.7) is not, and a refusal that carried it would put the metric's semantics
     # into the harbor's records permanently (Law 7 — records of truth do not get edited).
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
                 actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-                method="build", registry=reg, resources=_host(_CPU_PRESSED),
+                proven_by=_PROVEN, resources=_host(_CPU_PRESSED),
                 history_path=hp, state_path=sp,
             )
         except Unresourced as exc:
@@ -179,13 +190,12 @@ def test_the_refusal_names_the_line_and_never_the_reading():
 def test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded():
     # NON-VACUITY. Three refusal teeth above all pass on a build that refuses everything; this
     # is the one that says the gate is a gate and not a wall.
-    reg = _proven_registry()
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
             actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
-            method="build", registry=reg, resources=_host(_QUIET),
+            proven_by=_PROVEN, resources=_host(_QUIET),
             history_path=hp, state_path=sp,
         )
         assert "[PROVEME]" in new, "12.3% CPU and 7.6 GB free is room — the move must clear"

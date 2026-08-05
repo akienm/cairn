@@ -162,6 +162,16 @@ class TesterDevice(BaseDevice):
         else:
             seal = iso.check_seal(str(proof_path.parent))
 
+        # WHAT WAS PROVED, pinned. The record already PROMISES a horizon — "valid until the
+        # proof file or the code it proves changes" — and for three weeks nothing could check
+        # it, because the record carried no description of the code it was about. This is that
+        # description: one sha256 over the component's *.py, taken BEFORE the run so it
+        # describes the tree the subject actually executed. It rides inside `evidence`, never
+        # as a ninth field (the eight are ratified). Lazy import: validation_store imports this
+        # module for VALIDATION_FIELDS, so the dependency only runs one way at import time.
+        from cairn.tester.validation_store import source_fingerprint
+        fingerprint = source_fingerprint(str(proof_path))
+
         argv = iso.wrap([sys.executable, str(proof_path)], cwd=str(proof_path.parent))
         try:
             proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
@@ -171,6 +181,7 @@ class TesterDevice(BaseDevice):
                 "stdout_tail": _tail(proc.stdout),
                 "stderr_tail": _tail(proc.stderr),
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
+                "source_fingerprint": fingerprint,
             }
         except subprocess.TimeoutExpired:
             # A proof that hangs is a red, not a crash of the notary (CP1: say what
@@ -181,6 +192,7 @@ class TesterDevice(BaseDevice):
                 "stdout_tail": "",
                 "stderr_tail": f"timed out after {timeout}s",
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
+                "source_fingerprint": fingerprint,
             }
 
         # The method names HOW the verdict was reached AND how trustworthy the seal

@@ -24,7 +24,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
@@ -32,6 +31,7 @@ sys.path.insert(0, str(_REPO))
 
 from cairn.learning_block.learning_block import DoorRefused, read_trace  # noqa: E402
 from cairn.skill_block.skill_block import read_berth                     # noqa: E402
+from cairn.tester.scratch import scratch_dir                # noqa: E402
 
 sys.path.insert(0, str(_REPO / "skills" / "intent"))
 import door  # noqa: E402
@@ -60,7 +60,7 @@ FIVE = ("better_approach", "prior_art", "hidden_assumption", "real_collision", "
 
 
 def main() -> int:
-    tmp = Path(tempfile.mkdtemp(prefix="intent-proof-"))
+    tmp = scratch_dir("intent-proof-")
     traces, berths, commons = tmp / "traces", tmp / "berths", tmp / "commons"
     (commons / "ideas").mkdir(parents=True)
     (commons / "ideas" / "2026-08-04-a-real-idea.json").write_text(

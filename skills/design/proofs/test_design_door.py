@@ -19,7 +19,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
@@ -28,6 +27,7 @@ sys.path.insert(0, str(_REPO))
 from cairn.learning_block.learning_block import DoorRefused, read_trace  # noqa: E402
 from cairn.skill_block import skill_block as sb                          # noqa: E402
 from cairn.skill_block.skill_block import read_berth                     # noqa: E402
+from cairn.tester.scratch import scratch_dir                # noqa: E402
 
 sys.path.insert(0, str(_REPO / "skills" / "design"))
 import door  # noqa: E402
@@ -56,7 +56,7 @@ BULLET = [{"text": "congruency lab: ticket-and-task is prior art", "stratum": "t
 
 
 def main() -> int:
-    tmp = Path(tempfile.mkdtemp(prefix="design-proof-"))
+    tmp = scratch_dir("design-proof-")
     traces, berths = tmp / "traces", tmp / "berths"
     kw = dict(trace_root=traces, berths=berths)
 

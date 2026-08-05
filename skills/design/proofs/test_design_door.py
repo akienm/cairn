@@ -74,10 +74,22 @@ def main() -> int:
         "bullets": [{"text": "t", "stratum": "code"}]}
     alive = sb.fire("intent", intent_packet, **kw)["berth"]
     corpse = sb.fire("intent", {**intent_packet, "exit": "routed_out"}, **kw)["berth"]
+    # THIS FIXTURE CONFORMS BECAUSE THE SEAM NOW JUDGES IT. Until 2026-08-05 `sb.fire`
+    # ran the flat contract alone, so `workflow: "w"` and a referent-free watchme
+    # exemption sailed straight through — a proof for /design's berth judges resting on a
+    # /sorted berth that /sorted's own door would have refused. Fixing the fixture is the
+    # whole point: a hollow upstream artifact is exactly what a downstream gate must not
+    # be proven against (Law 8).
     sorted_berth = sb.fire("sorted", {
-        "assumption_check": "a", "missing_check": "b", "falsifier_check": "c",
-        "collision_check": "d", "node_class": "code-seam", "workflow": "w",
-        "gates_bound": "g", "watchme": "none, because x", "children": "none, because y",
+        "assumption_check": "none remain: the fixture is judged by the live /sorted door",
+        "missing_check": "the points are wrapped — this berth exists only to feed the gate below",
+        "falsifier_check": "RED if /design accepts a berth the /sorted door would refuse",
+        "collision_check": "no collision — a proof fixture, not a cast",
+        "node_class": "code-seam",
+        "workflow": "code-seam@v1: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> PROVED",
+        "gates_bound": "prove_gate: this proof, beside the code",
+        "watchme": "none, because skills/design/proofs/test_design_door.py is the watch itself",
+        "children": "none, because skills/design/door.py is the one seam under proof",
         "exit": "routed_out", "disposition": "back-to-design",
         "bullets": [{"text": "t", "stratum": "code"}]}, **kw)["berth"]
 

@@ -85,6 +85,13 @@ def live_git_heads(repo: Path | None = None, commons: Path | None = None) -> dic
     return heads
 
 
+# The name that rides a refusal trace's `judge` field. The seam derives it as
+# f"{skill}-door" by default; this skill fires as `saveslate` but has always signed its
+# refusals "slate-door", and the trace is a record of truth — the name a reader already
+# knows must not change because a seam started deriving it (Law 7).
+JUDGE_NAME = "slate-door"
+
+
 def judge_packet(payload: dict, *, heads: dict | None = None,
                  slates_dir: Path | str | None = None) -> list[dict]:
     """Every SEMANTIC lack, one pass. Judges only present fields (absence is the
@@ -167,18 +174,9 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
          skills_root=None, berths=None, trace_root=None) -> dict:
     """Gate the slate — flat AND semantic lacks in ONE refusal — then berth through
     the seam and WRITE the slate in the same act. A refusal writes nothing."""
-    contract = sb.load_contract("saveslate", skills_root=skills_root)
-    lacks = check_input(contract, payload) + judge_packet(payload, heads=heads,
-                                                          slates_dir=slates_dir)
-    if lacks:
-        write_trace(contract["block"], "send_back", "training",
-                    {"lacks": lacks, "judge": "slate-door",
-                     "payload_fields": sorted(payload.keys())},
-                    now=now, root=trace_root)
-        raise DoorRefused(contract["block"], lacks)
-
     result = sb.fire("saveslate", payload, now=now, skills_root=skills_root,
-                     berths=berths, trace_root=trace_root)
+                     berths=berths, trace_root=trace_root,
+                     judge_kwargs={"heads": heads, "slates_dir": slates_dir})
 
     when = now or datetime.now()
     slates = Path(slates_dir) if slates_dir is not None else _SLATES

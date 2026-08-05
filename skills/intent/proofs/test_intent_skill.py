@@ -51,7 +51,13 @@ CONTRACT = CHARTER["input_contract"]
 # The five nexus questions, in the order SKILL.md fires them, mapped to the contract
 # field each one lands in. This mapping is the drift detector: it is written down once,
 # here, and both sides are checked against it.
-QUESTIONS = {"WHAT": "what", "HOW": "how", "Trace": "traces_to",
+# `Origin` is question 0, not a sixth: it is PROVENANCE asked before the five birth
+# questions, and the five stay five so that "the adversarial pass over the five birth
+# answers" keeps meaning what it says. It is here rather than in the exempt set because
+# the executor must go and ANSWER it — the exempt three are routing (`exit`), the finding
+# (`bullets`) and a separate step (`challenge`), none of which is a question at all.
+QUESTIONS = {"Origin": "from_idea",
+             "WHAT": "what", "HOW": "how", "Trace": "traces_to",
              "Shape": "shape", "Falsifier": "falsifier"}
 
 GOOD = {
@@ -76,6 +82,40 @@ GOOD = {
 
 def world():
     return scratch_dir("intent-proof-")
+
+
+def test_the_two_entrances_cannot_differ_in_strictness():
+    """THE MEASURED DEFECT, head on (2026-08-05). One packet carrying a `from_idea`
+    shaped like an id and resolving to nothing: `python3 -m cairn.skill_block fire intent`
+    ACCEPTED it (rc=0, berthed) while `python3 skills/intent/door.py` REFUSED it (rc=2).
+    The semantic judge lived only behind the skill's own file, so the generic entrance —
+    the one anyone can reach, and the one this proof used to advertise — skipped every
+    semantic judge in the system. A gate whose strictness depends on which command was
+    typed is policy, not physics (Law 4).
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_intent_door_probe", SKILL_DIR / "door.py")
+    door = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(door)
+
+    packet = dict(GOOD, from_idea="2026-08-04-an-idea-that-was-never-captured")
+
+    def lacks_from(fire):
+        try:
+            fire(packet, berths=world(), trace_root=world())
+        except DoorRefused as exc:
+            return [(lack.get("field"), lack.get("why")) for lack in exc.lacks]
+        return []
+
+    seam = lacks_from(lambda p, **kw: sb.fire("intent", p, **kw))
+    own = lacks_from(door.fire)
+    assert seam == own, (
+        "the two entrances disagree about one packet — seam said "
+        f"{[f for f, _ in seam]}, the skill's door said {[f for f, _ in own]}")
+    # NON-VACUITY: agreeing on nothing is not agreement. This packet must actually bite,
+    # or the tooth would stay green with every judge deleted.
+    assert [f for f, _ in seam] == ["from_idea"], (
+        f"the unresolvable origin no longer refuses at all: {seam}")
 
 
 def test_the_anatomy_is_a_CALL_not_a_paragraph_about_one():

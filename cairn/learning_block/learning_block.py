@@ -208,16 +208,30 @@ def check_input(contract: dict, payload: dict) -> list[dict]:
 
 
 def fire_door(contract: dict, payload: dict, *,
-              now: datetime | None = None, root: Path | None = None) -> dict:
+              now: datetime | None = None, root: Path | None = None,
+              extra_lacks: list[dict] | None = None,
+              judge: str | None = None) -> dict:
     """The gate at the input. Conforming -> traced pass. Insufficient -> the
     send-back is TRACED (with every lack) and then raised. Both paths leave a
-    record — the refusal rate is measurable or the gate is vacuous."""
+    record — the refusal rate is measurable or the gate is vacuous.
+
+    ``extra_lacks`` are lacks the caller's own SEMANTIC judge already found. They ride
+    the same refusal rather than a second one, because two doors raising separately
+    about one firing is two doors — the caller would then have to remember to call
+    both, which is precisely the strictness-depends-on-the-entrance defect. Flat lacks
+    come first: absence is the contract's finding, and a judge only speaks about fields
+    that are present.
+    """
     block = contract["block"]
-    lacks = check_input(contract, payload)
+    lacks = check_input(contract, payload) + list(extra_lacks or [])
     if lacks:
-        write_trace(block, "send_back", "training",
-                    {"lacks": lacks, "payload_fields": sorted(payload.keys())},
-                    now=now, root=root)
+        data = {"lacks": lacks, "payload_fields": sorted(payload.keys())}
+        if judge:
+            # WHICH judge stood at this refusal. A refusal record that cannot name its
+            # judge cannot be read back as evidence about that judge — and the judges
+            # are the thing that learns.
+            data["judge"] = judge
+        write_trace(block, "send_back", "training", data, now=now, root=root)
         raise DoorRefused(block, lacks)
     return write_trace(block, "door_pass", "training",
                        {"payload_fields": sorted(payload.keys())}, now=now, root=root)

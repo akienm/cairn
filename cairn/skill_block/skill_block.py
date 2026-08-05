@@ -93,6 +93,54 @@ def load_contract(skill: str, *, skills_root: Path | str | None = None) -> dict:
     return declare_contract(block_name(skill), requires)
 
 
+def _door_module(skill: str, skills_root: Path | str | None = None):
+    """Import ``skills/<skill>/door.py``, or ``None`` when the skill has none.
+
+    THE IMPORT IS LAZY ON PURPOSE. ``skills/<skill>/door.py`` imports this module at its
+    top, so resolving it at import time here would close a cycle. Called from inside
+    ``fire``, this module is already in ``sys.modules`` and the cycle never forms.
+    """
+    root = Path(skills_root) if skills_root is not None else _SKILLS
+    path = root / skill / "door.py"
+    if not path.is_file():
+        return None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(f"cairn._skill_door_{skill}", path)
+    if spec is None or spec.loader is None:
+        return None
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as exc:                       # noqa: BLE001 — loud, never silent
+        raise SkillBlockRefused(
+            f"skill {skill!r}: its door at {path} would not import — {exc!r}. A judge that "
+            "cannot load must not read as a skill with nothing to judge, because that is "
+            "the vacuous pass this seam exists to stop (Law 8)."
+        ) from exc
+    return module
+
+
+def judge_for(skill: str, *, skills_root: Path | str | None = None):
+    """The skill's own SEMANTIC judge, resolved from the address the contract already
+    came from: ``skills/<skill>/door.py::judge_packet``. ``None`` when the skill has no
+    judge, which is a legitimate state (a flat contract with nothing to say about
+    meaning) and not a lack.
+
+    WHY THE SEAM RESOLVES IT INSTEAD OF THE CALLER CALLING IT. Before this, the judge
+    lived only behind ``python3 skills/<skill>/door.py`` while ``python3 -m
+    cairn.skill_block fire <skill>`` ran the flat contract alone — two entrances with
+    different strictness, and the generic one, reachable by anyone, skipped every
+    semantic judge in the system. MEASURED 2026-08-05 with one packet carrying
+    ``from_idea`` shaped like an id and resolving to nothing: the seam ACCEPTED it and
+    the skill's door REFUSED it. Strictness must not depend on which command was typed
+    (Law 4), so the address that yields the contract now yields the judge too.
+
+    """
+    module = _door_module(skill, skills_root)
+    judge = getattr(module, "judge_packet", None) if module is not None else None
+    return judge if callable(judge) else None
+
+
 def berth_root(root: Path | str | None = None) -> Path:
     return Path(root) if root is not None else _BERTHS
 
@@ -119,7 +167,8 @@ def _write_berth(skill: str, payload: dict, door_rec: dict, finding_rec: dict,
 def fire(skill: str, payload: dict, *, now: datetime | None = None,
          skills_root: Path | str | None = None,
          berths: Path | str | None = None,
-         trace_root: Path | None = None) -> dict:
+         trace_root: Path | None = None,
+         judge_kwargs: dict | None = None) -> dict:
     """ONE call: gate the firing, trace it, emit its finding, berth it.
 
     One call rather than three because the caller is an LLM reading markdown, and every
@@ -136,18 +185,35 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
     contract = load_contract(skill, skills_root=skills_root)
     block = contract["block"]
 
-    exit_value = payload.get("exit")
-    if exit_value is not None and exit_value not in EXITS:
-        raise SkillBlockRefused(
-            f"skill {skill!r}: exit {exit_value!r} is not one of {EXITS}. The two exits are "
-            "not decoration — routed_out is the kill, and it is counted separately because "
-            "it is the exit the whole trace organ was built to stop losing."
-        )
-
     # The door is the primitive's, unbypassed: it traces a send_back WITH EVERY LACK and
     # then raises, so a refusal is a datum and not a lost moment. An empty `bullets` list
     # is caught here too, since check_input now reads an empty collection as a lack.
-    door_rec = fire_door(contract, payload, now=when, root=trace_root)
+    # THE SKILL'S OWN JUDGE RIDES THE SAME REFUSAL — resolved from the same address the
+    # contract came from, so no entrance is looser than any other (see `judge_for`).
+    module = _door_module(skill, skills_root)
+    judge = getattr(module, "judge_packet", None) if module is not None else None
+    judge = judge if callable(judge) else None
+    # The judge's NAME rides the refusal trace so a send_back says WHO refused. Default is
+    # derived from the skill; a door whose name is not derivable (saveslate's judge is
+    # "slate-door") declares JUDGE_NAME beside its judge, at its own address.
+    judge_name = getattr(module, "JUDGE_NAME", f"{skill}-door") if module is not None else None
+    semantic = list(judge(payload, **(judge_kwargs or {}))) if judge is not None else []
+
+    # AN UNKNOWN EXIT IS A LACK, NOT A SEPARATE TRIP. It used to raise here, BEFORE the
+    # door — so a packet that was both hollow and mis-exited came back naming only the
+    # exit, and the caller fixed one thing to learn about the next. Every lack in one
+    # pass is the door's whole contract; the exit rides it like any other field.
+    exit_value = payload.get("exit")
+    if exit_value is not None and exit_value not in EXITS:
+        semantic.append({
+            "field": "exit",
+            "why": f"exit {exit_value!r} is not one of {EXITS}. The two exits are not "
+                   "decoration — routed_out is the kill, and it is counted separately "
+                   "because it is the exit the whole trace organ was built to stop losing.",
+        })
+
+    door_rec = fire_door(contract, payload, now=when, root=trace_root,
+                         extra_lacks=semantic, judge=judge_name)
 
     finding_rec = emit_finding(block, list(payload.get("bullets") or []),
                                now=when, root=trace_root)
@@ -174,5 +240,5 @@ def read_berth(path: Path | str) -> dict | None:
 
 __all__ = [
     "EXITS", "SkillBlockRefused", "DoorRefused",
-    "block_name", "load_contract", "berth_root", "fire", "read_berth",
+    "block_name", "load_contract", "judge_for", "berth_root", "fire", "read_berth",
 ]

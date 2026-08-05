@@ -190,14 +190,21 @@ def test_the_ticketless_kill_exit_reaches_the_gate():
     assert berth["exit"] == "routed_out" and berth["bullets"], berth
 
 
-def test_an_unknown_exit_is_refused():
+def test_an_unknown_exit_is_refused_AS_A_LACK_not_a_separate_trip():
+    """It used to raise SkillBlockRefused BEFORE the door, so a packet that was both
+    mis-exited and hollow came back naming only the exit — fix one thing, learn about the
+    next. Every lack in one pass is the door's whole contract, and the exit rides it."""
     root = skills_tree("alpha")
     berths, traces = world(), world()
     try:
-        sb.fire("alpha", dict(GOOD, exit="sideways"), now=NOW, skills_root=root,
+        sb.fire("alpha", dict(GOOD, exit="sideways", bullets=[]), now=NOW, skills_root=root,
                 berths=berths, trace_root=traces)
-    except sb.SkillBlockRefused as exc:
+    except sb.DoorRefused as exc:
+        fields = [l["field"] for l in exc.lacks]
+        assert "exit" in fields, exc.lacks
         assert "sideways" in str(exc), exc
+        # the point of the move: the OTHER lack is named in the SAME refusal
+        assert "bullets" in fields, exc.lacks
         return
     raise AssertionError("the two exits are counted separately; a third is a typo")
 
@@ -468,6 +475,85 @@ def test_gate_stays_silent_on_an_unfiled_ticket():
     # NON-VACUITY: the same root reds a ticket that IS on file, so the silence above
     # is the unfiled rule and not a fixture the gate simply cannot see.
     assert gate("real", tickets_root=root), "the fixture must be readable at all"
+
+
+# ── one door: the seam runs the skill's own judge ────────────────────────────
+
+_JUDGE_DOOR = '''
+def judge_packet(payload, **kwargs):
+    """A semantic judge: `what` must not be the literal word 'hollow'."""
+    if str(payload.get("what", "")).strip() == "hollow":
+        return [{"field": "what", "why": "the semantic judge bit"}]
+    return []
+'''
+
+
+def _tree_with_door(name="alpha", body=_JUDGE_DOOR):
+    root = skills_tree(name)
+    (root / name / "door.py").write_text(body)
+    return root
+
+
+def test_the_seam_runs_the_skills_own_judge():
+    """THE ONE-DOOR TOOTH. Until 2026-08-05 the semantic judge lived only behind
+    `python3 skills/<name>/door.py`, so `python3 -m cairn.skill_block fire <name>` — the
+    generic command anyone can reach — skipped every semantic judge in the system. A gate
+    whose strictness depends on which command was typed is policy, not physics (Law 4).
+    """
+    root = _tree_with_door()
+    hollow = dict(GOOD, what="hollow")
+    try:
+        sb.fire("alpha", hollow, now=NOW, skills_root=root,
+                berths=world(), trace_root=world())
+    except lb.DoorRefused as exc:
+        fields = [lack.get("field") for lack in exc.lacks]
+        assert "what" in fields, f"the skill's judge never ran: {exc.lacks}"
+    else:
+        raise AssertionError("the seam accepted a packet the skill's own judge refuses")
+
+    # NON-VACUITY, both halves. A judge that refuses everything would pass the half
+    # above while making the seam useless, so the same tree must still take a clean
+    # packet — and a tree with NO door must still fire, because "no judge" is a
+    # legitimate state (a flat contract with nothing to say about meaning), not a lack.
+    ok = sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root,
+                 berths=world(), trace_root=world())
+    assert Path(ok["berth"]).is_file(), "the judge refused a packet it declares legal"
+    bare = sb.fire("alpha", dict(GOOD), now=NOW, skills_root=skills_tree("alpha"),
+                   berths=world(), trace_root=world())
+    assert Path(bare["berth"]).is_file(), "a skill with no door must still fire"
+
+
+def test_flat_and_semantic_lacks_ride_ONE_refusal():
+    """Two doors raising separately about one firing is two doors — the caller would
+    have to remember to call both, which is the defect one level up. Both kinds must
+    arrive in a single DoorRefused so the refusal denominator counts them through one
+    mouth and the author fixes everything in one pass (complete-diagnostic-on-first-pass).
+    """
+    root = _tree_with_door()
+    try:
+        sb.fire("alpha", {"what": "hollow", "exit": "routed_forward"},   # bullets absent
+                now=NOW, skills_root=root, berths=world(), trace_root=world())
+    except lb.DoorRefused as exc:
+        fields = [lack.get("field") for lack in exc.lacks]
+        assert "bullets" in fields, f"the flat lack vanished: {exc.lacks}"
+        assert "what" in fields, f"the semantic lack vanished: {exc.lacks}"
+        assert fields.index("bullets") < fields.index("what"), (
+            f"flat lacks come first — absence is the contract's finding: {fields}")
+        return
+    raise AssertionError("a packet lacking both kinds was accepted")
+
+
+def test_a_door_that_will_not_import_is_LOUD_not_silently_judgeless():
+    """The vacuous pass this seam exists to stop (Law 8): a broken judge must not read
+    as a skill with nothing to judge, because that failure looks exactly like green."""
+    root = _tree_with_door(body="import nonexistent_module_xyz\n")
+    try:
+        sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root,
+                berths=world(), trace_root=world())
+    except sb.SkillBlockRefused as exc:
+        assert "would not import" in str(exc), exc
+        return
+    raise AssertionError("a door that cannot load was treated as a door with no judge")
 
 
 # ── runner ───────────────────────────────────────────────────────────────────

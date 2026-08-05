@@ -149,19 +149,11 @@ def judge_packet(payload: dict, *, repo: Path | None = None,
 
 def fire(payload: dict, *, now=None, skills_root=None, berths=None, trace_root=None,
          repo=None, commons=None) -> dict:
-    """Gate the opening — flat AND semantic lacks in ONE refusal — then ride the seam."""
-    contract = sb.load_contract("design", skills_root=skills_root)
-    flat = check_input(contract, payload)
-    semantic = judge_packet(payload, repo=repo, commons=commons)
-    lacks = flat + semantic
-    if lacks:
-        write_trace(contract["block"], "send_back", "training",
-                    {"lacks": lacks, "judge": "design-door",
-                     "payload_fields": sorted(payload.keys())},
-                    now=now, root=trace_root)
-        raise DoorRefused(contract["block"], lacks)
+    """Ride the seam — which resolves ``judge_packet`` from this file's address and
+    raises flat AND semantic lacks in ONE refusal. A passthrough, not a second door."""
     return sb.fire("design", payload, now=now, skills_root=skills_root,
-                   berths=berths, trace_root=trace_root)
+                   berths=berths, trace_root=trace_root,
+                   judge_kwargs={"repo": repo, "commons": commons})
 
 
 def main(argv: list[str] | None = None) -> int:

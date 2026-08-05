@@ -172,12 +172,12 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
 
     exit_value = payload.get("exit")
     disposition = payload.get("disposition")
-    if isinstance(exit_value, str) and exit_value.strip():
-        if exit_value not in sb.EXITS:
-            lacks.append({"field": "exit",
-                          "why": f"{exit_value!r} is not one of {sb.EXITS} — named here so the "
-                                 "seam's own refusal is never a second trip"})
-        elif isinstance(disposition, str) and disposition.strip():
+    # EXIT MEMBERSHIP IS THE SEAM'S LACK, NOT THIS DOOR'S — since 2026-08-05 skill_block
+    # names an unknown exit as a lack riding the same refusal, so restating it here would
+    # send the caller two entries for one field (Law 1: settled once, not per tenant).
+    # What this door owns is the coherence of the DISPOSITION with a legal exit.
+    if isinstance(exit_value, str) and exit_value in sb.EXITS:
+        if isinstance(disposition, str) and disposition.strip():
             d = disposition.strip()
             if exit_value == "routed_forward" and d != "cast":
                 lacks.append({"field": "disposition",
@@ -196,26 +196,16 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
 
 def fire(payload: dict, *, now=None, skills_root=None, berths=None, trace_root=None,
          node_class_root=None, repo=None, commons=None) -> dict:
-    """Gate the cast — flat AND semantic lacks in ONE refusal — then ride the seam.
+    """Ride the seam — which resolves ``judge_packet`` from this file's address and
+    raises flat AND semantic lacks in ONE refusal, traced once under the same block.
 
-    The refusal's send_back is traced here (same block, same shape as the primitive's)
-    because the semantic judges run before the seam's door and their refusals must be
-    countable by the same denominator. A clean packet reaches ``sb.fire`` and is traced
-    there — exactly one trace record per firing, either way.
+    A passthrough, not a second door. The composition used to live here, and that is
+    what let the generic entrance skip every semantic judge in the system.
     """
-    contract = sb.load_contract("sorted", skills_root=skills_root)
-    flat = check_input(contract, payload)
-    semantic = judge_packet(payload, node_class_root=node_class_root,
-                            repo=repo, commons=commons)
-    lacks = flat + semantic
-    if lacks:
-        write_trace(contract["block"], "send_back", "training",
-                    {"lacks": lacks, "judge": "sorted-door",
-                     "payload_fields": sorted(payload.keys())},
-                    now=now, root=trace_root)
-        raise DoorRefused(contract["block"], lacks)
     return sb.fire("sorted", payload, now=now, skills_root=skills_root,
-                   berths=berths, trace_root=trace_root)
+                   berths=berths, trace_root=trace_root,
+                   judge_kwargs={"node_class_root": node_class_root,
+                                 "repo": repo, "commons": commons})
 
 
 def main(argv: list[str] | None = None) -> int:

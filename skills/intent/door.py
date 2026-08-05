@@ -135,19 +135,13 @@ def judge_packet(payload: dict, *, repo: Path | None = None,
 
 def fire(payload: dict, *, now=None, skills_root=None, berths=None, trace_root=None,
          repo=None, commons=None) -> dict:
-    """Gate the birth — flat AND semantic lacks in ONE refusal — then ride the seam."""
-    contract = sb.load_contract("intent", skills_root=skills_root)
-    flat = check_input(contract, payload)
-    semantic = judge_packet(payload, repo=repo, commons=commons)
-    lacks = flat + semantic
-    if lacks:
-        write_trace(contract["block"], "send_back", "training",
-                    {"lacks": lacks, "judge": "intent-door",
-                     "payload_fields": sorted(payload.keys())},
-                    now=now, root=trace_root)
-        raise DoorRefused(contract["block"], lacks)
+    """Ride the seam. The seam resolves ``judge_packet`` from this file's address and
+    raises flat AND semantic lacks in ONE refusal, so this is a passthrough and not a
+    second entrance — the composition used to live here, which is exactly what made
+    ``python3 -m cairn.skill_block fire intent`` the looser of the two doors."""
     return sb.fire("intent", payload, now=now, skills_root=skills_root,
-                   berths=berths, trace_root=trace_root)
+                   berths=berths, trace_root=trace_root,
+                   judge_kwargs={"repo": repo, "commons": commons})
 
 
 def main(argv: list[str] | None = None) -> int:

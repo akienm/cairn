@@ -41,6 +41,13 @@ cost is spent on it: re-deriving a settled intention is the defect this gate sto
 
 ## Fire these questions, in order
 
+0. **Origin** — Which captured idea bore this? Answer with an id under
+   `CairnCommons/ideas/`, a path to one, or `"none, because <X>"` where X names
+   something checkable. It rides the packet as `from_idea`. Asked *before* the five
+   because it is provenance, not a birth answer: without it, one idea that bears
+   three intentions leaves the three unable to say they are siblings, and none of
+   them able to point at the prose that bore them. Never captured? `/idea` first —
+   it costs one command.
 1. **WHAT** — In one sentence, what is the intent? (Not the approach — the aim.)
 2. **HOW** — What's the approach, roughly? (First-cut only; `/sorted` deconstructs.)
 3. **Trace** — What does this trace up to — which Telos aim, which Law?
@@ -88,8 +95,14 @@ the packet goes through a gate that refuses an incomplete one. Write it to your
 scratchpad and fire:
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 skills/intent/door.py <scratchpad>/intent_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.skill_block fire intent <scratchpad>/intent_packet.json
 ```
+
+**One command, and it is this one.** `skills/intent/door.py` still runs and judges
+identically — since 2026-08-05 the seam resolves this skill's `judge_packet` from its
+own address, so the two entrances cannot differ in strictness. Before that they did:
+the same packet was accepted by the seam and refused by the door, and the looser one
+was the generic command anyone could reach.
 
 The packet is a JSON object carrying, exactly:
 

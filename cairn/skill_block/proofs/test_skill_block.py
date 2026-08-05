@@ -254,6 +254,11 @@ def _cli(*args, cwd=REPO):
 # /intent itself is wired, not that the seam works in a fixture world.
 _CLI_TRACES, _CLI_BERTHS = world(), world()
 LIVE_GOOD = {
+    # from_idea joined the LIVE contract 2026-08-04 with skill:/idea; this fixture fires
+    # against that contract, so it takes the named exemption with a referent the judge can
+    # actually open (build_inspector.reason_has_referent) — a proof packet has no idea behind it.
+    "from_idea": "none, because this packet is a proof fixture exercising the wire, not an "
+                 "intention — see cairn/skill_block/proofs/test_skill_block.py",
     "what": "a test firing against the real contract",
     "how": "run the CLI",
     "traces_to": "Law 8 — the proof is the entry",

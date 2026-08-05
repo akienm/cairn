@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import getpass
 import json
-import socket
+import platform
 import sys
 
 from cairn.learning_block import learning_block as lb
@@ -147,7 +147,12 @@ def _recordverdict(args: list[str]) -> int:
         return 2
 
     finding = matches[0]
-    session = f"shell:{getpass.getuser()}@{socket.gethostname()}"
+    # platform.node(), not socket.gethostname(): both read the same local name, but importing
+    # `socket` makes this module a module that CAN DIAL, and inference_domain's sole-path tooth
+    # scans for exactly that (Law 6 — the inference host has one door, by construction). The
+    # honest fix is not an allowlist entry for a module that never connects; it is to not hold
+    # the capability at all.
+    session = f"shell:{getpass.getuser()}@{platform.node()}"
     try:
         path = lb.record_verdict(finding["block"], finding, signal, words,
                                  session=session,

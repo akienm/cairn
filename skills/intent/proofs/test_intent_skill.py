@@ -55,6 +55,10 @@ QUESTIONS = {"WHAT": "what", "HOW": "how", "Trace": "traces_to",
              "Shape": "shape", "Falsifier": "falsifier"}
 
 GOOD = {
+    # from_idea joined the contract 2026-08-04 with skill:/idea. The named exemption, with a
+    # referent the judge can open — a proof packet is born of no captured idea.
+    "from_idea": "none, because this packet is a proof fixture exercising the /intent wire, "
+                 "not an intention — see skills/intent/proofs/test_intent_skill.py",
     "what": "prove the wire",
     "how": "fire the real contract from a proof",
     "traces_to": "Law 8 — nothing enters proven-space without a proof",

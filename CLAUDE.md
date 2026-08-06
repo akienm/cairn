@@ -98,10 +98,12 @@ An IOU without a real ticket is itself the defect this section is made of.
   → *where data lives* is not *who imports a driver*: `import_sieve` now seals the
   door (below), but nothing yet reds a component that keeps relational state
   somewhere else entirely. · *ticket owed*
-- A compiled view has one writer — nothing stops a second hand touching
-  `intentions-congruency-lab/`.
-  → a **write**-scan (`open(…,'w')`, `write_text`, `shutil`), which an import-scan
-  is not and never will be. · *ticket write-scan-for-single-writer*
+- Everything in `intentions-congruency-lab/` is **derived, never authored** — it is a
+  viewing surface (Akien, 2026-08-06). *Several* derived writers are legitimate: the
+  compiler copying the whole folder, and a formalization step updating the one
+  intention it changed. A **hand**-edit is the defect, and it is not one-writer.
+  → regeneration makes a hand-edit transient, not impossible, and nothing announces
+  one while it lives. · *ticket the-lab-is-derived-never-authored*
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*

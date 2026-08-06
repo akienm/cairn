@@ -22,7 +22,7 @@
   "filed_edges": [
     "(a) the model is ONE _model.json embedding all content — grows to per-intention files or a richer index only if a real consumer needs it (build-minimal)",
     "(b) the model is kept current by the MODEL-FRESHNESS CONTRACT (host_seam), ALL event-driven, NO daemon: MANUAL, WRITE-THROUGH baked into /sorted, READ-REFRESH baked into /intent; the prior FileChanged host hook is RETIRED",
-    "(c) Law-6 single-writer is an IOU enforced by convention until the tester import-scans for a second writer of intentions-congruency-lab/",
+    "(c) Law-6 single-writer is an IOU enforced by convention. CORRECTED 2026-08-06: this was written as though the coming import-scan would serve it, and it will not. cairn/import_sieve now exists and scans IMPORTS; 'a second WRITER of intentions-congruency-lab/' is a scan over a verb (open(...,'w'), write_text, shutil, subprocess) and a module can write that directory while importing nothing unusual. This is the one of the five import-scan customers that the import-scan does not serve, and it stays open as a WRITE-scan owed",
     "(d) born from git is the today-shape — swappable behind the pure core, which takes born as data"
   ],
   "gates": "proof gate — proofs/test_compiler.py, runnable bare (python3) and under the tester. Durability gate: not done until proven AND the VALIDATION is persisted beside-code (cairn/tester/validation_store.persist_validation → validations/<stem>.json) AND committed (git).",
@@ -31,7 +31,7 @@
   "traces_to": [
     "Law 1 (the system-scale model is compiled once from structure, not re-derived by each reader — the outer row of the projector recursion)",
     "Law 4 (roots surface first BY PHYSICS — born-timestamp ordering, not a hand-placed special case; the store charter's 'the_roots_surface_first')",
-    "Law 6 (exactly one owner gates writes to the compiled view — compile_to_disk is the sole write-door; IOU until the tester import-scans)",
+    "Law 6 (exactly one owner gates writes to the compiled view — compile_to_disk is the sole write-door; IOU until a WRITE-scan exists, which an import-scan is not — see filed edge (c))",
     "Law 7 (the compiled view is never a record of truth — a hand-edit is reverted; the sources are the truth)",
     "Law 8 (a lossless projection a hollow build could not fake — nothing dropped, nothing invented)",
     "Law 3 (the born source was chosen by MEASUREMENT — git --follow, after plain first-add was shown to sink the frame)",

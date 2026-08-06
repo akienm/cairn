@@ -618,6 +618,54 @@ def test_the_hook_names_what_is_open_and_never_wedges_a_turn():
             f"the receipt names the ruling and its failure, not just 'something is open'; {msg}")
 
 
+def _corpus_world(d: str) -> str:
+    """A world with a real (small) Python tree, so the importer gate has something to ask.
+
+    Twenty fillers because the sieve refuses to report clean over a tree it never read —
+    a fixture under the floor would make both halves of the pair below pass for the wrong
+    reason (a HollowScan swallowed into 'no refusals').
+    """
+    _world(d)
+    pkg = Path(d, "cairn", "cairn", "base")
+    pkg.mkdir(parents=True, exist_ok=True)
+    (pkg / "probe.py").write_text("class Probe:\n    pass\n")
+    (pkg / "lonely.py").write_text("# nothing imports me\n")
+    (pkg / "shim.py").write_text("from cairn.base.probe import Probe\n")
+    for i in range(20):
+        (pkg / f"filler_{i}.py").write_text("import json\n")
+    return d
+
+
+def test_a_file_the_corpus_still_imports_cannot_be_sentenced():
+    """troubles/what-dies-sentences-files-the-corpus-still-imports, closed at the door.
+
+    The lived symptom this replaces: Akien runs `cairn ruling confirm` on a packet whose
+    READING he agrees with, and the packet's kill list quietly instructs whoever acts on it
+    to delete the Probe primitive. The confirm step shows him now_the_spec_says, which is
+    right; nothing showed him the kill list.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        _corpus_world(d)
+        bad = ruling.refusals(_packet(what_dies=["cairn/cairn/base/probe.py"],
+                                      what_conforms=[]), d)
+        assert any("still imports" in b or "imported by" in b for b in bad), (
+            f"a file with a live importer was accepted into what_dies: {bad}")
+        named = [b for b in bad if "imported by" in b][0]
+        assert "shim.py" in named, f"the refusal must NAME the importer, not just object: {named}"
+        assert "what_conforms" in named, "and it must name the field that IS right"
+
+
+def test_a_file_nothing_imports_may_still_be_sentenced():
+    """The other half. A gate that refuses every deletion is not a gate, it is a wall —
+    what_dies has to keep working for files that genuinely die."""
+    with tempfile.TemporaryDirectory() as d:
+        _corpus_world(d)
+        bad = ruling.refusals(_packet(what_dies=["cairn/cairn/base/lonely.py"],
+                                      what_conforms=[]), d)
+        assert not any("imported by" in b for b in bad), (
+            f"an unimported file was refused — the gate is a wall, not a sieve: {bad}")
+
+
 def _main() -> int:
     checks = [
         test_every_refusal_lands_on_the_first_pass,
@@ -648,6 +696,8 @@ def _main() -> int:
         test_supersession_does_not_silence_an_unrelated_red,
         test_the_hook_goes_quiet_after_a_cli_supersession,
         test_the_hook_names_what_is_open_and_never_wedges_a_turn,
+        test_a_file_the_corpus_still_imports_cannot_be_sentenced,
+        test_a_file_nothing_imports_may_still_be_sentenced,
     ]
     for check in checks:
         check()

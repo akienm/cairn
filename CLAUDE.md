@@ -95,10 +95,13 @@ An IOU without a real ticket is itself the defect this section is made of.
 
 - Durable *relational* state — the graph trees — goes through `db_domain` / the
   store primitives; shareable provenance is git-JSON beside the code, not a row.
-  → tester import-scan · *ticket owed*
-- The inference host is reached only through `inference_domain`; port 5432 only
-  through `db_domain`.
-  → kernel network ownership, kernel-closed port · *ticket owed*
+  → *where data lives* is not *who imports a driver*: `import_sieve` now seals the
+  door (below), but nothing yet reds a component that keeps relational state
+  somewhere else entirely. · *ticket owed*
+- A compiled view has one writer — nothing stops a second hand touching
+  `intentions-congruency-lab/`.
+  → a **write**-scan (`open(…,'w')`, `write_text`, `shutil`), which an import-scan
+  is not and never will be. · *ticket write-scan-for-single-writer*
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
@@ -111,6 +114,9 @@ An IOU without a real ticket is itself the defect this section is made of.
 what remains is only the part enforcement cannot yet reach. Read the rule at its
 charter, never from this file.
 
+- sole path to the inference host and to 5432 (`import_sieve`, shaken by
+  `inference_domain` and `db_domain` at their own addresses) → a `subprocess`
+  dials and imports nothing, and a dynamic import is invisible. · *ticket owed*
 - `state`/`history` (append door + PROVEME drift check) → an in-place edit of
   *history* itself, and at-rest components between voyages. · *ticket owed*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work

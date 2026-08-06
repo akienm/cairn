@@ -100,6 +100,8 @@ import os
 import re
 import subprocess
 
+from cairn.import_sieve import sieve
+
 # ── the shape ─────────────────────────────────────────────────────────────────
 
 KIND = "ruling"
@@ -277,6 +279,51 @@ def refusals_shape(packet: dict) -> list[str]:
     return out
 
 
+def _refusals_what_dies_is_still_imported(packet: dict, roots_parent: str) -> list[str]:
+    """The gate troubles/what-dies-sentences-files-the-corpus-still-imports was owed.
+
+    ``what_dies`` means LITERAL DELETION — verify's tooth prints 'STILL ALIVE: <path> was
+    ruled dead and is on disk'. On 2026-08-05 two packets sentenced cairn/base/probe.py,
+    the Probe primitive, while eight live modules imported it. Both were caught by hand,
+    which is exactly the wrong mechanism: the lived symptom was Akien about to run
+    ``cairn ruling confirm`` on a packet whose reading he agreed with, making 'delete the
+    file eight modules import' a green instruction, with nothing on screen to show him the
+    kill list was wrong.
+
+    So the door asks the corpus instead of asking the author. A .py file with importers is
+    not a file that dies; it is a file that CHANGES, and what_conforms is the field that
+    already means that. The refusal names the importers, because 'this is wrong' without
+    the eight paths is a second lookup the reader should not have to do (Law 7 — loud, and
+    complete on the first pass).
+
+    Scoped to Python under the ``cairn/`` root: that is where importing exists. A JSON or
+    prose file is not covered and this does not pretend otherwise.
+    """
+    dying = [r for r in packet.get("what_dies", [])
+             if isinstance(r, str) and r.endswith(".py") and r.startswith("cairn" + os.sep)]
+    if not dying:
+        return []
+    repo = os.path.join(roots_parent, "cairn")
+    try:
+        graph = sieve.import_graph(repo)
+    except OSError:
+        return []                       # no tree to ask; do not invent a refusal
+    if len(graph) < 20:
+        return []                       # a hollow graph cannot clear anything (Law 8)
+    out = []
+    for rel in dying:
+        inner = rel.split(os.sep, 1)[1]
+        importers = sieve.importers_of(graph, inner)
+        if importers:
+            shown = ", ".join(importers[:8]) + (" …" if len(importers) > 8 else "")
+            out.append(
+                f"what_dies: {rel!r} is imported by {len(importers)} live module(s) — "
+                f"{shown}. what_dies means DELETION and the verify tooth enforces it; a "
+                "file the corpus still imports does not die, it CHANGES, and what_conforms "
+                "is the field that means that")
+    return out
+
+
 def refusals_on_disk(packet: dict, roots_parent: str) -> list[str]:
     """The intake-time disk checks. Both directions catch me inventing the target.
 
@@ -293,6 +340,8 @@ def refusals_on_disk(packet: dict, roots_parent: str) -> list[str]:
                 out.append(f"{name}: {rel!r} does not exist at intake — "
                            + ("already dead, or invented" if name == "what_dies"
                               else "nothing to conform; that is a new build, not a ruling"))
+
+    out += _refusals_what_dies_is_still_imported(packet, roots_parent)
 
     as_of = packet.get("as_of")
     if isinstance(as_of, dict):

@@ -21,7 +21,6 @@ node's VALIDATION — not smuggled in here, where an absent host would read as a
 
 from __future__ import annotations
 
-import ast
 import json
 import sys
 from pathlib import Path
@@ -30,7 +29,18 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.import_sieve import sieve
 from cairn.inference_domain import host
+
+# The mesh. OUTBOUND ONLY, matched on the full dotted name: a module that can DIAL is a
+# potential door; one that can only LISTEN is not, and urllib.parse is pure string work.
+_SOLE_PATH = {
+    "kind": "sole_path",
+    "capability": "the inference host",
+    "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
+                "aiohttp", "socket", "ftplib", "telnetlib"),
+    "only": "cairn/inference_domain/",
+}
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single
 # word: ok"). Copied rather than invented: a proof whose fixture is imaginary proves the fixture.
@@ -278,61 +288,42 @@ def test_a_falsifier_survives_an_unreadable_digest_and_says_so():
     assert "unread" in fals, f"an unread digest must be admitted in the falsifier, got {fals!r}"
 
 
-# ---------------------------------------------------------------- sole path, cheaply
+# ---------------------------------------------------------------- sole path
 
 def test_no_other_module_in_the_tree_opens_the_inference_host():
-    """Charter edge (b) says the host client lives HERE and nowhere else, 'sole by construction'
-    today with a tester import-scan filed as later physics. This is the cheap version of that scan,
-    running now: it greps the tree for the host's port and API paths and reds on any other module.
+    """Charter edge (b): the host client lives HERE and nowhere else. The IOU is now CLOSED —
+    this delegates to cairn/import_sieve, the shared tooth, instead of carrying its own copy.
 
-    Construction is a claim about the present that nothing re-checks; this re-checks it on every
-    run, which is the difference between a rule and a habit (Law 4). It does NOT retire the IOU —
-    a tester-level scan covers modules this glob cannot see — but it closes the gap for the tree we
-    have, and it will fire the moment someone adds a second door.
+    WHAT CHANGED ON 2026-08-06, and why it was not just a refactor. The hand-rolled version
+    globbed `_REPO_ROOT / "cairn"` — the package directory. It therefore never looked at
+    bin/, skills/, launchers/ or learning/: 26 real Python files, including every skill door
+    and probe, in which a second dialer would have been invisible. Measured with the mutant:
+    a file planted at skills/ was missed by the old glob and is caught by the sieve.
 
-    IT TESTS THE CAPABILITY, NOT THE MENTION, and that correction came from the tooth firing on its
-    first run. Written to grep for the port and the API paths, it flagged cairn/base/needs.py and
-    its proof — where ':11434/api/tags' appears in a docstring, an error-message example, and a
-    test fixture's how_measured text. All three are PROSE ABOUT a measurement; none can open a
-    socket. A check that cannot tell a door from a description of a door would have been trained
-    away by its own noise (and would still have missed a module that reads the endpoint from
-    config — no literal, real door). So the predicate is: which modules can open an HTTP
-    connection AT ALL. Measured: exactly one does.
+    The two hard-won properties are unchanged, because they moved INTO the sieve rather than
+    being re-derived here (Law 1): outbound-only matched on the full dotted name, so a module
+    that can only LISTEN (web_server's http.server) is not a door and urllib.parse is not a
+    door; and the non-hollow floor, which is now a raise inside catches() rather than a
+    separate assert at the bottom of this function that a second copy could forget.
     """
-    # OUTBOUND ONLY, matched on the full dotted name. The distinction is the point: a module that
-    # can DIAL is a potential door; a module that can only LISTEN is not. web_server/daemon.py
-    # imports http.server and tripped the blunt version of this check — it serves the fleet register
-    # over a listening socket and cannot reach anything. Matching full names also stops exempting
-    # urllib.parse, which is pure string work and no more a door than str.split.
-    outbound = ("urllib.request", "urllib.error", "http.client", "requests", "httpx", "aiohttp",
-                "socket", "ftplib", "telnetlib")
-    allowed = {Path(host.__file__).resolve()}
-    offenders = []
-    for py in sorted((_REPO_ROOT / "cairn").rglob("*.py")):
-        if py.resolve() in allowed or "__pycache__" in py.parts:
-            continue
-        try:
-            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
-        except SyntaxError:                     # not importable anyway; not a door
-            continue
-        imported = set()
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                imported |= {a.name for a in node.names}
-            elif isinstance(node, ast.ImportFrom) and node.module:
-                imported.add(node.module)
-        found = sorted(m for m in imported if any(m == o or m.startswith(o + ".") for o in outbound))
-        if found:
-            offenders.append(f"{py.relative_to(_REPO_ROOT)} imports {found}")
-    assert not offenders, (
-        "a SECOND module can open a network connection — the sole path to the inference host is no "
-        "longer sole by construction (Law 6, charter falsifier (6)). If the new door is legitimate "
-        "and NOT an inference-host client, it belongs in this tooth's allowlist WITH a reason, "
-        "which is the conversation this red exists to force:\n  " + "\n  ".join(offenders))
-    # Non-hollow floor: the scan must actually be looking at a populated tree, or it passes by
-    # finding nothing anywhere (Law 8 — a green over zero files is not a green).
-    scanned = sum(1 for p in (_REPO_ROOT / "cairn").rglob("*.py") if "__pycache__" not in p.parts)
-    assert scanned > 20, f"the sole-path scan only saw {scanned} modules — it is not scanning the tree"
+    caught = sieve.catches(sieve.import_graph(str(_REPO_ROOT)), _SOLE_PATH)
+    assert not caught, (
+        "a SECOND module can open a network connection — the sole path to the inference host "
+        "is no longer sole (Law 6, charter falsifier (6)). If the new door is legitimate and "
+        "NOT an inference-host client, it belongs in this rule's mesh WITH a reason, which is "
+        "the conversation this red exists to force:\n  " + "\n  ".join(caught))
+
+
+def test_the_sole_path_tooth_reds_on_a_planted_dialer():
+    """Non-vacuity, and it is the tooth that was missing before. The check above passes over a
+    clean tree and would pass identically if the mesh were solid sheet metal."""
+    planted = {f"filler/m{i}.py": {"json"} for i in range(25)}
+    planted["skills/sorted/probes/door.py"] = sieve.imports_in("import http.client")
+    planted["cairn/inference_domain/host.py"] = sieve.imports_in("import urllib.request")
+    caught = sieve.catches(planted, _SOLE_PATH)
+    assert len(caught) == 1, f"exactly the rogue, inference_domain itself spared: {caught}"
+    assert "skills/sorted/probes/door.py" in caught[0], (
+        "and it is caught OUTSIDE cairn/ — the blind spot the hand-rolled glob had")
 
 
 def _main() -> int:
@@ -354,6 +345,7 @@ def _main() -> int:
         test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest,
         test_a_falsifier_survives_an_unreadable_digest_and_says_so,
         test_no_other_module_in_the_tree_opens_the_inference_host,
+        test_the_sole_path_tooth_reds_on_a_planted_dialer,
     ]
     for check in checks:
         check()

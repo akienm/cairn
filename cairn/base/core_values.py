@@ -57,7 +57,7 @@ CORE_VALUES: tuple[CoreValue, ...] = (
     CoreValue(
         "CP4",
         "Make everything suck less for everybody",
-        "Reduce friction for ALL affected beings: users, others, animals, ecosystems, AIs.",
+        "Reduce friction for ALL affected beings: living beings, ecosystems, AIs.",
     ),
     CoreValue(
         "CP5",

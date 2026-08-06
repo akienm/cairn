@@ -184,7 +184,7 @@ Covered in §2.2. The graph's own miss is the trigger. This is the path that mak
 
 The system watches itself work. Two mechanisms, both running:
 
-- **The trace organ.** Every Learning Block firing writes a trace — *green firings included* — and each trace is **consumer-typed at write time**: `debug`, `training`, or `tree-primary`. No consumer named, no trace written (this is what stops trace-drain). `debug` records expire at 30 days, swept by the *next write* rather than by a clock. `tree-primary` means: this trace is primary data destined for the graph.
+- **Traces.** Every Learning Block firing writes a trace — *green firings included* — and each trace is **consumer-typed at write time**: `debug`, `training`, or `tree-primary`. No consumer named, no trace written (this is what stops trace-drain). `debug` records expire at 30 days, swept by the *next write* rather than by a clock. `tree-primary` means: this trace is primary data destined for the graph.
 
   A `training`-typed trace records the full state of a decision — the input, the candidates considered, **the constraint that killed each loser**, why the winner won, and what escalated to where. The lived symptom that forced this: reasoning that lived only in a session's attention was lost the moment the model changed underneath it. A trace makes that reasoning a record any model can read back.
 
@@ -224,7 +224,7 @@ The rule underneath: **the graph is the catalog, not the shelf.** The bytes live
 
 Both kinds are now stored, so **the maintenance rule is the same for both** — the one §4.4 decides: *an edge that must survive a renumbering is an edge you are storing.* Weights must survive one, so similarity edges ride the same shear the articulated ones do. What still separates the two kinds is not cost but **authorship**: an articulated edge is *asserted* by someone and is wrong if it misstates them; a similarity edge is *learned* from proximity and use, and is wrong only if it stops predicting. And the clean rule underneath holds unchanged: *edges are a property of the index, never of the remembered thing.* Nodes have no edges at all.
 
-**Retrieve — three tiers, which is §3.5's recursion turned on retrieval itself.** The strata ladder says judgment should migrate from the model to the tree to code; run that on the act of finding things and you get:
+**Retrieve — three tiers, which is §3.7's recursion turned on retrieval itself.** The strata ladder says judgment should migrate from the model to the tree to code; run that on the act of finding things and you get:
 
 1. **The weighted path** — compiled, near-free. For routes that have proven out.
 2. **The scan** — exhaustive cosine over the leaves in scope, or over the embedding layer directly with no tree involved at all. Slower, and it **cannot miss**: a comparison against everything has no reachability condition, where a traversal reaches only what it happens to be linked to. This is the tier you *fall back to*, and it is never the tier you replace. Its thoroughness is the    whole reason it is worth its cost.
@@ -280,22 +280,59 @@ Both the softener and the instrument are cheap:
 
 ### 3.1 The anatomy
 
-Every unit of work in the system — a component, a workflow step, and ultimately the system as a whole — is built to one shape. Five organs:
+A **Stackable Learning Block** and a **question nexus** are two names for one object. Every unit of work in the system — a component, a workflow step, and ultimately the system as a whole — is built to this shape:
 
-| organ | what it does | the failure it prevents |
-|---|---|---|
-| **DOOR** | declares an input contract; refuses insufficient input with **every** lack named in one pass | work that proceeds on a bad premise and fails three steps later |
-| **TRACE** | records every firing, green included, consumer-typed at write | reasoning that evaporates with the session; rates with no denominator |
-| **FINDING** | exit-time bullet list, each bullet tagged with the **stratum** that produced it: `code` \| `tree` \| `hex` | a claim whose origin you cannot audit |
-| **VERDICT** | a human approves / disproves / questions the finding — recorded with their verbatim words | judgment that trains nothing because it wasn't captured |
-| **DIAL** | per-block counters: firings, send-backs, approvals, disproves, **match rate** | delegating on vibes |
+| part | what it is |
+|---|---|
+| **INPUT** | anything; today most blocks pass or receive JSON chunks |
+| **FEEDBACK LOOPS IN** | arriving **from probes** — a probe's yield is not a statistic kept beside the system, it is a block's input |
+| **CANDIDATE CONSTRAINING QUESTIONS** | new ones, proposed from that feedback and from LLM processing — on an evening pass, not in the hot path |
+| **DOMAIN KNOWLEDGE BASE** | what this block knows about its own subject |
+| **CONSTRAINING QUESTIONS** | the settled ones: what this block requires an answer to before it will pass work |
+| **TWO LOOPS, DISTINCT** | see §3.2 — they are named in built code |
+| **OUTPUT** | whatever this block's job produces |
 
-Two implementation properties make these *stackable* rather than a naming convention:
+And its behavior, which is where the word *learning* is earned: **a block predicts, and responds to the feedback on those predictions.** It learns. And it **fails over to the LLM for more nodes as needed** — which is the same mechanism as §2.2's backfill, not a second one (§3.6).
 
-- **One engine, many blocks.** The inner loop — *input → candidate generation → evaluation → decide or escalate* — is instantiated from a **data-only block spec**. The engine is branchless about which block it is running. A block-specific branch in engine code **falsifies the design**, and there is a   test that compares the engine module's bytes across two different tenants'   firings to prove it.
-- **The contract lives in the block's own charter**, not in engine code. Adding   the next block is a declaration, not a code change.
+The thesis in the system owner's words: *"such a tool could be used to gather data until it could prove almost anything. Or fail in the trying."*
 
-### 3.2 The gate, and why a human is standing in it
+**What a block does not have: findings, verdicts, or anything a human comments on.** Those are real, and they appear below — but they belong to the **inspector**, which is a *subclass* of block (§3.3), and to the human gate standing around it (§3.4). The distinction is worth stating rather than assuming, because the failure mode is specific and easy: promote the subclass's parts into the parent and you get a "block" that structurally requires a human reader, which defeats the entire point of stacking them.
+
+*Scope, stated plainly:* the system's pre-build steps are each a learning block of this form.
+
+Two things the anatomy settles that had been waiting on it. **The probe corpus gets its consumer** — probes have been chartered since 2026-07-22 with their yield going nowhere in particular; the feedback lane is where it goes. And **the evening pass is the drain** — a question corpus with an intake and no drain is worse than no corpus, and the job description for that drain turns out to be exactly this: turn accumulated feedback into the next round of constraining questions. The drain is not housekeeping; it is the block's learning step.
+
+### 3.2 One engine, many blocks
+
+Two implementation properties make these *stackable* rather than a naming convention.
+
+**One engine.** The inner loop is instantiated from a **data-only block spec**, and the engine is branchless about which block it is running. Its two loops are the two the anatomy calls for, named in the source (`learning_block/engine.py`):
+
+```
+input → candidates loop → evaluation loop → decide or escalate → output
+```
+
+The **candidates** loop generates; the **evaluation** loop kills against the constraining questions and leaves survivors. A block-specific branch in engine code **falsifies the design** — and the proof compares the engine module's bytes across two different tenants' firings to show there isn't one.
+
+*Measured, 2026-08-02:* the engine runs, with each run landing its input, its candidates, **the constraint that killed each loser**, why the winner won, and what escalated where, in a single training-typed trace. The first tenant was chosen by measurement rather than by preference.
+
+**The contract lives in the block's own charter**, not in engine code. Adding the next block is a declaration, not a code change.
+
+*Where the implementation stands:* the engine — the two loops — is built and conforms to the anatomy above. What is bolted around its exit in the first build does not yet, and is being corrected. The inner loop is the part that was hard and the part that is proven.
+
+### 3.3 Inspectors — the subclass whose job is defined enough to have a class
+
+**An inspector is a learning block whose knowledge base is a list of things to measure.** Same structure, different KB — and *because* the job is defined enough, it gets its own class rather than being one more spec.
+
+What specializes is the **output slot**, not the shape: the KB says what to measure, so what comes out of the output is a **finding** — an exit-time bullet list, each bullet tagged with the **stratum** that produced it (`code` | `tree` | model), so no claim's origin is unauditable. Nothing is added to the anatomy; a slot is filled in a particular way.
+
+And an inspector's failover on ambiguity is the same query-to-inference-proxy path everything else uses, not a special one.
+
+The direction of the *is-a* carries the weight: **an inspector is a learning block; a learning block is not an inspector.** Subtype, not identity — and the reason to be strict about it is that inspectors are the most *visible* blocks, so their organs are the ones that get mistaken for the general shape.
+
+### 3.4 The gate on an inspector, and why a human is standing in it
+
+This is where **VERDICT** and **DIAL** live: a verdict is a human's judgment *on an inspector's finding*, and the dial is the delegation machinery built around it. They are not organs of a block — they are the gate, and the gate is a separate matter from the thing it stands in front of.
 
 The system's owner is currently the inspector and the memory: he reads the finding, asks questions, approves or disproves. That is not a stopgap dressed as a design — it is the design's starting condition, and it is stated as such:
 
@@ -311,7 +348,7 @@ Two guardrails, non-negotiable and structural rather than advisory:
 - **Ceilinged gates.** Irreversible or outward-facing gates carry a confidence ceiling *below* the autonomy threshold. They never auto-open, however much evidence accumulates. This is a structured field the fold reads, not a phrase   in a comment.
 - And: **silence is not approval.** Absence of a correction is weak evidence at   most.
 
-### 3.3 The Leah rule — why greens are recorded
+### 3.5 The Leah rule — why greens are recorded
 
 Named for a lesson about self-observation: someone notices a thing once, concludes from it, and shares the conclusion — and the useful question is *"is that your only data point?"*, which sends them looking for the second instance.
 
@@ -319,7 +356,7 @@ Formally: **surprise routes; greens are the denominator.** Errors decide what tr
 
 The corresponding failure mode is known and pre-empted: the andon cord (any station stops the line; causes fixed at source; the line stops *less* over time) solved this a century ago, and its documented pathologies are alarm fatigue and gaming. So **refusal rates are themselves measured from day one.** A block that never refuses is vacuous; one that refuses constantly is mis-gated. Without that measurement, evasion just moves up a level — past gates instead of past questions.
 
-### 3.4 How the blocks use the graph trees
+### 3.6 How the blocks use the graph trees
 
 This is the join between Section A and Section B, and it is the mechanism behind the word *learning* in Learning Block.
 
@@ -333,25 +370,30 @@ This is the join between Section A and Section B, and it is the mechanism behind
    floor:    plain code     — free, exact, for what has stopped being a judgment call
 ```
 
-A block's judgment starts at the ceiling. Its traces and verdicts deposit as nodes (`tree-primary` typing exists exactly for this). Once the graph resolves a class of judgment reliably, the block reads it from the tree instead of the model. Once a judgment stops being a judgment — once the answer is always the same — it compiles to code, where it costs nothing and cannot drift.
+A block's judgment starts at the ceiling. Its traces deposit as nodes (`tree-primary` typing exists exactly for this). Once the graph resolves a class of judgment reliably, the block reads it from the tree instead of the model. Once a judgment stops being a judgment — once the answer is always the same — it compiles to code, where it costs nothing and cannot drift.
 
-**The stratum tag on every finding bullet is the instrument.** Each assertion records which layer produced it. So the migration is not an impression; it is a countable distribution over `code | tree | hex`, per block, over time.
+**And the failover is not a second mechanism.** "Fail over to the LLM for more nodes as needed" (§3.1) and the backfill of §2.2 are the same loop written twice: walk, miss, ask the resolver for **nodes** rather than answers, deposit, resubmit. That identity is why *everything is a learning block* is a structural claim about the architecture rather than a slogan about it — the block's escape hatch and the memory's growth mechanism are one piece of machinery, so a block cannot fail over without the memory getting larger.
+
+**The stratum tag is the instrument.** Every assertion a block emits records which layer produced it — for an inspector, that is the tag on each finding bullet. So the migration is not an impression; it is a countable distribution over `code | tree | model`, per block, over time.
 
 **The system's top-level metric follows directly: the migration rate.** How much adjudication moved from ceiling to tree or code, per week. That single number is the operational meaning of "self-improving" — and it is falsifiable. If judgment is not moving down the ladder, the architecture is not doing the thing it claims.
 
-### 3.5 The recursion
+### 3.7 The recursion
 
-The last move is the one that took longest to see: **the whole system is a learning block.** Map the five organs to the system scale and two of them are currently a human brain —
+The last move is the one that took longest to see: **the whole system is a learning block.** Map the anatomy to the system scale and the parts that are missing are the ones a human is currently standing in for —
 
-| organ | at system scale, today |
+| part | at system scale, today |
 |---|---|
-| door | the refusal surfaces, plus the question set they exist to answer |
-| trace | the wires, landing component by component |
-| **finding** | **a human — he is the inspector** |
-| verdict | his gate acts, now captured verbatim |
-| **dial** | **a human — he is the memory** |
+| input | the work arriving — tickets, questions, troubles |
+| feedback from probes | the wires, landing component by component |
+| candidate constraining questions | **a human — he proposes them, in conversation** |
+| domain knowledge base | the charters, the graph trees, the corpus |
+| constraining questions | the refusal surfaces, and the question set they exist to answer |
+| output | the system's own next state |
+| **the inspector over it** | **a human — he reads the findings** |
+| **the memory of what he gated** | **a human — the match rate lives in his head** |
 
-So the program is not "add learning blocks to things." It is **move the inspector and the memory out of a person's head and into the system's own organs** — and the migration rate is how you tell whether it is happening.
+So the program is not "add learning blocks to things." It is **move the inspector and the memory out of a person's head and into the system's own machinery** — and the migration rate is how you tell whether it is happening.
 
 **And the recursion has a second place to land, one layer down: retrieval itself.** Run the same three strata on the act of finding something and you get the weighted path, the scan, and inference (§2.6) — which makes retrieval a learning block in its own right, measured by the same migration rate as everything else, rather than a fixed mechanism the learning blocks merely call.
 
@@ -433,7 +475,7 @@ Three further notes:
 
 **Honest status on this section.** The per-tree leaf tables, the bound, and the shear are the **restore target**. The running store today is a single table in which the node and the leaf are the same row, with no link columns at all — so there is currently nothing for a shear to renumber and nowhere for an articulated edge to live. The node/leaf split is a *prerequisite* for calving, not a detail of it. What remains open is named rather than papered over:
 
-1. **How fast a weight falls.** A weight that strengthens whenever its path resolves is a positive feedback loop, and §2.7 is already a story about one: a wrong route that resolves once gets stronger, is likelier to be chosen next time, and manufactures its own confirmation with a ratchet on it. The correction is the asymmetry §3.2 already demands of gates — **counter-evidence lowers a weight faster than confirmation raises it** — and *how much* faster is unmeasured. It is a dial, and it is born red.
+1. **How fast a weight falls.** A weight that strengthens whenever its path resolves is a positive feedback loop, and §2.7 is already a story about one: a wrong route that resolves once gets stronger, is likelier to be chosen next time, and manufactures its own confirmation with a ratchet on it. The correction is the asymmetry §3.4 already demands of gates — **counter-evidence lowers a weight faster than confirmation raises it** — and *how much* faster is unmeasured. It is a dial, and it is born red.
 2. **Cross-tree in-links are cross-owner writes.** If a leaf in tree B points into tree T, T's calve must rewrite a row B's owner gates — and under one-owner-per-store the shear cannot reach in. Two-way links make this tractable (T knows exactly whom to notify) but not free; the fixup still travels through B's gate.
 3. **Does a node carry back-references to its leaves?** "Where is this node indexed?" is otherwise a lookup against every tree table. Storing the list makes it one read — but then a calve *does* write nodes, and the property two paragraphs up holds only if it doesn't.
 4. **The bound**: one parameter or two.
@@ -504,7 +546,7 @@ That is the distinctive bet, and it is the one an outside reviewer should press 
 
 **Who:** Ought (and Elicit, which runs it over scientific literature).
 
-The prior art for **claim decomposition with evidence** — decomposing a question into sub-questions whose answers compose. Directly relevant to the question-nexus component of the Stackable Learning Block idea. Cite, don't graft.
+The prior art for **claim decomposition with evidence** — decomposing a question into sub-questions whose answers compose. Directly relevant to the question nexus — which is the Stackable Learning Block under its other name (§3.1), not a component inside one. Cite, don't graft.
 
 ### 5.7 The two industrial neighbors an architect will ask about
 
@@ -559,6 +601,11 @@ These are the questions to ask us in six months.
 | **shear** | the renumbering of leaf addresses along a calve; touches leaves only, never nodes |
 | **standing** | `hypothesis` (born) → `earned` (tenure paid) |
 | **tenure** | promotion earned by resolving questions the node was not minted from |
-| **Learning Block** | door → work → trace → finding → verdict → dial |
+| **Learning Block** | *= question nexus.* input · feedback from probes · candidate constraining questions · domain KB · constraining questions · two loops (candidates, evaluation) · output. Predicts, responds to feedback on those predictions, fails over to the model for nodes |
+| **question nexus** | the same object as a Learning Block; the two names are one thing |
+| **constraining question** | what a block requires an answer to before it will pass work; the evaluation loop kills against these |
+| **inspector** | a Learning Block whose KB is a list of things to measure, so its output is **findings**; has its own class because the job is defined enough |
+| **finding** | an inspector's output: a bullet list, each bullet stratum-tagged |
+| **verdict / dial** | the *human gate* on an inspector and its delegation machinery — not parts of a block |
 | **stratum** | which layer produced an assertion: `code` \| `tree` \| model |
 | **migration rate** | how much judgment moved down a stratum per unit time |

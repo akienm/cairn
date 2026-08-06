@@ -53,6 +53,156 @@ class HollowScan(RuntimeError):
     """The sieve was shaken over a tree it did not read. Never a pass."""
 
 
+# ── REACH: how far a sieve has to look ───────────────────────────────────────
+# A sieve's MESH is how strict its check is (ruling 2026-08-05-a-check-is-worth-
+# its-mesh). Its BAND is how far it must REACH to answer — and Akien drew that line
+# himself on 2026-08-06: coarseness is "not computation time... more like how deep we
+# have to look. is it a file lookup? is it a value in a file? is it a value i have to
+# compute from multiple local sources? do i need the web? --- more related to
+# proximity?" The band is a characteristic of the KIND OF THING the sieve does, not
+# of where it is installed, which is what makes a sieve portable between nests.
+#
+# THE BOUNDARIES ARE WHERE THE FAILURE MODE CHANGES, not where the milliseconds do.
+# In-hand cannot fail environmentally. Local disk fails on absence. Correlated local
+# work fails on inconsistency. Off-box fails on UNAVAILABILITY, which nothing above it
+# can do — and that last boundary is the one that earns its keep, because an
+# unreachable host must never mask a local finding.
+#
+# A BAND SEQUENCES; IT NEVER FORBIDS. Akien's correction, 2026-08-06, after CC
+# proposed redding an off-box sieve on the ground that none exists today: there are
+# already two hosts (this box and Hex), and in TheIgors era four laptops each ran an
+# instance against local 3b/7b Ollama on ten-minute overnight timeouts. "will we do
+# that? I don't know. but we CAN." An empty band is empty, not closed.
+#
+# WHY THIS IS NOT import_graph's JOB, measured 2026-08-06: the graph is MODULE-
+# granular and a sieve is a FUNCTION. inspector.py imports pathlib once and holds
+# eighteen checks with different reaches. So the function-level walk sits on top of
+# the graph rather than beside it.
+
+BAND_NAMES = {0: "in-hand", 1: "local-disk", 2: "correlated-local", 3: "off-box"}
+
+# The ladder is DATA and it is a first cut (2026-08-06), not a settled taxonomy: it
+# was derived from the eighteen checks that existed on the day, and the sorting pass
+# that produced it found three of the four bands populated. Widening it is expected.
+DEFAULT_LADDER = {
+    3: {"modules": ("cairn.db_domain", "cairn.inference_domain", "cairn.librarian",
+                    "cairn.chart.tree", "psycopg", "psycopg2", "socket", "urllib.request",
+                    "http.client", "requests"),
+        "calls": ()},
+    2: {"modules": ("subprocess", "ast", "cairn.orient"),
+        "calls": ("walk", "glob", "rglob", "iterdir", "iglob")},
+    1: {"modules": (),
+        "calls": ("read_text", "read_bytes", "exists", "is_file", "is_dir", "stat",
+                  "write_text", "write_bytes", "open", "load", "listdir")},
+}
+
+
+def _alias_modules(tree: ast.AST) -> dict[str, str]:
+    """{name as bound in this module: the dotted module it came from}.
+
+    THE WHOLE POINT OF ANCHORING ON IMPORTS. A first cut of this derivation matched
+    call-name tails and put 15 of build_inspector's 18 checks off-box, because
+    `Path.resolve()` and `inference_domain.resolve()` share a tail and `dict.get()`
+    looks like an HTTP get. That is the same mention-not-capability failure this
+    module's header records twice, arriving a third time in a new shape — so reach is
+    resolved through what the alias actually BINDS, never through what it is spelled.
+    """
+    binding: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                binding[a.asname or a.name.split(".")[0]] = a.name
+        elif isinstance(node, ast.ImportFrom):
+            if node.level or not node.module:
+                continue
+            for a in node.names:
+                binding[a.asname or a.name] = f"{node.module}.{a.name}"
+    return binding
+
+
+def _root_name(node: ast.AST) -> str | None:
+    """The leftmost Name of an attribute chain — the alias that anchors it."""
+    while isinstance(node, ast.Attribute):
+        node = node.value
+    return node.id if isinstance(node, ast.Name) else None
+
+
+def _local_band(fn: ast.AST, binding: dict[str, str], ladder: dict) -> int:
+    """The band this function body reaches on its own, ignoring in-module callees."""
+    band = 0
+    for node in ast.walk(fn):
+        if not isinstance(node, ast.Call):
+            continue
+        f = node.func
+        anchor = f.id if isinstance(f, ast.Name) else _root_name(f)
+        bound = binding.get(anchor, "") if anchor else ""
+        tail = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
+        for level in sorted(ladder, reverse=True):
+            if level <= band:
+                break
+            spec = ladder[level]
+            if bound and any(_matches(bound, m) for m in spec.get("modules", ())):
+                band = level
+                break
+            # A bare call whose name is not bound to any import is a builtin or a
+            # method on a local object: `open(...)`, `p.read_text()`. Those are read
+            # by SHAPE, and only below the off-box band — a name alone can never buy
+            # a claim about leaving the box, which is the v1 error.
+            if not bound and tail in spec.get("calls", ()):
+                band = level
+                break
+    return band
+
+
+def reach_of(source: str, ladder: dict | None = None) -> dict[str, int]:
+    """{function name: its band}, for every module-level function in `source`.
+
+    Reach is TRANSITIVE within the module: a check that calls a helper reaches
+    whatever the helper reaches, because the caller's answer depends on it. Recursion
+    is cycle-safe and an unparseable source yields {} rather than a confident empty
+    claim about a file nobody could read.
+    """
+    ladder = DEFAULT_LADDER if ladder is None else ladder
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return {}
+    binding = _alias_modules(tree)
+    funcs = {n.name: n for n in tree.body
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+
+    def walk(name: str, seen: frozenset) -> int:
+        if name in seen or name not in funcs:
+            return 0
+        seen = seen | {name}
+        band = _local_band(funcs[name], binding, ladder)
+        for node in ast.walk(funcs[name]):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                callee = node.func.id
+                if callee in funcs:
+                    band = max(band, walk(callee, seen))
+        return band
+
+    return {name: walk(name, frozenset()) for name in funcs}
+
+
+def nest(reaches: dict[str, int]) -> list[tuple[int, list[str]]]:
+    """The reaches, assembled coarsest-first: [(band, [names]), ...].
+
+    A nest is coarse mesh on top and is shaken ONCE — the word forbids firing one
+    sieve, reading it, and re-firing, before any proof looks at it. Within a band the
+    order genuinely does not matter, which is what lets a band be shaken at once;
+    ONLY the bands are ordered, and nothing here invents an order inside one.
+
+    Empty bands are omitted rather than reported as empty groups: the assembly is what
+    exists, and a band with no sieves in it is not a step in the shake.
+    """
+    grouped: dict[int, list[str]] = {}
+    for name, band in reaches.items():
+        grouped.setdefault(band, []).append(name)
+    return [(b, sorted(grouped[b])) for b in sorted(grouped)]
+
+
 def _walk_py(root: str):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.endswith(".egg-info")]

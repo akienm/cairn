@@ -296,11 +296,11 @@ def main() -> int:
             _entry_gate("t")
             ok("entry gate: triple lack in one raise", False, "gate passed")
         except EntryGateRed as exc:
-            filters = {f["filter"] for f in exc.findings}
+            sieves = {f["sieve"] for f in exc.findings}
             ok("entry gate: triple lack in one raise",
                {"buildme_rides_the_chart", "buildme_rides_the_intent",
-                "buildme_rides_the_sorted"} <= filters,
-               f"filters seen: {filters}")
+                "buildme_rides_the_sorted"} <= sieves,
+               f"sieves seen: {sieves}")
         finally:
             insp._TICKETS_ROOT = saved
 

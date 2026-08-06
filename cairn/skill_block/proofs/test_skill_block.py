@@ -416,7 +416,7 @@ def test_gate_reds_a_ticket_that_names_no_intent_firing():
     root = _tickets(t={"id": "t"})
     found = gate("t", tickets_root=root)
     assert len(found) == 1, f"one finding, complete on the first pass: {found}"
-    assert found[0]["filter"] == "buildme_rides_the_intent"
+    assert found[0]["sieve"] == "buildme_rides_the_intent"
     assert "intent_berth" in found[0]["finding"], found[0]
 
 

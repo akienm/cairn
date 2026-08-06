@@ -66,14 +66,14 @@ workflow string cannot quietly diverge from the class it claims to be an instanc
 THE BUILD GATE (2026-07-27, build_inspector's filed edge (a) landing): a journaled FORWARD
 crossing out of ``PROVEME`` — the crossing OF the gate summons — first runs the
 build_inspector on the component at the crossing's own address (the directory holding
-``history_path``), and is refused while any filter reds. The gate lives HERE because this is
+``history_path``), and is refused while any sieve reds. The gate lives HERE because this is
 the one door: the clearance gate wraps ``emit``, so wiring anywhere else (the tester's
 discipline, a hook CC remembers to run) would be the run-it-by-discipline gap the inspector
 exists to close. Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
 so the record of truth does not move and there is nothing to gate. Kick-backs OUT of PROVEME
 are never gated — retreating on a red is the correct move. An address the census cannot see
 is REFUSED, not skipped: a gate that silently inspects nothing passes everything (Law 8), and
-the refusal names the growth path (grow the census/filters, the learning device's move).
+the refusal names the growth path (grow the census/sieves, the learning device's move).
 
 Dependency-light AT IMPORT: pure parsing + the projector's pure core. No device, no bus, no
 DB. The build gate summons the build_inspector LAZILY, only at a journaled PROVEME exit —
@@ -586,7 +586,7 @@ def _entry_gate(ticket: str) -> str:
             "/intent firing and its /sorted door firing" % ticket
         )
     lines = [
-        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
         for f in findings
     ]
@@ -624,7 +624,7 @@ def _exit_gate(ticket: str) -> str:
     if not findings:
         return "clean — no unanswered chart claim stands against ticket %r" % ticket
     lines = [
-        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
         for f in findings
     ]
@@ -700,10 +700,10 @@ def _build_gate(history_path: str) -> str:
             "measurable code."
         ) from e
     if report["clean"]:
-        return (f"clean — build_inspector ran {len(report['filters_run'])} filters over "
+        return (f"clean — build_inspector ran {len(report['sieves_run'])} sieves over "
                 f"{comp_dir.name}")
     lines = [
-        f"  [{f['filter']}] {f['finding']} — {f['why_it_matters']} (evidence: "
+        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
         for f in report["findings"]
     ]

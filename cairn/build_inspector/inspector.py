@@ -1,16 +1,16 @@
-"""build_inspector — the post-build gate. Python filters; new failure, new filter.
+"""build_inspector — the post-build gate. Python sieves; new failure, new sieve.
 
 Akien's ruling, 2026-07-27, verbatim: "the next thing is a post build inspector (also in
-python with FILTERS) that can catch these kinds of things. we find a new thing, we add a
-new filter. can also be a seperate, command line only inference free operation to run it
+python with SIEVES) that can catch these kinds of things. we find a new thing, we add a
+new sieve. can also be a seperate, command line only inference free operation to run it
 on the whole repo once built. we should only ever have to do that once."
 
 THE CONTRACT
-  - A FILTER judges a MEASUREMENT — it reads orient's census rows and the component's
+  - A SIEVE judges a MEASUREMENT — it reads orient's census rows and the component's
     files, never a narration about them. Inference-free by construction: there is no
     deepen seam here at all; a gate that consults an oracle is not a gate.
-  - Every filter carries PROVENANCE: the failure that seeded it (the learning device,
-    same shape as orient's scans — proofs refuse a filter nobody was taught by).
+  - Every sieve carries PROVENANCE: the failure that seeded it (the learning device,
+    same shape as orient's scans — proofs refuse a sieve nobody was taught by).
   - A FINDING is complete on first pass (I-complete-diagnostic-on-first-pass): what
     was measured, why it matters, which law — never "run again for details".
   - "ONLY ONCE" BY CONSTRUCTION: the whole-repo sweep brings the existing tree up to
@@ -36,9 +36,9 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
 # Deliberate reuse, on the record: orient's scans are the measuring layer under these
-# filters (device_census feeds every row-judging filter). This is the first evidence on
-# orient's filed edge (e) — scans-vs-filters as one shared library — earned by use, not
-# merged on symmetry. The registries stay separate: a scan MEASURES, a filter JUDGES.
+# sieves (device_census feeds every row-judging sieve). This is the first evidence on
+# orient's filed edge (e) — scans-vs-sieves as one shared library — earned by use, not
+# merged on symmetry. The registries stay separate: a scan MEASURES, a sieve JUDGES.
 from cairn.charter import projector  # noqa: E402
 from cairn.chart.orient import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
                                 ticket_path)             #   module — the verdict
@@ -56,19 +56,41 @@ from cairn.chart.verdict import claiming_packets, unanswered, verdict_error  # n
 #   validator, so the gate and the crossing's deposit-enqueue cannot disagree
 #   about WHICH artifact answered.
 from cairn.orient.orient import ScanRefused, device_census  # noqa: E402
+# cairn.import_sieve joined 2026-08-06 (the-questions-are-the-sieve): a sieve's BAND
+# is derived from what its own body reaches, never authored — so the nest reads this
+# module's source through the same AST primitive that seals the inference/db doors.
+# It is tree-free (ast + pathlib + os only) and pinned transitively by the allowlist
+# tooth, exactly like chart.orient and chart.verdict.
+from cairn.import_sieve import sieve as import_sieve  # noqa: E402
 
 
-def _finding(filter_name: str, component: str, finding: str, evidence, why: str) -> dict:
+def _finding(sieve_name: str, component: str, finding: str, evidence, why: str,
+             score: float = 0.0) -> dict:
+    """A finding carries the DATUM and a SCORE — Akien, 2026-08-06: 'each finding can
+    have a datum AND a score, because the score is relative to the requirement.'
+
+    ``evidence`` IS the datum, under the name it has carried since the founding sieves;
+    minting a second key for the same measured value would be terminology drift, not a
+    new field. What is genuinely new is ``score``: the measurement read AGAINST the
+    requirement, which the datum alone cannot say. Float, because elapsed time and
+    performance values are coming; 1.0/0.0 today because every sieve here is binary
+    (his call: 'binary but as a float? and for now it's 1 and 0').
+
+    A finding is emitted only when a sieve CATCHES, so the default is 0.0. Passes carry
+    no finding — they appear in the report's gradation, which is where the vector he drew
+    ([1.0, 1.0, 0.0, 1.0, 1.0] = 0.0) actually lives.
+    """
     return {
-        "filter": filter_name,
+        "sieve": sieve_name,
         "component": component,
         "finding": finding,
-        "evidence": evidence,
+        "evidence": evidence,          # the datum
+        "score": score,                # the datum read against the requirement
         "why_it_matters": why,
     }
 
 
-# ── the founding filters — one per failure that seeded it ────────────────────
+# ── the founding sieves — one per failure that seeded it ────────────────────
 
 
 def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:
@@ -77,7 +99,7 @@ def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-27 — orient's census's FIRST real run flagged orient itself
     (charter_on_disk: False); the charter got written because the instrument refused
     its absence. 'A component without an intention doesn't run' (CLAUDE.md) was prose
-    until this filter; now a build that skips the charter reds the gate.
+    until this sieve; now a build that skips the charter reds the gate.
     """
     if row["charter_on_disk"]:
         return []
@@ -116,7 +138,7 @@ def silent_device(row: dict, comp_dir: Path) -> list[dict]:
     ZERO emit() call sites in bus, the boundary named first. A device that inherits
     emit() and never fires it is silent at every crossing — the system_rackmount
     went-red-silently gap, systemic. Sharpened same day: judges the SELF-scoped count
-    (``self.emit`` — receiver checked), after two components passed this filter on
+    (``self.emit`` — receiver checked), after two components passed this sieve on
     emit-homonyms (an audit function; the transitions chokepoint). The word is not
     the capability, even inside the instrument built to say so.
     """
@@ -128,7 +150,7 @@ def silent_device(row: dict, comp_dir: Path) -> list[dict]:
         {"device_subclasses": row["device_subclasses"], "self_emit_call_sites_outside_proofs": 0},
         "Law 7 + MAP.md:434 ('every crossing logged... no device can opt out'): a "
         "silent device fails invisibly — the exact gap that motivated DiagnosticBase. "
-        "This filter is the enforcement half of that 2026-07-14 claim.",
+        "This sieve is the enforcement half of that 2026-07-14 claim.",
     )]
 
 
@@ -228,11 +250,11 @@ def _charted_packets(comp_dir: Path, stage: str):
     return packets, unreadable
 
 
-def _unreadable_findings(filter_name: str, row: dict, unreadable) -> list[dict]:
+def _unreadable_findings(sieve_name: str, row: dict, unreadable) -> list[dict]:
     if row["component"] != "chart":
         return []  # the berth owner carries the finding, exactly once per sweep
     return [_finding(
-        filter_name, row["component"],
+        sieve_name, row["component"],
         "berthed packet %s is unreadable" % path.name,
         {"berth": str(path), "why": why},
         "Law 7: a record the gate cannot read is a named finding, never a silent "
@@ -245,7 +267,7 @@ def _unreadable_findings(filter_name: str, row: dict, unreadable) -> list[dict]:
 # could only see one of them.
 #
 #   DRIFT — the world moved and the chart did not know. This is the 2026-07-24
-#   failure the ref filters were built for: 'done' reported while the files stood
+#   failure the ref sieves were built for: 'done' reported while the files stood
 #   unmoved. The address names nothing and nothing else names it either.
 #
 #   A MOVE — the build's own charted plan renamed the thing. Measured here, in
@@ -304,12 +326,12 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
     cairn/base/callback.py, its crossing proof, and the homeless intention — the
     three addresses the ticket's OWN decompose piece (f) had renamed hours
     earlier. A chart that plans a rename falsifies its own refs by succeeding,
-    and the ref filters could not tell that from the drift they were taught by.
-    This filter is the other half: the tolerance exists only where a ticket has
+    and the ref sieves could not tell that from the drift they were taught by.
+    This sieve is the other half: the tolerance exists only where a ticket has
     named the successor, permanently, on the record of truth. Forwarding to
     something that is not there, or forwarding a live address out from under
     itself, is exactly the laundering the tolerance must not enable — so both
-    red here rather than passing quietly through the filters that consult it.
+    red here rather than passing quietly through the sieves that consult it.
     """
     findings = []
     for tid in sorted(_component_tickets(comp_dir)):
@@ -339,7 +361,7 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
                 {"ticket": tid, "got": order},
                 "a forwarding order the gate cannot read entry-by-entry cannot be "
                 "checked at both ends — and an unreadable order that silently "
-                "granted tolerance would be the laundering this filter exists to stop.",
+                "granted tolerance would be the laundering this sieve exists to stop.",
             ))
             continue
         for old, entry in order.items():
@@ -389,7 +411,7 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
 
     Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
     sharpest claim-vs-world drift on record). The packet is the claim, the
-    promotion is the moment, this filter is the comparison — through the berth
+    promotion is the moment, this sieve is the comparison — through the berth
     gate's own ref semantics (cairn.chart.orient.ref_exists), so the judge and
     the gate that admitted the refs cannot disagree.
     """
@@ -420,13 +442,13 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
 # is the inspector's — behind the inspector's write-gate — and the future constrain
 # berth door COMPOSES it (imports judge_constrain; never the reverse), so the module
 # structurally cannot shape its own acceptance criteria. One implementation, two
-# mouths: the door refuses at berth time, these filters re-judge at promotion.
+# mouths: the door refuses at berth time, these sieves re-judge at promotion.
 
 
 def judge_constrain(packet: dict) -> list[dict]:
-    """The pure judge over ONE constrain packet — fragments tagged by which filter
+    """The pure judge over ONE constrain packet — fragments tagged by which sieve
     owns them ({judge, finding, evidence, why_it_matters}). Composed by the berth
-    door and wrapped by the gate filters below; if the two mouths ever disagree,
+    door and wrapped by the gate sieves below; if the two mouths ever disagree,
     this function's singleness is the broken claim."""
     frags = []
     for i, c in enumerate(packet.get("constraints") or []):
@@ -470,7 +492,7 @@ def judge_constrain(packet: dict) -> list[dict]:
 def _judge_charted(row: dict, comp_dir: Path, stage: str, judge,
                    judge_name: str, report_unreadable: bool = False) -> list[dict]:
     """One wrapper for every stage's pure judge — the promotion-side mouth. Each
-    stage's filters pass their own judge fn; growing a parallel wrapper per stage
+    stage's sieves pass their own judge fn; growing a parallel wrapper per stage
     would be the drift the import_map correction just retired from the proofs."""
     packets, unreadable = _charted_packets(comp_dir, stage)
     findings = _unreadable_findings(judge_name, row, unreadable) if report_unreadable else []
@@ -490,8 +512,8 @@ def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-26 — the fabricated-attribution class (an echo label
     attesting an unhappened push; a misattributed ruling the same week). Installed
     2026-07-28 BEFORE the constrain module exists, on Akien's ordering ruling
-    ('we set up it's inspector filters first') — the failure predates the module,
-    so tooth 10 holds: this filter was taught by a real, dated failure.
+    ('we set up it's inspector sieves first') — the failure predates the module,
+    so tooth 10 holds: this sieve was taught by a real, dated failure.
     """
     return _judge_charted(row, comp_dir, "constrain", judge_constrain,
                           "constraint_traces", report_unreadable=True)
@@ -518,7 +540,7 @@ def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
 
 
 def judge_survey(packet: dict) -> list[dict]:
-    """The pure judge over ONE survey packet — fragments tagged by owning filter.
+    """The pure judge over ONE survey packet — fragments tagged by owning sieve.
     A survey asserts an inventory: HOLDINGS must be held by the world (address
     resolves), and the sweep's COVERAGE must be on record (sought non-empty; every
     absence carrying the measure that established it — an absence is a claim)."""
@@ -625,7 +647,7 @@ def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
 
 def judge_decompose(packet: dict) -> list[dict]:
     """The pure judge over ONE decompose packet — fragments tagged by owning
-    filter. A decomposition derives from the chain or it is invented: a
+    sieve. A decomposition derives from the chain or it is invented: a
     'compose' piece may only use addresses the survey berth HOLDS, a 'build'
     piece may only fill an absence the survey MEASURED — known-vs-novel as
     physics, a stage early."""
@@ -776,7 +798,7 @@ def decompose_builds_absences(row: dict, comp_dir: Path) -> list[dict]:
 
 def judge_triage(packet: dict) -> list[dict]:
     """The pure judge over ONE triage packet — fragments tagged by owning
-    filter. A triage either ranks the derived work or quietly reshapes it: the
+    sieve. A triage either ranks the derived work or quietly reshapes it: the
     ORDER must be a complete permutation of the split's pieces (nothing dropped,
     invented, or double-ordered — coverage as a multiset), and every entry must
     carry its why_now (the ranking standard stated, so the order can be
@@ -929,7 +951,7 @@ def triage_reasons_the_order(row: dict, comp_dir: Path) -> list[dict]:
 
 def judge_hypothesize(packet: dict) -> list[dict]:
     """The pure judge over ONE hypothesize packet — fragments tagged by owning
-    filter. Law 3 as schema: every hypothesis attaches to a RANKED piece
+    sieve. Law 3 as schema: every hypothesis attaches to a RANKED piece
     (verbatim) and every ranked piece carries at least one hypothesis (a
     covering — the piece with none is the piece whose wrong landing reds
     nothing); and every hypothesis carries its expect, its falsifier, and its
@@ -1072,7 +1094,7 @@ def hypothesize_falsifiable_measured(row: dict, comp_dir: Path) -> list[dict]:
 
 def judge_validate(packet: dict) -> list[dict]:
     """The pure judge over ONE validate packet — fragments tagged by owning
-    filter. Done gets an instrument or it is narration: every criterion carries
+    sieve. Done gets an instrument or it is narration: every criterion carries
     its claim and its named instrument; every criterion's covers entries name
     pieces the hypothesize berth claims; and the union of covers equals that
     piece set — every piece's done is measured by at least one criterion."""
@@ -1217,7 +1239,7 @@ def validate_covers_the_build(row: dict, comp_dir: Path) -> list[dict]:
 # (stage 7) carries the claim, and a validate berth on disk means the whole preamble
 # held at its doors, so one direct claim-check is the chain-check (no ref-walk).
 #
-# Deliberately NOT in FILTERS: that registry's jurisdiction is the promotion sweep
+# Deliberately NOT in SIEVES: that registry's jurisdiction is the promotion sweep
 # over components, which has no crossing context and would retro-red every component
 # whose tickets predate the chart chain (a healthy component drawing a finding — the
 # always-fires failure tooth 1 exists to refuse). This check's jurisdiction is ONE
@@ -1307,7 +1329,7 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
     except (OSError, json.JSONDecodeError):
         # Not this gate's finding to make: an unfiled or unreadable ticket is already
         # the chokepoint's own refusal ("a named-but-uncast ticket is an error to fix"),
-        # and two filters reporting one fault is noise at the diagnostic surface.
+        # and two sieves reporting one fault is noise at the diagnostic surface.
         return []
 
     berth = doc.get("intent_berth") if isinstance(doc, dict) else None
@@ -1439,7 +1461,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
     try:
         doc = json.loads(Path(filed).read_text())
     except (OSError, json.JSONDecodeError):
-        # The chokepoint's own refusal already covers an unreadable ticket; two filters
+        # The chokepoint's own refusal already covers an unreadable ticket; two sieves
         # reporting one fault is noise at the diagnostic surface.
         return []
 
@@ -1533,7 +1555,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
 # verdict with outcome pass, and every hypothesis of the chain is dispositioned
 # confirmed-or-killed with the deciding observation.
 #
-# Deliberately NOT in FILTERS, same measured reason as the entry gate: the
+# Deliberately NOT in SIEVES, same measured reason as the entry gate: the
 # promotion sweep has no crossing context and would retro-red every component
 # whose voyages predate the chart chain. Jurisdiction is ONE crossing's own
 # claimed ticket; called from the emit chokepoint's PROVED entry, exactly as the
@@ -1603,7 +1625,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
         for item in unanswered(artifact)]
 
 
-FILTERS = {
+SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
     "silent_device": silent_device,
@@ -1625,9 +1647,41 @@ FILTERS = {
 }
 
 
+_NEST_CACHE: list | None = None
+
+
+def the_nest() -> list:
+    """The sieves assembled coarsest-first, as [(band, [sieve names]), ...].
+
+    DERIVED, NEVER AUTHORED (ticket the-questions-are-the-sieve, and its first
+    falsifier): each sieve's band comes from what its own body REACHES — is the answer
+    in hand, on local disk, spread across local sources, or off this box — read out of
+    this module's source by import_sieve. A hand-set band would be exactly the learned
+    value stranded in a human's head that the derivation exists to end, and it would go
+    stale silently the first time a sieve started reaching further.
+
+    A BAND SEQUENCES, IT NEVER FORBIDS (Akien, 2026-08-06). The off-box band is empty
+    today; that is a MEASUREMENT over the sieves that exist, not a rule that one may not
+    be built. There are already two hosts, and four laptops once ran this system
+    overnight against local models — 'will we do that? I don't know. but we CAN.'
+    """
+    global _NEST_CACHE
+    if _NEST_CACHE is None:
+        reaches = import_sieve.reach_of(Path(__file__).read_text())
+        _NEST_CACHE = import_sieve.nest(
+            {name: reaches.get(fn.__name__, 0) for name, fn in SIEVES.items()})
+    return _NEST_CACHE
+
+
 def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
-    """Run every filter over the measured census. One component (post-build) or the
-    whole tree (the one-time sweep). Findings are judgments over measurements only."""
+    """Shake the nest over the measured census. One component (post-build) or the whole
+    tree (the one-time sweep). Findings are judgments over measurements only.
+
+    ONE SHAKE (ruling 2026-08-06-a-stack-of-sieves-is-a-nest): every sieve in the nest
+    runs once, coarse band first, and nothing is fired-read-and-refired. What comes out
+    is a GRADATION — a score per sieve per component — rather than a pass/fail, and the
+    findings are the detail behind the zeroes.
+    """
     root = root or (_REPO_ROOT / "cairn")
     census = device_census(root=root)  # refuses bad roots loudly — inherited, not re-built
     rows = census["measured"]["components"]
@@ -1639,16 +1693,36 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
                 f"{[r['component'] for r in census['measured']['components']]}. A gate "
                 "that silently inspects nothing passes everything (Law 8)."
             )
-    findings = []
+    nest = the_nest()
+    findings, gradation = [], {}
     for row in rows:
         comp_dir = root / row["component"]
-        for name, judge in FILTERS.items():
-            findings.extend(judge(row, comp_dir))
+        scores = {}
+        for band, names in nest:            # coarse first — the shake's only ordering
+            for name in names:
+                caught = SIEVES[name](row, comp_dir)
+                findings.extend(caught)
+                # The datum read against the requirement. A sieve that did not run at
+                # all is ABSENT from this map rather than scored 0.0 — Akien refused a
+                # third value, and absence is what carries 'not applicable' without
+                # inventing one.
+                scores[name] = 0.0 if caught else 1.0
+        gradation[row["component"]] = scores
     return {
         "inspector": "build_inspector",
         "scope": component or "whole-repo sweep",
         "components_inspected": len(rows),
-        "filters_run": sorted(FILTERS),
+        "sieves_run": sorted(SIEVES),
+        "nest": [{"band": b, "band_name": import_sieve.BAND_NAMES[b], "sieves": names}
+                 for b, names in nest],
+        # The vector Akien drew, one per component: [1.0, 1.0, 0.0, 1.0, 1.0] = 0.0.
+        # The roll-up is min() — one zero sinks the component — and it is deliberately
+        # NOT a mean: averaging would let a component buy its way past a real catch with
+        # a pile of passes, which is the whole reason the score is relative to the
+        # requirement rather than to the other sieves.
+        "gradation": gradation,
+        "component_scores": {c: (min(s.values()) if s else 1.0)
+                             for c, s in gradation.items()},
         "findings": findings,
         "clean": not findings,
     }

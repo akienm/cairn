@@ -1,7 +1,7 @@
-"""Proofs for build_inspector — filters judge measurements, findings are complete,
+"""Proofs for build_inspector — sieves judge measurements, findings are complete,
 and the gate cannot silently inspect nothing.
 
-Hermetic: a synthetic tree pins each filter's fire-and-stay-quiet behavior; the real
+Hermetic: a synthetic tree pins each sieve's fire-and-stay-quiet behavior; the real
 tree is asserted by invariant only (shape and floors, never a snapshot of findings —
 the sweep's real findings are work items, not constants; memory:
 proof-over-live-data-assert-invariants).
@@ -10,18 +10,23 @@ proof-over-live-data-assert-invariants).
 from __future__ import annotations
 
 import json
+import pathlib
 import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.build_inspector.inspector import FILTERS, inspect  # noqa: E402
+from cairn.build_inspector.inspector import SIEVES, inspect  # noqa: E402
 from cairn.charter import projector  # noqa: E402
 from cairn.orient.orient import ScanRefused  # noqa: E402
 from cairn.tester.scratch import scratch_dir  # noqa: E402
 
-_FINDING_SHAPE = {"filter", "component", "finding", "evidence", "why_it_matters"}
+# "score" joined 2026-08-06 (the-questions-are-the-sieve): a finding carries the DATUM
+# (evidence, under the name it has always had) AND the score — the datum read against
+# the requirement, which the datum alone cannot say. Pinned here so a sieve cannot emit
+# a bare judgement again.
+_FINDING_SHAPE = {"sieve", "component", "finding", "evidence", "score", "why_it_matters"}
 
 
 def _refuses(fn, because):
@@ -53,7 +58,7 @@ def main() -> None:
     tmp = scratch_dir("inspector-proof-")
     root = tmp / "cairn"
 
-    # A healthy component and one broken per filter.
+    # A healthy component and one broken per sieve.
     _component(root, "healthy")
     _component(root, "no_charter", charter=False)
     _component(root, "no_proofs", proof=False)
@@ -66,12 +71,12 @@ def main() -> None:
     assert r["clean"] and r["findings"] == [], r["findings"]
     assert inspect(root=root, component="plain_lib")["clean"]
 
-    # 2 — each seeded failure fires exactly its filter, nothing else.
+    # 2 — each seeded failure fires exactly its sieve, nothing else.
     for comp, expected in [("no_charter", "charter_on_disk"),
                            ("no_proofs", "proofs_exist"),
                            ("silent", "silent_device")]:
         f = inspect(root=root, component=comp)["findings"]
-        assert [x["filter"] for x in f] == [expected], (comp, f)
+        assert [x["sieve"] for x in f] == [expected], (comp, f)
 
     # 3 — state_is_projection: a voyage written THROUGH THE DOOR is clean...
     h, s = root / "healthy" / "history.json", root / "healthy" / "state.json"
@@ -83,7 +88,7 @@ def main() -> None:
     edited["cursor"] = {"gate": "PROVED"}  # the lie: promotion without a crossing
     s.write_text(json.dumps(edited))
     f = inspect(root=root, component="healthy")["findings"]
-    assert [x["filter"] for x in f] == ["state_is_projection"], f
+    assert [x["sieve"] for x in f] == ["state_is_projection"], f
     assert "cursor" in f[0]["evidence"]["diverging_keys"], f[0]
 
     # 5 — repair goes through the door (append), never an edit — and the gate agrees.
@@ -94,7 +99,7 @@ def main() -> None:
     orphan = _component(root, "orphan")
     (orphan / "state.json").write_text("{}")
     f = inspect(root=root, component="orphan")["findings"]
-    assert [x["filter"] for x in f] == ["state_is_projection"] and "without" in f[0]["finding"]
+    assert [x["sieve"] for x in f] == ["state_is_projection"] and "without" in f[0]["finding"]
 
     # 7 — the gate cannot silently inspect nothing: unknown component refuses, and
     #     names what the census actually sees (complete on first pass).
@@ -112,17 +117,17 @@ def main() -> None:
     for x in sweep["findings"]:
         assert set(x) == _FINDING_SHAPE and len(x["why_it_matters"]) > 40, x
 
-    # 10 — THE LEARNING-DEVICE SHAPE: every filter's docstring carries a provenance
-    #      naming its seeding failure (dated or IOU-named) — a filter nobody was
+    # 10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance
+    #      naming its seeding failure (dated or IOU-named) — a sieve nobody was
     #      taught by is refused here, same tooth as orient's scans.
-    for name, judge in FILTERS.items():
+    for name, judge in SIEVES.items():
         doc = judge.__doc__ or ""
         assert "Provenance:" in doc, f"{name}: no provenance — a check nobody was taught by"
 
     # 11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably.
     real = inspect()
     assert real["components_inspected"] >= 10, "the sweep barely saw the tree"
-    assert real["filters_run"] == sorted(FILTERS)
+    assert real["sieves_run"] == sorted(SIEVES)
     for x in real["findings"]:
         assert set(x) == _FINDING_SHAPE, x
     assert real["clean"] == (not real["findings"])
@@ -169,7 +174,7 @@ def main() -> None:
         (p / "orient-20260728T000001-bbbb.json").write_text(
             json.dumps({"ticket": "wire-proof", "refs": ["chart", "no/such/ref.py"]}))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["charted_refs_resolve"], f
+        assert [x["sieve"] for x in f] == ["charted_refs_resolve"], f
         assert f[0]["evidence"]["missing"] == ["no/such/ref.py"], f[0]
         # The world matching the chart again: quiet again.
         (p / "orient-20260728T000001-bbbb.json").write_text(
@@ -183,7 +188,7 @@ def main() -> None:
         assert inspect(root=root, component="charted")["clean"], \
             "an unreadable berth must not fire on other components' crossings"
         f = inspect(root=root, component="chart")["findings"]
-        assert [x["filter"] for x in f] == ["charted_refs_resolve"], f
+        assert [x["sieve"] for x in f] == ["charted_refs_resolve"], f
         assert "unreadable" in f[0]["finding"], f[0]
         # 15 — THE JUDGES BEFORE THE JUDGED (constrain-filters): a charted constrain
         #      packet with an unresolvable source fires constraint_traces; an empty
@@ -202,15 +207,15 @@ def main() -> None:
                                            "kind": "charter"}])
         cpath.write_text(json.dumps(minted))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["constraint_traces"], f
+        assert [x["sieve"] for x in f] == ["constraint_traces"], f
         assert f[0]["evidence"]["source"] == "no/such/charter.json", f[0]
         unbounded = dict(whole, bounds={"in": ["the gate only"], "out": []})
         cpath.write_text(json.dumps(unbounded))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["constraint_bounds_complete"], f
+        assert [x["sieve"] for x in f] == ["constraint_bounds_complete"], f
         assert f[0]["evidence"]["side"] == "out", f[0]
 
-        # 16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry filters report exactly
+        # 16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry sieves report exactly
         #      what the pure judge reports — no drift between door and gate is
         #      possible because there is nothing to drift between.
         from cairn.build_inspector.inspector import judge_constrain
@@ -237,16 +242,16 @@ def main() -> None:
                                         "address": "no/such/thing.py"}])
         spath.write_text(json.dumps(phantom))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["survey_holdings_resolve"], f
+        assert [x["sieve"] for x in f] == ["survey_holdings_resolve"], f
         assert f[0]["evidence"]["address"] == "no/such/thing.py", f[0]
         unswept = dict(held, sought=[])
         spath.write_text(json.dumps(unswept))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["survey_coverage_complete"], f
+        assert [x["sieve"] for x in f] == ["survey_coverage_complete"], f
         unmeasured = dict(held, absences=[{"what": "a survey module"}])
         spath.write_text(json.dumps(unmeasured))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["survey_coverage_complete"], f
+        assert [x["sieve"] for x in f] == ["survey_coverage_complete"], f
         assert "measure" in f[0]["finding"], f[0]
 
         # 18 — one implementation, two mouths, for the survey judge too.
@@ -282,19 +287,19 @@ def main() -> None:
              "kind": "compose", "uses": ["no/such/thing.py"]}])
         dpath.write_text(json.dumps(rebuilt))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["decompose_composes_holdings"], f
+        assert [x["sieve"] for x in f] == ["decompose_composes_holdings"], f
         assert f[0]["evidence"]["uses"] == "no/such/thing.py", f[0]
         invented = dict(derived, sub_problems=[
             {"what": "build a whim", "why": "nobody measured it",
              "kind": "build", "fills": "a thing never sought"}])
         dpath.write_text(json.dumps(invented))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["decompose_builds_absences"], f
+        assert [x["sieve"] for x in f] == ["decompose_builds_absences"], f
         assert f[0]["evidence"]["fills"] == "a thing never sought", f[0]
         broken = dict(derived, survey_ref=str(tmp / "gone.json"))
         dpath.write_text(json.dumps(broken))
         f = inspect(root=root, component="charted")["findings"]
-        assert "decompose_composes_holdings" in [x["filter"] for x in f], f
+        assert "decompose_composes_holdings" in [x["sieve"] for x in f], f
         assert any("survey berth" in x["finding"] for x in f), f
         dpath.unlink()
 
@@ -333,24 +338,24 @@ def main() -> None:
         dropped = dict(ranked, order=ranked["order"][:1])
         tpath.write_text(json.dumps(dropped))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["triage_covers_the_split"], f
+        assert [x["sieve"] for x in f] == ["triage_covers_the_split"], f
         assert f[0]["evidence"]["dropped"] == ["compose the chart door"], f[0]
         invented_rank = dict(ranked, order=ranked["order"] + [
             {"what": "polish a whim", "why_now": "it would be nice"}])
         tpath.write_text(json.dumps(invented_rank))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["triage_covers_the_split"], f
+        assert [x["sieve"] for x in f] == ["triage_covers_the_split"], f
         assert f[0]["evidence"]["what"] == "polish a whim", f[0]
         unreasoned = dict(ranked, order=[
             dict(ranked["order"][0], why_now=""), ranked["order"][1]])
         tpath.write_text(json.dumps(unreasoned))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["triage_reasons_the_order"], f
+        assert [x["sieve"] for x in f] == ["triage_reasons_the_order"], f
         assert f[0]["evidence"]["what"] == "build the module", f[0]
         chainless = dict(ranked, decompose_ref=str(tmp / "gone.json"))
         tpath.write_text(json.dumps(chainless))
         f = inspect(root=root, component="charted")["findings"]
-        assert "triage_covers_the_split" in [x["filter"] for x in f], f
+        assert "triage_covers_the_split" in [x["sieve"] for x in f], f
         assert any("decompose berth" in x["finding"] for x in f), f
         tpath.unlink()
 
@@ -399,26 +404,26 @@ def main() -> None:
         uncovered = dict(expected, hypotheses=expected["hypotheses"][:1])
         hpath.write_text(json.dumps(uncovered))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert [x["sieve"] for x in f] == ["hypothesize_covers_the_ranked"], f
         assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
         invented_h = dict(expected, hypotheses=expected["hypotheses"] + [
             {"piece": "polish a whim", "expect": "it gleams",
              "falsifier": "it does not", "instrument": "a glance"}])
         hpath.write_text(json.dumps(invented_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert [x["sieve"] for x in f] == ["hypothesize_covers_the_ranked"], f
         assert f[0]["evidence"]["piece"] == "polish a whim", f[0]
         unmeasured_h = dict(expected, hypotheses=[
             dict(expected["hypotheses"][0], falsifier="", instrument="  "),
             expected["hypotheses"][1]])
         hpath.write_text(json.dumps(unmeasured_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["hypothesize_falsifiable_measured"], f
+        assert [x["sieve"] for x in f] == ["hypothesize_falsifiable_measured"], f
         assert f[0]["evidence"]["lacking"] == ["falsifier", "instrument"], f[0]
         chainless_h = dict(expected, triage_ref=str(tmp / "gone.json"))
         hpath.write_text(json.dumps(chainless_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert "hypothesize_covers_the_ranked" in [x["filter"] for x in f], f
+        assert "hypothesize_covers_the_ranked" in [x["sieve"] for x in f], f
         assert any("triage berth" in x["finding"] for x in f), f
         hpath.unlink()
 
@@ -468,24 +473,24 @@ def main() -> None:
             done_set["criteria"][1]])
         vpath.write_text(json.dumps(unmeasured_c))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["validate_measures_done"], f
+        assert [x["sieve"] for x in f] == ["validate_measures_done"], f
         assert f[0]["evidence"]["lacking"] == ["instrument"], f[0]
         unclaimed = dict(done_set, criteria=done_set["criteria"] + [
             {"claim": "a whim gleams", "instrument": "a glance",
              "covers": ["polish a whim"]}])
         vpath.write_text(json.dumps(unclaimed))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["validate_covers_the_build"], f
+        assert [x["sieve"] for x in f] == ["validate_covers_the_build"], f
         assert f[0]["evidence"]["covers"] == "polish a whim", f[0]
         partial = dict(done_set, criteria=done_set["criteria"][:1])
         vpath.write_text(json.dumps(partial))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["filter"] for x in f] == ["validate_covers_the_build"], f
+        assert [x["sieve"] for x in f] == ["validate_covers_the_build"], f
         assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
         chainless_v = dict(done_set, hypothesize_ref=str(tmp / "gone.json"))
         vpath.write_text(json.dumps(chainless_v))
         f = inspect(root=root, component="charted")["findings"]
-        assert "validate_covers_the_build" in [x["filter"] for x in f], f
+        assert "validate_covers_the_build" in [x["sieve"] for x in f], f
         assert any("hypothesize berth" in x["finding"] for x in f), f
         vpath.unlink()
 
@@ -501,7 +506,7 @@ def main() -> None:
 
         # 26b — THE FORWARDING ORDER (watchme-emits-a-probe, 2026-07-30). A charted
         #       address stops resolving two ways: the world DRIFTED (the 2026-07-24
-        #       failure these ref filters were built for), or the build's own charted
+        #       failure these ref sieves were built for), or the build's own charted
         #       plan MOVED it. Measured in anger: that ticket's decompose piece (f)
         #       was 'the CALLBACK -> PROBE rename, run FIRST', and running it first
         #       falsified the chart's own orient ref and four survey holdings. The
@@ -529,7 +534,7 @@ def main() -> None:
              "absences": [{"what": "nothing", "measure": "census rows"}]}))
 
         # (i) NO ORDER: both mouths red. The tolerance is opt-in, never the default.
-        names = lambda comp: sorted(x["filter"] for x in           # noqa: E731
+        names = lambda comp: sorted(x["sieve"] for x in           # noqa: E731
                                     inspect(root=root, component=comp)["findings"])
         assert names("moved") == ["charted_refs_resolve", "survey_holdings_resolve"], \
             "a missing charted address with no forwarding order must still red"
@@ -553,7 +558,7 @@ def main() -> None:
         assert "forwarding_order_resolves" in names("moved"), names("moved")
         assert "still resolves" in [x["finding"] for x in
                                     inspect(root=root, component="moved")["findings"]
-                                    if x["filter"] == "forwarding_order_resolves"][0]
+                                    if x["sieve"] == "forwarding_order_resolves"][0]
 
         # (v) THE WHY IS FORCED STRUCTURALLY (CP3), and so is the shape.
         for broken in ({"gone/away.py": {"to": "chart"}},
@@ -593,15 +598,15 @@ def main() -> None:
         # 27 — THE ENTRY GATE (buildme-rides-the-chart, 2026-07-29): green iff a
         #      READABLE VALIDATE berth claims the ticket; red is ONE finding carrying
         #      ticket + searched root + the /chart disposition, complete first pass.
-        #      Crossing-jurisdiction, deliberately NOT in FILTERS — a promotion sweep
+        #      Crossing-jurisdiction, deliberately NOT in SIEVES — a promotion sweep
         #      would retro-red every pre-chain component (the tooth-1 failure).
-        from cairn.build_inspector.inspector import FILTERS as _FILTERS
+        from cairn.build_inspector.inspector import SIEVES as _SIEVES
         from cairn.build_inspector.inspector import buildme_rides_the_chart
         eroot = tmp / "entry-berths"
         ep = eroot / "0" / "packets"
         ep.mkdir(parents=True)
         ef = buildme_rides_the_chart("lonely", berths_root=eroot)
-        assert [x["filter"] for x in ef] == ["buildme_rides_the_chart"], ef
+        assert [x["sieve"] for x in ef] == ["buildme_rides_the_chart"], ef
         assert ef[0]["evidence"]["ticket"] == "lonely" and \
             ef[0]["evidence"]["searched"] == str(eroot) and \
             "/chart" in ef[0]["why_it_matters"], ef[0]
@@ -617,9 +622,9 @@ def main() -> None:
         (ep / "validate-20260729T000003-dddd.json").write_text(
             json.dumps({"ticket": "lonely"}))
         assert buildme_rides_the_chart("lonely", berths_root=eroot) == []
-        # a nonexistent root reds, never crashes; and the check stays OUT of FILTERS
+        # a nonexistent root reds, never crashes; and the check stays OUT of SIEVES
         assert buildme_rides_the_chart("lonely", berths_root=eroot / "nope")
-        assert "buildme_rides_the_chart" not in _FILTERS, \
+        assert "buildme_rides_the_chart" not in _SIEVES, \
             "crossing-jurisdiction: the promotion sweep must not run the entry check"
 
         # 28 — THE EXIT GATE (proved-answers-the-chart, 2026-07-29): the loop's
@@ -627,7 +632,7 @@ def main() -> None:
         #      demands a chart exists, exit only judges the chart that claims);
         #      claimed-and-unanswered is red naming each unanswered item; only a
         #      complete, passing verdict artifact answering the CLAIMING berth
-        #      greens. Same crossing-jurisdiction, same NOT-in-FILTERS reason.
+        #      greens. Same crossing-jurisdiction, same NOT-in-SIEVES reason.
         from cairn.build_inspector.inspector import proved_answers_the_chart
         xroot = tmp / "exit-berths"
         xp = xroot / "0" / "packets"
@@ -645,7 +650,7 @@ def main() -> None:
                                                  "covers": ["p1"]}]}))
         # claimed, no verdict artifact: ONE red naming the missing answer + disposition
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
-        assert [x["filter"] for x in xf] == ["proved_answers_the_chart"], xf
+        assert [x["sieve"] for x in xf] == ["proved_answers_the_chart"], xf
         assert "no verdict artifact" in xf[0]["finding"] and \
             str(val) in xf[0]["evidence"]["claiming"] and \
             "write_verdict" in xf[0]["why_it_matters"], xf[0]
@@ -690,11 +695,85 @@ def main() -> None:
              "dispositions": [{"piece": "p1", "expect": "e1",
                                "disposition": "killed", "by": "the second run"}]}))
         assert proved_answers_the_chart("sworn", berths_root=xroot) == []
-        # and the check stays OUT of FILTERS (crossing-jurisdiction, tooth-1 reason)
-        assert "proved_answers_the_chart" not in _FILTERS, \
+        # and the check stays OUT of SIEVES (crossing-jurisdiction, tooth-1 reason)
+        assert "proved_answers_the_chart" not in _SIEVES, \
             "crossing-jurisdiction: the promotion sweep must not run the exit check"
     finally:
         _insp._CHART_BERTHS = saved_berths
+
+    # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
+    #
+    # DEFECT-FIRST, and the defect is the one the derivation exists to prevent: a band
+    # that was authored would sit still while the sieve it labels started reaching
+    # further. So the tooth EDITS a sieve's body and demands the band MOVE, with no
+    # other change and nothing hand-set anywhere.
+    nest = _insp.the_nest()
+    banded = {name: b for b, names in nest for name in names}
+    assert banded["charter_on_disk"] == 0, banded          # answer is in the census row
+    assert banded["state_is_projection"] >= 1, banded      # has to open history.json
+    assert [b for b, _ in nest] == sorted(b for b, _ in nest), \
+        "the nest is shaken coarse band first — that ordering IS the nest"
+
+    src = pathlib.Path(_insp.__file__).read_text()
+    reaches = _insp.import_sieve.reach_of(src)
+    assert reaches["charter_on_disk"] == 0, reaches["charter_on_disk"]
+    # now make that same sieve reach off-box, changing NOTHING else
+    mutant = src.replace(
+        "def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:",
+        "def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:\n"
+        "    import cairn.db_domain as _d; _d.connect()", 1)
+    assert mutant != src, "the mutation did not apply — the tooth would be vacuous"
+    moved = _insp.import_sieve.reach_of(mutant)
+    assert moved["charter_on_disk"] == 3, (
+        "a sieve that started reaching off the box kept its band — the band is being "
+        "authored somewhere instead of derived, which is this ticket's first falsifier: "
+        f"{moved['charter_on_disk']}")
+
+    # ...and no band is written down. A literal band beside a sieve is the hand-set
+    # constant this derivation replaced; if one appears, the derivation is decoration.
+    assert '"band"' not in src.split("def the_nest")[0], \
+        "a band literal appears in sieve code — bands are derived, never authored"
+
+    # THE GRADATION: a score per sieve that RAN, and the vector Akien drew.
+    rep = _insp.inspect()
+    for comp, scores in rep["gradation"].items():
+        assert set(scores) == set(_SIEVES), \
+            f"{comp}: the gradation must score every sieve the nest shook, not a subset"
+        assert set(scores.values()) <= {0.0, 1.0}, \
+            f"{comp}: sieves are binary today, as floats — a third value is not the design"
+        assert rep["component_scores"][comp] == min(scores.values()), (
+            "the roll-up is min() — one zero sinks the component, and a pile of passes "
+            "may not buy past a real catch")
+    caught = {f["sieve"] for f in rep["findings"]}
+    for f in rep["findings"]:
+        assert f["score"] == 0.0, f
+        assert rep["gradation"][f["component"]][f["sieve"]] == 0.0, f
+    for comp, scores in rep["gradation"].items():
+        for name, s in scores.items():
+            if s == 1.0:
+                assert not any(f["sieve"] == name and f["component"] == comp
+                               for f in rep["findings"]), \
+                    ("a sieve scored 1.0 while emitting a finding — the score and "
+                     "the finding are two faces of one judgement and cannot disagree")
+    assert caught <= set(_SIEVES)
+
+    # ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the
+    # gradation rather than scored zero. Akien refused a tri-value, so this is the only
+    # place 'not applicable' can live, and it must be structurally reachable.
+    partial = dict(list(_SIEVES.items())[:2])
+    saved_sieves = _insp.SIEVES
+    saved_cache = _insp._NEST_CACHE
+    try:
+        _insp.SIEVES, _insp._NEST_CACHE = partial, None
+        thin = _insp.inspect()
+        for comp, scores in thin["gradation"].items():
+            assert set(scores) == set(partial), scores
+            missing = set(saved_sieves) - set(partial)
+            assert not (missing & set(scores)), (
+                "a sieve that never ran appeared in the gradation — absent is how "
+                "not-applicable is carried, and a 0.0 there would be a false catch")
+    finally:
+        _insp.SIEVES, _insp._NEST_CACHE = saved_sieves, saved_cache
 
     print("build_inspector proofs: all teeth green")
 

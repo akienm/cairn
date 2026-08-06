@@ -257,7 +257,7 @@ def test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds():
         try:
             transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
         except transitions.BuildGateRed as e:
-            assert [f["filter"] for f in e.findings] == ["charter_on_disk"], e.findings
+            assert [f["sieve"] for f in e.findings] == ["charter_on_disk"], e.findings
             assert "charter_on_disk" in str(e) and "Law 8" in str(e), \
                 "the refusal must carry the findings and the why, first pass, in the message"
         else:
@@ -347,7 +347,7 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
                 transitions.emit(_AT_TICKET, "BUILDME",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.EntryGateRed as e:
-                assert [f["filter"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert [f["sieve"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
                 assert "widget" in str(e) and "/chart" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"
             else:
@@ -469,7 +469,7 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
                 transitions.emit(_AT_TICKET_SKILL, "BUILDME",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.EntryGateRed as e:
-                assert [f["filter"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert [f["sieve"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
                 assert "widget" in str(e) and "/chart" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"
             else:
@@ -562,7 +562,7 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
                 transitions.emit(_AT_LEARN, "PROVED",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.ExitGateRed as e:
-                assert [f["filter"] for f in e.findings] == ["proved_answers_the_chart"], \
+                assert [f["sieve"] for f in e.findings] == ["proved_answers_the_chart"], \
                     e.findings
                 assert "widget" in str(e) and "write_verdict" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"

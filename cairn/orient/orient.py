@@ -169,7 +169,7 @@ def device_census(*, root: Path | None = None) -> dict:
         # Measured 2026-07-27, the homonym discovery: of 4 generic emit() call sites, only
         # 2 were DiagnosticBase's surface — sudo_relay's is a module-level audit function
         # and harbor_master's is transitions.emit, the workflow chokepoint. Counting by the
-        # word let two components pass the silent_device filter on a homonym — the exact
+        # word let two components pass the silent_device sieve on a homonym — the exact
         # words-kept-meanings-replaced failure, in code. So the census counts the RECEIVER
         # too: a Call on an Attribute named emit whose value is the name ``self``.
         self_emit_sites = 0

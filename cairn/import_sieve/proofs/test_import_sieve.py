@@ -275,10 +275,10 @@ def test_the_real_inspector_separates_into_bands():
     What must hold is that reach DISCRIMINATES: if every check lands in one band the
     derivation has stopped telling them apart, which is the failure this replaces."""
     src = (_REPO_ROOT / "cairn" / "build_inspector" / "inspector.py").read_text()
-    from cairn.build_inspector.inspector import FILTERS
-    wanted = {f.__name__ for f in FILTERS.values()}
+    from cairn.build_inspector.inspector import SIEVES
+    wanted = {f.__name__ for f in SIEVES.values()}
     bands = {k: v for k, v in sieve.reach_of(src).items() if k in wanted}
-    assert bands, "no FILTERS resolved to module-level functions — the walk missed them"
+    assert bands, "no SIEVES resolved to module-level functions — the walk missed them"
     assert len(set(bands.values())) >= 2, (
         f"every check banded identically ({bands}) — reach is no longer discriminating")
     assert bands["charter_on_disk"] < bands["charted_refs_resolve"], (

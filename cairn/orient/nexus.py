@@ -73,7 +73,7 @@ FOUNDING_CORRECTIONS = [
     {
         "content": "The census's generic emit-by-name count admitted two homonyms (a "
                    "module-level audit function; the workflow chokepoint) and let two "
-                   "components pass the silent_device filter on a word. The measure now "
+                   "components pass the silent_device sieve on a word. The measure now "
                    "checks the RECEIVER is self — the word is not the capability, even "
                    "inside the instrument built to say so.",
         "provenance": {"source": "cairn/orient/orient.py device_census (sharpened "

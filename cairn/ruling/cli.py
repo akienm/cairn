@@ -56,8 +56,8 @@ def _cmd_list() -> int:
         return 0
     # Presentation may collapse a retired packet's reds into one line (Law 7 allows a
     # surface to do that); the record itself is untouched and verify still reds on it.
-    superseded_by = {r["supersedes"]["id"]: r["id"] for r in records
-                     if r.get("confirmed") and isinstance(r.get("supersedes"), dict)}
+    superseded_by = {e["id"]: r["id"] for r in records if r.get("confirmed")
+                     for e in ruling._supersessions(r)}
     red = 0
     for record in records:
         if record.get("id") in superseded_by:

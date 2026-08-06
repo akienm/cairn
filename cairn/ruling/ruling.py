@@ -60,6 +60,30 @@ retires and the evidence for retiring it. The retired packet stays on disk, byte
 identical, forever; it simply stops being OPEN, because a confirmed successor answers
 for it. ``list`` still shows it, marked, so the history is visible rather than silent.
 
+``as_of`` — THE GATE COULD ONLY EXPRESS FUTURE WORK (grown 2026-08-06). ``what_conforms``
+went green when a file's bytes changed SINCE INTAKE, which silently assumed the packet is
+opened before the work. Both 2026-08-05 packets were opened around or after it, and the
+board showed the result honestly and uselessly: five ``UNTOUCHED`` lines on a ruling whose
+corrections were already made, and nine live files parked under ``what_dies`` because that
+was the only field left that could ever go green. A ruling is a record of what Akien said,
+and he says it whenever he says it — the gate does not get to require that the paperwork
+come first. So the baseline is measurable rather than assumed: ``as_of`` maps each root to
+a commit-ish, git renders the file as it stood when he ruled, and the door fingerprints
+THAT. Keyed per root because the two roots are separate repos. verify is untouched by this
+— it still asks one question, "have the bytes moved off the baseline?", and now the
+baseline can be the truth instead of the filing date.
+
+ONE SUCCESSOR RETIRES MANY (grown 2026-08-06, measured not predicted). ``supersedes``
+was a single slot, so a second supersession by the same successor OVERWROTE the first —
+retiring old-b silently un-retired old-a and erased its evidence, with no error anywhere.
+The field is a LIST and the act APPENDS. This is not an exotic case: a successor must be
+CONFIRMED before it can retire anything, so a packet rescoped before Akien signs the
+original leaves BOTH open, and one corrected reading is the only thing that can retire
+the pair. That is exactly how ``2026-08-05-the-file-path-is-the-link`` and its
+``-rescoped`` twin came to sit on the board together. Legacy records written in the
+single-slot shape are NOT rewritten — they are confirmed records carrying his act, and
+``_supersessions`` is the one reader that knows both shapes.
+
     cairn ruling open <packet.json>      # intake: refuse or write
     cairn ruling list                    # what is open or red
     cairn ruling verify <id>             # the mechanical verdict
@@ -74,6 +98,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 
 # ── the shape ─────────────────────────────────────────────────────────────────
 
@@ -133,6 +158,35 @@ def fingerprint(abs_path: str) -> str:
         for chunk in iter(lambda: fh.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _split_root(rel: str) -> tuple[str, str]:
+    """``"cairn/cairn/base/probe.py"`` -> ``("cairn", "cairn/base/probe.py")``.
+
+    Paths are relative to the roots PARENT, so the first segment names which repo the
+    rest of the path lives in. ``as_of`` is keyed by that segment because the two roots
+    are separate git repos and one commit-ish cannot address both.
+    """
+    head, _, tail = rel.replace(os.sep, "/").partition("/")
+    return head, tail
+
+
+def fingerprint_at(roots_parent: str, rel: str, commit: str) -> str:
+    """sha256 of a file's bytes AS THEY STOOD AT ``commit``. Still the door's own
+    measurement — git is the instrument, the packet's author never types a hash.
+
+    Raises ``OSError`` if the commit or the path-at-that-commit does not resolve, which
+    the intake door turns into a refusal: a ruling cannot conform a file that did not
+    exist when it was ruled.
+    """
+    root, inner = _split_root(rel)
+    proc = subprocess.run(["git", "-C", os.path.join(roots_parent, root),
+                           "show", f"{commit}:{inner}"],
+                          capture_output=True)
+    if proc.returncode != 0:
+        raise OSError(proc.stderr.decode("utf-8", "replace").strip()
+                      or f"git could not read {inner!r} at {commit!r}")
+    return hashlib.sha256(proc.stdout).hexdigest()
 
 
 # ── refusals: the pure half ───────────────────────────────────────────────────
@@ -203,6 +257,18 @@ def refusals_shape(packet: dict) -> list[str]:
         if both:
             out.append(f"a path cannot both die and conform: {both}")
 
+    as_of = packet.get("as_of")
+    if as_of is not None:
+        if not isinstance(as_of, dict) or not as_of:
+            out.append("as_of must be a non-empty {root: commit-ish} map — the two roots "
+                       "are separate git repos, so one commit cannot address both")
+        elif any(not isinstance(k, str) or not k.strip() or
+                 not isinstance(v, str) or not v.strip() for k, v in as_of.items()):
+            out.append("as_of holds an empty or non-string root or commit")
+        elif isinstance(conforms, list) and not conforms:
+            out.append("as_of on a packet with no what_conforms — as_of only changes "
+                       "WHEN the conformers are measured; with none, it measures nothing")
+
     if packet.get("confirmed") is True:
         out.append("confirmed cannot be true at intake — confirmation is Akien's separate "
                    "act (`cairn ruling confirm`), and a recorder that self-confirms has "
@@ -227,6 +293,21 @@ def refusals_on_disk(packet: dict, roots_parent: str) -> list[str]:
                 out.append(f"{name}: {rel!r} does not exist at intake — "
                            + ("already dead, or invented" if name == "what_dies"
                               else "nothing to conform; that is a new build, not a ruling"))
+
+    as_of = packet.get("as_of")
+    if isinstance(as_of, dict):
+        for rel in packet.get("what_conforms", []):
+            if not isinstance(rel, str):
+                continue
+            commit = as_of.get(_split_root(rel)[0])
+            if not isinstance(commit, str):
+                continue                        # no as_of for this root: the working tree
+            try:
+                fingerprint_at(roots_parent, rel, commit)
+            except OSError as exc:
+                out.append(f"as_of: {rel!r} does not resolve at {commit!r} — {exc}. A "
+                           "ruling cannot conform a file that did not exist when it was "
+                           "ruled; that is a new build, not a conformance")
     return out
 
 
@@ -254,8 +335,12 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
 
     record = dict(packet)
     record["confirmed"] = False
+    as_of = record.get("as_of") if isinstance(record.get("as_of"), dict) else {}
     record["conforms_fingerprint"] = {
-        rel: fingerprint(os.path.join(rp, rel)) for rel in sorted(record["what_conforms"])
+        rel: (fingerprint_at(rp, rel, as_of[_split_root(rel)[0]])
+              if _split_root(rel)[0] in as_of
+              else fingerprint(os.path.join(rp, rel)))
+        for rel in sorted(record["what_conforms"])
     }
 
     d = store_dir(rp)
@@ -318,6 +403,11 @@ def supersede(old_id: str, new_id: str, evidence: str,
         nothing;
       - the old packet must not already be retired — a second supersession of the same
         id would silently overwrite the first act's evidence.
+
+    The act APPENDS to the successor's ``supersedes`` list. It used to assign to a single
+    slot, which meant retiring a second packet by the same successor deleted the first
+    retirement outright — measured 2026-08-06, not caught by the same-id guard above,
+    because the guard watches the OLD id while the overwrite happens on the NEW one.
     """
     if not isinstance(evidence, str) or not evidence.strip():
         raise ValueError(
@@ -353,12 +443,28 @@ def supersede(old_id: str, new_id: str, evidence: str,
                          + "\n  - ".join(out))
 
     record = dict(new)
-    record["supersedes"] = {"id": old_id, "evidence": evidence.strip()}
+    record["supersedes"] = _supersessions(new) + [{"id": old_id,
+                                                   "evidence": evidence.strip()}]
     path = os.path.join(store_dir(rp), f"{new_id}.json")
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(record, fh, indent=2, ensure_ascii=False)
         fh.write("\n")
     return path
+
+
+def _supersessions(record: dict) -> list[dict]:
+    """THE ONE READER THAT KNOWS BOTH SHAPES — ``[{id, evidence}, …]``, oldest act first.
+
+    The field was a single ``{id, evidence}`` dict until 2026-08-06 and two CONFIRMED
+    records on disk still carry that shape. They are not migrated: rewriting a confirmed
+    record to change a field's type is an in-place edit of his act, which is the thing
+    this whole module refuses to do. Normalising on READ costs one function; normalising
+    by rewrite costs the record. Anything unrecognisable reads as no supersession at all
+    — a malformed field must never silently retire a live packet.
+    """
+    sup = record.get("supersedes")
+    entries = [sup] if isinstance(sup, dict) else sup if isinstance(sup, list) else []
+    return [e for e in entries if isinstance(e, dict) and isinstance(e.get("id"), str)]
 
 
 def retired_ids(records: list[dict]) -> set[str]:
@@ -367,9 +473,8 @@ def retired_ids(records: list[dict]) -> set[str]:
     still has to ACT on that verdict is a property of the whole store."""
     out: set[str] = set()
     for r in records:
-        sup = r.get("supersedes")
-        if r.get("confirmed") and isinstance(sup, dict) and isinstance(sup.get("id"), str):
-            out.add(sup["id"])
+        if r.get("confirmed"):
+            out.update(e["id"] for e in _supersessions(r))
     return out
 
 
@@ -381,7 +486,9 @@ def verify(record: dict, roots_parent: str | None = None) -> dict:
         against a guess is unsealed work);
       - every ``what_dies`` path is GONE — this is the tooth that catches a file coming
         back, which is exactly what happened to ``_model.json``;
-      - every ``what_conforms`` path still exists and its bytes have CHANGED since intake.
+      - every ``what_conforms`` path still exists, carries a baseline fingerprint, and its
+        bytes have CHANGED since that baseline — intake by default, or the commit named in
+        ``as_of`` when the packet was written after its own work landed.
 
     It does NOT claim the change was the right change. That is not mechanical and saying
     so here would be a check that goes green for the wrong reason.
@@ -398,12 +505,20 @@ def verify(record: dict, roots_parent: str | None = None) -> dict:
             failures.append(f"STILL ALIVE: {rel} was ruled dead and is on disk")
 
     prints = record.get("conforms_fingerprint", {})
+    baseline = "the ruling" if record.get("as_of") else "intake"
     for rel in record.get("what_conforms", []):
         abs_path = os.path.join(rp, rel)
         if not os.path.exists(abs_path):
             failures.append(f"VANISHED: {rel} was to conform, not to die")
-        elif prints.get(rel) == fingerprint(abs_path):
-            failures.append(f"UNTOUCHED: {rel} is byte-identical to intake")
+        elif rel not in prints:
+            # Unreachable through the door, which stamps every conformer. Reachable by a
+            # hand-edit that moves a path into what_conforms — and a missing baseline used
+            # to read as PASSED, so the weakest possible check wore the strongest verdict.
+            failures.append(f"UNMEASURED: {rel} carries no baseline fingerprint — its "
+                            "conformance was never measured, which is not the same as "
+                            "measured and green")
+        elif prints[rel] == fingerprint(abs_path):
+            failures.append(f"UNTOUCHED: {rel} is byte-identical to {baseline}")
 
     return {"id": record.get("id"), "green": not failures, "failures": failures}
 

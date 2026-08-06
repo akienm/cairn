@@ -179,6 +179,85 @@ def test_the_fingerprints_are_measured_not_authored():
             "UNTOUCHED trivially talk-around-able")
 
 
+def _git_world(d: str) -> str:
+    """``_world`` with the code root under real git, one commit deep. The instrument
+    ``as_of`` uses is git itself, so the proof uses git itself — a stub would be proving
+    the stub."""
+    _world(d)
+    code = os.path.join(d, "cairn")
+    for cmd in (["init", "-q"], ["config", "user.email", "p@proof"],
+                ["config", "user.name", "proof"], ["add", "-A"],
+                ["commit", "-qm", "before the ruling"]):
+        subprocess.run(["git", "-C", code, *cmd], check=True, capture_output=True)
+    return subprocess.run(["git", "-C", code, "rev-parse", "HEAD"],
+                          capture_output=True, text=True, check=True).stdout.strip()
+
+
+def test_a_ruling_recorded_after_its_own_work_can_still_go_green():
+    """THE 2026-08-06 FINDING. Akien rules, the work lands, the packet gets written later
+    — and the gate had no green path for that, because the baseline was the FILING DATE.
+    With as_of the baseline is the commit he ruled against, so the same disk that read
+    UNTOUCHED reads conformed."""
+    with tempfile.TemporaryDirectory() as d:
+        before = _git_world(d)
+        conformer = "cairn/cairn/compiler_thing/compiler.py"
+        Path(d, conformer).write_text("# conformed, hours before the packet was written\n")
+
+        ruling.open_ruling(_packet(id="2026-08-01-no-as-of", date="2026-08-01",
+                                   what_dies=[], what_conforms=[conformer]), d)
+        no_as_of = ruling.verify([r for r in ruling.load_all(d)
+                                  if r["id"] == "2026-08-01-no-as-of"][0], d)
+        assert any("UNTOUCHED" in f for f in no_as_of["failures"]), (
+            "PRECONDITION: measured against intake, already-done work reads UNTOUCHED "
+            "forever — the defect this field exists to fix")
+
+        ruling.open_ruling(_packet(id="2026-08-02-with-as-of", date="2026-08-02",
+                                   what_dies=[], what_conforms=[conformer],
+                                   as_of={"cairn": before}), d)
+        record = [r for r in ruling.load_all(d) if r["id"] == "2026-08-02-with-as-of"][0]
+        assert record["conforms_fingerprint"][conformer] != ruling.fingerprint(
+            os.path.join(d, conformer)), (
+            "the baseline is the file AS HE RULED, measured by git — not the disk now")
+        ruling.confirm("2026-08-02-with-as-of", "yes, that is what i said", d)
+        assert ruling.verify(record | {"confirmed": True}, d)["green"], (
+            "work done BEFORE the paperwork is still work done; the gate must be able "
+            "to say so")
+
+
+def test_as_of_cannot_conform_a_file_that_did_not_exist_then():
+    with tempfile.TemporaryDirectory() as d:
+        before = _git_world(d)
+        newborn = "cairn/cairn/compiler_thing/brand_new.py"
+        Path(d, newborn).write_text("# written after the ruling\n")
+        try:
+            ruling.open_ruling(_packet(what_dies=[], what_conforms=[newborn],
+                                       as_of={"cairn": before}), d)
+        except ValueError as exc:
+            assert "does not resolve" in str(exc), exc
+        else:
+            raise AssertionError("a file that did not exist when he ruled is a new "
+                                 "build, not a conformance — and an unresolvable "
+                                 "baseline would fingerprint nothing and pass")
+
+
+def test_a_conformer_with_no_baseline_is_red_not_green():
+    """The weakest check must not wear the strongest verdict. A hand-edit that moves a
+    path into what_conforms leaves it with no fingerprint, and `prints.get(rel) == …`
+    used to make that MISSING baseline read as a passed check."""
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(), d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes", d)
+        os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
+        record = ruling.load_all(d)[0]
+        record["what_conforms"] = record["what_conforms"] + ["cairn/CLAUDE.md"]
+        Path(d, "cairn", "CLAUDE.md").write_text("# smuggled in by hand\n")
+
+        verdict = ruling.verify(record, d)
+        assert any("UNMEASURED" in f and "CLAUDE.md" in f for f in verdict["failures"]), (
+            f"never measured is not green; got {verdict['failures']}")
+
+
 def test_unconfirmed_is_red_over_a_perfect_tree():
     with tempfile.TemporaryDirectory() as d:
         _world(d)
@@ -384,8 +463,8 @@ def test_supersede_writes_only_to_the_superseding_record():
             "the retired packet must stay BYTE-IDENTICAL — an in-place edit of a "
             "confirmed record erases his act, which is the thing Law 7 forbids")
         successor = [r for r in ruling.load_all(d) if r["id"] == new][0]
-        assert successor["supersedes"] == {
-            "id": old, "evidence": "he said the file was never meant to die"}, (
+        assert successor["supersedes"] == [
+            {"id": old, "evidence": "he said the file was never meant to die"}], (
             "the act lands on the SUCCESSOR, with its evidence, verbatim and stripped")
 
 
@@ -408,6 +487,56 @@ def test_a_superseded_ruling_leaves_the_hook_but_not_the_disk():
             "must ACT, never what the record says")
         assert os.path.exists(os.path.join(ruling.store_dir(d), f"{old}.json")), (
             "retired is not deleted; the record of truth is permanent")
+
+
+def test_one_successor_retires_many_without_erasing_the_first_act():
+    """THE 2026-08-06 MEASUREMENT, frozen as a tooth. ``supersedes`` was one slot, so
+    retiring a second packet by the same successor overwrote the first — old-a quietly
+    came back onto the open board and its evidence was gone, with no error raised.
+
+    The scenario is not contrived: a successor must be CONFIRMED to retire anything, so
+    a packet rescoped before Akien signs the original leaves BOTH open, and one corrected
+    reading is the only thing that can answer for the pair. That is the exact position
+    the two file-path rulings were in when this was found."""
+    with tempfile.TemporaryDirectory() as d:
+        old_a, new = _misfile_world(d)
+        ruling.open_ruling(_packet(id="2026-07-31-the-rescope", date="2026-07-31"), d)
+        ruling.confirm("2026-07-31-the-rescope", "i confirm the rescope too", d)
+        old_b = "2026-07-31-the-rescope"
+
+        ruling.supersede(old_a, new, "the original misfiled what_dies", d)
+        ruling.supersede(old_b, new, "the rescope carried the same misreading", d)
+
+        retired = ruling.retired_ids(ruling.load_all(d))
+        assert retired == {old_a, old_b}, (
+            f"a second supersession must not un-retire the first; retired={retired}")
+        assert ruling.open_rulings(d) == [], (
+            "both misfiled packets are answered for — neither is anyone's to act on")
+        successor = [r for r in ruling.load_all(d) if r["id"] == new][0]
+        assert successor["supersedes"] == [
+            {"id": old_a, "evidence": "the original misfiled what_dies"},
+            {"id": old_b, "evidence": "the rescope carried the same misreading"}], (
+            "BOTH acts survive, in the order they happened — a retirement whose evidence "
+            "is silently dropped is a record of truth losing an act (Law 7)")
+
+
+def test_the_single_slot_shape_still_retires():
+    """Two CONFIRMED records on disk predate the list and are deliberately NOT rewritten
+    — an in-place edit of a confirmed record is the act this module refuses. So the
+    normaliser, not a migration, is what keeps them retiring what they retired."""
+    with tempfile.TemporaryDirectory() as d:
+        old, new = _misfile_world(d)
+        path = os.path.join(ruling.store_dir(d), f"{new}.json")
+        record = json.loads(Path(path).read_text())
+        record["supersedes"] = {"id": old, "evidence": "written the old way"}
+        Path(path).write_text(json.dumps(record, indent=2))
+
+        assert ruling.retired_ids(ruling.load_all(d)) == {old}, (
+            "a legacy single-slot supersession must still retire its packet — a reader "
+            "that only knows the new shape resurrects every already-answered red")
+        assert ruling._supersessions({"supersedes": "nonsense"}) == [], (
+            "an unrecognisable field reads as NO supersession — a malformed value must "
+            "never silently retire a live packet")
 
 
 def test_a_retired_ruling_answers_for_nothing():
@@ -499,6 +628,9 @@ def _main() -> int:
         test_a_path_cannot_both_die_and_conform,
         test_the_recorder_cannot_self_confirm,
         test_the_fingerprints_are_measured_not_authored,
+        test_a_ruling_recorded_after_its_own_work_can_still_go_green,
+        test_as_of_cannot_conform_a_file_that_did_not_exist_then,
+        test_a_conformer_with_no_baseline_is_red_not_green,
         test_unconfirmed_is_red_over_a_perfect_tree,
         test_the_day_this_was_built,
         test_a_confirmation_carries_its_own_source,
@@ -510,6 +642,8 @@ def _main() -> int:
         test_supersede_refuses_with_every_reason,
         test_supersede_writes_only_to_the_superseding_record,
         test_a_superseded_ruling_leaves_the_hook_but_not_the_disk,
+        test_one_successor_retires_many_without_erasing_the_first_act,
+        test_the_single_slot_shape_still_retires,
         test_a_retired_ruling_answers_for_nothing,
         test_supersession_does_not_silence_an_unrelated_red,
         test_the_hook_goes_quiet_after_a_cli_supersession,

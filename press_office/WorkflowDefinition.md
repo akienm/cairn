@@ -25,7 +25,7 @@ column below **cites** what a door requires; it never re-authors it.
 | **design** | `/design [intention]` | `/sorted` | 5 fields at the opening, 12 at the close — both compiled live |
 | **chart** | `/chart` | 7 chart doors | unreadable — schemas in code |
 | **build** | `/sail` | `/sail` | not declared |
-| **test** | probe watching `VALIDATEME` | `persist_validation` | 8 VALIDATION fields |
+| **test** | the gate at the `PROVEME` crossing | `persist_validation` | 8 VALIDATION fields |
 | **watchme** | probe on validation complete | — (the probe is created) | — |
 | **learn** | — (feedback arrives) | the creating intention | — (a slope; see §4) |
 
@@ -238,7 +238,12 @@ rule — see §4.
   that word.
 
 ### test — the proposal is sealed
-- **trigger:** a probe watching for `VALIDATEME` · **consumes:** proposed code
+- **trigger:** the gate at the `PROVEME` crossing · **consumes:** proposed code
+- **corrected 2026-08-07:** this document used to name the summons `VALIDATEME` — a
+  state that exists in no registered class. The artifact is a VALIDATION; the summons
+  that demands it has always been spelled `PROVEME`. The doc coined a state from the
+  artifact's name, and nothing red-ded it because this file has no derivation gate
+  (see §7's own claim, and its hole).
 - **emits:** a VALIDATION — the ratified eight fields
 - **completes:** the seal is written through the validation door.
 - **owner:** the tester.

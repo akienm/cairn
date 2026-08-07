@@ -107,6 +107,18 @@ def by_gate(gate) -> _Filter:
 # seed and can never re-derive it. Imperfect and improving is the design; starting from
 # zero when the answer is already written down is not.
 #
+# TRANSLATION LOSS, FOUND 2026-08-06 AND CORRECTED HERE. The line above used to say the
+# intention "names this list outright" — and it did not. The intention's sentence is:
+# "identity, location, the exact failing code, expected-vs-actual, fatality, SOURCE, the
+# full trace, AND EVERY VALUE AT EVERY TRANSITION AND BOUNDARY THAT BEARS ON THE FAULT."
+# Two items were dropped in the head->english->code hop: `source`, and the every-value
+# clause. Akien re-stated both from his side of the translation without having read this
+# file — "what variables were in play and important. what things is it operating on
+# there." — which is the check working exactly as [[spec-lives-in-akiens-head]] describes:
+# he read the translation and corrected it. `source` rejoins the seed below. The
+# every-value clause CANNOT be a seed key (see VALUES_AT_THE_FAULT) and is checked
+# separately rather than being bent into a shape the registry could hold.
+#
 # Seeded registries are opt-in (``CompletenessRegistry.seeded()``) — a bare registry stays
 # empty so the learning half can still be proven in isolation.
 SEED = (
@@ -116,7 +128,32 @@ SEED = (
     "expected",    # expected-vs-...
     "actual",      # ...-actual
     "fatality",    # does it stop the show
+    "source",      # WHO emitted it — restored 2026-08-06; the envelope always carries it,
+                   # so this floor reads GREEN, and that is the point: the seed's job is to
+                   # match the intention, not to be interestingly unmet.
     "trace",       # the full trace
+)
+
+# ── THE EVERY-VALUE CLAUSE — a requirement the key-registry cannot express ────────────
+#
+# "every value at every transition and boundary that bears on the fault" is not a KEY, it
+# is a property OF THE SLICE, so it cannot join SEED. Requiring the literal key "values"
+# would be worse than useless: ``_completeness`` scans INTO ``values`` and excludes the
+# wrapper from the envelope scan, so "values" could never appear in `present` — a floor
+# that is missing by construction, red forever, teaching nothing. That is the reified
+# shape this check exists instead of.
+#
+# What IS checkable: a record at a gate that carries NO values at all told us a thing
+# crossed and nothing about what it was carrying. ``DiagnosticBase.emit`` makes that the
+# NORM on purpose ("keep the emission THIN... we do not enrich the top of it") — and the
+# thinness is only honest because the stamp indexes into a FATTER log tier. That tier is
+# a filed edge and is not built, so today the thin breadcrumb is the whole of the record
+# and the every-value clause has nothing to be satisfied by. Reporting that is the job.
+VALUES_AT_THE_FAULT = (
+    "a record carried no values — the transition is witnessed but its data is not. The "
+    "intention requires every value bearing on the fault; the emission is thin by design "
+    "and indexes a fatter log tier that is not built yet, so there is nowhere for those "
+    "values to be. Wire values= at this gate, or build the tier."
 )
 
 
@@ -156,6 +193,7 @@ class Inspector:
     def _completeness(self, selected, gates) -> dict:
         per_gate: dict = {}
         recurrences: list = []
+        valueless_gates: list = []
         for gate in dict.fromkeys(gates):    # unique, first-seen order
             present: set = set()
             for r in selected:
@@ -168,17 +206,37 @@ class Inspector:
                     present |= {k for k in r if k != "values"}
             required = self._registry.required(gate)
             missing = required - present
+            # THE EVERY-VALUE CLAUSE, measured per gate: how many records at this gate said
+            # only that something crossed. Counted, not merely flagged — one thin record
+            # among twenty is a different diagnosis from twenty out of twenty.
+            at_gate = [r for r in selected if r.get("gate") == gate]
+            valueless = [r for r in at_gate if not (r.get("values") or {})]
             per_gate[gate] = {
                 "required": sorted(required),
                 "present": sorted(present),
                 "missing": sorted(missing),
+                "records": len(at_gate),
+                "valueless": len(valueless),
             }
+            if valueless:
+                # Its own field, NEVER folded into ``complete``. ``complete`` answers "did a
+                # gap we already LEARNED come back" — the terminal falsifier. This answers
+                # "was there anything to learn from in the first place." Collapsing them
+                # would make a design gap indistinguishable from a recurrence, which is the
+                # presentation-surface move Law 7 forbids in a record of truth.
+                valueless_gates.append({
+                    "gate": gate,
+                    "records": len(at_gate),
+                    "valueless": len(valueless),
+                    "why_it_matters": VALUES_AT_THE_FAULT,
+                })
             for key in sorted(missing):
                 recurrences.append({"gate": gate, "key": key})
         return {
             "complete": not recurrences,
             "per_gate": per_gate,
             "recurrences": recurrences,   # LOUD — a learned gap that recurred (Law 7)
+            "values_at_the_fault": valueless_gates,   # LOUD, and separately (see above)
         }
 
     def record_miss(self, gate, key) -> str:

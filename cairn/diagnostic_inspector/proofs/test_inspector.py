@@ -168,6 +168,101 @@ def test_learned_completeness_persists():
     assert CompletenessRegistry.load(Path("/nonexistent/nowhere.json")).required("verify") == set()
 
 
+# ── THE EVERY-VALUE CLAUSE (2026-08-06) ──────────────────────────────────────────────
+# Akien, naming what the report must tell its consumer: "what variables were in play and
+# important. what things is it operating on there... so that you have a complete picture
+# of exactly what happened millisecond to millisecond leading up to the failure, and
+# everything that was involved." Measured against the corpus that day: not one emit() site
+# carries a SEED key, and a record that carries no values at all witnesses that a thing
+# crossed and nothing about what it held. These teeth pin that the report SAYS SO.
+
+
+def test_a_valueless_record_is_named_loud_with_its_count():
+    box, dev = Mailbox(), _Dev()
+    dev.set_diagnostic_receiver(box)
+    # Two thin breadcrumbs and one fat record at the SAME gate — the count is the diagnosis.
+    dev.emit("post", pointer="ticket/A", now=_t(100))
+    dev.emit("post", pointer="ticket/A", now=_t(200))
+    dev.emit("post", pointer="ticket/A", values={"envelope": "e1"}, now=_t(300))
+
+    found = Inspector().inspect(box.records(), by_pointer("ticket/A"))
+    loud = found["completeness"]["values_at_the_fault"]
+    assert len(loud) == 1, f"one gate carried valueless records; reported {loud}"
+    assert loud[0]["gate"] == "post"
+    assert loud[0]["records"] == 3 and loud[0]["valueless"] == 2, (
+        f"2 of 3 records at 'post' were thin; report said {loud[0]}")
+    assert "not built" in loud[0]["why_it_matters"], (
+        "the finding must name WHY there is nowhere for the values to be — the fat log "
+        "tier is a filed edge; a bare flag sends the reader to re-derive that")
+    # and per_gate carries the same measurement, so the reader never re-counts
+    assert found["completeness"]["per_gate"]["post"]["valueless"] == 2
+
+
+def test_every_record_carrying_values_reports_nothing_loud():
+    """DEFECT-FIRST: a check that always fires is not a check."""
+    box, dev = Mailbox(), _Dev()
+    dev.set_diagnostic_receiver(box)
+    dev.emit("post", pointer="ticket/A", values={"envelope": "e1"}, now=_t(100))
+    dev.emit("verify", pointer="ticket/A", values={"expected": "2", "actual": "2"}, now=_t(200))
+
+    found = Inspector().inspect(box.records(), by_pointer("ticket/A"))
+    assert found["completeness"]["values_at_the_fault"] == [], (
+        "a slice whose every record carries values must report NOTHING here")
+
+
+def test_the_every_value_clause_is_not_folded_into_complete():
+    """The two answer different questions and a record of truth may not collapse them
+    (Law 7): `complete` = did a LEARNED gap come back; `values_at_the_fault` = was there
+    anything to learn from at all. A thin record must not read as a recurrence."""
+    box, dev = Mailbox(), _Dev()
+    dev.set_diagnostic_receiver(box)
+    dev.emit("post", pointer="ticket/A", now=_t(100))   # thin — nothing learned is missing
+
+    found = Inspector().inspect(box.records(), by_pointer("ticket/A"))["completeness"]
+    assert found["complete"] is True, (
+        "no learned key was missing, so complete must stay True — folding the thinness in "
+        "here would make a design gap indistinguishable from the terminal falsifier")
+    assert found["recurrences"] == []
+    assert found["values_at_the_fault"], "...while the thinness is still reported, loudly"
+
+
+def test_the_seed_matches_the_intention_it_claims_to_carry():
+    """The translation loss that started this: SEED said it carried the intention's list
+    and had dropped `source` and the every-value clause. This tooth reds if the seed drifts
+    from the intention's own sentence again — the words are quoted from
+    CairnCommons/intentions-not-beside-code/I-complete-diagnostic-on-first-pass.md."""
+    from cairn.diagnostic_inspector import inspector as _insp
+    named = ("identity", "location", "code", "expected", "actual", "fatality", "source", "trace")
+    assert set(_insp.SEED) == set(named), (
+        f"SEED drifted from the intention's named list; missing={set(named) - set(_insp.SEED)}, "
+        f"extra={set(_insp.SEED) - set(named)}")
+    # and the every-value clause is honoured by a CHECK, not by a key the registry could
+    # never satisfy — requiring the literal "values" key would be missing by construction
+    assert "values" not in _insp.SEED, (
+        "'values' as a seed key is red-forever: _completeness scans INTO values and excludes "
+        "the wrapper, so it can never appear in `present`")
+    seeded = CompletenessRegistry.seeded()
+    assert "source" in seeded.required("any-gate"), "a seeded registry must demand source"
+
+
+def test_source_is_demanded_and_the_envelope_answers_it():
+    """`source` reads green because emit() always stamps it. That is the point — the seed's
+    job is to MATCH THE INTENTION, not to be interestingly unmet. This tooth is what makes
+    the green non-vacuous: it reds if the envelope stops carrying it."""
+    box, dev = Mailbox(), _Dev()
+    dev.set_diagnostic_receiver(box)
+    dev.emit("post", pointer="ticket/A", values={"envelope": "e1"}, now=_t(100))
+
+    found = Inspector(CompletenessRegistry.seeded()).inspect(box.records(), by_pointer("ticket/A"))
+    per_gate = found["completeness"]["per_gate"]["post"]
+    assert "source" in per_gate["present"], "emit() stamps source; the report must see it"
+    assert "source" not in per_gate["missing"]
+    # ...and the rest of the seed IS unmet, which is the corpus's real state today
+    assert {"code", "expected", "actual", "trace"} <= set(per_gate["missing"]), (
+        "measured 2026-08-06: no emit site in the corpus carries these; if this tooth ever "
+        "goes green on its own, the supply side finally landed and this message is the note")
+
+
 def _main() -> int:
     checks = [
         test_findings_filter_one_items_transaction_ordered_and_isolated,
@@ -178,6 +273,11 @@ def _main() -> int:
         test_a_complete_findings_is_clean,
         test_the_signal_is_distinguished_from_the_re_derivation,
         test_learned_completeness_persists,
+        test_a_valueless_record_is_named_loud_with_its_count,
+        test_every_record_carrying_values_reports_nothing_loud,
+        test_the_every_value_clause_is_not_folded_into_complete,
+        test_the_seed_matches_the_intention_it_claims_to_carry,
+        test_source_is_demanded_and_the_envelope_answers_it,
     ]
     for check in checks:
         check()

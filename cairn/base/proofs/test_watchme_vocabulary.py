@@ -109,8 +109,8 @@ def test_two_watches_are_two_obligations_not_a_no_op():
         "naming a repeated free summons resolves FORWARD — the next obligation, not this one"
     transitions.validate_transition(wf, "WATCHME", class_def=_CD)      # NOT a no-op
     moved = transitions.render(wf, "WATCHME")
-    assert "[WATCHME(does-anyone-read-the-verdict)]" in moved, moved
-    assert "[WATCHME(does-the-gate-fire)]" not in moved, moved
+    assert "[WATCHME(does-anyone-read-the-verdict):waiting]" in moved, moved
+    assert "[WATCHME(does-the-gate-fire)" not in moved, moved
 
 
 def test_the_object_survives_the_round_trip():
@@ -136,7 +136,10 @@ def test_v1_is_untouched_beside_it():
     wf = transitions.parse_workflow(v1)
     assert transitions.legal_targets(wf, class_def=_CD) >= {"LEARNME"}, \
         "a frozen version keeps working — migration is a crossing, never a rewrite of the past"
-    assert transitions.render(wf, "LEARNME").endswith("[LEARNME] -> PROVED")
+    # LEARNME ends in -ME, so even the frozen v1 vocabulary is a summons to the classless
+    # grammar — arrival stamps :waiting there too (ruled 2026-08-07; the stamp is
+    # grammar-level, not per-class, which is the whole point of the ruling).
+    assert transitions.render(wf, "LEARNME").endswith("[LEARNME:waiting] -> PROVED")
 
 
 def test_skill_v2_is_minted_the_same_way():
@@ -156,7 +159,7 @@ def test_a_real_v2_crossing_journals_the_object_through_the_real_door():
                    "WATCHME(does-the-emission-gate-fire-in-anger) -> [PROVED]")
         new = transitions.emit(resting, "WATCHME", history_path=hist,
                                state_path=state, why="the efficacy verdict came back failed")
-        assert "[WATCHME(does-the-emission-gate-fire-in-anger)]" in new, new
+        assert "[WATCHME(does-the-emission-gate-fire-in-anger):waiting]" in new, new
         last = projector.read_history(hist)[-1]
         assert last["to"] == "WATCHME" and last["direction"] == "back", last
         assert "WATCHME(does-the-emission-gate-fire-in-anger)" in last["workflow"], last

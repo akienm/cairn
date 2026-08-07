@@ -155,6 +155,64 @@ For every step but one, *emits* and *completes* are the same question. The excep
 is `learn`, and the exception is a fact about learning rather than a hole in the
 rule — see §4.
 
+### A summons shows its pickup — ruled 2026-08-07
+
+A `-ME` state is a **summons**: it demands somebody's work. Between the summons
+being raised and the work being done there is a lifecycle, and until this ruling it
+lived in nobody's file and everybody's head — the tester knows it picked up the
+ticket, the board asks "pending on WHAT?", and every surface that wants to show
+standing has to privately know who pushes what. Akien, on being shown that shape:
+
+> *"the tester picks up the ticket and all those different things have to know what
+> to push and that's going to make a difference. that sounds stinky. because thats
+> the opposite of good encapsulation. somebody has to know something special about
+> somebody else. the ticket is THE SOURCE PERIOD."*
+
+So the lifecycle lives on the ticket's own cursor, and it is defined **once, at the
+grammar level, as a property of summonses as a kind** — not as new rows in any
+class's backbone:
+
+| phase | cursor reads | means |
+|---|---|---|
+| **waiting** | `[BUILDME:waiting]` | summoned; nobody has picked it up |
+| **in-process** | `[BUILDME:in-process]` | picked up; the pickup is journaled (actor + time) |
+| *(crossed)* | cursor has moved on | the work is done; the crossing is the record |
+
+The rules, all enforced at the grammar (`cairn/base/transitions.py`):
+
+- **Every summons in every class inherits the two phases** — `BUILDME`, `PROVEME`,
+  `THINKME`, a free summons like `WATCHME(obj)`, and any summons a future class
+  mints (`DESIGNME` gets `DESIGNME:waiting` before `DESIGNME` exists anywhere).
+  That is the "and so on" in the ruling, and it is why the phases are annotation
+  rather than states: annotation is stated once; states would be stated per class.
+- **Terminals and rests take no phase.** If the state summons somebody, it has a
+  pickup; `PROVED` summons nobody, and a skipped rest was never summoned. A phase
+  on either is refused at parse.
+- **Only the cursor carries a phase.** The phase is *now*-information; a phase on a
+  non-cursor segment is a record of nothing and is refused at parse.
+- **Arrival stamps `waiting`.** A crossing that lands on a summons renders the
+  cursor `[X:waiting]` — the summons opens unclaimed by construction.
+- **The pickup is a journaled act.** `pickup()` — a door beside `emit`, riding the
+  same projector tail — advances `waiting → in-process` and appends the actor and
+  the time to the component's history. It refuses a rest, a terminal, and a doubled
+  pickup. A pickup that leaves no record did not happen (Law 3).
+- **A bare cursor (`[BUILDME]`) stays legal forever** and means the phase is
+  unrecorded — every history written before this ruling parses unchanged; nothing
+  rewrites the past to conform to it (Law 7).
+
+What this buys, and the reason it was ruled: **any surface derives standing from
+the cursor alone.** Waiting is *pending*, in-process is *in flight*, crossed is
+*done* — the ruling-board tri-state, the roster's "who has this", and every future
+board fall out of the one string, and no actor anywhere carries private knowledge
+of what to push where. The ticket is the source, period.
+
+Two edges named open, deliberately: a single actor that picks up and crosses in one
+motion may cross straight from `waiting` — the crossing itself is the evidence, and
+per-class *pickup-enforcement* (refusing a crossing that never showed a pickup) is
+a dial for the day a class has two actors; and the pickup's `actor` is a recorded
+claim, not an authenticated one — authentication is the clearance gate's rung, not
+the grammar's.
+
 ---
 
 ## 3. The steps

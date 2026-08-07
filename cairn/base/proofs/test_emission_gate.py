@@ -191,7 +191,7 @@ def test_a_back_edge_into_watchme_is_ungated():
     retreat would trap the boat at the one state it must be able to return to (Law 6)."""
     with _Corpus({}), tempfile.TemporaryDirectory() as td:
         new, hist = _cross(_AT_PROVED, "WATCHME", td=td)      # no ticket, no spec, no probe
-        assert f"[WATCHME({_OBJ})]" in new, new
+        assert f"[WATCHME({_OBJ}):waiting]" in new, new
         assert hist[-1]["direction"] == "back", hist[-1]
         assert "emission_gate" not in hist[-1], \
             "a retreat is not a gated crossing — and must not journal as if it were"
@@ -237,7 +237,7 @@ def test_a_node_that_carries_no_watch_is_untouched():
         except transitions.WatchmeEmissionRed as e:
             raise AssertionError(
                 f"the emission gate fired at a crossing with no WATCHME in it: {e}") from e
-        assert "[PROVEME]" in new, new
+        assert "[PROVEME:waiting]" in new, new
         assert "emission_gate" not in hist[-1], \
             "a crossing that carries no watch must journal no emission_gate note — a gate " \
             f"that annotates a crossing it does not govern is claiming jurisdiction: {hist[-1]}"
@@ -257,7 +257,7 @@ def test_the_gate_reads_the_watch_the_boat_STANDS_at():
     tick["watchme"].append(_spec(object="first-question"))
     with _Corpus({"t": tick}), tempfile.TemporaryDirectory() as td:
         new, hist = _cross(two, "WATCHME", ticket="t", td=td)
-        assert "[WATCHME(second-question)]" in new, new
+        assert "[WATCHME(second-question):waiting]" in new, new
         assert "first-question" in hist[-1]["emission_gate"], hist[-1]
 
 

@@ -121,7 +121,7 @@ def test_the_crossing_journals_the_old_string_verbatim():
         old = _at("THINKME")
         new = transitions.emit_migrated(old, "TICKETME", history_path=hist, state_path=state,
                                         why="crossed, and migrated in the same act")
-        assert new.startswith("code-seam@v2:") and "[TICKETME]" in new, new
+        assert new.startswith("code-seam@v2:") and "[TICKETME:waiting]" in new, new
         last = projector.read_history(hist)[-1]
         assert last["migrated_from"] == old, \
             "the version change must be ON the record — a silent vocabulary swap is a record " \

@@ -45,7 +45,7 @@ def test_a_legal_forward_advance_journals_the_crossing():
     with tempfile.TemporaryDirectory() as d:
         hist, state = f"{d}/history.json", f"{d}/state.json"
         new = transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
-        assert "[PROVEME]" in new and "[BUILDME]" not in new, f"cursor did not move to PROVEME: {new}"
+        assert "[PROVEME:waiting]" in new and "[BUILDME]" not in new, f"cursor did not move to PROVEME: {new}"
         log = projector.read_history(hist)
         assert len(log) == 1, "the crossing was not journaled exactly once (Law 7 append-only)"
         rec = log[0]
@@ -87,8 +87,8 @@ def test_a_caller_may_say_it_richer_but_may_not_drop_it():
 def test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme():
     at_think = "code-seam@v1: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> PROVED"
     # decompose (parent) and build (leaf, skipping the skippable TICKETME) are BOTH legal
-    assert "[TICKETME]" in transitions.emit(at_think, "TICKETME")
-    assert "[BUILDME]" in transitions.emit(at_think, "BUILDME")
+    assert "[TICKETME:waiting]" in transitions.emit(at_think, "TICKETME")
+    assert "[BUILDME:waiting]" in transitions.emit(at_think, "BUILDME")
 
 
 def test_a_forward_skip_past_a_gate_summons_is_refused():
@@ -132,7 +132,7 @@ def test_a_skill_v1_workflow_validates_and_journals_a_crossing_at_a_fixture_skil
         comp.mkdir(parents=True)
         hist, state = str(comp / "history.json"), str(comp / "state.json")
         new = transitions.emit(_SKILL_V1, "PROVEME", history_path=hist, state_path=state)
-        assert "[PROVEME]" in new and "[BUILDME]" not in new, f"cursor did not move: {new}"
+        assert "[PROVEME:waiting]" in new and "[BUILDME]" not in new, f"cursor did not move: {new}"
         rec = projector.read_history(hist)[0]
         assert rec["from"] == "BUILDME" and rec["to"] == "PROVEME" and rec["direction"] == "forward"
         assert rec["standing"] == "PROVEME" and rec["workflow"] == new
@@ -157,7 +157,7 @@ def test_a_back_edge_kickback_is_legal_and_carries_severity():
     with tempfile.TemporaryDirectory() as d:
         hist, state = f"{d}/history.json", f"{d}/state.json"
         new = transitions.emit(at_prove, "BUILDME", history_path=hist, state_path=state)
-        assert "[BUILDME]" in new, f"kick-back did not move the cursor: {new}"
+        assert "[BUILDME:waiting]" in new, f"kick-back did not move the cursor: {new}"
         rec = projector.read_history(hist)[0]
         assert rec["direction"] == "back" and rec["severity"] == 1, f"severity not carried: {rec}"
         # a deeper kick-back to THINKME is legal with greater severity (2)
@@ -270,7 +270,7 @@ def test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict():
         comp = _component(Path(d), "healthy")
         hist, state = str(comp / "history.json"), str(comp / "state.json")
         new = transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
-        assert "[LEARNME]" in new
+        assert "[LEARNME:waiting]" in new
         rec = projector.read_history(hist)[0]
         assert rec["build_gate"].startswith("clean — build_inspector"), \
             f"a promotion's evidence must travel with the crossing: {rec}"
@@ -283,14 +283,14 @@ def test_a_kickback_out_of_proveme_is_never_gated():
         comp = _component(Path(d), "chartless", charter=False)
         hist, state = str(comp / "history.json"), str(comp / "state.json")
         new = transitions.emit(_AT_PROVE, "BUILDME", history_path=hist, state_path=state)
-        assert "[BUILDME]" in new and projector.read_history(hist)[0]["direction"] == "back"
+        assert "[BUILDME:waiting]" in new and projector.read_history(hist)[0]["direction"] == "back"
 
 
 def test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only():
     # No history_path → no journal → the record of truth does not move, so there is no
     # component address to inspect and nothing the gate protects. (The register reads
     # project(history); a promotion that writes no truth has not happened anywhere.)
-    assert "[LEARNME]" in transitions.emit(_AT_PROVE, "LEARNME")
+    assert "[LEARNME:waiting]" in transitions.emit(_AT_PROVE, "LEARNME")
 
 
 def test_an_address_the_census_cannot_see_is_refused_not_waved_through():
@@ -367,7 +367,7 @@ def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET, "BUILDME",
                                    history_path=hist, state_path=state, ticket="widget")
-            assert "[BUILDME]" in new
+            assert "[BUILDME:waiting]" in new
             rec = projector.read_history(hist)[0]
             assert rec["entry_gate"].startswith("clean — a berthed chart chain claims"), \
                 f"the crossing's evidence must say the entry gate ran: {rec}"
@@ -418,7 +418,7 @@ def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
             hist3, state3 = str(base / "hb.json"), str(base / "sb.json")
             new = transitions.emit(_AT_PROVE, "BUILDME", history_path=hist3, state_path=state3)
             rec = projector.read_history(hist3)[0]
-            assert "[BUILDME]" in new and rec["direction"] == "back"
+            assert "[BUILDME:waiting]" in new and rec["direction"] == "back"
             assert "entry_gate" not in rec, "a kick-back into BUILDME is never gated"
         finally:
             transitions._TICKETS = saved
@@ -440,7 +440,7 @@ def test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean():
         transitions._EXEMPT_ROSTER = frozenset({"legacy-component"})
         try:
             new = transitions.emit(_AT_TICKET, "BUILDME", history_path=hist, state_path=state)
-            assert "[BUILDME]" in new
+            assert "[BUILDME:waiting]" in new
             rec = projector.read_history(hist)[0]
             assert rec["entry_gate"].startswith("exempt —"), \
                 f"an exempt pass must journal its exemption, never silently: {rec}"
@@ -492,7 +492,7 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET_SKILL, "BUILDME",
                                    history_path=hist, state_path=state, ticket="widget")
-            assert "[BUILDME]" in new
+            assert "[BUILDME:waiting]" in new
             rec = projector.read_history(hist)[0]
             assert rec["entry_gate"].startswith("clean — a berthed chart chain claims"), \
                 f"the crossing's evidence must say the entry gate ran: {rec}"
@@ -818,6 +818,138 @@ def test_the_four_gate_exceptions_are_siblings_not_a_hierarchy():
                 assert not issubclass(a, b), f"{a} must not subclass sibling {b}"
 
 
+# ---- THE SUMMONS SHOWS ITS PICKUP (ruled 2026-08-07, the-ticket-is-the-source-period) ----
+# The pickup lifecycle is stated once at the grammar level: a summons arrives ``:waiting``,
+# a journaled pickup advances it ``:in-process``, terminals and rests take no phase, and the
+# legacy bare cursor parses forever. These teeth are the ones a hollow build could not pass:
+# a phase stored but never refused off-cursor, a stamp asserted but never rendered, a pickup
+# that writes before it refuses.
+
+
+def test_a_phased_cursor_parses_and_round_trips():
+    wf = transitions.parse_workflow(
+        "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED")
+    assert wf.phase == "waiting" and wf.here == "BUILDME", (wf.phase, wf.here)
+    # the phase belongs to the CURSOR, not to the path — the path stays bare state names
+    assert wf.path == ("THINKME", "TICKETME", "BUILDME", "PROVEME", "PROVED"), wf.path
+    # and the legacy grammar is untouched: a bare cursor is phase=None, not an error
+    bare = transitions.parse_workflow(_CODE_SEAM)
+    assert bare.phase is None, bare.phase
+    # an object and a phase ride the same cursor together
+    both = transitions.parse_workflow(
+        "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
+        "[WATCHME(what-it-watches):in-process] -> PROVED")
+    assert both.phase == "in-process" and both.here_object == "what-it-watches"
+
+
+def test_a_phase_anywhere_but_the_cursor_is_refused():
+    _expect_refused(lambda: transitions.parse_workflow(
+        "code-seam@v2: THINKME:waiting -> [BUILDME] -> PROVEME -> PROVED"),
+        transitions.MalformedWorkflow)
+
+
+def test_a_phase_on_a_rest_or_terminal_is_refused():
+    _expect_refused(lambda: transitions.parse_workflow(
+        "code-seam@v2: THINKME -> BUILDME -> PROVEME -> [PROVED:waiting]"),
+        transitions.MalformedWorkflow)
+
+
+def test_an_unknown_phase_word_is_refused_loudly():
+    _expect_refused(lambda: transitions.parse_workflow(
+        "code-seam@v2: THINKME -> [BUILDME:paused] -> PROVEME -> PROVED"),
+        transitions.MalformedWorkflow)
+    # case drift refuses LOUDLY instead of silently truncating the walk at the cursor —
+    # a "[BUILDME:Waiting]" that fell to the prose-stop would hand every reader a fiction
+    _expect_refused(lambda: transitions.parse_workflow(
+        "code-seam@v2: THINKME -> [BUILDME:Waiting] -> PROVEME -> PROVED"),
+        transitions.MalformedWorkflow)
+
+
+def test_arrival_stamps_waiting_on_a_summons_and_never_on_a_rest():
+    wf = transitions.parse_workflow(_CODE_SEAM)
+    moved = transitions.render(wf, "PROVEME")
+    assert "[PROVEME:waiting]" in moved, moved
+    # the departed state loses its bracket AND its phase — only the cursor has a pickup
+    assert "BUILDME:" not in moved and "[BUILDME" not in moved, moved
+    # a rest arrives bare: nothing is summoned, so there is nothing to wait for
+    at_learn = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
+    rested = transitions.render(transitions.parse_workflow(at_learn), "PROVED")
+    assert rested.endswith("[PROVED]"), rested
+    # and the stamped string round-trips through the parser it came from
+    assert transitions.parse_workflow(moved).phase == "waiting"
+
+
+def test_a_forward_crossing_from_waiting_stays_legal():
+    # SINGLE-ACTOR COLLAPSE (a named open edge in the definition): today one hand summons,
+    # picks up, and crosses — so emit accepts a :waiting cursor without a pickup first.
+    # Making pickup a crossing precondition is a future dial, not this tooth.
+    new = transitions.emit(
+        "code-seam@v1: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> LEARNME -> PROVED",
+        "PROVEME")
+    assert "[PROVEME:waiting]" in new, new
+
+
+def test_pickup_advances_waiting_to_in_process_and_journals_the_actor():
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        new = transitions.pickup(
+            "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+            actor="igor-3", history_path=hist, state_path=state)
+        assert "[BUILDME:in-process]" in new and ":waiting" not in new, new
+        log = projector.read_history(hist)
+        assert len(log) == 1, "the pickup was not journaled exactly once"
+        rec = log[0]
+        assert rec["act"] == "pickup" and rec["actor"] == "igor-3", rec
+        assert rec["standing"] == "BUILDME", "a pickup is not a crossing — the boat stands still"
+        assert rec["workflow"] == new, "the journal must record the in-process string"
+        assert rec.get("at"), "the append door stamps WHEN — actor + time is the whole point"
+
+
+def test_a_bare_summons_cursor_is_picked_up():
+    # the legacy corpus arrived before phases existed; the pickup records what arrival
+    # never stamped, rather than refusing the entire standing fleet
+    new = transitions.pickup(_CODE_SEAM, actor="igor-3")
+    assert "[BUILDME:in-process]" in new, new
+
+
+def test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing():
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        for wf_str in (
+            # a terminal: nothing summoned, nothing to pick up
+            "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+            # doubled: the second hand must SEE the first on the ticket, not overwrite it
+            "code-seam@v2: THINKME -> TICKETME -> [BUILDME:in-process] -> PROVEME -> PROVED",
+        ):
+            _expect_refused(lambda s=wf_str: transitions.pickup(
+                s, actor="igor-3", history_path=hist, state_path=state))
+        assert not Path(hist).exists() and not Path(state).exists(), \
+            "a refused pickup must leave NO record (the same law as a refused crossing)"
+
+
+def test_the_standing_corpus_parses_with_no_phase():
+    """Every workflow string already journaled in class-space still parses, all phase=None —
+    the legacy grammar is a strict subset of the phased one, measured on the real fleet."""
+    seen = 0
+    for hist in _REPO_ROOT.rglob("history.json"):
+        if ".git" in hist.parts:
+            continue
+        try:
+            records = json.loads(hist.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if not isinstance(records, list):
+            continue
+        for rec in records:
+            w = rec.get("workflow") if isinstance(rec, dict) else None
+            if not w:
+                continue
+            assert transitions.parse_workflow(w).phase is None, \
+                f"a pre-ruling record claims a phase it cannot have: {hist}: {w}"
+            seen += 1
+    assert seen >= 100, f"the corpus walk found only {seen} strings — a vacuous green"
+
+
 def _main() -> int:
     checks = [
         test_a_legal_forward_advance_journals_the_crossing,
@@ -854,6 +986,16 @@ def _main() -> int:
         test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing,
         test_the_enqueue_seam_stays_file_only_on_the_fire_path,
         test_the_four_gate_exceptions_are_siblings_not_a_hierarchy,
+        test_a_phased_cursor_parses_and_round_trips,
+        test_a_phase_anywhere_but_the_cursor_is_refused,
+        test_a_phase_on_a_rest_or_terminal_is_refused,
+        test_an_unknown_phase_word_is_refused_loudly,
+        test_arrival_stamps_waiting_on_a_summons_and_never_on_a_rest,
+        test_a_forward_crossing_from_waiting_stays_legal,
+        test_pickup_advances_waiting_to_in_process_and_journals_the_actor,
+        test_a_bare_summons_cursor_is_picked_up,
+        test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing,
+        test_the_standing_corpus_parses_with_no_phase,
     ]
     for check in checks:
         check()
@@ -885,7 +1027,13 @@ def _main() -> int:
           "an unknown class still refuses after the registration, and the entry gate "
           "fires identically on a skill-class voyage naming a cast ticket (chartless "
           "refuses, charted crosses gated-and-clean) — the registry is the door, proven "
-          "on a second tenant")
+          "on a second tenant — and A SUMMONS SHOWS ITS PICKUP (ruled 2026-08-07, "
+          "the-ticket-is-the-source-period): the cursor carries its phase in the grammar "
+          "([X:waiting] on arrival, [X:in-process] through the pickup door beside emit, "
+          "journaled with actor + time through the projector), a phase off-cursor / on a "
+          "rest / off-vocabulary refuses at parse, a doubled pickup and a pickup at a rest "
+          "refuse writing nothing, and the whole standing corpus parses phase=None — the "
+          "legacy grammar is a strict subset, measured, not assumed")
     return 0
 
 

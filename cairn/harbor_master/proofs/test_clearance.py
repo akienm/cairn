@@ -124,7 +124,7 @@ def test_the_owner_may_clear_a_legal_move_and_it_is_recorded():
             actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
             proven_by=_PROVEN, history_path=hp, state_path=sp,
         )
-        assert "[PROVEME]" in new, "the cursor must have moved to PROVEME"
+        assert "[PROVEME:waiting]" in new, "the cursor must have moved to PROVEME"
         history = projector.read_history(hp)
         assert len(history) == 1, "exactly one crossing recorded"
         rec = history[0]
@@ -157,7 +157,7 @@ def test_clearance_is_delegable_per_operation():
             actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
             proven_by=_PROVEN, grant=grant, history_path=hp, state_path=sp,
         )
-        assert "[PROVEME]" in new
+        assert "[PROVEME:waiting]" in new
         rec = projector.read_history(hp)[0]
         assert rec["cleared_by"] == _IGOR and rec["delegated"] is True, "a delegated crossing is recorded as such"
 
@@ -252,7 +252,7 @@ def test_a_green_seal_whose_code_has_moved_underneath_it_is_refused():
     # pass because `drifting` was never clearable in the first place.
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
-        assert "[PROVEME]" in clear(
+        assert "[PROVEME:waiting]" in clear(
             _WF, "PROVEME",
             actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
             proven_by=drifting, history_path=hp, state_path=sp,
@@ -341,7 +341,7 @@ def test_the_same_grant_inside_its_window_still_clears():
             now=1000.0 + GRANT_TTL_SECONDS - 0.1,       # spent just inside it
             history_path=hp, state_path=sp,
         )
-        assert "[PROVEME]" in new, "a grant inside its window must still clear the move"
+        assert "[PROVEME:waiting]" in new, "a grant inside its window must still clear the move"
 
 
 def test_a_crossed_resource_line_refuses_an_otherwise_perfect_move():
@@ -379,7 +379,7 @@ def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
             proven_by=_PROVEN, resources=host,
             history_path=hp, state_path=sp,
         )
-        assert "[PROVEME]" in new, "room on the host → the move clears"
+        assert "[PROVEME:waiting]" in new, "room on the host → the move clears"
         assert host.asked == [(name, value) for name, value in HARBOR_LINES.items()], (
             "every line the harbor holds must be put to the resource owner — one unasked line "
             "is a gate that does not gate"

@@ -95,9 +95,17 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _NODE_CLASSES = _REPO_ROOT.parent / "CairnCommons" / "node_classes"
 
 _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
-# A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)".
-# Prose after the token is ignored (see the walk in parse_workflow).
-_STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)(?:\(([^)]*)\))?\]?")
+# A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)"
+# — and, on the cursor only, its PICKUP PHASE after a colon — "[BUILDME:waiting]" (ruled
+# 2026-08-07, the-ticket-is-the-source-period). The capture is deliberately wider than the
+# legal vocabulary so "[BUILDME:Waiting]" is refused loudly instead of silently truncating
+# the walk. Prose after the token is ignored (see the walk in parse_workflow).
+_STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)(?:\(([^)]*)\))?(?::([A-Za-z-]+))?\]?")
+# The pickup lifecycle every summons inherits, stated once: a summons ARRIVES waiting (no
+# pickup yet) and a journaled pickup advances it to in-process. Terminals and rests take no
+# phase — a state that summons nobody has no pickup to show. A bare cursor (no colon) is the
+# whole legacy corpus and parses as phase=None forever; there is no v3.
+_PHASES = ("waiting", "in-process")
 
 
 class MalformedWorkflow(ValueError):
@@ -307,6 +315,12 @@ class Workflow:
     # can check it. Parallel rather than a dict because a free summons may repeat, and two
     # occurrences of WATCHME watching different things are two different obligations.
     objects: tuple[str | None, ...] = ()
+    # THE CURSOR'S PICKUP PHASE (ruled 2026-08-07: "the ticket is THE SOURCE PERIOD").
+    # Only the cursor carries one — a state the boat is not standing at has no pickup in
+    # flight — so this is a scalar, not a tuple parallel to ``path``. None is the legacy
+    # grammar (every pre-ruling history) AND a rest/terminal cursor; "waiting" is a summons
+    # arrived with no pickup yet; "in-process" is a summons somebody journaled a pickup on.
+    phase: str | None = None
 
     @property
     def here(self) -> str:
@@ -328,6 +342,7 @@ def parse_workflow(s: str) -> Workflow:
     path: list[str] = []
     objects: list[str | None] = []
     cursor: int | None = None
+    phase: str | None = None
     for seg in rest.split("->"):
         seg = seg.strip()
         sm = _STATE_RE.match(seg)
@@ -338,6 +353,26 @@ def parse_workflow(s: str) -> Workflow:
         path.append(sm.group(1))
         obj = sm.group(2)
         objects.append(obj.strip() if obj and obj.strip() else None)
+        # THE PICKUP PHASE (ruled 2026-08-07). Three refusals make the rule physics at parse:
+        # a phase anywhere but the cursor is fiction (only the standing state has a pickup in
+        # flight); a phase on a rest or terminal is fiction (a state that summons nobody has
+        # no pickup); a word outside the vocabulary is not a phase. A bare token is the whole
+        # legacy corpus and stays legal forever — phase simply stays None.
+        ph = sm.group(3)
+        if ph is not None:
+            if not seg.startswith("["):
+                raise MalformedWorkflow(
+                    f"phase {ph!r} on non-cursor state {sm.group(1)!r} in {s!r} — only the "
+                    "cursor segment carries a pickup phase (the boat stands at one state)")
+            if ph not in _PHASES:
+                raise MalformedWorkflow(
+                    f"unknown phase {ph!r} on {sm.group(1)!r} in {s!r} — the pickup "
+                    f"vocabulary is {_PHASES}")
+            if not is_summons(sm.group(1)):
+                raise MalformedWorkflow(
+                    f"phase {ph!r} on {sm.group(1)!r} in {s!r} — a rest or terminal summons "
+                    "nobody, so it has no pickup to phase")
+            phase = ph
         # STOP AT THE FIRST STATE THAT CARRIES PROSE. A real ticket's note follows the LAST state
         # in the same segment ("PROVED   (cursor at BUILDME: ...)"), so the token is taken and the
         # walk ends here. Without this the split kept marching through the note, and any ARROW
@@ -353,7 +388,7 @@ def parse_workflow(s: str) -> Workflow:
         raise MalformedWorkflow(f"no states in {s!r}")
     if cursor is None:
         raise MalformedWorkflow(f"no bracketed cursor in {s!r}")
-    return Workflow(node_class, version, tuple(path), cursor, tuple(objects))
+    return Workflow(node_class, version, tuple(path), cursor, tuple(objects), phase)
 
 
 def load_class_def(node_class: str, *, root: Path | str = _NODE_CLASSES) -> dict:
@@ -716,17 +751,32 @@ def _build_gate(history_path: str) -> str:
     )
 
 
-def render(wf: Workflow, target: str) -> str:
-    """Render the workflow string with the cursor moved to ``target`` (the new instance state).
-    Objects ride back out verbatim — the string is the record, so a round-trip that dropped
-    ``WATCHME(x)`` down to ``WATCHME`` would erase the obligation while looking like a move."""
-    idx = resolve_target(wf, target)
+def _render_at(wf: Workflow, idx: int, phase: str | None) -> str:
+    """Render with the cursor at ``idx`` carrying ``phase`` (None = bare). The one string
+    assembler — ``render`` (a crossing) and ``pickup`` (a phase advance in place) both come
+    through here, so the two doors cannot drift apart on what a cursor looks like."""
     states = []
     for k, s in enumerate(wf.path):
         obj = wf.objects[k] if k < len(wf.objects) else None
         tok = f"{s}({obj})" if obj else s
-        states.append(f"[{tok}]" if k == idx else tok)
+        if k == idx:
+            states.append(f"[{tok}:{phase}]" if phase else f"[{tok}]")
+        else:
+            states.append(tok)
     return f"{wf.node_class}@{wf.version}: " + " -> ".join(states)
+
+
+def render(wf: Workflow, target: str) -> str:
+    """Render the workflow string with the cursor moved to ``target`` (the new instance state).
+    Objects ride back out verbatim — the string is the record, so a round-trip that dropped
+    ``WATCHME(x)`` down to ``WATCHME`` would erase the obligation while looking like a move.
+
+    ARRIVAL STAMPS THE PHASE (ruled 2026-08-07): landing on a summons renders it
+    ``[X:waiting]`` — the summons is out and nobody has picked it up, and the ticket shows
+    that without anyone remembering to write it. Landing on a rest or terminal renders bare.
+    The departed state loses any phase it carried: only the cursor has a pickup in flight."""
+    idx = resolve_target(wf, target)
+    return _render_at(wf, idx, "waiting" if is_summons(wf.path[idx]) else None)
 
 
 def emit(
@@ -839,6 +889,56 @@ def emit(
             # that answered a chart names the berth now standing on chart's pending
             # ledger, so the obligation and the crossing share an address (Law 5).
             **({"deposit_enqueued": enqueued} if enqueued else {}),
+            **journal_extra,
+        }
+        projector.append_entry(history_path, state_path, record)
+    return new_str
+
+
+def pickup(
+    workflow_str: str,
+    *,
+    actor: str,
+    history_path: str | None = None,
+    state_path: str | None = None,
+    **journal_extra,
+) -> str:
+    """The pickup door — ``emit``'s sibling for the act that is NOT a crossing (ruled
+    2026-08-07, the-ticket-is-the-source-period). A summons goes out ``[X:waiting]``; the
+    peer who takes it up comes through HERE, and the ticket advances to ``[X:in-process]``
+    with the pickup journaled (who, when — the append door stamps ``at``). The ticket is the
+    source, period: nobody derives "is anyone on this?" from a side channel.
+
+    Refusals, before anything is written: a rest or terminal (nothing summoned, nothing to
+    pick up) and a doubled pickup (already in-process — the second hand sees the first on
+    the ticket, which is the encapsulation the ruling bought). A bare summons cursor (the
+    legacy corpus, arrived before phases existed) IS picked up — the act records what
+    arrival never stamped.
+
+    ``actor`` is a recorded claim, not an authenticated identity — authenticating it is the
+    clearance gate's rung (a named open edge in the definition), not this door's.
+
+    A forward crossing straight from ``:waiting`` stays legal at ``emit`` — today one hand
+    summons, picks up, and crosses (single-actor collapse); making pickup a crossing
+    precondition is a named future dial, not this door."""
+    wf = parse_workflow(workflow_str)
+    if not is_summons(wf.here):
+        raise IllegalTransition(
+            f"pickup refused: {wf.here!r} is a rest or terminal — it summons nobody, so "
+            "there is no pickup. Nothing was journaled.")
+    if wf.phase == "in-process":
+        raise IllegalTransition(
+            f"pickup refused: {wf.here!r} is already in-process — a doubled pickup would "
+            "overwrite the hand already on the ticket. Nothing was journaled.")
+    new_str = _render_at(wf, wf.cursor, "in-process")
+    if history_path and state_path:
+        record = {
+            "act": "pickup",
+            "actor": actor,
+            # Not a crossing — the boat stands where it stood; ``standing`` is required by
+            # the append door's shape gate and stays the same state.
+            "standing": wf.here,
+            "workflow": new_str,
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

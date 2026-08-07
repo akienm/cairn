@@ -191,9 +191,10 @@ def test_a_valueless_record_is_named_loud_with_its_count():
     assert loud[0]["gate"] == "post"
     assert loud[0]["records"] == 3 and loud[0]["valueless"] == 2, (
         f"2 of 3 records at 'post' were thin; report said {loud[0]}")
-    assert "not built" in loud[0]["why_it_matters"], (
-        "the finding must name WHY there is nowhere for the values to be — the fat log "
-        "tier is a filed edge; a bare flag sends the reader to re-derive that")
+    assert "placed too thin" in loud[0]["why_it_matters"].lower(), (
+        "the finding must tell its consumer what to DO — re-place the instrument with the "
+        "values needed. A bare flag makes the reader re-derive the next move, which is the "
+        "second exploration this whole surface exists to abolish")
     # and per_gate carries the same measurement, so the reader never re-counts
     assert found["completeness"]["per_gate"]["post"]["valueless"] == 2
 

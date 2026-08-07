@@ -150,10 +150,10 @@ SEED = (
 # a filed edge and is not built, so today the thin breadcrumb is the whole of the record
 # and the every-value clause has nothing to be satisfied by. Reporting that is the job.
 VALUES_AT_THE_FAULT = (
-    "a record carried no values — the transition is witnessed but its data is not. The "
-    "intention requires every value bearing on the fault; the emission is thin by design "
-    "and indexes a fatter log tier that is not built yet, so there is nowhere for those "
-    "values to be. Wire values= at this gate, or build the tier."
+    "a record carried no values — this transition is witnessed, but nothing about what it "
+    "was holding. YOUR INSTRUMENT IS PLACED TOO THIN: re-place this gate's emit() with the "
+    "values you actually need in hand, and run it again. (A standing thin breadcrumb is the "
+    "norm and is correct; it becomes a finding only inside a slice you deliberately fired.)"
 )
 
 

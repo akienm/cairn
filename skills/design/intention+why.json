@@ -3,20 +3,16 @@
   "role": "charter",
   "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
   "axis": "work-loop",
-
   "what": "Open the design work on a born intention: name the berth being worked, where the work is arriving from, what has to be resolved before it can be cast, and what would make it castable.",
   "why": "The workflow's third step (press_office/WorkflowDefinition.md, `design`) and the only one with a DIFFERENT SKILL AT EACH END — /design opens the joint work, /sorted closes it. Everything between /intent and /sorted happens in conversation today, and conversation leaves no artifact: a berth is born, some amount of thinking happens, and a cast ticket appears with no record of what was worked or how many passes it took. The lived symptom is the second one — a node routed back from /sorted for completeness re-enters design and nothing anywhere records that it is a second pass, so the question 'which of /intent's questions are failing to catch things' has no denominator. This door is where that arrival becomes data.",
   "invoke": "/design [intention]  (a berth exists and is not yet cast)",
   "state": "v0 — first cast 2026-08-04, building out the workflow's two missing end doors. The middle of the workflow was built first; both missing doors were at the ends, which is exactly where a person and the system work together.",
-
   "produces": "a berth under ~/.cairn/devices/skill_block/0/berths/design/ recording that a design session opened on a named intention, with its work list and its own completion predicate. No commons artifact: the artifact of the design STEP is the cast ticket, and /sorted writes that.",
-
   "nexus": {
     "note": "SKILL.md carries the live sequence; this is the charter-face record of it.",
     "routes_forward": "/sorted — the resolution pivot, which casts the node and binds its gates",
     "routes_back": "/sorted routes back HERE on a completeness red; that return is an entry, recorded in `entering_from`, not a failure with no address"
   },
-
   "input_contract": {
     "intent_berth": "the /intent berth this design works on — a readable berth path for skill `intent` whose exit was `routed_forward`. The two refusals this earns are the point: a berth that does not resolve is a design session on nothing, and a berth that was routed OUT is a design session on a node the trace question already killed. The one other legal value is 'none, because <X>' with a JUDGEABLE reason — one carrying a resolvable referent (a path, a cast ticket id, a roster command), following the same rule buildme_rides_the_sorted already enforces. Silence is not on the menu.",
     "entering_from": "how this design session is being entered: `intent` for a first pass, or `sorted:<berth path>` for a node routed back from the resolution pivot on a completeness red. The sorted berth must resolve. Forced because this is the back-edge /intent's charter names as ABSENT — 'nothing yet connects a LATER gate's rejection to the /intent firing that let it through' — and one recorded field is what turns that from prose into a countable arrival.",
@@ -24,14 +20,17 @@
     "ready_when": "the predicate that ENDS this step — what would make this node castable. Distinct from the intention's falsifier, which asks whether the WORK is done or was wrongly aimed; this asks whether the THINKING is finished enough to bind gates to. Written here so /sorted has something to check the cast against rather than re-deriving readiness from scratch (Law 1).",
     "bullets": "the exit-time finding — a list of {text, stratum} with stratum in code|tree, standing at Akien's gate. At an OPENING that is what reading the berth and the congruency lab surfaced: a prior-art hit, a collision, a question the birth did not ask. A design session that opens having noticed nothing usually has not read anything."
   },
-
   "not_in_the_contract": {
     "exit": "deliberately absent, and the absence is a statement. This door fires at the OPENING of the step; the step's exits — cast, routed back, escalated — are all recorded by /sorted at the close, in its own `exit` and `disposition` fields. A second exit vocabulary here would be two components recording one outcome, which is how they come to disagree.",
     "what_changed": "the design work's substance is not captured here. /sorted's twelve fields are where the resolved thinking has to stand up, and restating it at the opening would be asking for the answers before the questions have been worked."
   },
-
-  "how_it_learns": "By the ratio this door's own records make countable: how many design sessions on a given berth. A first pass is `entering_from: intent`; every subsequent one is `entering_from: sorted:<berth>`, so the count of return trips per node is readable by walking the design berths — which is the denominator /intent's `how_it_learns` names as missing. NOT-YET: nothing reads it. The collector is a separate node and is named as absent rather than implied; building it before any node has been through twice would be building a manager for an empty room.",
-  "traces_to": ["Telos", "Law 1 (the resolver spent on the novel — a design pass re-derived is the defect)", "Law 3 (nothing is known until measured — the return-trip count is the measurement)", "Law 5 (intent, its voyage and its proofs share an address)"],
+  "how_it_learns": "By the ratio this door's own records make countable: how many design sessions on a given berth. A first pass is `entering_from: intent`; every subsequent one is `entering_from: sorted:<berth>`, so the count of return trips per node is readable by walking the design berths — which is the denominator /intent's `how_it_learns` names as missing. The reader now exists: probes/design_return_trip.py, the watch the boat carries (WATCHME(design-return-trip), ticket the-return-trip-is-countable, armed 2026-08-07). It walks that field every pulse — denominator distinct nodes by intent_berth, not firings — reads /sorted's promised back-to-design dispositions beside it so a zero arrives as a measured fork instead of a guess, fires when >= 12 distinct nodes show zero recorded returns, and clears on the first witnessed arrival (an existence claim: none has ever been recorded). The CONSUMER of the count — the dial over which of /intent's questions are letting things through — is still a separate node, named as absent rather than implied; building it before any node has been through twice would be building a manager for an empty room.",
+  "traces_to": [
+    "Telos",
+    "Law 1 (the resolver spent on the novel — a design pass re-derived is the defect)",
+    "Law 3 (nothing is known until measured — the return-trip count is the measurement)",
+    "Law 5 (intent, its voyage and its proofs share an address)"
+  ],
   "owner": "the skills charter gates writes to this file; Akien ratifies changes (signature gate)",
   "proof": "proofs/test_design_door.py — the door refuses a berth that does not resolve, a berth that was routed out, a wrong-skill berth, a hollow exemption, a malformed entering_from, and a paragraph where a list belongs; a conforming packet berths and pollutes neither the live trace nor the live commons. The class gate (cairnmap recompiles green) remains an IOU until cairnmap is built.",
   "provenance": "Akien's fill of the workflow catalog's empty cells, 2026-08-04: '/design [intention]'. The each-end-a-different-skill shape is already recorded in press_office/WorkflowDefinition.md §3, and /sorted's charter already names 'completeness red → design' as its route back — this door is the address that route was pointing at."

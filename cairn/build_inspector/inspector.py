@@ -62,6 +62,11 @@ from cairn.orient.orient import ScanRefused, device_census  # noqa: E402
 # It is tree-free (ast + pathlib + os only) and pinned transitively by the allowlist
 # tooth, exactly like chart.orient and chart.verdict.
 from cairn.import_sieve import sieve as import_sieve  # noqa: E402
+# The ASSEMBLY and the SHAKE ride the general berth since 2026-08-07 (ruling
+# the-nest-is-block-general, ticket banding-berths-at-the-general-level): derivation
+# is import_sieve's domain, banding is block-general, and this inspector is the
+# nest's first TENANT, not its owner.
+from cairn.base import nest as base_nest  # noqa: E402
 
 
 def _finding(sieve_name: str, component: str, finding: str, evidence, why: str,
@@ -1668,7 +1673,7 @@ def the_nest() -> list:
     global _NEST_CACHE
     if _NEST_CACHE is None:
         reaches = import_sieve.reach_of(Path(__file__).read_text())
-        _NEST_CACHE = import_sieve.nest(
+        _NEST_CACHE = base_nest.nest(
             {name: reaches.get(fn.__name__, 0) for name, fn in SIEVES.items()})
     return _NEST_CACHE
 
@@ -1694,37 +1699,27 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
                 "that silently inspects nothing passes everything (Law 8)."
             )
     nest = the_nest()
-    findings, gradation = [], {}
-    for row in rows:
-        comp_dir = root / row["component"]
-        scores = {}
-        for band, names in nest:            # coarse first — the shake's only ordering
-            for name in names:
-                caught = SIEVES[name](row, comp_dir)
-                findings.extend(caught)
-                # The datum read against the requirement. A sieve that did not run at
-                # all is ABSENT from this map rather than scored 0.0 — Akien refused a
-                # third value, and absence is what carries 'not applicable' without
-                # inventing one.
-                scores[name] = 0.0 if caught else 1.0
-        gradation[row["component"]] = scores
+    # The shake is the general half (cairn.base.nest, since 2026-08-07); what stays
+    # here is the tenant's convention — which sieve meets which subject, and how:
+    # SIEVES[name](row, comp_dir). Binary scores, absence-not-a-third-value, and the
+    # min() roll-up are the general side's contract now, stated at its berth.
+    shaken = base_nest.shake(
+        nest,
+        {row["component"]: row for row in rows},
+        lambda name, row: SIEVES[name](row, root / row["component"]),
+    )
     return {
         "inspector": "build_inspector",
         "scope": component or "whole-repo sweep",
         "components_inspected": len(rows),
         "sieves_run": sorted(SIEVES),
-        "nest": [{"band": b, "band_name": import_sieve.BAND_NAMES[b], "sieves": names}
+        "nest": [{"band": b, "band_name": base_nest.BAND_NAMES[b], "sieves": names}
                  for b, names in nest],
         # The vector Akien drew, one per component: [1.0, 1.0, 0.0, 1.0, 1.0] = 0.0.
-        # The roll-up is min() — one zero sinks the component — and it is deliberately
-        # NOT a mean: averaging would let a component buy its way past a real catch with
-        # a pile of passes, which is the whole reason the score is relative to the
-        # requirement rather than to the other sieves.
-        "gradation": gradation,
-        "component_scores": {c: (min(s.values()) if s else 1.0)
-                             for c, s in gradation.items()},
-        "findings": findings,
-        "clean": not findings,
+        "gradation": shaken["gradation"],
+        "component_scores": shaken["roll_up"],
+        "findings": shaken["findings"],
+        "clean": not shaken["findings"],
     }
 
 

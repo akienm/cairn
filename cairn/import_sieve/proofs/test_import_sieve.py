@@ -262,10 +262,9 @@ def test_an_empty_ladder_cannot_band_anything():
     assert set(r.values()) == {0}, r
 
 
-def test_a_nest_is_coarsest_first_and_omits_empty_bands():
-    n = sieve.nest({"a": 2, "b": 0, "c": 2, "d": 3})
-    assert [band for band, _ in n] == [0, 2, 3], n
-    assert n[1] == (2, ["a", "c"]), "within a band the order is sorted, never invented"
+# The assembly row (coarsest-first, empty bands omitted) MIGRATED to
+# cairn/base/proofs/test_nest.py on 2026-08-07 with the code it proves (ticket
+# banding-berths-at-the-general-level) — the proof berths beside the primitive.
 
 
 def test_the_real_inspector_separates_into_bands():
@@ -307,7 +306,6 @@ def _main() -> int:
         test_a_path_resolve_is_not_a_host_resolve,
         test_reach_is_transitive_through_an_in_module_helper,
         test_an_empty_ladder_cannot_band_anything,
-        test_a_nest_is_coarsest_first_and_omits_empty_bands,
         test_the_real_inspector_separates_into_bands,
     ]
     for check in checks:

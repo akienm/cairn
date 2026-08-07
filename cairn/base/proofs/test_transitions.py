@@ -927,9 +927,14 @@ def test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing()
             "a refused pickup must leave NO record (the same law as a refused crossing)"
 
 
-def test_the_standing_corpus_parses_with_no_phase():
-    """Every workflow string already journaled in class-space still parses, all phase=None —
-    the legacy grammar is a strict subset of the phased one, measured on the real fleet."""
+def test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons():
+    """Every workflow string already journaled in class-space still parses. The first
+    cut of this row (2026-08-07, same day as the ruling) asserted phase=None corpus-wide
+    — true for exactly as long as no post-ruling voyage had journaled, then red the
+    moment the first :waiting record landed, which is a pinned-snapshot defect, not a
+    catch. The INVARIANT is the grammar's, not the corpus's age: a phase, where present,
+    is one of the ruled two, and it sits on a SUMMONS — a rest or terminal cursor
+    claiming a pickup phase is the corruption this row actually guards against."""
     seen = 0
     for hist in _REPO_ROOT.rglob("history.json"):
         if ".git" in hist.parts:
@@ -944,8 +949,12 @@ def test_the_standing_corpus_parses_with_no_phase():
             w = rec.get("workflow") if isinstance(rec, dict) else None
             if not w:
                 continue
-            assert transitions.parse_workflow(w).phase is None, \
-                f"a pre-ruling record claims a phase it cannot have: {hist}: {w}"
+            wf = transitions.parse_workflow(w)
+            assert wf.phase in (None, "waiting", "in-process"), \
+                f"a phase outside the ruled two: {hist}: {w}"
+            if wf.phase is not None:
+                assert transitions.is_summons(wf.here), \
+                    f"a phase on a rest/terminal cursor: {hist}: {w}"
             seen += 1
     assert seen >= 100, f"the corpus walk found only {seen} strings — a vacuous green"
 
@@ -995,7 +1004,7 @@ def _main() -> int:
         test_pickup_advances_waiting_to_in_process_and_journals_the_actor,
         test_a_bare_summons_cursor_is_picked_up,
         test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing,
-        test_the_standing_corpus_parses_with_no_phase,
+        test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons,
     ]
     for check in checks:
         check()

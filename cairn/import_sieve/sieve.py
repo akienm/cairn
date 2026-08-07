@@ -62,24 +62,17 @@ class HollowScan(RuntimeError):
 # proximity?" The band is a characteristic of the KIND OF THING the sieve does, not
 # of where it is installed, which is what makes a sieve portable between nests.
 #
-# THE BOUNDARIES ARE WHERE THE FAILURE MODE CHANGES, not where the milliseconds do.
-# In-hand cannot fail environmentally. Local disk fails on absence. Correlated local
-# work fails on inconsistency. Off-box fails on UNAVAILABILITY, which nothing above it
-# can do — and that last boundary is the one that earns its keep, because an
-# unreachable host must never mask a local finding.
-#
-# A BAND SEQUENCES; IT NEVER FORBIDS. Akien's correction, 2026-08-06, after CC
-# proposed redding an off-box sieve on the ground that none exists today: there are
-# already two hosts (this box and Hex), and in TheIgors era four laptops each ran an
-# instance against local 3b/7b Ollama on ten-minute overnight timeouts. "will we do
-# that? I don't know. but we CAN." An empty band is empty, not closed.
+# THE VOCABULARY AND THE ASSEMBLY LEFT FOR THE GENERAL BERTH, 2026-08-07 (ruling
+# the-nest-is-block-general, ticket banding-berths-at-the-general-level): BAND_NAMES,
+# nest() and the shake live at cairn.base.nest now, with the boundaries-are-where-
+# the-failure-mode-changes reasoning beside them. What stays HERE is DERIVATION —
+# reach_of and the ladder — because how far an import looks is this component's own
+# domain. A tenant derives its reaches here, then assembles and shakes them there.
 #
 # WHY THIS IS NOT import_graph's JOB, measured 2026-08-06: the graph is MODULE-
 # granular and a sieve is a FUNCTION. inspector.py imports pathlib once and holds
 # eighteen checks with different reaches. So the function-level walk sits on top of
 # the graph rather than beside it.
-
-BAND_NAMES = {0: "in-hand", 1: "local-disk", 2: "correlated-local", 3: "off-box"}
 
 # The ladder is DATA and it is a first cut (2026-08-06), not a settled taxonomy: it
 # was derived from the eighteen checks that existed on the day, and the sorting pass
@@ -184,23 +177,6 @@ def reach_of(source: str, ladder: dict | None = None) -> dict[str, int]:
         return band
 
     return {name: walk(name, frozenset()) for name in funcs}
-
-
-def nest(reaches: dict[str, int]) -> list[tuple[int, list[str]]]:
-    """The reaches, assembled coarsest-first: [(band, [names]), ...].
-
-    A nest is coarse mesh on top and is shaken ONCE — the word forbids firing one
-    sieve, reading it, and re-firing, before any proof looks at it. Within a band the
-    order genuinely does not matter, which is what lets a band be shaken at once;
-    ONLY the bands are ordered, and nothing here invents an order inside one.
-
-    Empty bands are omitted rather than reported as empty groups: the assembly is what
-    exists, and a band with no sieves in it is not a step in the shake.
-    """
-    grouped: dict[int, list[str]] = {}
-    for name, band in reaches.items():
-        grouped.setdefault(band, []).append(name)
-    return [(b, sorted(grouped[b])) for b in sorted(grouped)]
 
 
 def _walk_py(root: str):

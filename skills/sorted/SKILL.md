@@ -54,8 +54,9 @@ nobody.
   every class: it gets **proved** and it **feeds back to origin on failure** (Laws
   3 + 8). Variable per class: which gate, which check-type.
 - **watchme** — **BY DEFAULT, CAST ONE.** How will we know this intention actually
-  *worked*? Either the five-field spec (matching the `WATCHME(<object>)` in the
-  workflow string):
+  *worked*? Either the full spec the emission gate reads (matching the
+  `WATCHME(<object>)` in the workflow string — the door fires the gate's own
+  `watchme_spec_error`, so passing the door is passing the gate):
 
       "watchme": {"object": "<the same object named in the string>",
                   "trigger":  "when does it fire",
@@ -63,7 +64,9 @@ nobody.
                   "carrier":  "what rides back (default: a verdict artifact
                                against THIS ticket's falsifier)",
                   "nexus":    "which tree/target it teaches",
-                  "consumer": "who reads it"}
+                  "consumer": "who reads it",
+                  "probe":    "<berth path — where the probe module will live;
+                               the gate resolves ARMED from this path>"}
 
   or `"none, because <X>"` — and the reason must carry a **resolvable referent**
   (a path on disk, a cast ticket id, a roster command): a plausible sentence

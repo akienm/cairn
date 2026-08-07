@@ -10,11 +10,12 @@ other half: the SEMANTIC judges the flat {field: why} shape cannot express —
 - the workflow string must PARSE and CONFORM to the class's registered version, with
   its cursor still at the cast (a drifted string refused here costs one fix; the same
   string refused at its first crossing costs a dead voyage);
-- the watchme spec must carry all five fields, agree with the workflow's own
-  ``WATCHME(<object>)``, or take the named exemption with a JUDGEABLE reason — one
-  carrying at least one resolvable referent (a path on disk, a cast ticket id, a
-  roster command). 'none, because <one plausible sentence>' is the measured hollow
-  pass this door exists to stop;
+- the watchme spec is judged by THE EMISSION GATE'S OWN RULE
+  (``cairn.base.watchme_spec.watchme_spec_error`` — the five fields plus the probe
+  berth, joined to the workflow's own ``WATCHME(<object>)``), or takes the named
+  exemption with a JUDGEABLE reason — one carrying at least one resolvable referent
+  (a path on disk, a cast ticket id, a roster command). 'none, because <one plausible
+  sentence>' is the measured hollow pass this door exists to stop;
 - ``exit`` and ``disposition`` must cohere, so the seam's two-exit vocabulary never
   flattens /sorted's three real outcomes.
 
@@ -51,6 +52,11 @@ from cairn.base.transitions import (                  # noqa: E402
     load_class_def,
     parse_workflow,
 )
+from cairn.base.watchme_spec import (                 # noqa: E402
+    BERTH_FIELD,
+    REQUIRED_FIELDS,
+    watchme_spec_error,
+)
 from cairn.build_inspector.inspector import reason_has_referent  # noqa: E402
 from cairn.learning_block.learning_block import (     # noqa: E402
     DoorRefused,
@@ -61,8 +67,6 @@ from cairn.skill_block import skill_block as sb       # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _EXEMPT_RE = re.compile(r"^none,\s*because\s+", re.IGNORECASE)
-_WATCHME_RE = re.compile(r"WATCHME\(([^)]*)\)")
-_WATCHME_FIELDS = ("object", "trigger", "enough", "carrier", "consumer")
 
 # The cast fires at the resolution pivot, so the cursor is at or before the crossing
 # casting performs. A string arriving with its cursor already downstream is a record
@@ -117,58 +121,67 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
                                      "downstream records a voyage that never sailed"})
 
     watchme = payload.get("watchme")
-    summons = _WATCHME_RE.search(workflow) if isinstance(workflow, str) else None
     empty_watchme = (watchme is None or watchme == {} or
                      (isinstance(watchme, str) and not watchme.strip()))
     if empty_watchme:
         pass  # absence is the flat contract's lack; a second report would be a second door
-    elif not isinstance(watchme, (dict, str)):
+    elif not isinstance(watchme, (dict, list, str)):
         lacks.append({"field": "watchme",
                       "why": f"carries a {type(watchme).__name__} — the legal shapes are the "
-                             "five-field object or the exemption string 'none, because <X>'"})
-    elif isinstance(watchme, dict):
-        missing = [f for f in _WATCHME_FIELDS if not str(watchme.get(f) or "").strip()]
-        if missing:
-            lacks.append({"field": "watchme",
-                          "why": "spec is missing " + ", ".join(missing) + " — five fields or "
-                                 "the named exemption; a partial spec is a watch nobody can arm"})
-        if summons and str(watchme.get("object", "")).strip() and \
-                watchme["object"].strip() != summons.group(1).strip():
-            lacks.append({"field": "watchme",
-                          "why": f"spec watches {watchme.get('object')!r} but the workflow "
-                                 f"summons WATCHME({summons.group(1)}) — the emission gate "
-                                 "reads the spec BY the summons object; they must agree"})
-        if not summons and wf is not None:
-            lacks.append({"field": "watchme",
-                          "why": "a five-field spec with no WATCHME(<object>) in the workflow "
-                                 "is a watch no crossing will ever demand — carry the summons "
-                                 "or take the named exemption"})
-    elif isinstance(watchme, str) and watchme.strip():
-        m = _EXEMPT_RE.match(watchme.strip())
-        if not m:
-            lacks.append({"field": "watchme",
-                          "why": "a string watchme must be the named exemption "
-                                 "'none, because <X>' — anything else is silence with "
-                                 "extra words"})
+                             "spec object (or a list of them, one per watch) or the "
+                             "exemption string 'none, because <X>'"})
+    else:
+        # THE GATE'S OWN RULE, NOT A COPY OF IT. Measured 2026-08-05, n=2 in one
+        # session: this door held a private five-field list, passed two casts clean,
+        # and the emission gate's corpus proof redded both minutes later for the probe
+        # berth the door never asked for. A check weaker than the claim it certifies
+        # prints a seal on packets the gate will refuse — so the judgment here IS
+        # watchme_spec_error, the code the gate runs, and the two cannot disagree
+        # again. The join, the field floor, the berth, orphan specs and the
+        # exemption-under-summons case all live in that one implementation.
+        err = None
+        if wf is not None:
+            err = watchme_spec_error({"state": workflow, "watchme": watchme})
+            if err:
+                lacks.append({"field": "watchme", "why": err})
         else:
-            reason = watchme.strip()[m.end():].strip()
-            if not reason:
+            # No parseable workflow to join against, so the gate rule cannot attach;
+            # the workflow's own lack is already named above. What CAN still be said
+            # in the same pass is the field floor, from the gate's own constants.
+            specs = watchme if isinstance(watchme, list) else [watchme]
+            for spec in (s for s in specs if isinstance(s, dict)):
+                missing = [f for f in ("object", *REQUIRED_FIELDS, BERTH_FIELD)
+                           if not (isinstance(spec.get(f), str) and spec[f].strip())]
+                if missing:
+                    lacks.append({"field": "watchme",
+                                  "why": "spec is missing " + ", ".join(missing) +
+                                         " — the gate reads five fields plus the probe "
+                                         "berth; a partial spec is a watch nobody can arm"})
+        # The shape and referent judgments below are the door's own floor on an
+        # exemption; when the gate rule already faulted the field, its refusal names
+        # the fix and a second entry would be two doors disagreeing about one lack.
+        if isinstance(watchme, str) and not err:
+            m = _EXEMPT_RE.match(watchme.strip())
+            if not m:
                 lacks.append({"field": "watchme",
-                              "why": "exemption with no reason after 'none, because' — "
-                                     "silence with a prefix on it"})
-            elif not reason_has_referent(reason, repo=repo or _REPO,
-                                         commons=commons or _COMMONS):
-                lacks.append({"field": "watchme",
-                              "why": "exemption reason points at nothing checkable — it must "
-                                     "carry at least one resolvable referent: a path on disk, "
-                                     "a cast ticket id, or a roster command (bin/cmd/<name>). "
-                                     "A plausible sentence a later reader cannot go verify is "
-                                     "the hollow pass this door was built against"})
-            if summons:
-                lacks.append({"field": "watchme",
-                              "why": f"the workflow summons WATCHME({summons.group(1)}) but the "
-                                     "spec is the exemption — a carried summons is mandatory to "
-                                     "satisfy; drop it from the string or write the five fields"})
+                              "why": "a string watchme must be the named exemption "
+                                     "'none, because <X>' — anything else is silence with "
+                                     "extra words"})
+            else:
+                reason = watchme.strip()[m.end():].strip()
+                if not reason:
+                    lacks.append({"field": "watchme",
+                                  "why": "exemption with no reason after 'none, because' — "
+                                         "silence with a prefix on it"})
+                elif not reason_has_referent(reason, repo=repo or _REPO,
+                                             commons=commons or _COMMONS):
+                    lacks.append({"field": "watchme",
+                                  "why": "exemption reason points at nothing checkable — it "
+                                         "must carry at least one resolvable referent: a path "
+                                         "on disk, a cast ticket id, or a roster command "
+                                         "(bin/cmd/<name>). A plausible sentence a later "
+                                         "reader cannot go verify is the hollow pass this "
+                                         "door was built against"})
 
     exit_value = payload.get("exit")
     disposition = payload.get("disposition")

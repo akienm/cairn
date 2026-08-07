@@ -70,7 +70,8 @@ def main() -> int:
             "gates_bound": {"prove_gate": "proof beside the code, sealed under the tester"},
             "watchme": {"object": "door-health", "trigger": "every firing",
                         "enough": "one real refusal and one recovery", "carrier": "a verdict artifact",
-                        "consumer": "Akien"},
+                        "nexus": "the sorted-door trace", "consumer": "Akien",
+                        "probe": "skills/sorted/proofs/door_health_probe.py"},
             "children": "none, because the node is a leaf (see real-ticket)",
             "exit": "routed_forward",
             "disposition": "cast",
@@ -135,6 +136,29 @@ def main() -> int:
             ok("summons/spec disagreement refused", False)
         except DoorRefused as exc:
             ok("summons/spec disagreement refused", "watchme" in fields_of(exc))
+
+        # 7b-7c. THE MEASURED FAILURE, REPLAYED (2026-08-05, n=2 in one session): the
+        # door held a private five-field list, passed two casts clean, and the emission
+        # gate's corpus proof redded both minutes later. The door's judgment is now the
+        # gate's own watchme_spec_error, so the exact packets that sailed must refuse —
+        # naming the berth field the old list never asked for, in the same pass.
+        no_probe = dict(GOOD, watchme={k: v for k, v in GOOD["watchme"].items()
+                                       if k != "probe"})
+        try:
+            door.fire(no_probe, **roots)
+            ok("five-field spec with no probe berth refused", False,
+               "the n=2 escape sailed again")
+        except DoorRefused as exc:
+            ok("five-field spec with no probe berth refused",
+               "probe" in whys_of(exc, "watchme"), whys_of(exc, "watchme"))
+        no_nexus = dict(GOOD, watchme={k: v for k, v in GOOD["watchme"].items()
+                                       if k != "nexus"})
+        try:
+            door.fire(no_nexus, **roots)
+            ok("spec missing nexus refused", False, "the second forgotten field sailed")
+        except DoorRefused as exc:
+            ok("spec missing nexus refused",
+               "nexus" in whys_of(exc, "watchme"), whys_of(exc, "watchme"))
 
         # 8. exemption while the workflow carries the summons refused
         exempt_with_summons = dict(GOOD, watchme="none, because real-ticket carries it")

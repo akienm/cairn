@@ -1630,6 +1630,52 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
         for item in unanswered(artifact)]
 
 
+# The mesh, verbatim from the component's own proof-time seat (inference_domain/proofs/
+# test_host.py) — one rule, two moments. OUTBOUND ONLY, matched on the full dotted name:
+# a module that can DIAL is a potential door; one that can only LISTEN is not.
+# ``only`` is relative to the inspection root (the cairn package dir), not the repo.
+_SOLE_PATH = {
+    "kind": "sole_path",
+    "capability": "the inference host",
+    "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
+                "aiohttp", "socket", "ftplib", "telnetlib"),
+    "only": "inference_domain/",
+}
+
+
+def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
+    """A component other than inference_domain imports a module that can DIAL.
+
+    Provenance: ruling 2026-08-08-inference-proxy-is-a-rules-stack, item 1, verbatim: "ALL
+    CALLS GO THRU INFERENCY PROXY ... NO OTHER REACHING FOR INFERENCE VIA ANY OTHER
+    MECHANISM IS ALLOWED. THAT NEEDS TO BE IN THE BUILD INSPECTION." The mesh predates the
+    ruling — inference_domain/proofs/test_host.py shakes the same rule over the whole REPO
+    (floor 20) at that component's proof time; this seat is the same rule at the OTHER
+    moment: every component, every inspection (the ruling's words, made a roster fact).
+
+    Scope: this sieve judges the component tree under the inspection root; the repo-wide
+    sweep (skills/, bin/) stays with the proof-time mesh. The graph is re-walked per firing
+    rather than cached — a cache keyed by root would go stale between a proof's seeded
+    fixtures (measured while building the seeded tooth, not guessed). Known residue
+    (CLAUDE.md): a subprocess that dials and a dynamic import are invisible to both seats
+    — that IOU stays named, not closed here.
+    """
+    graph = import_sieve.import_graph(str(comp_dir.parent))
+    prefix = row["component"] + os.sep
+    findings = []
+    for caught in import_sieve.catches(graph, _SOLE_PATH, floor=1):
+        path = caught.split(" imports ", 1)[0]
+        if not path.startswith(prefix):
+            continue          # another component's door reds THAT component's row
+        findings.append(_finding(
+            "sole_path_holds", row["component"],
+            caught,
+            {"rule": {k: v for k, v in _SOLE_PATH.items()}, "file": str(comp_dir.parent / path)},
+            "Ruling 2026-08-08 item 1 / Law 6: the proxy alone reaches inference hosts; "
+            "a second importer is a second door, and this seat makes it a build-time red."))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -1649,6 +1695,7 @@ SIEVES = {
     "hypothesize_falsifiable_measured": hypothesize_falsifiable_measured,
     "validate_measures_done": validate_measures_done,
     "validate_covers_the_build": validate_covers_the_build,
+    "sole_path_holds": sole_path_holds,
 }
 
 

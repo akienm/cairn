@@ -3,8 +3,10 @@
 The domain's ``resolve(request, resolver=...)`` takes the host client as an injected seam. This
 module is that seam filled in: an ollama-backed ``resolver`` callable, living HERE and nowhere
 else (charter filed edge (b); CLAUDE.md's "the inference host is reached only through
-inference_domain"). Sole path by construction today; the tester import-scan that makes it
-physics is still the IOU it always was, and this module does not pretend otherwise.
+inference_domain"). Sole path is PHYSICS at two moments now, one rule both times: proof-time,
+the repo-wide import-sieve mesh in ``proofs/test_host.py``; build-time, the ``sole_path_holds``
+sieve in build_inspector's roster (ruling 2026-08-08, item 1: "THAT NEEDS TO BE IN THE BUILD
+INSPECTION"). The subprocess/dynamic-import residue stays a named IOU in CLAUDE.md.
 
 Why it exists: ``yield_report()`` is the measuring instrument for Telos 1 — tokens SPENT on
 misses against tokens AVOIDED by hits. Until now it metered a stub resolver, so the compile-once
@@ -48,10 +50,11 @@ import json
 import urllib.error
 import urllib.request
 
-# Instance-space by nature (an endpoint is a fact about a machine, not about the code). One
-# default constant is honest while there is exactly one host; when a second appears this reads
-# from ~/.cairn/ and becomes a filed edge rather than a literal. Not built ahead of the need.
-DEFAULT_ENDPOINT = "http://127.0.0.1:11434"
+# The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
+# read from ~/.cairn/inference/hosts.json through route.py's overlay, and the default-built
+# resolver ROUTES through the rules stacks instead of dialing a literal (ruling
+# 2026-08-08-inference-proxy-is-a-rules-stack). There is no default endpoint constant to
+# fall back to on purpose — a literal that survives "just in case" is the defect returning.
 DEFAULT_TIMEOUT = 120.0
 
 # The counters a metered response must carry at least one of. Named here so the refusal below
@@ -133,7 +136,7 @@ def _urllib_get(url: str, timeout: float) -> tuple[int, bytes]:
         raise HostUnreachable(f"inference host unreachable at {url}: {e}") from e
 
 
-def installed_models(*, endpoint: str = DEFAULT_ENDPOINT, timeout: float = 10.0,
+def installed_models(*, endpoint: str, timeout: float = 10.0,
                      get=None) -> dict[str, str]:
     """``{model_name: digest}`` as the host reports it — the evidence a falsifier is checked against.
 
@@ -180,13 +183,23 @@ def digest_falsifier(model: str, digest: str) -> str:
 def ollama_resolver(
     *,
     model: str,
-    endpoint: str = DEFAULT_ENDPOINT,
+    endpoint: str | None = None,
     timeout: float = DEFAULT_TIMEOUT,
     transport=None,
     get=None,
     temperature: float = 0.0,
+    stacks: dict | None = None,
+    overlay: dict | None = None,
 ):
     """Build the ``resolver`` callable ``domain.resolve`` injects — the host, behind one seam.
+
+    WITH NO ``endpoint``, THE RESOLVER ROUTES (the default every live caller uses): each call
+    shakes route.py's nest over the authored stacks and dials the surviving combos cheapest
+    first — usually Hex — walking to the next survivor on ``HostUnreachable`` and refusing
+    loudly when the walk exhausts. The four bare call sites (librarian x3,
+    intention_extractor x1) got the ruled routing through this default with zero edits.
+    An EXPLICIT ``endpoint`` pins one host and skips the stacks — the proofs' seam, and the
+    routed walk's own inner rungs.
 
     The request it accepts::
 
@@ -198,8 +211,12 @@ def ollama_resolver(
     intent is how a request for a vector comes back as prose (a silent wrong answer).
 
     Returns ``{"answer", "cost", "falsifier", "horizon", "provenance"}`` — the contract
-    ``resolve`` documents, with ``cost`` in real tokens.
+    ``resolve`` documents, with ``cost`` in real tokens; a routed answer's provenance also
+    names the ``provider`` the nest chose and, if the walk fell over, the rungs it walked.
     """
+    if endpoint is None:
+        return _routed_resolver(model=model, timeout=timeout, transport=transport, get=get,
+                                temperature=temperature, stacks=stacks, overlay=overlay)
     send = transport or _urllib_transport
     digests: dict[str, str] = {}
 
@@ -266,5 +283,60 @@ def ollama_resolver(
                 "counters": {k: body[k] for k in _COUNTERS if k in body},
             },
         }
+
+    return resolver
+
+
+def _routed_resolver(*, model: str, timeout: float, transport, get, temperature: float,
+                     stacks: dict | None, overlay: dict | None):
+    """The routed walk: the nest decides WHO may be dialed, the walk discovers who ANSWERS.
+
+    Per call: shake the nest for this request's kind and model, then dial survivors cheapest
+    first through the single-endpoint resolver above. ``HostUnreachable`` walks to the next
+    rung; every other error is the HOST'S answer and is carried through loud (a refusal from
+    a host that answered is not a routing problem, and retrying it elsewhere would hand back
+    a different model's answer under the same cache key). A survivor whose protocol has no
+    transport yet (gemini, until its key lands and the transport is built) is noted and
+    walked past — listed, refusing, never silently dialed with the wrong protocol.
+    """
+    from cairn.inference_domain import route as route_mod  # late: keeps the import edge one-way
+
+    inners: dict[str, object] = {}
+
+    def _inner(rung_endpoint: str):
+        if rung_endpoint not in inners:
+            inners[rung_endpoint] = ollama_resolver(
+                model=model, endpoint=rung_endpoint, timeout=timeout,
+                transport=transport, get=get, temperature=temperature)
+        return inners[rung_endpoint]
+
+    def resolver(request: dict) -> dict:
+        if not isinstance(request, dict):
+            raise BadRequest(f"request must be a dict, got {type(request).__name__}")
+        kind = request.get("kind")
+        if kind not in ("generate", "embed"):
+            raise BadRequest(
+                f"unknown request kind {kind!r} — this resolver sends 'generate' or 'embed'. "
+                "Guessing would answer a different question than the one asked.")
+        plan = route_mod.route(kind, request.get("model") or model,
+                               stacks=stacks, overlay=overlay)
+        walked: list[str] = []
+        for rung in plan["survivors"]:
+            if rung["protocol"] != "ollama":
+                walked.append(f"{rung['provider']}: no transport for protocol "
+                              f"{rung['protocol']!r} yet — grows when the rung goes live")
+                continue
+            try:
+                out = _inner(rung["endpoint"])(request)
+            except HostUnreachable as e:
+                walked.append(f"{rung['provider']} ({rung['endpoint']}): {e}")
+                continue
+            out["provenance"]["provider"] = rung["provider"]
+            if walked:
+                out["provenance"]["route_walked"] = walked
+            return out
+        raise HostUnreachable(
+            "every routed rung failed for this call — walked, in cost order: "
+            + "; ".join(walked))
 
     return resolver

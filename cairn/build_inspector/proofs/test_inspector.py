@@ -701,6 +701,29 @@ def main() -> None:
     finally:
         _insp._CHART_BERTHS = saved_berths
 
+    # ── the sole path (2026-08-08, ruling the-inference-proxy-is-a-rules-stack,
+    #    item 1: "THAT NEEDS TO BE IN THE BUILD INSPECTION") ─────────────────
+    #
+    # DEFECT-FIRST: a component that grows a second door to the inference host. The
+    # healthy tree above already proved the sieve stays quiet (section 1 ran with it
+    # in the roster); without THIS tooth, that quiet is indistinguishable from a
+    # sieve made of solid sheet metal — the leak-scan-coin-toss-red lesson.
+    rogue = _component(root, "rogue")
+    (rogue / "dialer.py").write_text("import urllib.request\n")
+    f = inspect(root=root, component="rogue")["findings"]
+    assert [x["sieve"] for x in f] == ["sole_path_holds"], \
+        f"the planted dialer must red exactly sole_path_holds: {f}"
+    assert "dialer.py" in f[0]["finding"] and "SECOND door" in f[0]["finding"], f[0]
+    # the rogue's door reds the ROGUE's row alone — healthy keeps its clean.
+    assert inspect(root=root, component="healthy")["clean"], \
+        "another component's door must never red a clean component's row"
+    # and the mesh's own exemption: the same import INSIDE inference_domain is the
+    # sole path itself, not a second door.
+    dom = _component(root, "inference_domain")
+    (dom / "host.py").write_text("import urllib.request\n")
+    assert inspect(root=root, component="inference_domain")["clean"], \
+        "inference_domain IS the door — the mesh's 'only' must spare it"
+
     # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
     #
     # DEFECT-FIRST, and the defect is the one the derivation exists to prevent: a band

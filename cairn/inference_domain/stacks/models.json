@@ -1,0 +1,13 @@
+{
+  "_why": "Stack 2 of 4 (ruling 2026-08-08-inference-proxy-is-a-rules-stack): 'a stack for models. names, parameters, pros and cons, publish scores if any, etc.' Scores are authored-sparse at birth: absence is data (nobody looked one up yet), not a defect.",
+  "models": [
+    {"name": "qwen3-coder:30b", "parameters": "30B", "serves": ["generate"], "pros": "strongest coder on Hex", "cons": "slowest of the local set", "scores": null},
+    {"name": "deepseek-r1:32b", "parameters": "32B", "serves": ["generate"], "pros": "reasoning traces", "cons": "slow; verbose thinking tokens cost latency", "scores": null},
+    {"name": "devstral-small-2:24b", "parameters": "24B", "serves": ["generate"], "pros": "agentic/coding tuned", "cons": "mid-size latency", "scores": null},
+    {"name": "qwen2.5-coder:14b", "parameters": "14B", "serves": ["generate"], "pros": "fast coder", "cons": "weaker than the 30b on hard code", "scores": null},
+    {"name": "deepseek-r1:14b", "parameters": "14B", "serves": ["generate"], "pros": "cheaper reasoning", "cons": "weaker traces than the 32b", "scores": null},
+    {"name": "llama3.2:3b", "parameters": "3B", "serves": ["generate"], "pros": "fastest local generate (1.39s on Hex, measured 2026-08-08)", "cons": "small-model quality", "scores": null},
+    {"name": "qwen2.5:7b", "parameters": "7B", "serves": ["generate"], "pros": "the librarian's standing generate default", "cons": "~100s per generate on the loopback box's CPU (measured 2026-08-08)", "scores": null},
+    {"name": "nomic-embed-text", "parameters": "137M", "serves": ["embed"], "pros": "768-dim embeddings, verified metered on Hex after the 2026-08-08 pull", "cons": "embed only", "scores": null, "duty_bound": "Akien, verbatim, 2026-08-08: 'we can use nomic, but only to train graph trees learning words and bigrams. we want to be able to generate embeddings from those.' This stack routes nomic; it does not widen its duty."}
+  ]
+}

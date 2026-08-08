@@ -1,0 +1,56 @@
+{
+  "_why": "Stack 1 of 4 (ruling 2026-08-08-inference-proxy-is-a-rules-stack): 'a stack for providers, listing their costs, connection handling, etc.' Shareable RULES only — machine facts (this LAN's endpoints, API keys) live in ~/.cairn/inference/hosts.json, never in git. Costs are AUTHORED numbers and therefore a labeled hypothesis (Law 3): the horizon is the first measured divergence between this table and the meter already in domain.resolve's door.",
+  "cost_units": "cash_per_mtoken (USD per million tokens, authored first cut); measured latency is recorded as evidence beside it, not folded into the number",
+  "providers": [
+    {
+      "name": "hex",
+      "protocol": "ollama",
+      "connection": "ollama HTTP API (/api/generate, /api/embed) over the local LAN; endpoint from the instance overlay",
+      "cash_per_mtoken": 0.0,
+      "cost_note": "owned hardware (the Apple M1 Studio 32) — marginal cash per token is zero; the purchase price is metered separately by the Hex payback thread, which reads this domain's meter",
+      "needs_key": false,
+      "enabled": true,
+      "why": "the ruling: 'That's what the inference proxy should usually route to.' Measured 2026-08-08: generate 1.39s on llama3.2:3b, 8x faster than this box's CPU on its smallest model; ollama 0.30.11."
+    },
+    {
+      "name": "ollama-cloud",
+      "protocol": "ollama",
+      "connection": "ollama's hosted service, keyed; API surface to be confirmed against their docs when the key lands (ollama-protocol-with-key assumed)",
+      "cash_per_mtoken": 0.5,
+      "cost_note": "authored placeholder — no key, no measured calls; corrected from their price sheet the day the rung goes live",
+      "needs_key": true,
+      "enabled": true,
+      "why": "the ruling: first failover when Hex does not answer. Listed and loudly refusing until a key reaches ~/.cairn/inference/ — an unkeyed rung is dead, not invisible."
+    },
+    {
+      "name": "gemini",
+      "protocol": "gemini",
+      "connection": "Google Gemini API, keyed, distinct request shape (not ollama protocol) — the resolver grows a gemini transport when the key lands, not before",
+      "cash_per_mtoken": 0.7,
+      "cost_note": "authored placeholder — no key, no measured calls",
+      "needs_key": true,
+      "enabled": true,
+      "why": "the ruling: second failover, behind Ollama Cloud."
+    },
+    {
+      "name": "openrouter",
+      "connection": "openrouter.ai keyed API",
+      "cash_per_mtoken": null,
+      "cost_note": "not authored — a disabled rung gets no number to mislead with",
+      "needs_key": true,
+      "enabled": false,
+      "why": "Akien, verbatim, 2026-08-08: 'We have OpenRouter, but I shut it off because bugs kept sucking up all the cash. That's why we now have Hex.' Re-enabling is his act, not a build's."
+    },
+    {
+      "name": "loopback",
+      "protocol": "ollama",
+      "connection": "this box's own ollama at 127.0.0.1:11434 (endpoint from the instance overlay)",
+      "cash_per_mtoken": 0.0,
+      "cost_note": "cash-free but ruled out of routing regardless of cost — the rule is categorical, not economic",
+      "needs_key": false,
+      "enabled": true,
+      "never_route": true,
+      "why": "the ruling: 'the lowest cost answer is NEVER 127.0.0.1.' Measured 2026-08-08: ~100s per 7B generate on this CPU-only box (Intel CometLake-U GT2) — the lived symptom this stack exists to end. Listed so the rule is a row a sieve reads, not a comment; routable never, by the never_route sieve."
+    }
+  ]
+}

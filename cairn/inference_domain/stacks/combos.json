@@ -1,0 +1,18 @@
+{
+  "_why": "Stack 3 of 4 (ruling 2026-08-08-inference-proxy-is-a-rules-stack): 'a 3rd stack for the provider/model combinations and what the specifics are.' A combo is the routable unit: the nest sieves THESE rows, and a request routes only through a combo naming its provider and its model. Failover walks combos of the SAME requested model on other providers, cheapest surviving provider first — the resolver never substitutes a model on its own (the cache canonicalizes on the request, and an answer from a different model is a different answer).",
+  "combos": [
+    {"provider": "hex", "model": "qwen3-coder:30b", "specifics": "verified present on Hex 2026-08-08"},
+    {"provider": "hex", "model": "deepseek-r1:32b", "specifics": "verified present on Hex 2026-08-08"},
+    {"provider": "hex", "model": "devstral-small-2:24b", "specifics": "verified present on Hex 2026-08-08"},
+    {"provider": "hex", "model": "qwen2.5-coder:14b", "specifics": "verified present on Hex 2026-08-08"},
+    {"provider": "hex", "model": "deepseek-r1:14b", "specifics": "verified present on Hex 2026-08-08"},
+    {"provider": "hex", "model": "llama3.2:3b", "specifics": "verified present on Hex 2026-08-08; generate measured 1.39s"},
+    {"provider": "hex", "model": "qwen2.5:7b", "specifics": "pulled onto Hex 2026-08-08 under this build — the librarian's standing generate default gets its ruled road"},
+    {"provider": "hex", "model": "nomic-embed-text", "specifics": "pulled onto Hex 2026-08-08 under the ruling's nomic bound; embed verified 768-dim, metered"},
+    {"provider": "loopback", "model": "qwen2.5:7b", "specifics": "exists on this box; never routed (provider row's never_route) — listed so the record shows what the rule declines"},
+    {"provider": "loopback", "model": "nomic-embed-text", "specifics": "exists on this box; never routed"},
+    {"provider": "ollama-cloud", "model": "qwen2.5:7b", "specifics": "assumed available under the same tag on ollama's hosted service — UNVERIFIED until the rung is keyed; dead (unkeyed sieve) until then"},
+    {"provider": "ollama-cloud", "model": "nomic-embed-text", "specifics": "assumed available under the same tag — UNVERIFIED until keyed"},
+    {"provider": "gemini", "model": "gemini-2.5-flash", "specifics": "gemini's own model namespace does not carry local tags, so a request for a local model cannot fail over here without a model-mapping rule that does not exist yet — that mapping is the open edge this row carries, resolved the day the key lands; dead (unkeyed) until then"}
+  ]
+}

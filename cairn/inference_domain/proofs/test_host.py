@@ -85,8 +85,15 @@ class Transport:
         return 200, json.dumps(_TAGS).encode()
 
 
+# EXPLICIT endpoint everywhere in this file: since the routed default landed (2026-08-08), an
+# endpoint-less build takes the ROUTED path — real stacks, the real ~/.cairn overlay — which a
+# sealed proof must never read. The routed walk has its own teeth below, on injected fixtures.
+_FIXTURE_ENDPOINT = "http://fixture-host:11434"
+
+
 def _resolver(t, **kw):
-    return host.ollama_resolver(model="llama3.2:1b", transport=t.post, get=t.get, **kw)
+    return host.ollama_resolver(model="llama3.2:1b", endpoint=_FIXTURE_ENDPOINT,
+                                transport=t.post, get=t.get, **kw)
 
 
 def _refuses(fn, exc, because):
@@ -213,7 +220,8 @@ def test_the_hosts_own_error_message_is_carried_through_verbatim():
 def test_an_unreachable_host_raises_and_never_returns_an_empty_answer():
     def dead(url, body, timeout):
         raise host.HostUnreachable(f"nobody home at {url}")
-    r = host.ollama_resolver(model="m", transport=dead, get=lambda u, t: (200, b"{}"))
+    r = host.ollama_resolver(model="m", endpoint=_FIXTURE_ENDPOINT,
+                             transport=dead, get=lambda u, t: (200, b"{}"))
     _refuses(lambda: r({"kind": "generate", "prompt": "x"}), host.HostUnreachable,
              "an unreachable host must raise, never return a hollow answer that gets cached")
 
@@ -245,7 +253,7 @@ def test_the_falsifier_names_a_digest_a_machine_can_check():
     assert fals == host.digest_falsifier("llama3.2:1b", "baf6a787fdffd633537"), \
         f"the falsifier is not the checkable digest form: {fals!r}"
     # And it is answerable: the same read the falsifier implies, through the same seam.
-    assert host.installed_models(get=t.get)["llama3.2:1b"] in fals, \
+    assert host.installed_models(endpoint=_FIXTURE_ENDPOINT, get=t.get)["llama3.2:1b"] in fals, \
         "the falsifier cannot be evaluated against what the host reports — then it is prose"
     assert out["horizon"] == "", \
         "a temperature-0 answer does not rot with the clock; a time horizon here would be theatre"
@@ -268,7 +276,8 @@ def test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest(
     Silent degradation on the most common way to name a model — caught by reading the record the
     run actually wrote, which is the only place it was visible."""
     t = Transport(_REAL_EMBED)
-    out = host.ollama_resolver(model="nomic-embed-text", transport=t.post, get=t.get)(
+    out = host.ollama_resolver(model="nomic-embed-text", endpoint=_FIXTURE_ENDPOINT,
+                               transport=t.post, get=t.get)(
         {"kind": "embed", "prompt": "x"})
     assert out["falsifier"] == host.digest_falsifier("nomic-embed-text", "0a109f422b47e3a30ba"), \
         f"the implicit :latest tag lost the digest: {out['falsifier']!r}"
@@ -283,7 +292,8 @@ def test_a_falsifier_survives_an_unreadable_digest_and_says_so():
     """Degrading is allowed; degrading SILENTLY is not (Law 7)."""
     def no_tags(url, timeout):
         raise host.HostUnreachable("tags unavailable")
-    r = host.ollama_resolver(model="llama3.2:1b", transport=Transport(_REAL_GENERATE).post, get=no_tags)
+    r = host.ollama_resolver(model="llama3.2:1b", endpoint=_FIXTURE_ENDPOINT,
+                             transport=Transport(_REAL_GENERATE).post, get=no_tags)
     fals = r({"kind": "generate", "prompt": "x"})["falsifier"]
     assert "unread" in fals, f"an unread digest must be admitted in the falsifier, got {fals!r}"
 

@@ -20,8 +20,10 @@ summarizing when asked: the ``summarize:`` prefix), with the shim waking the dev
 first poke. The launcher wiring the FULL running heartbeat (all live devices) is still the
 filed instance-space edge. The ⚓ HARBOR view is disk-computed and real from a bare start.
 
-Start it:   python3 cairn/web_server/listener.py            # binds localhost:8787
+Start it:   python3 cairn/web_server/listener.py            # binds localhost:80
             python3 cairn/web_server/listener.py --port 9000
+(port 80 is privileged: the host-seam is net.ipv4.ip_unprivileged_port_start=80,
+ applied via /etc/sysctl.d/90-cairn-port80.conf — Akien's ruling 2026-08-08)
 Stop it:    Ctrl-C
 """
 
@@ -70,7 +72,7 @@ def _handler_for(device: WebServerDevice):
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="the Cairn web presentation surface (localhost)")
-    parser.add_argument("--port", type=int, default=8787)
+    parser.add_argument("--port", type=int, default=80)
     args = parser.parse_args(argv)
 
     # v0 wiring: the ground loop with the librarian's shim subscribed — the librarian rides the

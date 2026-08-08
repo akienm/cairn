@@ -48,7 +48,7 @@ class WebServerDevice(BaseDevice):
     device state — every render pulls live from the roster source and the target device's shim.
     """
 
-    def __init__(self, roster_source, *, harbor_source=None, port: int = 8787,
+    def __init__(self, roster_source, *, harbor_source=None, port: int = 80,
                  device_id: str = "web_server") -> None:
         super().__init__()
         self._roster_source = roster_source   # the ground_loop: owns roster() + the shims

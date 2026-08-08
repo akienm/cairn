@@ -212,8 +212,9 @@ class WebServerDevice(BaseDevice):
     def settings(self) -> dict:
         return {
             "port": self._port,
-            "bind": "localhost — single operator (Akien), v0; it exposes device internals and "
-            "(later) a kill switch, so it does not listen off-host",
+            "bind": "all interfaces — loopback + the box's LAN address (10.0.0.229), Akien's "
+            "ruling 2026-08-08; single operator on a home LAN, v0 — no auth yet, so the trust "
+            "boundary is the LAN itself",
             "owns": "no device state — a pure presentation surface (Law 7); content is each "
             "device's, reached through the heartbeat that holds it",
             "transport": "v0 reaches devices in-process through the ground_loop; the browser ⟷ HTTP "

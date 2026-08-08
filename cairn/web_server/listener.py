@@ -12,7 +12,7 @@ device that wants a face owns a PAGE this server displays: its shim declares the
 a port.
 
 Everything UNDER this wrapper — routing (``server.serve``) and pure rendering (``render.py``)
-— is proven green without a socket; only the LOCALHOST bind lives here, instance-space.
+— is proven green without a socket; only the socket bind lives here, instance-space.
 
 v0 wiring: a ground loop with the LIBRARIAN's shim subscribed — so /device/librarian carries
 the real conversation (learning always: every turn a core-loop crossing over the library tree;
@@ -20,10 +20,12 @@ summarizing when asked: the ``summarize:`` prefix), with the shim waking the dev
 first poke. The launcher wiring the FULL running heartbeat (all live devices) is still the
 filed instance-space edge. The ⚓ HARBOR view is disk-computed and real from a bare start.
 
-Start it:   python3 cairn/web_server/listener.py            # binds localhost:80
-            python3 cairn/web_server/listener.py --port 9000
+Start it:   python3 cairn/web_server/listener.py            # binds 0.0.0.0:80
+            python3 cairn/web_server/listener.py --port 9000 --bind 127.0.0.1
 (port 80 is privileged: the host-seam is net.ipv4.ip_unprivileged_port_start=80,
- applied via /etc/sysctl.d/90-cairn-port80.conf — Akien's ruling 2026-08-08)
+ applied via /etc/sysctl.d/90-cairn-port80.conf — Akien's ruling 2026-08-08.
+ The bind is all interfaces — loopback AND the box's LAN address answer with one
+ socket — Akien's ruling 2026-08-08: "it should answer on 10.0.0.229 too".)
 Stop it:    Ctrl-C
 """
 
@@ -71,8 +73,10 @@ def _handler_for(device: WebServerDevice):
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="the Cairn web presentation surface (localhost)")
+    parser = argparse.ArgumentParser(description="the Cairn web presentation surface")
     parser.add_argument("--port", type=int, default=80)
+    parser.add_argument("--bind", default="0.0.0.0",
+                        help="address to bind (default: all interfaces — loopback + LAN)")
     args = parser.parse_args(argv)
 
     # v0 wiring: the ground loop with the librarian's shim subscribed — the librarian rides the
@@ -82,8 +86,8 @@ def main(argv=None) -> int:
     heartbeat = GroundLoopDevice()
     heartbeat.subscribe(LibrarianShim())
     device = WebServerDevice(heartbeat, harbor_source=voyage.traffic_image, port=args.port)
-    httpd = ThreadingHTTPServer(("127.0.0.1", args.port), _handler_for(device))
-    print(f"[web_server] serving on http://127.0.0.1:{args.port}  (Ctrl-C to stop)", flush=True)
+    httpd = ThreadingHTTPServer((args.bind, args.port), _handler_for(device))
+    print(f"[web_server] serving on http://{args.bind}:{args.port}  (Ctrl-C to stop)", flush=True)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

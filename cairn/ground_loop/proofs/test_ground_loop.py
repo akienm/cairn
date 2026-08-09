@@ -212,6 +212,128 @@ def test_it_is_a_device():
     assert list(gl.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
 
 
+# --- the liveness record (ticket ground-loop-writes-its-own-liveness) ----------
+# The loop, while actually running, writes a record in its own device space on
+# each pass — last-run, state, pid — atomically; the read face answers LIVE/DEAD
+# at the ruled 5s threshold. All teeth run against an INJECTED scratch home and
+# injected nows: nothing here touches ~/.cairn or a wall clock.
+
+import json as _json
+import os as _os
+import tempfile as _tempfile
+import threading as _threading
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+
+from cairn.ground_loop.liveness import (
+    RECORD_NAME, STALENESS_THRESHOLD_S, read_liveness, write_liveness,
+)
+
+_T0 = _dt(2026, 8, 9, 12, 0, 0, tzinfo=_tz.utc)
+
+
+def test_the_stamp_advances_across_beats_and_pid_and_state_ride():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        gl = GroundLoopDevice(liveness_home=home)
+        gl.subscribe(_Shim("rider"))
+
+        gl.beat(now=_T0)
+        first = read_liveness(_T0, home=home)
+        assert first["verdict"] == "LIVE" and first["age_s"] == 0.0
+        assert first["record"]["last_run"] == _T0.isoformat(), \
+            "last-run is THIS beat's injected now — the write is part of the pass"
+
+        t1 = _T0 + _td(seconds=1)
+        gl.beat(now=t1)
+        second = read_liveness(t1, home=home)
+        assert second["record"]["last_run"] == t1.isoformat(), \
+            "the stamp ADVANCES while the loop runs — the falsifier's first clause"
+        assert second["record"]["pid"] == _os.getpid(), "the pid rides the record"
+        assert second["record"]["state"]["beats"] == 2 and \
+            second["record"]["state"]["subscribers"] == ["rider"], \
+            "the state riding the record is the device's own state() surface, post-pass"
+
+
+def test_the_instance_dir_is_born_on_first_write():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "devices" / "ground_loop" / "0"   # does not exist yet
+        assert not home.exists()
+        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        assert (home / RECORD_NAME).exists(), \
+            "the device space is born with its first record — no separate mkdir step to forget"
+
+
+def test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        # Absent — never ran — is a DEAD verdict with the lack named, not an exception.
+        gone = read_liveness(_T0, home=home)
+        assert gone["verdict"] == "DEAD" and gone["record"] is None and "lack" in gone
+
+        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        fresh = read_liveness(_T0 + _td(seconds=3), home=home)
+        assert fresh["verdict"] == "LIVE" and fresh["age_s"] == 3.0, \
+            "within the ruled threshold → LIVE (a second loop must NOT start over a live one)"
+        stale = read_liveness(_T0 + _td(seconds=STALENESS_THRESHOLD_S + 1), home=home)
+        assert stale["verdict"] == "DEAD", \
+            "past the ruled threshold → DEAD, whatever the file says — the crashed loop " \
+            "leaves the file behind but stops advancing the stamp; that is the whole detector"
+        assert stale["record"]["pid"] == _os.getpid(), \
+            "the record returns WHOLE beside the DEAD verdict — the reader sees what the corpse said"
+
+        # Garbage at the read path is DEAD with the lack named, never a raise.
+        (home / RECORD_NAME).write_text("{torn")
+        torn = read_liveness(_T0, home=home)
+        assert torn["verdict"] == "DEAD" and "lack" in torn
+
+
+def test_a_reader_never_sees_a_torn_record():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        write_liveness(_T0, {"beats": 1}, 111, home)
+
+        # A writer that dies MID-WRITE (before the rename) leaves the OLD record whole:
+        # the temp never stands at the read path, so there is no torn state to see.
+        real_replace = _os.replace
+        def _crash(src, dst):
+            raise OSError("simulated crash between temp-write and rename")
+        _os.replace = _crash
+        try:
+            try:
+                write_liveness(_T0 + _td(seconds=1), {"beats": 2}, 222, home)
+                raise AssertionError("the simulated crash must surface loudly (Law 7)")
+            except OSError:
+                pass
+        finally:
+            _os.replace = real_replace
+        survivor = _json.loads((home / RECORD_NAME).read_text())
+        assert survivor["pid"] == 111, "the interrupted write left the OLD record intact, whole"
+        assert [p.name for p in home.iterdir()] == [RECORD_NAME], \
+            "no temp debris stands beside the record — the failed write cleaned itself"
+
+        # And under a live hammer — one thread writing, this thread reading — every
+        # read parses: old or new, never partial (os.replace is atomic on one fs).
+        def _hammer():
+            for i in range(200):
+                write_liveness(_T0 + _td(seconds=i), {"beats": i}, _os.getpid(), home)
+        w = _threading.Thread(target=_hammer)
+        w.start()
+        while w.is_alive():
+            _json.loads((home / RECORD_NAME).read_text())   # a torn record raises here
+        w.join()
+        _json.loads((home / RECORD_NAME).read_text())
+
+
+def test_a_homeless_device_writes_nothing():
+    # Constructed without a liveness home, the device is an anonymous in-process
+    # heartbeat: beat() attempts NO write — proven by beating with a string now,
+    # which any write path would choke on (str has no isoformat), exactly as every
+    # pre-existing tooth in this file already beats.
+    gl = GroundLoopDevice()
+    gl.beat(now="t0")
+    assert gl._liveness_home is None
+
+
 def _main() -> int:
     for check in (test_a_beat_pulses_every_shim_in_order,
                   test_the_firing_is_the_shims_not_the_heartbeats,
@@ -220,7 +342,12 @@ def _main() -> int:
                   test_the_executor_goof_is_gone,
                   test_the_roster_is_the_nav_published_at_all_times,
                   test_the_crossings_are_no_longer_silent,
-                  test_it_is_a_device):
+                  test_it_is_a_device,
+                  test_the_stamp_advances_across_beats_and_pid_and_state_ride,
+                  test_the_instance_dir_is_born_on_first_write,
+                  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn,
+                  test_a_reader_never_sees_a_torn_record,
+                  test_a_homeless_device_writes_nothing):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — ground_loop: the heartbeat beats and pulses subscribed shims (in order, "

@@ -30,23 +30,34 @@ FILED EDGES (children of this stone, not faked):
     shim in-process via ``subscribe(shim)``; discovering subscribers by scanning device code
     trees for a probe-declaration file grows when devices are separate OS processes and the
     heartbeat cannot hold in-process references to them.
-  - The wall-clock DAEMON that pulses ``beat`` on a cadence — the OS-specific backing, a thin
-    wrapper this stays provable without.
+  - (retired 2026-08-09, ticket ground-loop-writes-its-own-liveness) The wall-clock DAEMON
+    that pulses ``beat`` on a cadence now exists as ``__main__.py`` (python3 -m
+    cairn.ground_loop) — still the thin wrapper this file stays provable without.
 """
 
 from __future__ import annotations
 
+import os
+
 from cairn.base.device import BaseDevice
+from cairn.ground_loop.liveness import write_liveness
 
 
 class GroundLoopDevice(BaseDevice):
     """The heartbeat as a device (carries CP1-CP6; reports intention/state/settings). Its one
     capability is ``beat`` — pulse every subscribed shim once. It holds no method registry, no
-    DB connection, no execution: firing lives in the shims it pulses."""
+    DB connection, no execution: firing lives in the shims it pulses.
 
-    def __init__(self, device_id: str = "ground_loop") -> None:
+    ``liveness_home`` is construction-time IDENTITY, not a per-beat concern: the resident
+    loop (instance 0) is constructed with its instance dir and every beat touches its
+    liveness record there (ticket ground-loop-writes-its-own-liveness — the write is part
+    of the pass). Constructed without one, the device is an anonymous in-process heartbeat
+    — no device space, no record — which is what every pure-physics proof builds."""
+
+    def __init__(self, device_id: str = "ground_loop", liveness_home=None) -> None:
         super().__init__()
         self._device_id = device_id
+        self._liveness_home = liveness_home
         self._shims: list = []          # the subscribed shims, pulsed in subscription order
         self._beats = 0
         self._last_beat: dict | None = None
@@ -142,6 +153,15 @@ class GroundLoopDevice(BaseDevice):
         }
         self._beats += 1
         self._last_beat = record
+        # THE LIVENESS TOUCH (ticket ground-loop-writes-its-own-liveness): a beat IS a
+        # touch — last-run is THIS beat's injected now, state is the device's own state()
+        # surface after the pass, pid is this process. Atomic, in the loop's own device
+        # space, only when the device HAS one (see __init__). A failed write raises loudly:
+        # a shim failing cannot stop the beat, but the loop failing to write its own record
+        # is the loop's own fault, and swallowing it would leave a stale stamp lying about
+        # a loop that thinks it is running (Law 7 at a record of truth).
+        if self._liveness_home is not None:
+            write_liveness(now, self.state(), os.getpid(), self._liveness_home)
         return record
 
     # --- Form v0 #2 surface -------------------------------------------------
@@ -170,7 +190,12 @@ class GroundLoopDevice(BaseDevice):
             "does_not": "execute, resolve, schedule, route, or write — firing lives in the shim; "
             "durable state lives in db_domain, reached by the devices the shim wakes",
             "cadence": "none here — beat takes 'now' explicitly, so the pulse is provable without a "
-            "clock; the OS timer/daemon that calls beat on a real cadence is a filed thin wrapper",
+            "clock; the wall-clock backing is __main__.py (python3 -m cairn.ground_loop), the thin "
+            "wrapper that beats once per second (ruled 2026-07-30)",
+            "liveness": "constructed with its instance home (the runner does), every beat writes "
+            "~/.cairn/devices/ground_loop/0/liveness.json atomically — last-run, state, pid; the "
+            "read face liveness.read_liveness answers LIVE/DEAD at the ruled 5s threshold (Law 6: "
+            "liveness is this device's owned fact, read, never scanned from the process table)",
             "subscription": "in-process via subscribe(shim); file-in-the-device's-tree discovery is "
             "a filed edge for when devices are separate OS processes",
             "roster": "publishes roster() at all times — the devices it beats to, each with live "

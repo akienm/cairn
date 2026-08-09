@@ -33,5 +33,55 @@
     "kin": "CairnCommons/troubles/silent-devices-2026-07-27.json",
     "at": "2026-07-27T15:22:31",
     "seq": 4
+  },
+  {
+    "from": "THINKME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "forward",
+    "ticket": "ground-loop-writes-its-own-liveness",
+    "note": "TICKETME journaled late: the ticket was filed 2026-07-30 (cast_by /sorted, pre-door) but the crossing never rode the chokepoint; recorded now as the voyage opens.",
+    "at": "2026-08-09T11:06",
+    "seq": 5
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'ground-loop-writes-its-own-liveness', and the ticket names its /intent firing and its /sorted door firing",
+    "ticket": "ground-loop-writes-its-own-liveness",
+    "note": "BUILDME entered under the charted course (validate berth validate-20260809T110145-0f2db1e0fe9b): the loop writes its own liveness record as part of every pass, plus the thin wall-clock runner — the first device record ever to reach instance-space disk.",
+    "at": "2026-08-09T11:06",
+    "seq": 6
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "ticket": "ground-loop-writes-its-own-liveness",
+    "note": "Built: liveness.py (atomic write + read face, the ruled 5s at its ONE address), beat() gains the touch (construction-time liveness_home; anonymous devices write nothing), __main__.py thin runner at the ruled 1s cadence. 13/13 teeth green twice bare — five new: stamp advances, dir born, DEAD/LIVE/absent/torn verdicts, crash-mid-write + hammer torn-read, homeless-writes-nothing.",
+    "at": "2026-08-09T11:15",
+    "seq": 7
+  },
+  {
+    "from": "PROVEME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'ground-loop-writes-its-own-liveness'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T110841-c93aee8392c8.json",
+    "ticket": "ground-loop-writes-its-own-liveness",
+    "note": "PROVED — THE LOOP WRITES ITS OWN LIVENESS, and rung 1 of the ruled ladder has its instrument. The first device record ever to reach instance-space disk: every beat of a homed device atomically touches liveness.json (last-run, state, pid); the read face answers LIVE/DEAD at the ruled 5s (its ONE address, liveness.py:39); the thin runner (python3 -m cairn.ground_loop, 46 lines) beats the ruled 1s. Live-fired: separate-process reads watched the stamp advance (beats 2->10), and 6s after SIGTERM the verdict fell DEAD with the corpse record returned whole — the whole detector, Akiens, working. Anonymous (homeless) devices write nothing: proofs stay pure physics.",
+    "proof": "cairn/ground_loop/proofs/test_ground_loop.py",
+    "validation": "cairn/ground_loop/validations/test_ground_loop.json",
+    "at": "2026-08-09T11:20",
+    "seq": 8
   }
 ]

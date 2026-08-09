@@ -107,10 +107,12 @@ def render_traffic_image(img: dict) -> str:
 
 def _render_chat_reply(kind: str, reply: dict) -> str:
     """One chat turn's reply as HTML, by kind — the device's DATA rendered, never touched.
-    A resolve reply is the graph's WALK (the answer comes from structure — nodes with
-    their measured similarities, the floor visible per Law 3); a summarize reply is the
-    cited prose with its code-built citations and its depth; a refusal renders LOUDLY as
-    the reply it honestly is. Everything the device said is escaped, like any device."""
+    A resolve reply is PROSE first (the walk articulated — the librarian CHATS), its
+    code-built citations legible, and the loop's verdict COLLAPSED to one secondary
+    line (Law 7: the surface may collapse; the turn record upstream keeps the verdict
+    whole); a summarize reply is the cited prose with its code-built citations and its
+    depth; a refusal renders LOUDLY as the reply it honestly is. Everything the device
+    said is escaped, like any device."""
     if kind == "refused":
         return f'<p class="refused">refused — {_esc(reply.get("refusal"))}</p>'
     if kind == "summarize":
@@ -125,17 +127,21 @@ def _render_chat_reply(kind: str, reply: dict) -> str:
                 f'<p class="depth">reached {_esc(d.get("region"))} of '
                 f'{_esc(d.get("tree_nodes"))} nodes · region {_esc(d.get("region_digest"))}'
                 f'{" · already landed" if reply.get("duplicate") else ""}</p>')
-    verdict = reply.get("verdict", "?")
-    head = (f'<p class="verdict {_esc(str(verdict).lower())}">{_esc(verdict)}'
-            f'{" (" + _esc(reply.get("reason")) + ")" if reply.get("reason") else ""} · '
-            f'best {_esc(round(reply["best"], 4) if reply.get("best") is not None else None)} · '
-            f'floor {_esc(reply.get("floor"))} · {_esc(reply.get("backfills", 0))} backfills · '
-            f'{_esc(len(reply.get("deposited", [])))} nodes folded in</p>')
-    walk = "".join(
-        f'<li><span class="sim">{_esc(round(n.get("similarity", 0), 4))}</span> '
-        f'{_esc(n.get("content"))} <span class="cond">{_esc(n.get("standing"))}</span></li>'
-        for n in reply.get("nodes", []))
-    return head + (f'<ol class="walk">{walk}</ol>' if walk else "")
+    cites = "".join(
+        f'<li>[{_esc(c.get("n"))}] {_esc(c.get("node_id"))} '
+        f'<span class="cond">{_esc(c.get("source"))} · '
+        f'sim {_esc(round(c.get("similarity", 0), 4))}</span></li>'
+        for c in reply.get("citations", []))
+    loop = reply.get("loop") or {}
+    verdict = loop.get("verdict", "?")
+    cond = (f'<p class="cond">{_esc(verdict)}'
+            f'{" (" + _esc(loop.get("reason")) + ")" if loop.get("reason") else ""} · '
+            f'best {_esc(round(loop["best"], 4) if loop.get("best") is not None else None)} · '
+            f'floor {_esc(loop.get("floor"))} · {_esc(loop.get("backfills", 0))} backfills · '
+            f'{_esc(len(loop.get("deposited", [])))} nodes folded in</p>')
+    return (f'<p class="prose">{_esc(reply.get("prose"))}</p>'
+            + (f'<ul class="citations">{cites}</ul>' if cites else "")
+            + cond)
 
 
 def _render_chat_pane(pane: dict) -> str:

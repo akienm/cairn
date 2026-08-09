@@ -1,13 +1,19 @@
 """Proof for librarian/chat.py — the CHAT verb, the conversational face. Teeth a chatbot
 wearing a librarian's charter (the parent ticket's named wrong-shape) could not pass:
 
-  - LEARNING ALWAYS: a turn whose question the graph cannot resolve BACKFILLS the graph
-    and answers from STRUCTURE — the reply is the walk, never the generate text; and the
-    SAME question in a later turn resolves by walk alone, zero backfills (the chat's
-    memory is the graph, not the transcript).
-  - THE ROUTE IS PHYSICS: a turn the graph resolves on the first walk spends NO generate
-    call at all — no inference is burned classifying intent; and the ``summarize:``
-    prefix routes to the transducer deterministically, case-insensitive.
+  - LEARNING ALWAYS, AND IT CHATS (Akien's ruling 2026-08-09): a turn whose question
+    the graph cannot resolve BACKFILLS the graph and ANSWERS from structure — the reply
+    then ARTICULATES that answer: conversational prose rendered from the walk, citations
+    code-built from its [n] marks, the loop's whole verdict riding the reply as data;
+    and the SAME question in a later turn resolves by walk alone, zero backfills (the
+    chat's memory is the graph, not the transcript).
+  - THE ROUTE IS PHYSICS: routing spends NO inference — a resolved turn spends exactly
+    ONE generate, the articulation, never a classifier; and the ``summarize:`` prefix
+    routes to the transducer deterministically, case-insensitive.
+  - NO FREE ANSWERS: a draft citing a passage the walk never held refuses loudly with
+    the raw carried whole and becomes a refused TURN; a draft with ZERO anchors is
+    LEGAL (a greeting grounds on nothing — the one clause where chat differs from
+    summarize); reply prose never deposits into the tree.
   - SUMMARIZING WHEN ASKED: the summarize turn returns cited prose (citations code-built
     by the transducer) and the summary lands back in the tree.
   - A REFUSAL IS A REPLY: summarize over an empty tree becomes a loud "refused" turn
@@ -44,7 +50,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.db_domain import store
 from cairn.librarian import chat as chat_module
-from cairn.librarian.chat import ChatRefused, ChatSession, chat_turn, route
+from cairn.librarian.chat import ChatRefused, ChatSession, chat_turn, parse_reply, route
 from cairn.librarian.shim import LibrarianShim
 from cairn.librarian.trees import LibrarianDevice
 
@@ -109,34 +115,76 @@ def test_the_route_is_physics_not_a_guessed_intent():
         "no NLP guessing — only the stated prefix routes; everything else IS the question"
 
 
-def test_a_resolved_turn_answers_from_structure_and_spends_no_generate():
+def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
     dev = LibrarianDevice()
     _seed(dev, "warm", [(_A, [0.95, 0.05, 0.0])])
-    seam = fake_seam(["never needed"], {_Q: [1.0, 0.0, 0.0]})
+    draft = "The record holds exactly that: the anchor fact, stated plainly [1]."
+    seam = fake_seam([draft], {_Q: [1.0, 0.0, 0.0]})
+    rows_before = len(_rows("warm"))
     got = chat_turn(_Q, resolve=seam, tree="warm", table=_TABLE, dev=dev)
-    assert got["kind"] == "resolve" and got["reply"]["verdict"] == "RESOLVED"
-    assert got["reply"]["nodes"][0]["content"] == _A, "the reply IS the graph's walk"
-    assert got["reply"]["backfills"] == 0 and seam.prompts == [], \
-        "a warm graph spends NOTHING — no generate for the answer, none for routing"
+    assert got["kind"] == "resolve" and got["reply"]["prose"] == draft
+    loop = got["reply"]["loop"]
+    assert loop["verdict"] == "RESOLVED" and loop["backfills"] == 0
+    assert loop["nodes"][0]["content"] == _A, \
+        "the loop still ANSWERS from structure — the render only SAYS the answer"
+    assert [c["n"] for c in got["reply"]["citations"]] == [1]
+    assert got["reply"]["citations"][0]["node_id"] == loop["nodes"][0]["node_id"], \
+        "citations are code-built against the walk, never model-built"
+    assert len(seam.prompts) == 1, \
+        "exactly ONE generate — the articulation; none for routing, none for the answer"
+    assert f"[1] {_A}" in seam.prompts[0] and _Q in seam.prompts[0], \
+        "the walk rides the render prompt whole and numbered — the transducer's cache " \
+        "mechanism: same utterance + same graph is a byte-identical prompt"
+    assert len(_rows("warm")) == rows_before, \
+        "reply prose is runtime state — nothing deposits from a chat reply"
 
 
 def test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers():
     dev = LibrarianDevice()
     fresh = "the freshly learned fact that grounds the anchor question"
-    # The graph starts empty; the backfill supplies the node that lets it resolve.
-    seam = fake_seam([json.dumps({"nodes": [fresh]})],
+    spoken = "It comes down to the freshly learned fact [1]."
+    # The graph starts empty; the backfill supplies the node that lets it resolve,
+    # then one articulation renders the walk into the spoken reply.
+    seam = fake_seam([json.dumps({"nodes": [fresh]}), spoken],
                      {_Q: [1.0, 0.0, 0.0], fresh: [0.98, 0.02, 0.0]})
     first = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
-    assert first["kind"] == "resolve" and first["reply"]["verdict"] == "RESOLVED"
-    assert first["reply"]["backfills"] == 1 and len(first["reply"]["deposited"]) == 1
-    assert first["reply"]["nodes"][0]["content"] == fresh, \
-        "the answer came from STRUCTURE the turn just taught, not from the generate text"
+    loop = first["reply"]["loop"]
+    assert first["kind"] == "resolve" and loop["verdict"] == "RESOLVED"
+    assert loop["backfills"] == 1 and len(loop["deposited"]) == 1
+    assert loop["nodes"][0]["content"] == fresh, \
+        "the ANSWER came from structure the turn just taught, not from the generate text"
+    assert first["reply"]["prose"] == spoken, "…and the reply SAYS it conversationally"
     generates_after_first = len(seam.prompts)
 
     second = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
-    assert second["reply"]["verdict"] == "RESOLVED" and second["reply"]["backfills"] == 0
-    assert len(seam.prompts) == generates_after_first, \
-        "the same question later is a WALK — the chat's memory is the graph (Law 1)"
+    assert second["reply"]["loop"]["verdict"] == "RESOLVED"
+    assert second["reply"]["loop"]["backfills"] == 0
+    assert len(seam.prompts) == generates_after_first + 1, \
+        "the same question later is a WALK plus one articulation — the chat's memory " \
+        "is the graph (Law 1); only the SAYING is spent again"
+
+
+def test_the_chat_parse_zero_anchors_legal_minted_refused():
+    prose, marks = parse_reply("Hello! What would you like to know?", 3)
+    assert marks == [], "a greeting grounds on nothing — zero anchors are LEGAL in chat"
+    prose, marks = parse_reply("```\nBoth facts stand [1, 3], one twice [1].\n```", 3)
+    assert prose == "Both facts stand [1, 3], one twice [1]." and marks == [1, 3], \
+        "the fence is wrapping and comma-grouping anchors — the transducer's discipline"
+    msg = _refuses(ChatRefused, parse_reply, "A confident claim [7].", 3)
+    assert "minted" in msg and "A confident claim [7]." in msg, \
+        "a citation the walk never held refuses loudly with the raw carried whole"
+    _refuses(ChatRefused, parse_reply, "```\n```", 3)
+
+
+def test_a_minted_citation_becomes_a_loud_refused_turn():
+    dev = LibrarianDevice()
+    _seed(dev, "minted", [(_A, [0.95, 0.05, 0.0])])
+    seam = fake_seam(["A claim the walk never held [9]."], {_Q: [1.0, 0.0, 0.0]})
+    got = chat_turn(_Q, resolve=seam, tree="minted", table=_TABLE, dev=dev)
+    assert got["kind"] == "refused" and "minted" in got["reply"]["refusal"], \
+        "free-answering dies on the refusal-is-a-reply path — it never lands as prose"
+    assert "A claim the walk never held [9]." in got["reply"]["refusal"], \
+        "the raw draft rides the refusal whole — first-pass diagnostic (Law 7)"
 
 
 def test_summarizing_when_asked_returns_cited_prose_that_lands():
@@ -153,7 +201,8 @@ def test_summarizing_when_asked_returns_cited_prose_that_lands():
 
 
 def test_a_refusal_is_a_reply_and_the_session_survives_it():
-    seam = fake_seam(["never rendered"], {_Q: [1.0, 0.0, 0.0], _A: [0.95, 0.05, 0.0]})
+    seam = fake_seam(["a courteous reply, grounded on nothing"],
+                     {_Q: [1.0, 0.0, 0.0], _A: [0.95, 0.05, 0.0]})
     session = ChatSession(resolve=seam, tree="vacant", table=_TABLE)
     got = session.turn("summarize: anything at all")
     assert got["kind"] == "refused" and "Learn first" in got["reply"]["refusal"], \
@@ -162,7 +211,7 @@ def test_a_refusal_is_a_reply_and_the_session_survives_it():
     # The conversation continues: seed the tree through a later turn's walk target.
     _seed(session.dev, "vacant", [(_A, [0.95, 0.05, 0.0])])
     after = session.turn(_Q)
-    assert after["kind"] == "resolve" and after["reply"]["verdict"] == "RESOLVED", \
+    assert after["kind"] == "resolve" and after["reply"]["loop"]["verdict"] == "RESOLVED", \
         "the session survived the refusal — a refused turn is a turn, not a crash"
     assert [t["kind"] for t in session.page()["turns"]] == ["refused", "resolve"], \
         "the transcript keeps both, in order"
@@ -171,7 +220,7 @@ def test_a_refusal_is_a_reply_and_the_session_survives_it():
 def test_the_page_is_data_a_surface_can_render():
     dev = LibrarianDevice()
     _seed(dev, "paged", [(_A, [0.95, 0.05, 0.0])])
-    seam = fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]})
+    seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     session = ChatSession(resolve=seam, tree="paged", table=_TABLE, dev=dev)
     session.turn(_Q)
     page = session.page()
@@ -186,7 +235,7 @@ def test_the_page_is_data_a_surface_can_render():
 def test_the_chat_crossing_breadcrumbs_thin():
     dev = LibrarianDevice()
     _seed(dev, "crumbed", [(_A, [0.95, 0.05, 0.0])])
-    seam = fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]})
+    seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     chat_turn(_Q, resolve=seam, tree="crumbed", table=_TABLE, dev=dev)
     crumbs = [c for c in dev.held_diagnostics() if c["gate"] == "chat"]
     assert len(crumbs) == 1
@@ -201,7 +250,7 @@ def test_the_chat_window_is_a_declared_pane():
     assert panes == [{"kind": "chat", "label": "Chat", "handler": None}], \
         "the window is OFFERED from birth — unattached, its handler is honestly None " \
         "(the shim machinery renders that absent-with-reason, never a missing surface)"
-    session = ChatSession(resolve=fake_seam(["unused"]), tree="paned", table=_TABLE, dev=dev)
+    session = ChatSession(resolve=fake_seam(["a spoken line"]), tree="paned", table=_TABLE, dev=dev)
     dev.attach_chat(session)
     handler = dev.declared_panes()[0]["handler"]
     assert handler() == session.page(), \
@@ -211,12 +260,12 @@ def test_the_chat_window_is_a_declared_pane():
 def test_receive_routes_chat_mail_and_refuses_the_rest():
     dev = LibrarianDevice()
     _seed(dev, "mailed", [(_A, [0.95, 0.05, 0.0])])
-    session = ChatSession(resolve=fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]}),
+    session = ChatSession(resolve=fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]}),
                           tree="mailed", table=_TABLE, dev=dev)
     dev.attach_chat(session)
     turn = dev.receive({"sender": "web_server", "to": "librarian", "channel": "chat",
                         "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
-    assert turn["kind"] == "resolve" and turn["reply"]["verdict"] == "RESOLVED"
+    assert turn["kind"] == "resolve" and turn["reply"]["loop"]["verdict"] == "RESOLVED"
     assert session.page()["turns"] == [turn], "the delivered turn landed in the transcript"
     msg = _refuses(ValueError, dev.receive, {"channel": "bogus", "body": {}})
     assert "bogus" in msg, "mail the device cannot process refuses loudly, never vanishes"
@@ -225,7 +274,7 @@ def test_receive_routes_chat_mail_and_refuses_the_rest():
 
 
 def test_the_shim_wakes_the_device_on_demand():
-    seam = fake_seam(["unused"], {_Q: [1.0, 0.0, 0.0]})
+    seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     shim = LibrarianShim(session_factory=lambda dev: ChatSession(
         resolve=seam, tree="woken", table=_TABLE, dev=dev))
     assert not shim.running, "the shim is the always-on front; the device sleeps"
@@ -314,8 +363,10 @@ def _cleanup():
 def _main() -> int:
     checks = [
         test_the_route_is_physics_not_a_guessed_intent,
-        test_a_resolved_turn_answers_from_structure_and_spends_no_generate,
+        test_a_resolved_turn_converses_one_generate_spent_on_articulation,
         test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers,
+        test_the_chat_parse_zero_anchors_legal_minted_refused,
+        test_a_minted_citation_becomes_a_loud_refused_turn,
         test_summarizing_when_asked_returns_cited_prose_that_lands,
         test_a_refusal_is_a_reply_and_the_session_survives_it,
         test_the_page_is_data_a_surface_can_render,
@@ -333,11 +384,12 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — librarian/chat: the route is physics, a warm turn spends nothing, a "
-          "miss teaches the graph and the graph remembers, summarize-when-asked lands "
-          "cited prose, a refusal is a reply the session survives, the window is a "
-          "declared pane whose mail routes through the shim that wakes the device, and "
-          "chat opens no door of its own")
+    print("green — librarian/chat: the route is physics, a resolved turn CONVERSES with "
+          "one generate spent on articulation, a miss teaches the graph and the graph "
+          "remembers, zero anchors are legal and minted citations refuse loud, "
+          "summarize-when-asked lands cited prose, a refusal is a reply the session "
+          "survives, the window is a declared pane whose mail routes through the shim "
+          "that wakes the device, and chat opens no door of its own")
     return 0
 
 

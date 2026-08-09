@@ -14,6 +14,20 @@ halves map onto the spine directly and this module adds NO third mechanism:
     transducer (``summarize``) — a dense region rendered into cited prose that lands
     back in the same tree.
 
+AND IT CHATS (Akien, 2026-08-09, after saying hello to a wall of resolution mechanics:
+"the intentions say it should be chatting and it's not"). A resolve turn's reply is the
+loop's walk ARTICULATED into conversational prose — one generate spent per turn on
+articulation, never on routing and never on free facts. The distinction that reconciles
+this with facts-from-structure: the loop still ANSWERS (walk, backfill, fold-in,
+unchanged), the render only SAYS the answer to a human. The walk rides the render
+prompt whole and numbered (the transducer's cache mechanism — same utterance + same
+graph replays the cached render), citations are code-built from the [n] marks, a minted
+citation refuses loudly, and the loop's whole verdict dict rides the reply as data
+(Law 7: a surface may collapse it to a line; the turn record never loses it). The one
+clause where chat differs from summarize: ZERO anchors are LEGAL — a greeting grounds
+on nothing, and honest smalltalk is conversation, not invention. Reply prose is runtime
+state: it never deposits into the tree (only summaries land).
+
 THE ROUTE IS PHYSICS, NOT A GUESSED INTENT. "When asked" is a legible affordance — the
 ``summarize:`` prefix — never an inference spent classifying the utterance (Law 1: the
 resolver is for the novel, and a guessed intent is an unmeasured hypothesis steering a
@@ -40,7 +54,7 @@ from __future__ import annotations
 import hashlib
 
 from cairn.librarian.loop import BackfillRefused, resolve_query
-from cairn.librarian.summarize import SUMMARY_REGION_K, SummaryRefused, summarize
+from cairn.librarian.summarize import _MARKER, SUMMARY_REGION_K, SummaryRefused, summarize
 from cairn.librarian.trees import NODES, LibrarianDevice
 
 # The affordance that routes a turn to the transducer — stated on the surface, matched
@@ -66,6 +80,66 @@ def route(utterance: str) -> tuple[str, str]:
     return "resolve", text
 
 
+def reply_prompt(utterance: str, walk: list[dict]) -> str:
+    """The articulation ask. The walk rides WHOLE and numbered — the transducer's
+    Law 1 mechanism, composed: the prompt (hence the cache key) moves exactly when the
+    utterance or the graph's walk does, and an unchanged pair replays its cached render
+    instead of re-inferring."""
+    passages = "\n".join(f"[{i}] {n['content']}" for i, n in enumerate(walk, start=1))
+    return (
+        "You are the librarian: the conversational face of a library of PASSAGES. "
+        "Reply to the REMARK below in natural, direct prose — a short paragraph, "
+        "spoken to the person. Any claim about what the library holds must come from "
+        "the passages, cited inline as [n]. If the passages do not bear on the remark, "
+        "say so plainly and reply in courtesy alone — cite nothing, and claim nothing "
+        "about the library's contents. Output prose only.\n\n"
+        f"REMARK: {utterance}\n"
+        f"PASSAGES:\n{passages}"
+    )
+
+
+def parse_reply(raw: str, walk_size: int) -> tuple[str, list[int]]:
+    """The draft's prose and its cited positions, or a loud refusal carrying the raw
+    WHOLE — parse_summary's chat-shaped sibling, differing in exactly one clause:
+    ZERO anchors are LEGAL. A greeting grounds on nothing, so an unanchored draft is
+    honest conversation, not invention; a mark the walk never held stays the minted-
+    attribution defect either way. The markdown fence is wrapping, not content."""
+    text = raw.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else ""
+        if text.rstrip().endswith("```"):
+            text = text.rstrip()[:-3]
+    text = text.strip()
+    if not text:
+        raise ChatRefused(
+            "chat: the draft renders to nothing — an empty reply is a wall, not a "
+            f"conversation. Raw draft, carried whole: {raw!r}")
+    marks = [int(n) for group in _MARKER.findall(text) for n in group.split(",")]
+    bogus = sorted({m for m in marks if not 1 <= m <= walk_size})
+    if bogus:
+        raise ChatRefused(
+            f"chat: the draft cites {bogus} but the walk holds passages "
+            f"[1..{walk_size}] — a citation the walk never held is minted "
+            f"attribution. Raw draft, carried whole: {raw!r}")
+    return text, sorted(set(marks))
+
+
+def articulate(utterance: str, verdict: dict, *, resolve) -> dict:
+    """A resolve turn's REPLY: the loop's walk rendered into conversational prose —
+    one generate spent on ARTICULATION, after the loop has already answered from
+    structure. Citations are code-built from the draft's [n] marks against the walk;
+    the loop's verdict dict rides the reply untouched under ``loop`` (Law 7: the
+    record keeps it whole; a surface may collapse it). Nothing deposits — reply
+    prose is runtime state."""
+    walk = verdict["nodes"]
+    drafted = resolve({"kind": "generate", "prompt": reply_prompt(utterance, walk)})
+    prose, cited = parse_reply(drafted["answer"]["text"], len(walk))
+    citations = [{"n": i, "node_id": walk[i - 1]["node_id"],
+                  "source": walk[i - 1]["provenance"].get("source"),
+                  "similarity": walk[i - 1]["similarity"]} for i in cited]
+    return {"prose": prose, "citations": citations, "loop": verdict}
+
+
 def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
               summary_k: int = SUMMARY_REGION_K, table: str = NODES, conn=None,
               dev: LibrarianDevice | None = None) -> dict:
@@ -73,12 +147,14 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
 
         {"utterance": what was said,
          "kind":      "resolve" | "summarize" | "refused",
-         "reply":     resolve_query's verdict | summarize's rendering
+         "reply":     {"prose", "citations", "loop": resolve_query's verdict, whole}
+                      | summarize's rendering
                       | {"refusal": the verb's loud refusal, carried whole}}
 
-    The answer always comes from structure: a resolve reply is the graph's walk (the
-    generate answer is never returned, only folded in), a summarize reply is cited
-    prose the graph keeps. A refusal is a legible reply — the conversation survives it.
+    The answer always comes from structure — the loop walks, backfills, folds in,
+    unchanged; what the reply carries is that answer ARTICULATED: conversational
+    prose whose library claims anchor to the walk, with the loop's verdict riding
+    beside it as data. A refusal is a legible reply — the conversation survives it.
     """
     if not callable(resolve):
         raise ChatRefused(
@@ -94,9 +170,10 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
             reply = summarize(question, resolve=resolve, tree=tree, k=summary_k,
                               table=table, conn=conn, dev=dev)
         else:
-            reply = resolve_query(question, resolve=resolve, tree=tree, k=k,
-                                  table=table, conn=conn, dev=dev)
-    except (SummaryRefused, BackfillRefused) as e:
+            verdict = resolve_query(question, resolve=resolve, tree=tree, k=k,
+                                    table=table, conn=conn, dev=dev)
+            reply = articulate(question, verdict, resolve=resolve)
+    except (SummaryRefused, BackfillRefused, ChatRefused) as e:
         # The verb already carried the raw draft whole; here it becomes the reply.
         kind, reply = "refused", {"refusal": str(e)}
 

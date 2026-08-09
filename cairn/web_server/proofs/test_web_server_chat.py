@@ -45,10 +45,16 @@ from cairn.ground_loop.loop import GroundLoopDevice
 from cairn.librarian.shim import LibrarianShim
 from cairn.web_server.server import WebServerDevice
 
-_REPLY = {"verdict": "RESOLVED", "reason": None, "best": 0.9123, "floor": 0.65,
-          "backfills": 0, "deposited": [],
-          "nodes": [{"similarity": 0.9123, "content": "the anchor fact",
-                     "standing": "hypothesis"}]}
+# The chat reply in its ruled shape (the-librarian-chats, 2026-08-09): prose rendered
+# from the walk + code-built citations + the loop's verdict riding WHOLE as data.
+_LOOP = {"verdict": "RESOLVED", "reason": None, "best": 0.9123, "floor": 0.65,
+         "backfills": 0, "deposited": [],
+         "nodes": [{"node_id": "abc123def456", "similarity": 0.9123,
+                    "content": "the anchor fact", "standing": "hypothesis"}]}
+_REPLY = {"prose": "The library holds the anchor fact, plainly stated [1].",
+          "citations": [{"n": 1, "node_id": "abc123def456", "source": "seed:library",
+                         "similarity": 0.9123}],
+          "loop": _LOOP}
 
 
 class _FakeFace:
@@ -103,8 +109,8 @@ def test_a_post_delivers_through_the_shim_decoded():
     assert status == 200
     assert face.taken == ["what is the anchor?"], \
         "the form body reaches the device's face decoded — through shim.deliver, not a route"
-    assert "what is the anchor?" in body and "the anchor fact" in body, \
-        "the new turn renders on the returned page — the reply is the walk"
+    assert "what is the anchor?" in body and "plainly stated" in body, \
+        "the new turn renders on the returned page — the reply is PROSE, a conversation"
 
 
 def test_an_empty_utterance_takes_no_turn():
@@ -117,14 +123,28 @@ def test_an_empty_utterance_takes_no_turn():
 
 
 def test_everything_the_librarian_says_is_escaped():
-    hostile = dict(_REPLY, nodes=[{"similarity": 0.9, "standing": "hypothesis",
-                                   "content": "<script>alert(1)</script>"}])
+    hostile = dict(_REPLY, prose="<script>alert(1)</script> [1]")
     face = _FakeFace(reply=hostile)
     face.turn("say something hostile")
     web, _shim = _wired(face)
     _s, _c, body = web.serve("/device/librarian")
     assert "<script>alert(1)</script>" not in body and "&lt;script&gt;" in body, \
-        "a node's content never becomes live markup — the librarian is a device too"
+        "the reply's prose never becomes live markup — the librarian is a device too"
+
+
+def test_the_resolve_reply_renders_prose_first_and_collapses_the_verdict():
+    from cairn.web_server.render import _render_chat_reply
+    html = _render_chat_reply("resolve", _REPLY)
+    prose_at = html.index('class="prose"')
+    cites_at = html.index('class="citations"')
+    cond_at = html.rindex('class="cond"')
+    assert prose_at < cites_at < cond_at, \
+        "the conversation leads; the citations follow; the diagnostics trail"
+    assert "RESOLVED" in html and "0.9123" in html and "0 backfills" in html \
+        and "0 nodes folded in" in html, \
+        "collapse is not loss — the loop's verdict survives as one legible line (Law 7)"
+    assert 'class="verdict' not in html and 'class="walk' not in html, \
+        "the diagnostics-dump head is gone — the reply CONVERSES (the ruled symptom)"
 
 
 def test_a_dying_delivery_is_a_legible_500_and_the_record_stands():
@@ -154,6 +174,7 @@ def _main() -> int:
                   test_a_post_delivers_through_the_shim_decoded,
                   test_an_empty_utterance_takes_no_turn,
                   test_everything_the_librarian_says_is_escaped,
+                  test_the_resolve_reply_renders_prose_first_and_collapses_the_verdict,
                   test_a_dying_delivery_is_a_legible_500_and_the_record_stands,
                   test_an_unwoken_face_is_an_absent_pane_and_there_is_no_second_door):
         check()

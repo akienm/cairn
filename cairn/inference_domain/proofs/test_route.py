@@ -272,9 +272,85 @@ def test_a_protocol_without_a_transport_is_walked_past_loudly_never_dialed():
         "walking past a protocol must be loud in provenance — a silent skip hides the missing transport"
 
 
+# ---------------------------------------------------------------- the domains: the fourth stack
+
+def test_the_domains_stack_carries_the_ruled_verticals_by_content():
+    """The fourth authored stack (ticket the-domain-carries-the-inference-side), by CONTENT:
+    rows general/coding/research, general the one default riding bare calls, rows as
+    complete FIELD SETS the loader validates."""
+    table = route.domain_rows(route.load_stacks())
+    assert set(table["rows"]) == {"general", "coding", "research"}
+    assert table["default"] == "general", "a bare call rides general — the ruled default"
+    assert table["rows"]["general"]["prompts"]["generate"] == "", \
+        "general adds NOTHING by design — the default is a row, not a dressing"
+    assert table["rows"]["research"]["prompts"]["generate"], \
+        "research carries a real dressing — the librarian's vertical is not an empty label"
+
+
+def _preference_fixture(prefers):
+    """Two models on two rungs, cheapest-first order m-cheap then m-dear; a fixture domain
+    whose ``prefers`` is under test, and a PREFERRED loopback rung that never_routed must
+    still cut (preference must never outrank a sieve)."""
+    return {
+        "providers": {"providers": [
+            {"name": "p-cheap", "protocol": "ollama", "cash_per_mtoken": 0.1, "enabled": True},
+            {"name": "p-dear", "protocol": "ollama", "cash_per_mtoken": 0.2, "enabled": True},
+            {"name": "loop", "protocol": "ollama", "cash_per_mtoken": 0.0, "enabled": True,
+             "never_route": True, "why": "the ruled NEVER 127.0.0.1"},
+        ]},
+        "models": {"models": [{"name": "m-cheap", "serves": ["generate"]},
+                              {"name": "m-dear", "serves": ["generate"]}]},
+        "combos": {"combos": [{"provider": "p-cheap", "model": "m-cheap"},
+                              {"provider": "p-dear", "model": "m-dear"},
+                              {"provider": "loop", "model": "m-dear"}]},
+        "domains": {"domains": [
+            {"name": "general", "default": True, "why": "fixture default",
+             "prompts": {"generate": ""}, "escalation": {}, "prefers": []},
+            {"name": "particular", "default": False, "why": "fixture vertical",
+             "prompts": {"generate": ""}, "escalation": {}, "prefers": prefers},
+        ]},
+    }
+
+
+_PREF_OVERLAY = {"p-cheap": {"endpoint": "http://cheap:11434"},
+                 "p-dear": {"endpoint": "http://dear:11434"},
+                 "loop": {"endpoint": "http://127.0.0.1:11434"}}
+
+
+def test_a_preference_reorders_survivors_without_changing_the_set():
+    """The nest keeps the shake (hypothesize falsifier): same stacks with and without the
+    preference — survivor SET identical, order alone moves, and no cut is outranked (the
+    preferred loopback rung stays cut by never_routed)."""
+    plain = route.route("generate", None, stacks=_preference_fixture(["m-dear"]),
+                        overlay=_PREF_OVERLAY)
+    preferred = route.route("generate", None, domain="particular",
+                            stacks=_preference_fixture(["m-dear"]), overlay=_PREF_OVERLAY)
+    key = lambda s: (s["provider"], s["model"])
+    assert sorted(map(key, plain["survivors"])) == sorted(map(key, preferred["survivors"])), \
+        "a preference must never change the survivor SET — a soft input became a hard cut"
+    assert [s["model"] for s in plain["survivors"]] == ["m-cheap", "m-dear"], \
+        "without a preference the order is cheapest-first, byte-identical to today's"
+    assert [s["model"] for s in preferred["survivors"]] == ["m-dear", "m-cheap"], \
+        "the preferred model sorts ahead — an ordering the walk then dials"
+    assert not any(s["provider"] == "loop" for s in preferred["survivors"]), \
+        "never_routed still cuts a rung carrying the preferred model — no preference outranks a sieve"
+
+
+def test_an_empty_preference_leaves_the_order_untouched():
+    """The default vertical (prefers []) shakes byte-identical to no domain at all."""
+    bare = route.route("generate", None, stacks=_preference_fixture([]), overlay=_PREF_OVERLAY)
+    general = route.route("generate", None, domain="general",
+                          stacks=_preference_fixture([]), overlay=_PREF_OVERLAY)
+    assert bare["survivors"] == general["survivors"], \
+        "general must be indistinguishable from a bare shake — the default adds nothing"
+
+
 def _main() -> int:
     checks = [
         test_the_three_stacks_carry_the_ruled_rows_by_content,
+        test_the_domains_stack_carries_the_ruled_verticals_by_content,
+        test_a_preference_reorders_survivors_without_changing_the_set,
+        test_an_empty_preference_leaves_the_order_untouched,
         test_missing_rules_or_overlay_refuse_loudly_naming_the_path,
         test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first,
         test_loopback_and_unkeyed_rungs_are_cut_and_the_trace_says_by_what,

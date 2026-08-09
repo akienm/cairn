@@ -3,15 +3,15 @@
     "claim": "proof test_inference_domain.py passes under python3",
     "caller": "ticket a-node-holds-one-claim",
     "date": "2026-07-29T21:33:33",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 \u2192 green, else red)",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\ngreen \u2014 inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
+      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns \u2014 the seal removes the route"
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "trail_link": "6755e6765a2cfe6d4a8756b5a5ddcc5a56ae5c5bcada947022460afeb14cf919"
     },
@@ -22,17 +22,37 @@
     "claim": "proof test_inference_domain.py passes under python3",
     "caller": "ticket the-inference-proxy-is-a-rules-stack",
     "date": "2026-08-08T17:16:50",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 \u2192 green, else red)",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\ngreen \u2014 inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
+      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns \u2014 the seal removes the route"
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "source_fingerprint": "a1abbcdbee1cef462106c31a133a7474980bfb6d4424203d638df1518af9019a"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_inference_domain.py passes under python3",
+    "caller": "cc",
+    "date": "2026-08-08T20:19:35",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\n  PASS  test_a_bare_call_and_the_explicit_default_are_one_question\n  PASS  test_two_domains_are_never_one_question\n  PASS  test_the_provenance_carries_the_domain_marker_on_both_paths\n  PASS  test_editing_a_rows_prompt_is_a_new_question\n  PASS  test_an_unknown_domain_is_refused_before_any_spend\n  PASS  test_a_malformed_domains_stack_is_refused\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "69b344fb94d57b3666573a9d40eba0bc2709fa8f59ad3abbf08f0c04bbfa1e76",
+      "trail_link": "5790544f5095c802d00763f009c0276c51bb92875757a4a7c2ecd25031e68c84"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

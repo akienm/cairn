@@ -3,17 +3,37 @@
     "claim": "proof test_watch_probe.py passes under python3",
     "caller": "ticket the-inference-proxy-is-a-rules-stack",
     "date": "2026-08-08T17:16:51",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 \u2192 green, else red)",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_an_offender_is_exactly_a_post_era_loopback_generate_miss\n  PASS  test_the_trigger_fires_on_one_offender_because_the_rule_is_never\n  PASS  test_the_clear_needs_the_denominator_floor_not_just_zero\n  PASS  test_the_carry_reports_complete_on_first_pass\ngreen \u2014 the watch fires on the first post-era loopback generate (the rule is NEVER), clears only past the denominator floor, ignores the pre-routed era, embeds, and hits, and carries the complete report on first pass",
+      "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_an_offender_is_exactly_a_post_era_loopback_generate_miss\n  PASS  test_the_trigger_fires_on_one_offender_because_the_rule_is_never\n  PASS  test_the_clear_needs_the_denominator_floor_not_just_zero\n  PASS  test_the_carry_reports_complete_on_first_pass\ngreen — the watch fires on the first post-era loopback generate (the rule is NEVER), clears only past the denominator floor, ignores the pre-routed era, embeds, and hits, and carries the complete report on first pass",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns \u2014 the seal removes the route"
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "source_fingerprint": "a1abbcdbee1cef462106c31a133a7474980bfb6d4424203d638df1518af9019a"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_watch_probe.py passes under python3",
+    "caller": "cc",
+    "date": "2026-08-08T20:21:24",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_an_offender_is_exactly_a_post_era_loopback_generate_miss\n  PASS  test_the_trigger_fires_on_one_offender_because_the_rule_is_never\n  PASS  test_the_clear_needs_the_denominator_floor_not_just_zero\n  PASS  test_the_carry_reports_complete_on_first_pass\ngreen — the watch fires on the first post-era loopback generate (the rule is NEVER), clears only past the denominator floor, ignores the pre-routed era, embeds, and hits, and carries the complete report on first pass",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "8c277fa1ce57aafcbea48664f38d155dd8407cfdfde38ec8af4f58ab4b548d92",
+      "trail_link": "7ded52ba5844b995b56f17e0c2cfc5d2c6ec16c3beb64d0d2deb7808cb8b97ae"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

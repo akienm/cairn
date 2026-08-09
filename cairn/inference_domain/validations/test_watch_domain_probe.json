@@ -1,0 +1,22 @@
+[
+  {
+    "claim": "proof test_watch_domain_probe.py passes under python3",
+    "caller": "cc",
+    "date": "2026-08-08T20:19:36",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_the_trigger_fires_on_one_unmarked_post_era_row\n  PASS  test_the_clear_needs_the_denominator_and_a_real_vertical\n  PASS  test_all_default_rows_cannot_buy_the_clear\n  PASS  test_a_young_berth_does_not_clear\n  PASS  test_the_carry_reports_complete_on_first_pass\n  PASS  test_dateless_or_naive_rows_never_count\ngreen — the watch fires on the first unmarked post-era row (any verb), clears only past the denominator floor AND a real non-default vertical (all-default cannot buy it), ignores the pre-domained era, and carries the complete report on first pass",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "69b344fb94d57b3666573a9d40eba0bc2709fa8f59ad3abbf08f0c04bbfa1e76",
+      "trail_link": "b3d3f0db2ef932f7f3aecc9bf4166e879f1a6fa6baf4e9ca3715ce61f26261c0"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

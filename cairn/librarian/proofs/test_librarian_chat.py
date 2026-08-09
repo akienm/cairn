@@ -248,6 +248,43 @@ def test_no_seam_and_no_utterance_refuse():
     _refuses(ChatRefused, chat_turn, "   ", resolve=fake_seam(["x"]), table=_TABLE)
 
 
+def test_the_seam_stamps_the_research_domain_declared_never_inferred():
+    """The librarian is the research vertical's first real consumer (ticket
+    the-domain-carries-the-inference-side): every request through dual_seam carries
+    ``domain='research'`` — a DECLARED fact about who is asking, set by rule at the seam.
+    The falsifier is chat tooth 15's guessed-intent defect wearing a new coat: a prompt
+    whose content screams another vertical must STILL stamp research, and a caller's own
+    declaration must survive (setdefault, never overwrite)."""
+    from cairn.inference_domain import domain as domain_module
+    from cairn.librarian import live
+
+    captured: list[dict] = []
+    real = domain_module.resolve
+
+    def capture(request, *, resolver, **kw):
+        captured.append(dict(request))
+        return {"answer": {"text": "x", "vector": [1.0, 0.0, 0.0]},
+                "hit": False, "provenance": {}}
+
+    domain_module.resolve = capture
+    try:
+        seam = live.dual_seam()
+        seam({"kind": "generate",
+              "prompt": "please write a python function that reverses a linked list"})
+        seam({"kind": "embed", "prompt": "what does the settled record say?"})
+        seam({"kind": "generate", "prompt": "x", "domain": "coding"})
+    finally:
+        domain_module.resolve = real
+
+    assert captured[0]["domain"] == "research", \
+        "content that screams another vertical must still stamp research — the domain " \
+        "is who is asking, never what the words look like (the guessed-intent defect)"
+    assert captured[1]["domain"] == "research", \
+        "the stamp rides embeds too — all verbs cross the seam domained"
+    assert captured[2]["domain"] == "coding", \
+        "a caller's own declaration outranks the seam's default — setdefault, never overwrite"
+
+
 def test_chat_opens_no_door_of_its_own():
     allowed = ("__future__", "hashlib", "cairn.librarian.loop",
                "cairn.librarian.summarize", "cairn.librarian.trees")
@@ -287,6 +324,7 @@ def _main() -> int:
         test_receive_routes_chat_mail_and_refuses_the_rest,
         test_the_shim_wakes_the_device_on_demand,
         test_no_seam_and_no_utterance_refuse,
+        test_the_seam_stamps_the_research_domain_declared_never_inferred,
         test_chat_opens_no_door_of_its_own,
     ]
     try:

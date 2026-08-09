@@ -336,6 +336,105 @@ def test_the_sole_path_tooth_reds_on_a_planted_dialer():
         "and it is caught OUTSIDE cairn/ — the blind spot the hand-rolled glob had")
 
 
+# ------------------------------------------------- the domains: dressing and the walk-rule
+
+def _domain_stacks(*, allow=None):
+    """Walk fixtures WITH a domains stack: general (default, adds nothing) and 'narrow', a
+    fixture vertical carrying a dressing and, when given, an escalation walk-rule. Two fake
+    providers, never the real unkeyed cloud rungs."""
+    return {
+        "providers": {"providers": [
+            {"name": "p-cheap", "protocol": "ollama", "cash_per_mtoken": 0.1, "enabled": True},
+            {"name": "p-dear", "protocol": "ollama", "cash_per_mtoken": 0.2, "enabled": True},
+        ]},
+        "models": {"models": [{"name": "m", "serves": ["generate"]}]},
+        "combos": {"combos": [{"provider": "p-cheap", "model": "m"},
+                              {"provider": "p-dear", "model": "m"}]},
+        "domains": {"domains": [
+            {"name": "general", "default": True, "why": "fixture default",
+             "prompts": {"generate": ""}, "escalation": {}, "prefers": []},
+            {"name": "narrow", "default": False, "why": "fixture vertical",
+             "prompts": {"generate": "Fixture dressing: answer narrowly."},
+             "escalation": ({"allow": allow} if allow else {}), "prefers": []},
+        ]},
+    }
+
+
+_DOMAIN_OVERLAY = {"p-cheap": {"endpoint": "http://cheap:11434"},
+                   "p-dear": {"endpoint": "http://dear:11434"}}
+
+
+def test_the_outbound_body_wears_the_named_domains_prompt_content():
+    """Ticket tell 1, answered by CAPTURE, not narration: the request dressed by the domain
+    seam reaches the host with the row's prompt content in the /api/generate body's own
+    'system' field — domains applied, not decorative."""
+    from cairn.inference_domain import domain
+    stacks = _domain_stacks()
+    dressed, name = domain._domain_dressed(
+        {"kind": "generate", "prompt": "the question", "domain": "narrow"}, stacks=stacks)
+    assert name == "narrow"
+    t = Transport(_REAL_GENERATE)
+    _resolver(t)(dressed)
+    body = t.bodies[-1]
+    assert body["system"] == "Fixture dressing: answer narrowly.", \
+        f"the captured outbound body must wear the domain's prompt content: {body}"
+    assert body["prompt"] == "the question", "the caller's own prompt crosses verbatim beside it"
+
+
+def test_a_bare_requests_outbound_body_is_byte_for_byte_undressed():
+    """The default adds nothing: a bare request's dressed form posts exactly the pre-domains
+    body — no system field, no domain key, nothing new for the host to see."""
+    from cairn.inference_domain import domain
+    dressed, name = domain._domain_dressed(
+        {"kind": "generate", "prompt": "plain"}, stacks=_domain_stacks())
+    assert name == "general"
+    t = Transport(_REAL_GENERATE)
+    _resolver(t)(dressed)
+    assert sorted(t.bodies[-1]) == ["model", "options", "prompt", "stream"], \
+        f"a general call's host body must carry no domain artifacts: {sorted(t.bodies[-1])}"
+
+
+def _domain_walk(request, *, allow=None, cheap_answers=True, dear_answers=True):
+    dialed: list[str] = []
+
+    def transport(url, body, timeout):
+        dialed.append(url)
+        up = cheap_answers if url.startswith("http://cheap") else dear_answers
+        if not up:
+            raise host.HostUnreachable(f"nobody home at {url}")
+        return 200, json.dumps(_REAL_GENERATE).encode()
+
+    r = host.ollama_resolver(model="m", stacks=_domain_stacks(allow=allow),
+                             overlay=_DOMAIN_OVERLAY, transport=transport,
+                             get=lambda u, t: (200, b'{"models": []}'))
+    return r(request), dialed
+
+
+def test_generals_walk_is_todays_walk_exactly():
+    """The default vertical reproduces the pre-domains dial sequence under identical
+    fixtures — cheapest first, walk on unreachability only (hypothesize falsifier)."""
+    bare, bare_dialed = _domain_walk({"kind": "generate", "prompt": "x"},
+                                     cheap_answers=False, dear_answers=True)
+    named, named_dialed = _domain_walk({"kind": "generate", "prompt": "x",
+                                        "domain": "general"},
+                                       cheap_answers=False, dear_answers=True)
+    assert bare_dialed == named_dialed, \
+        f"general must dial exactly the bare sequence: {bare_dialed} vs {named_dialed}"
+    assert named["provenance"]["provider"] == "p-dear"
+
+
+def test_the_walk_obeys_the_domains_escalation_rule():
+    """The GETTING rule: a domain allowing only the dear rung never dials the cheap one,
+    and the skipped rung is loud in the trace — never a silent narrowing."""
+    out, dialed = _domain_walk({"kind": "generate", "prompt": "x", "domain": "narrow"},
+                               allow=["p-dear"])
+    assert out["provenance"]["provider"] == "p-dear"
+    assert not any(u.startswith("http://cheap") for u in dialed), \
+        f"a rung outside the walk-rule must never be dialed: {dialed}"
+    assert any("walk-rule" in w for w in out["provenance"]["route_walked"]), \
+        "the skipped rung must ride the provenance naming the rule that skipped it"
+
+
 def _main() -> int:
     checks = [
         test_an_unmetered_response_is_refused_not_metered_as_zero,
@@ -356,6 +455,10 @@ def _main() -> int:
         test_a_falsifier_survives_an_unreadable_digest_and_says_so,
         test_no_other_module_in_the_tree_opens_the_inference_host,
         test_the_sole_path_tooth_reds_on_a_planted_dialer,
+        test_the_outbound_body_wears_the_named_domains_prompt_content,
+        test_a_bare_requests_outbound_body_is_byte_for_byte_undressed,
+        test_generals_walk_is_todays_walk_exactly,
+        test_the_walk_obeys_the_domains_escalation_rule,
     ]
     for check in checks:
         check()

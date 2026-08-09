@@ -1,0 +1,31 @@
+{
+  "_why": "Stack 4 of authored rows (ticket the-domain-carries-the-inference-side, idea 2026-08-08-now-there-was-supposed-to-be-a): the DOMAIN VERTICALS — the second part of the inference proxy. A row answers WITH WHAT CONTENT a request arrives (prompts), and HOW it may be gotten (escalation walk-rule, model preference); the reasoning stays in the calling device — Akien's boundary sentence: 'the reasoning happens in the calling device, but getting the inference comes from here.' Rows are FIELD SETS an instance composes, never classes it belongs to (the ticket/probe/task precedent; falsifier tell 6). Exactly one row is default: a bare call rides it silently, and the default being a ROW keeps it out of code branches. Prompts dress the request on the MISS path only — a stored answer is never transformed on the way out (Law 7) — and the dressed form is what canonicalizes, so editing a row's prompt text is asking a new question, never serving a stale answer to it.",
+  "escalation_note": "escalation.allow, when present, lists the provider names the routed walk may dial for this domain — a GETTING rule (which rungs, never a judgment on answer content). Absent means every survivor of the nest's shake, which is today's walk exactly.",
+  "prefers_note": "prefers lists model names the nest ORDERS toward, never a cut: survivors carrying a preferred model sort ahead, cost order kept within each group, and every sieve's cut is untouchable by preference. Empty means the cheapest-first order stands untouched.",
+  "domains": [
+    {
+      "name": "general",
+      "default": true,
+      "why": "the default vertical: a bare call is a general call, and general adds NOTHING by design — empty prompts, no walk restriction, no preference — so the default lives as an authored row, not a code branch, and a pre-domains caller is byte-for-byte unchanged.",
+      "prompts": {"generate": ""},
+      "escalation": {},
+      "prefers": []
+    },
+    {
+      "name": "coding",
+      "default": false,
+      "why": "code-shaped asks want models tuned for code and answers that run — the vertical the future fail-over-to-LLM inspectors ride (their tickets cast when the consumer appears, per the idea).",
+      "prompts": {"generate": "You are assisting with software engineering inside the Cairn system. Answer with precise, runnable code, name concrete files and commands, and say plainly when you are unsure."},
+      "escalation": {},
+      "prefers": ["qwen3-coder:30b", "qwen2.5-coder:14b"]
+    },
+    {
+      "name": "research",
+      "default": false,
+      "why": "the librarian's vertical — the first real consumer (Telos 2): a research turn wants answers grounded in the provided material, with gaps named rather than papered over. Declared by the librarian's seam, never inferred from message content (chat tooth 15).",
+      "prompts": {"generate": "You are assisting with research. Ground your answer in the material provided, cite what you actually use, and say plainly when the material does not answer the question."},
+      "escalation": {},
+      "prefers": []
+    }
+  ]
+}

@@ -48,12 +48,12 @@ class RouteRefused(RuntimeError):
 
 
 def load_stacks(stacks_dir: str | Path | None = None) -> dict:
-    """The three authored stacks, loaded and cross-indexed. Refuses loudly on absence —
+    """The four authored stacks, loaded and cross-indexed. Refuses loudly on absence —
     a router without its rules must never quietly fall back to a literal (the defect
     this module exists to end)."""
     d = Path(stacks_dir) if stacks_dir else STACKS_DIR
     out = {}
-    for name in ("providers", "models", "combos"):
+    for name in ("providers", "models", "combos", "domains"):
         path = d / f"{name}.json"
         if not path.exists():
             raise RouteRefused(
@@ -61,6 +61,33 @@ def load_stacks(stacks_dir: str | Path | None = None) -> dict:
                 "does; there is no literal to fall back to (ruling 2026-08-08)")
         out[name] = json.loads(path.read_text())
     return out
+
+
+_DOMAIN_ROW_FIELDS = ("name", "why", "prompts", "escalation")
+
+
+def domain_rows(stacks: dict | None = None) -> dict:
+    """The domain verticals, validated: ``{"rows": {name: row}, "default": name}``.
+
+    A row is a FIELD SET (ticket the-domain-carries-the-inference-side, falsifier tell 6)
+    and the loader refuses malformed rows loudly: exactly one default (a bare call must
+    have exactly one place to land), and every row complete — a row missing its why or its
+    prompts is a vertical that cannot be adjudicated, not a vertical with defaults."""
+    stacks = stacks or load_stacks()
+    rows = (stacks.get("domains") or {}).get("domains") or []
+    lacks = []
+    for row in rows:
+        missing = [f for f in _DOMAIN_ROW_FIELDS if f not in row]
+        if missing:
+            lacks.append(f"row {row.get('name', '(unnamed)')!r} lacks {missing}")
+    defaults = [r["name"] for r in rows if r.get("default")]
+    if len(defaults) != 1:
+        lacks.append(f"exactly one row must be default; found {defaults or 'none'}")
+    if lacks:
+        raise RouteRefused(
+            "the domains stack is malformed — " + "; ".join(lacks)
+            + " — a vertical is a complete field set or it is not a vertical")
+    return {"rows": {r["name"]: r for r in rows}, "default": defaults[0]}
 
 
 def load_overlay(path: str | Path | None = None) -> dict:
@@ -165,7 +192,7 @@ def the_nest() -> list:
     return _NEST_CACHE
 
 
-def route(kind: str, model: str | None = None, *,
+def route(kind: str, model: str | None = None, *, domain: str | None = None,
           stacks: dict | None = None, overlay: dict | None = None) -> dict:
     """One shake of the nest over the combos: what may this request dial, cheapest first?
 
@@ -174,7 +201,12 @@ def route(kind: str, model: str | None = None, *,
     (ties keep the combos stack's own order — the author's preference is the tiebreak).
     The resolver dials survivors in order and walks on HostUnreachable: the nest decides
     WHO may be dialed, the walk discovers who ANSWERS — reachability is a per-call fact,
-    never a snapshot. No survivors is a loud RouteRefused carrying the full trace."""
+    never a snapshot. No survivors is a loud RouteRefused carrying the full trace.
+
+    ``domain`` names a vertical whose ``prefers`` REORDERS the survivors — preferred
+    models sort ahead, cost order kept within each group. An ordering input, never a cut:
+    the survivor set is identical with and without it, and no preference outranks a sieve
+    (a preferred never-route row was cut before ordering ever sees it)."""
     stacks = stacks or load_stacks()
     overlay = overlay if overlay is not None else load_overlay()
     providers = {p["name"]: p for p in stacks["providers"]["providers"]}
@@ -206,6 +238,14 @@ def route(kind: str, model: str | None = None, *,
                 "cash_per_mtoken": view["provider"].get("cash_per_mtoken"),
             })
     survivors.sort(key=lambda s: s["cash_per_mtoken"])  # stable: ties keep authored order
+    if domain is not None:
+        rows = domain_rows(stacks)["rows"]
+        if domain not in rows:
+            raise RouteRefused(
+                f"no domain row named {domain!r} in the domains stack — a vertical is an "
+                f"authored row, never an ad-hoc string; rows: {sorted(rows)}")
+        prefers = rows[domain].get("prefers") or []
+        survivors.sort(key=lambda s: 0 if s["model"] in prefers else 1)  # stable reorder
     if not survivors:
         raise RouteRefused(
             f"no combo survives the nest for kind={kind!r}"

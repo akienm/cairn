@@ -71,10 +71,13 @@ DEFAULT_QUERY = "what should the chat interface do when someone talks to the lib
 
 
 def embed_via_domain(model: str = DEFAULT_MODEL):
-    """The embed seam, composed: text -> vector, metered and cached, host behind one door."""
+    """The embed seam, composed: text -> vector, metered and cached, host behind one door.
+    Stamped ``domain='research'`` like every librarian seam — a declared fact about who is
+    asking; an embed is never dressed (the vector must not move), so the stamp lands only
+    in provenance and the canonical is untouched (warm cache rows still hit)."""
     resolver = host.ollama_resolver(model=model)
     def embed(text: str) -> list[float]:
-        return domain.resolve({"kind": "embed", "prompt": text},
+        return domain.resolve({"kind": "embed", "prompt": text, "domain": "research"},
                               resolver=resolver)["answer"]["vector"]
     return embed
 
@@ -102,7 +105,8 @@ def embed_metered_via_domain(model: str = DEFAULT_MODEL):
     that depends on it moves."""
     resolver = host.ollama_resolver(model=model)
     def embed(text: str) -> dict:
-        got = domain.resolve({"kind": "embed", "prompt": text}, resolver=resolver)
+        got = domain.resolve({"kind": "embed", "prompt": text, "domain": "research"},
+                             resolver=resolver)
         counters = (got.get("provenance") or {}).get("counters") or {}
         return {"vector": got["answer"]["vector"],
                 "tokens": counters.get("prompt_eval_count"),
@@ -114,12 +118,19 @@ def dual_seam(embed_model: str = DEFAULT_MODEL, generate_model: str = GENERATE_M
     """Both verbs, one door. The model is stamped ON THE REQUEST by kind — embed requests
     ride the embedding model, generate requests the drafting model — so the model is part
     of the canonical form and the two can never share a cache row. One resolver serves
-    both: ollama_resolver honors the request's own ``model`` over its default."""
+    both: ollama_resolver honors the request's own ``model`` over its default.
+
+    The librarian is the research vertical's first real consumer (ticket
+    the-domain-carries-the-inference-side): every request through this seam is stamped
+    ``domain='research'`` — a DECLARED fact about who is asking, set here by rule, never
+    inferred from message content (chat tooth 15). The domains stack owns what the stamp
+    means (prompts, walk-rule); this seam only names it."""
     resolver = host.ollama_resolver(model=generate_model)
     def resolve(request: dict) -> dict:
         request = dict(request)
         request.setdefault(
             "model", embed_model if request.get("kind") == "embed" else generate_model)
+        request.setdefault("domain", "research")
         return domain.resolve(request, resolver=resolver)
     return resolve
 

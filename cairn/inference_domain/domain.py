@@ -77,8 +77,44 @@ def canonicalize(request: dict) -> str:
     `{"a":1,"b":2}` and `{"b":2,"a":1}` are the SAME question. It does NOT collapse semantic
     equivalence — that is the hard core (T1.3), a filed edge. This is honest structure, not a
     claim to have solved paraphrase-equivalence.
+
+    The ``domain`` NAME is excluded — it says how the request got dressed and walked, never
+    what is being asked; the dressing CONTENT the domain applied (the ``system`` text) is in
+    the dict and IS part of the question (ticket the-domain-carries-the-inference-side). So a
+    bare call and an explicit default-domain call are one question (one cache line), a
+    pre-domains row's canonical still matches its old question, and editing a row's prompt
+    text changes the canonical — a new dressing is a new question, never a stale answer.
     """
-    return json.dumps(request, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    view = {k: v for k, v in request.items() if k != "domain"}
+    return json.dumps(view, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def _domain_dressed(request: dict, *, stacks: dict | None = None) -> tuple[dict, str]:
+    """The domain seam (RECEIVED, before CANONICALIZE): resolve which vertical rides and
+    dress the request with its content — on the way IN only, so a stored answer is never
+    transformed on the way out (Law 7).
+
+    A bare request rides the default row (the domains stack marks exactly one); an unknown
+    name refuses loudly — a vertical is an authored row, never an ad-hoc string. Dressing
+    applies to ``generate`` only (dressing an embed would move the vector, not inform the
+    model), and a caller's own ``system`` outranks the row's — the reasoning stays in the
+    calling device; the row only supplies what the caller left unsaid.
+    """
+    from cairn.inference_domain import route as route_mod   # lazy: keeps import-light
+    table = route_mod.domain_rows(stacks)
+    name = request.get("domain") or table["default"]
+    row = table["rows"].get(name)
+    if row is None:
+        raise route_mod.RouteRefused(
+            f"no domain row named {name!r} in the domains stack — a vertical is an authored "
+            f"row, never an ad-hoc string; rows: {sorted(table['rows'])}")
+    dressed = dict(request)
+    dressed["domain"] = name
+    if dressed.get("kind", "generate") == "generate":
+        content = (row.get("prompts") or {}).get("generate") or ""
+        if content:
+            dressed.setdefault("system", content)
+    return dressed, name
 
 
 def ensure_cache(*, table: str = CACHE, conn=None) -> None:
@@ -121,7 +157,8 @@ def _latest_valid_answer(canonical: str, now: datetime, *, table: str, conn) -> 
     return max(valid, key=lambda r: r["created"])
 
 
-def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = CACHE, conn=None) -> dict:
+def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = CACHE,
+            conn=None, stacks: dict | None = None) -> dict:
     """Run the inference-ticket workflow and return the answer.
 
     `resolver(request) -> {"answer": <jsonb-able>, "cost": <number>, "falsifier"?, "horizon"?,
@@ -131,6 +168,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
 
     Returns `{"answer", "hit": bool, "canonical"}`.
     """
+    request, domain_name = _domain_dressed(request, stacks=stacks)
     canonical = canonicalize(request)
     own = conn or store.connect()
     try:
@@ -151,7 +189,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                     "answer": prior["answer"],
                     "falsifier": prior.get("falsifier") or "",
                     "horizon": prior.get("horizon") or "",
-                    "provenance": {"served_from": str(prior["created"])},
+                    "provenance": {"served_from": str(prior["created"]), "domain": domain_name},
                     "cost": prior["cost"],
                 },
                 conn=own,
@@ -167,12 +205,14 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             # mutated what it serves would be worse than none).
             return {"answer": prior["answer"], "hit": True, "canonical": canonical,
                     "cost": prior["cost"],
-                    "provenance": {"served_from": str(prior["created"])}}
+                    "provenance": {"served_from": str(prior["created"]), "domain": domain_name}}
 
         # MISS — the one place the host is touched. Meter (this row) + resolve + record, as one
         # append: the answer, its falsifier/horizon (so it can later be invalidated, T1.4), its
         # provenance, and the real `cost` spent.
         result = resolver(request)
+        provenance = dict(result.get("provenance") or {})
+        provenance["domain"] = domain_name    # which vertical rode — the watch reads this
         store.write(
             table,
             CACHE_OWNER,
@@ -182,14 +222,14 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                 "answer": result["answer"],
                 "falsifier": result.get("falsifier") or "",
                 "horizon": result.get("horizon") or "",
-                "provenance": result.get("provenance") or {},
+                "provenance": provenance,
                 "cost": result.get("cost", 0),
             },
             conn=own,
         )
         return {"answer": result["answer"], "hit": False, "canonical": canonical,
                 "cost": result.get("cost", 0),
-                "provenance": result.get("provenance") or {}}
+                "provenance": provenance}
     finally:
         if conn is None:
             own.close()

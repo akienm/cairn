@@ -3,15 +3,15 @@
     "claim": "proof test_host.py passes under python3",
     "caller": "cc",
     "date": "2026-07-26T19:56:29",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 \u2192 green, else red)",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_unmetered_response_is_refused_not_metered_as_zero\n  PASS  test_the_cost_is_the_sum_of_the_hosts_own_counters\n  PASS  test_an_embed_meters_its_input_tokens_alone\n  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\ngreen \u2014 the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
+      "stdout_tail": "  PASS  test_an_unmetered_response_is_refused_not_metered_as_zero\n  PASS  test_the_cost_is_the_sum_of_the_hosts_own_counters\n  PASS  test_an_embed_meters_its_input_tokens_alone\n  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns \u2014 the seal removes the route"
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "trail_link": "ed1ee89f07004382c5c8d4b7f847d2a7557418229c1e50f1a5651c42e005b929"
     },
@@ -22,17 +22,37 @@
     "claim": "proof test_host.py passes under python3",
     "caller": "ticket the-inference-proxy-is-a-rules-stack",
     "date": "2026-08-08T17:16:50",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 \u2192 green, else red)",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_unmetered_response_is_refused_not_metered_as_zero\n  PASS  test_the_cost_is_the_sum_of_the_hosts_own_counters\n  PASS  test_an_embed_meters_its_input_tokens_alone\n  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\n  PASS  test_the_sole_path_tooth_reds_on_a_planted_dialer\ngreen \u2014 the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
+      "stdout_tail": "  PASS  test_an_unmetered_response_is_refused_not_metered_as_zero\n  PASS  test_the_cost_is_the_sum_of_the_hosts_own_counters\n  PASS  test_an_embed_meters_its_input_tokens_alone\n  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\n  PASS  test_the_sole_path_tooth_reds_on_a_planted_dialer\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns \u2014 the seal removes the route"
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "source_fingerprint": "a1abbcdbee1cef462106c31a133a7474980bfb6d4424203d638df1518af9019a"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_host.py passes under python3",
+    "caller": "cc",
+    "date": "2026-08-08T20:19:36",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\n  PASS  test_the_sole_path_tooth_reds_on_a_planted_dialer\n  PASS  test_the_outbound_body_wears_the_named_domains_prompt_content\n  PASS  test_a_bare_requests_outbound_body_is_byte_for_byte_undressed\n  PASS  test_generals_walk_is_todays_walk_exactly\n  PASS  test_the_walk_obeys_the_domains_escalation_rule\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "69b344fb94d57b3666573a9d40eba0bc2709fa8f59ad3abbf08f0c04bbfa1e76",
+      "trail_link": "2955bed93f95831d996b2eda04f1574bcd262aeb81695dd6b9451485ae6caf60"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

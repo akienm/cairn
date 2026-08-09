@@ -116,6 +116,115 @@ def test_the_meter_measures_spent_against_avoided():
     assert report["avoided"] >= 200.0, f"hits must be metered as avoided spend: {report}"
 
 
+def _stacks_with_prompts(text: str) -> dict:
+    """A fixture domains stack riding the REAL other three (the seam only reads domains
+    rows), with a non-default vertical whose generate dressing is ``text``."""
+    from cairn.inference_domain import route
+    stacks = dict(route.load_stacks())
+    stacks["domains"] = {"domains": [
+        {"name": "general", "default": True, "why": "fixture default",
+         "prompts": {"generate": ""}, "escalation": {}, "prefers": []},
+        {"name": "research", "default": False, "why": "fixture vertical",
+         "prompts": {"generate": text}, "escalation": {}, "prefers": []},
+    ]}
+    return stacks
+
+
+def test_a_bare_call_and_the_explicit_default_are_one_question():
+    """The default rides silently (ticket falsifier tell 3): a bare request and one naming
+    the default domain share a canonical — same question, one cache line — and the bare
+    canonical is byte-for-byte the pre-domains form (no new key rides it)."""
+    r = _CountingResolver()
+    bare = domain.resolve({"q": "default-rides", "kind": "generate", "prompt": "p"},
+                          resolver=r, table=_TABLE)
+    named = domain.resolve({"q": "default-rides", "kind": "generate", "prompt": "p",
+                            "domain": "general"}, resolver=r, table=_TABLE)
+    assert named["hit"] is True and r.calls == 1, \
+        "naming the default must be the same question as not naming it"
+    assert bare["canonical"] == named["canonical"]
+    assert "domain" not in bare["canonical"] and "system" not in bare["canonical"], \
+        "a bare general call's canonical must carry no domain artifacts — byte-for-byte the old question"
+
+
+def test_two_domains_are_never_one_question():
+    """The cache-collision defect (hypothesize falsifier): a dressed vertical's request
+    canonicalizes apart from the bare one, so one vertical's answer is never served to
+    the other."""
+    r = _CountingResolver()
+    stacks = _stacks_with_prompts("Ground your answer in the material provided.")
+    tag = {"q": "collide", "kind": "generate", "prompt": "p"}
+    bare = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
+    dressed = domain.resolve({**tag, "domain": "research"}, resolver=r, table=_TABLE,
+                             stacks=stacks)
+    assert bare["canonical"] != dressed["canonical"], \
+        "two requests differing only in (dressing-bearing) domain must never share a canonical"
+    assert dressed["hit"] is False and r.calls == 2, "the dressed ask is its own miss"
+
+
+def test_the_provenance_carries_the_domain_marker_on_both_paths():
+    """The watch reads this marker: a miss row and a hit row both land it, and the bare
+    path lands the default's name — every row answers 'which vertical rode?'."""
+    r = _CountingResolver()
+    stacks = _stacks_with_prompts("dressing")
+    tag = {"q": "marker", "kind": "generate", "prompt": "p", "domain": "research"}
+    miss = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
+    hit = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
+    assert miss["provenance"]["domain"] == "research" and hit["hit"] is True
+    assert hit["provenance"]["domain"] == "research", "the marker rides the hit path too"
+    bare = domain.resolve({"q": "marker-bare", "kind": "generate", "prompt": "p"},
+                          resolver=r, table=_TABLE, stacks=stacks)
+    assert bare["provenance"]["domain"] == "general", \
+        "a bare call's row must still say which vertical rode (the default's name)"
+
+
+def test_editing_a_rows_prompt_is_a_new_question():
+    """A prompt edit must never serve the pre-edit cached answer (hypothesize falsifier):
+    the dressing is in the canonical, so new dressing = new question = fresh miss."""
+    r = _CountingResolver()
+    tag = {"q": "edit", "kind": "generate", "prompt": "p", "domain": "research"}
+    domain.resolve(dict(tag), resolver=r, table=_TABLE,
+                   stacks=_stacks_with_prompts("first dressing"))
+    again = domain.resolve(dict(tag), resolver=r, table=_TABLE,
+                           stacks=_stacks_with_prompts("second dressing"))
+    assert again["hit"] is False and r.calls == 2, \
+        "an edited row's dressing must re-ask the host, never serve the stale answer"
+
+
+def test_an_unknown_domain_is_refused_before_any_spend():
+    """A vertical is an authored row, never an ad-hoc string — and the refusal costs no
+    host call and lands no row."""
+    from cairn.inference_domain.route import RouteRefused
+    r = _CountingResolver()
+    try:
+        domain.resolve({"q": "unknown", "kind": "generate", "prompt": "p",
+                        "domain": "no-such-vertical"}, resolver=r, table=_TABLE)
+        raise AssertionError("an unknown domain must refuse loudly")
+    except RouteRefused as e:
+        assert "no-such-vertical" in str(e)
+    assert r.calls == 0, "the refusal must land before the host is touched"
+
+
+def test_a_malformed_domains_stack_is_refused():
+    """Exactly one default, every row complete — the loader refuses, never defaults."""
+    from cairn.inference_domain import route
+    stacks = dict(route.load_stacks())
+    stacks["domains"] = {"domains": [
+        {"name": "a", "default": True, "why": "w", "prompts": {}, "escalation": {}},
+        {"name": "b", "default": True, "why": "w", "prompts": {}, "escalation": {}},
+    ]}
+    try:
+        route.domain_rows(stacks)
+        raise AssertionError("two default rows must refuse")
+    except route.RouteRefused as e:
+        assert "default" in str(e)
+    stacks["domains"] = {"domains": [{"name": "only", "default": True, "why": "w"}]}
+    try:
+        route.domain_rows(stacks)
+        raise AssertionError("an incomplete row must refuse")
+    except route.RouteRefused as e:
+        assert "lacks" in str(e)
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -134,6 +243,12 @@ def _main() -> int:
         test_verify_before_answer_a_stale_entry_re_resolves,
         test_the_owner_gates_the_cache,
         test_the_meter_measures_spent_against_avoided,
+        test_a_bare_call_and_the_explicit_default_are_one_question,
+        test_two_domains_are_never_one_question,
+        test_the_provenance_carries_the_domain_marker_on_both_paths,
+        test_editing_a_rows_prompt_is_a_new_question,
+        test_an_unknown_domain_is_refused_before_any_spend,
+        test_a_malformed_domains_stack_is_refused,
     ]
     try:
         for check in checks:

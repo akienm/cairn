@@ -244,8 +244,13 @@ def ollama_resolver(
         options = {"temperature": temperature, **(request.get("options") or {})}
 
         if kind == "generate":
-            body = _post("/api/generate", {"model": name, "prompt": prompt, "stream": False,
-                                           "options": options},
+            payload = {"model": name, "prompt": prompt, "stream": False, "options": options}
+            if request.get("system"):
+                # The domain seam's dressing (or a caller's own system text) rides ollama's
+                # native 'system' field — it is part of the question and canonicalizes
+                # upstream, so it must reach the host, never be dropped here.
+                payload["system"] = request["system"]
+            body = _post("/api/generate", payload,
                          endpoint=endpoint, timeout=timeout, transport=send)
             if "response" not in body:
                 raise HostRefused(f"/api/generate returned no 'response' field: {sorted(body)}")
@@ -318,10 +323,28 @@ def _routed_resolver(*, model: str, timeout: float, transport, get, temperature:
             raise BadRequest(
                 f"unknown request kind {kind!r} — this resolver sends 'generate' or 'embed'. "
                 "Guessing would answer a different question than the one asked.")
+        domain = request.get("domain")
+        allow = None
+        if domain is not None:
+            row = route_mod.domain_rows(stacks)["rows"].get(domain)
+            if row is None:
+                raise BadRequest(
+                    f"no domain row named {domain!r} in the domains stack — a vertical is an "
+                    "authored row, never an ad-hoc string")
+            # The domain's escalation walk-rule: WHICH rungs this vertical's walk may dial —
+            # a GETTING rule only (Akien's boundary sentence: the reasoning happens in the
+            # calling device). It filters the walk, never the nest: the shake and its cuts
+            # are untouched, and a skipped rung is in the trace, not silent. Absent = every
+            # survivor, which is exactly today's walk.
+            allow = (row.get("escalation") or {}).get("allow")
         plan = route_mod.route(kind, request.get("model") or model,
-                               stacks=stacks, overlay=overlay)
+                               domain=domain, stacks=stacks, overlay=overlay)
         walked: list[str] = []
         for rung in plan["survivors"]:
+            if allow is not None and rung["provider"] not in allow:
+                walked.append(f"{rung['provider']}: outside domain {domain!r}'s escalation "
+                              f"walk-rule (allow: {allow})")
+                continue
             if rung["protocol"] != "ollama":
                 walked.append(f"{rung['provider']}: no transport for protocol "
                               f"{rung['protocol']!r} yet — grows when the rung goes live")

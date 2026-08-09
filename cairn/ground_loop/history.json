@@ -83,5 +83,53 @@
     "validation": "cairn/ground_loop/validations/test_ground_loop.json",
     "at": "2026-08-09T11:20",
     "seq": 8
+  },
+  {
+    "from": "THINKME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "forward",
+    "ticket": "an-entry-point-starts-the-loop-only-once",
+    "note": "journaled late: the cast rode /sorted on 2026-07-30, before this family used the chokepoint; the crossing is recorded now, at the start of the claimed voyage (chart chain orient-20260809T113644 -> validate-20260809T114421)",
+    "at": "2026-08-09T11:47:00",
+    "seq": 9
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'an-entry-point-starts-the-loop-only-once', and the ticket names its /intent firing and its /sorted door firing",
+    "ticket": "an-entry-point-starts-the-loop-only-once",
+    "note": "the build opens: the atomic single-start guard at the runner own door — flock held for life on <instance>/run.lock, loser reads the record and refuses loudly; charted 2026-08-09, both stage_needs marked DONE",
+    "at": "2026-08-09T11:47:01",
+    "seq": 10
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "ticket": "an-entry-point-starts-the-loop-only-once",
+    "note": "built: guard.py (flock held for life on <instance>/run.lock — kernel-released on death, no stale claim) + the guarded door in __main__.py (loser reads the RECORD, exits 3, never scans); 4 adversarial teeth appended, 17/17 green twice, 13 pre-existing teeth unedited",
+    "at": "2026-08-09T11:52:00",
+    "seq": 11
+  },
+  {
+    "from": "PROVEME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'an-entry-point-starts-the-loop-only-once'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T114947-0fc75d96e523.json",
+    "ticket": "an-entry-point-starts-the-loop-only-once",
+    "note": "the runtime lives exactly once: any entry point spawning python3 -m cairn.ground_loop gets the only-once guarantee as a CALL — flock claim held for life (kernel-released on death, no stale state), loser exits 3 naming what the RECORD said. Live-fired: two simultaneous launches -> one resident loop; a corpse never bricks the next start. Verdict verdict-20260809T114947-0fc75d96e523",
+    "at": "2026-08-09T11:50:30",
+    "seq": 12
   }
 ]

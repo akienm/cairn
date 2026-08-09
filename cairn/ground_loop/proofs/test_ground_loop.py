@@ -334,6 +334,125 @@ def test_a_homeless_device_writes_nothing():
     assert gl._liveness_home is None
 
 
+# --- the single-start guard (ticket an-entry-point-starts-the-loop-only-once) ---
+# Read-then-act is not atomic: two entry points can both read DEAD inside the
+# same 5s window. So the claim is ONE syscall — flock, held for life, kernel-
+# released on death — and these teeth are ADVERSARIAL: real processes contend,
+# exactly one wins, the loser is loud, and a corpse leaves nothing stale.
+
+import subprocess as _subprocess
+import time as _time
+
+from cairn.ground_loop.guard import LOCK_NAME, claim_singleton
+from cairn.ground_loop.__main__ import EXIT_ALREADY_RUNNING
+
+_CLAIMANT = (
+    "import sys, time\n"
+    "from pathlib import Path\n"
+    "from cairn.ground_loop.guard import ClaimRefused, claim_singleton\n"
+    "try:\n"
+    "    claim = claim_singleton(Path(sys.argv[1]))\n"
+    "except ClaimRefused:\n"
+    "    print('LOST', flush=True); sys.exit(3)\n"
+    "print('WON', flush=True)\n"
+    "time.sleep(15)\n"
+)
+
+
+def _spawn_claimant(home):
+    env = dict(_os.environ, PYTHONPATH=str(_REPO_ROOT))
+    return _subprocess.Popen([sys.executable, "-c", _CLAIMANT, str(home)],
+                             stdout=_subprocess.PIPE, stderr=_subprocess.PIPE,
+                             env=env, text=True)
+
+
+def test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        a, b = _spawn_claimant(home), _spawn_claimant(home)
+        # A generous ceiling so a loaded box cannot flake this: the loser must
+        # REFUSE (never block) well inside it.
+        deadline = _time.time() + 10
+        loser = None
+        while _time.time() < deadline and loser is None:
+            for p in (a, b):
+                if p.poll() is not None:
+                    loser = p
+            if loser is None:
+                _time.sleep(0.05)
+        assert loser is not None, \
+            "one claimant must lose within the bound — a blocked (or doubly-won) race is the defect"
+        winner = b if loser is a else a
+        assert winner.poll() is None, "exactly ONE winner — the other still holds its claim"
+        out, _ = loser.communicate(timeout=5)
+        assert loser.returncode == 3 and out.strip() == "LOST", \
+            "the loser's refusal is loud and typed — nonzero, distinct, never a silent exit"
+        winner.kill()
+        winner.wait(timeout=5)
+
+
+def test_a_sigkilled_winner_leaves_no_stale_claim():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        holder = _spawn_claimant(home)
+        assert holder.stdout.readline().strip() == "WON"
+        holder.kill()                      # SIGKILL — no cleanup code runs, by design
+        holder.wait(timeout=5)
+        claim = claim_singleton(home)      # must win IMMEDIATELY: no break-the-claim dance,
+        claim.release()                    # no staleness protocol — the kernel released it
+        assert (home / LOCK_NAME).exists(), \
+            "the leftover lock file is INERT, not stale — only the held flock ever meant anything"
+
+
+def test_the_held_claim_survives_the_records_churn():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        claim = claim_singleton(home)
+        for i in range(50):                # the beat's os.replace churns liveness.json's inode
+            write_liveness(_T0 + _td(seconds=i), {"beats": i}, _os.getpid(), home)
+        contender = _spawn_claimant(home)
+        contender.communicate(timeout=10)
+        assert contender.returncode == 3, \
+            "the claim rides its own file's inode — 50 record replaces cannot shake it loose"
+        claim.release()
+        after = _spawn_claimant(home)
+        assert after.stdout.readline().strip() == "WON", "released → the very next claimant wins"
+        after.kill()
+        after.wait(timeout=5)
+
+
+def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
+    door = ("import sys\n"
+            "from pathlib import Path\n"
+            "from cairn.ground_loop.__main__ import main\n"
+            "sys.exit(main(Path(sys.argv[1])))\n")
+    env = dict(_os.environ, PYTHONPATH=str(_REPO_ROOT))
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        claim = claim_singleton(home)
+        # A LIVE record behind the held claim: the loser names pid and age FROM THE
+        # RECORD (the owned answer, Law 6) — the one tooth that must ride the wall
+        # clock, because main() does; the 5s window is generous against startup cost.
+        write_liveness(_dt.now(_tz.utc).astimezone(), {"beats": 4}, 4242, home)
+        loser = _subprocess.run([sys.executable, "-c", door, str(home)],
+                                capture_output=True, text=True, timeout=10, env=env)
+        assert loser.returncode == EXIT_ALREADY_RUNNING == 3, \
+            "the door's loser exits DISTINCTLY — not 1 (a crash), not 0 (a lie)"
+        assert "refusing to start a second loop" in loser.stderr
+        assert "4242" in loser.stderr, \
+            "the loser reports what the RECORD said (pid), never a process-table scan"
+        # A STALE record behind a still-held claim — alive inside its first beats or
+        # merely slow: the lock outranks the read, so still no second loop.
+        write_liveness(_dt.now(_tz.utc).astimezone() - _td(seconds=60),
+                       {"beats": 4}, 4242, home)
+        slow = _subprocess.run([sys.executable, "-c", door, str(home)],
+                               capture_output=True, text=True, timeout=10, env=env)
+        assert slow.returncode == EXIT_ALREADY_RUNNING
+        assert "outranks the stale read" in slow.stderr, \
+            "alive-but-slow is NOT declared dead — the falsifier's second clause"
+        claim.release()
+
+
 def _main() -> int:
     for check in (test_a_beat_pulses_every_shim_in_order,
                   test_the_firing_is_the_shims_not_the_heartbeats,
@@ -347,7 +466,11 @@ def _main() -> int:
                   test_the_instance_dir_is_born_on_first_write,
                   test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn,
                   test_a_reader_never_sees_a_torn_record,
-                  test_a_homeless_device_writes_nothing):
+                  test_a_homeless_device_writes_nothing,
+                  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly,
+                  test_a_sigkilled_winner_leaves_no_stale_claim,
+                  test_the_held_claim_survives_the_records_churn,
+                  test_the_doors_loser_reports_from_the_record_and_exits_distinctly):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — ground_loop: the heartbeat beats and pulses subscribed shims (in order, "

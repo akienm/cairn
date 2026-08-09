@@ -56,5 +56,25 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_ground_loop.py passes under python3",
+    "caller": "sail:an-entry-point-starts-the-loop-only-once",
+    "date": "2026-08-09T11:48:29",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_beat_pulses_every_shim_in_order\n  PASS  test_the_firing_is_the_shims_not_the_heartbeats\n  PASS  test_subscribe_is_idempotent_and_typed\n  PASS  test_one_shim_raising_cannot_stop_the_beat\n  PASS  test_the_executor_goof_is_gone\n  PASS  test_the_roster_is_the_nav_published_at_all_times\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\n  PASS  test_the_stamp_advances_across_beats_and_pid_and_state_ride\n  PASS  test_the_instance_dir_is_born_on_first_write\n  PASS  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn\n  PASS  test_a_reader_never_sees_a_torn_record\n  PASS  test_a_homeless_device_writes_nothing\n  PASS  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly\n  PASS  test_a_sigkilled_winner_leaves_no_stale_claim\n  PASS  test_the_held_claim_survives_the_records_churn\n  PASS  test_the_doors_loser_reports_from_the_record_and_exits_distinctly\ngreen — ground_loop: the heartbeat beats and pulses subscribed shims (in order, survivably); the firing is the shim's, and the executor goof is gone",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "5e8748a3522ad251bac63872fc18673436e048e72728326ae0a238fff4ed7dac",
+      "trail_link": "670715a7db4d39565e1ee1ece1130a7ffd10a46fa5bf7354e217819334c72fb6"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

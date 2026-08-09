@@ -6,59 +6,14 @@
     "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
     "direction": "forward",
     "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'ground-loop-writes-its-own-liveness'",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T110841-c93aee8392c8.json",
-    "ticket": "ground-loop-writes-its-own-liveness",
-    "note": "PROVED — THE LOOP WRITES ITS OWN LIVENESS, and rung 1 of the ruled ladder has its instrument. The first device record ever to reach instance-space disk: every beat of a homed device atomically touches liveness.json (last-run, state, pid); the read face answers LIVE/DEAD at the ruled 5s (its ONE address, liveness.py:39); the thin runner (python3 -m cairn.ground_loop, 46 lines) beats the ruled 1s. Live-fired: separate-process reads watched the stamp advance (beats 2->10), and 6s after SIGTERM the verdict fell DEAD with the corpse record returned whole — the whole detector, Akiens, working. Anonymous (homeless) devices write nothing: proofs stay pure physics.",
-    "proof": "cairn/ground_loop/proofs/test_ground_loop.py",
-    "validation": "cairn/ground_loop/validations/test_ground_loop.json",
-    "at": "2026-08-09T11:20",
-    "seq": 8
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'an-entry-point-starts-the-loop-only-once'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T114947-0fc75d96e523.json",
+    "ticket": "an-entry-point-starts-the-loop-only-once",
+    "note": "the runtime lives exactly once: any entry point spawning python3 -m cairn.ground_loop gets the only-once guarantee as a CALL — flock claim held for life (kernel-released on death, no stale state), loser exits 3 naming what the RECORD said. Live-fired: two simultaneous launches -> one resident loop; a corpse never bricks the next start. Verdict verdict-20260809T114947-0fc75d96e523",
+    "at": "2026-08-09T11:50:30",
+    "seq": 12
   },
   "window": [
-    {
-      "gate": "proved",
-      "standing": "PROVED — THE CROSSINGS ARE NO LONGER SILENT, and the beat is NOT a crossing. Disposition of troubles/silent-devices-2026-07-27.json: the heartbeat's crossings are roster changes (subscribe, once per device; the idempotent re-subscribe emits nothing) and pulse FAILURES (pulse_refused, per anomaly, error riding the values whole — complete on first pass). A healthy beat emits nothing: a breadcrumb per beat would be the per-pulse firehose the shim lesson forbids; the beat-record it returns is its evidence. Tooth pins one-subscribe-one-breadcrumb, silent healthy beats (three beats, zero crumbs), and the refused pulse. 8/8 green, netns-sealed, clean under the gate.",
-      "proof": "cairn/ground_loop/proofs/test_ground_loop.py",
-      "validation": "cairn/ground_loop/validations/test_ground_loop.json",
-      "kin": "CairnCommons/troubles/silent-devices-2026-07-27.json",
-      "at": "2026-07-27T15:22:31",
-      "seq": 4
-    },
-    {
-      "from": "THINKME",
-      "to": "TICKETME",
-      "standing": "TICKETME",
-      "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
-      "direction": "forward",
-      "ticket": "ground-loop-writes-its-own-liveness",
-      "note": "TICKETME journaled late: the ticket was filed 2026-07-30 (cast_by /sorted, pre-door) but the crossing never rode the chokepoint; recorded now as the voyage opens.",
-      "at": "2026-08-09T11:06",
-      "seq": 5
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'ground-loop-writes-its-own-liveness', and the ticket names its /intent firing and its /sorted door firing",
-      "ticket": "ground-loop-writes-its-own-liveness",
-      "note": "BUILDME entered under the charted course (validate berth validate-20260809T110145-0f2db1e0fe9b): the loop writes its own liveness record as part of every pass, plus the thin wall-clock runner — the first device record ever to reach instance-space disk.",
-      "at": "2026-08-09T11:06",
-      "seq": 6
-    },
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "ticket": "ground-loop-writes-its-own-liveness",
-      "note": "Built: liveness.py (atomic write + read face, the ruled 5s at its ONE address), beat() gains the touch (construction-time liveness_home; anonymous devices write nothing), __main__.py thin runner at the ruled 1s cadence. 13/13 teeth green twice bare — five new: stamp advances, dir born, DEAD/LIVE/absent/torn verdicts, crash-mid-write + hammer torn-read, homeless-writes-nothing.",
-      "at": "2026-08-09T11:15",
-      "seq": 7
-    },
     {
       "from": "PROVEME",
       "to": "PROVED",
@@ -74,7 +29,55 @@
       "validation": "cairn/ground_loop/validations/test_ground_loop.json",
       "at": "2026-08-09T11:20",
       "seq": 8
+    },
+    {
+      "from": "THINKME",
+      "to": "TICKETME",
+      "standing": "TICKETME",
+      "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+      "direction": "forward",
+      "ticket": "an-entry-point-starts-the-loop-only-once",
+      "note": "journaled late: the cast rode /sorted on 2026-07-30, before this family used the chokepoint; the crossing is recorded now, at the start of the claimed voyage (chart chain orient-20260809T113644 -> validate-20260809T114421)",
+      "at": "2026-08-09T11:47:00",
+      "seq": 9
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'an-entry-point-starts-the-loop-only-once', and the ticket names its /intent firing and its /sorted door firing",
+      "ticket": "an-entry-point-starts-the-loop-only-once",
+      "note": "the build opens: the atomic single-start guard at the runner own door — flock held for life on <instance>/run.lock, loser reads the record and refuses loudly; charted 2026-08-09, both stage_needs marked DONE",
+      "at": "2026-08-09T11:47:01",
+      "seq": 10
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "ticket": "an-entry-point-starts-the-loop-only-once",
+      "note": "built: guard.py (flock held for life on <instance>/run.lock — kernel-released on death, no stale claim) + the guarded door in __main__.py (loser reads the RECORD, exits 3, never scans); 4 adversarial teeth appended, 17/17 green twice, 13 pre-existing teeth unedited",
+      "at": "2026-08-09T11:52:00",
+      "seq": 11
+    },
+    {
+      "from": "PROVEME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+      "direction": "forward",
+      "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'an-entry-point-starts-the-loop-only-once'",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T114947-0fc75d96e523.json",
+      "ticket": "an-entry-point-starts-the-loop-only-once",
+      "note": "the runtime lives exactly once: any entry point spawning python3 -m cairn.ground_loop gets the only-once guarantee as a CALL — flock claim held for life (kernel-released on death, no stale state), loser exits 3 naming what the RECORD said. Live-fired: two simultaneous launches -> one resident loop; a corpse never bricks the next start. Verdict verdict-20260809T114947-0fc75d96e523",
+      "at": "2026-08-09T11:50:30",
+      "seq": 12
     }
   ],
-  "count": 9
+  "count": 13
 }

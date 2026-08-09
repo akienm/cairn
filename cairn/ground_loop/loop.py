@@ -38,9 +38,26 @@ FILED EDGES (children of this stone, not faked):
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 
 from cairn.base.device import BaseDevice
-from cairn.ground_loop.liveness import write_liveness
+from cairn.ground_loop.liveness import read_liveness, write_liveness
+
+
+def liveness_pane_data(now, home=None) -> dict:
+    """The LIVENESS pane's DATA (ticket the-ground-loop-pane-shows-its-state) — the read
+    face's own answer, untouched, plus the one presentation fact the page needs: WHICH
+    loop this reports. The pane RENDERS what the loop wrote; it never derives or caches
+    (the ticket's falsifier): verdict, record, age, and any named lack all come from
+    ``read_liveness`` — the ruled 5s threshold's one address — so this pane cannot grow
+    a second opinion about how stale is dead. Pure: ``now`` is injected, so the
+    projection is provable without a clock; the wall-clock wrap happens at declaration
+    (``declared_panes``), the last possible moment."""
+    return {
+        "reports": "the resident singleton's liveness record (instance 0), read from disk "
+        "at request time — whatever process serves this page",
+        **read_liveness(now, home),
+    }
 
 
 class GroundLoopDevice(BaseDevice):
@@ -163,6 +180,23 @@ class GroundLoopDevice(BaseDevice):
         if self._liveness_home is not None:
             write_liveness(now, self.state(), os.getpid(), self._liveness_home)
         return record
+
+    # --- the declared pane: the liveness record, rendered not derived --------
+
+    def declared_panes(self) -> list[dict]:
+        """The ground loop's one pane (ticket the-ground-loop-pane-shows-its-state): the
+        LIVENESS record — last run, state, pid, LIVE/DEAD at the ruled 5s threshold — as
+        every device gets a page: a declared pane the base shim carries, never a route or
+        a port. The handler is ``liveness_pane_data`` wrapped with the wall clock here, at
+        declaration — the projection itself stays pure and provable. The handler takes no
+        ``home``: the pane reports the RESIDENT singleton's record (instance 0) wherever
+        this device object lives, because liveness is the resident loop's owned fact and
+        the page is a view of it, not of the process serving the page."""
+        return [{
+            "kind": "liveness",
+            "label": "Liveness",
+            "handler": lambda: liveness_pane_data(datetime.now(timezone.utc).astimezone()),
+        }]
 
     # --- Form v0 #2 surface -------------------------------------------------
 

@@ -453,6 +453,85 @@ def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
         claim.release()
 
 
+# --- the liveness PANE (ticket the-ground-loop-pane-shows-its-state) ------------
+# The loop's device page — a declared pane through the base shim's STANDARD
+# machinery, never a route or a port of its own. The pane RENDERS what the
+# record says: its data IS read_liveness's own output plus one presentation
+# label, so it cannot derive, cache, or grow a second staleness opinion.
+
+from cairn.ground_loop.loop import liveness_pane_data
+from cairn.ground_loop.shim import GroundLoopShim
+
+
+def test_the_pane_renders_what_the_record_says_and_never_derives():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"
+        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        for probe_now, verdict in ((_T0 + _td(seconds=3), "LIVE"),
+                                   (_T0 + _td(seconds=STALENESS_THRESHOLD_S + 1), "DEAD")):
+            pane = liveness_pane_data(probe_now, home=home)
+            assert {k: v for k, v in pane.items() if k != "reports"} == \
+                read_liveness(probe_now, home=home), \
+                "the pane's verdict/record/age ARE the read face's own output — render, never derive"
+            assert pane["verdict"] == verdict, \
+                "LIVE and DEAD both flow from the one ruled threshold at its one address"
+            assert "resident singleton" in pane["reports"], \
+                "the pane names WHICH loop it reports — the resident record, not the serving process"
+
+
+def test_an_absent_record_renders_the_named_lack_never_blank():
+    with _tempfile.TemporaryDirectory() as td:
+        home = Path(td) / "0"                      # no record has ever been written here
+        pane = liveness_pane_data(_T0, home=home)
+        assert pane["verdict"] == "DEAD" and pane["record"] is None
+        assert "no record at" in pane["lack"], \
+            "absent is a NAMED lack — never blank, never a last-known-good"
+
+
+def test_the_page_assembles_through_the_standard_machinery():
+    gl = GroundLoopDevice()
+    shim = GroundLoopShim(gl)
+    gl.subscribe(shim)                             # the self-join the listener wires
+    assert shim.device() is gl, "the shim fronts the HANDED chassis — never a second loop"
+
+    page = shim.active_page()                      # the REAL BaseShim method, unoverridden
+    assert page["device"] == "ground_loop"
+    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "liveness"], \
+        "the STATUS/SETTINGS floor first (Form v0 #2, projected free), the declared pane appended"
+    pane = page["panes"][2]
+    assert pane["label"] == "Liveness" and "absent" not in pane, \
+        "the handler answered — read_liveness never raises; an absent record is DATA, not a refusal"
+    # The deployed handler reads the RESIDENT record (the wall clock, the real home),
+    # so this tooth pins INVARIANTS, never a snapshot: a verdict either way, the lack
+    # named exactly when the record is absent, the reports label riding.
+    data = pane["data"]
+    assert data["verdict"] in ("LIVE", "DEAD")
+    assert data["record"] is not None or "no record at" in data["lack"]
+    assert "resident singleton" in data["reports"]
+
+
+def test_the_self_subscription_is_inert_under_the_beat():
+    bus = _SpyBus()
+    plain = GroundLoopDevice()
+    plain.subscribe(_Shim("rider", bus))
+    baseline = plain.beat(now="t0")
+
+    looped = GroundLoopDevice()
+    looped.subscribe(GroundLoopShim(looped))
+    looped.subscribe(_Shim("rider", bus))
+    rec = looped.beat(now="t0")
+
+    assert [p["device"] for p in rec["pulses"]] == ["ground_loop", "rider"]
+    own = rec["pulses"][0]
+    assert own.get("fired", []) == [] and own.get("outcome") != "refused", \
+        "the loop pulsing its own probe-less shim evaluates nothing, fires nothing, raises nothing"
+    assert rec["pulses"][1] == baseline["pulses"][0], \
+        "the rider's pulse-record is identical with the self-subscription present"
+    assert bus.posted == [], "no pokes either way — the self-join changes no firing"
+    assert [d["device"] for d in looped.roster()["devices"]] == ["ground_loop", "rider"], \
+        "the one difference is the honest one: the roster (and so the nav) carries ground_loop"
+
+
 def _main() -> int:
     for check in (test_a_beat_pulses_every_shim_in_order,
                   test_the_firing_is_the_shims_not_the_heartbeats,
@@ -470,7 +549,11 @@ def _main() -> int:
                   test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly,
                   test_a_sigkilled_winner_leaves_no_stale_claim,
                   test_the_held_claim_survives_the_records_churn,
-                  test_the_doors_loser_reports_from_the_record_and_exits_distinctly):
+                  test_the_doors_loser_reports_from_the_record_and_exits_distinctly,
+                  test_the_pane_renders_what_the_record_says_and_never_derives,
+                  test_an_absent_record_renders_the_named_lack_never_blank,
+                  test_the_page_assembles_through_the_standard_machinery,
+                  test_the_self_subscription_is_inert_under_the_beat):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — ground_loop: the heartbeat beats and pulses subscribed shims (in order, "

@@ -131,5 +131,53 @@
     "note": "the runtime lives exactly once: any entry point spawning python3 -m cairn.ground_loop gets the only-once guarantee as a CALL — flock claim held for life (kernel-released on death, no stale state), loser exits 3 naming what the RECORD said. Live-fired: two simultaneous launches -> one resident loop; a corpse never bricks the next start. Verdict verdict-20260809T114947-0fc75d96e523",
     "at": "2026-08-09T11:50:30",
     "seq": 12
+  },
+  {
+    "from": "THINKME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "forward",
+    "ticket": "the-ground-loop-pane-shows-its-state",
+    "at": "2026-08-09T13:56:55.680961-06:00",
+    "note": "TICKETME journaled at the voyage's open (cast 2026-07-30 predates the doors; string conformed this morning, siblings' precedent). The ticket IS the record: falsifier, the 5s one-address rule, the honesty requirement on stale/absent.",
+    "seq": 13
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'the-ground-loop-pane-shows-its-state', and the ticket names its /intent firing and its /sorted door firing",
+    "ticket": "the-ground-loop-pane-shows-its-state",
+    "at": "2026-08-09T13:56:55.680961-06:00",
+    "note": "BUILDME opens under the charted course (validate berth validate-20260809T135623-563fbce9b31e claims this ticket): declared_panes on the device + GroundLoopShim + listener wiring, the pane a pure read-projection of liveness.read_liveness.",
+    "seq": 14
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "ticket": "the-ground-loop-pane-shows-its-state",
+    "note": "built: liveness_pane_data (pure projection of read_liveness — render, never derive; the reports label the only addition) + declared_panes on the device (wall-clock wrap at declaration) + GroundLoopShim fronting the HANDED chassis + the one-line listener subscribe; 4 teeth appended, 21/21 green twice, 17 pre-existing teeth unedited, web_server suite green unchanged, threshold at its one address",
+    "at": "2026-08-09T14:02:12.707010-06:00",
+    "seq": 15
+  },
+  {
+    "from": "PROVEME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-ground-loop-pane-shows-its-state'",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T140503-4d3deeed27b7.json",
+    "ticket": "the-ground-loop-pane-shows-its-state",
+    "note": "the heartbeat has a face: /device/ground_loop renders the liveness record through the standard pane machinery — the pane IS read_liveness plus one label (render, never derive; one threshold at one address), the shim fronts the handed chassis, the self-subscription is inert, and the nav carries ground_loop because the roster does. Live-fired three states on one listener: named lack, LIVE pid+age, DEAD 7s after SIGTERM. Verdict verdict-20260809T140503-4d3deeed27b7",
+    "at": "2026-08-09T14:05:19.322145-06:00",
+    "seq": 16
   }
 ]

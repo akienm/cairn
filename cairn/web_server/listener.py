@@ -43,6 +43,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.ground_loop.loop import GroundLoopDevice
+from cairn.ground_loop.shim import GroundLoopShim
 from cairn.harbor_master import voyage
 from cairn.librarian.shim import LibrarianShim
 from cairn.web_server.server import WebServerDevice
@@ -84,6 +85,7 @@ def main(argv=None) -> int:
     # the first poke (no host/DB touched until then). The harbor source is REAL (disk-computed).
     # The launcher wiring the FULL running heartbeat is the filed instance-space edge.
     heartbeat = GroundLoopDevice()
+    heartbeat.subscribe(GroundLoopShim(heartbeat))  # its own page rides its own roster
     heartbeat.subscribe(LibrarianShim())
     device = WebServerDevice(heartbeat, harbor_source=voyage.traffic_image, port=args.port)
     httpd = ThreadingHTTPServer((args.bind, args.port), _handler_for(device))

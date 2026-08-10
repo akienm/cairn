@@ -215,18 +215,30 @@ def test_three_classes_register_no_workflow_at_all_and_that_is_named_here():
     assert sorted(with_v2) == ["code-seam", "skill"], sorted(with_v2)
 
 
-def test_build_inspector_and_the_deposit_ticket_are_the_two_at_learnme():
-    """WHO IS STILL PARKED IN THE DISSOLVED STATE — measured, never assumed.
+def test_the_dissolved_state_is_empty_and_nothing_may_enter_it():
+    """THE DISSOLVED STATE IS EMPTY — measured, never assumed. The migration debt is RETIRED.
 
-    RE-MEASURED 2026-08-03. The row used to demand BOTH names the ticket predicted. One of
-    them, ``the-deposit-rides-the-read``, has since crossed and carries a WATCHME, so the old
-    assertion redded on a boat that had done exactly what the migration wanted — the failure
-    mode this repo has paid for before: a proof over live state pinning a SNAPSHOT instead of
-    an INVARIANT. The invariant is: whoever is parked there is parked LEGALLY, and the roster
-    only shrinks. ``build_inspector`` is the one left, and it is left for a stated reason —
-    ``emit_migrated`` needs a CROSSING, ``migrate_to_v2`` lands it on PROVEME, and its only
-    legal forward target is PROVED, which would be a fabricated close. That is a real blocker
-    on a real boat, not a fixture, and it is what this row now pins."""
+    HISTORY, kept because the shape is the lesson. This row was born pinning WHO was still
+    parked in dissolved ``LEARNME``, and it named two boats. On 2026-08-03 it was re-measured
+    because one of them, ``the-deposit-rides-the-read``, had crossed and the old assertion
+    redded on a boat that had done exactly what the migration wanted — a proof over live state
+    pinning a SNAPSHOT instead of an INVARIANT. The re-measure kept a SECOND snapshot
+    (``build_inspector`` must still be there) and wrote its own retirement instruction into
+    the failure message: *'has left the dissolved state — which is the WIN this row is waiting
+    for. Retire this row and the migration debt with it.'*
+
+    That win landed 2026-08-07: ``build_inspector`` crossed PROVEME -> PROVED by its own door
+    (commit 1526d7d, 'the last boat leaves the dissolved state by its own door'). RETIRED HERE
+    2026-08-10 — and the three days between are the finding, not a delay. The row went red the
+    moment it won, and a red row is indistinguishable from a broken one by anything that reads
+    it. **Nothing derives the difference between a proof that failed and a debt that cleared**
+    (Law 9's open ticket, green-is-earned-not-assumed); a human had to run the suite and read
+    the sentence. A self-retiring row is only self-retiring if somebody looks.
+
+    WHAT SURVIVES is the half that was always an invariant and that only ever strengthens: the
+    roster shrinks, and it has now shrunk to nothing. Nothing may enter a state that no longer
+    exists — so the assertion is EMPTY, and every future boat is measured against zero rather
+    than against a name somebody has to remember to delete."""
     at_learnme = []
     for p in sorted(_REPO_ROOT.glob("cairn/*/state.json")):
         cur = (json.loads(p.read_text(encoding="utf-8")).get("cursor") or {})
@@ -237,14 +249,12 @@ def test_build_inspector_and_the_deposit_ticket_are_the_two_at_learnme():
                 json.loads(p.read_text(encoding="utf-8")).get("state")):
             at_learnme.append(p.stem)
 
-    assert set(at_learnme) <= {"build_inspector", "the-deposit-rides-the-read"}, (
-        f"a NEW boat is parked in the dissolved state: {sorted(set(at_learnme) - {chr(0)})}. "
-        "The roster only shrinks — nothing may enter a state that no longer exists.")
-    assert "build_inspector" in at_learnme, (
-        "build_inspector has left the dissolved state — which is the WIN this row is waiting "
-        f"for (disk says {at_learnme}). Retire this row and the migration debt with it.")
-    for _name, w in ((n, None) for n in at_learnme):
-        pass          # the landing itself is proved above; this row pins WHO is standing there
+    assert at_learnme == [], (
+        f"a boat is parked in the DISSOLVED state LEARNME: {sorted(set(at_learnme))}. That "
+        "state was removed by code-seam@v2 and its last legal occupant left 2026-08-07 — the "
+        "roster only shrinks, so this is either a new boat minted against a dead workflow "
+        "version or a cursor hand-edited backwards. Neither has a legal path forward: "
+        "migrate_to_v2 lands a boat on PROVEME, and there is no door out of LEARNME.")
 
 
 TESTS = [
@@ -259,7 +269,7 @@ TESTS = [
     test_the_past_is_byte_identical_after_the_migration_crossing,
     test_three_classes_register_no_workflow_at_all_and_that_is_named_here,
     test_every_v1_boat_on_disk_reaches_a_conforming_v2,
-    test_build_inspector_and_the_deposit_ticket_are_the_two_at_learnme,
+    test_the_dissolved_state_is_empty_and_nothing_may_enter_it,
 ]
 
 if __name__ == "__main__":

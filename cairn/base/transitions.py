@@ -13,9 +13,15 @@ The emit-chokepoint factors into three rungs (resolved in the harbor_master /sor
              physics, inherited, inescapable. Validated against the versioned table the
              node-class DEFINITION carries (node_classes/<class>.json), and against the
              ``-ME`` grammar (a summons ends in -ME; a rest does not).
-  - AUTHORITY — who may invoke it? The harbor_master's CLEARANCE gate (child b), which
-             WRAPS this: it calls ``validate_transition`` for legality, then adds the
-             owner-gated, delegable-per-operation authority (Law 6). Not here.
+  - AUTHORITY — who may invoke it? The harbor_master's CLEARANCE gate (child b), which is
+             RULED MANDATORY (2026-08-10) and DOES NOT YET WRAP THIS. It calls
+             ``validate_transition`` for legality, then adds the owner-gated,
+             delegable-per-operation authority (Law 6). Not here — and, as of the
+             measurement below, not anywhere: MEASURED 2026-08-10, 186 emit-shaped records
+             across the component histories and ZERO carrying ``cleared_by``; ``clear()``
+             has no production caller. Until ``emit`` refuses an uncleared crossing, this
+             file's claim to be the *authority* door is an IOU, not a fact
+             (ticket emit-refuses-an-uncleared-crossing).
   - TRUTH  — record it. ``emit`` journals the crossing append-only through the projector
              door (charter-state-history-split), the same door a charter's state rides.
              Two-vantage: the boat's own history (here) + the harbor register (harbor_master).
@@ -67,9 +73,11 @@ THE BUILD GATE (2026-07-27, build_inspector's filed edge (a) landing): a journal
 crossing out of ``PROVEME`` — the crossing OF the gate summons — first runs the
 build_inspector on the component at the crossing's own address (the directory holding
 ``history_path``), and is refused while any sieve reds. The gate lives HERE because this is
-the one door: the clearance gate wraps ``emit``, so wiring anywhere else (the tester's
-discipline, a hook CC remembers to run) would be the run-it-by-discipline gap the inspector
-exists to close. Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
+the one door THE JOURNAL passes through — every record of truth is written here — so wiring
+anywhere else (the tester's discipline, a hook CC remembers to run) would be the
+run-it-by-discipline gap the inspector exists to close. (This sentence used to read 'the
+clearance gate wraps emit', which was false: clearance is ruled mandatory and not yet wired.
+The build gate's argument never depended on it — it depends on emit owning the journal.) Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
 so the record of truth does not move and there is nothing to gate. Kick-backs OUT of PROVEME
 are never gated — retreating on a red is the correct move. An address the census cannot see
 is REFUSED, not skipped: a gate that silently inspects nothing passes everything (Law 8), and
@@ -714,7 +722,9 @@ def _build_gate(history_path: str) -> str:
 
     Provenance: 2026-07-27, build_inspector's filed edge (a) — 'today CC runs it; the lever
     lands when a PROVEME crossing is refused while the inspector reds.' Wired at the
-    emit-chokepoint because the clearance gate wraps emit: this is the one door.
+    emit-chokepoint because emit owns the journal: this is the one door a record of truth
+    passes through. (Not because the clearance gate wraps emit — it does not; ruled
+    mandatory 2026-08-10, unwired, ticket emit-refuses-an-uncleared-crossing.)
     """
     # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
     # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
@@ -794,8 +804,12 @@ def emit(
     If ``history_path``/``state_path`` are given, the crossing appends through the projector's
     single write-door — append-only, cursor bounded, no in-place edit (Law 7). A back-edge
     carries its ``severity`` (how far back); routing very-wrong kick-backs to the ask-Akien
-    escalation is a filed edge, not this rung. AUTHORITY (who may) is the harbor's clearance
-    gate wrapping this call — not checked here.
+    escalation is a filed edge, not this rung. AUTHORITY (who may) BELONGS to the harbor's
+    clearance gate and is NOT checked here — and, as of 2026-08-10, is not checked anywhere:
+    the gate is ruled MANDATORY and is not yet wired, so every crossing on disk was made
+    ambiently. This docstring said 'the harbor's clearance gate wrapping this call', present
+    tense, for as long as the gate has existed. It does not wrap this call.
+    Ticket: emit-refuses-an-uncleared-crossing.
     """
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)

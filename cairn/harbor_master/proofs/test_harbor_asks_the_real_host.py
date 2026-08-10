@@ -26,10 +26,17 @@ hollow build could not pass:
     refusal teeth above would all pass on a build that refused everything.
 
 WHAT THIS DOES NOT PROVE, and the reason is worth carrying: nothing in the running system
-calls ``clear()`` at all. Measured 2026-08-05 — 229 records across 21 component histories,
-146 of them emit-shaped, and ZERO carrying ``cleared_by``. So this proves the harbor CAN ask
-the real host and be refused by it; it does not prove any crossing is gated. That gap is a
-ticket, not a caveat to be read past.
+calls ``clear()`` at all. Re-measured 2026-08-10 — 280 records across the component
+histories, 186 of them emit-shaped, and ZERO carrying ``cleared_by`` (was 146/0 on
+2026-08-05; the gap GREW by 40 in five days). So this proves the harbor CAN ask the real
+host and be refused by it; it does not prove any crossing is gated.
+
+That gap is now a CAST TICKET and no longer a sentence: ``emit-refuses-an-uncleared-crossing``
+(P0, filed 2026-08-10 under ruling ``2026-08-10-clearance-is-mandatory`` — Akien ruled
+clearance MANDATORY, so ``emit`` must refuse a crossing carrying no ``cleared_by``). When
+that ticket proves out, the paragraph above stops being true and this proof gains a sibling
+that watches the door refuse. Until then ``harbor_master`` is RED by its own falsifier, which
+its charter now says out loud.
 
 Runs bare (no daemon, no bus, no instance — ``ask`` is a plain method on the device):
     python3 cairn/harbor_master/proofs/test_harbor_asks_the_real_host.py     # exit 0 = green
@@ -45,6 +52,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.base.transitions import parse_workflow
 from cairn.charter import projector
 from cairn.harbor_master.clearance import HARBOR_LINES, Unresourced, clear
 from cairn.system_rackmount.rackmount import SystemRackmountDevice
@@ -190,6 +198,16 @@ def test_the_refusal_names_the_line_and_never_the_reading():
 def test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded():
     # NON-VACUITY. Three refusal teeth above all pass on a build that refuses everything; this
     # is the one that says the gate is a gate and not a wall.
+    #
+    # READ THE CURSOR THROUGH THE PARSER, never by substring — repaired 2026-08-10. This tooth
+    # asserted `"[PROVEME]" in new` and went red on 2026-08-07 when a summons started rendering
+    # its PICKUP PHASE after a colon (ruling the-ticket-is-the-source-period, commit 08b488c):
+    # PROVEME is a summons, so a cleared move now lands on `[PROVEME:waiting]` and the literal
+    # was never there again. The gate was right and the tooth was wrong — it had pinned the
+    # cursor's RENDERING, which the grammar owns and may extend, instead of the cursor, which
+    # is what this proof is about. Same family as the snapshot-vs-invariant repair in
+    # test_v2_migration.py: `parse_workflow` is the chokepoint's own reader, so an assertion
+    # made through it cannot drift away from the physics it is checking.
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
@@ -198,7 +216,10 @@ def test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded():
             proven_by=_PROVEN, resources=_host(_QUIET),
             history_path=hp, state_path=sp,
         )
-        assert "[PROVEME]" in new, "12.3% CPU and 7.6 GB free is room — the move must clear"
+        walked = parse_workflow(new)
+        assert walked.here == "PROVEME", (
+            f"12.3% CPU and 7.6 GB free is room — the move must clear, and the cursor must "
+            f"stand on PROVEME. The chokepoint's own parser reads it at {walked.here!r}: {new}")
         history = projector.read_history(hp)
         assert len(history) == 1 and history[0]["to"] == "PROVEME"
         assert history[0]["cleared_by"] == _OWNER, "the record names WHO cleared it (Law 7)"

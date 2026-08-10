@@ -235,11 +235,28 @@ def clear(
         nothing had ever gated the field. The majority spelling wins on the ordinary
         ground that it is what Akien calls this hand. The 4 dissenting records are NOT
         repaired: they are a record of truth and they were never improper (Law 7).
-      - ``boat_owner`` — THE COMPONENT WHOSE HISTORY IS BEING APPENDED TO, by name (Law 6:
-        everything has exactly one owner, and the owner alone gates writes to it). For a
-        crossing journaled at ``cairn/base/history.json`` that is ``"base"``. The caller
-        states it; deriving it here from ``history_path`` would be the door minting its
-        own witness.
+      - ``boat_owner`` — WHO OWNS THE VOYAGE, in the same namespace as ``actor``. For a
+        voyage CC sails on Akien's box that is ``"CC"``, so ``actor == boat_owner`` and the
+        move is the owner acting directly (``delegated`` False). CORRECTED 2026-08-10 by
+        the first live fire, and the wrong answer is kept here because it is the instructive
+        one: this paragraph first said "THE COMPONENT WHOSE HISTORY IS BEING APPENDED TO —
+        for a crossing journaled at cairn/base/history.json that is 'base'". The gate
+        compares ``actor`` against ``boat_owner`` for IDENTITY, so a component name puts the
+        two in different namespaces and every CC crossing refuses as ``Unauthorized``, which
+        is exactly what the first real call did. The component owns its history FILE; the
+        boat's owner is a mover, and the two are different ownerships that happened to share
+        a word.
+
+        AND THE HOLE THIS LEAVES IS NAMED, not papered over (ticket
+        ``boat_owner-is-read-not-stated``). The caller states BOTH sides of the identity
+        the gate checks, so a caller can always make them equal — the Law 6 refusal binds an
+        honest caller and nothing else. It is not vacuous by accident: the failure the rung
+        exists for is *a device advancing a boat it does not own*, and that needs
+        ``boat_owner`` read from the BOAT rather than supplied alongside the actor. Nothing
+        on disk carries it today (the ticket's ``owner`` field is prose about components,
+        which is the very confusion corrected above). Until that lands, this argument is a
+        declaration and the gate's other three refusals — proven-space, resources, rules —
+        are the ones doing load-bearing work.
       - ``boat_id`` — THE TICKET. It is already on every gated crossing, so this adds no
         new vocabulary; it names WHICH voyage is moving, where ``boat_owner`` names whose
         water it moves in.
@@ -355,6 +372,17 @@ def clear(
         history_path=history_path,
         state_path=state_path,
         cleared_by=actor,
+        # AND THE ORDINARY FIELD TOO, not only the gate's witness. ``actor`` is the record
+        # vocabulary every existing reader uses for "who moved the boat" — the corpus census
+        # in troubles/every-crossing-goes-around-the-clearance-gate, the probes at
+        # cairn/*/probes/, the state window. ``cleared_by`` is a different claim: that the
+        # authority rung RAN, and who it cleared. On a cleared crossing the two carry the
+        # same string by construction, and that is not redundancy to trim — dropping
+        # ``actor`` would make the first cleared crossings in the system's life invisible to
+        # every census already written, which is the failure of keeping a word and replacing
+        # what fills it. Stamped here rather than accepted from ``journal_extra`` because
+        # ``actor`` is a named parameter of this function: a caller cannot supply it twice.
+        actor=actor,
         # The record of truth names the PROOF the clearance leaned on and the seal's date, so a
         # reader a year out can go and look at the same evidence the gate looked at rather than
         # taking "it was proven" on the record's word (Law 5 — the proof shares the address).

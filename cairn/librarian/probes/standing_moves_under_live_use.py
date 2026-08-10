@@ -38,10 +38,26 @@ from cairn.librarian.trees import NODES
 
 _OWNING_TICKET = "the-tenure-loop"
 
-# The live tree this probe watches — the librarian's standing commons tree, not a proof
-# nonce table. A proof table would be home-field advantage as a measurement (the sibling
-# base probe measured exactly that failure live, 2026-07-30).
-_TREE = "commons"
+# The live tree this probe watches — NAMED AGAINST A MEASUREMENT, never copied from a
+# neighbouring module's default. Measured 2026-08-10 (ticket a-probe-reads-the-tree-the-
+# face-writes): librarian_nodes holds 88 rows distributed {'library': 84, 'founding': 4},
+# and 'library' is what the live face composes its session with (LibrarianShim.__init__'s
+# own default, shim.py). All four RATIFIED rows — the 3 earned and the 1 refuted, which are
+# precisely the tenure outcomes this probe exists to watch — sit in 'library'.
+#
+# It read 'commons' from arming until 2026-08-10, and 'commons' is an ABSENT KEY in that
+# distribution, not a small count: no row has ever existed there. So the instrument was
+# armed against an address the running system has never written to, and it reported neither
+# health nor decoration — it reported nothing, which at a watch is indistinguishable from
+# health. That is how the-tenure-loop's WATCHME crossed PROVED with a dead eye.
+#
+# It is still not a proof nonce table, and must not become one: a proof table would be
+# home-field advantage as a measurement (the sibling base probe measured exactly that
+# failure live, 2026-07-30). The seam is pinned by
+# proofs/test_the_probe_reads_the_tree_the_face_writes.py, which reads the face's tree from
+# LibrarianShim's signature rather than from a literal — so if either end moves, the tooth
+# reds on the DISAGREEMENT rather than on a string it carries a copy of.
+_TREE = "library"
 
 # When the loop LANDED (commit b599d34, 2026-08-09) — crossings before it predate the
 # behaviors being watched and are not evidence about them.

@@ -104,6 +104,48 @@ def test_a_jsonb_row_round_trips_as_structure():
     assert stored["evidence"]["seal"]["verdict"] == payload["seal"]["verdict"]
 
 
+def test_the_owner_gates_every_update():
+    # THE SECOND WRITE FACE (pulled by the librarian's tenure loop): mutation of an
+    # existing row is gated exactly like insertion, and the change round-trips as
+    # structure through store.read — a hollow face that gates but never mutates, or
+    # mutates ungated, trips one of these.
+
+    # the owner mutates, the rowcount says one row moved, and the read shows the change
+    changed = store.update(
+        _JSONB_TABLE, "tester",
+        {"evidence": {"seal": {"verdict": "sealed"}, "attests": ["a", "b"]}},
+        where="claim = %s", params=(_TEST_CLAIM,),
+    )
+    assert changed == 1, "the owner's update must report exactly the one matched row"
+    back = store.read(_JSONB_TABLE, where="claim = %s", params=(_TEST_CLAIM,))
+    assert back[0]["evidence"]["seal"]["verdict"] == "sealed", "the mutation must round-trip"
+    assert back[0]["evidence"]["attests"] == ["a", "b"], "jsonb survives mutation as structure"
+
+    # a non-owner is refused BEFORE the wire (Law 6)
+    try:
+        store.update(_JSONB_TABLE, "impostor", {"claim": "stolen"}, where="claim = %s", params=(_TEST_CLAIM,))
+        raise AssertionError("a non-owner update must be REFUSED (Law 6)")
+    except OwnershipError:
+        pass
+
+    # an unregistered table has no owner to gate it
+    try:
+        store.update(f"_never_created_{_NONCE}", "anyone", {"x": "y"}, where="true")
+        raise AssertionError("an update to a table db_domain never created must be refused")
+    except OwnershipError:
+        pass
+
+    # a where-less mutation is never implicit
+    try:
+        store.update(_JSONB_TABLE, "tester", {"claim": "everything"}, where="  ")
+        raise AssertionError("a where-less update must be refused — whole-table mutation is never implicit")
+    except ValueError:
+        pass
+
+    # matched-nothing is 0, not an error — the caller tells the two apart by the count
+    assert store.update(_JSONB_TABLE, "tester", {"claim": "x"}, where="claim = %s", params=("no-such-row",)) == 0
+
+
 def _cleanup():
     """Drop this run's ephemeral tables and registry rows — leave no fixtures behind."""
     conn = store.connect()
@@ -124,6 +166,7 @@ def _main() -> int:
         test_the_owner_gates_every_write,
         test_write_to_an_unowned_table_is_refused,
         test_a_jsonb_row_round_trips_as_structure,
+        test_the_owner_gates_every_update,
     ]
     try:
         for check in checks:

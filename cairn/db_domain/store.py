@@ -217,6 +217,48 @@ def write(table: str, owner: str, row: dict, *, conn=None) -> None:
             own_conn.close()
 
 
+def update(table: str, owner: str, changes: dict, *, where: str, params: tuple = (), conn=None) -> int:
+    """Mutate named columns of EXISTING rows — the second write face, gated exactly like the first.
+
+    Law 6: the owner alone gates writes, and a mutation is a write. Same refusals as
+    `write` (wrong owner, table db_domain never created), checked before anything touches
+    the wire. `where` is mandatory: an implicit whole-table mutation is a defect, not a
+    default — a caller that truly means every row says so in its own where clause.
+
+    Returns the number of rows changed, so a caller can tell "mutated" from "matched
+    nothing" without a second read. Pulled by the librarian's tenure loop (promotion
+    writes `standing`, corroboration appends ride `provenance`), which mutates rows that
+    already exist — INSERT can never say that.
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is None:
+        raise OwnershipError(f"{table!r} was not created through db_domain — it has no owner to gate a write")
+    if recorded != owner:
+        raise OwnershipError(f"{owner!r} may not write to {table!r} — its owner is {recorded!r} (Law 6)")
+    if not changes:
+        raise ValueError(f"an update to {table!r} needs at least one column to change")
+    if not where or not where.strip():
+        raise ValueError(f"refusing a where-less update to {table!r} — a whole-table mutation is never implicit")
+
+    own_conn = conn or connect()
+    try:
+        names = list(changes.keys())
+        # jsonb columns want a JSON string, not a Python dict, on the wire — same as write.
+        values = [json.dumps(v) if isinstance(v, (dict, list)) else v for v in changes.values()]
+        stmt = sql.SQL("UPDATE {tbl} SET {assigns} WHERE ").format(
+            tbl=sql.Identifier(table),
+            assigns=sql.SQL(", ").join(
+                sql.SQL("{} = {}").format(sql.Identifier(n), sql.Placeholder()) for n in names
+            ),
+        ) + sql.SQL(where)
+        with own_conn.cursor() as cur:
+            cur.execute(stmt, values + list(params))
+            return cur.rowcount
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
 def read(table: str, *, where: str | None = None, params: tuple = (), conn=None) -> list[dict]:
     """Read rows from `table` as dicts. Reads are not owner-gated (Law 6 gates writes)."""
     own_conn = conn or connect()

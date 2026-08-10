@@ -28,10 +28,20 @@ clause where chat differs from summarize: ZERO anchors are LEGAL — a greeting 
 on nothing, and honest smalltalk is conversation, not invention. Reply prose is runtime
 state: it never deposits into the tree (only summaries land).
 
+AND IT TAKES CORRECTION (2026-08-10, ticket revision-with-receipts). Refutation is an
+INPUT, never a discovery — cosine finds nodes that are ALIKE, and a statement and its
+negation are alike, so nothing here goes looking for contradictions. The ``correct:``
+prefix carries a stated retirement to ``trees.refute``: the correction is deposited as a
+node (so the retirement cites something IN the record) and the named node is marked
+``refuted``, keeping its content and its birth provenance. Invalidate, never delete —
+a later reader must be able to tell "never known" from "known and retired" (Law 7).
+
 THE ROUTE IS PHYSICS, NOT A GUESSED INTENT. "When asked" is a legible affordance — the
-``summarize:`` prefix — never an inference spent classifying the utterance (Law 1: the
-resolver is for the novel, and a guessed intent is an unmeasured hypothesis steering a
-real host call, Law 3). The surface SAYS the affordance exists; nobody memorizes it.
+``summarize:`` and ``correct:`` prefixes — never an inference spent classifying the
+utterance (Law 1: the resolver is for the novel, and a guessed intent is an unmeasured
+hypothesis steering a real host call, Law 3). The surface SAYS the affordances exist;
+nobody memorizes them. Routing costs two string comparisons, so a correction can still be
+stated with the inference host face-down.
 
 A REFUSAL IS A REPLY, NOT A CRASH. The verbs refuse loudly (``SummaryRefused``,
 ``BackfillRefused``) and a conversation is a diagnostic surface a human is standing at:
@@ -55,11 +65,18 @@ import hashlib
 
 from cairn.librarian.loop import BackfillRefused, resolve_query
 from cairn.librarian.summarize import _MARKER, SUMMARY_REGION_K, SummaryRefused, summarize
-from cairn.librarian.trees import NODES, LibrarianDevice
+from cairn.librarian.trees import (NODES, DepositRefused, LibrarianDevice,
+                                   RefutationRefused, deposit, refute)
 
-# The affordance that routes a turn to the transducer — stated on the surface, matched
-# case-insensitively here. A prefix, not an intent guess: deterministic, free, legible.
+# The affordances that route a turn away from the core loop — stated on the surface,
+# matched case-insensitively here. A prefix, not an intent guess: deterministic, free,
+# legible. Nothing below spends an inference to decide what an utterance MEANT.
 SUMMARIZE_PREFIX = "summarize:"
+# Refutation is an INPUT, never a discovery (settled at the /sorted cast): cosine finds
+# nodes that are ALIKE, and a statement and its negation are alike, so nothing can go
+# looking for contradictions. Somebody has to SAY it, and this is where they say it.
+CORRECT_PREFIX = "correct:"
+CORRECT_SHAPE = "correct: <node_id> <why it is wrong>"
 
 
 class ChatRefused(RuntimeError):
@@ -72,12 +89,55 @@ def _utterance_digest(utterance: str) -> str:
 
 def route(utterance: str) -> tuple[str, str]:
     """``(kind, question)`` for one utterance — physics, not a guessed intent. The
-    ``summarize:`` prefix routes to the transducer with the remainder as the question;
-    everything else IS the question and rides the core loop."""
+    ``summarize:`` prefix routes to the transducer, ``correct:`` to the retirement door,
+    each with the remainder as the payload; everything else IS the question and rides the
+    core loop. Two string comparisons, zero model calls: an utterance's ROUTE is never
+    something the system infers about the person (Law 1, and the reason a correction can
+    still be stated with the inference host face-down)."""
     text = utterance.strip()
-    if text.lower().startswith(SUMMARIZE_PREFIX):
+    low = text.lower()
+    if low.startswith(SUMMARIZE_PREFIX):
         return "summarize", text[len(SUMMARIZE_PREFIX):].strip()
+    if low.startswith(CORRECT_PREFIX):
+        return "correct", text[len(CORRECT_PREFIX):].strip()
     return "resolve", text
+
+
+def correction_turn(payload: str, *, resolve, tree: str, table: str, conn=None) -> dict:
+    """The correction arm: a stated retirement carried to ``trees.refute``.
+
+    ``payload`` is ``<node_id> <why it is wrong>`` — the first whitespace-delimited token
+    is the id, the remainder is the evidence. Deterministic split, never a parse the model
+    is asked to perform: guessing which node a person meant is exactly the manufactured
+    revision this behaviour exists to keep out. A malformed correction is refused with the
+    SHAPE it wanted, never with a guessed id.
+
+    The correction itself is deposited as a node before it retires anything, so the
+    retirement cites something that is IN the record and a later reader can walk to the
+    reason. That deposit is minted this turn, and it is passed to ``refute`` as a
+    legitimate refuter anyway: crossing honesty guards against the system manufacturing
+    its OWN evidence inside a resolve crossing, and this node is a verbatim record of an
+    input that came from outside. The parameter stays on ``refute`` so that a resolve path
+    which one day grows a refutation arm cannot quietly cheat.
+
+    Returns the receipt — no articulation, no generate: one embed for the deposit and
+    nothing else.
+    """
+    parts = payload.split(None, 1)
+    if len(parts) < 2 or not parts[1].strip():
+        raise ChatRefused(
+            f"correction: expected {CORRECT_SHAPE!r}, got {payload!r} — "
+            "refusing to guess which node was meant. State the node id, then the reason."
+        )
+    target_id, evidence = parts[0].strip(), parts[1].strip()
+
+    vector = resolve({"kind": "embed", "prompt": evidence})["answer"]["vector"]
+    minted = deposit(evidence, vector,
+                     {"source": "correction", "retires": target_id},
+                     tree=tree, table=table, conn=conn)
+    receipt = refute(target_id, minted["node_id"], evidence,
+                     tree=tree, table=table, conn=conn)
+    return {"retired": receipt, "refuter": minted}
 
 
 def reply_prompt(utterance: str, walk: list[dict]) -> str:
@@ -146,7 +206,7 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
     """One conversational turn. Returns the TURN, whichever way it lands::
 
         {"utterance": what was said,
-         "kind":      "resolve" | "summarize" | "refused",
+         "kind":      "resolve" | "summarize" | "correct" | "refused",
          "reply":     {"prose", "citations", "loop": resolve_query's verdict, whole}
                       | summarize's rendering
                       | {"refusal": the verb's loud refusal, carried whole}}
@@ -169,11 +229,15 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
         if kind == "summarize":
             reply = summarize(question, resolve=resolve, tree=tree, k=summary_k,
                               table=table, conn=conn, dev=dev)
+        elif kind == "correct":
+            reply = correction_turn(question, resolve=resolve, tree=tree,
+                                    table=table, conn=conn)
         else:
             verdict = resolve_query(question, resolve=resolve, tree=tree, k=k,
                                     table=table, conn=conn, dev=dev)
             reply = articulate(question, verdict, resolve=resolve)
-    except (SummaryRefused, BackfillRefused, ChatRefused) as e:
+    except (SummaryRefused, BackfillRefused, ChatRefused, RefutationRefused,
+            DepositRefused) as e:
         # The verb already carried the raw draft whole; here it becomes the reply.
         kind, reply = "refused", {"refusal": str(e)}
 

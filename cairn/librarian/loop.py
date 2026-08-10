@@ -119,7 +119,13 @@ def _question_digest(question: str) -> str:
 def _label_evidence(walk: list[dict], deposited: list[str], now: datetime) -> None:
     """Mark each walked node ``evidence: True|False`` — may it count toward RESOLVED?
 
-    Three refusals, two of them the tenure loop's halves (ticket the-tenure-loop):
+    Four refusals, three of them tenure behaviours (tickets the-tenure-loop and
+    revision-with-receipts):
+      - REFUTATION: a node someone has retired as WRONG never counts again. This is tested
+        FIRST, above the earned pass-through, and the order is the whole correctness of the
+        clause: a node that had EARNED tenure before it was refuted would otherwise
+        short-circuit to ``evidence: True`` and the retirement would be silently
+        ineffective for exactly the nodes that matter most.
       - CROSSING HONESTY: a node this crossing itself minted is excluded — a deposit
         cannot count toward resolving the utterance that spawned it (the 2026-08-09
         measured defect: four same-turn mints cited as a RESOLVED walk).
@@ -127,16 +133,24 @@ def _label_evidence(walk: list[dict], deposited: list[str], now: datetime) -> No
         nobody independently walked to it in its window. Earned nodes and nodes carrying
         any attestation count whole, whatever their age. Arithmetic at read; no clock
         process anywhere.
-    The node STAYS in the walk, labeled — the reader sees what was near and why it did
-    not count (Law 3: the measurement visible, not silently subtracted).
+    The node STAYS in the walk, labeled with ``evidence_why`` — the reader sees what was
+    near and why it did not count (Law 3: the measurement visible, not silently
+    subtracted). All of it is arithmetic over fields the row already carries: no new
+    query, no generate, no clock process.
     """
     excluded = set(deposited)
     for node in walk:
+        if node.get("standing") == "refuted":
+            node["evidence"] = False
+            node["evidence_why"] = "refuted — retired as wrong; see provenance.attestations"
+            continue
         if node["node_id"] in excluded:
             node["evidence"] = False
+            node["evidence_why"] = "minted by this crossing — cannot resolve its own utterance"
             continue
         if node.get("standing") == "earned":
             node["evidence"] = True
+            node["evidence_why"] = "earned tenure"
             continue
         prov = node.get("provenance") or {}
         birth_q = prov.get("question")
@@ -145,14 +159,18 @@ def _label_evidence(walk: list[dict], deposited: list[str], now: datetime) -> No
         # or the home-field shard would immortalize itself by re-minting.
         if any(a.get("question") != birth_q for a in (prov.get("attestations") or [])):
             node["evidence"] = True
+            node["evidence_why"] = "attested from a different question — independent reach"
             continue
         created = node.get("created")
         if created is None:
             node["evidence"] = True   # no birth record — age cannot be held against it
+            node["evidence_why"] = "no birth record — age cannot be held against it"
             continue
         if created.tzinfo is None:
             created = created.replace(tzinfo=timezone.utc)
         node["evidence"] = (now - created) <= DECAY_HORIZON
+        node["evidence_why"] = ("within the decay horizon" if node["evidence"]
+                                else "uncorroborated hypothesis past the decay horizon")
 
 
 def _evidence_best(walk: list[dict]) -> float | None:
@@ -273,6 +291,42 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
                     backfills, deposited, refused, tree, tenure=tenure)
 
 
+def _receipts(walk: list[dict], tenure: dict | None) -> list[dict]:
+    """The citation back: for each node this crossing ACTED ON, the question it was born
+    from — so a turn can name the earlier question it revises (Akien's "cite back to
+    changes", ticket revision-with-receipts).
+
+    Three ways a node earns a receipt, strongest first: it was ``refuted`` (someone
+    retired it and this walk still surfaced it), it was ``promoted`` to earned tenure by
+    this crossing, or it was ``corroborated``. A node in more than one of those is
+    reported once, under the strongest.
+
+    Arithmetic over the walk already in hand: no new query, no generate, no clock. A node
+    whose birth question is unrecorded comes back ``"question": None`` rather than a
+    manufactured one — 19 of the 78 live rows carry no ``provenance.question`` (library
+    folds and seeds), and inventing a plausible question for them would be minted
+    attribution wearing a bibliography. The absence is reported; it is never filled.
+    """
+    by_id = {n["node_id"]: n for n in walk}
+    why: dict[str, str] = {}
+    for nid in (tenure or {}).get("corroborated", []):
+        why[nid] = "corroborated"
+    for nid in (tenure or {}).get("promoted", []):
+        why[nid] = "promoted"
+    for node in walk:
+        if node.get("standing") == "refuted":
+            why[node["node_id"]] = "refuted"
+
+    out = []
+    for nid, reason in why.items():
+        prov = (by_id.get(nid, {}).get("provenance") or {})
+        q = prov.get("question")
+        out.append({"node_id": nid, "why": reason,
+                    "question": q if isinstance(q, str) and q.strip() else None,
+                    "source": prov.get("source")})
+    return out
+
+
 def _verdict(dev, question, verdict, reason, walk, best, floor,
              backfills, deposited, refused, tree, tenure=None) -> dict:
     # GATE CONTACT: one crossing of the core loop, RESOLVED and UNRESOLVED alike — an
@@ -285,7 +339,8 @@ def _verdict(dev, question, verdict, reason, walk, best, floor,
                      "promoted": len(tenure["promoted"]) if tenure else 0})
     out = {"verdict": verdict, "reason": reason, "nodes": walk, "best": best,
            "floor": floor, "backfills": backfills, "deposited": deposited,
-           "refused_at_door": refused, "question": question}
+           "refused_at_door": refused, "question": question,
+           "receipts": _receipts(walk, tenure)}
     if tenure is not None:
         out["tenure"] = tenure
     return out

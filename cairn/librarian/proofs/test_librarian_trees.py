@@ -32,6 +32,8 @@ Unix socket is a file (db_domain's documented asymmetry, exercised for real here
 from __future__ import annotations
 
 import ast
+import hashlib
+import json
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -252,6 +254,165 @@ def _cleanup():
         conn.close()
 
 
+# ---------------------------------------------------------------------------
+# THE RETIREMENT DOOR (ticket revision-with-receipts) — the fifth tenure behaviour.
+# ---------------------------------------------------------------------------
+
+_RETIRE_TREE = "retire"
+
+
+def _row(nid):
+    rows = store.read(_TABLE, where="node_id = %s AND tree = %s", params=(nid, _RETIRE_TREE))
+    return rows[0] if rows else None
+
+
+def _fingerprint(nid) -> str:
+    """A hash of the WHOLE row — so a refused call cannot have moved one byte of it."""
+    return hashlib.sha256(
+        json.dumps(_row(nid), sort_keys=True, default=str).encode("utf-8")
+    ).hexdigest()
+
+
+def _land(content, vector, source="llm-backfill", **extra):
+    prov = {"source": source, **extra}
+    return deposit(content, vector, prov, tree=_RETIRE_TREE, table=_TABLE)["node_id"]
+
+
+def _make_earned(nid):
+    store.update(_TABLE, "librarian", {"standing": "earned"},
+                 where="node_id = %s AND tree = %s", params=(nid, _RETIRE_TREE))
+
+
+def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
+    target = _land("the library closes at four on weekdays", [1.0, 0.0])
+    refuter = _land("the posted hours say six, not four", [0.9, 0.1], source="correction")
+    before = _row(target)
+
+    # ONE store.update — the standing change and the receipt cannot land separately, or a
+    # reader could see a node retired with no reason attached to it (Law 6, one owner moment).
+    calls = []
+    real_update = store.update
+
+    def counting_update(*a, **kw):
+        calls.append((a, kw))
+        return real_update(*a, **kw)
+
+    trees.store.update = counting_update
+    try:
+        out = trees.refute(target, refuter, "the posted hours say six",
+                           tree=_RETIRE_TREE, table=_TABLE)
+    finally:
+        trees.store.update = real_update
+    assert len(calls) == 1, f"the retirement must be ONE update, saw {len(calls)}"
+
+    after = _row(target)
+    assert out["refuted"] and out["was"] == "hypothesis", out
+    assert after["standing"] == "refuted", after["standing"]
+    # INVALIDATE, NEVER DELETE: the row is still there and its content is byte-identical.
+    assert after["content"] == before["content"], "content must not move"
+    assert after["vector"] == before["vector"], "the vector must not move"
+    assert after["provenance"]["source"] == before["provenance"]["source"], "birth provenance must not move"
+    att = after["provenance"]["attestations"][-1]
+    assert att["source"] == "refutation" and att["refuter"] == refuter, att
+    assert att["evidence"] == "the posted hours say six" and att["at"], att
+
+
+def test_the_retirement_door_names_every_lack_in_one_pass():
+    target = _land("mondays are for the archive stacks", [0.5, 0.5])
+    refuter = _land("the stacks are shut on mondays entirely", [0.4, 0.6], source="correction")
+    dead = _land("a claim that will itself be retired", [0.1, 0.9], source="correction")
+    trees.refute(dead, refuter, "this one goes first", tree=_RETIRE_TREE, table=_TABLE)
+
+    # Each refusal raises BEFORE any write — the row's whole fingerprint is unmoved.
+    before = _fingerprint(target)
+    cases = {
+        "empty evidence": (target, refuter, "   "),
+        "unknown target": ("0" * 16, refuter, "a fine reason"),
+        "unknown refuter": (target, "f" * 16, "a fine reason"),
+        "self-refutation": (target, target, "a fine reason"),
+        "an already-refuted refuter": (target, dead, "a fine reason"),
+    }
+    for name, (n, r, e) in cases.items():
+        msg = _refuses(trees.RefutationRefused, trees.refute, n, r, e,
+                       tree=_RETIRE_TREE, table=_TABLE)
+        assert "Nothing landed" in msg, f"{name}: the refusal must say nothing landed"
+        assert _fingerprint(target) == before, f"{name}: the row moved on a REFUSED call"
+
+    # Crossing honesty, unchanged: a node minted DURING this crossing cannot be the refuter.
+    msg = _refuses(trees.RefutationRefused, trees.refute, target, refuter, "a fine reason",
+                   tree=_RETIRE_TREE, table=_TABLE, minted_this_crossing=(refuter,))
+    assert "crossing honesty" in msg, msg
+
+    # ONE PASS, not one per run: a call wrong in three ways names all three at once.
+    msg = _refuses(trees.RefutationRefused, trees.refute, "0" * 16, "f" * 16, "",
+                   tree=_RETIRE_TREE, table=_TABLE)
+    for expected in ("evidence is empty", "0" * 16, "f" * 16):
+        assert expected in msg, f"the door must name {expected!r} in the same pass: {msg}"
+
+    # And the doubled retirement: the first receipt is who the record owes.
+    trees.refute(target, refuter, "the stacks are shut", tree=_RETIRE_TREE, table=_TABLE)
+    after_first = _fingerprint(target)
+    msg = _refuses(trees.RefutationRefused, trees.refute, target, refuter, "again",
+                   tree=_RETIRE_TREE, table=_TABLE)
+    assert "already refuted" in msg, msg
+    assert _fingerprint(target) == after_first, "a doubled retirement overwrote the first receipt"
+
+
+def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
+    """cairn/ruling's supersession rule, BORROWED (cited in the charter's entry, never
+    imported): a guess does not outvote a signature. The fourth case is Law 9's — no past
+    artifact outranks Akien now, and every node is born a hypothesis, so a gate keyed on
+    standing ALONE would protect the corpus from its own author."""
+    earned_a = _land("an earned claim about opening hours", [0.7, 0.3])
+    _make_earned(earned_a)
+    guess = _land("a backfilled guess that contradicts it", [0.6, 0.4])   # source llm-backfill
+
+    before = _fingerprint(earned_a)
+    msg = _refuses(trees.RefutationRefused, trees.refute, earned_a, guess, "I reckon not",
+                   tree=_RETIRE_TREE, table=_TABLE)
+    assert "standing gate" in msg and "outvote" in msg, msg
+    assert _fingerprint(earned_a) == before, "the earned node moved on a refused call"
+
+    # earned -> earned passes: tenure outvotes tenure.
+    earned_b = _land("a second earned claim, later found wrong", [0.3, 0.7])
+    _make_earned(earned_b)
+    earned_r = _land("an earned refuter with standing of its own", [0.2, 0.8])
+    _make_earned(earned_r)
+    assert trees.refute(earned_b, earned_r, "measured otherwise",
+                        tree=_RETIRE_TREE, table=_TABLE)["was"] == "earned"
+
+    # hypothesis -> hypothesis passes: the gate guards EARNED knowledge, nothing else.
+    hyp = _land("an ordinary hypothesis nobody corroborated", [0.55, 0.45])
+    hyp_r = _land("another ordinary hypothesis that disagrees", [0.45, 0.55])
+    assert trees.refute(hyp, hyp_r, "disagrees on the facts",
+                        tree=_RETIRE_TREE, table=_TABLE)["was"] == "hypothesis"
+
+    # LAW 9: a STATED CORRECTION is an input from outside, not the system's own guess —
+    # it retires an earned node even though it is itself born a hypothesis.
+    earned_c = _land("a third earned claim Akien says is wrong", [0.8, 0.2])
+    _make_earned(earned_c)
+    said = _land("no, that is not what the charter says", [0.75, 0.25], source="correction")
+    out = trees.refute(earned_c, said, "no, that is not what the charter says",
+                       tree=_RETIRE_TREE, table=_TABLE)
+    assert out["was"] == "earned" and _row(earned_c)["standing"] == "refuted", out
+
+
+def test_the_borrow_is_cited_not_grafted():
+    """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
+    is the IMPORT, not the word — the module names cairn/ruling in a comment on purpose,
+    which is what a citation IS (a grep for the bare word reds on the honest citation)."""
+    src = Path(trees.__file__).read_text()
+    tree = ast.parse(src)
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(a.name for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imported.add(node.module or "")
+    assert not any("ruling" in m for m in imported), f"cairn/ruling was grafted: {imported}"
+    assert "cairn/ruling" in src, "the borrow must be CITED in the module that composes it"
+
+
 def _main() -> int:
     checks = [
         test_the_door_refuses_the_untraceable,
@@ -269,6 +430,10 @@ def _main() -> int:
         test_crossings_breadcrumb_and_reads_stay_silent,
         test_device_hood_and_the_ordered_surface,
         test_trees_opens_no_door_of_its_own,
+        test_a_retirement_is_one_owner_gated_act_that_deletes_nothing,
+        test_the_retirement_door_names_every_lack_in_one_pass,
+        test_the_standing_gate_lets_the_signature_through_and_stops_the_guess,
+        test_the_borrow_is_cited_not_grafted,
     ]
     try:
         for check in checks:
@@ -280,7 +445,10 @@ def _main() -> int:
           "nodes are born hypotheses, a duplicate grows nothing but its provenance lands "
           "as an attestation, the embedding is the path "
           "(edges derived, never stored), trees do not cross, the owner-gate holds, "
-          "crossings breadcrumb, and the module opens no door of its own")
+          "crossings breadcrumb, a retirement invalidates in ONE owner-gated act "
+          "and never deletes, the door names every lack in one pass, the standing gate "
+          "stops the guess and lets the signature through, and the module opens no door "
+          "of its own")
     return 0
 
 

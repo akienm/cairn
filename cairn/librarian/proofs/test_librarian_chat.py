@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import inspect
 import json
 import os
 import sys
@@ -115,6 +116,55 @@ def test_the_route_is_physics_not_a_guessed_intent():
         "the prefix is an affordance, not a shibboleth — case does not gate it"
     assert route("please summarize the anchor")[0] == "resolve", \
         "no NLP guessing — only the stated prefix routes; everything else IS the question"
+
+
+def test_the_correction_prefix_routes_free_with_the_host_face_down():
+    """Refutation is an INPUT. The route to it must cost two string comparisons and no
+    model call — a person must be able to say 'that's wrong' when the host is down."""
+    assert route("correct: abc123 the hours are six") == ("correct", "abc123 the hours are six")
+    assert route("CORRECT:  abc123 the hours are six")[0] == "correct", "case does not gate it"
+    assert route("please correct the record")[0] == "resolve", "no NLP guessing"
+
+    # The host CANNOT be reached from here: route takes the utterance and nothing else,
+    # so there is no seam to call — the freeness is structural, not a promise.
+    assert list(inspect.signature(route).parameters) == ["utterance"], \
+        "route must take no resolve seam — a routing decision is never inferred"
+    for utterance, kind in (("correct: abc123 why", "correct"),
+                            ("summarize: the topic", "summarize"),
+                            ("an ordinary question", "resolve")):
+        assert route(utterance)[0] == kind, utterance
+
+
+def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the_shape():
+    dev = LibrarianDevice()
+    wrong = "the reading room shuts at four on weekdays, per the old sign"
+    (nid,) = _seed(dev, "corrected", [(wrong, [1.0, 0.0, 0.0])])
+    seam = fake_seam(["unused — a correction turn spends NO generate"])
+
+    turn = chat_turn(f"correct: {nid} the posted hours say six, not four",
+                     resolve=seam, tree="corrected", table=_TABLE, dev=dev)
+    assert turn["kind"] == "correct", turn
+    assert seam.prompts == [], "a correction spends one embed and no generate"
+    row = store.read(_TABLE, where="node_id = %s", params=(nid,))[0]
+    assert row["standing"] == "refuted" and row["content"] == wrong, \
+        "invalidate, never delete — the content stays byte-identical"
+    assert row["provenance"]["attestations"][-1]["source"] == "refutation"
+    assert turn["reply"]["retired"]["was"] == "hypothesis"
+    # The refuter is IN the record, so the retirement cites something walkable.
+    assert store.read(_TABLE, where="node_id = %s",
+                      params=(turn["reply"]["refuter"]["node_id"],))
+
+    # A malformed correction refuses with the SHAPE it wanted — never a guessed id.
+    turn = chat_turn(f"correct: {nid}", resolve=seam, tree="corrected",
+                     table=_TABLE, dev=dev)
+    assert turn["kind"] == "refused", turn
+    assert "correct: <node_id>" in turn["reply"]["refusal"], turn["reply"]["refusal"]
+
+    # And a refusal from the retirement door is a legible reply, not a crash: the second
+    # retirement of the same node is refused and the session survives it.
+    turn = chat_turn(f"correct: {nid} saying it a second time", resolve=seam,
+                     tree="corrected", table=_TABLE, dev=dev)
+    assert turn["kind"] == "refused" and "already refuted" in turn["reply"]["refusal"], turn
 
 
 def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
@@ -373,6 +423,8 @@ def _cleanup():
 def _main() -> int:
     checks = [
         test_the_route_is_physics_not_a_guessed_intent,
+        test_the_correction_prefix_routes_free_with_the_host_face_down,
+        test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the_shape,
         test_a_resolved_turn_converses_one_generate_spent_on_articulation,
         test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers,
         test_the_chat_parse_zero_anchors_legal_minted_refused,

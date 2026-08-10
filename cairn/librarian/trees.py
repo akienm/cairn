@@ -12,8 +12,11 @@ THE CONTRACT
     nobody can trace: fabricated attribution at the extractor was a draft problem; here it
     would be a permanent resident. Provenance names at least its ``source``.
   - Every node is born ``standing = "hypothesis"`` (Law 3): a node the LLM provided — or
-    anyone else — has not yet earned tenure. The tenure loop is a filed edge; until it
-    exists nodes honestly stay hypotheses, and the charter says so.
+    anyone else — has not yet earned tenure. Tenure is a MEASUREMENT, and the three
+    standings are the whole vocabulary: ``hypothesis`` at birth, ``earned`` when distinct
+    crossings corroborate it (``corroborate``, 2026-08-09, ticket the-tenure-loop), and
+    ``refuted`` when a stated correction retires it (``refute``, 2026-08-10, ticket
+    revision-with-receipts). A retired node is invalidated, never deleted.
   - Edges are NEVER stored. ``nearest`` walks a tree by cosine proximity to a query
     vector; ``neighbors`` derives a node's edges the same way. No edge table can exist —
     the proof pins that nothing named like one is ever registered.
@@ -68,6 +71,22 @@ class DepositRefused(RuntimeError):
 
 class WalkRefused(RuntimeError):
     """A walk that would answer a different question than the one asked — refused, not guessed."""
+
+
+class RefutationRefused(RuntimeError):
+    """A retirement the door cannot honestly accept — every lack named in ONE pass, nothing landed.
+
+    One pass rather than one-per-run is the point: a caller that fixes a lack and is
+    refused for the next one learns the door's shape by attrition, and a human typing a
+    correction gets told the whole truth once (Law 7 at a diagnostic surface)."""
+
+
+# Who may retire an EARNED node. The borrow is cairn/ruling's supersession rule —
+# "an unconfirmed reading cannot retire a confirmed act; that would be my guess outvoting
+# his signature" — cited in the charter's `entry`, never imported (charter falsifier 7).
+# Read as an ALLOWLIST, not a denylist: an unrecognized source is refused against earned
+# knowledge, because red is the default and an unknown hand is not a known-safe one (CP6).
+_REFUTER_AUTHORITIES = frozenset({"correction"})
 
 
 def node_id_for(tree: str, content: str) -> str:
@@ -244,6 +263,138 @@ def corroborate(node_id: str, question: str, *, promote_at: int,
             store.update(table, owner, changes, where="node_id = %s AND tree = %s",
                          params=(node_id, tree), conn=own)
         return {"corroborated": corroborated, "promoted": promoted, "distinct": len(distinct)}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def _may_retire_earned(refuter: dict) -> bool:
+    """Is this refuter allowed to outvote corroborated knowledge?
+
+    Yes if it has EARNED tenure itself, or if its provenance names it an authority — today
+    that means a stated correction, which is an INPUT from outside and therefore not the
+    system's own guess. Law 9 forces this second arm: "no past artifact outranks him now",
+    and a node in this tree is a past artifact. A gate keyed on standing ALONE would make
+    Akien's correction unable to retire an earned node, since every node is born a
+    hypothesis (the deposit door's contract) — the gate would then be protecting the
+    corpus from its own author.
+    """
+    if refuter.get("standing") == "earned":
+        return True
+    source = str((refuter.get("provenance") or {}).get("source", "")).strip()
+    return source in _REFUTER_AUTHORITIES
+
+
+def refute(node_id: str, refuter_id: str, evidence: str, *,
+           tree: str = "commons", table: str = NODES, owner: str = OWNER,
+           minted_this_crossing=(), conn=None) -> dict:
+    """The retirement door: a standing node marked WRONG, in one owner-gated act.
+
+    The third write face beside ``deposit`` and ``corroborate``, and the fifth tenure
+    behaviour (ticket revision-with-receipts). Invalidate, never delete: the row keeps its
+    content, its vector and its birth provenance byte-for-byte, and gains
+    ``standing = "refuted"`` plus one appended attestation
+    ``{source: "refutation", refuter, evidence, at}``. What was believed and then found
+    wrong is a record of truth, and a record of truth is permanent (Law 7) — a deleted node
+    would leave every later reader unable to tell "never known" from "known and retired".
+
+    Refutation is an INPUT, never a discovery. Nothing here looks for contradictions:
+    cosine finds nodes that are ALIKE, and a statement and its negation are alike.
+
+    Refusals — ALL named in one pass, ALL before any write:
+      - evidence that is empty (a retirement nobody can read back is an unexplained hole),
+      - a node id, either one, that does not stand in this tree,
+      - self-refutation (a node arguing itself down is not evidence, it is a loop),
+      - a doubled retirement (the second one would overwrite the first's receipt),
+      - a refuter that is itself refuted (retired knowledge does not get to retire more),
+      - THE STANDING GATE: a refuter that may not outvote an EARNED node — see
+        ``_may_retire_earned``. This is the borrow's whole point, and the only thing
+        between a hallucinated backfill and corroborated knowledge.
+      - crossing honesty, unchanged from the tenure loop: a node minted DURING this
+        crossing may not act as the refuter in it (pass the crossing's own mints as
+        ``minted_this_crossing``). A loop that mints its own refuter has manufactured a
+        revision the same way manufactured resolution was closed.
+
+    Returns ``{"refuted", "node_id", "refuter", "was", "attestations"}`` — ``was`` is the
+    standing being retired, so a caller can tell a hypothesis's retirement from an earned
+    node's without a second read.
+    """
+    lacks: list[str] = []
+    ev = evidence.strip() if isinstance(evidence, str) else ""
+    if not ev:
+        lacks.append(
+            f"evidence is {'empty' if isinstance(evidence, str) else f'{type(evidence).__name__}, not a string'} "
+            "— a retirement nobody can read back is an unexplained hole in the record"
+        )
+
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, conn=own)
+        seen: dict[str, dict] = {}
+        for wanted in (node_id, refuter_id):
+            if wanted in seen:
+                continue
+            found = store.read(table, where="node_id = %s AND tree = %s",
+                               params=(wanted, tree), conn=own)
+            if found:
+                seen[wanted] = found[0]
+        target = seen.get(node_id)
+        refuter = seen.get(refuter_id)
+
+        if target is None:
+            lacks.append(f"no standing node {node_id!r} in tree {tree!r} — nothing to retire")
+        if refuter is None:
+            lacks.append(
+                f"no standing node {refuter_id!r} in tree {tree!r} — the refuter must itself "
+                "be in the record, or the retirement cites nothing"
+            )
+        if node_id == refuter_id:
+            lacks.append(
+                f"{node_id!r} would refute itself — a node arguing itself down is not "
+                "evidence, and the receipt would cite the thing it retired"
+            )
+        if refuter_id in set(minted_this_crossing):
+            lacks.append(
+                f"crossing honesty: {refuter_id!r} was minted during this crossing, so it "
+                "may not retire anything in it — that is a manufactured revision"
+            )
+        if target is not None and target["standing"] == "refuted":
+            lacks.append(
+                f"{node_id!r} is already refuted — a second retirement would overwrite the "
+                "first one's receipt, and the first refuter is who the record owes"
+            )
+        if refuter is not None and refuter["standing"] == "refuted":
+            lacks.append(
+                f"the refuter {refuter_id!r} is itself refuted — retired knowledge does not "
+                "get to retire more"
+            )
+        if (target is not None and refuter is not None
+                and target["standing"] == "earned" and not _may_retire_earned(refuter)):
+            lacks.append(
+                f"the standing gate: {node_id!r} is EARNED (corroborated across distinct "
+                f"crossings) and the refuter {refuter_id!r} is standing "
+                f"{refuter['standing']!r} from source "
+                f"{str((refuter['provenance'] or {}).get('source', ''))!r} — a guess does not "
+                f"outvote a signature. Authorities: {sorted(_REFUTER_AUTHORITIES)}"
+            )
+
+        if lacks:
+            raise RefutationRefused(
+                "refute: " + "; ".join(lacks) + ". Nothing landed."
+            )
+
+        # ONE act, one owner moment (Law 6): the standing change and the receipt land
+        # together, exactly as corroborate's promotion does. Two writes would invent a
+        # window in which a node is retired with no reason attached to it.
+        prov = dict(target["provenance"] or {})
+        attests = list(prov.get("attestations") or [])
+        attests.append({"source": "refutation", "refuter": refuter_id, "evidence": ev,
+                        "at": datetime.now(timezone.utc).isoformat()})
+        store.update(table, owner,
+                     {"standing": "refuted", "provenance": {**prov, "attestations": attests}},
+                     where="node_id = %s AND tree = %s", params=(node_id, tree), conn=own)
+        return {"refuted": True, "node_id": node_id, "refuter": refuter_id,
+                "was": target["standing"], "attestations": len(attests)}
     finally:
         if conn is None:
             own.close()

@@ -51,7 +51,8 @@ from cairn.db_domain import store
 from cairn.inference_domain import domain
 from cairn.librarian import loop
 from cairn.librarian.loop import BackfillRefused, parse_backfill, resolve_query
-from cairn.librarian.trees import OWNER, LibrarianDevice, corroborate, deposit, node_id_for
+from cairn.librarian.trees import (OWNER, LibrarianDevice, corroborate, deposit,
+                                   node_id_for, refute)
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_loop_{_NONCE}"
@@ -87,6 +88,81 @@ def _refuses(exc, fn, *args, **kwargs):
     except exc as e:
         return str(e)
     raise AssertionError(f"{fn.__name__} must refuse with {exc.__name__} — it did not")
+
+
+def test_a_refuted_node_stays_present_labelled_and_uncounted():
+    """The falsifier the ticket actually turns on: PRESENT, LABELLED, NOT COUNTED.
+    A deleted node would also 'fail to count' — that is the hollow build this excludes."""
+    wrong = deposit("the reading room shuts at four", _NEAR, _PROV,
+                    tree="retired", table=_TABLE)["node_id"]
+    said = deposit("no — the posted hours say six", _FAR, {"source": "correction"},
+                   tree="retired", table=_TABLE)["node_id"]
+    refute(wrong, said, "the posted hours say six", tree="retired", table=_TABLE)
+
+    q = "when does the reading room shut"
+    seam = fake_seam({q: [1.0, 0.0, 0.0]},
+                     scripts=['{"nodes": ["a backfilled node that lands nowhere near"]}'])
+    got = resolve_query(q, resolve=seam, tree="retired", table=_TABLE, max_backfills=1)
+
+    walked = {n["node_id"]: n for n in got["nodes"]}
+    assert wrong in walked, "the refuted node must still be PRESENT in the walk, not deleted"
+    assert walked[wrong]["content"] == "the reading room shuts at four", "and readable"
+    assert walked[wrong]["evidence"] is False, "a refuted node may never count as evidence"
+    assert "refuted" in (walked[wrong].get("evidence_why") or ""), \
+        f"the label must say WHY: {walked[wrong].get('evidence_why')!r}"
+    assert got["verdict"] == "UNRESOLVED", \
+        "the only above-floor node was retired — there is nothing left to resolve on"
+
+
+def test_a_node_earned_then_refuted_is_still_uncounted():
+    """The ONE tooth that distinguishes correct clause placement from incorrect: the
+    earned pass-through short-circuits, so a refuted-but-previously-earned node would
+    come back evidence:True if the refuted clause were placed after it."""
+    nid = deposit("an earned claim that later turned out wrong", _NEAR, _PROV,
+                  tree="earned-then-wrong", table=_TABLE)["node_id"]
+    said = deposit("that claim does not survive the measurement", _FAR,
+                   {"source": "correction"}, tree="earned-then-wrong", table=_TABLE)["node_id"]
+    store.update(_TABLE, OWNER, {"standing": "earned"},
+                 where="node_id = %s AND tree = %s", params=(nid, "earned-then-wrong"))
+    out = refute(nid, said, "it does not survive the measurement",
+                 tree="earned-then-wrong", table=_TABLE)
+    assert out["was"] == "earned", "the fixture must retire a node that HAD earned tenure"
+
+    walk = [dict(r, similarity=0.99) for r in
+            store.read(_TABLE, where="node_id = %s", params=(nid,))]
+    loop._label_evidence(walk, deposited=[], now=datetime.now(timezone.utc))
+    assert walk[0]["evidence"] is False, \
+        "a previously-EARNED node that was refuted must not short-circuit to True"
+    assert "refuted" in walk[0]["evidence_why"]
+
+
+def test_the_receipts_cite_only_what_the_record_holds():
+    """Akien's 'cite back to changes': the join names the earlier question each acted-on
+    node was born from — and 19 of the 78 live rows carry no birth question, so the
+    absence is REPORTED, never filled with a plausible invention."""
+    tree = "receipts"
+    with_q = deposit("a node born of an earlier asking", _NEAR,
+                     {**_PROV, "question": "what did they ask before"},
+                     tree=tree, table=_TABLE)["node_id"]
+    without_q = deposit("a library fold that nobody asked for", [0.98, 0.06, 0.0],
+                        {"source": "library-fold"}, tree=tree, table=_TABLE)["node_id"]
+
+    seam = fake_seam({"a fresh question about the same region": [1.0, 0.0, 0.0]}, scripts=[])
+    got = resolve_query("a fresh question about the same region", resolve=seam,
+                        tree=tree, table=_TABLE)
+    assert got["verdict"] == "RESOLVED"
+    assert seam.prompts == [], "labelling and receipts add ZERO generates"
+
+    receipts = {r["node_id"]: r for r in got["receipts"]}
+    assert with_q in receipts and without_q in receipts, receipts
+    assert receipts[with_q]["question"] == "what did they ask before"
+    assert receipts[without_q]["question"] is None, \
+        "a node with no birth question must come back None, never a manufactured one"
+    # Nothing is cited that the record does not literally hold.
+    held = {(r["provenance"] or {}).get("question")
+            for r in store.read(_TABLE, where="tree = %s", params=(tree,))}
+    for r in got["receipts"]:
+        assert r["question"] is None or r["question"] in held, f"minted citation: {r}"
 
 
 def test_the_graph_answers_first_and_the_host_stays_out():
@@ -340,6 +416,9 @@ def _cleanup():
 
 def _main() -> int:
     checks = [
+        test_a_refuted_node_stays_present_labelled_and_uncounted,
+        test_a_node_earned_then_refuted_is_still_uncounted,
+        test_the_receipts_cite_only_what_the_record_holds,
         test_the_graph_answers_first_and_the_host_stays_out,
         test_a_first_touch_learns_and_a_later_crossing_resolves,
         test_the_home_field_shape_is_unmanufacturable,

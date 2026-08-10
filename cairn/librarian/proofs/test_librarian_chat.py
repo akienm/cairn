@@ -1,12 +1,14 @@
 """Proof for librarian/chat.py — the CHAT verb, the conversational face. Teeth a chatbot
 wearing a librarian's charter (the parent ticket's named wrong-shape) could not pass:
 
-  - LEARNING ALWAYS, AND IT CHATS (Akien's ruling 2026-08-09): a turn whose question
-    the graph cannot resolve BACKFILLS the graph and ANSWERS from structure — the reply
-    then ARTICULATES that answer: conversational prose rendered from the walk, citations
-    code-built from its [n] marks, the loop's whole verdict riding the reply as data;
-    and the SAME question in a later turn resolves by walk alone, zero backfills (the
-    chat's memory is the graph, not the transcript).
+  - LEARNING ALWAYS, AND IT CHATS: a turn whose question the graph cannot resolve
+    BACKFILLS the graph and says so honestly — under the tenure loop (ticket
+    the-tenure-loop, Akien's "persistance!" ruling) a same-turn mint is labeled
+    non-evidence, so the FIRST turn is UNRESOLVED-"learned" yet still ARTICULATES:
+    conversational prose rendered from the walk, citations code-built from its [n]
+    marks, the loop's whole verdict riding the reply as data; the SAME question in a
+    LATER turn resolves by walk alone, zero backfills (the chat's memory is the graph,
+    not the transcript — validation completes at the later crossing, 2026-08-09).
   - THE ROUTE IS PHYSICS: routing spends NO inference — a resolved turn spends exactly
     ONE generate, the articulation, never a classifier; and the ``summarize:`` prefix
     routes to the transducer deterministically, case-insensitive.
@@ -142,23 +144,31 @@ def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
 def test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers():
     dev = LibrarianDevice()
     fresh = "the freshly learned fact that grounds the anchor question"
+    honest = "I have just learned the freshly learned fact [1] — ask me again."
     spoken = "It comes down to the freshly learned fact [1]."
-    # The graph starts empty; the backfill supplies the node that lets it resolve,
-    # then one articulation renders the walk into the spoken reply.
-    seam = fake_seam([json.dumps({"nodes": [fresh]}), spoken],
+    # The graph starts empty. The backfill supplies the node — and the tenure loop
+    # keeps the crossing honest: a same-turn mint cannot resolve the utterance that
+    # spawned it, so round 2 re-offers the same node (a duplicate, zero fresh), the
+    # first turn lands UNRESOLVED-"learned", and the reply still CONVERSES about it.
+    seam = fake_seam([json.dumps({"nodes": [fresh]}), json.dumps({"nodes": [fresh]}),
+                      honest, spoken],
                      {_Q: [1.0, 0.0, 0.0], fresh: [0.98, 0.02, 0.0]})
     first = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
     loop = first["reply"]["loop"]
-    assert first["kind"] == "resolve" and loop["verdict"] == "RESOLVED"
-    assert loop["backfills"] == 1 and len(loop["deposited"]) == 1
-    assert loop["nodes"][0]["content"] == fresh, \
-        "the ANSWER came from structure the turn just taught, not from the generate text"
-    assert first["reply"]["prose"] == spoken, "…and the reply SAYS it conversationally"
+    assert first["kind"] == "resolve" and loop["verdict"] == "UNRESOLVED"
+    assert loop["reason"] == "learned" and len(loop["deposited"]) == 1, \
+        "the miss TAUGHT the graph — and the verdict says so instead of manufacturing " \
+        "a resolution from the turn's own echo (ticket the-tenure-loop)"
+    assert loop["nodes"][0]["content"] == fresh and loop["nodes"][0]["evidence"] is False, \
+        "the mint rides the walk visible and LABELED — data, never same-turn evidence"
+    assert first["reply"]["prose"] == honest, \
+        "an honest UNRESOLVED turn still ARTICULATES — the chat converses about learning"
     generates_after_first = len(seam.prompts)
 
     second = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
     assert second["reply"]["loop"]["verdict"] == "RESOLVED"
     assert second["reply"]["loop"]["backfills"] == 0
+    assert second["reply"]["prose"] == spoken
     assert len(seam.prompts) == generates_after_first + 1, \
         "the same question later is a WALK plus one articulation — the chat's memory " \
         "is the graph (Law 1); only the SAYING is spent again"

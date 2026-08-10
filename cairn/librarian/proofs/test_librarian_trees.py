@@ -6,8 +6,10 @@
     both doors; a dimension mismatch (deposit or query) is refused, not answered.
   - BORN A HYPOTHESIS: a landed node reads back with its content, structured provenance,
     and standing = "hypothesis" (Law 3 — tenure is a later measurement, not a birthright).
-  - A DUPLICATE WRITES NOTHING: same tree + content returns the standing node, flagged,
-    with the row count unmoved (Law 1 — the cheapest deposit is the one never made).
+  - A DUPLICATE GROWS NOTHING, BUT ITS PROVENANCE LANDS: same tree + content returns the
+    standing node, flagged, row count unmoved (Law 1 stops redundant STRUCTURE) — and the
+    incoming provenance appends as a timestamped attestation (ticket the-tenure-loop:
+    redundant ARRIVAL is evidence). The shared walk never decays a tenant's node.
   - THE EMBEDDING IS THE PATH: nearest ranks by cosine, provably in proximity order;
     neighbors derives a node's edges and excludes the node itself; NO edge table exists —
     nothing edge-named is ever registered with db_domain.
@@ -32,7 +34,7 @@ from __future__ import annotations
 import ast
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -91,13 +93,22 @@ def test_a_node_lands_and_is_born_a_hypothesis():
     assert row["vector"] == [1.0, 0.0, 0.0], "the vector must round-trip exactly"
 
 
-def test_a_duplicate_writes_nothing():
+def test_a_duplicate_grows_nothing_but_its_provenance_lands():
+    # Edge (b)'s switch, flipped by ticket the-tenure-loop: Law 1 still refuses the
+    # redundant ROW; the redundant ARRIVAL now lands as an attestation on the standing
+    # row — independent reach is evidence the tenure loop counts, not litter to drop.
     content = "the embedding is the path through the graph trees"
     before = len(store.read(_TABLE, where="tree = %s", params=("t1",)))
     r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_TABLE)
     after = len(store.read(_TABLE, where="tree = %s", params=("t1",)))
     assert r["duplicate"] is True, "the standing node must come back flagged"
-    assert before == after, "a duplicate deposit must write NOTHING (Law 1)"
+    assert r["provenance_appended"] is True
+    assert before == after, "a duplicate deposit must grow the table by NOTHING (Law 1)"
+    row = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))[0]
+    attests = row["provenance"].get("attestations") or []
+    assert len(attests) == 1 and attests[0]["source"] == "a-second-witness" and attests[0]["at"], \
+        "the incoming provenance must land WHOLE as an attestation, timestamped"
+    assert row["provenance"]["source"] == _PROV["source"], "the birth provenance survives untouched"
 
 
 def test_dimension_mismatch_is_refused_not_answered():
@@ -116,6 +127,25 @@ def test_nearest_ranks_by_proximity_and_derives_the_path():
     assert all(-1.0 <= n["similarity"] <= 1.0 for n in got), "cosine stays in [-1, 1]"
     # An empty tree is an honest [] — absence is not an error.
     assert nearest([1.0], k=3, tree="empty-tree", table=_TABLE) == []
+
+
+def test_the_walk_itself_never_decays_a_tenant():
+    # MULTI-TENANT NEUTRALITY (ticket the-tenure-loop, out-of-bounds clause): the chart's
+    # nexi walk these same tools with their own tables. Tenure's decay lives in the
+    # LIBRARIAN'S answer path (loop.py), never here — an aged, uncorroborated node still
+    # ranks at full raw cosine in nearest, and created merely RIDES the walk for readers
+    # who weigh it.
+    aged = "an old resident a tenant's walk must still surface first"
+    r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_TABLE)
+    deposit("a nearer-in-time but farther-in-space node", [0.3, 0.9, 0.0], _PROV,
+            tree="tenant", table=_TABLE)
+    store.update(_TABLE, trees.OWNER,
+                 {"created": datetime.now(timezone.utc) - timedelta(days=365)},
+                 where="node_id = %s", params=(r["node_id"],))
+    got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_TABLE)
+    assert got[0]["node_id"] == r["node_id"], \
+        "a year-old node still ranks FIRST by raw cosine — no decay at the shared walk"
+    assert got[0]["created"] is not None, "created rides the walk as data for the reader"
 
 
 def test_trees_do_not_cross():
@@ -198,7 +228,7 @@ def test_device_hood_and_the_ordered_surface():
 
 def test_trees_opens_no_door_of_its_own():
     # Allowlist, not blocklist: an import outside these prefixes is a second door and reds.
-    allowed = ("__future__", "hashlib", "math", "cairn.base", "cairn.db_domain")
+    allowed = ("__future__", "hashlib", "math", "datetime", "cairn.base", "cairn.db_domain")
     src = Path(trees.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):
@@ -227,7 +257,8 @@ def _main() -> int:
         test_the_door_refuses_the_untraceable,
         test_vectors_are_physics_at_both_doors,
         test_a_node_lands_and_is_born_a_hypothesis,
-        test_a_duplicate_writes_nothing,
+        test_a_duplicate_grows_nothing_but_its_provenance_lands,
+        test_the_walk_itself_never_decays_a_tenant,
         test_dimension_mismatch_is_refused_not_answered,
         test_nearest_ranks_by_proximity_and_derives_the_path,
         test_trees_do_not_cross,
@@ -246,7 +277,8 @@ def _main() -> int:
     finally:
         _cleanup()
     print("green — librarian/trees: the untraceable never lands, vectors are physics, "
-          "nodes are born hypotheses, duplicates write nothing, the embedding is the path "
+          "nodes are born hypotheses, a duplicate grows nothing but its provenance lands "
+          "as an attestation, the embedding is the path "
           "(edges derived, never stored), trees do not cross, the owner-gate holds, "
           "crossings breadcrumb, and the module opens no door of its own")
     return 0

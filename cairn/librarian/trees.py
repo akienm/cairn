@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+from datetime import datetime, timezone
 
 from cairn.base.device import BaseDevice
 from cairn.db_domain import store
@@ -127,7 +128,10 @@ def deposit(content: str, vector, provenance: dict, *,
     """The deposit door: one node in, judged before it lands.
 
     Returns ``{"node_id", "duplicate": bool, "dim"}``. A duplicate (same tree + content)
-    writes nothing — the standing node's id comes back with ``duplicate: True``.
+    grows the table by nothing — the standing node's id comes back with
+    ``duplicate: True`` and ``provenance_appended: True``: since 2026-08-09 (ticket
+    the-tenure-loop) the incoming provenance lands as an attestation on the standing
+    row's ``provenance.attestations`` instead of being dropped.
     Refusals (all BEFORE any write, all first-pass complete):
       - content under the floor (a node from near-nothing is invention),
       - a vector without direction (empty / non-numeric / non-finite / zero),
@@ -156,10 +160,19 @@ def deposit(content: str, vector, provenance: dict, *,
         nid = node_id_for(tree, content)
         existing = store.read(table, where="node_id = %s", params=(nid,), conn=own)
         if existing:
-            # Nothing written: the cheapest deposit is the one never made (Law 1). The
-            # incoming provenance is dropped for now — filed edge (b): corroboration
-            # becomes a provenance APPEND when the tenure loop lands.
-            return {"node_id": nid, "duplicate": True, "dim": len(existing[0]["vector"])}
+            # Edge (b)'s recorded switch, flipped 2026-08-09 (ticket the-tenure-loop):
+            # a duplicate still writes no NEW ROW — Law 1 stops redundant STRUCTURE —
+            # but its provenance now lands as an ATTESTATION on the standing row.
+            # Redundant arrival is evidence of independent reach, and the tenure loop
+            # counts it; dropping it was the filed debt.
+            prior = existing[0]["provenance"] or {}
+            attests = list(prior.get("attestations") or [])
+            attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
+            merged = {**prior, "attestations": attests}
+            store.update(table, owner, {"provenance": merged},
+                         where="node_id = %s", params=(nid,), conn=own)
+            return {"node_id": nid, "duplicate": True, "dim": len(existing[0]["vector"]),
+                    "provenance_appended": True}
 
         siblings = _tree_rows(tree, table=table, conn=own)
         if siblings:
@@ -179,6 +192,58 @@ def deposit(content: str, vector, provenance: dict, *,
             "standing": "hypothesis",   # born one, stays one until tenure is a measurement
         }, conn=own)
         return {"node_id": nid, "duplicate": False, "dim": len(v)}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def corroborate(node_id: str, question: str, *, promote_at: int,
+                tree: str = "commons", table: str = NODES, owner: str = OWNER,
+                conn=None) -> dict:
+    """The earning write, fired by the librarian's resolution event (ticket
+    the-tenure-loop) — never by a clock.
+
+    Appends a corroboration attestation for ``question`` onto the standing node's
+    provenance, UNLESS it is the node's birth question (a node cannot tenure on echoes
+    of its own birth — that touch does not corroborate) or already attested (distinct
+    questions are the count, not raw arrivals). Once distinct cross-question
+    corroborations — resolution corroborations and duplicate-deposit attestations
+    alike — reach ``promote_at``, standing turns ``'earned'`` in the same write. Both
+    mutations ride db_domain's owner-gated update face; the promotion check runs even
+    when nothing new appends, so a node that reached threshold between resolutions is
+    not stranded at hypothesis.
+
+    Returns ``{"corroborated": bool, "promoted": bool, "distinct": int}``.
+    """
+    own = conn or store.connect()
+    try:
+        rows = store.read(table, where="node_id = %s AND tree = %s",
+                          params=(node_id, tree), conn=own)
+        if not rows:
+            raise DepositRefused(
+                f"corroborate: no standing node {node_id!r} in tree {tree!r} — nothing to attest")
+        row = rows[0]
+        prov = dict(row["provenance"] or {})
+        birth_q = prov.get("question")
+        attests = list(prov.get("attestations") or [])
+        distinct = {a.get("question") for a in attests
+                    if a.get("question") and a.get("question") != birth_q}
+        changes: dict = {}
+        corroborated = False
+        if question != birth_q and question not in distinct:
+            attests.append({"source": "corroboration", "question": question,
+                            "at": datetime.now(timezone.utc).isoformat()})
+            distinct.add(question)
+            changes["provenance"] = {**prov, "attestations": attests}
+            corroborated = True
+        promoted = False
+        if len(distinct) >= promote_at and row["standing"] != "earned":
+            changes["standing"] = "earned"
+            promoted = True
+        if changes:
+            store.update(table, owner, changes, where="node_id = %s AND tree = %s",
+                         params=(node_id, tree), conn=own)
+        return {"corroborated": corroborated, "promoted": promoted, "distinct": len(distinct)}
     finally:
         if conn is None:
             own.close()
@@ -229,7 +294,10 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
         ranked = sorted(
             ({"node_id": r["node_id"], "content": r["content"],
               "similarity": cosine(v, [float(x) for x in r["vector"]]),
-              "provenance": r["provenance"], "standing": r["standing"]}
+              "provenance": r["provenance"], "standing": r["standing"],
+              # created rides the walk so a READER can weigh age (the librarian's lazy
+              # decay does, in its own path); the RANKING here stays raw cosine only.
+              "created": r["created"]}
              for r in rows),
             key=lambda n: n["similarity"], reverse=True)
         return ranked[:k]

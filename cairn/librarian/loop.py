@@ -4,8 +4,11 @@ Akien's ruling, 2026-07-27, verbatim: "The librarian ALWAYS reaches for the grap
 and if the graph tree can't, the LLM is used to backfill it until it can." And the
 load-bearing clause: "escalate on graph failure to a node depositing call THAT VALIDATES
 BY RESUBMITTING THE SAME REQUEST." The host is never in the answer path — it supplies
-NODES on a miss, the graph folds them in, and the proof the backfill worked is that the
-ORIGINAL request now resolves through structure. Law 1 as a runtime mechanism.
+NODES on a miss and the graph folds them in. RE-SCOPED 2026-08-09 (ticket
+the-tenure-loop, under Akien's "persistance!" ruling): the resubmit still drives the
+loop's progress check, but a same-crossing mint no longer counts as the proof — the
+validation COMPLETES at a LATER crossing, because same-crossing corroboration is the
+measured defect (a memory validating itself at birth). Law 1 as a runtime mechanism.
 
 THE LIVELOCK, FIXED AS PHYSICS (filed 2026-07-27, held-librarian's ruling section; fixed
 here AS the loop goes live, not after). The trap: escalation asks the host for nodes;
@@ -37,9 +40,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, timedelta, timezone
 
 from cairn.librarian.trees import (
-    NODES, DepositRefused, LibrarianDevice, tree_state,
+    NODES, DepositRefused, LibrarianDevice, corroborate, tree_state,
 )
 
 # The floor a walk must clear to count as resolved — a labeled guess, not a settled law
@@ -49,6 +53,20 @@ RESOLUTION_FLOOR = 0.65
 # Rounds of backfill before the loop reports exhaustion. Small on purpose: each round is
 # a real host call, and a question three rounds cannot ground is a finding, not a retry.
 MAX_BACKFILLS = 3
+
+# THE TENURE DIALS — hand-set at birth, declared per learns-its-gates (ticket
+# the-tenure-loop, dials_declared): the WATCHME accumulates the evidence their learning
+# needs; a future cast moves them from hand-set to learned.
+#
+# Distinct cross-question corroborations before standing turns 'earned'. Two, because one
+# could be a phrasing coincidence between two questions; two independent questions walking
+# to the same node is the smallest count that is a pattern rather than an echo.
+PROMOTION_THRESHOLD = 2
+# Days an UNCORROBORATED hypothesis keeps counting as resolution evidence. Fourteen,
+# because the measured defect (2026-08-09: 48 of 70 nodes were same-turn slug-shards) was
+# hours old, not weeks — a fortnight gives a genuine fact every chance to be corroborated
+# by real use before it fades, while a shard nobody ever walks back to goes quiet.
+DECAY_HORIZON = timedelta(days=14)
 
 
 class BackfillRefused(RuntimeError):
@@ -98,22 +116,95 @@ def _question_digest(question: str) -> str:
     return hashlib.sha256(question.encode("utf-8")).hexdigest()[:12]
 
 
+def _label_evidence(walk: list[dict], deposited: list[str], now: datetime) -> None:
+    """Mark each walked node ``evidence: True|False`` — may it count toward RESOLVED?
+
+    Three refusals, two of them the tenure loop's halves (ticket the-tenure-loop):
+      - CROSSING HONESTY: a node this crossing itself minted is excluded — a deposit
+        cannot count toward resolving the utterance that spawned it (the 2026-08-09
+        measured defect: four same-turn mints cited as a RESOLVED walk).
+      - LAZY DECAY: an uncorroborated hypothesis older than DECAY_HORIZON has faded —
+        nobody independently walked to it in its window. Earned nodes and nodes carrying
+        any attestation count whole, whatever their age. Arithmetic at read; no clock
+        process anywhere.
+    The node STAYS in the walk, labeled — the reader sees what was near and why it did
+    not count (Law 3: the measurement visible, not silently subtracted).
+    """
+    excluded = set(deposited)
+    for node in walk:
+        if node["node_id"] in excluded:
+            node["evidence"] = False
+            continue
+        if node.get("standing") == "earned":
+            node["evidence"] = True
+            continue
+        prov = node.get("provenance") or {}
+        birth_q = prov.get("question")
+        # Only a CROSS-question attestation exempts from decay — a same-question echo
+        # (the node's own birth re-arriving as a duplicate) is not independent reach,
+        # or the home-field shard would immortalize itself by re-minting.
+        if any(a.get("question") != birth_q for a in (prov.get("attestations") or [])):
+            node["evidence"] = True
+            continue
+        created = node.get("created")
+        if created is None:
+            node["evidence"] = True   # no birth record — age cannot be held against it
+            continue
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        node["evidence"] = (now - created) <= DECAY_HORIZON
+
+
+def _evidence_best(walk: list[dict]) -> float | None:
+    """The best cosine among nodes allowed to count — the number the floor test reads."""
+    counted = [n["similarity"] for n in walk if n.get("evidence")]
+    return max(counted) if counted else None
+
+
+def _tenure_on_resolution(question: str, walk: list[dict], floor: float, *,
+                          tree: str, table: str, conn=None) -> dict:
+    """The earning half, fired ON the resolution event — never a clock (the event that
+    already fires carries the write).
+
+    Every EVIDENCING node (counted, at or above the floor) is offered to
+    ``trees.corroborate`` — which appends a cross-question attestation, refuses the
+    birth-question echo as a touch, and writes standing='earned' at
+    PROMOTION_THRESHOLD, all through db_domain's owner-gated update face.
+
+    Returns ``{"corroborated": [node_ids], "promoted": [node_ids]}`` for the verdict.
+    """
+    corroborated, promoted = [], []
+    for node in walk:
+        if not node.get("evidence") or node["similarity"] < floor:
+            continue
+        r = corroborate(node["node_id"], question, promote_at=PROMOTION_THRESHOLD,
+                        tree=tree, table=table, conn=conn)
+        if r["corroborated"]:
+            corroborated.append(node["node_id"])
+        if r["promoted"]:
+            promoted.append(node["node_id"])
+    return {"corroborated": corroborated, "promoted": promoted}
+
+
 def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
                   floor: float = RESOLUTION_FLOOR, max_backfills: int = MAX_BACKFILLS,
                   table: str = NODES, conn=None, dev: LibrarianDevice | None = None) -> dict:
     """One crossing of the core loop. Returns a VERDICT, never a guess::
 
         {"verdict": "RESOLVED" | "UNRESOLVED",
-         "reason":  None | "no_progress" | "exhausted",
-         "nodes":   the walk that answered (or the best failing walk),
-         "best":    top cosine or None, "floor": floor,       # threshold visible (Law 3)
+         "reason":  None | "learned" | "no_progress" | "exhausted",
+         "nodes":   the walk (each node labeled "evidence": True|False),
+         "best":    top cosine AMONG EVIDENCE or None, "floor": floor,   # Law 3
          "backfills": rounds run, "deposited": fresh node_ids,
-         "refused_at_door": findings for backfill nodes the deposit door turned back}
+         "refused_at_door": findings for backfill nodes the deposit door turned back,
+         "tenure": {"corroborated": [...], "promoted": [...]} on RESOLVED}
 
-    The answer comes from STRUCTURE: on RESOLVED, ``nodes`` is the graph's walk — the
-    generate answer is never returned, only folded in. An UNRESOLVED verdict is an honest
-    measured outcome (the model could not extend the graph, or the rounds ran out), loud
-    in its breadcrumb and complete in its findings — not an exception, not a retry-forever.
+    The answer comes from STRUCTURE — and since 2026-08-09 (ticket the-tenure-loop),
+    from structure THIS CROSSING DID NOT MINT: the floor test reads only evidence-labeled
+    nodes, so a first touch that only backfilled returns the honest ``"learned"`` (fresh
+    nodes landed for the future; resolution belongs to a LATER crossing). ``"no_progress"``
+    and ``"exhausted"`` keep their meanings when nothing landed at all. On RESOLVED, the
+    evidencing nodes are corroborated (and promoted at threshold) in the same event.
     """
     if not callable(resolve):
         raise BackfillRefused(
@@ -126,14 +217,17 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
     dev = dev or LibrarianDevice()
     embed = lambda text: resolve({"kind": "embed", "prompt": text})["answer"]["vector"]
 
+    now = datetime.now(timezone.utc)
+    backfills, deposited, refused = 0, [], []
     qv = embed(question)
     walk = dev.nearest(qv, k=k, tree=tree, table=table, conn=conn)
-    best = walk[0]["similarity"] if walk else None
-    backfills, deposited, refused = 0, [], []
+    _label_evidence(walk, deposited, now)
+    best = _evidence_best(walk)
 
     while best is None or best < floor:
         if backfills >= max_backfills:
-            return _verdict(dev, question, "UNRESOLVED", "exhausted", walk, best, floor,
+            reason = "learned" if deposited else "exhausted"
+            return _verdict(dev, question, "UNRESOLVED", reason, walk, best, floor,
                             backfills, deposited, refused, tree)
         state = tree_state(tree, table=table, conn=conn)
         drafted = resolve({"kind": "generate",
@@ -158,28 +252,40 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
                 deposited.append(r["node_id"])
         if fresh == 0:
             # THE PROGRESS GATE — the livelock's second layer. Nothing landed, so the same
-            # graph would fail the same way; spinning would book the trap as savings.
-            return _verdict(dev, question, "UNRESOLVED", "no_progress", walk, best, floor,
+            # graph would fail the same way; spinning would book the trap as savings. If
+            # EARLIER rounds landed nodes, the crossing still learned — say so.
+            reason = "learned" if deposited else "no_progress"
+            return _verdict(dev, question, "UNRESOLVED", reason, walk, best, floor,
                             backfills, deposited, refused, tree)
 
-        # VALIDATES BY RESUBMITTING THE SAME REQUEST — the load-bearing clause: the proof
-        # the backfill worked is that the ORIGINAL request now resolves through the graph.
+        # THE RESUBMIT, re-scoped 2026-08-09 (ticket the-tenure-loop): the 2026-07-27
+        # clause "validates by resubmitting the same request" still drives this walk, but
+        # a same-crossing mint no longer counts as the proof — the evidence label excludes
+        # this crossing's own deposits, so validation COMPLETES at a LATER crossing, when
+        # a different question (or this one, re-asked against standing structure) walks
+        # here honestly. Same-crossing corroboration is the measured defect, not the proof.
         walk = dev.nearest(qv, k=k, tree=tree, table=table, conn=conn)
-        best = walk[0]["similarity"] if walk else None
+        _label_evidence(walk, deposited, now)
+        best = _evidence_best(walk)
 
+    tenure = _tenure_on_resolution(question, walk, floor, tree=tree, table=table, conn=conn)
     return _verdict(dev, question, "RESOLVED", None, walk, best, floor,
-                    backfills, deposited, refused, tree)
+                    backfills, deposited, refused, tree, tenure=tenure)
 
 
 def _verdict(dev, question, verdict, reason, walk, best, floor,
-             backfills, deposited, refused, tree) -> dict:
+             backfills, deposited, refused, tree, tenure=None) -> dict:
     # GATE CONTACT: one crossing of the core loop, RESOLVED and UNRESOLVED alike — an
     # unresolved question is the loop working, not an anomaly. Thin: the pointer is the
     # question's digest; the values are what a reader wants without the full verdict.
     dev.emit("resolve", pointer=_question_digest(question),
              values={"verdict": verdict, "reason": reason, "tree": tree,
                      "best": best, "floor": floor, "backfills": backfills,
-                     "fresh_nodes": len(deposited)})
-    return {"verdict": verdict, "reason": reason, "nodes": walk, "best": best,
-            "floor": floor, "backfills": backfills, "deposited": deposited,
-            "refused_at_door": refused, "question": question}
+                     "fresh_nodes": len(deposited),
+                     "promoted": len(tenure["promoted"]) if tenure else 0})
+    out = {"verdict": verdict, "reason": reason, "nodes": walk, "best": best,
+           "floor": floor, "backfills": backfills, "deposited": deposited,
+           "refused_at_door": refused, "question": question}
+    if tenure is not None:
+        out["tenure"] = tenure
+    return out

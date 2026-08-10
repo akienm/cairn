@@ -2,34 +2,13 @@
   "cursor": {
     "act": "pickup",
     "actor": "CC",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:in-process] -> PROVEME -> WATCHME(standing-moves-under-live-use) -> PROVED",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:in-process] -> WATCHME(standing-moves-under-live-use) -> PROVED",
     "ticket": "the-tenure-loop",
-    "at": "2026-08-09T18:15:17",
-    "seq": 28
+    "at": "2026-08-09T18:38:57",
+    "seq": 30
   },
   "window": [
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "actor": "CC",
-      "ticket": "the-librarian-chats",
-      "note": "PROVEME: the chat face articulates — parse_reply (zero anchors legal, minted refused with raw whole), reply_prompt (walk whole+numbered), articulate (one generate, code-built citations, verdict rides the reply under 'loop'), render.py resolve arm prose-first with the verdict collapsed to one cond line. 15 chat teeth + 7 carried-page teeth, each suite green twice bare. loop.py and summarize.py untouched — the loop answers, the render says.",
-      "at": "2026-08-09T15:22:23",
-      "seq": 24
-    },
-    {
-      "act": "pickup",
-      "actor": "CC",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:in-process] -> PROVED",
-      "ticket": "the-librarian-chats",
-      "at": "2026-08-09T15:22:28",
-      "seq": 25
-    },
     {
       "from": "PROVEME",
       "to": "PROVED",
@@ -65,7 +44,28 @@
       "ticket": "the-tenure-loop",
       "at": "2026-08-09T18:15:17",
       "seq": 28
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(standing-moves-under-live-use) -> PROVED",
+      "direction": "forward",
+      "actor": "CC",
+      "ticket": "the-tenure-loop",
+      "note": "the tenure loop built: crossing honesty (a same-turn mint is data, never evidence; first touch UNRESOLVED-learned), duplicate provenance appends as timestamped attestation, cross-question promotion to earned fired on the resolution event, lazy decay at read — no clock anywhere. Six suites green twice bare; chat.py/summarize.py byte-unchanged; db_domain grew update(), its second write face, under the same owner gate.",
+      "at": "2026-08-09T18:38:57",
+      "seq": 29
+    },
+    {
+      "act": "pickup",
+      "actor": "CC",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:in-process] -> WATCHME(standing-moves-under-live-use) -> PROVED",
+      "ticket": "the-tenure-loop",
+      "at": "2026-08-09T18:38:57",
+      "seq": 30
     }
   ],
-  "count": 29
+  "count": 31
 }

@@ -389,6 +389,90 @@ def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
         assert projector.read_history(hp)[0]["to"] == "PROVEME"
 
 
+# ---- THE GATE BECOMES CALLABLE, AND STAYS THE ONLY HAND THAT STAMPS ----------------
+# Ticket ``emit-refuses-an-uncleared-crossing`` (2026-08-10). The build's decisive finding
+# was not a discipline failure: ``clear`` had been STRUCTURALLY UNCALLABLE for every gated
+# crossing since 2026-07-29, when ``a-voyage-names-its-ticket`` landed the ticket demand.
+# Three gates inside ``emit`` read ``journal_extra["ticket"]``; ``clear`` accepted no
+# ``**journal_extra``, so a caller doing everything right was still refused with
+# ``TicketRequiredRed``. A year of ambient crossings had physics pointing the wrong way,
+# and nothing said so because nobody was calling it to find out.
+#
+# The pass-through is what makes the gate reachable. The refusal below is what keeps it
+# worth passing through: the four witness fields are written BY this gate, never TO it.
+
+
+def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
+    """THE REACHABILITY TOOTH — this is the row that was impossible before this stone.
+    A crossing whose downstream gate demands a ticket now clears, because ``clear``
+    forwards ``**journal_extra`` to ``emit``. Revert the pass-through and this refuses
+    with ``TicketRequiredRed``, which is exactly the state the corpus was in: every
+    gated crossing routed around the harbor because going through it could not work."""
+    import cairn.base.transitions as _t
+    with tempfile.TemporaryDirectory() as tmp:
+        tickets = Path(tmp) / "tickets"
+        tickets.mkdir()
+        (tickets / "widget.json").write_text("{}", encoding="utf-8")
+        hp, sp = _paths(tmp)
+        at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
+                    "[LEARNME] -> PROVED")
+        saved = _t._TICKETS
+        _t._TICKETS = tickets
+        try:
+            new = clear(
+                at_learn, "PROVED",
+                actor=_OWNER, boat_id="widget", boat_owner=_OWNER,
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
+                ticket="widget",
+            )
+        finally:
+            _t._TICKETS = saved
+        assert "[PROVED]" in new, new
+        rec = projector.read_history(hp)[0]
+        assert rec["ticket"] == "widget", \
+            f"the ticket must ride through to the record the gates read: {rec}"
+        assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _PROVEN, rec
+        assert "re-read at the door" in rec.get("clearance_gate", ""), (
+            "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
+            f"through this gate satisfies that gate rather than being waived past it: {rec}")
+
+
+def test_a_caller_may_not_hand_this_gate_its_own_witness():
+    """THE VACUITY KILL. ``cleared_by``, ``proven_by``, ``proven_seal_date`` and
+    ``delegated`` are stamped BY this gate. If a caller could pass them in, a
+    self-declared clearance could never disagree with the door — which is the whole
+    reason the door is worth passing through (Law 6). Each of the four is refused by
+    name, before anything is written, and the refusal says which."""
+    import inspect as _inspect
+    named = _inspect.signature(clear).parameters
+    # ``proven_by`` is on the roster too, but it can never REACH journal_extra: it is a
+    # named parameter, so a caller who passes it passes it to the gate's own argument and
+    # a second one is a TypeError at the call. Structure, not a check — and asserted here
+    # rather than assumed, because the day it stops being named is the day the roster
+    # entry stops being decorative and starts being the only thing standing there.
+    assert named["proven_by"].kind is _inspect.Parameter.KEYWORD_ONLY, \
+        "proven_by must stay a named parameter — that is what makes it unsmugglable"
+    reachable = [f for f in ("cleared_by", "proven_seal_date", "delegated") if f not in named]
+    assert len(reachable) == 3, f"all three must be reachable through journal_extra: {reachable}"
+    for field in reachable:
+        with tempfile.TemporaryDirectory() as tmp:
+            hp, sp = _paths(tmp)
+            try:
+                clear(
+                    _WF, "PROVEME",
+                    actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                    proven_by=_PROVEN, history_path=hp, state_path=sp,
+                    **{field: "forged"},
+                )
+            except Unauthorized as e:
+                assert field in str(e), f"the refusal must name the field it refused: {e}"
+                assert "written BY the clearance gate" in str(e), e
+            else:
+                raise AssertionError(f"a caller-supplied {field!r} was accepted")
+            assert not Path(hp).exists(), \
+                "a refused clearance writes no record of truth — not even an empty one"
+
+
 def _main() -> int:
     checks = [
         test_the_owner_may_clear_a_legal_move_and_it_is_recorded,
@@ -404,6 +488,8 @@ def _main() -> int:
         test_the_same_grant_inside_its_window_still_clears,
         test_a_crossed_resource_line_refuses_an_otherwise_perfect_move,
         test_the_gate_asks_for_a_verdict_and_never_counts_anything,
+        test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides,
+        test_a_caller_may_not_hand_this_gate_its_own_witness,
     ]
     for check in checks:
         check()

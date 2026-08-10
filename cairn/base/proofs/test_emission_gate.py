@@ -112,9 +112,47 @@ def _cross(workflow, target, *, ticket=None, td=None):
     comp = Path(td) / "fixture_component"
     comp.mkdir(exist_ok=True)
     hist, state = f"{comp}/history.json", f"{comp}/state.json"
+    if not transitions.is_summons(target):
+        # THE SIXTH SEAT RIDES ALONG (ticket emit-refuses-an-uncleared-crossing,
+        # 2026-08-10): a forward crossing into a REST now needs the clearance witness
+        # and the roster that would waive it is empty. This fixture is not testing that
+        # gate — it is testing the FIFTH seat — so it satisfies the sixth honestly, with
+        # a real seal minted in its own tempdir, rather than rostering its way past.
+        extra.update(_cleared(comp))
     new = transitions.emit(workflow, target, history_path=hist, state_path=state,
                            why="the watch is answered", **extra)
     return new, projector.read_history(hist)
+
+
+_FIXTURE_SEAL_DATE = "2026-08-10T00:00:00"
+
+
+def _cleared(comp: Path) -> dict:
+    """A clearance witness backed by a REAL seal, minted in the fixture's own tempdir.
+
+    The gate re-reads the world (``standing``) rather than trusting the field it is
+    handed, so this cannot be a magic string: it writes a real ``.py`` under a real
+    ``proofs/`` peer and seals it green through ``persist_validation``, the store's only
+    write-door. The clearance gate's own teeth live in ``test_transitions.py``; here this
+    is scaffolding, and it is honest scaffolding by construction — if it were not, the
+    crossing would refuse.
+    """
+    from cairn.tester.validation_store import persist_validation, source_fingerprint
+    proof = comp / "proofs" / "sealed_fixture.py"
+    proof.parent.mkdir(parents=True, exist_ok=True)
+    proof.write_text("# a real source file, so the fingerprint is a real fingerprint\n")
+    persist_validation({
+        "claim": "the fixture component's code is proven",
+        "caller": "cairn/base/proofs/test_emission_gate.py",
+        "date": _FIXTURE_SEAL_DATE,
+        "method": "fixture seal — the trail is real, the code it seals is a stub",
+        "verdict": "green",
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof))},
+        "falsifier": "the component's source fingerprint moves",
+        "horizon": "until any .py under the component root changes",
+    }, proof_path=str(proof))
+    return {"cleared_by": "fixture-owner", "proven_by": str(proof),
+            "proven_seal_date": _FIXTURE_SEAL_DATE}
 
 
 def _expect_red(fn):

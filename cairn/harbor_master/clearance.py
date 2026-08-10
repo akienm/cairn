@@ -100,6 +100,14 @@ GRANT_TTL_SECONDS = 10.0
 # to not thrash, so this is a placeholder holding the seam open, labelled as one.
 HARBOR_LINES: dict[str, float] = {"cpu_threshold": 75.0, "memory_floor": 1024.0}
 
+# THE WITNESS FIELDS — what this gate stamps on a crossing's record, and therefore what a
+# caller may never hand in through ``journal_extra``. These are the evidence the chokepoint's
+# clearance check reads back (ticket emit-refuses-an-uncleared-crossing, 2026-08-10): if a
+# caller could supply them, an uncleared crossing could dress itself as a cleared one and the
+# gate downstream would have no way to tell. The set is the exact spread ``clear`` writes at
+# its ``emit`` call — kept beside the writing so the two cannot drift apart.
+_GATE_WITNESS_FIELDS = frozenset({"cleared_by", "proven_by", "proven_seal_date", "delegated"})
+
 
 class Unauthorized(Exception):
     """The actor may not move this boat: not its owner, and holds no matching grant (Law 6).
@@ -210,8 +218,48 @@ def clear(
     resources=None,
     lines: dict | None = None,
     now: float | None = None,
+    **journal_extra,
 ) -> str:
     """Clear a transition, or refuse it — the authority rung wrapping the rules+truth chokepoint.
+
+    WHAT A CC-MADE CROSSING NAMES (settled 2026-08-10, ticket
+    emit-refuses-an-uncleared-crossing). The four arguments below are not free text, and
+    until this settlement they had never been supplied by anything but a proof. The door
+    may not mint them — a door-minted value can never disagree with the door, which is the
+    same two-witness argument that killed auto-inherit for chart claims — so they are
+    stated here, at the owner's address, and the caller supplies them:
+
+      - ``actor`` — WHO MOVED THE BOAT. For a crossing CC makes, the string is ``"CC"``.
+        Measured before settling: 16 records already carried an ``actor`` and already
+        carried TWO spellings for one mover — ``"CC"`` x12 and ``"claude"`` x4 — because
+        nothing had ever gated the field. The majority spelling wins on the ordinary
+        ground that it is what Akien calls this hand. The 4 dissenting records are NOT
+        repaired: they are a record of truth and they were never improper (Law 7).
+      - ``boat_owner`` — THE COMPONENT WHOSE HISTORY IS BEING APPENDED TO, by name (Law 6:
+        everything has exactly one owner, and the owner alone gates writes to it). For a
+        crossing journaled at ``cairn/base/history.json`` that is ``"base"``. The caller
+        states it; deriving it here from ``history_path`` would be the door minting its
+        own witness.
+      - ``boat_id`` — THE TICKET. It is already on every gated crossing, so this adds no
+        new vocabulary; it names WHICH voyage is moving, where ``boat_owner`` names whose
+        water it moves in.
+      - ``proven_by`` — THE PROOF THIS MOVE IS CLEARED ONTO, sealed and still describing
+        the code as it stands. For a voyage this is the proof its own PROVEME step just
+        sealed, which is what makes clearance affordable at all: proven-space is a FRESH
+        state that decays (measured 2026-08-10: only 4 of 78 proofs in the corpus were
+        standing, and they were the four most recently sealed), so the honest moment to
+        lean on a seal is the moment after it is cut.
+
+    ``**journal_extra`` rides through to ``emit`` untouched, and it is not a convenience:
+    WITHOUT IT THIS FUNCTION WAS UNCALLABLE FOR EVERY CROSSING THAT MATTERS. Three gates
+    at the chokepoint read ``journal_extra["ticket"]`` — the entry gate at BUILDME, the
+    exit gate at PROVED, the emission gate at a carried WATCHME — and each refuses a
+    crossing that names no cast ticket. Before 2026-08-10 ``clear`` accepted no such
+    argument, so a caller who did everything right was still refused at the door with
+    ``TicketRequiredRed``. That is the measured reason the authority rung went a year with
+    no production caller: not discipline, but physics pointing the wrong way — the ticket
+    gate that landed 2026-07-29 made the clearance gate structurally unreachable, and
+    nothing said so because nobody was calling it to find out.
 
     Binds four refusals before the cursor may move, then records the crossing:
       1. AUTHORITY (Law 6): ``actor`` must be the boat's owner, or hold a ``grant`` that
@@ -242,6 +290,23 @@ def clear(
     ``emit`` is reached, so a refused move leaves no partial record (unauthorised OR unproven
     OR unresourced OR illegal ⇒ un-recorded).
     """
+    # 0. THE WITNESS IS THE GATE'S TO WRITE. A caller may enrich the record through
+    #    ``journal_extra``, but it may not hand in the very fields this gate exists to
+    #    stamp — a self-declared ``cleared_by`` is exactly the door-minted value the
+    #    ticket's falsifier clause (3) names, and letting one through silently would make
+    #    the authority check vacuous at the one door that reads it. Refused LOUDLY rather
+    #    than dropped: a quietly discarded field is a record of truth collapsing an error
+    #    into a coherent shape, which Law 7 forbids at exactly this surface.
+    _witness = _GATE_WITNESS_FIELDS & journal_extra.keys()
+    if _witness:
+        raise Unauthorized(
+            f"a caller may not hand this gate its own witness: {sorted(_witness)} "
+            f"{'is' if len(_witness) == 1 else 'are'} written BY the clearance gate, never "
+            "to it. A self-declared clearance can never disagree with the door, which is "
+            "the whole reason the door is worth passing through (Law 6). Drop the field "
+            "and let the gate stamp it."
+        )
+
     # 1. AUTHORITY (Law 6) — owner acts directly, or a matching per-operation grant delegates.
     if actor != boat_owner:
         if grant is None or not grant.authorizes(
@@ -296,5 +361,10 @@ def clear(
         proven_by=proven_by,
         proven_seal_date=proven["seal"]["date"],
         delegated=(actor != boat_owner),
+        # The caller's own fields ride through untouched — ``ticket`` above all, which the
+        # entry/exit/emission gates each demand and which this rung had no way to carry
+        # until 2026-08-10. Spread LAST so a caller can enrich ``standing`` the same way a
+        # bare ``emit`` caller can. It may NOT carry a witness field — see the refusal above.
+        **journal_extra,
         **emit_kwargs,
     )

@@ -537,6 +537,42 @@ _ANSWERED = {
                       "by": "the run observed"}],
 }
 
+_FIXTURE_SEAL_DATE = "2026-08-10T00:00:00"
+
+
+def _cleared(d: Path, **extra) -> dict:
+    """Journal-extra for a crossing that came through the harbor's door — with a REAL
+    seal behind it, minted here in the fixture's own tempdir.
+
+    Ticket ``emit-refuses-an-uncleared-crossing`` (2026-08-10): a forward crossing into
+    a REST now needs the clearance witness. The witness is not a magic string — the gate
+    re-reads the world with ``standing``, so this helper builds the world: a real ``.py``
+    under a real ``proofs/`` peer, sealed green through ``persist_validation`` (the store's
+    only write-door, which mints the trail link) with the fingerprint the store itself
+    computes. If any of that were faked, the gate would refuse — which is the whole point
+    of it verifying against the world instead of against the field it was handed.
+
+    ``cleared_by`` is a plain name and deliberately unverified HERE: who-may is Law 6 and
+    lives at harbor_master's door, never at base's. What base checks is that the Law 8
+    evidence the record leans on is real and current.
+    """
+    from cairn.tester.validation_store import persist_validation, source_fingerprint
+    proof = d / "proofs" / "sealed_fixture.py"
+    proof.parent.mkdir(parents=True, exist_ok=True)
+    proof.write_text("# a real source file, so the fingerprint is a real fingerprint\n")
+    persist_validation({
+        "claim": "the fixture component's code is proven",
+        "caller": "cairn/base/proofs/test_transitions.py",
+        "date": _FIXTURE_SEAL_DATE,
+        "method": "fixture seal — the trail is real, the code it seals is a stub",
+        "verdict": "green",
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof))},
+        "falsifier": "the component's source fingerprint moves",
+        "horizon": "until any .py under the component root changes",
+    }, proof_path=str(proof))
+    return {"cleared_by": "fixture-owner", "proven_by": str(proof),
+            "proven_seal_date": _FIXTURE_SEAL_DATE, **extra}
+
 
 def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still():
     """proved-answers-the-chart LANDED: the forward crossing INTO PROVED naming a cast,
@@ -598,7 +634,8 @@ def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
-                                   history_path=hist, state_path=state, ticket="widget")
+                                   history_path=hist, state_path=state, ticket="widget",
+                                   **_cleared(Path(d)))
             assert "[PROVED]" in new
             rec = projector.read_history(hist)[0]
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
@@ -657,7 +694,8 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
             # UNTOUCHED: a cast ticket NO chart claims still crosses, gated-and-clean
             hist2, state2 = str(base / "hu.json"), str(base / "su.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
-                                   history_path=hist2, state_path=state2, ticket="widget")
+                                   history_path=hist2, state_path=state2, ticket="widget",
+                                   **_cleared(base))
             rec = projector.read_history(hist2)[0]
             assert "[PROVED]" in new
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
@@ -680,7 +718,12 @@ def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
         saved = transitions._EXEMPT_ROSTER
         transitions._EXEMPT_ROSTER = frozenset({"legacy-component"})
         try:
-            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state)
+            # The clearance witness rides too, and that is the point of it appearing
+            # here: the exit roster and the clearance roster are TWO rosters (ticket
+            # emit-refuses-an-uncleared-crossing). Sitting on one buys nothing at the
+            # other, and this tooth reds the day someone collapses them.
+            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
+                                   **_cleared(comp))
             assert "[PROVED]" in new
             rec = projector.read_history(hist)[0]
             assert rec["exit_gate"].startswith("exempt —"), \
@@ -719,7 +762,7 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             artifact = str(berths / "0" / "packets" / "verdict-20260729T000002-feed.json")
             transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
-                             ticket="widget")
+                             ticket="widget", **_cleared(Path(d)))
             lines = [json.loads(line) for line in
                      ledger.read_text(encoding="utf-8").splitlines() if line.strip()]
             assert len(lines) == 1, f"a clean crossing enqueues EXACTLY one record: {lines}"
@@ -775,7 +818,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
         try:
             hist, state = str(Path(d) / "h2.json"), str(Path(d) / "s2.json")
             transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
-                             ticket="widget")
+                             ticket="widget", **_cleared(Path(d)))
             rec = projector.read_history(hist)[0]
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), rec
             assert "deposit_enqueued" not in rec, \
@@ -803,13 +846,222 @@ def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
         "the enqueue's one door is chart's tree-free ledger module, lazily imported"
 
 
+# ---- THE SIXTH SEAT: A CROSSING INTO A REST CARRIES ITS CLEARANCE ----------------
+# Ticket ``emit-refuses-an-uncleared-crossing`` (2026-08-10), draining the live trouble
+# ``every-crossing-goes-around-the-clearance-gate``. Measured 2026-08-05: of 229 records
+# across 21 component histories, 146 were emit-shaped and ZERO carried ``cleared_by`` —
+# harbor_master's charter names that exact condition as its own falsifier, and it had
+# been met continuously since the clearance gate was built. Three files said "the
+# clearance gate wraps emit, so this is the one door"; nothing did.
+#
+# THE DEMANDED SET IS DERIVED FROM THE GRAMMAR, NEVER FROM A COMPONENT LIST: a FORWARD
+# journaled crossing into a REST — ``not is_summons(target)`` — which is the move that
+# enters proven-space, and therefore exactly the move ``clear`` already knows how to
+# judge (it reads ``standing`` on the proof). That scoping is what keeps
+# ``_CLEARANCE_EXEMPT_ROSTER`` EMPTY: this gate's own voyage CLEARS rather than being
+# waived, which is the difference between a gate and a wall with a guest list.
+#
+# THE HOLLOW SHAPE THESE TEETH EXIST TO CATCH, in three flavours, because a gate can be
+# vacuous three different ways: (1) demanded of nothing, so it passes everything —
+# answered by the paired does-NOT-refuse and does-NOT-fire rows; (2) satisfied by a
+# string, so a caller types ``cleared_by="me"`` into a bare ``emit`` and walks through —
+# answered by the three world-verification rows, which is the sibling-gate pattern
+# (entry reads berths off disk, exit reads the verdict artifact, emission resolves the
+# probe); (3) trapping the retreat — answered by the back-edge row.
+
+
+def test_an_uncleared_forward_crossing_into_a_rest_refuses_and_nothing_is_journaled():
+    """The headline. A forward crossing into a REST with no clearance witness refuses,
+    and a PRIOR record on disk is byte-identical afterwards (Law 7: a refused move
+    leaves no partial record). The refusal names the door to use, so the diagnostic is
+    complete on the first pass rather than sending a reader to find out how to comply."""
+    import hashlib as _hashlib
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        # a real prior record: a crossing into a SUMMONS, which this gate never touches
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+        before = _hashlib.sha256(Path(hist).read_bytes()).hexdigest()
+        # THE ISOLATING ROSTER. The exit gate sits above this one and would refuse an
+        # unnamed PROVED crossing first, so a red here could have come from either seat.
+        # Sitting the component on the EXIT roster silences that gate and leaves the
+        # clearance gate as the only thing this crossing can trip on — measured need
+        # (the first draft refused with TicketRequiredRed and proved nothing about the
+        # sixth seat), and it doubles as a second reading of "two rosters, not one".
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"widgetry"})
+        try:
+            transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state)
+        except transitions.ClearanceRequiredRed as e:
+            msg = str(e)
+            assert "clearance.clear" in msg, "the refusal must name the door to cross through"
+            assert "_CLEARANCE_EXEMPT_ROSTER" in msg and "widgetry" in msg, \
+                "the refusal must name the explicit exception and this component, by name"
+        else:
+            raise AssertionError("an uncleared forward crossing into a rest PASSED — "
+                                 "the sixth seat is not wired")
+        finally:
+            transitions._EXEMPT_ROSTER = saved
+        assert _hashlib.sha256(Path(hist).read_bytes()).hexdigest() == before, \
+            "a REFUSED crossing must leave the record of truth byte-identical"
+
+
+def test_a_cleared_crossing_passes_and_the_record_names_the_proof_it_leaned_on():
+    """The does-NOT-refuse row, and it is the load-bearing one: a gate proved only by
+    what it stops has never been proved by what it lets through. The witness is backed
+    by a REAL seal (``_cleared`` mints one through the store's only write-door), the
+    crossing lands, and the record of truth carries the ``clearance_gate`` note naming
+    the proof and the seal date — so a reader in a year can see which proof this
+    crossing's authority rested on without leaving the history file (Law 5)."""
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        witness = _cleared(comp)
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"widgetry"})  # silence the OTHER gate
+        try:
+            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist,
+                                   state_path=state, **witness)
+        finally:
+            transitions._EXEMPT_ROSTER = saved
+        assert "[PROVED]" in new
+        rec = projector.read_history(hist)[0]
+        assert "cleared by 'fixture-owner'" in rec["clearance_gate"], rec
+        assert witness["proven_by"] in rec["clearance_gate"], \
+            f"the record must name the proof the clearance leaned on: {rec}"
+        assert _FIXTURE_SEAL_DATE in rec["clearance_gate"], rec
+        assert "re-read at the door" in rec["clearance_gate"], \
+            "the note must say the seal was re-read HERE, not merely quoted from the caller"
+
+
+def test_a_witness_the_world_does_not_back_is_refused_three_ways():
+    """THE VACUOUS-BY-STRING KILL. A caller typing the witness into a bare ``emit``
+    cannot forge a clearance, because the gate re-reads the world — the same discipline
+    every sibling gate at this chokepoint already keeps. Three ways to be wrong, each
+    refused with its own wording so the first pass says which:
+
+      - an INCOMPLETE witness (``cleared_by`` alone) — the harbor's gate stamps all four
+        fields together, so a record carrying some of them did not come through it;
+      - a proof the tester never sealed — Law 8, proven-space is the tester's and it has
+        not spoken about that code;
+      - a seal DATE that disagrees with the standing seal — a record of truth may not
+        carry an error quietly (Law 7).
+
+    Revert any one of the three checks in ``_require_clearance`` and the matching row
+    goes red; that is how non-hollowness was verified rather than asserted."""
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        good = _cleared(comp)
+
+        def _try(**extra):
+            saved = transitions._EXEMPT_ROSTER
+            transitions._EXEMPT_ROSTER = frozenset({"widgetry"})  # isolate the sixth seat
+            try:
+                transitions.emit(_AT_LEARN, "PROVED", history_path=hist,
+                                 state_path=state, **extra)
+            except transitions.ClearanceRequiredRed as e:
+                return str(e)
+            finally:
+                transitions._EXEMPT_ROSTER = saved
+            raise AssertionError(f"a forged witness PASSED: {extra}")
+
+        msg = _try(cleared_by="me")
+        assert "INCOMPLETE" in msg and "proven_by" in msg and "proven_seal_date" in msg, msg
+        msg = _try(cleared_by="me", proven_by=str(comp / "proofs" / "never_sealed.py"),
+                   proven_seal_date=_FIXTURE_SEAL_DATE)
+        assert "NOT in proven-space" in msg and "no VALIDATION has ever sealed" in msg, msg
+        msg = _try(**dict(good, proven_seal_date="2020-01-01T00:00:00"))
+        assert "disagrees with the seal it names" in msg and _FIXTURE_SEAL_DATE in msg, msg
+        assert not Path(hist).exists(), \
+            "three refusals must have written no record of truth at all — not even an empty one"
+
+
+def test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat():
+    """The two silences, and both are design rather than omission.
+
+    A crossing into a SUMMONS is not the move that enters proven-space. The demanded set
+    is derived from ``is_summons`` rather than from the token "PROVED" precisely so no
+    component list is ever consulted — and this row measures what that derivation buys
+    TODAY, honestly: across every registered class the ONLY rest on the path is the
+    terminal one, so the demanded set is exactly one crossing per voyage. That is a
+    measurement of the standing grammar, not a law about it: a future class with a
+    mid-path rest inherits the gate for free, which is the whole reason the rule is
+    written against the shape instead of against the word.
+
+    And a BACK-edge is never gated — the same ``target_idx > wf.cursor`` guard every
+    sibling seat here keeps. Trapping a boat at a state it must be able to return to
+    would make a kick-back impossible, which is the motion a red is supposed to produce
+    (Law 6 — re-opening a node is the owner's act)."""
+    seen = 0
+    for name in ("code-seam", "skill"):
+        for ver, spec in transitions.load_class_def(name)["workflow_versions"].items():
+            path = tuple(spec["path"])
+            rests = [s for s in path if not transitions.is_summons(s)]
+            assert rests == [path[-1]], (
+                f"{name}@{ver}: the only rest is expected to be the terminal — got "
+                f"{rests}. If a mid-path rest has appeared, the demanded set just grew "
+                "and this proof's back-edge-into-a-rest row is now reachable and owed")
+            seen += 1
+    assert seen >= 3, f"the class walk found only {seen} versions — a vacuous green"
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        # forward into a SUMMONS: untouched, no witness, no note
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+        rec = projector.read_history(hist)[0]
+        assert rec["direction"] == "forward" and "clearance_gate" not in rec, rec
+        # a RETREAT: never gated, and it journals no clearance
+        h2, s2 = str(comp / "h2.json"), str(comp / "s2.json")
+        transitions.emit(_AT_LEARN, "BUILDME", history_path=h2, state_path=s2)
+        rec = projector.read_history(h2)[0]
+        assert rec["direction"] == "back" and "clearance_gate" not in rec, \
+            f"a retreat must cross ungated and journal no clearance: {rec}"
+
+
+def test_the_clearance_roster_is_a_second_roster_and_it_is_empty_in_production():
+    """Two rosters, two vocabularies — and the live one is EMPTY, which is the claim
+    this ticket's falsifier clause (1) was written against: *the voyage completes on
+    the exemption roster*. If this gate's own build had to roster itself through, the
+    builder routed around the gate. A fixture entry proves the roster WORKS (an exempt
+    crossing passes and journals its exemption through the ``clearance_gate`` key, never
+    silently) while the production frozenset stays empty."""
+    assert transitions._CLEARANCE_EXEMPT_ROSTER == frozenset(), (
+        "the clearance roster is empty by construction — an entry here is a waiver, and "
+        "a waiver needs its reason beside it and an argument at Akien's gate: "
+        f"{sorted(transitions._CLEARANCE_EXEMPT_ROSTER)}")
+    assert transitions._CLEARANCE_EXEMPT_ROSTER is not transitions._EXEMPT_ROSTER, \
+        "two rosters, not one given a second meaning — their empty states claim opposites"
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "legacy-hull"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        saved = transitions._CLEARANCE_EXEMPT_ROSTER, transitions._EXEMPT_ROSTER
+        transitions._CLEARANCE_EXEMPT_ROSTER = frozenset({"legacy-hull"})
+        transitions._EXEMPT_ROSTER = frozenset({"legacy-hull"})
+        try:
+            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state)
+        finally:
+            transitions._CLEARANCE_EXEMPT_ROSTER, transitions._EXEMPT_ROSTER = saved
+        assert "[PROVED]" in new
+        rec = projector.read_history(hist)[0]
+        assert rec["clearance_gate"].startswith("exempt —") and "legacy-hull" in rec["clearance_gate"], \
+            f"an exempt pass must journal its exemption, never silently: {rec}"
+
+
 def test_the_four_gate_exceptions_are_siblings_not_a_hierarchy():
-    """The four gate exceptions (``EntryGateRed``, ``BuildGateRed``, ``ExitGateRed``,
-    and the new ``TicketRequiredRed``) each subclass ``IllegalTransition`` directly —
-    none subclasses another. A handler written for one gate must not silently catch
-    another (the discipline the docstrings claim, pinned as an isolation invariant)."""
+    """The gate exceptions each subclass ``IllegalTransition`` directly — none
+    subclasses another. A handler written for one gate must not silently catch another
+    (the discipline the docstrings claim, pinned as an isolation invariant). The name
+    still says four; the seats are six, and the row grows with them rather than being
+    renamed each time — ``ClearanceRequiredRed`` joined 2026-08-10."""
     siblings = [transitions.EntryGateRed, transitions.BuildGateRed,
-                transitions.ExitGateRed, transitions.TicketRequiredRed]
+                transitions.ExitGateRed, transitions.TicketRequiredRed,
+                transitions.ClearanceRequiredRed]
     for s in siblings:
         assert issubclass(s, transitions.IllegalTransition), f"{s} must share the parent"
     for a in siblings:
@@ -994,6 +1246,11 @@ def _main() -> int:
         test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth,
         test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing,
         test_the_enqueue_seam_stays_file_only_on_the_fire_path,
+        test_an_uncleared_forward_crossing_into_a_rest_refuses_and_nothing_is_journaled,
+        test_a_cleared_crossing_passes_and_the_record_names_the_proof_it_leaned_on,
+        test_a_witness_the_world_does_not_back_is_refused_three_ways,
+        test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat,
+        test_the_clearance_roster_is_a_second_roster_and_it_is_empty_in_production,
         test_the_four_gate_exceptions_are_siblings_not_a_hierarchy,
         test_a_phased_cursor_parses_and_round_trips,
         test_a_phase_anywhere_but_the_cursor_is_refused,
@@ -1042,7 +1299,18 @@ def _main() -> int:
           "journaled with actor + time through the projector), a phase off-cursor / on a "
           "rest / off-vocabulary refuses at parse, a doubled pickup and a pickup at a rest "
           "refuse writing nothing, and the whole standing corpus parses phase=None — the "
-          "legacy grammar is a strict subset, measured, not assumed")
+          "legacy grammar is a strict subset, measured, not assumed — AND THE SIXTH SEAT "
+          "NOW STANDS (ticket emit-refuses-an-uncleared-crossing, draining the live trouble "
+          "every-crossing-goes-around-the-clearance-gate, under which ZERO of 146 emit-shaped "
+          "records on disk had ever carried cleared_by): a forward crossing into a REST "
+          "carries the harbor's clearance witness or refuses before anything is written; the "
+          "witness is RE-READ AGAINST THE WORLD, so an incomplete one, a proof the tester "
+          "never sealed, and a seal date that disagrees with the standing seal are each "
+          "refused in their own words and a hand-typed cleared_by forges nothing; a cleared "
+          "crossing lands with the proof and the seal it leaned on in its own record (Law 5); "
+          "a crossing into a summons and a retreat are both untouched, by design; and the "
+          "clearance roster is a SECOND roster, empty in production — this gate's own voyage "
+          "CLEARED rather than being waived through it")
     return 0
 
 

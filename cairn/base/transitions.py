@@ -76,16 +76,38 @@ build_inspector on the component at the crossing's own address (the directory ho
 the one door THE JOURNAL passes through — every record of truth is written here — so wiring
 anywhere else (the tester's discipline, a hook CC remembers to run) would be the
 run-it-by-discipline gap the inspector exists to close. (This sentence used to read 'the
-clearance gate wraps emit', which was false: clearance is ruled mandatory and not yet wired.
-The build gate's argument never depended on it — it depends on emit owning the journal.) Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
+clearance gate wraps emit', which was false for a year and is still not what happens: the
+clearance gate is a SEAT AT this door, below, not a wrapper around it. The build gate's
+argument never depended on either — it depends on emit owning the journal.) Jurisdiction is the addressed crossing: no ``history_path`` means no journal,
 so the record of truth does not move and there is nothing to gate. Kick-backs OUT of PROVEME
 are never gated — retreating on a red is the correct move. An address the census cannot see
 is REFUSED, not skipped: a gate that silently inspects nothing passes everything (Law 8), and
 the refusal names the growth path (grow the census/sieves, the learning device's move).
 
+THE CLEARANCE GATE (2026-08-10, ticket emit-refuses-an-uncleared-crossing, draining the live
+trouble ``every-crossing-goes-around-the-clearance-gate``): a journaled FORWARD crossing into
+a REST — ``not is_summons(target)``, i.e. the move that ENTERS proven-space — must carry the
+witness ``harbor_master.clearance.clear`` stamps, and this door re-reads the Law 8 half of it
+against the world (the named proof must be in proven-space right now, at the seal date the
+record claims). The demanded set is derived from the grammar, never from a component list, so
+a future class inherits the rule for free.
+
+  WHAT IT IS NOT. It is not a wrapper — the harbor's gate calls emit, not the other way
+  round — and it does not decide WHO MAY. That is Law 6 and it stays at harbor_master's
+  door; this seat asks only whether the authority rung RAN, which is a Law 7 question about
+  a record's completeness. A forged actor over a genuinely proven proof passes here and is
+  recorded permanently for the owner to find.
+
+  WHY IT IS SCOPED TO THE REST rather than to every crossing: that is exactly the crossing
+  ``clear`` already knows how to judge (it reads ``standing`` on the proof), and a voyage
+  seals that proof one step earlier at PROVEME — so the demand is affordable and
+  ``_CLEARANCE_EXEMPT_ROSTER`` stays EMPTY. Its own build's PROVED crossing CLEARS rather
+  than being waived, which is the difference between a gate and a wall with a guest list.
+
 Dependency-light AT IMPORT: pure parsing + the projector's pure core. No device, no bus, no
-DB. The build gate summons the build_inspector LAZILY, only at a journaled PROVEME exit —
-both are modules (inference-free by their own proofs), so the boot-order law holds.
+DB. The build gate summons the build_inspector LAZILY, only at a journaled PROVEME exit, and
+the clearance gate summons ``validation_store.standing`` the same way — all modules
+(inference-free by their own proofs), so the boot-order law holds.
 
     python3 cairn/base/proofs/test_transitions.py     # exit 0 = green
 """
@@ -596,6 +618,152 @@ def _require_named_ticket(target: str, ticket: object, *, history_path: str) -> 
     return None
 
 
+# THE CLEARANCE-EXEMPT ROSTER (ticket emit-refuses-an-uncleared-crossing, 2026-08-10):
+# call-site component names allowed to cross forward into a REST with NO clearance at
+# all. A SECOND roster beside ``_EXEMPT_ROSTER``, deliberately, and the two are not one
+# artifact wearing two hats. They answer different questions — that one asks "may this
+# cross without NAMING A TICKET", this one asks "may this cross WITHOUT CLEARANCE" — and
+# their empty states make opposite claims, which is what settles it: an empty
+# ``_EXEMPT_ROSTER`` claims that NOTHING may skip naming a ticket, so lending it a second
+# meaning would silently invert that claim into "nothing may skip clearance either",
+# a rule nobody wrote and nobody could point at. Two rosters is the honest cost; one
+# roster with two meanings is a laundered one.
+#
+# EMPTY IN V0, BY MEASURE AND NOT BY OPTIMISM. The rule below demands clearance only of
+# the crossing INTO proven-space, which is the crossing that has a freshly sealed proof
+# to name (a voyage seals at PROVEME, one step earlier). So the bootstrap needs no entry:
+# THIS TICKET'S OWN PROVED CROSSING CLEARS RATHER THAN BEING WAIVED, which is the whole
+# difference between a gate and a wall with a guest list. An entry here is a real
+# exemption for a real reason stated beside it — never a component that is merely behind
+# on its seals, which would be the ticket's falsifier clause (1): an exemption roster
+# that grows to cover the fleet is the gate not landing, wearing a roster's clothes.
+_CLEARANCE_EXEMPT_ROSTER: frozenset[str] = frozenset()
+
+
+class ClearanceRequiredRed(IllegalTransition):
+    """The forward crossing into a REST is refused: the crossing carries no evidence that
+    the AUTHORITY rung ran, and the crossing's component is not on the explicit
+    ``_CLEARANCE_EXEMPT_ROSTER`` (EMPTY in v0). Nothing is written before this raises.
+
+    The SIXTH seat at the chokepoint, and the narrowest. Sibling of ``EntryGateRed`` /
+    ``BuildGateRed`` / ``ExitGateRed`` / ``WatchmeEmissionRed`` / ``TicketRequiredRed`` —
+    sharing the ``IllegalTransition`` parent, not each other.
+
+    WHAT THIS GATE DOES NOT DO, and the distinction the whole build turns on: it does not
+    decide WHO MAY. That is Law 6 and it belongs to ``harbor_master``, whose charter says
+    so in its own words — 'AUTHORITY (Law 6) — WHO may invoke it? THIS FILE'. Teaching
+    ``base`` to judge authority would break Law 6 in the very act of enforcing it. So this
+    gate reads a RECORD, not a right: it asks whether the crossing carries the witness the
+    clearance gate stamps, which is a Law 7 completeness check on a record of truth. The
+    difference is not a technicality — it is why this refusal can live at base's door at
+    all.
+
+    WHY ONLY A REST (the demanded set, settled 2026-08-10). Clearance's second refusal is
+    Law 8: ``proven_by`` must name a proof that is sealed and still describes the code as
+    it stands. A crossing that summons no code has no such proof to name — a TICKETME or a
+    BUILDME entry runs nothing, so any address it named would be about the COMPONENT
+    ('this was once green') rather than about the MOVE ('this move is authorized'), and
+    clearance would come to mean the weaker thing everywhere. The grammar already draws
+    the line for us: a state ending in ``-ME`` is a summons, and a state that does not is
+    the node's own rest — the one crossing that ENTERS proven-space. Demanding clearance
+    exactly there puts the check where its own semantics live, and nowhere else. This is a
+    rule about the CROSSING, derived from the grammar; it is not a list of components, and
+    it must never become one.
+
+    Provenance: 2026-08-10, ticket emit-refuses-an-uncleared-crossing, under Akien's ruling
+    the same day ('Law 4: the chokepoint refuses a crossing carrying no cleared_by' —
+    confirmed in his words, 'indeed and honestly, why else have them?'). It closes the
+    trouble every-crossing-goes-around-the-clearance-gate, whose measured condition was
+    that ZERO of 189 emit-shaped records carried ``cleared_by`` — not one crossing in the
+    system's recorded life had passed the authority rung."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
+def _require_clearance(target: str, journal_extra: dict, *, history_path: str) -> str | None:
+    """The sixth gate: a forward journaled crossing into a REST must carry the witness the
+    harbor's clearance gate stamps, or refuse before anything is written.
+
+    Returns an exemption note — journaled through its own ``clearance_gate`` key, the same
+    way the ticket roster's exempt pass is journaled, so an exempt crossing is
+    gated-and-clean ON THE RECORD rather than silent — when the crossing's own component
+    is on ``_CLEARANCE_EXEMPT_ROSTER``. Returns a note naming the proof and seal the
+    clearance leaned on when the witness is present. Raises ``ClearanceRequiredRed``
+    otherwise.
+
+    IT VERIFIES AGAINST THE WORLD, NOT AGAINST THE FIELD IT WAS HANDED — which is the
+    settled pattern of every sibling gate at this chokepoint, and the first version of
+    this gate got it wrong. The entry gate reads the chart berths off disk; the exit gate
+    reads the verdict artifact off disk; the emission gate resolves the probe off disk.
+    A gate that trusted a caller-supplied field would be one keyword away from being
+    walked around, which is the trouble this ticket closes, restated one layer out. So a
+    complete witness is required (all four fields ``clear`` stamps), and the Law 8 half of
+    it is RE-READ: the named proof must be in proven-space right now, and the seal date on
+    the record must be the date that seal actually carries. A hand that types
+    ``cleared_by=`` into a bare ``emit`` call cannot manufacture either.
+
+    WHAT IT STILL DOES NOT CHECK, and the line is deliberate: whether ``cleared_by`` names
+    someone who may. That is Law 6, it is harbor_master's, and base may not compute it.
+    A forged actor over a genuinely proven proof would pass here — and it would still be a
+    crossing onto proven code, with the forgery recorded permanently in a record of truth
+    for the owner to find. Law 8 is base's to re-read at the truth door; Law 6 is not
+    base's to decide anywhere.
+
+    ``standing`` is summoned LAZILY, the same way the build gate summons the
+    build_inspector, so this module stays dependency-light at import (no device, no bus,
+    no DB) and the boot-order law holds.
+    """
+    if journal_extra.get("cleared_by"):
+        who = journal_extra["cleared_by"]
+        proof = journal_extra.get("proven_by")
+        sealed = journal_extra.get("proven_seal_date")
+        missing = [k for k in ("proven_by", "proven_seal_date") if not journal_extra.get(k)]
+        if missing:
+            raise ClearanceRequiredRed(
+                f"{target} crossing refused: the record claims cleared_by={who!r} but its "
+                f"witness is INCOMPLETE — missing {missing}. A partial witness is not a "
+                "clearance; the harbor's gate stamps all four fields together and a record "
+                "carrying only some of them did not come through it. Nothing was journaled."
+            )
+        from cairn.tester.validation_store import standing  # lazy: keep import dependency-light
+        proven = standing(proof)
+        if not proven["proven"]:
+            raise ClearanceRequiredRed(
+                f"{target} crossing refused: the record claims clearance onto {proof}, but "
+                f"that proof is NOT in proven-space: {proven['why']} A witness naming a "
+                "proof the world does not hold proven is not evidence that the authority "
+                "rung ran — it is the shape of one. Nothing was journaled. Re-seal the "
+                "proof, then clear the crossing through harbor_master's gate."
+            )
+        actual = proven["seal"]["date"]
+        if sealed != actual:
+            raise ClearanceRequiredRed(
+                f"{target} crossing refused: the record dates the seal on {proof} at "
+                f"{sealed!r}, but the standing seal is dated {actual!r}. A witness that "
+                "disagrees with the seal it names did not come from the gate that reads it "
+                "(Law 7 — a record of truth may not carry an error quietly). Nothing was "
+                "journaled."
+            )
+        via = " (delegated)" if journal_extra.get("delegated") else ""
+        return f"cleared by {who!r}{via} onto {proof} (seal {actual}, re-read at the door)"
+    comp = Path(history_path).resolve().parent.name
+    if comp in _CLEARANCE_EXEMPT_ROSTER:
+        return f"exempt — {comp!r} is on the explicit clearance roster (_CLEARANCE_EXEMPT_ROSTER)"
+    raise ClearanceRequiredRed(
+        f"{target} crossing refused: this is a forward crossing into a REST — the move that "
+        f"ENTERS proven-space — and it carries no evidence that the authority rung ran. "
+        "Nothing was journaled. Cross through the harbor's gate instead of the bare door: "
+        "cairn.harbor_master.clearance.clear(workflow_str, target, actor=..., boat_id=..., "
+        "boat_owner=..., proven_by=<the proof your PROVEME step just sealed>, "
+        "history_path=..., state_path=..., ticket=...). That call stamps cleared_by itself "
+        "— you cannot supply it here, and a crossing that could would make the check "
+        f"vacuous. If {comp!r}'s crossings are a legitimate structural exception, add it to "
+        "_CLEARANCE_EXEMPT_ROSTER with the reason beside it, explicitly, never silently."
+    )
+
+
 def _entry_gate(ticket: str) -> str:
     """A cast ticket crossing forward into BUILDME must be claimed by a berthed chart
     chain — the entry half of packet jurisdiction (the PROVEME exit below is the
@@ -723,8 +891,9 @@ def _build_gate(history_path: str) -> str:
     Provenance: 2026-07-27, build_inspector's filed edge (a) — 'today CC runs it; the lever
     lands when a PROVEME crossing is refused while the inspector reds.' Wired at the
     emit-chokepoint because emit owns the journal: this is the one door a record of truth
-    passes through. (Not because the clearance gate wraps emit — it does not; ruled
-    mandatory 2026-08-10, unwired, ticket emit-refuses-an-uncleared-crossing.)
+    passes through. (Not because the clearance gate wraps emit — it never has and does not
+    now: since 2026-08-10 clearance is a SIBLING SEAT at this same door, scoped to the
+    crossing into a rest — ticket emit-refuses-an-uncleared-crossing.)
     """
     # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
     # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
@@ -804,12 +973,20 @@ def emit(
     If ``history_path``/``state_path`` are given, the crossing appends through the projector's
     single write-door — append-only, cursor bounded, no in-place edit (Law 7). A back-edge
     carries its ``severity`` (how far back); routing very-wrong kick-backs to the ask-Akien
-    escalation is a filed edge, not this rung. AUTHORITY (who may) BELONGS to the harbor's
-    clearance gate and is NOT checked here — and, as of 2026-08-10, is not checked anywhere:
-    the gate is ruled MANDATORY and is not yet wired, so every crossing on disk was made
-    ambiently. This docstring said 'the harbor's clearance gate wrapping this call', present
-    tense, for as long as the gate has existed. It does not wrap this call.
-    Ticket: emit-refuses-an-uncleared-crossing.
+    escalation is a filed edge, not this rung.
+
+    AUTHORITY (WHO MAY) IS STILL NOT DECIDED HERE, and that line did not move on 2026-08-10.
+    What landed then (ticket emit-refuses-an-uncleared-crossing) is the CLEARANCE GATE — the
+    sixth seat below — which reads a RECORD rather than a right: a forward crossing into a
+    REST must carry the witness ``harbor_master.clearance.clear`` stamps, and this door
+    re-reads the Law 8 half of that witness against the world. Whether the named actor MAY
+    is Law 6, it is harbor_master's, and base computes it nowhere. So the honest shape is
+    two rungs at one door, not one rung doing two jobs.
+
+    For a year this docstring said 'the harbor's clearance gate wrapping this call', present
+    tense, while nothing wrapped anything: measured 2026-08-05, of 229 records across 21
+    component histories, 146 were emit-shaped and ZERO carried ``cleared_by``. It still does
+    not wrap this call — it is a seat AT it, and only for the crossing into a rest.
     """
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)
@@ -830,6 +1007,30 @@ def emit(
         # opt-in jurisdiction). A named, cast ticket then requires a berthed chart
         # chain claiming it, same as before this stone. Back-edges into BUILDME
         # retreat ungated (never subject to either check).
+        # THE CLEARANCE GATE (ticket emit-refuses-an-uncleared-crossing, 2026-08-10): a
+        # forward crossing into a REST — a state the grammar says summons nobody, i.e. the
+        # move that ENTERS proven-space — must carry the witness the harbor's clearance
+        # gate stamps, or the crossing's component must be on the explicit clearance
+        # roster. Refuses BEFORE anything is written. Keyed off ``is_summons`` rather than
+        # off the token "PROVED" deliberately: the demanded set is a rule about the shape
+        # of the crossing, derived from the same grammar the rest of this module derives
+        # from, so a class whose rest is named something else inherits it for free and no
+        # component list is ever consulted. Back-edges retreat ungated, like every sibling
+        # gate here — trapping a boat at the state it must be able to return to would make
+        # a kick-back impossible, which is the motion a red is supposed to produce.
+        # This gate reads a RECORD, never a right: who-may is Law 6 and stays at
+        # harbor_master's door (see ``ClearanceRequiredRed``).
+        #
+        # IT SITS LAST AMONG THE GATES — below the emission gate, above the deposit
+        # enqueue — and the position is load-bearing twice over. Below, because the four
+        # gates above it ask whether THE WORK IS DONE and this one asks whether the
+        # finished work came through the harbor's door; in the voyage that order is the
+        # real sequence of events (build it, prove it, emit the watch, then get the
+        # crossing cleared), so a caller who is wrong about both hears about the work
+        # first, which is the half they can act on. Above the enqueue, because the
+        # enqueue is the one thing in this function that touches the world before the
+        # record is written: every gate must refuse upstream of it or a refused crossing
+        # would leave a deposit owed for a voyage that never closed.
         entry_note = None
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
@@ -862,12 +1063,16 @@ def emit(
         # (it names no ticket), for an unclaimed one (no artifact exists), or for
         # a refusal (the gate raises above this line).
         enqueued = None
+        _exempt = None
         if target == "PROVED" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
             _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
             exit_note = _exempt if _exempt is not None else _exit_gate(_ticket)
-            if _exempt is None:
-                enqueued = _enqueue_verdict(_ticket)
+        clearance_note = None
+        if not is_summons(target) and target_idx > wf.cursor:
+            clearance_note = _require_clearance(target, journal_extra, history_path=history_path)
+        if target == "PROVED" and target_idx > wf.cursor and _exempt is None:
+            enqueued = _enqueue_verdict(journal_extra.get("ticket"))
         record = {
             "from": wf.here,
             "to": target,
@@ -895,6 +1100,13 @@ def emit(
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),
+            # The record of truth says the clearance gate ran: a crossing into a rest
+            # journals WHICH proof the authority rung leaned on and when it was sealed —
+            # or, for an exempt crossing, that it was exempt and by which roster. An
+            # exemption that passed silently would be strictly weaker than the ticket
+            # roster standing beside it, and it is how this trouble stayed invisible for
+            # the whole recorded life of the system.
+            **({"clearance_gate": clearance_note} if clearance_note else {}),
             # The record of truth says the emission gate ran: a gated WATCHME exit
             # journals WHICH probe answered for the watch, so a year later the record
             # names the berth rather than asserting that something was learned.

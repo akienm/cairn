@@ -22,14 +22,17 @@ It composes the fleet REGISTER (child a) into two derived, computed-on-read stru
      already berthed: MID-VOYAGE, its migration unreconciled (register filed-edge c).
 
 THE HONEST CONDITIONS (today), each computed-on-read from a fact on disk. The design's marker
-vocabulary ([R] requested, [W] waiting, [F] failed, [X] refused, [S] stalled) mostly needs an
-OWNED FACT that does not exist yet — a subscription registry (staff/starvation), a 'waiting_on'
-record — so emitting it now would be hollow (Law 8: a marker no boat can wear). THE GATE'S QUEUE
-IS NO LONGER ONE OF THE MISSING FACTS: it was built 2026-08-10 (ticket clearance-leaves-a-trace)
-and every clearance attempt, granted or refused, is on disk with its actor, its boat, its target
-and its reason. What each of the two queue-gated markers still needs is stated at its own entry
-below rather than here, because the two turned out to need different things. Two conditions ARE
-structural today:
+vocabulary ([R] requested, [W] waiting, [F] failed, [X] refused, [S] stalled) mostly waits on an
+OWNED FACT — a subscription registry for staff/starvation, a 'waiting_on' record for the pending
+decisions — and emitting a marker before its fact has an owner would be hollow (Law 8: a marker
+no boat can wear). WHICH FACT EACH ONE WAITS ON IS NOW STATED PER MARKER, at its own entry in
+``GROW_AGAINST_NEED`` below, and this paragraph deliberately no longer makes a blanket claim
+about the set: on 2026-08-10 the gate's queue was BUILT (ticket clearance-leaves-a-trace) and
+every clearance attempt, granted or refused, is on disk with its actor, its boat, its target and
+its reason — so the two markers filed against "the queue" stopped waiting on the same thing as
+the rest, and stopped waiting on the same thing as each other. One blanket sentence covering a
+set that is no longer uniform is how a filed absence outlives the voyage that filled it. Two
+conditions ARE structural today:
 
   • AT-ANCHOR ([✓]). A boat sitting in the open lane whose cursor is at a REST stage
     (PROVED) is not at sea — it is DONE, awaiting its berth: the physical migration beside
@@ -67,9 +70,11 @@ from __future__ import annotations
 from cairn.harbor_master import register
 
 
-# What the traffic image will grow to carry, each gated on an OWNED FACT that does not
-# exist yet — filed here (not emitted) so the view never wears a marker no boat can (Law 8).
-# When the fact acquires an owner, the marker grafts into ``_condition`` below, one at a time.
+# What the traffic image will grow to carry. Each entry names the ONE thing that marker is
+# still waiting on, in its own words — filed here (not emitted) so the view never wears a
+# marker no boat can (Law 8). When that thing arrives, the marker grafts into ``_condition``
+# below, one at a time. The per-entry wording is load-bearing: a shared phrase would have gone
+# on describing an absence for the two entries whose fact was built on 2026-08-10.
 GROW_AGAINST_NEED = {
     # THE QUEUE EXISTS NOW (cairn/harbor_master/clearance.py, ticket clearance-leaves-a-trace,
     # 2026-08-10): both of these were filed as waiting on it, and neither still is. What each

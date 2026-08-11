@@ -30,9 +30,11 @@ import sys
 import time
 from datetime import datetime, timezone
 
+from cairn.ground_loop.discovery import discover
 from cairn.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.ground_loop.liveness import instance_home, read_liveness
 from cairn.ground_loop.loop import GroundLoopDevice
+from cairn.trouble.trouble import TroubleDevice
 
 CADENCE_S = 1.0   # the ruled cadence: once per second (Akien, 2026-07-30)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
@@ -56,7 +58,12 @@ def main(home=None) -> int:
               f"ground_loop: {detail}", file=sys.stderr)
         return EXIT_ALREADY_RUNNING
 
-    device = GroundLoopDevice(liveness_home=home)
+    # THE RESIDENT LOOP IS THE WIRED ONE. The device stays provable without a filesystem or a
+    # trouble store (both injected, both defaulting to None — the pure-physics proofs build it
+    # bare); this runner is the one place that hands it the real world, the same way it is the
+    # one place that hands it a wall clock. A loop with no discoverer beats an empty roster,
+    # which is precisely the state that went unnoticed from 2026-08-09 to 2026-08-11.
+    device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice())
     stopping = {"now": False}
 
     def _stop(signum, frame):  # noqa: ARG001 — the signal API's shape

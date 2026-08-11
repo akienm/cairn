@@ -41,7 +41,15 @@ import os
 from datetime import datetime, timezone
 
 from cairn.base.device import BaseDevice
+from cairn.ground_loop.discovered import DiscoveredShim
+from cairn.ground_loop.discovery import ProbeCache
 from cairn.ground_loop.liveness import read_liveness, write_liveness
+
+# The trouble identity a benched device gets. One prefix, here, because two readers need it:
+# ``_bench`` writes it and ``_refresh_bench`` parses the device back out of it. A device is
+# on the bench exactly when a LIVE ticket by this name exists — there is no second record of
+# benching, so the bench cannot disagree with the lane (Law 1).
+TROUBLE_PREFIX = "ground-loop-device-"
 
 
 def liveness_pane_data(now, home=None) -> dict:
@@ -71,13 +79,27 @@ class GroundLoopDevice(BaseDevice):
     of the pass). Constructed without one, the device is an anonymous in-process heartbeat
     — no device space, no record — which is what every pure-physics proof builds."""
 
-    def __init__(self, device_id: str = "ground_loop", liveness_home=None) -> None:
+    def __init__(self, device_id: str = "ground_loop", liveness_home=None,
+                 discover=None, trouble=None) -> None:
         super().__init__()
         self._device_id = device_id
         self._liveness_home = liveness_home
-        self._shims: list = []          # the subscribed shims, pulsed in subscription order
+        self._shims: list = []          # the pulse roster: discovered from disk, plus hand-subscribed
         self._beats = 0
         self._last_beat: dict | None = None
+        # THE DISK ROSTER (ruled 2026-08-11 — see discovery.py). Injected, so the pure-physics
+        # proofs keep beating without a filesystem and a proof can hand a fake tree. ``None``
+        # means the pre-ruling behaviour: pulse only what was hand-subscribed.
+        self._discover = discover
+        self._probe_cache = None        # built lazily; only the real discoverer needs one
+        self._discovered: dict = {}     # device_id -> DiscoveredShim, this loop's own
+        # THE BENCH — device_id -> the trouble id holding it out. A device that failed is not
+        # retried until its ticket is CLEARED, and only the recipient may clear it
+        # (trouble.py). The loop never un-benches on its own: that would be the loop deciding
+        # a trouble went away, which is exactly what the trouble lane exists to forbid.
+        self._trouble = trouble
+        self._benched: dict[str, str] = {}
+        self._bench_stamp = None        # the trouble store's fingerprint at the last refresh
 
     @property
     def device_id(self) -> str:
@@ -137,6 +159,124 @@ class GroundLoopDevice(BaseDevice):
                 return s
         return None
 
+    # --- the disk roster + the bench ----------------------------------------
+
+    def _bench_store_stamp(self):
+        """A cheap fingerprint of the trouble store: one ``scandir``, no file reads.
+
+        THE FIRST VERSION OF THIS STATTED THE DIRECTORY, AND THE PROOF KILLED IT. A clear is
+        an in-place rewrite of one ticket file (``trouble.py``'s ``_write`` — no temp, no
+        rename), so the directory's own mtime does not move when a ticket is cleared. The
+        gate was watching the single event it needed to catch and missing it: a device would
+        have stayed benched forever after its ticket was cleared, and the beat would have
+        looked perfectly healthy while doing it. The fingerprint therefore rides the ENTRIES
+        — name, mtime, size — which moves for a raise, a clear, and a hand-edit alike.
+        ``None`` means the store could not be read, which never equals a real fingerprint,
+        so an unreadable store re-reads rather than freezing the bench."""
+        root = getattr(self._trouble, "_root", None)
+        if root is None or not root.exists():
+            return ()
+        try:
+            with os.scandir(root) as entries:
+                return tuple(sorted(
+                    (e.name, e.stat().st_mtime, e.stat().st_size)
+                    for e in entries if e.name.endswith(".json")))
+        except OSError:
+            return None
+
+    def _refresh_bench(self) -> None:
+        """Re-read which devices are held out by a LIVE trouble ticket.
+
+        Gated on the store's fingerprint, so an unchanged store costs one ``scandir`` per
+        beat rather than a directory of JSON reads per second. The loop reads this list; it
+        never writes to it except by raising, and it never removes from it — a device leaves
+        the bench when its ticket is CLEARED, which is the recipient's act alone."""
+        if self._trouble is None:
+            return
+        stamp = self._bench_store_stamp()
+        if stamp is not None and stamp == self._bench_stamp:
+            return
+        try:
+            live = self._trouble.live()
+        except Exception as exc:  # noqa: BLE001 — an unreadable lane must not stop the heartbeat
+            self.emit("bench_unreadable", pointer="trouble",
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+            return
+        self._bench_stamp = stamp
+        self._benched = {t["id"][len(TROUBLE_PREFIX):]: t["id"]
+                         for t in live
+                         if str(t.get("id", "")).startswith(TROUBLE_PREFIX)}
+
+    def _bench(self, device_id: str, why: str, detail: dict) -> None:
+        """A device failed: raise (or increment) its trouble ticket and hold it out.
+
+        The identity names the DEFECT — *this device fails on the beat* — not the
+        occurrence, so a device failing every second produces one ticket with a count,
+        never a ticket per beat (trouble.py's damper). Benching in memory immediately means
+        the very next beat already skips it, without waiting for the mtime gate."""
+        ident = TROUBLE_PREFIX + device_id
+        self._benched[device_id] = ident
+        if self._trouble is None:
+            return
+        try:
+            self._trouble.raise_trouble(ident, why=why, detail=detail)
+        except Exception as exc:  # noqa: BLE001 — the lane failing cannot take the heartbeat with it
+            self.emit("bench_unwritable", pointer=ident,
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+
+    def _reconcile(self) -> None:
+        """Rebuild the pulse roster from DISK — the whole point of the ruling.
+
+        Hand-subscribed shims are left exactly as they are (the web server registers real
+        device shims that carry pages), and a discovered device whose name a hand-subscribed
+        shim already holds is NOT given a second shim — one device, one shim, or a probe
+        fires twice per beat. Everything else on disk gets a ``DiscoveredShim``, refreshed
+        with this pass's probes; a device whose folder has vanished leaves the roster."""
+        if self._discover is None:
+            return
+        if self._probe_cache is None:
+            self._probe_cache = ProbeCache()
+        self._refresh_bench()
+        try:
+            found = self._discover(cache=self._probe_cache, skip=set(self._benched))
+        except Exception as exc:  # noqa: BLE001 — discovery itself failing must not stop the beat
+            self.emit("discovery_refused", pointer="disk",
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+            return
+        hand_held = {s.device_id for s in self._shims
+                     if s.device_id not in self._discovered}
+        for device_id, entry in found.items():
+            if entry.get("benched"):
+                continue
+            if entry["failures"]:
+                self._bench(device_id,
+                            why=f"the {device_id} device's probe folder does not import, so its "
+                                "watches cannot be fired; the heartbeat has held it out until "
+                                "this is fixed and the ticket cleared",
+                            detail={"folder": entry["folder"], "failures": entry["failures"]})
+                continue
+            if device_id in hand_held:
+                continue      # a real shim already fronts this device — do not double-pulse it
+            shim = self._discovered.get(device_id)
+            if shim is None:
+                shim = DiscoveredShim(device_id, entry["folder"])
+                self._discovered[device_id] = shim
+                self._shims.append(shim)
+                self.emit("discovered", pointer=device_id,
+                          values={"folder": entry["folder"], "probes": len(entry["probes"])})
+            shim.set_probes(entry["probes"], entry["folder"])
+        # A device that left disk, or that just got benched, leaves the roster. Its shim is
+        # DROPPED rather than emptied so its crossing-memory dies with it: a probe re-armed
+        # after a fix is a fresh watch, not one resuming a line it no longer remembers.
+        gone = [d for d in self._discovered
+                if d not in found or d in self._benched or found[d].get("benched")]
+        for device_id in gone:
+            shim = self._discovered.pop(device_id)
+            self._shims = [s for s in self._shims if s is not shim]
+            self.emit("undiscovered", pointer=device_id,
+                      values={"reason": "benched" if device_id in self._benched
+                              else "probes folder no longer on disk"})
+
     # --- the one capability: one beat ---------------------------------------
 
     def beat(self, now, context: dict | None = None) -> dict:
@@ -149,19 +289,32 @@ class GroundLoopDevice(BaseDevice):
         by ticket watchme-emits-a-probe. EVIDENCE is what a beat actually yields, and was
         always the point.)"""
         context = context or {}
+        # THE ROSTER IS READ BEFORE IT IS PULSED, every pass (ruled 2026-08-11). A probe file
+        # written one second ago is fired by this beat; one deleted one second ago is not.
+        self._reconcile()
         pulses: list[dict] = []
-        for shim in self._shims:
+        for shim in list(self._shims):
             try:
                 pulses.append(shim.on_pulse(now, context))
             except Exception as exc:  # noqa: BLE001 — one shim failing cannot stop the heartbeat
-                pulses.append({"device": shim.device_id, "outcome": "refused",
-                               "error": f"{type(exc).__name__}: {exc}"})
+                error = f"{type(exc).__name__}: {exc}"
+                pulses.append({"device": shim.device_id, "outcome": "refused", "error": error})
                 # GATE CONTACT (DiagnosticBase): a pulse FAILED — per anomaly, never per
                 # beat (a healthy beat is silent; its record already returns to the caller).
                 # The error rides the values whole: complete on first pass, no re-run to
                 # gather what already happened.
                 self.emit("pulse_refused", pointer=shim.device_id,
-                          values={"beat": self._beats + 1, "error": f"{type(exc).__name__}: {exc}"})
+                          values={"beat": self._beats + 1, "error": error})
+                # AND THE DEVICE COMES OFF THE BEAT until someone clears its ticket. A shim
+                # whose pulse raises is broken at the device level, and re-entering it once a
+                # second buys nothing but a bigger count. (A shim that merely had a probe
+                # raise never reaches here — BaseShim.on_pulse already isolates per probe, so
+                # arriving in this branch means the shim itself failed.)
+                self._bench(shim.device_id,
+                            why=f"the {shim.device_id} device's shim raised on the heartbeat "
+                                "pulse, so none of its watches can fire; the heartbeat has "
+                                "held it out until this is fixed and the ticket cleared",
+                            detail={"beat": self._beats + 1, "error": error})
         record = {
             "beat": self._beats + 1,
             "date": str(now),

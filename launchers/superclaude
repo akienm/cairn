@@ -207,6 +207,32 @@ else
   _sc_log "exec: $claude_bin $*"
 fi
 
+# ── THE GROUND LOOP IS ALWAYS UP (ruled by Akien 2026-08-11) ─────────────────
+# "THE INTENTION IS THE GROUND LOOP IS ALWAYS UP. IF ITS NOT UP, LAUNCHING AN ENTRY POINT
+# LAUNCHES IT. NO SYSTEM LEVEL STARTUP REQUIRED. NO MATTER HOW MANY LAUNCHES ARE ATTEMPTED,
+# ITS A SINGLETON, SO IF IT SEES ITS ALREADY RUNNING, THE NEW ONE STOPS."
+#
+# SPAWN BLIND — deliberately. This does NOT check whether a loop is running first; the
+# singleton claim in cairn/ground_loop/guard.py is the mechanism, and a launcher that
+# re-derived the check would be a second opinion about who is running (Law 1, and the guard's
+# own docstring names this caller). A loser exits 3 after printing what it found, which lands
+# in the log below — distinct from a crash, so "refused, one is running" reads differently
+# from "broke".
+#
+# WHY IT WAS MISSING: the guard shipped 2026-08-09 built expressly for an entry point to call,
+# and no entry point ever called it. The loop ran exactly once, started by hand, and the
+# 2026-08-10 reboot took it — 74,209 beats, then nothing, and nothing was loud about it.
+#
+# Backgrounded, detached, /dev/null on stdin, and `|| true`, under the same prime directive as
+# the trace wire: from parse to exec, nothing may abort the launch. A heartbeat that fails to
+# start must cost the session nothing. setsid so it outlives this shell and the terminal.
+if [[ "$dry_run" -eq 0 ]]; then
+  ( setsid python3 -m cairn.ground_loop \
+      >>"${HOME}/.cairn/logs/ground_loop_nohup.log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+  disown 2>/dev/null || true
+  _sc_log "ground_loop: spawn attempted (singleton guard decides; loser exits 3)"
+fi
+
 # ── THE TRACE WIRE (deploy pass, approved 2026-08-01): a launch is a firing ──
 # door_pass on a clean floor; send_back with the lack NAMED when the preflight was
 # bypassed or left residue — launched anyway (the prime directive is untouched), but

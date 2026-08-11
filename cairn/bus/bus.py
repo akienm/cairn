@@ -57,6 +57,7 @@ FILED EDGES (children of this stone — not faked):
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import datetime
 
@@ -91,6 +92,50 @@ _TRAFFIC_COLUMNS = {
 }
 _BUS_OWNER = "bus"
 
+# THE RECEIPT — delivery as its own append-only fact, NOT a column on the envelope.
+#
+# ``post`` and ``read`` worked from the day the bus shipped, and nothing ever DELIVERED: no
+# drainer read a device's inbox, so ``BaseShim.deliver`` stood with zero callers and no device
+# could answer anything sent to it. Sending worked, arriving did not, and the two are
+# indistinguishable from the sender's side — which is why "the bus is up" read as true for
+# three weeks. This table is the missing half.
+#
+# WHY A SECOND TABLE RATHER THAN A ``delivered`` COLUMN. An envelope on a RECORD channel is a
+# record of truth (Law 7): it does not get rewritten after the fact, and a stamp written back
+# into it is exactly that. A receipt is a separate EVENT — *this envelope reached this device
+# at this moment* — so it appends, it can carry more than one row per envelope when a message
+# is one day delivered to several, and it leaves the causal record bit-unmoved. It also needs
+# no migration of a table that already holds live traffic.
+_DELIVERY_COLUMNS = {
+    "envelope": "text",
+    "addressee": "text",
+    "by": "text",
+    "date": "text",
+}
+
+
+_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def sql_missing_receipt(traffic_table: str, delivery_table: str) -> str:
+    """The WHERE fragment for 'no receipt exists for this envelope'.
+
+    A raw fragment because ``store.read`` takes a raw ``WHERE`` and a table name cannot be a
+    bound parameter. Both names are therefore checked against a plain-identifier pattern
+    before they are interpolated: the bus derives them from its own configuration, but a name
+    that reaches SQL unchecked is a hole whether or not today's caller could open it (CP6 —
+    safety is built, never the resting state).
+
+    The outer reference is QUALIFIED (``traffic.id``, not a bare ``id``) so the correlation
+    cannot silently rebind if the receipt table ever grows a column of the same name — that
+    would turn the anti-join into a self-comparison and report the entire inbox delivered."""
+    for name in (traffic_table, delivery_table):
+        if not _IDENTIFIER.match(name or ""):
+            raise ValueError(f"refusing {name!r} as a table name — a name that reaches SQL "
+                             "uninspected is a hole regardless of who holds it today")
+    return (f"NOT EXISTS (SELECT 1 FROM {delivery_table} d "
+            f"WHERE d.envelope = {traffic_table}.id)")
+
 
 class ChannelError(Exception):
     """A post/read against a channel that is not one of the four. Loud, never swallowed (CP1)."""
@@ -119,9 +164,14 @@ class BusDevice(BaseDevice):
     def __init__(self, table: str = "bus_traffic", device_id: str = "bus") -> None:
         super().__init__()
         self._table = table
+        # Derived from the transit table's name, never configured separately: the two are one
+        # store in two halves, and a proof that swaps in an ephemeral transit table gets an
+        # ephemeral receipt table in the same act, with no second argument to forget.
+        self._delivery_table = f"{table}_delivery"
         self._device_id = device_id
         self._ensured = False
         self._posted = 0
+        self._delivered = 0
         self._last_envelope: dict | None = None
 
     @property
@@ -132,12 +182,17 @@ class BusDevice(BaseDevice):
     def table(self) -> str:
         return self._table
 
+    @property
+    def delivery_table(self) -> str:
+        return self._delivery_table
+
     def _ensure(self) -> None:
-        """The transit table, owned by the bus — created once, idempotently, through db_domain's
-        gate (an ownerless table cannot exist; a different owner is refused). Lazy so importing
-        the bus touches no DB (boot-order law)."""
+        """The transit and receipt tables, owned by the bus — created once, idempotently,
+        through db_domain's gate (an ownerless table cannot exist; a different owner is
+        refused). Lazy so importing the bus touches no DB (boot-order law)."""
         if not self._ensured:
             store.create_owned_table(self._table, _BUS_OWNER, _TRAFFIC_COLUMNS)
+            store.create_owned_table(self._delivery_table, _BUS_OWNER, _DELIVERY_COLUMNS)
             self._ensured = True
             # GATE CONTACT (DiagnosticBase): the transit table came into being — a durable
             # state change, once per instance, never per message. Thin: the pointer is the
@@ -201,6 +256,52 @@ class BusDevice(BaseDevice):
             params.append(channel)
         where = (" AND ".join(clauses) + " ORDER BY ctid") if clauses else "TRUE ORDER BY ctid"
         return store.read(self._table, where=where, params=tuple(params))
+
+    # --- delivery: the half that was missing --------------------------------
+
+    def undelivered(self, *, to: str | None = None, limit: int = 200) -> list[dict]:
+        """The mail that has been POSTED and never ARRIVED — the postman's whole query.
+
+        ONE query for the entire system, not one per device, because it is asked on every
+        heartbeat beat and a per-device sweep would cost a query per device per second — a
+        poll wearing a heartbeat's clothes. The anti-join is against the receipt table, so
+        "undelivered" is derived from what is recorded, never from a flag someone has to
+        remember to set.
+
+        ``limit`` bounds one drain, not the backlog: a device that was down for an hour gets
+        its mail over several beats instead of one enormous transaction. Ordered by ``ctid``,
+        so causality drains in the order it happened and the bound takes the OLDEST first —
+        a bound that took the newest would starve exactly the mail that has waited longest.
+        """
+        self._ensure()
+        clauses = [sql_missing_receipt(self._table, self._delivery_table)]
+        params: list = []
+        if to is not None:
+            clauses.append("addressee = %s")
+            params.append(to)
+        where = " AND ".join(clauses) + f" ORDER BY ctid LIMIT {int(limit)}"
+        return store.read(self._table, where=where, params=tuple(params))
+
+    def record_delivery(self, envelope_id: str, *, to: str, by: str) -> dict:
+        """Write the receipt: this envelope reached this device. APPEND, never a rewrite.
+
+        Called by the deliverer AFTER the device has actually taken the envelope — so a
+        receiver that raises leaves no receipt and the mail is still there on the next beat.
+        Losing a message is worse than delivering it twice, and this is the ordering that
+        chooses correctly between the two."""
+        if not envelope_id:
+            raise ValueError("a receipt names the envelope it is for — a receipt for nothing "
+                             "would silently mark the whole inbox delivered")
+        receipt = {"envelope": envelope_id, "addressee": to, "by": by,
+                   "date": datetime.now().isoformat(timespec="seconds")}
+        self._ensure()
+        store.write(self._delivery_table, _BUS_OWNER, receipt)
+        self._delivered += 1
+        # GATE CONTACT (DiagnosticBase): the message ARRIVED — the crossing that closes the
+        # one ``post`` opened. Per delivery, never per drain attempt: an empty inbox crosses
+        # nothing and says nothing.
+        self.emit("delivered", pointer=envelope_id, values={"addressee": to, "by": by})
+        return receipt
 
     def digest(self, *, to: str, channel: str, keep: int = 3) -> dict:
         """A collapsible VIEW of a channel (Law 7). For a DIAGNOSTIC channel (info/debug) it

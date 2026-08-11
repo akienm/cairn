@@ -80,7 +80,7 @@ class GroundLoopDevice(BaseDevice):
     — no device space, no record — which is what every pure-physics proof builds."""
 
     def __init__(self, device_id: str = "ground_loop", liveness_home=None,
-                 discover=None, trouble=None) -> None:
+                 discover=None, trouble=None, bus=None) -> None:
         super().__init__()
         self._device_id = device_id
         self._liveness_home = liveness_home
@@ -91,6 +91,12 @@ class GroundLoopDevice(BaseDevice):
         # proofs keep beating without a filesystem and a proof can hand a fake tree. ``None``
         # means the pre-ruling behaviour: pulse only what was hand-subscribed.
         self._discover = discover
+        # THE BUS THE DISCOVERED SHIMS FIRE ONTO. Handed straight through to each
+        # ``DiscoveredShim`` and never touched here: the heartbeat does not post, read, or
+        # route — it only makes sure a shim it creates has somewhere to poke. Without it a
+        # probe that fires records ``unwired`` (honest, and exactly what two live probes were
+        # doing on 2026-08-11 — the trigger was true and there was nowhere to send it).
+        self._bus = bus
         self._probe_cache = None        # built lazily; only the real discoverer needs one
         self._discovered: dict = {}     # device_id -> DiscoveredShim, this loop's own
         # THE BENCH — device_id -> the trouble id holding it out. A device that failed is not
@@ -259,7 +265,7 @@ class GroundLoopDevice(BaseDevice):
                 continue      # a real shim already fronts this device — do not double-pulse it
             shim = self._discovered.get(device_id)
             if shim is None:
-                shim = DiscoveredShim(device_id, entry["folder"])
+                shim = DiscoveredShim(device_id, entry["folder"], bus=self._bus)
                 self._discovered[device_id] = shim
                 self._shims.append(shim)
                 self.emit("discovered", pointer=device_id,

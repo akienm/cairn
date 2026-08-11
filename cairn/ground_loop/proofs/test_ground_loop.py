@@ -68,7 +68,19 @@ class _Shim(BaseShim):
         return self._probes
 
     def _start_device(self):
-        return object()  # a minimal woken device — enough to flip running True
+        # A minimal woken device — enough to flip running True, and it declares a ``receive``
+        # because since 2026-08-11 a device that is delivered to and cannot receive REFUSES
+        # rather than swallowing the envelope (``BaseShim.deliver``). A bare ``object()`` here
+        # used to stand in for a real device and quietly proved the opposite of the contract.
+        class _Woken:
+            def __init__(self):
+                self.mail = []
+
+            def receive(self, envelope):
+                self.mail.append(envelope)
+                return {"ack": envelope.get("id")}
+
+        return _Woken()
 
 
 class _AngryShim(BaseShim):

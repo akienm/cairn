@@ -349,10 +349,30 @@ class BaseShim(CoreValuesMixin, ABC):
     def deliver(self, envelope: dict):
         """Receive an incoming bus message for this device. Start the device on demand if it is
         not running (3), then hand the envelope to it (2). This is the wake-to-a-poke: the shim
-        is always on and receiving; the device is woken only when there is mail."""
+        is always on and receiving; the device is woken only when there is mail.
+
+        REFUSES LOUDLY WHEN THERE IS NOBODY TO RECEIVE, and that is a 2026-08-11 correction
+        with teeth. This used to return ``None`` for a shim with no device, and ``None`` again
+        for a device with no ``receive`` — and with the postman built, a quiet ``None`` is
+        read as a successful delivery, a receipt gets written, and the message is gone with
+        nothing anywhere showing it never arrived. That is the exact silent loss the bus
+        exists to make impossible (Law 7). The refusal is a ``NotImplementedError`` in both
+        cases because the fix is the same one: this device needs a way to be reached.
+
+        Note the ``_device is None`` check rather than ``_ensure_device`` alone: a shim that is
+        always-on (``_running`` true from birth, like a discovered one) never enters the lazy
+        start, so asking ``_running`` would answer "yes, running" about a shim holding no
+        device at all."""
         self._ensure_device()
+        if self._device is None:
+            self._device = self._start_device()   # loud by contract; see _start_device
         receive = getattr(self._device, "receive", None)
-        return receive(envelope) if callable(receive) else None
+        if not callable(receive):
+            raise NotImplementedError(
+                f"{self.device_id} was delivered mail but its device declares no receive() — "
+                "a device that can be addressed on the bus must say what it does with an "
+                "envelope; silently dropping it would lose a record of truth")
+        return receive(envelope)
 
     @property
     def running(self) -> bool:

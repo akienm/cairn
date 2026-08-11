@@ -30,6 +30,8 @@ import sys
 import time
 from datetime import datetime, timezone
 
+from cairn.bus.bus import BusDevice
+from cairn.bus.shim import BusShim
 from cairn.ground_loop.discovery import discover
 from cairn.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.ground_loop.liveness import instance_home, read_liveness
@@ -63,7 +65,16 @@ def main(home=None) -> int:
     # bare); this runner is the one place that hands it the real world, the same way it is the
     # one place that hands it a wall clock. A loop with no discoverer beats an empty roster,
     # which is precisely the state that went unnoticed from 2026-08-09 to 2026-08-11.
-    device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice())
+    bus = BusDevice()
+    device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice(),
+                              bus=bus)
+    # THE POSTMAN, hand-subscribed. Delivery is the BUS's act, never the heartbeat's — the
+    # ground_loop does not route (that clause is the 584aa74 goof's headstone) — so the bus's
+    # own shim drains the transit table on each pulse and hands each envelope to the shim of
+    # its addressee, reached through the roster the heartbeat already publishes. Subscribed by
+    # hand because it is the one shim that must hold a reference to the heartbeat itself, and
+    # a folder on disk cannot express that.
+    device.subscribe(BusShim(bus, device))
     stopping = {"now": False}
 
     def _stop(signum, frame):  # noqa: ARG001 — the signal API's shape

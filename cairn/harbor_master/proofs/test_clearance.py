@@ -40,8 +40,12 @@ faked a seal or a verdict dies before the teeth even start.
 
 from __future__ import annotations
 
+import contextlib
+import json
+import os
 import sys
 import tempfile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -58,10 +62,15 @@ from cairn.harbor_master.clearance import (
     Unauthorized,
     Unproven,
     Unresourced,
+    GRANTED,
+    QUEUE_BLOCK,
+    QUEUE_CONSUMER,
+    REFUSED,
     boat_owner_of,
     clear,
     mint_grant,
 )
+from cairn.learning_block.learning_block import trace_root, write_trace
 from cairn.tester.device import TesterDevice
 from cairn.tester.scratch import scratch_dir
 from cairn.tester.validation_store import persist_validation
@@ -131,6 +140,225 @@ _seal(_REDDED)
 
 def _paths(tmp: str):
     return str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
+
+
+# ── the gate's queue (ticket clearance-leaves-a-trace) ───────────────────────────────────
+#
+# THE LIVE STORE IS NEVER TOUCHED BY THIS PROOF, and that is not tidiness — it is the
+# difference between the queue being evidence and being noise. harbor_master's own probe
+# (probes/clearance_actually_gates.py) reads this store to answer "has the gate ever
+# actually refused a real crossing?", and its header states the rule this block enforces:
+# "A COUNTED FIXTURE REFUSAL WOULD BE A LIE... a refusal manufactured by its own proof is
+# not evidence that the gate ever stood in a real crossing's way." Every tooth below
+# manufactures refusals by the dozen. So the root is redirected for the whole process at
+# import — BEFORE any test can call ``clear()`` — and the last tooth asserts the live file
+# came out of the run byte-identical. Same discipline, and the same pairing of injection
+# with a byte-identity tooth, as skills/sorted/proofs/test_sorted_door.py.
+_TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
+_LIVE_QUEUE = trace_root() / f"{QUEUE_BLOCK}.jsonl"
+_LIVE_BEFORE = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
+os.environ[_TRACE_ENV] = str(Path(_SCRATCH) / "traces")
+
+
+@contextlib.contextmanager
+def _queue(tmp: str):
+    """Point the trace root at a fresh directory for the duration, and yield the queue file
+    this gate writes to. Per-tooth isolation so a count means what it says: a shared file
+    would let one tooth pass on another tooth's records, which is the check going green for
+    the wrong reason."""
+    root = Path(tmp) / "traces"
+    prior = os.environ[_TRACE_ENV]
+    os.environ[_TRACE_ENV] = str(root)
+    try:
+        yield root / f"{QUEUE_BLOCK}.jsonl"
+    finally:
+        os.environ[_TRACE_ENV] = prior
+
+
+def _records(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def _attempt(**overrides):
+    """Ask the gate for the standard legal move, with any argument overridden. Returns the
+    exception it refused with, or None if it cleared."""
+    kw = dict(actor=_OWNER, boat_id=_BOAT, proven_by=_PROVEN)
+    kw.update(overrides)
+    target = kw.pop("target_state", "PROVEME")
+    try:
+        clear(_WF, target, **kw)
+    except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
+        return exc
+    return None
+
+
+def test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason():
+    """THE TICKET'S SUBJECT, and its FIRST pre-named hollow pass: "a hollow build passes by
+    logging only grants (the present behaviour)". Before this voyage a refusal raised bare
+    and the attempt vanished with the stack frame."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        with _queue(tmp) as q:
+            exc = _attempt(actor=_IGOR, history_path=hp, state_path=sp)
+        assert isinstance(exc, Unauthorized), "the setup must actually be refused"
+        recs = _records(q)
+        assert len(recs) == 1, f"one attempt, one record — got {len(recs)}"
+        rec = recs[0]
+        assert rec["event"] == REFUSED, "the record must say it was a refusal"
+        assert rec["block"] == QUEUE_BLOCK and rec["consumer"] == QUEUE_CONSUMER
+        # WHEN — stamped by the store, not by the gate, so it cannot be forged upstream.
+        datetime.fromisoformat(rec["when"])
+        d = rec["data"]
+        assert d["actor"] == _IGOR, "who asked"
+        assert d["boat"] == _BOAT, "which voyage"
+        assert d["target"] == "PROVEME", "for what transition"
+        assert d["workflow"] == _WF, "...and from where"
+        # THE SECOND PRE-NAMED HOLLOW PASS: "writing a refusal with no reason, which is loud
+        # without being useful". A reason that is merely the exception's class name repeated
+        # is that failure wearing a longer coat, so the message must carry particulars.
+        assert "reason_type" in d and "reason" in d, \
+            f"a refusal with no reason is loud without being useful — the record carries {sorted(d)}"
+        assert d["reason_type"] == "Unauthorized", "the reason's CLASS, so refusals group"
+        assert _IGOR in d["reason"] and len(d["reason"]) > 40, \
+            "the reason must name the particulars, not restate the class"
+        # And the refusal is still not a CROSSING: nothing was journaled.
+        assert not Path(hp).exists(), "a refused move must still leave no crossing record"
+
+
+def test_a_grant_and_a_refusal_are_one_field_apart_in_one_store():
+    """"A grant must be distinguishable from a refusal IN the record." A store holding only
+    refusals satisfies that only by a reader's arithmetic over a denominator it does not
+    carry — which is the reading the falsifier rules out, and which would also make the
+    refusal RATE unmeasurable forever."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        with _queue(tmp) as q:
+            assert _attempt(history_path=hp, state_path=sp) is None, "the owner's move clears"
+            assert _attempt(actor=_IGOR, history_path=hp, state_path=sp) is not None
+        recs = _records(q)
+        assert len(recs) == 2, "both halves of the gate's answer are recorded, in ONE store"
+        assert [r["event"] for r in recs] == [GRANTED, REFUSED], \
+            "the distinction is a FIELD, in order of asking — never inferred from absence"
+        granted, refused = recs
+        assert "reason" not in granted["data"] and "reason_type" not in granted["data"], \
+            "a grant has nothing to explain; a reason on it would make the field meaningless"
+        assert granted["data"]["actor"] == _OWNER and refused["data"]["actor"] == _IGOR
+
+
+def test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate():
+    """THE TOOTH A PER-RAISE-SITE BUILD FAILS. Half this door's refusal paths do not raise
+    in the decision function's own text: every ``OwnerUnresolvable`` comes out of
+    ``boat_owner_of``, a shared helper the gate CALLS. A writer sprinkled at the raise sites
+    inside the gate would look complete and silently miss them — so the record's coverage is
+    asserted over the whole refusal vocabulary, including the class raised elsewhere and the
+    one raised by the chokepoint underneath."""
+    lapsed = mint_grant(minted_by=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME",
+                        now=1000.0)
+    cases = {
+        "Unauthorized": dict(actor=_IGOR),                         # raised in the gate
+        "OwnerUnresolvable": dict(boat_id="no-such-boat-exists"),  # raised in boat_owner_of
+        "Unproven": dict(proven_by=_UNSEALED),                     # raised in the gate
+        "GrantExpired": dict(actor=_IGOR, grant=lapsed,            # the subclass, distinct
+                             now=1000.0 + GRANT_TTL_SECONDS + 0.1),
+        "Unresourced": dict(resources=_ResourceOwner(crossed=True)),   # raised in the gate
+        "IllegalTransition": dict(target_state="LEARNME"),         # raised UNDER the gate, in emit
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        with _queue(tmp) as q:
+            for name, kw in cases.items():
+                exc = _attempt(history_path=hp, state_path=sp, **kw)
+                assert exc is not None and type(exc).__name__ == name, \
+                    f"the {name} setup refused with {type(exc).__name__} instead"
+        recs = _records(q)
+        assert all(r["event"] == REFUSED for r in recs), "every one of these was a refusal"
+        assert {r["data"]["reason_type"] for r in recs} == set(cases), \
+            "every refusal class must reach the queue — a missing one is a blind spot"
+        assert all(r["data"].get("reason") for r in recs), "and every one carries its reason"
+
+
+def test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one():
+    """THE CONSUMER CHOICE, MEASURED RATHER THAN ARGUED. ``write_trace`` sweeps expired
+    ``debug`` records out of a block on every subsequent write. A Law 7 record of truth may
+    not evaporate at 30 days, so the queue is written as ``training`` — and this tooth proves
+    the choice bites by aging the store past the TTL and watching a debug record die in the
+    same file the clearance record survives in. A build that had chosen ``debug`` for the
+    queue would pass every other tooth here and fail this one."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        with _queue(tmp) as q:
+            _attempt(actor=_IGOR, history_path=hp, state_path=sp)
+            write_trace(QUEUE_BLOCK, "control", "debug", {"note": "should not survive"})
+            assert len(_records(q)) == 2, "both records are in the file to begin with"
+            # A LATER WRITE IS THE REAPER'S ONLY CLOCK — never a daemon. Fire one from far
+            # enough in the future that anything with a TTL has expired.
+            write_trace(QUEUE_BLOCK, "control", "training", {"note": "the sweeping write"},
+                        now=datetime.now(timezone.utc) + timedelta(days=400))
+        events = [r["event"] for r in _records(q)]
+        assert events.count("control") == 1, "the debug record must have been swept — else " \
+                                             "this tooth cannot tell training from debug"
+        assert REFUSED in events, "the clearance record must still be there, 400 days on"
+
+
+def test_the_public_door_and_the_decision_it_wraps_have_one_signature():
+    """The gate is now two functions — ``clear`` records the attempt, ``_decide`` makes it —
+    and the door's signature is the component's contract: the witness tooth above reads it
+    to assert that ``proven_by`` is unsmugglable by structure, and callers read it to know
+    what may be passed. A parameter added to the decision and forgotten on the door would be
+    a TypeError at some caller months from now; a parameter added to the door and dropped in
+    the forward would be silently ignored, which is worse. Asserted rather than remembered —
+    the first cut of the wrapper took ``**kwargs`` and quietly lost the whole named set."""
+    import inspect as _inspect
+    from cairn.harbor_master.clearance import _decide
+
+    door = _inspect.signature(clear).parameters
+    decision = _inspect.signature(_decide).parameters
+    assert list(door) == list(decision), \
+        f"the door and the decision have drifted apart: {set(door) ^ set(decision)}"
+    for name, p in decision.items():
+        assert door[name].kind is p.kind and door[name].default is p.default, \
+            f"parameter {name!r} differs between the door and the decision"
+
+
+def test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them():
+    """"THAT RECORD MUST BE READABLE AFTERWARDS" — the ticket's own wording, and the half
+    that keeps this build from being ceremony. The reader is not a fresh one written to
+    satisfy this tooth: it is ``clearance_actually_gates.survey_the_refusals``, the probe
+    that filed the IOU for this store and hard-coded ``refusals_recorded: 0`` beside a note
+    naming this ticket as the build that would make the number real. So the tooth measures
+    the thing that asked for it — which also means a writer whose event names or consumer
+    ever drift away from the reader's dies here rather than reporting a quiet zero."""
+    from cairn.harbor_master.probes.clearance_actually_gates import survey_the_refusals
+
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        with _queue(tmp) as q:
+            _attempt(history_path=hp, state_path=sp)                    # one grant
+            _attempt(actor=_IGOR, history_path=hp, state_path=sp)       # two refusals,
+            _attempt(boat_id="no-such-boat-exists", history_path=hp, state_path=sp)  # two classes
+            q.write_text(q.read_text(encoding="utf-8") + "{not json\n", encoding="utf-8")
+            s = survey_the_refusals()
+    assert s["asked"] == 3 and s["granted"] == 1 and s["refused"] == 2, \
+        f"the reader must count what the gate answered — got {s}"
+    assert s["by_reason"] == {"Unauthorized": 1, "OwnerUnresolvable": 1}, \
+        "and group refusals by class, which is what makes the store worth querying"
+    # A LINE THE READER CANNOT PARSE IS NOT EVIDENCE IN EITHER DIRECTION. Counting it as a
+    # refusal invents a no the gate never said; counting it as an attempt inflates the
+    # denominator the probe's vacuity clause reads.
+    assert s["unreadable_lines"] == 1 and s["asked"] == 3, "a bad line is skipped, not counted"
+    assert s["recent_refusals"][0]["reason"], "the refusals ride back verbatim, reasons and all"
+
+
+def test_this_proof_never_wrote_to_the_live_queue():
+    """The injection above is only worth as much as this assertion. harbor_master's probe
+    counts REAL refusals off the live store; a fixture refusal landing there would not be a
+    messy file, it would be manufactured evidence that the gate once stood in a real
+    crossing's way."""
+    now = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
+    assert now == _LIVE_BEFORE, \
+        f"{_LIVE_QUEUE} changed during this proof run — fixture refusals reached the live queue"
 
 
 def test_the_owner_may_clear_a_legal_move_and_it_is_recorded():
@@ -741,6 +969,15 @@ def _main() -> int:
         test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written,
         test_an_unresolvable_hop_refuses_by_name_and_never_defaults,
         test_the_read_reaches_nothing_outward,
+        # THE GATE'S QUEUE (ticket clearance-leaves-a-trace). The live-store tooth runs
+        # LAST on purpose: it is the one that can only judge the run once the run is over.
+        test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason,
+        test_a_grant_and_a_refusal_are_one_field_apart_in_one_store,
+        test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate,
+        test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one,
+        test_the_public_door_and_the_decision_it_wraps_have_one_signature,
+        test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them,
+        test_this_proof_never_wrote_to_the_live_queue,
     ]
     for check in checks:
         check()

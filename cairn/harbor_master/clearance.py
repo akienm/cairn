@@ -82,6 +82,7 @@ import time
 from dataclasses import dataclass, field
 
 from cairn.base.transitions import emit
+from cairn.learning_block.learning_block import trace_root, write_trace
 from cairn.tester.validation_store import standing
 
 # THE TWO ROOTS THE OWNER-READ WALKS, derived from this file's own address rather than
@@ -132,6 +133,129 @@ _GATE_WITNESS_FIELDS = frozenset({"cleared_by", "proven_by", "proven_seal_date",
 # and a record of truth would carry a claim about ownership that nothing checked. Law 7
 # forbids exactly that collapse at exactly this surface, so it is refused LOUDLY.
 _UNSTATABLE_FIELDS = frozenset({"boat_owner", "owning_intention", "gated_by"})
+
+# ── THE GATE'S QUEUE (ticket clearance-leaves-a-trace, 2026-08-10) ───────────────────────
+# Until today this gate remembered only what it PERMITTED. A refusal raised and the attempt
+# vanished with the stack frame, so "the gate was asked, and said no" survived nowhere — and
+# by Law 1 that guarantees the next mind walks into the same wall and re-derives the same
+# refusal. The IOU is voyage.py's, filed 2026-07-26 and standing since.
+#
+# WHY THIS IS NOT A NEW STORE. ``write_trace`` already is this ticket's shape — one firing,
+# one durable record, "green or red, same fidelity", append-only JSONL, instance-space,
+# root injectable for proofs. Building a second record surface beside it would be the
+# stone-1 parallel-roster failure with the answer sitting in the tree. So the queue is a
+# BLOCK in that store, not a mechanism of its own.
+#
+# WHY THE BLOCK LIVES UNDER learning_block's ROOT WITHOUT BREAKING LAW 6. The root is a
+# shared primitive surface keyed by block name, not learning_block's private state —
+# measured: web_server, logger_for_bash, intentions_model_compiler and superclaude already
+# keep blocks there and none of them is a learning block. The OWNED thing is the file
+# ``harbor_master:clearance.jsonl``, and it is written from inside this module — the owner's
+# own gate — never by a caller.
+QUEUE_BLOCK = "harbor_master:clearance"
+
+# CONSUMER: 'training', and 'debug' is DISQUALIFIED BY MEASUREMENT rather than by taste.
+# ``write_trace`` sweeps expired debug records out of a block on every subsequent write
+# (learning_block.py, cutoff = when - DEBUG_TTL_DAYS, "expired into nothingness, at the
+# write"). A record of truth that evaporates after 30 days is not one, and Law 7 governs
+# this store precisely because a refusal is an error-class outcome. 'tree-primary' would
+# claim the tree is the reader, which it is not — the reader is the probe beside this code.
+QUEUE_CONSUMER = "training"
+
+# THE TWO EVENTS. The distinction the ticket demands is IN the record as a field, never
+# inferred by a reader's arithmetic: a refusal is not "a grant that is absent from the
+# journal", it is a record that says ``clearance_refused``. Same shape as ``fire_door``'s
+# door_pass/send_back pair, which states this ticket's own falsifier in other words: both
+# paths leave a record, or the refusal rate is unmeasurable and the gate is vacuous.
+GRANTED = "clearance_granted"
+REFUSED = "clearance_refused"
+
+
+def _trace_attempt(event: str, *, workflow_str: str, target: str, actor: str, boat_id: str,
+                   exc: BaseException | None = None) -> None:
+    """Record ONE clearance attempt in the gate's queue — the four fields the ticket names
+    by hand (who asked, for what transition, when, and on a refusal the reason), plus the
+    reason's TYPE so the store is queryable by refusal class rather than by string-matching
+    prose. ``when`` is stamped by ``write_trace`` itself, so it cannot be forged here.
+
+    THE REASON IS TYPE **AND** MESSAGE, and neither alone would do. The type is the
+    structured category a reader groups by (five of them today); the message carries the
+    particulars this gate already writes well — which actor, which boat, which line was
+    crossed, which proof was not sealed. Recording only the type would satisfy the ticket's
+    words while landing on its second pre-named hollow pass ("a refusal with no reason":
+    loud without being useful); recording only the message would leave every reader parsing
+    prose to count anything.
+
+    A FAILING TRACE IS NEVER SWALLOWED. If the write raises, it propagates — chained onto
+    the refusal it was recording, so both are visible. Law 7 forbids collapsing an error
+    into a coherent shape at exactly this surface, and a queue that quietly drops records
+    when the disk is unhappy is a queue whose emptiness means nothing."""
+    data = {
+        "actor": actor,                 # who asked
+        "boat": boat_id,                # which voyage was being moved
+        "target": target,               # for what transition
+        "workflow": workflow_str,       # ...from where — the cursor at the moment of asking
+    }
+    if exc is not None:
+        data["reason_type"] = type(exc).__name__
+        data["reason"] = str(exc)
+    write_trace(QUEUE_BLOCK, event, QUEUE_CONSUMER, data)
+
+
+def read_attempts() -> dict:
+    """THE READ FACE OF THE QUEUE — "that record must be readable afterwards" is half the
+    ticket, and a write with no reader is the ceremonial half of this build.
+
+    Returns ``{queue, attempts, unreadable_lines}``: every recorded attempt oldest first, each
+    flattened to what a consumer actually asks of it — ``{at, event, actor, boat, target,
+    workflow}`` plus ``reason_type``/``reason`` on a refusal. Nothing is aggregated here; the
+    counting belongs to whoever is counting.
+
+    THE UNREADABLE LINES ARE REPORTED, NOT JUST SKIPPED. Dropping them silently would make a
+    corrupted queue read exactly like an empty one, and the number this store exists to
+    produce is "has the gate ever said no" — where a confident zero from an unreadable file
+    is the worst available answer (Law 7: loud at a diagnostic surface). The ``queue`` path
+    rides back for the same reason: a consumer reporting a count should be able to say what
+    it read it from.
+
+    IT LIVES AT THE OWNER'S ADDRESS, not in a consumer. There are two readers already
+    (harbor_master's own probe, which filed the IOU for this store, and the traffic image's
+    filed ``[X] refused`` marker), and a component that reads its own queue twice by hand is
+    the parallel-roster failure inside one directory: two copies of the block name and the
+    event names, either of which can quietly stop matching the writer and report a confident
+    zero. Contrast the two trace readers elsewhere in the corpus, which re-implement the
+    filter because they read DIFFERENT components' blocks — there is no owner there to put it
+    at. No query surface is added to the trace store itself for the same reason in reverse:
+    learning_block owns the substrate, not this block's meaning.
+
+    Filters on event AND consumer TOGETHER, the corpus idiom. Either alone is a wrong count
+    waiting to happen: a block that later carries a second consumer's records would inflate
+    every number, and an event matched without its consumer would count a record the reaper
+    is entitled to delete. An unparseable line is SKIPPED — counting it as a refusal invents
+    a no the gate never said, and counting it as an attempt inflates the denominator."""
+    path = trace_root() / f"{QUEUE_BLOCK}.jsonl"
+    attempts: list[dict] = []
+    unreadable = 0
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                unreadable += 1
+                continue
+            if rec.get("consumer") != QUEUE_CONSUMER or rec.get("event") not in (GRANTED, REFUSED):
+                continue
+            data = rec.get("data") or {}
+            row = {"at": rec.get("when"), "event": rec.get("event"), "actor": data.get("actor"),
+                   "boat": data.get("boat"), "target": data.get("target"),
+                   "workflow": data.get("workflow")}
+            if rec.get("event") == REFUSED:
+                row["reason_type"] = data.get("reason_type") or "<unnamed>"
+                row["reason"] = data.get("reason")
+            attempts.append(row)
+    return {"queue": str(path), "attempts": attempts, "unreadable_lines": unreadable}
 
 
 class Unauthorized(Exception):
@@ -375,7 +499,7 @@ def mint_grant(*, minted_by: str, boat_id: str, to_actor: str, target: str,
     )
 
 
-def clear(
+def _decide(
     workflow_str: str,
     target: str,
     *,
@@ -502,8 +626,17 @@ def clear(
          illegal transition.
 
     Returns the new workflow string (cursor moved to ``target``). Every refusal raises before
-    ``emit`` is reached, so a refused move leaves no partial record (unauthorised OR unproven
-    OR unresourced OR illegal ⇒ un-recorded).
+    ``emit`` is reached, so a refused move leaves no CROSSING record — unauthorised OR unproven
+    OR unresourced OR illegal means the boat did not move and no history was appended to.
+
+    THIS IS THE DECISION HALF ONLY, AND IT IS NOT THE PUBLIC DOOR. ``clear`` wraps it and
+    records the ATTEMPT either way (ticket clearance-leaves-a-trace, 2026-08-10) — so
+    "a refused move leaves no partial record" is still true of the crossing journal, and no
+    longer true of the world: a refusal now leaves a trace in the gate's own queue, which is
+    a different store precisely because a refusal is not a crossing. Call ``clear``; this
+    function is private so that a caller cannot reach the decision while stepping around the
+    record, which is Law 6 on the gate's own queue (the write happens inside the gate, never
+    at the caller's discretion).
     """
     # 0. THE WITNESS IS THE GATE'S TO WRITE. A caller may enrich the record through
     #    ``journal_extra``, but it may not hand in the very fields this gate exists to
@@ -638,3 +771,79 @@ def clear(
         **journal_extra,
         **emit_kwargs,
     )
+
+
+def clear(
+    workflow_str: str,
+    target: str,
+    *,
+    actor: str,
+    boat_id: str,
+    proven_by: str,
+    grant: Grant | None = None,
+    history_path: str | None = None,
+    state_path: str | None = None,
+    node_class_root=None,
+    resources=None,
+    lines: dict | None = None,
+    now: float | None = None,
+    **journal_extra,
+) -> str:
+    """The clearance gate — decide, and REMEMBER BEING ASKED. This is the public door.
+
+    Everything about what is decided lives in ``_decide`` above; this rung adds exactly one
+    thing, and it is the ticket clearance-leaves-a-trace: an attempt leaves a durable record
+    whether it was granted or refused.
+
+    WHY THE WRITER IS AT THE FRAME AND NOT AT THE RAISE SITES. Measured before building:
+    fourteen refusal paths reach a caller of this door, and only SEVEN of them raise inside
+    ``_decide``'s own text. The other seven are ``OwnerUnresolvable``, raised inside
+    ``boat_owner_of`` — a function ``_decide`` calls, and one that is also called directly by
+    readers who are not asking for clearance at all. A writer placed at each raise site would
+    therefore have had to be threaded into a shared helper (recording clearance attempts that
+    nobody made) or would have missed half the refusal surface while LOOKING complete — the
+    hollow pass the ticket pre-names, wearing a plausible shape. Wrapping the frame makes the
+    record's completeness structural: anything that leaves this function by raising is traced,
+    including refusals nobody has thought of yet, and including ``IllegalTransition`` from the
+    chokepoint, which the docstring above has always counted among the refusals.
+
+    A MALFORMED CALL IS TRACED TOO, deliberately. If ``_decide`` raises ``TypeError`` because
+    a required argument was never supplied, that is still a hand that asked this gate to move
+    a boat and did not get it moved. Filtering exception types here would mean this gate
+    deciding which failures are worth remembering — the collapse Law 7 forbids at a record of
+    truth. The type rides in the record; a reader can filter, the writer may not.
+
+    A GRANT IS RECORDED AS ITS OWN EVENT, not inferred from the absence of a refusal. The
+    ticket's falsifier asks that "a grant must be distinguishable from a refusal in the
+    record", and a store holding only refusals satisfies that only by arithmetic over a
+    denominator it does not carry.
+
+    THE SIGNATURE IS SPELLED OUT RATHER THAN FORWARDED AS ``**kwargs``, and the first
+    version of this wrapper got that wrong. A ``**kwargs`` door still behaves correctly —
+    ``_decide`` names ``proven_by``, so it can never fall through into ``journal_extra`` —
+    but it makes the property INVISIBLE, and the proof's own witness tooth reads this
+    signature to assert that ``proven_by`` is unsmugglable BY STRUCTURE. Hiding the contract
+    behind a splat turned a structural guarantee into one you had to trace two frames to
+    see; the tooth caught it on the first run. The two signatures are kept in step by a
+    tooth of their own, not by care.
+    """
+    try:
+        outcome = _decide(
+            workflow_str, target,
+            actor=actor, boat_id=boat_id, proven_by=proven_by, grant=grant,
+            history_path=history_path, state_path=state_path,
+            node_class_root=node_class_root, resources=resources, lines=lines, now=now,
+            **journal_extra,
+        )
+    except BaseException as exc:
+        # THE TRACE WRITE IS NOT SWALLOWED. If the queue cannot be written, that failure
+        # propagates — chained onto the refusal it was recording, so a reader sees both the
+        # answer the gate gave and the fact that it could not remember giving it. Swallowing
+        # here would produce the one state this ticket exists to end: a refusal that happened
+        # and left nothing, now with code that claims otherwise.
+        _trace_attempt(REFUSED, workflow_str=workflow_str, target=target,
+                       actor=actor, boat_id=boat_id, exc=exc)
+        raise
+    _trace_attempt(GRANTED, workflow_str=workflow_str, target=target,
+                   actor=actor, boat_id=boat_id)
+    return outcome

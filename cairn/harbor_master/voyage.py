@@ -23,9 +23,13 @@ It composes the fleet REGISTER (child a) into two derived, computed-on-read stru
 
 THE HONEST CONDITIONS (today), each computed-on-read from a fact on disk. The design's marker
 vocabulary ([R] requested, [W] waiting, [F] failed, [X] refused, [S] stalled) mostly needs an
-OWNED FACT that does not exist yet — the gate's queue (requests/refusals/dwell), a subscription
-registry (staff/starvation), a 'waiting_on' record — so emitting it now would be hollow (Law 8:
-a marker no boat can wear). Two conditions ARE structural today:
+OWNED FACT that does not exist yet — a subscription registry (staff/starvation), a 'waiting_on'
+record — so emitting it now would be hollow (Law 8: a marker no boat can wear). THE GATE'S QUEUE
+IS NO LONGER ONE OF THE MISSING FACTS: it was built 2026-08-10 (ticket clearance-leaves-a-trace)
+and every clearance attempt, granted or refused, is on disk with its actor, its boat, its target
+and its reason. What each of the two queue-gated markers still needs is stated at its own entry
+below rather than here, because the two turned out to need different things. Two conditions ARE
+structural today:
 
   • AT-ANCHOR ([✓]). A boat sitting in the open lane whose cursor is at a REST stage
     (PROVED) is not at sea — it is DONE, awaiting its berth: the physical migration beside
@@ -67,10 +71,24 @@ from cairn.harbor_master import register
 # exist yet — filed here (not emitted) so the view never wears a marker no boat can (Law 8).
 # When the fact acquires an owner, the marker grafts into ``_condition`` below, one at a time.
 GROW_AGAINST_NEED = {
-    "[R] requested": "the clearance REQUEST must leave a trace owned by the gate's queue "
-                     "(clearance today writes nothing until it grants) — held-traffic-image IOU",
-    "[X] refused": "a REFUSAL must be journaled by the gate's queue, distinct from the boat's "
-                   "successful-crossing history (an illegal move must never look like it happened)",
+    # THE QUEUE EXISTS NOW (cairn/harbor_master/clearance.py, ticket clearance-leaves-a-trace,
+    # 2026-08-10): both of these were filed as waiting on it, and neither still is. What each
+    # waits on now is a DIFFERENT thing, and saying "the queue" for both would go on hiding that.
+    "[R] requested": "NOT the queue any more — the queue records attempts, and this marker "
+                     "presumes DWELL: a request that is outstanding, sitting somewhere between "
+                     "asking and being answered. The gate is synchronous (clear() decides and "
+                     "returns or raises), so there is no pending state for a boat to be IN and "
+                     "nothing to render. This marker needs an asynchronous clearance — or it "
+                     "should be retired. It is not waiting on data; it is waiting on a design "
+                     "question nobody has asked yet",
+    "[X] refused": "the fact is THERE (clearance.read_attempts() carries every refusal with its "
+                   "boat, actor, target and reason); what is missing is STILL-refused. A boat "
+                   "whose attempt was refused once and then cleared is not flagged, it is moving "
+                   "— so the predicate is 'refused since its last journaled crossing', and a "
+                   "marker without it would pin itself on the first refusal and never clear, "
+                   "which is the flag that fires on normal motion. Grow it against a real "
+                   "refusal: the live queue holds none yet, and the shape of the first one is "
+                   "what should decide whether the flag belongs on the boat or on the actor",
     "[W] waiting-on": "needs a 'waiting_on' owned fact (a question record / pending decision); "
                       "the ticket's prose waits_on is narrative, not a clean party to render",
     "[F] failed": "needs a boat to carry a red/failed standing; no at-sea boat wears one today",

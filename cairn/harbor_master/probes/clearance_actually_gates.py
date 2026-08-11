@@ -29,22 +29,39 @@ going red at the moment its condition is satisfied. **A probe watches what the g
 DEMANDS.** The narrowing is named here rather than taken quietly, and the ticket's
 own text carries the same correction.
 
-WHAT A REFUSAL COSTS TO COUNT, stated as an IOU rather than faked. Clause (c) and
-the refusal half of ``enough`` both ask whether clearance has ever said NO to a real
-crossing. **Today nothing records that**: every refusal raises before ``emit`` is
-reached, so a refused move leaves no partial record — which is precisely the point
-of ticket ``clearance-leaves-a-trace`` (cast 2026-07-26, at BUILDME, and until now
-unreachable because a gate with no callers has no refusals to trace). So this probe
-reports ``refusals_recorded: 0`` with the source it looked at named, and its
-``enough`` CANNOT clear until that ticket lands. That is not a bug in the watch: it
-is the watch pointing at the one build that would make its own horizon countable,
-and the two tickets' recorded distinction says exactly this in the other direction.
+WHAT A REFUSAL COSTS TO COUNT — THE IOU THIS PROBE FILED, AND ITS PAYMENT. Clause
+(c) and the refusal half of ``enough`` both ask whether clearance has ever said NO
+to a real crossing. When this probe was armed on 2026-08-10 **nothing recorded
+that**: every refusal raised before ``emit`` was reached, so a refused move left no
+record at all, and this file reported ``refusals_recorded: 0`` with the absence
+named rather than faked — an IOU pointing at ticket ``clearance-leaves-a-trace``
+(cast 2026-07-26) as the one build that would make its own horizon countable.
+
+That ticket landed the same day, and the number is now READ rather than asserted:
+``survey_the_refusals`` below counts what the gate actually answered, by reason
+class. The IOU is retired at the address that filed it — a SECOND probe over the
+same store, with this one still hard-coding a zero beside it, would have been the
+parallel-roster failure with the answer sitting one file away. The reading itself
+belongs to the gate (``clearance.read_attempts``), which owns the queue and is
+therefore the one place its block name and event names are spelled; what lives here
+is the counting, which is nobody's but this watch's.
+
+WHAT THE QUEUE CANNOT TELL US, and it is the same shape as the caveat above. The
+queue records attempts at the GATE; the census above counts crossings in the
+JOURNAL. A refusal never becomes a journaled crossing (that is what a refusal is),
+so the two are not two views of one population and are never divided into each
+other here. Refusals are an existence signal for clause (c) — has the door ever
+said no — not a rate.
 
 A COUNTED FIXTURE REFUSAL WOULD BE A LIE. ``cairn/base/proofs/test_transitions.py``
 holds teeth that make the gate refuse, and they are sealed green — but a refusal
 manufactured by its own proof is not evidence that the gate ever stood in a real
 crossing's way. The seal answers "is the code correct"; this probe answers "did it
-ever have to be".
+ever have to be". Now that refusals are recorded, that sentence has teeth of its
+own: every proof that exercises ``clear()`` redirects ``CAIRN_LB_TRACE_ROOT`` at a
+scratch root, and ``proofs/test_clearance.py`` carries a tooth asserting the LIVE
+queue file came out of the run byte-identical. So the corpus this probe reads is the
+live one by construction, not by anybody remembering.
 
 FILES ONLY, by construction: class-space ``history.json`` files under ``cairn/`` —
 no device, no bus, no network — cheap enough to sit on a pulse. Same discipline as
@@ -61,9 +78,17 @@ import json
 from pathlib import Path
 
 from cairn.base.probe import Probe, owning_ticket
+from cairn.harbor_master.clearance import GRANTED, read_attempts
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _CLASS_SPACE = _REPO_ROOT / "cairn"
+
+# How many refused attempts ride back verbatim. NOT a silent cap: the carry states the
+# window and the total beside it, so a consumer can never mistake the tail for the whole.
+# The complete-diagnostic rule wants everything needed to resolve the finding in the first
+# report; the finding is "the door has never refused", and for that the RECENT refusals
+# are what a reader acts on.
+_VERBATIM = 20
 
 _OWNING_TICKET = "emit-refuses-an-uncleared-crossing"
 
@@ -99,6 +124,37 @@ def _is_summons(state: str) -> bool:
     return is_summons(state)
 
 
+def survey_the_refusals() -> dict:
+    """THE READER of the gate's queue (ticket clearance-leaves-a-trace): how often the gate
+    was asked, how often it said no, and by which reason class.
+
+    THE READING IS THE GATE'S OWN (``clearance.read_attempts``); only the COUNTING is here.
+    That split is Law 6 and Law 1 together: harbor_master owns the queue, so the one place
+    that knows its block name, its two event names and its consumer is the gate — a probe
+    with its own copy of that vocabulary is a probe that can silently stop matching the
+    writer, and the day it does it reports zero refusals, which is exactly the wrong answer
+    to be confident about. Aggregation is not the store's business, so it is not down there."""
+    q = read_attempts()
+    granted = refused = 0
+    by_reason: dict[str, int] = {}
+    recent: list[dict] = []
+    for a in q["attempts"]:
+        if a["event"] == GRANTED:
+            granted += 1
+        else:
+            refused += 1
+            by_reason[a["reason_type"]] = by_reason.get(a["reason_type"], 0) + 1
+            recent.append(a)
+    return {"queue": q["queue"],
+            "asked": granted + refused,
+            "granted": granted,
+            "refused": refused,
+            "by_reason": by_reason,
+            "recent_refusals": recent[-_VERBATIM:],
+            "recent_refusals_window": min(len(recent), _VERBATIM),
+            "unreadable_lines": q["unreadable_lines"]}
+
+
 def survey_the_crossings() -> dict:
     """Census the DEMANDED SET since the era floor: forward journaled crossings into a
     rest, across every component history in class-space, each classified as cleared,
@@ -107,6 +163,7 @@ def survey_the_crossings() -> dict:
     Every offending crossing rides back VERBATIM with its component, seq, actor and
     date, so the consumer never re-derives them (the complete-diagnostic rule: a
     finding delivers everything needed to resolve it in its first report)."""
+    queue = survey_the_refusals()
     cleared: list[dict] = []
     exempt: list[dict] = []
     bypassed: list[dict] = []
@@ -157,12 +214,12 @@ def survey_the_crossings() -> dict:
             "recent_window": len(recent),
             "recent_exempt": recent_exempt,
             "recent_cleared": recent_cleared,
-            "refusals_recorded": 0,
-            "refusal_source": "none — a refusal raises before emit writes anything, so it "
-                              "leaves no record. Ticket clearance-leaves-a-trace (cast "
-                              "2026-07-26, at BUILDME) is the build that would make this "
-                              "countable; until it lands this number is structurally 0 and "
-                              "is NOT evidence that the gate has never refused."}
+            # READ, not asserted, since 2026-08-10 (ticket clearance-leaves-a-trace). A zero
+            # here now MEANS something — before the queue existed it only meant nobody was
+            # recording, which is why it was labeled and never used as evidence.
+            "refusals_recorded": queue["refused"],
+            "refusal_source": queue["queue"],
+            "queue": queue}
 
 
 def _roster_covers_the_fleet(s: dict) -> bool:
@@ -237,8 +294,10 @@ def _carry(context: dict) -> dict:
             "suggests": "read the bypassed crossings verbatim above — each names the "
                         "component, seq and actor that made it. A bypass means a caller "
                         "reached emit directly; the fix is at that caller, not in the gate. "
-                        "For (c), the build that makes a refusal countable is "
-                        "clearance-leaves-a-trace."}
+                        "For (c), the queue named in census.refusal_source is now the "
+                        "instrument — read census.queue.by_reason before concluding "
+                        "anything: a door that is asked and always says yes is a different "
+                        "finding from a door nobody asks."}
 
 
 # THE HORIZON (falsifier clause: armed, correct, and silent is indistinguishable from

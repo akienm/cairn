@@ -44,6 +44,7 @@ Runs bare (no daemon, no bus, no instance — ``ask`` is a plain method on the d
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -54,15 +55,30 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.base.transitions import parse_workflow
 from cairn.charter import projector
-from cairn.harbor_master.clearance import HARBOR_LINES, Unresourced, clear
+from cairn.harbor_master.clearance import (
+    HARBOR_LINES,
+    QUEUE_BLOCK,
+    Unresourced,
+    boat_owner_of,
+    clear,
+)
+from cairn.learning_block.learning_block import trace_root
 from cairn.system_rackmount.rackmount import SystemRackmountDevice
 from cairn.tester.device import TesterDevice
 from cairn.tester.scratch import scratch_dir
 from cairn.tester.validation_store import persist_validation
 
 _WF = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
-_OWNER = "akiendelllinux_cc_0"
-_BOAT = "some-code-seam"
+
+# A REAL cast boat, and the owner READ off it — repaired 2026-08-10 when this proof was
+# re-run for the first time since ``boat-owner-is-read-not-stated`` ruled that day. It had
+# been passing `boat_owner=_OWNER` alongside an invented boat id ('some-code-seam'), which
+# the gate now refuses twice over: a caller may not state the owner, and a boat IS its
+# ticket, so an id with no file under CairnCommons/tickets/ is a boat that does not exist.
+# Deriving the owner instead of naming it is the same discipline test_clearance.py uses —
+# a hardcoded hand is a fixture that goes quietly wrong the day the ticket changes hands.
+_BOAT = "clearance-leaves-a-trace"
+_OWNER = boat_owner_of(_BOAT).hands[0]
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 
@@ -102,6 +118,23 @@ def _paths(tmp: str):
     return str(Path(tmp) / "history.json"), str(Path(tmp) / "state.json")
 
 
+# ── the gate's queue (ticket clearance-leaves-a-trace) ───────────────────────────────────
+#
+# Since that ticket landed, EVERY call to ``clear()`` writes a record — grant or refusal —
+# and three of the five teeth below manufacture an ``Unresourced`` on purpose. Those are
+# fixture refusals, and the probe that reads the queue
+# (probes/clearance_actually_gates.py) counts refusals to answer "has the gate ever stood
+# in a real crossing's way?". Its header names the failure exactly: a counted fixture
+# refusal would be a lie. So this proof redirects the trace root for the whole process at
+# import — before any tooth can call the gate — and the last tooth asserts the live file
+# came out byte-identical. Same block, same pairing, as test_clearance.py beside it; a new
+# proof that calls ``clear()`` and skips this silently poisons the evidence.
+_TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
+_LIVE_QUEUE = trace_root() / f"{QUEUE_BLOCK}.jsonl"
+_LIVE_BEFORE = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
+os.environ[_TRACE_ENV] = str(Path(_SCRATCH) / "traces")
+
+
 def test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door():
     # THE SEAM. The harbor holds the lines; the device holds the metrics; the NAME is the only
     # thing they share, and nothing until now checked that they share it. A fake answers any
@@ -128,7 +161,7 @@ def test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_li
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=_PROVEN, resources=_host(_CPU_PRESSED),
                 history_path=hp, state_path=sp,
             )
@@ -150,7 +183,7 @@ def test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal():
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=_PROVEN, resources=_host(_MEMORY_SPENT),
                 history_path=hp, state_path=sp,
             )
@@ -176,7 +209,7 @@ def test_the_refusal_names_the_line_and_never_the_reading():
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=_PROVEN, resources=_host(_CPU_PRESSED),
                 history_path=hp, state_path=sp,
             )
@@ -212,7 +245,7 @@ def test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded():
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
-            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_OWNER, boat_id=_BOAT,
             proven_by=_PROVEN, resources=_host(_QUIET),
             history_path=hp, state_path=sp,
         )
@@ -225,6 +258,16 @@ def test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded():
         assert history[0]["cleared_by"] == _OWNER, "the record names WHO cleared it (Law 7)"
 
 
+def test_this_proof_never_wrote_to_the_live_queue():
+    """The redirect above is only worth as much as this assertion. Three teeth here refuse on
+    purpose, and the probe counts REAL refusals off the live store; a fixture refusal landing
+    there would not be a messy file, it would be manufactured evidence that the gate once
+    stood in a real crossing's way. Runs LAST, after every tooth that calls the gate."""
+    now = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
+    assert now == _LIVE_BEFORE, \
+        f"{_LIVE_QUEUE} changed during this proof run — fixture refusals reached the live queue"
+
+
 def _main() -> int:
     checks = [
         test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door,
@@ -232,6 +275,7 @@ def _main() -> int:
         test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal,
         test_the_refusal_names_the_line_and_never_the_reading,
         test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded,
+        test_this_proof_never_wrote_to_the_live_queue,
     ]
     for check in checks:
         check()
@@ -239,7 +283,8 @@ def _main() -> int:
     print("green — the harbor's lines are names the real system device serves on its ask door, "
           "and the device's own predicates refuse a move in both directions without ever "
           "handing over a reading. The gate CAN ask the real host; nothing yet makes a crossing "
-          "go through it (0 of 229 journaled records carry cleared_by).")
+          "go through it (0 of 186 emit-shaped records carry cleared_by, re-measured "
+          "2026-08-10 — ticket emit-refuses-an-uncleared-crossing).")
     return 0
 
 

@@ -104,6 +104,25 @@ reconcile.
 
 ---
 
+## 4b. For sending outward
+
+**[`OutreachPacket.md`](OutreachPacket.md)** — *drafted, awaiting the signature gate;
+nothing has been sent.* Who to show this to and in what order (cognitive architecture →
+neuro-symbolic → dynamic graph learning, ordered by *who can falsify us soonest*), the named
+venues, **the document-components scheme** — a per-field Part I, with Part II and Part III
+shared verbatim — and what would count as signal, stated in advance so the answer cannot be
+reinterpreted after it arrives. Opens with the caveat that the target list and the
+"nobody does this" claim rest on one secondary source.
+
+**[`PreludeCognitiveArchitecture.md`](PreludeCognitiveArchitecture.md)** — *Part I of three,
+prelude 1 of 3.* The architecture in SOAR/ACT-R/Sigma vocabulary: the correspondence, the
+one divergence (the resolver is external and general, which is where every other difference
+comes from), the failure mode their design never had to face, and four questions that are
+better answered *"we did that in 1994"* than *"how interesting."* Also the worked example of
+the prelude shape.
+
+---
+
 ## 5. The founding pieces
 
 **[`IntentionBasedDesignForHumans.md`](IntentionBasedDesignForHumans.md)** — the first piece
@@ -144,10 +163,14 @@ place.
 
 ## 7. What the shelf does not have yet
 
-- **A field-prelude compiler.** The technical paper is designed as components — a per-field
-  Part I, a shared Part II and Part III — and the compiler that assembles them is not built
-  and will not be until three preludes exist. Building it at one prelude would be building
-  to a shape of one.
+- **Two of three field preludes.** The components scheme is
+  [`OutreachPacket.md`](OutreachPacket.md) §3 and prelude 1 is written; the neuro-symbolic
+  and dynamic-graph-learning preludes are red.
+- **A field-prelude compiler**, deliberately. It waits on three preludes, because a compiler
+  written against one would freeze whatever that prelude happened to do into a schema.
+  Until then assembly is a human concatenating three files, which costs a minute and is
+  honest about how much structure has been earned.
+- **Anything sent.** The outreach packet is a plan, and a plan is a hypothesis.
 - **A second reader.** Every piece here was written by one model under one human's
   correction, on one machine. *"Does it survive a second person?"* is the standing
   falsifier over the entire folder, and it is unmeasured.

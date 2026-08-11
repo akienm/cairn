@@ -1,0 +1,380 @@
+#!/usr/bin/env python3
+"""cairn probescan — chkdsk for probes: does every probe have somewhere to send, and can
+that somewhere receive?
+
+THE RULE IT MEASURES (Akien, 2026-08-11, ruling the axis this scan was born from):
+
+    "a shim really literally is a class. when the bus comes up, a shim should be
+     instantiated for each device. so whatever tree, it's device/instance/other stuff —
+     so when a device attaches a probe, it's attached to something the first device is
+     specifying feedback from. EVERY PROBE IN THE SYSTEM SHOULD BE ABLE TO SEND FEEDBACK
+     SOMEWHERE. And the somewhere should be able to receive it."
+
+Two ends, and the rule is only satisfied when BOTH hold. A probe with a live trigger and
+a dead addressee is not a watch — it is a watch-shaped hole, and it reads green from
+either end alone. That is why this is one program and not two: the send end and the
+receive end are individually plausible and jointly broken, which is the exact shape
+nothing in the corpus was measuring.
+
+WHY A SCAN AND NOT A PROBE. A probe watching all probes is the manager smell — a central
+collector built because something exists in plural. This is an INSTRUMENT, run when a
+human wants the answer (Akien: "build 'chkdsk for probes' and run whenever you need it
+to"). If a standing watch is later wanted, it composes ``scan()`` rather than re-deriving
+it; this file is deliberately importable for that, and deliberately does not arm itself.
+
+THE RECEIVE CHECK IS EXERCISED, NOT READ, and the rung it reached is reported per device.
+Reading for a ``def receive`` would be the structural-proxy failure this corpus keeps
+finding in its own instruments — a filename census reporting a population. So the scan
+walks the SAME path the postman walks (``BaseShim.deliver``): resolve the shim, wake the
+device, look for the receive face, catching the real exception the real delivery would
+hit. It stops one call short of invoking ``receive`` itself, because a CHECK that
+delivers mail has written to a record of truth (Law 7) — and that last rung is labeled
+``resolved-not-delivered`` rather than claimed as a delivery. Rungs 0-2 are genuine
+refusals from the genuine path; only rung 3 is inference, and it says so.
+
+Exit code is the verdict: 0 when every probe's feedback path is whole end to end,
+1 otherwise. Red is the default (Law 9) — this scan starts by assuming nothing works and
+turns each piece green only by reaching it.
+
+    bin/cmd/probescan             # the scan, human-readable
+    bin/cmd/probescan --json      # the same, as data
+    bin/cmd/probescan --mail      # only the traffic triage
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import json
+import sys
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+# The rungs the receive check can reach, worst to best. The ORDER is the meaning: a
+# reader sees how far a real delivery would get before it hit something.
+NO_SHIM = "0-no-shim"                  # nothing on disk answers to this id
+NO_WAKE = "1-no-start-device"          # a shim exists; it cannot wake a device
+NO_FACE = "2-no-receive-face"          # a device woke; it declares no receive()
+RESOLVED = "3-resolved-not-delivered"  # a receive face is callable — NOT invoked here
+
+_CAN_RECEIVE = {RESOLVED}
+
+
+def probe_modules(root: Path) -> list[Path]:
+    """Every probe module on disk — the population the rule quantifies over.
+
+    Walks the whole repo rather than only discovered device folders, on purpose: a probe
+    sitting in a folder discovery does NOT walk is the most interesting failure this scan
+    can report (it can never fire at all), and a census restricted to discovered folders
+    would be structurally unable to see it.
+    """
+    out = []
+    for path in sorted(root.rglob("probes/*.py")):
+        if "__pycache__" in path.parts or path.name == "__init__.py":
+            continue
+        out.append(path)
+    return out
+
+
+def _declared_probe_names(path: Path) -> list[str]:
+    """Module-level names assigned a ``Probe(...)`` — read by AST, no import required.
+
+    This is the ARMING question asked cheaply and without side effects, so a module that
+    cannot import is still counted in the denominator rather than vanishing from it. The
+    import is attempted separately below; a probe that parses and fails to import is a
+    different (and louder) finding than one that was never declared.
+    """
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (SyntaxError, UnicodeDecodeError, OSError):
+        return []
+    names = []
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        call = node.value
+        if not isinstance(call, ast.Call):
+            continue
+        fn = call.func
+        fname = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", None)
+        if fname != "Probe":
+            continue
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                names.append(t.id)
+    return names
+
+
+def scan_probes(root: Path, devices: set[str]) -> list[dict]:
+    """The send end, one row per probe module: armed? addressed? does the address exist?"""
+    from cairn.ground_loop.discovery import load_module
+
+    rows = []
+    for path in probe_modules(root):
+        rel = str(path.relative_to(root))
+        # The owning device is the folder ABOVE probes/ — the ruling's own identity rule.
+        owner = path.parent.parent.name
+        row = {
+            "probe": rel,
+            "owner": owner,
+            "owner_is_discovered": owner in devices,
+            "declared": _declared_probe_names(path),
+            "armed": False,
+            "to": None,
+            "carries": None,
+            "stops": None,
+            "import_error": None,
+        }
+        try:
+            mod = load_module(path)
+        except Exception as exc:  # noqa: BLE001 — an unimportable probe is a finding, not a crash
+            row["import_error"] = f"{type(exc).__name__}: {exc}"
+            rows.append(row)
+            continue
+        probe = getattr(mod, "PROBE", None)
+        if probe is None:
+            rows.append(row)
+            continue
+        row["armed"] = True
+        row["to"] = getattr(probe, "to", None)
+        # carry/enough are what make a poke ACTIONABLE and RETIRABLE. A probe with neither
+        # says "a line was crossed" forever, to nobody, with no way to stop saying it.
+        row["carries"] = getattr(probe, "carry", None) is not None
+        row["stops"] = getattr(probe, "enough", None) is not None
+        rows.append(row)
+    return rows
+
+
+def can_receive(device_id: str) -> dict:
+    """Walk the postman's own path as far as it goes WITHOUT delivering.
+
+    Mirrors ``BaseShim.deliver`` step for step so the answer is the answer a real envelope
+    would get: resolve a shim for the id, wake the device, look for the receive face. Each
+    failure is the REAL exception from the REAL code, not a guess about it.
+    """
+    from cairn.ground_loop.discovered import DiscoveredShim
+
+    result = {"device": device_id, "rung": NO_SHIM, "detail": None, "shim_class": None}
+    try:
+        shim = DiscoveredShim(device_id)
+    except Exception as exc:  # noqa: BLE001
+        result["detail"] = f"{type(exc).__name__}: {exc}"
+        return result
+    result["shim_class"] = type(shim).__name__
+
+    # deliver()'s first act, verbatim: ensure the device, then start it if there is none.
+    try:
+        shim._ensure_device()
+        device = shim._device
+        if device is None:
+            device = shim._start_device()   # this is where the refusal lives today
+    except NotImplementedError as exc:
+        result["rung"] = NO_WAKE
+        result["detail"] = str(exc)
+        return result
+    except Exception as exc:  # noqa: BLE001
+        result["rung"] = NO_WAKE
+        result["detail"] = f"{type(exc).__name__}: {exc}"
+        return result
+
+    recv = getattr(device, "receive", None)
+    if not callable(recv):
+        result["rung"] = NO_FACE
+        result["detail"] = (
+            f"{type(device).__name__} declares no callable receive(); "
+            "BaseShim.deliver would raise NotImplementedError here"
+        )
+        return result
+
+    result["rung"] = RESOLVED
+    result["detail"] = (
+        f"{type(device).__name__}.receive is callable — NOT invoked: a check that delivers "
+        "mail has written to a record of truth"
+    )
+    return result
+
+
+def scan_mail(devices: set[str]) -> dict:
+    """The traffic triage: what is actually on the bus, and which of it is trash.
+
+    Three questions the envelopes can answer that the code cannot: has anything EVER been
+    picked up, is anyone writing to an address that is not a device, and is one probe
+    saying the same thing over and over.
+    """
+    from cairn.bus.bus import BusDevice
+    from cairn.db_domain import store
+
+    bus = BusDevice()
+    conn = store.connect()
+    try:
+        traffic = store.read(bus._table, conn=conn)
+        receipts = store.read(bus.delivery_table, conn=conn)
+    finally:
+        conn.close()
+
+    picked_up = {r.get("envelope_id") or r.get("id") for r in receipts}
+    rows = []
+    for env in traffic:
+        addressee = env.get("addressee")
+        sender = env.get("sender")
+        rows.append({
+            "id": env.get("id"),
+            "sender": sender,
+            "addressee": addressee,
+            "why": (env.get("why") or "")[:90],
+            "date": str(env.get("date")),
+            "delivered": env.get("id") in picked_up,
+            "sender_is_device": sender in devices,
+            "addressee_is_device": addressee in devices,
+        })
+
+    # A duplicate storm: the same sender saying the same thing more than once. Every
+    # ground-loop restart re-pokes a still-true trigger (the shim's crossing memory is
+    # in-process), so this counts the cost of that rather than calling it honest noise.
+    storms = Counter((r["sender"], r["why"]) for r in rows)
+    return {
+        "envelopes": len(rows),
+        "receipts": len(receipts),
+        "never_delivered": sum(1 for r in rows if not r["delivered"]),
+        "orphan_addressee": [r for r in rows if not r["addressee_is_device"]],
+        "orphan_sender": [r for r in rows if not r["sender_is_device"]],
+        "storms": [{"sender": s, "why": w, "count": n}
+                   for (s, w), n in storms.most_common() if n > 1],
+        "mail": rows,
+    }
+
+
+def scan(root: Path | None = None) -> dict:
+    """The whole check. Importable, so a future standing watch composes it (Law 1)."""
+    from cairn.ground_loop.discovery import device_folders, repo_root
+
+    root = Path(root) if root is not None else repo_root()
+    devices = {d for d, _ in device_folders(root)}
+
+    probes = scan_probes(root, devices)
+
+    # Only the addressees actually written to are checked — the scan reports on the
+    # graph that EXISTS, never on every device that might one day be addressed.
+    addressees = sorted({p["to"] for p in probes if p["to"]})
+    receiving = {a: can_receive(a) for a in addressees}
+
+    try:
+        mail = scan_mail(devices)
+        mail_error = None
+    except Exception as exc:  # noqa: BLE001 — no DB is a degraded scan, not a failed one
+        mail, mail_error = None, f"{type(exc).__name__}: {exc}"
+
+    whole, broken = [], []
+    for p in probes:
+        faults = []
+        if p["import_error"]:
+            faults.append(f"does not import ({p['import_error']})")
+        elif not p["armed"]:
+            faults.append("declares no module-level PROBE")
+        if p["armed"] and not p["to"]:
+            faults.append("names no addressee — the feedback goes nowhere")
+        if p["armed"] and not p["owner_is_discovered"]:
+            faults.append(f"owner {p['owner']!r} is not a discovered device — never armed")
+        if p["armed"] and not p["carries"]:
+            faults.append("carries nothing — the poke says only that a line was crossed")
+        if p["armed"] and not p["stops"]:
+            faults.append("declares no enough — the watch can never retire")
+        rung = receiving.get(p["to"], {}).get("rung") if p["to"] else None
+        if p["to"] and rung not in _CAN_RECEIVE:
+            faults.append(f"addressee {p['to']!r} cannot receive (reached {rung})")
+        (broken if faults else whole).append({**p, "receive_rung": rung, "faults": faults})
+
+    return {
+        "scan": "probescan",
+        "question": "does every probe send feedback somewhere that can receive it?",
+        "rule": "Akien 2026-08-11 — every probe sends feedback somewhere; the somewhere receives it",
+        "at": datetime.now(timezone.utc).isoformat(),
+        "devices_discovered": sorted(devices),
+        "probes_total": len(probes),
+        "probes_whole": len(whole),
+        "probes_broken": len(broken),
+        "by_addressee": dict(Counter(p["to"] for p in probes if p["to"])),
+        "receiving": receiving,
+        "broken": broken,
+        "whole": whole,
+        "mail": mail,
+        "mail_error": mail_error,
+        "verdict": "green" if not broken else "red",
+    }
+
+
+def _render(r: dict, mail_only: bool = False) -> str:
+    L = []
+    if not mail_only:
+        L.append("=" * 78)
+        L.append("  PROBESCAN — every probe sends somewhere; the somewhere receives")
+        L.append("=" * 78)
+        L.append(f"  {r['probes_total']} probes · {r['probes_whole']} whole · "
+                 f"{r['probes_broken']} BROKEN · {len(r['devices_discovered'])} devices discovered")
+        L.append("")
+        L.append("-- THE RECEIVE END " + "-" * 59)
+        for dev, res in sorted(r["receiving"].items()):
+            mark = "ok " if res["rung"] in _CAN_RECEIVE else "RED"
+            n = r["by_addressee"].get(dev, 0)
+            L.append(f"  [{mark}] {dev}  <- {n} probe(s)   reached: {res['rung']}")
+            if res.get("detail"):
+                L.append(f"        {res['detail'][:110]}")
+        L.append("")
+        if r["broken"]:
+            L.append("-- BROKEN FEEDBACK PATHS " + "-" * 53)
+            by_fault = defaultdict(list)
+            for p in r["broken"]:
+                for f in p["faults"]:
+                    by_fault[f].append(p["probe"])
+            for fault, who in sorted(by_fault.items(), key=lambda kv: -len(kv[1])):
+                L.append(f"  {len(who):>3}x  {fault}")
+                for w in who[:4]:
+                    L.append(f"         {w}")
+                if len(who) > 4:
+                    L.append(f"         ... and {len(who)-4} more")
+            L.append("")
+
+    m = r.get("mail")
+    if m is None:
+        L.append(f"-- THE MAIL: unreadable ({r.get('mail_error')})")
+        return "\n".join(L)
+
+    L.append("-- THE MAIL " + "-" * 66)
+    L.append(f"  {m['envelopes']} envelopes · {m['receipts']} receipts · "
+             f"{m['never_delivered']} NEVER DELIVERED")
+    if m["orphan_addressee"]:
+        L.append(f"  {len(m['orphan_addressee'])} addressed to a NON-DEVICE (trash or misrouted):")
+        for e in m["orphan_addressee"]:
+            L.append(f"        {e['sender']} -> {e['addressee']}  {e['date'][:19]}  {e['why'][:50]}")
+    if m["orphan_sender"]:
+        L.append(f"  {len(m['orphan_sender'])} sent BY a non-device:")
+        for e in m["orphan_sender"]:
+            L.append(f"        {e['sender']} -> {e['addressee']}  {e['date'][:19]}")
+    if m["storms"]:
+        L.append("  REPEATS (one probe saying the same thing more than once):")
+        for s in m["storms"]:
+            L.append(f"        {s['count']}x  {s['sender']}: {s['why'][:60]}")
+    L.append("")
+    L.append(f"  VERDICT: {r['verdict'].upper()}")
+    return "\n".join(L)
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="chkdsk for probes")
+    ap.add_argument("--json", action="store_true", help="emit the scan as data")
+    ap.add_argument("--mail", action="store_true", help="only the traffic triage")
+    ap.add_argument("--root", default=None, help="repo root to scan (default: this repo)")
+    args = ap.parse_args(argv)
+
+    r = scan(args.root)
+    print(json.dumps(r, indent=2, default=str) if args.json else _render(r, args.mail))
+    return 0 if r["verdict"] == "green" else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

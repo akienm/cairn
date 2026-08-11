@@ -1705,6 +1705,17 @@ _NEST_CACHE: list | None = None
 def the_nest() -> list:
     """The sieves assembled coarsest-first, as [(band, [sieve names]), ...].
 
+    BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
+    2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to
+    true based on whatever it's inspecting. it's specific to the device being inspected
+    and provides a true false ruling." No bands, no ladder, no ordering are part of what
+    a sieve IS — SIEVES below is the real structure, and each entry is one boolean about
+    one component. Bands were CC's ("we added bands and ordering because you thought you
+    needed it. I DONT") and remain only by leave to remain ("i do not think the existing
+    stuff needs to go"), which does not extend to growing them. Do not read the
+    2026-08-06/08-07 citations below as him asking for this; he ruled on an object CC
+    put in front of him. See cairn/base/nest.py's header for the full note.
+
     DERIVED, NEVER AUTHORED (ticket the-questions-are-the-sieve, and its first
     falsifier): each sieve's band comes from what its own body REACHES — is the answer
     in hand, on local disk, spread across local sources, or off this box — read out of

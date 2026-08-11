@@ -19,6 +19,13 @@ refusing (cut by ``keyed``, the finding says so and names the overlay path where
 would land), and loopback is cut by ``never_routed`` categorically — the rule is a row a
 sieve reads, not a comment (Law 4).
 
+BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
+2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to true
+based on whatever it's inspecting. it's specific to the device being inspected and
+provides a true false ruling." The sentence above about a sieve CUTTING with a
+self-naming finding is the part that matters; the banding is CC's, kept only by leave
+to remain and not to be grown. See cairn/base/nest.py's header.
+
 Bands are DERIVED from what each sieve's body reaches (import_sieve.reach_of, the
 inspector's precedent) — a hand-set band would be a learned value stranded in a head.
 Every sieve here reads data already in hand, so today the nest is one band; that is a

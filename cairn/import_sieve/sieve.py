@@ -62,6 +62,15 @@ class HollowScan(RuntimeError):
 # proximity?" The band is a characteristic of the KIND OF THING the sieve does, not
 # of where it is installed, which is what makes a sieve portable between nests.
 #
+# BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
+# 2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to
+# true based on whatever it's inspecting. it's specific to the device being inspected
+# and provides a true false ruling." This module's REAL sieve work is imports_in /
+# import_graph / _matches — "does this file reach through a forbidden door" is exactly
+# one boolean about one device. reach_of and the ladder below are the band derivation,
+# CC's idea, kept by leave to remain and not to be grown (the ticket to make a band
+# into stored data was killed the day it was cast). See cairn/base/nest.py's header.
+#
 # THE VOCABULARY AND THE ASSEMBLY LEFT FOR THE GENERAL BERTH, 2026-08-07 (ruling
 # the-nest-is-block-general, ticket banding-berths-at-the-general-level): BAND_NAMES,
 # nest() and the shake live at cairn.base.nest now, with the boundaries-are-where-

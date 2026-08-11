@@ -1,5 +1,24 @@
 """nest — bands, the coarsest-first assembly, and the one-shake. Block-general.
 
+READ THIS FIRST — BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
+2026-08-11-a-sieve-is-one-true-false-rule). THE DEFINITION IS: "a seive is something
+that evaluates to true based on whatever it's inspecting. it's specific to the device
+being inspected and provides a true false ruling." That is the whole of it — no bands,
+no ladder, no ordering are part of what a sieve IS.
+
+BANDS WERE CC'S IDEA: "we added bands and ordering because you thought you needed it.
+I DONT." They stay only because he said so in the same breath — "i do not think the
+existing stuff needs to go" — which is LEAVE TO REMAIN, not endorsement, and it does
+not extend to growing them (the ticket to make a band into stored data was killed).
+
+WHY THIS PARAGRAPH EXISTS AT ALL. Everything below cites rulings of 2026-08-06 and
+2026-08-07 and attributes lines to Akien by name. Those citations are REAL — he did
+rule on this structure. But he ruled on an object CC put in front of him, and for four
+days every later reader (CC) treated those rulings as evidence of what he WANTED. A
+ruling on someone's invention does not make it theirs. If you are about to build on
+what follows, the question is not "is this ruling current" but "whose idea was this
+originally" — and the answer here is CC's.
+
 THE GENERAL CASE, BY RULING (2026-08-07-the-nest-is-block-general): "nest/banding
 is the general case." Nest, gradation and bands are a block-general primitive any
 inspector or block carries — build_inspector is the first tenant, not the owner,

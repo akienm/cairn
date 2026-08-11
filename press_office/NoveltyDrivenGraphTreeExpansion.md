@@ -3,7 +3,13 @@
 ### Two tiers of novelty, and a defense against self-confirming retrieval
 
 **Draft paper.** Author: Akien MacIain · Status: draft, awaiting signature gate ·
-Date: 2026-08-05 · Target venues: AAAI, CogSci, NeurIPS/ICLR workshop tracks, AGI
+Date: 2026-08-05, revised 2026-08-11 · Target venues: AAAI, CogSci, NeurIPS/ICLR
+workshop tracks, AGI
+
+*Revision of 2026-08-11:* §4.2's tenure mechanism moved from designed to built
+(2026-08-09) and carries a measured status note; the corroboration defect it
+predicted is fixed; falsifier 3 is marked survived at $n = 88$ and kept on the
+list, with its inverse named. All figures trace to `press_office/FactSheet.md`.
 
 ---
 
@@ -354,10 +360,26 @@ discipline and non-negotiable:
 - **Silence is not approval.** Absence of a contradiction is weak evidence at most.
 
 **Corroboration.** A duplicate deposit from an *independent* source is exactly the
-evidence tenure wants — a second witness to the same claim. Our current
-implementation drops the duplicate's provenance, which discards that evidence; the
-correction (provenance append rather than discard) lands with this mechanism and is
-noted here because it is the kind of defect that hides behind a passing test.
+evidence tenure wants — a second witness to the same claim. Our implementation used
+to drop the duplicate's provenance, discarding that evidence; it was noted here
+because it is the kind of defect that hides behind a passing test. **Corrected
+2026-08-09, as predicted:** a duplicate still writes no new row and now reports
+`provenance_appended`, landing the incoming provenance as an attestation on the
+standing row.
+
+**Implementation status of §4.2.** Built and proved 2026-08-09; measured 2026-08-11
+over a single-tree store of 88 nodes: 80 $\textsf{hypothesis}$, 3
+$\textsf{earned}$, 1 $\textsf{refuted}$. Four properties are enforced rather than
+described — a node cannot tenure on an echo of its own $\mu(n)$; promotion requires
+$m = 2$ distinct cross-questions; a refuter may retire an $\textsf{earned}$ node only
+if it has earned tenure itself **or** its provenance names it an authority — the
+second arm exists so that a stated correction from outside the system can always
+outrank the corpus, which a standing-only gate would forbid; and decay is evaluated
+**lazily on read** against a 14-day horizon, with only a *cross*-question attestation
+exempting a node, so no sweeper process exists. The numbers are $n = 88$ and are an
+existence proof of the
+mechanism, **not** evidence about the promotion rule's calibration. Nothing in §7's
+protocol is discharged by them.
 
 ### 4.3 The constraint layer: what may join the graph
 
@@ -721,7 +743,12 @@ before submission.
    criterion measures something other than correctness, and $W(n)$ is the wrong
    witness definition.
 3. **Every node remains `hypothesis` in live use.** Then tenure never operated,
-   standing is decorative, and §4.2 is prose.
+   standing is decorative, and §4.2 is prose. *Survived once, at $n = 88$
+   (2026-08-11): 3 earned, 1 refuted.* It stays on this list, because surviving at
+   88 nodes is not evidence about $2.5\times10^6$ — and because the inverse is the
+   sharper failure: an earned fraction that climbs **fast** means $W(n)$ is
+   measuring popularity rather than correctness, which is falsifier 2 arriving from
+   the other side.
 4. **Answers arrive from the model when the graph already holds the structure.**
    Then the architecture is a vector cache with additional ceremony.
 5. **Access degrades with graph size at $2.5\times10^6$ nodes, or write cost grows

@@ -3,7 +3,9 @@
 *A technical brief.*
 
 **Audience:** someone who builds AI systems for a living and wants the mechanism, not the pitch. Math where math is clearer than prose.
-**Author:** Akien Maciain · **Status:** final · **Date:** 2026-08-05
+**Author:** Akien Maciain · **Status:** final · **Date:** 2026-08-05, revised 2026-08-11
+
+*Revision of 2026-08-11:* the tenure loop moved from designed to **built** (2026-08-09) in §2.1 and in falsifier 2 of §6, with the measured standings; the duplicate-drops-provenance defect §2.6 filed is recorded as fixed. Every figure traces to [`FactSheet.md`](FactSheet.md).
 
 ---
 
@@ -79,7 +81,7 @@ Three properties of the node layer:
 
 - **One claim per node.** A node holding three claims cannot be cited, corrected, or expired independently of the other two.
 - **Provenance is a gate, not a field.** The deposit door *refuses* a node nobody can trace. The reason is asymmetric cost: a fabricated attribution in a draft is a bad afternoon; in a graph node it is a permanent resident that every future walk may ground on.
-- **Every node is born a hypothesis.** Nothing is trusted because it was written down. Tenure — the promotion from `hypothesis` to `earned` — has to be paid for by resolving questions. (See §2.6; this loop is designed and **not yet built**, and until it is, every node in the store honestly still reads `hypothesis`.)
+- **Every node is born a hypothesis.** Nothing is trusted because it was written down. Tenure — the promotion from `hypothesis` to `earned` — has to be paid for by resolving questions. (See §2.6.) **Built and proved 2026-08-09.** Measured 2026-08-11 across the librarian's 88 nodes: **80 `hypothesis`, 3 `earned`, 1 `refuted`**, plus 4 `hypothesis` in the founding tree. Three earned out of 88 after two weeks is the loop working rather than failing — a node minted while answering a question is *data*, and standing is earned only across later, independent crossings. **A store where most nodes read `earned` this early would be a store confirming itself,** which is the failure §2.7 measures.
 
 And one property of the leaf layer that pays off in §4.4: because reorganization touches only leaves, **index maintenance can never damage a record of truth.** The trees can be split, renumbered and rebuilt as often as you like; provenance cannot drift, because provenance is not in the layer that moves.
 
@@ -213,7 +215,7 @@ The rule underneath: **the graph is the catalog, not the shelf.** The bytes live
 4. **Identity.** `node_id = hash(normalized content)`, per database. Content-addressed and **tree-free**, so the same claim is the same node no matter how many trees index it. (Identity is not address: the address is the leaf's, and only the leaf's.)
 5. **Dedupe.** A duplicate writes **nothing** and says so. The cheapest deposit is    the one never made.
 
-*Known defect, filed:* a duplicate currently **drops its new provenance**. But a second independent source saying the same thing is *corroboration*, which is precisely the evidence tenure needs. The correct behavior is a provenance append, and it lands with the tenure loop.
+*Known defect, since fixed:* a duplicate used to **drop its new provenance**. But a second independent source saying the same thing is *corroboration*, which is precisely the evidence tenure needs. **Corrected 2026-08-09 with the tenure loop**, as predicted here: a duplicate still writes no new row, and now returns `duplicate: True` together with `provenance_appended: True` — the incoming provenance lands as an attestation on the standing row rather than being discarded. The deposit stays cheap; the evidence stops being thrown away.
 
 **Index** — the leaf layer *is* the index, and it holds two kinds of connection that are worth keeping apart:
 
@@ -568,7 +570,7 @@ The system holds that a claim without a falsifier is decoration, so here are our
 These are the questions to ask us in six months.
 
 1. **The migration rate is flat.** If judgment is not measurably moving from the model to the graph to code, the Learning Block architecture is overhead with a philosophy attached.
-2. **Nodes still all read `hypothesis`.** If tenure never lands, standing is a decoration and §2.7's failure mode is unmitigated — the graph is self-confirming and the resolution numbers mean nothing.
+2. **Nodes still all read `hypothesis`.** If tenure never lands, standing is a decoration and §2.7's failure mode is unmitigated — the graph is self-confirming and the resolution numbers mean nothing. **Survived once, at *n*=88 (2026-08-11): 3 earned, 1 refuted, the rest hypothesis.** The falsifier stays on this list rather than coming off it, because surviving at 88 nodes says nothing about 2.5 M — and because the interesting version is the *inverse*: if the earned fraction ever climbs quickly, tenure has started rewarding popularity instead of correctness, which is falsifier 2 arriving from the other side. Both directions are watched; neither is settled.
 3. **Answers come from inference when the graph already holds the structure.** That is the librarian demoted to a vector cache with extra steps.
 4. **Node access degrades with graph size at 2.5 M nodes — or write cost grows with corpus size.** Either one means the addressing design did not deliver the property it exists for, measured against the baseline that motivated it (§4.0), and §4 reopens.
 5. **Hit rate does not climb** on a real, stationary question stream. The amortization argument in §2.3 is the thesis; if $h_t$ is flat, the thesis is wrong.

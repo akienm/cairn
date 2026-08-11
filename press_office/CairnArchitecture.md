@@ -539,18 +539,18 @@ individually shareable; this section is the index.
 
 | Subsystem | What it is | State |
 |---|---|---|
-| **Intention-based development** | intent beside implementation; the name forces the why | built, in use throughout |
-| **Gates and inspectors** | enforcement as gated ownership; deterministic filter stacks | built; several gates still prose |
-| **The workflow and its artifacts** | node classes, workflow strings, the emit chokepoint | built; 324 journaled crossings |
-| **The development knowledge base** | the commons: rulings, questions, troubles, slates | built; in daily use |
-| **Graph trees as an inference cache** | miss → resolver → deposit; the three intake paths | built at the node level |
-| **Tree architecture** | node list, per-tree leaf tables, `database.tree.leaf`, calving | **designed, not built** |
-| **The librarian** | owner of the trees; the chatbot that learns always and summarizes on request | first face whole; tenure loop proved |
-| **The inference proxy** | one door, metered, cached, with an escalating provider ladder | built; 1,400 calls metered |
-| **The bus** | the sole path for inter-device communication; four channels | built, **never run in anger** (2 records) |
-| **The ground loop** | one heartbeat; every device's shim hangs its probes on it | built, **never run** |
-| **superclaude** | the launcher and the rescue tier below the machinery | built, in daily use |
-| **What is planned** | the ruled ladder, the cocoon, the parallel inspectable clone | not built, and named as such |
+| [**Intention-based development**](PatternIntentionBasedDevelopment.md) | intent beside implementation; the name forces the why | built, in use throughout |
+| [**Gates and inspectors**](PatternGatesAndInspectors.md) | enforcement as gated ownership; deterministic filter stacks | built; several gates still prose |
+| [**The workflow and its artifacts**](PatternWorkflowAndArtifacts.md) | node classes, workflow strings, the emit chokepoint | built; 324 journaled crossings |
+| [**The development knowledge base**](PatternDevelopmentKnowledgeBase.md) | the commons: rulings, questions, troubles, slates | built; in daily use |
+| [**Graph trees as an inference cache**](PatternGraphTreeCaching.md) | miss → resolver → deposit; the three intake paths | built at the node level |
+| [**Tree architecture**](PatternTreeArchitecture.md) | node list, per-tree leaf tables, `database.tree.leaf`, calving | **designed, not built** |
+| [**The librarian**](PatternTheLibrarian.md) | owner of the trees; the chatbot that learns always and summarizes on request | first face whole; tenure loop proved |
+| [**The inference proxy**](PatternInferenceProxy.md) | one door, metered, cached, with an escalating provider ladder | built; 1,400 calls metered |
+| [**The bus**](PatternTheBus.md) | the sole path for inter-device communication; four channels | built, **never run in anger** (2 records) |
+| [**The ground loop**](PatternTheGroundLoop.md) | one heartbeat; every device's shim hangs its probes on it | built, **never run** |
+| [**superclaude**](PatternTheLauncher.md) | the launcher and the rescue tier below the machinery | built, in daily use |
+| [**What is planned**](PatternWhatIsPlanned.md) | the ruled ladder, the cocoon, the parallel inspectable clone | not built, and named as such |
 
 ---
 

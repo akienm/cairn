@@ -1,6 +1,36 @@
 """BaseDevice — the Form v0 contract, embodied.
 
-Every Cairn device subclasses this. Its whole job, right now, is two things:
+CORRECTED 2026-08-11 (ticket ``device-ness-is-decided-at-the-shim``), and the superseded
+words are kept because they were the load-bearing falsehood. This read:
+
+    "Every Cairn device subclasses this."
+
+IT DOES NOT DEFINE DEVICE-NESS AND NEVER DID. Akien ruled the axis on 2026-08-11 — *"a shim
+fits TO the device; you + your shim = your device"*, and *"the unit is the FOLDER, not the
+registration: a device is a directory with a ``probes/`` subdirectory, its id the
+directory's own name."* Calibre was a device with no device code at all, just its shim,
+because Calibre itself managed the books; no class read can ever see that member, so
+inheritance cannot be the test. MEASURED the same day: twelve components are devices under
+the ruling and ELEVEN of them subclass nothing here, while eight things subclass this and
+are not on the roster the beat reads — including ``bus`` and ``ground_loop``, the spine.
+Exactly one component, ``librarian``, is on both axes and carries a shim class as well.
+
+WHERE THE ANSWER LIVES NOW, so this file points instead of asserting: the predicate is
+``cairn/base/deviceness.py`` (``is_device`` / ``fitted_device_ids`` / ``divergence``), and
+the membership it composes is ``cairn/ground_loop/discovery.py``'s, which is the mechanism
+the ruling created and the one a running loop actually fits shims to
+(``ground_loop/loop.py::_reconcile``). The divergence is watched by
+``cairn/base/probes/device_claims_match_shims.py``.
+
+WHAT SURVIVES UNTOUCHED, because it was never the same claim: this class's real value is the
+UNIFORM INTROSPECTION SURFACE — one protocol the tester probes and the web UI renders — and
+that is the SAME axis Akien named. Inheritance was the delivery mechanism, not the value.
+So BaseDevice stays subclassable, keeps composing ``CoreValuesMixin`` and ``DiagnosticBase``,
+and keeps ``introspect()``'s ordering; three live charters are red by physics on exactly
+those and none of them move. What ends is the claim to be the DEFINITION. What it is now:
+what an IN-PYTHON device MAY compose.
+
+Its whole job, right now, is two things:
 
   1. Compose ``CoreValuesMixin`` so every device carries CP1-CP6 structurally —
      you cannot be a device without the values (Law 2). This is the composition

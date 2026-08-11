@@ -54,9 +54,11 @@ from cairn.harbor_master.clearance import (
     GRANT_TTL_SECONDS,
     HARBOR_LINES,
     GrantExpired,
+    OwnerUnresolvable,
     Unauthorized,
     Unproven,
     Unresourced,
+    boat_owner_of,
     clear,
     mint_grant,
 )
@@ -69,9 +71,24 @@ from cairn.tester.validation_store import persist_validation
 # node-class table (CairnCommons/node_classes/code-seam.json) — non-hollow, like transitions.
 _WF = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 
-_OWNER = "akiendelllinux_cc_0"
+# THE BOATS ARE REAL NOW, and they have to be. Since 2026-08-10 (ticket
+# boat-owner-is-read-not-stated) the gate READS a boat's owner off disk rather than taking
+# it as an argument, and it accepts no root injection — a ``tickets_dir=`` parameter would
+# hand the caller back the choice of what the gate reads, which is the ticket's own
+# falsifier clause (1) wearing a coat. So a proof that wants a cleared crossing must name a
+# boat that exists.
+#
+# WHAT IS ASSERTED ABOUT THEM IS AN INVARIANT, NEVER A SNAPSHOT. ``_OWNER`` is not the
+# string 'CC' written down here; it is whatever hand these boats' owning intention admits,
+# read the same way the gate reads it. If that list changes tomorrow these teeth still
+# mean what they say — where a hard-coded 'CC' would go green for the wrong reason on the
+# day somebody edits the charter.
+_BOAT = "boat-owner-is-read-not-stated"
+_OTHER_BOAT = "an-intention-declares-its-gated-hands"
+_OWNER = boat_owner_of(_BOAT).hands[0]
 _IGOR = "igor_7"
-_BOAT = "some-code-seam"
+assert _IGOR not in boat_owner_of(_BOAT).hands, \
+    "the unauthorized actor these teeth use must actually be unauthorized"
 
 _FIXTURES = _REPO_ROOT / "cairn" / "tester" / "proofs" / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"
@@ -121,7 +138,7 @@ def test_the_owner_may_clear_a_legal_move_and_it_is_recorded():
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
-            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_OWNER, boat_id=_BOAT,
             proven_by=_PROVEN, history_path=hp, state_path=sp,
         )
         assert "[PROVEME:waiting]" in new, "the cursor must have moved to PROVEME"
@@ -139,7 +156,7 @@ def test_an_unauthorized_actor_is_refused_and_nothing_is_written():
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,  # igor, no grant
+                actor=_IGOR, boat_id=_BOAT, # igor, no grant
                 proven_by=_PROVEN, history_path=hp, state_path=sp,
             )
         except Unauthorized:
@@ -149,12 +166,12 @@ def test_an_unauthorized_actor_is_refused_and_nothing_is_written():
 
 
 def test_clearance_is_delegable_per_operation():
-    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
+    grant = mint_grant(minted_by=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
-            actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_IGOR, boat_id=_BOAT,
             proven_by=_PROVEN, grant=grant, history_path=hp, state_path=sp,
         )
         assert "[PROVEME:waiting]" in new
@@ -166,11 +183,11 @@ def test_a_grant_is_non_ambient_it_does_not_authorize_other_operations():
     # THE HOLLOW-KILLER. A grant for (this boat, PROVEME, this igor) must NOT authorize a
     # different target, a different boat, or a different actor. An ambient authority model
     # (a grant that lets the igor do anything) passes every happy path and dies right here.
-    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
+    grant = mint_grant(minted_by=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
     other_actor = "igor_9"
 
     def _refused(**overrides):
-        kw = dict(actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER, proven_by=_PROVEN, grant=grant)
+        kw = dict(actor=_IGOR, boat_id=_BOAT, proven_by=_PROVEN, grant=grant)
         kw.update(overrides)
         try:
             clear(_WF, kw.pop("target_state", "PROVEME"), **kw)
@@ -181,7 +198,9 @@ def test_a_grant_is_non_ambient_it_does_not_authorize_other_operations():
     # wrong target: the grant names PROVEME, try to clear a back-edge to TICKETME under it
     assert _refused(target_state="TICKETME"), "a grant for PROVEME must not authorize a different target"
     # wrong boat: same grant, a different boat_id
-    assert _refused(boat_id="other-boat"), "a grant for one boat must not authorize another"
+    # A REAL other boat, because the gate now reads one: an id with no ticket behind it
+    # would raise OwnerUnresolvable and this tooth would be passing on the wrong refusal.
+    assert _refused(boat_id=_OTHER_BOAT), "a grant for one boat must not authorize another"
     # wrong actor: the grant names igor_7, igor_9 tries to use it
     assert _refused(actor=other_actor), "a grant to one actor must not authorize another"
 
@@ -194,7 +213,7 @@ def test_even_the_owner_cannot_clear_an_illegal_move():
         try:
             clear(
                 _WF, "LEARNME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=_PROVEN, history_path=hp, state_path=sp,
             )
         except IllegalTransition:
@@ -212,7 +231,7 @@ def _refused_for_proven_space(proven_by: str) -> str:
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=proven_by, history_path=hp, state_path=sp,
             )
         except Unproven as exc:
@@ -254,7 +273,7 @@ def test_a_green_seal_whose_code_has_moved_underneath_it_is_refused():
         hp, sp = _paths(tmp)
         assert "[PROVEME:waiting]" in clear(
             _WF, "PROVEME",
-            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_OWNER, boat_id=_BOAT,
             proven_by=drifting, history_path=hp, state_path=sp,
         ), "a freshly-sealed green component must clear before its code moves"
 
@@ -276,7 +295,7 @@ def test_the_record_names_the_proof_the_clearance_leaned_on():
         hp, sp = _paths(tmp)
         clear(
             _WF, "PROVEME",
-            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_OWNER, boat_id=_BOAT,
             proven_by=_PROVEN, history_path=hp, state_path=sp,
         )
         rec = projector.read_history(hp)[0]
@@ -311,13 +330,13 @@ class _ResourceOwner:
 def test_a_lapsed_grant_is_refused_and_nothing_is_written():
     # The window is part of the capability. This grant names exactly the right operation and was
     # minted by the right owner — the only thing wrong with it is that it is old.
-    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
+    grant = mint_grant(minted_by=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_IGOR, boat_id=_BOAT,
                 proven_by=_PROVEN, grant=grant,
                 now=1000.0 + GRANT_TTL_SECONDS + 0.1,   # spent just past the window
                 history_path=hp, state_path=sp,
@@ -331,12 +350,12 @@ def test_a_lapsed_grant_is_refused_and_nothing_is_written():
 def test_the_same_grant_inside_its_window_still_clears():
     # The other half of the tooth above: the expiry must refuse the STALE, not the DELEGATED.
     # A build that broke delegation outright would pass the lapse test and die right here.
-    grant = mint_grant(owner=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
+    grant = mint_grant(minted_by=_OWNER, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME", now=1000.0)
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
-            actor=_IGOR, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_IGOR, boat_id=_BOAT,
             proven_by=_PROVEN, grant=grant,
             now=1000.0 + GRANT_TTL_SECONDS - 0.1,       # spent just inside it
             history_path=hp, state_path=sp,
@@ -353,7 +372,7 @@ def test_a_crossed_resource_line_refuses_an_otherwise_perfect_move():
         try:
             clear(
                 _WF, "PROVEME",
-                actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                actor=_OWNER, boat_id=_BOAT,
                 proven_by=_PROVEN, resources=host,
                 history_path=hp, state_path=sp,
             )
@@ -375,7 +394,7 @@ def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
         hp, sp = _paths(tmp)
         new = clear(
             _WF, "PROVEME",
-            actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+            actor=_OWNER, boat_id=_BOAT,
             proven_by=_PROVEN, resources=host,
             history_path=hp, state_path=sp,
         )
@@ -408,28 +427,30 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
     forwards ``**journal_extra`` to ``emit``. Revert the pass-through and this refuses
     with ``TicketRequiredRed``, which is exactly the state the corpus was in: every
     gated crossing routed around the harbor because going through it could not work."""
-    import cairn.base.transitions as _t
+    # THE FIXTURE TICKETS DIR IS GONE, and its removal is part of the same settlement:
+    # this test used to fabricate a ``widget.json`` and monkeypatch ``_t._TICKETS`` at it,
+    # which was safe only while nothing read the ticket's CONTENTS. The gate does now, so
+    # the boat is real and the two halves of the crossing name the same voyage — which is
+    # what the binding tooth below refuses to let drift apart.
     with tempfile.TemporaryDirectory() as tmp:
-        tickets = Path(tmp) / "tickets"
-        tickets.mkdir()
-        (tickets / "widget.json").write_text("{}", encoding="utf-8")
         hp, sp = _paths(tmp)
         at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
                     "[LEARNME] -> PROVED")
-        saved = _t._TICKETS
-        _t._TICKETS = tickets
-        try:
-            new = clear(
-                at_learn, "PROVED",
-                actor=_OWNER, boat_id="widget", boat_owner=_OWNER,
-                proven_by=_PROVEN, history_path=hp, state_path=sp,
-                ticket="widget",
-            )
-        finally:
-            _t._TICKETS = saved
+        # ``_OTHER_BOAT`` RATHER THAN ``_BOAT``, and the reason is worth a line because it
+        # bit on the first run: this crossing goes into PROVED, so it meets the exit gate,
+        # which refuses a ticket whose chart claim has no verdict yet. Pointing it at the
+        # voyage that is running this very proof makes a circle — the proof cannot pass
+        # until the verdict is written, and the verdict cannot be written until the proof
+        # passes. The gate was right and the fixture was wrong.
+        new = clear(
+            at_learn, "PROVED",
+            actor=_OWNER, boat_id=_OTHER_BOAT,
+            proven_by=_PROVEN, history_path=hp, state_path=sp,
+            ticket=_OTHER_BOAT,
+        )
         assert "[PROVED]" in new, new
         rec = projector.read_history(hp)[0]
-        assert rec["ticket"] == "widget", \
+        assert rec["ticket"] == _OTHER_BOAT, \
             f"the ticket must ride through to the record the gates read: {rec}"
         assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _PROVEN, rec
         assert "re-read at the door" in rec.get("clearance_gate", ""), (
@@ -460,7 +481,7 @@ def test_a_caller_may_not_hand_this_gate_its_own_witness():
             try:
                 clear(
                     _WF, "PROVEME",
-                    actor=_OWNER, boat_id=_BOAT, boat_owner=_OWNER,
+                    actor=_OWNER, boat_id=_BOAT,
                     proven_by=_PROVEN, history_path=hp, state_path=sp,
                     **{field: "forged"},
                 )
@@ -471,6 +492,230 @@ def test_a_caller_may_not_hand_this_gate_its_own_witness():
                 raise AssertionError(f"a caller-supplied {field!r} was accepted")
             assert not Path(hp).exists(), \
                 "a refused clearance writes no record of truth — not even an empty one"
+
+
+# ── THE OWNER IS READ, NOT STATED (ticket boat-owner-is-read-not-stated, 2026-08-10) ──
+#
+# THE NON-HOLLOW METHOD FOR THIS SET IS TWO-SIDED, AND THE SIGN IS WRITTEN DOWN HERE
+# because the ticket's own wording about it is ambiguous and would let a later reader
+# check the wrong one. Unambiguously: the exploit call — an actor naming ITSELF the owner
+# of a boat it does not own — SUCCEEDS on the reverted code and is REFUSED on the built
+# code. On the reverted code the tooth below cannot even be written the same way, because
+# ``boat_owner`` was a parameter; that is the point. Revert cycle run by hand at build
+# time, both directions recorded in the verdict artifact.
+
+
+def test_the_owner_cannot_be_stated_by_any_route():
+    """THE CENTRAL TOOTH. Four routes, because one closed door is not a closed room.
+
+    (1) the parameter is gone; (2) the keyword does not ride ``**journal_extra`` into the
+    record — this is the non-obvious one, since removing a parameter alone leaves the
+    caller able to journal an unchecked ownership claim; (3) a grant cannot be minted from
+    an owner the minter invented; (4) the two ids naming the voyage must agree."""
+    import inspect as _inspect
+    assert "boat_owner" not in _inspect.signature(clear).parameters, \
+        "the owner must not be statable as an argument — that IS the ticket"
+
+    # (2) the keyword must RAISE, not be swallowed. A signature check alone would pass
+    #     while the value rode through into a record of truth.
+    for smuggled in ("boat_owner", "owning_intention", "gated_by"):
+        with tempfile.TemporaryDirectory() as tmp:
+            hp, sp = _paths(tmp)
+            try:
+                clear(
+                    _WF, "PROVEME",
+                    actor=_OWNER, boat_id=_BOAT,
+                    proven_by=_PROVEN, history_path=hp, state_path=sp,
+                    **{smuggled: "fiction"},
+                )
+            except Unauthorized as e:
+                assert smuggled in str(e) and "READ off the boat" in str(e), e
+            else:
+                raise AssertionError(f"a caller-supplied {smuggled!r} was accepted")
+            assert not Path(hp).exists(), "a refused clearance writes no record"
+
+
+def test_a_grant_minted_from_an_owner_the_minter_invented_authorizes_nothing():
+    """THE HOLE THE PARENT TICKET NAMED AS EXAMINED: fixing the direct branch alone moves
+    the hole one door along, because a caller who could state the owner could mint itself
+    a grant from that same fictional owner and ``authorizes`` would compare the fiction to
+    itself. Minting now reads the boat and refuses a minter with no standing on it."""
+    try:
+        mint_grant(minted_by=_IGOR, boat_id=_BOAT, to_actor=_IGOR, target="PROVEME")
+    except Unauthorized as e:
+        assert "may not mint" in str(e) and _BOAT in str(e), e
+    else:
+        raise AssertionError("an unadmitted hand minted itself standing on a boat")
+
+
+def test_an_actor_merely_similar_to_an_admitted_one_is_refused():
+    """THE GREEN-FOR-THE-WRONG-REASON KILL. The comparison replaced a substring scan over
+    charter prose, and a substring scan is exactly what it must not become: an actor that
+    is a prefix of an admitted one, or an admitted one with something appended, must be
+    refused. Derived from the read rather than hard-coded, so the tooth still means this
+    if the charter's list changes."""
+    admitted = boat_owner_of(_BOAT).hands[0]
+    for near in (admitted[:1], admitted + "_extra", admitted.lower(), " " + admitted):
+        if near in boat_owner_of(_BOAT).hands:
+            continue
+        with tempfile.TemporaryDirectory() as tmp:
+            hp, sp = _paths(tmp)
+            try:
+                clear(
+                    _WF, "PROVEME",
+                    actor=near, boat_id=_BOAT,
+                    proven_by=_PROVEN, history_path=hp, state_path=sp,
+                )
+            except Unauthorized:
+                assert not Path(hp).exists(), "a refused clearance writes no record"
+            else:
+                raise AssertionError(
+                    f"{near!r} cleared a boat whose gate admits only "
+                    f"{list(boat_owner_of(_BOAT).hands)!r} — the check is scanning, not matching"
+                )
+
+
+def test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written():
+    """``boat_id`` and ``ticket`` arrive by different routes and the docstring has called
+    them the same thing since this function was written. Until this check they could
+    disagree, so the owner would be read off one boat while the record was written about
+    another."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        try:
+            clear(
+                _WF, "PROVEME",
+                actor=_OWNER, boat_id=_BOAT,
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
+                ticket=_OTHER_BOAT,
+            )
+        except Unauthorized as e:
+            assert "two different voyages" in str(e), e
+            assert not Path(hp).exists(), "a mismatched crossing leaves the record untouched"
+        else:
+            raise AssertionError("a crossing named two voyages and was cleared")
+
+
+def test_an_unresolvable_hop_refuses_by_name_and_never_defaults():
+    """A default here IS the ticket's falsifier clause (1): the owner would once again be
+    something other than what the boat says. Each hop is broken in a fixture and the
+    refusal must name the address it opened. ``OwnerUnresolvable`` is deliberately not an
+    ``Unauthorized`` — 'nobody says who owns this' and 'you have no standing' want
+    different responses, and a reader that conflated them would go looking for a grant
+    when what is missing is one line in a file."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tickets = Path(tmp) / "tickets"
+        tickets.mkdir()
+        charters = Path(tmp) / "charters"
+        (charters / "thing").mkdir(parents=True)
+
+        (tickets / "no-field.json").write_text("{}", encoding="utf-8")
+        (tickets / "bad-address.json").write_text(
+            '{"owning_intention": "nowhere/at/all/intention+why.json"}', encoding="utf-8")
+        (tickets / "no-hands.json").write_text(
+            '{"owning_intention": "thing/intention+why.json"}', encoding="utf-8")
+        (charters / "thing" / "intention+why.json").write_text(
+            '{"owner": "a paragraph of prose that no gate can stand on"}', encoding="utf-8")
+
+        def _why(boat):
+            try:
+                boat_owner_of(boat, tickets_dir=str(tickets),
+                              cairn_root=str(charters), commons_root=str(charters))
+            except OwnerUnresolvable as e:
+                return str(e)
+            raise AssertionError(f"{boat!r} resolved an owner it has no business resolving")
+
+        assert str(tickets / "missing.json") in _why("missing"), "name the file you opened"
+        assert "owning_intention" in _why("no-field")
+        assert "nowhere/at/all" in _why("bad-address")
+        assert "gated_by" in _why("no-hands") and "substring scan" in _why("no-hands")
+
+    # And through the gate itself, against the REAL corpus — no injection, because ``clear``
+    # accepts none. An id with no ticket behind it is the honest live case.
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        try:
+            clear(
+                _WF, "PROVEME",
+                actor=_OWNER, boat_id="no-such-boat-has-ever-been-cast",
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
+            )
+        except OwnerUnresolvable as e:
+            assert "has no ticket at" in str(e), e
+            assert not Path(hp).exists(), "an unresolvable owner writes no record"
+        else:
+            raise AssertionError("the gate cleared a boat it could not find an owner for")
+
+
+def test_the_read_reaches_nothing_outward():
+    """GATE (iii) OF THE TICKET'S OWN PROVEME SET, and falsifier clause (2): the read must
+    not make the gate reach outward at a crossing. Asserted structurally over the module's
+    transitive imports rather than by trusting the source to look innocent — and the whole
+    proof also runs under the tester with ``isolation='netns'``, where a network reach
+    fails by construction rather than by an assertion somebody remembered to write."""
+    import ast
+
+    # THE SCOPE OF THIS TOOTH IS THE READ, and getting the scope right took two wrong
+    # versions worth recording, because both were the same mistake in opposite directions.
+    #
+    # TOO NARROW: walk ``vars(module)`` for things whose ``__module__`` starts with
+    # 'cairn.'. That set contains only cairn names by construction, so 'socket',
+    # 'subprocess', 'urllib' and 'http' in the forbidden list below could never match and
+    # sat there as decoration reading as coverage. Measured: 5 names, all 'cairn.*'.
+    #
+    # TOO WIDE: parse the whole transitive static import graph from this module. That
+    # reaches ``cairn.base.transitions``, and through it the tester, the build inspector and
+    # the chart verdict — 17 modules, three of which import ``subprocess`` because running a
+    # proof under netns isolation is *supposed* to shell out. It went red on its first run
+    # and the red was about somebody else's correct behaviour. A tooth that fires on normal
+    # motion is the pinned-cursor defect; it would have been silenced, and silencing is how
+    # a real signal gets trained away.
+    #
+    # THE CLAIM IS ABOUT THIS FUNCTION: ``boat_owner_of`` must not make a crossing depend on
+    # anything being up. So the check is this module's own imports, plus every call the
+    # resolution makes, against a whitelist. Anything not on it is a finding — which is the
+    # sign that matters, since a NEW reach is exactly what this would have to catch.
+    src = _REPO_ROOT / "cairn" / "harbor_master" / "clearance.py"
+    tree = ast.parse(src.read_text(encoding="utf-8"))
+
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            imported.add(node.module.split(".")[0])
+    assert imported, "the import scan found nothing — it is measuring itself"
+    forbidden = ("socket", "requests", "urllib", "subprocess", "http", "psycopg",
+                 "asyncio", "db_domain", "inference_domain")
+    assert not (imported & set(forbidden)), \
+        f"clearance imports {sorted(imported & set(forbidden))} — falsifier clause (2)"
+
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "boat_owner_of")
+    # The whitelist is FILE READS AND PURE BUILTINS — nothing that can wait on a socket, a
+    # port, a process or a clock. It is enumerated rather than grown by adding whatever the
+    # assertion last complained about, which would turn it into a rubber stamp that ratifies
+    # the code instead of judging it.
+    allowed = {"open", "isinstance", "json.loads", "os.path.join", "os.path.isfile",
+               "OwnerUnresolvable", "BoatOwner", "tuple", "str", "read", "strip",
+               "get", "encode", "list", "sorted", "len", "repr", "any", "all"}
+    called = set()
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Call):
+            f = node.func
+            parts = []
+            while isinstance(f, ast.Attribute):
+                parts.append(f.attr)
+                f = f.value
+            if isinstance(f, ast.Name):
+                parts.append(f.id)
+            called.add(".".join(reversed(parts)) if parts else "<computed>")
+    stray = {c for c in called if c not in allowed and c.split(".")[-1] not in allowed}
+    assert not stray, (
+        f"the owner resolution calls {sorted(stray)}, which is outside the files-only "
+        f"whitelist — a crossing must not depend on anything being up (falsifier clause 2)"
+    )
+    assert "open" in called, "the resolution opens no file — it is not reading the boat at all"
 
 
 def _main() -> int:
@@ -490,6 +735,12 @@ def _main() -> int:
         test_the_gate_asks_for_a_verdict_and_never_counts_anything,
         test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides,
         test_a_caller_may_not_hand_this_gate_its_own_witness,
+        test_the_owner_cannot_be_stated_by_any_route,
+        test_a_grant_minted_from_an_owner_the_minter_invented_authorizes_nothing,
+        test_an_actor_merely_similar_to_an_admitted_one_is_refused,
+        test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written,
+        test_an_unresolvable_hop_refuses_by_name_and_never_defaults,
+        test_the_read_reaches_nothing_outward,
     ]
     for check in checks:
         check()

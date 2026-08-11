@@ -76,11 +76,23 @@ Three things this is NOT, each load-bearing:
 
 from __future__ import annotations
 
+import json
+import os
 import time
 from dataclasses import dataclass, field
 
 from cairn.base.transitions import emit
 from cairn.tester.validation_store import standing
+
+# THE TWO ROOTS THE OWNER-READ WALKS, derived from this file's own address rather than
+# taken from a caller. That is not fussiness: the whole point of ticket
+# boat-owner-is-read-not-stated is that the caller must not be able to choose what the
+# gate reads, and a ``tickets_dir=`` parameter on ``clear`` would hand the hole straight
+# back under a new name (the ticket's own falsifier clause (1)). ``boat_owner_of`` below
+# accepts roots so a PROOF can point it at a fixture; ``clear`` never passes them.
+CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+COMMONS_ROOT = os.path.join(os.path.dirname(CAIRN_ROOT), "CairnCommons")
+TICKETS_DIR = os.path.join(COMMONS_ROOT, "tickets")
 
 # How long a minted grant stays spendable. RULED BY AKIEN AT 10 SECONDS, 2026-08-04: "the thing
 # asks for it, and has 10 seconds to take it to the build gate."
@@ -107,6 +119,19 @@ HARBOR_LINES: dict[str, float] = {"cpu_threshold": 75.0, "memory_floor": 1024.0}
 # gate downstream would have no way to tell. The set is the exact spread ``clear`` writes at
 # its ``emit`` call — kept beside the writing so the two cannot drift apart.
 _GATE_WITNESS_FIELDS = frozenset({"cleared_by", "proven_by", "proven_seal_date", "delegated"})
+
+# THE FIELDS A CALLER MAY NOT STATE BECAUSE THE GATE READS THEM (ticket
+# boat-owner-is-read-not-stated, 2026-08-10). Distinct from the witness set above and the
+# distinction is the whole ticket: a witness field is one the gate WRITES, so a caller
+# supplying it forges evidence; ``boat_owner`` is one the gate READS off the boat, so a
+# caller supplying it chooses the answer to the question being asked of it.
+#
+# Removing the parameter is NOT enough on its own, and this is the non-obvious half:
+# ``**journal_extra`` would happily swallow a stray ``boat_owner=`` and ride it into the
+# record as an extra field — the argument would look accepted, the gate would ignore it,
+# and a record of truth would carry a claim about ownership that nothing checked. Law 7
+# forbids exactly that collapse at exactly this surface, so it is refused LOUDLY.
+_UNSTATABLE_FIELDS = frozenset({"boat_owner", "owning_intention", "gated_by"})
 
 
 class Unauthorized(Exception):
@@ -143,6 +168,125 @@ class Unresourced(Exception):
     one — only which line was crossed (Law 6)."""
 
 
+class OwnerUnresolvable(Exception):
+    """The gate cannot tell WHOSE boat this is — so it refuses, and it never guesses.
+
+    Deliberately NOT a subclass of ``Unauthorized``, because the two want opposite
+    responses from the asker. ``Unauthorized`` means *you have no standing here* and the
+    fix is a grant. This means *the boat does not say who owns it* and the fix is one line
+    in a file — so the refusal always names the file it opened and the line to add. A
+    reader that could not tell them apart would go looking for permission when what is
+    missing is a fact.
+
+    The alternative — falling back to some default owner when a hop does not resolve — is
+    the ticket's own falsifier clause (1) wearing a coat: the owner would once again be
+    something other than what the boat says, and the gate would be checking a value it
+    invented."""
+
+
+@dataclass(frozen=True)
+class BoatOwner:
+    """Who owns a boat, as the gate reads it off the boat — TWO facts, kept apart.
+
+    ``intention`` is the OWNER (ruled 2026-08-10: intentions own their tickets, a ticket
+    owns its workflow, and the workflow IS the boat). ``hands`` are the movers that
+    intention's owner-gate admits. They are different namespaces on purpose and the
+    original defect was collapsing them: the gate used to compare a mover against a mover
+    and call the result ownership. An intention cannot act, so a hand is never *equal* to
+    the owner — it is *admitted by* it, which is Law 6's second clause (delegated access
+    happens through the owner's gate, never ambiently) rather than its first."""
+
+    intention: str
+    hands: tuple[str, ...]
+
+
+def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
+                  cairn_root: str = CAIRN_ROOT,
+                  commons_root: str = COMMONS_ROOT) -> BoatOwner:
+    """Read a boat's owner OFF THE BOAT. Files only — two of them, opened directly.
+
+    The resolution the ruling settles, hop by hop:
+
+        boat_id  ->  CairnCommons/tickets/<boat_id>.json   (the boat IS its ticket)
+                 ->  that ticket's ``owning_intention``     (an address)
+                 ->  that intention's charter               (beside code, or homeless)
+                 ->  its ``gated_by``                       (the hands it admits)
+
+    NO DAEMON, NO REGISTRY, NO NETWORK — gate (iii) of the ticket's PROVEME set, and it is
+    a hard bound rather than an aesthetic: this runs inside a crossing, and a crossing that
+    can only complete when something else is up is a crossing that stops working for
+    reasons unrelated to itself.
+
+    Every hop that does not resolve raises ``OwnerUnresolvable`` naming the address that
+    was opened and the one line that would fix it. The roots are parameters ONLY so a proof
+    can point this at a fixture; ``clear`` calls it with none of them.
+    """
+    if not isinstance(boat_id, str) or not boat_id.strip():
+        raise OwnerUnresolvable(
+            f"boat_id {boat_id!r} is not a ticket id, so there is no boat to read an owner "
+            "off. A boat IS its ticket (ruled 2026-08-10) — the id is the filename under "
+            "CairnCommons/tickets/."
+        )
+
+    ticket_path = os.path.join(tickets_dir, f"{boat_id}.json")
+    if not os.path.isfile(ticket_path):
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r} has no ticket at {ticket_path} — nothing on disk says who "
+            "owns this voyage, so the gate refuses rather than assuming. If the boat is "
+            "real, /sorted casts it; if the id is wrong, the crossing is naming a boat "
+            "that does not exist."
+        )
+    try:
+        ticket = json.loads(open(ticket_path, encoding="utf-8").read())
+    except (ValueError, OSError) as exc:
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r}'s ticket at {ticket_path} could not be read: {exc}"
+        ) from exc
+
+    addr = ticket.get("owning_intention")
+    if not isinstance(addr, str) or not addr.strip():
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r}'s ticket at {ticket_path} names no owning intention. FIX, "
+            'one line: add "owning_intention": "<path to the intention+why.json that owns '
+            'this ticket>". The field is declared in CairnCommons/tickets/_charter+why.json '
+            "and it is deliberately NOT back-filled across the corpus — a value nobody "
+            "checked is a guess with somebody's confidence attached, so it is filled when a "
+            "real crossing needs it, which is now."
+        )
+
+    for root in (cairn_root, commons_root):
+        charter_path = os.path.join(root, addr)
+        if os.path.isfile(charter_path):
+            break
+    else:
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r} names owning intention {addr!r}, which resolves under "
+            f"neither {cairn_root} nor {commons_root}. An owning intention is an ADDRESS: "
+            "a path to a beside-code intention+why.json, or to a file under "
+            "intentions-not-beside-code/ for a homeless one."
+        )
+    try:
+        charter = json.loads(open(charter_path, encoding="utf-8").read())
+    except (ValueError, OSError) as exc:
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r}'s owning intention at {charter_path} could not be read: {exc}"
+        ) from exc
+
+    hands = charter.get("gated_by")
+    if (not isinstance(hands, list) or not hands
+            or any(not isinstance(h, str) or not h.strip() for h in hands)):
+        raise OwnerUnresolvable(
+            f"boat {boat_id!r} is owned by {addr}, and that intention does not declare "
+            f"which hands its owner-gate admits (read {charter_path}). FIX, one line: add "
+            '"gated_by": ["<actor>", ...] to that charter — a list of actor names, compared '
+            "by exact membership. It is prose in `owner` today and prose cannot gate: "
+            "measured 2026-08-10, 22 of 24 beside-code charters carry an `owner` over 60 "
+            "characters and 2 carry an empty one, so matching an actor against it would be "
+            "a substring scan that goes green for the wrong reason."
+        )
+    return BoatOwner(intention=addr, hands=tuple(hands))
+
+
 @dataclass(frozen=True)
 class Grant:
     """A per-operation delegation: the owner authorizes ONE actor to make ONE transition on
@@ -166,6 +310,13 @@ class Grant:
     def authorizes(self, *, boat_id: str, target: str, actor: str, owner: str) -> bool:
         """True only for the exact operation this grant names, issued by this boat's owner.
 
+        ``owner`` IS NOW THE READ OWNER — the intention address ``boat_owner_of`` resolved,
+        not a string the caller chose (ticket boat-owner-is-read-not-stated). Before
+        2026-08-10 both sides of this comparison came from the same caller in the same
+        call, so a caller who could state ``boat_owner`` could mint itself a grant from
+        that same fictional owner and this check would pass. Fixing the direct branch alone
+        would have moved the hole one door along rather than closing it.
+
         IDENTITY ONLY — it deliberately does not consider the clock. "This grant was never for
         you" and "this grant lapsed" are different answers to the asker, so the gate asks them
         separately and refuses with different names."""
@@ -184,20 +335,41 @@ class Grant:
         return (now - self.issued_at) >= self.ttl_seconds
 
 
-def mint_grant(*, owner: str, boat_id: str, to_actor: str, target: str,
-               now: float | None = None, ttl_seconds: float = GRANT_TTL_SECONDS) -> Grant:
+def mint_grant(*, minted_by: str, boat_id: str, to_actor: str, target: str,
+               now: float | None = None, ttl_seconds: float = GRANT_TTL_SECONDS,
+               **read_roots) -> Grant:
     """The owner delegates ONE operation — the only door delegation passes through (Law 6).
 
-    Minting IS the owner's act: on a cooperative single-owner box the authority is that the
-    boat's rightful owner is the one constructing the capability. The gate later checks the
-    grant was minted BY this boat's owner (``by_owner == boat_owner``), so a grant carrying
-    someone else's name authorizes nothing.
+    THE OWNER IS READ, NOT DECLARED (ticket boat-owner-is-read-not-stated, 2026-08-10).
+    The old signature took ``owner`` as a bare string, which meant minting was a promise
+    the minter made about itself: the parameter that had to be true was supplied by the
+    party it was true *about*. Now the boat is read, and ``minted_by`` — the HAND doing
+    the minting — must be one the owning intention's gate admits, or nothing is minted.
+
+    So the two questions have been separated, and the separation is the fix. WHO is
+    delegating is read off the boat (``by_owner`` carries the owning intention's address).
+    WHETHER this hand may delegate on that intention's behalf is checked against the
+    intention's own ``gated_by``. A hand with no standing on a boat can no longer manufacture
+    standing for anybody, itself included.
+
+    WHAT THIS STILL DOES NOT SETTLE, named rather than implied: any admitted hand may mint
+    for any other. On a box with one hand that is not observable, and the fuller question —
+    who may mint on an intention's behalf, as against merely act for it — is filed as ticket
+    an-intention-declares-its-gated-hands rather than answered here.
 
     The mint stamps the clock. There is no way to mint an unexpiring grant — the window is a
     property of the capability, not an option a caller can decline.
     """
+    owner = boat_owner_of(boat_id, **read_roots)
+    if minted_by not in owner.hands:
+        raise Unauthorized(
+            f"{minted_by!r} may not mint a grant on boat {boat_id!r}: that boat is owned by "
+            f"{owner.intention}, whose gate admits {list(owner.hands)!r}. Delegated access "
+            "happens through the OWNER's gate, never ambiently (Law 6) — a hand that cannot "
+            "move a boat cannot authorize somebody else to move it either."
+        )
     return Grant(
-        boat_id=boat_id, target=target, to_actor=to_actor, by_owner=owner,
+        boat_id=boat_id, target=target, to_actor=to_actor, by_owner=owner.intention,
         issued_at=time.monotonic() if now is None else now,
         ttl_seconds=ttl_seconds,
     )
@@ -209,7 +381,6 @@ def clear(
     *,
     actor: str,
     boat_id: str,
-    boat_owner: str,
     proven_by: str,
     grant: Grant | None = None,
     history_path: str | None = None,
@@ -235,31 +406,54 @@ def clear(
         nothing had ever gated the field. The majority spelling wins on the ordinary
         ground that it is what Akien calls this hand. The 4 dissenting records are NOT
         repaired: they are a record of truth and they were never improper (Law 7).
-      - ``boat_owner`` — WHO OWNS THE VOYAGE, in the same namespace as ``actor``. For a
-        voyage CC sails on Akien's box that is ``"CC"``, so ``actor == boat_owner`` and the
-        move is the owner acting directly (``delegated`` False). CORRECTED 2026-08-10 by
-        the first live fire, and the wrong answer is kept here because it is the instructive
-        one: this paragraph first said "THE COMPONENT WHOSE HISTORY IS BEING APPENDED TO —
-        for a crossing journaled at cairn/base/history.json that is 'base'". The gate
-        compares ``actor`` against ``boat_owner`` for IDENTITY, so a component name puts the
-        two in different namespaces and every CC crossing refuses as ``Unauthorized``, which
-        is exactly what the first real call did. The component owns its history FILE; the
-        boat's owner is a mover, and the two are different ownerships that happened to share
-        a word.
+      - ``boat_id`` — THE TICKET, and since 2026-08-10 also the only thing the gate needs
+        in order to know whose boat it is. It is already on every gated crossing, so it
+        adds no vocabulary; it names WHICH voyage is moving, and the owner is READ from it.
+        The gate now also refuses a call whose ``boat_id`` and ``journal_extra["ticket"]``
+        disagree — the docstring has asserted they are the same thing since this function
+        was written, and until that check existed a caller could hand a real ticket to the
+        three chokepoint gates and an unrelated boat_id to this one, so the owner would be
+        read off a different boat than the one being recorded.
 
-        AND THE HOLE THIS LEAVES IS NAMED, not papered over (ticket
-        ``boat_owner-is-read-not-stated``). The caller states BOTH sides of the identity
-        the gate checks, so a caller can always make them equal — the Law 6 refusal binds an
-        honest caller and nothing else. It is not vacuous by accident: the failure the rung
-        exists for is *a device advancing a boat it does not own*, and that needs
-        ``boat_owner`` read from the BOAT rather than supplied alongside the actor. Nothing
-        on disk carries it today (the ticket's ``owner`` field is prose about components,
-        which is the very confusion corrected above). Until that lands, this argument is a
-        declaration and the gate's other three refusals — proven-space, resources, rules —
-        are the ones doing load-bearing work.
-      - ``boat_id`` — THE TICKET. It is already on every gated crossing, so this adds no
-        new vocabulary; it names WHICH voyage is moving, where ``boat_owner`` names whose
-        water it moves in.
+      THERE IS NO ``boat_owner`` ARGUMENT, and the two superseded answers to what one
+      would have held are kept here because the sequence is the instruction (ticket
+      boat-owner-is-read-not-stated, ruling 2026-08-10-the-ticket-owns-the-refusal):
+
+        SUPERSEDED (1), the component reading: "THE COMPONENT WHOSE HISTORY IS BEING
+        APPENDED TO — for a crossing journaled at cairn/base/history.json that is 'base'".
+        Killed by the first live fire on 2026-08-10: the gate compared ``actor`` against
+        ``boat_owner`` for identity, so a component name put the two in different
+        namespaces and every CC crossing refused as ``Unauthorized``. The component owns
+        its history FILE; that is a different ownership that happened to share a word.
+
+        SUPERSEDED (2), the mover reading that replaced it: "WHO OWNS THE VOYAGE, in the
+        same namespace as ``actor`` — for a voyage CC sails on Akien's box that is 'CC', so
+        ``actor == boat_owner``". Not killed by an error but by the hole it left, which
+        this file named at the time: the caller stated BOTH sides of the identity the gate
+        checked, so a caller could always make them equal and the Law 6 refusal bound an
+        honest caller and nothing else. It also claimed, factually, that "the ticket's
+        ``owner`` field is prose about components". IT IS NOT: measured across the 91 filed
+        tickets that carry the field, only 5 distinct values name a component and 56 run
+        past 120 characters — it is prose about people and agents far more often, which is
+        why it could not simply be re-read under the ruling.
+
+        RULED, and what the code now does: an INTENTION owns its TICKET, a ticket owns its
+        WORKFLOW, and the workflow IS the boat — one object from two vantages, which is why
+        ``boat_id`` has always been the ticket id. So the owner is not in the same namespace
+        as the actor at all, and the check is not an identity test any more: ``boat_owner_of``
+        resolves boat_id -> ticket -> ``owning_intention`` -> that charter -> ``gated_by``,
+        and the gate asks whether ``actor`` is a hand that intention's owner-gate ADMITS. A
+        hand is never equal to an intention; it is admitted by one, which is Law 6's second
+        clause rather than its first. NO DEVICE SITS ABOVE A BOAT: this device operates the
+        gate, and the refusal it raises is the boat's own.
+
+        WHAT IS STILL RED, and it cannot be built away on this box: the ticket's falsifier
+        clause (3) — every boat's owner resolving to the same string — is ALREADY TRUE at
+        n=2, because both cleared crossings in the corpus were made by one hand. No amount
+        of building distinguishes a working owner-read from a constant while only one hand
+        exists, so the claim is carried forward by an instrument instead of an argument:
+        probes/boat_owner_comes_from_the_boat.py, whose ``enough`` is deliberately NOT
+        satisfiable by volume.
       - ``proven_by`` — THE PROOF THIS MOVE IS CLEARED ONTO, sealed and still describing
         the code as it stands. For a voyage this is the proof its own PROVEME step just
         sealed, which is what makes clearance affordable at all: proven-space is a FRESH
@@ -279,11 +473,15 @@ def clear(
     nothing said so because nobody was calling it to find out.
 
     Binds four refusals before the cursor may move, then records the crossing:
-      1. AUTHORITY (Law 6): ``actor`` must be the boat's owner, or hold a ``grant`` that
-         authorizes exactly this (boat_id, target, actor), was minted by ``boat_owner``, and
-         has not lapsed. Otherwise → ``Unauthorized`` (or ``GrantExpired``, its subclass, when
-         the grant named the right operation but its window closed). Checked first: an actor
-         with no standing here is turned away before anything else is inspected.
+      1. AUTHORITY (Law 6): the boat's owner is READ (``boat_owner_of``, two files, no
+         network), and ``actor`` must be a hand that owning intention's gate admits — or
+         hold a ``grant`` that authorizes exactly this (boat_id, target, actor) and was
+         minted by that same read owner, and has not lapsed. Otherwise → ``Unauthorized``
+         (or ``GrantExpired``, its subclass, when the grant named the right operation but
+         its window closed). A boat that does not say who owns it → ``OwnerUnresolvable``,
+         which is a MISSING FACT and not a denied permission; the gate never guesses a
+         default, because a guessed owner is the same hole under a new name. Checked first:
+         an actor with no standing here is turned away before anything else is inspected.
       2. PROVEN-SPACE (Law 8): ``proven_by`` is the ADDRESS OF A PROOF — the code this move
          summons is the component that proof lives in. The seal beside it must be green AND
          still describe the code as it stands (the source fingerprint the tester recorded).
@@ -324,15 +522,49 @@ def clear(
             "and let the gate stamp it."
         )
 
-    # 1. AUTHORITY (Law 6) — owner acts directly, or a matching per-operation grant delegates.
-    if actor != boat_owner:
+    # 0b. AND THE GATE'S READ IS THE GATE'S TO MAKE. Removing ``boat_owner`` from the
+    #     signature is not sufficient on its own: ``**journal_extra`` would swallow a
+    #     stray ``boat_owner=`` and journal it, so the caller would still be stating an
+    #     ownership claim — one that no longer even gets checked, which is worse than the
+    #     hole it replaced. Refused by name, with the fix, rather than dropped.
+    _stated = _UNSTATABLE_FIELDS & journal_extra.keys()
+    if _stated:
+        raise Unauthorized(
+            f"a caller may not tell this gate who owns the boat: {sorted(_stated)} "
+            f"{'is' if len(_stated) == 1 else 'are'} READ off the boat, never handed to "
+            "the gate (ticket boat-owner-is-read-not-stated, ruled 2026-08-10). A caller "
+            "that states both sides of the identity check can always make them equal, "
+            "which is the Law 6 refusal binding an honest caller and nothing else. Drop "
+            f"the field: {boat_id!r} is enough, because a boat IS its ticket."
+        )
+
+    # 0c. THE BOAT AND THE RECORD MUST NAME THE SAME VOYAGE. They arrive by different
+    #     routes — ``boat_id`` a named parameter, ``ticket`` inside ``journal_extra`` — and
+    #     the chokepoint's three gates read the second while this rung reads the first. The
+    #     docstring has called them the same thing since this function was written; now the
+    #     door does. Refused BEFORE emit, so a mismatched call leaves no partial record.
+    _ticket = journal_extra.get("ticket")
+    if _ticket is not None and _ticket != boat_id:
+        raise Unauthorized(
+            f"this crossing names two different voyages: boat_id={boat_id!r} but "
+            f"ticket={_ticket!r}. A boat IS its ticket (ruled 2026-08-10), so the owner "
+            "would be read off one boat while the record was written about another. Pass "
+            "the same id to both, or fix whichever one is wrong."
+        )
+
+    # 1. AUTHORITY (Law 6) — the owner is READ off the boat; the actor is a hand that
+    #    owning intention's gate admits, or one holding a grant that intention minted.
+    owner = boat_owner_of(boat_id)
+    delegated = actor not in owner.hands
+    if delegated:
         if grant is None or not grant.authorizes(
-            boat_id=boat_id, target=target, actor=actor, owner=boat_owner
+            boat_id=boat_id, target=target, actor=actor, owner=owner.intention
         ):
             raise Unauthorized(
-                f"{actor!r} may not move boat {boat_id!r} to {target!r}: not its owner "
-                f"({boat_owner!r}), and holds no grant for THIS operation — authority is "
-                f"per-operation and non-ambient (Law 6)"
+                f"{actor!r} may not move boat {boat_id!r} to {target!r}: that boat is owned "
+                f"by {owner.intention}, whose gate admits {list(owner.hands)!r}, and "
+                f"{actor!r} holds no grant for THIS operation — authority is per-operation "
+                f"and non-ambient (Law 6)"
             )
         if grant.expired(now):
             raise GrantExpired(
@@ -388,7 +620,17 @@ def clear(
         # taking "it was proven" on the record's word (Law 5 — the proof shares the address).
         proven_by=proven_by,
         proven_seal_date=proven["seal"]["date"],
-        delegated=(actor != boat_owner),
+        # WAS ``actor != boat_owner``; now "a per-operation grant was spent". The word is
+        # kept and the distinction it draws is kept — direct standing vs a capability
+        # minted for this one move — which is exactly what transitions.py renders as
+        # "(delegated)" on the crossing's standing line. THE OTHER READING WAS CONSIDERED
+        # AND MEASURED OUT: under the ruling a hand is never the owner (an intention
+        # cannot act), so "delegated" could be argued to be universally true — but that
+        # would make it a flag that never varies, render every crossing "(delegated)", and
+        # tell a reader nothing. Recording the standing-vs-grant distinction under a
+        # second name would be the honest third option; it is a change to what base
+        # journals, which this voyage's bounds put out, so it is named and not taken.
+        delegated=delegated,
         # The caller's own fields ride through untouched — ``ticket`` above all, which the
         # entry/exit/emission gates each demand and which this rung had no way to carry
         # until 2026-08-10. Spread LAST so a caller can enrich ``standing`` the same way a

@@ -1,22 +1,18 @@
 {
   "cursor": {
-    "at": "2026-08-05",
-    "standing": "THE REGISTRY IS OUT; PROVEN-SPACE IS A TRAVERSAL. Akien: 'methodregistry is a registry. generally we frown on registries. why do we need one here?' — then 'rip out the registry now, before item 2.' MEASURED before cutting: clearance.py was its ONLY consumer and it DISCARDED the callable resolve() returned, so the one thing a registry uniquely gives (name -> object) served nobody; filed_edges named no future consumer. PROVENANCE: registry.py's header said 'RE-INSTATED, NOT RE-DERIVED (Law 1)' — it came back from the ground_loop driver-executor, which DISPATCHED and so genuinely needed the map; that executor role was called a goof and stripped, and the registry returned with its map intact and its question moved. Law 1 forbids re-deriving a settled answer; it does not license carrying one forward past its question. WHAT LANDED: registry.py DELETED. clear() takes `proven_by` — the proof's own path — and asks tester/validation_store.standing(), which reads the seal already sitting at the derived address (proofs/x.py -> validations/x.json). No second in-memory copy of a fact that attaches at its own endpoint (Law 6). UnprovenMethod -> Unproven, and the rename IS the design change: the gate no longer asks about a named method, it asks about CODE. THE GATE GAINED WHAT THE CACHE COULD NOT HAVE: every VALIDATION has promised for three weeks that it is 'valid until the proof file or the code it proves changes' and nothing checked it. source_fingerprint (one sha256 over every *.py under the component root — the horizon's own scope, path+content, deliberately NOT git so a seal expires when the working tree diverges, not when someone commits) is recorded by the tester inside `evidence` at seal time, never as a ninth field, and standing() recomputes it at read time. A green seal whose code has moved underneath it is now REFUSED (Law 3). Four new teeth in test_clearance.py replace the two registry ones — never-sealed, sealed-then-RED, horizon-closed, and the record naming the proof it leaned on — over REAL scratch component trees run by the REAL tester and landed through the REAL write-door. The horizon tooth edits a SIBLING module, not the proof, and pre-checks that the same component cleared BEFORE the edit, so it cannot pass vacuously; two mutations (fingerprint scoped to the proof only; the comparison short-circuited) each turn it red. SIDE EFFECT WORTH NAMING: validation_store had 73 trails on disk and ZERO readers — every seal written, none ever consulted. standing() is the first reader, and harbor_master's own two proofs are the first two nodes in the corpus whose proven-space is DERIVED rather than asserted. Pre-existing seals carry no fingerprint and therefore read NOT proven ('Unknown is not green', Law 9) until re-run — which is the honest answer, not a regression. Also fixed in passing: cairn/tester/proofs/test_scratch.py was RED before this session with four proofs reaching tempfile.mkdtemp directly; my two new ones would have been six. All six now use cairn.tester.scratch.scratch_dir and that proof is green — 'pre-existing' is not a disposition.",
-    "gates": [
-      "proof gate — both child-b proofs green and re-sealed under a REAL netns after the cut; standing() reads both True; test_scratch.py green (was red)"
-    ],
-    "note": "Item 1 of the build order ('wire the gate') stays unfinished by design — the trouble every-crossing-goes-around-the-clearance-gate.json holds it, and this cut dissolves the blocker it recorded (no more wiring-time proof re-runs). Next: build-order item 2, the lines learn their own values.",
-    "seq": 11
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(boat-owner-comes-from-the-boat) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'boat-owner-is-read-not-stated', and the ticket names its /intent firing and its /sorted door firing",
+    "ticket": "boat-owner-is-read-not-stated",
+    "actor": "CC",
+    "note": "THE VOYAGE OPENS UNDER A CHARTED COURSE AND A CONFIRMED RULING. The chart chain berthed all seven stages this session (orient -> validate); the validate berth carrying the acceptance criteria is /home/akien/.cairn/devices/chart/0/packets/validate-20260810T181604-6a91af792939.json. The design question this ticket cast as its GATING child (a) — 'where a boat carries its owner' — is ANSWERED BY RULING rather than by build: decisions/2026-08-10-the-ticket-owns-the-refusal, in which Akien settled that an INTENTION owns its TICKET, a ticket owns its WORKFLOW, and the workflow IS the boat. So the voyage is smaller than it was cast, and this crossing is where that is first recorded. WHAT THE CHART FOUND THAT THE CAST DID NOT KNOW, and which reshaped the build: the two fields a ticket already carries are both SPOKEN FOR — the store's own template declares `intention` as the WHAT and `owner` as the mover, and a census over 100 filed tickets confirms both live up to their declarations. So the owning intention is a new field, not a re-reading; overloading either would be keeping a word and replacing what fills it, which is the exact failure that produced this ticket.",
+    "at": "2026-08-10T18:16:50",
+    "seq": 12
   },
   "window": [
-    {
-      "at": "2026-07-24",
-      "standing": "child c SHARPENED — the fleet count is now HONEST without moving a file (Law 1, read-side). Added the BERTH-PENDING condition [✓]: a boat in the open lane whose cursor is at a REST (PROVED) is DONE awaiting its physical berth — it leaves the in-flight count and the gates entirely, read straight off the cursor the register already parses. This sets DONE-but-unberthed boats apart from work genuinely in flight (the migration debt: a PROVED ticket still in CairnCommons/tickets/ because the auto-berther has not run). Sharpens mid-journey [~] — a both-lanes boat AT REST is berth-pending, not silently-stuck; the flag now fires only for in-workflow both-lanes boats. 5th tooth added (berth-pending is done + off the gates); the stitch tooth de-brittled to pick its subjects from the live fleet. Re-sealed under a REAL netns (green/sealed). Honest live read: 8 in flight across 6 gates (2 flagged mid-journey), 4 berth-pending, 9 docked.",
-      "gate": "proven",
-      "proof": "proofs/test_journey.py",
-      "validation": "validations/test_journey.json",
-      "seq": 7
-    },
     {
       "at": "2026-07-24",
       "standing": "BERTHED — the harbor's own ticket voyage froze into this history and CairnCommons/tickets/harbor-master.json migrated out of the open lane beside its code (the physical berth the register+journey were built to make honest; Law 5). The reflexive register proof + the transitions real-ticket proof were de-brittled to invariants (no longer pinning harbor-master as an OPEN boat) so this move is green, not red. berth-pending -> 0.",
@@ -43,7 +39,20 @@
       ],
       "note": "Item 1 of the build order ('wire the gate') stays unfinished by design — the trouble every-crossing-goes-around-the-clearance-gate.json holds it, and this cut dissolves the blocker it recorded (no more wiring-time proof re-runs). Next: build-order item 2, the lines learn their own values.",
       "seq": 11
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(boat-owner-comes-from-the-boat) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'boat-owner-is-read-not-stated', and the ticket names its /intent firing and its /sorted door firing",
+      "ticket": "boat-owner-is-read-not-stated",
+      "actor": "CC",
+      "note": "THE VOYAGE OPENS UNDER A CHARTED COURSE AND A CONFIRMED RULING. The chart chain berthed all seven stages this session (orient -> validate); the validate berth carrying the acceptance criteria is /home/akien/.cairn/devices/chart/0/packets/validate-20260810T181604-6a91af792939.json. The design question this ticket cast as its GATING child (a) — 'where a boat carries its owner' — is ANSWERED BY RULING rather than by build: decisions/2026-08-10-the-ticket-owns-the-refusal, in which Akien settled that an INTENTION owns its TICKET, a ticket owns its WORKFLOW, and the workflow IS the boat. So the voyage is smaller than it was cast, and this crossing is where that is first recorded. WHAT THE CHART FOUND THAT THE CAST DID NOT KNOW, and which reshaped the build: the two fields a ticket already carries are both SPOKEN FOR — the store's own template declares `intention` as the WHAT and `owner` as the mover, and a census over 100 filed tickets confirms both live up to their declarations. So the owning intention is a new field, not a re-reading; overloading either would be keeping a word and replacing what fills it, which is the exact failure that produced this ticket.",
+      "at": "2026-08-10T18:16:50",
+      "seq": 12
     }
   ],
-  "count": 12
+  "count": 13
 }

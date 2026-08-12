@@ -287,9 +287,17 @@ def main() -> int:
     ok("the live render does not crash", isinstance(skilldial.render(live), str))
     ok("every live skill is now either countable or says why not",
        all(r["countable"] or r.get("why_not_countable") for r in live))
-    ok("LIVE: /sail is the only skill this roster still cannot count — and 'cannot "
-       "count' is the whole claim; its verdict berths exist and are mandatory",
-       [r["skill"] for r in live if not r["countable"]] == ["sail"],
+    # Stated as a PROPERTY, not a census (2026-08-12): this tooth read
+    # `== ["sail"]` and went red the moment /whatslefttodo was born declaring
+    # honestly why it cannot be counted — i.e. it fired on the condition being
+    # SATISFIED. The substance was never the cardinality of the set; it was
+    # about /sail, whose records exist and are MANDATORY, so its dash is a
+    # reader gap and not a store gap. The invariant tooth above already covers
+    # everyone else ("countable or says why not"), so the "only" was a frozen
+    # roster carrying no claim the neighbours don't already make.
+    ok("LIVE: /sail is still uncountable — and 'cannot count' is the whole claim; "
+       "its verdict berths exist and are mandatory",
+       "sail" in [r["skill"] for r in live if not r["countable"]],
        str([r["skill"] for r in live if not r["countable"]]))
     sail_why = next(r for r in live if r["skill"] == "sail")["why_not_countable"]
     ok("LIVE: and the roster does not tell Akien /sail leaves no record anywhere",

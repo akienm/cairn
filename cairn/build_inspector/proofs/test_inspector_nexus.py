@@ -133,80 +133,73 @@ def test_a_proposal_never_touches_the_registry():
 
 
 def test_the_fire_path_never_reaches_the_tree():
-    # cairn.chart.orient joined 2026-07-28 (packet-inspector-wire): the packet
-    # jurisdiction composes the berth gate's own ref semantics. It is a TREE-FREE
-    # module (its own allowlist tooth pins stdlib + cairn.orient.orient only), so
-    # the verdict path stays structurally unable to reach tree machinery —
-    # transitively, which the assert below the loop pins.
-    allowed = {
-        # cairn.chart.verdict joined 2026-07-29 (proved-answers-the-chart): the
-        # exit gate composes the ONE verdict-artifact validator — tree-free like
-        # chart.orient, pinned transitively below.
-        # re joined 2026-08-01 (intent-becomes-a-learning-block): the intent gate
-        # matches the "none, because <why>" exemption on the RAW field, and a
-        # hand-rolled prefix test on a stripped string is exactly how the blank
-        # exemption slipped into the wrong branch. stdlib, tree-free by definition.
-        # cairn.skill_block joined 2026-08-01 (same ticket): the intent gate reads a
-        # skill firing's berth through the seam's OWN reader rather than re-deriving
-        # the berth layout here — one address rule, two mouths that cannot disagree.
-        # It is tree-free, and so is the learning_block primitive beneath it; both
-        # are pinned transitively below.
-        inspector.__file__: ("__future__", "json", "os", "re", "sys", "pathlib",
-                             "cairn.charter", "cairn.chart.orient",
-                             "cairn.chart.verdict", "cairn.orient.orient",
-                             "cairn.skill_block", "cairn.import_sieve"),
-        # cairn.import_sieve joined 2026-08-06 (the-questions-are-the-sieve): the nest
-        # DERIVES each sieve's band from what that sieve's own body reaches, so the
-        # verdict path now reads its own source through the same AST primitive that
-        # seals the inference and 5432 doors. It is the strictest kind of addition to
-        # this list — a pure-AST module with no cairn imports at all — and it is pinned
-        # tree-free transitively below like every other composed module.
-        # os joined 2026-07-28 (decompose-filters): judge_decompose reads the
-        # packet's survey_ref berth with its OWN minimal open — importing chart's
-        # chain reader back would let the judged family shape the judge.
-        nexus.__file__: ("__future__", "cairn.chart.tree"),
-    }
-    # Composed over orient's import_map (installed 2026-07-28 through the brick
-    # loop): the allowlist matches the module that ACTUALLY ENTERS, not the
-    # spelling — the loose package form resolves before matching.
+    """The verdict path may never reach the tree — a verdict is always hardware.
+
+    REPLACED 2026-08-12 (ticket reachability-replaces-the-allowlist). What stood here was
+    a literal tuple of the modules inspector.py was ALLOWED to import, widened by hand
+    with a dated comment every time the corpus grew a legitimate dependency — until one
+    arrived without the widening (cairn.base.nest, 047d633) and the tooth read as holding
+    while it was red. The question is now asked the other way round and one address up:
+    inspector._FIRE_PATH names the DENIED capability, the walk follows every import hop
+    from inspector.py, and the innocent never need a signature. Both halves this tooth
+    used to do by hand are strictly inside that: the direct-import half is the walk's
+    first link, and the five hand-named composed modules are five of the seventeen files
+    the closure actually holds.
+    """
     from cairn.orient.orient import import_map
-    for path, allow in allowed.items():
-        seen = import_map(path)["measured"]["imports"]
-        offenders = [m for m in seen
-                     if not any(m == p or m.startswith(p + ".") for p in allow)]
-        assert not offenders, (
-            f"{Path(path).name} imports outside its allowlist: {offenders} — the "
-            "verdict path may never reach the tree (a verdict is always hardware), and "
-            "the graft's only cairn door is chart's nexus verbs")
-    # The transitive half: the chart modules the verdict path composes must
-    # themselves be tree-free — if chart/orient.py (or chart/verdict.py, joined
-    # 2026-07-29) ever imports tree machinery, the separation breaks one hop
-    # away and THIS tooth is the one that says so.
+    import cairn.import_sieve.sieve as import_sieve_mod
+    # The nexus keeps its allowlist, and that is not an oversight. It is the GRAFT — the
+    # one file whose whole point is that its only cairn door is chart's nexus verbs — so
+    # the question there really is "what may this file import", which is what an allowlist
+    # asks. A two-entry list on a file that must stay two entries wide does not have the
+    # maintenance failure above; a list that grows with the corpus does.
+    allow = ("__future__", "cairn.chart.tree")
+    offenders = [m for m in import_map(nexus.__file__)["measured"]["imports"]
+                 if not any(m == p or m.startswith(p + ".") for p in allow)]
+    assert not offenders, (
+        f"{Path(nexus.__file__).name} imports outside its allowlist: {offenders} — the "
+        "graft's only cairn door is chart's nexus verbs")
+
+    # The fire path itself, shaken through the rule at the address that owns it. This is
+    # ONE call where twelve hand-maintained names and a five-module loop used to be, and
+    # it is strictly wider than both: measured 2026-08-12, the closure from inspector.py
+    # is 17 files, and the old loop named 5 of them. A breach in cairn/base/address.py —
+    # two hops out, a file the old list never mentioned — is caught by this and invisible
+    # to what it replaced.
+    graph = import_sieve_mod.import_graph(str(_REPO_ROOT))
+    caught = import_sieve_mod.catches(graph, inspector._FIRE_PATH)
+    assert caught == [], (
+        f"the verdict path can reach a door it may not: {caught} — a verdict that can "
+        "consult a tree, a database or a host returns an opinion wearing a "
+        "measurement's clothes")
+    reached = import_sieve_mod.reaches(graph, inspector._FIRE_PATH["start"])
+    assert len(reached) > 5, (
+        f"the closure from the fire path came back at {len(reached)} files — the assert "
+        "above would be green because nothing was walked, which is the green-by-removal "
+        "this replacement exists to avoid")
+
+    # The dynamic-capability question, kept whole and asked of the same five modules it
+    # was asked of before. The AST above cannot see a computed import, so this is the one
+    # hand-written extent left in this tooth — deliberately not widened to the closure in
+    # the same pass that removed the other two, because the ticket's bounds put it out.
+    # Named here rather than left as a silent leftover: the residue is the 12 closure
+    # members nobody asks the dynamic question of.
     import cairn.chart.orient as chart_orient
     import cairn.chart.verdict as chart_verdict
     import cairn.learning_block.learning_block as lb
     import cairn.skill_block.skill_block as skill_block
-    import cairn.import_sieve.sieve as import_sieve_mod
-    # Sharpened 2026-08-06: this check used to scan the raw source for the door's NAME,
-    # and import_sieve is the module that proves why that is a coin-toss — it NAMES
-    # cairn.chart.tree as data (an entry in the reach ladder) while importing nothing.
-    # Mention is not capability, which is the same lesson silent_device learned from
-    # emit-homonyms, arriving here in the guard rather than in the thing guarded. So the
-    # question is asked of the IMPORTS, with the text scan kept for exactly the hole an
-    # AST cannot see: a module that never reaches for importlib/__import__ cannot open a
-    # door dynamically, so for those the AST answer is complete.
-    TREE_DOORS = ("cairn.chart.tree", "cairn.librarian", "cairn.db_domain")
+    # DERIVED from the one declaration, never restated: a second literal here is two
+    # lists that drift, which is the defect one layer up from the one this ticket closed.
+    # Scoped to the in-tree names because this check is a SUBSTRING scan — "socket" and
+    # "requests" appear in honest prose all over the corpus, and asking by substring for
+    # those would be the coin-toss red the comment above is about.
+    TREE_DOORS = tuple(m for m in inspector._FIRE_PATH["modules"] if m.startswith("cairn."))
     for mod in (chart_orient, chart_verdict, skill_block, lb, import_sieve_mod):
         seen = import_map(mod.__file__)["measured"]["imports"]
-        reached = [m for m in seen
-                   if any(m == d or m.startswith(d + ".") for d in TREE_DOORS)]
-        assert not reached, (
-            f"{mod.__name__} imports {reached} — the verdict path's composed module "
-            "must stay tree-free (the wire's standing condition)")
-        # ...and the dynamic-capability question is asked the same way, for the same
-        # reason: import_sieve NAMES importlib (it is a thing the hollow scan looks for)
-        # while never importing it. Asking by substring here would have re-created the
-        # exact defect one line below the comment explaining it.
+        # Sharpened 2026-08-06: the dynamic question is asked of the IMPORTS, with the
+        # text scan kept for exactly the hole an AST cannot see. import_sieve NAMES
+        # importlib (a thing the hollow scan looks for) while never importing it, and
+        # asking by substring would re-create the exact defect this comment explains.
         mod_src = Path(mod.__file__).read_text(encoding="utf-8")
         dyn = any(m == "importlib" or m.startswith("importlib.") for m in seen) or any(
             isinstance(n, ast.Call) and isinstance(n.func, ast.Name)

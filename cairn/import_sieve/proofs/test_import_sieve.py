@@ -6,6 +6,12 @@ too, and reports the identical green. Every catching tooth here is therefore pai
 the same rule is shaken over a PLANTED graph (must catch) and over the real corpus (must
 not) — because either half alone is satisfied by a sieve made of solid sheet metal.
 
+The walk (`reaches`, and the `unreachable` kind that seats it) has a THIRD way to be
+wrong on top of those two: it can stop short, and a closure that silently comes back
+empty reads exactly like a corpus with nothing to find. So its teeth pin all three — a
+breach two hops down that must be caught, a module that breaches identically OFF the
+path and must not be, and the hollow floor still raising for a kind written after it.
+
 The mesh teeth are the corpus's own two lessons, re-armed as permanent traps:
 
   - `urllib.parse.parse_qs` is string work; `urllib.request` is a door. A word-matching
@@ -184,6 +190,123 @@ def test_module_name_folds_a_package_init():
     assert sieve.module_name("cairn/base/__init__.py") == "cairn.base"
 
 
+# ── unreachable: the walk, and the three ways it can be wrong ────────────────
+# Paired like the two kinds above, and for one extra reason on top of the hollow-sieve
+# one: a walk that silently returns NOTHING is invisible from the passing side. The
+# real-corpus tooth and the spares-the-stranger tooth both pass against a walker stubbed
+# to `lambda *a, **k: {}`; only `test_unreachable_catches_a_breach_two_hops_down` fails
+# there, which is what makes it the tooth carrying the weight (Law 8).
+
+# start -> mid_hop -> leaf, and leaf reaches the denied door. The breach is TWO hops
+# from the start, so a single-hop rule reads this graph as clean. The stranger breaches
+# identically and is not reachable from the start at all — that file is the whole
+# difference between this kind and `forbidden`, which would catch both.
+_FIRE_PATH_GRAPH = {
+    "cairn/fire/start.py": "import cairn.fire.mid_hop",
+    "cairn/fire/mid_hop.py": "import cairn.deep.leaf",
+    "cairn/deep/leaf.py": "import cairn.librarian.session",
+    "cairn/elsewhere/stranger.py": "import cairn.librarian.session",
+}
+
+_UNREACHABLE_RULE = {"kind": "unreachable", "capability": "the graph tree",
+                     "modules": ("cairn.librarian",), "start": "cairn/fire/start.py"}
+
+
+def test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain():
+    """`importers_of` is one hop backwards; this is any number of hops forwards. The
+    chain is what makes a finding readable — a breach reported without its route sends
+    the reader back to re-derive how the fire path got there."""
+    g = _planted(**{"a/start.py": "import a.mid\nimport a.leaf",
+                    "a/mid.py": "import a.leaf",
+                    "a/leaf.py": "import json"})
+    r = sieve.reaches(g, "a/start.py")
+    assert set(r) == {"a/mid.py", "a/leaf.py"}, f"the closure is wrong: {r}"
+    assert r["a/leaf.py"] == ["a/start.py", "a/leaf.py"], \
+        f"the SHORTEST chain must win — a longer route reads as a deeper problem: {r}"
+    assert "a/start.py" not in r, "a module does not reach itself, same as importers_of"
+
+
+def test_reaches_refuses_a_start_it_never_read():
+    """The hollow floor's little brother. A walk from a file the scan never saw returns
+    an empty closure, and an empty closure is clean for the wrong reason."""
+    g = _planted(**{"a/start.py": "import json"})
+    try:
+        sieve.reaches(g, "a/never_scanned.py")
+    except ValueError as e:
+        assert "not in the graph" in str(e), f"the refusal must say WHY: {e}"
+    else:
+        raise AssertionError("a walk from an unknown start returned clean")
+
+
+def test_an_import_of_nothing_is_a_dead_end_not_an_error():
+    """Every corpus imports stdlib and third-party names that are not files in the tree.
+    If those raised, the walk would be unusable on the only graph it exists to walk."""
+    g = _planted(**{"a/start.py": "import json\nimport numpy.linalg\nimport a.mid",
+                    "a/mid.py": "import os"})
+    assert set(sieve.reaches(g, "a/start.py")) == {"a/mid.py"}
+
+
+def test_unreachable_catches_a_breach_two_hops_down():
+    """THE TOOTH THAT CARRIES THE WEIGHT. Stub `sieve.reaches` to return {} and this is
+    the one that fails; every other tooth in this block still passes."""
+    caught = sieve.catches(_planted(**_FIRE_PATH_GRAPH), _UNREACHABLE_RULE)
+    assert len(caught) == 1, f"exactly the reachable breacher should be caught: {caught}"
+    assert "cairn/deep/leaf.py" in caught[0], f"the finding must name the breacher: {caught}"
+    assert "cairn.librarian.session" in caught[0], \
+        f"the finding must name the door that was reached: {caught}"
+    assert "cairn.fire.mid_hop" in caught[0], (
+        "the route must name the module the walk passed THROUGH — without it the "
+        f"finding is indistinguishable from a single-hop catch: {caught}")
+
+
+def test_unreachable_spares_a_breacher_the_fire_path_cannot_reach():
+    """The over-reach half, and the line between this kind and `forbidden`. The stranger
+    imports the denied door exactly as the breacher does; it is simply not on the path.
+    A rule that caught it would be a corpus-wide ban wearing a reachability rule's name."""
+    caught = sieve.catches(_planted(**_FIRE_PATH_GRAPH), _UNREACHABLE_RULE)
+    assert not any("stranger" in c for c in caught), \
+        f"a module outside the closure was caught — this is a forbidden scan, not a walk: {caught}"
+
+
+def test_unreachable_catches_a_breach_at_the_start_itself():
+    """The loudest version of the failure is the one a walk over what the start reaches
+    steps straight over: the start dialing the denied door directly."""
+    caught = sieve.catches(_planted(**{"cairn/fire/start.py": "import cairn.librarian.session",
+                                       "cairn/fire/mid_hop.py": "import json"}),
+                           _UNREACHABLE_RULE)
+    assert len(caught) == 1 and "cairn/fire/start.py" in caught[0], caught
+
+
+def test_unreachable_is_clean_on_the_real_corpus():
+    """The other half of the pair, asserted as an INVARIANT. Measured 2026-08-12: the
+    graph holds 243 files, the closure from inspector.py is 17, and no denied door is
+    among them — so the rule goes green the day it lands. Those numbers ride as evidence;
+    pinning them would red this tooth the moment the corpus legitimately grows."""
+    g = _corpus()
+    caught = sieve.catches(g, {"kind": "unreachable", "capability": "the graph tree",
+                               "modules": ("cairn.chart.tree", "cairn.librarian",
+                                           "cairn.db_domain"),
+                               "start": "cairn/build_inspector/inspector.py"})
+    assert caught == [], f"the verdict path can reach the graph tree: {caught}"
+    assert len(sieve.reaches(g, "cairn/build_inspector/inspector.py")) > 5, (
+        "the closure from the verdict path came back nearly empty — the tooth above "
+        "would be green because nothing was walked, which is the failure it exists to catch")
+
+
+def test_the_hollow_floor_guards_the_new_kind_too():
+    """Falsifier clause (3) of the owning ticket, verbatim: the floor must be a property
+    of catches(), not of the two kinds that predate the walk. It holds because the size
+    is checked BEFORE the kind is dispatched."""
+    small = {f"a/f{i}.py": set() for i in range(5)}
+    small["cairn/fire/start.py"] = set()
+    try:
+        sieve.catches(small, _UNREACHABLE_RULE)
+    except sieve.HollowScan as e:
+        assert "did not read the tree" in str(e), f"the raise must say WHY: {e}"
+    else:
+        raise AssertionError("a reachability sieve over 6 files returned clean (Law 8)")
+
+
 # ── REACH: the band a sieve has to look through ──────────────────────────────
 # These teeth exist because the FIRST cut of this derivation was a coin-toss red:
 # it matched call-name tails and put 15 of build_inspector's 18 checks off-box,
@@ -302,6 +425,14 @@ def _main() -> int:
         test_importers_of_is_empty_for_a_module_nobody_imports,
         test_a_module_is_not_its_own_importer,
         test_module_name_folds_a_package_init,
+        test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain,
+        test_reaches_refuses_a_start_it_never_read,
+        test_an_import_of_nothing_is_a_dead_end_not_an_error,
+        test_unreachable_catches_a_breach_two_hops_down,
+        test_unreachable_spares_a_breacher_the_fire_path_cannot_reach,
+        test_unreachable_catches_a_breach_at_the_start_itself,
+        test_unreachable_is_clean_on_the_real_corpus,
+        test_the_hollow_floor_guards_the_new_kind_too,
         test_reach_bands_a_body_by_how_far_it_looks,
         test_a_path_resolve_is_not_a_host_resolve,
         test_reach_is_transitive_through_an_in_module_helper,

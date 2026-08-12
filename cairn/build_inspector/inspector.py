@@ -1676,6 +1676,88 @@ def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+# WHAT THE VERDICT MAY REACH — the second rule at this address, and a DIFFERENT question
+# from the one above. _SOLE_PATH asks who may DIAL; this asks what the verdict path may
+# ARRIVE AT, by any number of hops. The two do not cover each other, and that was measured
+# rather than argued (2026-08-12): planting `import cairn.inference_domain.route` into
+# inspector.py leaves _SOLE_PATH GREEN — inference_domain is precisely the component that
+# is allowed to dial — while the verdict path gains the ability to ask an LLM. A verdict
+# is always hardware; a verdict that can reach a graph tree, a database or a host is a
+# verdict with an opinion in it.
+#
+# WHY A CAPABILITY AND NOT AN ALLOWLIST. Until today this was a literal tuple of the
+# modules inspector.py was ALLOWED to import, living in its own proof. Every legitimate
+# new dependency had to be added to it by hand, and on 2026-08-08 one arrived that was not
+# (`cairn.base.nest`, in 047d633) — so the tooth read as holding while it was not. Naming
+# the denied capability inverts the maintenance: the innocent never need a signature, and
+# the set below only grows when a genuinely new capability is built. Its stability is what
+# probes/does_the_denied_set_stay_put.py watches.
+#
+# `start` and the graph keys are REPO-relative; `modules` are dotted names as WRITTEN in
+# source, so they keep their `cairn.` prefix regardless of where the scan is rooted.
+_FIRE_PATH = {
+    "kind": "unreachable",
+    "capability": "a graph tree, a database, or a host that could answer",
+    "modules": (
+        "cairn.chart.tree",        # the graph tree — a verdict may not consult one
+        "cairn.librarian",         # the same tree, by its other name
+        "cairn.db_domain",         # port 5432
+        "cairn.inference_domain",  # the inference/embedding host, by its permitted door
+        # and the network itself, for a path that dials without going through the door
+        # above — _SOLE_PATH reds those inside cairn/, but the fire path can route through
+        # skills/ and bin/, where it has no seat.
+        "urllib.request", "urllib.error", "http.client", "requests", "httpx",
+        "aiohttp", "socket", "ftplib", "telnetlib",
+    ),
+    "start": "cairn/build_inspector/inspector.py",
+}
+
+
+def fire_path_unreachable(row: dict, comp_dir: Path) -> list[dict]:
+    """Something the verdict path can reach imports a door that would let it ask.
+
+    Provenance: ticket reachability-replaces-the-allowlist, which replaced the allowlist
+    tuple in this component's own proof with the rule above. This is the same "one rule,
+    two moments" shape as sole_path_holds — except there is no second moment to share
+    with, because the fire path is a property of THIS component and the inspection is
+    where it is asked.
+
+    Scope, stated because it is NOT the same as the sieve above, and the difference was
+    measured rather than assumed. The walk is always over the REAL repo, never the
+    inspection root: the rule names one fixed file at one fixed address, there is no
+    per-fixture variant of it, and a walk from a start the fixture never contained would
+    raise rather than answer.
+
+    And the finding is THIS component's, on every row but its own it returns immediately.
+    sole_path_holds attributes to the file's owner because its constraint binds every
+    component — everyone owes it not to open a second door. This constraint binds ONE
+    PATH, and the path is ours; chart never agreed that what IT imports decides what a
+    verdict may reach. So build_inspector's row carries the red, and the finding names the
+    offending file and the whole route so the hand that must break the chain knows where
+    to stand. The cost settles the same way (measured 2026-08-12): the answer does not
+    vary by row, and computing it per row rebuilt a 243-file graph 24 times — 22 seconds
+    added to every inspection, which timed out this component's own proof at 120s.
+
+    Known residue, inherited whole from import_sieve and not closed here: a subprocess
+    dials and imports nothing, and a dynamic import is invisible.
+    """
+    if row["component"] != "build_inspector":
+        return []
+    graph = import_sieve.import_graph(str(_REPO_ROOT))
+    findings = []
+    for caught in import_sieve.catches(graph, _FIRE_PATH):
+        findings.append(_finding(
+            "fire_path_unreachable", row["component"],
+            caught,
+            {"rule": {k: v for k, v in _FIRE_PATH.items()},
+             "file": str(_REPO_ROOT / caught.split(" imports ", 1)[0])},
+            "A verdict is always hardware (Law 3): a fire path that can reach a tree, a "
+            "database or a host can return an opinion wearing a measurement's clothes. "
+            "Break the import chain the finding names, or bring the new capability "
+            "through Akien's gate — never widen the denied set to make this green."))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -1696,6 +1778,7 @@ SIEVES = {
     "validate_measures_done": validate_measures_done,
     "validate_covers_the_build": validate_covers_the_build,
     "sole_path_holds": sole_path_holds,
+    "fire_path_unreachable": fire_path_unreachable,
 }
 
 

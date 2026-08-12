@@ -269,10 +269,58 @@ def importers_of(graph: dict[str, set[str]], rel_path: str) -> list[str]:
     return sorted(hits)
 
 
+def reaches(graph: dict[str, set[str]], start: str) -> dict[str, list[str]]:
+    """Every file `start` can reach by following imports, each with the SHORTEST chain.
+
+    ``importers_of`` asks who points AT a module, one hop, backwards. This asks what a
+    module can arrive at, any number of hops, forwards — and it is the question a rule
+    about a fire path has to ask, because a module two hops out is just as reached as one
+    directly imported. The value is the chain rather than a bare set so a finding can say
+    HOW: a diagnostic that names the endpoint without the route makes the reader re-derive
+    the walk to act on it.
+
+    Breadth-first, so the recorded chain is the shortest one; a file already trailed is
+    never re-trailed, which is also what terminates the walk on a cyclic graph.
+
+    A PACKAGE IS REACHED BY ITS SUBMODULE, and that is Python, not looseness: ``import
+    cairn.base.address`` executes ``cairn/base/__init__.py`` on the way, so ``_matches``
+    landing on both is the truth about what runs. An imported name matching no file in the
+    graph is a DEAD END rather than an error — a stdlib import, a third-party one, or a
+    module outside the scanned root; the walk terminates on the graph's own node set and
+    says nothing about what it cannot see (the same edge ``catches`` inherits: a
+    ``subprocess`` call and a dynamic import remain invisible to every AST question).
+    """
+    if start not in graph:
+        raise ValueError(
+            f"reaches: {start!r} is not in the graph ({len(graph)} files) — a walk from a "
+            "file the scan never read would return an empty closure that looks like a "
+            "clean one")
+    by_module: dict[str, str] = {}
+    for path in sorted(graph):
+        name = module_name(path)
+        if name:
+            by_module.setdefault(name, path)
+    trail: dict[str, list[str]] = {start: [start]}
+    frontier = [start]
+    while frontier:
+        nxt: list[str] = []
+        for cur in frontier:
+            for imported in sorted(graph.get(cur, ())):
+                for name, path in by_module.items():
+                    if path in trail or not _matches(imported, name):
+                        continue
+                    trail[path] = trail[cur] + [path]
+                    nxt.append(path)
+        frontier = nxt
+    del trail[start]                 # a module does not reach itself, same as importers_of
+    return trail
+
+
 def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str]:
     """Shake one sieve over the graph and return what its mesh caught.
 
-    Two rule kinds, because the corpus asks two questions and they are not the same shape:
+    Three rule kinds, because the corpus asks three questions and they are not the same
+    shape:
 
       sole_path — `modules` may be imported ONLY from inside `only`. This is the domain
                   chokepoint: one door to 5432, one door to the inference host. A second
@@ -282,9 +330,23 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str
                   that must not share an implementation, so that one can survive the
                   other breaking.
 
+      unreachable — nothing `start` can REACH may reach `modules`. The first two ask about
+                  one hop and can be answered by reading a file; this one asks about the
+                  whole path and can only be answered by walking it. It exists because the
+                  alternative — a list of the modules a fire path is allowed to import —
+                  has to be widened by hand every time the corpus grows a legitimate
+                  dependency, and the widening is a decision nobody records (measured
+                  2026-08-12: `cairn.base.nest` entered the build_inspector fire path and
+                  the list was never widened, so a tooth that was not holding read as one
+                  that was). Naming the CAPABILITY that must stay out of reach is what
+                  makes the rule general: the innocent never need signatures.
+
     Returns [] when nothing is caught. Raises HollowScan rather than returning [] when
     the graph is too small to have looked at anything — the difference between "clean"
-    and "did not run" is the difference this raise exists to keep.
+    and "did not run" is the difference this raise exists to keep, and it guards ALL
+    THREE kinds because it is asked before the kind is: a reachability walk over a
+    half-read tree returns a short closure, and a short closure is clean for the wrong
+    reason.
     """
     if len(graph) < floor:
         raise HollowScan(
@@ -314,6 +376,19 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str
             if found:
                 caught.append(f"{path} imports {found} — {within} may not depend on "
                               f"{what}; the fork exists so one survives the other breaking")
+    elif kind == "unreachable":
+        start = rule["start"]
+        # The start is scanned too, with a one-link chain: a fire path that reaches the
+        # denied door DIRECTLY is the loudest version of the failure, and a walk that only
+        # examined what the start reaches would step straight over it.
+        scan = {start: [start], **reaches(graph, start)}
+        for path, chain in sorted(scan.items()):
+            found = sorted(m for m in graph.get(path, ()) if any(_matches(m, t) for t in modules))
+            if found:
+                route = " -> ".join(module_name(p) for p in chain)
+                caught.append(f"{path} imports {found} — {what} is reachable from {start} "
+                              f"by import, along {route}; nothing on that path may reach it")
     else:
-        raise ValueError(f"unknown sieve kind {kind!r} — sole_path or forbidden")
+        raise ValueError(
+            f"unknown sieve kind {kind!r} — sole_path, forbidden or unreachable")
     return caught

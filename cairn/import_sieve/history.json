@@ -6,5 +6,60 @@
     "kin": "CairnCommons/troubles/what-dies-sentences-files-the-corpus-still-imports.json",
     "at": "2026-08-06T11:31:13",
     "seq": 0
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-denied-set-does-not-grow) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'reachability-replaces-the-allowlist', and the ticket names its /intent firing and its /sorted door firing",
+    "ticket": "reachability-replaces-the-allowlist",
+    "note": "BUILDME under the full seven-stage chart chain (claim reachability-replaces-the-allowlist). The build replaces the inspector's allowlist tooth with a reachability rule: a module the verdict path reaches TRANSITIVELY may not reach a denied door. Ground truth measured before the build, not assumed — 243 files in the import graph, the closure from inspector.py is 17 files (13 modules + 4 package __init__ roots), and NO denied door is among them, so the rule goes green on the day it lands and cairn.base.nest needs no signature. The tooth it replaces checks 5 modules transitively; the closure holds 17, so this is strictly WIDER coverage arrived at without anyone widening a list.",
+    "at": "2026-08-12T16:35:33",
+    "seq": 1
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the-denied-set-does-not-grow) -> PROVED",
+    "direction": "forward",
+    "ticket": "reachability-replaces-the-allowlist",
+    "note": "The walk landed and it is proved by the teeth a hollow walker cannot pass. reaches(graph, start) — every file a start arrives at by any number of import hops, shortest chain each — plus the third kind `unreachable` seated inside catches(), which the hollow floor guards because size is checked before kind. 28 teeth green twice bare; five of them FAIL with reaches stubbed to return {}, including the real-corpus tooth, whose non-vacuity assert refuses to be green over an empty closure. Downstream: build_inspector._FIRE_PATH declares the denied capability at its own address and the allowlist tuple is struck from its proof — the tooth reds on a planted breach at cairn/base/address.py, two hops out, which the twelve-name list could never see. Corpus 100/100 green; the standing red the-inspectors-allowlist-tooth-is-red-on-an-import-it-never-admitted is closed.",
+    "at": "2026-08-12T16:57:41",
+    "seq": 2
+  },
+  {
+    "from": "PROVEME",
+    "to": "WATCHME",
+    "standing": "WATCHME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the-denied-set-does-not-grow):waiting] -> PROVED",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 20 sieves over import_sieve",
+    "ticket": "reachability-replaces-the-allowlist",
+    "note": "Probe armed at cairn/build_inspector/probes/does_the_denied_set_stay_put.py — berthed with WHAT IT WATCHES, not with the ticket. It reads the rule from its ONE declaration (inspector._FIRE_PATH) rather than carrying a copy, so it cannot go green against itself while the real set drifts. Baseline written down as provenance: closure 17 modules, denied set 13, both measured today by the same walk the probe runs. The pair is asymmetric on purpose — FIRE on the first GAIN (the ticket's wrong-shape signal, one occurrence refutes), CLEAR only when the set is unchanged AND ten distinct modules have entered the closure, because zero growth against zero closure movement is the misaimed census the librarian already taught us. Exercised before the crossing: census non-empty (244 files, 17-module closure); a planted gain fires the trigger and not the clear; ten planted entrants clear it and do not fire; today neither.",
+    "at": "2026-08-12T16:59:33",
+    "seq": 3
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-denied-set-does-not-grow) -> [PROVED]",
+    "direction": "forward",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'reachability-replaces-the-allowlist'",
+    "clearance_gate": "cleared by 'CC' onto cairn/import_sieve/proofs/test_import_sieve.py (seal 2026-08-12T16:58:56, re-read at the door)",
+    "emission_gate": "clean — WATCHME(the-denied-set-does-not-grow) emitted the probe berthed at cairn/build_inspector/probes/does_the_denied_set_stay_put.py (ticket 'reachability-replaces-the-allowlist')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260812T170623-9e99fc374805.json",
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/import_sieve/proofs/test_import_sieve.py",
+    "proven_seal_date": "2026-08-12T16:58:56",
+    "delegated": false,
+    "ticket": "reachability-replaces-the-allowlist",
+    "note": "PROVED. The allowlist is gone and what replaced it is a property, not a roster: no module the verdict path can REACH — at any depth — may reach a graph tree, port 5432, or a host that could answer. The six dated widenings had one why between them (this module is tree-free), and a list whose every element carries the same reason is a derivation somebody is paying for by hand; the seventh widening was the one nobody paid, and it stood red inside a corpus reported green. THE DISTINCTION WORTH CARRYING IN A YEAR: naming the DENIED capability costs the innocent nothing, so the closure may grow freely while the set sits still — that is the bet, and it is not provable today, which is why it left here as a probe and not as a criterion. TWO THINGS THIS VOYAGE MEASURED AND WAS WRONG ABOUT BEFORE IT MEASURED THEM. (1) I predicted _SOLE_PATH already covered the inference host, so the fire-path rule need not name it. Planting import cairn.inference_domain.route leaves _SOLE_PATH GREEN — inference_domain is precisely the component permitted to dial — while the verdict path gains the ability to ask an LLM. The two rules ask different questions: WHO MAY DIAL versus WHAT THE VERDICT MAY REACH, and the second is not implied by the first. (2) I predicted the new sieve would mirror sole_path_holds exactly, including its per-row attribution. It does not, and the deciding observation was a red rather than an argument: attributing per row rebuilt a 243-file graph 24 times, added 22s to every inspection and timed out this component own proof. Re-read afterwards, the analogy was wrong on the merits too — sole_path binds EVERY component, this binds ONE PATH, and that path is build_inspector. Verdict artifact: verdict-20260812T170623-9e99fc374805.json, 7 criteria pass, 8 hypotheses dispositioned (3 killed, 5 confirmed), deposited to the hypothesize tree. Corpus 100 proofs / 100 green / 0 red, twice; the live trouble the-inspectors-allowlist-tooth-is-red-on-an-import-it-never-admitted is closed by this crossing. Left standing and named rather than fixed: reach_of bands stop at the module boundary, so the two tree-walking sieves band 0 and the nest runs the most expensive meshes first; the dynamic-import check still names 5 modules by hand while the closure holds 17; a subprocess dials and imports nothing.",
+    "at": "2026-08-12T17:07:26",
+    "seq": 4
   }
 ]

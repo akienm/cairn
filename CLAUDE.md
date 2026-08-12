@@ -56,6 +56,40 @@ what can't trace up doesn't belong.
    *"nope, a little more left"* is a complete input. Challenging the design is
    what's supposed to happen, and it never gates his correction.
 
+10. **Nothing in the system is immeasurable — except Claude, for now.** The
+    ground-most assumption is that **we can know everything about this system**,
+    and *the system* here is physical: this laptop, our project inside it, and the
+    things connected to it. *"There is nothing you can name on this laptop or the
+    things connected to it that I can't sort a way to measure"* (Akien,
+    2026-08-12). **Akien is inside that set, not above it.** The one standing
+    exception is Claude, and it is temporary and shrinking: *"even you. give me
+    another year, and I will know how you work well enough to copy it. we're
+    already well along the way. and that is the single hardest thing in the system
+    to externalize."* Igor's deep reasoning may one day change this; he hopes not.
+    **EVERY RECORDED OBSERVATION IS MEASUREMENT** (his words, and it is the
+    operational definition without which this law reads as a demand for
+    instruments). The bar is not an apparatus: you looked, you wrote down what you
+    saw, that is a measurement at n=1. *"The grep returned nothing"* is one.
+    *"Akien said X"* is one. So an unbuilt instrument does not leave you with
+    nothing — it leaves you with a coarse measurement to sharpen. Which is why the
+    392 findings were never unmeasurable: they were 392 measurements already taken
+    and then narrated instead of recorded in a shape that could be wrong.
+    **THE DISTINCTION THIS LAW IS MADE OF: "we have not built the measurement yet"
+    is a true and ordinary state; "this cannot be measured" is a claim about the
+    world, and inside this system it is false.** Collapsing the first into the
+    second is how a thing stops being falsifiable — the measured failure that bore
+    this law (CC sorted 392 findings into measurable and "not measurements at all",
+    when every one of them named something on disk and a method that would read
+    it). **The disposition, and it is the operative clause:** *"if you can't figure
+    out a way, escalate the problem to me."* So "immeasurable" is never a resting
+    state and never a filing — it is an escalation, and the escalation is to him.
+    NUMBERED LAST, NOT RANKED LAST: it belongs beside Law 3 in dependency order
+    (Law 3 is epistemics — nothing is *known* until measured; this is reach —
+    nothing *inside* is beyond measuring), but a Law's number is its ADDRESS, and
+    3,479 citations of "Law N" stand across the two repos. Inserting at 4 would
+    silently repoint ~2,600 of them — the same words aimed at a different meaning,
+    at corpus scale.
+
 ## The three roots
 
 | Root | Holds | Rule |

@@ -166,6 +166,42 @@ def test_the_lane_does_not_go_dark_on_its_own_malformed_file():
         "silence about a broken trouble file, in the lane built to end silence, is the worst case"
 
 
+def test_an_off_template_record_is_never_reported_as_having_no_why():
+    """MEASURED 2026-08-12 at session open: the banner printed ``<no why recorded>`` beside
+    ``the-runtime-spine-has-never-run`` — the record carrying the FULLEST why in the store
+    (opened_by, the_claim_under_test, verdict, method, findings, the_map), all of it under
+    names the reader did not know. A presentation surface may collapse an error into a
+    coherent shape; it may never MANUFACTURE one, and "nobody wrote a why" is a claim about
+    the author, not about the reader's vocabulary (Law 7)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "spine.json").write_text(json.dumps(
+            {"id": "spine", "verdict": "FALSIFIED, and not by a break", "method": "census"}),
+            encoding="utf-8")
+        got = _dev(tmp).live()
+    assert len(got) == 1 and got[0].get("off_template") is True, \
+        f"an off-template record must still reach the reader, flagged as one — got {got}"
+    why = got[0]["why"]
+    assert "OFF-TEMPLATE" in why and "verdict" in why and "method" in why and "spine.json" in why, \
+        ("the synthesized why must name the shape, what the record DOES carry, and where to "
+         f"read it — an unactionable placeholder is the defect restated — got {why!r}")
+    assert "no why" not in why.lower(), \
+        "the one thing it must never say is that the why was not recorded"
+
+
+def test_every_live_trouble_in_the_REAL_store_carries_a_why():
+    """LIVE, and stated as an INVARIANT rather than a census: whatever is in the inbox today,
+    the lane never hands its reader a trouble it cannot say anything about. Goes red only if
+    the reader regresses — not when the inbox changes, and not when it empties."""
+    store = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "troubles"
+    if not store.exists():                       # commons absent (packaged/foreign box) is not a red
+        return
+    for t in TroubleDevice(root=store).live():
+        why = (t.get("why") or "").strip()
+        assert why, f"live trouble {t.get('id')!r} reached the reader with nothing to say"
+        assert "no why recorded" not in why.lower(), \
+            f"live trouble {t.get('id')!r} renders as an absence claim about its own author"
+
+
 def test_only_an_explicit_cleared_takes_a_ticket_off_the_live_list():
     """Found on this device's FIRST contact with a real file. The hand-written trouble said
     ``"OPEN — reported complete, awaiting Akien's ratify"``; an equality test on LIVE reported
@@ -240,24 +276,15 @@ def test_the_crossings_are_no_longer_silent():
             "with no receiver wired the records HOLD (Law 7) — never silently dropped"
 
 
-TESTS = [
-    test_the_first_raise_notifies,
-    test_fifty_occurrences_are_one_demand_for_attention,
-    test_the_recurrence_keeps_its_shape_but_stays_bounded,
-    test_normal_operating_state_is_zero,
-    test_only_the_recipient_clears_it,
-    test_a_clear_must_name_what_changed,
-    test_clearing_something_never_raised_is_refused,
-    test_clearing_is_append_not_erasure,
-    test_a_recurrence_after_a_clear_starts_fresh_and_names_the_failed_fix,
-    test_a_trouble_without_a_why_or_an_identity_is_refused,
-    test_the_lane_does_not_go_dark_on_its_own_malformed_file,
-    test_only_an_explicit_cleared_takes_a_ticket_off_the_live_list,
-    test_a_near_miss_standing_increments_rather_than_being_overwritten,
-    test_two_recipients_hold_it_live_until_both_clear,
-    test_the_ticket_on_disk_is_plain_readable_json,
-    test_the_crossings_are_no_longer_silent,
-]
+# DERIVED, NOT TYPED OUT (2026-08-12). This was a hand-written roster of sixteen names, and
+# it caught its author the same hour: two new teeth were added above, the file printed
+# "16/16 green", and NEITHER NEW TOOTH HAD RUN. A hand roster beside the thing it lists is a
+# proxy for "every test in this module" that goes stale silently and in the safe-looking
+# direction — the proof gets greener, never redder. Same shape as the inspector's import
+# allowlist one directory over: a property typed out longhand. Ten other proof files in the
+# corpus still carry one; that is a corpus-wide finding, not ten quiet edits, and it is owed.
+TESTS = [fn for name, fn in sorted(globals().items())
+         if name.startswith("test_") and callable(fn)]
 
 if __name__ == "__main__":
     failures = 0

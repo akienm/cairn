@@ -247,12 +247,37 @@ class TroubleDevice(BaseDevice):
         out = []
         for p in sorted(self._root.glob("*.json")):
             try:
-                out.append(json.loads(p.read_text(encoding="utf-8")))
+                ticket = json.loads(p.read_text(encoding="utf-8"))
             except json.JSONDecodeError as exc:
                 # The lane must not go dark because one file is malformed — that would be a
                 # silent failure in the very place built to end them.
                 out.append({"id": p.stem, "standing": LIVE, "count": 1,
                             "why": f"UNREADABLE TROUBLE FILE: {exc}", "unreadable": True})
+                continue
+            if isinstance(ticket, dict) and "why" not in ticket:
+                # OFF-TEMPLATE, AND SAYING SO IS THE WHOLE POINT (2026-08-12).
+                # `the-runtime-spine-has-never-run` carries the fullest why in the store —
+                # opened_by, the_claim_under_test, verdict, method, findings, the_map — under
+                # none of those names, and the session banner rendered it as
+                # "<no why recorded>". That is a reader turning a PRESENT record into an
+                # ABSENCE claim: not collapsing an error into a coherent shape (which a
+                # presentation surface may do) but MANUFACTURING one (Law 7). The fix belongs
+                # here and not in the banner, because what a trouble's why IS belongs to this
+                # lane (Law 6) — the banner already refuses to re-derive `live()` for the
+                # same reason. Deliberately NOT a fallback key list: guessing which field is
+                # really the why would freeze today's two off-template shapes into a schema,
+                # and the shapes are the defect, not the vocabulary. The reader is told the
+                # record is off-template, what it carries, and where to read it — which is the
+                # `notes-store-template-gate-is-prose-not-physics` trouble showing its face at
+                # session open instead of hiding behind a manufactured silence.
+                ticket = dict(ticket)
+                ticket["why"] = (
+                    "OFF-TEMPLATE TROUBLE RECORD — the why is almost certainly here, under a "
+                    "name this reader does not know, so this line is the READER's limit and "
+                    "not the author's silence. It carries: %s. Read it: %s"
+                    % (", ".join(k for k in ticket if k != "why"), p))
+                ticket["off_template"] = True
+            out.append(ticket)
         return out
 
     # --- the file layer (thin, and the only writer) -------------------------

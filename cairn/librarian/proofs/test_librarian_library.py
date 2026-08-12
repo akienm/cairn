@@ -221,8 +221,16 @@ def test_the_learn_crossing_breadcrumbs():
 
 
 def test_library_opens_no_door_of_its_own():
+    # cairn.base.address joined 2026-08-12 (one-owner-for-the-instance-address): LIBRARY_ROOT
+    # used to spell ~/.cairn/devices/librarian/0/library by hand — one of ten such spellings
+    # in class-space — and now calls the one rung that owns that address. The admission does
+    # not touch this tooth's why: address.py imports pathlib and nothing else (measured:
+    # import_map says ['__future__', 'pathlib']), so it is neither a DB door nor a host door,
+    # and it REMOVES a re-derivation rather than adding a reach. Admitted by name and dated,
+    # per the precedent every prior widening in this corpus followed — an entry that arrives
+    # without one is the defect the-inspectors-allowlist-tooth-is-red trouble is open about.
     allowed = ("__future__", "hashlib", "json", "shutil", "datetime", "pathlib",
-               "cairn.librarian.trees")
+               "cairn.base.address", "cairn.librarian.trees")
     src = Path(library.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

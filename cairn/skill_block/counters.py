@@ -34,32 +34,25 @@ import re
 import subprocess
 from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[2]
-_COMMONS = _REPO.parent / "CairnCommons"
-_INSTANCE = Path.home() / ".cairn"
+# THE ROOT TABLE AND ITS RESOLVER MOVED DOWN TO cairn/base/address.py ON 2026-08-12 (ticket
+# one-owner-for-the-instance-address). They were BORN here, for the counted_by address, and
+# then the rest of the system turned out to need the same table: ten sites in class-space were
+# spelling ~/.cairn/devices/<device>/<instance> by hand, and base could not stand on a table
+# living at skill_block's address. What is imported below is the same code, at a floor that
+# base's rungs can reach — so the two faces of the table (a charter author's rooted token, a
+# caller's device+instance) are one table and are pinned to each other by a proof tooth
+# (cairn/base/proofs/test_instance_address.py).
+#
+# THE NAMES STAY EXPORTED FROM THIS MODULE ON PURPOSE. counters.resolve is what a charter's
+# counted_by address is read by, and counters.Unreadable is the exception its callers catch —
+# re-export keeps both at the address they already have, and keeps the CLASS IDENTITY of
+# Unreadable single, so `except counters.Unreadable` still catches what base raises.
+from cairn.base.address import ROOTS as _ROOTS  # noqa: F401  (re-exported vocabulary)
+from cairn.base.address import Unreadable, resolve  # noqa: F401  (re-exported: see above)
 
-# The same root vocabulary the referent checker resolves against, so a charter author
-# writing an address here writes it the way they already write one everywhere else.
-_ROOTS = {"repo": _REPO, "commons": _COMMONS, "instance": _INSTANCE}
+_REPO = _ROOTS["repo"]
 
 _STAMP = re.compile(r"(\d{8})T(\d{6})")
-
-
-class Unreadable(Exception):
-    """The store could not be reached or read. Distinct from 'the store holds nothing'."""
-
-
-def resolve(address: str, roots: dict[str, Path] | None = None) -> Path:
-    """``<root>/<rest>`` -> a real path. An unknown root is a charter defect, said so."""
-    table = roots or _ROOTS
-    head, _, rest = address.partition("/")
-    if head not in table:
-        raise Unreadable(
-            f"address {address!r} starts with {head!r}, which is not one of "
-            f"{sorted(table)}. A counted_by address is a rooted token, not a "
-            "filesystem path — a bare path would resolve differently on another box."
-        )
-    return table[head] / rest
 
 
 def _iso(stamp: str) -> str | None:

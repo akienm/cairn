@@ -27,6 +27,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+from cairn.base.address import instance_path
 from cairn.learning_block.learning_block import (
     DoorRefused,
     declare_contract,
@@ -43,7 +44,7 @@ EXITS = ("routed_forward", "routed_out")
 # device per skill, which would multiply devices by the roster for a single component.
 # The component owns the root (Law 6); the skill is a tenant inside it.
 _BERTHS = Path(os.environ.get("CAIRN_SKILL_BERTHS",
-                              Path.home() / ".cairn/devices/skill_block/0/berths"))
+                              instance_path("skill_block", 0) / "berths"))
 
 
 class SkillBlockRefused(ValueError):

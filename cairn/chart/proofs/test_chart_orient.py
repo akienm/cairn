@@ -18,8 +18,19 @@ from cairn.chart.orient import (AUTHORED_FIELDS, OrientRefused, component_roster
 from cairn.tester.scratch import scratch_dir  # noqa: E402
 
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
+# cairn.base.address joined 2026-08-12 (one-owner-for-the-instance-address). This tooth's
+# rule is "stdlib plus EXACTLY ONE door", and its stated why is that any other cairn import
+# is "a second door or a RE-DERIVATION" — so the admission has to answer the harder half.
+# It does: INSTANCE_DIR spelled ~/.cairn/devices/chart/0/packets by hand, which was itself
+# one of ten independent re-derivations of an address the 2026-08-12 four-rung ruling
+# settled, and the import is what ENDS that re-derivation. What it is not is a reach:
+# address.py imports pathlib and nothing else (measured: import_map says ['__future__',
+# 'pathlib']), so it opens no tree, no DB and no host, and the transitive tree-free
+# condition the inspector-nexus tooth holds over this module is untouched. Two doors now,
+# and the second one is a door OUT of a duplication. Admitted by name and dated, per the
+# precedent every prior widening in this corpus followed.
 ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time", "pathlib",
-                   "cairn.orient.orient"}
+                   "cairn.base.address", "cairn.orient.orient"}
 
 
 def make_root():

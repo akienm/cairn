@@ -60,6 +60,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from cairn.base.address import instance_path
 from cairn.base.device import BaseDevice
 
 # The record-of-truth shape. Exactly these six — the four Akien named (command, returncode,
@@ -100,7 +101,7 @@ def instance_dir() -> Path:
     override = os.environ.get("CAIRN_SUDO_RELAY_DIR")
     if override:
         return Path(override)
-    return Path.home() / ".cairn" / "devices" / "sudo_relay" / "0"
+    return instance_path("sudo_relay", 0)
 
 
 def relay_dir() -> Path:

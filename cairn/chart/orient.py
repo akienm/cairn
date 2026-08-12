@@ -44,11 +44,12 @@ import re
 import time
 from pathlib import Path
 
+from cairn.base.address import instance_path
 from cairn.orient.orient import device_census
 
 # .../repo/cairn/chart/orient.py -> repo root
 CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-INSTANCE_DIR = os.path.expanduser("~/.cairn/devices/chart/0/packets")
+INSTANCE_DIR = str(instance_path("chart", 0) / "packets")
 
 STRATA = ("floor", "tree", "claude")
 AUTHORED_FIELDS = ("intent", "domain", "scope", "refs", "unknowns")

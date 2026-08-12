@@ -34,6 +34,8 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from cairn.base.address import instance_path
+
 CONSUMERS = ("debug", "training", "tree-primary")
 STRATA = ("code", "tree", "hex")
 DEBUG_TTL_DAYS = 30
@@ -80,7 +82,7 @@ def trace_root() -> Path:
     env = os.environ.get("CAIRN_LB_TRACE_ROOT")
     if env:
         return Path(env)
-    return Path.home() / ".cairn" / "devices" / "learning_block" / "0" / "traces"
+    return instance_path("learning_block", 0) / "traces"
 
 
 def learning_records_dir() -> Path:

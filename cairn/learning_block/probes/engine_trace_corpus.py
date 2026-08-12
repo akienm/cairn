@@ -33,13 +33,18 @@ import json
 import os
 from pathlib import Path
 
+from cairn.base.address import instance_path
 from cairn.base.probe import Probe, owning_ticket
 from cairn.learning_block.engine import RUN_EVENT, answers_five_questions, rejected_count
 
 # Env-first, default second, resolved PER CALL — a probe that froze the path at import
 # would keep reading a root the instance had already left (the precedent probe's rule).
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
-_TRACE_DEFAULT = Path.home() / ".cairn" / "devices" / "learning_block" / "0" / "traces"
+# Converted 2026-08-12 (one-owner-for-the-instance-address): this line and
+# learning_block.trace_root() spelled the SAME address character-for-character, in a
+# device and in that device's own probe — the n=1 drift the resolver exists to stop.
+# Both now call the one rung, so the probe cannot read a root the device has left.
+_TRACE_DEFAULT = instance_path("learning_block", 0) / "traces"
 
 # The casting threshold child 2 waits on — the parent ticket's number, a labeled
 # hypothesis ('5-10 traces suffice to compile' is what child 2's cast TESTS first).

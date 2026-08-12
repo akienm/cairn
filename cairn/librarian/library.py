@@ -38,9 +38,10 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.base.address import instance_path
 from cairn.librarian.trees import DepositRefused, LibrarianDevice, NODES
 
-LIBRARY_ROOT = Path.home() / ".cairn" / "devices" / "librarian" / "0" / "library"
+LIBRARY_ROOT = instance_path("librarian", 0) / "library"
 MANIFEST = "_manifest.json"
 
 # The floor under a passage: shorter fragments (a heading, a stray line) are dropped —

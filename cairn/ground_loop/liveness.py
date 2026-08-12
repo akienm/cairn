@@ -32,6 +32,8 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
+from cairn.base.address import instance_path
+
 # THE STALENESS THRESHOLD — RULED by Akien 2026-07-31 (recorded on the ticket):
 # five missed ticks at the ruled once-per-second cadence. Three-times-the-
 # interval is the standard heuristic; five gives slack for a loaded box. This is
@@ -42,8 +44,16 @@ RECORD_NAME = "liveness.json"
 
 
 def instance_home(instance: int = 0) -> Path:
-    """The loop's own device space — instance 0 is the singleton, not a special case."""
-    return Path.home() / ".cairn" / "devices" / "ground_loop" / str(instance)
+    """The loop's own device space — instance 0 is the singleton, not a special case.
+
+    The BODY became a call on 2026-08-12 (one-owner-for-the-instance-address) and
+    nothing else about this function moved. It was the shape the resolver generalised
+    from — the only one of ten hand-spellings that already took the instance as a
+    parameter and already said in words why 0 is not an exemption — so the rung it now
+    calls is this function widened to every device, and the sentence above is the one
+    the rung inherited.
+    """
+    return instance_path("ground_loop", instance)
 
 
 def write_liveness(now: datetime, state: dict, pid: int, home: Path) -> Path:

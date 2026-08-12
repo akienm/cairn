@@ -251,10 +251,21 @@ def count(spec: dict, **kw) -> dict:
     """
     reader = spec.get("reader")
     if reader == "none":
+        # THE CLAIM THIS BRANCH MAY NOT MAKE (2026-08-11, Akien: the charter said /sail
+        # left no record anywhere, and 32 MANDATORY verdict berths said otherwise). A
+        # charter declaring no reader is a fact about THIS ROSTER — nothing here can
+        # count the firings. It is not a fact about the world, and the two were being
+        # collapsed into one sentence that read as the second. The charter's own
+        # what_it_counts is the standing claim; this surface quotes it and never
+        # replaces it, because the charter is where a correction can land.
+        said = str(spec.get("what_it_counts") or "").strip()
         return {"unreadable": (
-            "no store — this skill leaves no firing record anywhere. Not a gap in the "
-            "roster: a gap in the system, declared in the charter rather than implied "
-            "by a dash.")}
+            "the charter declares NO READER, so this roster cannot count it. That says "
+            "nothing about whether a record exists — only that none is declared here. "
+            + (f"The charter's own claim: {said}" if said else
+               "And the charter is silent on what it counts, which is the defect to fix "
+               "first: an undeclared reader plus an unstated claim is a skill nobody can "
+               "say anything about."))}
     fn = READERS.get(reader)
     if fn is None:
         return {"unreadable": (

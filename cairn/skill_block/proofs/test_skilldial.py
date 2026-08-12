@@ -145,7 +145,14 @@ def main() -> int:
     (skills / "dark").mkdir()
     (skills / "dark" / "intention+why.json").write_text(json.dumps(
         {"counted_by": {"reader": "none", "address": None,
-                        "what_it_counts": "NOTHING — leaves no record anywhere"}}))
+                        "what_it_counts": "a mandatory artifact exists at a store this "
+                                          "roster cannot filter down to"}}))
+
+    # A charter that declares no reader AND says nothing about what it counts. The
+    # roster owes the reader a different sentence here — there is nothing to quote.
+    (skills / "mute").mkdir()
+    (skills / "mute" / "intention+why.json").write_text(json.dumps(
+        {"counted_by": {"reader": "none", "address": None}}))
 
     (skills / "bogus").mkdir()
     (skills / "bogus" / "intention+why.json").write_text(json.dumps(
@@ -178,10 +185,29 @@ def main() -> int:
         ok(f"THE INVENTED-JUDGEMENT TOOTH: no {k!r} key on an elsewhere-counted row",
            k not in rows2["elsewhere"], str(rows2["elsewhere"]))
 
-    ok("reader 'none' is NOT countable — a declared absence is still an absence",
+    ok("reader 'none' is NOT countable — an undeclared reader is no measurement",
        rows2["dark"]["countable"] is False)
     ok("a declared-but-empty store reads differently from a never-wired skill",
        rows2["dark"]["why_not_countable"] != rows2["unwired"]["why_not_countable"])
+
+    # THE TOOTH THIS SECTION EXISTS FOR (2026-08-11). The roster may say "I cannot count
+    # this." It may NOT say "nothing anywhere records this" — that is a claim about the
+    # world minted out of a charter's silence, and it was WRONG on the one live skill
+    # that carried it: /sail's firings are not merely recorded, they are mandatory.
+    dark_why = rows2["dark"]["why_not_countable"]
+    for forbidden in ("no store", "leaves no", "anywhere", "no record"):
+        ok(f"THE MINTED-ABSENCE TOOTH: reader 'none' never says {forbidden!r}",
+           forbidden not in dark_why.lower(), dark_why)
+    ok("...it says instead that nothing is DECLARED here",
+       "declares no reader" in dark_why.lower(), dark_why)
+    ok("...and it quotes the charter's own claim rather than replacing it",
+       "a mandatory artifact exists at a store this roster cannot filter down to"
+       in dark_why, dark_why)
+    ok("a charter silent on BOTH reader and claim gets a different sentence — the "
+       "silence itself is named as the thing to fix",
+       "silent on what it counts" in rows2["mute"]["why_not_countable"] and
+       rows2["mute"]["why_not_countable"] != dark_why,
+       rows2["mute"]["why_not_countable"])
     ok("an unimplemented reader is refused as a CHARTER defect, not as zero",
        rows2["bogus"]["countable"] is False and
        "not one of" in rows2["bogus"]["why_not_countable"])
@@ -261,9 +287,13 @@ def main() -> int:
     ok("the live render does not crash", isinstance(skilldial.render(live), str))
     ok("every live skill is now either countable or says why not",
        all(r["countable"] or r.get("why_not_countable") for r in live))
-    ok("LIVE: /sail is the only skill left with no store at all",
+    ok("LIVE: /sail is the only skill this roster still cannot count — and 'cannot "
+       "count' is the whole claim; its verdict berths exist and are mandatory",
        [r["skill"] for r in live if not r["countable"]] == ["sail"],
        str([r["skill"] for r in live if not r["countable"]]))
+    sail_why = next(r for r in live if r["skill"] == "sail")["why_not_countable"]
+    ok("LIVE: and the roster does not tell Akien /sail leaves no record anywhere",
+       "leaves no" not in sail_why and "anywhere" not in sail_why, sail_why)
 
     print(f"GREEN — {PASSES} teeth")
     return 0

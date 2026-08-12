@@ -107,6 +107,51 @@ Say plainly what you did **not** get to, and never truncate a census: `head`/`ta
 turns a population into a sample, and a sample reported as a population is the defect
 this skill exists downstream of.
 
+## Then: FIRE THE DOOR — the firing is the gather, not a note about it
+
+The four figures above are not held in the conversation. They are a **packet**, and the
+packet goes through a gate that **re-reads the world while you wait** — the gate queue,
+the trouble lane, the open-question lane, the newest slate — and refuses a figure that
+has gone stale. Write it to your scratchpad and fire:
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.skill_block fire whatslefttodo <scratchpad>/whatslefttodo_packet.json
+```
+
+The packet carries, exactly:
+
+```json
+{
+  "rulings":   {"ran": "bin/cmd/recordverdict", "count": 0, "oldest_id": "<id>"},
+  "alarms":    {"ran": ["bin/cmd/slate", "bin/cmd/probescan", "bin/cmd/test -q"],
+                "live_troubles": ["<id>", "..."],
+                "probes": "<what probescan reported>",
+                "proofs": "<what test -q reported>"},
+  "questions": {"ran": "ls ~/dev/src/CairnCommons/questions/", "open": 0},
+  "slate":     {"ran": "bin/cmd/slate", "slate_id": "<the slate the render chose>"},
+  "overview":  "<the synthesis above, verbatim>",
+  "bullets":   [{"text": "...", "stratum": "code"}],
+  "exit":      "routed_forward"
+}
+```
+
+The live contract is `python3 -m cairn.skill_block contract whatslefttodo` — the fields
+and the why of each live in the charter, not in this file.
+
+**Why the id and the SET rather than counts.** `oldest_id` and `live_troubles` are the
+two figures a session-open banner cannot supply: they exist only in the instrument's own
+list. A count can be remembered; an id has to be looked at.
+
+**A refusal names every lack in one pass, and it is data, not a mistake to hide** — the
+send_back is traced and stands as the denominator for whether this door ever bites. If it
+says a figure is stale, **re-run that instrument and refire**; do not edit the number to
+match. If an instrument would not run at all, that is `exit: "routed_out"` with the
+failure in the bullets — an instrument that will not run is a result to report, never a
+silent green.
+
+**Fire it here, before the question loop.** The gathers are done and the overview is
+written; everything after this is Akien's turn.
+
 ## Then: ONE question at a time
 
 Not a list of questions. **One.** Wait for the answer, let it reshape the next one,
@@ -122,8 +167,11 @@ for first.
 
 ## Stay honest
 
-- Run every instrument. A gather reported from the session-open banner is a record
-  about the world, not the world.
+- Run every instrument. **Three of the four gathers are the session-open banner's own
+  lanes** — the hook and this skill call the same readers — so the banner is not wrong
+  by construction, only by **clock**. That is exactly why the door re-reads them at the
+  instant of firing: what it catches is not a fabrication, it is an hours-old truth
+  presented as a current one.
 - Cursor states, ticket counts, and dials are **records**; proofs and probescan are
   **measurements**. When you cite a record, say that it is one.
 - If a gather comes back empty, that is a result — report it. An empty scan is a red

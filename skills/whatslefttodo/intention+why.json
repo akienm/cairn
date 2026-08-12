@@ -1,0 +1,43 @@
+{
+  "component": "skill:/whatslefttodo",
+  "role": "charter",
+  "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+
+  "axis": "orientation — a GATHER, not a decision. It reads the world and hands back a shape; it casts nothing, builds nothing, and resolves nothing on its own authority.",
+
+  "what": "The standing answer to the question Akien asks most often. Four gathers in a FIXED order — RULINGS (bin/cmd/recordverdict, bare, lists the gate), ALARMS (bin/cmd/slate for live troubles, bin/cmd/probescan for feedback paths, bin/cmd/test -q for the proof corpus), QUESTIONS (CairnCommons/questions/), THE SLATE (bin/cmd/slate) — then ONE overview, then ONE question at a time until he stops. The order is the content: rulings come first because they are the bulk of what he is asking for, and CC keeps putting them last.",
+
+  "why": "THE LIVED SYMPTOM, measured 2026-08-12 in the session that bore this. Akien asked 'do we have open questions or alarms we should tackle first?' and CC led with questions and alarms, spent twelve tool calls, and reported the 104 findings standing at his gate as an aside in the middle. His correction, verbatim: 'when i ask what's left to do, getting those 105 rulings done are a big part of what i'm asking for, and you are asking me about the questions first.' The gather was not wrong — the ORDER was, and an order that lives in CC's judgment is re-derived (differently) every time. Second symptom, his words: 'we're creating a shortcut for my monkey. the habit machine that a human is.' A skill he can reach for by reflex costs one word; the same gather assembled by hand costs a session's attention and comes out in a different order each time.",
+
+  "invoke": "/whatslefttodo — no arguments. It is deliberately parameterless: the subject IS 'what's left to do', and the four gathers ARE that subject's answer-shape.",
+
+  "deliberate_redundancy": "THIS SKILL IS A THIN ALIAS FOR `/reorient to rulings, then alarms, then questions, then the slate` AND THAT IS RULED, NOT AN OVERSIGHT. Akien, 2026-08-12, verbatim: 'i agree that /whatslefttodo is a silly redundant version of /reorient to rulings, then alarms, then questions, then the slate --- but we're creating a shortcut for my monkey. the habit machine that a human is. if i create the habit around that, we're better off, even if all that's in the skill is \"/reorient to rulings, then alarms, then questions, then the slate and then answer: what's left to do, with an overview, and then one question at a time.\"' THE DISTINGUISHER, because CC proposed killing this exact skill as near-synonym drift the same morning it was ruled: the anti-coinage rule governs the SYSTEM's vocabulary, where a near-duplicate term costs Akien a hunt. It does not govern AKIEN'S HAND, where a memorable name buys a reflex and the reflex is the entire product. The test is WHO TYPES IT. Expect the urge to simplify this away to recur; this field is the answer.",
+
+  "for_whom": "AKIEN, and specifically his habit machine — the skill exists so the gather is one keystroke instead of a re-derivation. Secondarily CC, who gets the order settled as structure rather than re-deciding it each session (Law 1).",
+
+  "node_class": "skill",
+
+  "writes_to": "NOTHING. This skill is a pure read across four instruments plus a spoken overview. It fires no door, berths no packet, files nothing to the commons. Every write it might motivate happens through the door that owns it — a verdict through `cairn recordverdict`, a node through /idea -> /intent -> /sorted, a boundary through /saveslate.",
+
+  "how_it_learns": "TODAY, BARELY AND HONESTLY — and the answer is not 'it doesn't'. Its feedback is Akien's reordering: every time he says 'you asked me about X first', the fixed order in this charter is wrong and gets corrected here, in one place, permanently. That is the learns-its-gates shape at its cheapest — a hand-set order stranded in CC's judgment became a hand-set order written down, which is one rung up, not the top. THE NEXT RUNG, NAMED SO IT IS NOT MISTAKEN FOR DONE: when /reorient lands as a parameterized gather, this skill's order becomes a per-subject SPEC that the block reads (the learning_block engine's shape — the spec carries the difference, the engine stays branchless), and the order becomes tunable against evidence instead of ruling. Owed, not built.",
+
+  "gates": "NONE, and that is the design — a gather that refuses is a gather that stops you finding out. Its only discipline is that every gather RUNS ITS INSTRUMENT rather than reporting from the session-open banner or from memory, and that is prose here, not physics. TRACKED DEBT (Law 4): nothing detects a /whatslefttodo that skipped a gather or reported a stale count. The honest state is an IOU, not a resting state.",
+
+  "falsifier": "WRONG-INTENT if Akien has to re-order the gathers more than about twice more — that would mean the order is not a settled fact but a per-session judgment, and freezing it here was the mistake. DEAD if the /reorient parameterized gather lands and Akien stops reaching for this name — the habit was the entire justification, so no habit means no skill. RED, always, on: a gather reported without running its instrument; a truncated census presented as a population; more than one question asked per turn; the overview offered as a menu instead of a recommendation.",
+
+  "owner": "the skills charter gates writes; Akien ratifies changes (signature gate). The ORDER of the four gathers is HIS — it is a spec-level ruling, and CC may not re-order it, add a fifth gather, or drop one without his word.",
+
+  "traces_to": [
+    "Law 1 — the resolver is spent on the novel, not on re-deriving the settled. The order of the gathers is a settled answer; re-deriving it every session is the defect this skill retires.",
+    "Law 3 — nothing is known until measured. Every gather names a command, and a gather reported from a record about the world is labeled as one.",
+    "Law 9 — red is the default; no triage authority. An old trouble is not stale by age, and an empty gather is a result to report, never a silent green.",
+    "founding intention learns-its-gates — the rulings gather is the training corpus for the thing that eventually stands at Akien's gate; his words: get rid of rulings 'thru learning not removal'.",
+    "idea 2026-08-11-maybe-summarize-was-the-wrong-word-we — the /reorient framing this skill is the first named subject of."
+  ],
+
+  "counted_by": "Nothing yet — it fires no door, so no dial counts it. If it ever needs a denominator, the honest one is 'times Akien re-ordered the gathers', which is the falsifier above, and it is counted by hand.",
+
+  "proof": "NONE — and this is a real gap, not a class exemption. The skill is prose CC executes; the four commands it names were each RUN and verified live on 2026-08-12 before the skill was written (recordverdict returned 104 findings; probescan returned 19 probes / 0 whole / 19 broken; test --help resolved; slate rendered the three live troubles), so the instruments are measured to exist rather than assumed. What is unproved is that a firing actually runs them. Law 8 applies and is owed.",
+
+  "provenance": "Cast and built 2026-08-12, in the session that measured the 104-deep gate and the zero-disprove dial. Built FIRST, out of order, by Akien's explicit sequencing: 'and we build that first so it's out of the way and we can use it. then we go back to rulings, alarms, questions and then the slate.' Skipped ceremony, named rather than hidden: no /intent firing, no /sorted cast, no chart chain — the origin idea exists (2026-08-11-maybe-summarize-was-the-wrong-word-we) and the owner ordered the build directly. That is a real gap against Law 2, recorded here so the next reader sees it instead of inferring ceremony that never ran."
+}

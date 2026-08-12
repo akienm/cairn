@@ -27,6 +27,10 @@
     "build order: db domain → ground loop → … (MAP.md:892)"
   ],
   "owner": "CC owns the ground_loop code + its proofs and gates writes to them. The heartbeat is the shared substrate every device's shim depends on; the probes hung on it are owned by their own devices (class-space declarations), and any durable state they touch is owned through db_domain.",
+  "gated_by": [
+    "Akien",
+    "CC"
+  ],
   "proof": "proofs/test_ground_loop.py — the beat pulses every subscribed shim in order and leaves a beat-record; the firing is the shim's (a due probe pokes the bus, the heartbeat pokes nothing, an idle beat pokes nobody); subscribe is idempotent + refuses a non-shim; one shim raising cannot stop the beat (CP2); the executor goof is gone (no run_driver/registry); device-hood + Form v0 #2 order; and the ROSTER is the nav (web-server child c) — published at all times, in order, with live wakefulness, DATA the web server renders. Composes the real BaseShim + Probe + a spy bus, so it proves the beat → pulse → fire chain WITHOUT a DB. Green bare (python3) and under the tester.",
   "provenance": "Born 2026-07-18 as the fifth spine step, first built as a generic driver-executor (cairn `584aa74`). Same day (evening), reworked to the heartbeat after the design conversation with Akien restored the lost property — a probe is the same unit whether fired on a cadence or on a device's own trigger — and located the firing in the shim. The rework SIMPLIFIES: the central scheduler (system_rackmount's scheduler service) dissolves, `run_driver` + the method-registry strip away, and one universal mechanism replaces three. Built third in the rework (after the bus and the base's probe+shim, both of which it pulses onto). Then the spine resumes (MAP.md:892): inference domain → web server."
 }

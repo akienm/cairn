@@ -9,9 +9,13 @@ callback logic, no routing: the 584aa74 goof stays out (firing lives in the
 shims that subscribe, per the 2026-08-04 shim-routes-everything ruling), and
 everything provable lives under this wrapper, sudo_relay daemon.py's shape.
 
-The liveness record is this process's only side effect: every beat touches
-``~/.cairn/devices/ground_loop/0/liveness.json`` (the write is part of the
-pass, in loop.py). Timestamps are timezone-aware — the read face subtracts.
+TWO KINDS OF SIDE EFFECT, and the difference is the whole of Law 7. Every beat
+REPLACES ``~/.cairn/devices/ground_loop/0/liveness.json`` — a snapshot answering
+"is it alive right now", true only at the instant it is read (the write is part
+of the pass, in loop.py). Every gate contact APPENDS to ``diagnostics.jsonl``
+beside it — a trail, where a line already written is never rewritten. The two
+files sit in the same directory and that adjacency is the distinction on display.
+Timestamps are timezone-aware — the read face subtracts.
 
 THE DOOR GUARDS ITSELF (ticket an-entry-point-starts-the-loop-only-once): the
 runner claims the singleton BEFORE constructing the device, so any entry point
@@ -30,11 +34,13 @@ import sys
 import time
 from datetime import datetime, timezone
 
+from cairn.base.address import instance_path
 from cairn.bus.bus import BusDevice
 from cairn.bus.shim import BusShim
+from cairn.diagnostic_inspector.log import BreadcrumbLog
 from cairn.ground_loop.discovery import discover
 from cairn.ground_loop.guard import ClaimRefused, claim_singleton
-from cairn.ground_loop.liveness import instance_home, read_liveness
+from cairn.ground_loop.liveness import read_liveness
 from cairn.ground_loop.loop import GroundLoopDevice
 from cairn.trouble.trouble import TroubleDevice
 
@@ -42,8 +48,12 @@ CADENCE_S = 1.0   # the ruled cadence: once per second (Akien, 2026-07-30)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
 
 
-def main(home=None) -> int:
-    home = home if home is not None else instance_home()
+def main(home=None, roots=None) -> int:
+    # ``home`` has always meant the LIVENESS address specifically, and the two proofs that
+    # inject it mean exactly that. ``roots`` redirects the whole instance tree — both trails
+    # below and, when home is not given, the liveness record too — so a caller can run this
+    # runner without touching the live tree it will later be read against.
+    home = home if home is not None else instance_path("ground_loop", 0, roots)
     try:
         claim = claim_singleton(home)  # noqa: F841 — held for the process's whole life
     except ClaimRefused as refusal:
@@ -68,6 +78,17 @@ def main(home=None) -> int:
     bus = BusDevice()
     device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice(),
                               bus=bus)
+    # THE BREADCRUMBS GET A HOME (ticket a-record-reaches-disk). Until this line every emit in
+    # the running system marked itself ``home='held'`` and appended to a list on an object
+    # inside a process that was about to exit — ``set_diagnostic_receiver`` had no live caller
+    # anywhere, so 22 emit sites wrote to nothing that outlived the run. Wired HERE because
+    # this runner is the one place that hands these devices the real world, the same way it
+    # hands them a wall clock and a discoverer. ONE TRAIL PER DEVICE, each in that device's own
+    # instance space: the bus's records are the bus's (Law 6 on the file, not merely in the
+    # code), and there is no shared file for two owners to write into. Both, not one — wiring
+    # the loop and leaving the bus held would close half the finding in the same three lines.
+    device.set_diagnostic_receiver(BreadcrumbLog("ground_loop", 0, roots=roots))
+    bus.set_diagnostic_receiver(BreadcrumbLog("bus", 0, roots=roots))
     # THE POSTMAN, hand-subscribed. Delivery is the BUS's act, never the heartbeat's — the
     # ground_loop does not route (that clause is the 584aa74 goof's headstone) — so the bus's
     # own shim drains the transit table on each pulse and hands each envelope to the shim of

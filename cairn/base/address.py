@@ -17,6 +17,21 @@ which also baked in ``Path.home()``:
     skill_block/skill_block.py:46    devices/skill_block/0/berths
     chart/orient.py:51               devices/chart/0/packets
 
+**THE TOP LEVEL OF ~/.cairn/ IS FOR WHAT IS NOT ANY DEVICE'S STATE** — Akien, 2026-08-12, two
+rulings with one shape. On the one entry above that sits off the devices/ ladder: *"devices/
+inference_domain/0/ is exactly right. ruled with a smile"* — ``hosts.json`` is
+``inference_domain``'s own state, so it belongs in ``inference_domain``'s own space, and the
+move creates that space (no ``devices/inference_domain/`` exists yet). And on what legitimately
+stays at the top: *"i think what i see is ~/.cairn/venv and not ~/.cairn/anything else/venv —
+~/.cairn/venv is correct"* — ONE venv per box, never one per device, and the same for ``logs``
+and ``backups``. So the test is not depth, it is OWNERSHIP: a file that answers "what is true of
+this machine" lives at the top; a file that answers "what is true of this device" lives under
+``devices/<name>/<instance>/``, singleton or not. Recorded here because the site is in the table
+above; the move itself is owed and rides the sail batch. CC had proposed instead that the ladder
+was MISSING A MACHINE-SCOPED RUNG and asked which it was — overruled, and it was an invented
+blocker: ``venv`` proves the top level already has a coherent job, and the file was simply in
+the wrong place.
+
 The drift is not hypothetical and it did not wait: ``~/.cairn/devices/learning_block/0/traces``
 was spelled out character-for-character in a device AND in that device's own probe — one
 component, one settled address, two independent derivations. That is Law 1's defect at the

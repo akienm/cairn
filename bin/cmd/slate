@@ -82,6 +82,7 @@ COMMONS = REPO.parent / "CairnCommons"
 SLATES = Path(os.environ.get("CAIRN_SLATES_DIR") or (COMMONS / "slates"))
 TROUBLES = os.environ.get("CAIRN_TROUBLES_DIR") or None       # None → the device's own default
 ADJUDICATIONS = Path(os.environ.get("CAIRN_ADJUDICATIONS_DIR") or (COMMONS / "adjudications"))
+QUESTIONS = Path(os.environ.get("CAIRN_QUESTIONS_DIR") or (COMMONS / "questions"))
 
 # The fields the slates store charter ratifies as the resumption point. Kept in the
 # charter's own order, and named here rather than "everything in the file" so a slate
@@ -251,8 +252,49 @@ def _unadjudicated() -> tuple[list[dict], str | None]:
     return out, ("unreadable adjudication(s): " + "; ".join(bad)) if bad else None
 
 
+def _open_questions() -> tuple[list[dict], str | None]:
+    """THE OPEN LANE — CC's frontier, surfaced to Akien. Akien, 2026-08-11: "open
+    questions lands with you... open questions is part of what i should see from the
+    hook where it says 'you still have things to decide on'."
+
+    NOT THE SAME TIER AS THE GATE OR THE LAP, and the header says so. Those two are
+    work only Akien can move. These are CC's — he owns raising them, holding them and
+    checking them at every "what's next"; Akien sees the lane, he does not own it
+    (Law 6, and the ruling is explicit that the surface is not the custody).
+
+    IT SHOWS HALF THE LANE AND SAYS SO. The store's charter compiles this lane from
+    TWO sources: homeless `open-*.json` here, and every charter's `filed_edges`, which
+    live beside the code they bound (Law 5) and can only appear through a projector.
+    That projector does not exist — and is itself already a member of the lane it is
+    missing from (open-the-frontier-projector.json). A lane that showed the homeless
+    half silently would be the cropped map this ruling was made against, so the count
+    is labelled at the surface rather than being quietly partial.
+
+    The `open-` prefix IS the lane boundary — the charter states it outright: "a probe
+    file never wears it, an open question always does." So the glob is the membership
+    rule and not a second owner of it. Unresolved iff ``resolved`` is null/absent, and
+    an unreadable one counts as unresolved and says so — the same direction the trouble
+    and lap lanes chose (Law 7).
+    """
+    if not QUESTIONS.is_dir():
+        return [], None                 # not every clone has one yet; silence, not noise
+    out, bad = [], []
+    for p in sorted(QUESTIONS.glob("open-*.json")):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:
+            bad.append(f"{p.name}: {exc}")
+            out.append({"id": p.stem, "question": "UNREADABLE — counts as unresolved",
+                        "raised_by": "?"})
+            continue
+        if not d.get("resolved"):
+            out.append(d)
+    return out, ("unreadable open question(s): " + "; ".join(bad)) if bad else None
+
+
 def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None,
-             pending: list, g_err: str | None, unadj: list | None = None) -> str:
+             pending: list, g_err: str | None, unadj: list | None = None,
+             questions: list | None = None) -> str:
     """The one line Akien sees. Carries the values that MOVE — which slate was
     chosen, how many troubles are live, and how many findings stand at his gate
     — so a wrong answer is visible at a glance. A fixed string here would be a
@@ -261,7 +303,8 @@ def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str |
     lane = "trouble lane UNREACHABLE" if t_err else f"{len(troubles)} live trouble(s)"
     gate = "gate lane UNREACHABLE" if g_err else f"{len(pending)} at the gate"
     lap = f" · {len(unadj)} in the lap" if unadj else ""
-    return f"🪝 slate · {which} · {lane} · {gate}{lap}"
+    open_q = f" · {len(questions)} open question(s)" if questions else ""
+    return f"🪝 slate · {which} · {lane} · {gate}{lap}{open_q}"
 
 
 def build() -> tuple[str, str]:
@@ -273,6 +316,7 @@ def build() -> tuple[str, str]:
     troubles, t_err = _live_troubles()
     pending, g_err = _at_the_gate()
     unadj, a_err = _unadjudicated()
+    questions, q_err = _open_questions()
     path, slate, s_warn = _newest_slate()
 
     lines.append(_rule("═"))
@@ -331,11 +375,30 @@ def build() -> tuple[str, str]:
                            "(IDEA / INTENT / TICKET).", "   "))
         lines.append("")
 
+    # THE OPEN LANE, fourth — below the two lanes that are HIS and above the plan,
+    # because a next step chosen without reading the open frontier is chosen against a
+    # map with its edges cropped off (Akien, 2026-08-11). Zero prints NOTHING.
+    if q_err:
+        lines.append(f"!! {q_err}")
+        lines.append("")
+    if questions:
+        lines.append(f"❓ OPEN QUESTIONS — {len(questions)} standing (CC owns these; "
+                     f"this lane is so you can see them):")
+        for q in questions:
+            lines.append(f"   [{q.get('raised_by', '?')}] {q.get('id', '?')}")
+            lines.append(_render(q.get("question", "<no question recorded>"), "        "))
+        lines.append(_wrap("CC checks these FIRST at every 'what's next', and files a new "
+                           "one for every 'to be clear, I did not do X'.", "   "))
+        lines.append(_wrap("SHOWING HALF THE LANE: homeless open-*.json only. The "
+                           "charters' filed_edges need a projector that does not exist "
+                           "yet (open-the-frontier-projector).", "   "))
+        lines.append("")
+
     if slate is None:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
         lines.append(_rule("═"))
-        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj)
+        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj, questions)
 
     if s_warn:
         lines.append(f"!! {s_warn}")
@@ -363,7 +426,7 @@ def build() -> tuple[str, str]:
         "that check is yours, it did not compile.", ""))
     lines.append(_rule("═"))
 
-    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err, unadj)
+    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err, unadj, questions)
 
 
 def main(argv: list[str]) -> int:

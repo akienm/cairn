@@ -46,6 +46,16 @@ way this could be built that LOOKS right and is not:
      `resolved` and STAYING on disk, so the discriminator is that field. A build that
      prints every file passes an "it surfaces" check and never stops shouting; one
      that skips the malformed record loses a decision nobody can read.
+ 10. THE OPEN LANE IS BOUNDED BY A PREFIX AND KNOWS IT IS PARTIAL. Two hollow builds
+     here. First, ``questions/`` holds two kinds — probes and open questions — and the
+     store's charter makes the ``open-`` prefix the boundary ("a probe file never wears
+     it, an open question always does"); a build that globs ``*.json`` surfaces probes
+     as frontier and looks perfectly healthy doing it, so case 19 plants a probe file
+     carrying a ``question`` key. Second, the chartered lane is COMPILED from two
+     sources and the projector for the charters' ``filed_edges`` half does not exist —
+     a build that prints the homeless half silently hands Akien a map with its edges
+     cropped off, which is the exact defect the ruling was made against, so the lane is
+     required to SAY it is showing half and to name the missing projector.
 
 INVARIANTS, NOT SNAPSHOTS. Every case runs against a temp tree this proof owns, so
 nothing here pins a value that legitimately moves. The one live-data assertion (case
@@ -84,10 +94,18 @@ def check(label: str, condition: bool, detail: str = "") -> None:
 
 def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
         traces_dir: Path | str | None = None,
-        adjudications_dir: Path | str | None = None) -> subprocess.CompletedProcess:
+        adjudications_dir: Path | str | None = None,
+        questions_dir: Path | str | None = None) -> subprocess.CompletedProcess:
     env = dict(os.environ)
     env["CAIRN_SLATES_DIR"] = str(slates_dir)
     env["CAIRN_TROUBLES_DIR"] = str(troubles_dir)
+    # The open lane, same reason as the lap below — and it bites harder here, because
+    # this store is meant to GROW: CC files an open question for every "to be clear, I
+    # did not do X" (Akien, 2026-08-11), so unset, fixture output would move on an
+    # ordinary Tuesday.
+    env["CAIRN_QUESTIONS_DIR"] = str(
+        questions_dir if questions_dir is not None
+        else Path(env["CAIRN_SLATES_DIR"]).parent / "questions_empty")
     # The lap lane, same reason as the trace berth below: unset, every case would read
     # the REAL CairnCommons/adjudications/ and fixture output would move whenever a real
     # item was filed. A proof over live data can only assert invariants, and these cases
@@ -391,13 +409,84 @@ def main() -> int:
               "LAPOPENZZ" in payload.get("additionalContext", "")
               or "LAPOPENZZ" in json.dumps(payload), json.dumps(payload)[:300])
 
+        # ── 19-21: THE OPEN LANE ───────────────────────────────────────────────────
+        # Akien, 2026-08-11: "open questions is part of what i should see from the hook
+        # where it says 'you still have things to decide on'." Same field-not-file
+        # discriminator as the lap, plus two teeth the lap does not need: the `open-`
+        # PREFIX is the store charter's own lane boundary ("a probe file never wears
+        # it, an open question always does"), and this lane knowingly shows HALF the
+        # compiled lane, so it must SAY so — a silently partial frontier is the cropped
+        # map the ruling was made against.
+        print("\n19. the open lane surfaces the standing frontier and hides the closed")
+        q1 = root / "questions"
+        q1.mkdir()
+        (q1 / "_charter+why.json").write_text(
+            json.dumps({"store": "questions", "role": "QCHARTERTEXT"}), encoding="utf-8")
+        (q1 / "open-standing.json").write_text(json.dumps({
+            "id": "QOPENZZZZ", "raised_by": "CC", "question": "QUESTIONTEXT",
+            "whats_beyond": "beyond", "resolved": None}), encoding="utf-8")
+        (q1 / "open-settled.json").write_text(json.dumps({
+            "id": "QSHUTZZZZ", "raised_by": "CC", "question": "already answered",
+            "resolved": {"at": "2026-08-10", "by": "akien"}}), encoding="utf-8")
+        (q1 / "tool-shaped-or-domain-shaped.json").write_text(json.dumps({
+            "id": "QPROBEZZZ", "probe": "a probe, not an open question",
+            "question": "PROBETEXT"}), encoding="utf-8")
+        r = run(s1, t_empty, questions_dir=q1)
+        check("a standing question surfaces", "QOPENZZZZ" in r.stdout, r.stdout[:500])
+        check("its text surfaces, not just its id", "QUESTIONTEXT" in r.stdout)
+        check("a RESOLVED question does not surface", "QSHUTZZZZ" not in r.stdout,
+              "resolved is the discriminator, not the file's existence")
+        check("THE PREFIX TOOTH: a probe file is not in the lane, though it sits in the "
+              "same folder and carries a `question` key",
+              "QPROBEZZZ" not in r.stdout and "PROBETEXT" not in r.stdout,
+              "the `open-` prefix IS the lane boundary (questions/_charter+why.json)")
+        check("the store charter is not an item", "QCHARTERTEXT" not in r.stdout)
+        check("the count is the standing count", "1 standing" in r.stdout, r.stdout[:500])
+        check("THE HALF-LANE TOOTH: it says it is showing half, and names the missing "
+              "projector — a silently partial frontier is worse than none",
+              "SHOWING HALF THE LANE" in r.stdout
+              and "open-the-frontier-projector" in r.stdout, r.stdout[:800])
+        check("the lane says who owns it — CC, not Akien (Law 6: the surface is not "
+              "the custody)", "CC owns these" in r.stdout, r.stdout[:800])
+
+        print("\n20. an unreadable question counts as STANDING, and is never silent")
+        q2 = root / "questions_bad"
+        q2.mkdir()
+        (q2 / "open-corrupt.json").write_text("{not json", encoding="utf-8")
+        r = run(s1, t_empty, questions_dir=q2)
+        check("the unreadable file is named", "unreadable open question" in r.stdout,
+              r.stdout[:400])
+        check("it still COUNTS as standing", "1 standing" in r.stdout,
+              "a build that skips the malformed case passes hollow (Law 8)")
+        check("the banner survives (never-wedge)", "REAL" in r.stdout and r.returncode == 0,
+              f"rc={r.returncode}")
+
+        print("\n21. an empty frontier — or none at all — is total silence, and the "
+              "receipt carries the count because it MOVES")
+        q3 = root / "questions_empty_case"
+        q3.mkdir()
+        for label, d in (("empty", q3), ("absent", root / "no_such_q_dir")):
+            r = run(s1, t_empty, questions_dir=d)
+            check(f"{label}: no open lane, no receipt fragment, no error claimed",
+                  "OPEN QUESTIONS" not in r.stdout
+                  and "standing" not in r.stdout
+                  and "unreadable open question" not in r.stdout, r.stdout[:300])
+            check(f"{label}: the banner survives", "REAL" in r.stdout and r.returncode == 0)
+        r = run(s1, t_empty, "--hook", questions_dir=q1)
+        payload = json.loads(r.stdout)
+        check("systemMessage names the open count",
+              "1 open question(s)" in payload.get("systemMessage", ""),
+              payload.get("systemMessage", ""))
+        check("the lane reaches the model via additionalContext",
+              "QOPENZZZZ" in json.dumps(payload), json.dumps(payload)[:300])
+
         # ── 19. within a date, written_at ranks — and an unrankable day says so ────
         # The build this is written against is the one that SHIPPED: date + filename.
         # Every case above uses distinct dates, so it passes all of them and still
         # named the 15:50 slate current over the 16:41 one on 2026-08-03. Here the
         # filename order and the write order DISAGREE, so only a written_at build
         # lands on LATER.
-        print("\n19. same-day slates rank by written_at, not by filename")
+        print("\n22. same-day slates rank by written_at, not by filename")
         s_day = root / "slates_sameday"
         s_day.mkdir()
         write_slate(s_day, "2026-08-03-aaa-the-later-one.json", id="LATER",

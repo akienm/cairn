@@ -29,7 +29,7 @@ The verbs:
                              applies (the what-exists/what-applies discipline, extended
                              to the tree). A field the ceiling takes from a walked node
                              is marked provenance "tree" in the packet.
-  (orient's own deposit_orient lives in cairn/machines/orient — see the note below)
+  (orient's own deposit_orient lives in cairn/devices/builder/machines/orient — see the note below)
   the deposit-back after the berth: the packet's ``intent``
                              lands as one node whose provenance names the berth path, so
                              the same class of request next time is a walk, not a

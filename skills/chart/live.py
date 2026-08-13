@@ -23,18 +23,18 @@ import os
 import sys
 from datetime import date
 
-from cairn.machines.constrain.constrain import constrain_node_content, deposit_constrain
+from cairn.devices.builder.machines.constrain.constrain import constrain_node_content, deposit_constrain
 from skills.chart.dial import dial
 from skills.moreabout.moreabout import expand, signal
 from cairn.tools.chain.grammar import (CAIRN_ROOT)
-from cairn.machines.decompose.decompose import decompose_node_content, deposit_decompose
-from cairn.machines.hypothesize.hypothesize import deposit_hypothesize, hypothesize_node_content
-from cairn.machines.survey.survey import deposit_survey, survey_node_content
-from cairn.machines.orient.orient import deposit_orient
+from cairn.devices.builder.machines.decompose.decompose import decompose_node_content, deposit_decompose
+from cairn.devices.builder.machines.hypothesize.hypothesize import deposit_hypothesize, hypothesize_node_content
+from cairn.devices.builder.machines.survey.survey import deposit_survey, survey_node_content
+from cairn.devices.builder.machines.orient.orient import deposit_orient
 from cairn.tools.tree.tree import counsel, deposit_learning
-from cairn.machines.triage.triage import deposit_triage, triage_node_content
-from cairn.machines.validate.validate import deposit_validate, validate_node_content
-from cairn.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
+from cairn.devices.builder.machines.triage.triage import deposit_triage, triage_node_content
+from cairn.devices.builder.machines.validate.validate import deposit_validate, validate_node_content
+from cairn.devices.builder.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
 from cairn.devices.librarian.live import embed_metered_via_domain, embed_via_domain
@@ -298,7 +298,7 @@ def _chain(argv: list[str]) -> int:
     if not argv:
         print("usage: python3 -m skills.chart.live chain <ticket>", file=sys.stderr)
         return 1
-    from cairn.machines.verdict.verdict import chain_for_ticket
+    from cairn.devices.builder.machines.verdict.verdict import chain_for_ticket
     print(json.dumps({"ticket": argv[0], "chain": chain_for_ticket(argv[0])},
                      indent=2))
     return 0

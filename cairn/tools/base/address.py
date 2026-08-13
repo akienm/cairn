@@ -83,8 +83,9 @@ from pathlib import Path
 # THIS MODULE IMPORTS pathlib AND NOTHING ELSE — measured, not asserted: import_map over it
 # says ['__future__', 'pathlib']. That is what makes it a legal floor for every caller,
 # including the ones whose proofs pin an import allowlist (cairn/devices/librarian/library.py and
-# cairn/machines/orient/orient.py both admitted it by name on 2026-08-12, each with the measurement in
-# the comment). Note what is NOT claimed: cairn/tools/base as a PACKAGE is not import-clean —
+# cairn/tools/chain/grammar.py both admit it by name, each with the measurement in the comment;
+# the grammar's seat was orient's until 2026-08-13, when the chain grammar was carved out and
+# took the address with it — the admitters change, the reason does not). Note what is NOT claimed: cairn/tools/base as a PACKAGE is not import-clean —
 # deviceness.py reaches cairn.devices.ground_loop.discovery and transitions.py reaches four
 # components. The floor is this FILE, and the package __init__ is empty by the boot-order law
 # written into it, so importing this leaf pulls none of that in.
@@ -186,6 +187,16 @@ def component_dirs(pkg_root: Path | str | None = None) -> tuple[list[Path], list
     load-bearing — it was widened to it on 2026-08-01 because ``skills/intent/`` was invisible
     to the ``*.py``-only test and the build gate refused the crossing.
 
+    A HOLDER'S OWN RUNGS ARE RUNGS. CLAUDE.md grants a device the same shape one level down —
+    "a device's held tools and machines nest under it at the same shape, tools/<name>/ and
+    machines/<name>/, named and never numbered" — and until 2026-08-13 nothing on disk had
+    ever used that grant, so the walk stopped at ``cairn/<rung>/<name>/`` and a nested
+    component would simply not have existed as far as the roster, the derivation gate or any
+    judge was concerned. It would not have failed; it would have gone QUIET, which is the same
+    failure HollowScan caught the first time. The descent is therefore recursive rather than
+    one-extra-level: a rung inside a component is descended wherever it appears, so the depth
+    of the ladder costs nothing here and no future holder has to remember to widen this walk.
+
     An unreadable entry RIDES THE RETURN rather than crashing the walk or vanishing from it
     (Law 7, and the same shape ``device_census`` already used for the identical reason: a
     scan that dies on one entry reports nothing about the other twenty-three).
@@ -200,21 +211,42 @@ def component_dirs(pkg_root: Path | str | None = None) -> tuple[list[Path], list
     def looks_like_a_component(d: Path) -> bool:
         return bool(list(d.glob("*.py"))) or (d / "intention+why.json").is_file()
 
+    def held_rungs(c: Path) -> None:
+        """Descend whatever rungs this component holds. Only a directory NAMED in
+        CLASS_RUNGS is entered, which is what keeps ``proofs/``, ``probes/`` and
+        ``validations/`` from being read as components — they are a component's
+        record, not smaller components inside it."""
+        for rung in CLASS_RUNGS:
+            sub = c / rung
+            if sub.is_dir():
+                walk(sub)
+
+    def walk(container: Path) -> None:
+        for c in sorted(container.iterdir()):
+            try:
+                if not c.is_dir() or c.name == "__pycache__":
+                    continue
+                if looks_like_a_component(c):
+                    components.append(c)
+                # UNCONDITIONAL, not an else and not folded into the branch above: a
+                # holder that has not yet grown code of its own still holds what it
+                # holds, and hiding the descent behind the holder's own component-ness
+                # would make the parts visible or invisible depending on a fact about
+                # the parent. That is exactly the quiet failure this walk exists to end.
+                held_rungs(c)
+            except OSError as e:
+                unreadable.append({"path": str(c), "why": f"UNREADABLE: {e}"})
+
     for d in sorted(root.iterdir()):
         try:
             if not d.is_dir() or d.name == "__pycache__":
                 continue
             if d.name in CLASS_RUNGS:
-                for c in sorted(d.iterdir()):
-                    try:
-                        if not c.is_dir() or c.name == "__pycache__":
-                            continue
-                        if looks_like_a_component(c):
-                            components.append(c)
-                    except OSError as e:
-                        unreadable.append({"path": str(c), "why": f"UNREADABLE: {e}"})
-            elif looks_like_a_component(d):
-                components.append(d)
+                walk(d)
+            else:
+                if looks_like_a_component(d):
+                    components.append(d)
+                held_rungs(d)
         except OSError as e:
             unreadable.append({"path": str(d), "why": f"UNREADABLE: {e}"})
     return components, unreadable
@@ -226,8 +258,10 @@ class AmbiguousComponent(LookupError):
     THE NAME IS NOT THE ADDRESS ANY MORE, and this is what says so out loud. The
     first live instance was born the day the rungs landed: ``orient`` is a TOOL
     (``cairn/tools/orient`` — the deterministic scanner) and, since the chart
-    decomposition of 2026-08-13, also a MACHINE (``cairn/machines/orient`` — that
-    scanner plus the chain glue). Both are correct; the layering is the point.
+    decomposition of 2026-08-13, also a MACHINE (``cairn/devices/builder/machines/orient``
+    — that scanner plus the chain glue, held by the device whose parts the pre-build
+    stages are). Both are correct; the layering is the point, and the nesting makes it
+    louder rather than quieter: the two homes are now three rungs apart, not one.
     What is not correct is a lookup answering with whichever one sorts first, which
     is what happened silently until this class existed: ``constrain`` would have read
     the machine's charter while its own roster meant either, and reported the result

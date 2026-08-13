@@ -45,7 +45,7 @@ from skills.chart import dial as dial_mod
 from cairn.tools.tree import tree
 from skills.chart.dial import dial
 from cairn.tools.chain.grammar import (STRATA)
-from cairn.machines.orient.orient import (OrientRefused, deposit_orient)
+from cairn.devices.builder.machines.orient.orient import (OrientRefused, deposit_orient)
 from cairn.tools.tree.tree import (
     TreeRefused, counsel, deposit_learning, nexus_table,
 )
@@ -170,21 +170,21 @@ def test_counsel_keeps_its_floor_visible():
 
 def test_the_librarians_tools_are_the_only_door():
     allowed = {
-        tree.__file__: ("__future__", "os", "re", "cairn.machines.orient.orient",
+        tree.__file__: ("__future__", "os", "re", "cairn.devices.builder.machines.orient.orient",
                         "cairn.devices.librarian.trees", "cairn.devices.librarian.loop"),
-        # cairn.machines.constrain.constrain joined 2026-07-28 (chart-constrain), cairn.machines.survey.survey
-        # and cairn.machines.decompose.decompose the same day (chart-survey, chart-decompose),
-        # cairn.machines.triage.triage the same day again (chart-triage), then
-        # cairn.machines.hypothesize.hypothesize and cairn.machines.validate.validate (chart-hypothesize,
+        # cairn.devices.builder.machines.constrain.constrain joined 2026-07-28 (chart-constrain), cairn.devices.builder.machines.survey.survey
+        # and cairn.devices.builder.machines.decompose.decompose the same day (chart-survey, chart-decompose),
+        # cairn.devices.builder.machines.triage.triage the same day again (chart-triage), then
+        # cairn.devices.builder.machines.hypothesize.hypothesize and cairn.devices.builder.machines.validate.validate (chart-hypothesize,
         # chart-validate — the chain complete): the dial reads each stage's
         # packets against that stage's own field-shape — a stage registers here
         # when it lands.
         dial_mod.__file__: ("__future__", "json", "os", "re", "sys",
-                            "cairn.machines.constrain.constrain", "cairn.machines.decompose.decompose",
-                            "cairn.machines.hypothesize.hypothesize", "cairn.machines.orient.orient",
+                            "cairn.devices.builder.machines.constrain.constrain", "cairn.devices.builder.machines.decompose.decompose",
+                            "cairn.devices.builder.machines.hypothesize.hypothesize", "cairn.devices.builder.machines.orient.orient",
                             "cairn.tools.chain.grammar",
-                            "cairn.machines.survey.survey", "cairn.machines.triage.triage",
-                            "cairn.machines.validate.validate"),
+                            "cairn.devices.builder.machines.survey.survey", "cairn.devices.builder.machines.triage.triage",
+                            "cairn.devices.builder.machines.validate.validate"),
     }
     # Composed over orient's import_map (installed 2026-07-28 through the brick loop,
     # seeded by THIS tooth's own twice-fired red): the allowlist matches the module
@@ -273,7 +273,7 @@ def test_the_real_berth_by_invariant():
 
 
 def test_tree_is_a_legal_stratum_at_the_packet_gate():
-    from cairn.machines.orient.orient import (validate_orient)
+    from cairn.devices.builder.machines.orient.orient import (validate_orient)
     p = _packet(provenance={"intent": "tree", "domain": "tree", "scope": "tree",
                             "refs": "floor", "unknowns": "tree"})
     assert validate_orient(p) is p, "the ceiling writes 'tree' through the standing gate"

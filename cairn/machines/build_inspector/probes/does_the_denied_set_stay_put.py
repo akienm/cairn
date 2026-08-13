@@ -51,7 +51,7 @@ _OWNING_TICKET = "reachability-replaces-the-allowlist"
 # Measured at the PROVED crossing, 2026-08-12. A date and a measurement, not a dial.
 _CLOSURE_AT_PROVED = (
     "cairn", "cairn.tools.base", "cairn.tools.base.address", "cairn.tools.base.diagnostic",
-    "cairn.tools.base.nest", "cairn.machines.orient.orient", "cairn.machines.verdict.verdict", "cairn.tools.charter",
+    "cairn.tools.base.nest", "cairn.devices.builder.machines.orient.orient", "cairn.devices.builder.machines.verdict.verdict", "cairn.tools.charter",
     "cairn.tools.charter.projector", "cairn.tools.import_sieve", "cairn.tools.import_sieve.sieve",
     "cairn.machines.learning_block", "cairn.machines.learning_block.learning_block", "cairn.tools.orient",
     "cairn.tools.orient.orient", "cairn.machines.skill_block", "cairn.machines.skill_block.skill_block",

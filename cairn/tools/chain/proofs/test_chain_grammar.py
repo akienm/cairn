@@ -27,7 +27,7 @@ GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "gram
 # A TOOL MAY NOT IMPORT A MACHINE, and this allowlist is where that stops being a
 # sentence in CLAUDE.md and becomes physics (Law 4). The rung inversion is not
 # hypothetical: on the day the grammar was carved out, ``cairn/tools/tree/tree.py``
-# was found importing ``cairn.machines.orient.orient``, and the first draft of this
+# was found importing ``cairn.devices.builder.machines.orient.orient``, and the first draft of this
 # very folder held a ``dial.py`` that imported all seven stage machines. Both were
 # fixed by moving code, not by remembering. What the grammar may reach is stdlib,
 # the address tool (the one owner of the instance address), and the orient

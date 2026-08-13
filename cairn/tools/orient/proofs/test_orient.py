@@ -147,8 +147,19 @@ def main() -> None:
     real = device_census()
     assert real["measured"]["count"] >= 5, "the census barely saw the tree"
     for row in real["measured"]["components"]:
-        assert set(row) == {"component", "charter_on_disk", "device_subclasses", "proofs",
-                            "validations", "self_emit_call_sites_outside_proofs"}, row
+        # "dir" joined 2026-08-13: the row carries WHERE it was measured, because the
+        # name stopped being unique the day a component was held by a device (two
+        # "orient"s, three rungs apart). A consumer keyed on the name alone collapses
+        # them and inspects one twice while the other goes unexamined — measured, in
+        # build_inspector, on the day the builder device landed.
+        assert set(row) == {"component", "dir", "charter_on_disk", "device_subclasses",
+                            "proofs", "validations",
+                            "self_emit_call_sites_outside_proofs"}, row
+        assert (_REPO_ROOT / "cairn" / row["dir"]).is_dir(), \
+            "a census row's dir must name a directory that exists under the scanned root"
+        assert row["dir"].endswith(row["component"]), \
+            "the dir must END in the component's own name — an address that does not " \
+            "agree with the name it carries is two claims, not one"
 
     # 9 — real tree: the scan floor is enforced (a 3-file 'scan of cairn/' refuses).
     r = call_sites("emit")

@@ -47,7 +47,7 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (t
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
-from cairn.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
+from cairn.devices.builder.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
 #   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
@@ -417,7 +417,7 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
     sharpest claim-vs-world drift on record). The packet is the claim, the
     promotion is the moment, this sieve is the comparison — through the berth
-    gate's own ref semantics (cairn.machines.orient.orient.ref_exists), so the judge and
+    gate's own ref semantics (cairn.devices.builder.machines.orient.orient.ref_exists), so the judge and
     the gate that admitted the refs cannot disagree.
     """
     packets, unreadable = _charted_packets(comp_dir, "orient")
@@ -1555,7 +1555,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.
 # A claimed cast ticket crossing forward into PROVED must show a verdict
-# artifact (cairn/machines/verdict/verdict.py — the ONE validator, shared with the deposit
+# artifact (cairn/devices/builder/machines/verdict/verdict.py — the ONE validator, shared with the deposit
 # face) in which every criterion of the claiming validate berth carries a run
 # verdict with outcome pass, and every hypothesis of the chain is dispositioned
 # confirmed-or-killed with the deciding observation.
@@ -1583,7 +1583,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
     # THE ONE LATEST-CLAIMER RULE, composed (ticket the-deposit-rides-the-read):
-    # this gate's private glob loop retired into cairn.machines.verdict.verdict, where the
+    # this gate's private glob loop retired into cairn.devices.builder.machines.verdict.verdict, where the
     # crossing's deposit-enqueue reads it too — one implementation, two mouths.
     claiming = claiming_packets(ticket, "validate", berths_root=root)
     artifacts = claiming_packets(ticket, "verdict", berths_root=root)
@@ -1591,7 +1591,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
         return []  # unclaimed — ungated (v0 jurisdiction, inherited from the entry gate)
     disposition = ("Disposition: run the claiming validate berth's criteria by their "
                    "instruments, write the verdict artifact through "
-                   "cairn.machines.verdict.verdict.write_verdict, deposit it, then cross again.")
+                   "cairn.devices.builder.machines.verdict.verdict.write_verdict, deposit it, then cross again.")
     if not artifacts:
         return [_finding(
             "proved_answers_the_chart", ticket,
@@ -1844,11 +1844,29 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     # here is the tenant's convention — which sieve meets which subject, and how:
     # SIEVES[name](row, comp_dir). Binary scores, absence-not-a-third-value, and the
     # min() roll-up are the general side's contract now, stated at its berth.
-    shaken = base_nest.shake(
-        nest,
-        {row["component"]: row for row in rows},
-        lambda name, row: SIEVES[name](row, root / row["component"]),
-    )
+    # THE SUBJECT KEY IS THE ADDRESS, NOT THE NAME, and comp_dir is the measured dir
+    # rather than a re-spelled ``root / name``. Both halves were the same 2026-08-13 defect,
+    # found by moving the seven pre-build stages under the builder device: keyed by name,
+    # the two components called ``orient`` (the tool and the builder's machine) collapsed
+    # into one dict entry, so one of them was shaken twice and the other never — a component
+    # silently exempt from every sieve, which is precisely "a gate that inspects nothing
+    # passes everything". And ``root / row["component"]`` had been the FLAT-era spelling
+    # since the rung move: it pointed at cairn/<name>/, which no longer exists for any
+    # component, so every sieve reading comp_dir (state_is_projection, the charted-packet
+    # judges, _component_tickets) was reading an absent directory and returning clean.
+    # Vacuously green is the worst colour a gate can be.
+    def fire(name, row):
+        """Stamp every finding with the address it was caught at. ``component`` stays the
+        bare NAME because the sieves compare on it (``!= "chart"``, the sole_path prefix),
+        and because a reader wants the name first. ``at`` is what correlates a finding back
+        to its row in the gradation, which is keyed by address — one place, so a finding
+        cannot disagree with the subject that produced it."""
+        caught = SIEVES[name](row, root / row["dir"])
+        for f in caught:
+            f["at"] = row["dir"]
+        return caught
+
+    shaken = base_nest.shake(nest, {row["dir"]: row for row in rows}, fire)
     return {
         "inspector": "build_inspector",
         "scope": component or "whole-repo sweep",

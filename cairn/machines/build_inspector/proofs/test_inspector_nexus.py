@@ -184,8 +184,8 @@ def test_the_fire_path_never_reaches_the_tree():
     # the same pass that removed the other two, because the ticket's bounds put it out.
     # Named here rather than left as a silent leftover: the residue is the 12 closure
     # members nobody asks the dynamic question of.
-    import cairn.machines.orient.orient as chart_orient
-    import cairn.machines.verdict.verdict as chart_verdict
+    import cairn.devices.builder.machines.orient.orient as chart_orient
+    import cairn.devices.builder.machines.verdict.verdict as chart_verdict
     import cairn.machines.learning_block.learning_block as lb
     import cairn.machines.skill_block.skill_block as skill_block
     # DERIVED from the one declaration, never restated: a second literal here is two

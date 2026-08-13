@@ -36,8 +36,11 @@ from pathlib import Path
 from cairn.tools.base.address import instance_path
 from cairn.tools.orient.orient import device_census
 
-# .../repo/cairn/tools/chain/grammar.py -> repo root. Same depth as the file this was
-# carved out of (cairn/machines/orient/orient.py), so the expression is unchanged.
+# .../repo/cairn/tools/chain/grammar.py -> repo root: four dirnames, counted off THIS
+# file's own address. It used to be justified as "same depth as the file this was carved
+# out of", which stopped being true on 2026-08-13 when that file moved under the builder
+# device — a magic number defended by reference to a movable neighbour is a number that
+# goes wrong silently. The depth is the tool's own.
 CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 INSTANCE_DIR = str(instance_path("chart", 0) / "packets")
 

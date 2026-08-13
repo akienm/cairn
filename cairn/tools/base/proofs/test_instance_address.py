@@ -25,6 +25,12 @@ Teeth a hollow build could not pass:
     arguments. They are one table, and they are pinned to each other here by Path equality
     under the same injected roots — including for a device that does not exist, because the
     agreement is about the ADDRESS and not about what happens to be on disk.
+  - THE CLASS-SPACE WALK DESCENDS A HOLDER'S OWN RUNGS. A device's held tools and machines
+    nest under it at the same shape (CLAUDE.md), so the census that finds components has to
+    go down with them — and it must not read a component's proofs/, probes/ or validations/
+    as smaller components. The falsifier is a held machine that is simply ABSENT from the
+    roster: not an error, just gone, which is how a gate stops covering something without
+    ever saying so. Born the day the builder device took the seven pre-build stages in.
   - A HAND-SPELLED ABSOLUTE PATH IS STILL REFUSED as an address. The behaviour was born in
     cairn/machines/skill_block/counters.py and moved down here on 2026-08-12; the tooth moved with
     it, and skill_block's own proof still holds its copy — the relocation is checked from
@@ -171,8 +177,71 @@ def test_a_bare_absolute_path_is_refused_as_an_address():
             assert "another box" in str(exc), str(exc)
 
 
+def test_the_class_space_walk_descends_a_holders_own_rungs():
+    """CLAUDE.md grants a device the same shape one level down — "a device's held tools and
+    machines nest under it at the same shape" — and until 2026-08-13 nothing on disk had
+    used the grant, so the walk stopped one level in. The failure mode is not a crash: a
+    held component simply would not EXIST as far as the roster, the derivation gate or any
+    judge is concerned. Green by absence is the worst colour a census can be, so the
+    descent is pinned here rather than remembered.
+
+    Fabricated tree, no live snapshot values. Shape:
+
+        cairn/devices/holder/{__init__.py, machines/held/held.py, tools/gadget/gadget.py}
+        cairn/devices/quiet/machines/hidden/hidden.py     <- holder has no code of its own
+        cairn/tools/plain/plain.py
+        cairn/devices/holder/machines/held/proofs/test_x.py   <- a RECORD, not a component
+    """
+    with tempfile.TemporaryDirectory() as td:
+        pkg = Path(td) / "cairn"
+
+        def mk(rel: str, code: bool = True) -> Path:
+            d = pkg / rel
+            d.mkdir(parents=True, exist_ok=True)
+            if code:
+                (d / (d.name + ".py")).write_text("x = 1\n")
+            return d
+
+        mk("tools/plain")
+        holder = mk("devices/holder", code=False)
+        (holder / "__init__.py").write_text("")
+        mk("devices/holder/machines/held")
+        mk("devices/holder/tools/gadget")
+        # A holder with NO code and NO charter of its own still holds what it holds.
+        mk("devices/quiet", code=False)
+        mk("devices/quiet/machines/hidden")
+        # A component's own record dirs are not smaller components inside it.
+        for record in ("proofs", "probes", "validations"):
+            r = pkg / "devices/holder/machines/held" / record
+            r.mkdir()
+            (r / "test_x.py").write_text("x = 1\n")
+
+        found, unreadable = A.component_dirs(pkg)
+        rel = sorted(str(p.relative_to(pkg)) for p in found)
+        assert unreadable == [], unreadable
+        assert rel == ["devices/holder",
+                       "devices/holder/machines/held",
+                       "devices/holder/tools/gadget",
+                       "devices/quiet/machines/hidden",
+                       "tools/plain"], rel
+
+        # THE NAME IS NOT THE ADDRESS, and the walk is what makes that true rather than a
+        # slogan: the same name at two rungs comes back as TWO dirs, and the bare-name
+        # lookup refuses to pick one.
+        mk("tools/held")
+        homes = sorted(str(p.relative_to(pkg)) for p in A.component_dirs(pkg)[0]
+                       if p.name == "held")
+        assert homes == ["devices/holder/machines/held", "tools/held"], homes
+        try:
+            A.component_dir("held", pkg)
+            raise AssertionError("a name two rungs answer to resolved to one home")
+        except A.AmbiguousComponent as exc:
+            assert exc.name == "held" and len(exc.homes) == 2, exc.homes
+
+
 def _main() -> int:
     for check in (test_the_three_rungs_resolve_off_this_box,
+                  test_the_class_space_walk_descends_a_holders_own_rungs,
                   test_the_instance_segment_is_present_even_at_zero,
                   test_the_held_part_is_named_never_numbered,
                   test_resolving_creates_nothing,

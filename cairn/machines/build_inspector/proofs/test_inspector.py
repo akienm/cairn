@@ -26,7 +26,14 @@ from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 # (evidence, under the name it has always had) AND the score — the datum read against
 # the requirement, which the datum alone cannot say. Pinned here so a sieve cannot emit
 # a bare judgement again.
-_FINDING_SHAPE = {"sieve", "component", "finding", "evidence", "score", "why_it_matters"}
+#
+# "at" joined 2026-08-13 (the builder move): the finding's ADDRESS, alongside its name.
+# Two components are called "orient" — the tool and the machine the builder holds — so
+# "component" stopped being enough to say which one was caught, and the gradation is now
+# keyed by address. "at" is what correlates a finding back to its own row; without it a
+# reader (and the tooth below at the gradation) can only guess between two subjects.
+_FINDING_SHAPE = {"sieve", "component", "finding", "evidence", "score", "why_it_matters",
+                  "at"}
 
 
 def _refuses(fn, because):
@@ -770,11 +777,15 @@ def main() -> None:
     caught = {f["sieve"] for f in rep["findings"]}
     for f in rep["findings"]:
         assert f["score"] == 0.0, f
-        assert rep["gradation"][f["component"]][f["sieve"]] == 0.0, f
+        # BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's
+        # dir because two components answer to "orient"; correlating on the bare name here
+        # would either KeyError (as it did the day the builder device landed) or, worse,
+        # silently match the wrong subject's row and pronounce the pairing sound.
+        assert rep["gradation"][f["at"]][f["sieve"]] == 0.0, f
     for comp, scores in rep["gradation"].items():
         for name, s in scores.items():
             if s == 1.0:
-                assert not any(f["sieve"] == name and f["component"] == comp
+                assert not any(f["sieve"] == name and f["at"] == comp
                                for f in rep["findings"]), \
                     ("a sieve scored 1.0 while emitting a finding — the score and "
                      "the finding are two faces of one judgement and cannot disagree")

@@ -213,6 +213,14 @@ def device_census(*, root: Path | None = None) -> dict:
                 verdicts.append({"file": v.name, "verdict": f"UNREADABLE: {e}", "records": 0})
         rows.append({
             "component": d.name,
+            # THE NAME IS NOT THE ADDRESS (base.address.AmbiguousComponent, 2026-08-13).
+            # ``orient`` is both a tool and a machine held by the builder device; a consumer
+            # keyed on d.name alone collapses the two and inspects one of them twice while
+            # the other is never inspected at all — silently, which is the failure this
+            # census exists to prevent. The row therefore carries WHERE it was measured,
+            # relative to the pkg root it was measured under, and a consumer that needs a
+            # unique subject key uses this.
+            "dir": str(d.relative_to(root)),
             "charter_on_disk": (d / "intention+why.json").exists(),
             "device_subclasses": subclasses,
             "proofs": len(list(d.glob("proofs/test_*.py"))),
@@ -277,7 +285,7 @@ def import_map(path, *, root: Path | None = None) -> dict:
     Provenance: 2026-07-28 — the same red twice in one day: import-allowlist teeth
     recorded ``ast.ImportFrom.module`` verbatim, so ``from cairn.machines.chart import
     constrain`` recorded as the prefix ``cairn.machines.chart`` and was refused, though the
-    module entering is exactly ``cairn.machines.constrain.constrain`` — the identical module the
+    module entering is exactly ``cairn.devices.builder.machines.constrain.constrain`` — the identical module the
     precise spelling admits. The teeth measured the SPELLING, not the capability;
     the fix applied twice was a respelling, treating the symptom. The corpus walk
     placed this beside the echo-label and emit-homonym scars: one family,
@@ -319,7 +327,7 @@ def import_map(path, *, root: Path | None = None) -> dict:
         "question": f"which modules actually enter {p.name}?",
         "measured": {"path": str(p), "imports": sorted(entering)},
         "provenance": "2026-07-28: allowlist teeth read the import's SPELLING, so the "
-                      "loose form 'from cairn.machines.constrain import constrain' recorded as its "
+                      "loose form 'from cairn.devices.builder.machines.constrain import constrain' recorded as its "
                       "prefix and refused — twice in one day — though the module "
                       "entering is exactly the one the precise spelling admits. Third "
                       "member of the word-not-capability family (echo-label, "

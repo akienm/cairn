@@ -84,7 +84,7 @@ contract, the live fire catches what the fixture world was too clean to show
 ## 6. Answer the chart — BEFORE the PROVED crossing (physics since 2026-07-29)
 
 Run the claiming validate berth's **criteria by their instruments**, then write
-the **verdict artifact** through `cairn.machines.verdict.verdict.write_verdict`: every
+the **verdict artifact** through `cairn.devices.builder.machines.verdict.verdict.write_verdict`: every
 criterion a run verdict (claim verbatim, instrument, outcome, evidence — a
 verdict without both instrument and evidence is narration and the door refuses
 it), every hypothesis in the chain dispositioned `confirmed`|`killed` with the

@@ -41,7 +41,7 @@ Three fields, the smallest contract in the system:
   `/intent`'s work one step earlier, to the moment it is most expensive and least
   likely to be right.
 
-The live contract is `python3 -m cairn.skill_block contract idea`. A refusal names
+The live contract is `python3 -m cairn.machines.skill_block contract idea`. A refusal names
 every lack in one pass and is itself recorded.
 
 ## What you produce

@@ -689,11 +689,11 @@ build-node proof is one kind of VALIDATION, not the whole of it.
 **Where they live (ruled 2026-07-22).** A VALIDATION sits beside the `proofs/`
 it seals, in the directory of the device that owns the seam — not in a
 `db_domain` table and not in a single flat store. Greppability comes from the
-tree, not from centralization. The write-door is `cairn/tester/validation_store.py`
+tree, not from centralization. The write-door is `cairn/devices/tester/validation_store.py`
 — append-only `validations/<stem>.json` beside the `proofs/` each seals, drift
 refused (a non-eight-field record is not a seal). *Done 2026-07-22:* the
 projector's own green VALIDATION (`test_projector.py passes under python3`,
-2026-07-21T15:50:30) moved to `cairn/charter/validations/test_projector.json`,
+2026-07-21T15:50:30) moved to `cairn/tools/charter/validations/test_projector.json`,
 the `validations` table was dropped, and `db_domain` no longer persists seals —
 it holds only the graph-tree / relational data now.
 
@@ -878,7 +878,7 @@ reviewers`). Consequences:
 
 ## cairnmap — the help surface, compiled from charters (2026-07-15)
 
-**BUILT 2026-07-31** (`cairn/cairnmap/`, proof 14/14, ratified that night): `cairn
+**BUILT 2026-07-31** (`cairn/tools/cairnmap/`, proof 14/14, ratified that night): `cairn
 cairnmap` renders the map, contextual by cwd; `cairn cairnmap --gate` is the
 derivation gate below — green on its first live run after its first four reds
 (uncharted commands: compile, slate, sudorelay, turnscan) were fixed at source, in
@@ -1090,7 +1090,7 @@ live-render horizon awaiting the launcher wiring) +
 image, 'where we query open tickets'; child a register + child c voyage-view PROVEN
 2026-07-24, the parent proves with child c, sealed under a real netns; feeds the web
 server's voyage pane) + the base-class **emit-chokepoint** (the state vocabulary as
-PHYSICS, cairn/base/transitions.py, PROVEN 2026-07-24 — the RULES rung of
+PHYSICS, cairn/tools/base/transitions.py, PROVEN 2026-07-24 — the RULES rung of
 state-machine-physics)]**
 → **librarian-as-chatbot** (NEXT — the spine's remaining big effort) → graph trees
 (embeddings generator lives here).

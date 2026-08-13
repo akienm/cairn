@@ -326,7 +326,7 @@ assurance.
 Law 5, and the structural heart of the system. Every component directory holds:
 
 ```
-cairn/librarian/
+cairn/devices/librarian/
   intention+why.json     the charter — the summarized design: what, why, how it learns,
                          what it traces to, who owns it. Changes only when the design shifts.
   trees.py  live.py …    the code

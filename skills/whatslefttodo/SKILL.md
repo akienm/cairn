@@ -115,7 +115,7 @@ the trouble lane, the open-question lane, the newest slate — and refuses a fig
 has gone stale. Write it to your scratchpad and fire:
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.skill_block fire whatslefttodo <scratchpad>/whatslefttodo_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.skill_block fire whatslefttodo <scratchpad>/whatslefttodo_packet.json
 ```
 
 The packet carries, exactly:
@@ -135,7 +135,7 @@ The packet carries, exactly:
 }
 ```
 
-The live contract is `python3 -m cairn.skill_block contract whatslefttodo` — the fields
+The live contract is `python3 -m cairn.machines.skill_block contract whatslefttodo` — the fields
 and the why of each live in the charter, not in this file.
 
 **Why the id and the SET rather than counts.** `oldest_id` and `live_troubles` are the

@@ -51,8 +51,8 @@ _spec = importlib.util.spec_from_file_location("_probe_retention_window", BERTH)
 SUT = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SUT)
 
-from cairn.base.probe import Probe  # noqa: E402
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.base.probe import Probe  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime.datetime(2026, 7, 30, tzinfo=datetime.timezone.utc)
 _failures: list[str] = []
@@ -195,7 +195,7 @@ def test_the_window_under_test_is_read_from_the_environment() -> None:
 # --- the declaration ---------------------------------------------------------------------
 
 def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
-    from cairn.base import watchme_spec
+    from cairn.tools.base import watchme_spec
 
     ticket_path = watchme_spec._TICKETS / "logger-for-bash.json"
     assert ticket_path.is_file(), f"the owning ticket is not on file at {ticket_path}"

@@ -54,7 +54,7 @@ _spec.loader.exec_module(probescan)
 
 
 _PROBE_SRC = '''
-from cairn.base.probe import Probe
+from cairn.tools.base.probe import Probe
 
 def _t(now, context): return True
 def _c(context): return {"finding": "fixture"}

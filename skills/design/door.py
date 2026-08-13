@@ -1,6 +1,6 @@
 """THE DESIGN DOOR — the step between birth and cast stops being unrecorded conversation.
 
-/design is tenant #5 of the ``cairn.skill_block`` seam. It fires at the OPENING of the
+/design is tenant #5 of the ``cairn.machines.skill_block`` seam. It fires at the OPENING of the
 design step, which makes it the odd one: /intent and /sorted gate a finished packet,
 this one gates an entry. What it refuses is therefore entry-shaped —
 
@@ -44,13 +44,13 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:                       # script-invoked beside the skill
     sys.path.insert(0, str(_REPO))
 
-from cairn.build_inspector.inspector import reason_has_referent   # noqa: E402
-from cairn.learning_block.learning_block import (                 # noqa: E402
+from cairn.machines.build_inspector.inspector import reason_has_referent   # noqa: E402
+from cairn.machines.learning_block.learning_block import (                 # noqa: E402
     DoorRefused,
     check_input,
     write_trace,
 )
-from cairn.skill_block import skill_block as sb                   # noqa: E402
+from cairn.machines.skill_block import skill_block as sb                   # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _EXEMPT_RE = re.compile(r"^none,\s*because\s+", re.IGNORECASE)
@@ -161,7 +161,7 @@ def main(argv: list[str] | None = None) -> int:
     if len(args) != 1 or args[0] in ("-h", "--help"):
         print("usage: python3 skills/design/door.py <packet.json>\n"
               "The packet carries /design's input_contract fields — see\n"
-              "  python3 -m cairn.skill_block contract design", file=sys.stderr)
+              "  python3 -m cairn.machines.skill_block contract design", file=sys.stderr)
         return 2
     try:
         payload = json.loads(Path(args[0]).read_text())

@@ -1,7 +1,7 @@
 """THE SLATE DOOR — the most authoritative artifact in the system stops being
 unassisted synthesis.
 
-/saveslate is tenant #3 of the ``cairn.skill_block`` seam (ticket
+/saveslate is tenant #3 of the ``cairn.machines.skill_block`` seam (ticket
 ``slate-compiles-from-the-world``, opus-pass rank 5 ruled spec 2026-08-03). The slate
 is injected into EVERY future session by the SessionStart hook — authoritative by
 construction — so a confident wrong slate compounds forever. This door makes
@@ -46,12 +46,12 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from cairn.learning_block.learning_block import (  # noqa: E402
+from cairn.machines.learning_block.learning_block import (  # noqa: E402
     DoorRefused,
     check_input,
     write_trace,
 )
-from cairn.skill_block import skill_block as sb    # noqa: E402
+from cairn.machines.skill_block import skill_block as sb    # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _SLATES = _COMMONS / "slates"
@@ -211,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     if len(args) != 1 or args[0] in ("-h", "--help"):
         print("usage: python3 skills/saveslate/door.py [--session <id>] <packet.json>\n"
               "The packet carries /saveslate's input_contract fields — see\n"
-              "  python3 -m cairn.skill_block contract saveslate", file=sys.stderr)
+              "  python3 -m cairn.machines.skill_block contract saveslate", file=sys.stderr)
         return 2
     try:
         payload = json.loads(Path(args[0]).read_text())

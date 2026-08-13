@@ -1,6 +1,6 @@
 """THE IDEA DOOR — capture stops being a sentence in the chat and becomes a record.
 
-/idea is tenant #4 of the ``cairn.skill_block`` seam (after /intent, /sorted and
+/idea is tenant #4 of the ``cairn.machines.skill_block`` seam (after /intent, /sorted and
 /saveslate). It is the workflow's FIRST step and the only one whose input comes from
 outside the system: nothing upstream can fire it.
 
@@ -40,8 +40,8 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:                       # script-invoked beside the skill
     sys.path.insert(0, str(_REPO))
 
-from cairn.learning_block.learning_block import DoorRefused   # noqa: E402
-from cairn.skill_block import skill_block as sb               # noqa: E402
+from cairn.machines.learning_block.learning_block import DoorRefused   # noqa: E402
+from cairn.machines.skill_block import skill_block as sb               # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _SLUG_WORDS = 7
@@ -109,7 +109,7 @@ def main(argv: list[str] | None = None) -> int:
     if len(args) != 1 or args[0] in ("-h", "--help"):
         print("usage: python3 skills/idea/door.py <packet.json>\n"
               "The packet carries /idea's input_contract fields — see\n"
-              "  python3 -m cairn.skill_block contract idea", file=sys.stderr)
+              "  python3 -m cairn.machines.skill_block contract idea", file=sys.stderr)
         return 2
     try:
         payload = json.loads(Path(args[0]).read_text())

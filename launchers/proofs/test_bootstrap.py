@@ -31,7 +31,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
 
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 BOOTSTRAP = REPO / "launchers" / "bootstrap.sh"

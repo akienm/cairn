@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket ``intent-becomes-a-learning-block`` carries. Berthed
 here, beside ``skills/intent/``, because that is WHAT IT WATCHES; the ticket it was
 compiled from lives in CairnCommons and this probe deliberately does not follow it there
-(the rule in ``cairn/base/probe.py``: a probe berths with its subject).
+(the rule in ``cairn/tools/base/probe.py``: a probe berths with its subject).
 
 THE EFFICACY QUESTION, and why it is this one. The migration's claim is that /intent
 stopped being prose and became a gate. A gate that never refuses is not a gate — it is a
@@ -14,7 +14,7 @@ build cannot answer about itself — proofs show the door CAN refuse; only live 
 show whether it EVER DOES while inputs are demonstrably imperfect.
 
 WHY THIS IS MEASURABLE HERE AND WAS NOT AT THE EMISSION GATE. The sibling probe
-``cairn/base/probes/does_optional_mean_never_carried.py`` had to swap its question
+``cairn/tools/base/probes/does_optional_mean_never_carried.py`` had to swap its question
 because a refusal at the chokepoint raises BEFORE anything is journaled — refusals leave
 no trace a probe can read there. The Learning Block anatomy inverts exactly that: the
 door TRACES ITS OWN SEND-BACK (falsifier (2) of the primitive), so a refusal is a durable
@@ -45,7 +45,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 # Read the live roots the way the components themselves do — env first, default second —
 # so an instance that moved its roots is measured where it actually lives, not where this
@@ -153,7 +153,7 @@ def _carry(context: dict) -> dict:
 # THE HORIZON, and the residual it does NOT cover. Same tracked debt as the sibling's: the
 # unit is PULSES because the shim counts pulses, but nothing pulses this shim yet (the
 # wall-clock backing that would call `beat` on a cadence is a filed edge in
-# cairn/ground_loop/loop.py, not built), so today the loudness rides the READ-SIDE door
+# cairn/devices/ground_loop/loop.py, not built), so today the loudness rides the READ-SIDE door
 # (`BaseShim.overdue()`) alone. 1000 is honest as a placeholder and dishonest as a
 # measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

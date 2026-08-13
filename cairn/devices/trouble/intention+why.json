@@ -1,0 +1,46 @@
+{
+  "component": "trouble",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+
+  "what": "THE TROUBLE LANE — the terminus of the escalation ladder, and the single door to it. A failure that cannot escalate anywhere else raises a trouble here. The FIRST raise writes a ticket and notifies its recipients; every recurrence while that ticket is live increments a count and notifies NOBODY. Only the recipient clears it, and only by naming what changed. A fault that returns after a clear is a NEW ticket at count 1, carrying the fix that did not hold. The records are git-JSON in CairnCommons/troubles/ — a trouble is shareable provenance, and losing it loses knowledge.",
+
+  "why": "Because a system that fails silently cannot tell you how to improve it, and a system that shouts the same failure fifty times cannot either. Akien, 2026-07-25: 'a poke into nothing, a message that can't be delivered, these are bugs. nothing should fail silently. everything that can't escalate somewhere else should fail to trouble tickets until we get no more from the system. it's literally telling you and i how to improve it :)' — and then the damping half: 'a system alarm is raised. it's not raised again and again, it's count can increment... but demanding more attention when there is none to give is not productive.' The trouble stream IS the improvement backlog; the count is what keeps it readable.",
+
+  "the_damping_insight": "THE TROUBLE TICKET IS THE DAMPER, and this is the reason the component exists in this shape. The open question it closed was chatter: a predicate flapping across its line raises the same fault fifty times. The reflex answer was hysteresis — pick a width, suppress inside it — which needs a NUMBER nobody has measured, and a width set too wide silently eats real faults. Identity-plus-count dissolves the question rather than tuning it: the scarce thing is ATTENTION, not occurrence, and attention is spent in full the moment the first ticket lands. Fifty flaps become one ticket that says 50, with no width to guess and nothing silently eaten. (Law 1, one level up — the answered question became structure instead of a knob.)",
+
+  "how_does_this_component_learn": "It does not learn on its own, and that is deliberate — the LANE is dumb so the stream can be read. What learns is the pair of humans (for now, one human and CC) reading it: the trouble stream is the standing evidence of where the system is weak, and its horizon is its own emptiness. The count is the learning signal that matters — a ticket at count 1 is an incident, a ticket at count 400 is a design defect, and the same file says which without anyone re-deriving it. `prior_attempts` and `recurred_after_clear` are the second signal: a fault that keeps coming back after fixes names each fix that did not hold. If a learning loop is ever wanted here, that is the data it would run on; nothing is built ahead of that need.",
+
+  "laws": {
+    "law_6": "ONE DOOR. TroubleDevice is the only writer of a trouble file. Raising, incrementing and clearing all go through it, because the lane's whole value is that a count is trustworthy, and a count is only trustworthy if there is one way to increment it.",
+    "law_7": "BOTH HALVES, SPLIT DELIBERATELY. The RECORD is never damped — the count is exact, the timestamps move, a bounded tail keeps the shape of the recurrence. What is damped is the NOTIFICATION. A record of truth never collapses; a demand for attention always may.",
+    "law_3": "The normal operating state — live() empty — is a MEASURED claim about the system, readable at any moment, not an aspiration in prose.",
+    "law_8": "The lane must not go dark on its own fault: a malformed trouble file surfaces AS a live trouble, and any standing that is not an explicit CLEARED counts as live. Silence in the component built to end silence would be the hollow build."
+  },
+
+  "the_normal_operating_state": "live() is EMPTY. Akien: 'the intention for the normal-operating-state is there won't be any active trouble tickets. and it'll be a rarity when there is one. but we're a long way from there.' The distance from zero is the honest measure of how far the system has to go, which is why the count is on the device's own state() rather than somewhere it has to be gone looking for.",
+
+  "who_is_told": "For now, CC gets them all (DEFAULT_RECIPIENTS). This is a stopgap and is written down as one. Akien: 'for now, you get them all. so when they show up, you can fix. but eventually you'll have help that'll do that for you.' The notified and cleared sets are already PER-RECIPIENT — because the clear is per-recipient — so that help arrives as an entry in a list, not a redesign.",
+
+  "filed_edges": [
+    {
+      "edge": "THE POKE. A raise should poke its recipients over the bus; today it returns who WOULD be told and writes the record.",
+      "why_it_waits": "Delivery to an external device (CC, Akien) is bus-completion child e, unbuilt. Faking a notification here would be the hollow build — the ticket is written either way, so nothing is lost, and the honest gap is visible in the return value."
+    },
+    {
+      "edge": "AUTOMATIC RAISING from the failure sites — an undeliverable poke, a carrier that raised, a held diagnostic with no receiver.",
+      "why_it_waits": "Each site needs its own identity chosen deliberately (identity is what makes two occurrences the same trouble, and a bad identity either splits one defect into hundreds of tickets or merges hundreds into one). Wiring them one at a time, with the identity argued each time, beats a blanket hook."
+    },
+    {
+      "edge": "HYSTERESIS / chatter damping at the probe, filed on bus-completion.",
+      "why_it_may_never_be_built": "Likely DISSOLVED by this component rather than deferred: if the flood only matters because it demands attention, identity-plus-count already cures it with no width to guess. Held as a hypothesis, not a conclusion (Law 3) — re-check when a real flapping predicate lands and it is measured whether anything still hurts."
+    }
+  ],
+
+  "provenance": {
+    "cast": "2026-07-25, from Akien's two statements above",
+    "born_from": "The first trouble was hand-written before this device existed (CairnCommons/troubles/append-door-has-no-schema-gate.json) because the append door failed silently and the lane it should have escalated to had no address. The directory was named in CLAUDE.md's roots table and did not exist on disk.",
+    "found_on_first_contact": "The device's live() filter tested equality against 'OPEN' and read the hand-written standing 'OPEN — reported complete, awaiting Akien's ratify' as NOT live — reporting zero troubles with an open one on disk. Fixed structurally: only an explicit CLEARED is quiet. The component's first act was to catch itself doing the thing it exists to prevent.",
+    "proof": "cairn/devices/trouble/proofs/test_trouble.py"
+  }
+}

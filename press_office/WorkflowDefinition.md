@@ -61,7 +61,7 @@ when it was half of one.
 | **intend** | `from_idea` → the commons idea record | `skills/intent/door.py` |
 | **design** | `intent_berth`, or `entering_from: sorted:<berth>` on the back edge | `skills/design/door.py` |
 | **chart** | — (not declared) | — |
-| **build** | `buildme_rides_the_chart` + `buildme_rides_the_intent` + `buildme_rides_the_sorted` at the BUILDME crossing | `cairn/build_inspector/inspector.py` |
+| **build** | `buildme_rides_the_chart` + `buildme_rides_the_intent` + `buildme_rides_the_sorted` at the BUILDME crossing | `cairn/machines/build_inspector/inspector.py` |
 | **test** | — (not declared) | — |
 | **watchme** | — (not declared) | — |
 | **learn** | — (not declared) | — |
@@ -178,7 +178,7 @@ class's backbone:
 | **in-process** | `[BUILDME:in-process]` | picked up; the pickup is journaled (actor + time) |
 | *(crossed)* | cursor has moved on | the work is done; the crossing is the record |
 
-The rules, all enforced at the grammar (`cairn/base/transitions.py`):
+The rules, all enforced at the grammar (`cairn/tools/base/transitions.py`):
 
 - **Every summons in every class inherits the two phases** — `BUILDME`, `PROVEME`,
   `THINKME`, a free summons like `WATCHME(obj)`, and any summons a future class
@@ -546,7 +546,7 @@ measured rather than asserted, on the date given.
 
 - Findings already fire at doors, at both exits. A berth carries its `finding_id`;
   a refusal is a datum, not a lost moment.
-- A deterministic filter-stack inspector exists — `cairn/build_inspector` — with
+- A deterministic filter-stack inspector exists — `cairn/machines/build_inspector` — with
   founding filters for *code with no charter*, *code with no proofs*, and *a device
   that never speaks*.
 - **Its findings already cite their rule.** Each carries `filter`, `component`,

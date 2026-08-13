@@ -20,8 +20,8 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO))
 
-from cairn.learning_block.learning_block import DoorRefused, read_trace  # noqa: E402
-from cairn.skill_block.skill_block import read_berth                     # noqa: E402
+from cairn.machines.learning_block.learning_block import DoorRefused, read_trace  # noqa: E402
+from cairn.machines.skill_block.skill_block import read_berth                     # noqa: E402
 
 sys.path.insert(0, str(_REPO / "skills" / "sorted"))
 import door  # noqa: E402
@@ -260,7 +260,7 @@ def main() -> int:
            f"rc={r.returncode} stderr={r.stderr[:300]}")
 
         # ── the downstream consumer: buildme_rides_the_sorted ─────────────────
-        from cairn.build_inspector.inspector import buildme_rides_the_sorted as gate
+        from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as gate
 
         # ticket_path joins <root's parent>/CairnCommons/tickets — mirror that layout
         tickets_root = tmp / "CairnCommons"
@@ -311,8 +311,8 @@ def main() -> int:
            gate("no-such-ticket", tickets_root=tickets_root) == [])
 
         # 28. the entry gate reports chart+intent+sorted lacks in ONE raise
-        import cairn.build_inspector.inspector as insp
-        from cairn.base.transitions import EntryGateRed, _entry_gate
+        import cairn.machines.build_inspector.inspector as insp
+        from cairn.tools.base.transitions import EntryGateRed, _entry_gate
         file_ticket({})  # no chart claim, no intent_berth, no sorted_berth
         saved = insp._TICKETS_ROOT
         insp._TICKETS_ROOT = tickets_root  # proof-local injection, restored below

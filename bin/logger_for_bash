@@ -143,7 +143,7 @@ _logbash_write() {
       # away. Now the refusal is COUNTED — once per shell, fire-and-forget, and it can
       # never take the caller down (`|| true` in a backgrounded subshell: this file's
       # own never-abort law extends to its wire).
-      ( python3 -m cairn.learning_block trace logger_for_bash send_back write \
+      ( python3 -m cairn.machines.learning_block trace logger_for_bash send_back write \
           "cannot append to $target" >/dev/null 2>&1 || true ) &
       disown 2>/dev/null || true
     fi
@@ -153,7 +153,7 @@ _logbash_write() {
   # write — not per line; the denominator is shells-that-logged, and greens count too).
   if [[ -z "${_LOGBASH_TRACED:-}" ]]; then
     _LOGBASH_TRACED=1
-    ( python3 -m cairn.learning_block trace logger_for_bash door_pass first_write \
+    ( python3 -m cairn.machines.learning_block trace logger_for_bash door_pass first_write \
         >/dev/null 2>&1 || true ) &
     disown 2>/dev/null || true
   fi

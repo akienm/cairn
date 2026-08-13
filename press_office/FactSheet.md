@@ -65,7 +65,7 @@ the proofs.
 | Validations red | 0 |
 | `cairnmap` completeness verdict | **green** — every command, skill and component traces to a charter, and nothing renders without one |
 
-Instrument: `PYTHONPATH=$PWD python3 -m cairn.orient.orient census` and `cairn cairnmap`.
+Instrument: `PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient census` and `cairn cairnmap`.
 
 **Do not read "0 red" as health.** A validation carries a horizon and expires; a green
 seal means the proof passed when it was sealed against a source fingerprint that has since
@@ -126,7 +126,7 @@ host call that did not happen.
 | Tokens avoided | 142,948 |
 | **Share of would-be tokens avoided by structure** | **34.3%** |
 
-Instrument: `from cairn.inference_domain.domain import yield_report; yield_report()`.
+Instrument: `from cairn.devices.inference_domain.domain import yield_report; yield_report()`.
 
 The arithmetic: had every call reached the host, 417,296 tokens would have been spent.
 142,948 of them were answered from structure instead. That fraction *is* inference
@@ -205,7 +205,7 @@ in the same hour. As of measurement the queue holds 2 grants and 1 refusal; the 
 real, not a fixture: the system refused its own `PROVED` crossing because the component's
 source fingerprint had moved after the seal, closing the validation's horizon.
 
-Instrument: `from cairn.harbor_master.clearance import read_attempts; read_attempts()`.
+Instrument: `from cairn.devices.harbor_master.clearance import read_attempts; read_attempts()`.
 
 ## 7. What is red
 
@@ -252,8 +252,8 @@ named in each row. The two that give the broadest picture in one call:
 
 ```bash
 cairn cairnmap                                   # help surface + completeness verdict
-PYTHONPATH=$PWD python3 -m cairn.orient.orient census   # per-component measured state
-PYTHONPATH=$PWD python3 -m cairn.orient.orient git      # heads, upstream, dirty paths
+PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient census   # per-component measured state
+PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient git      # heads, upstream, dirty paths
 ```
 
 If a number in a press office piece disagrees with this sheet, **this sheet is not

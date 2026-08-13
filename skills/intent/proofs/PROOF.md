@@ -27,7 +27,7 @@ obligation note has no way to notice anything.
 
 Writing the tooth is what found it: the tooth was authored asserting the debt
 still stood, and it went red on its first run. Its first *real* run then caught a
-live defect — `cairn/skill_block/` had been built with no charter, which by
+live defect — `cairn/machines/skill_block/` had been built with no charter, which by
 CLAUDE.md means it does not run. Fixed at the point of discovery.
 
 That is the whole argument for an executable proof over a recorded obligation: a

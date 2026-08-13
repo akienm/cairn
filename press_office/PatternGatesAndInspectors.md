@@ -24,7 +24,7 @@ a ruling packet whose own line read **"Guarded by import-scan, never by prose."*
 asserting the rule was not prose was itself the only thing enforcing it.
 
 That second one has a lived symptom attached. On 2026-08-05 two ruling packets sentenced
-`cairn/base/probe.py` — the Probe primitive — to deletion, **while nineteen live modules imported
+`cairn/tools/base/probe.py` — the Probe primitive — to deletion, **while nineteen live modules imported
 it.** The confirm screen shows the author the *reading*, which was correct; nothing showed him
 the kill list. Both packets were caught by hand, which is the wrong mechanism twice over.
 

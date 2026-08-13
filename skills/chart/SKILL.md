@@ -13,7 +13,7 @@ the **orient brick**, the **constrain brick**, the **survey brick**, the
 prompt is template-filled from the previous stage's validated file, so a
 skipped stage is a build error, not a lapse.
 
-The device charter lives at `cairn/chart/intention+why.json`; this skill's charter
+The device charter lives at `cairn/machines/chart/intention+why.json`; this skill's charter
 beside this file.
 
 ARGUMENTS: the request to chart (the `<something>` of `/chart <something>`).
@@ -28,7 +28,7 @@ Not how to do it, not what the answer is — that's later stages' work.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.orient import floor_facts
+from cairn.machines.chart.orient import floor_facts
 print(json.dumps(floor_facts(sys.argv[1]), indent=2))
 " '<the request, verbatim>'
 ```
@@ -40,7 +40,7 @@ It never decides what applies; that judgment is yours, in the loop below.
 ### 2. The tree — walk before you reason
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>'
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>'
 ```
 
 The nexus's own graph tree answers with prior orientation learnings and the
@@ -98,7 +98,7 @@ emitted packet is narrow.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.orient import write_packet
+from cairn.machines.chart.orient import write_packet
 print(write_packet(json.load(open(sys.argv[1]))))
 " <scratchpad>/orient_packet.json
 ```
@@ -109,7 +109,7 @@ The berth is instance-space (`~/.cairn/devices/chart/0/packets/`).
 ### 6. Deposit back — the tree learns this crossing
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the berth path>
 ```
 
 The packet's intent becomes a node the next similar request will walk to
@@ -120,7 +120,7 @@ aggregate: the floor/tree/claude fractions the whole intention is measured by.
 ### 7. Hand forward
 
 Carry the berth path — stage 2 template-fills from it, never from this
-conversation. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+conversation. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 2 — CONSTRAIN
 
@@ -134,7 +134,7 @@ existed): a packet the door passes is a packet the promotion gate passes.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.constrain import constrain_floor
+from cairn.machines.chart.constrain import constrain_floor
 print(json.dumps(constrain_floor(sys.argv[1]), indent=2))
 " <the orient berth path>
 ```
@@ -147,7 +147,7 @@ point, don't reword the charter.
 ### 2. The tree — walk before you reason
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' constrain
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' constrain
 ```
 
 Prior bounds for this class of request, floor labeled as always.
@@ -169,7 +169,7 @@ Prior bounds for this class of request, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.constrain import write_constrain
+from cairn.machines.chart.constrain import write_constrain
 print(write_constrain(json.load(open(sys.argv[1]))))
 " <scratchpad>/constrain_packet.json
 ```
@@ -180,14 +180,14 @@ packet, don't argue with the gate.
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the constrain berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the constrain berth path>
 ```
 
 The bounds become the constrain tree's memory of this class of request.
 
 ### 6. Hand forward
 
-Carry the constrain berth path — stage 3 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+Carry the constrain berth path — stage 3 template-fills from it. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 3 — SURVEY
 
@@ -202,7 +202,7 @@ built UNDER pre-installed judges (`survey_holdings_resolve` +
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.survey import survey_floor
+from cairn.machines.chart.survey import survey_floor
 print(json.dumps(survey_floor(sys.argv[1]), indent=2))
 " <the constrain berth path>
 ```
@@ -216,7 +216,7 @@ stage-2 bounds. The chain is re-checked whole: a broken link refuses.
 ### 2. The tree — walk before you sweep
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' survey
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' survey
 ```
 
 What past sweeps of this class of request found, floor labeled as always.
@@ -244,7 +244,7 @@ Sweep as wide as the request needs — parsimony must NOT squeeze the survey
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.survey import write_survey
+from cairn.machines.chart.survey import write_survey
 print(write_survey(json.load(open(sys.argv[1]))))
 " <scratchpad>/survey_packet.json
 ```
@@ -252,14 +252,14 @@ print(write_survey(json.load(open(sys.argv[1]))))
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the survey berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the survey berth path>
 ```
 
 The inventory becomes the survey tree's memory of this class of request.
 
 ### 6. Hand forward
 
-Carry the survey berth path — stage 4 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+Carry the survey berth path — stage 4 template-fills from it. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 4 — DECOMPOSE
 
@@ -274,7 +274,7 @@ is a claim the survey berth can check.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.decompose import decompose_floor
+from cairn.machines.chart.decompose import decompose_floor
 print(json.dumps(decompose_floor(sys.argv[1]), indent=2))
 " <the survey berth path>
 ```
@@ -288,7 +288,7 @@ split; the seams are yours.
 ### 2. The tree — walk before you split
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' decompose
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' decompose
 ```
 
 How past requests of this class divided, floor labeled as always.
@@ -313,7 +313,7 @@ How past requests of this class divided, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.decompose import write_decompose
+from cairn.machines.chart.decompose import write_decompose
 print(write_decompose(json.load(open(sys.argv[1]))))
 " <scratchpad>/decompose_packet.json
 ```
@@ -321,14 +321,14 @@ print(write_decompose(json.load(open(sys.argv[1]))))
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the decompose berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the decompose berth path>
 ```
 
 The split becomes the decompose tree's memory of how this class divides.
 
 ### 6. Hand forward
 
-Carry the decompose berth path — stage 5 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+Carry the decompose berth path — stage 5 template-fills from it. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 5 — TRIAGE
 
@@ -344,7 +344,7 @@ to drift against the list.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.triage import triage_floor
+from cairn.machines.chart.triage import triage_floor
 print(json.dumps(triage_floor(sys.argv[1]), indent=2))
 " <the decompose berth path>
 ```
@@ -357,7 +357,7 @@ floor never decides the order; the standard is yours.
 ### 2. The tree — walk before you rank
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' triage
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' triage
 ```
 
 How past requests of this class ranked, floor labeled as always.
@@ -381,7 +381,7 @@ How past requests of this class ranked, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.triage import write_triage
+from cairn.machines.chart.triage import write_triage
 print(write_triage(json.load(open(sys.argv[1]))))
 " <scratchpad>/triage_packet.json
 ```
@@ -389,14 +389,14 @@ print(write_triage(json.load(open(sys.argv[1]))))
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the triage berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the triage berth path>
 ```
 
 The order becomes the triage tree's memory of how this class ranks.
 
 ### 6. Hand forward
 
-Carry the triage berth path — stage 6 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+Carry the triage berth path — stage 6 template-fills from it. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 6 — HYPOTHESIZE
 
@@ -413,7 +413,7 @@ the label has fields the gate refuses without.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.hypothesize import hypothesize_floor
+from cairn.machines.chart.hypothesize import hypothesize_floor
 print(json.dumps(hypothesize_floor(sys.argv[1]), indent=2))
 " <the triage berth path>
 ```
@@ -427,7 +427,7 @@ decides the expectations; the claims are yours.
 ### 2. The tree — walk before you claim
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' hypothesize
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' hypothesize
 ```
 
 What past requests of this class expected (and, as the loop closes, what
@@ -453,7 +453,7 @@ killed which), floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.hypothesize import write_hypothesize
+from cairn.machines.chart.hypothesize import write_hypothesize
 print(write_hypothesize(json.load(open(sys.argv[1]))))
 " <scratchpad>/hypothesize_packet.json
 ```
@@ -461,14 +461,14 @@ print(write_hypothesize(json.load(open(sys.argv[1]))))
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the hypothesize berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the hypothesize berth path>
 ```
 
 The claims become the hypothesize tree's memory of what this class expects.
 
 ### 6. Hand forward
 
-Carry the hypothesize berth path — stage 7 template-fills from it. Lost after a compact? `python3 -m cairn.chart.live chain <ticket>` lists the standing berths for a claiming chain.
+Carry the hypothesize berth path — stage 7 template-fills from it. Lost after a compact? `python3 -m cairn.machines.chart.live chain <ticket>` lists the standing berths for a claiming chain.
 
 ## Stage 7 — VALIDATE
 
@@ -484,7 +484,7 @@ world by the instrument, never the narration.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.validate import validate_floor
+from cairn.machines.chart.validate import validate_floor
 print(json.dumps(validate_floor(sys.argv[1]), indent=2))
 " <the hypothesize berth path>
 ```
@@ -497,7 +497,7 @@ order, the expectations' unknowns, and the **acceptance vocabulary**:
 ### 2. The tree — walk before you accept
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live counsel '<the request, verbatim>' validate
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live counsel '<the request, verbatim>' validate
 ```
 
 What done meant for past requests of this class, floor labeled as always.
@@ -519,7 +519,7 @@ What done meant for past requests of this class, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.chart.validate import write_validate
+from cairn.machines.chart.validate import write_validate
 print(write_validate(json.load(open(sys.argv[1]))))
 " <scratchpad>/validate_packet.json
 ```
@@ -527,14 +527,14 @@ print(write_validate(json.load(open(sys.argv[1]))))
 ### 5. Deposit back
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live learn <the validate berth path>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live learn <the validate berth path>
 ```
 
 The criteria become the validate tree's memory of what done means here.
 
 ### 6. Hand forward
 
-**The chain is complete**: report the seven berths — and the resolver can re-list them any time: `python3 -m cairn.chart.live chain <ticket>` (ticket berths-carry-request-identity). The charted course —
+**The chain is complete**: report the seven berths — and the resolver can re-list them any time: `python3 -m cairn.machines.chart.live chain <ticket>` (ticket berths-carry-request-identity). The charted course —
 grounded ask, hard bounds, measured territory, derived split, reasoned order,
 killable claims, instrumented done — is /sail's input, whole. Executing the
 criteria at PROVED is physics since 2026-07-29 (ticket proved-answers-the-chart,

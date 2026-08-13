@@ -2,7 +2,7 @@
 (ticket intent-becomes-a-learning-block, 2026-08-01).
 
 WHAT THIS PROOF IS FOR, and what it deliberately is not. The seam's own teeth live in
-``cairn/skill_block/proofs/test_skill_block.py`` — they prove the door refuses, traces,
+``cairn/machines/skill_block/proofs/test_skill_block.py`` — they prove the door refuses, traces,
 berths, and takes a second tenant with no code change. Repeating them here would be
 re-deriving the settled. What only THIS component can be asked is whether **/intent
 itself is wired**: whether the anatomy is a call or a paragraph about a call, whether
@@ -40,9 +40,9 @@ SKILL_DIR = HERE.parent
 REPO = SKILL_DIR.parents[1]
 sys.path.insert(0, str(REPO))
 
-from cairn.learning_block.learning_block import DoorRefused  # noqa: E402
-from cairn.skill_block import skill_block as sb  # noqa: E402
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.machines.learning_block.learning_block import DoorRefused  # noqa: E402
+from cairn.machines.skill_block import skill_block as sb  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 SKILL_MD = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 CHARTER = json.loads((SKILL_DIR / "intention+why.json").read_text(encoding="utf-8"))
@@ -86,7 +86,7 @@ def world():
 
 def test_the_two_entrances_cannot_differ_in_strictness():
     """THE MEASURED DEFECT, head on (2026-08-05). One packet carrying a `from_idea`
-    shaped like an id and resolving to nothing: `python3 -m cairn.skill_block fire intent`
+    shaped like an id and resolving to nothing: `python3 -m cairn.machines.skill_block fire intent`
     ACCEPTED it (rc=0, berthed) while `python3 skills/intent/door.py` REFUSED it (rc=2).
     The semantic judge lived only behind the skill's own file, so the generic entrance —
     the one anyone can reach, and the one this proof used to advertise — skipped every
@@ -213,7 +213,7 @@ def test_the_skill_class_derivation_gate_is_green():
     because cairnmap has been built since. PROOF.md had been carrying a stale IOU: the
     gate the ticket names as this node's prove_gate was runnable the whole time.
 
-    Its first real run then caught a live defect — cairn/skill_block/ had no charter,
+    Its first real run then caught a live defect — cairn/machines/skill_block/ had no charter,
     which by CLAUDE.md means it doesn't run. Fixed at the point of discovery, which is
     why this tooth is worth more than the note it replaced."""
     import subprocess

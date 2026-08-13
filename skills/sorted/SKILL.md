@@ -18,7 +18,7 @@ with every lack named in one pass. A refused or berthed packet survives on disk,
 cast interrupted mid-thought is a file to resume, not a conversation to re-derive.
 
 The charter lives beside this file in `intention+why.json` — its `input_contract`
-is the packet's live field list (`python3 -m cairn.skill_block contract sorted`).
+is the packet's live field list (`python3 -m cairn.machines.skill_block contract sorted`).
 
 ## The sequence
 
@@ -111,7 +111,7 @@ the crossing.
 intention in `intentions-not-beside-code/`, or a beside-code `intention+why.json` charter —
 poke the compiled model's sole write-door in the **same act**, so the next
 "I intend X" dup/conflict check reads a current model (Law 1):
-`$HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh`.
+`$HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh`.
 A cast that only files a `tickets/` entry is *not* a model source yet — it becomes
 one when its charter is written beside the code, and that write pokes the door then.
 

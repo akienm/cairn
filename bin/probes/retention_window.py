@@ -1,7 +1,7 @@
 """PROBE — is a 1000-line window big enough to still explain anything?
 
 Berth for the WATCHME that ticket ``logger-for-bash`` carries. Berthed here, in ``bin/``,
-beside ``logger_for_bash`` itself — the code it watches (``cairn/base/probe.py``: a probe
+beside ``logger_for_bash`` itself — the code it watches (``cairn/tools/base/probe.py``: a probe
 berths with what it watches, not with the ticket it was compiled from). Destination (i): the
 recorder ships with the repo, so its watcher does too.
 
@@ -33,7 +33,7 @@ output line, bursty) and ``boot`` (a launcher, ~8 records per launch, metronomic
 namespaces this repo ships, and their traffic profiles differ by orders of magnitude — which
 is the only axis a retention question actually varies along. n=2 across two profiles is
 evidence; n=1 on the author's own namespace is the home-field measurement that killed this
-system's first probe (``cairn/base/probes/does_optional_mean_never_carried.py``, 2026-07-30).
+system's first probe (``cairn/tools/base/probes/does_optional_mean_never_carried.py``, 2026-07-30).
 
 READS DIRECTORY LISTINGS AND LINE COUNTS on the local disk — no device, no bus, no network.
 AUTHORITY: none. It deposits and pokes; moving the default is the OWNER's act (Law 6).
@@ -44,7 +44,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 DEFAULT_LOGDIR = Path(os.environ.get("CAIRN_LOGDIR")
                       or Path.home() / ".cairn" / "logs")
@@ -194,7 +194,7 @@ def _carry(context: dict) -> dict:
 
 # THE HORIZON — the same placeholder for the same reason, pointed at rather than copied: the
 # full why, and the tracked debt to re-tune it once the beat is a real number, is written once
-# at cairn/base/probes/does_optional_mean_never_carried.py.
+# at cairn/tools/base/probes/does_optional_mean_never_carried.py.
 _HORIZON = 1000
 
 PROBE = Probe(

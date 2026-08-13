@@ -1,6 +1,6 @@
 """THE /whatslefttodo JUDGE — a gather stops being a report and becomes a measurement.
 
-/whatslefttodo is tenant #5 of the ``cairn.skill_block`` seam (after /intent, /sorted,
+/whatslefttodo is tenant #5 of the ``cairn.machines.skill_block`` seam (after /intent, /sorted,
 /saveslate and /idea). Until this module it was the one skill in the roster that fired
 no door and named no other store holding its firings — the dial said so plainly:
 "declares neither an input_contract nor a counted_by … This is NOT zero uses: it is no
@@ -101,7 +101,7 @@ def measure_the_world() -> dict:
     out: dict = {}
 
     try:
-        from cairn.learning_block.learning_block import pending_findings
+        from cairn.machines.learning_block.learning_block import pending_findings
         pend = pending_findings()
         out["rulings_count"] = len(pend)
         out["rulings_oldest_id"] = pend[0]["id"] if pend else None

@@ -22,7 +22,7 @@ _REPO = Path(__file__).resolve().parents[2]
 # Runnable bare, so it cannot lean on an externally-set PYTHONPATH to reach cairn.*.
 sys.path.insert(0, str(_REPO))
 
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 _LAUNCHER = _REPO / "launchers" / "superclaude"
 

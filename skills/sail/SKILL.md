@@ -21,7 +21,7 @@ Template-fill from the LAST berthed stage for this request — found by COMMAND,
 never by eyeballing the packets directory (ticket berths-carry-request-identity):
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live chain <ticket-id>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live chain <ticket-id>
 ```
 
 prints the standing chain (per stage, the latest berth claiming the ticket); the
@@ -46,7 +46,7 @@ gate can find them.
 
 ## 1. Journal BUILDME
 
-Every crossing rides the emit chokepoint (`cairn.base.transitions.emit`) at the
+Every crossing rides the emit chokepoint (`cairn.tools.base.transitions.emit`) at the
 component's own address, carrying the ticket — the ticket on the crossing is
 what the entry gate reads, so an unnamed ticket is an ungated (and unclaimed)
 build. The record of truth moves before the code does.
@@ -84,12 +84,12 @@ contract, the live fire catches what the fixture world was too clean to show
 ## 6. Answer the chart — BEFORE the PROVED crossing (physics since 2026-07-29)
 
 Run the claiming validate berth's **criteria by their instruments**, then write
-the **verdict artifact** through `cairn.chart.verdict.write_verdict`: every
+the **verdict artifact** through `cairn.machines.chart.verdict.write_verdict`: every
 criterion a run verdict (claim verbatim, instrument, outcome, evidence — a
 verdict without both instrument and evidence is narration and the door refuses
 it), every hypothesis in the chain dispositioned `confirmed`|`killed` with the
 deciding observation. A **failed** criterion is a kick-back, not a crossing.
-Then deposit it (`python3 -m cairn.chart.live learn <verdict-berth>`) — the
+Then deposit it (`python3 -m cairn.machines.chart.live learn <verdict-berth>`) — the
 kills become the hypothesize tree's memory of what killed which.
 
 Skipping this is a build error the door itself throws (ticket
@@ -110,7 +110,7 @@ it there. **Optional to carry, mandatory to satisfy once carried** — it is not
   `"none, because X"`. Silence there is the failure, not here.
 - **A `WATCHME` in the string →** the probe must be **armed before the crossing**:
   a module at the berth the ticket's spec names, declaring a module-level `PROBE`
-  (a frozen `cairn.base.probe.Probe`) that carries both a `carry` and an `enough`.
+  (a frozen `cairn.tools.base.probe.Probe`) that carries both a `carry` and an `enough`.
   A probe berths **with what it watches**, not with the ticket it was compiled
   from. Then cross — the emission gate reads the crossing's ticket, finds the spec
   for that object, and refuses an unarmed one (`WatchmeEmissionRed`).
@@ -124,11 +124,11 @@ re-opens a node whose intention did not work is the **owner's** act (Law 6).
   crossing's ticket and journals its verdict on the record.
 - Ticket cursor → `[PROVED]` with the story-bearing distinctions.
 - Charter delta ONLY if the design shifted — and any charter write pokes
-  `cairn/intentions_model_compiler/recompile_gate.sh` in the same act.
+  `cairn/tools/intentions_model_compiler/recompile_gate.sh` in the same act.
 
 ## 9. Deposit the learnings
 
-`python3 -m cairn.chart.live learn <berth>` for each berth of this voyage (the
+`python3 -m cairn.machines.chart.live learn <berth>` for each berth of this voyage (the
 trees are the durable memory; skipping starves them). A correction surfaced
 mid-build rides orient's brick loop (deposit → counsel → propose), never a
 quiet local fix.
@@ -144,7 +144,7 @@ probe, against the ticket's own falsifier.
 ## 10. Commit and push
 
 Committed is part of done. Commit autonomously, push at smells-like-done, then
-verify with the instrument (`python3 -m cairn.orient.orient git`), never from
+verify with the instrument (`python3 -m cairn.tools.orient.orient git`), never from
 the narration.
 
 ## 11. Close the boundary — /saveslate, then /compact

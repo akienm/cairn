@@ -159,7 +159,7 @@ cairn_bootstrap_verify() {
   out="$(cd / && "$vpy" -c 'import psycopg2; print(psycopg2.__version__)' 2>&1)"; rc=$?
   _cairn_boot_log "verify: probe import-psycopg2 -> rc=$rc out=${out//$'\n'/ | }"
   if [[ $rc -ne 0 ]]; then
-    CAIRN_BOOTSTRAP_FINDINGS+=("psycopg2 MISSING from the venv — exited $rc. Output: ${out//$'\n'/ | }. cairn/db_domain/ imports it at module scope, so the db domain will fail far from this cause. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
+    CAIRN_BOOTSTRAP_FINDINGS+=("psycopg2 MISSING from the venv — exited $rc. Output: ${out//$'\n'/ | }. cairn/devices/db_domain/ imports it at module scope, so the db domain will fail far from this cause. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
     return 1
   fi
 

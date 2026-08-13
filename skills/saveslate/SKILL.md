@@ -14,7 +14,7 @@ that at the source.
 
 The charter lives beside this file in `intention+why.json` — its
 `input_contract` is the packet's live field list
-(`python3 -m cairn.skill_block contract saveslate`).
+(`python3 -m cairn.machines.skill_block contract saveslate`).
 
 ## 1. RUN THE INSTRUMENTS — before writing a word
 
@@ -27,7 +27,7 @@ git -C ~/dev/src/CairnCommons log --oneline -15 && git -C ~/dev/src/CairnCommons
 # which tickets moved (cursor brackets changed this session)
 git -C ~/dev/src/CairnCommons diff HEAD~15 --stat -- tickets/ | tail -20
 # any voyage in flight — the standing chain for its ticket
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live chain <ticket-id>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live chain <ticket-id>
 ```
 
 The two `rev-parse HEAD` hashes go in the packet's `instruments_read.git_heads` —

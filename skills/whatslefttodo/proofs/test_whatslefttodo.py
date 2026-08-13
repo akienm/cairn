@@ -30,9 +30,9 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO))
 
-from cairn.learning_block.learning_block import DoorRefused, read_trace   # noqa: E402
-from cairn.skill_block.skill_block import fire, judge_for, read_berth     # noqa: E402
-from cairn.tester.scratch import scratch_dir                             # noqa: E402
+from cairn.machines.learning_block.learning_block import DoorRefused, read_trace   # noqa: E402
+from cairn.machines.skill_block.skill_block import fire, judge_for, read_berth     # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir                             # noqa: E402
 
 sys.path.insert(0, str(_REPO / "skills" / "whatslefttodo"))
 import door  # noqa: E402

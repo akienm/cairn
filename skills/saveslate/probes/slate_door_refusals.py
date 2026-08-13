@@ -26,7 +26,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
 _TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"

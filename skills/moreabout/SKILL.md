@@ -10,7 +10,7 @@ compressed, resolved from the upstream nexus's **already-deposited state** — a
 walk, never a re-run — and the invocation itself is the training signal, written
 back to that nexus's tree in the same act.
 
-The device charter lives at `cairn/chart/intention+why.json` (falsifier 4 is this
+The device charter lives at `cairn/machines/chart/intention+why.json` (falsifier 4 is this
 skill's red line); this skill's charter beside this file.
 
 ARGUMENTS: the thing to expand (the `<something>` of `/moreabout <something>`).
@@ -18,7 +18,7 @@ ARGUMENTS: the thing to expand (the `<something>` of `/moreabout <something>`).
 ## 1. One command — the walk AND the signal
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.chart.live moreabout '<the ask, verbatim>' [nexus] [owner]
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live moreabout '<the ask, verbatim>' [nexus] [owner]
 ```
 
 Defaults walk chart's orient corpus. The door serves every tenant of the

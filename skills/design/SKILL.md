@@ -23,7 +23,7 @@ You are opening on a node somebody already birthed. Before firing:
   and an out-of-band charter write may have landed since:
 
   ```bash
-  $HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh
+  $HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh
   ```
 
   Then read `CairnCommons/intentions-congruency-lab/`. The birth already ran a
@@ -61,7 +61,7 @@ Five fields:
 - **bullets** — `{"text": ..., "stratum": "code"|"tree"}`, what the two reads above
   surfaced.
 
-The live contract is `python3 -m cairn.skill_block contract design`. A refusal names
+The live contract is `python3 -m cairn.machines.skill_block contract design`. A refusal names
 every lack in one pass and is itself recorded.
 
 ## Then do the work

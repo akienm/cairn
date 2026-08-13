@@ -47,7 +47,7 @@ from pathlib import Path
 # externally-set PYTHONPATH to reach cairn.*. bin/proofs -> the repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 _LOGGER = Path(__file__).resolve().parents[1] / "logger_for_bash"   # bin/proofs -> bin
 _ORIGINAL = Path.home() / "dev/src/akientools/bin/logger_for_bash"  # the graft's source

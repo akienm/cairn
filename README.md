@@ -89,7 +89,7 @@ from a device (the tester), never from the hand that wrote the code.
 
 **About the inference host.** Cairn routes to a local Ollama box (an Apple M1 Studio, called
 Hex here) as the default rung, with Ollama Cloud and Gemini as keyed failovers behind it.
-The routable rungs are authored in `cairn/inference_domain/stacks/` — **shareable rules
+The routable rungs are authored in `cairn/devices/inference_domain/stacks/` — **shareable rules
 only.** Your LAN endpoints and API keys go in `~/.cairn/inference/hosts.json` and never
 enter git. If you have no inference host, everything except the graph trees still runs.
 
@@ -157,19 +157,19 @@ Measure the system with its own instruments:
 export PYTHONPATH=$PWD
 
 # per component: charter on disk, proofs, latest validation verdicts, emit call sites
-python3 -m cairn.orient.orient census
+python3 -m cairn.tools.orient.orient census
 
 # where is a capability actually CALLED — AST, never a word-grep
-python3 -m cairn.orient.orient calls emit
+python3 -m cairn.tools.orient.orient calls emit
 
 # is what I said committed/pushed ACTUALLY committed/pushed?
-python3 -m cairn.orient.orient git
+python3 -m cairn.tools.orient.orient git
 
 # what does this file import, and what imports it?
-python3 -m cairn.orient.orient imports cairn/librarian/trees.py
+python3 -m cairn.tools.orient.orient imports cairn/devices/librarian/trees.py
 
 # is inference compilation paying off?  (calls / hits / tokens spent / tokens avoided)
-python3 -c "from cairn.inference_domain.domain import yield_report; print(yield_report())"
+python3 -c "from cairn.devices.inference_domain.domain import yield_report; print(yield_report())"
 ```
 
 Those four `orient` scans exist because a model working from the same data reached three
@@ -209,7 +209,7 @@ wrong root.**
 Do not start at the top and read down. Stand somewhere and look around.
 
 ```bash
-cd cairn/librarian && cairn cairnmap    # renders THIS component's whole charter
+cd cairn/devices/librarian && cairn cairnmap    # renders THIS component's whole charter
 cat intention+why.json                  # what it is, why it exists, how it learns
 cat state.json                          # compiled from history — never hand-edited
 cat history.json                        # append-only; the voyage that got it here

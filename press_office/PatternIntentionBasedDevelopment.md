@@ -40,7 +40,7 @@ memory. This was caught at n=1, before there were thirty components to go back a
 A component is a directory. Standing in it briefs you completely:
 
 ```
-cairn/librarian/
+cairn/devices/librarian/
   intention+why.json     the charter — the summarized design
   trees.py  loop.py …    the code
   state.json             COMPILED from history; a cursor plus a bounded window

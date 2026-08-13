@@ -112,7 +112,7 @@ def _declared_probe_names(path: Path) -> list[str]:
 
 def scan_probes(root: Path, devices: set[str]) -> list[dict]:
     """The send end, one row per probe module: armed? addressed? does the address exist?"""
-    from cairn.ground_loop.discovery import load_module
+    from cairn.devices.ground_loop.discovery import load_module
 
     rows = []
     for path in probe_modules(root):
@@ -157,7 +157,7 @@ def can_receive(device_id: str) -> dict:
     would get: resolve a shim for the id, wake the device, look for the receive face. Each
     failure is the REAL exception from the REAL code, not a guess about it.
     """
-    from cairn.ground_loop.discovered import DiscoveredShim
+    from cairn.devices.ground_loop.discovered import DiscoveredShim
 
     result = {"device": device_id, "rung": NO_SHIM, "detail": None, "shim_class": None}
     try:
@@ -206,8 +206,8 @@ def scan_mail(devices: set[str]) -> dict:
     picked up, is anyone writing to an address that is not a device, and is one probe
     saying the same thing over and over.
     """
-    from cairn.bus.bus import BusDevice
-    from cairn.db_domain import store
+    from cairn.devices.bus.bus import BusDevice
+    from cairn.devices.db_domain import store
 
     bus = BusDevice()
     conn = store.connect()
@@ -251,7 +251,7 @@ def scan_mail(devices: set[str]) -> dict:
 
 def scan(root: Path | None = None) -> dict:
     """The whole check. Importable, so a future standing watch composes it (Law 1)."""
-    from cairn.ground_loop.discovery import device_folders, repo_root
+    from cairn.devices.ground_loop.discovery import device_folders, repo_root
 
     root = Path(root) if root is not None else repo_root()
     devices = {d for d, _ in device_folders(root)}

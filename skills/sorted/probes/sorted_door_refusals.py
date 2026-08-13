@@ -2,7 +2,7 @@
 
 Berth for the WATCHME that ticket ``sorted-becomes-a-learning-block`` carries. Berthed
 here, beside ``skills/sorted/``, because that is WHAT IT WATCHES (the rule in
-``cairn/base/probe.py``: a probe berths with its subject).
+``cairn/tools/base/probe.py``: a probe berths with its subject).
 
 THE EFFICACY QUESTION, two edges. The migration's claim is that casting stopped being
 prose and became a gate. Edge one is the sibling's (``skills/intent/probes/``): a gate
@@ -33,7 +33,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 # Live roots read the way the components read them — env first, default second,
 # resolved per call, never captured at import (the sibling's rule).

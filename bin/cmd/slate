@@ -28,7 +28,7 @@ proof." The banner says so too, in the output, every session — because the one
 reader who most needs reminding is the one who just had it handed to them for
 free.
 
-THE TROUBLE LANE'S FIRST READER. cairn/trouble/ has been PROVED and orphaned
+THE TROUBLE LANE'S FIRST READER. cairn/devices/trouble/ has been PROVED and orphaned
 since 2026-07-25: nothing outside the device imports it, so troubles were raised
 into a corpus with an intake and no drain — "worse than no corpus, it is the
 APPEARANCE of capture" (the questions store charter). This program is the drain.
@@ -195,7 +195,7 @@ def _live_troubles() -> tuple[list[dict], str | None]:
     re-deriving that rule here would be a second owner of it (Law 6)."""
     sys.path.insert(0, str(REPO))
     try:
-        from cairn.trouble.trouble import TroubleDevice
+        from cairn.devices.trouble.trouble import TroubleDevice
     except Exception as exc:
         return [], f"trouble lane unreachable: {exc}"
     try:
@@ -211,7 +211,7 @@ def _at_the_gate() -> tuple[list[dict], str | None]:
     same never-a-second-owner rule the trouble lane lives by."""
     sys.path.insert(0, str(REPO))
     try:
-        from cairn.learning_block.learning_block import pending_findings
+        from cairn.machines.learning_block.learning_block import pending_findings
     except Exception as exc:
         return [], f"gate lane unreachable: {exc}"
     try:

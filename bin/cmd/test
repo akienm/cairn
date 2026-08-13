@@ -2,7 +2,7 @@
 # cairn test — run proofs through the tester and report the verdicts.
 #
 # The address that was empty on 2026-07-30 and cost a session four tool calls to work
-# around (cairn/tester/cli.py carries the measurement). A thin registration against the
+# around (cairn/devices/tester/cli.py carries the measurement). A thin registration against the
 # dispatcher, matching bin/cmd/compile: resolve the interpreter, hand off, keep the exit
 # code. It owns no logic about what it runs (Law 6).
 set -euo pipefail
@@ -23,4 +23,4 @@ if [[ -r "$BOOTSTRAP" ]]; then
 fi
 
 cd "$REPO"
-exec "$PY" -m cairn.tester.cli "$@"
+exec "$PY" -m cairn.devices.tester.cli "$@"

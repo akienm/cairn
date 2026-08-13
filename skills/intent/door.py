@@ -1,6 +1,6 @@
 """THE INTENT DOOR — the fan-out edge, and the challenge floor the charter already declared.
 
-/intent has ridden the ``cairn.skill_block`` seam since 2026-08-01 with a flat contract
+/intent has ridden the ``cairn.machines.skill_block`` seam since 2026-08-01 with a flat contract
 and no semantic judges. Two things that contract DECLARES were, until this module,
 unenforced — declared rules with nothing behind them, which Law 4 calls a tracked debt
 rather than a resting state:
@@ -44,13 +44,13 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:                       # script-invoked beside the skill
     sys.path.insert(0, str(_REPO))
 
-from cairn.build_inspector.inspector import reason_has_referent   # noqa: E402
-from cairn.learning_block.learning_block import (                 # noqa: E402
+from cairn.machines.build_inspector.inspector import reason_has_referent   # noqa: E402
+from cairn.machines.learning_block.learning_block import (                 # noqa: E402
     DoorRefused,
     check_input,
     write_trace,
 )
-from cairn.skill_block import skill_block as sb                   # noqa: E402
+from cairn.machines.skill_block import skill_block as sb                   # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _EXEMPT_RE = re.compile(r"^none,\s*because\s+", re.IGNORECASE)
@@ -138,7 +138,7 @@ def fire(payload: dict, *, now=None, skills_root=None, berths=None, trace_root=N
     """Ride the seam. The seam resolves ``judge_packet`` from this file's address and
     raises flat AND semantic lacks in ONE refusal, so this is a passthrough and not a
     second entrance — the composition used to live here, which is exactly what made
-    ``python3 -m cairn.skill_block fire intent`` the looser of the two doors."""
+    ``python3 -m cairn.machines.skill_block fire intent`` the looser of the two doors."""
     return sb.fire("intent", payload, now=now, skills_root=skills_root,
                    berths=berths, trace_root=trace_root,
                    judge_kwargs={"repo": repo, "commons": commons})
@@ -149,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     if len(args) != 1 or args[0] in ("-h", "--help"):
         print("usage: python3 skills/intent/door.py <packet.json>\n"
               "The packet carries /intent's input_contract fields — see\n"
-              "  python3 -m cairn.skill_block contract intent", file=sys.stderr)
+              "  python3 -m cairn.machines.skill_block contract intent", file=sys.stderr)
         return 2
     try:
         payload = json.loads(Path(args[0]).read_text())

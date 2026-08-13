@@ -29,7 +29,7 @@ charter, one written outside a skill step) may have landed since the last compil
 So the reader **pokes the gate to refresh, then consults** — the read is the event
 that refreshes it; no daemon watches on your behalf:
 
-    $HOME/dev/src/cairn/cairn/intentions_model_compiler/recompile_gate.sh
+    $HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh
 
 Then read `CairnCommons/intentions-congruency-lab/` — it holds a COPY of every
 intention+why in the system, one file each — and ask: is anything already here
@@ -95,7 +95,7 @@ the packet goes through a gate that refuses an incomplete one. Write it to your
 scratchpad and fire:
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.skill_block fire intent <scratchpad>/intent_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.skill_block fire intent <scratchpad>/intent_packet.json
 ```
 
 **One command, and it is this one.** `skills/intent/door.py` still runs and judges
@@ -131,7 +131,7 @@ The packet is a JSON object carrying, exactly:
   `cairn recordverdict` names it.
 
 The contract is read from this skill's own charter (`intention+why.json`,
-`input_contract`), not from code — run `python3 -m cairn.skill_block contract
+`input_contract`), not from code — run `python3 -m cairn.machines.skill_block contract
 intent` to see the live fields and the why of each. A refusal names **every**
 lack in one pass, and is itself recorded: the refusals are the denominator the
 `intent-door-refusals` watch reads, so a refused firing is data, not a mistake to

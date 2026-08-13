@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket ``the-return-trip-is-countable`` carries. Berthed
 here, beside ``skills/design/``, because that is WHAT IT WATCHES; the ticket it was
 compiled from lives in CairnCommons and this probe deliberately does not follow it
-there (the rule in ``cairn/base/probe.py``: a probe berths with its subject).
+there (the rule in ``cairn/tools/base/probe.py``: a probe berths with its subject).
 
 THE EFFICACY QUESTION. /design's build claim is one sentence in its charter: "this door
 is where that arrival becomes data" — the arrival being a node routed back from /sorted
@@ -50,7 +50,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 # Env first, default second, resolved per call — the roster's rule: a probe that froze
 # the path at import time would keep reading a root the system had already left.
@@ -147,7 +147,7 @@ def _carry(context: dict) -> dict:
 _TICKET = owning_ticket("the-return-trip-is-countable")
 
 # THE HORIZON — the roster's shared tracked debt, restated not re-derived: the unit is
-# PULSES, nothing pulses this shim yet (cairn/ground_loop/loop.py's filed edge), so the
+# PULSES, nothing pulses this shim yet (cairn/devices/ground_loop/loop.py's filed edge), so the
 # loudness rides ``BaseShim.overdue()`` alone. 1000 is honest as a placeholder and
 # dishonest as a measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

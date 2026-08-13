@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket ``superclaude-starts-itself`` carries. Berthed here, in
 ``launchers/``, because that is WHAT IT WATCHES — ``bootstrap.sh`` and ``superclaude``, three
 files away. The ticket it was compiled from lives in the commons and this does not follow it
-there (``cairn/base/probe.py``: a probe berths with what it watches).
+there (``cairn/tools/base/probe.py``: a probe berths with what it watches).
 
 BERTHING DESTINATION (i), NOT (ii) — a correction to what the ticket first said, kept rather
 than quietly swapped. The first draft called this "destination (ii)'s first worked example,
@@ -51,7 +51,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 # The namespace ``superclaude`` exports for its own launch. Resolved the same way the shell
 # side resolves it (``launchers/superclaude``) so the probe and the recorder cannot develop
@@ -158,7 +158,7 @@ def _enough(context: dict) -> bool:
     than left as ``worst < _PATIENCE``. Without it the watch clears on an empty log — zero
     reports, zero survivors, question never asked — which is a watch that retires before it
     can fire. That exact asymmetry killed this system's first probe on its first pulse
-    (``cairn/base/probes/does_optional_mean_never_carried.py``, 2026-07-30); it is a known
+    (``cairn/tools/base/probes/does_optional_mean_never_carried.py``, 2026-07-30); it is a known
     shape now, and the proof beside this file exhausts the space to show it cannot recur here.
 
     If the answer later goes bad, that is a NEW watch a node carries deliberately — not this
@@ -190,10 +190,10 @@ def _carry(context: dict) -> dict:
 
 
 # THE HORIZON — same placeholder, same debt, and deliberately not re-derived. The unit is
-# PULSES because the shim counts pulses and a clock is bounded out; nothing pulses cairn/base's
+# PULSES because the shim counts pulses and a clock is bounded out; nothing pulses cairn/tools/base's
 # shim today, so 1000 is honest as "clearly a long standing" and dishonest as a measurement.
 # The full why, and the tracked debt to re-tune it once the beat is a real number, is written
-# once at cairn/base/probes/does_optional_mean_never_carried.py — pointed at rather than
+# once at cairn/tools/base/probes/does_optional_mean_never_carried.py — pointed at rather than
 # copied, because two copies of a placeholder is two things to forget to re-tune (Law 1).
 _HORIZON = 1000
 

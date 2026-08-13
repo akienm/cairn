@@ -1,6 +1,6 @@
 """THE BERTHED PROBE OVER THE PREFLIGHT, PROVED — and the contamination its live fire found.
 
-Ticket ``superclaude-starts-itself`` (2026-07-30). Written the way ``cairn/base/proofs/
+Ticket ``superclaude-starts-itself`` (2026-07-30). Written the way ``cairn/tools/base/proofs/
 test_does_optional_probe.py`` had to be written: the Probe PRIMITIVE is proved elsewhere, on
 synthetic dials, and every defect this system has found in a probe has been in the INSTANCE.
 
@@ -53,8 +53,8 @@ _spec = importlib.util.spec_from_file_location("_probe_reported_but_unfixed", BE
 SUT = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SUT)
 
-from cairn.base.probe import Probe  # noqa: E402
-from cairn.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.base.probe import Probe  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime.datetime(2026, 7, 30, tzinfo=datetime.timezone.utc)
 _failures: list[str] = []
@@ -174,7 +174,7 @@ def test_the_bypass_is_counted_but_does_not_fire() -> None:
 def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
     """Read ARMED through the gate's own instrument, never a parallel notion of it — else this
     proof could pass a probe the door refuses."""
-    from cairn.base import watchme_spec
+    from cairn.tools.base import watchme_spec
 
     ticket_path = watchme_spec._TICKETS / "superclaude-starts-itself.json"
     assert ticket_path.is_file(), f"the owning ticket is not on file at {ticket_path}"
@@ -189,7 +189,7 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
 def test_the_berth_is_where_the_ticket_says_it_is() -> None:
     """Done is verified in the world, never in the record: the ticket's spec must name THIS
     file, resolved from the repo root the gate resolves from."""
-    from cairn.base import watchme_spec
+    from cairn.tools.base import watchme_spec
 
     ticket = json.loads((watchme_spec._TICKETS / "superclaude-starts-itself.json")
                         .read_text(encoding="utf-8"))

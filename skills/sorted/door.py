@@ -1,6 +1,6 @@
 """THE SORTED DOOR — the cast stops being a paragraph and becomes a refusable packet.
 
-/sorted is tenant #2 of the ``cairn.skill_block`` seam (ticket
+/sorted is tenant #2 of the ``cairn.machines.skill_block`` seam (ticket
 ``sorted-becomes-a-learning-block``, opus-pass rank 3 ruled spec 2026-08-03). The flat
 contract in ``skills/sorted/intention+why.json`` is the seam's half; this module is the
 other half: the SEMANTIC judges the flat {field: why} shape cannot express —
@@ -11,7 +11,7 @@ other half: the SEMANTIC judges the flat {field: why} shape cannot express —
   its cursor still at the cast (a drifted string refused here costs one fix; the same
   string refused at its first crossing costs a dead voyage);
 - the watchme spec is judged by THE EMISSION GATE'S OWN RULE
-  (``cairn.base.watchme_spec.watchme_spec_error`` — the five fields plus the probe
+  (``cairn.tools.base.watchme_spec.watchme_spec_error`` — the five fields plus the probe
   berth, joined to the workflow's own ``WATCHME(<object>)``), or takes the named
   exemption with a JUDGEABLE reason — one carrying at least one resolvable referent
   (a path on disk, a cast ticket id, a roster command). 'none, because <one plausible
@@ -45,25 +45,25 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:                       # script-invoked beside the skill
     sys.path.insert(0, str(_REPO))
 
-from cairn.base.transitions import (                  # noqa: E402
+from cairn.tools.base.transitions import (                  # noqa: E402
     IllegalTransition,
     MalformedWorkflow,
     _conform,
     load_class_def,
     parse_workflow,
 )
-from cairn.base.watchme_spec import (                 # noqa: E402
+from cairn.tools.base.watchme_spec import (                 # noqa: E402
     BERTH_FIELD,
     REQUIRED_FIELDS,
     watchme_spec_error,
 )
-from cairn.build_inspector.inspector import reason_has_referent  # noqa: E402
-from cairn.learning_block.learning_block import (     # noqa: E402
+from cairn.machines.build_inspector.inspector import reason_has_referent  # noqa: E402
+from cairn.machines.learning_block.learning_block import (     # noqa: E402
     DoorRefused,
     check_input,
     write_trace,
 )
-from cairn.skill_block import skill_block as sb       # noqa: E402
+from cairn.machines.skill_block import skill_block as sb       # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _EXEMPT_RE = re.compile(r"^none,\s*because\s+", re.IGNORECASE)
@@ -226,7 +226,7 @@ def main(argv: list[str] | None = None) -> int:
     if len(args) != 1 or args[0] in ("-h", "--help"):
         print("usage: python3 skills/sorted/door.py <packet.json>\n"
               "The packet carries /sorted's input_contract fields — see\n"
-              "  python3 -m cairn.skill_block contract sorted", file=sys.stderr)
+              "  python3 -m cairn.machines.skill_block contract sorted", file=sys.stderr)
         return 2
     try:
         payload = json.loads(Path(args[0]).read_text())

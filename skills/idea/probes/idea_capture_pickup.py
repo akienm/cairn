@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket ``an-idea-has-an-address`` carries. Berthed here,
 beside ``skills/idea/``, because that is WHAT IT WATCHES; the ticket it was compiled
 from lives in CairnCommons and this probe deliberately does not follow it there (the
-rule in ``cairn/base/probe.py``: a probe berths with its subject).
+rule in ``cairn/tools/base/probe.py``: a probe berths with its subject).
 
 THE EFFICACY QUESTION, and why it is the SECOND of the charter's two signals. /idea's
 own ``how_it_learns`` names them: an idea /intent routes OUT says something about what
@@ -42,7 +42,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket
 
 # Read the live roots the way the components themselves do — env first, default second —
 # resolved per call, never captured at import: a probe that froze the path at import
@@ -146,7 +146,7 @@ _TICKET = owning_ticket("an-idea-has-an-address")
 # THE HORIZON, and the residual it does NOT cover — the same tracked debt every probe in
 # the roster carries: the unit is PULSES because the shim counts pulses, but nothing
 # pulses this shim yet (the wall-clock backing is a filed edge in
-# cairn/ground_loop/loop.py), so today the loudness rides the READ-SIDE door
+# cairn/devices/ground_loop/loop.py), so today the loudness rides the READ-SIDE door
 # (``BaseShim.overdue()``) alone. 1000 is honest as a placeholder and dishonest as a
 # measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

@@ -213,7 +213,7 @@ fi
 # ITS A SINGLETON, SO IF IT SEES ITS ALREADY RUNNING, THE NEW ONE STOPS."
 #
 # SPAWN BLIND — deliberately. This does NOT check whether a loop is running first; the
-# singleton claim in cairn/ground_loop/guard.py is the mechanism, and a launcher that
+# singleton claim in cairn/devices/ground_loop/guard.py is the mechanism, and a launcher that
 # re-derived the check would be a second opinion about who is running (Law 1, and the guard's
 # own docstring names this caller). A loser exits 3 after printing what it found, which lands
 # in the log below — distinct from a crash, so "refused, one is running" reads differently
@@ -227,7 +227,7 @@ fi
 # the trace wire: from parse to exec, nothing may abort the launch. A heartbeat that fails to
 # start must cost the session nothing. setsid so it outlives this shell and the terminal.
 if [[ "$dry_run" -eq 0 ]]; then
-  ( setsid python3 -m cairn.ground_loop \
+  ( setsid python3 -m cairn.devices.ground_loop \
       >>"${HOME}/.cairn/logs/ground_loop_nohup.log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
   disown 2>/dev/null || true
   _sc_log "ground_loop: spawn attempted (singleton guard decides; loser exits 3)"
@@ -246,7 +246,7 @@ if [[ "$dry_run" -eq 0 ]]; then
   elif [[ -n "${residue:-}" ]]; then
     _sc_wire_event="send_back"; _sc_wire_lacks+=("preflight residue: $residue")
   fi
-  ( python3 -m cairn.learning_block trace superclaude "$_sc_wire_event" launch \
+  ( python3 -m cairn.machines.learning_block trace superclaude "$_sc_wire_event" launch \
       ${_sc_wire_lacks[@]+"${_sc_wire_lacks[@]}"} >/dev/null 2>&1 || true ) &
   disown 2>/dev/null || true
 fi

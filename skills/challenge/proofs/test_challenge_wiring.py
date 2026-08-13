@@ -2,7 +2,7 @@
 challenge-fires-at-intent, 2026-08-03).
 
 WHAT ONLY THIS COMPONENT CAN BE ASKED. The seam's teeth
-(cairn/skill_block/proofs/test_skill_block.py) prove the intent door refuses an
+(cairn/machines/skill_block/proofs/test_skill_block.py) prove the intent door refuses an
 unchallenged birth, and /intent's own proof holds its markdown and charter
 together. What neither owns is THIS skill's claim about itself: that it has a
 firing event at all — the defect the ticket measured was five questions that
@@ -27,7 +27,7 @@ SKILL_DIR = HERE.parent
 REPO = SKILL_DIR.parents[1]
 sys.path.insert(0, str(REPO))
 
-from cairn.skill_block import skill_block as sb  # noqa: E402
+from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 
 SKILL_MD = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 INTENT_MD = (REPO / "skills" / "intent" / "SKILL.md").read_text(encoding="utf-8")

@@ -239,7 +239,7 @@ def test_every_needs_block_on_disk_conforms():
     same condition sat invisible behind alphabetical order and the finding read as one stale ticket
     for a day. The real finding was structural: 33 chart-keyed PROSE entries had been written into
     the field this door owns (they live in ``chart_notes`` now, gated at
-    ``cairn/machines/chart/chain.py``). A diagnostic surface delivers ALL the data on its INITIAL pass;
+    ``cairn/tools/chain/chain.py``). A diagnostic surface delivers ALL the data on its INITIAL pass;
     re-running to gather the rest is the re-derivation Law 1 refuses
     (I-complete-diagnostic-on-first-pass)."""
     checked = 0

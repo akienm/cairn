@@ -40,14 +40,14 @@ sys.path.insert(0, str(_REPO_ROOT))
 # orient's filed edge (e) — scans-vs-sieves as one shared library — earned by use, not
 # merged on symmetry. The registries stay separate: a scan MEASURES, a sieve JUDGES.
 from cairn.tools.charter import projector  # noqa: E402
-from cairn.machines.chart.orient import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
+from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
                                 ticket_path)             #   module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
 #   composes the berth gate's OWN ref semantics so the two mouths cannot disagree.
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
-from cairn.machines.chart.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
+from cairn.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
 #   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
@@ -417,7 +417,7 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
     sharpest claim-vs-world drift on record). The packet is the claim, the
     promotion is the moment, this sieve is the comparison — through the berth
-    gate's own ref semantics (cairn.machines.chart.orient.ref_exists), so the judge and
+    gate's own ref semantics (cairn.machines.orient.orient.ref_exists), so the judge and
     the gate that admitted the refs cannot disagree.
     """
     packets, unreadable = _charted_packets(comp_dir, "orient")
@@ -1555,7 +1555,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.
 # A claimed cast ticket crossing forward into PROVED must show a verdict
-# artifact (cairn/machines/chart/verdict.py — the ONE validator, shared with the deposit
+# artifact (cairn/machines/verdict/verdict.py — the ONE validator, shared with the deposit
 # face) in which every criterion of the claiming validate berth carries a run
 # verdict with outcome pass, and every hypothesis of the chain is dispositioned
 # confirmed-or-killed with the deciding observation.
@@ -1583,7 +1583,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
     # THE ONE LATEST-CLAIMER RULE, composed (ticket the-deposit-rides-the-read):
-    # this gate's private glob loop retired into cairn.machines.chart.verdict, where the
+    # this gate's private glob loop retired into cairn.machines.verdict.verdict, where the
     # crossing's deposit-enqueue reads it too — one implementation, two mouths.
     claiming = claiming_packets(ticket, "validate", berths_root=root)
     artifacts = claiming_packets(ticket, "verdict", berths_root=root)
@@ -1591,7 +1591,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
         return []  # unclaimed — ungated (v0 jurisdiction, inherited from the entry gate)
     disposition = ("Disposition: run the claiming validate berth's criteria by their "
                    "instruments, write the verdict artifact through "
-                   "cairn.machines.chart.verdict.write_verdict, deposit it, then cross again.")
+                   "cairn.machines.verdict.verdict.write_verdict, deposit it, then cross again.")
     if not artifacts:
         return [_finding(
             "proved_answers_the_chart", ticket,
@@ -1699,7 +1699,7 @@ _FIRE_PATH = {
     "kind": "unreachable",
     "capability": "a graph tree, a database, or a host that could answer",
     "modules": (
-        "cairn.machines.chart.tree",        # the graph tree — a verdict may not consult one
+        "cairn.tools.tree.tree",        # the graph tree — a verdict may not consult one
         "cairn.devices.librarian",         # the same tree, by its other name
         "cairn.devices.db_domain",         # port 5432
         "cairn.devices.inference_domain",  # the inference/embedding host, by its permitted door

@@ -735,9 +735,9 @@ def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
 
 def _ledger_world(d: Path, **kw):
     """The exit world plus a FIXTURE ledger path and berths root patched into
-    cairn.machines.chart.verdict — the enqueue's two module globals, so no tooth here can
+    cairn.machines.verdict.verdict — the enqueue's two module globals, so no tooth here can
     touch the live instance-space ledger. Returns (tickets, berths, ledger)."""
-    import cairn.machines.chart.verdict as _verdict
+    import cairn.machines.verdict.verdict as _verdict
     tickets, berths = _exit_world(d, **kw)
     ledger = d / "ledger" / "verdict-deposits.jsonl"
     return tickets, berths, ledger, _verdict
@@ -831,18 +831,18 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
 
 def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
     """The netns constraint as structure (build_inspector edge (l)): the enqueue's
-    only door is cairn.machines.chart.verdict — itself tree-free by its own allowlist tooth —
+    only door is cairn.machines.verdict.verdict — itself tree-free by its own allowlist tooth —
     and the chokepoint's source names no tree, db, embed, or inference machinery at
     all. If a future edit reaches a host from here, sealed crossings stop enqueueing
     identically to live ones and THIS tooth is what says so."""
     src = Path(transitions.__file__).read_text(encoding="utf-8")
-    for host_door in ("cairn.machines.chart.tree", "cairn.devices.librarian", "cairn.devices.db_domain",
+    for host_door in ("cairn.tools.tree.tree", "cairn.devices.librarian", "cairn.devices.db_domain",
                       "cairn.devices.inference_domain", "embed_via_domain"):
         assert host_door not in src, (
             f"transitions.py reaches {host_door} — the crossing side of the deposit "
             "writes a FILE and nothing else; a host on the fire path breaks netns "
             "sealing, which is the whole reason the deposit is split in two")
-    assert "from cairn.machines.chart.verdict import enqueue_verdict" in src, \
+    assert "from cairn.machines.verdict.verdict import enqueue_verdict" in src, \
         "the enqueue's one door is chart's tree-free ledger module, lazily imported"
 
 

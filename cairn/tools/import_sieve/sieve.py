@@ -88,7 +88,7 @@ class HollowScan(RuntimeError):
 # that produced it found three of the four bands populated. Widening it is expected.
 DEFAULT_LADDER = {
     3: {"modules": ("cairn.devices.db_domain", "cairn.devices.inference_domain", "cairn.devices.librarian",
-                    "cairn.machines.chart.tree", "psycopg", "psycopg2", "socket", "urllib.request",
+                    "cairn.tools.tree.tree", "psycopg", "psycopg2", "socket", "urllib.request",
                     "http.client", "requests"),
         "calls": ()},
     2: {"modules": ("subprocess", "ast", "cairn.tools.orient"),

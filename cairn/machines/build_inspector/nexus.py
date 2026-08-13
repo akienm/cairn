@@ -35,7 +35,7 @@ module never opens the host).
 """
 from __future__ import annotations
 
-from cairn.machines.chart.tree import counsel, deposit_learning, propose
+from cairn.tools.tree.tree import counsel, deposit_learning, propose
 
 OWNER = "build_inspector"
 CORPUS = "failures"

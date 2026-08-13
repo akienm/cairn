@@ -21,7 +21,7 @@ Template-fill from the LAST berthed stage for this request — found by COMMAND,
 never by eyeballing the packets directory (ticket berths-carry-request-identity):
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live chain <ticket-id>
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live chain <ticket-id>
 ```
 
 prints the standing chain (per stage, the latest berth claiming the ticket); the
@@ -84,12 +84,12 @@ contract, the live fire catches what the fixture world was too clean to show
 ## 6. Answer the chart — BEFORE the PROVED crossing (physics since 2026-07-29)
 
 Run the claiming validate berth's **criteria by their instruments**, then write
-the **verdict artifact** through `cairn.machines.chart.verdict.write_verdict`: every
+the **verdict artifact** through `cairn.machines.verdict.verdict.write_verdict`: every
 criterion a run verdict (claim verbatim, instrument, outcome, evidence — a
 verdict without both instrument and evidence is narration and the door refuses
 it), every hypothesis in the chain dispositioned `confirmed`|`killed` with the
 deciding observation. A **failed** criterion is a kick-back, not a crossing.
-Then deposit it (`python3 -m cairn.machines.chart.live learn <verdict-berth>`) — the
+Then deposit it (`python3 -m skills.chart.live learn <verdict-berth>`) — the
 kills become the hypothesize tree's memory of what killed which.
 
 Skipping this is a build error the door itself throws (ticket
@@ -128,7 +128,7 @@ re-opens a node whose intention did not work is the **owner's** act (Law 6).
 
 ## 9. Deposit the learnings
 
-`python3 -m cairn.machines.chart.live learn <berth>` for each berth of this voyage (the
+`python3 -m skills.chart.live learn <berth>` for each berth of this voyage (the
 trees are the durable memory; skipping starves them). A correction surfaced
 mid-build rides orient's brick loop (deposit → counsel → propose), never a
 quiet local fix.

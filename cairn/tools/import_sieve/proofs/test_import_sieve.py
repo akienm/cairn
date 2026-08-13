@@ -284,7 +284,7 @@ def test_unreachable_is_clean_on_the_real_corpus():
     pinning them would red this tooth the moment the corpus legitimately grows."""
     g = _corpus()
     caught = sieve.catches(g, {"kind": "unreachable", "capability": "the graph tree",
-                               "modules": ("cairn.machines.chart.tree", "cairn.devices.librarian",
+                               "modules": ("cairn.tools.tree.tree", "cairn.devices.librarian",
                                            "cairn.devices.db_domain"),
                                "start": "cairn/machines/build_inspector/inspector.py"})
     assert caught == [], f"the verdict path can reach the graph tree: {caught}"

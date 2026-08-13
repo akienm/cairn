@@ -83,7 +83,7 @@ from pathlib import Path
 # THIS MODULE IMPORTS pathlib AND NOTHING ELSE — measured, not asserted: import_map over it
 # says ['__future__', 'pathlib']. That is what makes it a legal floor for every caller,
 # including the ones whose proofs pin an import allowlist (cairn/devices/librarian/library.py and
-# cairn/machines/chart/orient.py both admitted it by name on 2026-08-12, each with the measurement in
+# cairn/machines/orient/orient.py both admitted it by name on 2026-08-12, each with the measurement in
 # the comment). Note what is NOT claimed: cairn/tools/base as a PACKAGE is not import-clean —
 # deviceness.py reaches cairn.devices.ground_loop.discovery and transitions.py reaches four
 # components. The floor is this FILE, and the package __init__ is empty by the boot-order law

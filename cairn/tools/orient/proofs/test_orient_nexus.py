@@ -37,7 +37,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.machines.chart.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
@@ -139,7 +139,7 @@ def test_the_fire_path_never_reaches_the_tree():
         # so the fire path still never reaches the tree — which is what this tooth guards.
         orient.__file__: ("__future__", "ast", "json", "subprocess", "sys", "pathlib",
                           "cairn.tools.base.address"),
-        nexus.__file__: ("__future__", "cairn.machines.chart.tree"),
+        nexus.__file__: ("__future__", "cairn.tools.tree.tree"),
     }
     for path, allow in allowed.items():
         seen = orient.import_map(path)["measured"]["imports"]

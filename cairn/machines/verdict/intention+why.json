@@ -1,0 +1,24 @@
+{
+  "component": "verdict",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "THE VOYAGE'S ANSWER, written after the build the chain charted. The chart chain ends at validate — what DONE would mean; this machine records what done ACTUALLY meant, criterion by criterion, and it is what the emit chokepoint and the build_inspector both read. It owns the DEPOSIT LEDGER (verdict-deposits.jsonl in instance-space): enqueue_verdict, pending, read_ledger, mark_deposited — one append door, and every reader goes through it.",
+  "why": "IT IS A MACHINE BECAUSE IT HOLDS STATE, and that is the test rather than its size. A tool is a complete primitive and has USERS, not an owner (Akien, 2026-08-13) — because a tool holds nothing to gate. This module owns a durable append-only ledger, so there IS something to gate, so it needs an owner, so it is not a tool. It was nearly filed as a machine on line count; the ledger is the reason, and the reason is what the rung means.",
+  "invoke": "read by cairn/tools/base/transitions.py at the emit chokepoint and by the build_inspector",
+  "node_class": "code-seam (cairn/machines/verdict/)",
+  "entry": "Carved out of cairn/machines/chart/ on 2026-08-13 under Akien's ruling — \"chart is a skill, it calls a collection of machines. that's the intention.\" The chart charter it was carved from is the design record of the whole chain and stays with the skill; this file holds only what is THIS component's.",
+  "state_and_history": "state.json + history.json beside this charter, born at the carve-out. The LEDGER is runtime state and lives in instance-space (~/.cairn/), never here.",
+  "gates": "validate_verdict at the door; the ledger's single append door (_append) is the only writer, and mark_deposited is the only thing that moves a row out of pending.",
+  "falsifier": "RED on any of: (1) a second writer to the deposit ledger (Law 6 — one owner); (2) a verdict admitted with an unanswered criterion; (3) this module reaching tree machinery — the verdict path stays structurally unable to, and cairn/tools/import_sieve holds that as physics rather than as this sentence.",
+  "horizon": "re-read when the ledger grows a second consumer, or when a verdict face other than the per-claim one meets the embed ceiling.",
+  "how_it_learns": "the per-claim deposit: one node per claim since 2026-07-29, so the metered embed seam takes the claim whole rather than a finished vector. The ledger is what makes a deposit resumable rather than lost when the embed seam is cold.",
+  "traces_to": [
+    "Law 3 (a verdict is a measurement, recorded)",
+    "Law 6 (one owner; the ledger has one append door)",
+    "Law 7 (a record of truth keeps its error)",
+    "Law 5 (intent, voyage, proofs share an address)"
+  ],
+  "owner": "CC owns the code and proofs; the ledger's single append door owns the ledger.",
+  "proof": "proofs/test_chart_verdict.py + proofs/test_falsifier_verdict.py, sealed by the tester; validations/ beside.",
+  "provenance": "Carved out of cairn/machines/chart/ on 2026-08-13 under Akien's ruling — \"chart is a skill, it calls a collection of machines. that's the intention.\" The chart charter it was carved from is the design record of the whole chain and stays with the skill; this file holds only what is THIS component's."
+}

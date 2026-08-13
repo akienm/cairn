@@ -18,7 +18,7 @@ ARGUMENTS: the thing to expand (the `<something>` of `/moreabout <something>`).
 ## 1. One command — the walk AND the signal
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -m cairn.machines.chart.live moreabout '<the ask, verbatim>' [nexus] [owner]
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live moreabout '<the ask, verbatim>' [nexus] [owner]
 ```
 
 Defaults walk chart's orient corpus. The door serves every tenant of the

@@ -72,11 +72,11 @@ REQUIRED_MARK_FIELDS = ("need", "status", "when", "how_measured")
 # the message pointed only at the workflow vocabulary, so the finding read as a stale stage name
 # rather than as a field carrying two different animals. A STRING value is the tell, and it earns
 # the pointer. Named, not imported: base does not depend on chart (the gate lives at
-# cairn/machines/chart/chain.py, which owns the leg vocabulary — Law 6).
+# cairn/tools/chain/chain.py, which owns the leg vocabulary — Law 6).
 _CHART_HINT = (
     " — the value here is a STRING, which is the tell: this is prose addressed to a leg of the "
     "CHART chain, not a dependency of a workflow stage. It belongs in `chart_notes`, gated by "
-    "cairn/machines/chart/chain.py. A need is a list of {need, marks} and gets MEASURED; a chart note is "
+    "cairn/tools/chain/chain.py. A need is a list of {need, marks} and gets MEASURED; a chart note is "
     "guidance and never does."
 )
 

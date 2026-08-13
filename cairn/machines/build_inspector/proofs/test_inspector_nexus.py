@@ -45,7 +45,7 @@ from cairn.machines.build_inspector.nexus import (
     FOUNDING_QUESTIONS, GraftRefused, counsel_failures, deposit_failure,
     propose_sieve,
 )
-from cairn.machines.chart.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
@@ -153,7 +153,7 @@ def test_the_fire_path_never_reaches_the_tree():
     # the question there really is "what may this file import", which is what an allowlist
     # asks. A two-entry list on a file that must stay two entries wide does not have the
     # maintenance failure above; a list that grows with the corpus does.
-    allow = ("__future__", "cairn.machines.chart.tree")
+    allow = ("__future__", "cairn.tools.tree.tree")
     offenders = [m for m in import_map(nexus.__file__)["measured"]["imports"]
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
     assert not offenders, (
@@ -184,8 +184,8 @@ def test_the_fire_path_never_reaches_the_tree():
     # the same pass that removed the other two, because the ticket's bounds put it out.
     # Named here rather than left as a silent leftover: the residue is the 12 closure
     # members nobody asks the dynamic question of.
-    import cairn.machines.chart.orient as chart_orient
-    import cairn.machines.chart.verdict as chart_verdict
+    import cairn.machines.orient.orient as chart_orient
+    import cairn.machines.verdict.verdict as chart_verdict
     import cairn.machines.learning_block.learning_block as lb
     import cairn.machines.skill_block.skill_block as skill_block
     # DERIVED from the one declaration, never restated: a second literal here is two

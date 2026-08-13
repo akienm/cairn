@@ -44,9 +44,13 @@ what can't trace up doesn't belong.
 5. **Intent, its voyage, and its proofs share an address.** Every component
    carries its charter, its `state` + `history`, and its proofs and validations
    beside its code. The thing and the story of the thing cannot drift apart.
-6. **Everything has exactly one owner.** The owner alone gates writes to it;
-   delegated access and ownership transfer happen only through the owner's gate,
-   never ambiently.
+6. **Everything has exactly one owner — except a tool, which has users.** The
+   owner alone gates writes to it; delegated access and ownership transfer happen
+   only through the owner's gate, never ambiently. Ownership gates writes to
+   *state*, and a tool holds none, so a tool has nothing to gate: *"tools don't
+   have owners they have users"* (Akien, 2026-08-13). This is the test, not an
+   exemption — anything called a tool that needs an owner holds state and is a
+   machine.
 7. **Errors are loud at diagnostic surfaces and permanent in records of truth.**
    A presentation surface may collapse an error into a coherent shape; a record
    of truth never may.

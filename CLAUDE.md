@@ -2,7 +2,16 @@
 
 Compiled navigation: stones stacked so the next mind doesn't re-derive the route.
 You are standing in **class-space** (`~/dev/src/cairn/`) — code and the record of
-how it got here; no *runtime* state, ever (that lives in instance-space).
+how it got here. It has a shape, and the shape is a **complexity axis**: **tools →
+machines → devices → device instances**, each rung adding one thing to the rung
+below. A **tool** is a complete primitive. A **machine** is tools plus the glue
+that holds them together. A **device** is a top-level thing that is **its own
+process** — a class and its supporting whatevers — and it goes in the rack. Every
+device intends at least one instance, and a singleton is instance `0`, never an
+exemption. So `devices/<device>/<instance>/` is **one address written in two
+roots**: here it carries the class, the instance's declared config and assembly,
+and their history; in instance-space that same path carries the instance's *life*.
+**No runtime state here, ever.**
 This is the first file every Cairn mind reads; it stays true and small by
 construction. Its charter: `CairnCommons/intentions-not-beside-code/I-cairn-claude-md.md`.
 
@@ -94,12 +103,15 @@ what can't trace up doesn't belong.
 
 | Root | Holds | Rule |
 |---|---|---|
-| `~/dev/src/cairn/` | code, skills, charters, `state`/`history`, proofs, validations | class-space; git; shareable; no *runtime* state |
+| `~/dev/src/cairn/` | `tools/`, `machines/`, `devices/`, charters, `state`/`history`, proofs, validations | class-space; git; shareable; no *runtime* state |
 | `~/dev/src/CairnCommons/` | intentions, decisions, tickets, questions, troubles, proofs, slates | knowledge; own repo; *if losing it loses knowledge, it's commons* |
 | `~/.cairn/` | logs, credentials, flags, cached state, personal data | instance-space; never in git |
 
-Runtime instances live at `~/.cairn/devices/<device>/<instance>/`; a singleton
-is instance `0`, not a special case.
+The instance segment is never optional: `devices/<device>/<instance>/` in **both**
+roots, and a singleton is instance `0`, not a special case. A device's held tools
+and machines nest under it at the same shape — `tools/<name>/` and `machines/<name>/`,
+named and never numbered — so a tool's definition and defaults berth once in
+`tools/`, and everything beyond the defaults hangs off the holder that assembled it.
 
 **Which root?** Ask whether the intention has **one** code address. A
 **code-seam** does, so it berths in `cairn/` beside it — its ticket stages in

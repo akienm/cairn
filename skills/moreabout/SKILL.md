@@ -10,8 +10,8 @@ compressed, resolved from the upstream nexus's **already-deposited state** — a
 walk, never a re-run — and the invocation itself is the training signal, written
 back to that nexus's tree in the same act.
 
-The device charter lives at `cairn/machines/chart/intention+why.json` (falsifier 4 is this
-skill's red line); this skill's charter beside this file.
+The chain's design record is the chart skill's charter, `skills/chart/intention+why.json`
+(falsifier 4 is this skill's red line); this skill's charter beside this file.
 
 ARGUMENTS: the thing to expand (the `<something>` of `/moreabout <something>`).
 

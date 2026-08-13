@@ -48,7 +48,7 @@ gate (validate_orient) is the append-door pattern: a packet that cannot fill its
 shape refuses loudly, and an INVENTED ref (one the floor cannot verify exists)
 refuses — downstream must never receive a pointer to nothing.
 
-Packets are runtime state and berth in instance-space (~/.cairn/devices/chart/);
+Packets are runtime state and berth in instance-space (~/.cairn/devices/chart/0/);
 the durable memory is the tree (filed stone). No clocks, no daemons: orient runs
 only when /chart is invoked.
 """

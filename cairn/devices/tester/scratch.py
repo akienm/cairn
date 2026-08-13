@@ -16,7 +16,7 @@ moment at which anyone is told. Law 4 — a rule that matters is enforced by phy
 
 AND THE SPELLING WAS NOT THE DEFECT. The first pass fixed thirty ``mkdtemp`` sites and the
 corpus tooth guarding them grepped for ``mkdtemp`` — which missed a thirty-first leak
-wearing a different spelling (``tempfile.gettempdir()`` in ``launchers/proofs/test_bootstrap``,
+wearing a different spelling (``tempfile.gettempdir()`` in ``launchers/proofs/test_bootstrap.py``,
 one boot-log FILE per run, 18 of them standing). A tooth narrower than its own defect is
 the hollow kind. The rule is therefore about the REACH, not the function name: a proof
 touches the system temp directory only through this door. The three call sites that merely

@@ -328,7 +328,7 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
 
     Provenance: 2026-07-30 — ticket watchme-emits-a-probe's own WATCHME crossing
     was refused with five findings (one orient ref, four survey holdings) naming
-    cairn/tools/base/callback.py, its crossing proof, and the homeless intention — the
+    base's callback module, its crossing proof, and the homeless intention — the
     three addresses the ticket's OWN decompose piece (f) had renamed hours
     earlier. A chart that plans a rename falsifies its own refs by succeeding,
     and the ref sieves could not tell that from the drift they were taught by.

@@ -13,8 +13,9 @@ the **orient brick**, the **constrain brick**, the **survey brick**, the
 prompt is template-filled from the previous stage's validated file, so a
 skipped stage is a build error, not a lapse.
 
-The device charter lives at `cairn/machines/chart/intention+why.json`; this skill's charter
-beside this file.
+The whole design record — the skill AND the chain it calls — is the charter beside this
+file. There is no separate device charter: the chart machine dissolved on 2026-08-13 and
+its charter moved here whole; the stages are machines held by the builder device.
 
 ARGUMENTS: the request to chart (the `<something>` of `/chart <something>`).
 

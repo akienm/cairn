@@ -343,7 +343,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
 ```
 ~/dev/src/cairn/                  # class-space; git; no *runtime* state, ever
   CLAUDE.md                       # spine step 1 — stays minimal: laws + pointers, not prose
-  MAP.md                          # this file (dissolves into intentions-congruency-lab/tickets over time)
+  MAP.md                          # this file (dissolves into intentions + tickets over time)
   pyproject.toml                  # `pip install -e .` green at all times; include = ["cairn*"]
   cairn/                          # the single import root (one heart — UU law carries)
     __init__.py                   # EMPTY/lazy forever (boot-order lesson: importing any

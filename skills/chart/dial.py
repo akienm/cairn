@@ -6,7 +6,7 @@ is not compiling — the ceiling is doing the floor's job forever, which is the 
 That claim can only red a nexus if someone can READ the fraction. This module is the
 reader (Law 3: until it existed, the ruling's anti-puppet claim was a hypothesis).
 
-A read-only compile over the packet berth (instance-space, ``~/.cairn/devices/chart/``):
+A read-only compile over the packet berth (instance-space, ``~/.cairn/devices/chart/0/``):
 per nexus, in time order (the timestamp rides the filename), the fraction of authored
 fields filled by floor vs tree vs claude. It REPORTS; the judgment stays with its
 readers — the dial is never fed back to a nexus as its own score (the home-field fence,

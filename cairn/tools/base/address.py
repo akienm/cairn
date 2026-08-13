@@ -52,7 +52,7 @@ owner.
 
 **IT TAKES NO POSITION ON WHETHER A NAME IS A DEVICE.** It computes an address for whatever
 name it is handed. Which names are devices is answered elsewhere and by someone else —
-``cairn/devices/ground_loop/discovery.device_folders`` for class-space, ``cairn/tools/base/deviceness`` for
+``cairn/devices/ground_loop/discovery.device_folders`` for class-space, ``cairn/tools/base/deviceness.py`` for
 the predicate — and a path resolver that quietly became the roster would be a second answer to
 a question that already has one.
 

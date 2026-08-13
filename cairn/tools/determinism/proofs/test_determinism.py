@@ -1,22 +1,25 @@
-"""Proof for determinism — the three verdicts, the seam split, and the floor under a green.
+"""Proof for determinism — where the LLM is, and the floor under a green.
 
 THE FAILURE MODE THIS COMPONENT HAS. A reach report is satisfied by a hollow implementation
 in two opposite directions, and each one reads as success:
 
-  - a walk that stops short returns an empty closure, finds no oracle, and reports the whole
-    corpus DETERMINISTIC. That is the loudest possible green and it means nothing.
+  - a walk that stops short returns an empty closure, finds no LLM, and reports the whole
+    corpus PURE. That is the loudest possible green and it means nothing.
   - a walk that over-matches reports everything as reaching an oracle, and a scan that reds
     everything gets ignored, which is the same as not existing.
 
-So every verdict tooth here is PAIRED: the same rule is measured over a planted tree that
-must produce it and over a tree that must not. Either half alone is passed by sheet metal.
+So every verdict tooth is PAIRED: the same rule is measured over a planted tree that must
+produce it and over a tree that must not. Either half alone is passed by sheet metal.
 
-The third way to be wrong is specific to this module and it already happened once, on the
-first run, which is why it has a tooth rather than a comment: the fire path and the learning
-seam are two paths, and collapsing them reported build_inspector — the corpus's own gate —
-as consulting an oracle. Tooth (e) plants a component whose ONLY oracle reach is through
-nexus.py and pins both halves: the fire verdict must stay clean AND the seam reach must
-still be reported, because dropping it silently would be the opposite defect.
+TOOTH (b) IS AKIEN'S CORRECTION, ARMED AS A PERMANENT TRAP. The first cut graded on "does
+it leave the process", which made a `git` call disqualifying and reported 17 components as
+reaching an oracle when not one could reach the inference host. His words, 2026-08-13:
+"DETERMINISTIC code can call other scripts. But Pure DETERMINISTIC means no LLM calls."
+A shell-out that downgrades a verdict is now a RED, not a nuance.
+
+Tooth (e) pins the other half of the same axis: a seam reaching the LLM must not red the
+fire path (or every component that learns reds itself), and must still be REPORTED (or a
+genuine oracle hides behind a filename).
 
     python3 cairn/tools/determinism/proofs/test_determinism.py     # exit 0 = green
 """
@@ -34,6 +37,8 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.tester.scratch import scratch_dir
 from cairn.tools.determinism import determinism as D
 from cairn.tools.import_sieve import sieve
+
+LLM_IMPORT = "from cairn.devices.inference_domain import domain\n"
 
 
 def _tree(**components) -> Path:
@@ -64,101 +69,120 @@ def _row(report, path):
     raise AssertionError(f"{path} missing from roster: {[r['path'] for r in report['rows']]}")
 
 
-# ── the three verdicts, each pinned against its opposite ──────────────────────
+# ── the axis is the LLM, and a shell is ordinary ──────────────────────────────
 
 
-def test_a_pure_imports_are_deterministic():
-    """Nothing off-box, no shell — the verdict a gate must be able to earn."""
+def test_a_pure_imports_are_pure():
     root = _tree(**{"tools/pure": {"pure.py": "import json\nimport os\n"}})
     row = _row(D.measure(root), "tools/pure")
-    assert row["verdict"] == D.DETERMINISTIC, row
-    assert not row["oracles"] and not row["shells"], row
+    assert row["verdict"] == D.PURE, row
+    assert not row["llm"], row
 
 
-def test_b_a_shell_is_mostly_not_deterministic():
-    """subprocess leaves the process. It replays over a committed tree, so it is MOSTLY —
-    and the pairing with tooth (a) is what proves the walk distinguishes at all."""
-    root = _tree(**{"tools/shells": {"shells.py": "import subprocess\n"}})
+def test_b_shelling_out_does_not_cost_purity():
+    """AKIEN, 2026-08-13: "DETERMINISTIC code can call other scripts." A component that
+    runs `git` and calls no LLM is PURE. The first cut got this wrong; this is the trap."""
+    root = _tree(**{"tools/shells": {
+        "shells.py": "import subprocess\nsubprocess.run(['git', 'status'])\n"}})
     row = _row(D.measure(root), "tools/shells")
-    assert row["verdict"] == D.MOSTLY, row
-    assert row["shells"], "a shell-out that reports no shell site is a finding without evidence"
+    assert row["verdict"] == D.PURE, f"a shell-out downgraded a verdict: {row}"
+    assert "git" in row["shells"], "the shell target must still be reported, just not graded"
 
 
-def test_c_an_oracle_is_caught_transitively():
-    """The oracle is TWO hops out. A one-hop check passes this while the fire path really
-    does arrive at 5432 — which is the whole reason `reaches` is a walk and not a read."""
+def test_c_an_opaque_argv_is_flagged_not_assumed_innocent():
+    """Shelling is allowed inside PURE, which makes an unresolved target the one way this
+    verdict can be wrong. It must be surfaced rather than quietly passed."""
+    root = _tree(**{"tools/opaque": {
+        "opaque.py": "import subprocess\ndef go(argv):\n    subprocess.run(argv)\n"}})
+    row = _row(D.measure(root), "tools/opaque")
+    assert row["opaque_argv"], f"a computed argv was silently treated as clean: {row}"
+
+
+def test_d_off_box_state_is_reported_but_does_not_set_the_verdict():
+    """psycopg2 is not an LLM. Grading 5432 as an oracle is the error the first cut shipped."""
+    root = _tree(**{"tools/dbish": {"dbish.py": "import psycopg2\n"}})
+    row = _row(D.measure(root), "tools/dbish")
+    assert row["verdict"] == D.PURE, f"off-box state was graded as an oracle: {row}"
+    assert row["offbox"], "off-box reach must still be reported"
+
+
+# ── the LLM: in the loop, at SLEEP, or off the path ───────────────────────────
+
+
+def test_e_the_llm_in_the_fire_path_reaches_an_oracle():
+    """TWO hops out. A one-hop check passes this while the loop really does call an LLM."""
     root = _tree(**{
-        "tools/front": {"front.py": "import mid.mid\n"},
-        "mid": {"mid.py": "import psycopg2\n"},
+        "devices/front": {"front.py": "import mid.mid\n"},
+        "mid": {"mid.py": LLM_IMPORT},
     })
-    row = _row(D.measure(root), "tools/front")
+    row = _row(D.measure(root), "devices/front")
     assert row["verdict"] == D.ORACLE, row
-    assert "psycopg2" in row["oracles"], row
-    assert "->" in row["oracles"]["psycopg2"], "the chain must say HOW, not just that"
+    assert "->" in next(iter(row["llm"].values())), "the chain must say HOW, not just that"
 
 
-def test_d_an_oracle_off_the_path_is_not_caught():
-    """The other half of (c): a component that breaches identically but is NOT reachable
-    from this one must stay clean. Without this, `catch everything` passes tooth (c)."""
-    root = _tree(**{
-        "tools/clean": {"clean.py": "import json\n"},
-        "elsewhere": {"elsewhere.py": "import psycopg2\n"},
-    })
-    row = _row(D.measure(root), "tools/clean")
-    assert row["verdict"] == D.DETERMINISTIC, row
-
-
-# ── the seam split: the defect this module shipped with, now physics ──────────
-
-
-def test_e_a_learning_seam_does_not_red_the_fire_path():
-    """build_inspector's real shape: a clean fire path plus a nexus that reaches the trees.
-
-    BOTH halves are the tooth. The verdict must ignore the seam (or every question-nexus
-    reds its own gate), and the seam's reach must still be REPORTED (or a genuine oracle
-    hides behind a filename).
-    """
-    root = _tree(**{"machines/gate": {"gate.py": "import json\n",
-                                      "nexus.py": "import psycopg2\n"}})
+def test_f_a_sleep_seam_does_not_red_the_fire_path():
+    """BOTH halves are the tooth: the verdict must ignore the seam (or every learning
+    component reds itself), and the seam's reach must still be REPORTED."""
+    root = _tree(**{"machines/gate": {"gate.py": "import json\n", "live.py": LLM_IMPORT}})
     row = _row(D.measure(root), "machines/gate")
-    assert row["verdict"] == D.DETERMINISTIC, f"the seam red the fire path: {row}"
-    assert "psycopg2" in row["seam_oracles"], f"the seam's reach went unreported: {row}"
+    assert row["verdict"] == D.MOSTLY, f"the seam red the fire path: {row}"
+    assert row["seam_llm"], f"the seam's LLM reach went unreported: {row}"
+
+
+def test_g_a_seam_reachable_from_the_fire_path_still_counts():
+    """A filename cannot launder an oracle. If the loop imports the seam, the LLM is in the
+    loop — which is exactly why the librarian's shim makes it REACHES AN ORACLE."""
+    root = _tree(**{"devices/loud": {"loud.py": "import devices.loud.live\n",
+                                     "live.py": LLM_IMPORT}})
+    row = _row(D.measure(root), "devices/loud")
+    assert row["verdict"] == D.ORACLE, f"a seam import from the fire path was excused: {row}"
+
+
+def test_h_an_llm_off_the_path_is_not_caught():
+    """The other half of (e): a component that calls an LLM but is NOT reachable from this
+    one must stay pure. Without this, `catch everything` passes tooth (e)."""
+    root = _tree(**{"tools/clean": {"clean.py": "import json\n"},
+                    "elsewhere": {"elsewhere.py": LLM_IMPORT}})
+    assert _row(D.measure(root), "tools/clean")["verdict"] == D.PURE
 
 
 # ── the roster is disk, and the floor under a clean report ────────────────────
 
 
-def test_f_a_charter_with_no_code_is_not_on_the_roster():
-    """Prose-as-implementation ships no fire path. Reporting it DETERMINISTIC would be a
-    green earned by having nothing to measure."""
+def test_i_a_charter_with_no_code_is_not_on_the_roster():
+    """Prose-as-implementation ships no fire path. Reporting it PURE would be a green
+    earned by having nothing to measure."""
     root = _tree(**{"skills/prose": {}})
     assert not any(r["path"] == "skills/prose" for r in D.measure(root)["rows"])
 
 
-def test_g_the_hollow_floor_refuses_an_unread_tree():
+def test_j_the_hollow_floor_refuses_an_unread_tree():
     """A report over zero files finds zero oracles and looks perfect (Law 8)."""
-    empty = scratch_dir("determinism-empty-")
     try:
-        D.measure(empty)
+        D.measure(scratch_dir("determinism-empty-"))
     except sieve.HollowScan:
         return
     raise AssertionError("a report over an unread tree came back clean instead of refusing")
 
 
-def test_h_the_real_corpus_is_read_by_invariant():
-    """Against the live tree — asserted as INVARIANTS, never as today's counts, so this
-    tooth cannot go red merely because the corpus grew (I-proof-over-live-data)."""
+def test_k_the_real_corpus_is_read_by_invariant():
+    """Against the live tree — INVARIANTS, never today's counts, so this cannot go red
+    merely because the corpus grew (I-proof-over-live-data)."""
     report = D.measure(_REPO_ROOT)
     assert report["rows"], "the real corpus reported no components at all"
     for r in report["rows"]:
-        charter = _REPO_ROOT / r["path"] / D.CHARTER
-        assert charter.is_file(), f"invented a component with no charter on disk: {r['path']}"
-        assert r["verdict"] in (D.DETERMINISTIC, D.MOSTLY, D.ORACLE), r
+        assert (_REPO_ROOT / r["path"] / D.CHARTER).is_file(), \
+            f"invented a component with no charter on disk: {r['path']}"
+        assert r["verdict"] in (D.PURE, D.MOSTLY, D.ORACLE), r
         if r["verdict"] == D.ORACLE:
-            assert r["oracles"], f"{r['path']} reds with no oracle named — incomplete finding"
-    # This tool's own fire path reaches nothing off-box: an instrument that measures
-    # replayability and is not itself replayable cannot be trusted about anything.
-    assert _row(report, "cairn/tools/determinism")["verdict"] == D.DETERMINISTIC
+            assert r["llm"], f"{r['path']} reds with no LLM chain named — incomplete finding"
+        if r["verdict"] == D.MOSTLY:
+            assert r["seam_llm"], f"{r['path']} is MOSTLY with no SLEEP seam named"
+    # inference_domain is the sole path to the host, so it must be IN the loop; and this
+    # tool must be pure, because an instrument that measures replayability and is not
+    # itself replayable cannot be trusted about anything.
+    assert _row(report, "cairn/devices/inference_domain")["verdict"] == D.ORACLE
+    assert _row(report, "cairn/tools/determinism")["verdict"] == D.PURE
 
 
 def _run() -> int:

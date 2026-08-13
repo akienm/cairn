@@ -45,15 +45,57 @@ to the inference host turns the whole corpus red.
 
 A TOOL HAS USERS, NOT AN OWNER (Law 6). This holds no state — the findings and the
 allowlist both arrive as arguments, and nothing is remembered between calls.
+
+AN ABSENT BASELINE IS AN ERROR, NOT AN EMPTY ONE (Akien, 2026-08-13: "an absent
+allowed.json is an ERROR"). The first cut read a missing file as an empty allowlist, which
+sounds strict — it closes the gate — and is still wrong, because it DECIDES ON THE
+OPERATOR'S BEHALF and then reports a verdict as though someone had declared it. There are
+three states, and the middle one is the whole point: "I looked and this gate allows
+nothing" is `[]`, an authored file, a claim somebody made; "there is no file" is a gate
+that was never configured, and a gate that has not been configured has no business
+returning a verdict at all. Collapsing the two makes an unconfigured gate indistinguishable
+from a deliberately strict one, and the record of the run cannot tell them apart afterwards
+either. So ``allowed_from`` RAISES. An empty file is legal, meaningful, and cheap to write.
 """
 
 from __future__ import annotations
 
 import json
 from collections import Counter
+from pathlib import Path
 
 OPEN = "OPEN"
 CLOSED = "CLOSED"
+
+BASELINE = "allowed.json"
+
+
+class NoBaseline(Exception):
+    """A gate was asked for a verdict with no declared allowlist on disk.
+
+    Loud and terminal by ruling. Not a warning, not a default, not an empty list: an
+    unconfigured gate must not produce a verdict, because a verdict from one cannot be
+    told from a verdict from a gate that deliberately allows nothing.
+    """
+
+
+def allowed_from(path) -> list:
+    """Read a gate's declared baseline. ABSENT IS AN ERROR (Akien, 2026-08-13).
+
+    ``path`` may be the baseline file or the directory holding it. An authored ``[]`` is
+    the way to say "this gate allows nothing" — that is a declaration, and declaring it
+    costs one line.
+    """
+    path = Path(path)
+    if path.is_dir():
+        path = path / BASELINE
+    if not path.is_file():
+        raise NoBaseline(
+            f"no baseline at {path} — a gate with no declared allowlist may not return a "
+            "verdict. If this gate allows nothing, say so: write `[]` to that file. An "
+            "absent baseline is an ERROR, never an empty one (Akien, 2026-08-13)."
+        )
+    return json.loads(path.read_text())
 
 
 def canonical(finding) -> str:

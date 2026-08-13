@@ -1899,14 +1899,12 @@ def allowed_findings() -> list[dict]:
     """The findings this gate opens on. Authored baseline, git-tracked beside the code —
     a declaration like a charter, never runtime state (CLAUDE.md: no runtime state here).
 
-    Absent means EMPTY, never means "anything goes": a missing baseline must close the
-    gate, not open it. A gate that fails open on a missing file is the vacuous green this
-    whole component exists to prevent.
+    ABSENT IS AN ERROR, and the reading of that lives in the primitive, not here (Akien,
+    2026-08-13: "an absent allowed.json is an ERROR"). This gate's baseline is `[]` — an
+    authored claim that it allows nothing — which is why it is honestly CLOSED over the
+    corpus's standing findings rather than vacuously open.
     """
-    path = Path(__file__).resolve().parent / "allowed.json"
-    if not path.is_file():
-        return []
-    return json.loads(path.read_text())
+    return gate.allowed_from(Path(__file__).resolve().parent)
 
 
 def _main(argv: list[str]) -> int:

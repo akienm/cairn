@@ -14,6 +14,9 @@ So the teeth are aimed at the loosenings, not at equality:
   (d) a subset does NOT open it — the permission-slip reading, refused
   (e) a MISSING allowed finding closes it too — the stale-in-the-safe-direction case,
       which is the whole reason the compare is identity and not containment
+  (j) an ABSENT baseline is an ERROR — the loosening that hides inside a strict-looking
+      default, since "missing file means allow nothing" still closes the gate and still
+      invents a declaration nobody made
 
     python3 cairn/tools/gate/proofs/test_gate.py     # exit 0 = green
 """
@@ -27,6 +30,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.devices.tester.scratch import scratch_dir
 from cairn.tools.gate import gate
 
 F1 = {"sieve": "charter_on_disk", "component": "bus", "finding": "no charter"}
@@ -87,6 +91,38 @@ def test_h_an_unserializable_finding_does_not_crash_the_gate():
     try. The shape of a finding is the caller's business, not this tool's."""
     v = gate.verdict([{"path": Path("/tmp/x"), "n": 1}], [])
     assert not v["opens"], v
+
+
+def test_j_an_absent_baseline_is_an_error_not_an_empty_one():
+    """AKIEN, 2026-08-13: "an absent allowed.json is an ERROR." The first cut read a
+    missing file as `[]`, which sounds strict — it closes the gate — and still decides on
+    the operator's behalf, then reports a verdict as though somebody had declared it. An
+    unconfigured gate must not produce a verdict at all."""
+    d = scratch_dir("gate-baseline-")
+    try:
+        gate.allowed_from(d)
+    except gate.NoBaseline as exc:
+        assert "[]" in str(exc), "the error must say how to fix it, not just that it failed"
+        return
+    raise AssertionError("an absent baseline was silently read as an empty allowlist")
+
+
+def test_k_an_authored_empty_baseline_is_legal_and_means_allows_nothing():
+    """The pair to (j), and the reason (j) can be strict: declaring 'this gate allows
+    nothing' costs one line. Without this, `absent is an error` would have no legal way to
+    express the strictest gate."""
+    d = scratch_dir("gate-baseline-empty-")
+    (d / gate.BASELINE).write_text("[]")
+    assert gate.allowed_from(d) == []
+    assert not gate.opens([F1], gate.allowed_from(d))
+    assert gate.opens([], gate.allowed_from(d))
+
+
+def test_l_a_baseline_file_may_be_named_directly():
+    d = scratch_dir("gate-baseline-direct-")
+    p = d / "other-name.json"
+    p.write_text('[{"sieve":"x"}]')
+    assert gate.allowed_from(p) == [{"sieve": "x"}]
 
 
 def test_i_the_gate_holds_no_state_between_calls():

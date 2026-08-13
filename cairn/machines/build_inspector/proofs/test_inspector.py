@@ -172,13 +172,13 @@ def main() -> None:
         # A berth claiming THIS ticket whose charted ref no longer resolves: fires,
         # and the finding separates missing from still-resolving (complete first pass).
         (p / "orient-20260728T000001-bbbb.json").write_text(
-            json.dumps({"ticket": "wire-proof", "refs": ["chart", "no/such/ref.py"]}))
+            json.dumps({"ticket": "wire-proof", "refs": ["base", "no/such/ref.py"]}))
         f = inspect(root=root, component="charted")["findings"]
         assert [x["sieve"] for x in f] == ["charted_refs_resolve"], f
         assert f[0]["evidence"]["missing"] == ["no/such/ref.py"], f[0]
         # The world matching the chart again: quiet again.
         (p / "orient-20260728T000001-bbbb.json").write_text(
-            json.dumps({"ticket": "wire-proof", "refs": ["chart"]}))
+            json.dumps({"ticket": "wire-proof", "refs": ["base"]}))
         assert inspect(root=root, component="charted")["clean"]
 
         # 14 — an UNREADABLE berth is a named finding on the berth owner (chart)
@@ -196,7 +196,7 @@ def main() -> None:
         #      (Installed before the constrain module exists — the fixtures here ARE
         #      the module's acceptance contract.)
         whole = {"ticket": "wire-proof",
-                 "constraints": [{"text": "stay off the network", "source": "chart",
+                 "constraints": [{"text": "stay off the network", "source": "base",
                                   "kind": "charter"}],
                  "bounds": {"in": ["the gate only"], "out": ["everything else"]}}
         cpath = p / "constrain-20260728T000003-dddd.json"
@@ -232,7 +232,7 @@ def main() -> None:
         #      contract, the pattern constrain-filters filed at edge (b).)
         held = {"ticket": "wire-proof",
                 "sought": ["a settled measurer of the territory"],
-                "holdings": [{"what": "the chart component", "address": "chart"}],
+                "holdings": [{"what": "the base tool", "address": "base"}],
                 "absences": [{"what": "a survey module",
                               "measure": "device_census rows, no such component"}]}
         spath = p / "survey-20260728T000004-eeee.json"
@@ -270,13 +270,13 @@ def main() -> None:
         #      decompose module exists — these fixtures ARE its acceptance contract.)
         sb = tmp / "survey_berth_fixture.json"
         sb.write_text(json.dumps({
-            "holdings": [{"what": "the chart component", "address": "chart"}],
+            "holdings": [{"what": "the base tool", "address": "base"}],
             "absences": [{"what": "a decompose module",
                           "measure": "path check, absent"}]}))
         derived = {"ticket": "wire-proof", "survey_ref": str(sb),
                    "sub_problems": [
-                       {"what": "compose the chart door", "why": "it is held",
-                        "kind": "compose", "uses": ["chart"]},
+                       {"what": "compose the base door", "why": "it is held",
+                        "kind": "compose", "uses": ["base"]},
                        {"what": "build the module", "why": "measured absent",
                         "kind": "build", "fills": "a decompose module"}]}
         dpath = p / "decompose-20260728T000005-ffff.json"
@@ -322,15 +322,15 @@ def main() -> None:
         db.write_text(json.dumps({
             "survey_ref": str(sb),
             "sub_problems": [
-                {"what": "compose the chart door", "why": "it is held",
-                 "kind": "compose", "uses": ["chart"]},
+                {"what": "compose the base door", "why": "it is held",
+                 "kind": "compose", "uses": ["base"]},
                 {"what": "build the module", "why": "measured absent",
                  "kind": "build", "fills": "a decompose module"}]}))
         ranked = {"ticket": "wire-proof", "decompose_ref": str(db),
                   "order": [
                       {"what": "build the module",
                        "why_now": "the layer below solidifies first"},
-                      {"what": "compose the chart door",
+                      {"what": "compose the base door",
                        "why_now": "rides on the module once it stands"}]}
         tpath = p / "triage-20260728T000006-abab.json"
         tpath.write_text(json.dumps(ranked))
@@ -339,7 +339,7 @@ def main() -> None:
         tpath.write_text(json.dumps(dropped))
         f = inspect(root=root, component="charted")["findings"]
         assert [x["sieve"] for x in f] == ["triage_covers_the_split"], f
-        assert f[0]["evidence"]["dropped"] == ["compose the chart door"], f[0]
+        assert f[0]["evidence"]["dropped"] == ["compose the base door"], f[0]
         invented_rank = dict(ranked, order=ranked["order"] + [
             {"what": "polish a whim", "why_now": "it would be nice"}])
         tpath.write_text(json.dumps(invented_rank))
@@ -386,7 +386,7 @@ def main() -> None:
             "order": [
                 {"what": "build the module",
                  "why_now": "the layer below solidifies first"},
-                {"what": "compose the chart door",
+                {"what": "compose the base door",
                  "why_now": "rides on the module once it stands"}]}))
         expected = {"ticket": "wire-proof", "triage_ref": str(tb),
                     "hypotheses": [
@@ -394,7 +394,7 @@ def main() -> None:
                          "expect": "the module's teeth pass twice",
                          "falsifier": "any tooth red on either run",
                          "instrument": "python3 proofs/test_module.py, twice"},
-                        {"piece": "compose the chart door",
+                        {"piece": "compose the base door",
                          "expect": "the door refuses a phantom ref",
                          "falsifier": "a phantom ref berths",
                          "instrument": "the door's own gate, fixture ref"}]}
@@ -405,7 +405,7 @@ def main() -> None:
         hpath.write_text(json.dumps(uncovered))
         f = inspect(root=root, component="charted")["findings"]
         assert [x["sieve"] for x in f] == ["hypothesize_covers_the_ranked"], f
-        assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
+        assert f[0]["evidence"]["uncovered"] == ["compose the base door"], f[0]
         invented_h = dict(expected, hypotheses=expected["hypotheses"] + [
             {"piece": "polish a whim", "expect": "it gleams",
              "falsifier": "it does not", "instrument": "a glance"}])
@@ -453,7 +453,7 @@ def main() -> None:
                  "expect": "the module's teeth pass twice",
                  "falsifier": "any tooth red on either run",
                  "instrument": "python3 proofs/test_module.py, twice"},
-                {"piece": "compose the chart door",
+                {"piece": "compose the base door",
                  "expect": "the door refuses a phantom ref",
                  "falsifier": "a phantom ref berths",
                  "instrument": "the door's own gate, fixture ref"}]}))
@@ -464,7 +464,7 @@ def main() -> None:
                          "covers": ["build the module"]},
                         {"claim": "the composed door holds at promotion",
                          "instrument": "inspect(component=...), clean",
-                         "covers": ["compose the chart door"]}]}
+                         "covers": ["compose the base door"]}]}
         vpath = p / "validate-20260728T000008-efef.json"
         vpath.write_text(json.dumps(done_set))
         assert inspect(root=root, component="charted")["clean"]
@@ -486,7 +486,7 @@ def main() -> None:
         vpath.write_text(json.dumps(partial))
         f = inspect(root=root, component="charted")["findings"]
         assert [x["sieve"] for x in f] == ["validate_covers_the_build"], f
-        assert f[0]["evidence"]["uncovered"] == ["compose the chart door"], f[0]
+        assert f[0]["evidence"]["uncovered"] == ["compose the base door"], f[0]
         chainless_v = dict(done_set, hypothesize_ref=str(tmp / "gone.json"))
         vpath.write_text(json.dumps(chainless_v))
         f = inspect(root=root, component="charted")["findings"]
@@ -527,7 +527,7 @@ def main() -> None:
                                {"standing": "BUILDME", "note": "born", "ticket": "fwd-proof"})
         mp = berths / "0" / "packets"
         (mp / "orient-20260730T000000-1111.json").write_text(
-            json.dumps({"ticket": "fwd-proof", "refs": ["chart", "gone/away.py"]}))
+            json.dumps({"ticket": "fwd-proof", "refs": ["base", "gone/away.py"]}))
         (mp / "survey-20260730T000001-2222.json").write_text(json.dumps(
             {"ticket": "fwd-proof", "sought": ["the moved thing"],
              "holdings": [{"what": "the thing that moved", "address": "gone/away.py"}],
@@ -540,7 +540,7 @@ def main() -> None:
             "a missing charted address with no forwarding order must still red"
 
         # (ii) A WHOLE ORDER: both disposed, and nothing else is loosened.
-        _order({"gone/away.py": {"to": "chart", "why": "renamed by piece (f)"}})
+        _order({"gone/away.py": {"to": "base", "why": "renamed by piece (f)"}})
         assert names("moved") == [], inspect(root=root, component="moved")["findings"]
 
         # (iii) FORWARDING TO NOTHING: the order reds by its own name AND disposes
@@ -554,17 +554,17 @@ def main() -> None:
         # (iv) FORWARDING A LIVE ADDRESS: reds. A forwarding order is for what MOVED;
         #      re-aiming a resolving address would let a chart's claim be pointed at a
         #      different thing while the original sits there untouched.
-        _order({"chart": {"to": "base", "why": "not a move at all"}})
+        _order({"librarian": {"to": "base", "why": "not a move at all"}})
         assert "forwarding_order_resolves" in names("moved"), names("moved")
         assert "still resolves" in [x["finding"] for x in
                                     inspect(root=root, component="moved")["findings"]
                                     if x["sieve"] == "forwarding_order_resolves"][0]
 
         # (v) THE WHY IS FORCED STRUCTURALLY (CP3), and so is the shape.
-        for broken in ({"gone/away.py": {"to": "chart"}},
+        for broken in ({"gone/away.py": {"to": "base"}},
                        {"gone/away.py": {"why": "no successor named"}},
-                       {"gone/away.py": "chart"},
-                       {"gone/away.py": {"to": "chart", "why": "   "}}):
+                       {"gone/away.py": "base"},
+                       {"gone/away.py": {"to": "base", "why": "   "}}):
             _order(broken)
             assert "forwarding_order_resolves" in names("moved"), (broken, names("moved"))
             assert "charted_refs_resolve" in names("moved"), \
@@ -581,7 +581,7 @@ def main() -> None:
         #      judge about one would let a packet be berthed naming an address that
         #      was already gone. Asserted against a WHOLE order, the case where the
         #      promotion side is quiet: only the promotion side may dispose.
-        _order({"gone/away.py": {"to": "chart", "why": "renamed by piece (f)"}})
+        _order({"gone/away.py": {"to": "base", "why": "renamed by piece (f)"}})
         assert names("moved") == [], "the promotion side disposes a whole order"
         berthed = json.loads((mp / "survey-20260730T000001-2222.json").read_text())
         assert [x["judge"] for x in judge_survey(berthed)] == ["survey_holdings_resolve"], \

@@ -220,8 +220,36 @@ def component_dirs(pkg_root: Path | str | None = None) -> tuple[list[Path], list
     return components, unreadable
 
 
+class AmbiguousComponent(LookupError):
+    """A bare name that two rungs both answer to. Carries every home it found.
+
+    THE NAME IS NOT THE ADDRESS ANY MORE, and this is what says so out loud. The
+    first live instance was born the day the rungs landed: ``orient`` is a TOOL
+    (``cairn/tools/orient`` — the deterministic scanner) and, since the chart
+    decomposition of 2026-08-13, also a MACHINE (``cairn/machines/orient`` — that
+    scanner plus the chain glue). Both are correct; the layering is the point.
+    What is not correct is a lookup answering with whichever one sorts first, which
+    is what happened silently until this class existed: ``constrain`` would have read
+    the machine's charter while its own roster meant either, and reported the result
+    as the charter of "orient".
+
+    A pointer that resolves to two places is not a pointer, and Law 7 puts the loud
+    end of that at the diagnostic surface: the caller is told BOTH homes and asked to
+    say which, rather than handed one of them and left to find out later."""
+
+    def __init__(self, name: str, homes: list[Path]):
+        self.name = name
+        self.homes = list(homes)
+        super().__init__(
+            "%r names %d components, not one: %s — the rung is not part of the name, "
+            "so a bare name that two rungs answer to is not an address. Say which "
+            "(a path resolves unambiguously)."
+            % (name, len(homes), ", ".join(str(h) for h in homes)))
+
+
 def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
     """Where the component called ``name`` lives, or ``None`` if no such component.
+    Raises ``AmbiguousComponent`` when more than one rung answers to the name.
 
     THE RUNG IS NOT PART OF THE NAME, and this is the function that keeps it that way.
     Before 2026-08-13 a caller holding a component NAME could build its path by
@@ -232,8 +260,11 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
 
     So the lookup is a WALK, not an assumption: nothing here knows or decides that
     ``base`` is a tool. A component that changes rung changes nothing at any call site.
-    Returns ``None`` rather than raising because every caller today is already asking a
-    question that has "there is no such component" as a real answer.
+    NOT-FOUND AND AMBIGUOUS ARE DIFFERENT ANSWERS, and they leave by different doors.
+    Returns ``None`` for not-found, because every caller today is already asking a
+    question that has "there is no such component" as a real answer. RAISES for
+    ambiguous, because no caller has a right answer to give: one home would be a guess
+    and ``None`` would be a lie about a component that demonstrably exists — twice.
 
     ``pkg_root`` IS NOT OPTIONAL FOR AN INJECTED CALLER, and forgetting it is a live
     measured defect rather than a hypothetical one: chart/constrain runs its proofs
@@ -241,7 +272,7 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
     — so the floor answered a question about the real repo while the proof asked about
     its fixture. Every caller that already takes a root passes it through.
     """
-    for d in component_dirs(pkg_root)[0]:
-        if d.name == name:
-            return d
-    return None
+    homes = [d for d in component_dirs(pkg_root)[0] if d.name == name]
+    if len(homes) > 1:
+        raise AmbiguousComponent(name, homes)
+    return homes[0] if homes else None

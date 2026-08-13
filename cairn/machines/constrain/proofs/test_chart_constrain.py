@@ -88,7 +88,11 @@ def good_packet(orient_berth):
         "intent_ref": orient_berth,
         "constraints": [
             {"text": "alpha may write only its own table",
-             "source": "chart", "kind": "charter"},
+             # A LIVE component name: judge_constrain resolves a source against the
+             # real roster (ref_exists, default root), so a fixture source has to be
+             # something that exists. "chart" stood here until 2026-08-13, when the
+             # decomposition made it a skill and not a component.
+             "source": "base", "kind": "charter"},
         ],
         "bounds": {"in": ["alpha's gate"], "out": ["beta", "the network"]},
         "unknowns": ["whether beta consumes alpha's output"],
@@ -143,7 +147,7 @@ def test_schema_gate_refuses_hollow_shapes(root, orient_berth):
     empty = dict(good_packet(orient_berth), constraints=[])
     expect_refusal(lambda: validate_constrain(empty, root=root), "non-empty")
     unshaped = dict(good_packet(orient_berth),
-                    constraints=[{"text": "a rule", "source": "chart"}])
+                    constraints=[{"text": "a rule", "source": "base"}])
     expect_refusal(lambda: validate_constrain(unshaped, root=root), "kind")
     over = dict(good_packet(orient_berth), confidence=2.0)
     expect_refusal(lambda: validate_constrain(over, root=root), "confidence")

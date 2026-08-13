@@ -46,7 +46,11 @@ def make_root():
         if comp != "gamma":
             with open(os.path.join(root, "cairn", comp, "intention+why.json"), "w") as fh:
                 fh.write("{}\n")
+    # A SKILL IS A DIRECTORY WITH A SKILL.md, not just a directory (skill_roster,
+    # 2026-08-13) — the fixture has to build the artifact the floor looks for.
     os.makedirs(os.path.join(root, "skills", "chart"))
+    with open(os.path.join(root, "skills", "chart", "SKILL.md"), "w") as fh:
+        fh.write("# /chart\n")
     return root
 
 
@@ -141,10 +145,20 @@ def test_write_door_is_gated(root):
         "a refused packet must leave nothing behind the door"
 
 
-def test_live_roster_carries_chart(root):
+def test_live_roster_carries_charter_bearing_components(root):
+    """A MEMBERSHIP invariant over the live tree, never a snapshot count. It named
+    "chart" until 2026-08-13, when the decomposition made chart a SKILL and the tooth
+    went red for the right reason — a roster of components correctly stopped carrying
+    something that is not one. Now it names this machine and the librarian: one either
+    side of the reorganisation, both charter-bearing, neither about to stop being a
+    component. And the roster is a SET — ``orient`` has two homes (the tool and this
+    machine) and must still appear once, or roster_size is arithmetic about nothing."""
     live = component_roster()
-    assert "chart" in live and "librarian" in live, \
+    assert "orient" in live and "librarian" in live, \
         "membership invariant: components with charters ride the roster"
+    assert live.count("orient") == 1, \
+        "two rungs answer to 'orient'; the roster is membership, not multiplicity"
+    assert len(live) == len(set(live)), "the roster carries a duplicate"
     assert set(AUTHORED_FIELDS) == {"intent", "domain", "scope", "refs", "unknowns"}
 
 
@@ -168,10 +182,10 @@ def test_ticket_claim_is_gated(root):
     expect_refusal(lambda: validate_orient(minted, root=root), "no-such-ticket")
     hollow = dict(good_packet(), ticket="")
     expect_refusal(lambda: validate_orient(hollow, root=root), "ticket")
-    live = dict(good_packet(), refs=["chart"], ticket="moreabout")
+    live = dict(good_packet(), refs=["orient"], ticket="moreabout")
     assert validate_orient(live) is live, \
         "a claim naming a filed ticket passes (moreabout.json is committed)"
-    assert ref_exists("chart") and not ref_exists("minted/nowhere.py"), \
+    assert ref_exists("orient") and not ref_exists("minted/nowhere.py"), \
         "the public ref semantics are the gate's own (one implementation, two mouths)"
 
 

@@ -22,7 +22,11 @@ from cairn.tools.cairnmap import cairnmap
 
 
 def _resolve(arg: str) -> Path | None:
-    """A directory, or a bare component name tried against the repo's homes."""
+    """A directory, or a bare component name tried against the repo's homes.
+
+    ``AmbiguousComponent`` propagates: a name two rungs answer to is a question this
+    function cannot answer, and main() turns it into the loud thing the reader needs
+    (both homes, and "say which") rather than rendering one of them."""
     repo = cairnmap.repo_root()
     # A bare component name no longer says which rung it is in, so the rung is LOOKED UP
     # (address.component_dir, 2026-08-13) rather than concatenated. Kept in the candidate
@@ -49,7 +53,17 @@ def main(argv: list[str]) -> int:
         return 1 if reds else 0
 
     if argv:
-        charter = _resolve(argv[0])
+        try:
+            charter = _resolve(argv[0])
+        except address.AmbiguousComponent as e:
+            # A render exits 0 even when the map is red (see the module docstring), but
+            # this is not a red map — it is a question with no single answer, so there is
+            # nothing to render. Loud, both homes named, and the fix is in the message.
+            print("cairnmap: %s" % e, file=sys.stderr)
+            for home in e.homes:
+                print("  cairn cairnmap %s" % home.relative_to(cairnmap.repo_root()),
+                      file=sys.stderr)
+            return 2
         if charter is None:
             print(f"cairnmap: no charter at or under {argv[0]!r} — a component "
                   f"without an intention doesn't run, and doesn't render", file=sys.stderr)

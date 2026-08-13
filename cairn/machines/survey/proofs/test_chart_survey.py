@@ -110,7 +110,10 @@ def good_packet(constrain_berth):
         # The address resolves against the REAL world — the judges are root-blind
         # by design (same shape as the constrain proof's real 'source').
         "holdings": [{"what": "the settled chart machinery",
-                      "address": "chart"}],
+                      # A LIVE address: judge_survey resolves a holding against the
+                      # real roster, and "chart" stopped being a component on
+                      # 2026-08-13 when the decomposition made it a skill.
+                      "address": "base"}],
         "absences": [{"what": "a prior sweep of this class",
                       "measure": "survey tree walk returned no node over the floor"}],
         "unknowns": ["whether beta consumes alpha's output"],

@@ -94,7 +94,16 @@ def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
         # component, so a None here would be the two readers disagreeing — reported as an
         # unreadable charter with its address, which is what this loop does with every
         # other way the read can fail.
-        comp_dir = address.component_dir(ref, os.path.join(root, "cairn"))
+        # AMBIGUITY IS REPORTED, NEVER RESOLVED HERE. A name two rungs answer to
+        # (orient, since the chart decomposition) has no single charter, and picking
+        # one would put a charter under a component name that only half means it. It
+        # rides out in the same shape as every other way the read can fail.
+        try:
+            comp_dir = address.component_dir(ref, os.path.join(root, "cairn"))
+        except address.AmbiguousComponent as e:
+            charter_constraints.append({
+                "component": ref, "charter": None, "unreadable": str(e)})
+            continue
         charter_path = str(comp_dir / "intention+why.json") if comp_dir else \
             os.path.join(root, "cairn", "<no rung holds %s>" % ref, "intention+why.json")
         try:

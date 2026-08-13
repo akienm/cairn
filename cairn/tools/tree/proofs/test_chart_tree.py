@@ -73,7 +73,12 @@ def _packet(intent="wire the tree stratum into the orient nexus of the chart dev
         "intent": intent,
         "domain": "chart — the nexus machinery",
         "scope": "IN: the orient nexus's tree. OUT: everything else.",
-        "refs": ["chart"],
+        # A LIVE ref, and it must stay live: validate_orient refuses an unverifiable
+        # ref BEFORE it reaches the berth check, so a fixture naming a component that
+        # has stopped existing reds the berth tooth with the wrong reason. "chart"
+        # stood here until 2026-08-13, when the decomposition made it a skill and not
+        # a component; "tree" is the component this proof is about.
+        "refs": ["tree"],
         "unknowns": [],
         "confidence": 0.7,
         "provenance": {"intent": "claude", "domain": "claude", "scope": "claude",

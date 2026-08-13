@@ -104,8 +104,12 @@ def test_ref_semantics_are_one_implementation(root):
     """Every leg asks the same question of a ref and gets the same answer — that is
     the whole reason the grammar is one module and not nine near-copies. A component
     name resolves; a path to nothing does not."""
-    assert ref_exists("chart"), "a live component name must resolve"
+    assert ref_exists("chain"), "a live component name must resolve"
+    assert ref_exists("skills/chart"), "a live path must resolve"
     assert not ref_exists("minted/nowhere.py"), "a path to nothing must not resolve"
+    assert not ref_exists("chart"), \
+        "chart is a SKILL, not a component — a bare name resolves against the " \
+        "component roster, and a skill is reached by its path"
 
 
 def test_ticket_path_answers_only_for_a_filed_ticket(root):

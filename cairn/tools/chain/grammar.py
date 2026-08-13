@@ -92,18 +92,34 @@ def component_roster(root: str = CAIRN_ROOT) -> list[str]:
     # a world; caching that would turn one bad call into a permanently broken process, and
     # the second caller would be told about a scan it never ran (Law 7).
     census = device_census(root=Path(root) / "cairn")
-    roster = sorted(row["component"] for row in census["measured"]["components"]
-                    if row["charter_on_disk"])
+    # A ROSTER IS MEMBERSHIP, NOT MULTIPLICITY — hence the set. Since the rungs landed,
+    # one NAME can have two homes (``orient`` is a tool and a machine, and the layering is
+    # deliberate), so the census returns two rows for it. Without the set, ``roster_size``
+    # reported 33 for 32 components and the floor's own arithmetic was wrong. What this
+    # deliberately does NOT do is answer WHERE — ``address.component_dir`` owns that
+    # question and refuses loudly on the same ambiguity this line collapses, which is the
+    # only reason collapsing it here is safe.
+    roster = sorted({row["component"] for row in census["measured"]["components"]
+                     if row["charter_on_disk"]})
     _ROSTER_MEMO[root] = roster
     return list(roster)
 
 
 def skill_roster(root: str = CAIRN_ROOT) -> list[str]:
+    """The slash-verbs that exist, derived from the one thing that makes a directory a
+    skill: a SKILL.md for the host to read.
+
+    THE TEST IS THE ARTIFACT, NOT THE DIRECTORY. Until 2026-08-13 this listed every
+    subdirectory of ``skills/``, which was true only because nothing else had ever been
+    put there. Then ``skills/__init__.py`` landed (the packages the chart decomposition
+    needed) — Python compiled the folder, ``skills/__pycache__/`` appeared, and the floor
+    reported a thirteenth skill named ``__pycache__``. A rule that holds because nobody
+    has stepped on it yet is not a rule; this one names what it is looking for."""
     base = os.path.join(root, "skills")
     if not os.path.isdir(base):
         return []
     return sorted(name for name in os.listdir(base)
-                  if os.path.isdir(os.path.join(base, name)))
+                  if os.path.isfile(os.path.join(base, name, "SKILL.md")))
 
 
 def ref_exists(ref: str, root: str = CAIRN_ROOT) -> bool:

@@ -89,13 +89,17 @@ def test_b_shelling_out_does_not_cost_purity():
     assert "git" in row["shells"], "the shell target must still be reported, just not graded"
 
 
-def test_c_an_opaque_argv_is_flagged_not_assumed_innocent():
-    """Shelling is allowed inside PURE, which makes an unresolved target the one way this
-    verdict can be wrong. It must be surfaced rather than quietly passed."""
+def test_c_a_computed_argv_is_not_chased():
+    """AKIEN, 2026-08-13: "i don't care about the argv. if it's working, it's working. I
+    never dispermitted shelling. since we're trying to push compilation downward, the hope
+    is more and more things become individually callable." The second cut flagged five
+    components *UNPROVEN for a computed argv, which dressed the system's own goal up as a
+    debt. A computed argv must cost a component nothing."""
     root = _tree(**{"tools/opaque": {
         "opaque.py": "import subprocess\ndef go(argv):\n    subprocess.run(argv)\n"}})
     row = _row(D.measure(root), "tools/opaque")
-    assert row["opaque_argv"], f"a computed argv was silently treated as clean: {row}"
+    assert row["verdict"] == D.PURE, f"a computed argv cost a verdict: {row}"
+    assert "opaque_argv" not in row, "the *UNPROVEN debt register came back"
 
 
 def test_d_off_box_state_is_reported_but_does_not_set_the_verdict():
@@ -144,6 +148,82 @@ def test_h_an_llm_off_the_path_is_not_caught():
     root = _tree(**{"tools/clean": {"clean.py": "import json\n"},
                     "elsewhere": {"elsewhere.py": LLM_IMPORT}})
     assert _row(D.measure(root), "tools/clean")["verdict"] == D.PURE
+
+
+# ── the one absolute rule: no gate consults an oracle ─────────────────────────
+
+GATE_IMPORT = "from cairn.tools.gate import gate\n"
+
+
+def test_l_a_gate_is_derived_from_the_import_not_from_a_charter():
+    """Gate-ness used to live in prose, where nothing could check it. A component that
+    reaches the == compare IS a gate, and it says HOW it reached it."""
+    root = _tree(**{"machines/keeper": {"keeper.py": GATE_IMPORT}})
+    row = _row(D.measure(root), "machines/keeper")
+    assert row["is_gate"], f"a component reaching cairn.tools.gate was not called one: {row}"
+    assert row["gate_via"], "the gate chain must be named, not just the fact"
+
+
+def test_l2_calling_a_gate_does_not_make_you_one():
+    """MEASURED, first run of tooth (q): the transitive reading made skills/chart a gate
+    because it can reach build_inspector, and then red it for the SLEEP seam a skill is
+    entitled to. Gate-ness must not spread up every caller until everything is a gate."""
+    root = _tree(**{
+        "machines/realgate": {"realgate.py": GATE_IMPORT},
+        "skills/caller": {"caller.py": "import machines.realgate.realgate\n",
+                          "live.py": LLM_IMPORT},
+    })
+    report = D.measure(root)
+    assert _row(report, "machines/realgate")["is_gate"], "the real gate stopped being one"
+    caller = _row(report, "skills/caller")
+    assert not caller["is_gate"], f"gate-ness spread to a caller: {caller}"
+    assert report["gate_violations"] == [], report["gate_violations"]
+
+
+def test_m_a_gate_that_reaches_an_oracle_is_a_violation():
+    """AKIEN, 2026-08-13: "NO GATES MAY CONSULT ORACLES EVER PERIOD." This is the tooth
+    the whole gate primitive exists to make possible."""
+    root = _tree(**{"machines/corrupt": {"corrupt.py": GATE_IMPORT + LLM_IMPORT}})
+    report = D.measure(root)
+    row = _row(report, "machines/corrupt")
+    assert row["gate_violation"], f"a gate reaching the LLM passed: {row}"
+    assert "machines/corrupt" in report["gate_violations"], report["gate_violations"]
+
+
+def test_n_a_gate_may_not_have_a_sleep_seam_either():
+    """A SLEEP seam is legitimate for an inspector and never for a gate: a gate rewritten
+    by an oracle between runs does not replay, and Law 7 makes its verdict permanent. This
+    is the half a fire-path-only check would let through."""
+    root = _tree(**{"machines/sleepy": {"sleepy.py": GATE_IMPORT, "live.py": LLM_IMPORT}})
+    row = _row(D.measure(root), "machines/sleepy")
+    assert row["gate_violation"], f"a gate with an LLM at SLEEP passed: {row}"
+
+
+def test_o_a_non_gate_reaching_an_oracle_is_not_a_violation():
+    """The pair to (m). Without this, "call everything a violation" passes the rule — and
+    the librarian, which SHOULD reach an oracle, would red the corpus forever."""
+    root = _tree(**{"devices/talker": {"talker.py": LLM_IMPORT}})
+    row = _row(D.measure(root), "devices/talker")
+    assert row["verdict"] == D.ORACLE and not row["gate_violation"], row
+
+
+def test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates():
+    """The primitive IS the compare, the way a lock is not a door. Counting it would start
+    every gate tally at one for free — a green earned by counting the ruler."""
+    report = D.measure(_REPO_ROOT)
+    assert not _row(report, "cairn/tools/gate")["is_gate"], "the ruler counted itself"
+
+
+def test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle():
+    """NON-VACUITY FIRST. A rule over an empty set is the shape of a green that means
+    nothing (I-armed-by-hand-not-unwired): if no component reaches the primitive, "no gate
+    consults an oracle" is true and worthless. So this asserts gates EXIST, then that the
+    rule holds over them."""
+    report = D.measure(_REPO_ROOT)
+    assert report["gates"] >= 1, \
+        "no component reaches cairn.tools.gate — the rule is being enforced over nothing"
+    assert report["gate_violations"] == [], \
+        f"A GATE CONSULTS AN ORACLE: {report['gate_violations']}"
 
 
 # ── the roster is disk, and the floor under a clean report ────────────────────

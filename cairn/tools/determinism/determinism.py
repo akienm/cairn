@@ -32,6 +32,15 @@ THE THREE VERDICTS:
                          librarian, for chat, for /chart. A defect exactly when the thing
                          is a gate.
 
+A GATE MAY NEVER REACH AN ORACLE, AND THAT IS NOW A WALK RATHER THAN A SENTENCE. Akien,
+2026-08-13: "NO GATES MAY CONSULT ORACLES EVER PERIOD. A GATE ONLY OPENS WHEN A FINDINGS
+REPORT MATCHES WHAT IT ALLOWS. ITS AN == compare. Must be identical. NO ORACLE." Gate-ness
+used to live in prose in a charter, where nothing could check it; it is now DERIVED from
+the same import graph as everything else — a gate is a component whose fire path reaches
+``cairn.tools.gate``, the primitive that holds the == compare. Two import facts, one walk,
+and the rule is physics: a gate that grows a path to the inference host is a VIOLATION here
+and reds this tool's proof, which the corpus runs.
+
 WHAT COUNTS AS THE LLM, and it is one name because a ruling made it one: everything routes
 through ``cairn.devices.inference_domain``, the sole path to the inference host. So this
 does not keep a list of hosts, ports or providers — it walks to the door. A second door
@@ -50,11 +59,15 @@ sense — psycopg2 is not an LLM. They matter to replayability (a row can change
 and they are shown, but they do not set the verdict, because the verdict answers his
 question and not a different one.
 
+SHELLING IS THE DIRECTION OF TRAVEL, NOT A HOLE (Akien, 2026-08-13: "i don't care about
+the argv. if it's working, it's working. I never dispermitted shelling. since we're trying
+to push compilation downward, the hope is more and more things become individually
+callable."). This module's second cut chased every computed argv and flagged five
+components ``*UNPROVEN`` for it, which dressed the system's own goal up as a debt. Shell
+targets are still REPORTED — they are the visible evidence of that compilation pushing
+downward — and they are not graded, not flagged, and not chased.
+
 WHAT THIS CANNOT SEE, stated so no green reads wider than the walk:
-  - a shelled binary that itself calls an LLM. Literal argv is resolved (`git`, `sudo`);
-    a computed argv comes back UNKNOWN and is flagged, because under Akien's definition
-    shelling is ALLOWED inside PURE, which makes this hole load-bearing rather than
-    academic. An unresolved shell makes a PURE verdict UNPROVEN, and it says so.
   - a dynamic import with a computed name (inherited from import_sieve, not weakened).
 """
 
@@ -79,12 +92,11 @@ LLM = ("cairn.devices.inference_domain",)
 OFF_BOX = tuple(m for m in import_sieve.DEFAULT_LADDER[3]["modules"]
                 if not m.startswith("cairn.devices.inference_domain"))
 
-SHELL = ("subprocess",)
-
-# Binaries a shell-out may reach without putting an LLM in the path. Deliberately tiny and
-# deliberately a JUDGEMENT: `git` is called LLM-free because it is git. That is a claim
-# about git, not a measurement of it, and it is named here so it can be argued with.
-SHELL_KNOWN_CLEAN = {"git", "sudo", "systemctl", "ps", "sh", "bash", "python3", "pytest"}
+# THE GATE PRIMITIVE. A gate is a component that reaches this — the module holding the ==
+# compare Akien specified. Derived, never declared: a charter field saying "I am a gate"
+# is a value stranded in a human's head, and it goes stale in the direction that looks safe.
+GATE = ("cairn.tools.gate",)
+GATE_TOOL_PATH = os.path.join("cairn", "tools", "gate")
 
 SKIP_PARTS = {"__pycache__", ".git", "node_modules", ".venv", "venv", "proofs",
               "validations", "probes"}
@@ -115,21 +127,20 @@ def _own_modules(comp_dir: Path, root: Path) -> list[str]:
     return out
 
 
-def shell_targets(path: Path) -> tuple[set[str], bool]:
-    """(binaries this file shells to, whether any argv was opaque).
+def shell_targets(path: Path) -> set[str]:
+    """The binaries this file shells to, read off the literal argv head.
 
-    Reads the LITERAL first element of a subprocess argv. Akien's definition allows a pure
-    component to run scripts, so the question stops being "does it fork" and becomes "what
-    does it fork INTO" — which a computed argv cannot answer. Those return opaque=True
-    rather than being silently dropped: an unresolved shell is the one way a PURE verdict
-    here can be wrong, so it is surfaced instead of assumed innocent (Law 7, CP1).
+    REPORTED, NEVER GRADED, AND A COMPUTED ARGV IS NOT CHASED. Akien, 2026-08-13: "i don't
+    care about the argv. if it's working, it's working. I never dispermitted shelling."
+    Shelling out to an individually callable thing is compilation pushing DOWNWARD, which
+    is the direction the whole system is trying to move — so what this collects is evidence
+    of that, not a debt register.
     """
     try:
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
     except (OSError, SyntaxError):
-        return set(), False
+        return set()
     found: set[str] = set()
-    opaque = False
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
@@ -148,13 +159,9 @@ def shell_targets(path: Path) -> tuple[set[str], bool]:
             head = first.elts[0]
             if isinstance(head, ast.Constant) and isinstance(head.value, str):
                 found.add(os.path.basename(head.value))
-                continue
-            opaque = True
         elif isinstance(first, ast.Constant) and isinstance(first.value, str):
             found.add(os.path.basename(first.value.split()[0]))
-        else:
-            opaque = True
-    return found, opaque
+    return found
 
 
 def _refusals(path: Path) -> list[str]:
@@ -238,8 +245,8 @@ def measure(root: str | Path = ".") -> dict:
     def walk(mods: list[str]) -> dict:
         llm: dict[str, str] = {}
         offbox: dict[str, str] = {}
+        gate: dict[str, str] = {}
         shells: set[str] = set()
-        opaque: set[str] = set()
         reached: set[str] = set()
         for mod in mods:
             if mod not in graph:
@@ -248,49 +255,71 @@ def measure(root: str | Path = ".") -> dict:
             closure[mod] = [mod]
             reached |= set(closure)
             for path in closure:
-                bins, is_opaque = shell_targets(root / path)
-                shells |= bins
-                if is_opaque:
-                    opaque.add(path)
+                shells |= shell_targets(root / path)
                 for imported in graph.get(path, ()):
                     for t in LLM:
                         if import_sieve._matches(imported, t):
                             llm.setdefault(t, " -> ".join(closure[path]))
+                    # A GATE IS WHAT DOES THE COMPARE, NOT WHAT CALLS ONE. Direct import
+                    # only, and only from the component's OWN modules — measured, first
+                    # run: the transitive reading made skills/chart a gate because it can
+                    # reach build_inspector, and then red it for the SLEEP seam it is
+                    # entitled to. Under a transitive rule gate-ness spreads up every
+                    # caller until everything is a gate, and a rule that reds everything
+                    # gets ignored.
+                    if path in mods:
+                        for t in GATE:
+                            if import_sieve._matches(imported, t):
+                                gate.setdefault(t, path)
                     for t in OFF_BOX:
                         if import_sieve._matches(imported, t):
                             offbox.setdefault(t, " -> ".join(closure[path]))
-        return {"llm": llm, "offbox": offbox, "shells": sorted(shells),
-                "opaque": sorted(opaque), "reach": len(reached)}
+        return {"llm": llm, "offbox": offbox, "gate": gate, "shells": sorted(shells),
+                "reach": len(reached)}
 
+    empty = {"llm": {}, "offbox": {}, "gate": {}, "shells": [], "reach": 0}
     rows = []
     for comp in components(root):
         fire_mods = [m for m in comp["modules"] if os.path.basename(m) not in SEAMS]
         seam_mods = [m for m in comp["modules"] if os.path.basename(m) in SEAMS]
         fire = walk(fire_mods)
-        seam = walk(seam_mods) if seam_mods else {"llm": {}, "offbox": {}, "shells": [],
-                                                  "opaque": [], "reach": 0}
+        seam = walk(seam_mods) if seam_mods else dict(empty)
         if fire["llm"]:
             verdict = ORACLE
         elif seam["llm"]:
             verdict = MOSTLY
         else:
             verdict = PURE
-        unknown = sorted(b for b in fire["shells"] if b not in SHELL_KNOWN_CLEAN)
+        # A GATE IS THE COMPONENT THAT REACHES THE == COMPARE, and the gate tool itself is
+        # not one — it IS the compare, the way a lock is not a door. Excluding it by
+        # address keeps the roster honest: otherwise every gate count starts at one for
+        # free, which is a green earned by counting the ruler among the things measured.
+        gate_via = {**seam["gate"], **fire["gate"]}
+        is_gate = bool(gate_via) and comp["path"] != GATE_TOOL_PATH
         rows.append({**comp,
                      "rung": _rung(comp["path"]),
                      "verdict": verdict,
+                     "is_gate": is_gate,
+                     "gate_via": gate_via.get(GATE[0], ""),
+                     # THE ONE RULE THAT IS NOT A REPORT. Akien: "NO GATES MAY CONSULT
+                     # ORACLES EVER PERIOD." A gate whose fire path OR whose SLEEP seam
+                     # reaches the LLM is in violation — a gate has no legitimate SLEEP
+                     # seam either, because a gate that gets rewritten by an oracle
+                     # between runs does not replay, and Law 7 makes its verdict permanent.
+                     "gate_violation": is_gate and bool(fire["llm"] or seam["llm"]),
                      "refuses": bool({r for m in fire_mods for r in _refusals(root / m)}),
                      "llm": fire["llm"],
                      "offbox": fire["offbox"],
                      "shells": fire["shells"],
-                     "unproven_shells": unknown,
-                     "opaque_argv": fire["opaque"],
                      "seams": seam_mods,
                      "seam_llm": seam["llm"],
                      "reach": fire["reach"]})
     order = {PURE: 0, MOSTLY: 1, ORACLE: 2}
     rows.sort(key=lambda r: (order[r["verdict"]], r["path"]))
+    gates = [r for r in rows if r["is_gate"]]
     return {"root": str(root), "components": len(rows), "rows": rows,
+            "gates": len(gates),
+            "gate_violations": [r["path"] for r in gates if r["gate_violation"]],
             "counts": {v: sum(1 for r in rows if r["verdict"] == v)
                        for v in (PURE, MOSTLY, ORACLE)}}
 
@@ -305,6 +334,27 @@ def render(report: dict) -> str:
     L.append(f"{report['components']} components  ·  {c[PURE]} pure  ·  "
              f"{c[MOSTLY]} mostly (LLM at SLEEP only)  ·  {c[ORACLE]} LLM in the loop")
     L.append("")
+
+    # THE GATES FIRST, because they are the thing being inspected and the rule over them is
+    # absolute. A gate list that could be empty and still print a header would be a green
+    # earned by having nothing to check, so zero gates says so in those words.
+    gates = [r for r in report["rows"] if r["is_gate"]]
+    L.append("--- GATES " + "-" * 54)
+    L.append("    NO GATE MAY CONSULT AN ORACLE. A gate opens only on an == compare against")
+    L.append("    what it allows — identical, or it stays shut. (Akien, 2026-08-13)")
+    if not gates:
+        L.append("")
+        L.append("    NONE — no component reaches cairn.tools.gate. Nothing here is gated,")
+        L.append("    and a rule over an empty set is not a green.")
+    for r in gates:
+        bad = r["gate_violation"]
+        L.append("")
+        L.append(f"  {'VIOLATION' if bad else 'clean    '}  {r['path']:44s} {r['verdict']}")
+        L.append(f"      gate via {r['gate_via']}")
+        if bad:
+            for t, chain in sorted({**r["llm"], **r["seam_llm"]}.items()):
+                L.append(f"      REACHES AN ORACLE: {t}   via {chain}")
+    L.append("")
     mark = {PURE: "  ", MOSTLY: "~ ", ORACLE: "! "}
     last = None
     for r in report["rows"]:
@@ -312,9 +362,9 @@ def render(report: dict) -> str:
             L.append("")
             L.append(f"--- {r['verdict']} " + "-" * (58 - len(r["verdict"])))
             last = r["verdict"]
-        flag = " *UNPROVEN" if r["opaque_argv"] else ""
-        gate = "REFUSES" if r["refuses"] else "       "
-        L.append(f"{mark[r['verdict']]}{r['path']:44s} {r['rung']:14s} {gate}{flag}")
+        flag = "  GATE" if r["is_gate"] else ""
+        refuses = "REFUSES" if r["refuses"] else "       "
+        L.append(f"{mark[r['verdict']]}{r['path']:44s} {r['rung']:14s} {refuses}{flag}")
         for t, chain in sorted(r["llm"].items()):
             L.append(f"      LLM IN THE LOOP: {t}   via {chain}")
         if r["seam_llm"]:
@@ -322,8 +372,6 @@ def render(report: dict) -> str:
                      f" reaches the LLM   [out of band, by design]")
         if r["shells"]:
             L.append(f"      shells to: {', '.join(r['shells'])}")
-        for p in r["opaque_argv"]:
-            L.append(f"      * argv computed, target unresolved: {p}")
         if r["offbox"]:
             L.append(f"      off-box (not an oracle): {', '.join(sorted(r['offbox']))}")
     return "\n".join(L)
@@ -337,7 +385,10 @@ def main(argv: list[str] | None = None) -> int:
     root = argv[0] if argv else str(Path(__file__).resolve().parents[3])
     report = measure(root)
     print(json.dumps(report, indent=2) if as_json else render(report))
-    return 0
+    # EXIT 1 ON A GATE VIOLATION, so the one absolute rule is readable by anything that can
+    # read an exit code. Everything else in this report is a measurement Akien dispositions;
+    # "no gate consults an oracle" is not a measurement, it is the rule.
+    return 1 if report["gate_violations"] else 0
 
 
 if __name__ == "__main__":

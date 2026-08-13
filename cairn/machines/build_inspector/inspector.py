@@ -40,6 +40,14 @@ sys.path.insert(0, str(_REPO_ROOT))
 # orient's filed edge (e) — scans-vs-sieves as one shared library — earned by use, not
 # merged on symmetry. The registries stay separate: a scan MEASURES, a sieve JUDGES.
 from cairn.tools.charter import projector  # noqa: E402
+from cairn.tools.gate import gate  # noqa: E402
+#   THE GATE IS AN == COMPARE AND IT LIVES IN ONE PLACE (Akien, 2026-08-13: "A GATE ONLY
+#   OPENS WHEN A FINDINGS REPORT MATCHES WHAT IT ALLOWS. ITS AN == compare. Must be
+#   identical. NO ORACLE."). This inspector used to decide its own exit with
+#   ``not findings``, which is the same compare against an empty allowlist — written out
+#   longhand, where nothing could see it was a gate. Importing the primitive is what makes
+#   gate-ness a MEASURABLE fact: `cairn determinism` derives "this is a gate" from this
+#   import and reds any gate whose closure reaches the LLM.
 from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
                                 ticket_path)             #   module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
@@ -1879,13 +1887,32 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "component_scores": shaken["roll_up"],
         "findings": shaken["findings"],
         "clean": not shaken["findings"],
+        # THE GATE, and the exit code comes from it rather than from a longhand `not`.
+        # ``allowed`` is the baseline this gate opens on; there is no allowlist file yet,
+        # so it is empty and the gate is honestly CLOSED over the corpus's standing
+        # findings. That is Law 9 — an unearned green is worse than a red that is true.
+        "gate": gate.verdict(shaken["findings"], allowed=allowed_findings()),
     }
+
+
+def allowed_findings() -> list[dict]:
+    """The findings this gate opens on. Authored baseline, git-tracked beside the code —
+    a declaration like a charter, never runtime state (CLAUDE.md: no runtime state here).
+
+    Absent means EMPTY, never means "anything goes": a missing baseline must close the
+    gate, not open it. A gate that fails open on a missing file is the vacuous green this
+    whole component exists to prevent.
+    """
+    path = Path(__file__).resolve().parent / "allowed.json"
+    if not path.is_file():
+        return []
+    return json.loads(path.read_text())
 
 
 def _main(argv: list[str]) -> int:
     report = inspect(component=argv[0] if argv else None)
     print(json.dumps(report, indent=2))
-    return 0 if report["clean"] else 1
+    return 0 if report["gate"]["opens"] else 1
 
 
 if __name__ == "__main__":

@@ -37,6 +37,8 @@ import os
 import re
 from pathlib import Path
 
+from cairn.tools.base import address
+
 CHARTER = "intention+why.json"
 WIDTH = 78
 
@@ -151,14 +153,19 @@ def check(repo: Path | None = None, commons: Path | None = None,
     charters, reds = gather(repo)
 
     # A component without an intention doesn't run (CLAUDE.md) — code with no charter.
+    # WHICH DIRECTORIES ARE COMPONENTS IS NOT THIS FILE'S QUESTION (address.component_dirs,
+    # 2026-08-13). It used to be a one-level iterdir, and after the rung move that walk
+    # accused `devices/`, `machines/` and `tools/` of being chartless components — three
+    # reds naming containers instead of the code inside them, which is a gate lying about
+    # where to look. The rungs carry a package __init__ and no charter, so a shallower
+    # test cannot tell them from a real component; only the roster can.
     pkg = repo / "cairn"
     chartered_dirs = {c["dir"] for c in charters}
     if pkg.is_dir():
-        for d in sorted(pkg.iterdir()):
-            if d.is_dir() and not d.name.startswith((".", "_")) and any(d.glob("*.py")):
-                if str(d.relative_to(repo)) not in chartered_dirs:
-                    reds.append(f"component without a charter: {d.relative_to(repo)}/ "
-                                f"(code that, by CLAUDE.md, doesn't run)")
+        for d in address.component_dirs(pkg)[0]:
+            if any(d.glob("*.py")) and str(d.relative_to(repo)) not in chartered_dirs:
+                reds.append(f"component without a charter: {d.relative_to(repo)}/ "
+                            f"(code that, by CLAUDE.md, doesn't run)")
 
     # Skill lane: charter <-> roster <-> installed symlink must be the same set.
     chartered = {Path(c["dir"]).name for c in charters if c["dir"].startswith("skills/")}

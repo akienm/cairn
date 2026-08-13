@@ -122,7 +122,7 @@ def test_the_anatomy_is_a_CALL_not_a_paragraph_about_one():
     """Ticket falsifier (3), head on. A skill executed by an LLM reading markdown fires
     a door only if the text tells it to run the command — anything softer is discipline
     in prose, which is the thing this migration exists to stop being."""
-    assert re.search(r"python3 -m cairn\.skill_block fire intent\b", SKILL_MD), \
+    assert re.search(r"python3 -m cairn\.machines\.skill_block fire intent\b", SKILL_MD), \
         "SKILL.md must carry the literal firing command, not a description of firing"
     assert "PYTHONPATH=" in SKILL_MD, "the command must be runnable as written"
 

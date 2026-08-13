@@ -17,13 +17,20 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.cairnmap import cairnmap
 
 
 def _resolve(arg: str) -> Path | None:
     """A directory, or a bare component name tried against the repo's homes."""
     repo = cairnmap.repo_root()
-    candidates = [Path(arg), repo / arg, repo / "cairn" / arg, repo / "skills" / arg]
+    # A bare component name no longer says which rung it is in, so the rung is LOOKED UP
+    # (address.component_dir, 2026-08-13) rather than concatenated. Kept in the candidate
+    # list rather than short-circuiting: `cairn <name>` still has to try the plain-path and
+    # skills readings, and the order is what makes a real directory argument win.
+    by_rung = address.component_dir(arg, repo / "cairn")
+    candidates = [Path(arg), repo / arg, *( [by_rung] if by_rung else [] ),
+                  repo / "skills" / arg]
     for c in candidates:
         charter = c / cairnmap.CHARTER if c.is_dir() else c
         if charter.name == cairnmap.CHARTER and charter.is_file():

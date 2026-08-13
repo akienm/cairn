@@ -222,7 +222,7 @@ def test_import_allowlist(root, orient_berth):
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
              "cairn.machines.build_inspector.inspector", "cairn.machines.chart.orient",
-             "cairn.machines.chart.tree")
+             "cairn.machines.chart.tree", "cairn.tools.base.address")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

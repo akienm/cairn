@@ -74,7 +74,7 @@ def test_a_copy_is_byte_identical_to_its_source():
         compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
 
         src = Path(code, "cairn", "tools", "base", "intention+why.json").read_bytes()
-        cp = Path(lab, "cairn-base--intention+why.json").read_bytes()
+        cp = Path(lab, "cairn-tools-base--intention+why.json").read_bytes()
         assert cp == src, "the copy is the same BYTES — not a re-serialisation of the same data"
         assert Path(lab, "telos.md").read_bytes() == Path(
             commons, "intentions-not-beside-code", "telos.md").read_bytes()
@@ -157,7 +157,7 @@ def test_the_real_repo_reaches_both_trees_and_every_charter():
     ids = {s["id"] for s in sources}
     kinds = {s["kind"] for s in sources}
     assert "telos" in ids and "core-values" in ids, "the homeless roots are gathered"
-    assert "cairn-base" in ids, "a package charter is gathered"
+    assert "cairn-tools-base" in ids, "a package charter is gathered"
     assert "skills-intent" in ids, "a charter outside the package is gathered"
     assert kinds == {"homeless", "component-charter"}, "both source kinds present"
     assert not any(os.path.basename(s["source"]).startswith("_") for s in sources), (

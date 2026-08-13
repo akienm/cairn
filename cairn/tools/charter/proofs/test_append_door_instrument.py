@@ -29,6 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
+from cairn.tools.base import address
 from cairn.tools.charter import projector
 from cairn.machines.diagnostic_inspector.inspector import (
     CompletenessRegistry,
@@ -208,11 +209,21 @@ def test_every_real_history_on_disk_would_pass_the_gate():
     """The gate is retroactively honest: it refuses nothing that is already legitimately here.
     Reads the live histories — asserts CONFORMANCE, never a count that legitimately moves."""
     root = Path(__file__).resolve().parents[3]
-    offenders = []
-    for hist in sorted(root.glob("*/history.json")):
+    offenders, scanned = [], 0
+    for d in address.component_dirs(root)[0]:
+        hist = d / "history.json"
+        if not hist.is_file():
+            continue
+        scanned += 1
         for rec in json.loads(hist.read_text()):
             if not all(rec.get(k) for k in projector.UNIVERSAL_REQUIRED):
-                offenders.append((hist.parent.name, rec.get("seq"), sorted(rec)))
+                offenders.append((d.name, rec.get("seq"), sorted(rec)))
+    # A FLOOR, BECAUSE "NOTHING OFFENDED" AND "NOTHING WAS READ" LOOK ALIKE. The walk used
+    # to be glob("*/history.json") and the 2026-08-13 rung move silently emptied it; the
+    # whitelist below caught that only by luck — a corpus with zero offenders would have
+    # gone green on an empty scan. The floor is deliberately far below the live count.
+    assert scanned >= 5, \
+        f"the retroactive scan read {scanned} histories — it is not seeing the corpus"
     assert offenders == [("diagnostic_inspector", 4, ["at", "gate", "id", "seq", "what", "why"])], \
         f"the ONLY record that fails the floor must be the permanent one this gate exists " \
         f"to have prevented — got {offenders}"

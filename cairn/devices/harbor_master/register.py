@@ -39,6 +39,7 @@ import json
 import re
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.charter import projector
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]   # cairn/devices/harbor_master/register.py -> repo root
@@ -67,7 +68,15 @@ def _berthed_boats(cairn_root: Path) -> list[dict]:
     re-derived into something new (Law 1: the projector already answers 'where does this
     boat stand'; the register only gathers those answers).
     """
-    dirs = [p.parent for p in cairn_root.glob("*/history.json")]
+    # The walk asks the component roster where the components ARE (address.component_dirs,
+    # 2026-08-13) rather than spelling their depth. It used to be glob("*/history.json"),
+    # and the rung reorganisation is exactly the event that shape cannot survive: after the
+    # move it matched nothing and the harbor reported an EMPTY in-port lane — a fleet with
+    # no berthed boats reads identical to a harbor whose boats all sailed. Caught by this
+    # device's own proof ("the harbor does not see its own berthed history"), which is why
+    # the tooth asserts non-empty rather than a count.
+    dirs = [d for d in address.component_dirs(cairn_root)[0]
+            if (d / "history.json").is_file()]
     bin_hist = cairn_root.parent / "bin" / "history.json"
     if bin_hist.exists():
         dirs.append(bin_hist.parent)

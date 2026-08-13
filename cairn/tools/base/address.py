@@ -168,7 +168,7 @@ def package_root(roots: dict[str, Path] | None = None) -> Path:
     return resolve("repo/cairn", roots)
 
 
-def component_dirs(pkg_root: Path | None = None) -> tuple[list[Path], list[dict]]:
+def component_dirs(pkg_root: Path | str | None = None) -> tuple[list[Path], list[dict]]:
     """Every component directory in class-space, and the entries that could not be read.
 
     WHY THIS EXISTS AS A FUNCTION. Until 2026-08-13 a component sat at ``cairn/<name>/`` and
@@ -190,7 +190,10 @@ def component_dirs(pkg_root: Path | None = None) -> tuple[list[Path], list[dict]
     (Law 7, and the same shape ``device_census`` already used for the identical reason: a
     scan that dies on one entry reports nothing about the other twenty-three).
     """
-    root = pkg_root or package_root()
+    # A str root is accepted and coerced: the callers that inject one are the older
+    # os.path-dialect modules (chart/constrain), and making each of them wrap in Path()
+    # would put the coercion at four call sites instead of at the one door.
+    root = Path(pkg_root) if pkg_root is not None else package_root()
     components: list[Path] = []
     unreadable: list[dict] = []
 
@@ -215,3 +218,30 @@ def component_dirs(pkg_root: Path | None = None) -> tuple[list[Path], list[dict]
         except OSError as e:
             unreadable.append({"path": str(d), "why": f"UNREADABLE: {e}"})
     return components, unreadable
+
+
+def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
+    """Where the component called ``name`` lives, or ``None`` if no such component.
+
+    THE RUNG IS NOT PART OF THE NAME, and this is the function that keeps it that way.
+    Before 2026-08-13 a caller holding a component NAME could build its path by
+    concatenation — ``cairn/<name>/`` — and several did (``chart/constrain`` reading a
+    ref's charter, ``cairnmap/cli`` resolving a bare argument). After the move that
+    concatenation is a guess about which rung, and a wrong guess reads as "no charter
+    there", which is a red about the component rather than about the caller.
+
+    So the lookup is a WALK, not an assumption: nothing here knows or decides that
+    ``base`` is a tool. A component that changes rung changes nothing at any call site.
+    Returns ``None`` rather than raising because every caller today is already asking a
+    question that has "there is no such component" as a real answer.
+
+    ``pkg_root`` IS NOT OPTIONAL FOR AN INJECTED CALLER, and forgetting it is a live
+    measured defect rather than a hypothetical one: chart/constrain runs its proofs
+    against a temp world, and the first version of this call read the LIVE tree instead
+    — so the floor answered a question about the real repo while the proof asked about
+    its fixture. Every caller that already takes a root passes it through.
+    """
+    for d in component_dirs(pkg_root)[0]:
+        if d.name == name:
+            return d
+    return None

@@ -66,7 +66,7 @@ def test_the_gate_pokes_the_door():
         r = _run(commons, code, lab, os.path.join(d, "logs"))
         assert r.returncode == 0, f"the gate must exit 0, got {r.returncode}: {r.stderr!r}"
         got = {n for n in os.listdir(lab) if not n.startswith("_")}
-        assert got == {"telos.md", "cairn-base--intention+why.json"}, \
+        assert got == {"telos.md", "cairn-tools-base--intention+why.json"}, \
             f"both source trees copied in via the gate — a no-op gate copies nothing; got {got}"
 
 

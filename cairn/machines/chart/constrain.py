@@ -40,6 +40,10 @@ import os
 import time
 
 from cairn.machines.build_inspector.inspector import judge_constrain
+# Admitted 2026-08-13 by the rung reorganisation: a component's rung is looked up, not
+# spelled. The leaf imports pathlib and nothing else (measured), so this buys the one
+# owner of class-space addressing without widening what actually enters.
+from cairn.tools.base import address
 from cairn.machines.chart.orient import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster,
                                 ticket_claim_error,
                                 common_shape_lacks, render_lacks,
@@ -88,7 +92,14 @@ def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
         if ref not in roster:
             refs_not_components.append(ref)
             continue
-        charter_path = os.path.join(root, "cairn", ref, "intention+why.json")
+        # The ref is a component NAME; its rung is looked up, never concatenated in
+        # (address.component_dir, 2026-08-13). The roster above already said this ref is a
+        # component, so a None here would be the two readers disagreeing — reported as an
+        # unreadable charter with its address, which is what this loop does with every
+        # other way the read can fail.
+        comp_dir = address.component_dir(ref, os.path.join(root, "cairn"))
+        charter_path = str(comp_dir / "intention+why.json") if comp_dir else \
+            os.path.join(root, "cairn", "<no rung holds %s>" % ref, "intention+why.json")
         try:
             with open(charter_path, encoding="utf-8") as fh:
                 charter = json.load(fh)

@@ -110,7 +110,11 @@ def gather_sources(commons_root: str, code_root: str) -> list[dict]:
             continue
         path = os.path.join(dirpath, _CHARTER)
         rel = os.path.relpath(dirpath, code_root)
-        # The owning component's address, flattened: cairn/devices/librarian -> cairn-librarian.
+        # The owning component's address, flattened whole: cairn/devices/librarian ->
+        # cairn-devices-librarian. THE RUNG RIDES THE NAME (2026-08-13) because the name is
+        # the address with its separators swapped — it is not a label anyone chose, and
+        # dropping the middle segment to keep the old spelling would make two components
+        # named `base` in different rungs collide in one flat folder.
         component = "repo-root" if rel == "." else rel.replace(os.sep, "-")
         sources.append({
             "id": component,

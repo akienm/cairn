@@ -10,8 +10,11 @@ written first, so the shared parts landed there), not of design. Left alone, it 
 stage 1 un-removable and every other stage look like it needed orienting before it
 could check a field name.
 
-WHY A TOOL AND NOT A MACHINE. A tool is a complete primitive and holds no state, so
-there is nothing to gate and it has USERS, not an owner (Akien, 2026-08-13). Nothing
+WHY A TOOL AND NOT A MACHINE. A tool is a complete primitive with USERS, not an owner
+(Akien, 2026-08-13) — and that is NOT because a tool cannot remember. It can: ongoing
+state berths under the holder that assembled it (ruling
+2026-08-14-tools-and-machines-remember-under-their-holder), which is why there is nothing
+OF ITS OWN to gate. What settles it HERE is the narrower fact that nothing
 here owns a durable record: the roster memo below is a per-process memo of a
 measurement, dropped by ``forget_roster`` at the write that invalidates it, and the
 berths these functions name are owned by the stages that write them.

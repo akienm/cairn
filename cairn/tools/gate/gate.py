@@ -60,8 +60,12 @@ was the component's own tooth asserting that a healthy fixture produces an all-p
 record. That tooth is the physics until something better exists — an IOU, not a resting
 state (Law 4). · *ticket owed*
 
-A TOOL HAS USERS, NOT AN OWNER (Law 6). This holds no state — the record arrives as an
-argument and nothing is remembered between calls.
+A TOOL HAS USERS, NOT AN OWNER (Law 6). Not because a tool cannot remember — it can, and
+ruling 2026-08-14-tools-and-machines-remember-under-their-holder says so: ongoing state
+berths under the HOLDER, at ``~/.cairn/devices/<device>/<instance>/tools/<tool class>/
+<tool instance>/``, so it is the holder's to own and gate and the tool has nothing OF ITS
+OWN to gate. What is true of THIS build, and is a fact about this build rather than about
+tools: the record arrives as an argument and nothing is remembered between calls.
 """
 
 from __future__ import annotations

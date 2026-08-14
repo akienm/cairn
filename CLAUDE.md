@@ -47,10 +47,16 @@ what can't trace up doesn't belong.
 6. **Everything has exactly one owner — except a tool, which has users.** The
    owner alone gates writes to it; delegated access and ownership transfer happen
    only through the owner's gate, never ambiently. Ownership gates writes to
-   *state*, and a tool holds none, so a tool has nothing to gate: *"tools don't
-   have owners they have users"* (Akien, 2026-08-13). This is the test, not an
-   exemption — anything called a tool that needs an owner holds state and is a
-   machine.
+   *state*, and a tool has none **of its own**, so it has nothing to gate:
+   *"tools don't have owners they have users"* (Akien, 2026-08-13). A tool still
+   **remembers**: its starting state ships in the code, and its ongoing state —
+   *"all kinds of state and history data"*, no LLM required — berths under the
+   holder that assembled it, at `~/.cairn/devices/<device>/<instance>/tools/<tool
+   class>/<tool instance>/`, *"because each instance of the tool or machine can
+   have its own data"* (Akien, 2026-08-14). That state is the **holder's** to own
+   and gate, which is why Law 6 is untouched by it. This is the test, not an
+   exemption — anything called a tool that must gate writes at its *own* address
+   is a machine.
 7. **Errors are loud at diagnostic surfaces and permanent in records of truth.**
    A presentation surface may collapse an error into a coherent shape; a record
    of truth never may.

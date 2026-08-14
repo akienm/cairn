@@ -22,6 +22,7 @@ sys.path.insert(0, str(REPO))
 
 from cairn.machines.learning_block import learning_block as lb  # noqa: E402
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
+from cairn.tools.gate import gate  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime(2026, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
@@ -207,6 +208,55 @@ def test_an_unknown_exit_is_refused_AS_A_LACK_not_a_separate_trip():
         assert "bullets" in fields, exc.lacks
         return
     raise AssertionError("the two exits are counted separately; a third is a typo")
+
+
+def test_a_firing_records_the_skills_own_lanes_not_only_their_complaints():
+    """The exit vocabulary and the skill's judge used to be flattened into the door's ONE
+    aggregate lack-list, so nothing in the trace said either had run."""
+    root = skills_tree("alpha")
+    berths, traces = world(), world()
+    sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root, berths=berths,
+            trace_root=traces)
+    rec = [r for r in lb.read_trace("skill:alpha", root=traces)
+           if r["event"] == "door_pass"][0]
+    ids = [e["identity"] for e in rec["data"]["record"]]
+    assert "the_exit_is_one_of_the_two" in ids, ids
+    assert rec["data"]["checks_proved"] == len(rec["data"]["record"]) == len(ids)
+    exit_entry = [e for e in rec["data"]["record"]
+                  if e["identity"] == "the_exit_is_one_of_the_two"][0]
+    assert gate.passed(exit_entry), exit_entry
+    assert exit_entry["values"]["exit"] == "routed_forward", exit_entry
+    assert exit_entry["values"]["vocabulary"] == sorted(sb.EXITS), exit_entry
+
+
+def test_a_skill_with_no_judge_is_not_a_judge_that_was_satisfied():
+    """The defect this found: ``semantic`` was ``[]`` whether a judge ran and agreed or
+    no judge existed, and it was handed over as a non-None list either way — so the
+    primitive's attendance entry claimed a satisfied judge for every skill in the tree."""
+    root = skills_tree("alpha")                       # no door module, so no judge
+    berths, traces = world(), world()
+    sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root, berths=berths,
+            trace_root=traces)
+    rec = [r for r in lb.read_trace("skill:alpha", root=traces)
+           if r["event"] == "door_pass"][0]
+    ids = [e["identity"] for e in rec["data"]["record"]]
+    assert "the_skills_own_judge_finds_nothing" not in ids, ids
+    assert "the_callers_judge_finds_nothing" not in ids, (
+        f"the primitive's aggregate must not stand in for a judge nobody ran: {ids}")
+    # non-vacuity: a judge that DID run and agree gets its entry, and it passes
+    judged = sb.inspect_firing("alpha", dict(GOOD), [], judged=True)
+    assert [e["identity"] for e in judged][0] == "the_skills_own_judge_finds_nothing"
+    assert all(gate.passed(e) for e in judged), judged
+
+
+def test_a_guarded_exit_lane_is_absent_from_the_record_not_green():
+    """A packet with no ``exit`` has no vocabulary to check against. The contract's own
+    required-field lane has already spoken; this lane must not answer twice."""
+    silent = sb.inspect_firing("alpha", {"what": "a thing"}, [], judged=False)
+    assert silent == [], silent
+    loud = sb.inspect_firing("alpha", {"exit": "sideways"}, [], judged=False)
+    assert [e["identity"] for e in loud] == ["the_exit_is_one_of_the_two"], loud
+    assert not gate.passed(loud[0]), loud
 
 
 def test_a_hand_claimed_hex_bullet_is_refused():

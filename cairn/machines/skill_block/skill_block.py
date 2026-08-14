@@ -28,6 +28,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
+from cairn.tools.gate import gate
 from cairn.machines.learning_block.learning_block import (
     DoorRefused,
     declare_contract,
@@ -165,6 +166,53 @@ def _write_berth(skill: str, payload: dict, door_rec: dict, finding_rec: dict,
     return path
 
 
+def inspect_firing(skill: str, payload: dict, semantic: list[dict],
+                   *, judged: bool) -> list[dict]:
+    """THE SKILL'S OWN TWO LANES, as a PROOF RECORD — one entry per check that RAN,
+    EXPECTED beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING ALWAYS
+    PROVED AND LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+
+    They ride the primitive's record (``extra_record``) rather than raising separately,
+    for the reason ``fire`` has always given: two doors about one firing is two doors.
+    What is new is that they arrive as ENTRIES. Flattened into the door's one aggregate,
+    a skill with no judge and a skill whose judge was satisfied read alike, and the exit
+    lane — which is GUARDED, since a packet with no ``exit`` has no vocabulary to check
+    — could not say it had been skipped.
+    """
+    record = [gate.proved(
+        identity="the_skills_own_judge_finds_nothing",
+        location="%s.judge_packet" % skill,
+        code="skill_block.py:inspect_firing", source="skill_block.door",
+        expected=[], actual=[l.get("field", "?") for l in semantic],
+        lacks=list(semantic))] if judged else []
+
+    exit_value = payload.get("exit")
+    if exit_value is not None:
+        # GUARDED: no exit declared means no vocabulary to check against, so this entry
+        # is ABSENT — the contract's own required-field lane above has already spoken
+        # about whether ``exit`` had to be there at all.
+        record.append(gate.proved(
+            identity="the_exit_is_one_of_the_two",
+            location="%s.exit" % skill,
+            code="skill_block.py:inspect_firing", source="skill_block.door",
+            # BOTH SIDES READ THE SAME SENTENCE WHEN IT PASSES. A raw ``actual`` of
+            # "routed_forward" against an ``expected`` of the whole vocabulary can never
+            # be ==, so the lane would red on every healthy firing; the value itself
+            # rides in ``exit`` where a reader can still see it.
+            expected="one of %s" % ", ".join(sorted(EXITS)),
+            actual=("one of %s" % ", ".join(sorted(EXITS)) if exit_value in EXITS
+                    else "%r, which is neither" % exit_value),
+            exit=exit_value, vocabulary=sorted(EXITS),
+            lacks=[] if exit_value in EXITS else [{
+                "field": "exit",
+                "why": f"exit {exit_value!r} is not one of {EXITS}. The two exits are "
+                       "not decoration — routed_out is the kill, and it is counted "
+                       "separately because it is the exit the whole trace organ was "
+                       "built to stop losing.",
+            }]))
+    return record
+
+
 def fire(skill: str, payload: dict, *, now: datetime | None = None,
          skills_root: Path | str | None = None,
          berths: Path | str | None = None,
@@ -205,16 +253,10 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
     # exit, and the caller fixed one thing to learn about the next. Every lack in one
     # pass is the door's whole contract; the exit rides it like any other field.
     exit_value = payload.get("exit")
-    if exit_value is not None and exit_value not in EXITS:
-        semantic.append({
-            "field": "exit",
-            "why": f"exit {exit_value!r} is not one of {EXITS}. The two exits are not "
-                   "decoration — routed_out is the kill, and it is counted separately "
-                   "because it is the exit the whole trace organ was built to stop losing.",
-        })
-
     door_rec = fire_door(contract, payload, now=when, root=trace_root,
-                         extra_lacks=semantic, judge=judge_name)
+                         extra_record=inspect_firing(skill, payload, semantic,
+                                                     judged=judge is not None),
+                         judge=judge_name)
 
     finding_rec = emit_finding(block, list(payload.get("bullets") or []),
                                now=when, root=trace_root)
@@ -242,4 +284,5 @@ def read_berth(path: Path | str) -> dict | None:
 __all__ = [
     "EXITS", "SkillBlockRefused", "DoorRefused",
     "block_name", "load_contract", "judge_for", "berth_root", "fire", "read_berth",
+    "inspect_firing",
 ]

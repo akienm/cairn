@@ -189,7 +189,8 @@ def declare_contract(block: str, requires: dict[str, str]) -> dict:
 
 
 def inspect_input(contract: dict, payload: dict,
-                  extra_lacks: list[dict] | None = None) -> list[dict]:
+                  extra_lacks: list[dict] | None = None,
+                  extra_record: list[dict] | None = None) -> list[dict]:
     """THE PROOF RECORD this door opens on: one entry per REQUIRED FIELD the contract
     declares, EXPECTED beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING
     ALWAYS PROVED AND LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
@@ -230,7 +231,18 @@ def inspect_input(contract: dict, payload: dict,
             lacks=[{"field": field, "why": why}] if empty else [],
             why=why))
 
-    if extra_lacks is not None:
+    if extra_record is not None:
+        # THE CALLER ALREADY PROVED ITS OWN LANES, so they ride the ONE record verbatim
+        # rather than being flattened into the aggregate below. A caller with two lanes
+        # (skill_block: the semantic judge AND the exit vocabulary) collapsed into one
+        # entry could not say which of them ran — and its exit lane is GUARDED, so
+        # "collapsed" and "skipped" were the same bytes. Entries in, entries out: the
+        # refusal's lacks are still derived from this one record, never a second walk.
+        assert extra_lacks is None, (
+            "extra_record and extra_lacks are two mouths for one question — hand entries "
+            "or hand lacks, and the lacks are read back out of the entries")
+        record.extend(extra_record)
+    elif extra_lacks is not None:
         extra = list(extra_lacks)
         record.append(gate.proved(
             identity="the_callers_judge_finds_nothing",
@@ -256,6 +268,7 @@ def check_input(contract: dict, payload: dict) -> list[dict]:
 def fire_door(contract: dict, payload: dict, *,
               now: datetime | None = None, root: Path | None = None,
               extra_lacks: list[dict] | None = None,
+              extra_record: list[dict] | None = None,
               judge: str | None = None) -> dict:
     """The gate at the input. Conforming -> traced pass. Insufficient -> the
     send-back is TRACED (with every lack) and then raised. Both paths leave a
@@ -267,9 +280,13 @@ def fire_door(contract: dict, payload: dict, *,
     both, which is precisely the strictness-depends-on-the-entrance defect. Flat lacks
     come first: absence is the contract's finding, and a judge only speaks about fields
     that are present.
+
+    ``extra_record`` is the same seam one rung up: a caller that already PROVED its own
+    lanes hands the entries over and they ride this record whole, so a lane it guarded
+    stays visibly absent instead of collapsing into one aggregate.
     """
     block = contract["block"]
-    record = inspect_input(contract, payload, extra_lacks)
+    record = inspect_input(contract, payload, extra_lacks, extra_record)
     lacks = [lack for entry in record if not gate.passed(entry)
              for lack in entry["values"]["lacks"]]
     # THE RECORD RIDES BOTH TRACES, and the pass side is the half that was missing. A

@@ -171,13 +171,18 @@ def test_no_seam_no_extraction():
         assert "sole path" in str(e)
 
 
-def test_every_check_is_taught_and_pinned():
-    assert sorted(CHECKS) == ["anchors_verbatim", "record_shape"], \
-        "registry pinned to the teeth — a new check joins by editing this proof too"
-    for name, check in CHECKS.items():
-        doc = check.__doc__ or ""
-        assert "Provenance:" in doc and re.search(r"\d{4}-\d{2}-\d{2}", doc), \
-            f"check {name} carries no dated correction — a check nobody was taught by"
+def test_the_judge_is_HELD_not_housed():
+    """The device re-exports the judge's names, and that is all it does with them: the
+    checks berth as machines/judge/ because bin/cmd/determinism read this component as a
+    gate that could reach an oracle at SLEEP (live.py). The lane-level teeth live with
+    the judge; what belongs HERE is that the two halves are still wired together and that
+    this module has not quietly grown a second copy."""
+    from cairn.devices.intention_extractor.machines.judge import judge
+    assert extractor.INSPECTORS is judge.INSPECTORS, "the device must HOLD, not fork"
+    assert extractor.CHECKS is judge.CHECKS
+    src = Path(extractor.__file__).read_text(encoding="utf-8")
+    assert "def inspect_record_shape" not in src and "def anchors_verbatim" not in src, \
+        "a check defined here again is the carve-out undone"
 
 
 def test_the_crossings_are_no_longer_silent():
@@ -192,8 +197,13 @@ def test_the_crossings_are_no_longer_silent():
     dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(bad)))
     held = dev.held_diagnostics()
     assert [h["gate"] for h in held] == ["extract", "extract"]
-    assert held[0]["values"] == {"verdict": "PASS", "checks_failed": []}
-    assert held[1]["values"] == {"verdict": "REFUSED", "checks_failed": ["anchors_verbatim"]}
+    # The breadcrumb names what RAN as well as what objected: a PASS whose lane list is
+    # shorter is a check that stopped running, and `checks_failed: []` alone said nothing
+    # about that either way (2026-08-13).
+    assert held[0]["values"]["verdict"] == "PASS" and held[0]["values"]["checks_failed"] == []
+    assert held[1]["values"] == dict(held[0]["values"], verdict="REFUSED",
+                                     checks_failed=["anchors_verbatim"]), held[1]["values"]
+    assert held[0]["values"]["checks_proved"] == len(held[0]["values"]["lanes"]) >= 6
     assert all(h["pointer"] == source_digest(_SOURCE) for h in held)
     assert all(h["home"] == "held" for h in held), \
         "with no receiver wired the records HOLD (Law 7) — never silently dropped"
@@ -217,7 +227,15 @@ def test_the_extractor_opens_no_door_of_its_own():
     through the caller-injected seam (live wiring lives in live.py, through
     inference_domain). Same tooth-shape as orient's tooth 15."""
     tree = ast.parse(Path(extractor.__file__).read_text(encoding="utf-8"))
-    allowed = {"__future__", "hashlib", "json", "cairn.tools.base.device"}
+    # cairn.tools.gate joined the allowlist 2026-08-13: it mints the seed's proof-record
+    # entry and reads a pass back out — pure data shaping, no outbound capability, and it
+    # is what makes the checks report what they PROVED rather than only what they refused.
+    # The judge machine joined the allowlist 2026-08-13 when the checks were carved out
+    # of this module: it is import-pure (its own proof measures that), so holding it does
+    # not give the device a door. The gate TOOL is deliberately NOT here — a device that
+    # imports it is a gate, and this device has a sleep seam.
+    allowed = {"__future__", "hashlib", "json", "cairn.tools.base.device",
+               "cairn.devices.intention_extractor.machines.judge.judge"}
     imported = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -228,25 +246,19 @@ def test_the_extractor_opens_no_door_of_its_own():
 
 
 def _main() -> int:
-    for check in (test_a_grounded_draft_passes,
-                  test_a_fabricated_anchor_is_caught,
-                  test_a_missing_why_and_field_drift_are_refused,
-                  test_an_unparseable_draft_is_loud_and_still_breadcrumbs,
-                  test_a_fenced_draft_parses,
-                  test_a_quote_wrapped_anchor_is_not_a_fabrication,
-                  test_an_empty_source_never_touches_the_host,
-                  test_no_seam_no_extraction,
-                  test_every_check_is_taught_and_pinned,
-                  test_the_crossings_are_no_longer_silent,
-                  test_device_hood_and_owned_state,
-                  test_the_extractor_opens_no_door_of_its_own):
+    # DERIVED, NOT TYPED — the same defect the validation_store proof was carrying on
+    # 2026-08-13: two teeth added here were defined, never listed, and never ran, and the
+    # file printed the same PASS lines it prints when everything runs. Declaration order.
+    checks = [v for k, v in globals().items()
+              if k.startswith("test_") and callable(v)]
+    assert len(checks) >= 12, (
+        "the derived roster collapsed — a roster that shrinks silently is the defect it "
+        f"replaced: {len(checks)}")
+    for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — intention_extractor: drafts are judged not believed, fabricated attribution "
-          "refuses, the why cannot be skipped, empty sources never touch the host, every check "
-          "is taught, the crossings breadcrumb, and the module opens no door of its own")
+    print("green — intention_extractor: anchored, labeled, refused first-pass")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(_main())

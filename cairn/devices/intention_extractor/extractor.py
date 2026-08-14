@@ -47,17 +47,8 @@ _MIN_SOURCE_CHARS = 30
 # an extra field is drift, a missing one is a hole, and ``read`` being REQUIRED (even when
 # empty) is force-the-why-structurally applied to inference-labeling — the draft cannot
 # skip the decision of what it inferred.
-CANDIDATE_FIELDS = ("what", "why", "anchors", "read")
-
-
 class ExtractionRefused(RuntimeError):
     """An extraction that cannot honestly proceed refuses loudly (Law 7) — never guesses."""
-
-
-def _norm(s: str) -> str:
-    """Whitespace-collapsed form for anchor comparison: a line-wrap difference is not a
-    fabrication; a changed word is."""
-    return " ".join(s.split())
 
 
 def source_digest(source: str) -> str:
@@ -102,101 +93,24 @@ def parse_draft(raw: str) -> dict | None:
     return draft if isinstance(draft, dict) else None
 
 
-# ── the checks: deterministic judgment, each seeded by a caught failure ──────
+# ── the checks: HELD, NOT HOUSED ─────────────────────────────────────────────
+# They berth as this device's own machine (machines/judge/), and the reason is a
+# measurement, not tidiness: converting them to the shared proof record made them import
+# the gate tool, and bin/cmd/determinism — which reads gate-ness as a DIRECT-import fact
+# — reported a VIOLATION that had been true since the device was built. A gate may not
+# have an oracle at fire time or at SLEEP, and live.py is a sleep seam. The builder and
+# skills/chart both already answered this the same way: the seam stays, the gates berth
+# as machines. Re-exported here because the names are this module's published surface.
+from cairn.devices.intention_extractor.machines.judge.judge import (  # noqa: E402
+    CANDIDATE_FIELDS,
+    CHECKS,
+    INSPECTORS,
+    anchors_verbatim,
+    findings_of,
+    normalized as _norm,
+    record_shape,
+)
 
-
-def record_shape(draft: dict, source: str) -> list[dict]:
-    """The candidate carries exactly CANDIDATE_FIELDS, with a non-empty what and why and
-    at least one anchor.
-
-    Provenance: 2026-07-14, the charter design — the filename ``intention+why.json``
-    forces the why (CP3 as schema, not a field someone can leave blank); and the
-    VALIDATION record's exactly-eight rule (2026-07-17), where an extra field is drift
-    and a missing one a hole. ``read`` is required even when empty: the labeling decision
-    cannot be silently skipped (force-the-why-structurally, applied to inference).
-    """
-    findings = []
-    keys = set(draft)
-    required = set(CANDIDATE_FIELDS)
-    if keys != required:
-        findings.append({
-            "check": "record_shape",
-            "finding": "field-set is not exactly the four",
-            "evidence": {"missing": sorted(required - keys), "extra": sorted(keys - required)},
-        })
-    for field in ("what", "why"):
-        v = draft.get(field)
-        if not isinstance(v, str) or not v.strip():
-            findings.append({
-                "check": "record_shape",
-                "finding": f"{field} is empty or not a string — silence is not a valid answer",
-                "evidence": {field: v},
-            })
-    anchors = draft.get("anchors")
-    if not isinstance(anchors, list) or not anchors or not all(
-        isinstance(a, str) and a.strip() for a in anchors
-    ):
-        findings.append({
-            "check": "record_shape",
-            "finding": "anchors must be a non-empty list of non-empty strings — an "
-                       "unanchored intention is invention",
-            "evidence": {"anchors": anchors},
-        })
-    if not isinstance(draft.get("read"), str):
-        findings.append({
-            "check": "record_shape",
-            "finding": "read must be a string ('' when nothing was inferred) — the "
-                       "inference-labeling decision cannot be skipped",
-            "evidence": {"read": draft.get("read")},
-        })
-    return findings
-
-
-def _unwrap_quotes(anchor: str) -> str:
-    """One symmetric outer quote pair is WRAPPING, not content — stripped before the
-    verbatim comparison, exactly as a markdown fence is stripped from the draft.
-
-    Live-caught 2026-07-27, the extractor's FIRST live fire: qwen2.5:7b quoted the
-    source character-for-character and wrapped every anchor in literal quotation marks;
-    all three honest quotes were refused as fabricated. A check that fires on every
-    honest draft gets trained away by its own noise (the leak-scan lesson) — so the
-    wrapping is normalized and the CONTENT still must match verbatim.
-    """
-    s = anchor.strip()
-    if len(s) >= 2 and (s[0], s[-1]) in {('"', '"'), ("'", "'"), ("“", "”"),
-                                         ("‘", "’")}:
-        return s[1:-1]
-    return s
-
-
-def anchors_verbatim(draft: dict, source: str) -> list[dict]:
-    """Every anchor the draft claims from the source appears in the source VERBATIM
-    (whitespace-normalized — a line-wrap is not a fabrication; a changed word is; one
-    symmetric outer quote pair is wrapping, see ``_unwrap_quotes``).
-
-    Provenance: 2026-07-26 — 'the graph type is a coordinate, not a class' was recorded
-    as Akien's ruling and was CC's inference (notes/held-librarian.json); of the
-    embedding claim, only seven words were his, and everything after 'Consequence:' was
-    CC's inference presented as though it followed. Fabricated attribution is the
-    founding extraction defect: a quote that is not in the source is refused, named,
-    and carried whole in the finding.
-    """
-    findings = []
-    anchors = draft.get("anchors")
-    if not isinstance(anchors, list):
-        return findings  # record_shape owns that refusal; no double-count
-    haystack = _norm(source)
-    for a in anchors:
-        if isinstance(a, str) and a.strip() and _norm(_unwrap_quotes(a)) not in haystack:
-            findings.append({
-                "check": "anchors_verbatim",
-                "finding": "anchor is not verbatim in the source — fabricated attribution",
-                "evidence": {"anchor": a},
-            })
-    return findings
-
-
-CHECKS = {"record_shape": record_shape, "anchors_verbatim": anchors_verbatim}
 
 
 # ── the device ───────────────────────────────────────────────────────────────
@@ -263,9 +177,10 @@ class IntentionExtractorDevice(BaseDevice):
                 f"contract. Raw draft, carried whole (first-pass diagnostic): {raw!r}"
             )
 
-        findings = []
-        for check in CHECKS.values():
-            findings.extend(check(draft, source))
+        record = []
+        for inspector in INSPECTORS.values():
+            record.extend(inspector(draft, source))
+        findings = findings_of(record)
         verdict = "PASS" if not findings else "REFUSED"
 
         # GATE CONTACT (DiagnosticBase): a source CROSSED the extraction stage and came
@@ -276,8 +191,13 @@ class IntentionExtractorDevice(BaseDevice):
         self._extractions += 1
         self._verdicts[verdict] += 1
         self._last_digest = digest
+        # WHAT RAN RIDES THE BREADCRUMB, not only what objected. ``checks_failed`` alone
+        # was the same two words whether every lane agreed or a lane had been dropped —
+        # and this is the surface a later reader grades the extractor by.
         self.emit("extract", pointer=digest,
                   values={"verdict": verdict,
+                          "checks_proved": len(record),
+                          "lanes": [e["identity"] for e in record],
                           "checks_failed": sorted({f["check"] for f in findings})})
         return {
             "source_digest": digest,

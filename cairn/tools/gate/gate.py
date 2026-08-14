@@ -44,6 +44,22 @@ diagnostic_inspector's job and it already does it. What lives here is the compar
     v = gate.verdict(record)
     v["opens"], v["proved"], v["failed"]      # and v["mismatches"] says exactly which
 
+THE AUTHORING HAZARD, MEASURED n=4 IN ONE DAY (2026-08-13, the sweep that converted the
+corpus onto this shape). Writing a lane, the natural sentence is "expected: one of A or B,
+actual: A" — and that lane can never open, so it reds on every HEALTHY subject. Four of
+them shipped in one day (a ruling packet's verbatim check, skill_block's exit vocabulary,
+and two of the extraction judge's). BOTH SIDES MUST READ THE SAME SENTENCE WHEN THE LANE
+PASSES; the offending value rides in ``values``, where a reader still sees it. Populations
+are the exception that shows the rule — ``expected=[every candidate]``, ``actual=[the ones
+that qualified]`` — because those two ARE equal when the lane passes.
+
+Nothing here enforces it: an entry that fails while carrying an empty refusal payload is
+internally inconsistent, but the payload's key is the caller's word (lacks, findings,
+complaints, reds, failures, missing) and this tool does not know it. What caught all four
+was the component's own tooth asserting that a healthy fixture produces an all-passing
+record. That tooth is the physics until something better exists — an IOU, not a resting
+state (Law 4). · *ticket owed*
+
 A TOOL HAS USERS, NOT AN OWNER (Law 6). This holds no state — the record arrives as an
 argument and nothing is remembered between calls.
 """

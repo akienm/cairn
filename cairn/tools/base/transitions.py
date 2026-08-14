@@ -120,6 +120,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cairn.tools.charter import projector
+from cairn.tools.gate import gate
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _NODE_CLASSES = _REPO_ROOT.parent / "CairnCommons" / "node_classes"
@@ -205,10 +206,154 @@ class WatchmeEmissionRed(IllegalTransition):
         self.findings = findings or []
 
 
-def _emission_gate(obj: str | None, ticket: object) -> str:
+# ---------------------------------------------------------------------------
+# THE PROOF RECORD — every check that ran, expected beside actual, PASSES INCLUDED.
+#
+# Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED. SAME PATTERN
+# EVERYWHERE." The six seats at this chokepoint each used to return one PROSE sentence on
+# success — "clean — a berthed chart chain claims ticket X" — which says that A gate ran
+# and never WHICH CHECKS it ran. The entry gate is the clearest case: it composes THREE
+# sieves and collapses them into one word, so a sieve that stopped firing and a crossing
+# that genuinely satisfied all three wrote the identical line into a record of truth,
+# forever (Law 7). The record ends that: a check that stops running makes the list SHORTER,
+# not cleaner.
+#
+# DERIVED, NEVER PARALLEL. Each ``inspect_*`` below is the ONE implementation; the gate
+# function is a view over it — the clean note is rendered FROM the record, and the refusal's
+# ``findings`` are read back out of the record's mismatches. Two mouths for one question is
+# how a gate and the sentence it prints come to disagree.
+#
+# ELIGIBILITY IS NESTED, NOT PASSED. A lane whose input the lane above it already refused is
+# ABSENT from the record, never a green entry: one fault yields exactly one failing entry.
+# That is why the inspectors below append conditionally and return early rather than
+# evaluating every lane defensively.
+#
+# BOTH SIDES READ THE SAME SENTENCE WHEN A LANE PASSES. A lane whose ``expected`` and
+# ``actual`` cannot be ``==`` on a healthy subject reds every healthy subject — measured n=4
+# on 2026-08-13 (gate.py's module docstring carries the hazard). The offending value rides in
+# ``values``. Sieve lanes therefore compare ``[]`` against the sieve's own finding sentences.
+
+
+def _lane(identity: str, *, expected, actual, code: str, **values) -> dict:
+    """One entry in this module's proof record, in the shape every gate in the corpus emits.
+
+    ``location`` is this door for every lane — the emit-chokepoint is one address, and a
+    reader who wants the subject reads ``values``. ``source`` names the function that
+    OWNS the rule, so a lane can be traced to the code that decides it rather than to the
+    renderer that printed it.
+    """
+    return gate.proved(identity=identity, expected=expected, actual=actual,
+                       location="cairn/tools/base/transitions.py",
+                       code=code, source="transitions." + code.split("::")[-1],
+                       **values)
+
+
+def _mismatches(record: list[dict]) -> list[dict]:
+    """The record's failing entries. THE VIEW every refusal below renders from."""
+    return [e for e in record if not gate.passed(e)]
+
+
+def _findings_of(record: list[dict]) -> list[dict]:
+    """The old ``findings`` payload, read back OUT of the record rather than built beside it.
+
+    A lane that refused while naming no finding still speaks here — a refusal with no
+    sentence is exactly the silence the record exists to end, and flattening the lists
+    alone would have dropped it.
+    """
+    out: list[dict] = []
+    for entry in _mismatches(record):
+        found = (entry.get("values") or {}).get("findings")
+        out.extend(found or [{
+            "sieve": entry["identity"],
+            "finding": "lane %s refused and named no finding" % entry["identity"],
+            "why_it_matters": "a refusal with no sentence is the silence the proof record "
+                              "exists to end",
+            "evidence": {"expected": entry["expected"], "actual": entry["actual"]},
+        }])
+    return out
+
+
+def _proved_note(what: str, record: list[dict]) -> str:
+    """The journal's clean line, RENDERED FROM THE RECORD — so it can no longer say 'clean'
+    about checks that did not run. It names the count and every lane by name, which is the
+    half the old sentence threw away."""
+    return "clean — %s proved %d check(s): %s" % (
+        what, len(record), ", ".join(e["identity"] for e in record))
+
+
+def _sieve_lane(identity: str, findings: list[dict], *, code: str, **values) -> dict:
+    """One composed sieve as one lane: expected NO finding, actual the sentences it wrote.
+
+    Both sides read ``[]`` when the sieve is clean — the authoring hazard's rule — and a
+    refusal carries the whole finding dicts in ``values['findings']`` so the refusal message
+    and the record cannot describe different things.
+    """
+    return _lane(identity,
+                 expected=[],
+                 actual=[f.get("finding", str(f)) for f in findings],
+                 code=code, findings=findings, **values)
+
+
+def inspect_emission(obj: str | None, ticket: object) -> list[dict]:
+    """THE EMISSION GATE'S PROOF RECORD — three lanes, eligibility-nested.
+
+    A ticketless crossing cannot be asked whether its spec is present, and an absent spec
+    cannot be asked whether its probe is armed: each lane's input is the lane above it, so a
+    refusal upstream leaves the ones below ABSENT rather than green. One fault, one failing
+    entry — which is why this returns early instead of evaluating all three defensively.
+    """
+    from cairn.tools.base import watchme_spec
+
+    code = "transitions.py::inspect_emission"
+    cast = isinstance(ticket, str) and (_TICKETS / (ticket + ".json")).exists()
+    named = f"a cast ticket for the WATCHME({obj}) crossing"
+    record = [_lane("the_crossing_names_a_cast_ticket",
+                    expected=named,
+                    actual=named if cast else (
+                        "no ticket named on the crossing" if not isinstance(ticket, str)
+                        else "named %r, and no ticket is cast at that address" % ticket),
+                    code=code, ticket=ticket, watch_object=obj,
+                    looked_at=str(_TICKETS / (str(ticket) + ".json")))]
+    if not cast:
+        return record
+
+    data = json.loads((_TICKETS / (ticket + ".json")).read_text(encoding="utf-8"))
+    spec = watchme_spec.spec_for(data, obj)
+    carried = f"ticket {ticket!r} carries a watchme spec for {obj!r}"
+    record.append(_lane("the_ticket_carries_a_spec_for_this_watch",
+                        expected=carried,
+                        actual=carried if spec is not None else
+                        f"ticket {ticket!r} carries no watchme spec for {obj!r}",
+                        code=code, ticket=ticket, watch_object=obj,
+                        findings=[] if spec is not None else [{
+                            "sieve": "watchme_spec",
+                            "finding": watchme_spec.watchme_spec_error(data),
+                            "why_it_matters": "optional to carry, MANDATORY to satisfy once "
+                                              "carried — the string says this node has this watch",
+                            "evidence": {"ticket": ticket, "object": obj}}]))
+    if spec is None:
+        return record
+
+    err = watchme_spec.armed_error(spec)
+    armed = "the probe the spec promised is berthed and armed"
+    record.append(_lane("the_promised_probe_is_berthed_and_armed",
+                        expected=armed,
+                        actual=armed if not err else err,
+                        code=code, ticket=ticket, watch_object=obj,
+                        berth=spec.get("probe"),
+                        findings=[] if not err else [{
+                            "sieve": "armed",
+                            "finding": err,
+                            "why_it_matters": "a watch that cannot be fired gathered nothing; "
+                                              "EMISSION, not accumulation",
+                            "evidence": {"berth": spec.get("probe"), "ticket": ticket}}]))
+    return record
+
+
+def _emission_gate(obj: str | None, ticket: object) -> tuple[str, list[dict]]:
     """A node crossing FORWARD out of a WATCHME it carried must have EMITTED its probe.
-    Returns the one-line gate note the journal carries; raises ``WatchmeEmissionRed`` before
-    anything is written.
+    Returns ``(note, record)`` — the one-line gate note the journal carries beside the proof
+    record it is RENDERED FROM; raises ``WatchmeEmissionRed`` before anything is written.
 
     EMISSION, NOT ACCUMULATION — the ticket's own phrase. The failure this refuses is a node
     that walks past its own watch having gathered nothing: the forced-and-ungated shape that v1
@@ -225,34 +370,21 @@ def _emission_gate(obj: str | None, ticket: object) -> str:
     Back-edges INTO a WATCHME retreat ungated — that is the owner's act of re-arming a watch
     whose verdict came back failed, and gating a retreat would trap the boat at the one state
     it is supposed to be able to return to."""
-    from cairn.tools.base import watchme_spec
-
-    if not isinstance(ticket, str) or not (_TICKETS / (ticket + ".json")).exists():
+    record = inspect_emission(obj, ticket)
+    bad = _mismatches(record)
+    if bad:
         raise WatchmeEmissionRed(
-            f"WATCHME({obj}) crossing refused: the crossing names no cast ticket, so the "
-            "watch's spec cannot be read and emission cannot be measured — a watch that "
-            "cannot be checked is not a watch (Law 3). Nothing was journaled. Name the "
-            "ticket on the crossing (ticket=<id>).")
-
-    data = json.loads((_TICKETS / (ticket + ".json")).read_text(encoding="utf-8"))
-    spec = watchme_spec.spec_for(data, obj)
-    if spec is None:
-        raise WatchmeEmissionRed(
-            f"WATCHME({obj}) crossing refused: ticket {ticket!r} carries no watchme spec for "
-            f"object {obj!r}. Optional to carry, MANDATORY TO SATISFY once carried — the "
-            "string says this node has this watch. Nothing was journaled. Add the spec "
-            "(trigger, enough, carrier, nexus, consumer, probe) to the ticket.",
-            [{"judge": "watchme_spec", "detail": watchme_spec.watchme_spec_error(data)}])
-
-    err = watchme_spec.armed_error(spec)
-    if err:
-        raise WatchmeEmissionRed(
-            f"WATCHME({obj}) crossing refused: {err}. Nothing was journaled. The watch is "
-            "carried, so it is owed a probe that can be fired — berth and arm it, or "
-            "back-edge and drop the watch from the string through the owner's gate.",
-            [{"judge": "armed", "detail": err, "berth": spec.get("probe")}])
-    return "clean — WATCHME(%s) emitted the probe berthed at %s (ticket %r)" % (
-        obj, spec.get("probe"), ticket)
+            f"WATCHME({obj}) crossing refused — {bad[0]['actual']}. Nothing was journaled. "
+            f"{len(record)} check(s) ran and are named on this first pass; berth and arm the "
+            "probe, name the ticket on the crossing (ticket=<id>), or back-edge and drop the "
+            "watch from the string through the owner's gate. A watch that cannot be checked "
+            "is not a watch (Law 3).\n" + "\n".join(
+                f"  [{e['identity']}] expected {e['expected']!r}, actual {e['actual']!r}"
+                for e in bad),
+            _findings_of(record))
+    berth = (record[-1].get("values") or {}).get("berth")
+    return ("%s — WATCHME(%s) emitted the probe berthed at %s (ticket %r)" % (
+        _proved_note("the emission gate", record), obj, berth, ticket), record)
 
 
 def migrate_to_v2(workflow_str: str, *, watch: str | None = None) -> str:
@@ -522,21 +654,76 @@ def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
     return targets
 
 
-def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> None:
-    """Refuse an illegal transition, loudly (Law 4/7). Silence would be a silent bad default."""
-    if target not in wf.path:
-        raise IllegalTransition(
-            f"{target!r} is not in the {wf.node_class}@{wf.version} vocabulary {list(wf.path)}")
+def inspect_rules(wf: Workflow, target: str, *, class_def: dict) -> list[dict]:
+    """THE RULES RUNG'S PROOF RECORD — three lanes, eligibility-nested, ALWAYS RUN.
+
+    This is the one inspector at this door that fires on EVERY crossing, gated or not, so
+    every journaled record carries at least these three lanes: NO EMPTY ANYWHERE. It is also
+    the reason the five guarded gates below may return early — the always-running rung above
+    them has already closed the gate on a crossing that is not even a legal edge.
+
+    The nesting is not defensive style, it is the rule: ``resolve_target`` is meaningless for
+    a target outside the vocabulary, and every out-of-path target is also outside
+    ``legal_targets``, so evaluating all three flat would multiply ONE fault into three
+    failing entries in three vocabularies — the shape a proof record exists to prevent.
+    """
+    code = "transitions.py::inspect_rules"
+    known = target in wf.path
+    vocab = f"{target!r} in the {wf.node_class}@{wf.version} vocabulary"
+    record = [_lane("the_target_is_in_the_vocabulary",
+                    expected=vocab,
+                    actual=vocab if known else
+                    f"{target!r} is not in the {wf.node_class}@{wf.version} vocabulary",
+                    code=code, target=target, vocabulary=list(wf.path))]
+    if not known:
+        return record
+
     # A NO-OP IS A POSITION, NOT A NAME. Once a free summons may repeat, a node standing at
     # one WATCHME and moving to the NEXT one is a real crossing that happens to share a name;
     # refusing it on the name would make a two-watch node un-crossable at its first watch.
-    if resolve_target(wf, target) == wf.cursor:
-        raise IllegalTransition(f"{target!r} -> {target!r} is a no-op, not a transition")
+    idx = resolve_target(wf, target)
+    moves = idx != wf.cursor
+    crossing = f"{wf.here} -> {target} moves the cursor off position {wf.cursor}"
+    record.append(_lane("the_crossing_moves_the_cursor",
+                        expected=crossing,
+                        actual=crossing if moves else
+                        f"{target!r} -> {target!r} is a no-op at position {wf.cursor}, "
+                        "not a transition",
+                        code=code, target=target, cursor=wf.cursor, resolved=idx))
+    if not moves:
+        return record
+
     legal = legal_targets(wf, class_def=class_def)
-    if target not in legal:
-        raise IllegalTransition(
-            f"{wf.here} -> {target} is illegal for {wf.node_class}@{wf.version} "
-            f"(legal from here: {sorted(legal)}) — e.g. a forward skip past a gate summons is refused")
+    edge = f"{wf.here} -> {target}"
+    record.append(_lane("the_crossing_is_a_legal_edge",
+                        expected=edge,
+                        actual=edge if target in legal else
+                        f"{edge} is illegal for {wf.node_class}@{wf.version}",
+                        code=code, target=target, legal_from_here=sorted(legal),
+                        direction="back" if idx < wf.cursor else "forward"))
+    return record
+
+
+def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> list[dict]:
+    """Refuse an illegal transition, loudly (Law 4/7). Silence would be a silent bad default.
+
+    Returns the RULES rung's proof record so the crossing's journal can carry what the rules
+    proved — every lane that ran, expected beside actual, passes included. The return value
+    is additive: this raised on refusal and returned ``None`` before, and callers that ignore
+    it are unchanged.
+    """
+    record = inspect_rules(wf, target, class_def=class_def)
+    bad = _mismatches(record)
+    if bad:
+        e = bad[0]
+        detail = ""
+        if e["identity"] == "the_target_is_in_the_vocabulary":
+            detail = " %s" % list(wf.path)
+        elif e["identity"] == "the_crossing_is_a_legal_edge":
+            detail = (" (legal from here: %s) — e.g. a forward skip past a gate summons is "
+                      "refused" % sorted((e.get("values") or {})["legal_from_here"]))
+        raise IllegalTransition(str(e["actual"]) + detail)
+    return record
 
 
 _TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
@@ -579,43 +766,85 @@ class TicketRequiredRed(IllegalTransition):
         self.findings = findings or []
 
 
-def _require_named_ticket(target: str, ticket: object, *, history_path: str) -> str | None:
+def inspect_named_ticket(target: str, ticket: object, *, history_path: str) -> list[dict]:
+    """THE TICKET PRECONDITION'S PROOF RECORD — two lanes, eligibility-nested.
+
+    A crossing that named no ticket has nothing for the second lane to weigh, so the
+    cast-check is ABSENT there rather than green. The roster is read INSIDE the first lane's
+    actual rather than as a lane of its own: exempt and named are two ways of SATISFYING one
+    rule, not two rules, and splitting them would make an exempt crossing carry a failing
+    lane it can never satisfy.
+    """
+    code = "transitions.py::inspect_named_ticket"
+    comp = Path(history_path).resolve().parent.name
+    exempt = ticket is None and comp in _EXEMPT_ROSTER
+    shown = f"a ticket named on the {target} crossing, or {comp!r} on _EXEMPT_ROSTER"
+    record = [_lane("the_crossing_shows_its_ticket_or_its_exemption",
+                    expected=shown,
+                    actual=shown if (ticket is not None or exempt) else
+                    f"no ticket is named on the {target} crossing and {comp!r} is not on "
+                    "_EXEMPT_ROSTER",
+                    code=code, target=target, ticket=ticket, component=comp,
+                    exempt=exempt, roster=sorted(_EXEMPT_ROSTER))]
+    if ticket is None:
+        return record
+
+    cast = isinstance(ticket, str) and (_TICKETS / (ticket + ".json")).exists()
+    named = f"named ticket {ticket!r} is cast"
+    record.append(_lane("the_named_ticket_is_cast",
+                        expected=named,
+                        actual=named if cast else f"named ticket {ticket!r} is not cast",
+                        code=code, target=target, ticket=ticket,
+                        looked_at=str(_TICKETS / (str(ticket) + ".json"))))
+    return record
+
+
+def _require_named_ticket(target: str, ticket: object, *,
+                          history_path: str) -> tuple[str | None, list[dict]]:
     """The one precondition BOTH doors share (replacing the two former opt-in
     ``isinstance`` checks): a forward crossing into BUILDME or PROVED must
     name a CAST ticket, or refuse before anything is written.
 
-    Returns an exemption note — journaled through the same ``entry_gate``/
-    ``exit_gate`` key the real gate below uses, so an exempt pass is
+    Returns ``(note, record)``. The note is an exemption line — journaled through the same
+    ``entry_gate``/``exit_gate`` key the real gate below uses, so an exempt pass is
     gated-and-clean on the record, never silent — when the crossing's own
     component name is on the explicit ``_EXEMPT_ROSTER`` and NO ticket was
-    named at all. Returns ``None`` when a named, cast ticket is present — the
+    named at all. The note is ``None`` when a named, cast ticket is present — the
     caller proceeds into the standing entry/exit gate exactly as before this
-    stone. Raises ``TicketRequiredRed`` otherwise: no ticket and no roster
+    stone — and the record rides along either way, so an exempt crossing journals
+    WHAT WAS PROVED about it rather than only that it was let through. Raises
+    ``TicketRequiredRed`` otherwise: no ticket and no roster
     match (routes to /sorted), or a named ticket that is not cast (never
     exempt — naming one is a claim to be judged, not a claim to be waived).
     """
-    if ticket is None:
-        comp = Path(history_path).resolve().parent.name
-        if comp in _EXEMPT_ROSTER:
-            return f"exempt — {comp!r} is on the explicit ticketless roster (_EXEMPT_ROSTER)"
-        raise TicketRequiredRed(
-            f"{target} crossing refused: no ticket is named on the crossing — a forward "
-            "crossing into BUILDME or PROVED must name a cast ticket (Law 8: nothing enters "
-            "proven-space without showing its ticket; the side door for a delegated build "
-            "that omits the name closes here). Nothing was journaled. Cast the work as a "
-            f"ticket (/sorted), name it on the crossing (ticket=<id>), then cross again — or, "
-            f"if this component's crossings are a legitimate exception, add {comp!r} to "
-            "_EXEMPT_ROSTER explicitly, never silently."
-        )
-    if not isinstance(ticket, str) or not (_TICKETS / (ticket + ".json")).exists():
+    record = inspect_named_ticket(target, ticket, history_path=history_path)
+    bad = _mismatches(record)
+    if bad:
+        # The component is read off lane 1, which always ran — lane 2 is about the ticket,
+        # not the address, and asking it for the address would be reaching into the wrong lane.
+        comp = (record[0].get("values") or {})["component"]
+        if bad[0]["identity"] == "the_crossing_shows_its_ticket_or_its_exemption":
+            raise TicketRequiredRed(
+                f"{target} crossing refused: no ticket is named on the crossing — a forward "
+                "crossing into BUILDME or PROVED must name a cast ticket (Law 8: nothing enters "
+                "proven-space without showing its ticket; the side door for a delegated build "
+                "that omits the name closes here). Nothing was journaled. Cast the work as a "
+                f"ticket (/sorted), name it on the crossing (ticket=<id>), then cross again — or, "
+                f"if this component's crossings are a legitimate exception, add {comp!r} to "
+                "_EXEMPT_ROSTER explicitly, never silently.",
+                _findings_of(record))
         raise TicketRequiredRed(
             f"{target} crossing refused: named ticket {ticket!r} is not cast — no file at "
             f"{_TICKETS / (str(ticket) + '.json')}. A named-but-uncast ticket is an error to "
             "fix, never an exemption (naming one is a claim to be judged, not waived by "
             "coincidence of address). Cast it via /sorted, or correct the name, then cross "
-            "again. Nothing was journaled."
-        )
-    return None
+            "again. Nothing was journaled.",
+            _findings_of(record))
+    if ticket is None:
+        comp = (record[0].get("values") or {})["component"]
+        return (f"exempt — {comp!r} is on the explicit ticketless roster (_EXEMPT_ROSTER); "
+                + _proved_note("the ticket precondition", record), record)
+    return None, record
 
 
 # THE CLEARANCE-EXEMPT ROSTER (ticket emit-refuses-an-uncleared-crossing, 2026-08-10):
@@ -682,16 +911,19 @@ class ClearanceRequiredRed(IllegalTransition):
         self.findings = findings or []
 
 
-def _require_clearance(target: str, journal_extra: dict, *, history_path: str) -> str | None:
+def _require_clearance(target: str, journal_extra: dict, *,
+                       history_path: str) -> tuple[str, list[dict]]:
     """The sixth gate: a forward journaled crossing into a REST must carry the witness the
     harbor's clearance gate stamps, or refuse before anything is written.
 
-    Returns an exemption note — journaled through its own ``clearance_gate`` key, the same
+    Returns ``(note, record)``. The note is an exemption line — journaled through its own
+    ``clearance_gate`` key, the same
     way the ticket roster's exempt pass is journaled, so an exempt crossing is
     gated-and-clean ON THE RECORD rather than silent — when the crossing's own component
-    is on ``_CLEARANCE_EXEMPT_ROSTER``. Returns a note naming the proof and seal the
-    clearance leaned on when the witness is present. Raises ``ClearanceRequiredRed``
-    otherwise.
+    is on ``_CLEARANCE_EXEMPT_ROSTER``; otherwise it names the proof and seal the
+    clearance leaned on. Either way the note is RENDERED FROM the record beside it, so it
+    can no longer say the gate ran without saying which checks it ran. Raises
+    ``ClearanceRequiredRed`` otherwise.
 
     IT VERIFIES AGAINST THE WORLD, NOT AGAINST THE FIELD IT WAS HANDED — which is the
     settled pattern of every sibling gate at this chokepoint, and the first version of
@@ -715,43 +947,112 @@ def _require_clearance(target: str, journal_extra: dict, *, history_path: str) -
     build_inspector, so this module stays dependency-light at import (no device, no bus,
     no DB) and the boot-order law holds.
     """
-    if journal_extra.get("cleared_by"):
-        who = journal_extra["cleared_by"]
-        proof = journal_extra.get("proven_by")
-        sealed = journal_extra.get("proven_seal_date")
-        missing = [k for k in ("proven_by", "proven_seal_date") if not journal_extra.get(k)]
-        if missing:
-            raise ClearanceRequiredRed(
-                f"{target} crossing refused: the record claims cleared_by={who!r} but its "
-                f"witness is INCOMPLETE — missing {missing}. A partial witness is not a "
-                "clearance; the harbor's gate stamps all four fields together and a record "
-                "carrying only some of them did not come through it. Nothing was journaled."
-            )
-        from cairn.devices.tester.validation_store import standing  # lazy: keep import dependency-light
-        proven = standing(proof)
-        if not proven["proven"]:
-            raise ClearanceRequiredRed(
-                f"{target} crossing refused: the record claims clearance onto {proof}, but "
-                f"that proof is NOT in proven-space: {proven['why']} A witness naming a "
-                "proof the world does not hold proven is not evidence that the authority "
-                "rung ran — it is the shape of one. Nothing was journaled. Re-seal the "
-                "proof, then clear the crossing through harbor_master's gate."
-            )
-        actual = proven["seal"]["date"]
-        if sealed != actual:
-            raise ClearanceRequiredRed(
-                f"{target} crossing refused: the record dates the seal on {proof} at "
-                f"{sealed!r}, but the standing seal is dated {actual!r}. A witness that "
-                "disagrees with the seal it names did not come from the gate that reads it "
-                "(Law 7 — a record of truth may not carry an error quietly). Nothing was "
-                "journaled."
-            )
-        via = " (delegated)" if journal_extra.get("delegated") else ""
-        return f"cleared by {who!r}{via} onto {proof} (seal {actual}, re-read at the door)"
+    record = inspect_clearance(target, journal_extra, history_path=history_path)
+    bad = _mismatches(record)
+    if bad:
+        raise ClearanceRequiredRed(_clearance_refusal(target, record, bad[0]),
+                                   _findings_of(record))
+    note = _proved_note("the clearance gate", record)
+    v = record[0].get("values") or {}
+    if not journal_extra.get("cleared_by"):
+        return (f"exempt — {v['component']!r} is on the explicit clearance roster "
+                f"(_CLEARANCE_EXEMPT_ROSTER); " + note, record)
+    via = " (delegated)" if journal_extra.get("delegated") else ""
+    sealed = (record[-1].get("values") or {}).get("seal")
+    return (f"cleared by {journal_extra['cleared_by']!r}{via} onto "
+            f"{journal_extra.get('proven_by')} (seal {sealed}, re-read at the door); "
+            + note, record)
+
+
+def inspect_clearance(target: str, journal_extra: dict, *, history_path: str) -> list[dict]:
+    """THE CLEARANCE GATE'S PROOF RECORD — four lanes, eligibility-nested.
+
+    Lane 1 is the fork AND the guard: a crossing carries a clearance witness or it stands on
+    the roster, and the three witness lanes below apply only to the first branch. An exempt
+    crossing has no witness to weigh, so its record is one lane long and SAYS SO — which is
+    the difference between an exemption that is on the record and one that is silent.
+
+    THE WITNESS IS RE-READ AGAINST THE WORLD, never trusted as a field: completeness, then
+    the proof's standing in proven-space, then the seal DATE it actually carries. Each is the
+    input to the next, so a missing ``proven_by`` leaves the standing lane ABSENT rather than
+    failing it in a second vocabulary about the same one fault.
+    """
+    code = "transitions.py::inspect_clearance"
     comp = Path(history_path).resolve().parent.name
-    if comp in _CLEARANCE_EXEMPT_ROSTER:
-        return f"exempt — {comp!r} is on the explicit clearance roster (_CLEARANCE_EXEMPT_ROSTER)"
-    raise ClearanceRequiredRed(
+    who = journal_extra.get("cleared_by")
+    exempt = not who and comp in _CLEARANCE_EXEMPT_ROSTER
+    shown = (f"the {target} crossing into a rest carries the harbor's clearance witness, "
+             f"or {comp!r} is on _CLEARANCE_EXEMPT_ROSTER")
+    record = [_lane("the_crossing_shows_clearance_or_its_exemption",
+                    expected=shown,
+                    actual=shown if (who or exempt) else
+                    f"the {target} crossing into a rest carries no evidence that the "
+                    f"authority rung ran, and {comp!r} is not on _CLEARANCE_EXEMPT_ROSTER",
+                    code=code, target=target, component=comp, cleared_by=who,
+                    exempt=exempt, roster=sorted(_CLEARANCE_EXEMPT_ROSTER))]
+    if not who:
+        return record
+
+    missing = [k for k in ("proven_by", "proven_seal_date") if not journal_extra.get(k)]
+    whole = "the witness carries every field the harbor's gate stamps"
+    record.append(_lane("the_witness_is_whole",
+                        expected=whole,
+                        actual=whole if not missing else
+                        f"the witness is INCOMPLETE — missing {missing}",
+                        code=code, target=target, cleared_by=who, missing=missing,
+                        demanded=["proven_by", "proven_seal_date"]))
+    if missing:
+        return record
+
+    from cairn.devices.tester.validation_store import standing  # lazy: keep import dependency-light
+    proof = journal_extra["proven_by"]
+    proven = standing(proof)
+    stands = f"{proof} stands in proven-space"
+    record.append(_lane("the_named_proof_stands_in_proven_space",
+                        expected=stands,
+                        actual=stands if proven["proven"] else
+                        f"{proof} is NOT in proven-space: {proven['why']}",
+                        code=code, target=target, proof=proof, why=proven["why"]))
+    if not proven["proven"]:
+        return record
+
+    actual_seal = proven["seal"]["date"]
+    dated = f"the witness dates {proof}'s seal at {actual_seal!r}"
+    record.append(_lane("the_witness_agrees_with_the_seal_it_names",
+                        expected=dated,
+                        actual=dated if journal_extra["proven_seal_date"] == actual_seal else
+                        f"the witness dates {proof}'s seal at "
+                        f"{journal_extra['proven_seal_date']!r}",
+                        code=code, target=target, proof=proof, seal=actual_seal,
+                        claimed=journal_extra["proven_seal_date"]))
+    return record
+
+
+def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
+    """The refusal message, keyed off WHICH LANE closed the gate — one sentence per lane,
+    rendered from the record rather than raised beside it."""
+    v = first.get("values") or {}
+    ident = first["identity"]
+    if ident == "the_witness_is_whole":
+        return (f"{target} crossing refused: the record claims cleared_by={v['cleared_by']!r} "
+                f"but its witness is INCOMPLETE — missing {v['missing']}. A partial witness "
+                "is not a clearance; the harbor's gate stamps all four fields together and a "
+                "record carrying only some of them did not come through it. Nothing was "
+                "journaled.")
+    if ident == "the_named_proof_stands_in_proven_space":
+        return (f"{target} crossing refused: the record claims clearance onto {v['proof']}, "
+                f"but that proof is NOT in proven-space: {v['why']} A witness naming a proof "
+                "the world does not hold proven is not evidence that the authority rung ran "
+                "— it is the shape of one. Nothing was journaled. Re-seal the proof, then "
+                "clear the crossing through harbor_master's gate.")
+    if ident == "the_witness_agrees_with_the_seal_it_names":
+        return (f"{target} crossing refused: the record dates the seal on {v['proof']} at "
+                f"{v['claimed']!r}, but the standing seal is dated {v['seal']!r}. A witness "
+                "that disagrees with the seal it names did not come from the gate that reads "
+                "it (Law 7 — a record of truth may not carry an error quietly). Nothing was "
+                "journaled.")
+    comp = v["component"]
+    return (
         f"{target} crossing refused: this is a forward crossing into a REST — the move that "
         f"ENTERS proven-space — and it carries no evidence that the authority rung ran. "
         "Nothing was journaled. Cross through the harbor's gate instead of the bare door: "
@@ -764,10 +1065,40 @@ def _require_clearance(target: str, journal_extra: dict, *, history_path: str) -
     )
 
 
-def _entry_gate(ticket: str) -> str:
+def inspect_entry(ticket: str) -> list[dict]:
+    """THE ENTRY GATE'S PROOF RECORD — one lane per composed sieve, ALL THREE ALWAYS RUN.
+
+    THIS IS THE GATE THE RECORD WAS MOST OWED. It composes three sieves and used to collapse
+    them into one sentence, so a sieve that stopped firing and a crossing that genuinely
+    satisfied all three wrote the identical line into a record of truth. Three lanes make the
+    difference visible: the record gets SHORTER, not cleaner.
+
+    Nothing is nested here, deliberately — the three sieves are independent, a caller missing
+    all three must learn all three on the first pass (complete-diagnostic-on-first-pass), and
+    fixing one must not merely earn the right to be refused for the next.
+    """
+    # Lazy on purpose, same boot-order law as the build gate below: the check's cost
+    # lands only at the rare journaled BUILDME entry — an event, never a poll.
+    from cairn.machines.build_inspector.inspector import buildme_rides_the_chart as _chart
+    from cairn.machines.build_inspector.inspector import buildme_rides_the_intent as _intent
+    from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as _sorted
+
+    code = "transitions.py::inspect_entry"
+    return [
+        _sieve_lane("a_berthed_chart_chain_claims_the_ticket", _chart(ticket),
+                    code=code, ticket=ticket),
+        _sieve_lane("the_ticket_names_its_intent_firing", _intent(ticket),
+                    code=code, ticket=ticket),
+        _sieve_lane("the_ticket_names_its_sorted_door_firing", _sorted(ticket),
+                    code=code, ticket=ticket),
+    ]
+
+
+def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
     """A cast ticket crossing forward into BUILDME must be claimed by a berthed chart
     chain — the entry half of packet jurisdiction (the PROVEME exit below is the
-    promotion half). Returns the one-line gate note the journal carries; raises
+    promotion half). Returns ``(note, record)`` — the journal's line beside the proof record
+    it is RENDERED FROM; raises
     ``EntryGateRed`` — findings complete on the first pass — before anything is
     written.
 
@@ -778,23 +1109,19 @@ def _entry_gate(ticket: str) -> str:
     own named, cast ticket — an un-cast or unnamed ticket is not gated (v0; the
     stricter require-a-ticket edge is filed on the ticket).
     """
-    # Lazy on purpose, same boot-order law as the build gate below: the check's cost
-    # lands only at the rare journaled BUILDME entry — an event, never a poll.
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_chart as _chart
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_intent as _intent
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as _sorted
-
     # ALL checks run, and their findings are reported TOGETHER. Not three gates in
     # sequence: a caller missing a chart, an /intent berth AND a /sorted berth must
     # learn all three on the first pass, or fixing one only earns the right to be
     # refused for the next (the complete-diagnostic-on-first-pass method, and Law 7
     # at a diagnostic surface). The third addend joined 2026-08-03 (ticket
     # sorted-becomes-a-learning-block).
-    findings = _chart(ticket) + _intent(ticket) + _sorted(ticket)
+    record = inspect_entry(ticket)
+    findings = _findings_of(record)
     if not findings:
         return (
             "clean — a berthed chart chain claims ticket %r, and the ticket names its "
-            "/intent firing and its /sorted door firing" % ticket
+            "/intent firing and its /sorted door firing; %s"
+            % (ticket, _proved_note("the entry gate", record)), record
         )
     lines = [
         f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
@@ -803,7 +1130,8 @@ def _entry_gate(ticket: str) -> str:
     ]
     raise EntryGateRed(
         f"BUILDME crossing refused for cast ticket {ticket!r} — {len(findings)} "
-        "finding(s), all named on this first pass. Skipping /chart, /intent or the "
+        f"finding(s) across {len(record)} check(s), all named on this first pass. Skipping "
+        "/chart, /intent or the "
         "/sorted door is a build error, the same physics that refuses skipping a stage "
         "inside the chain. Nothing was journaled. Fix what is named below, then cross "
         "again:\n"
@@ -812,12 +1140,31 @@ def _entry_gate(ticket: str) -> str:
     )
 
 
-def _exit_gate(ticket: str) -> str:
+def inspect_exit(ticket: str) -> list[dict]:
+    """THE EXIT GATE'S PROOF RECORD — one lane, and one lane is not a formality.
+
+    The sieve it composes answers a compound question (every criterion of the claiming
+    validate berth has a passing run verdict, every hypothesis is dispositioned), and the
+    record deliberately does NOT split that into lanes here: the decomposition belongs to the
+    sieve that owns the rule, and inventing lanes at this door would be a second mouth for
+    build_inspector's question. What the lane adds is the one thing the old sentence could
+    not say — that this check RAN, by name, on this crossing.
+    """
+    # Lazy on purpose, same boot-order law as the gates below: the check's cost
+    # lands only at the rare journaled PROVED entry — an event, never a poll.
+    from cairn.machines.build_inspector.inspector import proved_answers_the_chart as _check
+
+    return [_sieve_lane("the_claiming_chart_is_answered", _check(ticket),
+                        code="transitions.py::inspect_exit", ticket=ticket)]
+
+
+def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
     """A cast ticket crossing forward into PROVED must have ANSWERED the chart that
     claims it — every criterion of the claiming validate berth a passing run verdict,
     every hypothesis dispositioned confirmed-or-killed, all in a durable verdict
-    artifact (cairn/devices/builder/machines/verdict/verdict.py). Returns the one-line gate note the journal
-    carries; raises ``ExitGateRed`` — findings complete on the first pass — before
+    artifact (cairn/devices/builder/machines/verdict/verdict.py). Returns ``(note, record)``
+    — the journal's line beside the proof record it is RENDERED FROM;
+    raises ``ExitGateRed`` — findings complete on the first pass — before
     anything is written.
 
     Provenance: 2026-07-29, ticket proved-answers-the-chart — the exit half of the
@@ -827,13 +1174,11 @@ def _exit_gate(ticket: str) -> str:
     instruments and reaches no tree or host, so a netns-sealed crossing gates
     identically to a live one.
     """
-    # Lazy on purpose, same boot-order law as the gates below: the check's cost
-    # lands only at the rare journaled PROVED entry — an event, never a poll.
-    from cairn.machines.build_inspector.inspector import proved_answers_the_chart as _check
-
-    findings = _check(ticket)
+    record = inspect_exit(ticket)
+    findings = _findings_of(record)
     if not findings:
-        return "clean — no unanswered chart claim stands against ticket %r" % ticket
+        return ("clean — no unanswered chart claim stands against ticket %r; %s"
+                % (ticket, _proved_note("the exit gate", record)), record)
     lines = [
         f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
@@ -879,13 +1224,55 @@ def _enqueue_verdict(ticket: str) -> str | None:
     return _enqueue(ticket)
 
 
-def _build_gate(history_path: str) -> str:
+def inspect_build(history_path: str) -> list[dict]:
+    """THE BUILD GATE'S PROOF RECORD — the guard lane, then the INSPECTOR'S OWN RECORD.
+
+    THIS ONE DOES NOT BUILD LANES, IT CARRIES THEM. build_inspector already emits a proof
+    record — one entry per sieve per component, expected 1.0 beside the actual score — and
+    re-deriving lanes here would be a second mouth for its question, which is exactly how a
+    gate and the sentence it prints come to disagree. So this door adds the ONE check that is
+    its own and that the inspector cannot make: that the census could see the address at all.
+
+    The guard lane is the whole reason a ScanRefused is not just re-raised. 'The census
+    cannot measure this component' and 'the census measured it and found nothing wrong' are
+    the two states a gate must never confuse (Law 8), and before this the second half of that
+    distinction lived only in an exception type. Now it is a lane, and when it fails the
+    inspector's own lanes are ABSENT rather than green — because they did not run.
+    """
+    # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
+    # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
+    # never a poll.
+    from cairn.machines.build_inspector.inspector import inspect as _inspect
+    from cairn.tools.orient.orient import ScanRefused
+
+    code = "transitions.py::inspect_build"
+    comp_dir = Path(history_path).resolve().parent
+    seen = f"the census can measure component {comp_dir.name!r} at {comp_dir}"
+    try:
+        report = _inspect(root=comp_dir.parent, component=comp_dir.name)
+    except ScanRefused as e:
+        return [_lane("the_census_can_measure_the_component",
+                      expected=seen, actual=f"the census cannot measure it — {e}",
+                      code=code, component=comp_dir.name, address=str(comp_dir),
+                      findings=[{"sieve": "census",
+                                 "finding": str(e),
+                                 "why_it_matters": "a gate that silently inspects nothing "
+                                                   "passes everything (Law 8)",
+                                 "evidence": {"component": comp_dir.name,
+                                              "address": str(comp_dir)}}])]
+    return [_lane("the_census_can_measure_the_component", expected=seen, actual=seen,
+                  code=code, component=comp_dir.name, address=str(comp_dir),
+                  sieves_run=report["sieves_run"])] + list(report["proof_record"])
+
+
+def _build_gate(history_path: str) -> tuple[str, list[dict]]:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
     The component IS its address: ``history_path`` lives beside the code it voyages for
     (Law 5), so the directory holding it is the component and that directory's parent is the
-    tree the census measures it within. Returns the one-line gate note the journal carries
-    (the crossing's record of truth says the gate ran and what it saw); raises
+    tree the census measures it within. Returns ``(note, record)`` — the journal's line
+    beside the proof record it is RENDERED FROM, so the crossing's record of truth says the
+    gate ran, which sieves it ran, and what each one saw; raises
     ``BuildGateRed`` — findings complete on the first pass — before anything is written.
 
     Provenance: 2026-07-27, build_inspector's filed edge (a) — 'today CC runs it; the lever
@@ -895,38 +1282,34 @@ def _build_gate(history_path: str) -> str:
     now: since 2026-08-10 clearance is a SIBLING SEAT at this same door, scoped to the
     crossing into a rest — ticket emit-refuses-an-uncleared-crossing.)
     """
-    # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
-    # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
-    # never a poll.
-    from cairn.machines.build_inspector.inspector import inspect as _inspect
-    from cairn.tools.orient.orient import ScanRefused
-
     comp_dir = Path(history_path).resolve().parent
-    try:
-        report = _inspect(root=comp_dir.parent, component=comp_dir.name)
-    except ScanRefused as e:
+    record = inspect_build(history_path)
+    if not gate.passed(record[0]):
         raise BuildGateRed(
             f"PROVEME crossing refused: the census cannot measure component "
-            f"{comp_dir.name!r} at {comp_dir} — {e} A gate that silently inspects nothing "
-            "passes everything (Law 8), so an uninspectable address is refused, not waved "
-            "through. Disposition: make the component census-visible (grow the census — the "
-            "learning device's move: new blindness, new scan), or re-home its history beside "
-            "measurable code."
-        ) from e
-    if report["clean"]:
-        return (f"clean — build_inspector ran {len(report['sieves_run'])} sieves over "
-                f"{comp_dir.name}")
+            f"{comp_dir.name!r} at {comp_dir} — {record[0]['actual']} A gate that silently "
+            "inspects nothing passes everything (Law 8), so an uninspectable address is "
+            "refused, not waved through. Disposition: make the component census-visible "
+            "(grow the census — the learning device's move: new blindness, new scan), or "
+            "re-home its history beside measurable code.",
+            _findings_of(record))
+    findings = _findings_of(record)
+    if not findings:
+        sieves = (record[0].get("values") or {})["sieves_run"]
+        return (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
+                f"{len(record)} check(s) are proved on this crossing", record)
     lines = [
         f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
         f"{json.dumps(f['evidence'], default=str)})"
-        for f in report["findings"]
+        for f in findings
     ]
     raise BuildGateRed(
         f"PROVEME crossing refused: component {comp_dir.name!r} reds the build_inspector "
-        f"({len(report['findings'])} finding(s)) — nothing enters proven-space past a red "
-        "gate (Law 8). Nothing was journaled. Fix the findings or kick back to BUILDME; "
-        "every finding is complete here, no re-run needed:\n" + "\n".join(lines),
-        findings=report["findings"],
+        f"({len(findings)} finding(s) across {len(record)} check(s)) — nothing enters "
+        "proven-space past a red gate (Law 8). Nothing was journaled. Fix the findings or "
+        "kick back to BUILDME; every finding is complete here, no re-run needed:\n"
+        + "\n".join(lines),
+        findings=findings,
     )
 
 
@@ -990,7 +1373,11 @@ def emit(
     """
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)
-    validate_transition(wf, target, class_def=class_def)
+    # THE RULES RUNG ALWAYS RUNS, so every journaled crossing carries at least its three
+    # lanes: NO EMPTY ANYWHERE (Akien, 2026-08-13). `proved` accumulates every lane every
+    # seat below ran, and `checks_proved` is its length — so a gate that stops running makes
+    # a crossing's record SHORTER, which is readable, rather than cleaner, which is not.
+    proved: list[dict] = list(validate_transition(wf, target, class_def=class_def))
     new_str = render(wf, target)
     if history_path and state_path:
         target_idx = resolve_target(wf, target)
@@ -999,7 +1386,8 @@ def emit(
         # (a refused move leaves no partial record). Back-edges retreat ungated.
         gate_note = None
         if wf.here == "PROVEME" and target_idx > wf.cursor:
-            gate_note = _build_gate(history_path)
+            gate_note, _rec = _build_gate(history_path)
+            proved += _rec
         # THE ENTRY GATE: crossing forward INTO the BUILDME summons requires a named,
         # CAST ticket — or the crossing's own component on the explicit exempt
         # roster — else it refuses BEFORE anything is written (ticket
@@ -1034,8 +1422,13 @@ def emit(
         entry_note = None
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
-            _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
-            entry_note = _exempt if _exempt is not None else _entry_gate(_ticket)
+            _exempt, _rec = _require_named_ticket(target, _ticket, history_path=history_path)
+            proved += _rec
+            if _exempt is not None:
+                entry_note = _exempt
+            else:
+                entry_note, _rec = _entry_gate(_ticket)
+                proved += _rec
         # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
         # — or the crossing's own component on the explicit exempt roster — else it
         # refuses BEFORE anything is written (ticket a-voyage-names-its-ticket,
@@ -1055,7 +1448,8 @@ def emit(
         # would trap the boat at the one state it must be able to return to.
         emission_note = None
         if wf.here == "WATCHME" and target_idx > wf.cursor:
-            emission_note = _emission_gate(wf.here_object, journal_extra.get("ticket"))
+            emission_note, _rec = _emission_gate(wf.here_object, journal_extra.get("ticket"))
+            proved += _rec
         # THE DEPOSIT ENQUEUE: an exit-gate-CLEAN crossing files its answering
         # verdict berth on chart's pending ledger before the record is written, so
         # the crossing's own journal names the deposit it owes (ticket
@@ -1066,11 +1460,18 @@ def emit(
         _exempt = None
         if target == "PROVED" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
-            _exempt = _require_named_ticket(target, _ticket, history_path=history_path)
-            exit_note = _exempt if _exempt is not None else _exit_gate(_ticket)
+            _exempt, _rec = _require_named_ticket(target, _ticket, history_path=history_path)
+            proved += _rec
+            if _exempt is not None:
+                exit_note = _exempt
+            else:
+                exit_note, _rec = _exit_gate(_ticket)
+                proved += _rec
         clearance_note = None
         if not is_summons(target) and target_idx > wf.cursor:
-            clearance_note = _require_clearance(target, journal_extra, history_path=history_path)
+            clearance_note, _rec = _require_clearance(target, journal_extra,
+                                                      history_path=history_path)
+            proved += _rec
         if target == "PROVED" and target_idx > wf.cursor and _exempt is None:
             enqueued = _enqueue_verdict(journal_extra.get("ticket"))
         record = {
@@ -1115,6 +1516,14 @@ def emit(
             # that answered a chart names the berth now standing on chart's pending
             # ledger, so the obligation and the crossing share an address (Law 5).
             **({"deposit_enqueued": enqueued} if enqueued else {}),
+            # EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED (Akien, 2026-08-13).
+            # Every lane every seat ran on this crossing, expected beside actual, PASSES
+            # INCLUDED — the half the ``*_gate`` notes above throw away, and the half that
+            # lets a reader backtrack a crossing a year later without re-running anything.
+            # Never empty: the rules rung always contributes. ``checks_proved`` is derived
+            # from the list rather than counted beside it, so the two cannot disagree.
+            "proved": proved,
+            "checks_proved": len(proved),
             **journal_extra,
         }
         projector.append_entry(history_path, state_path, record)

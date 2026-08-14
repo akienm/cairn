@@ -1211,58 +1211,214 @@ def test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons():
     assert seen >= 100, f"the corpus walk found only {seen} strings — a vacuous green"
 
 
+# ---------------------------------------------------------------------------
+# THE PROOF RECORD (ruling 2026-08-13, everything-always-proved-and-listing-what-it-proved).
+# Every seat at this chokepoint used to return one PROSE sentence on success, so a check that
+# stopped running and a crossing that genuinely satisfied every check wrote the identical line
+# into a record of truth, forever. These teeth are what makes the record the physics and not
+# another sentence about it.
+
+
+def _healthy_records():
+    """Every inspector at this door, run on a HEALTHY subject, as (name, record) pairs.
+
+    THE TOOTH BELOW IS THE COMPONENT'S OWN PHYSICS against the authoring hazard measured n=4
+    on 2026-08-13: a lane whose ``expected`` and ``actual`` cannot be ``==`` when it passes
+    reds on every healthy subject, and nothing in gate.py can catch it. Only a fixture known
+    to be well can.
+    """
+    out = []
+    wf = transitions.parse_workflow(_CODE_SEAM)
+    class_def = transitions.load_class_def(wf.node_class)
+    out.append(("inspect_rules",
+                transitions.inspect_rules(wf, "PROVEME", class_def=class_def)))
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
+        import cairn.machines.build_inspector.inspector as _insp
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            out.append(("inspect_named_ticket", transitions.inspect_named_ticket(
+                "BUILDME", "widget", history_path=str(Path(d) / "history.json"))))
+            out.append(("inspect_entry", transitions.inspect_entry("widget")))
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+    with tempfile.TemporaryDirectory() as d:
+        # A HEALTHY subject at the EXIT door is a claim that was ANSWERED — an unanswered one
+        # is a well-formed refusal, not a well subject, and running the tooth against it would
+        # have measured the fixture instead of the lane.
+        tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
+        import cairn.machines.build_inspector.inspector as _insp
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            out.append(("inspect_exit", transitions.inspect_exit("widget")))
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+    with tempfile.TemporaryDirectory() as d:
+        comp = _component(Path(d), "healthy")
+        out.append(("inspect_build",
+                    transitions.inspect_build(str(comp / "history.json"))))
+    return out
+
+
+def test_a_healthy_subject_produces_an_all_passing_record_at_every_inspector():
+    """THE AUTHORING HAZARD'S ONLY PHYSICS, and the reason it is a tooth and not a docstring.
+
+    Four lanes shipped across the corpus in one day (2026-08-13) whose two sides could never
+    be ``==`` when the check passed — "expected: one of A or B, actual: A" — so each one
+    reddened every HEALTHY subject it met. gate.py cannot detect that: the refusal payload's
+    key is the caller's word. What catches it is exactly this — assert that a subject known
+    to be well produces a record with NO mismatches, at every inspector, by name.
+    """
+    for name, record in _healthy_records():
+        assert record, f"{name} produced an EMPTY record on a healthy subject — a gate that " \
+                       "proved nothing has not proved everything (Law 8)"
+        bad = [e for e in record if not transitions.gate.passed(e)]
+        assert not bad, (
+            f"{name} reds a HEALTHY subject — the n=4 authoring hazard: "
+            + "; ".join(f"{e['identity']}: expected {e['expected']!r} != actual {e['actual']!r}"
+                        for e in bad))
+        ids = [e["identity"] for e in record]
+        assert len(ids) == len(set(ids)) or name == "inspect_build", \
+            f"{name} names the same lane twice, so the record cannot be read by name: {ids}"
+
+
+def test_every_journaled_crossing_carries_the_record_of_what_it_proved():
+    """NO EMPTY ANYWHERE. The rules rung always runs, so there is no crossing whose record
+    can be silent — including the plainest ungated forward advance, which before this stone
+    journaled nothing at all about what had been checked."""
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+        rec = projector.read_history(hist)[0]
+    proved = rec["proved"]
+    assert proved, "an ungated crossing journaled an EMPTY proof record — the silence the " \
+                   "ruling retires, in the one place it is easiest to miss"
+    assert rec["checks_proved"] == len(proved), \
+        "checks_proved is derived from the list, never counted beside it — the two disagreeing " \
+        "is a gate and its own sentence drifting apart"
+    assert [e["identity"] for e in proved] == [
+        "the_target_is_in_the_vocabulary",
+        "the_crossing_moves_the_cursor",
+        "the_crossing_is_a_legal_edge"], proved
+    for e in proved:
+        assert e["expected"] == e["actual"], e
+        assert e["source"].startswith("transitions."), e
+        assert e["location"] == "cairn/tools/base/transitions.py", e
+
+
+def test_a_lane_whose_input_the_lane_above_refused_is_absent_never_green():
+    """ELIGIBILITY IS NESTED. One fault yields exactly ONE failing entry — never a
+    multiplication into derived findings in different vocabularies, and never a green lane
+    over an input that was never there to check."""
+    wf = transitions.parse_workflow(_CODE_SEAM)
+    class_def = transitions.load_class_def(wf.node_class)
+    off = transitions.inspect_rules(wf, "NOPE", class_def=class_def)
+    assert [e["identity"] for e in off] == ["the_target_is_in_the_vocabulary"], off
+    noop = transitions.inspect_rules(wf, "BUILDME", class_def=class_def)   # standing there
+    assert [e["identity"] for e in noop] == [
+        "the_target_is_in_the_vocabulary", "the_crossing_moves_the_cursor"], noop
+    assert transitions.gate.passed(noop[0]) and not transitions.gate.passed(noop[1]), noop
+    # the emission gate: no ticket → the spec and probe lanes have nothing to read
+    assert [e["identity"] for e in transitions.inspect_emission("a-watch", None)] == [
+        "the_crossing_names_a_cast_ticket"], "an absent spec lane must not read as passed"
+    # the build gate: an address the census cannot see → the inspector's lanes never ran
+    with tempfile.TemporaryDirectory() as d:
+        bare = Path(d) / "codeless"
+        bare.mkdir()
+        (Path(d) / "neighbor" / "proofs").mkdir(parents=True)
+        (Path(d) / "neighbor" / "x.py").write_text("pass\n")
+        blind = transitions.inspect_build(str(bare / "history.json"))
+    assert [e["identity"] for e in blind] == ["the_census_can_measure_the_component"], blind
+    assert not transitions.gate.passed(blind[0]), blind
+
+
+def test_the_entry_gate_names_all_three_sieves_so_a_dropped_one_shortens_the_record():
+    """THE GATE THE RECORD WAS MOST OWED. Three sieves used to collapse into one word, so a
+    sieve that stopped firing wrote the same 'clean' line as a crossing that satisfied all
+    three. The count IS the ruleset's size: drop a sieve and this tooth fails on the LENGTH,
+    which is the whole difference between a shorter record and a cleaner one."""
+    import cairn.machines.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            record = transitions.inspect_entry("widget")
+            assert [e["identity"] for e in record] == [
+                "a_berthed_chart_chain_claims_the_ticket",
+                "the_ticket_names_its_intent_firing",
+                "the_ticket_names_its_sorted_door_firing"], record
+            hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
+            transitions.emit(_AT_TICKET, "BUILDME",
+                             history_path=hist, state_path=state, ticket="widget")
+            rec = projector.read_history(hist)[0]
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+    named = [e["identity"] for e in rec["proved"]]
+    for sieve in ("a_berthed_chart_chain_claims_the_ticket",
+                  "the_ticket_names_its_intent_firing",
+                  "the_ticket_names_its_sorted_door_firing"):
+        assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
+    assert rec["entry_gate"].endswith(
+        "the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, "
+        "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing"), \
+        f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
+
+
+def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_it():
+    """DERIVED, NEVER PARALLEL. The findings a refusal carries are the record's mismatches,
+    read back out — two mouths for one question is how a gate and the sentence it prints come
+    to disagree. Proved on the entry gate, whose findings shape callers already depend on."""
+    import cairn.machines.build_inspector.inspector as _insp
+    with tempfile.TemporaryDirectory() as d:
+        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
+        saved = transitions._TICKETS, _insp._CHART_BERTHS
+        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        try:
+            record = transitions.inspect_entry("widget")
+            try:
+                transitions._entry_gate("widget")
+            except transitions.EntryGateRed as e:
+                raised = e.findings
+            else:
+                raise AssertionError("a chartless ticket passed the entry gate")
+        finally:
+            transitions._TICKETS, _insp._CHART_BERTHS = saved
+    assert raised == transitions._findings_of(record), \
+        "the refusal's findings and the record's mismatches must be ONE derivation"
+    assert [f["sieve"] for f in raised] == ["buildme_rides_the_chart"], raised
+    # and the record still lists what PASSED beside the one that did not — the half a
+    # findings list throws away
+    assert len(record) == 3 and sum(transitions.gate.passed(e) for e in record) == 2, record
+
+
+def test_a_lane_that_refuses_and_names_nothing_still_speaks():
+    """``_findings_of`` is not a flatten over the findings lists alone. A lane that FAILS
+    while carrying no finding payload is a refusal with no sentence, and flattening would
+    have dropped it silently — the exact silence the record exists to end. The rules rung's
+    lanes carry no findings key at all, so this is not a hypothetical shape."""
+    wf = transitions.parse_workflow(_CODE_SEAM)
+    class_def = transitions.load_class_def(wf.node_class)
+    out = transitions._findings_of(
+        transitions.inspect_rules(wf, "NOPE", class_def=class_def))
+    assert len(out) == 1 and "named no finding" in out[0]["finding"], out
+    assert out[0]["evidence"]["expected"] and out[0]["evidence"]["actual"], out
+    # non-vacuity: an all-passing record contributes nothing
+    assert transitions._findings_of(
+        transitions.inspect_rules(wf, "PROVEME", class_def=class_def)) == []
+
+
 def _main() -> int:
-    checks = [
-        test_a_legal_forward_advance_journals_the_crossing,
-        test_the_crossing_carries_where_the_boat_now_stands,
-        test_a_caller_may_say_it_richer_but_may_not_drop_it,
-        test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme,
-        test_a_forward_skip_past_a_gate_summons_is_refused,
-        test_a_target_outside_the_vocabulary_is_refused,
-        test_a_no_op_self_transition_is_refused,
-        test_an_unknown_class_or_version_is_refused,
-        test_a_drifted_path_that_claims_v1_is_refused,
-        test_a_skill_v1_workflow_validates_and_journals_a_crossing_at_a_fixture_skill_address,
-        test_a_drifted_skill_path_that_claims_v1_is_refused,
-        test_an_unknown_class_still_refuses_after_skill_registration,
-        test_a_back_edge_kickback_is_legal_and_carries_severity,
-        test_it_parses_a_real_live_ticket_workflow_string,
-        test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path,
-        test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds,
-        test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict,
-        test_a_kickback_out_of_proveme_is_never_gated,
-        test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only,
-        test_an_address_the_census_cannot_see_is_refused_not_waved_through,
-        test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket,
-        test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict,
-        test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated,
-        test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean,
-        test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket,
-        test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict,
-        test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still,
-        test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict,
-        test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean,
-        test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean,
-        test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth,
-        test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing,
-        test_the_enqueue_seam_stays_file_only_on_the_fire_path,
-        test_an_uncleared_forward_crossing_into_a_rest_refuses_and_nothing_is_journaled,
-        test_a_cleared_crossing_passes_and_the_record_names_the_proof_it_leaned_on,
-        test_a_witness_the_world_does_not_back_is_refused_three_ways,
-        test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat,
-        test_the_clearance_roster_is_a_second_roster_and_it_is_empty_in_production,
-        test_the_four_gate_exceptions_are_siblings_not_a_hierarchy,
-        test_a_phased_cursor_parses_and_round_trips,
-        test_a_phase_anywhere_but_the_cursor_is_refused,
-        test_a_phase_on_a_rest_or_terminal_is_refused,
-        test_an_unknown_phase_word_is_refused_loudly,
-        test_arrival_stamps_waiting_on_a_summons_and_never_on_a_rest,
-        test_a_forward_crossing_from_waiting_stays_legal,
-        test_pickup_advances_waiting_to_in_process_and_journals_the_actor,
-        test_a_bare_summons_cursor_is_picked_up,
-        test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing,
-        test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons,
-    ]
+    # THE ROSTER IS DERIVED, never hand-typed. A tooth nobody listed is a tooth that did not
+    # run, and the file prints the same green line — the same defect as the proof record, one
+    # level up. Caught twice by hand on 2026-08-13 before it was made physics here.
+    checks = [v for k, v in sorted(globals().items())
+              if k.startswith("test_") and callable(v)]
+    assert len(checks) >= 55, (
+        "the derived roster collapsed — teeth are being counted by a broken rule, and a "
+        f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")

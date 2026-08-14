@@ -178,15 +178,24 @@ def test_an_emitted_watch_crosses_and_the_journal_names_the_berth():
 def test_a_crossing_with_no_ticket_cannot_be_measured_so_it_is_refused():
     with _Corpus({}), tempfile.TemporaryDirectory() as td:
         e = _expect_red(lambda: _cross(_TWO, "WATCHME", td=td))
-        assert "names no cast ticket" in str(e), e
+        assert "no ticket named on the crossing" in str(e), e
         assert "Nothing was journaled" in str(e), e
+        # The refusal sentence is now RENDERED FROM the record's failing lane, so the tooth
+        # pins the lane and the message together. A wording pinned separately would be the
+        # second mouth the proof record exists to close.
+        assert "[the_crossing_names_a_cast_ticket] expected" in str(e), e
 
 
 def test_a_carried_watch_with_no_spec_on_the_ticket_is_refused():
     with _Corpus({"t": {"state": _TWO}}), tempfile.TemporaryDirectory() as td:
         e = _expect_red(lambda: _cross(_TWO, "WATCHME", ticket="t", td=td))
         assert "carries no watchme spec" in str(e) and _OBJ in str(e), e
-        assert e.findings and e.findings[0]["judge"] == "watchme_spec", e.findings
+        # ``sieve``, not ``judge``: SAME PATTERN EVERYWHERE (Akien, 2026-08-13). This gate had
+        # minted its own finding vocabulary ({judge, detail}) for the idea every other gate
+        # spells {sieve, finding, why_it_matters, evidence}, so a reader who had read one
+        # refusal payload had not read this one.
+        assert e.findings and e.findings[0]["sieve"] == "watchme_spec", e.findings
+        assert e.findings[0]["why_it_matters"] and e.findings[0]["evidence"], e.findings
 
 
 def test_a_promised_probe_the_world_does_not_hold_is_refused():

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# cairn feedbackmap — who constructs findings, and where each one sends them.
+#
+# A thin registration against the tool, matching bin/cmd/determinism and bin/cmd/test:
+# resolve the interpreter, hand off, keep the exit code. It owns no logic about what it
+# runs (Law 6). Exit 0 only when every finding-producer declares a resolvable route.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"       # bin/cmd -> bin -> repo root (where the cairn package is)
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tools.feedback.feedback "$@"

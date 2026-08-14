@@ -39,6 +39,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.tester import validation_store as vs
 from cairn.devices.tester.device import VALIDATION_FIELDS, TesterDevice
+from cairn.tools.gate import gate
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 
@@ -193,6 +194,44 @@ def test_an_EDIT_to_an_older_entry_breaks_the_newest_link():
         assert all("changed after it was sealed" in b for b in breaks), breaks
 
 
+def test_the_chain_check_lists_the_lanes_it_ran_and_the_population_each_covered():
+    """``verify_trail`` returned ``[]`` for a trail that verified whole, for an EMPTY
+    trail, and for a trail whose entries had quietly stopped being eligible for the link
+    lane. The record says which of the three lanes ran and over how many entries, so an
+    eligibility that shrinks shows up as an EXPECTED that shrank."""
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+                              proof_path=proof)
+        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+                              proof_path=proof)
+        record = vs.inspect_trail(vs.read_validations(proof))
+    assert [e["identity"] for e in record] == [
+        "every_entry_is_a_validation_record", "every_record_carries_a_trail_link",
+        "every_link_hashes_the_trail_beneath_it"], record
+    assert all(gate.passed(e) for e in record), record
+    assert all(e["expected"] == [0, 1] for e in record), record
+
+    empty = vs.inspect_trail([])
+    assert len(empty) == len(record), "an empty trail still ran three lanes"
+    assert all(e["expected"] == [] and e["values"]["of"] == 0 for e in empty), empty
+
+
+def test_an_entry_ineligible_for_a_lane_is_absent_from_it_not_passed_by_it():
+    """The old loop said this with two ``continue`` statements and no record of having
+    done so: a non-record has no evidence to hold a link, and an unlinked entry has no
+    hash to compare. One fault, one lane — never one fault multiplied into three."""
+    record = vs.inspect_trail(["not a record at all"])
+    by_id = {e["identity"]: e for e in record}
+    assert not gate.passed(by_id["every_entry_is_a_validation_record"]), record
+    assert by_id["every_record_carries_a_trail_link"]["expected"] == [], record
+    assert gate.passed(by_id["every_link_hashes_the_trail_beneath_it"]), record
+    assert vs.verify_trail(["not a record at all"]) == [
+        c for e in record if not gate.passed(e) for c in e["values"]["complaints"]], (
+        "the complaint list must be the record's mismatches, derived and never parallel")
+
+
 def test_ADOPTION_links_a_legacy_trail_and_REFUSES_to_repair_a_broken_one():
     """73 trails predated links. The first draft tolerated an unlinked leading prefix as
     'prehistory' — and the tooth above killed that in one firing, because an overwrite that
@@ -292,17 +331,16 @@ def test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS():
 
 
 def _main() -> int:
-    checks = [
-        test_a_real_validation_round_trips_beside_its_proof,
-        test_append_only_a_rerun_does_not_overwrite,
-        test_a_drifted_record_is_refused,
-        test_the_NAIVE_overwrite_cannot_land_bytes,
-        test_a_FORCED_write_cannot_pass_for_a_seal,
-        test_an_EDIT_to_an_older_entry_breaks_the_newest_link,
-        test_ADOPTION_links_a_legacy_trail_and_REFUSES_to_repair_a_broken_one,
-        test_the_caller_cannot_hand_the_door_a_link,
-        test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS,
-    ]
+    # THE ROSTER IS DERIVED, NOT TYPED. It was a hand-maintained list, and the 2026-08-13
+    # sweep walked straight into what that costs: two teeth were added and neither ran,
+    # and the file printed the same triumphant line it prints when everything runs. A
+    # check nobody listed is a check that did not run, which is the exact silence the
+    # proof-record ruling names — so the list is now the module's own declaration order.
+    checks = [v for k, v in globals().items()
+              if k.startswith("test_") and callable(v)]
+    assert len(checks) >= 11, (
+        "the derived roster collapsed — teeth are being counted by a broken rule, and a "
+        f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")

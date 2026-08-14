@@ -81,6 +81,7 @@ import os
 import tempfile
 
 from cairn.devices.tester.device import GREEN, VALIDATION_FIELDS
+from cairn.tools.gate import gate
 
 # The one key inside `evidence` that belongs to the DOOR and not to the caller. It rides
 # inside evidence rather than becoming a ninth field because the eight are ratified.
@@ -194,7 +195,9 @@ def standing(proof_path: str) -> dict:
     # trail that was written around the door is not a measurement of anything — and this
     # is the surface where that matters, because harbor_master turns a True here straight
     # into a crossing's clearance. Broken chain, no clearance (Law 8).
-    breaks = verify_trail(trail)
+    chain_record = inspect_trail(trail)
+    breaks = [c for e in chain_record if not gate.passed(e)
+              for c in e["values"]["complaints"]]
     if breaks:
         return {"proven": False, "seal": trail[-1] if trail else None, "why": (
             f"the seal trail at {validations_path_for(proof_path)} DID NOT COME WHOLE THROUGH "
@@ -259,8 +262,70 @@ def _link_for(prefix: list, record: dict) -> str:
         chain_digest(prefix).encode("ascii") + b"\0" + _canonical(body)).hexdigest()
 
 
+def inspect_trail(trail: list) -> list[dict]:
+    """THE PROOF RECORD OVER A TRAIL'S CHAIN: one entry per lane that ran, each carrying
+    its POPULATION — the entries eligible for that lane as EXPECTED, the ones that pass
+    it as ACTUAL (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT
+    PROVED ... SAME PATTERN EVERYWHERE").
+
+    Why populations and not one entry per record: the lanes are ELIGIBILITY-nested, which
+    is what the old loop's two ``continue`` statements were saying. A non-record has no
+    evidence to hold a link, and an entry with no link has no hash to compare — so those
+    entries are ABSENT from the lane below, not passed by it. Written as populations, a
+    trail whose entries stop being checked shows an EXPECTED that shrank, where the old
+    complaint list showed the same emptiness it showed for a trail that verified whole.
+
+    An empty trail is three lanes over a population of zero, and it says so. That is a
+    different fact from a trail that was never read, and ``proven_state`` reads it as one.
+    """
+    def lane(identity, *, eligible, passing, complaints):
+        return gate.proved(
+            identity=identity, location="the validation trail",
+            code="validation_store.py:inspect_trail", source="tester.trail_chain",
+            expected=list(eligible), actual=list(passing),
+            complaints=list(complaints), of=len(trail))
+
+    records = [i for i, rec in enumerate(trail) if isinstance(rec, dict)]
+    record = [lane(
+        "every_entry_is_a_validation_record",
+        eligible=range(len(trail)), passing=records,
+        complaints=[f"entry {i} is a {type(trail[i]).__name__}, not a VALIDATION record"
+                    for i in range(len(trail)) if i not in records])]
+
+    def _link(i):
+        return (trail[i].get("evidence") or {}).get(TRAIL_LINK)
+
+    linked = [i for i in records if _link(i) is not None]
+    record.append(lane(
+        "every_record_carries_a_trail_link",
+        eligible=records, passing=linked,
+        complaints=[f"entry {i} ({trail[i].get('date')}, {trail[i].get('verdict')}) carries "
+                    f"no {TRAIL_LINK} — persist_validation is the only hand that mints one, "
+                    f"so a record without a link did not come through the door"
+                    for i in records if i not in linked]))
+
+    verified, broken = [], []
+    for i in linked:
+        expected = _link_for(trail[:i], trail[i])
+        if _link(i) == expected:
+            verified.append(i)
+        else:
+            broken.append(
+                f"entry {i} ({trail[i].get('date')}, {trail[i].get('verdict')}) carries link "
+                f"{str(_link(i))[:12]}… but the trail beneath it hashes to {expected[:12]}… — "
+                f"either this entry or something before it was changed after it was sealed")
+    record.append(lane(
+        "every_link_hashes_the_trail_beneath_it",
+        eligible=linked, passing=verified, complaints=broken))
+    return record
+
+
 def verify_trail(trail: list) -> list[str]:
     """Complaints about a trail's chain — empty means EVERY entry still carries a valid link.
+
+    A VIEW OVER ``inspect_trail``, DERIVED AND NEVER PARALLEL. The record is what the
+    lanes prove; this is the mismatches read back out, so the diagnostic sentence and the
+    gate that refuses on it cannot come to disagree about what broke.
 
     NO PREHISTORY CLAUSE, and that is a decision the first draft got wrong. Tolerating
     unlinked entries as a leading PREFIX seemed like the honest way to carry the 73 trails
@@ -279,25 +344,8 @@ def verify_trail(trail: list) -> list[str]:
     reader turns them into a refusal, a diagnostic prints them (Law 7 — loud where it
     diagnoses, and the record itself is never rewritten to look clean).
     """
-    complaints = []
-    for i, rec in enumerate(trail):
-        if not isinstance(rec, dict):
-            complaints.append(f"entry {i} is a {type(rec).__name__}, not a VALIDATION record")
-            continue
-        link = (rec.get("evidence") or {}).get(TRAIL_LINK)
-        if link is None:
-            complaints.append(
-                f"entry {i} ({rec.get('date')}, {rec.get('verdict')}) carries no {TRAIL_LINK} — "
-                f"persist_validation is the only hand that mints one, so a record without a link "
-                f"did not come through the door")
-            continue
-        expected = _link_for(trail[:i], rec)
-        if link != expected:
-            complaints.append(
-                f"entry {i} ({rec.get('date')}, {rec.get('verdict')}) carries link "
-                f"{str(link)[:12]}… but the trail beneath it hashes to {expected[:12]}… — either "
-                f"this entry or something before it was changed after it was sealed")
-    return complaints
+    return [c for e in inspect_trail(trail) if not gate.passed(e)
+            for c in e["values"]["complaints"]]
 
 
 def adopt_chain(path: str) -> int:

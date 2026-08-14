@@ -340,8 +340,9 @@ def render(report: dict) -> str:
     # earned by having nothing to check, so zero gates says so in those words.
     gates = [r for r in report["rows"] if r["is_gate"]]
     L.append("--- GATES " + "-" * 54)
-    L.append("    NO GATE MAY CONSULT AN ORACLE. A gate opens only on an == compare against")
-    L.append("    what it allows — identical, or it stays shut. (Akien, 2026-08-13)")
+    L.append("    NO GATE MAY CONSULT AN ORACLE. A gate holds a PROOF RECORD — every check")
+    L.append("    that ran, expected beside actual — and opens only when every one matches.")
+    L.append("    (Akien, 2026-08-13: \"EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED.\")")
     if not gates:
         L.append("")
         L.append("    NONE — no component reaches cairn.tools.gate. Nothing here is gated,")

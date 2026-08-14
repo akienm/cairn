@@ -347,7 +347,24 @@ def test_import_allowlist(root, orient_berth):
              # its-own-inspector-and-gate): this stage now holds its own gate, and
              # gate-ness is a DIRECT-import fact — which is how `cairn determinism`
              # and `cairnmap --gate` see it from outside without being told.
-             "cairn.tools.gate.gate")
+             "cairn.tools.gate.gate",
+             # THE TESTER JOINED 2026-08-14, AND THIS TOOTH FIRED RED TO ADMIT IT —
+             # recorded because a widened allowlist with no note is the drift this
+             # tooth exists to catch. Akien's ruling on constrain's intention that
+             # day: the floor "discovers the instruments that will refuse this
+             # build ... runs them, and reports their state". Running an instrument
+             # IS reaching the tester; no spelling of the ruled design avoids it, so
+             # the tooth was wrong the moment the ruling landed rather than the code
+             # being wrong. What is admitted is deliberately narrow and each entry
+             # earns itself: `cli` for the proof-discovery convention (COMPOSED, so
+             # constrain and the tester cannot disagree about what a proof is),
+             # `device` to run one, `validation_store` for the source fingerprint
+             # that keys the run cache. The floor READS these and gates nothing —
+             # Law 6 is untouched, and `run_proof` persists nothing, measured in its
+             # own source before this import was added.
+             "cairn.devices.tester.cli",
+             "cairn.devices.tester.device",
+             "cairn.devices.tester.validation_store")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
@@ -524,6 +541,142 @@ def test_a_misdeclared_floor_label_is_refused_not_corrected(root, orient_berth):
         "the door must accept the packet it just wrote — both exit doors run it"
 
 
+def _plant(root, **files):
+    """Write proof files into a REF'D component's ``proofs/`` and hand back a remover.
+
+    Planted at ``alpha`` because the fixture's orient berth refs it — twice, by name and by
+    path — so the planting exercises the same resolution the live chain uses. Every tooth
+    below removes what it planted: the teeth above this line count the floor's constraints
+    exactly, and a leftover proof file would red them from a distance with a message about
+    charters."""
+    home = os.path.join(root, ALPHA_HOME, "proofs")
+    os.makedirs(home, exist_ok=True)
+    for name, body in files.items():
+        with open(os.path.join(home, name + ".py"), "w") as fh:
+            fh.write(body)
+    return lambda: shutil.rmtree(home, ignore_errors=True)
+
+
+def test_the_check_set_is_discovered_never_enumerated(root, orient_berth):
+    """AKIEN'S CLAUSE 3 AS PHYSICS — "to keep learning, not to become fixed". A proof file
+    planted at a ref'd address appears in the floor's output with NO code change.
+
+    This is the tooth a hand-written check list fails and nothing else does. The whole
+    build could be green on every other tooth while the check-set was a constant someone
+    typed, and every one of those teeth would still pass — they measure that what is
+    reported is honest, not that what is reported was found.
+
+    THE BEFORE-READING IS HALF THE TOOTH. Asserting only that the planted file appears
+    would pass for a floor that reports every proof in the repo regardless of the refs;
+    the empty before-set is what makes the appearance mean the planting caused it."""
+    assert constrain_mod.discovered_instruments(orient_berth, root=root) == [], \
+        "the fixture has no proofs yet — a non-empty before-set means discovery is " \
+        "reaching outside the ref'd components and the after-reading proves nothing"
+    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    try:
+        after = constrain_mod.discovered_instruments(orient_berth, root=root)
+        assert after == [os.path.join(ALPHA_HOME, "proofs", "test_planted_green.py")], \
+            "a proof planted at a ref'd address must appear with no code change; got %r" \
+            % (after,)
+        # AND THE TESTER AGREES, SET FOR SET — the corpus has one idea of what a proof is.
+        # By identity, not by coincidence: ``discovered_instruments`` composes ``discover``,
+        # so this asserts the composition is still in place rather than re-derived.
+        from cairn.devices.tester.cli import discover
+        theirs = {str(Path(p).relative_to(root))
+                  for p in discover([os.path.join(root, ALPHA_HOME)])}
+        assert set(after) == theirs, \
+            "constrain and the tester disagree about which files are proofs: %r vs %r" \
+            % (sorted(after), sorted(theirs))
+    finally:
+        remove()
+
+
+def test_a_named_check_is_never_reported_unrun(root, orient_berth):
+    """THE FIRST HOLLOW PASS THE TICKET NAMES: a floor that lists the checks by name and
+    calls that a report. The direct instrument is a proof planted to FAIL — a namer wearing
+    a verdict says green, because green is what a name defaults to.
+
+    AND THE MISSING FILE IS THE SAME FAILURE FROM THE OTHER SIDE. It is reported
+    ``unrunnable``, never green and never dropped: 'nothing to run' is a state to report,
+    and letting it fall out of the list shrinks the denominator, which makes the remaining
+    greens look total (leak-scan coin-toss-red, measured in this corpus)."""
+    remove = _plant(root, test_planted_red="raise SystemExit(1)\n")
+    try:
+        checks, cost = constrain_mod.instrument_constraints(orient_berth, root=root)
+        assert [c["verdict"] for c in checks] == ["red"], \
+            "a planted FAILING proof was reported %r — a report that cannot say red was " \
+            "never produced by a run" % ([c["verdict"] for c in checks],)
+        assert cost["instruments"] == len(checks), \
+            "the denominator must be the discovered count: %r reported of %r discovered" \
+            % (len(checks), cost["instruments"])
+        assert cost["seconds"] > 0, "a run that took no time did not happen"
+    finally:
+        remove()
+    gone = constrain_mod._run_instrument(
+        os.path.join(ALPHA_HOME, "proofs", "test_gone.py"), root=root)
+    assert gone["verdict"] == "unrunnable" and "not there" in gone["how"], \
+        "a discovered file that vanished before the run must be reported unrunnable with " \
+        "the reason, not carried as a verdict nobody read: %r" % (gone,)
+
+
+def test_one_red_check_does_not_blanket_the_report(root, orient_berth):
+    """THE THIRD HOLLOW PASS: a per-check state replaced by a blanket verdict. Three
+    instruments, three different outcomes, in one firing — the report discriminates or it
+    is not a report.
+
+    AND EVERY RED RIDES OUT AS AN UNKNOWN. A check already failing before this build starts
+    is not a bound the build can be judged against, and the floor saying so is what keeps
+    the state from being read as a bound that was met."""
+    remove = _plant(root,
+                    test_planted_green="raise SystemExit(0)\n",
+                    test_planted_red="raise SystemExit(1)\n",
+                    test_planted_broken="def (\n")
+    try:
+        fl = constrain_mod.floor_packet(orient_berth, root=root)
+        by_verdict = {}
+        for c in fl["constraints"]:
+            if c["kind"] == "check":
+                by_verdict.setdefault(c["verdict"], []).append(c["source"])
+        assert sorted(by_verdict) == ["green", "red"], \
+            "three instruments in three states collapsed to %r" % (sorted(by_verdict),)
+        assert len(by_verdict["green"]) == 1 and len(by_verdict["red"]) == 2, \
+            "the split is wrong: %r" % (by_verdict,)
+        # The charter constraints are untouched by the run half — the floor gained a kind,
+        # it did not lose one.
+        assert len([c for c in fl["constraints"] if c["kind"] == "charter"]) == 6
+        unknowns = " ".join(fl["unknowns"])
+        for red in by_verdict["red"]:
+            assert red in unknowns, \
+                "the red instrument %s is reported and then not carried into unknowns — " \
+                "a failing bound that reads as a satisfied one" % red
+        assert fl["cost"]["instruments"] == 3, \
+            "the cost report is this firing's own work: %r" % (fl["cost"],)
+    finally:
+        remove()
+
+
+def test_floor_kinds_names_every_kind_the_floor_emits(root, orient_berth):
+    """THE DECLARATION CANNOT DRIFT FROM THE CODE BENEATH IT — promised verbatim in the
+    ``FLOOR_KINDS`` comment, and this is the promise kept.
+
+    ``FLOOR_KINDS`` is a DECLARATION and deliberately not a derivation: deriving it from a
+    firing would shrink the set exactly when a run reached no instruments, which is when
+    the answer matters most. The price of declaring is that it can go stale, and this tooth
+    is the price paid. EQUALITY, not containment, in both directions: an emitted kind
+    missing from the tuple silently moves the line ``crowding_out`` is drawn on, and a
+    declared kind the floor never emits inflates the same line with a fiction."""
+    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    try:
+        fl = constrain_mod.floor_packet(orient_berth, root=root)
+        emitted = {c["kind"] for c in fl["constraints"]}
+        assert emitted == set(constrain_mod.FLOOR_KINDS), \
+            "FLOOR_KINDS declares %r and the floor emits %r — the probe that asks the " \
+            "floor for its kinds is reading a stale answer" \
+            % (sorted(constrain_mod.FLOOR_KINDS), sorted(emitted))
+    finally:
+        remove()
+
+
 def _main() -> int:
     root, orient_berth = make_root()
     checks = [
@@ -535,6 +688,10 @@ def _main() -> int:
         test_the_deepest_owner_wins_never_the_holder,
         test_the_floor_authors_constraints_and_unknowns,
         test_an_empty_floor_is_None_and_not_an_empty_list,
+        test_the_check_set_is_discovered_never_enumerated,
+        test_a_named_check_is_never_reported_unrun,
+        test_one_red_check_does_not_blanket_the_report,
+        test_floor_kinds_names_every_kind_the_floor_emits,
         test_provenance_is_measured_not_declared,
         test_the_floor_label_is_reachable_and_both_mutations_red,
         test_a_misdeclared_floor_label_is_refused_not_corrected,
@@ -561,6 +718,12 @@ def _main() -> int:
           "DEEPEST owner wins, never the holder; the floor AUTHORS constraints (charter "
           "falsifier/gates/owner, verbatim, with their address) and unknowns (with the "
           "why), and returns None rather than an empty list when it has nothing; "
+          "the floor DISCOVERS the instruments that judge the ref'd components (composing "
+          "the tester's own collector, agreeing with it set for set) and RUNS them — a "
+          "proof planted at a ref'd address appears with no code change, a failing one is "
+          "reported red and rides out as an unknown, a vanished one is reported unrunnable "
+          "rather than dropped, three instruments in three states never collapse to one "
+          "verdict, and every kind the floor emits is named in FLOOR_KINDS; "
           "provenance for those two is MEASURED by re-running the floor, the 'floor' "
           "label is reachable and BOTH mutations (drop one, forge one) red it, and a "
           "misdeclared label is refused rather than quietly corrected; the schema gate "

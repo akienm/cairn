@@ -204,6 +204,189 @@ def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
 
 FLOOR_AUTHORED = ("constraints", "unknowns")
 
+# THE KINDS THIS FLOOR CAN AUTHOR — asked, never spelled at the point of use.
+#
+# Two places need the answer and both had it as the literal ``"charter"``: the survival
+# rule below, which decides whether the ceiling counterfeited a floor constraint, and the
+# crowding_out probe beside this module, which counts non-floor constraints as the
+# ceiling's contribution. A literal was correct for exactly as long as the floor had one
+# kind. The moment it emits a second, the survival rule stops guarding the new kind
+# against forgery and the probe reads THE FLOOR'S OWN BULK as evidence the ceiling is
+# healthy — an armed watch flattering the thing it measures, which is worse than no watch
+# because something is reading it.
+#
+# A DECLARATION, AND A CHECKED ONE. This is not derived from a floor run: a run whose refs
+# reach no instruments would emit no ``check`` constraints, the derived set would quietly
+# shrink, and the probe would go back to miscounting on exactly the packets where it
+# matters. So the module declares what it is CAPABLE of authoring, and a tooth in this
+# machine's proof asserts that every kind the floor actually emits appears here — a
+# declaration that cannot drift from the code beneath it without reddening.
+FLOOR_KINDS = ("charter", "check")
+
+
+# THE RE-ENTRANCY GUARD, and it is physics rather than a convention because the thing it
+# stops is unbounded.
+#
+# MEASURED BEFORE IT WAS DESIGNED AROUND: constrain's own proof calls ``validate_constrain``
+# seventeen times and ``floor_packet`` three. So a floor that RUNS the proofs it discovers,
+# fired on a packet whose refs include this machine, runs a proof that calls the floor that
+# runs the proof — process fork without a bottom. Nothing in the chain caught this; it was
+# found by grepping the proof before writing the run half, and it would have been found
+# otherwise by the machine running out of processes.
+#
+# THE EXCLUSION IS COMPUTED, NOT LISTED, which is Akien's clause 3 at the one place it was
+# genuinely tempting to write a constant. A hand-kept roster of "proofs the floor must not
+# run" is a learned value stranded in a human's head, and it is wrong the first time a
+# proof anywhere starts calling this stage. Instead the guard rides the ENVIRONMENT: the
+# tester spawns each proof with ``subprocess.run`` and no ``env=``, so the child inherits
+# this flag, and a floor that finds itself already inside a floor reports the instrument
+# rather than running it. Depth is bounded at one for every proof in the corpus, present
+# and future, with nothing to maintain.
+_REENTRY = "CAIRN_CONSTRAIN_FLOOR_RUNNING"
+
+# Keyed by (proof path, source fingerprint) so the SECOND ask in one firing is free. The
+# door re-runs the floor to measure provenance (``measured_provenance`` below), which
+# would otherwise run every discovered proof a second time and double the stage's cost for
+# an answer that cannot have changed — the tree has not moved between the two calls, and
+# the fingerprint is exactly the thing that would say so if it had.
+_RUN_CACHE: dict = {}
+
+
+def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
+    """THE INSTRUMENTS THAT JUDGE THE REF'D COMPONENTS — discovered, never enumerated.
+
+    COMPOSED FROM THE TESTER'S OWN COLLECTOR, and that is the whole of the discovery half.
+    The chart chain's survey recorded an absence here — "no importable primitive that,
+    given a component, yields its proofs" — and the absence was false: ``discover`` is a
+    public module-level function of ``cairn.devices.tester.cli``, importable and
+    documented, and this build composes it unchanged. The survey had measured where the
+    glob SAT rather than whether it could be CALLED, which is the ladder of proxies one
+    rung down from behaviour; the finding is recorded on the ticket rather than quietly
+    corrected here.
+
+    Composing rather than copying is also the only version that satisfies the hypothesis
+    the chain put on this piece — that constrain and the tester agree, set for set, about
+    which files are proofs. They agree by identity: there is one implementation, so there
+    is nothing for a later edit to make disagree.
+
+    Returns repo-relative paths, sorted, deduped — relative because that is the spelling
+    ``constraint_traces`` resolves, and this build does not get to choose that.
+    """
+    from cairn.devices.tester.cli import discover
+
+    orient_packet = _read_orient_berth(intent_ref)
+    comp_dirs, seen = [], set()
+    for ref in orient_packet.get("refs", []):
+        comp_dir, _why = _resolve_ref(ref, root)
+        if comp_dir is None or str(comp_dir) in seen:
+            continue
+        seen.add(str(comp_dir))
+        comp_dirs.append(str(comp_dir))
+    if not comp_dirs:
+        return []
+    out = set()
+    for path in discover(comp_dirs):
+        try:
+            out.add(str(path.relative_to(root)))
+        except ValueError:
+            # A proof outside the class-space root cannot be spelled the way the judge
+            # resolves sources. Kept out rather than emitted with a spelling the door
+            # would refuse — and it is not silently dropped: the count is reported.
+            continue
+    return sorted(out)
+
+
+def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
+    """Run ONE discovered instrument and report the state it is in RIGHT NOW.
+
+    The verdict is the tester's, read and not granted. ``run_proof`` returns its record
+    and PERSISTS NOTHING — measured in its own docstring and in its source, which settles
+    the Law 6 question the chain carried as an unknown: a floor calling it is a reader, not
+    a writer into another component's records, so no ownership gate is crossed here.
+
+    A REPORT THAT COULD NOT RUN SAYS SO, and never defaults to green. That is the second
+    of the three hollow passes this node's ticket names, and the empty set passing
+    trivially is the first — so an instrument is never omitted, only ever reported.
+    """
+    if os.environ.get(_REENTRY):
+        return {"verdict": "not-run", "how": "the floor was already running inside a "
+                "floor — this instrument calls the stage that discovered it, and running "
+                "it here is the unbounded fork the guard exists to stop"}
+    abs_path = os.path.join(root, rel_path)
+    # A MISSING FILE IS UNRUNNABLE, AND SAYING SO IS THE WHOLE POINT OF THE CLAUSE. Without
+    # it the tester still answers — python exits non-zero on a path it cannot open — so the
+    # report reads "red ... run by the tester" for a file that was never run and does not
+    # exist. The verdict is not wrong (it is certainly not green), but the HOW is a record
+    # of truth telling a false story, and a builder reading it goes hunting for a failing
+    # assertion in a file that isn't there. Measured 2026-08-14 while building the teeth,
+    # on a path deleted between discovery and the run — which is the only way to reach it,
+    # since discovery emits what the glob just saw.
+    if not os.path.isfile(abs_path):
+        return {"verdict": "unrunnable",
+                "how": "no file at %s — it was discovered and then was not there, so "
+                       "nothing was run and no verdict was read" % rel_path}
+    from cairn.devices.tester.device import TesterDevice
+    from cairn.devices.tester.validation_store import source_fingerprint
+    try:
+        key = (rel_path, source_fingerprint(abs_path))
+    except Exception as e:                                   # unreadable tree, not a green
+        return {"verdict": "unrunnable", "how": "could not fingerprint %s (%s: %s)"
+                % (rel_path, type(e).__name__, e)}
+    if key in _RUN_CACHE:
+        return _RUN_CACHE[key]
+    os.environ[_REENTRY] = "1"
+    started = time.monotonic()
+    try:
+        record = TesterDevice().run_proof(abs_path, caller="constrain_floor")
+        state = {"verdict": record.get("verdict"), "how": "run by the tester"}
+    except Exception as e:
+        state = {"verdict": "unrunnable",
+                 "how": "%s: %s" % (type(e).__name__, e)}
+    finally:
+        os.environ.pop(_REENTRY, None)
+    # The duration rides the COST report, never the constraint's text. A constraint whose
+    # text carried a wall time could never be reproduced by the door, so the field could
+    # never earn ``floor`` — the measurement would have destroyed the label it exists to
+    # make honest.
+    state["_seconds"] = round(time.monotonic() - started, 3)
+    _RUN_CACHE[key] = state
+    return state
+
+
+def instrument_constraints(intent_ref: str, root: str = CAIRN_ROOT) -> tuple:
+    """The check-kind constraints and this firing's own cost — the node's whole payoff.
+
+    A constraint here says what will REFUSE this build and what state it is in, so the
+    builder stops looking those up by hand. It is not a briefing: a floor that listed
+    check names without running them would be the charter prose again, one indirection
+    further out, which is the first hollow pass the ticket names.
+
+    THE SOURCE IS THE PROOF PATH, repo-relative, because ``constraint_traces`` resolves a
+    source through the berth gate's ref semantics and nothing else. That judge refused
+    this very build's chart packet earlier today over six sources spelled relative to the
+    wrong root; the spelling is its answer, not this module's.
+    """
+    instruments = discovered_instruments(intent_ref, root)
+    constraints, seconds = [], 0.0
+    for rel in instruments:
+        state = _run_instrument(rel, root)
+        seconds += state.get("_seconds", 0.0)
+        constraints.append({
+            "text": "%s judges this build and is %s right now (%s)"
+                    % (rel, state["verdict"], state["how"]),
+            "source": rel,
+            "kind": "check",
+            "verdict": state["verdict"],
+        })
+    cost = {
+        "instruments": len(instruments),
+        "seconds": round(seconds, 3),
+        "note": "this firing's own run cost, measured rather than estimated — the "
+                "selection rule's only real bound, and a number that lived in an "
+                "operator's hand until the floor started reporting it",
+    }
+    return constraints, cost
+
 
 def floor_packet(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
     """THE DETERMINISTIC HALF OF THE PACKET — the two fields constrain can author without
@@ -234,10 +417,24 @@ def floor_packet(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
     for miss in facts["refs_not_components"]:
         unknowns.append("the request refs %s — %s" % (miss["ref"], miss["why"]))
 
+    # THE SECOND CLASS OF CONSTRAINT, and it is the same field on purpose. A constraint
+    # enforced by a runnable check is the same constraint said in physics (Law 4), so it
+    # belongs in the list the ceiling already reads — a new packet field would have made
+    # the ceiling opt in to noticing what refuses its build.
+    checks, cost = instrument_constraints(intent_ref, root)
+    constraints += checks
+    for c in checks:
+        if c["verdict"] not in ("green", "not-run"):
+            unknowns.append(
+                "the instrument %s is %s before this build starts — a constraint that is "
+                "already failing is not a bound this build can be judged against until "
+                "someone says which it is" % (c["source"], c["verdict"]))
+
     return {
         "stratum": "floor",
         "constraints": constraints or None,
         "unknowns": sorted(set(unknowns)) or None,
+        "cost": cost,
         "facts": facts,
     }
 
@@ -266,13 +463,20 @@ def _survived(field: str, authored, proposed) -> bool:
     So the test is two-sided, and the second side is what keeps it honest:
 
       1. every constraint the floor produced is PRESENT in the packet, unchanged;
-      2. every ``charter``-kind constraint in the packet WAS produced by the floor.
+      2. every constraint in the packet wearing a kind THE FLOOR AUTHORS was produced
+         by the floor.
 
     (1) alone would let the ceiling carry the floor's three and invent a fourth wearing the
     same kind, taking the floor's label for its own text. (2) closes that: the floor owns
-    the ``charter`` kind, and additions in any OTHER kind are the ceiling doing its own
-    job and cost it nothing. Additions the floor cannot reach are the point of having a
-    ceiling — they are not evidence that the floor did not run.
+    every kind in ``FLOOR_KINDS``, and additions in any OTHER kind are the ceiling doing
+    its own job and cost it nothing. Additions the floor cannot reach are the point of
+    having a ceiling — they are not evidence that the floor did not run.
+
+    CLAUSE (2) ASKS RATHER THAN SPELLS, and that is not cosmetic. It read ``kind ==
+    "charter"`` while the floor had one kind; the day the floor gained ``check`` that
+    literal would have left every check constraint unguarded — the ceiling free to invent
+    one, wear the floor's kind, and take the floor's label for it, which is precisely the
+    counterfeit this clause exists to stop.
 
     ``unknowns`` is survival only. The ceiling legitimately notices unknowns a lookup
     cannot, and no kind field separates them, so there is nothing here to counterfeit: an
@@ -283,9 +487,9 @@ def _survived(field: str, authored, proposed) -> bool:
     if not floor_said <= have:
         return False
     if field == "constraints":
-        charter_kind = {_canon(c) for c in authored
-                        if isinstance(c, dict) and c.get("kind") == "charter"}
-        return charter_kind <= floor_said
+        floor_kind = {_canon(c) for c in authored
+                      if isinstance(c, dict) and c.get("kind") in FLOOR_KINDS}
+        return floor_kind <= floor_said
     return True
 
 
@@ -306,7 +510,8 @@ def measured_provenance(packet: dict, root: str = CAIRN_ROOT) -> dict:
 
     WHAT "REPRODUCE" MEANS FOR A MULTI-SOURCE LIST is settled in ``_survived`` and is the
     one place this stage's rule differs from orient's: the floor's items must survive
-    unchanged, and no OTHER ``charter``-kind constraint may appear beside them. The
+    unchanged, and no OTHER constraint wearing a kind the floor authors (``FLOOR_KINDS``)
+    may appear beside them. The
     ceiling adding a law or a ruling is the ceiling doing its own job and does not demote
     the field, because a rule that demoted it would make ``floor`` unreachable and the
     dial blind to the compiling it exists to detect.

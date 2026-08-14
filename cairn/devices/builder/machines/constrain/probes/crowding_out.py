@@ -24,10 +24,12 @@ value stranded in a human's head. The pre-build population is closed (nothing wi
 be added to it), so recomputing it each read costs nothing and keeps the number honest if
 a berth is ever found to be unreadable.
 
-WHY NON-CHARTER AND NOT TOTAL. The floor can only ever produce ``kind: charter``, so the
-total count rises the moment the build works, and rises fastest exactly when crowding-out
-is worst. Counting totals would make this probe fire never. The ceiling's contribution is
-what is at risk and it is what is counted.
+WHY NON-FLOOR AND NOT TOTAL. The floor produces only the kinds it declares in
+``FLOOR_KINDS``, so the total count rises the moment the build works, and rises fastest
+exactly when crowding-out is worst. Counting totals would make this probe fire never. The
+ceiling's contribution is what is at risk and it is what is counted — and the set of kinds
+that belong to the floor is ASKED of the floor, so a floor that gains a kind does not
+silently move the line this probe is drawn on.
 
 THE POPULATION IS POST-BUILD BERTHS ONLY, by filename stamp. The 41 that predate the door
 were written under a floor that discarded 86% of its refs; counting them here would mix
@@ -46,7 +48,7 @@ from pathlib import Path
 from statistics import median
 
 from cairn.tools.base.probe import Probe, owning_ticket
-from cairn.devices.builder.machines.constrain.constrain import FLOOR_AUTHORED
+from cairn.devices.builder.machines.constrain.constrain import FLOOR_AUTHORED, FLOOR_KINDS
 
 # Instance-space, resolved per call and never captured at import — a probe that froze the
 # path would keep reading a root the system had already left.
@@ -66,16 +68,30 @@ _TICKET = owning_ticket("constrain-floor-authors-and-provenance-is-measured")
 
 
 def _kinds(packet: dict) -> tuple[int, int]:
-    """(charter-kind, other-kind) constraint counts for one packet. A constraint that is
+    """(floor-kind, other-kind) constraint counts for one packet. A constraint that is
     not a dict, or carries no ``kind``, counts as OTHER — the floor always stamps its
-    own, so anything unstamped came from the ceiling."""
-    charter = other = 0
+    own, so anything unstamped came from the ceiling.
+
+    THE FLOOR'S KINDS ARE ASKED FOR, NOT SPELLED HERE, and correcting that is why this
+    probe was touched at all. It read ``kind == "charter"`` — true for as long as the
+    floor had exactly one kind, and wrong in the floor's FAVOUR the instant it gained a
+    second: every ``check`` constraint the floor authored would have been counted as the
+    ceiling's own contribution, so a packet in which the ceiling had gone completely
+    silent would read as healthy on the strength of the floor's bulk. That is this
+    probe's own failure mode — the instrument flattering the thing it measures — and it
+    would have arrived armed, which is worse than arriving absent.
+
+    Asking ``FLOOR_KINDS`` also means the next kind needs no edit here. A probe that must
+    be remembered when the thing it watches changes is a probe that will be wrong exactly
+    once, silently, at the moment that matters.
+    """
+    floor = other = 0
     for c in packet.get("constraints") or []:
-        if isinstance(c, dict) and c.get("kind") == "charter":
-            charter += 1
+        if isinstance(c, dict) and c.get("kind") in FLOOR_KINDS:
+            floor += 1
         else:
             other += 1
-    return charter, other
+    return floor, other
 
 
 def survey_the_berths() -> dict:
@@ -90,7 +106,7 @@ def survey_the_berths() -> dict:
     before: list[int] = []
     after: list[int] = []
     after_named: list[tuple[str, int]] = []
-    charter_after = 0
+    floor_after = 0
     earned_floor = 0
     per_field = {f: 0 for f in FLOOR_AUTHORED}
 
@@ -102,13 +118,13 @@ def survey_the_berths() -> dict:
             continue
         if not isinstance(packet, dict):
             continue
-        charter, other = _kinds(packet)
+        floor_kind, other = _kinds(packet)
         if stamp < _DOOR_LANDED:
             before.append(other)
             continue
         after.append(other)
         after_named.append((path.name, other))
-        charter_after += charter
+        floor_after += floor_kind
         prov = packet.get("provenance") or {}
         if any(prov.get(f) == "floor" for f in FLOOR_AUTHORED):
             earned_floor += 1
@@ -129,7 +145,7 @@ def survey_the_berths() -> dict:
         "post_build_berths": len(after),
         "post_build_other_median": median(after) if after else None,
         "post_build_other_min": min(after) if after else None,
-        "post_build_charter_total": charter_after,
+        "post_build_floor_total": floor_after,
         "earned_floor": earned_floor,
         "per_field": per_field,
         "starved_berths": starved[:10],
@@ -188,7 +204,7 @@ def _carry(context: dict) -> dict:
                     "to carry the floor's constraints through and ADD the law, ruling, "
                     "ticket and memory constraints that need judgement. A thin packet "
                     "usually means that instruction now reads as 'the list is already "
-                    "full'. Check 'post_build_charter_total' against "
+                    "full'. Check 'post_build_floor_total' against "
                     "'post_build_berths' — a large ratio is the floor's bulk doing it, a "
                     "small one means the ceiling went quiet for some other reason, and "
                     "those are different fixes",

@@ -1,0 +1,22 @@
+[
+  {
+    "claim": "proof test_staleness.py passes under python3",
+    "caller": "sail:the-loop-names-its-own-staleness-instead-of-benching-a-device",
+    "date": "2026-08-14T16:38:57",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_genuinely_drifted_module_goes_red\n  PASS  test_a_module_it_cannot_judge_reads_undecidable_not_green\n  PASS  test_a_module_loaded_late_from_a_newly_written_file_stays_green\n  PASS  test_a_module_that_never_came_from_a_file_is_not_drift\n  PASS  test_a_module_whose_file_moved_away_goes_red\n  PASS  test_an_edit_to_a_file_this_process_never_imported_stays_green\n  PASS  test_stripping_the_payload_changes_no_verdict\n  PASS  test_the_diagnostic_payload_carries_the_falsified_comparison_labelled\n  PASS  test_the_payload_says_when_the_predicate_is_blind\n  PASS  test_the_real_outage_is_caught_by_this_predicate\n  PASS  test_this_healthy_process_reads_not_stale_over_the_real_tree\ngreen — the loop knows its own age, and an ordinary edit is not staleness",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "a2990faedaac0d391b606598f33fb280b251e9ba98a7c67443b1d832b4d32e96",
+      "trail_link": "867944f274a4ca5c688c9b6321c3f7f3c76697c232bee38c22c09328b2830112"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

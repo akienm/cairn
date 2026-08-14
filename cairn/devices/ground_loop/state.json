@@ -1,22 +1,25 @@
 {
   "cursor": {
-    "from": "PROVEME",
-    "to": "WATCHME",
-    "standing": "WATCHME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the-loop-never-blames-a-device-for-its-own-age):waiting] -> PROVED",
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-loop-never-blames-a-device-for-its-own-age) -> [PROVED]",
     "direction": "forward",
-    "build_gate": "clean — build_inspector ran 20 sieves over ground_loop, and 21 check(s) are proved on this crossing",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/ground_loop/proofs/test_staleness.py (seal 2026-08-14T16:38:57, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-loop-never-blames-a-device-for-its-own-age) emitted the probe berthed at cairn/devices/ground_loop/probes/loop_not_stale.py (ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260814T163532-d7575fd67c39.json",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'WATCHME' in the code-seam@v2 vocabulary",
-        "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "WATCHME",
+          "target": "PROVED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -31,333 +34,199 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "PROVEME -> WATCHME moves the cursor off position 3",
-        "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "WATCHME",
-          "cursor": 3,
-          "resolved": 4
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "PROVEME -> WATCHME",
-        "actual": "PROVEME -> WATCHME",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "WATCHME",
+          "target": "PROVED",
           "legal_from_here": [
             "BUILDME",
+            "PROVED",
+            "PROVEME",
             "THINKME",
-            "TICKETME",
-            "WATCHME"
+            "TICKETME"
           ],
           "direction": "forward"
         }
       },
       {
-        "identity": "the_census_can_measure_the_component",
+        "identity": "the_crossing_names_a_cast_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_build",
-        "expected": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
-        "actual": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
+        "actual": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
         "fatality": "none",
-        "source": "transitions.inspect_build",
+        "source": "transitions.inspect_emission",
         "values": {
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+          "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
+        "actual": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+          "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+          "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+          "berth": "cairn/devices/ground_loop/probes/loop_not_stale.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
           "component": "ground_loop",
-          "address": "/home/akien/dev/src/cairn/cairn/devices/ground_loop",
-          "sieves_run": [
-            "charted_refs_resolve",
-            "charter_on_disk",
-            "constraint_bounds_complete",
-            "constraint_traces",
-            "decompose_builds_absences",
-            "decompose_composes_holdings",
-            "fire_path_unreachable",
-            "forwarding_order_resolves",
-            "hypothesize_covers_the_ranked",
-            "hypothesize_falsifiable_measured",
-            "proofs_exist",
-            "silent_device",
-            "sole_path_holds",
-            "state_is_projection",
-            "survey_coverage_complete",
-            "survey_holdings_resolve",
-            "triage_covers_the_split",
-            "triage_reasons_the_order",
-            "validate_covers_the_build",
-            "validate_measures_done"
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
+        "actual": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "ground_loop",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
           ]
         }
       },
       {
-        "identity": "charted_refs_resolve",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
-        "expected": 1.0,
-        "actual": 1.0,
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
+        "actual": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
         "fatality": "none",
-        "source": "build_inspector",
+        "source": "transitions.inspect_clearance",
         "values": {
-          "findings": []
+          "target": "PROVED",
+          "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
+          "why": "sealed green 2026-08-14T16:38:57 by sail:the-loop-names-its-own-staleness-instead-of-benching-a-device, and the component's source fingerprint still matches what was proved (a2990faedaac…)"
         }
       },
       {
-        "identity": "charter_on_disk",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
-        "expected": 1.0,
-        "actual": 1.0,
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
+        "actual": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
         "fatality": "none",
-        "source": "build_inspector",
+        "source": "transitions.inspect_clearance",
         "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "constraint_bounds_complete",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "constraint_traces",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "decompose_builds_absences",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "decompose_composes_holdings",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "fire_path_unreachable",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "forwarding_order_resolves",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "hypothesize_covers_the_ranked",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "hypothesize_falsifiable_measured",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "proofs_exist",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "silent_device",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "sole_path_holds",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "state_is_projection",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "survey_coverage_complete",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "survey_holdings_resolve",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "triage_covers_the_split",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "triage_reasons_the_order",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "validate_covers_the_build",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "validate_measures_done",
-        "location": "ground_loop",
-        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
+          "target": "PROVED",
+          "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
+          "seal": "2026-08-14T16:38:57",
+          "claimed": "2026-08-14T16:38:57"
         }
       }
     ],
-    "checks_proved": 24,
-    "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+    "checks_proved": 13,
+    "cleared_by": "CC",
     "actor": "CC",
-    "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py + cairn/devices/ground_loop/proofs/test_discovery.py",
-    "note": "PROVEN — and the crossing itself found a defect in the gate it had to pass. The build gate refused this crossing with 52 findings, and NOT ONE of them was about this build: every one named a pre-reorg address inside a CLOSED ticket's chart (cairn/ground_loop/*, cairn/base/*, cairn/web_server/*), all moved by commit ba50814e on 2026-08-13. This was the first PROVEME crossing attempted since that reorg, which is why nobody knew. Swept the corpus rather than guess: 465 findings across 14 of 29 components with a history — the reorg had closed the door to proven-space on half the system. Disposed here through the designed door and no other way: a forwarding order on each of the four closed tickets (40 entries over 4 tickets for this component), every successor MEASURED from git's own rename record (git log --diff-filter=R -M, 26 of 27 addresses named by one commit; the 27th is a directory, which git records as its files moving) and re-checked at BOTH ends by the gate at every future promotion. The berths were not touched — they are records of truth and may not be edited to look consistent (Law 7); the disposition has to be a named successor.",
-    "gate_defect_found_and_fixed": "AND THE OTHER 12 HAD NO DOOR AT ALL, which is the finding. The successor tolerance reached charted_refs_resolve and survey_holdings_resolve but not constraint_traces — the third sieve of the same family. That was never a decision: on 2026-07-30 the moving ticket's own refusal named one orient ref and four survey holdings, so the door was fitted to exactly those two and the sieve whose findings were not in that day's set kept the flat rule for fifteen days. A constraint's 'source' is an address in the same sense a holding's 'address' is and a move breaks it identically — MEASURED: all 12 that stood were sources ALREADY FORWARDED on the same tickets, successor resolving, by an order the sieve did not read. Extended it, mirroring its sibling exactly, and the deliberate asymmetry is preserved: judge_constrain is also the BERTH door's mouth, where every source resolves by definition, so the pure judge keeps the flat rule and only the promotion side disposes. Teeth landed with it in test_inspector 26b — a fixture constrain packet proving all three sieves red with no order, all three disposed by a whole one, a broken order granting no tolerance to the third sieve either, and the berth door NOT inheriting the tolerance. 52 -> 0 for this component; 413 still stand across 13 others, untouched and ticketed, because their tickets carry no forwarding order and that debt is not this voyage's to spend.",
-    "full_tester": "107 proofs · 107 green · 0 red, re-run after the inspector change",
-    "at": "2026-08-14T16:13:17",
-    "seq": 22
+    "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py",
+    "proven_seal_date": "2026-08-14T16:38:57",
+    "delegated": false,
+    "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+    "watch_proven_by": "cairn/devices/ground_loop/proofs/test_loop_not_stale.py",
+    "note": "the watch's own proof is sealed too and is named beside the build's proof: the probe shipped unproved and its every-beat path raised on the first real call, so this crossing leans on two seals, not one",
+    "at": "2026-08-14T16:39:27",
+    "seq": 23
   },
   "window": [
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "ticket": "a-record-reaches-disk",
-      "note": "cairn/machines/diagnostic_inspector/log.py built and wired at cairn/devices/ground_loop/__main__.py. Proof green twice: 39 assertions over 10 teeth, roster derived not hand-listed. The tooth the trouble demanded passes — a record emitted by a device in a CHILD process that then exited is read back from the file by the parent, ts matching byte-for-byte; a same-process assertion would have passed on the in-memory hold. Both live devices wired, not one: ground_loop and the BusDevice constructed beside it, one trail each in its own instance space (Law 6 on the file). Acceptance is the ticket falsifier run verbatim next — start the system, do nothing else, read the file from another shell.",
-      "at": "2026-08-12T15:56:42",
-      "seq": 18
-    },
     {
       "from": "PROVEME",
       "to": "PROVED",
@@ -930,7 +799,234 @@
       "full_tester": "107 proofs · 107 green · 0 red, re-run after the inspector change",
       "at": "2026-08-14T16:13:17",
       "seq": 22
+    },
+    {
+      "from": "WATCHME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-loop-never-blames-a-device-for-its-own-age) -> [PROVED]",
+      "direction": "forward",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+      "clearance_gate": "cleared by 'CC' onto cairn/devices/ground_loop/proofs/test_staleness.py (seal 2026-08-14T16:38:57, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-loop-never-blames-a-device-for-its-own-age) emitted the probe berthed at cairn/devices/ground_loop/probes/loop_not_stale.py (ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260814T163532-d7575fd67c39.json",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "cursor": 4,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "legal_from_here": [
+              "BUILDME",
+              "PROVED",
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
+          "actual": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
+          "actual": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
+            "berth": "cairn/devices/ground_loop/probes/loop_not_stale.py",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+            "component": "ground_loop",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
+          "actual": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
+          }
+        },
+        {
+          "identity": "the_claiming_chart_is_answered",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_exit",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_exit",
+          "values": {
+            "findings": [],
+            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "component": "ground_loop",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_witness_is_whole",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
+            ]
+          }
+        },
+        {
+          "identity": "the_named_proof_stands_in_proven_space",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
+          "actual": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
+            "why": "sealed green 2026-08-14T16:38:57 by sail:the-loop-names-its-own-staleness-instead-of-benching-a-device, and the component's source fingerprint still matches what was proved (a2990faedaac…)"
+          }
+        },
+        {
+          "identity": "the_witness_agrees_with_the_seal_it_names",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
+          "actual": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
+            "seal": "2026-08-14T16:38:57",
+            "claimed": "2026-08-14T16:38:57"
+          }
+        }
+      ],
+      "checks_proved": 13,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py",
+      "proven_seal_date": "2026-08-14T16:38:57",
+      "delegated": false,
+      "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+      "watch_proven_by": "cairn/devices/ground_loop/proofs/test_loop_not_stale.py",
+      "note": "the watch's own proof is sealed too and is named beside the build's proof: the probe shipped unproved and its every-beat path raised on the first real call, so this crossing leans on two seals, not one",
+      "at": "2026-08-14T16:39:27",
+      "seq": 23
     }
   ],
-  "count": 23
+  "count": 24
 }

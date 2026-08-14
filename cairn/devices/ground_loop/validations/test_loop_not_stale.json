@@ -1,0 +1,22 @@
+[
+  {
+    "claim": "proof test_loop_not_stale.py passes under python3",
+    "caller": "sail:the-loop-names-its-own-staleness-instead-of-benching-a-device",
+    "date": "2026-08-14T16:38:58",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_cleared_bench_ticket_is_not_a_bench\n  PASS  test_a_condition_seen_after_this_process_started_clears_nothing\n  PASS  test_a_live_bench_ticket_is_a_bench\n  PASS  test_a_store_that_never_saw_the_condition_clears_nothing\n  PASS  test_a_wrongly_benched_device_blocks_the_clear_even_after_a_restart\n  PASS  test_an_unparseable_timestamp_does_not_clear\n  PASS  test_an_unrelated_trouble_is_not_a_bench\n  PASS  test_it_clears_only_when_the_condition_predates_this_process\n  PASS  test_it_fires_on_a_device_benched_while_importing_cleanly\n  PASS  test_it_stays_silent_on_a_device_that_really_is_broken\n  PASS  test_one_wrongly_benched_device_among_broken_ones_still_fires\n  PASS  test_the_carry_names_the_diagnosis_order_and_its_own_ticket\n  PASS  test_the_every_beat_path_actually_runs\n  PASS  test_the_healthy_loop_reads_false\n  PASS  test_the_probe_loads_under_the_loops_own_discovery\ngreen — the watch is wired, fires on the relation, and does not clear on silence",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "a2990faedaac0d391b606598f33fb280b251e9ba98a7c67443b1d832b4d32e96",
+      "trail_link": "8b06f99a6d4535dae5a8fd024e043b7046b35cd878a507421fc0148b7d3c0273"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

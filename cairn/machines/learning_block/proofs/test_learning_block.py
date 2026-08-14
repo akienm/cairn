@@ -21,6 +21,7 @@ REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
 from cairn.machines.learning_block import learning_block as lb  # noqa: E402
+from cairn.tools.gate import gate
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime(2026, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
@@ -615,6 +616,72 @@ def test_door_refused_renders_field_and_why():
 
 
 # ── runner ───────────────────────────────────────────────────────────────────
+
+def test_the_door_records_every_check_it_ran_not_only_the_lacks():
+    """Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."
+
+    Paired halves, because a lack list passes either one alone. A conforming payload
+    must yield a NON-EMPTY record, one entry per DECLARED field, every entry passed with
+    expected == actual — so a contract quietly emptied upstream cannot write the same
+    triumphant door_pass as a contract fully satisfied. And the lacks a refusal raises
+    must be exactly the lacks its own failing entries carry.
+    """
+    root = world()
+    contract = _contract()
+    record = lb.inspect_input(contract, {"intent": "grind", "source": "akien"})
+    assert record, "an empty proof record is an error, not a pass"
+    assert len(record) == len(contract["requires"]), (
+        f"the record's length IS the contract's size: {[e['identity'] for e in record]}")
+    for entry in record:
+        assert gate.passed(entry), entry
+        assert entry["expected"] == entry["actual"], entry
+
+    shorter = lb.inspect_input({"block": "blk", "requires": {"intent": "why"}},
+                               {"intent": "grind"})
+    assert len(shorter) < len(record), (
+        "a field that stops being required makes the record SHORTER, not cleaner")
+
+    partial = lb.inspect_input(contract, {"intent": "grind"})
+    from_record = [l for e in partial if not gate.passed(e) for l in e["values"]["lacks"]]
+    assert lb.check_input(contract, {"intent": "grind"}) == from_record, (
+        "check_input and the record it is derived from disagree")
+
+
+def test_a_judge_that_ran_and_found_nothing_is_not_a_judge_that_never_ran():
+    """The guard rule, and here the distinction is free because the caller hands it over.
+
+    ``extra_lacks=None`` — no semantic judge ran, so no entry: a check that did not run
+    is ABSENT, not passed. ``extra_lacks=[]`` — a judge RAN and was satisfied, which is a
+    different fact and earns an entry that says so. (This is exactly what the judges in
+    cairn/machines/build_inspector cannot yet report: ticket
+    a-judge-declares-its-attendance.)
+    """
+    contract = _contract()
+    payload = {"intent": "grind", "source": "akien"}
+    silent = lb.inspect_input(contract, payload)
+    attended = lb.inspect_input(contract, payload, [])
+    assert len(attended) == len(silent) + 1, (
+        "a judge that ran and found nothing must appear in the record")
+    assert "the_callers_judge_finds_nothing" not in [e["identity"] for e in silent], silent
+    assert gate.passed(attended[-1]), attended[-1]
+
+
+def test_a_door_pass_trace_carries_what_was_proved():
+    """The trace is a record of truth (Law 7), so it may not collapse. A door_pass used
+    to name only the fields that ARRIVED — it could not say which checks RAN, which is
+    the same silence on the green side that the send-back never had on the red."""
+    root = world()
+    lb.fire_door(_contract(), {"intent": "grind", "source": "akien"},
+                 now=NOW, root=root, judge="shape")
+    rec = lb.read_trace("blk", root=root)[-1]
+    assert rec["event"] == "door_pass", rec
+    assert rec["data"]["checks_proved"] == len(_contract()["requires"]), rec
+    assert [e["identity"] for e in rec["data"]["record"]], rec
+    assert all(gate.passed(e) for e in rec["data"]["record"]), rec
+    assert rec["data"]["judge"] == "shape", (
+        "the judge that stood at the door must be named on the PASS too, or the corpus "
+        f"is a record of failures wearing a record of firings' clothes: {rec}")
+
 
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
 

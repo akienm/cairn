@@ -34,6 +34,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from cairn.tools.gate import gate
 from cairn.tools.base.address import instance_path
 
 CONSUMERS = ("debug", "training", "tree-primary")
@@ -187,16 +188,31 @@ def declare_contract(block: str, requires: dict[str, str]) -> dict:
     return {"block": block, "requires": dict(requires)}
 
 
-def check_input(contract: dict, payload: dict) -> list[dict]:
-    """Every lack, in one pass. A dribbled refusal costs the sender a round-trip per field.
+def inspect_input(contract: dict, payload: dict,
+                  extra_lacks: list[dict] | None = None) -> list[dict]:
+    """THE PROOF RECORD this door opens on: one entry per REQUIRED FIELD the contract
+    declares, EXPECTED beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING
+    ALWAYS PROVED AND LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+
+    Why the record and not the lack list: an empty lack list was the same bytes whether
+    every declared field arrived, or the contract declared nothing, or ``requires`` was
+    quietly emptied upstream. The record's LENGTH is the contract's size, so a field that
+    stops being required makes it SHORTER — visible — rather than cleaner.
 
     AN EMPTY COLLECTION IS A LACK (added 2026-08-01, ticket intent-becomes-a-learning-block).
     ``bullets: []`` is not a bullet list — it is the *absence* of one wearing the field's
     name, and without this it sailed through the door as "present". Found while wiring the
     first skill onto the primitive: the alternative was a second check beside ``fire_door``,
     which would have made the door two doors (Law 6). Fixing the organ keeps it one.
+
+    THE JUDGE ENTRY IS GUARDED, AND THE GUARD IS THE POINT. ``extra_lacks=None`` means no
+    semantic judge ran, so no entry is appended — a check that did not run is ABSENT, not
+    passed. ``extra_lacks=[]`` means a judge RAN and found nothing, which is a different
+    fact and gets an entry that says so. That distinction is unavailable to the judges in
+    cairn/machines/build_inspector (ticket a-judge-declares-its-attendance); here the
+    caller hands it over for free, so it is recorded.
     """
-    lacks = []
+    record = []
     for field, why in contract["requires"].items():
         value = payload.get(field)
         empty = (
@@ -204,9 +220,37 @@ def check_input(contract: dict, payload: dict) -> list[dict]:
             or (isinstance(value, str) and not value.strip())
             or (isinstance(value, (list, tuple, dict, set)) and not value)
         )
-        if empty:
-            lacks.append({"field": field, "why": why})
-    return lacks
+        record.append(gate.proved(
+            identity="required_field_arrived:%s" % field,
+            location="%s.requires.%s" % (contract.get("block", "?"), field),
+            code="learning_block.py:inspect_input",
+            source="learning_block.door",
+            expected="present and non-empty",
+            actual="absent or empty" if empty else "present and non-empty",
+            lacks=[{"field": field, "why": why}] if empty else [],
+            why=why))
+
+    if extra_lacks is not None:
+        extra = list(extra_lacks)
+        record.append(gate.proved(
+            identity="the_callers_judge_finds_nothing",
+            location=contract.get("block", "?"),
+            code="learning_block.py:inspect_input",
+            source="learning_block.door",
+            expected=[], actual=[l.get("field", "?") for l in extra],
+            lacks=extra))
+    return record
+
+
+def check_input(contract: dict, payload: dict) -> list[dict]:
+    """Every lack, in one pass. A dribbled refusal costs the sender a round-trip per field.
+
+    A VIEW OVER ``inspect_input``, DERIVED AND NEVER PARALLEL — two mouths for one
+    question is how a door and the refusal it raises come to disagree about what was
+    missing.
+    """
+    return [lack for entry in inspect_input(contract, payload)
+            if not gate.passed(entry) for lack in entry["values"]["lacks"]]
 
 
 def fire_door(contract: dict, payload: dict, *,
@@ -225,18 +269,27 @@ def fire_door(contract: dict, payload: dict, *,
     that are present.
     """
     block = contract["block"]
-    lacks = check_input(contract, payload) + list(extra_lacks or [])
+    record = inspect_input(contract, payload, extra_lacks)
+    lacks = [lack for entry in record if not gate.passed(entry)
+             for lack in entry["values"]["lacks"]]
+    # THE RECORD RIDES BOTH TRACES, and the pass side is the half that was missing. A
+    # door_pass used to say only which fields ARRIVED; it could not say which checks
+    # RAN, so a contract quietly emptied upstream wrote the same triumphant line as a
+    # contract fully satisfied. The trace is a record of truth (Law 7) and now carries
+    # what was proved, not only that nothing complained.
+    data = {"record": record, "checks_proved": len(record),
+            "payload_fields": sorted(payload.keys())}
+    if judge:
+        # WHICH judge stood at this door. A record that cannot name its judge cannot be
+        # read back as evidence about that judge — and the judges are the thing that
+        # learns. It rides BOTH ways now: naming the judge only when it objected made
+        # the trace corpus a record of failures wearing a record of firings' clothes.
+        data["judge"] = judge
     if lacks:
-        data = {"lacks": lacks, "payload_fields": sorted(payload.keys())}
-        if judge:
-            # WHICH judge stood at this refusal. A refusal record that cannot name its
-            # judge cannot be read back as evidence about that judge — and the judges
-            # are the thing that learns.
-            data["judge"] = judge
-        write_trace(block, "send_back", "training", data, now=now, root=root)
+        write_trace(block, "send_back", "training", dict(data, lacks=lacks),
+                    now=now, root=root)
         raise DoorRefused(block, lacks)
-    return write_trace(block, "door_pass", "training",
-                       {"payload_fields": sorted(payload.keys())}, now=now, root=root)
+    return write_trace(block, "door_pass", "training", data, now=now, root=root)
 
 
 # ── FINDING — the bullet list the gate reads ─────────────────────────────────

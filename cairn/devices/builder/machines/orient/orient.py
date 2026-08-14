@@ -48,6 +48,40 @@ gate (validate_orient) is the append-door pattern: a packet that cannot fill its
 shape refuses loudly, and an INVENTED ref (one the floor cannot verify exists)
 refuses — downstream must never receive a pointer to nothing.
 
+THE FLOOR AUTHORS, AND PROVENANCE IS MEASURED (2026-08-14, ticket
+orient-floor-authors-and-provenance-is-measured). Until this build the floor emitted
+FACTS and the ceiling wrote every packet field by hand — including the field that says
+which stratum wrote it. Measured over all 45 berthed orient packets: ``domain`` was
+labelled ``floor`` in 18 of them and 14 of those floor-labelled values were over 200
+characters of prose; ``refs`` was labelled ``floor`` in 44 while the SELECTION was
+always the ceiling's. So the dial read orient at 0.40 floor and that 0.40 was a
+SELF-REPORT — the one number Akien steers the staircase by, computed by the party being
+measured. Two things change here and the second is what makes the first honest:
+
+  1. ``floor_packet`` AUTHORS the three fields that are lookup rather than language —
+     ``refs`` (paths it verified, plus the directories of components and skills it
+     matched), ``domain`` (the addresses and their rung, derived from where those refs
+     actually sit), ``unknowns`` (what it could NOT ground). It authors nothing it
+     cannot ground: an ambiguous component name is an unknown, never a guessed ref.
+  2. THE SENDER MAY NOT WRITE PROVENANCE FOR THOSE THREE. The door derives it by
+     re-running the floor over the packet's own ``request`` and comparing, and a field
+     may claim ``floor`` only if the door can REPRODUCE the floor's answer. A sender
+     that declares one and gets it wrong is REFUSED, not corrected — the label is not
+     the sender's to write, and correcting it quietly would leave a sender that still
+     believes it labels its own work. It lives in ``validate_orient``, which is the
+     only route to both the berth and the deposit, so there is no door left open.
+
+The evidence the door needs is the request, so a packet that carries ``request`` can
+earn ``floor`` and one that does not cannot: with nothing to reproduce, the honest
+reading is ``claude``. That is deliberately an incentive rather than a new required
+field — 45 berthed packets predate this and none of them is retroactively malformed.
+
+Not a token-cost argument, and the charter says so at length: Claude is cached (ruling
+2026-08-14-the-preamble-compiles-to-learn-not-to-be-cheap). A floor that authors makes
+the answer REUSABLE and makes the next rung's evidence real — the preamble's ceiling is
+becoming Hex, whose failovers DEPOSIT, and "what did the floor already answer" has to
+be a fact before "what did the ceiling have to add" can be one.
+
 Packets are runtime state and berth in instance-space (~/.cairn/devices/chart/0/);
 the durable memory is the tree (filed stone). No clocks, no daemons: orient runs
 only when /chart is invoked.
@@ -62,16 +96,22 @@ import time
 
 from cairn.tools.gate import gate
 from cairn.tools.tree.tree import deposit_learning
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, _ref_exists,
-                                       common_shape_record, component_roster, inspected,
-                                       lacks_of, render_lacks, skill_roster)
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, AmbiguousComponent,
+                                       _ref_exists, common_shape_record, component_home,
+                                       component_roster, inspected, lacks_of,
+                                       render_lacks, skill_roster)
 
 AUTHORED_FIELDS = ("intent", "domain", "scope", "refs", "unknowns")
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 # '+' rides the class because the house's own charter filenames carry it (intention+why.json)
 _PATHISH = re.compile(r"[\w~./+-]*/[\w./+-]*[\w/]")
-_SLASH_VERB = re.compile(r"(?<!\S)/([a-z][\w-]*)")
+# The trailing lookahead is what keeps ``/home/akien/...`` from reading as the slash-verb
+# ``/home``. It cost nothing while the only consumer filtered against the installed skill
+# roster (no skill is called "home"); it became load-bearing on 2026-08-14, when the floor
+# started reporting the roster's COMPLEMENT — an unmatched verb is now an unknown, so a
+# false verb match is a fabricated unknown rather than a silently dropped one.
+_SLASH_VERB = re.compile(r"(?<!\S)/([a-z][\w-]*)(?![\w/-])")
 _WORD = re.compile(r"[a-z0-9_]+")
 
 
@@ -96,28 +136,226 @@ def floor_facts(request: str, root: str = CAIRN_ROOT) -> dict:
     components = [c for c in roster if c.lower() in words]
 
     skills = skill_roster(root)
-    verbs = sorted({v for v in _SLASH_VERB.findall(text) if v in skills})
-    verb_tokens = {"/" + v for v in verbs}
+    slashes = set(_SLASH_VERB.findall(text))
+    verbs = sorted(slashes & set(skills))
+    # EVERY slash-verb, not only the installed ones — a token the request wrote as a verb
+    # is a verb claim whether or not the skill exists, and letting the uninstalled ones
+    # fall through to the path scan reported ``/nosuchskill`` twice: once as a missing
+    # skill and once as a missing path. Two unknowns, one fact.
+    verb_tokens = {"/" + v for v in slashes}
 
     paths_found, paths_missing = [], []
     for tok in _PATHISH.findall(text):
         if tok in verb_tokens:
             continue  # a known slash-verb is a skill mention, not a path claim
-        candidate = os.path.expanduser(tok)
-        if os.path.exists(candidate) or os.path.exists(os.path.join(root, tok)):
+        # THE SAME EXISTENCE RULE THE GATE USES, deliberately, and it was not before:
+        # this scan checked absolute-or-root-relative while ``inspect_orient`` refuses an
+        # unverifiable ref through ``_ref_exists``, which ALSO resolves against
+        # CairnCommons. Two rules meant a commons path (``tickets/foo.json``) read as a
+        # missing path here and as a perfectly good ref one door later — the floor
+        # manufacturing an unknown about a file the gate could see. One mouth.
+        if _ref_exists(tok, root, roster):
             paths_found.append(tok)
         else:
             paths_missing.append(tok)
 
+    # THE COMPLEMENT IS A FACT TOO, and it was missing until 2026-08-14. ``verbs`` above
+    # keeps only the slash-verbs that ARE installed skills; the ones that are not are
+    # exactly what the floor could not ground, and dropping them silently meant the floor
+    # measured a thing and then threw the negative half away (Law 7: found and missing
+    # stay separate, never merged — the same rule ``paths_found``/``paths_missing``
+    # already followed one line down).
     return {
         "stratum": "floor",
         "request": text,
         "components_mentioned": components,
         "skills_mentioned": verbs,
+        "skills_missing": sorted(slashes - set(skills)),
         "paths_found": sorted(set(paths_found)),
         "paths_missing": sorted(set(paths_missing)),
         "roster_size": len(roster),
     }
+
+
+# The packet fields the floor can author, because each is lookup rather than language.
+# ``intent`` and ``scope`` are NOT here and are not candidates: restating an ask in
+# grounded terms and drawing an in/out line are the two things that need a reader.
+FLOOR_AUTHORED = ("refs", "domain", "unknowns")
+
+
+def _repo_relative(path, root: str) -> str | None:
+    """A ref INSIDE the repo is written repo-relative, because an absolute one stops
+    resolving the moment anything is checked out anywhere else. Returns ``None`` for a
+    path outside the root — and outside is a real answer rather than a failure: Akien's
+    design papers live in ``~/.akien/``, so a ref there is legitimately absolute and
+    rewriting it relative would produce ``../../..``, a pointer that is worse than the
+    one it replaced."""
+    try:
+        rel = os.path.relpath(os.path.realpath(str(path)), os.path.realpath(root))
+    except ValueError:  # different drive/root; not a ref this repo can carry
+        return None
+    return None if rel == ".." or rel.startswith(".." + os.sep) else rel
+
+
+def _rung(ref: str) -> tuple[str, str] | None:
+    """WHERE A REF SITS ON THE COMPLEXITY AXIS, read off its address and nothing else.
+
+    This is the whole of ``domain``'s derivation, and the reason it can be derived at all
+    is that CLAUDE.md made the axis an ADDRESS: tools -> machines -> devices -> device
+    instances, each rung a directory segment. A held part is named as held ("machine
+    orient, held by device builder") rather than flattened, because the holder is the
+    thing that owns and gates it (Law 6) and a domain that hides the holder hides the
+    owner. Returns (address, rung) or None for an address off the axis."""
+    parts = [p for p in ref.split("/") if p]
+    if not parts:
+        return None
+    if parts[0] == "CairnCommons":
+        return ("CairnCommons", "commons")
+    if parts[0] == "skills" and len(parts) > 1:
+        return ("skills/" + parts[1], "skill")
+    if parts[:2] == ["cairn", "tools"] and len(parts) > 2:
+        return ("/".join(parts[:3]), "tool")
+    if parts[:2] == ["cairn", "machines"] and len(parts) > 2:
+        return ("/".join(parts[:3]), "machine")
+    if parts[:2] == ["cairn", "devices"] and len(parts) > 2:
+        if len(parts) > 4 and parts[3] in ("machines", "tools"):
+            held = "machine" if parts[3] == "machines" else "tool"
+            return ("/".join(parts[:5]), "%s held by device %s" % (held, parts[2]))
+        return ("/".join(parts[:3]), "device")
+    return None
+
+
+def floor_packet(request: str, root: str = CAIRN_ROOT) -> dict:
+    """THE DETERMINISTIC HALF OF THE PACKET — the three fields orient can author without
+    a reader, returned beside the facts they were derived from.
+
+    Each value is ``None`` when the floor has nothing, and that is the honest answer
+    rather than a hollow one: an empty ``domain`` string would satisfy the schema and
+    tell a downstream stage that orient looked and found the request placeless, which is
+    a different claim from "the floor could not tell". A ``None`` here means the ceiling
+    authors that field and provenance will say so.
+
+    IT AUTHORS NOTHING IT CANNOT GROUND. The sharp case is the homonym, and it is the
+    one this nexus's first live fire was born from: ``orient`` answers to two rungs (the
+    tool and this machine). ``component_dir`` refuses that ambiguity loudly instead of
+    picking, so an ambiguous name becomes an UNKNOWN — the floor says "I found this name
+    twice and cannot tell which you meant", which is a measurement, where a guessed ref
+    would be a fabrication wearing the floor's provenance."""
+    facts = floor_facts(request, root)
+
+    # A path the request wrote absolutely but that sits inside the repo is rewritten
+    # relative; one that sits outside is kept exactly as written (see _repo_relative).
+    refs, unknowns = [], []
+    for tok in facts["paths_found"]:
+        expanded = os.path.expanduser(tok)
+        rel = _repo_relative(expanded, root) if os.path.isabs(expanded) else None
+        refs.append(rel or tok)
+    for name in facts["components_mentioned"]:
+        try:
+            home = component_home(name, root)
+        except AmbiguousComponent as exc:
+            # The homes, not the exception's sentence: that sentence is written for a
+            # CALLER who can go say which, and this unknown is read by a ceiling that
+            # cannot. It needs the two addresses and nothing else.
+            homes = [_repo_relative(h, root) or str(h) for h in exc.homes]
+            unknowns.append(
+                "the request names %r, which answers to more than one rung (%s) — the "
+                "floor will not guess which" % (name, ", ".join(sorted(homes))))
+            continue
+        if home:
+            refs.append(home)
+    refs += ["skills/" + s for s in facts["skills_mentioned"]]
+
+    for tok in facts["paths_missing"]:
+        unknowns.append("the request names a path that does not exist on disk: %s" % tok)
+    for verb in facts["skills_missing"]:
+        unknowns.append("the request names /%s, which is not an installed skill" % verb)
+
+    refs = sorted(set(refs))
+    homes = sorted({_rung(r) for r in refs} - {None})
+    domain = "; ".join("%s (%s)" % (addr, rung) for addr, rung in homes) or None
+
+    return {
+        "stratum": "floor",
+        "refs": refs or None,
+        "domain": domain,
+        "unknowns": sorted(set(unknowns)) or None,
+        "facts": facts,
+    }
+
+
+def _survived(authored, proposed) -> bool:
+    """Did the floor's answer come through the ceiling unchanged? Lists are compared as
+    SETS because ``refs`` and ``unknowns`` are collections and not sequences — a reorder
+    is not the ceiling adding knowledge, and calling it one would understate the floor by
+    exactly the amount a cosmetic difference costs."""
+    if isinstance(authored, list) and isinstance(proposed, list):
+        return set(map(str, authored)) == set(map(str, proposed))
+    return authored == proposed
+
+
+def measured_provenance(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """PROVENANCE FOR THE FLOOR-AUTHORED FIELDS, DERIVED — never accepted.
+
+    Re-runs the floor over the packet's own ``request`` and compares. A field claims
+    ``floor`` only if the door can REPRODUCE the floor's answer; otherwise it is
+    ``claude``, because "the ceiling wrote this" is what an unreproducible field means.
+    A ``tree`` declaration is left standing — that stratum is not what this measures and
+    clobbering it would trade one wrong label for another.
+
+    THE REQUEST IS THE EVIDENCE, AND CARRYING IT IS OPTIONAL ON PURPOSE. With no
+    ``request`` in the packet there is nothing to reproduce, so nothing can earn
+    ``floor`` — an incentive to carry it rather than a new required field, which matters
+    because 45 packets berthed before this build and none of them should become
+    retroactively malformed (Law 7: a record of truth is not rewritten by a later rule).
+    """
+    prov = dict(packet.get("provenance") or {})
+    request = packet.get("request")
+    proposal = (floor_packet(request, root)
+                if isinstance(request, str) and request.strip() else {})
+    for field in FLOOR_AUTHORED:
+        if field not in packet:
+            continue
+        proposed = proposal.get(field)
+        if proposed is not None and _survived(packet[field], proposed):
+            prov[field] = "floor"
+        elif prov.get(field) != "tree":
+            prov[field] = "claude"
+    return prov
+
+
+def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
+    """THE LOUD HALF. A sender that labels its own floor-authored provenance and gets it
+    WRONG is refused, not corrected — and refused BEFORE the gate, because this is not a
+    judgement about the packet's content but about the sender's authority over a field
+    that is measured. Same category as "a packet must be a dict".
+
+    A silent overwrite was the alternative and it is worse. The defect this build exists
+    to end is a number computed by the party being measured; correcting the label without
+    saying so would leave a sender believing it still labels its own work, and the next
+    stage would be written from that belief — the propagation vector that put "a tool
+    holds no state" into eight charters.
+
+    AGREEING WITH THE MEASUREMENT IS NOT DECLARING, which is why this refuses on
+    DISAGREEMENT rather than on presence. Two reasons, and the second is the load-bearing
+    one: a label that matches what re-running the floor produced is not a claim the
+    sender made, it is a claim the sender RE-DERIVED, and there is nothing to refuse in
+    being right. And ``validate_orient`` runs at both doors over the same object, so a
+    refuse-on-presence rule would make the berth's own output illegal at the deposit one
+    line later — the door refusing the packet it just wrote."""
+    prov = packet.get("provenance") or {}
+    wrong = {f: (prov[f], measured.get(f)) for f in FLOOR_AUTHORED
+             if f in prov and prov[f] != measured.get(f)}
+    if wrong:
+        raise OrientRefused(
+            "orient refuses a packet that declares its own provenance for %s — those are "
+            "DERIVED at the door by re-running the floor over the packet's own 'request' "
+            "and comparing, and a field earns 'floor' only when the floor's answer can be "
+            "REPRODUCED. Declared vs measured: %s. Drop those keys (the door writes them) "
+            "and carry 'request' so there is something to reproduce."
+            % (", ".join(sorted(wrong)),
+               "; ".join("%s declared %r, measured %r" % (f, d, m)
+                         for f, (d, m) in sorted(wrong.items()))))
 
 
 def inspect_orient(packet: dict, root: str = CAIRN_ROOT) -> list:
@@ -197,6 +435,23 @@ def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
         # be asked a single one of the questions above, so this is the one refusal that
         # is not a gate verdict. It is loud and it is terminal.
         raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
+
+    # PROVENANCE IS MEASURED HERE, AT THE GATE, AND IN PLACE — the physics for the whole
+    # build (Law 4: a rule that matters is enforced by the schema or the kernel, and
+    # until it is it is an IOU). Putting it here rather than in ``write_packet`` is what
+    # makes it unavoidable: BOTH doors a packet can pass through — the berth and the
+    # deposit — go through this function, so there is no route by which a packet reaches
+    # instance-space or the tree carrying a label it wrote about itself.
+    #
+    # IN PLACE, and the alternative is a trap rather than a style preference: /chart
+    # calls ``write_packet(p)`` and then ``deposit_orient(p, ...)`` with the same object.
+    # A copy would berth the measured provenance and hand the caller back a packet whose
+    # provenance this very door would then refuse — the berth and the packet disagreeing
+    # about what the packet is.
+    measured = measured_provenance(packet, root=root)
+    refuse_misdeclared_floor_provenance(packet, measured)
+    if measured:
+        packet["provenance"] = measured
 
     record = inspect_orient(packet, root=root)
     if not gate.verdict(record)["opens"]:

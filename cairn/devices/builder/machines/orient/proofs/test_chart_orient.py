@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "..")))
 
 from cairn.tools.chain.grammar import (component_roster, ref_exists)
-from cairn.devices.builder.machines.orient.orient import (AUTHORED_FIELDS, OrientRefused, floor_facts, validate_orient, write_packet)
+from cairn.devices.builder.machines.orient.orient import (AUTHORED_FIELDS, FLOOR_AUTHORED, OrientRefused, floor_facts, floor_packet, validate_orient, write_packet)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
@@ -43,13 +43,21 @@ ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time",
 
 def make_root():
     root = str(scratch_dir("chart_orient_proof_"))
-    # gamma carries code but NO charter — the census sees it, the roster must not
-    for comp in ("alpha", "beta", "gamma"):
-        os.makedirs(os.path.join(root, "cairn", comp))
-        with open(os.path.join(root, "cairn", comp, comp + ".py"), "w") as fh:
+    # gamma carries code but NO charter — the census sees it, the roster must not.
+    #
+    # THE FIXTURE SITS ON REAL RUNGS since 2026-08-14, and it did not before: it built
+    # ``cairn/<name>/``, a shape the repo stopped having on 2026-08-13 when the
+    # complexity axis became an address (tools -> machines -> devices). Nothing was red,
+    # because nothing yet read the rung — and then ``domain`` started being DERIVED from
+    # where a ref sits, and a fixture off the axis produced no domain at all. A fixture
+    # that models a layout the house no longer has is a green that stops meaning anything.
+    for rung, comp in (("tools", "alpha"), ("devices", "beta"), ("tools", "gamma")):
+        home = os.path.join(root, "cairn", rung, comp)
+        os.makedirs(home)
+        with open(os.path.join(home, comp + ".py"), "w") as fh:
             fh.write("x = 1\n")
         if comp != "gamma":
-            with open(os.path.join(root, "cairn", comp, "intention+why.json"), "w") as fh:
+            with open(os.path.join(home, "intention+why.json"), "w") as fh:
                 fh.write("{}\n")
     # A SKILL IS A DIRECTORY WITH A SKILL.md, not just a directory (skill_roster,
     # 2026-08-13) — the fixture has to build the artifact the floor looks for.
@@ -60,15 +68,24 @@ def make_root():
 
 
 def good_packet():
+    """A ceiling-authored packet: it writes all five fields and declares provenance for
+    the two the door does not measure.
+
+    IT USED TO DECLARE ``floor`` FOR domain AND refs and that is precisely what stopped
+    being legal on 2026-08-14 (ticket orient-floor-authors-and-provenance-is-measured) —
+    the fixture was itself an instance of the defect, a sender labelling its own work,
+    and the door now refuses the label rather than believing it. Nothing here is
+    floor-authored (the refs are hand-picked and do not reproduce), so the door writes
+    ``claude`` for all three, which is the honest reading of exactly this packet."""
     return {
+        "request": "close alpha's gate against hollow input",
         "intent": "close alpha's gate against hollow input",
         "domain": "alpha",
         "scope": "the gate only, not beta's consumption of it",
-        "refs": ["alpha", "cairn/alpha/intention+why.json"],
+        "refs": ["alpha", "cairn/tools/alpha/intention+why.json"],
         "unknowns": ["whether beta consumes the gated output"],
         "confidence": 0.8,
-        "provenance": {"intent": "claude", "domain": "floor", "scope": "claude",
-                       "refs": "floor", "unknowns": "claude"},
+        "provenance": {"intent": "claude", "scope": "claude"},
     }
 
 
@@ -87,10 +104,10 @@ def test_empty_request_refuses(root):
 
 def test_floor_reports_only_what_exists(root):
     facts = floor_facts(
-        "fix alpha using cairn/alpha/intention+why.json and bogus/nowhere.py", root=root)
+        "fix alpha using cairn/tools/alpha/intention+why.json and bogus/nowhere.py", root=root)
     assert facts["stratum"] == "floor"
     assert facts["components_mentioned"] == ["alpha"]
-    assert "cairn/alpha/intention+why.json" in facts["paths_found"]
+    assert "cairn/tools/alpha/intention+why.json" in facts["paths_found"]
     assert "bogus/nowhere.py" in facts["paths_missing"]
     assert not set(facts["paths_found"]) & set(facts["paths_missing"]), \
         "found and missing must stay separate, never merged"
@@ -124,12 +141,115 @@ def test_invented_ref_refuses(root):
 
 
 def test_provenance_must_cover_authored_fields(root):
+    """Coverage is still the sender's obligation for the fields the door does NOT
+    measure. It names ``intent`` rather than ``refs`` since 2026-08-14: the three
+    floor-authored fields can no longer be uncovered, because the door fills them in
+    whether the sender likes it or not — removing that key is not a defect any more, it
+    is the required shape."""
     uncovered = good_packet()
-    del uncovered["provenance"]["refs"]
-    expect_refusal(lambda: validate_orient(uncovered, root=root), "refs")
+    del uncovered["provenance"]["intent"]
+    expect_refusal(lambda: validate_orient(uncovered, root=root), "intent")
     vibes = good_packet()
     vibes["provenance"]["scope"] = "vibes"
     expect_refusal(lambda: validate_orient(vibes, root=root), "vibes")
+
+
+def test_a_declared_floor_provenance_is_refused_not_believed(root):
+    """THE TOOTH THE TICKET NAMES, and the one a hollow build fails by doing what the
+    door did until 2026-08-14: accepting the sender's dict. The packet below hand-writes
+    ``domain`` and then labels it ``floor``, which is the exact shape of the defect that
+    made the dial read orient at 0.40 — 45 berthed packets, 18 of them declaring
+    ``domain: floor``, 14 floor-labelled values over 200 characters of prose, and not one
+    of them reproducible. Refused, not corrected: a silent overwrite would leave the
+    sender believing it still labels its own work."""
+    liar = good_packet()
+    liar["domain"] = "broadly speaking, the alpha area of the system"
+    liar["provenance"]["domain"] = "floor"
+    expect_refusal(lambda: validate_orient(liar, root=root), "declared 'floor'")
+
+    # ...and the same packet WITHOUT the label sails, carrying the measured one.
+    honest = good_packet()
+    honest["domain"] = liar["domain"]
+    validate_orient(honest, root=root)
+    assert honest["provenance"]["domain"] == "claude", honest["provenance"]
+    assert honest["provenance"]["refs"] == "claude", honest["provenance"]
+
+
+def test_floor_authored_fields_earn_floor_by_reproducing(root):
+    """The other end of the same claim: a field earns ``floor`` only when re-running the
+    floor from the packet's own ``request`` produces it again. So the ceiling's way to
+    get a ``floor`` label is to carry the floor's answer through unchanged — there is no
+    other way, and that is the incentive the whole build is made of."""
+    request = "close alpha's gate, see cairn/devices/beta/beta.py and run /chart"
+    fp = floor_packet(request, root=root)
+    assert fp["refs"] and fp["domain"], fp
+
+    packet = dict(good_packet(), request=request, refs=fp["refs"],
+                  domain=fp["domain"], unknowns=fp["unknowns"] or ["nothing ungrounded"])
+    validate_orient(packet, root=root)
+    assert packet["provenance"]["refs"] == "floor", packet["provenance"]
+    assert packet["provenance"]["domain"] == "floor", packet["provenance"]
+
+    # A REORDER IS NOT AN EDIT. refs is a collection, and calling a shuffle "the ceiling
+    # added something" would understate the floor by the cost of a cosmetic difference.
+    shuffled = dict(packet, refs=list(reversed(packet["refs"])),
+                    provenance={"intent": "claude", "scope": "claude"})
+    validate_orient(shuffled, root=root)
+    assert shuffled["provenance"]["refs"] == "floor", shuffled["provenance"]
+
+    # One added ref and it is the ceiling's field again — the whole value, not a fraction.
+    widened = dict(packet, refs=list(packet["refs"]) + ["alpha"],
+                   provenance={"intent": "claude", "scope": "claude"})
+    validate_orient(widened, root=root)
+    assert widened["provenance"]["refs"] == "claude", widened["provenance"]
+
+
+def test_a_packet_without_a_request_cannot_earn_floor(root):
+    """No evidence, no claim. The request is what the door re-runs, so a packet that
+    does not carry one has nothing to reproduce and every floor-authored field reads
+    ``claude``. Deliberately an incentive and not a required field: 45 packets berthed
+    before this rule and none of them becomes retroactively malformed (Law 7)."""
+    request = "close alpha's gate, see cairn/devices/beta/beta.py"
+    fp = floor_packet(request, root=root)
+    blind = dict(good_packet(), refs=fp["refs"], domain=fp["domain"],
+                 unknowns=fp["unknowns"] or ["nothing ungrounded"])
+    del blind["request"]
+    validate_orient(blind, root=root)
+    assert set(blind["provenance"][f] for f in FLOOR_AUTHORED) == {"claude"}, \
+        blind["provenance"]
+
+
+def test_the_floor_never_invents_a_ref(root):
+    """THE SECOND TOOTH THE TICKET NAMES, and the worst failure available to this build:
+    a ref the floor made up carries a MEASUREMENT's provenance, which is a fabrication
+    wearing the one label nobody downstream is supposed to have to check. A path that is
+    not there lands in unknowns; a name two rungs answer to lands in unknowns; neither
+    ever lands in refs."""
+    fp = floor_packet("read cairn/tools/alpha/nope.py and /nosuchskill, then fix beta",
+                      root=root)
+    assert "cairn/tools/alpha/nope.py" not in (fp["refs"] or [])
+    assert any("cairn/tools/alpha/nope.py" in u for u in fp["unknowns"]), fp["unknowns"]
+    assert any("/nosuchskill" in u for u in fp["unknowns"]), fp["unknowns"]
+    assert "cairn/devices/beta" in fp["refs"], fp["refs"]
+    for ref in fp["refs"]:
+        assert ref_exists(ref, root), "the floor authored a ref that does not exist: %s" % ref
+
+    # A slash-verb that is not installed is ONE unknown, not two. It used to fall through
+    # the verb filter into the path scan and be reported as a missing path as well —
+    # two unknowns about one fact, which is a floor overstating what it failed to ground.
+    assert sum("nosuchskill" in u for u in fp["unknowns"]) == 1, fp["unknowns"]
+
+
+def test_an_ambiguous_name_becomes_an_unknown_never_a_guess(root):
+    """The homonym, on the live tree because that is where it exists: ``orient`` is a
+    tool AND this machine. The floor says it found the name twice and cannot tell, which
+    is a measurement; picking one would be a fabrication. An invariant about MEMBERSHIP
+    and the shape of the answer, never a snapshot of how many homes exist today."""
+    fp = floor_packet("build out orient's floor")
+    hits = [u for u in (fp["unknowns"] or []) if "'orient'" in u]
+    assert len(hits) == 1, fp["unknowns"]
+    assert "cairn/tools/orient" in hits[0] and "machines/orient" in hits[0], hits[0]
+    assert not any(r.endswith("/orient") for r in (fp["refs"] or [])), fp["refs"]
 
 
 def test_good_packet_validates_and_berths(root):

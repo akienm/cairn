@@ -29,14 +29,34 @@ Not how to do it, not what the answer is — that's later stages' work.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.orient.orient import floor_facts
-print(json.dumps(floor_facts(sys.argv[1]), indent=2))
+from cairn.devices.builder.machines.orient.orient import floor_packet
+print(json.dumps(floor_packet(sys.argv[1]), indent=2, ensure_ascii=False))
 " '<the request, verbatim>'
 ```
 
-The floor reports **what exists** — components mentioned (against the live
-charter roster), skills mentioned, referenced paths verified found-vs-missing.
-It never decides what applies; that judgment is yours, in the loop below.
+**THE FLOOR AUTHORS THREE OF THE FIVE FIELDS. COPY THEM THROUGH UNCHANGED.**
+Since 2026-08-14 (ticket orient-floor-authors-and-provenance-is-measured) the
+floor does not merely report facts — it writes `refs`, `domain` and `unknowns`,
+because each of those is lookup rather than language. `floor_packet` returns
+them ready to paste, beside the `facts` they came from. Your job on those three
+is to **add**, never to rewrite: append the conceptual unknowns the floor cannot
+see, and leave what it wrote alone.
+
+**Why it matters that you copy rather than paraphrase:** the door MEASURES
+provenance for those three by re-running the floor over the packet's own
+`request` and comparing. A field earns `floor` only if the floor's answer is
+reproduced — one reworded `domain` and the whole field reads `claude`. This is
+not bookkeeping. It is the number the staircase is steered by, and it was a
+self-report until this build: over 45 berthed packets, 44 declared
+`refs: floor`, 18 declared `domain: floor`, and re-running the floor reproduced
+**none** of them. The dial read 0.40; the truth was 0.00.
+
+Note the two honest `null`s: `refs`/`domain`/`unknowns` come back `null` when
+the floor could ground nothing, which is different from an empty list — that one
+is yours to fill, and provenance will correctly say `claude`.
+
+The floor still never decides what **applies**; that judgment is yours, in the
+loop below. It decides what **exists**, and that was always its half.
 
 ### 2. The tree — walk before you reason
 
@@ -70,9 +90,15 @@ filled and honest*. Actively assemble (never bare-lookup):
 
 - **intent** — the request restated grounded and disambiguated. If the request
   is ambiguous, the ambiguity goes in `unknowns`, not silently resolved.
-- **domain** — where in the system this lives (component/root/concept).
-- **scope** — what is in and what is explicitly out.
-- **refs** — pointers (paths, component names) downstream will need. ONLY
+  **Yours entirely — the floor has no opinion about it.**
+- **domain** — where in the system this lives. **THE FLOOR WROTE THIS**: the
+  addresses your refs actually sit at, each with its rung. Paste it. If it came
+  back `null` the floor grounded nothing and the field is yours.
+- **scope** — what is in and what is explicitly out. **Yours entirely.**
+- **refs** — pointers (paths, component names) downstream will need. **THE FLOOR
+  WROTE THIS** from the paths it verified and the components and skills it
+  matched. Paste it. Adding one is legal and costs the field its `floor` label,
+  so add only what the request really needs and the floor really missed. ONLY
   floor-verifiable refs — the gate refuses invented ones. References beat
   restatement: point, don't quote.
 - **ticket** — if this chart serves a cast ticket, claim it
@@ -85,11 +111,23 @@ filled and honest*. Actively assemble (never bare-lookup):
   chart cannot open the BUILDME door. The gate refuses a claim on an unfiled
   ticket — /sorted casts first.
 - **unknowns** — what orient could NOT ground. An honest non-empty list
-  outranks a confident hollow one.
+  outranks a confident hollow one. **THE FLOOR WROTE THE GROUNDING HALF** — the
+  paths that do not exist, the slash-verbs that are not installed, the names two
+  rungs both answer to (`orient` is a tool AND a machine; the floor refuses to
+  guess, and refusing is a measurement). Keep those verbatim and append the
+  conceptual ones only it can see. Appending costs the field its `floor` label
+  and that is the right trade: a real unknown beats a label.
+- **request** — the request verbatim. **CARRY IT.** It is the evidence the door
+  re-runs; a packet without one can earn `floor` for nothing, because there is
+  nothing to reproduce.
 - **confidence** — a float in [0,1], as data, not hedging prose.
-- **provenance** — per authored field: `floor` | `tree` | `claude`. A fact
-  taken from floor output is `floor`; a field filled from a walked node's
-  packet is `tree`; your assembly is `claude`.
+- **provenance** — **for `intent` and `scope` only**: `floor` | `tree` |
+  `claude`. A field filled from a walked node's packet is `tree`; your assembly
+  is `claude`. **Do not write a key for `refs`, `domain` or `unknowns`** — the
+  door derives those and refuses a packet that disagrees with the measurement.
+  The label on your own work is not yours to write; that is what made the old
+  0.40 meaningless. (A `tree` declaration on those three does stand — the door
+  measures `floor` vs `claude` and touches nothing else.)
 
 Loose process, tight output: reason as wide as the request needs — only the
 emitted packet is narrow.

@@ -81,8 +81,13 @@ def _packet(intent="wire the tree stratum into the orient nexus of the chart dev
         "refs": ["tree"],
         "unknowns": [],
         "confidence": 0.7,
-        "provenance": {"intent": "claude", "domain": "claude", "scope": "claude",
-                       "refs": "floor", "unknowns": "claude"},
+        # ONLY THE TWO THE DOOR DOES NOT MEASURE. It carried "refs": "floor" until
+        # 2026-08-14, when provenance for refs/domain/unknowns stopped being the
+        # sender's to write (ticket orient-floor-authors-and-provenance-is-measured) —
+        # validate_orient now derives those by re-running the floor, and a fixture that
+        # declares one gets refused for THAT rather than for the thing the tooth is
+        # about, which is how this proof found the change.
+        "provenance": {"intent": "claude", "scope": "claude"},
     }
     p.update(over)
     return p
@@ -275,8 +280,17 @@ def test_the_real_berth_by_invariant():
 def test_tree_is_a_legal_stratum_at_the_packet_gate():
     from cairn.devices.builder.machines.orient.orient import (validate_orient)
     p = _packet(provenance={"intent": "tree", "domain": "tree", "scope": "tree",
-                            "refs": "floor", "unknowns": "tree"})
+                            "unknowns": "tree"})
     assert validate_orient(p) is p, "the ceiling writes 'tree' through the standing gate"
+    # A 'tree' DECLARATION SURVIVES THE FLOOR MEASUREMENT, and this is the clause the
+    # 2026-08-14 door had to be careful about: it derives ``floor`` vs ``claude`` and
+    # nothing else, so a field the ceiling says came from the TREE keeps saying so. The
+    # alternative — overwriting every unreproducible field with ``claude`` — would trade
+    # one wrong label for another and erase the only stratum the tree walk can claim.
+    assert p["provenance"]["domain"] == "tree", p["provenance"]
+    assert p["provenance"]["unknowns"] == "tree", p["provenance"]
+    assert p["provenance"]["refs"] == "claude", \
+        "an undeclared floor-authored field is derived, and this packet carries no request"
 
 
 def _cleanup():

@@ -53,7 +53,7 @@ import os
 import re
 from pathlib import Path
 
-from cairn.tools.base.address import instance_path
+from cairn.tools.base.address import AmbiguousComponent, component_dir, instance_path
 from cairn.tools.gate import gate
 from cairn.tools.orient.orient import device_census
 
@@ -127,6 +127,20 @@ def component_roster(root: str = CAIRN_ROOT) -> list[str]:
                      if row["charter_on_disk"]})
     _ROSTER_MEMO[root] = roster
     return list(roster)
+
+
+def component_home(name: str, root: str = CAIRN_ROOT) -> str | None:
+    """WHERE a component lives, written repo-relative — the WHERE that
+    ``component_roster`` deliberately does not answer, composed here rather than reached
+    for directly so a chain leg keeps speaking only the grammar.
+
+    Returns ``None`` for a name no component answers to, and RAISES
+    ``AmbiguousComponent`` (re-exported from this module for the same reason) when two
+    rungs do. That refusal is the whole value of routing through here: a leg that
+    concatenated ``cairn/<name>/`` would silently pick a rung, and the first name to
+    break it is ``orient`` itself — a tool and a machine, three rungs apart."""
+    home = component_dir(name, os.path.join(root, "cairn"))
+    return os.path.relpath(str(home), root) if home is not None else None
 
 
 def skill_roster(root: str = CAIRN_ROOT) -> list[str]:

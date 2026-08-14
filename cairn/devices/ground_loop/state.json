@@ -1,22 +1,22 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-loop-never-blames-a-device-for-its-own-age) -> PROVED",
+    "from": "PROVEME",
+    "to": "WATCHME",
+    "standing": "WATCHME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the-loop-never-blames-a-device-for-its-own-age):waiting] -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "build_gate": "clean — build_inspector ran 20 sieves over ground_loop, and 21 check(s) are proved on this crossing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+        "actual": "'WATCHME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "WATCHME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -31,137 +31,322 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+        "actual": "PROVEME -> WATCHME moves the cursor off position 3",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "WATCHME",
+          "cursor": 3,
+          "resolved": 4
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "PROVEME -> WATCHME",
+        "actual": "PROVEME -> WATCHME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "WATCHME",
           "legal_from_here": [
             "BUILDME",
-            "THINKME"
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
           ],
           "direction": "forward"
         }
       },
       {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "identity": "the_census_can_measure_the_component",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_build",
+        "expected": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
+        "actual": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
         "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
+        "source": "transitions.inspect_build",
         "values": {
-          "target": "BUILDME",
-          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
           "component": "ground_loop",
-          "exempt": false,
-          "roster": []
+          "address": "/home/akien/dev/src/cairn/cairn/devices/ground_loop",
+          "sieves_run": [
+            "charted_refs_resolve",
+            "charter_on_disk",
+            "constraint_bounds_complete",
+            "constraint_traces",
+            "decompose_builds_absences",
+            "decompose_composes_holdings",
+            "fire_path_unreachable",
+            "forwarding_order_resolves",
+            "hypothesize_covers_the_ranked",
+            "hypothesize_falsifiable_measured",
+            "proofs_exist",
+            "silent_device",
+            "sole_path_holds",
+            "state_is_projection",
+            "survey_coverage_complete",
+            "survey_holdings_resolve",
+            "triage_covers_the_split",
+            "triage_reasons_the_order",
+            "validate_covers_the_build",
+            "validate_measures_done"
+          ]
         }
       },
       {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
-        "actual": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
+        "identity": "charted_refs_resolve",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
         "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
+        "source": "build_inspector",
         "values": {
-          "target": "BUILDME",
-          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
+          "findings": []
         }
       },
       {
-        "identity": "a_berthed_chart_chain_claims_the_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
+        "identity": "charter_on_disk",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+        "expected": 1.0,
+        "actual": 1.0,
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "build_inspector",
         "values": {
-          "findings": [],
-          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
+          "findings": []
         }
       },
       {
-        "identity": "the_ticket_names_its_intent_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
+        "identity": "constraint_bounds_complete",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+        "expected": 1.0,
+        "actual": 1.0,
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "build_inspector",
         "values": {
-          "findings": [],
-          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
+          "findings": []
         }
       },
       {
-        "identity": "the_ticket_names_its_sorted_door_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
+        "identity": "constraint_traces",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+        "expected": 1.0,
+        "actual": 1.0,
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "build_inspector",
         "values": {
-          "findings": [],
-          "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_builds_absences",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_composes_holdings",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "fire_path_unreachable",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "forwarding_order_resolves",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_covers_the_ranked",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_falsifiable_measured",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "proofs_exist",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "silent_device",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "sole_path_holds",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "state_is_projection",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_coverage_complete",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_holdings_resolve",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_covers_the_split",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_reasons_the_order",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_covers_the_build",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_measures_done",
+        "location": "ground_loop",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
         }
       }
     ],
-    "checks_proved": 8,
+    "checks_proved": 24,
     "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
     "actor": "CC",
-    "note": "the watch layer stops being switchable-off by a rename. Cast BEFORE any code (the correction of the parked constrain ticket process failure) and built under the seven-stage chain claiming it, validate-20260814T153730-54fbdda23d77, plus the /intent firing the gate correctly refused to let me argue around (intent-20260814T154030-288f5e0420fa). THE CHAIN ALREADY CHANGED THE BUILD TWICE: the survey caught the naive predicate — process start vs the tree newest mtime — calling the CURRENT healthy loop stale, and a controlled reproduction then closed the splits open question, ONE predicate over sys.modules covering both observed faces with two evidences (VANISHED, REWRITTEN) and naming no symbol that moved. The /intent model-consult then ruled out capturing per-module load times under falsifier clause 5. Teeth first: the anti-false-positive proof and the generic fixture go in before the predicate exists.",
-    "at": "2026-08-14T15:40:57",
-    "seq": 20
+    "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py + cairn/devices/ground_loop/proofs/test_discovery.py",
+    "note": "PROVEN — and the crossing itself found a defect in the gate it had to pass. The build gate refused this crossing with 52 findings, and NOT ONE of them was about this build: every one named a pre-reorg address inside a CLOSED ticket's chart (cairn/ground_loop/*, cairn/base/*, cairn/web_server/*), all moved by commit ba50814e on 2026-08-13. This was the first PROVEME crossing attempted since that reorg, which is why nobody knew. Swept the corpus rather than guess: 465 findings across 14 of 29 components with a history — the reorg had closed the door to proven-space on half the system. Disposed here through the designed door and no other way: a forwarding order on each of the four closed tickets (40 entries over 4 tickets for this component), every successor MEASURED from git's own rename record (git log --diff-filter=R -M, 26 of 27 addresses named by one commit; the 27th is a directory, which git records as its files moving) and re-checked at BOTH ends by the gate at every future promotion. The berths were not touched — they are records of truth and may not be edited to look consistent (Law 7); the disposition has to be a named successor.",
+    "gate_defect_found_and_fixed": "AND THE OTHER 12 HAD NO DOOR AT ALL, which is the finding. The successor tolerance reached charted_refs_resolve and survey_holdings_resolve but not constraint_traces — the third sieve of the same family. That was never a decision: on 2026-07-30 the moving ticket's own refusal named one orient ref and four survey holdings, so the door was fitted to exactly those two and the sieve whose findings were not in that day's set kept the flat rule for fifteen days. A constraint's 'source' is an address in the same sense a holding's 'address' is and a move breaks it identically — MEASURED: all 12 that stood were sources ALREADY FORWARDED on the same tickets, successor resolving, by an order the sieve did not read. Extended it, mirroring its sibling exactly, and the deliberate asymmetry is preserved: judge_constrain is also the BERTH door's mouth, where every source resolves by definition, so the pure judge keeps the flat rule and only the promotion side disposes. Teeth landed with it in test_inspector 26b — a fixture constrain packet proving all three sieves red with no order, all three disposed by a whole one, a broken order granting no tolerance to the third sieve either, and the berth door NOT inheriting the tolerance. 52 -> 0 for this component; 413 still stand across 13 others, untouched and ticketed, because their tickets carry no forwarding order and that debt is not this voyage's to spend.",
+    "full_tester": "107 proofs · 107 green · 0 red, re-run after the inspector change",
+    "at": "2026-08-14T16:13:17",
+    "seq": 22
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 19 sieves over ground_loop",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-ground-loop-pane-shows-its-state'",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260809T140503-4d3deeed27b7.json",
-      "ticket": "the-ground-loop-pane-shows-its-state",
-      "note": "the heartbeat has a face: /device/ground_loop renders the liveness record through the standard pane machinery — the pane IS read_liveness plus one label (render, never derive; one threshold at one address), the shim fronts the handed chassis, the self-subscription is inert, and the nav carries ground_loop because the roster does. Live-fired three states on one listener: named lack, LIVE pid+age, DEAD 7s after SIGTERM. Verdict verdict-20260809T140503-4d3deeed27b7",
-      "at": "2026-08-09T14:05:19.322145-06:00",
-      "seq": 16
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'a-record-reaches-disk', and the ticket names its /intent firing and its /sorted door firing",
-      "ticket": "a-record-reaches-disk",
-      "note": "layer 0 of the runtime-spine trouble opens: the diagnostic trail gets a durable home. The ticket's filed edge was answered by measurement first — liveness.json already reaches disk and closes neither finding #4 nor #5, so the suggested collapse is refuted and the first writer is this same process through its emit() gate contacts. Building under the seven-stage chain claiming this ticket (validate-20260812T154813-0de3b595a3a4).",
-      "at": "2026-08-12T15:48:54",
-      "seq": 17
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -328,7 +513,424 @@
       "note": "the watch layer stops being switchable-off by a rename. Cast BEFORE any code (the correction of the parked constrain ticket process failure) and built under the seven-stage chain claiming it, validate-20260814T153730-54fbdda23d77, plus the /intent firing the gate correctly refused to let me argue around (intent-20260814T154030-288f5e0420fa). THE CHAIN ALREADY CHANGED THE BUILD TWICE: the survey caught the naive predicate — process start vs the tree newest mtime — calling the CURRENT healthy loop stale, and a controlled reproduction then closed the splits open question, ONE predicate over sys.modules covering both observed faces with two evidences (VANISHED, REWRITTEN) and naming no symbol that moved. The /intent model-consult then ruled out capturing per-module load times under falsifier clause 5. Teeth first: the anti-false-positive proof and the generic fixture go in before the predicate exists.",
       "at": "2026-08-14T15:40:57",
       "seq": 20
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the-loop-never-blames-a-device-for-its-own-age) -> PROVED",
+      "direction": "forward",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+      "actor": "CC",
+      "note": "BUILT, EIGHT PIECES, AND THE PREDICATE IS STATELESS. staleness.py asks one question on the probe-load failure path only — has a module THIS PROCESS ALREADY HOLDS stopped matching its file — and answers it from sys.modules plus the .pyc header, which embeds the source mtime its bytecode was compiled against. That closes the chain's last open build question (a module loaded LATE from a freshly written file reads current; one loaded EARLY whose source changed reads REWRITTEN) WITHOUT per-module load times, which is what keeps ground_loop's falsifier clause (5) untouched — measured on both cases in a scratch experiment before a line of build code was written. Two evidences assert drift and neither names a symbol (VANISHED, REWRITTEN), so the next rename produces no third face; UNDECIDABLE is a third evidence that asserts nothing, because a tree with no bytecode must not read green. loop.py now consults it before benching: while the process is drifted NOBODY is benched, and the loop raises SELF_TROUBLE against itself instead — a name deliberately outside TROUBLE_PREFIX, because _refresh_bench recovers device names by stripping that prefix and a self-trouble wearing it would bench a phantom forever. The cheap predicate (newest tree mtime > process start) rides diagnostics() under not_the_predicate: it was FALSIFIED against the live healthy loop during this ticket's own survey, and it is still the first thing a human wants to know.",
+      "proof": "PROOF, WRITTEN BEFORE THE PREDICATE: proofs/test_staleness.py, 10 teeth, and the pair that must prove APART in proofs/test_discovery.py (6 new teeth) — the same broken folder IS benched when the process is healthy and is NOT when it is stale, which is the only shape that shows the new branch discriminates rather than disables. Two teeth exist because a hollow build would pass without them: benching is per-DEVICE while failures are per-FILE, so a mixed folder proves a healthy probe still REACHES ITS CONSUMER (it needed a recording bus — with none, the shim records outcome 'unwired' and fired_count reads 0, and weakening the assertion to len(fired)==1 would have passed for the wrong reason); and fifty stale beats raise ONE self-trouble, not fifty. FULL TESTER GREEN TWICE: 107 proofs · 107 green · 0 red, re-run at this crossing.",
+      "measured_against_the_world": "N=1 AGAINST THE ACTUAL OUTAGE: git log --diff-filter=D confirms cairn/base/probe.py was deleted in ba50814e9d88; feeding that address as a held module returns VANISHED and is_stale True. AND THE INSTRUMENT FOUND A REAL DEFECT IN ITSELF when aimed at the real world — under 'python3 - <<EOF' the __main__ module carries __file__ '<stdin>', which resolved under the class-space root, did not exist, and read VANISHED: a healthy interpreter called stale, which under the new branch means no device is ever benched again. Every tooth missed it because a proof run as a script has a real __main__. Fixed by _is_pseudo_path plus two teeth fixtured on the shape, not on the shell.",
+      "live_verification": "THE RESIDENT LOOP HAD ITSELF BECOME THE CONDITION, measured not assumed: loop.py mtime 1786744200.078722 > pid 658644 start 1786742257.373591. Stopped it, started the fixed one (pid 786982, 17 subscribers — up from 16, because ground_loop now carries a probe of its own). Then the ticket's own prescribed order, all three steps: restart, verify THROUGH THE LOOP'S OWN discover() — 16 devices, 0 failures, 23 probes armed — then the tickets. Nothing left to clear: benched_total 0, no ground-loop-device-* ticket survives. The probe smoke-fires against the live store with benched_but_importing [] and survived_a_restart TRUE, and that TRUE is earned rather than empty — the store holds the condition at 21:14:27 and this process started after it, so the clear is a survived restart and not silence.",
+      "at": "2026-08-14T16:04:49",
+      "seq": 21
+    },
+    {
+      "from": "PROVEME",
+      "to": "WATCHME",
+      "standing": "WATCHME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the-loop-never-blames-a-device-for-its-own-age):waiting] -> PROVED",
+      "direction": "forward",
+      "build_gate": "clean — build_inspector ran 20 sieves over ground_loop, and 21 check(s) are proved on this crossing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+          "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+          "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "cursor": 3,
+            "resolved": 4
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME",
+          "actual": "PROVEME -> WATCHME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME",
+              "TICKETME",
+              "WATCHME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_census_can_measure_the_component",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_build",
+          "expected": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
+          "actual": "the census can measure component 'ground_loop' at /home/akien/dev/src/cairn/cairn/devices/ground_loop",
+          "fatality": "none",
+          "source": "transitions.inspect_build",
+          "values": {
+            "component": "ground_loop",
+            "address": "/home/akien/dev/src/cairn/cairn/devices/ground_loop",
+            "sieves_run": [
+              "charted_refs_resolve",
+              "charter_on_disk",
+              "constraint_bounds_complete",
+              "constraint_traces",
+              "decompose_builds_absences",
+              "decompose_composes_holdings",
+              "fire_path_unreachable",
+              "forwarding_order_resolves",
+              "hypothesize_covers_the_ranked",
+              "hypothesize_falsifiable_measured",
+              "proofs_exist",
+              "silent_device",
+              "sole_path_holds",
+              "state_is_projection",
+              "survey_coverage_complete",
+              "survey_holdings_resolve",
+              "triage_covers_the_split",
+              "triage_reasons_the_order",
+              "validate_covers_the_build",
+              "validate_measures_done"
+            ]
+          }
+        },
+        {
+          "identity": "charted_refs_resolve",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charter_on_disk",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_bounds_complete",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_traces",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_builds_absences",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_composes_holdings",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "fire_path_unreachable",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "forwarding_order_resolves",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_covers_the_ranked",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_falsifiable_measured",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "proofs_exist",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "silent_device",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "sole_path_holds",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "state_is_projection",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_coverage_complete",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_holdings_resolve",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_covers_the_split",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_reasons_the_order",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_covers_the_build",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_measures_done",
+          "location": "ground_loop",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        }
+      ],
+      "checks_proved": 24,
+      "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
+      "actor": "CC",
+      "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py + cairn/devices/ground_loop/proofs/test_discovery.py",
+      "note": "PROVEN — and the crossing itself found a defect in the gate it had to pass. The build gate refused this crossing with 52 findings, and NOT ONE of them was about this build: every one named a pre-reorg address inside a CLOSED ticket's chart (cairn/ground_loop/*, cairn/base/*, cairn/web_server/*), all moved by commit ba50814e on 2026-08-13. This was the first PROVEME crossing attempted since that reorg, which is why nobody knew. Swept the corpus rather than guess: 465 findings across 14 of 29 components with a history — the reorg had closed the door to proven-space on half the system. Disposed here through the designed door and no other way: a forwarding order on each of the four closed tickets (40 entries over 4 tickets for this component), every successor MEASURED from git's own rename record (git log --diff-filter=R -M, 26 of 27 addresses named by one commit; the 27th is a directory, which git records as its files moving) and re-checked at BOTH ends by the gate at every future promotion. The berths were not touched — they are records of truth and may not be edited to look consistent (Law 7); the disposition has to be a named successor.",
+      "gate_defect_found_and_fixed": "AND THE OTHER 12 HAD NO DOOR AT ALL, which is the finding. The successor tolerance reached charted_refs_resolve and survey_holdings_resolve but not constraint_traces — the third sieve of the same family. That was never a decision: on 2026-07-30 the moving ticket's own refusal named one orient ref and four survey holdings, so the door was fitted to exactly those two and the sieve whose findings were not in that day's set kept the flat rule for fifteen days. A constraint's 'source' is an address in the same sense a holding's 'address' is and a move breaks it identically — MEASURED: all 12 that stood were sources ALREADY FORWARDED on the same tickets, successor resolving, by an order the sieve did not read. Extended it, mirroring its sibling exactly, and the deliberate asymmetry is preserved: judge_constrain is also the BERTH door's mouth, where every source resolves by definition, so the pure judge keeps the flat rule and only the promotion side disposes. Teeth landed with it in test_inspector 26b — a fixture constrain packet proving all three sieves red with no order, all three disposed by a whole one, a broken order granting no tolerance to the third sieve either, and the berth door NOT inheriting the tolerance. 52 -> 0 for this component; 413 still stand across 13 others, untouched and ticketed, because their tickets carry no forwarding order and that debt is not this voyage's to spend.",
+      "full_tester": "107 proofs · 107 green · 0 red, re-run after the inspector change",
+      "at": "2026-08-14T16:13:17",
+      "seq": 22
     }
   ],
-  "count": 21
+  "count": 23
 }

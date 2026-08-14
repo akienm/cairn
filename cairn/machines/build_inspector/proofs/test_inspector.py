@@ -539,14 +539,29 @@ def main() -> None:
             {"ticket": "fwd-proof", "sought": ["the moved thing"],
              "holdings": [{"what": "the thing that moved", "address": "gone/away.py"}],
              "absences": [{"what": "nothing", "measure": "census rows"}]}))
+        # THE THIRD SIEVE OF THE FAMILY, added 2026-08-14. A constraint's `source` is
+        # an address exactly as a holding's `address` is, and a move breaks it
+        # identically — but the successor door was fitted on 2026-07-30 to the two
+        # sieves whose findings were in that day's refusal, and this one kept the flat
+        # rule for fifteen days. Found by measurement, not by reading: ground_loop's
+        # PROVEME crossing red 52, a forwarding order disposed 40, and all 12 that
+        # stood were constraint sources ALREADY FORWARDED on the same tickets with the
+        # successor resolving. Bounds are valid here on purpose, so `constraint_traces`
+        # is the only constrain sieve that can speak in this fixture.
+        (mp / "constrain-20260730T000002-3333.json").write_text(json.dumps(
+            {"ticket": "fwd-proof",
+             "constraints": [{"text": "the moved thing bounds this build",
+                              "source": "gone/away.py", "kind": "charter"}],
+             "bounds": {"in": ["the move"], "out": ["everything else"]}}))
 
-        # (i) NO ORDER: both mouths red. The tolerance is opt-in, never the default.
+        # (i) NO ORDER: all three mouths red. The tolerance is opt-in, never the default.
         names = lambda comp: sorted(x["sieve"] for x in           # noqa: E731
                                     inspect(root=root, component=comp)["findings"])
-        assert names("moved") == ["charted_refs_resolve", "survey_holdings_resolve"], \
+        assert names("moved") == ["charted_refs_resolve", "constraint_traces",
+                                  "survey_holdings_resolve"], \
             "a missing charted address with no forwarding order must still red"
 
-        # (ii) A WHOLE ORDER: both disposed, and nothing else is loosened.
+        # (ii) A WHOLE ORDER: all three disposed, and nothing else is loosened.
         _order({"gone/away.py": {"to": "base", "why": "renamed by piece (f)"}})
         assert names("moved") == [], inspect(root=root, component="moved")["findings"]
 
@@ -555,7 +570,8 @@ def main() -> None:
         #       silent pass; a successor the world does not hold is the same hollow
         #       claim as the ref it was offered to dispose, one indirection later.
         _order({"gone/away.py": {"to": "also/gone.py", "why": "renamed by piece (f)"}})
-        assert names("moved") == ["charted_refs_resolve", "forwarding_order_resolves",
+        assert names("moved") == ["charted_refs_resolve", "constraint_traces",
+                                  "forwarding_order_resolves",
                                   "survey_holdings_resolve"], names("moved")
 
         # (iv) FORWARDING A LIVE ADDRESS: reds. A forwarding order is for what MOVED;
@@ -576,6 +592,9 @@ def main() -> None:
             assert "forwarding_order_resolves" in names("moved"), (broken, names("moved"))
             assert "charted_refs_resolve" in names("moved"), \
                 ("a broken order must grant no tolerance at all", broken)
+            assert "constraint_traces" in names("moved"), \
+                ("and 'no tolerance at all' reaches the third sieve too — the half "
+                 "that went unmeasured for fifteen days", broken)
         tfile.write_text(json.dumps({"id": "fwd-proof", "forwarding": ["not", "a", "map"]}))
         assert "forwarding_order_resolves" in names("moved"), names("moved")
         tfile.write_text("{not json")
@@ -593,12 +612,23 @@ def main() -> None:
         berthed = json.loads((mp / "survey-20260730T000001-2222.json").read_text())
         assert [x["judge"] for x in judge_survey(berthed)] == ["survey_holdings_resolve"], \
             "the berth door must still refuse a holding the world does not hold"
+        # and the same for the constrain door, whose promotion side just learned the
+        # tolerance: the two mouths of judge_constrain must NOT come to agree. If a
+        # berth door inherited this, a packet could be admitted naming an address that
+        # was already gone — the tolerance would have become the laundering it exists
+        # to stop, one door upstream of where anyone is looking.
+        from cairn.machines.build_inspector.inspector import judge_constrain
+        berthed_c = json.loads((mp / "constrain-20260730T000002-3333.json").read_text())
+        assert [x["judge"] for x in judge_constrain(berthed_c)] == ["constraint_traces"], \
+            "the berth door must still refuse a constraint whose source is not there"
 
         # (vii) A TICKET THAT MOVES NOTHING is the normal case and says nothing.
         tfile.write_text(json.dumps({"id": "fwd-proof"}))
-        assert names("moved") == ["charted_refs_resolve", "survey_holdings_resolve"]
+        assert names("moved") == ["charted_refs_resolve", "constraint_traces",
+                                  "survey_holdings_resolve"]
         (mp / "orient-20260730T000000-1111.json").unlink()
         (mp / "survey-20260730T000001-2222.json").unlink()
+        (mp / "constrain-20260730T000002-3333.json").unlink()
         tfile.unlink()
         _insp._TICKETS_ROOT = saved_troot
 

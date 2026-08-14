@@ -527,9 +527,31 @@ def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
     2026-07-28 BEFORE the constrain module exists, on Akien's ordering ruling
     ('we set up it's inspector sieves first') — the failure predates the module,
     so tooth 10 holds: this sieve was taught by a real, dated failure.
+
+    THE FORWARDING ORDER IS CONSULTED HERE TOO, and until 2026-08-14 it was not.
+    That was not a decision — it was the shape of the day the tolerance was built.
+    On 2026-07-30 the moving ticket's own refusal named one orient ref and four
+    survey holdings, so the successor door was fitted to exactly those two sieves
+    and this third one, whose findings were not in that day's set, kept the flat
+    rule. A constraint's ``source`` is an address in the same sense a holding's
+    ``address`` is, and a move breaks it identically; MEASURED at the crossing
+    that found this — ground_loop reds 52, of which 40 are disposed by a
+    forwarding order and the remaining 12 are constraint sources ALREADY
+    FORWARDED on the same tickets, with the successor resolving, by an order this
+    sieve did not read. A tolerance that covers two of three sieves is not a
+    narrower tolerance, it is an unmeasurable one.
+
+    The asymmetry that IS deliberate is preserved exactly as ``survey_holdings_
+    resolve`` states it: ``judge_constrain`` is also the BERTH DOOR's mouth, where
+    every source resolves by definition, so the pure judge keeps the flat rule and
+    only the promotion side — the one that alone stands downstream of a move —
+    disposes. Both ends of every entry are still checked in the world.
     """
-    return _judge_charted(row, comp_dir, "constrain", judge_constrain,
-                          "constraint_traces", report_unreadable=True)
+    findings = _judge_charted(row, comp_dir, "constrain", judge_constrain,
+                              "constraint_traces", report_unreadable=True)
+    return [f for f in findings
+            if f["evidence"].get("source") not in
+            _forwarding_map(f["evidence"].get("ticket"))]
 
 
 def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:

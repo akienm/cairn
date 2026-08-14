@@ -26,6 +26,15 @@ ran last, and not one of them was verdict's to fix — three were ambiguities in
 REQUEST and belonged above the whole chain. A destination inferred from the failure is a
 guess wearing a measurement's clothes. So the segment DECLARES it, once, in the charter.
 
+AND WHAT IT DECLARES IS A TARGET, NOT A DISTANCE. Akien's first statement of the rule ended
+"in some cases it skips levels", and the first cast of the 17 routes read that as a hop
+count — mid-chain stages one link back, orient some number of links further. He corrected
+it the same day: "really it shouldn't be 'number of steps' it should be 'to the feedback
+target' which is likely to be the previous step." The previous step is the COMMON CASE, not
+the definition. So orient — whose upstream artifact is the ticket, not another stage — is
+an ordinary answer rather than an exception owing an excuse, and nothing in this module
+counts anything.
+
 WHY THE CHARTER AND NOT AN ARGUMENT. If ``proved()`` took the route as a free keyword,
 the charter would say one thing and 66 call sites would each say their own, and the two
 could disagree — which is the identical defect (two mouths on one question) that the

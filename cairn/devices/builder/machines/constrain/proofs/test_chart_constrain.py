@@ -551,11 +551,22 @@ def _main() -> int:
     finally:
         _cleanup()
         shutil.rmtree(root, ignore_errors=True)
-    print("green — chart/constrain: stage 2 fills only from a berthed stage 1, the "
-          "floor surfaces charter text verbatim with its address, the schema gate "
+    # The summary names WHAT WAS PROVED and is rewritten whenever the teeth change. It is
+    # the last line of the sealed record's stdout, so a reader of a validation trail meets
+    # this sentence and nothing else — a stale one describes a build that no longer exists
+    # while every tooth beneath it passes. This one went stale once already: it survived
+    # the seven teeth added on 2026-08-14 unchanged.
+    print(f"green — chart/constrain, {len(checks)} teeth: stage 2 fills only from a "
+          "berthed stage 1; a ref reaches its component BY NAME OR BY PATH and the "
+          "DEEPEST owner wins, never the holder; the floor AUTHORS constraints (charter "
+          "falsifier/gates/owner, verbatim, with their address) and unknowns (with the "
+          "why), and returns None rather than an empty list when it has nothing; "
+          "provenance for those two is MEASURED by re-running the floor, the 'floor' "
+          "label is reachable and BOTH mutations (drop one, forge one) red it, and a "
+          "misdeclared label is refused rather than quietly corrected; the schema gate "
           "refuses hollow shapes, the door composes the inspector's own judges (by "
-          "identity), the berth round-trips, the deposit-back is gated, and the "
-          "brick's doors are exactly the three composed ones")
+          "identity), the berth round-trips, the deposit-back is gated, and the brick's "
+          "doors are exactly the three composed ones")
     return 0
 
 

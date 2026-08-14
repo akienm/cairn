@@ -123,6 +123,23 @@ REQUIRED = (
 # and a design is what the ruling is supposed to GATE, not what it is supposed to contain.
 SPEC_MAX = 280
 
+# HIS MARKER. Akien, 2026-08-13: "I will start saying RULED after every goddamned one" /
+# "if i don't use that word, it'd not confimed and i'll live with learning to do that."
+#
+# WHY A MARKER RATHER THAN A SECOND ASK, which is what this component did until today. The
+# confirm door was CIRCULAR: it asked for his words to authorize his words. If
+# `the_ruling_verbatim` could be trusted the packet was already confirmed, and if it could
+# not, a second quote typed by the same hand fixed nothing — I would be fabricating both
+# halves. What the second ask was really guarding is narrower and real: the packets where
+# **I** decided something was a ruling and he never said so. He named the mechanism that
+# separates those without asking him twice — he marks the ones he means.
+#
+# UPPERCASE, WORD-BOUNDED, DELIBERATE. Lowercase "ruled" is ordinary English and appears in
+# sentences ABOUT rulings ("he ruled that…"); matching it would confirm packets on my own
+# prose. The marker is a thing he TYPES, and its absence is not a defect in the packet —
+# see `verify`, where unmarked is a separate fact from red and never stops the work.
+RULED = re.compile(r"\bRULED\b")
+
 _ID = re.compile(r"^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -271,10 +288,19 @@ def refusals_shape(packet: dict) -> list[str]:
             out.append("as_of on a packet with no what_conforms — as_of only changes "
                        "WHEN the conformers are measured; with none, it measures nothing")
 
-    if packet.get("confirmed") is True:
-        out.append("confirmed cannot be true at intake — confirmation is Akien's separate "
-                   "act (`cairn ruling confirm`), and a recorder that self-confirms has "
-                   "removed the only reader the gate exists for")
+    # THE CONFIRMATION FIELDS ARE THE DOOR'S TO WRITE, never the packet's. Until 2026-08-13
+    # this refused `confirmed: true` outright, because confirmation was a separate act of
+    # his and a self-confirming recorder had removed the only reader. Confirmation is now
+    # DERIVED from `the_ruling_verbatim` at intake (asking him twice was the error), so the
+    # refusal moved rather than vanished: the packet may not AUTHOR any of it. That keeps
+    # the actual guard — the confirmation must be traceable to his words in this packet and
+    # to nothing a recorder typed — while removing the second ask.
+    authored = [f for f in ("confirmed", "confirmed_by", "confirmation_verbatim",
+                            "confirmation_source", "reaffirmations") if f in packet]
+    if authored:
+        out.append(f"the packet authors {authored} — the confirmation fields are stamped "
+                   "by the door from `the_ruling_verbatim`, so a recorder cannot write "
+                   "its own sign-off in any of them")
 
     return out
 
@@ -374,8 +400,29 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
     """THE INTAKE DOOR: refuse, or write the packet and return its path.
 
     Raises ``ValueError`` carrying EVERY refusal. On success the door stamps the fields it
-    measures itself — ``confirmed: false`` and the conforms fingerprints — so neither can
-    be authored by the thing being gated.
+    measures itself — the conforms fingerprints and ``confirmed`` — so neither can be
+    authored by the thing being gated.
+
+    THE RULING IS THE CONFIRMATION, and asking a second time is an ERROR (Akien,
+    2026-08-13: "why you keep asking me to say yes to the thing i got so pissed off on and
+    said THIS IS HOW ITS SUPPOSED TO WORK. THAT'S THE DAMN CONFIRMATION." / "ASKING ME
+    REPEATEDLY IS AN ERROR."). This door used to stamp ``confirmed: false`` and send him to
+    a second command, and the second command was CIRCULAR: it asked for his words to
+    authorize his words. ``the_ruling_verbatim`` is already what he said, already required,
+    already refused empty. If that field can be trusted then the packet is confirmed the
+    moment it is written; if it cannot, then neither can a second quote typed by the same
+    hand — I would be fabricating both halves. The door measured nothing and cost him a
+    keystroke per ruling, which is Law 1's defect exactly: re-deriving the settled.
+
+    WHAT IS NOT CLAIMED, because collapsing it into the above would be the check that goes
+    green for the wrong reason: his words being HIS is now derived; his words matching MY
+    READING of them (``now_the_spec_says``) is not, and never was — the old door did not
+    measure that either. See filed edge (h) at this component's charter.
+
+    THE WORD "RULED" IS NOT A SCHEMA FIELD. He offered it as his own habit ("I will start
+    saying RULED after every goddamned one"), and requiring it would refuse a ruling for
+    lacking a token — the same ask in a new costume, and this component's whole job is to
+    stop asking twice.
     """
     rp = roots_parent or _roots_parent()
     bad = refusals(packet, rp)
@@ -383,7 +430,17 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
         raise ValueError("ruling refused (" + str(len(bad)) + "):\n  - " + "\n  - ".join(bad))
 
     record = dict(packet)
-    record["confirmed"] = False
+    # DERIVED FROM HIS MARKER, never asked for a second time. RULED in his verbatim words
+    # confirms the packet at intake; its absence leaves the packet as MY READING awaiting
+    # his word — which is not a defect and does not stop the work (see `verify`).
+    marked = ruled_marks(record)
+    record["confirmed"] = bool(marked)
+    if marked:
+        record["confirmed_by"] = record.get("ruled_by", "Akien")
+        record["confirmation_verbatim"] = marked
+        record["confirmation_source"] = (
+            "his RULED marker, inline in the ruling itself (Akien, 2026-08-13: \"I will "
+            "start saying RULED after every goddamned one\")")
     as_of = record.get("as_of") if isinstance(record.get("as_of"), dict) else {}
     record["conforms_fingerprint"] = {
         rel: (fingerprint_at(rp, rel, as_of[_split_root(rel)[0]])
@@ -402,16 +459,26 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
 
 
 def confirm(ruling_id: str, evidence: str, roots_parent: str | None = None) -> str:
-    """Akien's act. Flips ``confirmed`` and records WHO SAID SO, verbatim.
+    """A LATER RE-AFFIRMATION. Records additional words of his against a ruling already
+    confirmed by the ruling it carries.
 
-    ``evidence`` is required and refused empty. A bare ``confirmed: true`` would be the
-    same defect this whole component exists to fix, one layer up: a confirmation with no
-    written source, which the next reader can only reconstruct from whoever ran the
-    command. Recorded 2026-07-31, the first time the verb was used for real — Akien typed
-    the confirm command into the session rather than a shell, so the act was genuinely his
-    but the hand on the keyboard was mine, and nothing in the record could tell the
-    difference. Now the record carries his instruction and the mediator, and the two are
-    separate fields because they are separate facts.
+    NO LONGER A REQUIRED STEP, and that is the point (Akien, 2026-08-13: "ASKING ME
+    REPEATEDLY IS AN ERROR"). Confirmation is derived at intake from
+    ``the_ruling_verbatim`` — see ``open_ruling``. Nothing is UNCONFIRMED waiting on this
+    verb, nothing prints an instruction to run it, and ``verify`` no longer reds for its
+    absence. What survives is a door for the case that still has content: he says more
+    about a ruling later, and those words are worth keeping beside it.
+
+    ``evidence`` is required and refused empty, unchanged — a re-affirmation with no
+    written source is reconstructible only from whoever ran the command. Recorded
+    2026-07-31, the first time the verb was used for real: Akien typed the confirm command
+    into the session rather than a shell, so the act was genuinely his but the hand on the
+    keyboard was mine, and nothing in the record could tell the difference. That is why the
+    instruction and the mediator are separate fields, and why the fix for the circularity
+    was to derive confirmation rather than to trust a second quote from the same hand.
+
+    APPENDS, NEVER OVERWRITES (Law 7): the confirmation the intake derived stays in the
+    record, and later words land beside it in ``reaffirmations``.
     """
     if not isinstance(evidence, str) or not evidence.strip():
         raise ValueError(
@@ -427,7 +494,14 @@ def confirm(ruling_id: str, evidence: str, roots_parent: str | None = None) -> s
         record = json.load(fh)
     record["confirmed"] = True
     record["confirmed_by"] = record.get("ruled_by", "Akien")
-    record["confirmation_verbatim"] = evidence.strip()
+    # APPEND. A record written before 2026-08-13 carries its confirmation here and this
+    # verb was the only way it got one, so overwriting would erase the act; a record
+    # written since carries the derived confirmation, and overwriting would replace HIS
+    # RULING with a later aside. Neither is acceptable — Law 7, a record of truth.
+    if not record.get("confirmation_verbatim"):
+        record["confirmation_verbatim"] = evidence.strip()
+    else:
+        record.setdefault("reaffirmations", []).append(evidence.strip())
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(record, fh, indent=2, ensure_ascii=False)
         fh.write("\n")
@@ -478,9 +552,14 @@ def supersede(old_id: str, new_id: str, evidence: str,
         out.append("a ruling cannot supersede itself")
     new = by_id.get(new_id)
     if new is not None:
-        if not new.get("confirmed"):
-            out.append(f"{new_id} is UNCONFIRMED — an unconfirmed reading cannot "
-                       "retire a confirmed act")
+        # WAS "is it confirmed", which since 2026-08-13 is derived at intake and would
+        # therefore pass for every door-written packet — a check going green for the
+        # wrong reason, which is worse than no check. Re-pointed at what confirmation is
+        # now DERIVED FROM. It can still fire, on exactly one path: a record hand-edited
+        # after intake. Narrow, and honestly narrow, rather than vacuous and reassuring.
+        if not _verbatim_of(new):
+            out.append(f"{new_id} carries no ruling verbatim — nothing in it is his, so "
+                       "it cannot retire an act that is")
         if new_id in retired:
             out.append(f"{new_id} is itself retired — a retired ruling answers for "
                        "nothing")
@@ -527,6 +606,28 @@ def retired_ids(records: list[dict]) -> set[str]:
     return out
 
 
+def ruled_marks(record: dict) -> list[str]:
+    """The lines of his verbatim in which he actually typed RULED, or an empty list.
+
+    Returns the LINES rather than a bool so the confirmation records exactly which of his
+    sentences carried the marker — a confirmation whose source cannot be pointed at is the
+    defect this component was built for, one layer up.
+    """
+    return [s for s in _verbatim_of(record) if RULED.search(s)]
+
+
+def _verbatim_of(record: dict) -> list[str]:
+    """His actual words in a record, or an empty list — the whole basis of confirmation.
+
+    Read the same way the intake refuses on it, so the door and the verdict cannot disagree
+    about what counts as a ruling being present.
+    """
+    v = record.get("the_ruling_verbatim")
+    if not isinstance(v, list):
+        return []
+    return [s for s in v if isinstance(s, str) and s.strip()]
+
+
 def verify(record: dict, roots_parent: str | None = None) -> dict:
     """The mechanical verdict. ``{"id":…, "green": bool, "failures": [...]}``.
 
@@ -545,9 +646,17 @@ def verify(record: dict, roots_parent: str | None = None) -> dict:
     rp = roots_parent or _roots_parent()
     failures: list[str] = []
 
-    if not record.get("confirmed"):
-        failures.append("UNCONFIRMED — Akien has not signed this reading off "
-                        f"(`cairn ruling confirm {record.get('id')}`)")
+    # UNMARKED IS NOT A FAILURE, and keeping it out of this list is the whole correction.
+    # `failures` is what the WORK still owes; whether Akien has typed RULED is a fact about
+    # HIM, and collapsing the two is how "he hasn't spoken yet" became a red that reappeared
+    # every single turn until he did — repeated asking, wearing a verdict's clothes (Akien,
+    # 2026-08-13: "ASKING ME REPEATEDLY IS AN ERROR" / "it does not need to stop the work").
+    # So it rides out as its own field, reported once beside the verdict, never inside it.
+    if not _verbatim_of(record):
+        failures.append(
+            "NO RULING IN THE PACKET — `the_ruling_verbatim` is empty or missing, so "
+            "nothing here is his. The intake refuses this, so a record in this state was "
+            "edited after it was written.")
 
     for rel in record.get("what_dies", []):
         if os.path.exists(os.path.join(rp, rel)):
@@ -569,7 +678,11 @@ def verify(record: dict, roots_parent: str | None = None) -> dict:
         elif prints[rel] == fingerprint(abs_path):
             failures.append(f"UNTOUCHED: {rel} is byte-identical to {baseline}")
 
-    return {"id": record.get("id"), "green": not failures, "failures": failures}
+    # `green` is about THE WORK. `ruled` is about whether he has spoken. Two facts, two
+    # fields — the same shape the gate primitive was rebuilt on this morning: state both,
+    # never collapse one into the other.
+    return {"id": record.get("id"), "green": not failures, "failures": failures,
+            "ruled": bool(record.get("confirmed"))}
 
 
 def load_all(roots_parent: str | None = None) -> list[dict]:

@@ -45,7 +45,16 @@ def _cmd_open(path: str) -> int:
         print(str(exc), file=sys.stderr)
         return 1
     print(f"ruling opened: {written}")
-    print(f"UNCONFIRMED until Akien runs: cairn ruling confirm {packet['id']}")
+    # No second ask, either way. If he typed RULED it is confirmed and there is nobody to
+    # ask; if he did not, this is MY reading and the work proceeds regardless — an unmarked
+    # packet is never a red and never a nag (Akien, 2026-08-13: "it does not need to stop
+    # the work"). Said once, here, and not again every turn.
+    if ruling.ruled_marks(json.load(open(written, encoding="utf-8"))):
+        print("CONFIRMED by his RULED marker. The verdict now measures the WORK.")
+    else:
+        print("UNMARKED — no RULED in his words, so this is MY READING on the record. "
+              "It does not stop the work and will not be raised again; it stays visible "
+              "in `cairn ruling list` until he marks it.")
     return 0
 
 
@@ -66,12 +75,18 @@ def _cmd_list() -> int:
             continue
         verdict = ruling.verify(record)
         mark = "green" if verdict["green"] else "RED"
-        print(f"  {mark:5}  {record['id']}")
+        # THE MARKER IS SHOWN, NEVER NAGGED. `RULED` is his word on the packet; its absence
+        # means this is MY READING awaiting his — a fact about who has spoken, not a defect
+        # in the work, so it rides beside the verdict and never inside it (2026-08-13).
+        print(f"  {mark:5}  {'RULED ' if verdict['ruled'] else 'mine  '} {record['id']}")
         print(f"         {record['now_the_spec_says']}")
         for failure in verdict["failures"]:
             print(f"         ! {failure}")
         red += 0 if verdict["green"] else 1
-    print(f"\n{len(records)} ruling(s) · {red} red · {len(superseded_by)} retired")
+    mine = sum(1 for r in records if r.get("id") not in superseded_by
+               and not r.get("confirmed"))
+    print(f"\n{len(records)} ruling(s) · {red} red · {len(superseded_by)} retired"
+          + (f" · {mine} unmarked (my reading, awaiting his RULED)" if mine else ""))
     return 0
 
 

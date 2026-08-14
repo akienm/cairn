@@ -13,12 +13,19 @@ Teeth a hollow gate could not pass:
   - AN INVENTED TARGET IS REFUSED. A ``what_dies`` path that is not on disk at intake is
     either already dead or made up, and a ``what_conforms`` path that is not on disk is a
     new build, not a conformance. A gate that took my word for what exists trips this.
-  - THE RECORDER CANNOT SELF-CONFIRM. ``confirmed: true`` at intake is refused, and the
-    door stamps ``false`` regardless. A gate whose subject can sign its own reading off has
-    removed the only reader it exists for.
-  - UNCONFIRMED IS RED EVEN OVER A PERFECT TREE. The one tooth that makes confirmation
-    load-bearing rather than decorative. A build that verified the disk and shrugged at the
-    signature trips this.
+  - THE RECORDER CANNOT AUTHOR ITS OWN CONFIRMATION. Every confirmation field is refused
+    in the packet and stamped by the door, and what the door stamps is HIS RULING verbatim.
+    A gate whose subject can sign its own reading off has removed the only reader it exists
+    for — that guard had to survive the ruling below, and this is where it is pinned.
+  - A PERFECT TREE IS GREEN WITH NO SECOND SIGNATURE, and this tooth is the INVERSION of
+    the one it replaces (2026-08-13, Akien: "ASKING ME REPEATEDLY IS AN ERROR" / "THAT'S
+    THE DAMN CONFIRMATION"). The old tooth held finished work hostage to a keystroke that
+    measured nothing: it asked for his words to authorize his words, and if the verbatim
+    could not be trusted then neither could a second quote typed by the same hand.
+    Confirmation is now DERIVED from ``the_ruling_verbatim`` at intake.
+  - A RECORD STRIPPED OF HIS WORDS GOES RED. The narrow residue that derivation can still
+    catch: a packet hand-edited after the door wrote it. Without this, ``confirmed: true``
+    would be a flag with nothing behind it.
   - THE FINGERPRINTS ARE THE DOOR'S, NOT THE AUTHOR'S. An authored ``conforms_fingerprint``
     is overwritten with a measured one, so ``UNTOUCHED`` cannot be talked around.
   - THE 2026-07-31 REGRESSION, REPLAYED (test_the_day_this_was_built): the exact sequence
@@ -154,16 +161,34 @@ def test_a_path_cannot_both_die_and_conform():
         assert any("both die and conform" in r for r in bad), bad
 
 
-def test_the_recorder_cannot_self_confirm():
+def test_the_recorder_cannot_author_its_own_confirmation():
+    """THE GUARD SURVIVED THE RULING THAT REMOVED THE SECOND ASK, and this tooth is where
+    the difference is pinned. Confirmation used to be a separate act of Akien's; since
+    2026-08-13 it is DERIVED at intake from his verbatim words, because asking him to say
+    yes to what he had already ruled was the error ("ASKING ME REPEATEDLY IS AN ERROR").
+
+    What must NOT have been lost in that move: a recorder writing its own sign-off. So
+    every confirmation field is refused in the packet and stamped by the door, and the
+    stamped value is HIS RULING — not a sentence I composed."""
     with tempfile.TemporaryDirectory() as d:
         _world(d)
-        bad = ruling.refusals(_packet(confirmed=True), d)
-        assert any("confirmed cannot be true at intake" in r for r in bad), bad
+        for field, value in (("confirmed", True),
+                             ("confirmed_by", "Akien"),
+                             ("confirmation_verbatim", ["he definitely said yes"]),
+                             ("confirmation_source", "trust me")):
+            bad = ruling.refusals(_packet(**{field: value}), d)
+            assert any("the confirmation fields are stamped by the door" in r for r in bad), \
+                f"a packet authored {field} and the door allowed it: {bad}"
 
-        # …and even a packet that sneaks the field past shape validation is stamped down.
-        path = ruling.open_ruling(_packet(), d)
+        # …and the confirmation the door DOES write is the line HE marked, not a sentence
+        # of mine that merely sits in the same field.
+        path = ruling.open_ruling(
+            _packet(the_ruling_verbatim=["_model.json is retired. RULED"]), d)
         with open(path, encoding="utf-8") as fh:
-            assert json.load(fh)["confirmed"] is False
+            record = json.load(fh)
+        assert record["confirmed"] is True, record
+        assert record["confirmation_verbatim"] == ["_model.json is retired. RULED"], record
+        assert record["confirmed_by"] == record["ruled_by"], record
 
 
 def test_the_fingerprints_are_measured_not_authored():
@@ -258,17 +283,84 @@ def test_a_conformer_with_no_baseline_is_red_not_green():
             f"never measured is not green; got {verdict['failures']}")
 
 
-def test_unconfirmed_is_red_over_a_perfect_tree():
+def test_his_ruled_marker_confirms_and_nothing_else_does():
+    """HIS MARKER, AND ONLY HIS (Akien, 2026-08-13: "I will start saying RULED after every
+    goddamned one" / "if i don't use that word, it'd not confimed").
+
+    The marker has to be his deliberate uppercase token, because the alternative failure is
+    silent and self-serving: matching lowercase "ruled" would confirm a packet on ordinary
+    English ABOUT a ruling — my own prose signing off my own reading."""
     with tempfile.TemporaryDirectory() as d:
         _world(d)
-        ruling.open_ruling(_packet(), d)
+        marked = ruling.open_ruling(_packet(
+            the_ruling_verbatim=["a tool has users, not an owner", "RULED"]), d)
+        with open(marked, encoding="utf-8") as fh:
+            record = json.load(fh)
+        assert record["confirmed"] is True, record
+        assert record["confirmation_verbatim"] == ["RULED"], (
+            "the confirmation points at the line he actually marked, not the whole "
+            f"verbatim — an unpointable confirmation is this gate's own defect; got {record}")
+
+        for unmarked in (["he ruled that the file dies"],      # lowercase English
+                         ["RULEDX is not the marker"],         # no word boundary
+                         ["I am considering this"]):
+            path = ruling.open_ruling(_packet(id="2026-08-02-unmarked", date="2026-08-02",
+                                              the_ruling_verbatim=unmarked), d)
+            with open(path, encoding="utf-8") as fh:
+                assert json.load(fh)["confirmed"] is False, (
+                    f"{unmarked!r} confirmed a packet — only his deliberate RULED does")
+
+
+def test_an_unmarked_packet_is_not_red_and_never_stops_the_work():
+    """THE INVERSION OF THE OLD TOOTH, and the correction that matters most here. This test
+    used to assert that a ruling whose work was FULLY DONE stayed RED for a missing
+    signature — the gate holding finished work hostage to a keystroke, and re-raising it
+    every turn until he gave in. That is repeated asking wearing a verdict's clothes, and
+    it is what made him say "ASKING ME REPEATEDLY IS AN ERROR."
+
+    `green` is about THE WORK. `ruled` is about whether HE has spoken. Two facts, two
+    fields — the same shape as the proof record: state both, collapse neither."""
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(the_ruling_verbatim=["_model.json is retired."]), d)
         os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
         Path(d, "cairn/cairn/compiler_thing/compiler.py").write_text("# copies, no model\n")
 
         verdict = ruling.verify(ruling.load_all(d)[0], d)
-        assert not verdict["green"], "the disk is perfect and the signature is missing"
-        assert verdict["failures"] == [f for f in verdict["failures"] if "UNCONFIRMED" in f], (
-            f"UNCONFIRMED must be the ONLY failure over a clean tree; got {verdict}")
+        assert verdict["ruled"] is False, "he never typed RULED, so it is not confirmed"
+        assert verdict["green"], (
+            "the WORK is done and the verdict must say so — a red here is the gate asking "
+            f"him again, which is the error it was rebuilt to stop. got {verdict}")
+        assert not any("UNCONFIRMED" in f or "RULED" in f for f in verdict["failures"]), (
+            f"the ask must not survive as a failure string; got {verdict}")
+
+        # …and it must not reach the hook either, which is where the nagging actually
+        # happened: once per turn, forever, until he answered.
+        assert not ruling.open_rulings(d), (
+            "an unmarked packet over finished work is not OPEN — nothing is owed by the "
+            "work, and what is owed by HIM is not the hook's business to repeat")
+
+
+def test_a_record_stripped_of_his_words_goes_red():
+    """WHAT THE DERIVATION CAN STILL CATCH — the narrow, honest residue. Confirmation is
+    derived from `the_ruling_verbatim`, so the one way it can lie is a record edited after
+    the door wrote it. If this went green, `confirmed: true` would be a flag nothing stands
+    behind, which is precisely the state the whole component exists to end."""
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        path = ruling.open_ruling(_packet(), d)
+        os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
+        Path(d, "cairn/cairn/compiler_thing/compiler.py").write_text("# copies, no model\n")
+
+        with open(path, encoding="utf-8") as fh:
+            record = json.load(fh)
+        record["the_ruling_verbatim"] = []          # the hand-edit
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(record, fh)
+
+        verdict = ruling.verify(ruling.load_all(d)[0], d)
+        assert not verdict["green"], verdict
+        assert any("NO RULING IN THE PACKET" in f for f in verdict["failures"]), verdict
 
 
 def test_the_day_this_was_built():
@@ -319,10 +411,30 @@ def test_a_confirmation_carries_its_own_source():
         ruling.confirm("2026-07-31-model-json-is-retired", "  yes, do that  ", d)
         record = ruling.load_all(d)[0]
         assert record["confirmed"] is True
-        assert record["confirmation_verbatim"] == "yes, do that", record
         assert record["confirmed_by"] == "Akien", (
             "who confirmed and what they said are SEPARATE facts — the ruler's name comes "
             f"from the packet, the words from the act; got {record}")
+
+        # ON AN UNMARKED PACKET the field was empty, so his later words land IN it — that
+        # is the case this verb still exists for: he did not type RULED when the reading
+        # was filed, and said his piece afterward.
+        assert record["confirmation_verbatim"] == "yes, do that", record
+        assert "reaffirmations" not in record, (
+            f"nothing was overwritten, so nothing should have been appended; got {record}")
+
+    # AND ON A MARKED ONE IT APPENDS RATHER THAN OVERWRITES (Law 7). Since 2026-08-13 the
+    # confirmation in a marked record IS his ruling, so a later aside that replaced it
+    # would be a record of truth editing itself — the sharper failure, because the field
+    # would still look filled.
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(
+            the_ruling_verbatim=["_model.json is retired. RULED"]), d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
+        record = ruling.load_all(d)[0]
+        assert record["confirmation_verbatim"] == ["_model.json is retired. RULED"], (
+            f"a re-affirmation overwrote his actual ruling; got {record}")
+        assert record["reaffirmations"] == ["yes, do that"], record
 
 
 def test_an_untouched_conformer_is_red():
@@ -438,16 +550,27 @@ def test_supersede_refuses_with_every_reason():
         else:
             raise AssertionError("unknown ids and self-supersession must refuse")
 
-        # an unconfirmed successor cannot retire a confirmed act
-        ruling.open_ruling(_packet(
+        # A SUCCESSOR WITH NOTHING OF HIS IN IT CANNOT RETIRE AN ACT THAT HAS HIS WORDS.
+        # This used to read "an UNCONFIRMED successor cannot retire a confirmed act".
+        # Confirmation is derived at intake since 2026-08-13, so that spelling would now
+        # pass for every door-written packet — a check green for the wrong reason, which
+        # is worse than none. Re-pointed at what confirmation is derived FROM, and the
+        # packet is hand-edited to get there, because that is the only way to reach the
+        # state at all: through the door it is impossible, which is the real guard.
+        guess_path = ruling.open_ruling(_packet(
             id="2026-08-01-my-guess", date="2026-08-01", what_dies=[],
             what_conforms=["cairn/cairn/compiler_thing/compiler.py"]), d)
+        with open(guess_path, encoding="utf-8") as fh:
+            guess = json.load(fh)
+        guess["the_ruling_verbatim"] = []
+        with open(guess_path, "w", encoding="utf-8") as fh:
+            json.dump(guess, fh)
         try:
             ruling.supersede(old, "2026-08-01-my-guess", "trust me", d)
         except ValueError as exc:
-            assert "UNCONFIRMED" in str(exc), exc
+            assert "carries no ruling verbatim" in str(exc), exc
         else:
-            raise AssertionError("my unconfirmed guess outvoted his signature")
+            raise AssertionError("my wordless guess outvoted a packet carrying his ruling")
 
 
 def test_supersede_writes_only_to_the_superseding_record():
@@ -614,8 +737,17 @@ def test_the_hook_names_what_is_open_and_never_wedges_a_turn():
         loud = run()
         assert loud.returncode == 0, "a gate that can kill the session is worse than silence"
         msg = json.loads(loud.stdout)["systemMessage"]
-        assert "2026-07-31-model-json-is-retired" in msg and "UNCONFIRMED" in msg, (
-            f"the receipt names the ruling and its failure, not just 'something is open'; {msg}")
+        # The receipt names the RULING and the REAL failure. Until 2026-08-13 the failure
+        # here was "UNCONFIRMED" — the hook's loudest and most frequent message was a
+        # nag for a signature (Akien: "ASKING ME REPEATEDLY IS AN ERROR"). Now the packet
+        # is confirmed by his words at intake and the only thing left to say is what the
+        # WORK has not done: _model.json was ruled dead and is still on disk.
+        assert "2026-07-31-model-json-is-retired" in msg, (
+            f"the receipt names the ruling, not just 'something is open'; {msg}")
+        assert "STILL ALIVE" in msg and "_model.json" in msg, (
+            f"the receipt names the real failure and the file it is about; {msg}")
+        assert "UNCONFIRMED" not in msg, (
+            f"the hook must never again ask him to sign off what he already ruled; {msg}")
 
 
 def _corpus_world(d: str) -> str:
@@ -674,12 +806,14 @@ def _main() -> int:
         test_an_invented_target_is_refused,
         test_a_ruling_that_moves_nothing_is_refused,
         test_a_path_cannot_both_die_and_conform,
-        test_the_recorder_cannot_self_confirm,
+        test_the_recorder_cannot_author_its_own_confirmation,
         test_the_fingerprints_are_measured_not_authored,
         test_a_ruling_recorded_after_its_own_work_can_still_go_green,
         test_as_of_cannot_conform_a_file_that_did_not_exist_then,
         test_a_conformer_with_no_baseline_is_red_not_green,
-        test_unconfirmed_is_red_over_a_perfect_tree,
+        test_his_ruled_marker_confirms_and_nothing_else_does,
+    test_an_unmarked_packet_is_not_red_and_never_stops_the_work,
+    test_a_record_stripped_of_his_words_goes_red,
         test_the_day_this_was_built,
         test_a_confirmation_carries_its_own_source,
         test_an_untouched_conformer_is_red,
@@ -703,7 +837,7 @@ def _main() -> int:
         check()
         print(f"  PASS  {check.__name__}")
     print("green — cairn/machines/ruling: a ruling is refused unless it carries HIS WORDS beside my "
-          "one-line reading and names real paths; the recorder cannot self-confirm; and a "
+          "one-line reading and names real paths; the recorder cannot author its own confirmation and is never asked twice; and a "
           "file ruled dead that comes back is RED (the 2026-07-31 regression, replayed).")
     return 0
 

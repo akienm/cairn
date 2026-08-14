@@ -79,48 +79,116 @@ def _read_orient_berth(path: str) -> dict:
     return packet
 
 
+def _resolve_ref(ref: str, root: str):
+    """A REF TO THE COMPONENT THAT OWNS IT, by whichever of the two shapes it wears.
+
+    Returns ``(component_dir, None)`` or ``(None, why_not)``. The two shapes are a bare
+    NAME (looked up by rung, never concatenated) and a PATH (resolved to its deepest
+    owning component). Both are legal on an orient packet and this is the one place that
+    knows it, so the floor's loop reads the same regardless of which arrived.
+
+    MEASURED 2026-08-14, and it is why this function exists: across the 45 berthed orient
+    packets, 266 of 310 refs are paths and only 44 are names. The previous version tested
+    ``ref in component_roster`` — a set of NAMES — and dropped everything else, so the
+    floor discarded 86% of its own input and emitted an empty constraint list, which is a
+    legal list and therefore redded nothing.
+    """
+    if ref in set(component_roster(root)):
+        # AMBIGUITY IS REPORTED, NEVER RESOLVED HERE. A name two rungs answer to
+        # (``orient`` is a tool AND this machine) has no single charter, and picking one
+        # would put a charter under a component name that only half means it.
+        try:
+            comp_dir = address.component_dir(ref, os.path.join(root, "cairn"))
+        except address.AmbiguousComponent as e:
+            return None, str(e)
+        if comp_dir is not None:
+            return comp_dir, None
+        # The roster said component and the lookup said no: two readers disagreeing, which
+        # is a finding about the corpus and not about this ref. Said so rather than folded
+        # into "not a component".
+        return None, ("%r is in the component roster but no rung holds it — the roster "
+                      "and the address lookup disagree" % (ref,))
+    candidate = os.path.expanduser(ref)
+    if not os.path.isabs(candidate):
+        candidate = os.path.join(root, ref)
+    if not os.path.exists(candidate):
+        return None, ("%r names neither a component nor a path that exists on disk" % (ref,))
+    comp_dir = address.component_of(candidate, os.path.join(root, "cairn"))
+    if comp_dir is None:
+        # A real path under no component — a commons ticket, a skill, a repo-root file.
+        # It exists and it is not this floor's to bound, which is a different answer from
+        # "there is nothing there" and leaves by the same door wearing a different reason.
+        return None, ("%r exists but sits under no component, so no charter bounds it" % (ref,))
+    return comp_dir, None
+
+
+def _charter_constraints(charter_path: str, charter: dict) -> list:
+    """The THREE fields of a charter that BOUND, rendered as constraints — verbatim, each
+    carrying the address it was read from.
+
+    Falsifier, gates and owner, because those are the constraints most often violated:
+    what would make this wrong, what it must pass, and who may write it. The text is
+    copied and never summarised — a paraphrased constraint is a constraint with laundered
+    provenance, and the ceiling that reads it cannot tell that it has been touched.
+
+    THE SOURCE IS THE CHARTER PATH AND NOTHING ELSE, with the field in its own key. The
+    first version packed them as ``<path>#<field>``, which the installed judge
+    ``constraint_traces`` refused on all six — it resolves a source through the ONE
+    ref-resolution semantics the berth gate uses (``ref_exists``), and ``path#field`` is
+    not a path. Teaching that judge about fragments would have put a second spelling of
+    "where does this point" into a component this module is forbidden to shape; carrying
+    the field in a key it already had room for costs nothing and keeps one implementation.
+    """
+    out = []
+    for field in ("falsifier", "gates", "owner"):
+        text = charter.get(field)
+        if isinstance(text, str) and text.strip():
+            out.append({
+                "text": text,
+                "source": charter_path,
+                "field": field,
+                "kind": "charter",
+            })
+    return out
+
+
 def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
     """The deterministic stratum: the charter text that already bounds the ref'd
     components — falsifier, gates, owner — VERBATIM, each with its address.
     Reports WHAT EXISTS; the ceiling decides what applies."""
     orient_packet = _read_orient_berth(intent_ref)
-    roster = set(component_roster(root))
     charter_constraints, refs_not_components = [], []
+    # ONE ENTRY PER COMPONENT, NOT PER REF. The two ref shapes are not exclusive: a packet
+    # naming ``alpha`` and ``cairn/tools/alpha/alpha.py`` names one component twice, and
+    # before this was deduped the floor read that charter twice and emitted every one of
+    # its constraints in duplicate. Found by a count tooth in this machine's own proof the
+    # hour the path shape started resolving — the defect was invisible while path refs
+    # were being discarded, because a discarded ref cannot collide with anything.
+    seen = set()
     for ref in orient_packet.get("refs", []):
-        if ref not in roster:
-            refs_not_components.append(ref)
+        comp_dir, why_not = _resolve_ref(ref, root)
+        if comp_dir is None:
+            refs_not_components.append({"ref": ref, "why": why_not})
             continue
-        # The ref is a component NAME; its rung is looked up, never concatenated in
-        # (address.component_dir, 2026-08-13). The roster above already said this ref is a
-        # component, so a None here would be the two readers disagreeing — reported as an
-        # unreadable charter with its address, which is what this loop does with every
-        # other way the read can fail.
-        # AMBIGUITY IS REPORTED, NEVER RESOLVED HERE. A name two rungs answer to
-        # (orient, since the chart decomposition) has no single charter, and picking
-        # one would put a charter under a component name that only half means it. It
-        # rides out in the same shape as every other way the read can fail.
-        try:
-            comp_dir = address.component_dir(ref, os.path.join(root, "cairn"))
-        except address.AmbiguousComponent as e:
-            charter_constraints.append({
-                "component": ref, "charter": None, "unreadable": str(e)})
+        if str(comp_dir) in seen:
             continue
-        charter_path = str(comp_dir / "intention+why.json") if comp_dir else \
-            os.path.join(root, "cairn", "<no rung holds %s>" % ref, "intention+why.json")
+        seen.add(str(comp_dir))
+        charter_path = str(comp_dir / "intention+why.json")
         try:
             with open(charter_path, encoding="utf-8") as fh:
                 charter = json.load(fh)
         except (OSError, ValueError) as e:
             charter_constraints.append({
-                "component": ref, "charter": charter_path,
+                "component": comp_dir.name, "charter": charter_path,
                 "unreadable": "%s: %s" % (type(e).__name__, e)})
             continue
         charter_constraints.append({
-            "component": ref,
+            "component": comp_dir.name,
             "charter": charter_path,
             "falsifier": charter.get("falsifier"),
             "gates": charter.get("gates"),
             "owner": charter.get("owner"),
+            "constraints": _charter_constraints(charter_path, charter),
         })
     return {
         "stratum": "floor",
@@ -132,6 +200,170 @@ def constrain_floor(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
                      "parsed constraints waits for a checkable shape (ticket "
                      "chart-constrain, filed edge (a))",
     }
+
+
+FLOOR_AUTHORED = ("constraints", "unknowns")
+
+
+def floor_packet(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
+    """THE DETERMINISTIC HALF OF THE PACKET — the two fields constrain can author without
+    a reader, returned beside the facts they were derived from.
+
+    ``constraints`` is every ref'd component's falsifier, gates and owner, verbatim and
+    addressed. ``unknowns`` is what the floor could not ground — a ref answering to two
+    rungs, a ref naming nothing on disk, a charter that would not parse. Each is ``None``
+    when the floor has nothing, which is a different claim from an empty list: ``None``
+    says the floor could not tell, and an empty list would say it looked and found this
+    request unbounded — a sentence no Cairn request can truthfully carry.
+
+    ``bounds`` IS NOT A CANDIDATE AND NEVER WILL BE. What is in and out of scope for a
+    request is a judgement about intent, not a lookup: the floor can say what the charters
+    of the ref'd components demand, and it cannot say which of those demands this request
+    is choosing to serve. Same shape as ``intent`` and ``scope`` at orient — the fields
+    named here are the ones that are lookup rather than language.
+    """
+    facts = constrain_floor(intent_ref, root)
+
+    constraints, unknowns = [], []
+    for entry in facts["charter_constraints"]:
+        if entry.get("unreadable"):
+            unknowns.append("the charter at %s could not be read (%s)"
+                            % (entry.get("charter"), entry["unreadable"]))
+            continue
+        constraints += entry.get("constraints") or []
+    for miss in facts["refs_not_components"]:
+        unknowns.append("the request refs %s — %s" % (miss["ref"], miss["why"]))
+
+    return {
+        "stratum": "floor",
+        "constraints": constraints or None,
+        "unknowns": sorted(set(unknowns)) or None,
+        "facts": facts,
+    }
+
+
+def _canon(item) -> str:
+    """One string per collection member, so a dict constraint and a string unknown compare
+    by the same rule. Sorted keys, because two dicts that differ only in key order are the
+    same constraint and a serialisation artifact is not the ceiling's contribution."""
+    return json.dumps(item, sort_keys=True) if isinstance(item, (dict, list)) else str(item)
+
+
+def _survived(field: str, authored, proposed) -> bool:
+    """Did the floor's answer come through the ceiling unchanged?
+
+    SURVIVAL, NOT EQUALITY, AND THE DIFFERENCE FROM ORIENT IS DELIBERATE. orient compares
+    its floor-authored fields by set EQUALITY, because ``refs`` is a complete lookup
+    result: a ref the ceiling added is a ref the floor missed, which is the ceiling doing
+    the floor's job on the floor's own field. constrain's ``constraints`` is not that
+    shape. It is inherently MULTI-SOURCE — the 41 berthed packets carry 148 charter, 110
+    ticket, 63 law and 33 ruling constraints — and the floor owns exactly one of those
+    kinds. Under equality the field could never earn ``floor`` at all, because any law the
+    ceiling correctly adds would demote it, and a label that is structurally unreachable is
+    not a measurement, it is a constant. The dial exists to detect a nexus compiling; a
+    field that can only ever read ``claude`` makes it blind to the thing it watches.
+
+    So the test is two-sided, and the second side is what keeps it honest:
+
+      1. every constraint the floor produced is PRESENT in the packet, unchanged;
+      2. every ``charter``-kind constraint in the packet WAS produced by the floor.
+
+    (1) alone would let the ceiling carry the floor's three and invent a fourth wearing the
+    same kind, taking the floor's label for its own text. (2) closes that: the floor owns
+    the ``charter`` kind, and additions in any OTHER kind are the ceiling doing its own
+    job and cost it nothing. Additions the floor cannot reach are the point of having a
+    ceiling — they are not evidence that the floor did not run.
+
+    ``unknowns`` is survival only. The ceiling legitimately notices unknowns a lookup
+    cannot, and no kind field separates them, so there is nothing here to counterfeit: an
+    unknown is a confession, and a sender inventing extra ones is not claiming credit."""
+    if not (isinstance(authored, list) and isinstance(proposed, list)):
+        return authored == proposed
+    have, floor_said = set(map(_canon, authored)), set(map(_canon, proposed))
+    if not floor_said <= have:
+        return False
+    if field == "constraints":
+        charter_kind = {_canon(c) for c in authored
+                        if isinstance(c, dict) and c.get("kind") == "charter"}
+        return charter_kind <= floor_said
+    return True
+
+
+def measured_provenance(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """PROVENANCE FOR THE FLOOR-AUTHORED FIELDS, DERIVED — never accepted.
+
+    Re-runs the floor over the packet's own ``intent_ref`` and compares. A field claims
+    ``floor`` only if the door can REPRODUCE the floor's answer; otherwise it is
+    ``claude``, because "the ceiling wrote this" is what an unreproducible field means. A
+    ``tree`` declaration is left standing — that stratum is not what this measures and
+    clobbering it would trade one wrong label for another.
+
+    THE INPUT IS THE UPSTREAM BERTH, WHICH IS WHY THIS NEEDS NO NEW FIELD. orient measures
+    against the packet's own ``request`` and has to ask senders to carry it; constrain
+    template-fills from ``intent_ref``, a field it already requires, so the evidence for
+    the measurement is the same file the stage was built to read. Nothing to add and
+    nothing to forget.
+
+    WHAT "REPRODUCE" MEANS FOR A MULTI-SOURCE LIST is settled in ``_survived`` and is the
+    one place this stage's rule differs from orient's: the floor's items must survive
+    unchanged, and no OTHER ``charter``-kind constraint may appear beside them. The
+    ceiling adding a law or a ruling is the ceiling doing its own job and does not demote
+    the field, because a rule that demoted it would make ``floor`` unreachable and the
+    dial blind to the compiling it exists to detect.
+    """
+    prov = dict(packet.get("provenance") or {})
+    ref = packet.get("intent_ref")
+    try:
+        proposal = (floor_packet(ref, root)
+                    if isinstance(ref, str) and ref.strip() else {})
+    except ConstrainRefused:
+        # An unreadable berth is already a lack the record carries by name; nothing can be
+        # reproduced from it, so nothing earns ``floor`` and the gate refuses on the entry
+        # that actually measured it rather than on an exception raised from the label.
+        proposal = {}
+    for field in FLOOR_AUTHORED:
+        if field not in packet:
+            continue
+        proposed = proposal.get(field)
+        if proposed is not None and _survived(field, packet[field], proposed):
+            prov[field] = "floor"
+        elif prov.get(field) != "tree":
+            prov[field] = "claude"
+    return prov
+
+
+def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
+    """THE LOUD HALF. A sender that labels its own floor-authored provenance and gets it
+    WRONG is refused, not corrected — and refused BEFORE the gate, because this is not a
+    judgement about the packet's content but about the sender's authority over a field
+    that is measured.
+
+    THE DEFECT IT ENDS, MEASURED 2026-08-14 over the 41 berthed constrain packets: 24 of
+    them declare ``constraints: floor``, while the floor as it then stood produced zero
+    charter constraints for that same input in 24 cases and one in ten more. The kinds in
+    those lists — 148 charter, 110 ticket, 63 law, 33 ruling — are mostly things the floor
+    cannot reach at all. The number the staircase is steered by was computed by the party
+    being measured, which is the same finding orient's floor build closed one stage up.
+
+    AGREEING WITH THE MEASUREMENT IS NOT DECLARING, which is why this refuses on
+    DISAGREEMENT rather than on presence: a label that matches what re-running the floor
+    produced is a claim the sender RE-DERIVED, and there is nothing to refuse in being
+    right. It also has to be that way mechanically — ``validate_constrain`` runs at both
+    doors over the same object, so a refuse-on-presence rule would make the berth's own
+    output illegal at the deposit one line later."""
+    prov = packet.get("provenance") or {}
+    wrong = {f: (prov[f], measured.get(f)) for f in FLOOR_AUTHORED
+             if f in prov and prov[f] != measured.get(f)}
+    if wrong:
+        raise ConstrainRefused(
+            "constrain refuses a packet that declares its own provenance for %s — those "
+            "are DERIVED at the door by re-running the floor over the packet's own "
+            "'intent_ref' and comparing, and a field earns 'floor' only when the floor's "
+            "answer can be REPRODUCED. Declared vs measured: %s. Drop those keys (the "
+            "door writes them)."
+            % (", ".join(sorted(wrong)),
+               "; ".join("%s declared %r, measured %r" % (f, d, m)
+                         for f, (d, m) in sorted(wrong.items()))))
 
 
 JUDGE_REFUSAL_CONSTRAIN = (
@@ -239,6 +471,18 @@ def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
         # be asked a single one of the questions above. Loud, and terminal.
         raise ConstrainRefused("constrain packet must be a dict, got %s"
                     % type(packet).__name__)
+
+    # PROVENANCE IS MEASURED HERE, AT THE GATE, AND IN PLACE — the same position orient
+    # settled on one stage up, for the same reason: BOTH doors a packet can leave by (the
+    # berth and the deposit) run this function, so there is no route by which a packet
+    # reaches instance-space or the tree carrying a label it wrote about itself. In place
+    # rather than on a copy because /chart calls write_constrain(p) and then
+    # deposit_constrain(p, ...) with the SAME object — a copy would berth the measured
+    # provenance and hand the caller back a packet this very door would then refuse.
+    measured = measured_provenance(packet, root=root)
+    refuse_misdeclared_floor_provenance(packet, measured)
+    if measured:
+        packet["provenance"] = measured
 
     record = inspect_constrain(packet, root=root)
     if gate.verdict(record)["opens"]:

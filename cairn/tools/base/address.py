@@ -310,3 +310,44 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
     if len(homes) > 1:
         raise AmbiguousComponent(name, homes)
     return homes[0] if homes else None
+
+
+def component_of(path: Path | str, pkg_root: Path | str | None = None) -> Path | None:
+    """WHICH COMPONENT OWNS THIS PATH — the other half of ``component_dir``, which answers
+    the same question from the other end. ``None`` when the path sits under no component.
+
+    WHY IT HAD TO EXIST, MEASURED 2026-08-14. ``constrain``'s floor walked the refs on an
+    orient packet and kept only the ones that appeared in the component ROSTER — a set of
+    bare names. But since orient's floor started grounding its refs, a ref is a PATH far
+    more often than a name: across the 45 berthed orient packets, 266 of 310 refs are
+    paths, so the membership test discarded 86% of the floor's own input and constrain
+    emitted an empty constraint list. Nothing redded, because an empty list is a legal
+    list. A name-keyed lookup asked of path-shaped data is the whole defect, and it is
+    fixed by having the lookup that accepts the other shape rather than by teaching each
+    caller to guess.
+
+    THE DEEPEST ANCESTOR WINS, and that is not a tie-break — it is the answer. Components
+    nest (CLAUDE.md grants a device ``tools/<name>/`` and ``machines/<name>/`` at the same
+    shape), so ``cairn/devices/builder/machines/orient/orient.py`` sits under BOTH the
+    ``builder`` device and the ``orient`` machine. Both are true statements about the file
+    and only one of them is its address; the shallower one is the holder, and answering
+    with the holder would attribute a machine's code to the device that assembles it.
+
+    NOT AMBIGUOUS, WHICH IS WHY THIS RETURNS WHERE ``component_dir`` RAISES. A bare name
+    that two rungs answer to has no answer — either home would be a guess. A path has
+    exactly one deepest owner by construction, which is the reason ``AmbiguousComponent``
+    tells its caller "a path resolves unambiguously": this is the function that makes that
+    sentence true rather than merely advisory.
+    """
+    # ``Path.expanduser`` and not ``os.path`` — this leaf imports pathlib and NOTHING
+    # else, a property measured and leaned on at constrain's import site, so a
+    # convenience import here would quietly cost another component its stated shape.
+    target = Path(str(path)).expanduser().resolve()
+    owners = []
+    for c in component_dirs(pkg_root)[0]:
+        resolved = c.resolve()
+        if target == resolved or resolved in target.parents:
+            owners.append(resolved)
+    if not owners:
+        return None
+    return max(owners, key=lambda d: len(d.parts))

@@ -239,9 +239,55 @@ def test_the_class_space_walk_descends_a_holders_own_rungs():
             assert exc.name == "held" and len(exc.homes) == 2, exc.homes
 
 
+def test_a_path_resolves_to_its_deepest_component_never_its_holder():
+    """``component_of`` — the other half of ``component_dir``, asking the same question
+    from the other end: given a PATH, which component owns it?
+
+    THE DEEPEST ANCESTOR IS THE ANSWER, NOT A TIE-BREAK. Components nest, so a file inside
+    ``devices/holder/machines/held/`` sits under two of them. Both are true statements
+    about the file; only one is its address, and answering with the holder attributes a
+    machine's code to the device that assembles it. A first-match or shallowest-match
+    implementation passes every other tooth here and fails this one.
+
+    IT RETURNS WHERE ``component_dir`` RAISES, and the asymmetry is the point:
+    ``AmbiguousComponent`` tells its caller "a path resolves unambiguously", and this is
+    the function that makes that sentence true instead of merely advisory.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        pkg = Path(td) / "cairn"
+
+        def mk(rel: str) -> Path:
+            d = pkg / rel
+            d.mkdir(parents=True, exist_ok=True)
+            (d / (d.name + ".py")).write_text("x = 1\n")
+            return d
+
+        mk("tools/plain")
+        holder = mk("devices/holder")
+        held = mk("devices/holder/machines/held")
+        (held / "proofs").mkdir()
+        (held / "proofs" / "test_x.py").write_text("x = 1\n")
+
+        assert A.component_of(pkg / "tools/plain/plain.py", pkg) == (pkg / "tools/plain")
+        assert A.component_of(pkg / "devices/holder/holder.py", pkg) == holder
+        # THE TOOTH: two owners, and the deeper one wins.
+        assert A.component_of(held / "held.py", pkg) == held, \
+            "a machine's code belongs to the machine, not to the device holding it"
+        # A component's own record dirs are its record, so a proof file still answers to
+        # the component whose proof it is.
+        assert A.component_of(held / "proofs" / "test_x.py", pkg) == held
+        # The component directory itself is its own owner — ancestor-OR-SELF.
+        assert A.component_of(held, pkg) == held
+
+        assert A.component_of(pkg / "devices" / "nothing_here.py", pkg) is None, \
+            "a path under no component answers None — a rung container is not a component"
+        assert A.component_of(Path(td) / "outside.txt", pkg) is None
+
+
 def _main() -> int:
     for check in (test_the_three_rungs_resolve_off_this_box,
                   test_the_class_space_walk_descends_a_holders_own_rungs,
+                  test_a_path_resolves_to_its_deepest_component_never_its_holder,
                   test_the_instance_segment_is_present_even_at_zero,
                   test_the_held_part_is_named_never_numbered,
                   test_resolving_creates_nothing,

@@ -54,20 +54,51 @@ from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 _NEXUS = f"constrain_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 
 
+ALPHA_HOME = os.path.join("cairn", "tools", "alpha")
+BETA_HOME = os.path.join("cairn", "tools", "beta")
+NESTED_HOME = os.path.join("cairn", "devices", "holder", "machines", "nested")
+
+
 def make_root():
-    """A synthetic world: two chartered components (alpha with falsifier/gates/owner,
-    beta with a broken charter) plus a berthed orient packet to fill from."""
+    """A synthetic world at the house's REAL shape: components on their rungs, one of
+    them NESTED under a holder, plus a berthed orient packet to fill from.
+
+    THE FIXTURE WAS FLAT UNTIL 2026-08-14 — ``cairn/<name>/``, the shape the house
+    stopped having on 2026-08-13 — and nothing redded, because the top-level branch of
+    ``component_dirs`` still finds a directory that is not a rung. So the fixture kept
+    passing while testing a world that no longer existed, and the path-ref defect this
+    build closes could not have been caught here: with everything one level down, a path
+    ref and its component were never more than one hop apart. ``holder/machines/nested``
+    is here so the DEEPEST-OWNER rule has something to be wrong about.
+    """
     root = str(scratch_dir("chart_constrain_proof_"))
-    for comp in ("alpha", "beta"):
-        os.makedirs(os.path.join(root, "cairn", comp))
-        with open(os.path.join(root, "cairn", comp, comp + ".py"), "w") as fh:
+    for home in (ALPHA_HOME, BETA_HOME, NESTED_HOME):
+        os.makedirs(os.path.join(root, home))
+        name = os.path.basename(home)
+        with open(os.path.join(root, home, name + ".py"), "w") as fh:
             fh.write("x = 1\n")
-    with open(os.path.join(root, "cairn", "alpha", "intention+why.json"), "w") as fh:
+    # The HOLDER is a component in its own right and an ancestor of ``nested`` — which is
+    # the whole point of it: a path inside nested sits under both, and only one of them is
+    # its address.
+    with open(os.path.join(root, "cairn", "devices", "holder", "holder.py"), "w") as fh:
+        fh.write("x = 1\n")
+    with open(os.path.join(root, "cairn", "devices", "holder",
+                           "intention+why.json"), "w") as fh:
+        json.dump({"component": "holder",
+                   "falsifier": "RED if the holder answers for its machines",
+                   "gates": "proof gate under the tester",
+                   "owner": "CC owns code; Akien owns design"}, fh)
+    with open(os.path.join(root, ALPHA_HOME, "intention+why.json"), "w") as fh:
         json.dump({"component": "alpha",
                    "falsifier": "RED if alpha ever writes outside its own table",
                    "gates": "proof gate under the tester",
                    "owner": "CC owns code; Akien owns design"}, fh)
-    with open(os.path.join(root, "cairn", "beta", "intention+why.json"), "w") as fh:
+    with open(os.path.join(root, NESTED_HOME, "intention+why.json"), "w") as fh:
+        json.dump({"component": "nested",
+                   "falsifier": "RED if nested is attributed to its holder",
+                   "gates": "proof gate under the tester",
+                   "owner": "CC owns code; Akien owns design"}, fh)
+    with open(os.path.join(root, BETA_HOME, "intention+why.json"), "w") as fh:
         fh.write("{broken json")
     berth_dir = os.path.join(root, "instance", "packets")
     os.makedirs(berth_dir)
@@ -75,7 +106,14 @@ def make_root():
     with open(orient_berth, "w") as fh:
         json.dump({"intent": "bound the alpha gate work",
                    "domain": "alpha", "scope": "IN: alpha. OUT: beta.",
-                   "refs": ["alpha", "beta", "cairn/alpha/alpha.py"],
+                   # A NAME, a broken-charter name, a PATH into a component, a path into a
+                   # NESTED component, and a path that resolves to nothing. Every shape an
+                   # orient packet actually carries — measured over the 45 live berths,
+                   # where 266 of 310 refs are paths.
+                   "refs": ["alpha", "beta",
+                            os.path.join(ALPHA_HOME, "alpha.py"),
+                            os.path.join(NESTED_HOME, "nested.py"),
+                            os.path.join("cairn", "nowhere", "gone.py")],
                    "unknowns": [], "confidence": 0.8,
                    "provenance": {"intent": "claude", "domain": "claude",
                                   "scope": "claude", "refs": "floor",
@@ -132,12 +170,90 @@ def test_floor_surfaces_charters_verbatim(root, orient_berth):
         "RED if alpha ever writes outside its own table", \
         "the falsifier travels VERBATIM — a paraphrase is laundered provenance"
     assert by_comp["alpha"]["owner"].startswith("CC owns code")
-    assert by_comp["alpha"]["charter"].endswith("alpha/intention+why.json"), \
+    assert by_comp["alpha"]["charter"].endswith(
+        os.path.join("alpha", "intention+why.json")), \
         "the text travels with its address"
     assert "unreadable" in by_comp["beta"], \
         "a broken charter is named, never silently skipped"
-    assert facts["refs_not_components"] == ["cairn/alpha/alpha.py"], \
-        "non-component refs are reported apart, not dropped"
+
+
+def test_a_path_ref_reaches_its_component(root, orient_berth):
+    """THE 86% TOOTH. Until 2026-08-14 the floor tested each ref for membership in the
+    component ROSTER — a set of bare NAMES — so a path-shaped ref matched nothing and was
+    discarded. Measured across the 45 live orient berths: 266 of 310 refs are paths, so
+    the floor threw away 86% of its own input and emitted an EMPTY constraint list, which
+    is a legal list and redded nothing anywhere. A hollow build passes the verbatim tooth
+    above and fails this one."""
+    facts = constrain_floor(orient_berth, root=root)
+    by_comp = {c["component"]: c for c in facts["charter_constraints"]}
+    assert "alpha" in by_comp, "a path ref into a component must reach that component"
+    assert "nested" in by_comp, \
+        "a path ref into a NESTED component must reach it too — the rungs are read, " \
+        "not assumed, at every depth"
+    unreached = [m["ref"] for m in facts["refs_not_components"]]
+    assert unreached == [os.path.join("cairn", "nowhere", "gone.py")], \
+        "only the ref that resolves to nothing is reported apart; " \
+        "reported apart: %r" % (unreached,)
+    assert all(m["why"] for m in facts["refs_not_components"]), \
+        "a ref the floor could not ground carries WHY — 'not a component' is four " \
+        "different findings wearing one sentence"
+
+
+def test_the_deepest_owner_wins_never_the_holder(root, orient_berth):
+    """A path inside ``holder/machines/nested`` sits under BOTH components, and only one
+    of them is its address. Answering with the holder would attribute a machine's code to
+    the device that assembles it — and it is the answer a shallowest-match or
+    first-match implementation gives, which is why this is its own tooth."""
+    facts = constrain_floor(orient_berth, root=root)
+    by_comp = {c["component"]: c for c in facts["charter_constraints"]}
+    assert by_comp["nested"]["falsifier"] == \
+        "RED if nested is attributed to its holder"
+    assert "holder" not in by_comp, \
+        "the holder is a component and an ancestor, and it is NOT the address of " \
+        "the code inside its machine"
+
+
+def test_the_floor_authors_constraints_and_unknowns(root, orient_berth):
+    """The floor AUTHORS, it does not merely report. Three constraints per readable
+    charter — falsifier, gates, owner — each carrying the address it was read from, and
+    every failure to ground riding out as an unknown rather than vanishing."""
+    fl = constrain_mod.floor_packet(orient_berth, root=root)
+    assert fl["stratum"] == "floor"
+    by_kind = {c["kind"] for c in fl["constraints"]}
+    assert by_kind == {"charter"}, "the floor authors charter constraints and nothing else"
+    texts = {c["text"] for c in fl["constraints"]}
+    assert "RED if alpha ever writes outside its own table" in texts, \
+        "the authored constraint carries the charter's text VERBATIM"
+    assert all(c["source"].endswith("intention+why.json") for c in fl["constraints"]), \
+        "the source is the charter PATH — resolvable by the same rule the berth gate " \
+        "uses, not a string with a fragment packed into it"
+    assert {c["field"] for c in fl["constraints"]} == {"falsifier", "gates", "owner"}, \
+        "the field the text came from rides in its own key"
+    assert len(fl["constraints"]) == 6, \
+        "two readable charters x three bounding fields; got %d" % len(fl["constraints"])
+    # ONE ENTRY PER COMPONENT, NOT PER REF: the fixture names alpha TWICE, once as a bare
+    # name and once as a path into it, and a component ref'd twice must not have its
+    # charter surfaced twice. This count is the only thing that catches it — the texts are
+    # identical, so a duplicate reads as a longer list of correct constraints.
+    assert len({(c["source"], c["field"]) for c in fl["constraints"]}) == 6, \
+        "a component ref'd by BOTH name and path is one component, not two"
+    unknowns = " ".join(fl["unknowns"])
+    assert "gone.py" in unknowns, "a ref that grounds to nothing becomes an unknown"
+    assert "beta" in unknowns, "an unreadable charter becomes an unknown, never a silence"
+
+
+def test_an_empty_floor_is_None_and_not_an_empty_list(root, orient_berth):
+    """``None`` and ``[]`` are different claims and the difference is load-bearing: an
+    empty list says the floor looked and found this request unbounded, which is a sentence
+    no Cairn request can truthfully carry. ``None`` says the floor could not tell, and
+    provenance then says the ceiling authored the field."""
+    bare = os.path.join(root, "instance", "packets", "orient-bare.json")
+    with open(bare, "w") as fh:
+        json.dump({"intent": "no refs at all", "refs": [], "unknowns": [],
+                   "confidence": 0.5, "provenance": {}}, fh)
+    fl = constrain_mod.floor_packet(bare, root=root)
+    assert fl["constraints"] is None and fl["unknowns"] is None, \
+        "an empty floor answers None, never an empty collection"
 
 
 def test_schema_gate_refuses_hollow_shapes(root, orient_berth):
@@ -317,6 +433,97 @@ def test_request_identity_is_physics(root, orient_berth):
         assert "request-identity vanished" in msg and "tkt-b" in msg, msg
 
 
+def _floor_true_packet(root, orient_berth):
+    """A packet a well-behaved ceiling would emit: the floor's constraints carried through
+    UNCHANGED, plus one the floor cannot reach, plus the floor's unknowns."""
+    fl = constrain_mod.floor_packet(orient_berth, root=root)
+    p = good_packet(orient_berth)
+    p["constraints"] = list(fl["constraints"]) + [
+        {"text": "Law 9 — red is the default", "source": "base", "kind": "law"}]
+    p["unknowns"] = list(fl["unknowns"])
+    # The sender still declares the fields the floor does not author — ``intent_ref`` and
+    # ``bounds``. Only the FLOOR_AUTHORED keys are the door's to write, and dropping the
+    # rest would leave provenance uncovered, which is a different refusal entirely.
+    p["provenance"] = {"intent_ref": "floor", "bounds": "claude"}
+    return p, fl
+
+
+def test_provenance_is_measured_not_declared(root, orient_berth):
+    """A field earns ``floor`` only when re-running the floor over the packet's own
+    ``intent_ref`` REPRODUCES it. The label the sender wrote is never taken.
+
+    THE DEFECT, MEASURED over the 41 live constrain berths: 24 declared
+    ``constraints: floor`` while the floor produced zero charter constraints for that same
+    input in 24 cases. The number the staircase is steered by was computed by the party
+    being measured — the same finding orient's floor build closed one stage up."""
+    p, _ = _floor_true_packet(root, orient_berth)
+    validate_constrain(p, root=root)
+    assert p["provenance"]["constraints"] == "floor", \
+        "a ceiling that carries the floor through unchanged EARNS floor"
+    assert p["provenance"]["unknowns"] == "floor"
+
+
+def test_the_floor_label_is_reachable_and_both_mutations_red(root, orient_berth):
+    """THE AGREEMENT CHECK PROVES BOTH HALVES CAN RED — mutation testing (ticket
+    an-agreement-check-proves-both-halves-can-red), applied here by hand because this is
+    the first two-input check built since it was cast.
+
+    REACHABILITY IS HALF THE TOOTH, and it is the half that was nearly lost. Set equality
+    — orient's rule — would have made ``floor`` structurally unreachable here, because any
+    law the ceiling correctly adds would demote the field. A label that can only ever read
+    one value is not a measurement, it is a constant, and the dial that watches for a
+    nexus compiling would have been blind to the thing it was built to see.
+
+    MUTATION A (drop): the ceiling silently loses one of the floor's constraints.
+    MUTATION B (forge): the ceiling invents a ``charter``-kind constraint of its own and
+    rides the floor's label with it. Survival alone catches A and NOT B, so a harness that
+    reported one boolean would call this check healthy while half of it was dead."""
+    honest, fl = _floor_true_packet(root, orient_berth)
+    assert constrain_mod.measured_provenance(honest, root=root)["constraints"] == "floor"
+
+    dropped = dict(honest, constraints=honest["constraints"][1:])
+    assert constrain_mod.measured_provenance(dropped, root=root)["constraints"] == "claude", \
+        "MUTATION A undetected: a floor constraint went missing and the field kept 'floor'"
+
+    forged = dict(honest, constraints=honest["constraints"] + [
+        {"text": "invented", "source": "base", "kind": "charter"}])
+    assert constrain_mod.measured_provenance(forged, root=root)["constraints"] == "claude", \
+        "MUTATION B undetected: the ceiling forged a charter-kind constraint the floor " \
+        "never produced and wore the floor's label for it"
+
+    added = dict(honest, constraints=honest["constraints"] + [
+        {"text": "a ticket bound", "source": "base", "kind": "ticket"}])
+    assert constrain_mod.measured_provenance(added, root=root)["constraints"] == "floor", \
+        "a constraint in a kind the floor cannot reach is the CEILING doing its own " \
+        "job — demoting the field for it is what made the label unreachable"
+
+
+def test_a_misdeclared_floor_label_is_refused_not_corrected(root, orient_berth):
+    """A sender that labels its own floor-authored provenance and gets it WRONG is
+    refused. A silent overwrite would leave the sender believing it still labels its own
+    work, and the next stage would be written from that belief — the propagation vector
+    that put one wrong sentence into eight charters.
+
+    AGREEING IS NOT DECLARING: a label matching the measurement passes, because the berth
+    and the deposit both run this door over the same object, and a refuse-on-presence rule
+    would make the berth's own output illegal one line later."""
+    p, _ = _floor_true_packet(root, orient_berth)
+    lying = dict(p, constraints=p["constraints"][1:],
+                 provenance={"intent_ref": "floor", "constraints": "floor",
+                             "bounds": "claude", "unknowns": "claude"})
+    try:
+        validate_constrain(lying, root=root)
+        raise AssertionError("a packet declaring an unreproducible 'floor' passed")
+    except ConstrainRefused as e:
+        assert "declares its own provenance" in str(e) and "constraints" in str(e), str(e)
+
+    agreeing, _ = _floor_true_packet(root, orient_berth)
+    validate_constrain(agreeing, root=root)
+    again = json.loads(json.dumps(agreeing))
+    validate_constrain(again, root=root), \
+        "the door must accept the packet it just wrote — both exit doors run it"
+
+
 def _main() -> int:
     root, orient_berth = make_root()
     checks = [
@@ -324,6 +531,13 @@ def _main() -> int:
         test_refusal_is_one_pass_complete,
         test_template_fill_linkage_is_physics,
         test_floor_surfaces_charters_verbatim,
+        test_a_path_ref_reaches_its_component,
+        test_the_deepest_owner_wins_never_the_holder,
+        test_the_floor_authors_constraints_and_unknowns,
+        test_an_empty_floor_is_None_and_not_an_empty_list,
+        test_provenance_is_measured_not_declared,
+        test_the_floor_label_is_reachable_and_both_mutations_red,
+        test_a_misdeclared_floor_label_is_refused_not_corrected,
         test_schema_gate_refuses_hollow_shapes,
         test_the_door_composes_the_installed_judges,
         test_the_berth_lands_and_the_door_holds,

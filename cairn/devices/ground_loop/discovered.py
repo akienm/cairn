@@ -10,9 +10,19 @@ runs it," and the shortest reading of that is a heartbeat that imports code and 
 That reading is the 584aa74 goof — a ground_loop that EXECUTES collapses heartbeat, firing
 and scheduling into one device and loses the property the whole design is for: *a probe is
 the same unit no matter what fires it.* So discovery changes WHERE THE ROSTER COMES FROM
-(disk, every pass, unstaleable) and changes nothing about WHERE FIRING LIVES (the shim,
-which already carries crossing-memory, the cleared set, the never-fired horizon, and
-per-probe error isolation — none of which the heartbeat should learn a second copy of).
+(disk, every pass) and changes nothing about WHERE FIRING LIVES (the shim, which already
+carries crossing-memory, the cleared set, the never-fired horizon, and per-probe error
+isolation — none of which the heartbeat should learn a second copy of).
+
+THIS PARAGRAPH USED TO SAY THE ROSTER WAS "UNSTALEABLE", AND THAT WORD WAS FALSIFIED —
+recorded here rather than quietly deleted, because the sentence was true of the thing it
+named and false about the thing a reader took from it. The ROSTER is genuinely re-read from
+disk every pass and cannot go stale. The INTERPRETER READING IT can, and did: on 2026-08-13 a
+daemon outlived a file move, so every probe it loaded bound a ``Probe`` class the daemon's
+own frame no longer held, ``isinstance`` compared two class objects wearing one name, and
+fifteen devices were benched under their own names for 29 hours. An unstaleable list read by
+a stale reader is a stale answer. The predicate that now tells those apart lives at
+``staleness.py``; the watch that would catch it recurring is at ``probes/loop_not_stale.py``.
 
 The probe list is REPLACED each pass, not appended: a probe file deleted from disk leaves
 the roster on the next beat. The shim's own memories are keyed by ``Probe.identity`` and

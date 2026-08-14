@@ -44,12 +44,22 @@ from cairn.tools.base.device import BaseDevice
 from cairn.devices.ground_loop.discovered import DiscoveredShim
 from cairn.devices.ground_loop.discovery import ProbeCache
 from cairn.devices.ground_loop.liveness import read_liveness, write_liveness
+from cairn.devices.ground_loop import staleness as _staleness
 
 # The trouble identity a benched device gets. One prefix, here, because two readers need it:
 # ``_bench`` writes it and ``_refresh_bench`` parses the device back out of it. A device is
 # on the bench exactly when a LIVE ticket by this name exists — there is no second record of
 # benching, so the bench cannot disagree with the lane (Law 1).
 TROUBLE_PREFIX = "ground-loop-device-"
+
+# The identity the loop uses when the failure is ITS OWN AGE (ticket the-loop-names-its-own-
+# staleness-instead-of-benching-a-device). IT MUST NOT START WITH ``TROUBLE_PREFIX``, and
+# that is physics rather than taste: ``_refresh_bench`` recovers a device name by STRIPPING
+# that prefix off every live ticket, so ``ground-loop-device-ground_loop`` would put a device
+# that does not exist on the bench and leave it there — the loop benching a phantom while
+# reporting that it had benched nobody. ``test_the_self_trouble_does_not_bench_a_phantom_
+# device`` holds this line.
+SELF_TROUBLE = "ground-loop-is-older-than-the-code-it-judges"
 
 
 def liveness_pane_data(now, home=None) -> dict:
@@ -80,7 +90,7 @@ class GroundLoopDevice(BaseDevice):
     — no device space, no record — which is what every pure-physics proof builds."""
 
     def __init__(self, device_id: str = "ground_loop", liveness_home=None,
-                 discover=None, trouble=None, bus=None) -> None:
+                 discover=None, trouble=None, bus=None, staleness=None) -> None:
         super().__init__()
         self._device_id = device_id
         self._liveness_home = liveness_home
@@ -106,6 +116,11 @@ class GroundLoopDevice(BaseDevice):
         self._trouble = trouble
         self._benched: dict[str, str] = {}
         self._bench_stamp = None        # the trouble store's fingerprint at the last refresh
+        # IS THIS PROCESS OLDER THAN THE CODE IT IS JUDGING? Injected like ``discover`` so a
+        # proof can hand down the ANSWER instead of having to move a file out from under the
+        # running interpreter. Consulted ONLY when a device has already failed to import, so
+        # a healthy pass never calls it and pays nothing (I-shrinking-footprint-event-not-poll).
+        self._staleness = staleness or _staleness.module_drift
 
     @property
     def device_id(self) -> str:
@@ -230,6 +245,46 @@ class GroundLoopDevice(BaseDevice):
             self.emit("bench_unwritable", pointer=ident,
                       values={"error": f"{type(exc).__name__}: {exc}"})
 
+    def _drifted(self) -> list[dict]:
+        """The modules this process holds that no longer match their files — or ``[]``.
+
+        Never raises: a predicate that can take the heartbeat down is worse than the defect
+        it reports, and a predicate that cannot answer must leave the pre-existing behaviour
+        exactly as it was rather than quietly suppressing every bench."""
+        try:
+            findings = self._staleness() or []
+        except Exception as exc:  # noqa: BLE001
+            self.emit("staleness_unreadable", pointer="sys.modules",
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+            return []
+        return [f for f in findings if f.get("evidence") in _staleness.DRIFTED]
+
+    def _blame_myself(self, drifted: list[dict], unblamed: list[dict]) -> None:
+        """The loop's own trouble, raised against the one party it may make claims about.
+
+        The detail carries the drifted modules AND the import failures it declined to blame a
+        device for — declining to mis-attribute must not lose the evidence (Law 7: loud at
+        diagnostic surfaces). The tree walk is deliberately NOT run here: this fires on every
+        beat for as long as the staleness lasts, and ``diagnostics`` rglobs the whole class
+        space. The reader who wants that gets it from the probe, on the probe's own trigger.
+        """
+        if self._trouble is None:
+            return
+        try:
+            self._trouble.raise_trouble(
+                SELF_TROUBLE,
+                why="THIS PROCESS IS OLDER THAN THE CODE IT IS READING, so it cannot tell a "
+                    "broken device from its own age and has held nobody out. Restart the "
+                    "loop; the devices below were NOT benched and need no ticket cleared. "
+                    "Measured 2026-08-14 after 29 hours in which this same condition benched "
+                    "fifteen devices and darkened twenty-two probes under their names.",
+                detail={"drifted": drifted,
+                        "devices_not_benched": unblamed,
+                        **_staleness.diagnostics(findings=drifted, tree=False)})
+        except Exception as exc:  # noqa: BLE001 — the lane failing cannot take the beat with it
+            self.emit("self_trouble_unwritable", pointer=SELF_TROUBLE,
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+
     def _reconcile(self) -> None:
         """Rebuild the pulse roster from DISK — the whole point of the ruling.
 
@@ -251,16 +306,35 @@ class GroundLoopDevice(BaseDevice):
             return
         hand_held = {s.device_id for s in self._shims
                      if s.device_id not in self._discovered}
+        # Asked at most ONCE per pass, and only if something actually failed to import: the
+        # answer cannot change mid-pass, and a healthy pass never reaches the question at all.
+        drifted: list[dict] | None = None
+        unblamed: list[dict] = []
         for device_id, entry in found.items():
             if entry.get("benched"):
                 continue
             if entry["failures"]:
-                self._bench(device_id,
-                            why=f"the {device_id} device's probe folder does not import, so its "
-                                "watches cannot be fired; the heartbeat has held it out until "
-                                "this is fixed and the ticket cleared",
-                            detail={"folder": entry["folder"], "failures": entry["failures"]})
-                continue
+                if drifted is None:
+                    drifted = self._drifted()
+                if drifted:
+                    # STALENESS POISONS THE WHOLE ATTRIBUTION, not one device's. While this
+                    # process holds code that has moved, an import failure is evidence about
+                    # the process and says nothing trustworthy about whose file it was — and
+                    # benching on an untrustworthy diagnosis is the entire defect. So nobody
+                    # is held out, the device keeps its shim, and the probes in its folder
+                    # that DO load keep firing (benching is per-device while failures are
+                    # per-file, which is how one bad probe darkened whole folders). The cost
+                    # is that these files are re-imported each beat until a restart, which is
+                    # the condition's own fix and is bounded by it.
+                    unblamed.append({"device": device_id, "folder": entry["folder"],
+                                     "failures": entry["failures"]})
+                else:
+                    self._bench(device_id,
+                                why=f"the {device_id} device's probe folder does not import, so its "
+                                    "watches cannot be fired; the heartbeat has held it out until "
+                                    "this is fixed and the ticket cleared",
+                                detail={"folder": entry["folder"], "failures": entry["failures"]})
+                    continue
             if device_id in hand_held:
                 continue      # a real shim already fronts this device — do not double-pulse it
             shim = self._discovered.get(device_id)
@@ -282,6 +356,12 @@ class GroundLoopDevice(BaseDevice):
             self.emit("undiscovered", pointer=device_id,
                       values={"reason": "benched" if device_id in self._benched
                               else "probes folder no longer on disk"})
+        # ONE trouble for one condition, after the pass rather than per device: the staleness
+        # is a single fact about this process, and the devices it declined to blame ride it as
+        # evidence. trouble.py's damper then makes a persisting staleness one ticket with a
+        # count instead of one per beat.
+        if unblamed:
+            self._blame_myself(drifted or [], unblamed)
 
     # --- the one capability: one beat ---------------------------------------
 

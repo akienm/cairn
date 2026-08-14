@@ -32,7 +32,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.ground_loop.discovery import ProbeCache, discover, device_folders  # noqa: E402
-from cairn.devices.ground_loop.loop import TROUBLE_PREFIX, GroundLoopDevice  # noqa: E402
+from cairn.devices.ground_loop.loop import (  # noqa: E402
+    SELF_TROUBLE, TROUBLE_PREFIX, GroundLoopDevice)
 from cairn.devices.trouble.trouble import TroubleDevice  # noqa: E402
 
 NOW = datetime(2026, 8, 11, 12, 0, tzinfo=timezone.utc)
@@ -57,10 +58,35 @@ def _device(root: Path, name: str, files: dict[str, str]) -> Path:
     return folder
 
 
-def _loop(root: Path, trouble_root: Path):
+class _RecordingBus:
+    """The consumer end. The falsifier does not say 'the probe is loadable' — it says the
+    watch REACHES ITS CONSUMER after the staleness is detected, and with no bus every fire
+    records ``unwired`` and delivers to nobody. So the tooth needs somewhere for the poke to
+    actually land, or it proves the weaker claim and reads as if it proved the stronger."""
+
+    def __init__(self) -> None:
+        self.posted: list[dict] = []
+
+    def post(self, sender, to, channel, **kw):
+        # ``id`` is what the shim reads back off the envelope to record the delivery; a fake
+        # bus that omits it makes every fire read ``refused`` and the tooth passes for the
+        # wrong reason in the other direction.
+        envelope = {"id": f"env-{len(self.posted)}", "sender": sender, "to": to,
+                    "channel": channel, **kw}
+        self.posted.append(envelope)
+        return envelope
+
+
+def _loop(root: Path, trouble_root: Path, staleness=None, bus=None):
     """A loop wired to a temp tree and a temp trouble lane — the same injection the resident
     runner does with the real world, with the folder read counted so the bench can be measured
-    at the IMPORT rather than at the pulse."""
+    at the IMPORT rather than at the pulse.
+
+    ``staleness`` is injected for the same reason ``discover`` is: the predicate's own teeth
+    live in ``test_staleness.py`` and construct real drift in a real interpreter, so what the
+    benching teeth need here is the ANSWER, not a second reproduction of the condition. A
+    proof that had to move a file out from under this process to test the bench would be
+    testing two things and proving neither."""
     trouble = TroubleDevice(root=trouble_root)
     calls = {"imports": 0}
 
@@ -75,7 +101,18 @@ def _loop(root: Path, trouble_root: Path):
         return discover(root=root, cache=_held[0], skip=skip)
 
     _held = [cache]
-    return GroundLoopDevice(discover=discoverer, trouble=trouble), trouble, calls
+    return (GroundLoopDevice(discover=discoverer, trouble=trouble, staleness=staleness,
+                             bus=bus),
+            trouble, calls)
+
+
+def _stale(*modules):
+    """A staleness answer in the shape ``module_drift`` returns. Named generically on
+    purpose: the ticket's falsifier clause (3) refuses a fix that recognises this outage by
+    the symbols that happened to move in it (``Probe``, ``common_shape_record``), because the
+    next rename would produce a third face and the loop would blame a device again."""
+    return lambda: [{"module": m, "evidence": "VANISHED", "file": f"/gone/{m}.py",
+                     "detail": "fixture drift"} for m in modules]
 
 
 # --- teeth ------------------------------------------------------------------
@@ -151,6 +188,122 @@ def test_a_device_that_will_not_import_is_benched_with_a_ticket():
         detail = live[0]["occurrences"][0]
         assert "ModuleNotFoundError" in str(detail["failures"]), detail
         assert detail["failures"][0]["file"].endswith("w.py")
+
+
+# --- THE PAIR THAT MUST PROVE APART ----------------------------------------
+#
+# Ticket the-loop-names-its-own-staleness-instead-of-benching-a-device. The SAME broken
+# folder meets the loop twice; the only difference is whether the process holds code that
+# has drifted out from under it. If both teeth cannot be green at once, the predicate is not
+# what decides the bench — and a build where staleness is detected but the device is benched
+# anyway is this ticket's third hollow pass: the record gets prettier and the outage is
+# exactly where it was.
+
+def test_a_stale_process_does_not_bench_the_device_and_its_healthy_probe_still_fires():
+    """THE TOOTH THAT ENDS THE OUTAGE, and note WHICH probe it is about.
+
+    Benching is per-DEVICE while failures are per-FILE, so one unloadable probe took its
+    whole folder down with it — that is how twenty-two probes went dark behind fifteen
+    devices. Under staleness the device stays on the roster and the probe that loads fine
+    still fires, which is the falsifier's requirement that a watch reach its consumer AFTER
+    the staleness is detected."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT,
+                                "works.py": _GOOD.format(why="still armed", fires="True")})
+        bus = _RecordingBus()
+        loop, trouble, _ = _loop(root, root / "_troubles",
+                                 staleness=_stale("some.module.that.moved"), bus=bus)
+        record = loop.beat(NOW)
+
+        assert record["pulsed"] == ["mixed"], record["pulsed"]
+        assert not [t for t in trouble.live()
+                    if t["id"] == TROUBLE_PREFIX + "mixed"], trouble.live()
+        pulse = record["pulses"][0]
+        assert pulse["fired_count"] == 1, pulse          # ``ok``, not merely attempted
+        assert [p["to"] for p in bus.posted] == ["harbor_master"], bus.posted
+
+
+def test_the_same_broken_folder_is_benched_when_the_process_is_not_stale():
+    """THE PARTNER. Identical fixture, staleness absent — and the bench must still bite.
+
+    A fix that stopped benching outright would pass the tooth above and leave the loop unable
+    to hold out a genuinely broken device, which is Akien's 2026-08-11 ruling. The predicate
+    has to be the thing that decides, and the only way to show that is to change nothing else
+    and watch the verdict flip."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT,
+                                "works.py": _GOOD.format(why="still armed", fires="True")})
+        loop, trouble, _ = _loop(root, root / "_troubles", staleness=lambda: [])
+        record = loop.beat(NOW)
+
+        assert record["pulsed"] == [], record["pulsed"]
+        assert [t["id"] for t in trouble.live()] == [TROUBLE_PREFIX + "mixed"], trouble.live()
+
+
+def test_a_stale_loop_raises_its_trouble_against_ITSELF():
+    """The loop is the one party it may make claims about (Law 6). For 29 hours it made a
+    claim about fifteen devices instead, and every human reader — me, twice — believed it."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT})
+        loop, trouble, _ = _loop(root, root / "_troubles",
+                                 staleness=_stale("some.module.that.moved"))
+        loop.beat(NOW)
+        live = trouble.live()
+        assert [t["id"] for t in live] == [SELF_TROUBLE], live
+        detail = live[0]["occurrences"][0]
+        assert detail["drifted"][0]["module"] == "some.module.that.moved", detail
+
+
+def test_the_self_trouble_does_not_bench_a_phantom_device():
+    """THE TRAP IN THE EXISTING CODE, and it is one identifier wide. ``_refresh_bench`` turns
+    every live ticket whose id starts with ``TROUBLE_PREFIX`` into a benched device by
+    STRIPPING the prefix — so a self-trouble named ``ground-loop-device-ground_loop`` would
+    hold out a device that does not exist, forever, and the loop would have benched itself
+    while reporting that it had not."""
+    assert not SELF_TROUBLE.startswith(TROUBLE_PREFIX), SELF_TROUBLE
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT,
+                                "works.py": _GOOD.format(why="armed", fires="True")})
+        loop, _, _ = _loop(root, root / "_troubles",
+                           staleness=_stale("some.module.that.moved"))
+        loop.beat(NOW)
+        loop.beat(NOW)                       # the second beat re-reads the bench from the lane
+        assert loop._benched == {}, loop._benched
+        assert loop.beat(NOW)["pulsed"] == ["mixed"]
+
+
+def test_staleness_does_not_silence_the_failures_it_declines_to_bench_on():
+    """Law 7 — loud at diagnostic surfaces. Declining to blame the device must not lose the
+    import errors themselves: they are the evidence, and a reader who cannot see them is back
+    to guessing. They ride the loop's own trouble, where they belong."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT})
+        loop, trouble, _ = _loop(root, root / "_troubles",
+                                 staleness=_stale("some.module.that.moved"))
+        loop.beat(NOW)
+        detail = trouble.live()[0]["occurrences"][0]
+        blob = str(detail)
+        assert "ModuleNotFoundError" in blob, detail
+        assert "mixed" in blob, detail
+
+
+def test_fifty_stale_beats_raise_one_self_trouble():
+    """The damper again, on the new lane. A staleness that persists is one condition, not
+    fifty — and a loop that reports it every second is a firehose wearing a lane's clothes."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT})
+        loop, trouble, _ = _loop(root, root / "_troubles",
+                                 staleness=_stale("some.module.that.moved"))
+        for _ in range(50):
+            loop.beat(NOW)
+        live = trouble.live()
+        assert len(live) == 1 and live[0]["id"] == SELF_TROUBLE, live
 
 
 def test_the_heartbeat_survives_every_shape_of_bad_device():

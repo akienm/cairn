@@ -163,6 +163,19 @@ An IOU without a real ticket is itself the defect this section is made of.
 - Every component's charter answers "how does this component learn?" — "it doesn't,
   because X" is a valid answer; silence is not.
   → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
+- **A deterministic red is fixed, or it carries a ruling from Akien — never a paragraph.**
+  CC may not weaken, suppress, exempt or explain away a deterministic result. Two
+  dispositions, no third. The ruling requirement is an **escape route**, not a lock
+  (Akien, 2026-08-14): sometimes the check *is* wrong, and where the only moves are
+  plaster or paralysis the measured reflex is plaster — so "this check is wrong" has
+  to be sayable rather than smuggled into a rationalisation. His reason is about *my*
+  behaviour, not the artifacts: *"presenting a deterministic result of an error will
+  prompt you to fix it, not to plaster over it."* An opinion invites negotiation; a
+  deterministic red offers nothing to negotiate with.
+  → this is one face of **corrosion** — drift with a ruling behind it is the system
+  learning, drift with none is decay — and the enforcement is one predicate over both:
+  *a constraint stopped constraining, and no ruling sits in the same act*
+  · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
 - **Law 9 itself.** Red is a word a reader has to remember to apply; nothing derives it,
   and the site has no plan showing which lots are still unexcavated. A component whose
   code has stopped matching its charter reads as whatever it last said about itself.

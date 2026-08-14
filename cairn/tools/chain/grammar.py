@@ -23,9 +23,26 @@ WHAT LIVES HERE — the shared vocabulary, and nothing stage-specific:
     can never disagree.
   - WHOSE VOYAGE: ``ticket_path`` / ``ticket_claim_error`` / ``identity_lack`` — the
     claim rides every link.
-  - WHAT A PACKET MUST BE: ``STRATA`` / ``common_shape_lacks`` / ``render_lacks`` /
-    ``CHAIN_REMEDY`` — one implementation of the checks all seven stage doors run, so
-    the doors cannot drift apart again (ticket chart-doors-refuse-in-one-pass).
+  - WHAT A PACKET MUST BE: ``STRATA`` / ``common_shape_record`` / ``inspected`` /
+    ``lacks_of`` / ``common_shape_lacks`` / ``render_lacks`` / ``CHAIN_REMEDY`` — one
+    implementation of the checks all seven stage doors run, so the doors cannot drift
+    apart again (ticket chart-doors-refuse-in-one-pass).
+
+THE SHARED HALF OF EVERY MACHINE'S INSPECTOR lives here, and it emits a PROOF RECORD
+(2026-08-13, ruling every-machine-carries-its-own-inspector-and-gate). Akien: "passing
+such a thing without inspecting it means passing a mystery if something downstream fails
+… if every machine and even some more complex tools have their own inspector and gate,
+then each has documented and controllable quality validation." The stage-specific half
+lives at each machine's own address, and each machine's gate is the == compare over the
+two halves joined — so a failure backtracks to the stage that let it through.
+
+`cairn determinism` MARKS THIS TOOL A GATE, and it is right to. Gate-ness there is a
+DIRECT-import fact, deliberately coarser than "takes the verdict" — a component cannot
+hide its gate behind a helper — and this module does import the gate tool and does run
+its per-entry == compare (``lacks_of``). What it does NOT do is take the artifact-level
+verdict: that is each machine's, at its own address, because that is where the refusal
+belongs and where a failure must backtrack to. The two readings are not in conflict; the
+instrument measures the vocabulary, and this sentence says what is done with it.
 """
 from __future__ import annotations
 
@@ -34,6 +51,7 @@ import re
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
+from cairn.tools.gate import gate
 from cairn.tools.orient.orient import device_census
 
 # .../repo/cairn/tools/chain/grammar.py -> repo root: four dirnames, counted off THIS
@@ -224,54 +242,129 @@ CHAIN_REMEDY = (
 )
 
 
-def common_shape_lacks(packet: dict, *, required_fields, authored_fields,
-                       list_fields=(), root: str = CAIRN_ROOT) -> list:
-    """Every SHARED shape lack, accumulated — the one implementation of the checks
-    all seven stage doors run (missing fields, list shapes, unknowns, confidence,
-    provenance coverage and strata, the ticket claim), so the doors cannot drift
-    apart again: the copied-cascade defect this replaces began as one hand-written
-    tier copied six times (ticket chart-doors-refuse-in-one-pass).
+def inspected(identity, *, expected, actual, lack, stage="", **values) -> dict:
+    """One inspection question, in the gate's own vocabulary, carrying its own lack.
 
-    Returns messages, never raises — each caller appends its stage-specific lacks
-    and raises ONCE with everything named. Checks guard on field presence: an
-    absent field is reported by the missing-fields lack alone, not twice.
+    A stage door needs the entry for its GATE and the sentence for its REFUSAL, and the
+    two must never be able to disagree about which check failed — so the sentence rides
+    inside the entry rather than being assembled from a parallel list. ``gate.proved``
+    puts extras under ``values``; the lack is one of them, and it is written for the
+    mismatch case because that is the only case a reader ever meets it in.
     """
-    lacks = []
+    return gate.proved(identity=identity, expected=expected, actual=actual,
+                       location=("cairn/devices/builder/machines/%s" % stage) if stage else
+                                "cairn/tools/chain",
+                       code="grammar.py:%s" % identity,
+                       source=stage or "chain.grammar", lack=lack, **values)
+
+
+def common_shape_record(packet: dict, *, required_fields, authored_fields,
+                        list_fields=(), root: str = CAIRN_ROOT, stage: str = "") -> list:
+    """THE SHARED PROOF RECORD every stage door holds — one entry per check that ran,
+    EXPECTED beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING ALWAYS
+    PROVED AND LISTING WHAT IT PROVED. SAME PATTERN EVERYWHERE.").
+
+    This is the one implementation of the checks all seven stage doors run, so the doors
+    cannot drift apart again (ticket chart-doors-refuse-in-one-pass) — and since the
+    every-machine-carries-its-own-inspector-and-gate ruling it emits a RECORD rather than
+    a list of complaints. The difference is the whole point: a complaint list is empty
+    both when every check passed and when no check ran, so the door downstream is handed
+    a mystery in exactly the case Akien named ("passing such a thing without inspecting
+    it means passing a mystery if something downstream fails").
+
+    A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED. The guarded checks below only append
+    when their input is present, so an absent field makes this record SHORTER — visible
+    as a shorter list, never as a cleaner one — and the ``required_fields_present`` entry
+    that always runs has already closed the gate. That is also why an absent field still
+    produces exactly one lack rather than two, which is the property the complaint-list
+    version had and this must not lose.
+    """
+    record = []
+    present = [f for f in required_fields if f in packet]
     missing = [f for f in required_fields if f not in packet]
-    if missing:
-        lacks.append("missing fields: %s" % ", ".join(missing))
+    record.append(inspected(
+        "required_fields_present", stage=stage,
+        expected=sorted(required_fields), actual=sorted(present),
+        lack="missing fields: %s" % ", ".join(missing)))
 
-    for field in list_fields:
-        if field in packet and not isinstance(packet[field], list):
-            lacks.append("%s must be a list" % field)
+    checkable = [f for f in list_fields if f in packet]
+    if checkable:
+        record.append(inspected(
+            "list_fields_are_lists", stage=stage,
+            expected={f: "list" for f in checkable},
+            actual={f: type(packet[f]).__name__ for f in checkable},
+            lack="; ".join("%s must be a list" % f for f in checkable
+                           if not isinstance(packet[f], list))))
 
-    if isinstance(packet.get("unknowns"), list) and any(
-            not isinstance(x, str) for x in packet["unknowns"]):
-        lacks.append("unknowns must be a list of strings")
+    if isinstance(packet.get("unknowns"), list):
+        bad_unknowns = [x for x in packet["unknowns"] if not isinstance(x, str)]
+        record.append(inspected(
+            "unknowns_are_strings", stage=stage,
+            expected=0, actual=len(bad_unknowns),
+            lack="unknowns must be a list of strings"))
 
     if "confidence" in packet:
         confidence = packet["confidence"]
-        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) \
-                or not 0.0 <= float(confidence) <= 1.0:
-            lacks.append("confidence must be a number in [0, 1]")
+        ok = (not isinstance(confidence, bool)
+              and isinstance(confidence, (int, float))
+              and 0.0 <= float(confidence) <= 1.0)
+        record.append(inspected(
+            "confidence_in_unit_interval", stage=stage,
+            expected="a number in [0, 1]",
+            actual=("a number in [0, 1]" if ok else repr(confidence)),
+            lack="confidence must be a number in [0, 1]"))
 
     if "provenance" in packet:
         provenance = packet["provenance"]
-        if not isinstance(provenance, dict):
-            lacks.append("provenance must be a dict of field -> stratum")
-        else:
+        record.append(inspected(
+            "provenance_is_a_mapping", stage=stage,
+            expected="dict", actual=type(provenance).__name__,
+            lack="provenance must be a dict of field -> stratum"))
+        if isinstance(provenance, dict):
             uncovered = [f for f in authored_fields if f not in provenance]
-            if uncovered:
-                lacks.append("provenance does not cover: %s" % ", ".join(uncovered))
+            record.append(inspected(
+                "provenance_covers_authored_fields", stage=stage,
+                expected=sorted(authored_fields),
+                actual=sorted(f for f in authored_fields if f in provenance),
+                lack="provenance does not cover: %s" % ", ".join(uncovered)))
             bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
-            if bad:
-                lacks.append("unknown stratum in provenance: %s (must be one of %s)"
-                             % (", ".join(bad), "|".join(STRATA)))
+            record.append(inspected(
+                "provenance_strata_are_known", stage=stage,
+                expected=[], actual=bad,
+                lack="unknown stratum in provenance: %s (must be one of %s)"
+                     % (", ".join(bad), "|".join(STRATA))))
 
     claim_error = ticket_claim_error(packet, root)
-    if claim_error:
-        lacks.append(claim_error)
-    return lacks
+    record.append(inspected(
+        "ticket_claim_is_consistent", stage=stage,
+        expected="consistent", actual=("consistent" if not claim_error else "inconsistent"),
+        lack=claim_error or ""))
+    return record
+
+
+def lacks_of(record) -> list:
+    """The complaints a proof record implies — its mismatched entries' own sentences.
+
+    DERIVED, NEVER PARALLEL. The record is the measurement and this is a view of it, so a
+    check cannot fail while its sentence goes missing, or produce a sentence while the
+    gate reads it as passing. Order follows the record, which is the order the checks ran.
+    """
+    return [e["values"]["lack"] for e in record
+            if not gate.passed(e) and e.get("values", {}).get("lack")]
+
+
+def common_shape_lacks(packet: dict, *, required_fields, authored_fields,
+                       list_fields=(), root: str = CAIRN_ROOT) -> list:
+    """The shared lacks — now a VIEW of ``common_shape_record``, unchanged for callers.
+
+    Kept because seven stage doors and their proofs speak it, and because a door that
+    wants only the sentences should not have to know the record shape. It is one line
+    over the record rather than a second implementation: the drift this whole module
+    exists to prevent would otherwise reappear between a stage's gate and its refusal.
+    """
+    return lacks_of(common_shape_record(
+        packet, required_fields=required_fields, authored_fields=authored_fields,
+        list_fields=list_fields, root=root))
 
 
 def render_lacks(stage: str, lacks: list) -> str:

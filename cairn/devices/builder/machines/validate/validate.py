@@ -54,7 +54,8 @@ import time
 
 from cairn.machines.build_inspector.inspector import judge_validate
 from cairn.devices.builder.machines.hypothesize.hypothesize import _read_triage_berth
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_lacks, render_lacks, CHAIN_REMEDY, identity_lack)
+from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 
 AUTHORED_FIELDS = ("hypothesize_ref", "criteria", "unknowns")
@@ -124,43 +125,96 @@ def validate_floor(hypothesize_ref: str, root: str = CAIRN_ROOT) -> dict:
     }
 
 
-def validate_validate(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The exit gate, two tiers, each complete in one pass (ticket
-    chart-doors-refuse-in-one-pass): every SHAPE lack is accumulated and raised in
-    ONE refusal — a dribbled refusal costs the sender a round-trip per field — and
-    THE COMPOSED JUDGES (judge_validate is the inspector's, so a packet this door
-    passes is a packet the promotion gate passes — one implementation, two mouths)
-    already report every finding together once shape holds.
-    The doubled name is the honest mirror of every stage's validate_<stage> door — consistency over euphony."""
-    if not isinstance(packet, dict):
-        raise ValidateRefused("validate packet must be a dict, got %s"
-                    % type(packet).__name__)
+JUDGE_REFUSAL_VALIDATE = (
+    "validate packet refused by the installed judges (the door and the promotion gate are one implementation): ")
 
-    lacks = []
+
+def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
+    """VALIDATE'S OWN INSPECTOR — the proof record for the packet it hands the next stage.
+
+    Every question this stage asks, EXPECTED beside ACTUAL, passes included. Akien,
+    2026-08-13, ruling every-machine-carries-its-own-inspector-and-gate: "passing such a
+    thing without inspecting it means passing a mystery if something downstream fails …
+    we can backtrack and see exactly where something went awry even if it's not something
+    we're specifically looking for yet." The entries that PASSED are exactly the ones
+    nobody was looking for, which is what a record buys and a complaint list cannot.
+
+    Takes no verdict — that is ``validate_validate``'s, at this same address, because the
+    refusal belongs to the stage that would have handed the packet on.
+
+    A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED. The upstream-link entries appear only
+    when the packet carries a hypothesize_ref, and the judges only once shape holds (a judge
+    reads fields whose shape is not yet established). Either way the record is SHORTER
+    and the gate is already closed by the entry that did run — visible as a shorter
+    list, never a cleaner one.
+    """
+    record = []
     if "hypothesize_ref" in packet:
         try:
             _ref_doc = _read_hypothesize_berth(packet["hypothesize_ref"])
         except RuntimeError as e:
-            lacks.append(str(e))
+            record.append(inspected(
+                "upstream_berth_is_readable", stage="validate",
+                expected="readable", actual="unreadable", lack=str(e)))
         else:
+            record.append(inspected(
+                "upstream_berth_is_readable", stage="validate",
+                expected="readable", actual="readable", lack=""))
             _mismatch = identity_lack(packet, _ref_doc, "hypothesize_ref")
-            if _mismatch:
-                lacks.append(_mismatch)
+            record.append(inspected(
+                "request_identity_rides_the_chain", stage="validate",
+                expected="consistent",
+                actual="consistent" if not _mismatch else "broken",
+                lack=_mismatch or ""))
 
-    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
-                                authored_fields=AUTHORED_FIELDS,
-                                list_fields=('criteria', 'unknowns'), root=root)
-    if lacks:
-        raise ValidateRefused(render_lacks("validate", lacks))
+    record += common_shape_record(packet, required_fields=REQUIRED_FIELDS,
+                                  authored_fields=AUTHORED_FIELDS,
+                                  list_fields=('criteria', 'unknowns'),
+                                  root=root, stage="validate")
 
-    verdicts = judge_validate(packet)
-    if verdicts:
-        raise ValidateRefused(
-            "validate packet refused by the installed judges (the door and the "
-            "promotion gate are one implementation): "
-            + "; ".join("[%s] %s" % (v["judge"], v["finding"]) for v in verdicts))
+    # THE COMPOSED JUDGES, and they run only once every entry above passes — the same
+    # order the two-tier door has always used, now visible in the record rather than
+    # implied by control flow. judge_validate is the build inspector's, so a packet this
+    # door passes is a packet the promotion gate passes: one implementation, two mouths.
+    if all(gate.passed(e) for e in record):
+        verdicts = judge_validate(packet)
+        record.append(inspected(
+            "installed_judges_find_nothing", stage="validate",
+            expected=[], actual=sorted({v["judge"] for v in verdicts}),
+            lack=JUDGE_REFUSAL_VALIDATE + "; ".join(
+                "[%s] %s" % (v["judge"], v["finding"]) for v in verdicts),
+            findings=verdicts))
+    return record
 
-    return packet
+
+def validate_validate(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """VALIDATE'S OWN GATE at the handoff — an == compare over ``inspect_validate``'s record.
+
+    Opens only when every entry's expected equals its actual, per entry, no oracle
+    anywhere near it (ruling a-gate-opens-on-an-equality-compare-and-never-on-an-oracle).
+
+    TWO REFUSAL SENTENCES, ONE RECORD AND ONE VERDICT. Shape lacks are rendered together
+    (ticket chart-doors-refuse-in-one-pass — a dribbled refusal costs the sender a
+    round-trip per field); a judge finding is rendered in the judges' own voice, because
+    it tells the sender something different from a malformed field. Both are DERIVED from
+    the record's mismatches, so the gate and the sentence cannot disagree about what
+    failed.
+    The doubled name is the honest mirror of every stage's validate_<stage> door — consistency over euphony.
+    """
+    if not isinstance(packet, dict):
+        # Before the record exists, because there is nothing to inspect: a non-dict cannot
+        # be asked a single one of the questions above. Loud, and terminal.
+        raise ValidateRefused("validate packet must be a dict, got %s"
+                    % type(packet).__name__)
+
+    record = inspect_validate(packet, root=root)
+    if gate.verdict(record)["opens"]:
+        return packet
+
+    shape = [e for e in record if e["identity"] != "installed_judges_find_nothing"]
+    if not gate.verdict(shape)["opens"]:
+        raise ValidateRefused(render_lacks("validate", lacks_of(shape)))
+    raise ValidateRefused(lacks_of(record)[0])
 
 
 def write_validate(packet: dict, *, instance_dir: str = INSTANCE_DIR,

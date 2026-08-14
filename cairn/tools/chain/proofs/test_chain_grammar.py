@@ -32,8 +32,12 @@ GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "gram
 # fixed by moving code, not by remembering. What the grammar may reach is stdlib,
 # the address tool (the one owner of the instance address), and the orient
 # INSTRUMENT (the settled measurer it composes) — nothing at machines/ or skills/.
+# cairn.tools.gate joined 2026-08-13 under the every-machine-carries-its-own-inspector-
+# and-gate ruling: the shared half of every stage inspector emits a PROOF RECORD, and the
+# record's vocabulary is the gate tool's. Still a TOOL importing a TOOL — the rung holds.
 ALLOWED_IMPORTS = {"__future__", "os", "re", "pathlib",
-                   "cairn.tools.base.address", "cairn.tools.orient.orient"}
+                   "cairn.tools.base.address", "cairn.tools.gate.gate",
+                   "cairn.tools.orient.orient"}
 
 
 def make_root():

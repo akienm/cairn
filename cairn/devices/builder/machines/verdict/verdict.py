@@ -62,7 +62,8 @@ import os
 import re
 import time
 
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, ticket_claim_error, ticket_path)
+from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, inspected, lacks_of, ticket_claim_error, ticket_path)
 
 OUTCOMES = ("pass", "fail")
 DISPOSITIONS = ("confirmed", "killed")
@@ -288,23 +289,68 @@ def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
     return items
 
 
-def validate_verdict(artifact, root: str = CAIRN_ROOT) -> dict:
-    """The whole door: shape, then the REQUIRED ticket claim (an unattributed
-    verdict answers nobody), then coverage. Loud and complete on first pass."""
+def inspect_verdict(artifact, root: str = CAIRN_ROOT) -> list:
+    """VERDICT'S OWN INSPECTOR — the proof record for the artifact it berths.
+
+    Every question this stage asks, EXPECTED beside ACTUAL, passes included. Akien,
+    2026-08-13, ruling every-machine-carries-its-own-inspector-and-gate: "we can backtrack
+    and see exactly where something went awry even if it's not something we're
+    specifically looking for yet." Stage 8 hands its artifact to no ninth stage, and the
+    ruling still lands here — the reader downstream of a verdict is a HUMAN reading the
+    chain later, and an unrecorded pass is exactly as mysterious to them.
+
+    A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED. The three checks after the shape one
+    read fields whose shape is not yet established, so they only run once it holds: on a
+    malformed artifact the record is SHORTER and the gate is already closed. That
+    sequencing is the door's own, unchanged — what is new is that it is visible in the
+    record rather than implied by the order of four raises.
+    """
     err = verdict_error(artifact)
+    record = [inspected("shape_is_well_formed", stage="verdict",
+                        expected="well-formed", actual="well-formed" if not err else "malformed",
+                        lack=err or "")]
     if err:
-        raise VerdictRefused(err)
-    if "ticket" not in artifact:
-        raise VerdictRefused("verdict artifact refused — a verdict must claim its ticket")
+        return record
+
+    claimed = "ticket" in artifact
+    record.append(inspected(
+        "verdict_claims_its_ticket", stage="verdict",
+        expected="claimed", actual="claimed" if claimed else "unattributed",
+        lack="verdict artifact refused — a verdict must claim its ticket"))
+
     claim_error = ticket_claim_error(artifact, root)
-    if claim_error:
-        raise VerdictRefused("verdict artifact refused — " + claim_error)
+    record.append(inspected(
+        "ticket_claim_is_consistent", stage="verdict",
+        expected="consistent", actual="consistent" if not claim_error else "inconsistent",
+        lack="verdict artifact refused — " + (claim_error or "")))
+
     items = unanswered(artifact, root)
-    if items:
-        raise VerdictRefused(
-            "verdict artifact refused — the chart is not yet answered:\n  "
-            + "\n  ".join(items))
-    return artifact
+    record.append(inspected(
+        "every_falsifier_clause_is_answered", stage="verdict",
+        expected=[], actual=items,
+        lack="verdict artifact refused — the chart is not yet answered:\n  "
+             + "\n  ".join(items)))
+    return record
+
+
+def validate_verdict(artifact, root: str = CAIRN_ROOT) -> dict:
+    """VERDICT'S OWN GATE — an == compare over ``inspect_verdict``'s record.
+
+    The whole door: shape, then the REQUIRED ticket claim (an unattributed verdict answers
+    nobody), then coverage. Opens only when every entry's expected equals its actual, per
+    entry, no oracle anywhere near it (ruling a-gate-opens-on-an-equality-compare-and-
+    never-on-an-oracle). The refusal is the FIRST mismatch's own sentence rather than all
+    of them joined, which is this door's long-standing behaviour and is kept deliberately:
+    its four checks are sequentially dependent — a malformed artifact cannot be asked
+    about its claim, and an artifact with no claim cannot be asked whether the claim is
+    consistent — so a joined refusal here would name derived failures as if they were
+    independent findings. The record still holds every check that RAN, which is what makes
+    the sequencing readable instead of merely obeyed.
+    """
+    record = inspect_verdict(artifact, root=root)
+    if gate.verdict(record)["opens"]:
+        return artifact
+    raise VerdictRefused(lacks_of(record)[0])
 
 
 def write_verdict(artifact: dict, *, instance_dir: str = INSTANCE_DIR,

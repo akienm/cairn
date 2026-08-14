@@ -60,10 +60,11 @@ import os
 import re
 import time
 
+from cairn.tools.gate import gate
 from cairn.tools.tree.tree import deposit_learning
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, _ref_exists,
-                                       common_shape_lacks, component_roster,
-                                       render_lacks, skill_roster)
+                                       common_shape_record, component_roster, inspected,
+                                       lacks_of, render_lacks, skill_roster)
 
 AUTHORED_FIELDS = ("intent", "domain", "scope", "refs", "unknowns")
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
@@ -119,42 +120,87 @@ def floor_facts(request: str, root: str = CAIRN_ROOT) -> dict:
     }
 
 
-def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
-    """The schema gate at the handoff — the append-door pattern (Law 4).
+def inspect_orient(packet: dict, root: str = CAIRN_ROOT) -> list:
+    """ORIENT'S OWN INSPECTOR — the proof record for the packet it is about to hand on.
 
-    Refuses on: missing fields, empty authored strings, malformed confidence,
-    provenance that does not cover every authored field or names an unknown
-    stratum, and any ref the floor cannot verify EXISTS (an invented pointer must
-    never reach downstream). EVERY lack is accumulated and raised in ONE refusal
-    (ticket chart-doors-refuse-in-one-pass) — a dribbled refusal costs the sender
-    a round-trip per field."""
-    if not isinstance(packet, dict):
-        raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
+    Every question this stage asks, EXPECTED beside ACTUAL, passes included. Akien,
+    2026-08-13, ruling every-machine-carries-its-own-inspector-and-gate: "passing such a
+    thing without inspecting it means passing a mystery if something downstream fails …
+    we can backtrack and see exactly where something went awry even if it's not something
+    we're specifically looking for yet." That last clause is what a record buys and a
+    complaint list cannot: the entries that PASSED are the ones nobody was looking for.
 
-    lacks = []
-    for field in ("intent", "domain", "scope"):
-        if field in packet:
-            value = packet[field]
-            if not isinstance(value, str) or not value.strip():
-                lacks.append("field %r must be a non-empty string" % field)
+    Stage-specific entries first, then the shared half from the chain grammar. Returns
+    the record and takes no verdict — the verdict is ``validate_orient``'s, at this same
+    address, because the refusal belongs to the stage that would have handed the packet
+    on. "We might have to add more or better inspection questions, but that's fine. we
+    learn as we go" — so this list grows, and every addition is one more entry a reader
+    sees whether it passed or failed.
+    """
+    record = []
+    strings = [f for f in ("intent", "domain", "scope") if f in packet]
+    if strings:
+        record.append(inspected(
+            "authored_fields_are_non_empty_strings", stage="orient",
+            expected={f: "non-empty str" for f in strings},
+            actual={f: (type(packet[f]).__name__ if not isinstance(packet[f], str)
+                        else ("non-empty str" if packet[f].strip() else "empty str"))
+                    for f in strings},
+            lack="; ".join("field %r must be a non-empty string" % f for f in strings
+                           if not isinstance(packet[f], str) or not packet[f].strip())))
 
-    for field in ("refs", "unknowns"):
-        if field in packet:
-            value = packet[field]
-            if not isinstance(value, list) or any(not isinstance(x, str) for x in value):
-                lacks.append("field %r must be a list of strings" % field)
+    lists = [f for f in ("refs", "unknowns") if f in packet]
+    if lists:
+        def _shape(value):
+            if not isinstance(value, list):
+                return type(value).__name__
+            return "list of str" if all(isinstance(x, str) for x in value) else "list, mixed"
+        record.append(inspected(
+            "ref_fields_are_lists_of_strings", stage="orient",
+            expected={f: "list of str" for f in lists},
+            actual={f: _shape(packet[f]) for f in lists},
+            lack="; ".join("field %r must be a list of strings" % f for f in lists
+                           if _shape(packet[f]) != "list of str")))
 
+    # THE ONE CHECK THAT READS THE WORLD, and the reason it is guarded: an invented ref is
+    # only answerable once the field is known to hold strings. Guarded, so its absence
+    # makes the record SHORTER — the shape above has already closed the gate.
     if isinstance(packet.get("refs"), list) and all(
             isinstance(r, str) for r in packet["refs"]):
         roster = set(component_roster(root))
         invented = [r for r in packet["refs"] if not _ref_exists(r, root, roster)]
-        if invented:
-            lacks.append("refs the floor cannot verify exist: %s" % ", ".join(invented))
+        record.append(inspected(
+            "every_ref_exists_on_disk", stage="orient",
+            expected=[], actual=invented, refs_checked=len(packet["refs"]),
+            lack="refs the floor cannot verify exist: %s" % ", ".join(invented)))
 
-    lacks += common_shape_lacks(packet, required_fields=REQUIRED_FIELDS,
-                                authored_fields=AUTHORED_FIELDS, root=root)
-    if lacks:
-        raise OrientRefused(render_lacks("orient", lacks))
+    record += common_shape_record(packet, required_fields=REQUIRED_FIELDS,
+                                  authored_fields=AUTHORED_FIELDS, root=root,
+                                  stage="orient")
+    return record
+
+
+def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """ORIENT'S OWN GATE at the handoff — an == compare over its inspector's record.
+
+    Opens only when every entry's expected equals its actual, per entry, no oracle
+    anywhere near it (ruling a-gate-opens-on-an-equality-compare-and-never-on-an-oracle).
+    Refuses on: missing fields, empty authored strings, malformed confidence, provenance
+    that does not cover every authored field or names an unknown stratum, and any ref the
+    floor cannot verify EXISTS (an invented pointer must never reach downstream). EVERY
+    lack is named in ONE refusal (ticket chart-doors-refuse-in-one-pass) — a dribbled
+    refusal costs the sender a round-trip per field — and the lacks are DERIVED from the
+    record's mismatches, so the gate and the sentence cannot disagree about what failed.
+    """
+    if not isinstance(packet, dict):
+        # Before the record exists, because there is nothing to inspect: a non-dict cannot
+        # be asked a single one of the questions above, so this is the one refusal that
+        # is not a gate verdict. It is loud and it is terminal.
+        raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
+
+    record = inspect_orient(packet, root=root)
+    if not gate.verdict(record)["opens"]:
+        raise OrientRefused(render_lacks("orient", lacks_of(record)))
 
     return packet
 

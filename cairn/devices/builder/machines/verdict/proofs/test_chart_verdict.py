@@ -683,8 +683,17 @@ def test_import_allowlist_tree_free(root, berths, val):
     # ``re`` joined 2026-07-30 with the falsifier form (stdlib; segmenting a
     # ticket's numbered RED clauses — still a file read, still no tree).
     from cairn.tools.orient.orient import import_map
+    from cairn.tools.gate import gate
+    # ``cairn.tools.gate`` joined 2026-08-13 with this stage's own gate (ruling
+    # every-machine-carries-its-own-inspector-and-gate). It does not weaken the
+    # tree-free claim and the claim is MEASURED, not asserted: gate.py's own
+    # import_map reads ['__future__', 'json'] — stdlib, no db, no embed host, no
+    # inference. Gate-ness is a DIRECT-import fact, which is how `cairn determinism`
+    # and `cairnmap --gate` see this stage from outside without being told.
     allow = ("__future__", "glob", "hashlib", "json", "os", "re", "time",
-             "cairn.tools.chain.grammar")
+             "cairn.tools.chain.grammar", "cairn.tools.gate.gate")
+    assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \
+        "the gate tool grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

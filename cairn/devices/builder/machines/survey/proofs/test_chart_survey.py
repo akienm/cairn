@@ -266,7 +266,12 @@ def test_import_allowlist(root, orient_berth, constrain_berth):
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "pathlib", "time",
              "cairn.machines.build_inspector.inspector", "cairn.tools.chain.grammar",
-             "cairn.tools.tree.tree", "cairn.tools.orient.orient")
+             "cairn.tools.tree.tree", "cairn.tools.orient.orient",
+             # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
+             # its-own-inspector-and-gate): this stage now holds its own gate, and
+             # gate-ness is a DIRECT-import fact — which is how `cairn determinism`
+             # and `cairnmap --gate` see it from outside without being told.
+             "cairn.tools.gate.gate")
     seen = import_map(survey_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

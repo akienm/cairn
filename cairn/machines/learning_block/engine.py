@@ -50,9 +50,10 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from cairn.tools.gate import gate
 from cairn.machines.learning_block.learning_block import (
     DoorRefused,
-    check_input,
+    inspect_input,
     declare_contract,
     write_trace,
 )
@@ -74,6 +75,14 @@ SPEC_REQUIRES = {
 }
 
 
+def _proved(identity: str, *, expected, actual, location: str,
+            lacks: list[dict], **values) -> dict:
+    """One entry of the engine's proof record, in the seed's shape."""
+    return gate.proved(identity=identity, expected=expected, actual=actual,
+                       location=location, code="engine.py:%s" % identity,
+                       source="engine.inspect_spec", lacks=list(lacks), **values)
+
+
 def _data_only_lack(spec) -> list[dict]:
     """A spec is DATA — enforced by round-trip, not by review."""
     try:
@@ -85,29 +94,93 @@ def _data_only_lack(spec) -> list[dict]:
                                            "domain knowledge enters as fields, never as code"}]
 
 
-def _shape_lacks(spec: dict) -> list[dict]:
-    """Deep shape, collected whole — every lack named in the one refusal (Law 7)."""
-    lacks: list[dict] = []
-    for i, cand in enumerate(spec.get("candidates") or []):
-        if not isinstance(cand, dict) or not str(cand.get("name") or "").strip():
-            lacks.append({"field": f"candidates[{i}].name",
-                          "why": "an unnamed candidate cannot be rejected BY NAME, which "
-                                 "is what the state log exists to record"})
-        if not isinstance(cand, dict) or not isinstance(cand.get("provides"), dict):
-            lacks.append({"field": f"candidates[{i}].provides",
-                          "why": "a candidate with no declared properties gives the "
-                                 "constraints nothing to judge — it wins or dies by vibe"})
-    for i, con in enumerate(spec.get("constraints") or []):
-        if not isinstance(con, dict) or not str(con.get("name") or "").strip():
-            lacks.append({"field": f"constraints[{i}].name",
-                          "why": "the killer each loser's record names — an unnamed "
-                                 "constraint makes question 3 unanswerable"})
-        if not isinstance(con, dict) or not isinstance(con.get("requires"), dict) \
-                or not con.get("requires"):
-            lacks.append({"field": f"constraints[{i}].requires",
-                          "why": "a constraint that requires nothing kills nothing and "
-                                 "is a name wearing a rule's seat"})
-    return lacks
+def inspect_spec(spec) -> list[dict]:
+    """THE PROOF RECORD THE SPEC DOOR OPENS ON: one entry per check that RAN, EXPECTED
+    beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND
+    LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+
+    What it retires: the door accumulated lacks from three places and refused on their
+    sum, so an empty sum was the same bytes whether the spec passed every check or the
+    spec was not a dict and only the fallback ran. The record now says which of the three
+    lanes ran, and the two DEEP lanes are GUARDED — a spec that is not a dict has no
+    candidates to walk, so those entries are ABSENT rather than passed, and the shallow
+    lane above has already closed the gate.
+
+    The per-collection lanes carry their POPULATION in expected/actual: every candidate
+    is expected to be named-and-provisioned and the actual is the ones that are, so a
+    candidates list that shrinks to nothing shows up as an expected of zero rather than
+    as an unchanged green.
+    """
+    record: list[dict] = []
+    purity = _data_only_lack(spec)
+    record.append(_proved(
+        "the_spec_survives_a_json_round_trip",
+        expected="pure data", actual="not JSON-serialisable" if purity else "pure data",
+        location="<spec>", lacks=purity))
+
+    if not isinstance(spec, dict):
+        # GUARDED, and this is the case that used to hide: everything below walks a
+        # mapping. One fault (the spec is not a spec), one entry, and the deep lanes are
+        # visibly ABSENT rather than silently green.
+        record.append(_proved(
+            "the_spec_is_a_mapping",
+            expected="a mapping", actual=type(spec).__name__,
+            location="<spec>",
+            lacks=[{"field": f, "why": w} for f, w in SPEC_REQUIRES.items()]))
+        return record
+    record.append(_proved(
+        "the_spec_is_a_mapping",
+        expected="a mapping", actual="a mapping", location="<spec>", lacks=[]))
+
+    block = str(spec.get("block") or "?")
+    contract = declare_contract(block if block != "?" else "engine", dict(SPEC_REQUIRES))
+    record.extend(inspect_input(contract, spec))
+
+    cands = spec.get("candidates") or []
+    named = [i for i, c in enumerate(cands)
+             if isinstance(c, dict) and str(c.get("name") or "").strip()]
+    record.append(_proved(
+        "every_candidate_is_named",
+        expected=list(range(len(cands))), actual=named,
+        location="candidates[].name",
+        lacks=[{"field": "candidates[%d].name" % i,
+                "why": "an unnamed candidate cannot be rejected BY NAME, which is what "
+                       "the state log exists to record"}
+               for i in range(len(cands)) if i not in named]))
+    provisioned = [i for i, c in enumerate(cands)
+                   if isinstance(c, dict) and isinstance(c.get("provides"), dict)]
+    record.append(_proved(
+        "every_candidate_declares_what_it_provides",
+        expected=list(range(len(cands))), actual=provisioned,
+        location="candidates[].provides",
+        lacks=[{"field": "candidates[%d].provides" % i,
+                "why": "a candidate with no declared properties gives the constraints "
+                       "nothing to judge — it wins or dies by vibe"}
+               for i in range(len(cands)) if i not in provisioned]))
+
+    cons = spec.get("constraints") or []
+    con_named = [i for i, c in enumerate(cons)
+                 if isinstance(c, dict) and str(c.get("name") or "").strip()]
+    record.append(_proved(
+        "every_constraint_is_named",
+        expected=list(range(len(cons))), actual=con_named,
+        location="constraints[].name",
+        lacks=[{"field": "constraints[%d].name" % i,
+                "why": "the killer each loser's record names — an unnamed constraint "
+                       "makes question 3 unanswerable"}
+               for i in range(len(cons)) if i not in con_named]))
+    con_binding = [i for i, c in enumerate(cons)
+                   if isinstance(c, dict) and isinstance(c.get("requires"), dict)
+                   and c.get("requires")]
+    record.append(_proved(
+        "every_constraint_requires_something",
+        expected=list(range(len(cons))), actual=con_binding,
+        location="constraints[].requires",
+        lacks=[{"field": "constraints[%d].requires" % i,
+                "why": "a constraint that requires nothing kills nothing and is a name "
+                       "wearing a rule's seat"}
+               for i in range(len(cons)) if i not in con_binding]))
+    return record
 
 
 def _satisfies(candidate: dict, constraint: dict, facts: dict) -> bool:
@@ -140,27 +213,29 @@ def run_block(spec: dict, payload: dict, *,
     block = str(spec.get("block") or "?") if isinstance(spec, dict) else "?"
 
     # THE SPEC DOOR — shallow (the organ's check) + deep (shape) + purity, one refusal.
-    spec_lacks = _data_only_lack(spec)
-    if isinstance(spec, dict):
-        contract = declare_contract(block if block != "?" else "engine",
-                                    dict(SPEC_REQUIRES))
-        spec_lacks += check_input(contract, spec)
-        spec_lacks += _shape_lacks(spec)
-    else:
-        spec_lacks += [{"field": f, "why": w} for f, w in SPEC_REQUIRES.items()]
+    spec_record = inspect_spec(spec)
+    spec_lacks = [l for e in spec_record if not gate.passed(e)
+                  for l in e["values"]["lacks"]]
     if spec_lacks:
         write_trace(block, "send_back", "training",
-                    {"at": "spec", "lacks": spec_lacks}, now=now, root=root)
+                    {"at": "spec", "lacks": spec_lacks, "record": spec_record,
+                     "checks_proved": len(spec_record)}, now=now, root=root)
         raise DoorRefused(block, spec_lacks)
 
     # THE INPUT DOOR — the spec's own declared contract over this run's payload.
     input_contract = spec.get("input_contract") or {}
-    if input_contract:
-        in_lacks = check_input(declare_contract(block, dict(input_contract)), payload)
-        if in_lacks:
-            write_trace(block, "send_back", "training",
-                        {"at": "input", "lacks": in_lacks}, now=now, root=root)
-            raise DoorRefused(block, in_lacks)
+    # GUARDED, and the guard is the honest part: a spec that declares no input contract
+    # has no input checks to run, so the record stays EMPTY rather than collecting a
+    # green nobody proved (Akien, 2026-08-13: a check that did not run is absent).
+    input_record = (inspect_input(declare_contract(block, dict(input_contract)), payload)
+                    if input_contract else [])
+    in_lacks = [l for e in input_record if not gate.passed(e)
+                for l in e["values"]["lacks"]]
+    if in_lacks:
+        write_trace(block, "send_back", "training",
+                    {"at": "input", "lacks": in_lacks, "record": input_record,
+                     "checks_proved": len(input_record)}, now=now, root=root)
+        raise DoorRefused(block, in_lacks)
 
     # THE CANDIDATES LOOP + THE EVALUATION LOOP — every candidate judged against every
     # constraint; nothing is skipped, so every death has a recorded killer.
@@ -219,39 +294,114 @@ def run_block(spec: dict, payload: dict, *,
         "candidates": candidates_log,
         "winner": winner,
         "escalation": escalation,
+        # THE DOORS RIDE THE GREEN RUN TOO, and this is the half that was missing: a run
+        # that landed used to say nothing about what it had been checked against, so a
+        # door that stopped running left the state log byte-identical. Now the log gets
+        # SHORTER when a lane goes quiet (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED
+        # AND LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+        "doors": {"spec": spec_record, "input": input_record},
+        "checks_proved": len(spec_record) + len(input_record),
     }
     return write_trace(block, RUN_EVENT, "training", data, now=now, root=root)
+
+
+def inspect_state_log(record: dict) -> list[dict]:
+    """THE PROOF RECORD OVER A LANDED RUN: one entry per question the five-question
+    contract asks, EXPECTED beside ACTUAL, passes included.
+
+    What it retires: ``answers_five_questions`` returned an empty list both when a record
+    answered all five and when the caller handed it something that was not a record at
+    all, and the proofs, the PROVED verdict and the corpus probe all read that same
+    silence. Question 3 is GUARDED on question 2 — a record with no candidates has no
+    rejection to explain, so its entry is ABSENT rather than passed, and question 2's
+    entry above it has already closed the gate.
+    """
+    def entry(identity, *, expected, actual, location, missing):
+        return gate.proved(identity=identity, expected=expected, actual=actual,
+                           location=location, code="engine.py:%s" % identity,
+                           source="engine.inspect_state_log", missing=list(missing))
+
+    data = record.get("data") or {}
+    out: list[dict] = []
+    has_input = "input" in data
+    out.append(entry(
+        "q1_the_record_names_its_input",
+        expected="data['input'] present", location="data.input",
+        actual="data['input'] present" if has_input else "absent",
+        missing=[] if has_input else ["1: what was the input — data['input'] absent"]))
+
+    cands = data.get("candidates")
+    named = bool(cands) and all(c.get("name") for c in cands)
+    out.append(entry(
+        "q2_every_candidate_generated_is_named",
+        expected="a non-empty candidates list, every entry named",
+        actual=("%d named candidate(s)" % len(cands)) if named
+               else ("absent" if not cands else "%d candidate(s), some unnamed" % len(cands)),
+        location="data.candidates",
+        missing=[] if named else ["2: what candidates were generated — absent or unnamed"]))
+
+    if named:
+        rejected = [c for c in cands if c.get("outcome") == "rejected"]
+        explained = [c for c in rejected if c.get("killed_by")]
+        out.append(entry(
+            "q3_every_rejection_names_its_killer",
+            expected=[c.get("name") for c in rejected],
+            actual=[c.get("name") for c in explained],
+            location="data.candidates[].killed_by",
+            missing=["3: what constraint killed %r — rejected with no killed_by"
+                     % c.get("name") for c in rejected if not c.get("killed_by")]))
+
+    winner = data.get("winner")
+    winner_why = winner is None or bool((winner.get("why") or "").strip())
+    out.append(entry(
+        "q4_the_winner_carries_its_why",
+        expected="a why, or no winner at all",
+        actual="no winner" if winner is None
+               else ("a why" if winner_why else "a winner with no why"),
+        location="data.winner.why",
+        missing=[] if winner_why
+                else ["4: why did the winner win — winner carries no why"]))
+
+    escalation = data.get("escalation", "\0absent")
+    named_gate = (escalation != "\0absent"
+                  and (escalation is None or bool((escalation.get("to") or "").strip())))
+    out.append(entry(
+        "q5_escalation_is_stated_even_when_null",
+        expected="the key present — null is an answer, silence is not",
+        actual=("the key is absent" if escalation == "\0absent"
+                else "null" if escalation is None
+                else ("escalates to %r" % escalation.get("to") if named_gate
+                      else "present but names no gate")),
+        location="data.escalation",
+        missing=[] if named_gate else
+                ["5: what escalated and to where — the key is absent (null is an "
+                 "answer; silence is not)"] if escalation == "\0absent" else
+                ["5: what escalated and to where — escalation names no gate"]))
+
+    decided = not (winner is None and escalation in (None, "\0absent"))
+    out.append(entry(
+        "the_run_decided_something_or_says_it_did_not",
+        expected="a winner or an escalation",
+        actual="a winner" if winner is not None
+               else ("an escalation" if decided else "neither"),
+        location="data.winner+data.escalation",
+        missing=[] if decided else
+                ["4: why did the winner win — no winner AND nothing escalated: "
+                 "the run decided nothing and does not say so"]))
+    return out
 
 
 def answers_five_questions(record: dict) -> list[str]:
     """The falsifier, mechanical: which of the five questions can this record NOT answer
     by field access alone? Empty list = a state log. Composed by the proofs, the PROVED
-    verdict and the corpus probe — one reading, not three."""
-    missing: list[str] = []
-    data = record.get("data") or {}
-    if "input" not in data:
-        missing.append("1: what was the input — data['input'] absent")
-    cands = data.get("candidates")
-    if not cands or any(not c.get("name") for c in cands):
-        missing.append("2: what candidates were generated — absent or unnamed")
-    else:
-        for c in cands:
-            if c.get("outcome") == "rejected" and not c.get("killed_by"):
-                missing.append("3: what constraint killed %r — rejected with no "
-                               "killed_by" % c.get("name"))
-    winner = data.get("winner")
-    escalation = data.get("escalation", "\0absent")
-    if winner is not None and not (winner.get("why") or "").strip():
-        missing.append("4: why did the winner win — winner carries no why")
-    if escalation == "\0absent":
-        missing.append("5: what escalated and to where — the key is absent (null is an "
-                       "answer; silence is not)")
-    elif escalation is not None and not (escalation.get("to") or "").strip():
-        missing.append("5: what escalated and to where — escalation names no gate")
-    if winner is None and (escalation in (None, "\0absent")):
-        missing.append("4: why did the winner win — no winner AND nothing escalated: "
-                       "the run decided nothing and does not say so")
-    return missing
+    verdict and the corpus probe — one reading, not three.
+
+    A VIEW OVER ``inspect_state_log``, DERIVED AND NEVER PARALLEL: the mismatches, in
+    the order the record ran them. Two mouths for one question is how a gate and the
+    sentence it prints come to disagree.
+    """
+    return [m for e in inspect_state_log(record) if not gate.passed(e)
+            for m in e["values"]["missing"]]
 
 
 def rejected_count(records: list[dict]) -> int:

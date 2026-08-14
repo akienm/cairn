@@ -683,6 +683,68 @@ def test_a_door_pass_trace_carries_what_was_proved():
         f"is a record of failures wearing a record of firings' clothes: {rec}")
 
 
+
+def test_engine_spec_record_lists_every_check_it_ran_not_only_the_lacks():
+    """The spec door used to sum three lack-lists and refuse on the total, so an empty
+    total was the same bytes whether every lane agreed or only the fallback ran."""
+    record = eng.inspect_spec(_spec_brew())
+    assert all(gate.passed(e) for e in record), [e for e in record if not gate.passed(e)]
+    ids = [e["identity"] for e in record]
+    assert len(ids) == len(set(ids)), ids
+    for wanted in ("the_spec_survives_a_json_round_trip", "the_spec_is_a_mapping",
+                   "every_candidate_is_named", "every_constraint_requires_something"):
+        assert wanted in ids, (wanted, ids)
+    assert "required_field_arrived:question" in ids, (
+        "the shallow lane must be the SAME organ the door already owns, derived and "
+        f"never a second walk: {ids}")
+
+
+def test_engine_a_deep_lane_that_could_not_run_is_absent_not_passed():
+    """A spec that is not a mapping has no candidates to walk. One fault must produce
+    ONE failing entry and the deep lanes must be ABSENT — not silently green."""
+    record = eng.inspect_spec("not a spec at all")
+    failed = [e["identity"] for e in record if not gate.passed(e)]
+    assert failed == ["the_spec_is_a_mapping"], failed
+    ids = [e["identity"] for e in record]
+    assert "every_candidate_is_named" not in ids, (
+        f"a lane with nothing to walk must not appear at all: {ids}")
+    assert eng.answers_five_questions({"data": {}}), "the view must still red on silence"
+
+
+def test_engine_a_landed_run_says_what_it_was_checked_against():
+    """The green side is the half that was missing: a run that landed said nothing about
+    which doors had run, so a door going quiet left the state log byte-identical."""
+    root = world()
+    rec = eng.run_block(_spec_brew(), {"water": "hard"}, now=NOW, root=root)
+    data = rec["data"]
+    assert data["checks_proved"] == len(data["doors"]["spec"]) + len(data["doors"]["input"])
+    assert data["checks_proved"] > 0, data
+    assert all(gate.passed(e) for lane in data["doors"].values() for e in lane), data
+    assert [e["identity"] for e in data["doors"]["input"]] == \
+           ["required_field_arrived:water"], data["doors"]["input"]
+    assert eng.answers_five_questions(rec) == [], eng.answers_five_questions(rec)
+
+
+def test_engine_a_spec_with_no_input_contract_proves_no_input_checks():
+    """GUARDED, and the guard is the honest part: no declared contract means no input
+    lane ran, so the record stays EMPTY rather than collecting a green nobody proved."""
+    root = world()
+    spec = _spec_route()
+    spec.pop("input_contract")
+    rec = eng.run_block(spec, {"weight": "light"}, now=NOW, root=root)
+    assert rec["data"]["doors"]["input"] == [], rec["data"]["doors"]["input"]
+    assert rec["data"]["doors"]["spec"], rec["data"]
+
+
+def test_engine_five_questions_is_derived_from_the_record_and_never_parallel():
+    """Two mouths for one question is how a gate and the sentence it prints disagree."""
+    hollow = {"data": {"candidates": [{"outcome": "rejected", "name": "x"}]}}
+    from_record = [m for e in eng.inspect_state_log(hollow) if not gate.passed(e)
+                   for m in e["values"]["missing"]]
+    assert eng.answers_five_questions(hollow) == from_record, from_record
+    assert from_record, "a hollow record must red, or the tooth is vacuous"
+
+
 TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
 
 if __name__ == "__main__":

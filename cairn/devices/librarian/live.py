@@ -185,8 +185,17 @@ def _shelve_collection(argv: list[str]) -> int:
             continue
         duplicates += r["duplicate"]
         shelved += not r["duplicate"]
-    print(json.dumps({"collection": str(root), "shelved": shelved,
-                      "duplicates": duplicates, "failures": failures}, indent=2))
+    # ATTENDANCE, not only objections (ruled 2026-08-13, "EVERYTHING ALWAYS PROVED AND
+    # LISTING WHAT IT PROVED"). This is an operation report over a real-world walk, not a
+    # gate — it may not import cairn.tools.gate, because the librarian reaches the oracle
+    # and bin/cmd/determinism reads gate-ness at COMPONENT granularity. What it CAN do is
+    # state its own completeness: every walked file lands in exactly one of the three
+    # buckets, so `walked` is the number a reader would otherwise have to derive, and a
+    # walk that silently stopped early shows a SMALLER walked count rather than a cleaner
+    # failures list.
+    print(json.dumps({"collection": str(root), "walked": shelved + duplicates + len(failures),
+                      "shelved": shelved, "duplicates": duplicates, "failures": failures},
+                     indent=2))
     return 0 if (shelved or duplicates) and not failures else 1
 
 

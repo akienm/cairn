@@ -124,17 +124,37 @@ QUOTE_MAX = 240
 
 
 def strip_quoted(text: str) -> str:
-    """Remove mention so only use is scanned."""
+    """Remove mention so only use is scanned.
+
+    INLINE CODE IS UNWRAPPED, NOT BLANKED, and that distinction was measured, not
+    reasoned. Blanking it cost the capture half its legible rows: three of the six
+    reds over the whole prebuild era came out clipped —
+    ``"how should the chat surface present ?"`` — because the noun the question was
+    ABOUT sat in backticks and the stripper ate it. A technical question is exactly
+    the kind that names an identifier, so the lossiest rows were the ones most worth
+    processing, and a row Akien cannot read is a row nobody can attribute to a stage.
+    A whole question rarely fits inside single backticks; a MENTIONED one is fenced
+    or quoted, and both of those still blank. So the backticks go and the words stay.
+    """
 
     def blank(m: re.Match) -> str:
         return " " * len(m.group(0))
 
     text = re.sub(r"```.*?```", blank, text, flags=re.S)
-    text = re.sub(r"`[^`\n]*`", blank, text)
+    text = re.sub(r"`([^`\n]*)`", lambda m: " " + m.group(1) + " ", text)
     text = re.sub(r"^\s*>.*$", blank, text, flags=re.M)
-    text = re.sub(r'"[^"\n]{1,%d}"' % QUOTE_MAX, blank, text)
-    text = re.sub(r'“[^”\n]{1,%d}”' % QUOTE_MAX, blank, text)
-    text = re.sub(r'‘[^’\n]{1,%d}’' % QUOTE_MAX, blank, text)
+    # A QUOTED TERM IS USE; A QUOTED QUESTION IS MENTION. The stripper exists to stop
+    # this scan reddening every turn that DISCUSSES a clarifying question — and that
+    # hazard is a quoted question, which ends in a mark. A quoted NOUN inside a live
+    # question is the thing being asked about, and blanking it gutted a real row the
+    # same way the backticks did: "how should the chat surface present ?". So the test
+    # is the question mark inside the quotes, not the quotes.
+    def unwrap(m: re.Match) -> str:
+        inner = m.group(1)
+        return blank(m) if inner.rstrip().endswith(("?", "!")) else " " + inner + " "
+
+    for pair in ('"([^"\n]{1,%d})"', '“([^”\n]{1,%d})”', '‘([^’\n]{1,%d})’'):
+        text = re.sub(pair % QUOTE_MAX, unwrap, text)
     return text
 
 
@@ -153,7 +173,12 @@ def asked(message: str) -> dict | None:
     if not message or not message.strip():
         return None
     tail = strip_quoted(message)[-TAIL:]
-    for raw in reversed(re.split(r"(?<=[.?!])\s+|\n{2,}", tail)):
+    # A SENTENCE ENDS WHERE THE NEXT ONE STARTS, not at every period. The naive
+    # boundary split a parenthetical — "(by seq? by age? by size?)" — into three, and
+    # the last fragment is what survived: "by size?)", a row nobody can act on. It
+    # broke on "e.g. " the same way. Requiring a real sentence opener after the mark
+    # keeps the question whole, which is the whole point of capturing it.
+    for raw in reversed(re.split(r"(?<=[.?!])\s+(?=[A-Z0-9(\-*#])|\n{2,}", tail)):
         q = _clean(raw)
         if not q.endswith("?") or len(q) < MIN_QUESTION:
             continue

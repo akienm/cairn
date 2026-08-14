@@ -134,5 +134,643 @@
     "note": "the journal OPENS AT TICKETME so this crossing LANDS on BUILDME and the entry gate actually fires — the sibling ticket the-buildme-gates-guard-a-crossing-not-a-state was measured on exactly this seam today, and this is the corrective walked rather than argued. All three entry sieves ran clean against a seven-stage chain charted BEFORE the build: validate-20260814T171157-452dffa99f22.",
     "at": "2026-08-14T17:12:57",
     "seq": 0
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the-lookups-actually-stop) -> PROVED",
+    "direction": "forward",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+    "component": "cairn/devices/builder/machines/constrain",
+    "note": "21 teeth green twice. The check half ships: the floor discovers the instruments that judge the ref'd components by composing the tester's own collector, runs each through the tester, and emits a check-kind constraint carrying the state it is in right now plus this firing's own wall cost. Four mutations reintroduced in the working tree and four reds observed, so the teeth mean something. Two defects were found by RUNNING the chart's criteria rather than reading the code: a vanished proof reported 'red ... run by the tester' for a file never run, and the shared judge passing a check whose source resolved but did not identify it — both fixed, the second at this machine's own door because the judge is out of these bounds. Live: nine checks, 2.47s, honest packet admitted, laundered one refused.",
+    "at": "2026-08-14T17:30:57",
+    "seq": 1
+  },
+  {
+    "from": "PROVEME",
+    "to": "WATCHME",
+    "standing": "WATCHME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the-lookups-actually-stop):waiting] -> PROVED",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 20 sieves over constrain, and 21 check(s) are proved on this crossing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+        "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+        "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "cursor": 3,
+          "resolved": 4
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME",
+        "actual": "PROVEME -> WATCHME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_census_can_measure_the_component",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_build",
+        "expected": "the census can measure component 'constrain' at /home/akien/dev/src/cairn/cairn/devices/builder/machines/constrain",
+        "actual": "the census can measure component 'constrain' at /home/akien/dev/src/cairn/cairn/devices/builder/machines/constrain",
+        "fatality": "none",
+        "source": "transitions.inspect_build",
+        "values": {
+          "component": "constrain",
+          "address": "/home/akien/dev/src/cairn/cairn/devices/builder/machines/constrain",
+          "sieves_run": [
+            "charted_refs_resolve",
+            "charter_on_disk",
+            "constraint_bounds_complete",
+            "constraint_traces",
+            "decompose_builds_absences",
+            "decompose_composes_holdings",
+            "fire_path_unreachable",
+            "forwarding_order_resolves",
+            "hypothesize_covers_the_ranked",
+            "hypothesize_falsifiable_measured",
+            "proofs_exist",
+            "silent_device",
+            "sole_path_holds",
+            "state_is_projection",
+            "survey_coverage_complete",
+            "survey_holdings_resolve",
+            "triage_covers_the_split",
+            "triage_reasons_the_order",
+            "validate_covers_the_build",
+            "validate_measures_done"
+          ]
+        }
+      },
+      {
+        "identity": "charted_refs_resolve",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "charter_on_disk",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_bounds_complete",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_traces",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_builds_absences",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_composes_holdings",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "fire_path_unreachable",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "forwarding_order_resolves",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_covers_the_ranked",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_falsifiable_measured",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "proofs_exist",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "silent_device",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "sole_path_holds",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "state_is_projection",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_coverage_complete",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_holdings_resolve",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_covers_the_split",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_reasons_the_order",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_covers_the_build",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_measures_done",
+        "location": "constrain",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      }
+    ],
+    "checks_proved": 24,
+    "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+    "component": "cairn/devices/builder/machines/constrain",
+    "note": "The watch is armed at probes/lookups_stop.py, beside WHAT IT WATCHES rather than beside the ticket it was compiled from. It reads NOT CLEARED at arming, and by construction rather than by luck: _cutoff() derives its population from THIS crossing's successor — the PROVED record in this machine's own history.json — so before that record exists the population is empty and no clearing clause can be met. Law 9 without a special case, and no hand-set date anyone has to remember to move. WHAT IT CAN SEE AND WHAT IT CANNOT, declared rather than discovered later: the observable is CARRIAGE — discovered checks surviving into berthed packets, cleared at ten post-door berths with a median of two AND at least one check ever reported RED (the existence claim a report that only says green cannot make about itself). Whether the BUILDER's lookups actually stopped is a claim about Claude, which is Law 10's one standing exception; the instrument that would close it is ticket the-builds-tool-calls-are-evidence-about-the-chart, and it is not this component's to build.",
+    "at": "2026-08-14T17:36:29",
+    "seq": 2
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-lookups-actually-stop) -> [PROVED]",
+    "direction": "forward",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json (seal 2026-08-14T17:31:09, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-lookups-actually-stop) emitted the probe berthed at cairn/devices/builder/machines/constrain/probes/lookups_stop.py (ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260814T173553-04259508e086.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "PROVED",
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the-lookups-actually-stop) crossing",
+        "actual": "a cast ticket for the WATCHME(the-lookups-actually-stop) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+          "watch_object": "the-lookups-actually-stop",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/constrain-discovers-and-runs-the-instruments-that-will-judge-the-build.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build' carries a watchme spec for 'the-lookups-actually-stop'",
+        "actual": "ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build' carries a watchme spec for 'the-lookups-actually-stop'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+          "watch_object": "the-lookups-actually-stop",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+          "watch_object": "the-lookups-actually-stop",
+          "berth": "cairn/devices/builder/machines/constrain/probes/lookups_stop.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'constrain' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'constrain' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+          "component": "constrain",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build' is cast",
+        "actual": "named ticket 'constrain-discovers-and-runs-the-instruments-that-will-judge-the-build' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/constrain-discovers-and-runs-the-instruments-that-will-judge-the-build.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'constrain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'constrain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "constrain",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json stands in proven-space",
+        "actual": "cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json",
+          "why": "sealed green 2026-08-14T17:31:09 by sail-constrain-checks, and the component's source fingerprint still matches what was proved (b311672a4135…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json's seal at '2026-08-14T17:31:09'",
+        "actual": "the witness dates cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json's seal at '2026-08-14T17:31:09'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json",
+          "seal": "2026-08-14T17:31:09",
+          "claimed": "2026-08-14T17:31:09"
+        }
+      }
+    ],
+    "checks_proved": 13,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/builder/machines/constrain/validations/test_chart_constrain.json",
+    "proven_seal_date": "2026-08-14T17:31:09",
+    "delegated": false,
+    "ticket": "constrain-discovers-and-runs-the-instruments-that-will-judge-the-build",
+    "component": "cairn/devices/builder/machines/constrain",
+    "note": "CONSTRAIN'S FLOOR NOW REPORTS THE INSTRUMENTS THAT WILL REFUSE THE BUILD, not only the charter text that describes them. For every component a request grounds to it DISCOVERS the proofs — by composing the tester's own collector, so the house keeps one idea of what a proof is — RUNS each through TesterDevice().run_proof, and emits a constraint of kind 'check' carrying the state that instrument is in RIGHT NOW, with this firing's own wall cost beside it. Live on this chain's four refs: 9 instruments, 2.468s. WHAT A READER IN A YEAR SHOULD TAKE FROM THIS VOYAGE, and it is not the feature. TWO REAL DEFECTS WERE FOUND BY RUNNING THE CHART'S OWN CRITERIA RATHER THAN BY READING THE CODE, and both were invisible to every tooth that passed. (1) A proof path that vanished between discovery and the run was reported {'verdict': 'red', 'how': 'run by the tester'} — python exits non-zero on a file it cannot open, so the verdict was not wrong while the HOW was a record of truth telling a false story, and a builder reading it goes hunting for a failing assertion in a file that does not exist (Law 7). (2) judge_constrain ADMITTED a check whose source had been swapped for the component directory: a source that RESOLVES but does not IDENTIFY. The hypothesize berth had named that exact failure in advance as 'the more serious' one and it happened, which is the only hypothesis of the eight that was KILLED — and the kill is what bought the fix. The fix sits at THIS machine's door (every_check_names_a_discovered_instrument, which re-derives the discovered set for the packet's own intent_ref) and NOT in the shared judge, because widening constraint_traces corpus-wide is outside this ticket's bounds and is Akien's call; that question stands at his gate rather than being answered here. THE TEETH MEAN SOMETHING BECAUSE THEY WERE SEEN TO FAIL: four defects reintroduced one at a time in the working tree — the check-set replaced by a hand-written constant, the run half replaced by a namer, the per-check state replaced by a blanket green, the missing-file guard removed — four reds observed through the tester, tree restored byte-for-byte each time. WHAT IS STILL UNMEASURED, SAID PLAINLY: whether any build's lookups actually stop. The armed watch sees CARRIAGE, which is necessary and not sufficient; the sufficient half is a claim about Claude and that is Law 10's one standing exception, ticketed at the-builds-tool-calls-are-evidence-about-the-chart. And the run cost is unbounded — a component with fifty proofs would pay for fifty runs at stage 2 — named at its measured size on the charter rather than pre-solved.",
+    "at": "2026-08-14T17:37:33",
+    "seq": 3
   }
 ]

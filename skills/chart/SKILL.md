@@ -1,6 +1,6 @@
 ---
 name: chart
-description: Run the pre-build preamble as seven schema-gated stages — orient, constrain, survey, decompose, triage, hypothesize, validate — each template-filled from the last, so a skipped stage is a build error and not a lapse. Fire before /sail on any request that will become a build.
+description: Run the pre-build preamble as seven schema-gated stages — orient, constrain, survey, decompose, triage, hypothesize, validate — each template-filled from the last, so a skipped stage is a build error and not a lapse. Runs as /sail's step 0 on any request that will become a build; fireable standalone when you want the preamble without the voyage.
 ---
 
 # /chart — run the pre-build preamble as stackable learning bricks

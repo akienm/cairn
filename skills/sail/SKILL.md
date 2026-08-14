@@ -1,21 +1,37 @@
 ---
 name: sail
-description: Run the build under the charted course — the voyage a charted request earns, spent inside what the /chart chain settled. Requires a completed chart chain; refusal on a missing one is physics, not preference.
+description: Run the build under the charted course — the voyage a request earns. Starts by firing /chart, then builds inside what that chain settled; the build's own tool calls are the evidence that goes back to the chain.
 ---
 
 # /sail — run the build under the charted course
 
-You are firing the **build stage**: the voyage a charted request earns. /chart
-compiled the preamble into berths; /sail is where the model is actually spent —
-building INSIDE what the chain settled, under the discipline that has until now
-lived in habit (the skill-door fact: discipline in habit varies; a skill-step
-fires).
+You are firing the **build stage**: the voyage a request earns. /sail charts it
+and then spends the model inside what that chain settled, under the discipline
+that has until now lived in habit (the skill-door fact: discipline in habit
+varies; a skill-step fires).
 
 The charter lives beside this file in `intention+why.json`.
 
-ARGUMENTS: the request being built (the `<something>` a /chart already grounded).
+ARGUMENTS: the request being built.
 
-## 0. The chain is the input — and the refusal is now PHYSICS
+## 0. Chart it — /sail RUNS /chart; it no longer requires one
+
+**Fire `/chart <request>` now, as this skill's first act**, and work its seven
+stages to their berths before reading step 1. Akien, 2026-08-14: *"slash sail
+should just start with slash chart."* The preamble stopped being a thing the
+caller must remember to have done and became step 0 of the build. A standalone
+/chart is still a real firing — charting without building is a legitimate act —
+but /sail never again refuses for want of one, because it makes its own.
+
+**ONE CHART RUN PER VOYAGE.** The earlier design had a second, mid-build run, and
+the condition on it was never "a correction appeared" — it was **how much had
+changed for that component since the first chart was taken**. Dropped 2026-08-14
+as too complicated, by the person who wanted it: *"this is too complicated, so
+we'll simplify to run at the start of sail only. the thing i wanted to accomplish
+by having two can be dealt with later. it's the least important part."* Feedback
+still fires mid-build (step 9); a second **chart chain** does not.
+
+## 0b. The chain is the input — and the refusal is still PHYSICS
 
 Template-fill from the LAST berthed stage for this request — found by COMMAND,
 never by eyeballing the packets directory (ticket berths-carry-request-identity):
@@ -27,7 +43,8 @@ PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live chain <ticket-id>
 prints the standing chain (per stage, the latest berth claiming the ticket); the
 deepest non-None entry is your input, deepest link first: validate →
 hypothesize → triage → decompose → survey → constrain → orient. An all-None
-chain means **no berths → run /chart first.** And the identity is physics all
+chain **after step 0** means the chart did not berth — a red to dispose, never a
+licence to build from the conversation. And the identity is physics all
 three ways (tickets berths-carry-request-identity + the-claim-rides-every-link):
 every chart door refuses a packet whose ref'd berth claims a DIFFERENT ticket
 (a stale berth from another request reds instead of sailing), and refuses a
@@ -38,11 +55,13 @@ buildme-rides-the-chart) the emit chokepoint REFUSES a cast ticket's BUILDME
 crossing unless a berthed validate packet claims the ticket — building from
 the conversation is a build error the door itself throws (`EntryGateRed`).
 
-Also required: a **cast ticket** (`CairnCommons/tickets/<id>.json`). Casting is
-/sorted's job, not this skill's — and the order is taught by physics: the
-chart doors refuse a claim on an unfiled ticket, so **/sorted casts BEFORE
-/chart claims**, and the chart's packets carry `"ticket": "<id>"` so the entry
-gate can find them.
+Also required, and required **before step 0 rather than before this one**: a
+**cast ticket** (`CairnCommons/tickets/<id>.json`). Casting is /sorted's job, not
+this skill's — and the order is taught by physics: the chart doors refuse a claim
+on an unfiled ticket, so **/sorted casts BEFORE /chart claims**, and the chart's
+packets carry `"ticket": "<id>"` so the entry gate can find them. Swallowing
+/chart did not swallow /sorted: the sequence is still **/sorted → /sail**, and
+/sail's own first act is the chart.
 
 ## 1. Journal BUILDME
 
@@ -132,6 +151,23 @@ re-opens a node whose intention did not work is the **owner's** act (Law 6).
 trees are the durable memory; skipping starves them). A correction surfaced
 mid-build rides orient's brick loop (deposit → counsel → propose), never a
 quiet local fix.
+
+**AND THE TOOL CALLS ARE EVIDENCE ABOUT THE CHART, NOT ONLY ABOUT THE BUILD.**
+Akien, 2026-08-14: /sail *"runs in sail, gets feedback about tool calls that
+happen inside the build. and we add that feedback into our mechanisms."* This is
+the segment's **-2- edge** with the build as the machine: the chain said where
+the work lives, what the bounds are, and what already exists — and the tool calls
+are the only place those claims meet the world. A file opened that survey never
+listed, a path written outside constrain's bounds, a holding rebuilt that survey
+had already found: each is a **finding about the chart leg that authored the
+claim**, not a lapse of the builder's attention. So name them, here, with the
+claim they falsify and the call that falsified it.
+
+TODAY THAT IS A HAND'S ACT, and the charter says so rather than pretending
+otherwise: nothing observes the calls and nothing delivers the finding (the
+route is declared at `skills/sail/intention+why.json`, the observer is ticket
+`the-builds-tool-calls-are-evidence-about-the-chart`). Writing them into the
+deposit is what a hand can do without either.
 
 **This step is BOOKKEEPING THE CLOSE DOES — it is not a summons, and it never
 was.** Until 2026-07-30 the workflow carried a mandatory, ungated `LEARNME` that

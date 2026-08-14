@@ -23,6 +23,7 @@ REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
 from cairn.tools.cairnmap import cairnmap, cli  # noqa: E402
+from cairn.tools.gate import gate  # noqa: E402
 
 
 # ── the synthetic world ──────────────────────────────────────────────────────
@@ -253,6 +254,79 @@ def test_render_mutates_nothing():
         after = sorted(str(p.relative_to(w["parent"])) + str(p.stat().st_mtime_ns)
                        for p in w["parent"].rglob("*"))
         assert before == after, "rendering touched the world"
+
+
+def test_the_gate_lists_what_it_proved_not_only_what_failed():
+    """Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."
+
+    The tooth a hollow record could not pass, and it is TWO assertions because the
+    defect has two faces. FACE ONE: on a wholly consistent world the record must be
+    NON-EMPTY and every entry must have PASSED — a complaint list greens here too, so
+    this half alone proves nothing, which is exactly why it is paired. FACE TWO: every
+    entry carries EXPECTED beside ACTUAL and they are equal on a pass, so an entry that
+    stopped comparing anything cannot sit in the record looking green.
+    """
+    with world() as w:
+        assert_green(w)
+        record = cairnmap.inspect()
+        assert record, "an empty proof record is an error, not a pass"
+        assert len(record) >= 8, f"lanes went missing from the record: {record}"
+        for entry in record:
+            assert gate.passed(entry), f"consistent world, failing entry: {entry}"
+            assert "expected" in entry and "actual" in entry, entry
+            assert entry["expected"] == entry["actual"], entry
+            assert entry["identity"], entry
+            assert entry["location"], entry
+
+
+def test_a_check_that_stops_running_makes_the_record_shorter():
+    """The whole reason the record replaces the complaint list: absence must be VISIBLE.
+
+    An unreadable roster is ONE fault. The three-record skill lane cannot run against a
+    roster it could not read, so its two roster entries are ABSENT from the record — not
+    silently passed, and not multiplied into one derived finding per skill. A reader
+    diffing the two records SEES the checks that stopped running.
+    """
+    with world() as w:
+        assert_green(w)
+        whole = [e["identity"] for e in cairnmap.inspect()]
+        assert "every_chartered_skill_is_on_the_roster" in whole
+        assert "every_roster_entry_carries_a_charter" in whole
+
+        (w["commons"] / "node_classes" / "skill.json").write_text("{not json", encoding="utf-8")
+        after = cairnmap.inspect()
+        names = [e["identity"] for e in after]
+        assert len(after) < len(whole), (
+            "a check that could not run must make the record SHORTER, never cleaner: "
+            f"{names}")
+        assert "every_chartered_skill_is_on_the_roster" not in names, names
+        assert "every_roster_entry_carries_a_charter" not in names, names
+
+        failed = [e for e in after if not gate.passed(e)]
+        assert [e["identity"] for e in failed] == ["the_skill_roster_is_readable"], (
+            "one fault must produce one failing entry, not one per skill: "
+            f"{[e['identity'] for e in failed]}")
+        assert len(cairnmap.check()) == 1, cairnmap.check()
+
+
+def test_check_is_derived_from_the_record_and_never_parallel():
+    """Two mouths for one question is how a gate and its sentence come to disagree.
+
+    Every red ``check`` returns must be a red some FAILING entry carries — no red may be
+    accumulated beside the record, and no failing entry may be silent in the reds.
+    """
+    with world() as w:
+        assert_green(w)
+        assert cairnmap.check() == []
+        # one defect, then the two mouths must still agree
+        (w["repo"] / "bin" / "cmd" / "ghost").write_text("#!/bin/sh\n", encoding="utf-8")
+        (w["repo"] / "bin" / "cmd" / "ghost").chmod(0o755)
+        record = cairnmap.inspect()
+        from_record = [r for e in record if not gate.passed(e)
+                       for r in e["values"]["reds"]]
+        assert cairnmap.check() == from_record, (
+            f"check() and the record disagree: {cairnmap.check()} vs {from_record}")
+        assert any("ghost" in r for r in from_record), from_record
 
 
 # ── runner ───────────────────────────────────────────────────────────────────

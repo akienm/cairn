@@ -2,9 +2,10 @@
 
     cairn cairnmap             the map, scoped by WHERE you stand (cwd)
     cairn cairnmap <name|dir>  one component's full charter (the brief)
-    cairn cairnmap --gate      the derivation gate: completeness reds only,
-                               exit 0 green / 1 red — the skill class's
-                               prove_gate, runnable at the PROVEME crossing
+    cairn cairnmap --gate      the derivation gate: the PROOF RECORD, one line per
+                               lane that ran, passes included, reds named beneath
+                               the lane that caught them; exit 0 green / 1 red —
+                               the skill class's prove_gate, runnable at PROVEME
 
 Render always exits 0 — a map that fails its own gate still shows you the map,
 with the reds loud in it (Law 7: loud at the surface, and a presentation surface
@@ -19,6 +20,7 @@ from pathlib import Path
 
 from cairn.tools.base import address
 from cairn.tools.cairnmap import cairnmap
+from cairn.tools.gate import gate
 
 
 def _resolve(arg: str) -> Path | None:
@@ -44,12 +46,21 @@ def _resolve(arg: str) -> Path | None:
 
 def main(argv: list[str]) -> int:
     if "--gate" in argv:
+        # THE RECORD IS THE OUTPUT, not the reds (Akien, 2026-08-13: "EVERYTHING ALWAYS
+        # PROVED AND LISTING WHAT IT PROVED"). `green` on an empty complaint list said
+        # the same thing whether every lane agreed or no lane ran; every lane now prints
+        # itself, so a lane that stops running makes this SHORTER, not cleaner.
+        record = cairnmap.inspect()
         reds = cairnmap.check()
-        for red in reds:
-            print(f"RED: {red}")
+        for entry in record:
+            ok = gate.passed(entry)
+            print(f"  {'pass' if ok else 'FAIL'}  {entry['identity']}")
+            if not ok:
+                for red in entry["values"]["reds"]:
+                    print(f"          RED: {red}")
         n = len(cairnmap.gather()[0])
         print(f"derivation gate: {'RED — ' + str(len(reds)) + ' finding(s)' if reds else 'green'}"
-              f" ({n} charters)")
+              f" ({len(record)} checks proved · {n} charters)")
         return 1 if reds else 0
 
     if argv:

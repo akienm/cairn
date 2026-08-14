@@ -15,7 +15,14 @@ design names as the thing that killed the quarry's docs.
 ITS PROOF IS THE DERIVATION GATE — completeness both ways. Every charter'd command and
 skill appears; nothing without a charter appears. An uncharted command does not get a
 help line, it gets a RED — so the map is not a doc you trust but a live check that the
-command-set and the help-set are the same set. The skill lane checks three records that
+command-set and the help-set are the same set.
+
+AND THAT GATE HOLDS A PROOF RECORD, NOT A COMPLAINT LIST (Akien, 2026-08-13: "EVERYTHING
+ALWAYS PROVED AND LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE"). ``inspect`` names
+every lane that RAN with its EXPECTED beside its ACTUAL, passes included; ``check`` is a
+VIEW over the mismatches, derived and never parallel. What that retires: `green` used to
+be printed on an EMPTY list, which is the same bytes whether every lane agreed, the
+roster was never read, or the walk found no charters at all — green on silence. The skill lane checks three records that
 must agree (charter beside the code, roster in node_classes/skill.json, symlink in the
 install dir) because the measured 2026-07-31 defect was exactly their disagreement:
 /chart, /moreabout and /sail carried charters and symlinks but were absent from the
@@ -38,6 +45,7 @@ import re
 from pathlib import Path
 
 from cairn.tools.base import address
+from cairn.tools.gate import gate
 
 CHARTER = "intention+why.json"
 WIDTH = 78
@@ -145,12 +153,48 @@ def installed_skills(install: Path | None = None) -> dict[str, Path | None]:
 
 # ── the derivation gate: completeness both ways ──────────────────────────────
 
-def check(repo: Path | None = None, commons: Path | None = None,
-          install: Path | None = None) -> list[str]:
-    """Every red the compiled surface can see, in one pass (complete diagnostic on the
-    first pass — never make the reader re-run to learn the next one)."""
+def _entry_of(identity: str, *, expected, actual, location: str, reds: list[str],
+              **values) -> dict:
+    """One entry of this gate's proof record, in the seed's shape.
+
+    ``reds`` rides as a LIST and the refusal sentence is joined from it, never split
+    back out of one: a red may legitimately contain the separator (an exception's own
+    message does), and re-splitting a joined string is a parser guessing at what it
+    just built. The list is the record; the sentence is the render.
+    """
+    return gate.proved(identity=identity, expected=expected, actual=actual,
+                       location=location, code="cairnmap.py:%s" % identity,
+                       source="cairnmap.inspect", reds=list(reds),
+                       lack="; ".join(reds), **values)
+
+
+def inspect(repo: Path | None = None, commons: Path | None = None,
+            install: Path | None = None) -> list[dict]:
+    """THE PROOF RECORD this gate opens on: one entry per check that RAN, EXPECTED
+    beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND
+    LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+
+    What it replaces, and why the replacement is not cosmetic: ``check`` returned only
+    the reds, so `derivation gate: green` was printed on an EMPTY list — the same bytes
+    whether every lane agreed, the roster was never read, or the walk found no charters
+    at all. Green on silence. Each lane now says what it EXPECTED and what it ACTUALLY
+    found, so a lane that stops running makes this record SHORTER rather than cleaner.
+
+    A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED: the three per-skill lanes append
+    nothing when the roster itself is unreadable, because the entry above them has
+    already closed the gate and comparing against an empty roster would manufacture
+    findings that are really one finding.
+    """
     repo = repo or repo_root()
-    charters, reds = gather(repo)
+    charters, unreadable = gather(repo)
+    record: list[dict] = []
+
+    record.append(_entry_of(
+        "every_charter_parses",
+        expected=[], actual=unreadable,
+        location="cairn/tools/cairnmap",
+        reds=unreadable,
+        charters_found=len(charters)))
 
     # A component without an intention doesn't run (CLAUDE.md) — code with no charter.
     # WHICH DIRECTORIES ARE COMPONENTS IS NOT THIS FILE'S QUESTION (address.component_dirs,
@@ -161,43 +205,109 @@ def check(repo: Path | None = None, commons: Path | None = None,
     # test cannot tell them from a real component; only the roster can.
     pkg = repo / "cairn"
     chartered_dirs = {c["dir"] for c in charters}
+    chartless = []
     if pkg.is_dir():
         for d in address.component_dirs(pkg)[0]:
             if any(d.glob("*.py")) and str(d.relative_to(repo)) not in chartered_dirs:
-                reds.append(f"component without a charter: {d.relative_to(repo)}/ "
-                            f"(code that, by CLAUDE.md, doesn't run)")
+                chartless.append(str(d.relative_to(repo)))
+    record.append(_entry_of(
+        "every_component_carries_a_charter",
+        expected=[], actual=sorted(chartless),
+        location="cairn/",
+        reds=["component without a charter: %s/ (code that, by CLAUDE.md, "
+              "doesn't run)" % d for d in sorted(chartless)],
+        components_walked=len(address.component_dirs(pkg)[0]) if pkg.is_dir() else 0))
 
     # Skill lane: charter <-> roster <-> installed symlink must be the same set.
     chartered = {Path(c["dir"]).name for c in charters if c["dir"].startswith("skills/")}
     roster, roster_err = skill_roster(commons)
-    if roster_err:
-        reds.append(roster_err)
+    record.append(_entry_of(
+        "the_skill_roster_is_readable",
+        expected=[], actual=[roster_err] if roster_err else [],
+        location="CairnCommons/node_classes/skill.json",
+        reds=[roster_err] if roster_err else [],
+        roster_size=len(roster)))
+
     installed = installed_skills(install)
-    for name in sorted(chartered - set(roster)):
-        reds.append(f"skill missing from the roster: /{name} carries a charter but "
-                    f"node_classes/skill.json members_so_far omits it "
-                    f"(the measured 2026-07-31 defect)")
-    for name in sorted(set(roster) - chartered):
-        reds.append(f"roster entry with no charter: /{name} is in members_so_far but "
-                    f"skills/{name}/{CHARTER} does not exist")
-    for name in sorted(chartered - set(installed)):
-        reds.append(f"skill not installed: /{name} carries a charter but has no entry "
-                    f"in {skills_install_dir() if install is None else install}")
+    # GUARDED: an unreadable roster is ONE finding. Comparing a charter set against the
+    # empty list it degrades to would append a second entry per skill, all of them
+    # derived from the failure above — the gate is already closed, and a record that
+    # multiplies one fault into fifteen is a diagnostic surface lying about how many
+    # things are wrong. Absent, not passed.
+    if not roster_err:
+        record.append(_entry_of(
+            "every_chartered_skill_is_on_the_roster",
+            expected=sorted(chartered), actual=sorted(chartered & set(roster)),
+            location="CairnCommons/node_classes/skill.json",
+            reds=["skill missing from the roster: /%s carries a charter but "
+                  "node_classes/skill.json members_so_far omits it (the measured "
+                  "2026-07-31 defect)" % n for n in sorted(chartered - set(roster))]))
+        record.append(_entry_of(
+            "every_roster_entry_carries_a_charter",
+            expected=sorted(roster), actual=sorted(set(roster) & chartered),
+            location="skills/",
+            reds=["roster entry with no charter: /%s is in members_so_far but "
+                  "skills/%s/%s does not exist" % (n, n, CHARTER)
+                  for n in sorted(set(roster) - chartered)]))
+
+    where = skills_install_dir() if install is None else install
+    record.append(_entry_of(
+        "every_chartered_skill_is_installed",
+        expected=sorted(chartered), actual=sorted(chartered & set(installed)),
+        location=str(where),
+        reds=["skill not installed: /%s carries a charter but has no entry in %s"
+              % (n, where) for n in sorted(chartered - set(installed))]))
+
+    strays, misaimed = [], []
     for name, target in sorted(installed.items()):
         if name not in chartered:
-            reds.append(f"installed skill with no charter: {name} -> {target}")
+            strays.append("installed skill with no charter: %s -> %s" % (name, target))
         elif target is None or target != (repo / "skills" / name).resolve():
-            reds.append(f"installed skill points away from its charter'd source: "
-                        f"{name} -> {target}")
+            misaimed.append("installed skill points away from its charter'd source: "
+                            "%s -> %s" % (name, target))
+    record.append(_entry_of(
+        "every_installed_skill_points_at_its_charter",
+        expected=[], actual=strays + misaimed,
+        location=str(where),
+        reds=strays + misaimed,
+        installed_count=len(installed)))
 
     # Command lane: every bin/cmd/<name> is owned by some charter'd unit's invoke.
     all_units = [u for c in charters for u in units(c)]
-    for name in commands(repo):
+    cmds = commands(repo)
+    owned = []
+    for name in cmds:
         pat = re.compile(rf"\bcairn\s+{re.escape(name)}\b")
-        if not any(pat.search(u["invoke"]) for u in all_units):
-            reds.append(f"command without a charter: bin/cmd/{name} — no charter's "
-                        f"invoke mentions `cairn {name}`, so it cannot render "
-                        f"(an undocumented command is impossible, by design)")
+        if any(pat.search(u["invoke"]) for u in all_units):
+            owned.append(name)
+    record.append(_entry_of(
+        "every_command_is_named_by_a_charter",
+        expected=sorted(cmds), actual=sorted(owned),
+        location="bin/cmd/",
+        reds=["command without a charter: bin/cmd/%s — no charter's invoke mentions "
+              "`cairn %s`, so it cannot render (an undocumented command is impossible, "
+              "by design)" % (n, n) for n in sorted(set(cmds) - set(owned))],
+        units_searched=len(all_units)))
+
+    return record
+
+
+def check(repo: Path | None = None, commons: Path | None = None,
+          install: Path | None = None) -> list[str]:
+    """Every red the compiled surface can see, in one pass (complete diagnostic on the
+    first pass — never make the reader re-run to learn the next one).
+
+    A VIEW OVER ``inspect``, DERIVED AND NEVER PARALLEL. Two mouths for one question is
+    how a gate and the sentence it prints come to disagree about what failed, so the
+    reds are read back out of the record's own mismatches rather than accumulated
+    beside it. Each entry carries its reds as a LIST, so this reads them straight back
+    out and stays byte-identical to what callers already read.
+    """
+    reds: list[str] = []
+    for e in inspect(repo, commons, install):
+        if gate.passed(e):
+            continue
+        reds.extend(e.get("values", {}).get("reds") or [])
     return reds
 
 

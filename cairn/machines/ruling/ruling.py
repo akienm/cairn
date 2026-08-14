@@ -100,6 +100,7 @@ import os
 import re
 import subprocess
 
+from cairn.tools.gate import gate
 from cairn.tools.import_sieve import sieve
 
 # ── the shape ─────────────────────────────────────────────────────────────────
@@ -644,45 +645,111 @@ def verify(record: dict, roots_parent: str | None = None) -> dict:
     so here would be a check that goes green for the wrong reason.
     """
     rp = roots_parent or _roots_parent()
-    failures: list[str] = []
-
-    # UNMARKED IS NOT A FAILURE, and keeping it out of this list is the whole correction.
-    # `failures` is what the WORK still owes; whether Akien has typed RULED is a fact about
-    # HIM, and collapsing the two is how "he hasn't spoken yet" became a red that reappeared
-    # every single turn until he did — repeated asking, wearing a verdict's clothes (Akien,
-    # 2026-08-13: "ASKING ME REPEATEDLY IS AN ERROR" / "it does not need to stop the work").
-    # So it rides out as its own field, reported once beside the verdict, never inside it.
-    if not _verbatim_of(record):
-        failures.append(
-            "NO RULING IN THE PACKET — `the_ruling_verbatim` is empty or missing, so "
-            "nothing here is his. The intake refuses this, so a record in this state was "
-            "edited after it was written.")
-
-    for rel in record.get("what_dies", []):
-        if os.path.exists(os.path.join(rp, rel)):
-            failures.append(f"STILL ALIVE: {rel} was ruled dead and is on disk")
-
-    prints = record.get("conforms_fingerprint", {})
-    baseline = "the ruling" if record.get("as_of") else "intake"
-    for rel in record.get("what_conforms", []):
-        abs_path = os.path.join(rp, rel)
-        if not os.path.exists(abs_path):
-            failures.append(f"VANISHED: {rel} was to conform, not to die")
-        elif rel not in prints:
-            # Unreachable through the door, which stamps every conformer. Reachable by a
-            # hand-edit that moves a path into what_conforms — and a missing baseline used
-            # to read as PASSED, so the weakest possible check wore the strongest verdict.
-            failures.append(f"UNMEASURED: {rel} carries no baseline fingerprint — its "
-                            "conformance was never measured, which is not the same as "
-                            "measured and green")
-        elif prints[rel] == fingerprint(abs_path):
-            failures.append(f"UNTOUCHED: {rel} is byte-identical to {baseline}")
+    record_of_checks = inspect(record, rp)
+    failures = [f for e in record_of_checks if not gate.passed(e)
+                for f in e["values"]["failures"]]
 
     # `green` is about THE WORK. `ruled` is about whether he has spoken. Two facts, two
     # fields — the same shape the gate primitive was rebuilt on this morning: state both,
     # never collapse one into the other.
     return {"id": record.get("id"), "green": not failures, "failures": failures,
-            "ruled": bool(record.get("confirmed"))}
+            "ruled": bool(record.get("confirmed")), "record": record_of_checks}
+
+
+def _checked(identity: str, *, expected, actual, location: str,
+             failures: list[str], **values) -> dict:
+    """One entry of this gate's proof record, in the seed's shape.
+
+    ``failures`` rides as a LIST and the refusal sentence is joined from it, never split
+    back out of one — a failure legitimately contains the separator, and re-splitting a
+    string you just joined is a parser guessing at its own output.
+    """
+    return gate.proved(identity=identity, expected=expected, actual=actual,
+                       location=location, code="ruling.py:%s" % identity,
+                       source="ruling.inspect", failures=list(failures),
+                       lack="; ".join(failures), **values)
+
+
+def inspect(record: dict, roots_parent: str | None = None) -> list[dict]:
+    """THE PROOF RECORD ``verify`` opens on: one entry per check that RAN, EXPECTED
+    beside ACTUAL, passes included (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND
+    LISTING WHAT IT PROVED ... SAME PATTERN EVERYWHERE").
+
+    What it retires, and it is the defect the ruling names: ``verify`` returned only
+    ``failures``, so a packet reading GREEN said the same thing whether every path was
+    measured and moved, or ``what_conforms`` was empty, or the walk never ran. `cairn
+    ruling list` printed 42 greens over a list of nothing. Each lane now states what it
+    EXPECTED and what it ACTUALLY found, so a lane that stops running makes the record
+    SHORTER rather than cleaner.
+
+    A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED: the baseline lane covers only the
+    conformers that EXIST, and the change lane only those that carry a baseline, because
+    a vanished file has no bytes to fingerprint and a fingerprint that was never taken
+    has nothing to differ from. Each is one fault, reported once, by the lane above.
+    """
+    rp = roots_parent or _roots_parent()
+    out: list[dict] = []
+    verbatim = _verbatim_of(record)
+    out.append(_checked(
+        "the_packet_carries_a_ruling",
+        expected="the_ruling_verbatim carries his words",
+        actual=("the_ruling_verbatim carries his words" if verbatim
+                else "the_ruling_verbatim is empty or missing"),
+        location="the_ruling_verbatim",
+        lines=len(verbatim) if isinstance(verbatim, list) else (1 if verbatim else 0),
+        failures=[] if verbatim else [
+            "NO RULING IN THE PACKET — `the_ruling_verbatim` is empty or missing, so "
+            "nothing here is his. The intake refuses this, so a record in this state was "
+            "edited after it was written."]))
+
+    dies = list(record.get("what_dies", []))
+    alive = [rel for rel in dies if os.path.exists(os.path.join(rp, rel))]
+    out.append(_checked(
+        "every_ruled_dead_path_is_gone",
+        expected=[], actual=sorted(alive),
+        location="what_dies",
+        failures=["STILL ALIVE: %s was ruled dead and is on disk" % rel
+                  for rel in sorted(alive)],
+        sentenced=len(dies)))
+
+    conforms = list(record.get("what_conforms", []))
+    prints = record.get("conforms_fingerprint", {})
+    baseline = "the ruling" if record.get("as_of") else "intake"
+
+    present = [rel for rel in conforms if os.path.exists(os.path.join(rp, rel))]
+    out.append(_checked(
+        "every_conformer_still_exists",
+        expected=sorted(conforms), actual=sorted(present),
+        location="what_conforms",
+        failures=["VANISHED: %s was to conform, not to die" % rel
+                  for rel in sorted(set(conforms) - set(present))]))
+
+    # GUARDED: a path that is gone cannot be fingerprinted. Asking anyway would report
+    # the same single fault twice, in two different vocabularies.
+    if present:
+        measured = [rel for rel in present if rel in prints]
+        out.append(_checked(
+            "every_conformer_carries_a_baseline",
+            expected=sorted(present), actual=sorted(measured),
+            location="conforms_fingerprint",
+            # Unreachable through the door, which stamps every conformer. Reachable by a
+            # hand-edit that moves a path into what_conforms — and a missing baseline used
+            # to read as PASSED, so the weakest possible check wore the strongest verdict.
+            failures=["UNMEASURED: %s carries no baseline fingerprint — its conformance "
+                      "was never measured, which is not the same as measured and green"
+                      % rel for rel in sorted(set(present) - set(measured))]))
+
+        if measured:
+            moved = [rel for rel in measured
+                     if prints[rel] != fingerprint(os.path.join(rp, rel))]
+            out.append(_checked(
+                "every_conformer_changed_since_its_baseline",
+                expected=sorted(measured), actual=sorted(moved),
+                location="what_conforms",
+                failures=["UNTOUCHED: %s is byte-identical to %s" % (rel, baseline)
+                          for rel in sorted(set(measured) - set(moved))],
+                baseline=baseline))
+    return out
 
 
 def load_all(roots_parent: str | None = None) -> list[dict]:

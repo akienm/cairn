@@ -798,6 +798,66 @@ def test_a_file_nothing_imports_may_still_be_sentenced():
             f"an unimported file was refused — the gate is a wall, not a sieve: {bad}")
 
 
+def test_verify_lists_every_check_it_ran_not_only_the_failures():
+    """Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."
+
+    Two halves, because a complaint list passes either half alone. A wholly obeyed
+    ruling must yield a NON-EMPTY record whose every entry PASSED with expected ==
+    actual — so a `green` that came from a walk that never ran cannot hide — and the
+    failures a red packet reports must be exactly the failures its own entries carry,
+    so the verdict and the sentences beneath it cannot disagree.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(), d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
+        os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
+        Path(d, "cairn/cairn/compiler_thing/compiler.py").write_text("# now it copies\n")
+
+        verdict = ruling.verify(ruling.load_all(d)[0], d)
+        assert verdict["green"], verdict
+        record = verdict["record"]
+        assert record, "an empty proof record is an error, not a pass"
+        assert len(record) >= 5, f"lanes went missing from the record: {record}"
+        for entry in record:
+            assert ruling.gate.passed(entry), f"obeyed ruling, failing entry: {entry}"
+            assert entry["expected"] == entry["actual"], entry
+            assert entry["identity"] and entry["location"], entry
+
+        # and the two mouths agree on a red one
+        Path(d, "CairnCommons/intentions-congruency-lab/_model.json").write_text('{"back": 1}')
+        red = ruling.verify(ruling.load_all(d)[0], d)
+        from_record = [f for e in red["record"] if not ruling.gate.passed(e)
+                       for f in e["values"]["failures"]]
+        assert red["failures"] == from_record, (
+            f"verify and its own record disagree: {red['failures']} vs {from_record}")
+
+
+def test_a_check_that_could_not_run_is_absent_from_the_record():
+    """A vanished conformer has no bytes to fingerprint, so the two lanes below it did
+    not run — and a check that did not run is ABSENT, not passed. One fault, one failing
+    entry, and a record that got SHORTER rather than cleaner."""
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        ruling.open_ruling(_packet(), d)
+        ruling.confirm("2026-07-31-model-json-is-retired", "yes, do that", d)
+        os.remove(os.path.join(d, "CairnCommons/intentions-congruency-lab/_model.json"))
+        whole = [e["identity"] for e in ruling.verify(ruling.load_all(d)[0], d)["record"]]
+        assert "every_conformer_carries_a_baseline" in whole, whole
+        assert "every_conformer_changed_since_its_baseline" in whole, whole
+
+        os.remove(os.path.join(d, "cairn/cairn/compiler_thing/compiler.py"))
+        after = ruling.verify(ruling.load_all(d)[0], d)["record"]
+        names = [e["identity"] for e in after]
+        assert len(after) < len(whole), (
+            f"the lanes that could not run must be ABSENT, not silently green: {names}")
+        assert "every_conformer_carries_a_baseline" not in names, names
+        assert "every_conformer_changed_since_its_baseline" not in names, names
+        failed = [e["identity"] for e in after if not ruling.gate.passed(e)]
+        assert failed == ["every_conformer_still_exists"], (
+            f"one fault must produce exactly one failing entry: {failed}")
+
+
 def _main() -> int:
     checks = [
         test_every_refusal_lands_on_the_first_pass,
@@ -832,6 +892,8 @@ def _main() -> int:
         test_the_hook_names_what_is_open_and_never_wedges_a_turn,
         test_a_file_the_corpus_still_imports_cannot_be_sentenced,
         test_a_file_nothing_imports_may_still_be_sentenced,
+        test_verify_lists_every_check_it_ran_not_only_the_failures,
+        test_a_check_that_could_not_run_is_absent_from_the_record,
     ]
     for check in checks:
         check()

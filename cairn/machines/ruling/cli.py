@@ -67,7 +67,7 @@ def _cmd_list() -> int:
     # surface to do that); the record itself is untouched and verify still reds on it.
     superseded_by = {e["id"]: r["id"] for r in records if r.get("confirmed")
                      for e in ruling._supersessions(r)}
-    red = 0
+    red = proved = 0
     for record in records:
         if record.get("id") in superseded_by:
             print(f"  ret'd  {record['id']}")
@@ -83,9 +83,17 @@ def _cmd_list() -> int:
         for failure in verdict["failures"]:
             print(f"         ! {failure}")
         red += 0 if verdict["green"] else 1
+        proved += len(verdict["record"])
     mine = sum(1 for r in records if r.get("id") not in superseded_by
                and not r.get("confirmed"))
+    # THE COUNT OF CHECKS IS THE BOARD'S HALF OF THE RECORD (Akien, 2026-08-13:
+    # "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED"). The board is a presentation
+    # surface and Law 7 lets it collapse — 42 rulings printing every entry is 200 lines
+    # nobody reads — but "0 red" alone is the silence the ruling names, since it is the
+    # same words whether every lane ran or none did. The number moves when a lane stops
+    # running; `cairn ruling verify <id>` prints that ruling's entries whole.
     print(f"\n{len(records)} ruling(s) · {red} red · {len(superseded_by)} retired"
+          f" · {proved} checks proved"
           + (f" · {mine} unmarked (my reading, awaiting his RULED)" if mine else ""))
     return 0
 

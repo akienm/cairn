@@ -1875,6 +1875,9 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         return caught
 
     shaken = base_nest.shake(nest, {row["dir"]: row for row in rows}, fire)
+    # ONE record, read twice. Building it twice would let the report and the verdict be
+    # about different things — the exact drift a proof record exists to make impossible.
+    record = proof_record(shaken["gradation"], shaken["findings"])
     return {
         "inspector": "build_inspector",
         "scope": component or "whole-repo sweep",
@@ -1887,24 +1890,46 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "component_scores": shaken["roll_up"],
         "findings": shaken["findings"],
         "clean": not shaken["findings"],
+        # THE PROOF RECORD — every sieve that ran against every component, expected beside
+        # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
+        # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."
+        "proof_record": record,
         # THE GATE, and the exit code comes from it rather than from a longhand `not`.
-        # ``allowed`` is the baseline this gate opens on; there is no allowlist file yet,
-        # so it is empty and the gate is honestly CLOSED over the corpus's standing
-        # findings. That is Law 9 — an unearned green is worse than a red that is true.
-        "gate": gate.verdict(shaken["findings"], allowed=allowed_findings()),
+        "gate": gate.verdict(record),
     }
 
 
-def allowed_findings() -> list[dict]:
-    """The findings this gate opens on. Authored baseline, git-tracked beside the code —
-    a declaration like a charter, never runtime state (CLAUDE.md: no runtime state here).
+def proof_record(gradation: dict, findings: list) -> list[dict]:
+    """Every sieve × every component as one proof entry: expected 1.0, actual the score.
 
-    ABSENT IS AN ERROR, and the reading of that lives in the primitive, not here (Akien,
-    2026-08-13: "an absent allowed.json is an ERROR"). This gate's baseline is `[]` — an
-    authored claim that it allows nothing — which is why it is honestly CLOSED over the
-    corpus's standing findings rather than vacuously open.
+    THE LIST OF WHAT PASSED IS THE POINT, and it is what a findings report throws away. A
+    findings list is only the failures, so an empty one means "everything passed" and "no
+    sieve ran" and "the census found no components" all at once, and nothing downstream can
+    tell them apart — which is a gate whose green is a green about SILENCE. Here a sieve
+    that stops running vanishes from the record, so the list gets SHORTER rather than
+    CLEANER, and the difference is readable.
+
+    The scores are already measured; this does not re-judge anything. It states the
+    expectation (1.0 — a sieve passes) beside what the shake actually came to rest on, in
+    the seed shape every gate in the system emits (gate.proved).
     """
-    return gate.allowed_from(Path(__file__).resolve().parent)
+    by_site = {}
+    for f in findings:
+        by_site.setdefault((f.get("sieve"), f.get("at")), []).append(f)
+    out = []
+    for at in sorted(gradation):
+        for sieve_name in sorted(gradation[at]):
+            score = gradation[at][sieve_name]
+            out.append(gate.proved(
+                identity=sieve_name,
+                location=at,
+                code=f"cairn/machines/build_inspector/inspector.py:{sieve_name}",
+                expected=1.0,
+                actual=score,
+                source="build_inspector",
+                findings=by_site.get((sieve_name, at), []),
+            ))
+    return out
 
 
 def _main(argv: list[str]) -> int:

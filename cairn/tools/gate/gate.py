@@ -1,148 +1,161 @@
-"""gate — a gate opens on an ``==`` compare, and never on an opinion.
+"""gate — everything always proved, and listing what it proved.
 
 AKIEN, 2026-08-13, and it is the whole specification:
 
     "NO GATES MAY CONSULT ORACLES EVER PERIOD. A GATE ONLY OPENS WHEN A FINDINGS REPORT
      MATCHES WHAT IT ALLOWS. ITS AN == compare. Must be identical. NO ORACLE."
 
-So this module is four lines of meaning wearing a lot of documentation. A gate holds a
-findings report and an allowlist; it opens when they are IDENTICAL. Not "no worse than",
-not "within tolerance", not "a judge says close enough". Identical.
+    "The build inspector must list EVERY TEST THAT HAS PASSED. {EXPECTED: value, ACTUAL:
+     value} ... NO EMPTY ANYWHERE."
 
-WHY IDENTICAL AND NOT SUBSET, which is the thing everyone reaches for first. A subset
-compare ("nothing unexpected") makes the allowlist a PERMISSION SLIP: it can only ever be
-too generous, and it goes stale in the safe-looking direction — the day a finding stops
-firing, the gate keeps allowing it and nobody learns that the world improved. Identity
-makes the allowlist a SPECIFICATION OF THE EXPECTED STATE. A finding that disappears
-closes the gate exactly as loudly as one that appears, and somebody has to look and
-re-baseline. That is Law 9 turned into a compare: green is earned every time, never
-inherited from the last time somebody wrote the list.
+    "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED. SAME PATTERN EVERYWHERE."
 
-WHAT IS NORMALIZED, AND IT IS ONLY ONE THING. Findings are compared as canonical JSON,
-SORTED. Sorting is not a loosening: without it the gate measures the scanner's iteration
-order rather than its findings, and a dict rebuild or a filesystem walk in a different
-order would close a gate that found precisely what it was supposed to find. Duplicates are
-NOT collapsed — two identical findings are two findings, so the compare is a multiset
-compare, and a scanner that starts double-firing is caught rather than deduplicated into
-looking correct.
+SO A GATE DOES NOT HOLD AN EXEMPTION LIST. It holds a PROOF RECORD: one entry per check
+that ran, each carrying what was EXPECTED and what was ACTUAL. The gate opens when every
+entry's expected equals its actual — an == compare, per entry, no oracle anywhere near it.
 
-WHY THE VERDICT CARRIES THE DIFF BOTH WAYS. A closed gate that says only "closed" makes
-the next mind re-run it to find out what happened, which is the incomplete-diagnostic
-defect (I-complete-diagnostic-on-first-pass). ``verdict`` returns the unexpected findings
-AND the allowed entries that went missing, so one read is enough.
+WHY THAT IS NOT THE SAME AS "NO FINDINGS", which is the shape this module shipped with
+first and which is wrong in a way that reads as strict. A findings report lists only what
+went WRONG, so an empty one is ambiguous at exactly the moment it matters: it means "every
+check passed" and "no check ran" and "the walk crashed early" and "the subject wasn't
+found", and nothing downstream can tell those apart. Passing that to a gate makes the
+gate's green a green about SILENCE. A proof record cannot be silent — it names every check
+by name and states its expected and actual side by side, so a check that stopped running
+disappears from the list and is visible as a shorter list, not as a cleaner one.
 
-THIS TOOL IS HOW GATE-NESS BECOMES MEASURABLE. Before it, "is this a gate?" lived in
-prose in a charter, where nothing could check it and where a gate could quietly grow an
-oracle. Now a gate is a component whose import closure reaches ``cairn.tools.gate``, which
-``cairn determinism`` reads with the same walk it uses for the LLM — so "no gate consults
-an oracle" is a walk over two import facts, not a sentence anyone has to remember. The
-enforcement lives at determinism's proof, which the corpus runs; a gate that grows a path
-to the inference host turns the whole corpus red.
+NO EMPTY ANYWHERE. An empty record raises. A gate that proved nothing has not proved
+everything; it is the vacuous green (Law 8), and it is refused rather than reported. An
+entry missing ``expected`` or ``actual`` raises too — those are the compare's own
+preconditions, and a gate that quietly skips an unusable entry is a gate that opens on
+fewer checks than it claims.
+
+THE RECORD SHAPE IS THE SEED, AND THE SEED IS ALREADY IN THIS CORPUS — Akien settled it in
+2007 and it lives at ``cairn/machines/diagnostic_inspector/inspector.py`` as ``SEED``:
+identity, location, code, expected, actual, fatality, source, plus every value at every
+transition and boundary that bears on the fault. ``proved()`` below builds an entry in that
+shape so every gate in the system emits the SAME PATTERN. This module deliberately does not
+re-derive completeness checking over it: measuring whether a record carries its seed is
+diagnostic_inspector's job and it already does it. What lives here is the compare.
 
     from cairn.tools.gate import gate
-    v = gate.verdict(findings, allowed)
-    if not v["opens"]: ...            # v["unexpected"], v["missing"] say exactly why
+    record = [gate.proved(identity="charter_on_disk", location="devices/bus",
+                          code="inspector.py:charter_on_disk", expected=1.0, actual=1.0,
+                          source="build_inspector")]
+    v = gate.verdict(record)
+    v["opens"], v["proved"], v["failed"]      # and v["mismatches"] says exactly which
 
-A TOOL HAS USERS, NOT AN OWNER (Law 6). This holds no state — the findings and the
-allowlist both arrive as arguments, and nothing is remembered between calls.
-
-AN ABSENT BASELINE IS AN ERROR, NOT AN EMPTY ONE (Akien, 2026-08-13: "an absent
-allowed.json is an ERROR"). The first cut read a missing file as an empty allowlist, which
-sounds strict — it closes the gate — and is still wrong, because it DECIDES ON THE
-OPERATOR'S BEHALF and then reports a verdict as though someone had declared it. There are
-three states, and the middle one is the whole point: "I looked and this gate allows
-nothing" is `[]`, an authored file, a claim somebody made; "there is no file" is a gate
-that was never configured, and a gate that has not been configured has no business
-returning a verdict at all. Collapsing the two makes an unconfigured gate indistinguishable
-from a deliberately strict one, and the record of the run cannot tell them apart afterwards
-either. So ``allowed_from`` RAISES. An empty file is legal, meaningful, and cheap to write.
+A TOOL HAS USERS, NOT AN OWNER (Law 6). This holds no state — the record arrives as an
+argument and nothing is remembered between calls.
 """
 
 from __future__ import annotations
 
 import json
-from collections import Counter
-from pathlib import Path
 
 OPEN = "OPEN"
 CLOSED = "CLOSED"
 
-BASELINE = "allowed.json"
+# The record shape, named here so every gate emits the same one. It is diagnostic_inspector's
+# SEED — Akien's 2007 list — and it is NOT re-derived here: this is the vocabulary, that is
+# the instrument that measures whether a record honours it.
+SEED = ("identity", "location", "code", "expected", "actual", "fatality", "source")
+
+# The compare's own preconditions. Everything else in the seed is completeness, which is a
+# different question with a different owner.
+REQUIRED = ("identity", "expected", "actual")
 
 
-class NoBaseline(Exception):
-    """A gate was asked for a verdict with no declared allowlist on disk.
+class NoProof(Exception):
+    """A gate was asked for a verdict over a record that cannot support one.
 
-    Loud and terminal by ruling. Not a warning, not a default, not an empty list: an
-    unconfigured gate must not produce a verdict, because a verdict from one cannot be
-    told from a verdict from a gate that deliberately allows nothing.
+    Empty, or an entry that does not carry what the compare needs. Loud and terminal: a
+    gate that proved nothing has not proved everything, and one that skips an unusable
+    entry opens on fewer checks than it says it did.
     """
 
 
-def allowed_from(path) -> list:
-    """Read a gate's declared baseline. ABSENT IS AN ERROR (Akien, 2026-08-13).
+def canonical(value) -> str:
+    """One value as one canonical string — sorted keys, no whitespace slack.
 
-    ``path`` may be the baseline file or the directory holding it. An authored ``[]`` is
-    the way to say "this gate allows nothing" — that is a declaration, and declaring it
-    costs one line.
+    So that ``expected`` and ``actual`` compare on CONTENT: two dicts built in a different
+    key order are the same value, and a gate that said otherwise would be measuring how
+    its caller happened to construct a literal. ``default=str`` so a Path or a datetime
+    renders rather than raising, because a gate that crashes on an odd value fails open
+    inside any caller that wraps it.
     """
-    path = Path(path)
-    if path.is_dir():
-        path = path / BASELINE
-    if not path.is_file():
-        raise NoBaseline(
-            f"no baseline at {path} — a gate with no declared allowlist may not return a "
-            "verdict. If this gate allows nothing, say so: write `[]` to that file. An "
-            "absent baseline is an ERROR, never an empty one (Akien, 2026-08-13)."
-        )
-    return json.loads(path.read_text())
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
 
 
-def canonical(finding) -> str:
-    """One finding as one canonical string: sorted keys, no whitespace slack.
+def proved(*, identity, expected, actual, location="", code="", fatality="", source="",
+           **values) -> dict:
+    """One entry in a proof record — a check, what it expected, what it got.
 
-    ``default=str`` so a Path or a datetime inside a finding renders rather than raising —
-    a gate that crashes on an unusual finding is a gate that fails open, and the shape of
-    a finding is the caller's business, not this tool's.
+    SAME PATTERN EVERYWHERE (Akien, 2026-08-13). Every gate builds its entries through
+    here, so a reader who has read one proof record has read all of them, and so a new
+    gate cannot invent its own field names for the same three ideas. Extra keyword
+    arguments land in ``values`` — the seed's every-value-that-bears-on-the-fault clause.
     """
-    return json.dumps(finding, sort_keys=True, separators=(",", ":"), default=str)
+    entry = {"identity": identity, "location": location, "code": code,
+             "expected": expected, "actual": actual,
+             "fatality": fatality or ("closes the gate" if canonical(expected) != canonical(actual)
+                                      else "none"),
+             "source": source}
+    if values:
+        entry["values"] = values
+    return entry
 
 
-def canonical_report(findings) -> list[str]:
-    """A findings report as a sorted list of canonical strings — the compared form.
-
-    Sorted so scan order cannot decide a verdict; a LIST, not a set, so duplicates survive
-    into the compare.
-    """
-    return sorted(canonical(f) for f in findings)
+def passed(entry) -> bool:
+    """One entry's == compare. This is the entire decision procedure of every gate."""
+    return canonical(entry["expected"]) == canonical(entry["actual"])
 
 
-def opens(findings, allowed=()) -> bool:
-    """Akien's sentence, executable: identical, or the gate stays shut."""
-    return canonical_report(findings) == canonical_report(allowed)
+def _checked(record) -> list:
+    """The record, refused if it cannot carry a verdict. NO EMPTY ANYWHERE."""
+    entries = list(record)
+    if not entries:
+        raise NoProof(
+            "empty proof record — a gate that proved nothing has not proved everything. "
+            "A gate lists EVERY test that ran with its expected and actual; an empty list "
+            "is the vacuous green (Law 8), not a clean one.")
+    for i, e in enumerate(entries):
+        missing = [k for k in REQUIRED if k not in e]
+        if missing:
+            raise NoProof(
+                f"proof record entry {i} is missing {missing} — every entry names the check "
+                f"and states expected beside actual. Build entries with gate.proved(). Got: {e}")
+    return entries
 
 
-def verdict(findings, allowed=()) -> dict:
+def opens(record) -> bool:
+    """Akien's sentence, executable: every check proved, or the gate stays shut."""
+    return all(passed(e) for e in _checked(record))
+
+
+def verdict(record) -> dict:
     """The gate's whole answer in one read.
 
-    ``unexpected`` — fired but not allowed. ``missing`` — allowed but did not fire; the
-    allowlist is stale in the direction that looks safe, which is the direction identity
-    exists to catch.
+    ``proved`` is the list of what it PROVED, by name — the point of the record, and the
+    half a findings report throws away. ``mismatches`` carries the failures whole, so a
+    closed gate never sends the next mind back to re-run it for the detail
+    (I-complete-diagnostic-on-first-pass).
     """
-    got, want = Counter(canonical_report(findings)), Counter(canonical_report(allowed))
-    unexpected, missing = got - want, want - got
-    is_open = not unexpected and not missing
+    entries = _checked(record)
+    ok = [e for e in entries if passed(e)]
+    bad = [e for e in entries if not passed(e)]
     return {
-        "verdict": OPEN if is_open else CLOSED,
-        "opens": is_open,
-        "compared": len(got),
-        "allowed": len(want),
-        "unexpected": [json.loads(k) for k, n in sorted(unexpected.items()) for _ in range(n)],
-        "missing": [json.loads(k) for k, n in sorted(missing.items()) for _ in range(n)],
+        "verdict": OPEN if not bad else CLOSED,
+        "opens": not bad,
+        "checks": len(entries),
+        "passed": len(ok),
+        "failed": len(bad),
+        "proved": [e["identity"] if not e.get("location") else f"{e['identity']} @ {e['location']}"
+                   for e in ok],
+        "mismatches": bad,
         "why": (
-            "identical — the findings report matches what this gate allows"
-            if is_open else
-            f"{sum(unexpected.values())} unexpected, {sum(missing.values())} missing — "
-            "a gate opens only on an identical compare"
+            f"all {len(entries)} checks proved — expected == actual for every one"
+            if not bad else
+            f"{len(bad)} of {len(entries)} checks did not match — a gate opens only when "
+            "every expected equals its actual"
         ),
     }

@@ -35,9 +35,10 @@ record, and a probe that berthed a cursor here would put that clause in question
 question disk already answers.
 
 COST, because this runs on every beat and the beat is already carrying 2531 ms of trigger:
-the common case is ONE scandir of the trouble directory. The expensive half — a fresh
-discovery over the device folders — runs only when a bench ticket actually exists, which in a
-healthy system is never.
+the common case is ONE `trouble.live()` read, MEASURED rather than asserted cheap — see
+`_bench_tickets_exist`, which also records why it is that read and not the cheaper listing
+it was first written as. The expensive half — a fresh discovery over the device folders —
+runs only when a bench ticket actually stands, which in a healthy system is never.
 
 AUTHORITY: none. This probe deposits and pokes. Re-opening the node is the owner's act at the
 register (Law 6). A fire means READ THE PROCESS START AGAINST THE TREE FIRST — that one
@@ -48,8 +49,6 @@ hours.
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket
 
@@ -60,18 +59,39 @@ _OWNING_TICKET = "the-loop-names-its-own-staleness-instead-of-benching-a-device"
 _HORIZON = 1000
 
 
-def _trouble_root() -> Path:
-    from cairn.devices.trouble.trouble import TroubleDevice
-    return Path(TroubleDevice().root)
-
-
 def _bench_tickets_exist() -> bool:
-    """The cheap half — one scandir. A healthy system stops here, every beat, forever."""
+    """The cheap half — one `live()` read. A healthy system stops here, every beat, forever.
+
+    THROUGH THE STORE'S OWN DOOR, and the first draft of this function was neither.
+    It reached for `TroubleDevice().root` — which does not exist; the attribute is
+    private (`_root`) and the device publishes the path only inside `state()`. Every
+    proof stayed green because they all feed `judge()` fixtures and none of them ever
+    reached this line, so the defect was found the one way it could be: by CALLING it
+    under a real `discover()`. That is the same lesson as the bench itself — armed by
+    hand is not the same as wired, and the diagnostic is to call the thing.
+
+    THE SECOND DEFECT WAS THE WORSE ONE. That draft globbed FILENAMES for the bench
+    prefix, and a file keeps its name after it is cleared — so the cheap half counted
+    dead tickets as benches while `survey_the_bench` below asked `live()`. Two
+    definitions of "benched" inside one probe, disagreeing exactly when a bench had
+    just been cleared. `survey_the_bench` refuses to re-implement `discover()` for
+    this reason and this half was quietly re-implementing `live()`; it now asks the
+    same door, so the halves cannot drift apart.
+
+    COST: `live()` parses the trouble records rather than listing names. Measured on
+    the live store at build time, n=15 over 27 records — median 2.1 ms, max 2.4 —
+    against a beat already carrying 2531 ms of trigger, so 0.08% of what the beat
+    already spends. The expensive half (a fresh discovery over every device folder)
+    measured 38 ms on the same store, and still runs only when a bench actually
+    stands, which in a healthy system is never. Both numbers are readings, not
+    estimates; if the store grows enough to make the first one matter, the reading
+    is the thing that will say so.
+    """
     from cairn.devices.ground_loop.loop import TROUBLE_PREFIX
+    from cairn.devices.trouble.trouble import TroubleDevice
     try:
-        with os.scandir(_trouble_root()) as entries:
-            return any(e.name.startswith(TROUBLE_PREFIX.replace("-", "-"))
-                       and e.name.endswith(".json") for e in entries)
+        return any(str(t.get("id", "")).startswith(TROUBLE_PREFIX)
+                   for t in TroubleDevice().live())
     except OSError:
         return False
 

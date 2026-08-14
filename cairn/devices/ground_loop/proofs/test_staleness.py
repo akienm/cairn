@@ -267,6 +267,46 @@ def test_the_payload_says_when_the_predicate_is_blind():
     assert "bytecode_writing" in d, sorted(d)
 
 
+def test_stripping_the_payload_changes_no_verdict():
+    """THE VERDICT IS COMPUTED TWICE, WITH THE PAYLOAD POPULATED AND WITHOUT, AND THE TWO
+    MUST BE IDENTICAL — the validate berth's fifth criterion, and the reason it exists is
+    that the payload field IS the falsified comparison. Carrying a killed test next to a
+    live one is only safe while nothing downstream can reach for it, so this asserts the
+    reach rather than trusting the layout: same findings, ``tree=True`` and ``tree=False``,
+    and every judgement-bearing key agrees while only the tree keys differ.
+
+    ``is_stale`` taking findings and ``diagnostics`` taking the same findings is what makes
+    this measurable at all — if the verdict were recomputed inside the reporter, 'with and
+    without the payload' would not be two runs of one thing."""
+    w = _world()
+    try:
+        path = w.write("held.py", "VALUE = 1\n")
+        w.load("held.py")
+        w.write("held.py", "VALUE = 1\nARRIVED_LATER = 2\n")
+        w.age_the_source(path)
+        findings = w.drift()
+
+        loud = diagnostics(root=w.root, findings=findings, tree=True)
+        quiet = diagnostics(root=w.root, findings=findings, tree=False)
+
+        assert is_stale(findings) is True, findings
+        assert loud["drifted"] == quiet["drifted"], (loud["drifted"], quiet["drifted"])
+        assert loud["undecidable"] == quiet["undecidable"]
+        # and the ONLY keys that moved are the payload half, which decides nothing
+        differing = {k for k in loud if loud[k] != quiet.get(k)}
+        assert differing <= {"tree_walked", "tree_newest_file", "tree_newest_mtime",
+                             "tree_newer_than_process"}, differing
+        assert quiet["tree_newer_than_process"] is None, quiet["tree_newer_than_process"]
+
+        # the same identity on the GREEN side: a payload cannot manufacture a verdict either
+        clean = module_drift(root=w.root, modules={})
+        assert is_stale(clean) is False, clean
+        assert diagnostics(root=w.root, findings=clean, tree=True)["drifted"] == \
+            diagnostics(root=w.root, findings=clean, tree=False)["drifted"] == []
+    finally:
+        w.close()
+
+
 def test_this_healthy_process_reads_not_stale_over_the_real_tree():
     """Measured on a process with NO staleness present — the clause my own reproduction
     earned by getting it wrong. This test process imported cairn seconds ago, so every

@@ -655,6 +655,51 @@ def test_one_red_check_does_not_blanket_the_report(root, orient_berth):
         remove()
 
 
+def test_a_check_source_must_name_the_instrument_not_merely_resolve(root, orient_berth):
+    """A source that RESOLVES but does not IDENTIFY is laundered provenance in a new place.
+
+    THIS TOOTH EXISTS BECAUSE THE ACCEPTANCE RUN FOUND THE HOLE, not because anyone
+    predicted it would hold. The chain's hypothesis said the serious falsification here
+    would be the judges PASSING a corrupted source; run against the live chain on
+    2026-08-14 that is what they did — ``constraint_traces`` asks only that a source
+    resolve, so a proof path swapped for the component DIRECTORY it sits in left every
+    installed judge silent. The judge is shared by every constrain packet ever written and
+    widening it is out of this ticket's bounds; the ``check`` kind is this build's own, so
+    the rule about what earns it sits at this machine's door.
+
+    THE HONEST PACKET MUST STILL PASS THIS ENTRY, and that half is not decoration: a rule
+    that refused the floor's own output one line after it wrote it would be a door nothing
+    can walk through, which is how a check goes red at the moment its condition is
+    satisfied. It is read off the RECORD rather than the gate, because the fixture cannot
+    reach the gate — ``constraint_traces`` resolves every source against the REAL cairn
+    root (the same reason ``good_packet`` sources a live component name), so a fixture proof
+    path is unresolvable there no matter how honest it is. Live, those same nine check
+    sources pass that judge with no findings, measured at acceptance the same day."""
+    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    try:
+        honest, fl = _floor_true_packet(root, orient_berth)
+        assert any(c["kind"] == "check" for c in honest["constraints"]), \
+            "the fixture must carry a check for this tooth to mean anything"
+        entries = [e for e in constrain_mod.inspect_constrain(honest, root=root)
+                   if e.get("identity") == "every_check_names_a_discovered_instrument"]
+        assert len(entries) == 1 and constrain_mod.gate.passed(entries[0]), \
+            "the floor's own checks must pass the rule the floor's own door applies: %r" \
+            % (entries,)
+
+        laundered = json.loads(json.dumps(honest))
+        for c in laundered["constraints"]:
+            if c["kind"] == "check":
+                # A REAL path that a resolver is happy with — the component directory the
+                # proof sits in. Not an invented one: an invented source is already caught
+                # by constraint_traces, and catching it again would prove nothing.
+                c["source"] = ALPHA_HOME
+                break
+        expect_refusal(lambda: validate_constrain(laundered, root=root),
+                       "not one of the instruments discovered for this request")
+    finally:
+        remove()
+
+
 def test_floor_kinds_names_every_kind_the_floor_emits(root, orient_berth):
     """THE DECLARATION CANNOT DRIFT FROM THE CODE BENEATH IT — promised verbatim in the
     ``FLOOR_KINDS`` comment, and this is the promise kept.
@@ -691,6 +736,7 @@ def _main() -> int:
         test_the_check_set_is_discovered_never_enumerated,
         test_a_named_check_is_never_reported_unrun,
         test_one_red_check_does_not_blanket_the_report,
+        test_a_check_source_must_name_the_instrument_not_merely_resolve,
         test_floor_kinds_names_every_kind_the_floor_emits,
         test_provenance_is_measured_not_declared,
         test_the_floor_label_is_reachable_and_both_mutations_red,
@@ -723,7 +769,8 @@ def _main() -> int:
           "proof planted at a ref'd address appears with no code change, a failing one is "
           "reported red and rides out as an unknown, a vanished one is reported unrunnable "
           "rather than dropped, three instruments in three states never collapse to one "
-          "verdict, and every kind the floor emits is named in FLOOR_KINDS; "
+          "verdict, a check whose source RESOLVES but does not name a discovered "
+          "instrument is refused, and every kind the floor emits is named in FLOOR_KINDS; "
           "provenance for those two is MEASURED by re-running the floor, the 'floor' "
           "label is reachable and BOTH mutations (drop one, forge one) red it, and a "
           "misdeclared label is refused rather than quietly corrected; the schema gate "

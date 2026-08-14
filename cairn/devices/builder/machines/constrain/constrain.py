@@ -638,6 +638,47 @@ def inspect_constrain(packet: dict, root: str = CAIRN_ROOT) -> list:
                 expected=[], actual=partial, constraints_checked=len(constraints),
                 lack="; ".join("constraint %d must carry non-empty text, source, "
                                "and kind" % i for i in partial)))
+            # A CHECK'S SOURCE MUST NAME THE INSTRUMENT, NOT MERELY RESOLVE.
+            #
+            # MEASURED 2026-08-14, and it is the reason this entry exists rather than an
+            # argument for it: the chain's own hypothesis on this build said the serious
+            # falsification would be the judges PASSING a check "because the source is a
+            # string the judge resolves trivially without it naming the check". Run at
+            # acceptance, that is exactly what happened — ``constraint_traces`` asks only
+            # that a source RESOLVE, so replacing a proof path with the component
+            # DIRECTORY it sits in left every installed judge silent. A source that
+            # resolves but does not identify is laundered provenance in a new place.
+            #
+            # The judge is the build inspector's and is shared by every constrain packet
+            # ever written; widening it is out of this ticket's bounds and would be a
+            # question for Akien. This kind is not: ``check`` was minted by this build, so
+            # the rule about what earns it belongs at the door this machine owns. The
+            # comparison is a == against a deterministic re-derivation, no oracle near it,
+            # and it costs nothing extra — discovery is the glob half, and the runs the
+            # door already pays for are served from the cache.
+            #
+            # ABSENT, NOT PASSED, when the packet has no readable intent_ref: there is
+            # nothing to derive the allowed set from, and the entry above has already
+            # closed the gate.
+            claimed = [c for c in constraints
+                       if isinstance(c, dict) and c.get("kind") == "check"]
+            if claimed and "intent_ref" in packet:
+                try:
+                    allowed = set(discovered_instruments(packet["intent_ref"], root))
+                except RuntimeError:
+                    allowed = None
+                if allowed is not None:
+                    unnamed = sorted({c.get("source") for c in claimed
+                                      if c.get("source") not in allowed})
+                    record.append(inspected(
+                        "every_check_names_a_discovered_instrument", stage="constrain",
+                        expected=[], actual=unnamed,
+                        checks_claimed=len(claimed), instruments_discovered=len(allowed),
+                        lack="; ".join(
+                            "a constraint of kind 'check' sources %r, which is not one of "
+                            "the instruments discovered for this request — a check's "
+                            "source is the proof that judges the build, and a path that "
+                            "merely resolves is not one" % s for s in unnamed)))
 
     record += common_shape_record(packet, required_fields=REQUIRED_FIELDS,
                                   authored_fields=AUTHORED_FIELDS,

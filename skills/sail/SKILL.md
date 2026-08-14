@@ -163,11 +163,22 @@ had already found: each is a **finding about the chart leg that authored the
 claim**, not a lapse of the builder's attention. So name them, here, with the
 claim they falsify and the call that falsified it.
 
-TODAY THAT IS A HAND'S ACT, and the charter says so rather than pretending
-otherwise: nothing observes the calls and nothing delivers the finding (the
-route is declared at `skills/sail/intention+why.json`, the observer is ticket
-`the-builds-tool-calls-are-evidence-about-the-chart`). Writing them into the
-deposit is what a hand can do without either.
+**AND THE FIRST MEASUREMENT IS THE COUNT, NOT THE CATALOGUE** (ruling
+2026-08-14-the-preamble-compiles-to-learn-not-to-be-cheap). Akien: *"you can
+score the quality of the information downward just by doing more tool calls
+before the build is done. the system learns from you."* **How many tool calls
+this voyage needed between the packet and done IS the packet's score**, read
+downward — a good packet is one you barely had to go looking behind. That number
+needs no judgement about what counts as a contradiction, which is why it comes
+first; the named falsifications above are the second layer, because a score says
+the packet was thin and never says which field was.
+
+TODAY BOTH ARE A HAND'S ACT, and the charter says so rather than pretending
+otherwise: nothing counts the calls, nothing observes them, and nothing delivers
+the finding (the route is declared at `skills/sail/intention+why.json`, the
+observer is ticket `the-builds-tool-calls-are-evidence-about-the-chart`). Note
+the count and write the named ones into the deposit — that is what a hand can do
+without any of it.
 
 **This step is BOOKKEEPING THE CLOSE DOES — it is not a summons, and it never
 was.** Until 2026-07-30 the workflow carried a mandatory, ungated `LEARNME` that

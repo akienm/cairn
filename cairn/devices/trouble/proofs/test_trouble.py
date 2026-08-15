@@ -188,6 +188,25 @@ def test_an_off_template_record_is_never_reported_as_having_no_why():
         "the one thing it must never say is that the why was not recorded"
 
 
+def test_an_off_template_record_can_still_leave_through_the_door():
+    """MEASURED 2026-08-15: clear() read ``ticket["count"]`` and a pre-template record carries
+    no count — so the one record live() was explicitly built to keep visible was a record its
+    own door could never release. The lane's tolerance must be two-sided: reachable by the
+    reader AND clearable by the recipient. ``at_count`` on such a clear is honestly null
+    (unknown), never 0 (a measurement nobody took)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "spine.json").write_text(json.dumps(
+            {"id": "spine", "verdict": "FALSIFIED", "method": "census"}), encoding="utf-8")
+        dev = _dev(tmp)
+        got = dev.clear("spine", by="cc", what_changed="the claim under test is now false")
+        assert got["outcome"] == "cleared" and got["standing"] == CLEARED, \
+            f"an off-template record with nobody notified must clear whole — got {got}"
+        on_disk = json.loads((Path(tmp) / "spine.json").read_text(encoding="utf-8"))
+    assert on_disk["standing"] == CLEARED and on_disk["cleared_by"][0]["at_count"] is None, \
+        f"the clear must land on disk with at_count null, not a manufactured count — got {on_disk}"
+    assert on_disk["verdict"] == "FALSIFIED", "clearing is append — the record's own fields survive"
+
+
 def test_every_live_trouble_in_the_REAL_store_carries_a_why():
     """LIVE, and stated as an INVARIANT rather than a census: whatever is in the inbox today,
     the lane never hands its reader a trouble it cannot say anything about. Goes red only if

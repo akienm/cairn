@@ -211,8 +211,12 @@ class TroubleDevice(BaseDevice):
             raise TroubleError("a clear carries what_changed — 'it stopped happening' is not a "
                                "fix, and recording it as one is how a fault comes back unexplained")
 
+        # A pre-template record (the lane's first real files predate the schema) carries no
+        # count — live() already leans that way, and a record clear() cannot process is a
+        # ticket that can never leave the live list through its own door.
         ticket.setdefault("cleared_by", []).append(
-            {"by": by, "at": _now(), "what_changed": what_changed, "at_count": ticket["count"]})
+            {"by": by, "at": _now(), "what_changed": what_changed,
+             "at_count": ticket.get("count")})
         outstanding = [r for r in ticket.get("notified", [])
                        if r not in {c["by"] for c in ticket["cleared_by"]}]
         if not outstanding:

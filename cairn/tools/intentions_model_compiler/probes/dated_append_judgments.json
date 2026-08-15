@@ -1,0 +1,973 @@
+{
+ "_what": "Training pairs for the canonical dated-append checker (ticket a-dated-append-in-a-charter-is-a-red). Each pair is one v0-pattern match judged by the sweep (ticket the-present-tense-corpus-rewrites-once): NARRATE means the passage narrated a change and was rewritten to present tense with pointer provenance; CITE means the date is provenance (a ruling, a quote, a pointer) and the line stands. The checker this trains must reproduce these judgments from the text alone.",
+ "_pair_schema": {
+  "path": "artifact path, cairn-relative",
+  "line": "line number at judgment time (line content, not number, is the durable key)",
+  "matched": "the matched text verbatim, as the probe's scanner reported it",
+  "shape": "the v0 regex that fired",
+  "judgment": "narrate | cite",
+  "disposition": "for narrate: the pointer that replaced the narrative; for cite: why the date is provenance and stands"
+ },
+ "pairs": [
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 25,
+   "matched": "RETIRED 2026-07-29 (ticket the-deposit-rides-the-read) — the DISCIPLINE half is ",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "retirement stamp — narrated the discipline half's removal over time; rewritten to the present-tense heading \"THE DEPOSIT RIDES THE READ, HALF-DONE (ticket the-deposit-rides-the-read)\" — the ticket carries the voyage and its dates, and the bare word RETIRED leaves the present-tense artifact"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 5,
+   "matched": "(2026-07-29, ticket buildme-rides-the-chart): the ENTRY GATE — buildme_rides_the",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seat-stamp narrating when the gate was added; the date drops, the pointer \"(ticket buildme-rides-the-chart)\" carries the provenance — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 5,
+   "matched": "(2026-07-29, ticket proved-answers-the-chart): the EXIT GATE — proved_answers_th",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seat-stamp narrating when the gate was added; the date drops, the pointer \"(ticket proved-answers-the-chart)\" carries the provenance — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 9,
+   "matched": "(2026-07-27) would argue for one: adding a sieve is itself work that gets ticket",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution — the date sources Akien's own words; stands reformatted name-first as \"(Akien, 2026-07-27)\", the citation shape CLAUDE.md already carries and the parent piece ruled outside the dated-append class"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 16,
+   "matched": "(2026-07-27); proofs_exist ← the true-but-silently-partial bus record (2026-07-2",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 16,
+   "matched": "(2026-07-25); silent_device ← zero emit() sites in bus against MAP.md:434's 'no ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 16,
+   "matched": "(2026-07-27); state_is_projection ← CLAUDE.md's compiled-view IOU, the drift-che",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-28, tickets packet-inspector-wire + constrain-sieves, both PROVED same ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "edge-heading stamp narrating when the jurisdiction landed; the date drops, \"(tickets packet-inspector-wire + constrain-sieves, both PROVED the same day they were cast)\" keeps the pointers that carry it"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-24, done-reported-while-files-stood-unmoved — the charted refs must sti",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-26 fabricated-attribution class) and constraint_bounds_complete (2026-0",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-28 carrier miss) — the latter two installed BEFORE the constrain module",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-26/27 state-reported-from-records, wrong about the world three times; p",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-27 '0 of 13', an absence claimed by word-grep: an absence is a claim an",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-28: stone 1's parallel roster + the one-web-server drift; a 'compose' p",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-24 done-while-unmoved substitution; a 'build' piece may only fill an ab",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-24 done-while-unmoved: the silent drop began as a triage defect; the or",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-26/27 wrong-about-the-world mornings + the substitution class: every hy",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-27 '0 of 13' instrument-was-a-word-grep + the falsifier-defect proof le",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/machines/build_inspector/intention+why.json",
+   "line": 22,
+   "matched": "(2026-07-24 done-while-unmoved, THE dated correction: every criterion carries it",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "the paren-date duplicated the sieve's docstring Provenance (tooth 10's canonical carrier, verified present in inspector.py); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "MAP.md",
+   "line": 643,
+   "matched": "RETIRED as a species, 2026-07-22.** It was pinned to a tool",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "retirement stamp on the session species; rewritten present-tense to \"no longer a species\" — the passage's own explanation and the retirement probe pointer (questions/tool-shaped-or-domain-shaped.json) carry the why; the date drops, git carries when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 951,
+   "matched": "RETIRED`",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "cite",
+   "disposition": "vocabulary MENTION, not a retirement stamp — the bare word named a live tenure state (CANDIDATE | TENURED | RETIRED at CairnCommons/questions/_charter+why.json); rewritten as a pointer to that vocabulary's home, surviving as \"named in the tenure vocabulary at\" — the mention-vs-use distinction is the training signal for sibling ticket a-dated-append-in-a-charter-is-a-red (a scanner must not red a vocabulary's own home for naming its states)"
+  },
+  {
+   "path": "MAP.md",
+   "line": 36,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 432,
+   "matched": "(2026-07-14)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 458,
+   "matched": "(2026-07-14)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 479,
+   "matched": "(2026-07-14)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 497,
+   "matched": "(2026-07-14)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 550,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 580,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 598,
+   "matched": "(2026-07-15).** Because workflow rides on the",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 664,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 758,
+   "matched": "(2026-07-15).** The ten-skill sketch, run",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 806,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 858,
+   "matched": "(2026-07-15).** Because a",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 879,
+   "matched": "(2026-07-15)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 934,
+   "matched": "(2026-07-17)",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 967,
+   "matched": "(2026-08-03).** The `WATCHME` state causes the",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution introducing Akien's verbatim words; stands reformatted name-first as \"(Akien, 2026-08-03)\" — the citation shape the corpus converges on, outside the dated-append class"
+  },
+  {
+   "path": "MAP.md",
+   "line": 1018,
+   "matched": "(2026-07-30): `code-seam@v1 → v2` has an instrument,",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "MAP.md",
+   "line": 1048,
+   "matched": "(2026-07-30): the class",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "section/claim append stamp — the date narrated when the passage landed, provenance no reader needs in the map itself; dropped, git history is the canonical carrier of when"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 5,
+   "matched": "(2026-08-13): if `the_ruling_verbatim` carries the word-bounded uppercase token ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "design-shift stamp on a present-tense claim; the date drops, the pointer is the same charter's filed edge (f), which carries the measurement that grew the design"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 21,
+   "matched": "RETIRED 2026-08-06. `what_conforms` verification is CHANGED-SINCE-A-BASELINE, no",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "half-retirement stamp; rewritten \"HALF-FIXED.\" — present-tense, the edge's own FIXED/STANDS split carries what is done and what is owed"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 21,
+   "matched": "RETIRED: the baseline used to be the packet's own INTAKE, which silently require",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "the fixed half's label; rewritten \"FIXED:\" — the word RETIRED leaves the present-tense artifact, the explanation stands unchanged"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 24,
+   "matched": "RETIRED — grown 2026-08-13 out of the loudest measurement this component has tak",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "retirement wording on the circular confirm door; rewritten \"THE CIRCULAR CONFIRM DOOR IS GONE\" — present-tense, the edge's own measurement (the four refused asks) carries the why"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 31,
+   "matched": "(2026-08-02, replaying the misfile that grew them): every supersede refusal on t",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "proof-growth stamp; the date drops, \"(replaying the misfile that grew them)\" keeps the provenance that matters — which failure taught the teeth"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 31,
+   "matched": "(2026-08-13): a wholly obeyed ruling yields a NON-EMPTY record whose every entry",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "proof-growth stamp; dropped — the teeth are described present-tense and the proof file is its own dated record"
+  },
+  {
+   "path": "cairn/machines/ruling/intention+why.json",
+   "line": 42,
+   "matched": "(2026-07-31-the-ruling-intake-gate), opened before any of the files it names wer",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "a ruling-packet id whose leading date made it match; stands reformatted as \"(ruling 2026-07-31-the-ruling-intake-gate)\" — a pointer, the id kept whole"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 5,
+   "matched": "(2026-08-13, Akien: \\\"EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED ... SA",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution of Akien's verbatim words; stands reformatted name-first as \"(Akien, 2026-08-13: \\\"EVERYTHING ALWAYS PROVED\" — the citation shape the corpus converges on"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 11,
+   "matched": "(2026-08-01, ticket recordverdict-cli-door): the verdict is the one organ whose ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "revision stamp; the date drops, \"(ticket recordverdict-cli-door)\" carries the provenance — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 24,
+   "matched": "(2026-08-01): he typed `cairn record_verdict \\\"Approved - ...\\\"` and the command",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "discovery-date stamp on the edge's story; replaced with \"(ticket recordverdict-cli-door)\" — the ticket owns the voyage and its dates"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-01), not papered: the bash wires are once-per-shell and backgrounded (c",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "build-date stamp; dropped — \"Named at the trace-wire build\" already points at the act, and git carries when"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 43,
+   "matched": "(2026-08-02): spec door refuses every lack at once including the data-only round",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "proof-growth stamp; dropped — the teeth are described present-tense and the proof file is its own dated record"
+  },
+  {
+   "path": "cairn/machines/learning_block/intention+why.json",
+   "line": 44,
+   "matched": "(2026-08-01) — the morning Akien named the gap ('we're not dogfooding our most i",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "birth-date provenance in the charter's provenance field; stands reformatted out of the paren shape as \"— 2026-08-01, the morning Akien named the gap\" — the one date a provenance field legitimately carries, unparenthesized so the coarse v0 shape never matches it"
+  },
+  {
+   "path": "cairn/devices/builder/machines/constrain/intention+why.json",
+   "line": 5,
+   "matched": "(2026-08-14): ``floor_packet`` writes ``constraints`` — every ref'd component's ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "design-shift stamp; dropped — the floor-authors design is stated present-tense, and orient's charter names the voyage's ticket for the whole move"
+  },
+  {
+   "path": "cairn/devices/builder/machines/constrain/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/constrain/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13): the judge ROSTER is not declared anywhere. `installed_judges_find_",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "residue-recording stamp; dropped — the residue is described present-tense and its ticket is named in the same sentence"
+  },
+  {
+   "path": "cairn/devices/builder/machines/constrain/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13), not left as prose. Until it lands, the falsifier clause above hold",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date appended after a ticket pointer; dropped — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/devices/builder/machines/constrain/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary. GATED_BY is CC and it is a field ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "cairn/devices/builder/machines/orient/intention+why.json",
+   "line": 5,
+   "matched": "(2026-08-14, ticket orient-floor-authors-and-provenance-is-measured). Three of t",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date riding a ticket pointer; the date drops, \"(ticket orient-floor-authors-and-provenance-is-measured)\" carries the provenance"
+  },
+  {
+   "path": "cairn/devices/builder/machines/orient/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/orient/intention+why.json",
+   "line": 15,
+   "matched": "(2026-08-14). Provenance for ``refs``, ``domain`` and ``unknowns`` is DERIVED at",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "design-shift stamp; replaced with the owning ticket pointer \"(ticket orient-floor-authors-and-provenance-is-measured)\""
+  },
+  {
+   "path": "cairn/devices/builder/machines/orient/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary.\",",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "cairn/devices/builder/machines/survey/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/survey/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13): the judge ROSTER is not declared anywhere. `installed_judges_find_",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "residue-recording stamp; dropped — the residue is described present-tense and its ticket is named in the same sentence"
+  },
+  {
+   "path": "cairn/devices/builder/machines/survey/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13), not left as prose. Until it lands, the falsifier clause above hold",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date appended after a ticket pointer; dropped — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/devices/builder/machines/survey/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary.\",",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "cairn/devices/builder/machines/validate/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/validate/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13): the judge ROSTER is not declared anywhere. `installed_judges_find_",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "residue-recording stamp; dropped — the residue is described present-tense and its ticket is named in the same sentence"
+  },
+  {
+   "path": "cairn/devices/builder/machines/validate/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13), not left as prose. Until it lands, the falsifier clause above hold",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date appended after a ticket pointer; dropped — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/devices/builder/machines/validate/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary.\",",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "cairn/devices/builder/machines/decompose/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/decompose/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13): the judge ROSTER is not declared anywhere. `installed_judges_find_",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "residue-recording stamp; dropped — the residue is described present-tense and its ticket is named in the same sentence"
+  },
+  {
+   "path": "cairn/devices/builder/machines/decompose/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13), not left as prose. Until it lands, the falsifier clause above hold",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date appended after a ticket pointer; dropped — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/devices/builder/machines/decompose/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary.\",",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "cairn/devices/builder/machines/hypothesize/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28), bounds-checking that never ran to completion. A stage that is its ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-failure date duplicated from the constrain sieve's docstring Provenance (tooth 10's canonical carrier); the failure's name stands, the date lives at its one address"
+  },
+  {
+   "path": "cairn/devices/builder/machines/hypothesize/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13): the judge ROSTER is not declared anywhere. `installed_judges_find_",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "residue-recording stamp; dropped — the residue is described present-tense and its ticket is named in the same sentence"
+  },
+  {
+   "path": "cairn/devices/builder/machines/hypothesize/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13), not left as prose. Until it lands, the falsifier clause above hold",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date appended after a ticket pointer; dropped — the ticket record is itself dated"
+  },
+  {
+   "path": "cairn/devices/builder/machines/hypothesize/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13) and the chain's stage vocabulary.\",",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the machine-making ruling cited by bare date; stands reformatted as a pointer, \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\" — the id kept whole"
+  },
+  {
+   "path": "skills/chart/intention+why.json",
+   "line": 7,
+   "matched": "(2026-07-29, ticket proved-answers-the-chart): the chain's answer module — cairn",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date riding a ticket pointer; the date drops, \"(ticket proved-answers-the-chart)\" carries the provenance"
+  },
+  {
+   "path": "skills/chart/intention+why.json",
+   "line": 7,
+   "matched": "(2026-07-29, ticket the-deposit-rides-the-read): the deposit of that verdict is ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date riding a ticket pointer; the date drops, \"(ticket the-deposit-rides-the-read)\" carries the provenance"
+  },
+  {
+   "path": "skills/chart/intention+why.json",
+   "line": 8,
+   "matched": "(2026-07-28): CC skips steps when the answer looks visible; plain instructions g",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "attribution of Akien's skill-door facts; stands reformatted name-first as \"(Akien, 2026-07-28)\""
+  },
+  {
+   "path": "skills/chart/intention+why.json",
+   "line": 8,
+   "matched": "(2026-08-13). Akien: \\\"chart is a skill, it calls a collection of machines. that",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "the stage-relocation decision cited by bare date before Akien's verbatim words; stands reformatted as the pointer \"(decision 2026-08-13-chart-is-a-skill-that-calls-machines)\""
+  },
+  {
+   "path": "skills/chart/intention+why.json",
+   "line": 8,
+   "matched": "(2026-07-28, the ratifying intent): 'we intend that we can extract debug and gro",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution of the ratifying intent; stands reformatted unparenthesized, name-first: \"Akien, verbatim — 2026-07-28, the ratifying intent:\""
+  },
+  {
+   "path": "cairn/tools/orient/intention+why.json",
+   "line": 11,
+   "matched": "(2026-07-27); device_census ← system state reported from records, wrong about th",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-correction date duplicated from the scan's own docstring Provenance (verified present in orient.py); the correction's name stands, the date lives at its one address — the founding-set sentence now says so explicitly"
+  },
+  {
+   "path": "cairn/tools/orient/intention+why.json",
+   "line": 11,
+   "matched": "(2026-07-26/27); repo_truth ← the echo label that attested an unhappened push (2",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-correction date duplicated from the scan's own docstring Provenance (verified present in orient.py); the correction's name stands, the date lives at its one address — the founding-set sentence now says so explicitly"
+  },
+  {
+   "path": "cairn/tools/orient/intention+why.json",
+   "line": 11,
+   "matched": "(2026-07-26). The failover deepens, the scans learn: Hex is for the novel; a rec",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "seeding-correction date duplicated from the scan's own docstring Provenance (verified present in orient.py); the correction's name stands, the date lives at its one address — the founding-set sentence now says so explicitly"
+  },
+  {
+   "path": "cairn/tools/orient/intention+why.json",
+   "line": 11,
+   "matched": "(2026-08-01, ticket intent-becomes-a-learning-block): the emit-chokepoint's buil",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "date riding a ticket pointer; the date drops, \"(ticket intent-becomes-a-learning-block)\" carries the provenance"
+  },
+  {
+   "path": "cairn/tools/intentions_model_compiler/intention+why.json",
+   "line": 16,
+   "matched": "RETIRED. MEASURED 2026-07-23 (Law 3): FileChanged did NOT fire on ANY write CC c",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "retirement wording on the FileChanged hook; rewritten \"is GONE\" — present-tense, the same sentence's MEASURED 2026-07-23 falsification carries the why"
+  },
+  {
+   "path": "cairn/tools/intentions_model_compiler/intention+why.json",
+   "line": 24,
+   "matched": "RETIRED\",",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "same retirement wording in the freshness-contract sentence; rewritten \"is GONE\""
+  },
+  {
+   "path": "cairn/tools/intentions_model_compiler/intention+why.json",
+   "line": 45,
+   "matched": "RETIRED, superseded by the write-through contract — see host_seam.superseded]) b",
+   "shape": "\\bRETIRED\\b",
+   "judgment": "narrate",
+   "disposition": "redundant retirement word inside the CORRECTED marker; dropped — \"superseded by the write-through contract\" is the standing pointer"
+  },
+  {
+   "path": "cairn/tools/intentions_model_compiler/intention+why.json",
+   "line": 45,
+   "matched": "(2026-07-23): the trigger for 'a source changed' is the SEMANTIC WRITER (the ski",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "narrate",
+   "disposition": "saga-date stamp; dropped — the same line's CORRECTED 2026-07-23 marker is the dated record, and the resting design is stated present-tense"
+  },
+  {
+   "path": "cairn/tools/feedback/intention+why.json",
+   "line": 10,
+   "matched": "(2026-08-14) rather than the 'improve the generator' half, and it is the right h",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "Akien's bound cited by bare date; stands reformatted as \"(ruled 2026-08-14)\" — the act named, outside the dated-append shape"
+  },
+  {
+   "path": "cairn/tools/feedback/intention+why.json",
+   "line": 29,
+   "matched": "(2026-08-14): 'we will have cases with more immediacy as well, like don't start ",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution of Akien's explicit bound; stands reformatted as \"(ruled 2026-08-14)\""
+  },
+  {
+   "path": "cairn/tools/feedback/intention+why.json",
+   "line": 33,
+   "matched": "(2026-08-01), which is a caller-returned route. A static declaration cannot spel",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution; stands reformatted name-first as \"(Akien, 2026-08-01)\""
+  },
+  {
+   "path": "cairn/tools/feedback/intention+why.json",
+   "line": 34,
+   "matched": "(2026-08-14). MEASURED the same hour: no such component exists — cairn/machines/",
+   "shape": "\\(20\\d\\d-\\d\\d-\\d\\d",
+   "judgment": "cite",
+   "disposition": "quote attribution; stands reformatted name-first as \"(Akien, 2026-08-14)\""
+  },
+  {
+   "path": "cairn/devices/builder/machines/triage/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-28",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'the web-server carrier miss, bounds-checking that never ran to completion' — the founding failure is named, git carries when (same edit as the five sibling stage machines; this file was skipped by the batch loop and caught by deriving remaining from the pairs store)"
+  },
+  {
+   "path": "cairn/devices/builder/machines/triage/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'PAPERED OVER: the judge ROSTER' — the append stamp narrated when the paper-over was found; the finding is present-tense"
+  },
+  {
+   "path": "cairn/devices/builder/machines/triage/intention+why.json",
+   "line": 13,
+   "matched": "(2026-08-13",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'ticket a-judge-declares-its-attendance, not left as prose' — the ticket pointer carries provenance"
+  },
+  {
+   "path": "cairn/devices/builder/machines/triage/intention+why.json",
+   "line": 25,
+   "matched": "(2026-08-13",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted to pointer-prefixed citation: 'the ruling that made it a machine (decision 2026-08-13-chart-is-a-skill-that-calls-machines)' — the decision id IS the provenance, now in non-matching pointer shape"
+  },
+  {
+   "path": "cairn/devices/intention_extractor/intention+why.json",
+   "line": 5,
+   "matched": "(2026-08-13",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'THE CHECKS ARE HELD, NOT HOUSED:' — the heading states a present arrangement; the stamp narrated when it was decided"
+  },
+  {
+   "path": "cairn/devices/intention_extractor/intention+why.json",
+   "line": 12,
+   "matched": "(2026-07-14",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'the charter filename forcing the why' uniquely names the design rule (CLAUDE.md force-the-why); the date stamped its seeding"
+  },
+  {
+   "path": "cairn/devices/intention_extractor/intention+why.json",
+   "line": 12,
+   "matched": "(2026-07-17",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'the VALIDATION exactly-eight rule' names the rule; the date stamped its seeding into record_shape"
+  },
+  {
+   "path": "cairn/devices/harbor_master/intention+why.json",
+   "line": 12,
+   "matched": "(2026-08-05",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted name-first: \"(Akien, 2026-08-05: 'methodregistry is a registry.\" — genuine quote attribution, stands in citation shape"
+  },
+  {
+   "path": "cairn/devices/harbor_master/intention+why.json",
+   "line": 20,
+   "matched": "(2026-08-10",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "timestamp dropped: 'history.json seq 35 — the entry carries its own stamp —' ; the pointer (seq 35) is the provenance, the record it points at is the canonical carrier of its own time"
+  },
+  {
+   "path": "cairn/devices/harbor_master/intention+why.json",
+   "line": 36,
+   "matched": "(2026-08-05",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped, event kept: '(grown when the registry was ripped out)' — the event is the meaning; git carries when"
+  },
+  {
+   "path": "cairn/machines/diagnostic_inspector/intention+why.json",
+   "line": 9,
+   "matched": "(2026-08-06",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted name-first: \"(Akien, 2026-08-06): 'we have to sort the consumer\" — quote attribution stands"
+  },
+  {
+   "path": "cairn/machines/diagnostic_inspector/intention+why.json",
+   "line": 10,
+   "matched": "(2026-07-24",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'then REFACTORED from diagnostic_interpreter/assemble' — the lineage is the meaning; git carries when"
+  },
+  {
+   "path": "cairn/tools/import_sieve/intention+why.json",
+   "line": 9,
+   "matched": "(2026-07-21",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: \"inference_domain's own sole-path tooth — AST-parsed\" — the tooth is named by owner+method; its own proof file carries its history"
+  },
+  {
+   "path": "cairn/tools/import_sieve/intention+why.json",
+   "line": 9,
+   "matched": "(2026-08-01",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: \"learning_block's tooth grepped whole source\" — same treatment as its sibling in the sentence"
+  },
+  {
+   "path": "cairn/devices/ground_loop/intention+why.json",
+   "line": 12,
+   "matched": "RETIRED",
+   "shape": "RETIRED-stamp",
+   "judgment": "narrate",
+   "disposition": "rewritten present-tense: '(a) PARTLY LANDED (ticket the-pulse-file-is-the-subscription):' — the ticket pointer carries the voyage and its dates; this edit is one of the two that settle ruling 2026-08-15-...-rescoped (charter no longer byte-identical to intake)"
+  },
+  {
+   "path": "cairn/devices/ground_loop/intention+why.json",
+   "line": 13,
+   "matched": "RETIRED",
+   "shape": "RETIRED-stamp",
+   "judgment": "narrate",
+   "disposition": "rewritten present-tense: '(b) LANDED (ticket ground-loop-writes-its-own-liveness):' — ticket pointer carries provenance; second of the two ruling-settling edits"
+  },
+  {
+   "path": "cairn/devices/db_domain/intention+why.json",
+   "line": 27,
+   "matched": "RETIRED",
+   "shape": "RETIRED-stamp",
+   "judgment": "narrate",
+   "disposition": "rewritten present-tense: 'the second of those is dead: cairn/tools/import_sieve makes sole-path physics rather than construction (proofs/test_sole_path.py)' — the proof pointer is the provenance; import_sieve's own record carries when"
+  },
+  {
+   "path": "cairn/devices/db_domain/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-22",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'VALIDATIONS were its first consumer but MOVED OUT to beside-code git-JSON' — the move is the meaning; git carries when"
+  },
+  {
+   "path": "cairn/machines/skill_block/intention+why.json",
+   "line": 36,
+   "matched": "(2026-08-01",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'Cast inside ticket intent-becomes-a-learning-block as piece 2 of eight' — the ticket pointer precedes and carries the date"
+  },
+  {
+   "path": "cairn/tools/base/intention+why.json",
+   "line": 9,
+   "matched": "(2026-08-10",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted pointer-prefixed: 'RULED MANDATORY (ruled 2026-08-10)' — a ruling citation stands in ruled-prefixed shape"
+  },
+  {
+   "path": "cairn/tools/cairnmap/intention+why.json",
+   "line": 39,
+   "matched": "(2026-07-15",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "quote updated to match the rewritten MAP.md heading: \"'cairnmap — the help surface, compiled from charters'\" — cross-artifact coherence; the quoted heading itself dropped the date this sweep"
+  },
+  {
+   "path": "cairn/devices/sudo_relay/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-18",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted name-first: 'Scope RATIFIED (Akien, 2026-07-18):' — a ratification is source attribution, stands in citation shape"
+  },
+  {
+   "path": "cairn/devices/inference_domain/intention+why.json",
+   "line": 31,
+   "matched": "RETIRED",
+   "shape": "RETIRED-stamp",
+   "judgment": "narrate",
+   "disposition": "rewritten present-tense: 'IOU is closed: this component's own cheap scan was promoted into cairn/tools/import_sieve' — the promotion target is the pointer; its record carries when"
+  },
+  {
+   "path": "cairn/devices/librarian/intention+why.json",
+   "line": 6,
+   "matched": "(2026-07-22",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted name-first: \"The core loop he named 'very simple' (Akien, 2026-07-22):\" — quote attribution stands"
+  },
+  {
+   "path": "skills/sail/intention+why.json",
+   "line": 34,
+   "matched": "RETIRED",
+   "shape": "RETIRED-stamp",
+   "judgment": "narrate",
+   "disposition": "rewritten present-tense: 'filed as ticket edge (d), closed (ticket skills-ride-the-chokepoint):' — ticket pointer carries provenance"
+  },
+  {
+   "path": "skills/intent/intention+why.json",
+   "line": 34,
+   "matched": "(2026-08-04",
+   "shape": "paren-date",
+   "judgment": "narrate",
+   "disposition": "date dropped: 'skills/intent/door.py — the semantic half' — the path is the pointer; git carries when the door was born"
+  },
+  {
+   "path": "skills/whatslefttodo/intention+why.json",
+   "line": 52,
+   "matched": "(2026-08-11",
+   "shape": "paren-date",
+   "judgment": "cite",
+   "disposition": "reformatted pointer-prefixed: '(idea 2026-08-11-maybe-summarize-was-the-wrong-word-we)' — the date is part of an idea ID; stands in idea-prefixed pointer shape"
+  }
+ ]
+}

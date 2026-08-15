@@ -33,7 +33,7 @@ structurally impossible. Hence Cairn.
 crosses by bulk copy; a snippet enters only inside a ticket, with an intention,
 passing a proof under the new harness.
 
-## The learning loop is the primitive; artifacts precipitate (2026-07-15)
+## The learning loop is the primitive; artifacts precipitate
 
 The governing stance (Akien) — foundational, not a preference to be traded away:
 **there is no certainty, only the current best guess.** Every act is an
@@ -429,7 +429,7 @@ Port 5432 is kernel-closed except via the proxy path from day one, so bypass is
 never possible and there is never a migration to enforce later. Old DB contents
 get the quarry treatment (ticket + proof, not pg_dump).
 
-## Two log classes + voyages — forensic-first debugging (2026-07-14)
+## Two log classes + voyages — forensic-first debugging
 
 Every major state transition and every interface boundary is logged (base
 reflex, inherited). Two classes with different physics:
@@ -455,7 +455,7 @@ that produced it, with its inputs. CP3 mechanically satisfied. Composition:
 trouble tickets file carrying their `voyage_id` — every machine-filed failure
 arrives with its forensic tape pre-attached.
 
-## Trouble tickets — a base-layer reflex (2026-07-14)
+## Trouble tickets — a base-layer reflex
 
 Failure reporting is INHERITED, never hand-wired — that's what kills the
 silent-failure class (UU's dispatcher logged only to its tmux pane for weeks
@@ -476,7 +476,7 @@ because sink-wiring was per-device; anything hand-wired can be un-wired).
 - **One store:** `CairnCommons/troubles/` + `_charter+why.json`; one emit
   chokepoint; owner: the diagnostic base.
 
-## CLAUDE.md discipline (2026-07-14)
+## CLAUDE.md discipline
 
 UU's banners (NO-IMAP, NO-SQLITE) were compensations for missing enforcement —
 prose shouting where physics was absent. Cairn's CLAUDE.md rules:
@@ -494,7 +494,7 @@ prose shouting where physics was absent. Cairn's CLAUDE.md rules:
 - CLAUDE.md has its own charter and a periodic /challenge cadence — the file
   that briefs every session is the most-challenged artifact in the system.
 
-## The layers program + graph trees (2026-07-14)
+## The layers program + graph trees
 
 **Layers (Akien):** sort the layers of the CC dynamic — the agentic loop plus
 the internal loops that must exist in the model; each layer eventually gets an
@@ -547,7 +547,7 @@ closures, embedding shards) — disposable, rebuildable accelerators. Rule:
 **records of truth never calve; caches may.** Exact DDL belongs to
 db_domain's charter.
 
-## Two build layers — workflow and pre-build packet (2026-07-15)
+## Two build layers — workflow and pre-build packet
 
 A build request to an LLM fires a set of *pre-build* steps before any code is
 emitted — orient, constrain, deconstruct, plan — that the model runs as internal
@@ -577,7 +577,7 @@ that station stops calling the oracle and runs structure — specimen #1 compili
 its own pre-build cognition. These pre-build steps get **ticketed once tickets
 are sorted**; they are pre-build work, not lifecycle states of the intention.
 
-## Artifacts — the converged set (2026-07-15)
+## Artifacts — the converged set
 
 Distilled from the "which artifacts do we actually need?" conversation.
 Supersedes the provisional type-dir sketch above: `decisions/` and any separate
@@ -595,7 +595,7 @@ answerable at ANY time, including mid-build — building can reveal hidden child
 parent then waits on (bottom-up proof; CP2 as structure — "this looked like a
 leaf; it wasn't").
 
-**The ticket is workflow-neutral (2026-07-15).** Because workflow rides on the
+**The ticket is workflow-neutral.** Because workflow rides on the
 node-class, not on the node's identity, "ticket" carries no domain: an inference
 ticket, a concept ticket, a review ticket, a writing ticket are the *same node*,
 differing only by class. **Everybody has tickets** — Telos/CP4's "everybody"
@@ -640,7 +640,7 @@ Riding on every node as fields (not separate artifacts):
 - **trouble** — machine-filed failure observation (already its own species).
 
 **Continuity records (a different axis — not the build tree):**
-- ~~**session**~~ — **RETIRED as a species, 2026-07-22.** It was pinned to a tool
+- ~~**session**~~ — **no longer a species.** It was pinned to a tool
   boundary: compact used to wipe context back to load, so a session was what
   happened between wipes and you re-oriented by reading the slate. Compact changed
   a month later — it reduces context without severing continuity — and the boundary
@@ -661,7 +661,7 @@ validated against its store's co-located `_charter+why.json` template. Physics, 
 policy: the single emit chokepoint refuses a write that doesn't conform (the
 "stores self-describe" rule above, applied to all seven types).
 
-## VALIDATIONS — the tester's greppable record of what's proved (2026-07-15)
+## VALIDATIONS — the tester's greppable record of what's proved
 
 The second face of the `proof` species, elevated to a first-class store and
 handed to the tester. **The tester stays a top-level device, and emitting
@@ -755,7 +755,7 @@ intentions, pre-cost); proof-on-close (hollow builds); bottom-up parent proof
 Telos 5, measured); `cairn slate`/`/saveslate` (session continuity — the open
 half compiled out of the skill roster into a hook, 2026-07-31).
 
-**Starting skill roster — converged (2026-07-15).** The ten-skill sketch, run
+**Starting skill roster — converged.** The ten-skill sketch, run
 against the gates + per-node-class model, distilled to a smaller set on three axes.
 Each surviving skill enters with its own charter. (Supersedes the earlier 10.)
 
@@ -803,7 +803,7 @@ Not crossing (for now): sprint family (returns when a dispatcher needs it), day-
 (folds into `/saveslate`), audit-* (absorbed into `/challenge`), everything unnameable
 (stays in quarry).
 
-## Gates, not supervisors — the workflow is gated transitions on the node (2026-07-15)
+## Gates, not supervisors — the workflow is gated transitions on the node
 
 The tester's prove-gate and cairnmap's recompile-gate are one pattern: a **gate**
 is a *mandatory post-condition on a state transition, enforced by physics* (Law 4)
@@ -855,7 +855,7 @@ checkpoint in the fluid middle; the *skill* keeps that role, the *gate* takes th
 durability-of-stones role. They collide only under an exclusive-and-terminal
 reading, which the keystone forbids.)
 
-**Workflow is per-node-class, bound when the node is cast (2026-07-15).** Because a
+**Workflow is per-node-class, bound when the node is cast.** Because a
 pipeline is just the gate-set on a node-class, different *kinds* of node carry
 different workflows — selected when `/sorted` casts the intention (casting is a step
 inside `/sorted`: type the node → bind its gate-set; there is no separate `/ticket`). Invariant across every class: it gets *proved* and it
@@ -876,7 +876,7 @@ reviewers`). Consequences:
   (`code-seam`, `concept-piece`, `skill`…); a class cannot exist without writing down
   what it is for. Discovered as tickets demand them, not pre-seeded.
 
-## cairnmap — the help surface, compiled from charters (2026-07-15)
+## cairnmap — the help surface, compiled from charters
 
 **BUILT 2026-07-31** (`cairn/tools/cairnmap/`, proof 14/14, ratified that night): `cairn
 cairnmap` renders the map, contextual by cwd; `cairn cairnmap --gate` is the
@@ -931,7 +931,7 @@ quality, by construction, feedback landing at the point of creation.
 the rendered projection of those same records — the reader-side destination of that
 dissolution. The name kinship is deliberate.
 
-## The node state-machine — states as summons (2026-07-17)
+## The node state-machine — states as summons
 
 The `state` field (above, 'Gates, not supervisors': state IS the pipeline instance)
 gets a vocabulary. A node's state is not a past-tense label of where it has *been*;
@@ -948,8 +948,9 @@ machine *is* the dispatcher — the get-Akien-out intention becoming architectur
   quorum).
 - **no `-ME` = the node's own condition**: `PROVED` (passed its gate, resting, still
   carrying falsifier+horizon — grazed by the background loop). Off-path dispositions
-  carry their why: `DROPPED` (no trace-up at intent), `SUPERSEDED`, `RETIRED`
-  (question lost tenure).
+  carry their why: `DROPPED` (no trace-up at intent), `SUPERSEDED`, and the third — a
+  question that lost tenure — named in the tenure vocabulary at
+  `CairnCommons/questions/_charter+why.json`.
 
 **One rest, inside the one loop, not terminal** (RESHAPED 2026-07-30, ticket
 `watchme-emits-a-probe`; **wording corrected 2026-08-03 by Akien's ruling**):
@@ -964,7 +965,7 @@ standing worker is a **probe** — a different species from a ticket (immutable,
 carrying no authority, outliving the crossing that created it). That deletes a
 state rather than adding one.
 
-**The mechanism, in Akien's words (2026-08-03).** The `WATCHME` state causes the
+**The mechanism, in his words (Akien, 2026-08-03).** The `WATCHME` state causes the
 **creation** of a probe — to wherever one needs to be: a gateway, a time, a future
 event, whatever — in order to send back feedback about the intention. **Once that
 probe is created, the state is complete.** The ticket then crosses a gate with its
@@ -1015,7 +1016,7 @@ instance' (self-contained; no external orchestrator possible). Consequences:
   edit is downstream of the cursor (blind replace); a judgment call when it
   touches/precedes the cursor (where does the cursor land?). Every edit is
   owner-gated, chokepoint-validated against a known workflow, and journaled. **This
-  is no longer prose** (2026-07-30): `code-seam@v1 → v2` has an instrument,
+  is no longer prose**: `code-seam@v1 → v2` has an instrument,
   `transitions.migrate_to_v2` + `emit_migrated`, and it is *event-not-poll* — the
   version changes at a crossing that was going to write a record anyway, so no
   sweep script exists and the old string rides the journal as `migrated_from`.
@@ -1045,7 +1046,7 @@ consolidation is the same — a probe the PROVED graze sets.
 **The operational-driver primitive (a node-class).** A standing node whose whole
 body is `(trigger, method-pointer, why, sources/targets)` — the declarative-data
 idea survives, but as the PROBE species now (immutable worker), distinct from the
-mutable TICKET. **Its resting state is an open question** (2026-07-30): the class
+mutable TICKET. **Its resting state is an open question**: the class
 charter named the standing-driver rest, and that rest is dissolved. The class has
 zero members, so nothing is at sea under it. It registers no `workflow_versions` —
 and since Akien's 2026-08-03 ruling ("a workflow is composed at ticketing time by

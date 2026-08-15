@@ -39,10 +39,11 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.ground_loop.discovered import DiscoveredShim
-from cairn.devices.ground_loop.discovery import ProbeCache
+from cairn.devices.ground_loop.discovery import ProbeCache, PulseCache
 from cairn.devices.ground_loop.liveness import read_liveness, write_liveness
 from cairn.devices.ground_loop import staleness as _staleness
 
@@ -90,7 +91,8 @@ class GroundLoopDevice(BaseDevice):
     — no device space, no record — which is what every pure-physics proof builds."""
 
     def __init__(self, device_id: str = "ground_loop", liveness_home=None,
-                 discover=None, trouble=None, bus=None, staleness=None) -> None:
+                 discover=None, trouble=None, bus=None, staleness=None,
+                 pulse_finder=None) -> None:
         super().__init__()
         self._device_id = device_id
         self._liveness_home = liveness_home
@@ -121,6 +123,15 @@ class GroundLoopDevice(BaseDevice):
         # running interpreter. Consulted ONLY when a device has already failed to import, so
         # a healthy pass never calls it and pays nothing (I-shrinking-footprint-event-not-poll).
         self._staleness = staleness or _staleness.module_drift
+        # THE PULSE SERVICE (ticket the-pulse-file-is-the-subscription, Akien 2026-08-15).
+        # Injected like ``discover`` and for the same reason: ``None`` means no pulse surface
+        # (every pure-physics proof), the runner hands ``discovery.pulse_sites``. The cache is
+        # the learned list — activate on presence, evict+unload on absence, every pass — and
+        # the events ring is the read surface the WATCHME probe measures: bounded, in memory,
+        # riding ``state()`` into the liveness record. No new durable file (constrain OUT).
+        self._pulse_finder = pulse_finder
+        self._pulse_cache = None        # built lazily; only a loop with a finder needs one
+        self._pulse_events: list = []   # recent activations/deactivations/refusals, capped
 
     @property
     def device_id(self) -> str:
@@ -285,14 +296,83 @@ class GroundLoopDevice(BaseDevice):
             self.emit("self_trouble_unwritable", pointer=SELF_TROUBLE,
                       values={"error": f"{type(exc).__name__}: {exc}"})
 
-    def _reconcile(self) -> None:
+    def _reconcile(self, now=None) -> None:
+        """Rebuild the whole roster from DISK, both surfaces, one pass.
+
+        Pulses first (the learned list must be current before the probe half decides who
+        stays on the roster), then probes, then the hand-off: each device's activated pulse
+        modules attached to whichever ONE shim fronts it. ``now`` is the beat's injected
+        clock, stamped onto pulse events; ``None`` (a direct proof call) stamps nothing."""
+        pulse_active = self._reconcile_pulses(now)
+        self._reconcile_probes(pulse_active)
+        self._attach_pulses(pulse_active)
+
+    def _reconcile_pulses(self, now=None) -> dict:
+        """Diff found-vs-known over groundloop/pulse.py files (ticket
+        the-pulse-file-is-the-subscription): presence activates, absence deactivates and
+        unloads, an in-place edit is remove+add in one beat — all inside the cache, never
+        raising into the beat. Returns ``{device_id: [active entries]}`` for the roster
+        half, and records this pass's events on the bounded ring ``state()`` surfaces."""
+        if self._pulse_finder is None:
+            return {}
+        if self._pulse_cache is None:
+            self._pulse_cache = PulseCache()
+        try:
+            events = self._pulse_cache.reconcile(self._pulse_finder())
+        except Exception as exc:  # noqa: BLE001 — pulse discovery failing must not stop the beat
+            self.emit("pulse_discovery_refused", pointer="disk",
+                      values={"error": f"{type(exc).__name__}: {exc}"})
+            events = []
+        for ev in events:
+            ev["beat"] = self._beats + 1
+            if now is not None:
+                ev["at"] = str(now)
+            self._pulse_events.append(ev)
+            # GATE CONTACT: a pulse service changed — per crossing, never per beat (an
+            # unchanged corpus emits nothing; the same discipline as subscribe/discovered).
+            self.emit("pulse_" + ev["event"], pointer=ev["device"], values=dict(ev))
+        del self._pulse_events[:-50]
+        active: dict[str, list] = {}
+        for entry in self._pulse_cache.active():
+            active.setdefault(entry["device"], []).append(entry)
+        return active
+
+    def _attach_pulses(self, pulse_active: dict) -> None:
+        """Hand each device's activated pulse modules to the ONE shim fronting it — the
+        loop only beats; firing stays in the shim (the 584aa74 goof stays dead). A device
+        with a pulse but no probes gets a ``DiscoveredShim`` here; a benched device's pulse
+        does not fire (the bench holds the whole device out). Every carrying shim is
+        refreshed with the WHOLE list each pass, so a vanished pulse is forgotten by
+        replacement — including down to empty."""
+        if self._pulse_cache is None:
+            return
+        for device_id, entries in pulse_active.items():
+            if device_id in self._benched:
+                continue
+            if self.shim_for(device_id) is None:
+                folder = str(Path(entries[0]["path"]).parent)
+                shim = DiscoveredShim(device_id, folder, bus=self._bus)
+                self._discovered[device_id] = shim
+                self._shims.append(shim)
+                self.emit("discovered", pointer=device_id,
+                          values={"folder": folder, "pulse_files": len(entries)})
+        for shim in self._shims:
+            if hasattr(shim, "set_pulse_modules"):
+                mods = ([] if shim.device_id in self._benched
+                        else self._pulse_cache.modules_for(shim.device_id))
+                shim.set_pulse_modules(mods)
+
+    def _reconcile_probes(self, pulse_active: dict | None = None) -> None:
         """Rebuild the pulse roster from DISK — the whole point of the ruling.
 
         Hand-subscribed shims are left exactly as they are (the web server registers real
         device shims that carry pages), and a discovered device whose name a hand-subscribed
         shim already holds is NOT given a second shim — one device, one shim, or a probe
         fires twice per beat. Everything else on disk gets a ``DiscoveredShim``, refreshed
-        with this pass's probes; a device whose folder has vanished leaves the roster."""
+        with this pass's probes; a device whose folder has vanished leaves the roster —
+        unless it still carries a live pulse service (``pulse_active``), which keeps its
+        shim on the beat with no probes in it."""
+        pulse_active = pulse_active or {}
         if self._discover is None:
             return
         if self._probe_cache is None:
@@ -349,7 +429,8 @@ class GroundLoopDevice(BaseDevice):
         # DROPPED rather than emptied so its crossing-memory dies with it: a probe re-armed
         # after a fix is a fresh watch, not one resuming a line it no longer remembers.
         gone = [d for d in self._discovered
-                if d not in found or d in self._benched or found[d].get("benched")]
+                if (d not in found and d not in pulse_active) or d in self._benched
+                or (d in found and found[d].get("benched"))]
         for device_id in gone:
             shim = self._discovered.pop(device_id)
             self._shims = [s for s in self._shims if s is not shim]
@@ -377,7 +458,9 @@ class GroundLoopDevice(BaseDevice):
         context = context or {}
         # THE ROSTER IS READ BEFORE IT IS PULSED, every pass (ruled 2026-08-11). A probe file
         # written one second ago is fired by this beat; one deleted one second ago is not.
-        self._reconcile()
+        # The same clause now covers pulse.py (ticket the-pulse-file-is-the-subscription):
+        # ``now`` rides in so each activation/deactivation event carries the beat's clock.
+        self._reconcile(now)
         pulses: list[dict] = []
         for shim in list(self._shims):
             try:
@@ -451,10 +534,17 @@ class GroundLoopDevice(BaseDevice):
         }
 
     def state(self) -> dict:
+        # ``pulse_*`` rides this surface INTO the liveness record (write_liveness passes
+        # state() whole, every beat) — which is how the pulse roster is durable-readable
+        # with no new file: the WATCHME probe at probes/pulse_service_within_a_beat.py
+        # reads liveness.json's state, and constrain's no-new-durable-record bound holds.
         return {
             "beats": self._beats,
             "subscribers": self.subscribers,
             "last_pulsed_count": len((self._last_beat or {}).get("pulsed", [])),
+            "pulse_services": self._pulse_cache.active() if self._pulse_cache else [],
+            "pulse_refusals": self._pulse_cache.refusals() if self._pulse_cache else [],
+            "pulse_events": list(self._pulse_events),
         }
 
     def settings(self) -> dict:

@@ -38,7 +38,9 @@ device and raising its ticket is the loop's act, at the loop's own address (Law 
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import sys
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe
@@ -46,6 +48,14 @@ from cairn.tools.base.probe import Probe
 # The directory that holds a device's watchers. One name, here, so "where do probes live"
 # is answered once (Law 1) — this is the same convention 17 armed modules already use.
 PROBES_DIR = "probes"
+
+# The directory that holds a device's per-beat SERVICE (ticket
+# the-pulse-file-is-the-subscription, Akien 2026-08-15): a ``groundloop/`` folder beside the
+# component, at class level or instance level, and the one file in it that matters is
+# ``pulse.py``. Presence activates the service; absence deactivates and unloads it. The file
+# IS the subscription — same physics as ``probes/``, second registration folder.
+GROUNDLOOP_DIR = "groundloop"
+PULSE_FILE = "pulse.py"
 
 # Where devices are looked for. The repo root's own component trees: every directory that
 # holds a ``probes/`` folder is a device, at any depth under these — which is what makes
@@ -57,17 +67,19 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def device_folders(root: Path | None = None) -> list[tuple[str, Path]]:
-    """Every (device_id, probes_folder) pair on disk, sorted for a stable pulse order.
+def device_folders(root: Path | None = None,
+                   folder_name: str = PROBES_DIR) -> list[tuple[str, Path]]:
+    """Every (device_id, registration_folder) pair on disk, sorted for a stable pulse order.
 
-    The scan is a directory walk for ``probes/`` folders, pruned at the usual noise
-    (``__pycache__``, dot-dirs, ``.git``, venvs). A ``probes`` folder with no importable
+    The scan is a directory walk for ``folder_name`` folders (``probes/`` by default;
+    ``groundloop/`` is the second registration folder, same walk), pruned at the usual
+    noise (``__pycache__``, dot-dirs, ``.git``, venvs). A folder with no importable
     module still names a device — an empty watch folder is a device with nothing to fire,
     which is honest, not absent.
     """
     root = Path(root) if root is not None else repo_root()
     found: list[tuple[str, Path]] = []
-    for folder in root.rglob(PROBES_DIR):
+    for folder in root.rglob(folder_name):
         if not folder.is_dir():
             continue
         parts = folder.relative_to(root).parts
@@ -181,3 +193,166 @@ def discover(root: Path | None = None, cache: ProbeCache | None = None,
         entry["probes"].extend(probes)
         entry["failures"].extend(failures)
     return out
+
+
+# ---------------------------------------------------------------------------------------
+# THE PULSE SURFACE (ticket the-pulse-file-is-the-subscription, Akien 2026-08-15).
+# Same physics as the probes above — the file IS the subscription — with the one half the
+# probes/ build never needed: UNLOAD. "next pass thru, the file is missing. so i remove it
+# from my list. if i imported it, i now unload it." Identity is path+mtime, so an in-place
+# edit is a remove+add in one beat. Unload is bounded to pulse-carried code (the ruled
+# residue): the module this cache registered is evicted; transitively imported base modules
+# are not touched, and the resident interpreter's own staleness is measured elsewhere.
+# ---------------------------------------------------------------------------------------
+
+def instance_devices_root() -> Path:
+    """Where instance-space device addresses live: ``~/.cairn/devices``. A pulse at
+    ``~/.cairn/devices/<device>/<instance>/groundloop/pulse.py`` is served the same beat
+    as a class-level one — the unit is the FILE, both fire."""
+    return Path.home() / ".cairn" / "devices"
+
+
+def pulse_sites(class_root: Path | None = None,
+                instance_home: Path | None = None) -> list[dict]:
+    """Every pulse.py on disk this instant, both levels, sorted by path for a stable order.
+
+    Each site is ``{"device_id", "level": "class"|"instance", "path"}``. Class-level rides
+    the same walk as probes/ (``device_folders`` with the second folder name — same prune,
+    same device_id-from-parent). Instance-level walks ``~/.cairn/devices``; the device_id
+    is the first path segment under it, so a tool's pulse berthed under its holder answers
+    to the holder — which is Law 6 said in a path.
+    """
+    sites: list[dict] = []
+    for device_id, folder in device_folders(class_root, GROUNDLOOP_DIR):
+        path = folder / PULSE_FILE
+        if path.is_file():
+            sites.append({"device_id": device_id, "level": "class", "path": path})
+    home = Path(instance_home) if instance_home is not None else instance_devices_root()
+    if home.is_dir():
+        for folder in home.rglob(GROUNDLOOP_DIR):
+            if not folder.is_dir():
+                continue
+            parts = folder.relative_to(home).parts
+            if any(p.startswith(".") or p in {"__pycache__", "node_modules", "venv"}
+                   for p in parts):
+                continue
+            path = folder / PULSE_FILE
+            if not path.is_file():
+                continue
+            sites.append({"device_id": parts[0], "level": "instance", "path": path})
+    return sorted(sites, key=lambda s: str(s["path"]))
+
+
+def load_pulse(path: Path) -> tuple[str, object]:
+    """Import a pulse module off its path AND register it in ``sys.modules`` — the
+    registration is what makes unload real rather than roster bookkeeping.
+
+    The synthetic name hashes the FULL path (not its last segments) because a class-level
+    and an instance-level pulse for one device would collide under the probes' naming.
+    On a failed exec the half-registered name is popped before the error propagates.
+    """
+    digest = hashlib.blake2s(str(path).encode()).hexdigest()[:8]
+    name = f"cairn._pulse.{path.parent.parent.name}_{digest}"
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"no import spec for {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        sys.modules.pop(name, None)
+        raise
+    return name, module
+
+
+class PulseCache:
+    """The learned list: activated pulse modules held against path+mtime — never raises.
+
+    Stateful on purpose and owned by the loop that holds it, like ``ProbeCache`` — with two
+    deliberate differences. (1) UNLOAD: deactivation evicts the synthetic name from
+    ``sys.modules`` in the same reconcile pass that drops the entry, so a vanished file's
+    code genuinely leaves the interpreter and a re-added file re-executes fresh. (2) DAMPED
+    RETRY: a pulse whose import raised is remembered against its mtime and not retried
+    until the file changes — the probes' retry-every-pass is what the bench exists to stop,
+    and a pulse has no bench, so the damping lives here.
+    """
+
+    def __init__(self) -> None:
+        self._by_path: dict[Path, dict] = {}
+        self._refused: dict[Path, tuple[float, str]] = {}
+
+    def reconcile(self, sites: list[dict]) -> list[dict]:
+        """Diff found-vs-known: activate the new, evict the gone, re-activate the changed.
+
+        Returns this pass's events, each a complete dict (``activated`` | ``deactivated``
+        | ``refused``) — the caller records them; this cache decides nothing about what a
+        failure means (same division of labor as ``discover``).
+        """
+        events: list[dict] = []
+        seen: set[Path] = set()
+        for site in sites:
+            path = site["path"]
+            seen.add(path)
+            try:
+                mtime = path.stat().st_mtime
+            except OSError:
+                continue  # vanished between listing and stat — the next pass sees the absence
+            held = self._by_path.get(path)
+            if held is not None and held["mtime"] == mtime:
+                continue
+            if held is not None:  # changed in place: remove+add is ONE act, this pass
+                self._evict(path, events, reason="rewritten in place — path+mtime identity")
+            refused = self._refused.get(path)
+            if refused is not None and refused[0] == mtime:
+                continue  # known-bad at this mtime; retried only when the file changes
+            try:
+                name, module = load_pulse(path)
+            except Exception as exc:  # noqa: BLE001 — a device's bad pulse cannot reach the beat
+                lack = f"import raised {type(exc).__name__}: {exc}"
+                self._refused[path] = (mtime, lack)
+                events.append({"event": "refused", "device": site["device_id"],
+                               "level": site["level"], "path": str(path),
+                               "mtime": mtime, "lack": lack})
+                continue
+            self._refused.pop(path, None)
+            self._by_path[path] = {"mtime": mtime, "name": name, "module": module,
+                                   "site": dict(site)}
+            events.append({"event": "activated", "device": site["device_id"],
+                           "level": site["level"], "path": str(path), "mtime": mtime,
+                           "hook": callable(getattr(module, "on_pulse", None))})
+        for path in [p for p in self._by_path if p not in seen]:
+            self._evict(path, events, reason="file no longer on disk")
+        for path in [p for p in self._refused if p not in seen]:
+            del self._refused[path]
+        return events
+
+    def _evict(self, path: Path, events: list[dict], reason: str) -> None:
+        """Deactivate AND unload: drop the entry and pop the synthetic name from
+        ``sys.modules`` in the same act — the two halves of Akien's sentence."""
+        held = self._by_path.pop(path)
+        sys.modules.pop(held["name"], None)
+        events.append({"event": "deactivated", "device": held["site"]["device_id"],
+                       "level": held["site"]["level"], "path": str(path),
+                       "reason": reason})
+
+    def active(self) -> list[dict]:
+        """The learned list as data — which device carries a live pulse service, from
+        where, at what mtime. In memory only; it rides ``state()`` into the liveness
+        record, never a file of its own."""
+        return [{"device": h["site"]["device_id"], "level": h["site"]["level"],
+                 "path": str(p), "mtime": h["mtime"],
+                 "hook": callable(getattr(h["module"], "on_pulse", None))}
+                for p, h in sorted(self._by_path.items(), key=lambda kv: str(kv[0]))]
+
+    def refusals(self) -> list[dict]:
+        """The damped known-bad files — loud on the state surface, quiet on the beat."""
+        return [{"path": str(p), "mtime": m, "lack": lack}
+                for p, (m, lack) in sorted(self._refused.items(), key=lambda kv: str(kv[0]))]
+
+    def modules_for(self, device_id: str) -> list:
+        """The activated modules a device's shim fires this pass — firing stays in the
+        shim (the 584aa74 goof stays dead); this is only the hand-off."""
+        return [h["module"] for p, h in sorted(self._by_path.items(),
+                                               key=lambda kv: str(kv[0]))
+                if h["site"]["device_id"] == device_id]

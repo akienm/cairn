@@ -1,0 +1,22 @@
+[
+  {
+    "claim": "proof test_pulse_service.py passes under python3",
+    "caller": "sail:the-pulse-file-is-the-subscription",
+    "date": "2026-08-15T10:27:42",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_pulse_only_device_survives_the_probes_reconcile\n  PASS  test_a_raising_pulse_is_recorded_once_and_damped\n  PASS  test_activation_is_once_and_later_beats_are_a_stat\n  PASS  test_an_in_place_edit_is_remove_plus_add_in_one_beat\n  PASS  test_class_and_instance_pair_both_fire\n  PASS  test_no_new_durable_record_and_the_face_tracks_add_remove\n  PASS  test_one_devices_raising_hook_does_not_stop_anothers_service\n  PASS  test_removal_unloads_and_readd_reexecutes\n  PASS  test_the_cache_alone_never_raises_and_events_are_complete\n  PASS  test_the_walk_finds_both_levels_and_leaves_probes_alone\n  PASS  test_the_watchme_probe_is_armed_and_judges_from_fixtures\ngreen — presence is the subscription, absence is the unload, and the loop only beats",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e91af6fc29d3c60c0aa0014e6d083fd438554fa4cc678daa0b073f712a17cc9a",
+      "trail_link": "1e48560ded520d1dcea255b4676bc06bccf80f56d82ac54f7a538f3136cccb98"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

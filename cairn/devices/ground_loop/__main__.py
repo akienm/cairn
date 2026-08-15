@@ -38,7 +38,7 @@ from cairn.tools.base.address import instance_path
 from cairn.devices.bus.bus import BusDevice
 from cairn.devices.bus.shim import BusShim
 from cairn.machines.diagnostic_inspector.log import BreadcrumbLog
-from cairn.devices.ground_loop.discovery import discover
+from cairn.devices.ground_loop.discovery import discover, pulse_sites
 from cairn.devices.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.ground_loop.liveness import read_liveness
 from cairn.devices.ground_loop.loop import GroundLoopDevice
@@ -76,8 +76,12 @@ def main(home=None, roots=None) -> int:
     # one place that hands it a wall clock. A loop with no discoverer beats an empty roster,
     # which is precisely the state that went unnoticed from 2026-08-09 to 2026-08-11.
     bus = BusDevice()
+    # ``pulse_finder`` wires the second registration surface (ticket
+    # the-pulse-file-is-the-subscription): groundloop/pulse.py at class or instance level,
+    # found each beat, activated on presence, unloaded on absence. Injected here, like
+    # ``discover``, because this runner is where the loop meets the real disk.
     device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice(),
-                              bus=bus)
+                              bus=bus, pulse_finder=pulse_sites)
     # THE BREADCRUMBS GET A HOME (ticket a-record-reaches-disk). Until this line every emit in
     # the running system marked itself ``home='held'`` and appended to a list on an object
     # inside a process that was about to exit — ``set_diagnostic_receiver`` had no live caller

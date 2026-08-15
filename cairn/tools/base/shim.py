@@ -108,6 +108,12 @@ class BaseShim(CoreValuesMixin, ABC):
         # pulses than the horizon have passed since it was first seen.
         self._first_seen: dict = {}
         self._ever_fired: set = set()
+        # THE PULSE SERVICE (ticket the-pulse-file-is-the-subscription, 2026-08-15): the
+        # activated groundloop/pulse.py modules this device carries THIS pass. Handed over
+        # whole each reconcile (like the probe list — replaced, never accumulated), fired
+        # here because "pulse.py will be our webserver's SHIM's pulse" — the loop only
+        # beats, and firing stays in the shim. Empty for every device without one.
+        self._pulse_mods: list = []
 
     @property
     @abstractmethod
@@ -123,6 +129,37 @@ class BaseShim(CoreValuesMixin, ABC):
         driven by the beat). A concrete shim overrides this to expose its device's probes
         (e.g. the system device's live threshold subscriptions)."""
         return []
+
+    def set_pulse_modules(self, modules: list) -> None:
+        """Hand this shim its device's activated pulse modules for the coming pulses.
+
+        Called by the loop's reconcile with whatever the PulseCache holds for this device —
+        the whole list, every pass, so a vanished pulse is forgotten by replacement exactly
+        like a vanished probe file. The shim never imports; it only fires what it was
+        handed (the discovery/firing split the 584aa74 goof record demands)."""
+        self._pulse_mods = list(modules)
+
+    def _serve_pulses(self, now, context: dict) -> list[dict]:
+        """Fire each carried pulse module's ``on_pulse(now, context)`` hook — batch-safe.
+
+        A module with no callable hook is import-only (its top-level already ran at
+        activation; that is a legitimate v0 pulse). A raising hook becomes a loud entry
+        and the rest keep firing (CP2, Law 7) — one device's bad pulse is isolated by the
+        same physics as one device's bad probe."""
+        served: list[dict] = []
+        for mod in self._pulse_mods:
+            name = getattr(mod, "__name__", repr(mod))
+            hook = getattr(mod, "on_pulse", None)
+            if not callable(hook):
+                served.append({"module": name, "outcome": "import-only"})
+                continue
+            try:
+                returned = hook(now, context)
+                served.append({"module": name, "outcome": "ok", "returned": returned})
+            except Exception as exc:  # noqa: BLE001 — a bad pulse must not stop the batch
+                served.append({"module": name, "outcome": "refused",
+                               "error": f"{type(exc).__name__}: {exc}"})
+        return served
 
     def cleared(self) -> set:
         """The identities of probes that GATHERED ENOUGH and are retired — read-only, and
@@ -241,6 +278,11 @@ class BaseShim(CoreValuesMixin, ABC):
             "fired_count": sum(1 for f in fired if f.get("outcome") == "ok"),
             "held": held,
         }
+        # THE PULSE SERVICE fires after the probes, on the same pulse, additively: the key
+        # exists only when this device carries a pulse module, so every pulse-less device's
+        # record is byte-identical to what it was before this seam existed.
+        if self._pulse_mods:
+            record["services"] = self._serve_pulses(now, context)
         # Remember the line's position for the next pulse. Assigned WHOLE, so a declaration that
         # has gone false (or vanished from probes() entirely) is forgotten — and therefore
         # pokes again when it next crosses, instead of being suppressed by a stale memory.

@@ -73,7 +73,14 @@ what can't trace up doesn't belong.
    — and **no past artifact outranks him now**, because an older translation is
    not evidence about the source. He owes no argument for calling a thing red:
    *"nope, a little more left"* is a complete input. Challenging the design is
-   what's supposed to happen, and it never gates his correction.
+   what's supposed to happen, and it never gates his correction. And the order
+   caps at measurement (ruling 2026-08-15): *"anything settled by measurment
+   trumps approvals by even me"*, and his own commits are translations like any
+   other artifact — *"my head trumps everything except measurments."* The two
+   ranks govern different questions: a measurement says what IS and queues for
+   nobody's approval, his included; his head says what SHOULD BE and outranks
+   every artifact. What waits at his gate is what only his head can settle —
+   spec choices, translation fidelity — never the measurement-settled.
 
 10. **Nothing in the system is immeasurable — except Claude, for now.** The
     ground-most assumption is that **we can know everything about this system**,

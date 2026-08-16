@@ -37,13 +37,23 @@ the seals this build lands are among the first post-collapse records it will cou
 honest evidence — they went through the door — but they are the author's own participation,
 and at n=2 out of 20 they cannot carry the answer alone. The floor is what keeps that true.
 
-ONE INSTRUMENT, TWO QUESTIONS. ``the_door_is_the_only_path_in_practice`` (beside this file)
-asks whether anybody still NEEDS to go around the door; this one asks whether the collapse
-HOLDS. Since 2026-08-16 both are answered by the same observation, so the observation lives
-HERE, once, and that probe imports it. Two probes computing one number separately is two
-numbers that can drift, and the drifting one is invisible. Whether the corpus should carry
-both watches at all is the OWNER's call (Law 6) — it is recorded as a finding, not decided by
-either probe.
+ONE INSTRUMENT, AND NOW ONE PROBE. ``the_door_is_the_only_path_in_practice`` — armed one
+voyage earlier for ticket ``standing-gates-the-newest-link-and-run-proof-names-its-sink`` —
+asked whether anybody still NEEDS to go around the door, and counted entries carrying no
+``trail_link``. The chain retired with the append-only-ness it protected, so that key is
+written by nothing: left as it was, it would have counted a corpus-wide zero forever and fired
+on a finding false by construction — a check whose reading is decided by its own condition
+being satisfied rather than by the world. Its retirement was bound into this ticket's cast
+rather than discovered in flight.
+
+The first fix was to re-instrument it onto THIS survey and keep both files. That was measured
+wrong during the build: both probes then computed the same number, cleared on the same
+condition, and would have delivered the same finding twice — the REPEATS class ``probescan``
+already counts as a defect. So the earlier probe is gone and its question is carried HERE,
+by this one observation: a validations file holding more than one record IS a write that did
+not come through the door, which is the older probe's question stated in the newer probe's
+terms. Retiring it is a write to the tester's own probes, which the charter's ``gated_by``
+admits (Law 6) — recorded here rather than left to be inferred from an absent file.
 
 AUTHORITY: none, by construction. This probe deposits and pokes; the back-edge that re-opens a
 node whose intention did not work is the OWNER's act (Law 6).

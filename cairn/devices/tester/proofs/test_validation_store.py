@@ -399,6 +399,13 @@ def test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING():
     proving the injection, not the guard."""
     real_root = TroubleDevice()._root
     before = sorted(p.name for p in Path(real_root).glob("*.json")) if Path(real_root).exists() else []
+    # NOT VACUOUS, ASSERTED RATHER THAN ASSUMED: `before == after` passes trivially against an
+    # empty root, which is the coin-toss green this file exists to refuse. The root is
+    # CairnCommons/troubles — a git-tracked commons directory, so a non-empty population is
+    # guaranteed by the clone rather than by this machine's history.
+    assert before, (
+        f"the trouble root {real_root} holds no tickets — this tooth would pass by finding "
+        "nothing on both sides, which proves nothing about the guard")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         v = _sealable(proof)
@@ -520,7 +527,11 @@ def _main() -> int:
     # proof-record ruling names — so the list is now the module's own declaration order.
     checks = [v for k, v in globals().items()
               if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 13, (
+    # THE FLOOR IS THE COUNT, NOT THE COUNT MINUS SLACK. It was written 13 against 14
+    # declared teeth — off by one, from a hand's miscount rather than a rule — and a floor
+    # one below the roster is a floor with room for exactly the disappearance it exists to
+    # catch. Raised to 14 the moment the criterion's own instrument measured the gap.
+    assert len(checks) >= 14, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:

@@ -62,6 +62,18 @@ DEFAULT_TIMEOUT = 120.0
 # metering zero.
 _COUNTERS = ("prompt_eval_count", "eval_count")
 
+# The verbs this module sends, each against the one ollama path that serves it. ONE TABLE, read
+# by the single-endpoint resolver's provenance AND by the routed walk's kind guard, because the
+# set of verbs the resolver can send and the set the walk may admit are the same fact — and a
+# fourth verb added to a branch but not to a guard is a request that dies at a door for a reason
+# nobody wrote down. The routing stacks still decide WHO serves which verb (route.py's
+# serves_kind sieve over the models stack); this only says what this seam knows how to speak.
+_PATH_FOR_KIND = {
+    "generate": "/api/generate",
+    "embed": "/api/embed",
+    "chat": "/api/chat",
+}
+
 
 class HostUnreachable(RuntimeError):
     """The host could not be reached at all. Loud — never a silently-empty answer (Law 7)."""
@@ -124,6 +136,38 @@ def metered_cost(payload: dict) -> int:
             f"response carried {sorted(payload)}) — this call cannot be metered, and a cost of 0 "
             "would make yield_report testify to a saving nobody measured")
     return int(sum(payload[k] for k in present))
+
+
+def validated_messages(request: dict) -> list:
+    """The chat request's ``messages``, or refuse — BEFORE the host is dialed.
+
+    The two verbs beside chat are addressed by a single ``prompt`` string; chat is addressed
+    by a turn list, so the resolver's promptless refusal cannot judge it and a well-formed
+    chat request would be turned away as promptless. This is that check's chat half, and it
+    keeps the same discipline: an invalid request is refused where it costs nothing. On Hex a
+    cold qwen3-coder:30b load is ~18s (measured 2026-08-16), so a malformed request that
+    reaches the host is not a wasted round trip, it is a wasted eighteen seconds.
+
+    Every entry needs BOTH a role and a content string. A turn missing one is the shape ollama
+    accepts and answers strangely rather than rejecting, which would make the defect surface as
+    a bad answer instead of as an error (Law 7 — loud at the diagnostic surface).
+    """
+    messages = request.get("messages")
+    if not isinstance(messages, list) or not messages:
+        raise BadRequest(
+            f"a chat request needs a non-empty 'messages' list (got {messages!r})")
+    for i, turn in enumerate(messages):
+        if not isinstance(turn, dict):
+            raise BadRequest(
+                f"messages[{i}] must be a dict with 'role' and 'content', "
+                f"got {type(turn).__name__}")
+        lacking = [k for k in ("role", "content")
+                   if not isinstance(turn.get(k), str) or not turn[k].strip()]
+        if lacking:
+            raise BadRequest(
+                f"messages[{i}] lacks a non-empty {' and '.join(repr(k) for k in lacking)} "
+                f"(carried {sorted(turn)})")
+    return messages
 
 
 def _urllib_get(url: str, timeout: float) -> tuple[int, bytes]:
@@ -205,8 +249,14 @@ def ollama_resolver(
 
         {"kind": "generate", "prompt": "..."}          -> answer {"text": ...}
         {"kind": "embed",    "prompt": "..."}          -> answer {"vector": [...], "dim": n}
+        {"kind": "chat", "messages": [{"role", "content"}, ...]}
+                                                      -> answer {"text": ..., "role": ...}
 
     plus an optional ``"model"`` override and an optional ``"options"`` dict passed to the host.
+    Chat is NON-STREAMING and deliberately so — its first consumer runs ``--no-stream``, and a
+    streaming face is growth against no measured need. It is also UNDRESSED by construction:
+    the domain seam dresses ``generate`` only, and a turn list already carries a system role,
+    so a second path to the same thing would be invented before a caller wanted it.
     ``kind`` is required and an unknown one is REFUSED before any host call: guessing the caller's
     intent is how a request for a vector comes back as prose (a silent wrong answer).
 
@@ -237,9 +287,14 @@ def ollama_resolver(
         if not isinstance(request, dict):
             raise BadRequest(f"request must be a dict, got {type(request).__name__}")
         kind = request.get("kind")
-        prompt = request.get("prompt")
-        if not isinstance(prompt, str) or not prompt.strip():
-            raise BadRequest(f"request needs a non-empty 'prompt' (got {prompt!r})")
+        # The shape check dispatches on kind because the verbs are addressed differently: two
+        # take a prompt string, chat takes a turn list. Both refusals fire before any host call.
+        if kind == "chat":
+            messages = validated_messages(request)
+        else:
+            prompt = request.get("prompt")
+            if not isinstance(prompt, str) or not prompt.strip():
+                raise BadRequest(f"request needs a non-empty 'prompt' (got {prompt!r})")
         name = request.get("model") or model
         options = {"temperature": temperature, **(request.get("options") or {})}
 
@@ -269,10 +324,31 @@ def ollama_resolver(
                     f"{type(vectors).__name__}"
                     + (f" of {len(vectors)}" if isinstance(vectors, list) else ""))
             answer = {"vector": vectors[0], "dim": len(vectors[0])}
+        elif kind == "chat":
+            # /api/chat is generate's turn-taking sibling: same counters, same stream flag,
+            # a messages list where generate has a prompt. MEASURED against the live host
+            # 2026-08-16 before this branch was written, because the whole verb rests on it —
+            # the response carried prompt_eval_count 15 and eval_count 2, so the meter below
+            # is metering the host's own numbers here exactly as it does for generate. Had it
+            # come back counterless (as /api/embeddings did in 2026-07-26), HostUnmetered would
+            # have refused every chat call and the design would have gone back for a ruling
+            # rather than quietly metering zero.
+            payload = {"model": name, "messages": messages, "stream": False, "options": options}
+            body = _post("/api/chat", payload,
+                         endpoint=endpoint, timeout=timeout, transport=send)
+            message = body.get("message")
+            if not isinstance(message, dict) or not isinstance(message.get("content"), str):
+                # Refused, not indexed into — the embed branch's standard, for the same reason:
+                # a missing field indexed blindly becomes an answer of None travelling as prose.
+                raise HostRefused(
+                    f"/api/chat returned an unexpected 'message' shape: "
+                    f"{type(message).__name__}"
+                    + (f" carrying {sorted(message)}" if isinstance(message, dict) else ""))
+            answer = {"text": message["content"], "role": message.get("role", "assistant")}
         else:
             raise BadRequest(
-                f"unknown request kind {kind!r} — this resolver sends 'generate' or 'embed'. "
-                "Guessing would answer a different question than the one asked.")
+                f"unknown request kind {kind!r} — this resolver sends 'generate', 'embed' or "
+                "'chat'. Guessing would answer a different question than the one asked.")
 
         return {
             "answer": answer,
@@ -282,7 +358,7 @@ def ollama_resolver(
                                                  # rot with the clock; the digest is what falsifies
             "provenance": {
                 "host": endpoint,
-                "path": "/api/generate" if kind == "generate" else "/api/embed",
+                "path": _PATH_FOR_KIND[kind],
                 "model": name,
                 "options": options,
                 "counters": {k: body[k] for k in _COUNTERS if k in body},
@@ -319,9 +395,10 @@ def _routed_resolver(*, model: str, timeout: float, transport, get, temperature:
         if not isinstance(request, dict):
             raise BadRequest(f"request must be a dict, got {type(request).__name__}")
         kind = request.get("kind")
-        if kind not in ("generate", "embed"):
+        if kind not in _PATH_FOR_KIND:
             raise BadRequest(
-                f"unknown request kind {kind!r} — this resolver sends 'generate' or 'embed'. "
+                f"unknown request kind {kind!r} — this resolver sends "
+                f"{', '.join(repr(k) for k in _PATH_FOR_KIND)}. "
                 "Guessing would answer a different question than the one asked.")
         domain = request.get("domain")
         allow = None

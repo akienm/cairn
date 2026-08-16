@@ -56,6 +56,20 @@ _REAL_EMBED = {"model": "nomic-embed-text", "embeddings": [[0.01] * 768],
                "total_duration": 394565317, "load_duration": 328372368, "prompt_eval_count": 9}
 # And the one that started this: /api/embeddings, the older path, returns ONLY the vector.
 _REAL_EMBEDDINGS_UNMETERED = {"embedding": [0.01] * 768}
+# Also real, and captured BEFORE the chat branch was written rather than after it: qwen3-coder:30b
+# on hex.local, 2026-08-16, stream false, "Reply with the single word: ok". The whole chat verb
+# rested on one question — does /api/chat report counters the way /api/generate does — and this
+# response is the answer. Note load_duration ~18s against eval_duration ~0.02s: that is a cold
+# model load, a property of the host's cache and not of any code here.
+_REAL_CHAT = {
+    "model": "qwen3-coder:30b", "created_at": "2026-08-16T02:39:54.806337Z",
+    "message": {"role": "assistant", "content": "ok"},
+    "done": True, "done_reason": "stop",
+    "total_duration": 18208569500, "load_duration": 18013486208,
+    "prompt_eval_count": 15, "prompt_eval_duration": 171578000,
+    "eval_count": 2, "eval_duration": 21563000,
+}
+_A_TURN = [{"role": "user", "content": "Reply with the single word: ok"}]
 
 # The tag names EXACTLY as the host reports them — note the implicit ':latest' on the embed model,
 # which is what broke the falsifier on the first live run. A fixture that tidied it away would have
@@ -347,7 +361,7 @@ def _domain_stacks(*, allow=None):
             {"name": "p-cheap", "protocol": "ollama", "cash_per_mtoken": 0.1, "enabled": True},
             {"name": "p-dear", "protocol": "ollama", "cash_per_mtoken": 0.2, "enabled": True},
         ]},
-        "models": {"models": [{"name": "m", "serves": ["generate"]}]},
+        "models": {"models": [{"name": "m", "serves": ["generate", "chat"]}]},
         "combos": {"combos": [{"provider": "p-cheap", "model": "m"},
                               {"provider": "p-dear", "model": "m"}]},
         "domains": {"domains": [
@@ -402,7 +416,8 @@ def _domain_walk(request, *, allow=None, cheap_answers=True, dear_answers=True):
         up = cheap_answers if url.startswith("http://cheap") else dear_answers
         if not up:
             raise host.HostUnreachable(f"nobody home at {url}")
-        return 200, json.dumps(_REAL_GENERATE).encode()
+        answer = _REAL_CHAT if url.endswith("/api/chat") else _REAL_GENERATE
+        return 200, json.dumps(answer).encode()
 
     r = host.ollama_resolver(model="m", stacks=_domain_stacks(allow=allow),
                              overlay=_DOMAIN_OVERLAY, transport=transport,
@@ -435,6 +450,131 @@ def test_the_walk_obeys_the_domains_escalation_rule():
         "the skipped rung must ride the provenance naming the rule that skipped it"
 
 
+# ------------------------------------------------------------------- the third verb: chat
+
+def test_a_chat_call_meters_the_hosts_own_counters():
+    """THE FIRST FALSIFIER TELL, against the REAL captured response: a chat answer's cost is the
+    host's own two counters summed, and the answer carries the assistant's content as text.
+
+    The ticket entered carrying this as its one risky assumption — /api/chat might have been
+    /api/embeddings all over again (a perfectly good answer with no counters, metered as a
+    silent zero). It is not, and the fixture above is the measurement that settled it."""
+    t = Transport(_REAL_CHAT)
+    out = _resolver(t)({"kind": "chat", "messages": _A_TURN})
+    assert out["cost"] == 15 + 2, f"cost must be the host's own counters summed: {out['cost']}"
+    assert out["answer"]["text"] == "ok", f"the assistant's content is the answer: {out['answer']}"
+    assert out["answer"]["role"] == "assistant"
+    assert out["provenance"]["counters"] == {"prompt_eval_count": 15, "eval_count": 2}, \
+        f"the counters ride the provenance verbatim: {out['provenance']['counters']}"
+
+
+def test_an_unmetered_chat_answer_is_refused_not_metered_as_zero():
+    """The headline tooth, extended to the new verb: a PERFECTLY GOOD chat answer whose counters
+    have been stripped is refused, never metered 0.
+
+    The fixture is the real response with the two counters removed — not a hand-built stub —
+    so what is being tested is the meter, not somebody's idea of what a bad response looks like."""
+    counterless = {k: v for k, v in _REAL_CHAT.items() if k not in host._COUNTERS}
+    assert counterless["message"]["content"] == "ok", "the answer itself is still perfectly good"
+    t = Transport(counterless)
+    _refuses(lambda: _resolver(t)({"kind": "chat", "messages": _A_TURN}), host.HostUnmetered,
+             because="a chat answer with no counters must refuse, not meter zero — the same "
+                     "lesson /api/embeddings taught on 2026-07-26, one verb later")
+
+
+def test_chat_opens_api_chat_and_nothing_else():
+    """The door tooth: one URL, and it is /api/chat. The recording IS the proof."""
+    t = Transport(_REAL_CHAT)
+    _resolver(t)({"kind": "chat", "messages": _A_TURN})
+    # /api/tags is the falsifier's digest read, a different act on the same recorder. Every
+    # url that ISN'T that must be the one inference door, and there must be exactly one.
+    dialed = [u for u in t.urls if not u.endswith("/api/tags")]
+    assert dialed == [f"{_FIXTURE_ENDPOINT}/api/chat"], \
+        f"a chat call opens /api/chat exactly once and no other inference door: {t.urls}"
+    body = t.bodies[-1]
+    assert body["messages"] == _A_TURN, f"the turn list crosses verbatim: {body}"
+    assert body["stream"] is False, "chat is non-streaming, deliberately — its consumer runs --no-stream"
+    assert sorted(body) == ["messages", "model", "options", "stream"], \
+        f"a chat body carries no prompt and no domain artifacts: {sorted(body)}"
+
+
+def test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed():
+    """The shape tooth, the embed branch's standard applied to chat: a body with no usable
+    'message' is REFUSED, never turned into an answer whose text is None travelling as prose."""
+    for broken in ({"prompt_eval_count": 1, "eval_count": 1},
+                   {"message": "a string, not a turn", "prompt_eval_count": 1, "eval_count": 1},
+                   {"message": {"role": "assistant"}, "prompt_eval_count": 1, "eval_count": 1}):
+        t = Transport(broken)
+        _refuses(lambda: _resolver(t)({"kind": "chat", "messages": _A_TURN}), host.HostRefused,
+                 because=f"a chat response shaped {sorted(broken)} cannot yield an answer, and "
+                         "indexing into it blindly would make the defect surface as bad prose")
+
+
+def test_a_malformed_messages_list_never_reaches_the_host():
+    """The validation tooth, and the assertion that makes it one: the transport records NOTHING.
+
+    A bare refusal check would not distinguish refused-before-dialing from refused-after. On Hex
+    a cold qwen3-coder:30b load is ~18 seconds, so the difference is the whole point of the gate."""
+    for bad in ({"kind": "chat"},
+                {"kind": "chat", "messages": []},
+                {"kind": "chat", "messages": "not a list"},
+                {"kind": "chat", "messages": ["not a dict"]},
+                {"kind": "chat", "messages": [{"role": "user"}]},
+                {"kind": "chat", "messages": [{"content": "no role"}]},
+                {"kind": "chat", "messages": [{"role": "user", "content": "   "}]}):
+        t = Transport(_REAL_CHAT)
+        _refuses(lambda: _resolver(t)(bad), host.BadRequest,
+                 because=f"the chat door must refuse {bad!r} before spending anything")
+        assert t.urls == [], \
+            f"a refused chat request must never have touched the host: {t.urls} for {bad!r}"
+
+
+def test_the_chat_walk_obeys_the_domains_escalation_rule():
+    """THE SECOND FALSIFIER TELL: a fenced domain's chat traffic can never dial a rung outside
+    its walk-rule, and the rung it skipped is LOUD in the trace.
+
+    Built on the two-provider fixture and not on the real stacks, because today no non-hex
+    provider carries qwen3-coder:30b — a fence with nothing to refuse would look identical to
+    a fence that works. The fixture is what lets the tooth actually bite."""
+    out, dialed = _domain_walk({"kind": "chat", "messages": _A_TURN, "domain": "narrow"},
+                               allow=["p-dear"])
+    assert out["provenance"]["provider"] == "p-dear"
+    assert out["cost"] == 15 + 2, "the fenced chat answer is still metered from real counters"
+    assert not any(u.startswith("http://cheap") for u in dialed), \
+        f"a rung outside the walk-rule must never be dialed, chat included: {dialed}"
+    assert any("walk-rule" in w for w in out["provenance"]["route_walked"]), \
+        "the skipped rung must ride the provenance naming the rule that skipped it"
+
+
+def test_the_shipped_stacks_declare_and_fence_the_builder_aider_road():
+    """The two AUTHORED pieces, read from the rows that actually ship rather than from a fixture.
+
+    A fixture would prove the sieve; only the real rows prove the DECLARATION. The overlay is
+    injected so this stays a read of git-tracked files and never of instance-space."""
+    from cairn.devices.inference_domain import route as route_mod
+    stacks = route_mod.load_stacks()
+
+    serving_chat = [m["name"] for m in stacks["models"]["models"] if "chat" in (m.get("serves") or [])]
+    assert serving_chat == ["qwen3-coder:30b"], \
+        f"exactly the pinned model declares it serves chat: {serving_chat}"
+    assert "generate" in next(m for m in stacks["models"]["models"]
+                              if m["name"] == "qwen3-coder:30b")["serves"], \
+        "declaring the new verb must not have cost the model the one it already served"
+
+    rows = route_mod.domain_rows(stacks)
+    assert rows["default"] == "general", "the default vertical is untouched by the new row"
+    row = rows["rows"]["builder-aider"]
+    assert row["escalation"].get("allow") == ["hex"], \
+        f"the fence is a ROW the sieve reads, not a branch in code: {row['escalation']}"
+    assert row["prompts"] == {}, "the vertical dresses nothing — aider composes its own instructions"
+
+    survivors = route_mod.route("chat", "qwen3-coder:30b", domain="builder-aider", stacks=stacks,
+                                overlay={"hex": {"endpoint": "http://fixture-hex:11434"}})["survivors"]
+    assert [s["provider"] for s in survivors] == ["hex"], \
+        f"the fenced road lets exactly one rung through: {survivors}"
+    assert survivors[0]["model"] == "qwen3-coder:30b", "and a named model is never substituted"
+
+
 def _main() -> int:
     checks = [
         test_an_unmetered_response_is_refused_not_metered_as_zero,
@@ -459,6 +599,13 @@ def _main() -> int:
         test_a_bare_requests_outbound_body_is_byte_for_byte_undressed,
         test_generals_walk_is_todays_walk_exactly,
         test_the_walk_obeys_the_domains_escalation_rule,
+        test_a_chat_call_meters_the_hosts_own_counters,
+        test_an_unmetered_chat_answer_is_refused_not_metered_as_zero,
+        test_chat_opens_api_chat_and_nothing_else,
+        test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed,
+        test_a_malformed_messages_list_never_reaches_the_host,
+        test_the_chat_walk_obeys_the_domains_escalation_rule,
+        test_the_shipped_stacks_declare_and_fence_the_builder_aider_road,
     ]
     for check in checks:
         check()

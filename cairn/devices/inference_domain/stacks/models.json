@@ -1,7 +1,7 @@
 {
   "_why": "Stack 2 of 4 (ruling 2026-08-08-inference-proxy-is-a-rules-stack): 'a stack for models. names, parameters, pros and cons, publish scores if any, etc.' Scores are authored-sparse at birth: absence is data (nobody looked one up yet), not a defect.",
   "models": [
-    {"name": "qwen3-coder:30b", "parameters": "30B", "serves": ["generate"], "pros": "strongest coder on Hex", "cons": "slowest of the local set", "scores": null},
+    {"name": "qwen3-coder:30b", "parameters": "30B", "serves": ["generate", "chat"], "pros": "strongest coder on Hex", "cons": "slowest of the local set; a cold load costs ~18s before the first token (measured on Hex 2026-08-16)", "scores": null, "serves_chat_because": "measured, not assumed: a live /api/chat call to hex.local on 2026-08-16 answered with prompt_eval_count 15 and eval_count 2, so the verb is both served AND metered here. serves is what the route sieve reads, and it may only name a verb this pairing was watched to answer."},
     {"name": "deepseek-r1:32b", "parameters": "32B", "serves": ["generate"], "pros": "reasoning traces", "cons": "slow; verbose thinking tokens cost latency", "scores": null},
     {"name": "devstral-small-2:24b", "parameters": "24B", "serves": ["generate"], "pros": "agentic/coding tuned", "cons": "mid-size latency", "scores": null},
     {"name": "qwen2.5-coder:14b", "parameters": "14B", "serves": ["generate"], "pros": "fast coder", "cons": "weaker than the 30b on hard code", "scores": null},

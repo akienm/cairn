@@ -1,45 +1,70 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(does-a-domain-ride-the-request) -> [PROVED]",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-domain-carries-the-inference-side'",
-    "emission_gate": "clean — WATCHME(does-a-domain-ride-the-request) emitted the probe berthed at cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py (ticket 'the-domain-carries-the-inference-side')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260808T202228-f37cf1106b8c.json",
-    "ticket": "the-domain-carries-the-inference-side",
-    "note": "the domains ride: a fourth authored stack (general default / coding / research) dresses requests at domain.resolve — the domain KEY rides the request end-to-end and is excluded from the canonical while the dressing CONTENT canonicalizes, so a bare call is byte-for-byte the pre-build question (the warm cache survived: three pre-build embed rows HIT live, stamped research) and two verticals never share an answer. The routed walk obeys a per-domain allow-rule loudly; preference reorders survivors without touching any sieve. The one labeled hypothesis (ollama accepts system) was CONFIRMED by the single measured call — prompt_eval_count=59 on a ~15-token prompt shows Hex consumed the coding dressing. The librarian is the first real consumer: dual_seam stamps research declared-never-inferred, and the live corpus read back through db_domain shows 5 post-era rows, 0 undomained, both verticals riding. Verdict verdict-20260808T202228-f37cf1106b8c: 4/4 criteria pass by instrument, 8/8 hypotheses confirmed. The watch holds the long question — whether the verticals stay real is its horizon, not this crossing.",
-    "at": "2026-08-08T20:22:57",
-    "seq": 10
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "inference-domain-chat-verb",
+    "note": "seven new teeth beside the twenty-two already there, all green twice: the chat counter tooth against the REAL captured hex response (cost 15+2 from the host's own numbers), the unmetered-chat refusal (that same response with its counters stripped — a perfectly good answer that must refuse rather than meter 0), the door tooth (one inference url and it is /api/chat), the shape tooth (three malformed 'message' shapes refused rather than indexed into an answer of None), the validation tooth (seven malformed messages lists, each asserting the transport recorded NOTHING — refused-before-spending is a different claim from refused, and on Hex the difference is 18 seconds), the chat fence tooth, and a read of the SHIPPED rows rather than a fixture. ANTI-VACUITY MEASURED BY HAND, not asserted: the escalation filter was removed, the chat fence tooth was run alone, and all THREE of its assertions red independently (provider became p-cheap, the cheap rung was dialed, route_walked went None) — then restored and green again. A fence never watched to fail is a fence with no evidence it can bite.",
+    "at": "2026-08-15T20:52:52",
+    "seq": 12
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(does-the-route-leave-loopback) -> [PROVED]",
-      "direction": "forward",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-inference-proxy-is-a-rules-stack'",
-      "emission_gate": "clean — WATCHME(does-the-route-leave-loopback) emitted the probe berthed at cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py (ticket 'the-inference-proxy-is-a-rules-stack')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260808T172638-93f1e89d433a.json",
-      "ticket": "the-inference-proxy-is-a-rules-stack",
-      "note": "the proxy is a rules stack: three authored stacks + route() as the second carrier of cairn.tools.base.nest; the routed default healed four bare call sites with zero caller edits; sole_path joined the build inspection (ruling item 1); the first live fire caught a STALE SERVING PROCESS (pre-route code in memory landed a loopback generate two hours after the code was right on disk) -- restarted, a real chat turn answers from hex.local in 4.0s vs 62s. The watch stands armed on the cache itself; verdict verdict-20260808T172638-93f1e89d433a covers all 4 criteria and 7 hypotheses confirmed.",
-      "at": "2026-08-08T17:26:53",
-      "seq": 6
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(does-a-domain-ride-the-request) -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'the-domain-carries-the-inference-side', and the ticket names its /intent firing and its /sorted door firing",
-      "ticket": "the-domain-carries-the-inference-side",
-      "note": "BUILDME: the domains half of the proxy — a fourth authored stack (stacks/domains.json, rows general/coding/research as FIELD SETS, general default), the seam carrying an optional domain naming (dressing enters the canonical; marker lands in provenance both paths), prompts on the miss path only, a per-domain walk-rule the routed walk reads, a preference input that reorders survivors without touching the cuts, the librarian stamping domain=research declaratively, and the watch probe does_a_domain_ride_the_request. Chart chain of 7 berths claims the ticket; validate berth validate-20260808T200257-5483b79ec605.",
-      "at": "2026-08-08T20:07:48",
-      "seq": 7
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -76,7 +101,206 @@
       "note": "the domains ride: a fourth authored stack (general default / coding / research) dresses requests at domain.resolve — the domain KEY rides the request end-to-end and is excluded from the canonical while the dressing CONTENT canonicalizes, so a bare call is byte-for-byte the pre-build question (the warm cache survived: three pre-build embed rows HIT live, stamped research) and two verticals never share an answer. The routed walk obeys a per-domain allow-rule loudly; preference reorders survivors without touching any sieve. The one labeled hypothesis (ollama accepts system) was CONFIRMED by the single measured call — prompt_eval_count=59 on a ~15-token prompt shows Hex consumed the coding dressing. The librarian is the first real consumer: dual_seam stamps research declared-never-inferred, and the live corpus read back through db_domain shows 5 post-era rows, 0 undomained, both verticals riding. Verdict verdict-20260808T202228-f37cf1106b8c: 4/4 criteria pass by instrument, 8/8 hypotheses confirmed. The watch holds the long question — whether the verticals stay real is its horizon, not this crossing.",
       "at": "2026-08-08T20:22:57",
       "seq": 10
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'inference-domain-chat-verb', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "inference-domain-chat-verb",
+            "component": "inference_domain",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'inference-domain-chat-verb' is cast",
+          "actual": "named ticket 'inference-domain-chat-verb' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "inference-domain-chat-verb",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/inference-domain-chat-verb.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "inference-domain-chat-verb"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "inference-domain-chat-verb"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "inference-domain-chat-verb"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "ticket": "inference-domain-chat-verb",
+      "note": "the chat verb enters the build: a third kind on the sole path opening ollama's /api/chat, non-streaming, metered under the standing HostUnmetered discipline, reachable through the routed walk so it canonicalizes, caches and meters like the two verbs beside it — plus the builder-aider vertical pinning qwen3-coder:30b with escalation.allow ['hex']. THE CHART RESHAPED THE TICKET'S OWN PICTURE: the ticket assumed an escalation fence had to be built; survey measured it already standing in _routed_resolver, so 'escalation off' is a stack row to author, not a mechanism to write. And the one risky assumption is no longer an assumption — a live call to hex.local/api/chat on 2026-08-16T02:39:54Z came back with prompt_eval_count 15 and eval_count 2, so the design kick-back the ticket named is NOT triggered and the captured response becomes the proof's fixture rather than an invented one. Charted this crossing: orient/constrain/survey/decompose/triage/hypothesize/validate all berthed and claiming this ticket.",
+      "at": "2026-08-15T20:48:48",
+      "seq": 11
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "inference-domain-chat-verb",
+      "note": "seven new teeth beside the twenty-two already there, all green twice: the chat counter tooth against the REAL captured hex response (cost 15+2 from the host's own numbers), the unmetered-chat refusal (that same response with its counters stripped — a perfectly good answer that must refuse rather than meter 0), the door tooth (one inference url and it is /api/chat), the shape tooth (three malformed 'message' shapes refused rather than indexed into an answer of None), the validation tooth (seven malformed messages lists, each asserting the transport recorded NOTHING — refused-before-spending is a different claim from refused, and on Hex the difference is 18 seconds), the chat fence tooth, and a read of the SHIPPED rows rather than a fixture. ANTI-VACUITY MEASURED BY HAND, not asserted: the escalation filter was removed, the chat fence tooth was run alone, and all THREE of its assertions red independently (provider became p-cheap, the cheap rung was dialed, route_walked went None) — then restored and green again. A fence never watched to fail is a fence with no evidence it can bite.",
+      "at": "2026-08-15T20:52:52",
+      "seq": 12
     }
   ],
-  "count": 11
+  "count": 13
 }

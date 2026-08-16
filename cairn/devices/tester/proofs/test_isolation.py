@@ -120,7 +120,7 @@ def test_netns_really_seals_on_this_host():
 
 def test_run_proof_records_the_seal_without_schema_drift():
     t = TesterDevice()
-    v = t.run_proof(_GREEN_FIXTURE, isolation="none")
+    v = t.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     assert set(v) == set(VALIDATION_FIELDS), f"seal must ride inside the 8 fields, got {sorted(v)}"
     assert v["evidence"]["seal"]["verdict"] == OPEN
     assert "unsealed" in v["method"]
@@ -133,7 +133,7 @@ def test_run_proof_under_netns_when_available():
     if not ok:
         print("  skipped netns run_proof: namespace unavailable here (honest, not faked)")
         return
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="netns")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="netns")
     assert set(v) == set(VALIDATION_FIELDS)
     seal_verdict = v["evidence"]["seal"]["verdict"]
     print(f"  run_proof netns  proof={v['verdict']}  seal={seal_verdict}")
@@ -157,10 +157,10 @@ def test_the_seal_does_not_depend_on_how_the_path_is_spelled():
         print("  skipped path-spelling regression: netns unavailable here (honest, not faked)")
         return
     t = TesterDevice()
-    absolute = t.run_proof(_GREEN_FIXTURE, isolation="netns")
+    absolute = t.run_proof(_GREEN_FIXTURE, sink="none", isolation="netns")
     rel = os.path.relpath(_GREEN_FIXTURE, os.getcwd())
     assert not os.path.isabs(rel), "the regression needs a genuinely relative spelling"
-    relative = t.run_proof(rel, isolation="netns")
+    relative = t.run_proof(rel, sink="none", isolation="netns")
     print(f"  abs seal={absolute['evidence']['seal']['verdict']}  rel seal={relative['evidence']['seal']['verdict']}")
     assert relative["verdict"] == absolute["verdict"] == GREEN, "a relative path must not fail the proof"
     assert relative["evidence"]["seal"]["verdict"] == absolute["evidence"]["seal"]["verdict"], (

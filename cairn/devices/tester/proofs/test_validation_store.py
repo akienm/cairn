@@ -26,6 +26,7 @@ Self-cleaning: writes into a throwaway temp component tree, so no real component
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import re
@@ -43,6 +44,15 @@ from cairn.tools.gate import gate
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 
+# A POPULATION FLOOR, NOT A CENSUS. The corpus-wide tooth below asserts a property over
+# every real validation trail, and the failure mode it is most exposed to is passing
+# because it found nothing to check — a broken glob and a clean corpus look identical from
+# the outside. 78 trails were measured on 2026-08-16; the floor sits under that with room
+# for ordinary churn, so it bites on a lost population rather than on a deleted component.
+# It is deliberately NOT the count: asserting 78 would red the moment a legitimate new
+# trail appeared, which is the snapshot-instead-of-invariant failure.
+_CORPUS_FLOOR = 70
+
 
 def _fake_proof(tmp: str) -> str:
     """A stand-in proof at <tmp>/somecomp/proofs/test_thing.py — its parent tree is real dirs
@@ -55,7 +65,7 @@ def _fake_proof(tmp: str) -> str:
 
 
 def test_a_real_validation_round_trips_beside_its_proof():
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         path = vs.persist_validation(v, proof_path=proof)
@@ -75,7 +85,7 @@ def test_a_real_validation_round_trips_beside_its_proof():
 
 
 def test_append_only_a_rerun_does_not_overwrite():
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         vs.persist_validation(v, proof_path=proof)
@@ -107,7 +117,7 @@ def test_the_NAIVE_overwrite_cannot_land_bytes():
     history silently and permanently, and looks exactly like a fresh seal.' This is that
     hand-write — the plainest one, the one nobody meant to do — and it now raises at the
     ``open`` because the door left the trail at 0444."""
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         path = vs.persist_validation(v, proof_path=proof)
@@ -135,7 +145,7 @@ def test_a_FORCED_write_cannot_pass_for_a_seal():
 
     This is the tooth that carries the trouble's actual sentence: it no longer looks exactly
     like a fresh seal."""
-    real = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    real = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         # The fingerprint must describe THIS tmp component, not the fixture's — otherwise
@@ -157,7 +167,17 @@ def test_a_FORCED_write_cannot_pass_for_a_seal():
         verdict = vs.standing(proof)
         assert verdict["proven"] is False, "a trail written around the door cannot clear"
         assert "DID NOT COME WHOLE THROUGH persist_validation" in verdict["why"], verdict["why"]
-        assert "recover the trail from git" in verdict["why"].lower(), \
+        assert path in verdict["why"], "the refusal must name the trail it read"
+        assert "index 0" in verdict["why"], "the refusal must name WHICH entry failed"
+        # THE REMEDY MUST BE TRUE FOR THE CASE IT IS PRINTED ON. Until 2026-08-16 this
+        # asserted "recover the trail from git", and this tooth is exactly why the false
+        # sentence survived a voyage: the tooth demanded it. Measured across every commit of
+        # the one real trail in this state, the unlinked entry arrived unlinked at its FIRST
+        # commit — git holds no linked version to recover. What IS true and available is
+        # re-running the proof so the door mints a real link over the trail as it stands.
+        assert "recover" not in verdict["why"].lower(), \
+            "a remedy that does not exist is a false claim at a diagnostic surface (Law 7)"
+        assert "re-run the proof" in verdict["why"].lower(), \
             "the refusal must carry its remediation — one report, no second call"
 
 
@@ -171,9 +191,9 @@ def test_an_EDIT_to_an_older_entry_breaks_the_newest_link():
     dev = TesterDevice()
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
-        path = vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+        path = vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none"),
                                      proof_path=proof)
-        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none"),
                               proof_path=proof)
         trail = vs.read_validations(proof)
         assert not vs.verify_trail(trail), "the door's own two-entry trail must verify"
@@ -202,9 +222,9 @@ def test_the_chain_check_lists_the_lanes_it_ran_and_the_population_each_covered(
     dev = TesterDevice()
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
-        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none"),
                               proof_path=proof)
-        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, isolation="none"),
+        vs.persist_validation(dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none"),
                               proof_path=proof)
         record = vs.inspect_trail(vs.read_validations(proof))
     assert [e["identity"] for e in record] == [
@@ -242,7 +262,7 @@ def test_ADOPTION_links_a_legacy_trail_and_REFUSES_to_repair_a_broken_one():
     The second half is the part that keeps adoption from becoming a laundering tool: a trail
     with a link that no longer verifies is REFUSED, not re-linked. A migration that quietly
     re-chained a tampered trail would erase exactly the evidence the chain exists to keep."""
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     legacy = {k: val for k, val in v.items()}
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
@@ -277,7 +297,7 @@ def test_the_caller_cannot_hand_the_door_a_link():
     """The link is evidence only because ONE hand mints it. A caller that supplies its own is
     either replaying an existing entry or hand-building a forgery, and either way the door was
     not the hand that sealed it (Law 6)."""
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, isolation="none")
+    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         premined = dict(v, evidence=dict(v["evidence"], **{vs.TRAIL_LINK: "de" * 32}))
@@ -330,6 +350,232 @@ def test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS():
         "not the only path (Law 6):\n" + "\n".join(offenders))
 
 
+def test_standing_READS_the_inspection_it_never_walks_the_trail_itself():
+    """THE TICKET'S BINDING IMPLEMENTATION CONSTRAINT, and the tester charter's falsifier
+    clause (8): ``standing`` must derive its answer from ``inspect_trail``'s record, never
+    from a second walk of its own.
+
+    Why it is worth a tooth rather than a code review: a gate and a diagnostic that each
+    compute link-verification separately are two things that can DISAGREE, and the one that
+    drifts is invisible — the trail still verifies by one reading and refuses by the other,
+    and the reader has no way to tell which is stale. One walk, read twice, cannot do that.
+
+    Read off the source, because that is where the constraint lives; there is no runtime
+    observation that distinguishes 'read the record' from 'recomputed the same answer'."""
+    src = inspect.getsource(vs.standing)
+    body = src.split('"""', 2)[-1]        # the docstring names these on purpose
+    for forbidden in ("_link_for", "chain_digest", "hashlib"):
+        assert forbidden not in body, (
+            f"standing() references {forbidden} — it is computing links itself instead of "
+            f"reading the inspection (charter falsifier clause 8)")
+    assert "for " not in body, (
+        "standing() loops — the trail is walked a second time (charter falsifier clause 8)")
+    assert body.count("inspect_trail(") == 1, (
+        "standing() must run the inspection exactly once; "
+        f"found {body.count('inspect_trail(')}")
+
+
+def test_an_UNLINKED_OLD_entry_under_a_verifying_newest_link_still_stands():
+    """THE NARROWING, and the tooth that would have failed before 2026-08-16.
+
+    ``standing`` answers one question — is this code proven RIGHT NOW — and the newest entry
+    alone answers it. It used to refuse on a break ANYWHERE in the trail, so a stale entry
+    about code that has since moved poisoned an answer that did not concern it. Akien's
+    ruling is what the narrowing is built on: "evidence once we've completed something is
+    irrelevant... we need to keep THIS WORKED LAST TIME I TRIED IT ON yyymmddhhmmssuuuu."
+
+    Nothing is handed to the forger by it, which is the next tooth. Here: an unlinked entry
+    BENEATH a door-minted newest one, and the answer is proven."""
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        real = dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
+        v = dict(real, evidence=dict(real["evidence"],
+                                     source_fingerprint=vs.source_fingerprint(proof)))
+        path = vs.persist_validation(v, proof_path=proof)
+
+        # Strip the link off the only entry — the shape six real trails are in.
+        trail = vs.read_validations(proof)
+        trail[0]["evidence"] = {k: val for k, val in trail[0]["evidence"].items()
+                                if k != vs.TRAIL_LINK}
+        os.chmod(path, 0o644)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(trail, f)
+        assert vs.standing(proof)["proven"] is False, \
+            "an unlinked NEWEST entry must refuse — otherwise this tooth proves nothing"
+
+        # Now seal on top, through the door. The new link hashes the unlinked entry as it
+        # stands, so the trail below is committed to without being repaired or adopted.
+        vs.persist_validation(v, proof_path=proof)
+        verdict = vs.standing(proof)
+        assert verdict["proven"] is True, verdict["why"]
+        assert len(vs.read_validations(proof)) == 2, "the old entry stays exactly where it is"
+        # And the DIAGNOSTIC did not narrow with the gate — inspect_trail still names it.
+        breaks = vs.verify_trail(vs.read_validations(proof))
+        assert any("entry 0" in b for b in breaks), (
+            "the inspection must still report the unlinked old entry — the gate narrowed, "
+            f"the diagnostic did not: {breaks}")
+
+
+def test_a_FORGED_newest_entry_cannot_borrow_a_link_from_elsewhere():
+    """THE NARROWING'S OWN TEST: a tolerance is a forger's costume whenever the forger can
+    produce the thing being tolerated. Trusting the newest link only survives that test if a
+    forger cannot MAKE a verifying newest link — so this tries the two ways to fake one.
+
+    (a) no link at all — the shape the six real trails are in.
+    (b) a link COPIED from another entry of the same trail, which is the cleverer forgery:
+        it is a real link, minted by the real door, over a real prefix. It just is not a
+        link over THIS prefix, and the hash is what says so."""
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        real = dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
+        v = dict(real, evidence=dict(real["evidence"],
+                                     source_fingerprint=vs.source_fingerprint(proof)))
+        path = vs.persist_validation(v, proof_path=proof)
+        vs.persist_validation(v, proof_path=proof)
+        good = vs.read_validations(proof)
+        assert vs.standing(proof)["proven"], "the door's own trail must stand first"
+
+        for label, mangle in (
+            ("no link", lambda e: {k: x for k, x in e.items() if k != vs.TRAIL_LINK}),
+            ("a link borrowed from entry 0",
+             lambda e: dict(e, **{vs.TRAIL_LINK: good[0]["evidence"][vs.TRAIL_LINK]}),),
+        ):
+            forged = [dict(good[0]), dict(good[1])]
+            forged[1] = dict(forged[1], evidence=mangle(good[1]["evidence"]))
+            os.chmod(path, 0o644)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(forged, f)
+            verdict = vs.standing(proof)
+            assert verdict["proven"] is False, \
+                f"a newest entry with {label} must not clear — the costume fits"
+            assert "DID NOT COME WHOLE THROUGH persist_validation" in verdict["why"], \
+                verdict["why"]
+
+
+def test_an_edit_to_an_OLDER_entry_still_refuses_at_standing():
+    """THE OVER-NARROWING CLAUSE — the one that catches the narrowing going too far.
+
+    ``test_an_EDIT_to_an_older_entry_breaks_the_newest_link`` proves the INSPECTION reports
+    it. This proves the GATE still acts on it, which is the property the narrowing had to
+    preserve and could plausibly have lost: a reader that looked only at 'does the newest
+    entry carry a link' would pass this trail, because the newest entry is untouched.
+
+    It is the Merkle property that saves it, and it is the whole reason the narrowing is
+    safe: entry 1's link commits to entry 0's bytes, so rewriting the past breaks the
+    present. Nothing about tamper detection was given up by asking one question instead
+    of n."""
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        real = dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
+        v = dict(real, evidence=dict(real["evidence"],
+                                     source_fingerprint=vs.source_fingerprint(proof)))
+        path = vs.persist_validation(v, proof_path=proof)
+        vs.persist_validation(v, proof_path=proof)
+        assert vs.standing(proof)["proven"], "the two-entry trail must stand first"
+
+        trail = vs.read_validations(proof)
+        trail[0]["verdict"] = "green"           # rewriting the past
+        trail[0]["claim"] = "it always passed"
+        os.chmod(path, 0o644)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(trail, f)
+
+        verdict = vs.standing(proof)
+        assert verdict["proven"] is False, (
+            "an edit to an OLDER entry must still refuse — the newest link commits to it, "
+            "and a gate that missed this narrowed past its own rule")
+        assert "index 1" in verdict["why"], (
+            "the refusal must name the NEWEST entry as the one that failed — that is where "
+            f"the break surfaces: {verdict['why']}")
+
+
+def test_EVERY_REAL_TRAIL_IN_THE_CORPUS_HAS_A_VERIFYING_NEWEST_LINK():
+    """THE MISSING LAYER — the reader that did not exist, which is why six trails sat
+    around-the-door for eight days and surfaced incidentally rather than by measurement.
+
+    Every other tooth in this file measures a fixture. This one measures the WORLD, over the
+    exact predicate the narrowed gate now trusts: for every validation trail in class-space,
+    the newest entry carries a link that verifies against the prefix beneath it. Older
+    entries are reported and not asserted on — the gate does not refuse on them, so a tooth
+    that did would be measuring a rule nobody enforces.
+
+    THE VACUOUS GREENS ARE THE REAL RISK HERE, not the assertion: a corpus scan that passes
+    because it found nothing looks identical to one that passed on the merits. So the
+    population floor is asserted, and the check is first pointed at fixture corpora — one
+    known-bad, one empty — and required to red on both."""
+    repo = Path(__file__).resolve().parents[4]
+
+    def bad_newest(root: Path) -> tuple[list[str], int, int]:
+        """-> (complaints about newest entries, trails read, unlinked OLD entries seen)."""
+        bad, seen, stale = [], 0, 0
+        for trail_path in sorted(root.glob("**/validations/*.json")):
+            if "__pycache__" in str(trail_path):
+                continue
+            trail = vs.read_validations(path=str(trail_path))
+            if not trail:
+                continue
+            seen += 1
+            per_entry = vs._complaints_by_entry(vs.inspect_trail(trail))
+            newest = len(trail) - 1
+            stale += sum(1 for i in per_entry if i != newest)
+            for complaint in per_entry.get(newest, []):
+                bad.append(f"{trail_path.relative_to(root)}: {complaint}")
+        return bad, seen, stale
+
+    # (1) A KNOWN-BAD FIXTURE CORPUS — the check must find the planted one and name it.
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        good_proof = _fake_proof(os.path.join(tmp, "good"))
+        bad_proof = _fake_proof(os.path.join(tmp, "bad"))
+        real = dev.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
+        for p in (good_proof, bad_proof):
+            vs.persist_validation(dict(real, evidence=dict(
+                real["evidence"], source_fingerprint=vs.source_fingerprint(p))), proof_path=p)
+        planted = vs.validations_path_for(bad_proof)
+        trail = vs.read_validations(bad_proof)
+        trail[0]["evidence"] = {k: x for k, x in trail[0]["evidence"].items()
+                                if k != vs.TRAIL_LINK}
+        os.chmod(planted, 0o644)
+        with open(planted, "w", encoding="utf-8") as f:
+            json.dump(trail, f)
+
+        found, seen, _ = bad_newest(Path(tmp))
+        assert seen == 2, f"the fixture corpus should hold 2 trails, read {seen}"
+        assert len(found) == 1 and "bad/" in found[0], (
+            f"the census must find the planted bad trail and name it: {found}")
+
+    # (2) AN EMPTY CORPUS MUST NOT PASS. A glob that matched nothing is not evidence that
+    # everything verified — it is evidence the scan lost its population, and the two look
+    # exactly alike from the outside. This is the leak-scan failure mode this file's own
+    # NO_SECOND_WRITER tooth already guards with `scanned >= 3`.
+    with tempfile.TemporaryDirectory() as tmp:
+        _, seen, _ = bad_newest(Path(tmp))
+        assert seen == 0, "sanity: an empty tree holds no trails"
+        # the assertion below is what a real run relies on; here it must FAIL on 0.
+        try:
+            assert seen >= _CORPUS_FLOOR
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("an empty corpus passed the population floor — vacuous green")
+
+    # (3) THE REAL CORPUS.
+    found, seen, stale = bad_newest(repo)
+    assert seen >= _CORPUS_FLOOR, (
+        f"only {seen} validation trail(s) read in class-space — the census lost its "
+        f"population, and a census that passes by finding nothing proves nothing")
+    assert not found, (
+        "a validation trail in class-space has a newest entry that did not come through "
+        "persist_validation — this is the state that sat undetected for eight days because "
+        "nothing read it:\n  " + "\n  ".join(found))
+    # Reported, never asserted: the gate does not refuse on these, and neither does this.
+    print(f"    ({seen} trails; newest link verifies on all; {stale} unlinked older "
+          f"entr{'y' if stale == 1 else 'ies'} below, which standing() correctly ignores)")
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, NOT TYPED. It was a hand-maintained list, and the 2026-08-13
     # sweep walked straight into what that costs: two teeth were added and neither ran,
@@ -338,7 +584,7 @@ def _main() -> int:
     # proof-record ruling names — so the list is now the module's own declaration order.
     checks = [v for k, v in globals().items()
               if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 11, (
+    assert len(checks) >= 16, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:

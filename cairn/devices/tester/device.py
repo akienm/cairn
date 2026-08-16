@@ -57,6 +57,12 @@ from cairn.devices.tester.isolation import OPEN, Seal, get_isolation
 GREEN = "green"
 RED = "red"
 
+# WHERE A VALIDATION GOES, named at every call site. Two values, because two are what the
+# corpus needs: seal through the store's door, or write nothing. There is deliberately no
+# third for artifact addressing — quorum.py composes persist_validation directly for that,
+# and build-minimal says a vocabulary grows against a need, not toward a symmetry.
+_SINKS = frozenset({"validations", "none"})
+
 # The ratified VALIDATION record shape (MAP.md:569). Exactly these eight — no more,
 # no fewer; proofs/test_tester.py pins the set so a drifted record reds.
 VALIDATION_FIELDS = (
@@ -120,8 +126,13 @@ class TesterDevice(BaseDevice):
             "seal (cairn/devices/tester/isolation.py); default 'none' (bare) must be asked for by name. "
             "The chosen-route Router (serve/refuse/forward) is deferred to db/inference domains.",
             "validations_sink": "beside-code git-JSON — validation_store.py persists each "
-            "VALIDATION to validations/<stem>.json next to the proofs/ it seals (Law 5); run_proof "
-            "returns the record, the standing-lesson gate persists it, so run_proof stays state-free",
+            "VALIDATION to validations/<stem>.json next to the proofs/ it seals (Law 5). "
+            "run_proof takes a REQUIRED sink ('validations' | 'none') and, when told to seal, "
+            "persists through persist_validation — the store's door, never around it. It was "
+            "state-free with no sink at all until 2026-08-16, and that is exactly what made "
+            "writing around the door attractive (ticket standing-gates-the-newest-link-and-"
+            "run-proof-names-its-sink): every caller had to remember the door on its own, and "
+            "six trails' worth of callers did not.",
         }
 
     # --- the one capability: prove and attest -------------------------------
@@ -130,6 +141,7 @@ class TesterDevice(BaseDevice):
         self,
         proof_path,
         *,
+        sink: str,
         caller: str | None = None,
         timeout: int = 120,
         isolation: str = "none",
@@ -141,9 +153,29 @@ class TesterDevice(BaseDevice):
         seal (``cairn/devices/tester/isolation.py``): the seal is probed from inside and its
         verdict is folded into the record's ``method`` + ``evidence`` — never a ninth
         field. An unconfirmable seal is INDETERMINATE and is reported as such, not
-        laundered into a green. Returns the ratified eight-field record; does not
-        persist it (the store is a later stone).
+        laundered into a green. Returns the ratified eight-field record.
+
+        ``sink`` IS REQUIRED AND HAS NO DEFAULT, which is the whole point of it (ticket
+        standing-gates-the-newest-link-and-run-proof-names-its-sink, 2026-08-16):
+
+          - ``"validations"`` — persist the record through ``persist_validation``, the
+            store's single write door, beside the proof it seals.
+          - ``"none"`` — write nothing; return the record and let the caller decide.
+
+        Until this existed, run_proof produced the ratified record and DROPPED it, so every
+        caller had to independently remember the door — and the callers who forgot are how
+        six trails came to hold seven entries that never came through it. A DEFAULTED sink
+        would have preserved that exactly: the caller who forgets is the caller who gets the
+        default. Requiring it makes the choice appear at the call site, where the reader is.
+
+        run_proof MINTS NOTHING. The ``trail_link`` is the door's to make, and this hands the
+        door the same eight-field record it hands back to the caller.
         """
+        if sink not in _SINKS:
+            raise ValueError(
+                f"run_proof: sink={sink!r} is not one of {sorted(_SINKS)} — a sink is named, "
+                f"never guessed. Use 'validations' to seal through persist_validation, or "
+                f"'none' to run the proof and write nothing.")
         # Resolve to an absolute path BEFORE anything downstream uses proof_path.parent
         # as a cwd. The netns seal runs the subject under `bwrap --chdir <parent>`, and a
         # RELATIVE parent resolves against the namespace root (/), not the host cwd — so a
@@ -207,6 +239,14 @@ class TesterDevice(BaseDevice):
             falsifier="the same proof exits non-zero on re-run, or the code it proves changes underneath it",
             horizon="valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)",
         )
+        if sink == "validations":
+            # THROUGH THE DOOR, and only through it. persist_validation mints the trail_link
+            # over the trail as it stands; nothing here composes one, which is what keeps the
+            # store's "one write door" true while giving run_proof a way to seal at all.
+            # Lazy import for the same reason as source_fingerprint above: validation_store
+            # imports this module, so the dependency only runs one way at import time.
+            from cairn.devices.tester.validation_store import persist_validation
+            persist_validation(record, proof_path=str(proof_path))
         self._proofs_run += 1
         self._last_verdict = verdict
         # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was

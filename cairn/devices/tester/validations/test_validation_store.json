@@ -17,5 +17,25 @@
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  },
+  {
+    "claim": "proof test_validation_store.py passes under python3",
+    "caller": "/sail PROVEME seal",
+    "date": "2026-08-16T12:38:35",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_real_validation_round_trips_beside_its_proof\n  PASS  test_append_only_a_rerun_does_not_overwrite\n  PASS  test_a_drifted_record_is_refused\n  PASS  test_the_NAIVE_overwrite_cannot_land_bytes\n  PASS  test_a_FORCED_write_cannot_pass_for_a_seal\n  PASS  test_an_EDIT_to_an_older_entry_breaks_the_newest_link\n  PASS  test_the_chain_check_lists_the_lanes_it_ran_and_the_population_each_covered\n  PASS  test_an_entry_ineligible_for_a_lane_is_absent_from_it_not_passed_by_it\n  PASS  test_ADOPTION_links_a_legacy_trail_and_REFUSES_to_repair_a_broken_one\n  PASS  test_the_caller_cannot_hand_the_door_a_link\n  PASS  test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS\n  PASS  test_standing_READS_the_inspection_it_never_walks_the_trail_itself\n  PASS  test_an_UNLINKED_OLD_entry_under_a_verifying_newest_link_still_stands\n  PASS  test_a_FORGED_newest_entry_cannot_borrow_a_link_from_elsewhere\n  PASS  test_an_edit_to_an_OLDER_entry_still_refuses_at_standing\n    (90 trails; newest link verifies on all; 7 unlinked older entries below, which standing() correctly ignores)\n  PASS  test_EVERY_REAL_TRAIL_IN_THE_CORPUS_HAS_A_VERIFYING_NEWEST_LINK\ngreen — validation_store: a VALIDATION lands beside its proof, append-only, drift refused",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "a0c6d0fd6fd4d7253417804ff36185afd39214a0af500813fd76f7ee3949f5c6",
+      "trail_link": "f4910f88137df978ff6535733f7a2aafb1acd0db92f0ada5489407dd138b820d"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

@@ -121,7 +121,7 @@ def _component(name: str, fixture: Path) -> str:
 
 def _seal(proof: str) -> dict:
     """Run it under the real tester and append the verdict through the real store's write-door."""
-    validation = TesterDevice().run_proof(proof)
+    validation = TesterDevice().run_proof(proof, sink="none")
     persist_validation(validation, proof_path=proof)
     return validation
 

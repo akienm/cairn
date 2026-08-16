@@ -170,6 +170,43 @@ def source_fingerprint(proof_path: str) -> str:
     return digest.hexdigest()
 
 
+def _complaints_by_entry(chain_record: list[dict]) -> dict[int, list[str]]:
+    """Read ``inspect_trail``'s lane record back as ``{entry index -> complaints about it}``.
+
+    DERIVED, NEVER A SECOND WALK — the tester charter's falsifier clause (8) reds a reader
+    that grows its own trail walk instead of reading the mismatches the inspection already
+    produced, because a gate and a diagnostic that compute the same thing twice are two
+    things that can disagree. Nothing here recomputes a link.
+
+    Each lane reports its population as ``expected`` (the entries it was eligible to judge)
+    and ``actual`` (the ones that passed), and it builds its ``complaints`` in the SAME
+    iteration order it filtered. So the entries a lane failed are
+    ``[i for i in expected if i not in actual]``, positionally aligned with the complaints —
+    and zipping the two is the whole read.
+
+    An entry ABSENT from a lane's population is absent, not passed: the lanes are
+    eligibility-nested, so failing a lane always leaves a complaint in the lane above, and
+    the entry still appears in this mapping.
+    """
+    by_entry: dict[int, list[str]] = {}
+    for lane in chain_record:
+        if gate.passed(lane):
+            continue
+        failed = [i for i in lane["expected"] if i not in lane["actual"]]
+        complaints = lane["values"]["complaints"]
+        # LOUD, because a silent misalignment attributes the wrong complaint to the wrong
+        # entry — a record of truth quietly saying something false (Law 7). If the lane ever
+        # stops building its complaints in filter order, this is where it stops, not where
+        # it starts lying.
+        assert len(failed) == len(complaints), (
+            f"lane {lane.get('code')} reported {len(failed)} failing entries but "
+            f"{len(complaints)} complaints — inspect_trail's per-lane alignment broke, and "
+            f"reading it per-entry is no longer sound")
+        for index, complaint in zip(failed, complaints):
+            by_entry.setdefault(index, []).append(complaint)
+    return by_entry
+
+
 def standing(proof_path: str) -> dict:
     """Is this proof's code in proven-space RIGHT NOW? The reader that replaced MethodRegistry.
 
@@ -179,9 +216,10 @@ def standing(proof_path: str) -> dict:
     (I-complete-diagnostic-on-first-pass — no second call to find out which of the four
     reasons it was).
 
-    Four outcomes, and only the first is proven-space:
-      - sealed green, fingerprint matches      -> proven
+    Five outcomes, and only the first is proven-space:
+      - sealed green, link verifies, fingerprint matches -> proven
       - never sealed                           -> not proven (the trail does not exist)
+      - the NEWEST entry did not come through the door -> not proven (below)
       - newest seal is red                     -> not proven (it was measured and it failed)
       - sealed green, fingerprint has moved    -> NOT PROVEN, the horizon closed. This is the
         one an in-memory registry could not reach: it cached a bool with no expiry, so it kept
@@ -189,27 +227,46 @@ def standing(proof_path: str) -> dict:
 
     The NEWEST entry is the verdict; the trail is append-only, so an old green under a newer
     red is history, not standing.
+
+    AND THE GATE ASKS ABOUT THAT ENTRY ONLY (ticket standing-gates-the-newest-link-and-run-
+    proof-names-its-sink, 2026-08-16). Until then this refused on ANY break anywhere in the
+    trail, which was a reasoned overshoot rather than a response to a measured tamper: the
+    prior ticket killed a tolerance of an unlinked leading PREFIX and landed one stop past
+    the rule that survives its own test. Nothing is given up to the forger, because a
+    ``trail_link`` hashes the whole trail beneath it — tampering with an older entry
+    necessarily breaks the NEWEST link, and a link that verifies over the current prefix
+    comes only from ``_link_for``, which only the door calls. What IS given up is refusal on
+    unlinked OLD entries, deliberately, on Akien's ruling about what a validation is:
+    "evidence once we've completed something is irrelevant and tends to cause confusion once
+    the point the evidence is centered around is resolved. we don't need to keep history. we
+    need to keep THIS WORKED LAST TIME I TRIED IT ON yyymmddhhmmssuuuu."
+
+    The DIAGNOSTIC did not narrow with the gate: ``inspect_trail`` still checks every entry
+    and still localizes a tamper to its earliest point. This reads that record rather than
+    walking the trail again, which is the tester charter's falsifier clause (8).
     """
     trail = read_validations(proof_path)
-    # THE TRAIL'S OWN INTEGRITY IS CHECKED BEFORE ITS CONTENT. A verdict read out of a
-    # trail that was written around the door is not a measurement of anything — and this
-    # is the surface where that matters, because harbor_master turns a True here straight
-    # into a crossing's clearance. Broken chain, no clearance (Law 8).
-    chain_record = inspect_trail(trail)
-    breaks = [c for e in chain_record if not gate.passed(e)
-              for c in e["values"]["complaints"]]
-    if breaks:
-        return {"proven": False, "seal": trail[-1] if trail else None, "why": (
-            f"the seal trail at {validations_path_for(proof_path)} DID NOT COME WHOLE THROUGH "
-            f"persist_validation — {len(breaks)} break(s): " + "; ".join(breaks) +
-            ". A record of truth that was written around its own door proves nothing about the "
-            "code; what it proves is that something else has been writing here. Recover the "
-            "trail from git and re-run the proof")}
+    # THE EMPTY TRAIL IS ANSWERED FIRST, because "no entry" and "a bad newest entry" are
+    # different facts and the second question has no subject without the first answered.
     if not trail:
         return {"proven": False, "seal": None, "why": (
             f"no VALIDATION has ever sealed {proof_path} — the trail at "
             f"{validations_path_for(proof_path)} does not exist. Proven-space is the tester's "
             f"and it has not spoken about this code (Law 8)")}
+    # THE NEWEST ENTRY'S OWN INTEGRITY IS CHECKED BEFORE ITS CONTENT. A verdict read out of a
+    # record that was written around the door is not a measurement of anything — and this
+    # is the surface where that matters, because harbor_master turns a True here straight
+    # into a crossing's clearance. Unverified top link, no clearance (Law 8).
+    newest = len(trail) - 1
+    against_newest = _complaints_by_entry(inspect_trail(trail)).get(newest)
+    if against_newest:
+        return {"proven": False, "seal": trail[-1], "why": (
+            f"the NEWEST entry (index {newest}) of the seal trail at "
+            f"{validations_path_for(proof_path)} DID NOT COME WHOLE THROUGH "
+            f"persist_validation — " + "; ".join(against_newest) +
+            ". A record of truth that was written around its own door proves nothing about "
+            "the code; what it proves is that something else has been writing here. Re-run "
+            "the proof so the door mints a real link over the trail as it stands")}
     seal = trail[-1]
     if seal.get("verdict") != GREEN:
         return {"proven": False, "seal": seal, "why": (

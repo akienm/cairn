@@ -21,17 +21,28 @@ here would not mean green there, and the divergence would surface at the sealing
 under time pressure. (This system has already paid that bill once — "seal the twelve teeth
 under the tester in netns", 2026-07-29.)
 
-IT DOES NOT SEAL. ``run_proof`` returns the eight-field VALIDATION and deliberately
-persists nothing; the standing-lesson gate is what writes one. This verb keeps that split
-intact and writes no record at all. A dev command anyone can type twenty times an hour
-must not be able to mint entries in a record of truth — that is the difference between a
-DIAGNOSTIC SURFACE (loud, cheap, disposable) and a RECORD OF TRUTH (permanent), and Law 7
-turns on keeping them apart.
+IT DOES NOT SEAL UNLESS YOU SAY ``--seal``, AND IT SAYS SO WHEN IT DOESN'T. A dev command
+anyone can type twenty times an hour must not be able to mint entries in a record of truth
+by default — that is the difference between a DIAGNOSTIC SURFACE (loud, cheap, disposable)
+and a RECORD OF TRUTH (permanent), and Law 7 turns on keeping them apart. So the flag is
+off unless asked for.
 
-    cairn test                                  every proof in the repo
+But until 2026-08-16 this verb could not seal AT ALL, and that half was a defect rather
+than a discipline (ticket standing-gates-the-newest-link-and-run-proof-names-its-sink).
+The tester is the only hand that may mint a seal, and its one human-facing surface had no
+way to land one — so a builder who needed a validation reached past the door, and six
+trails now carry entries that never came through it. An affordance that is missing does
+not stop the work; it routes the work around the physics.
+
+The ANNOUNCE half matters more than the flag: a run that printed green and persisted
+nothing used to be indistinguishable from one that sealed, which is how the gap stayed
+invisible while it was being worked around.
+
+    cairn test                                  every proof in the repo (seals nothing, says so)
     cairn test cairn/tools/base/proofs/test_needs.py  one proof
     cairn test cairn/tools/base                       every proof under a subtree
     cairn test --netns <path>                   under the measured network seal
+    cairn test --seal <path>                    land each verdict through the store's door
 """
 
 from __future__ import annotations
@@ -78,13 +89,20 @@ def discover(targets: list[str]) -> list[Path]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="cairn test",
-        description="Run proofs through the tester and report the verdicts. Seals nothing.",
+        description="Run proofs through the tester and report the verdicts. "
+                    "Seals nothing unless --seal.",
     )
     ap.add_argument("targets", nargs="*", help="proof files or directories (default: the whole repo)")
     ap.add_argument(
         "--netns",
         action="store_true",
         help="run under the measured network seal (tester default is bare, asked for by name)",
+    )
+    ap.add_argument(
+        "--seal",
+        action="store_true",
+        help="persist each verdict as a VALIDATION through the store's door "
+             "(default: run and report only, sealing nothing)",
     )
     ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds (default 120)")
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
@@ -97,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
 
     tester = TesterDevice()
     isolation = "netns" if args.netns else "none"
+    sink = "validations" if args.seal else "none"
     reds: list[tuple[Path, dict]] = []
 
     for proof in proofs:
@@ -104,7 +123,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  UNRUNNABLE  {proof}")
             reds.append((proof, {}))
             continue
-        record = tester.run_proof(proof, caller="cairn test", timeout=args.timeout, isolation=isolation)
+        record = tester.run_proof(proof, sink=sink, caller="cairn test",
+                                  timeout=args.timeout, isolation=isolation)
         verdict = record["verdict"]
         rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
         if verdict == GREEN:
@@ -133,6 +153,18 @@ def main(argv: list[str] | None = None) -> int:
     total, n_red = len(proofs), len(reds)
     print(f"\n{total} proof{'s' if total != 1 else ''} · {total - n_red} green · {n_red} red"
           + (f" · isolation={isolation}" if args.netns else ""))
+    # THE NOT-SEALING SAYS ITSELF. This line is the half of --seal that the ticket is
+    # actually about: without it, a run that printed green and persisted nothing looked
+    # exactly like a run that sealed, so nobody could see the affordance was missing —
+    # they could only feel it, and route around it. Printed on every run, both ways, and
+    # printed LAST so it is the line still on screen when the next decision is made.
+    if args.seal:
+        print(f"SEALED — {total - n_red} VALIDATION(s) persisted through the store's door "
+              f"beside the proofs they seal (a red seals its red; Law 7).")
+    else:
+        print("NOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, "
+              "so nothing here has changed what `standing()` says about any of this code. "
+              "Re-run with --seal to land the verdicts.")
     return 1 if reds else 0
 
 

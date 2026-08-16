@@ -100,7 +100,7 @@ def _proven() -> str:
     proofs.mkdir(parents=True, exist_ok=True)
     proof = proofs / "test_proven.py"
     proof.write_text(_GREEN_FIXTURE.read_text(), encoding="utf-8")
-    validation = TesterDevice().run_proof(str(proof))
+    validation = TesterDevice().run_proof(str(proof), sink="none")
     persist_validation(validation, proof_path=str(proof))
     return str(proof)
 

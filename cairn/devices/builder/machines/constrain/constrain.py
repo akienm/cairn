@@ -337,7 +337,13 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
     os.environ[_REENTRY] = "1"
     started = time.monotonic()
     try:
-        record = TesterDevice().run_proof(abs_path, caller="constrain_floor")
+        # sink="none" — THE FLOOR READS A VERDICT, IT DOES NOT SEAL ONE. A chart stage runs
+        # this proof to report what the component's own tests currently say; a validation
+        # written from inside a preamble would be a seal nobody asked for, landing on a
+        # component this voyage may not even touch. The tester requires the choice by name
+        # (ticket standing-gates-the-newest-link-and-run-proof-names-its-sink), so the
+        # not-sealing is now stated here rather than being the absence of a thought.
+        record = TesterDevice().run_proof(abs_path, sink="none", caller="constrain_floor")
         state = {"verdict": record.get("verdict"), "how": "run by the tester"}
     except Exception as e:
         state = {"verdict": "unrunnable",

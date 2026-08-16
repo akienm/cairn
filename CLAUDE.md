@@ -61,7 +61,18 @@ what can't trace up doesn't belong.
    A presentation surface may collapse an error into a coherent shape; a record
    of truth never may.
 8. **Nothing enters proven-space without a proof a hollow build couldn't pass.**
-   Entry from outside is by grafting, one ticket at a time.
+   Entry from outside is by grafting, one ticket at a time. **And the why is
+   trust, not rigor** (Akien, 2026-08-16): *"a hierarcical system does not require
+   trust. a peer system does. that's why we prove everything first. then we
+   trust."* This system has no enforcer — enforcement IS gated ownership (Law 6) —
+   so its components are **peers**, and a peer is leaned on rather than commanded.
+   A hierarchy can verify at the top and dictate downward; peers have to be able to
+   rely on each other, and the proof is what makes that reliance affordable instead
+   of a leap. So the order is not caution and not ceremony, it is what this
+   architecture COSTS: prove, **then** trust — and then actually trust, because
+   composing proven code without re-checking it is the whole return on the price.
+   Which is also why a hollow green is worse here than a red: a red is distrusted
+   by construction, and a false green gets leaned on by a peer.
 9. **Red is the default; green is earned.** This is **CP6** turned on the corpus:
    the world is not a safe place, and safety is built and cared for as we go —
    never the resting state. The spec is the picture in Akien's head — a fixed one

@@ -1,25 +1,22 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-door-is-the-only-path-in-practice) -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-collapse-holds-in-live-traffic) -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/tester/proofs/test_validation_store.py (seal 2026-08-16T12:38:35, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-door-is-the-only-path-in-practice) emitted the probe berthed at cairn/devices/tester/probes/the_door_is_the_only_path_in_practice.py (ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260816T124349-42b6579fc154.json",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'a-validation-is-one-current-record-not-a-trail', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVED' in the code-seam@v2 vocabulary",
-        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -34,90 +31,44 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED moves the cursor off position 4",
-        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
-          "cursor": 4,
-          "resolved": 5
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED",
-        "actual": "WATCHME -> PROVED",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
-            "PROVED",
-            "PROVEME",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_names_a_cast_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "a cast ticket for the WATCHME(the-door-is-the-only-path-in-practice) crossing",
-        "actual": "a cast ticket for the WATCHME(the-door-is-the-only-path-in-practice) crossing",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
-          "watch_object": "the-door-is-the-only-path-in-practice",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/standing-gates-the-newest-link-and-run-proof-names-its-sink.json"
-        }
-      },
-      {
-        "identity": "the_ticket_carries_a_spec_for_this_watch",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink' carries a watchme spec for 'the-door-is-the-only-path-in-practice'",
-        "actual": "ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink' carries a watchme spec for 'the-door-is-the-only-path-in-practice'",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
-          "watch_object": "the-door-is-the-only-path-in-practice",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_promised_probe_is_berthed_and_armed",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "the probe the spec promised is berthed and armed",
-        "actual": "the probe the spec promised is berthed and armed",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
-          "watch_object": "the-door-is-the-only-path-in-practice",
-          "berth": "cairn/devices/tester/probes/the_door_is_the_only_path_in_practice.py",
-          "findings": []
         }
       },
       {
         "identity": "the_crossing_shows_its_ticket_or_its_exemption",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
+          "target": "BUILDME",
+          "ticket": "a-validation-is-one-current-record-not-a-trail",
           "component": "tester",
           "exempt": false,
           "roster": []
@@ -127,115 +78,63 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink' is cast",
-        "actual": "named ticket 'standing-gates-the-newest-link-and-run-proof-names-its-sink' is cast",
+        "expected": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
+        "actual": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/standing-gates-the-newest-link-and-run-proof-names-its-sink.json"
+          "target": "BUILDME",
+          "ticket": "a-validation-is-one-current-record-not-a-trail",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-validation-is-one-current-record-not-a-trail.json"
         }
       },
       {
-        "identity": "the_claiming_chart_is_answered",
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_exit",
+        "code": "transitions.py::inspect_entry",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_exit",
+        "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink"
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
         }
       },
       {
-        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "identity": "the_ticket_names_its_intent_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
-        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "component": "tester",
-          "cleared_by": "CC",
-          "exempt": false,
-          "roster": []
+          "findings": [],
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
         }
       },
       {
-        "identity": "the_witness_is_whole",
+        "identity": "the_ticket_names_its_sorted_door_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness carries every field the harbor's gate stamps",
-        "actual": "the witness carries every field the harbor's gate stamps",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "cleared_by": "CC",
-          "missing": [],
-          "demanded": [
-            "proven_by",
-            "proven_seal_date"
-          ]
-        }
-      },
-      {
-        "identity": "the_named_proof_stands_in_proven_space",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/tester/proofs/test_validation_store.py stands in proven-space",
-        "actual": "cairn/devices/tester/proofs/test_validation_store.py stands in proven-space",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/tester/proofs/test_validation_store.py",
-          "why": "sealed green 2026-08-16T12:38:35 by /sail PROVEME seal, and the component's source fingerprint still matches what was proved (a0c6d0fd6fd4…)"
-        }
-      },
-      {
-        "identity": "the_witness_agrees_with_the_seal_it_names",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/tester/proofs/test_validation_store.py's seal at '2026-08-16T12:38:35'",
-        "actual": "the witness dates cairn/devices/tester/proofs/test_validation_store.py's seal at '2026-08-16T12:38:35'",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/tester/proofs/test_validation_store.py",
-          "seal": "2026-08-16T12:38:35",
-          "claimed": "2026-08-16T12:38:35"
+          "findings": [],
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
         }
       }
     ],
-    "checks_proved": 13,
-    "cleared_by": "CC",
-    "actor": "CC",
-    "proven_by": "cairn/devices/tester/proofs/test_validation_store.py",
-    "proven_seal_date": "2026-08-16T12:38:35",
-    "delegated": false,
-    "ticket": "standing-gates-the-newest-link-and-run-proof-names-its-sink",
-    "note": "standing() now asks ONE question — did the newest entry come whole through persist_validation — and it asks it by READING inspect_trail's lane record rather than walking the trail a second time. The Merkle property is what makes that sufficient: a link hashes the trail beneath it, so tampering with any older entry necessarily breaks the newest link. The seven unlinked entries from 2026-08-07/08 are left exactly where they are — history, not damage to repair. And the reason they happened is closed at the source: run_proof takes a REQUIRED, no-default sink and `cairn test --seal` can land a verdict, so the affordance a builder had to route around the physics to get now exists. The half that matters more is that a non-sealing run SAYS it sealed nothing — that silence is how the gap stayed invisible for eight days while it was being worked around.",
-    "at": "2026-08-16T12:45:25",
-    "seq": 9
+    "checks_proved": 8,
+    "ticket": "a-validation-is-one-current-record-not-a-trail",
+    "note": "BUILDME. Akien ruled the open spec question of 2026-08-16: the validation is a single record, a proof keeps only enough data to verify it, and history there creates noise. The chart chain is berthed whole (orient->validate, 7 stages, all claiming this ticket). Two measurements taken during the chart change what this build is: (1) 90 trails hold 283 entries and only TWO ever change verdict — both carrying the same bwrap environment fault stamped at the same second — so 193 historical entries carry one fault recorded twice; (2) THE CHAIN NEVER RESISTED A FORGER. Ran it: chmod 0644, overwrote a sealed trail with a fabricated green claiming 'a claim nobody ever proved', minted its link with the store's own vs._link_for, and standing() returned proven=True with verify_trail reporting no breaks. So the chain bought append-only-ness and nothing else, and it retires with the history it protected. Ten of sixteen teeth in test_validation_store.py die or invert; test_a_FORCED_write_cannot_pass_for_a_seal is measuring a forger who does not bother.",
+    "at": "2026-08-16T13:46:44",
+    "seq": 10
   },
   "window": [
-    {
-      "gate": "proved",
-      "standing": "PROVED — THE VALIDATION TRAIL'S DOOR IS NOW THE ONLY PATH (ticket validation-store-door-is-the-only-path, P1, drained from the live trouble). The trail was a record of truth declared APPEND-ONLY by its door and stored as a plain 0644 JSON file: a hand-write destroyed a proof's whole seal history silently and permanently, and looked exactly like a fresh seal (Law 7's worst direction). Closed in three layers that answer three different failure modes — the MODE BIT (0444) stops the accident at the open(); the CHAIN (a door-minted trail_link per record, sha256 over the trail beneath it plus the record itself) makes the deliberate loud, and standing() refuses a broken trail rather than reading a verdict out of it, so harbor_master clears nothing on it; the CORPUS SCAN refuses a second writer at BUILD time rather than at runtime. THE PROOF KILLED THE FIRST DESIGN: a tolerated unlinked prefix (\"prehistory\") is indistinguishable from a total overwrite, which is the exact destroy-the-history shape the trouble named — a tolerance is a forger's costume whenever the forger can produce the thing tolerated. So the 73 legacy trails were ADOPTED instead: 220 entries linked, all verify, idempotent, and adoption REFUSES to re-link a tampered trail. quorum.record_verdict now returns what LANDED, not what it built (the assembled dict was a second, unlinked copy — the rival-source-of-truth defect MethodRegistry already was). NAMED, NOT GLOSSED: the bytes stay writable to the same uid, nothing here un-destroys a trail, and git carries only the exec bit so a fresh clone lands 0644 until the door next appends — the chain is the half that survives a clone. 9/9 teeth (6 new), quorum 9/9, corpus 86 · 85 green · 1 red over four consecutive runs.",
-      "proof": "cairn/devices/tester/proofs/test_validation_store.py",
-      "validation": "cairn/devices/tester/validations/test_validation_store.json",
-      "ticket": "validation-store-door-is-the-only-path",
-      "kin": "CairnCommons/troubles/cairn-tester-validation-store-py-persist-validation-the-single-write-door-for-the-validation-trail-is-not-the-only-path-to-the-file.json",
-      "at": "2026-08-05T16:24:57",
-      "seq": 5
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -1006,7 +905,142 @@
       "note": "standing() now asks ONE question — did the newest entry come whole through persist_validation — and it asks it by READING inspect_trail's lane record rather than walking the trail a second time. The Merkle property is what makes that sufficient: a link hashes the trail beneath it, so tampering with any older entry necessarily breaks the newest link. The seven unlinked entries from 2026-08-07/08 are left exactly where they are — history, not damage to repair. And the reason they happened is closed at the source: run_proof takes a REQUIRED, no-default sink and `cairn test --seal` can land a verdict, so the affordance a builder had to route around the physics to get now exists. The half that matters more is that a non-sealing run SAYS it sealed nothing — that silence is how the gap stayed invisible for eight days while it was being worked around.",
       "at": "2026-08-16T12:45:25",
       "seq": 9
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-collapse-holds-in-live-traffic) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'a-validation-is-one-current-record-not-a-trail', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "a-validation-is-one-current-record-not-a-trail",
+            "component": "tester",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
+          "actual": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "a-validation-is-one-current-record-not-a-trail",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-validation-is-one-current-record-not-a-trail.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-validation-is-one-current-record-not-a-trail"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-validation-is-one-current-record-not-a-trail"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-validation-is-one-current-record-not-a-trail"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "ticket": "a-validation-is-one-current-record-not-a-trail",
+      "note": "BUILDME. Akien ruled the open spec question of 2026-08-16: the validation is a single record, a proof keeps only enough data to verify it, and history there creates noise. The chart chain is berthed whole (orient->validate, 7 stages, all claiming this ticket). Two measurements taken during the chart change what this build is: (1) 90 trails hold 283 entries and only TWO ever change verdict — both carrying the same bwrap environment fault stamped at the same second — so 193 historical entries carry one fault recorded twice; (2) THE CHAIN NEVER RESISTED A FORGER. Ran it: chmod 0644, overwrote a sealed trail with a fabricated green claiming 'a claim nobody ever proved', minted its link with the store's own vs._link_for, and standing() returned proven=True with verify_trail reporting no breaks. So the chain bought append-only-ness and nothing else, and it retires with the history it protected. Ten of sixteen teeth in test_validation_store.py die or invert; test_a_FORCED_write_cannot_pass_for_a_seal is measuring a forger who does not bother.",
+      "at": "2026-08-16T13:46:44",
+      "seq": 10
     }
   ],
-  "count": 10
+  "count": 11
 }

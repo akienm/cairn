@@ -27,6 +27,7 @@ WHAT THIS PROVES:
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -36,6 +37,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from cairn.devices.tester import quorum
 from cairn.devices.tester.device import GREEN, RED, VALIDATION_FIELDS
 from cairn.devices.tester.validation_store import (
+    announce_verdict_change as vs_announce,
+    verdict_change as vs_verdict_change,
     read_validations,
     validations_path_for_artifact,
 )
@@ -132,7 +135,25 @@ def test_a_rejection_is_a_verdict_and_is_recorded():
     assert len(trail) == 1, "and the red is RECORDED, or the kick-back has no evidence"
 
 
-def test_the_trail_appends_a_second_review_never_replaces_the_first():
+def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
+    """THE INVERSION, on the human-proved half (2026-08-16, ticket
+    a-validation-is-one-current-record-not-a-trail). This asserted the opposite until today —
+    that the earlier red SURVIVES the later green — and the reversal is the ticket's whole
+    subject: the validation is ONE record, and the accumulation belongs to the ticket.
+
+    But the review cycle is exactly where dropping the earlier record would be worst, because
+    the red IS the kick-back's evidence, so the tooth asserts both halves together. What
+    replaces the red is louder than what held it: the flip fires out of TroubleDevice before
+    the green lands, carrying both verdicts, both dates and both callers. Under the old shape
+    it sat at index 0 of a file whose every reader took [-1].
+
+    The trouble device is INJECTED with a temp root so proving this never writes into the
+    commons — but the ARTIFACT is deliberately not under the temp root, because the guard in
+    persist_validation is 'is this a fixture address', and a temp artifact would test the
+    guard instead of the announcement."""
+    from cairn.devices.tester.validation_store import persist_validation
+    from cairn.devices.trouble.trouble import TroubleDevice
+
     with tempfile.TemporaryDirectory() as tmp:
         art = Path(tmp) / "I-thing.md"
         art.write_text("# a concept-piece\n", encoding="utf-8")
@@ -142,8 +163,20 @@ def test_the_trail_appends_a_second_review_never_replaces_the_first():
         quorum.seal(str(art), signatures=[
             {"signer": "akien", "verdict": GREEN, "restated": "the rewrite is faithful"}], **common)
         trail = read_validations(path=validations_path_for_artifact(str(art)))
-    assert [t["verdict"] for t in trail] == [RED, GREEN], \
-        "the earlier red SURVIVES the later green — a record of truth is never edited (Law 7)"
+        assert [t["verdict"] for t in trail] == [GREEN], (
+            "the second review REPLACES the first — one current record per artifact")
+
+        # And the flip is announced. Replayed through the door directly, with a non-fixture
+        # address, so the announcement path is the one under test rather than the guard.
+        device = TroubleDevice(root=os.path.join(tmp, "troubles"))
+        outside = Path.home() / "dev" / "src" / "cairn" / "cairn" / "devices" / "tester" \
+            / "proofs" / "fixtures" / "green_proof.py"
+        record = dict(trail[0])
+        change = vs_verdict_change([dict(record, verdict=RED, caller="akien")], record)
+        assert change is not None and change["from"] == RED and change["to"] == GREEN
+        vs_announce(str(outside), change, device=device)
+        live = device.live()
+        assert len(live) == 1 and RED in live[0]["why"] and GREEN in live[0]["why"], live
 
 
 def test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals():
@@ -176,7 +209,7 @@ TESTS = [
     test_a_rubber_stamp_is_refused,
     test_a_quorum_means_distinct_hands,
     test_a_rejection_is_a_verdict_and_is_recorded,
-    test_the_trail_appends_a_second_review_never_replaces_the_first,
+    test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP,
     test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals,
     test_the_real_intention_is_a_real_file_the_gate_can_address,
 ]

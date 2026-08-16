@@ -144,8 +144,8 @@ def test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it():
     of truth from every casual diagnostic run. So this asserts the absence of a default, not
     merely the presence of the parameter.
 
-    'validations' persists through persist_validation and nothing else; run_proof mints no
-    link of its own, which is what keeps the store's one-door claim true."""
+    'validations' persists through persist_validation and nothing else; run_proof composes
+    nothing of its own on the way in, which is what keeps the store's one-door claim true."""
     sig = inspect.signature(TesterDevice.run_proof)
     assert "sink" in sig.parameters, "run_proof must take a sink"
     sink = sig.parameters["sink"]
@@ -186,9 +186,15 @@ def test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it():
         assert len(landed) == 1, landed
         assert set(landed[0]) == set(VALIDATION_FIELDS), (
             f"the sealing path must persist exactly the ratified eight: {sorted(landed[0])}")
-        assert vs.TRAIL_LINK in landed[0]["evidence"], "the door must have minted a link"
-        assert vs.TRAIL_LINK not in record["evidence"], (
-            "run_proof must not mint or carry the link itself — the door owns it")
+        # WHAT LANDED IS WHAT WAS HANDED OVER, byte for byte. Until 2026-08-16 the door
+        # minted a `trail_link` into evidence, so this asserted a difference between the
+        # returned record and the stored one; the chain retired with the append-only-ness it
+        # protected (ticket a-validation-is-one-current-record-not-a-trail), and the property
+        # worth asserting inverted: run_proof hands the door the same record it hands back,
+        # and the door decorates neither.
+        assert landed[0]["evidence"] == record["evidence"], (
+            "the record on disk and the record returned to the caller must be the same thing — "
+            "two copies that can differ is how a store grows a rival source of truth")
         assert vs.standing(str(stand_in))["proven"], vs.standing(str(stand_in))["why"]
 
 

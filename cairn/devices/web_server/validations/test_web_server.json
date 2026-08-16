@@ -1,63 +1,6 @@
 [
   {
     "claim": "proof test_web_server.py passes under python3",
-    "caller": "web-server child b — the web_server device (route + render)",
-    "date": "2026-07-22T17:34:06",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
-    "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
-      "stderr_tail": "",
-      "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
-      },
-      "trail_link": "3860a5c872e519fcd9b07a736559bd3859f719e56acce7fc85b4c3f58e103528"
-    },
-    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
-    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
-  },
-  {
-    "claim": "proof test_web_server.py passes under python3",
-    "caller": "cc-session-2026-07-27-silent-devices",
-    "date": "2026-07-27T15:22:14",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
-    "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
-      "stderr_tail": "",
-      "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
-      },
-      "trail_link": "7a8d4728fd13f04563fc8bbdf654f07dc7529f1c5c01a2f73cca12571ed263d3"
-    },
-    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
-    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
-  },
-  {
-    "claim": "proof test_web_server.py passes under python3",
-    "caller": "cc-session-librarian-chat-surface",
-    "date": "2026-07-27T21:02:48",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
-    "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
-      "stderr_tail": "",
-      "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
-      },
-      "trail_link": "45da710302635ba7348aa6f7d42236d50d0b1ee3984e155675d0c7603d2ffc3f"
-    },
-    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
-    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
-  },
-  {
-    "claim": "proof test_web_server.py passes under python3",
     "caller": "cc-session-librarian-chat-surface",
     "date": "2026-07-28T09:51:41",
     "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",

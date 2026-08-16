@@ -9,49 +9,57 @@ This module is that durable sink — the beside-code home that replaces the Post
 
 Placement, by construction: a proof at ``.../<component>/proofs/<stem>.py`` seals into
 ``.../<component>/validations/<stem>.json`` — a ``validations/`` directory that is the peer
-of ``proofs/``, one append-only file per proof. So a proof's seal-history sits one directory
-over from the proof, and a mind greps ``validations/`` on a hunch rather than re-proving
-(Law 1 — the answered proof becomes structure).
+of ``proofs/``, one file per proof. So a proof's seal sits one directory over from the proof,
+and a mind greps ``validations/`` on a hunch rather than re-proving (Law 1 — the answered
+proof becomes structure).
 
-APPEND-ONLY (Law 7, the shape history and db_domain's INSERT-only store already carry). A
-VALIDATION expires (Law 3: it rides a falsifier + horizon), so re-running a proof does not
-overwrite the old seal — it APPENDS a fresh dated one. The file is the seal's whole voyage;
-the newest entry is the current verdict. There is no update-in-place and no delete, because
-a record of truth has neither. The single write-door is ``persist_validation``.
+ONE CURRENT RECORD PER PROOF — NOT A TRAIL (2026-08-16, ticket
+a-validation-is-one-current-record-not-a-trail). Akien's ruling bore it: *"the validation is
+a single record. so is the preceeding one. so a ticket should accumulate them? and all we
+need to keep of a proof is enough data to verify it. So do we need it's whole history? no,
+in fact it tends to create noise. now where should we draw that line?"* The line he asked for
+already existed in this module and had been paid for: ``source_fingerprint``, one sha256 over
+every ``*.py`` under the component root. That IS "enough data to verify it" — it says whether
+the code still matches what was proved, which is the only question ``standing`` ever asks. A
+re-run therefore REPLACES; the file holds exactly one record. What was lost by keeping the
+rest is measurable and was measured: of 90 trails, 54 held more than one entry and 52 of
+those held nothing but re-runs agreeing with themselves — noise, in his word, and a reader
+scrolling past it to reach the entry it would have read anyway.
 
-AND THE DOOR IS NOW THE ONLY PATH — BY PHYSICS, IN TWO LAYERS (2026-08-05, ticket
-validation-store-door-is-the-only-path, drained from a live trouble). Until today the
-door's guarantee rested on everyone remembering to use it: the trail was a plain 0644 JSON
-file, so ``json.dump(fresh, open(path, "w"))`` from anywhere destroyed a proof's entire seal
-history *silently and permanently*, and the result looked exactly like a fresh seal. Law 7's
-worst direction. The two layers answer two different failure modes and neither substitutes
-for the other:
+WHAT REPLACES A RECORD OF TRUTH MUST MAKE THE ERROR LOUDER, NOT QUIETER, and that is the
+whole of Law 7's claim on this design. A presentation surface may collapse an error into a
+coherent shape; a record of truth may not — and replacing an entry IS collapsing it. So the
+collapse ships WITH its door: ``verdict_change`` asks whether the incoming verdict differs
+from the standing one, and ``announce_verdict_change`` fires that difference out through
+``TroubleDevice`` BEFORE the replace lands. The change is now louder than it was under
+append: appended, it sat at an index of a file with three readers, all of which took the last
+entry, and in the one measured case it went unread for eight days. Announced, it reaches the
+SessionStart banner a human meets before anything else. And the superseded record is not
+destroyed — it is one commit back in git, where every one of these files lives.
 
-  - THE MODE BIT stops the accident. A written trail is dropped to 0444, so the naive
-    overwrite raises PermissionError at the ``open`` instead of succeeding. The door still
-    writes because ``os.replace`` needs the DIRECTORY, not the file.
-  - THE CHAIN makes the deliberate loud and permanent. Every record carries a ``trail_link``
-    minted HERE — a sha256 over the whole trail beneath it plus the record itself. Only this
-    door mints one, so a record that lacks a link, or whose link no longer matches what is
-    under it, did not come through the door and ``standing`` refuses the whole trail rather
-    than reading a verdict out of it. A hand-write can no longer pass for a seal, which is the
-    exact sentence the trouble used to describe the defect.
+THE DOOR IS STILL THE ONLY PATH, and what enforces that is now stated honestly rather than
+generously (MEASURED 2026-08-16, and the measurement retired a layer):
 
-  - AND NO SECOND WRITER EXISTS IN THE CORPUS, checked at build time by a proof tooth that
-    censuses every module for a write aimed at a ``validations/`` address. The two layers
-    above catch a bypass that already ran; this one refuses the bypass being BUILT.
+  - THE MODE BIT stops the accident. A written record is dropped to 0444, so a naive
+    ``json.dump(fresh, open(path, "w"))`` raises PermissionError at the ``open`` instead of
+    succeeding. The door still writes because ``os.replace`` needs the DIRECTORY, not the file.
+  - NO SECOND WRITER EXISTS IN THE CORPUS, checked at build time by a proof tooth that
+    censuses every module for a write aimed at a ``validations/`` address. The mode bit
+    catches a bypass that already ran; this one refuses the bypass being BUILT.
+  - THE SOURCE FINGERPRINT is what a hand-writer cannot fake without doing the work: it must
+    match the real working tree, and it expires the moment the code moves.
+  - GIT is the layer nothing here can substitute for. Every record is a committed file, so a
+    hand-edit is a diff and a destroyed record is recoverable.
 
-The 73 trails that predated links were ADOPTED (``adopt_chain``) rather than tolerated. The
-first draft tolerated an unlinked leading prefix as "prehistory", and its own proof killed
-that in one firing: an overwrite that drops every link is then indistinguishable from a legacy
-trail — and a total overwrite is exactly the destroy-the-history shape the trouble described.
-A tolerance is a forger's costume whenever the forger can produce the thing being tolerated.
-What a retro-minted link honestly claims is narrower, and is stated rather than glossed: it
-attests the trail's content AS OF ADOPTION, not as of each entry's sealing.
+  - THE HASH CHAIN IS GONE, AND IT NEVER BOUGHT WHAT ITS DOCSTRING CLAIMED. From 2026-08-05
+    every record carried a ``trail_link``, and the module said a hand-write could no longer
+    pass for a seal. That was tested against a forger who did not bother: ``_link_for`` was a
+    pure function over (trail, record), importable by anyone, so a forger who called it minted
+    a trail that verified and stood green — RUN, on 2026-08-16, not reasoned. What the chain
+    genuinely bought was append-only-ness: it made a DELETION detectable, and deletion is the
+    property this ticket deliberately gives up. So it retires with the thing it protected.
 
-What none of it claims: the bytes are not unwritable to a caller running as the same uid, and
-nothing here can un-destroy a trail. That is what git is for — the trail is a committed file,
-so a destroyed history is recoverable, and the chain is what tells you to go recover it.
+What none of it claims: the bytes are not unwritable to a caller running as the same uid.
 
 FIELD-SET IS PHYSICS, not convention (mirrors the Postgres CHECK it replaces): a record that
 is not exactly the ratified eight fields is REFUSED here, so a drifted validation cannot land
@@ -81,11 +89,13 @@ import os
 import tempfile
 
 from cairn.devices.tester.device import GREEN, VALIDATION_FIELDS
-from cairn.tools.gate import gate
 
-# The one key inside `evidence` that belongs to the DOOR and not to the caller. It rides
-# inside evidence rather than becoming a ninth field because the eight are ratified.
-TRAIL_LINK = "trail_link"
+# THE FIXTURE WORLD, named so persist_validation can stay silent inside it. The predicate is
+# "is this under the temp root" rather than "is this under class-space", and the difference is
+# not cosmetic: quorum seals human-proved concept-pieces whose addresses live in CairnCommons,
+# and a class-space test would have made every one of those changes silent — a hole in the
+# half of the store that has no tester to catch it. `gettempdir()` honours TMPDIR, so it is
+# exactly the predicate "a fixture wrote this", not a guess at one.
 
 
 def validations_path_for(proof_path: str) -> str:
@@ -170,43 +180,6 @@ def source_fingerprint(proof_path: str) -> str:
     return digest.hexdigest()
 
 
-def _complaints_by_entry(chain_record: list[dict]) -> dict[int, list[str]]:
-    """Read ``inspect_trail``'s lane record back as ``{entry index -> complaints about it}``.
-
-    DERIVED, NEVER A SECOND WALK — the tester charter's falsifier clause (8) reds a reader
-    that grows its own trail walk instead of reading the mismatches the inspection already
-    produced, because a gate and a diagnostic that compute the same thing twice are two
-    things that can disagree. Nothing here recomputes a link.
-
-    Each lane reports its population as ``expected`` (the entries it was eligible to judge)
-    and ``actual`` (the ones that passed), and it builds its ``complaints`` in the SAME
-    iteration order it filtered. So the entries a lane failed are
-    ``[i for i in expected if i not in actual]``, positionally aligned with the complaints —
-    and zipping the two is the whole read.
-
-    An entry ABSENT from a lane's population is absent, not passed: the lanes are
-    eligibility-nested, so failing a lane always leaves a complaint in the lane above, and
-    the entry still appears in this mapping.
-    """
-    by_entry: dict[int, list[str]] = {}
-    for lane in chain_record:
-        if gate.passed(lane):
-            continue
-        failed = [i for i in lane["expected"] if i not in lane["actual"]]
-        complaints = lane["values"]["complaints"]
-        # LOUD, because a silent misalignment attributes the wrong complaint to the wrong
-        # entry — a record of truth quietly saying something false (Law 7). If the lane ever
-        # stops building its complaints in filter order, this is where it stops, not where
-        # it starts lying.
-        assert len(failed) == len(complaints), (
-            f"lane {lane.get('code')} reported {len(failed)} failing entries but "
-            f"{len(complaints)} complaints — inspect_trail's per-lane alignment broke, and "
-            f"reading it per-entry is no longer sound")
-        for index, complaint in zip(failed, complaints):
-            by_entry.setdefault(index, []).append(complaint)
-    return by_entry
-
-
 def standing(proof_path: str) -> dict:
     """Is this proof's code in proven-space RIGHT NOW? The reader that replaced MethodRegistry.
 
@@ -216,73 +189,51 @@ def standing(proof_path: str) -> dict:
     (I-complete-diagnostic-on-first-pass — no second call to find out which of the four
     reasons it was).
 
-    Five outcomes, and only the first is proven-space:
-      - sealed green, link verifies, fingerprint matches -> proven
-      - never sealed                           -> not proven (the trail does not exist)
-      - the NEWEST entry did not come through the door -> not proven (below)
-      - newest seal is red                     -> not proven (it was measured and it failed)
-      - sealed green, fingerprint has moved    -> NOT PROVEN, the horizon closed. This is the
+    Four outcomes, and only the first is proven-space:
+      - sealed green, fingerprint matches     -> proven
+      - never sealed                          -> not proven (the trail does not exist)
+      - the seal is red                       -> not proven (it was measured and it failed)
+      - sealed green, fingerprint has moved   -> NOT PROVEN, the horizon closed. This is the
         one an in-memory registry could not reach: it cached a bool with no expiry, so it kept
         answering yes after the code changed underneath it (Law 3 — a VALIDATION expires).
 
-    The NEWEST entry is the verdict; the trail is append-only, so an old green under a newer
-    red is history, not standing.
+    THERE IS ONE RECORD, so there is no newest to pick (2026-08-16, ticket
+    a-validation-is-one-current-record-not-a-trail). This function used to open by asking the
+    chain whether the newest entry came whole through the door; that check is gone with the
+    chain, and its retirement cost nothing it was actually delivering — MEASURED, not
+    reasoned. The link was minted by ``_link_for``, a pure function over (trail, record) that
+    any caller could import and call, so a forger who bothered to compute one produced a trail
+    that verified and stood green. The tooth that claimed otherwise was measuring a forger who
+    did not bother.
 
-    AND THE GATE ASKS ABOUT THAT ENTRY ONLY (ticket standing-gates-the-newest-link-and-run-
-    proof-names-its-sink, 2026-08-16). Until then this refused on ANY break anywhere in the
-    trail, which was a reasoned overshoot rather than a response to a measured tamper: the
-    prior ticket killed a tolerance of an unlinked leading PREFIX and landed one stop past
-    the rule that survives its own test. Nothing is given up to the forger, because a
-    ``trail_link`` hashes the whole trail beneath it — tampering with an older entry
-    necessarily breaks the NEWEST link, and a link that verifies over the current prefix
-    comes only from ``_link_for``, which only the door calls. What IS given up is refusal on
-    unlinked OLD entries, deliberately, on Akien's ruling about what a validation is:
-    "evidence once we've completed something is irrelevant and tends to cause confusion once
-    the point the evidence is centered around is resolved. we don't need to keep history. we
-    need to keep THIS WORKED LAST TIME I TRIED IT ON yyymmddhhmmssuuuu."
-
-    The DIAGNOSTIC did not narrow with the gate: ``inspect_trail`` still checks every entry
-    and still localizes a tamper to its earliest point. This reads that record rather than
-    walking the trail again, which is the tester charter's falsifier clause (8).
+    What DOES stand between a hand-write and a false green, and it is what this function now
+    rests on entirely: ``source_fingerprint``, which the hand-writer must match against the
+    real working tree, and which expires the moment the code moves. Beside it sit the 0444
+    mode bit (the accident cannot land at all) and git (every trail is a committed file, so a
+    hand-edit is a diff — and unlike the chain, that is not a number the editor can recompute).
     """
     trail = read_validations(proof_path)
-    # THE EMPTY TRAIL IS ANSWERED FIRST, because "no entry" and "a bad newest entry" are
-    # different facts and the second question has no subject without the first answered.
     if not trail:
         return {"proven": False, "seal": None, "why": (
             f"no VALIDATION has ever sealed {proof_path} — the trail at "
             f"{validations_path_for(proof_path)} does not exist. Proven-space is the tester's "
             f"and it has not spoken about this code (Law 8)")}
-    # THE NEWEST ENTRY'S OWN INTEGRITY IS CHECKED BEFORE ITS CONTENT. A verdict read out of a
-    # record that was written around the door is not a measurement of anything — and this
-    # is the surface where that matters, because harbor_master turns a True here straight
-    # into a crossing's clearance. Unverified top link, no clearance (Law 8).
-    newest = len(trail) - 1
-    against_newest = _complaints_by_entry(inspect_trail(trail)).get(newest)
-    if against_newest:
-        return {"proven": False, "seal": trail[-1], "why": (
-            f"the NEWEST entry (index {newest}) of the seal trail at "
-            f"{validations_path_for(proof_path)} DID NOT COME WHOLE THROUGH "
-            f"persist_validation — " + "; ".join(against_newest) +
-            ". A record of truth that was written around its own door proves nothing about "
-            "the code; what it proves is that something else has been writing here. Re-run "
-            "the proof so the door mints a real link over the trail as it stands")}
     seal = trail[-1]
     if seal.get("verdict") != GREEN:
         return {"proven": False, "seal": seal, "why": (
-            f"the newest seal on {proof_path} is {seal.get('verdict')!r}, dated "
+            f"the seal on {proof_path} is {seal.get('verdict')!r}, dated "
             f"{seal.get('date')} — the code was measured and it did not pass")}
     recorded = (seal.get("evidence") or {}).get("source_fingerprint")
     if recorded is None:
         return {"proven": False, "seal": seal, "why": (
-            f"the newest seal on {proof_path} is green, dated {seal.get('date')}, but records "
+            f"the seal on {proof_path} is green, dated {seal.get('date')}, but records "
             f"no source_fingerprint — so whether the code still matches what was proved is "
             f"UNKNOWABLE from the trail. Unknown is not green (Law 9). Re-run the proof to "
             f"seal a fingerprint")}
     current = source_fingerprint(proof_path)
     if current != recorded:
         return {"proven": False, "seal": seal, "why": (
-            f"the newest seal on {proof_path} is green, dated {seal.get('date')} — and its "
+            f"the seal on {proof_path} is green, dated {seal.get('date')} — and its "
             f"HORIZON HAS CLOSED: the component's source fingerprint was "
             f"{recorded[:12]}… when it was sealed and is {current[:12]}… now, so the code moved "
             f"under the proof. Re-run the proof (Law 3: a VALIDATION expires)")}
@@ -291,147 +242,66 @@ def standing(proof_path: str) -> dict:
         f"fingerprint still matches what was proved ({recorded[:12]}…)")}
 
 
-def _canonical(obj) -> bytes:
-    """One spelling for one value — sorted keys, no incidental whitespace.
+def verdict_change(standing_trail: list, incoming: dict) -> dict | None:
+    """Does this incoming record CHANGE the verdict standing on the trail? ``None`` if not.
 
-    A digest over JSON is only a digest over the VALUE if the encoding is fixed; otherwise
-    re-indenting the file would 'break' the chain and a real tamper could hide behind the
-    same excuse. This is the fixed encoding, used for nothing else.
+    A PURE FUNCTION, kept separate from the announcing so the question can be asked and
+    proved without raising anything anywhere. Returns the change as data — both verdicts,
+    both dates, both callers — because whoever reads the announcement needs all of it in one
+    pass and the record that carried the old half is about to be replaced.
+
+    Fires in BOTH directions, and that is a decision rather than an oversight. A green going
+    red is the alarming one, but a red going green destroys the red — and "this was failing on
+    <date> and passes now" is the same fact read from the other end. What is NOT reported is a
+    re-run that agrees with itself, which is 52 of the 54 multi-entry trails measured in this
+    corpus on 2026-08-16: the overwhelmingly common case says nothing and stays silent.
     """
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"),
-                      ensure_ascii=False).encode("utf-8")
+    if not standing_trail:
+        return None
+    was = standing_trail[-1]
+    if not isinstance(was, dict) or was.get("verdict") == incoming.get("verdict"):
+        return None
+    return {"from": was.get("verdict"), "to": incoming.get("verdict"),
+            "was_sealed": was.get("date"), "now_sealed": incoming.get("date"),
+            "was_caller": was.get("caller"), "now_caller": incoming.get("caller"),
+            "claim": incoming.get("claim")}
 
 
-def chain_digest(prefix: list) -> str:
-    """The digest of everything already on the trail — what the next link commits to."""
-    return hashlib.sha256(_canonical(prefix)).hexdigest()
+def announce_verdict_change(path: str, change: dict, *, device=None) -> dict:
+    """Fire a verdict change out of a door, at the moment it happens, BEFORE the replace lands.
 
+    THIS IS WHAT MAKES THE COLLAPSE LEGAL UNDER LAW 7, and the reasoning is worth keeping
+    where the code is. Law 7 lets a presentation surface collapse an error into a coherent
+    shape and never lets a record of truth do it. Replacing a record IS collapsing it — so the
+    only argument that survives is that the error gets LOUDER, not quieter, and "louder" has to
+    be a route to a surface rather than a claim. Before this, a verdict change sat at an index
+    of a file with three readers, all of which took the last entry; the change itself was read
+    by nobody, for eight days in the one measured case. Now it raises a trouble, which lands in
+    the SessionStart banner a human meets before anything else.
 
-def _link_for(prefix: list, record: dict) -> str:
-    """This record's link: sha256(everything before it, then the record itself sans link).
+    THE DAMPING IS TroubleDevice'S AND IS THE REASON IT IS THE RIGHT DOOR rather than a new
+    one: ``identity`` names the DEFECT, not the occurrence, so a proof that flaps green/red/green
+    for a week raises ONE trouble whose count climbs — "fifty flaps do not make fifty tickets"
+    (its own proof's words). A verdict change is precisely the flapping-prone signal that would
+    otherwise re-notify forever.
 
-    The record is hashed WITHOUT its own link, because a value cannot contain its own digest.
+    ``device`` is injectable so a proof can announce into a temporary store. It is not a
+    convenience: without it, proving this door would write real troubles into the commons from
+    a fixture, and a proof that dirties a record of truth to demonstrate itself is its own
+    defect.
     """
-    body = dict(record)
-    body["evidence"] = {k: v for k, v in (body.get("evidence") or {}).items()
-                        if k != TRAIL_LINK}
-    return hashlib.sha256(
-        chain_digest(prefix).encode("ascii") + b"\0" + _canonical(body)).hexdigest()
-
-
-def inspect_trail(trail: list) -> list[dict]:
-    """THE PROOF RECORD OVER A TRAIL'S CHAIN: one entry per lane that ran, each carrying
-    its POPULATION — the entries eligible for that lane as EXPECTED, the ones that pass
-    it as ACTUAL (Akien, 2026-08-13: "EVERYTHING ALWAYS PROVED AND LISTING WHAT IT
-    PROVED ... SAME PATTERN EVERYWHERE").
-
-    Why populations and not one entry per record: the lanes are ELIGIBILITY-nested, which
-    is what the old loop's two ``continue`` statements were saying. A non-record has no
-    evidence to hold a link, and an entry with no link has no hash to compare — so those
-    entries are ABSENT from the lane below, not passed by it. Written as populations, a
-    trail whose entries stop being checked shows an EXPECTED that shrank, where the old
-    complaint list showed the same emptiness it showed for a trail that verified whole.
-
-    An empty trail is three lanes over a population of zero, and it says so. That is a
-    different fact from a trail that was never read, and ``proven_state`` reads it as one.
-    """
-    def lane(identity, *, eligible, passing, complaints):
-        return gate.proved(
-            identity=identity, location="the validation trail",
-            code="validation_store.py:inspect_trail", source="tester.trail_chain",
-            expected=list(eligible), actual=list(passing),
-            complaints=list(complaints), of=len(trail))
-
-    records = [i for i, rec in enumerate(trail) if isinstance(rec, dict)]
-    record = [lane(
-        "every_entry_is_a_validation_record",
-        eligible=range(len(trail)), passing=records,
-        complaints=[f"entry {i} is a {type(trail[i]).__name__}, not a VALIDATION record"
-                    for i in range(len(trail)) if i not in records])]
-
-    def _link(i):
-        return (trail[i].get("evidence") or {}).get(TRAIL_LINK)
-
-    linked = [i for i in records if _link(i) is not None]
-    record.append(lane(
-        "every_record_carries_a_trail_link",
-        eligible=records, passing=linked,
-        complaints=[f"entry {i} ({trail[i].get('date')}, {trail[i].get('verdict')}) carries "
-                    f"no {TRAIL_LINK} — persist_validation is the only hand that mints one, "
-                    f"so a record without a link did not come through the door"
-                    for i in records if i not in linked]))
-
-    verified, broken = [], []
-    for i in linked:
-        expected = _link_for(trail[:i], trail[i])
-        if _link(i) == expected:
-            verified.append(i)
-        else:
-            broken.append(
-                f"entry {i} ({trail[i].get('date')}, {trail[i].get('verdict')}) carries link "
-                f"{str(_link(i))[:12]}… but the trail beneath it hashes to {expected[:12]}… — "
-                f"either this entry or something before it was changed after it was sealed")
-    record.append(lane(
-        "every_link_hashes_the_trail_beneath_it",
-        eligible=linked, passing=verified, complaints=broken))
-    return record
-
-
-def verify_trail(trail: list) -> list[str]:
-    """Complaints about a trail's chain — empty means EVERY entry still carries a valid link.
-
-    A VIEW OVER ``inspect_trail``, DERIVED AND NEVER PARALLEL. The record is what the
-    lanes prove; this is the mismatches read back out, so the diagnostic sentence and the
-    gate that refuses on it cannot come to disagree about what broke.
-
-    NO PREHISTORY CLAUSE, and that is a decision the first draft got wrong. Tolerating
-    unlinked entries as a leading PREFIX seemed like the honest way to carry the 73 trails
-    that predated links — but the proof found the hole in one firing: a total overwrite that
-    drops every link is then indistinguishable from a legacy trail, and a total overwrite is
-    exactly the destroy-the-whole-history shape the trouble described. A tolerance is a
-    forger's costume whenever the forger can produce the thing being tolerated.
-
-    So the legacy trails were ADOPTED instead (``adopt_chain``), once, and from then on a
-    missing link is a break like any other. What adoption honestly claims is narrower than a
-    seal-time link and is written down rather than glossed: a retro-minted link attests the
-    trail's content AS OF ADOPTION, not as of the moment each entry was sealed. Nothing can
-    attest the latter after the fact, and pretending otherwise would be the same costume.
-
-    Returns complaints rather than raising, because the caller decides the surface: the
-    reader turns them into a refusal, a diagnostic prints them (Law 7 — loud where it
-    diagnoses, and the record itself is never rewritten to look clean).
-    """
-    return [c for e in inspect_trail(trail) if not gate.passed(e)
-            for c in e["values"]["complaints"]]
-
-
-def adopt_chain(path: str) -> int:
-    """ONE-TIME ADOPTION: mint links over a trail written before links existed. Returns how
-    many entries it linked (0 = already fully chained, so it is safe to re-run).
-
-    Not a repair tool and deliberately not usable as one: an entry that ALREADY carries a
-    link which no longer verifies makes this refuse the whole file. A break is a finding to
-    act on — recover the trail from git — and a migration that quietly re-linked a tampered
-    trail would erase precisely the evidence the chain exists to preserve (Law 7).
-    """
-    trail = read_validations(path=path)
-    for i, rec in enumerate(trail):
-        link = (rec.get("evidence") or {}).get(TRAIL_LINK) if isinstance(rec, dict) else None
-        if link is not None and link != _link_for(trail[:i], rec):
-            raise ValueError(
-                f"{path} entry {i} carries a link that does not verify — this is a BREAK, not an "
-                "unadopted trail. adopt_chain will not overwrite it; recover from git.")
-    minted = 0
-    for i, rec in enumerate(trail):
-        if not isinstance(rec, dict) or not isinstance(rec.get("evidence"), dict):
-            raise ValueError(f"{path} entry {i} is not a VALIDATION record with dict evidence")
-        if TRAIL_LINK in rec["evidence"]:
-            continue
-        rec["evidence"][TRAIL_LINK] = _link_for(trail[:i], rec)
-        minted += 1
-    if minted:
-        _atomic_write(path, trail)
-    return minted
+    if device is None:
+        from cairn.devices.trouble.trouble import TroubleDevice
+        device = TroubleDevice()
+    return device.raise_trouble(
+        f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}",
+        why=(f"the verdict standing at {path} changed from {change['from']!r} (sealed "
+             f"{change['was_sealed']} by {change['was_caller']}) to {change['to']!r} (sealed "
+             f"{change['now_sealed']} by {change['now_caller']}). The trail holds ONE record "
+             f"per proof, so the superseded record is not in the working tree any more — it is "
+             f"in git, one commit back from this seal. This report exists because the replace "
+             f"may not make the change quieter than the append did (Law 7)."),
+        detail=dict(change, trail=path))
 
 
 def _atomic_write(path: str, data) -> None:
@@ -444,14 +314,15 @@ def _atomic_write(path: str, data) -> None:
     PermissionError at the open — the ORDINARY bypass, the one nobody intended, stops being
     possible rather than being detected afterwards.
 
-    It does not stop a deliberate one (same uid can chmod), and it is not meant to: that is
-    the chain's job, above. The two halves answer different failure modes — accident and
-    forgery — and neither substitutes for the other.
+    It does not stop a deliberate one (same uid can chmod), and it never did. What it stops
+    is the hand that was not trying — and that hand is not hypothetical here: the destroy-the-
+    history shape this bit was born against was an ordinary ``open(path, "w")`` in code
+    somebody wrote without knowing the file was a record of truth.
 
     RESIDUE, stated because git cannot carry it: git tracks only the executable bit, so a
-    fresh clone lands these files at 0644 and they are unprotected until the door next
-    appends. The mode is a property of the working tree, not of the record. The chain is the
-    half that survives a clone.
+    fresh clone lands these files at 0644 and they are unprotected until the door next writes.
+    The mode is a property of the working tree, not of the record. What survives a clone is
+    git itself — the record is a committed file, so a hand-edit in a fresh clone is a diff.
     """
     directory = os.path.dirname(path) or "."
     os.makedirs(directory, exist_ok=True)
@@ -469,9 +340,10 @@ def _atomic_write(path: str, data) -> None:
 
 
 def persist_validation(
-    validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None
+    validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None,
+    trouble_device=None,
 ) -> str:
-    """The single write-door: APPEND one VALIDATION to the trail beside what it seals.
+    """The single write-door: SEAL one VALIDATION as the current record beside what it seals.
 
     Give ``proof_path`` for a node proved by a tester run, or ``artifact_path`` for one proved
     by human judgment (a concept-piece — see ``cairn/devices/tester/quorum.py``). Exactly one: the
@@ -479,8 +351,26 @@ def persist_validation(
     it is sealing.
 
     Refuses a record that is not exactly the ratified eight fields (drift is not a seal).
-    Appends — never overwrites — because the trail is a record of truth (Law 7) and a
-    re-run's verdict is a NEW dated entry, not a replacement (Law 3). Returns the file path.
+    REPLACES rather than appends (2026-08-16): a VALIDATION expires (Law 3), so a re-run
+    supersedes the seal rather than adding to a pile of them, and what makes the supersession
+    verifiable is the ``source_fingerprint`` the record carries — Akien's "enough data to
+    verify it". The file holds one record and stays a one-element list, because every reader
+    in the corpus takes ``trail[-1]`` and a list is what they already open.
+
+    AND THE CHANGE FIRES BEFORE THE REPLACE LANDS. That order is the design, not an
+    implementation detail: announcing after would mean a crash between the two acts loses the
+    change AND the old record in one step. Announcing first can at worst report a change that
+    then fails to land — a false alarm a human can dismiss, against a silent loss they cannot
+    detect. The ordering is chosen in the direction Law 7 points.
+
+    A FAILING DOOR DOES NOT BLOCK THE SEAL, and that is also deliberate. If the trouble store
+    is unreachable, refusing the write would throw away the NEW measurement — the freshly
+    proved fact — to protect the old one, which is still in git either way. So the
+    announcement's failure is swallowed into the record it could not announce... nowhere, and
+    that is the honest residue: this door cannot report its own silence. It is why the
+    announcement is a trouble (durable, damped, human-facing) rather than a log line.
+
+    ``trouble_device`` is injectable for proofs; see ``announce_verdict_change``.
     """
     if (proof_path is None) == (artifact_path is None):
         raise ValueError(
@@ -497,23 +387,26 @@ def persist_validation(
     if not isinstance(evidence, dict):
         raise ValueError(
             f"a VALIDATION's `evidence` is a structure, not a blob — got {type(evidence).__name__}. "
-            "The door mints the trail link INSIDE evidence (the eight fields are ratified and it "
-            "may not become a ninth), so a non-dict evidence has nowhere to carry its own seal.")
-    if TRAIL_LINK in evidence:
-        raise ValueError(
-            f"the caller supplied {TRAIL_LINK!r} — the link is MINTED BY THIS DOOR and by nothing "
-            "else. A record arriving with one pre-filled is either a replay of an existing entry "
-            "or a hand-built forgery; in both cases the door is not the hand that sealed it "
-            "(Law 6: the owner alone gates writes).")
+            "The eight fields are ratified, so everything the run measured about ITSELF rides "
+            "inside evidence — the seal's verdict, the return code, the source_fingerprint that "
+            "expires the record. A blob has nowhere to carry them, and a reader asking 'did the "
+            "sandbox hold?' would be left grepping prose for the answer (Law 7).")
     path = (
         validations_path_for(proof_path) if proof_path is not None
         else validations_path_for_artifact(artifact_path)
     )
-    trail = read_validations(path=path)
     record = dict(validation)
-    # THE LINK COMMITS TO EVERYTHING BENEATH IT — including a prehistory written before links
-    # existed. Minted here, at the one door, which is what makes its absence evidence.
-    record["evidence"] = dict(evidence, **{TRAIL_LINK: _link_for(trail, record)})
-    trail.append(record)
-    _atomic_write(path, trail)
+    standing_trail = read_validations(path=path)
+    change = verdict_change(standing_trail, record)
+    # A FIXTURE'S VERDICT CHANGE IS THE FIXTURE DOING ITS JOB, not a defect in the world.
+    # Proofs seal into tmpdirs by the dozen and flip verdicts on purpose; announcing those
+    # would fill the trouble store with the noise of its own tests — the failure mode a damped
+    # door exists to avoid, arriving by a different route.
+    if change is not None and not os.path.abspath(path).startswith(
+            os.path.realpath(tempfile.gettempdir()) + os.sep):
+        try:
+            announce_verdict_change(path, change, device=trouble_device)
+        except Exception:  # noqa: BLE001 — see the docstring: the new measurement outranks it
+            pass
+    _atomic_write(path, [record])
     return path

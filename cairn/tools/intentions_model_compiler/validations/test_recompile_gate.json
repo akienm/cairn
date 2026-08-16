@@ -1,25 +1,6 @@
 [
   {
     "claim": "proof test_recompile_gate.py passes under python3",
-    "caller": "intentions_model_compiler.child_c",
-    "date": "2026-07-23T11:59:00",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
-    "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_gate_pokes_the_door\n  PASS  test_the_gate_reverts_a_stale_model\n  PASS  test_non_blocking_but_loud_in_the_record\ngreen — recompile_gate: the write gate pokes the compile door (the model appears and reverts drift), never blocks a save, and records a failed compile rather than swallowing it (Law 7). Host-noticing, not owner-emitting — the IOU is in the charter.",
-      "stderr_tail": "",
-      "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
-      },
-      "trail_link": "53c61b41393a150cc4662aae2e12f5014835eaec880d0dacbc4a31d575f8aa8d"
-    },
-    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
-    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
-  },
-  {
-    "claim": "proof test_recompile_gate.py passes under python3",
     "caller": "fable:fix-the-recompile (ticket intentions-model-compiler close, Akien: fix the recompile / approved go go go)",
     "date": "2026-08-01T12:51:01",
     "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",

@@ -815,5 +815,140 @@
     "note": "standing() now asks ONE question — did the newest entry come whole through persist_validation — and it asks it by READING inspect_trail's lane record rather than walking the trail a second time. The Merkle property is what makes that sufficient: a link hashes the trail beneath it, so tampering with any older entry necessarily breaks the newest link. The seven unlinked entries from 2026-08-07/08 are left exactly where they are — history, not damage to repair. And the reason they happened is closed at the source: run_proof takes a REQUIRED, no-default sink and `cairn test --seal` can land a verdict, so the affordance a builder had to route around the physics to get now exists. The half that matters more is that a non-sealing run SAYS it sealed nothing — that silence is how the gap stayed invisible for eight days while it was being worked around.",
     "at": "2026-08-16T12:45:25",
     "seq": 9
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-collapse-holds-in-live-traffic) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'a-validation-is-one-current-record-not-a-trail', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-validation-is-one-current-record-not-a-trail",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
+        "actual": "named ticket 'a-validation-is-one-current-record-not-a-trail' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-validation-is-one-current-record-not-a-trail",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-validation-is-one-current-record-not-a-trail.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-validation-is-one-current-record-not-a-trail"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "a-validation-is-one-current-record-not-a-trail",
+    "note": "BUILDME. Akien ruled the open spec question of 2026-08-16: the validation is a single record, a proof keeps only enough data to verify it, and history there creates noise. The chart chain is berthed whole (orient->validate, 7 stages, all claiming this ticket). Two measurements taken during the chart change what this build is: (1) 90 trails hold 283 entries and only TWO ever change verdict — both carrying the same bwrap environment fault stamped at the same second — so 193 historical entries carry one fault recorded twice; (2) THE CHAIN NEVER RESISTED A FORGER. Ran it: chmod 0644, overwrote a sealed trail with a fabricated green claiming 'a claim nobody ever proved', minted its link with the store's own vs._link_for, and standing() returned proven=True with verify_trail reporting no breaks. So the chain bought append-only-ness and nothing else, and it retires with the history it protected. Ten of sixteen teeth in test_validation_store.py die or invert; test_a_FORCED_write_cannot_pass_for_a_seal is measuring a forger who does not bother.",
+    "at": "2026-08-16T13:46:44",
+    "seq": 10
   }
 ]

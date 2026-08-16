@@ -168,8 +168,8 @@ class TesterDevice(BaseDevice):
         would have preserved that exactly: the caller who forgets is the caller who gets the
         default. Requiring it makes the choice appear at the call site, where the reader is.
 
-        run_proof MINTS NOTHING. The ``trail_link`` is the door's to make, and this hands the
-        door the same eight-field record it hands back to the caller.
+        run_proof MINTS NOTHING. Sealing is the door's act, and this hands it the same
+        eight-field record it hands back to the caller — nothing composed on the way in.
         """
         if sink not in _SINKS:
             raise ValueError(
@@ -240,9 +240,10 @@ class TesterDevice(BaseDevice):
             horizon="valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)",
         )
         if sink == "validations":
-            # THROUGH THE DOOR, and only through it. persist_validation mints the trail_link
-            # over the trail as it stands; nothing here composes one, which is what keeps the
-            # store's "one write door" true while giving run_proof a way to seal at all.
+            # THROUGH THE DOOR, and only through it. persist_validation decides what lands
+            # and announces a changed verdict before it does; nothing here writes bytes, which
+            # is what keeps the store's "one write door" true while giving run_proof a way to
+            # seal at all.
             # Lazy import for the same reason as source_fingerprint above: validation_store
             # imports this module, so the dependency only runs one way at import time.
             from cairn.devices.tester.validation_store import persist_validation

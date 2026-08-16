@@ -138,10 +138,11 @@ def seal(
         "falsifier": falsifier,
         "horizon": horizon,
     }
-    # WHAT COMES BACK IS WHAT LANDED, not what was built. Since 2026-08-05 the door mints a
-    # trail_link into `evidence` as it seals, so the dict assembled above is no longer the
-    # record on disk — and handing a caller a second, unlinked copy is how a store grows a
-    # rival source of truth (the same defect MethodRegistry was). Read it back through the
-    # door's own reader; the trail's newest entry IS the seal.
+    # WHAT COMES BACK IS WHAT LANDED, not what was built. The door owns the record on disk,
+    # and handing a caller a second copy assembled here is how a store grows a rival source of
+    # truth (the same defect MethodRegistry was). Read it back through the door's own reader.
+    # Since 2026-08-16 the file holds exactly one record, so [-1] is that record — the index
+    # stays because every reader in the corpus spells it this way and a one-element list is
+    # what read_validations returns.
     persist_validation(validation, artifact_path=artifact_path)
     return read_validations(path=validations_path_for_artifact(artifact_path))[-1]

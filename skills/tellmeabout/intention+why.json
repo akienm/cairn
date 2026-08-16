@@ -1,0 +1,31 @@
+{
+  "component": "skill:/tellmeabout",
+  "role": "charter",
+  "schema_version": "v0 — skill-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "axis": "work-loop",
+
+  "what": "Akien's dereference door: /tellmeabout <id-or-name> finds the ONE record the token names — across the record stores (learning_block findings by hex id or unique prefix, tickets, troubles, decisions/rulings, ideas, and component charters via the congruency lab's index) — and presents it in its own words, at its address, with the act it is waiting on. A deterministic resolver floor (skills/tellmeabout/tellmeabout.py) returns exactly one of three shapes: found (the record verbatim), refused (a multi-match, every match listed with store and address — never a guess), or not_found (every store searched, named). Read-only over every store it presents.",
+  "why": "The lived symptom was measured the day the bearing idea landed: the 2026-08-15 curated review handed Akien 17 finding ids and itself recorded that 'cairn recordverdict <id>' alone won't show their bullets — every id the system hands its one human reader is a question only CC can answer, which is Law 1's defect aimed at him. Akien, verbatim: 'so you gave me d4896172aa8c, but there isn't currently a way for me to look that up. we could have you describe it, but we built something that could reorient you around a specific thing, maybe we need one for me. tellmeabout would be kinda like moreabout, except being just for me, i'm the agency responsible for giving feeback on it.' The sibling boundary is by READER: moreabout's reader is CC and its store is the learning trees; tellmeabout's reader is Akien and its stores are the record stores. Ticket: CairnCommons/tickets/tellmeabout.json.",
+  "invoke": "/tellmeabout <id-or-name>",
+  "state": "v0 — built and proved 2026-08-15, the same day the idea was captured, /intent challenged it, and /sorted cast it (Akien fired the pipeline himself).",
+
+  "nexus": {
+    "note": "SKILL.md carries the live sequence; this is the charter-face record.",
+    "routes_forward": "token -> the resolver floor -> one of three shapes -> presented to Akien VERBATIM (the record's own words, its address, its waiting act — CC adds context only BESIDE the record, never inside it)",
+    "routes_back": "refused (multi-match) -> Akien names a fuller token from the listing. not_found -> the stores searched are all named; a record that should exist but is in none of them is a finding about the stores, escalated, not smoothed over."
+  },
+
+  "how_it_learns": "Through its declared feedback agency, which is Akien himself — the bearing idea's own words: 'i'm the agency responsible for giving feeback on it.' Every skill_block-adjacent artifact this skill presents ends at his gate, and his corrections to the presentation come back as ordinary red-pen against this charter and the resolver's match rules (the deterministic floor makes every miss reproducible). It keeps no tree of its own: a resolver over stores owned elsewhere learns by its rules being corrected, not by accumulating state — 'all kinds of state and history data' it might ever need berths under its holder per Law 6's tool clause.",
+  "traces_to": ["Law 1 (an id he cannot look up is a settled record he must re-ask CC to re-derive, every time)", "Law 7 (the records are on disk and loud only to CC — this is a diagnostic surface for their one human reader; ambiguity and absence are loud, never guessed)", "Law 5 (the record is presented from its own address, never a copy — the congruency lab is used as an INDEX only, presentation reads the live charter)"],
+  "owner": "the skills charter gates writes; Akien ratifies changes — and he is additionally this skill's declared feedback agency (the 'just for me' half of the bearing idea). The stores presented are each owned elsewhere; this skill takes no write anywhere.",
+  "gated_by": ["CC"],
+  "gated_by_why": "derived from `owner` above by the rule the clearance gate recites, filled at the moment a real crossing needed it (this ticket's own PROVED crossing, refused OwnerUnresolvable 2026-08-15 — the same fill-when-needed the compiler, harbor_master and import_sieve record). CC gates writes to the code + proof; Akien's authority rides above the write-gate as ratification, feedback agency, and disposition, not inside this list. Compared by exact list membership, never a prose scan. The fleet-wide question (does Law 9 put Akien in every gated_by?) stays filed at ticket an-intention-declares-its-gated-hands.",
+  "counted_by": {
+    "reader": "none of its own — deliberately",
+    "address": "n/a",
+    "what_it_counts": "nothing: a read-only resolver that kept an invocation ledger would be a second store about stores, and its one reader (Akien) experiences every firing personally — the count would tell him what he already lived.",
+    "why_not_a_ledger": "the feedback channel IS the reader: he fires it, he sees the answer, his verdicts at the recordverdict gate are the datum. A disuse question ('is he reaching for it?') is his to answer about himself — a counter cannot tell 'no ids handed to him lately' from 'the door is not where he reaches'."
+  },
+  "proof": "rides with this skill: skills/tellmeabout/proofs/test_tellmeabout.py — 13 teeth, run bare twice green + hollow-checked (a perturbed non-verbatim resolver reds the byte-equality tooth): verbatim-or-nothing over a dynamically picked pending finding, unique-prefix resolution, ambiguity refuses by listing ('orient' — both rungs), not-found names all six stores, ticket equality against json.load of its own file, exactly-one-shape over the battery, and READ-ONLY MEASURED (full store mtime/size snapshot unchanged under the battery). The skill node additionally hangs the cairnmap derivation gate per the skill class.",
+  "provenance": "Idea captured verbatim 2026-08-15 (ideas/2026-08-15-so-you-gave-me-d4896172aa8c-but-there.json); /intent berth intent-20260815T181001-aabafcc5d32b; /sorted berth sorted-20260815T181117-083c94bffe07; chart chain claiming the ticket berthed whole 2026-08-15 (validate-20260815T190802-fd161a69d381); built under /sail the same day."
+}

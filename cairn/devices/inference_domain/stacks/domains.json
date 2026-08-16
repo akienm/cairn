@@ -26,14 +26,6 @@
       "prompts": {"generate": "You are assisting with research. Ground your answer in the material provided, cite what you actually use, and say plainly when the material does not answer the question."},
       "escalation": {},
       "prefers": []
-    },
-    {
-      "name": "builder-aider",
-      "default": false,
-      "why": "the offload vertical: the aider shim's build traffic, pinned to a local model on a local box and FENCED there. The pin and the fence are the whole row — escalation.allow ['hex'] means this domain's traffic can never walk out to a paid provider, so an unattended builder that loops cannot spend money it was never authorised to spend. Empty prompts are deliberate and are this row's clearest statement of the boundary sentence: aider composes its own instructions, and getting the inference is all that comes from here. A chat request is undressed by construction anyway (the seam dresses generate only), so writing prompts here would be text nothing reads.",
-      "prompts": {},
-      "escalation": {"allow": ["hex"]},
-      "prefers": ["qwen3-coder:30b"]
     }
   ]
 }

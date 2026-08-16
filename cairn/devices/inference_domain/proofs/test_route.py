@@ -277,7 +277,20 @@ def test_a_protocol_without_a_transport_is_walked_past_loudly_never_dialed():
 def test_the_domains_stack_carries_the_ruled_verticals_by_content():
     """The fourth authored stack (ticket the-domain-carries-the-inference-side), by CONTENT:
     rows general/coding/research, general the one default riding bare calls, rows as
-    complete FIELD SETS the loader validates."""
+    complete FIELD SETS the loader validates.
+
+    THE EQUALITY IS THE POINT AND IT STAYS AN EQUALITY. On 2026-08-16 this tooth went red
+    because the chat-verb build had authored a fourth row, ``builder-aider`` — a row named
+    for a CONSUMER. The red was correct and the build was wrong, and the first reading of
+    it here was that the assertion had become a stale snapshot to loosen. That reading was
+    the plaster the deterministic-red rule exists to stop: an equality over an authored set
+    is not a snapshot, it is the statement that these three ARE the set.
+
+    Akien's ruling, 2026-08-16, verbatim: "The inference proxy knows about providers and
+    models. it does not understand about consumers. the consumer asks for what it wants.
+    period, end of story." So no consumer ever earns a row here, and this equality is what
+    says so in a form that reds instead of arguing.
+    """
     table = route.domain_rows(route.load_stacks())
     assert set(table["rows"]) == {"general", "coding", "research"}
     assert table["default"] == "general", "a bare call rides general — the ruled default"

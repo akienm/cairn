@@ -546,11 +546,25 @@ def test_the_chat_walk_obeys_the_domains_escalation_rule():
         "the skipped rung must ride the provenance naming the rule that skipped it"
 
 
-def test_the_shipped_stacks_declare_and_fence_the_builder_aider_road():
-    """The two AUTHORED pieces, read from the rows that actually ship rather than from a fixture.
+def test_the_shipped_models_stack_declares_the_chat_verb():
+    """The AUTHORED piece, read from the rows that actually ship rather than from a fixture.
 
     A fixture would prove the sieve; only the real rows prove the DECLARATION. The overlay is
-    injected so this stays a read of git-tracked files and never of instance-space."""
+    injected so this stays a read of git-tracked files and never of instance-space.
+
+    WHAT THIS TOOTH IS NO LONGER ALLOWED TO ASSERT, and why it is worth saying here rather
+    than leaving as an absence: it used to also assert a ``builder-aider`` row in the domains
+    stack — an allow-list fencing that consumer's traffic to hex. The row was removed
+    2026-08-16 on Akien's ruling, verbatim: "The inference proxy knows about providers and
+    models. it does not understand about consumers. the consumer asks for what it wants.
+    period, end of story." A row named for a caller is the caller belonging to a class, which
+    is the very shape the domains stack's own authoring ticket forbids (falsifier tell 6:
+    rows are FIELD SETS an instance composes, never classes it belongs to).
+
+    So the pin and the fence are not the proxy's to hold. The consumer ASKS — the shim names
+    ``qwen3-coder:30b`` and the hex rung when it calls, and asking for exactly that is the
+    whole of the safety. What survives here is the half that IS provider-and-model knowledge:
+    the model declares which verbs it serves."""
     from cairn.devices.inference_domain import route as route_mod
     stacks = route_mod.load_stacks()
 
@@ -561,17 +575,15 @@ def test_the_shipped_stacks_declare_and_fence_the_builder_aider_road():
                               if m["name"] == "qwen3-coder:30b")["serves"], \
         "declaring the new verb must not have cost the model the one it already served"
 
+    # A chat call names its model and rides the ordinary walk — no consumer-shaped domain
+    # anywhere in it. The default vertical is what a bare call lands on, unchanged.
     rows = route_mod.domain_rows(stacks)
-    assert rows["default"] == "general", "the default vertical is untouched by the new row"
-    row = rows["rows"]["builder-aider"]
-    assert row["escalation"].get("allow") == ["hex"], \
-        f"the fence is a ROW the sieve reads, not a branch in code: {row['escalation']}"
-    assert row["prompts"] == {}, "the vertical dresses nothing — aider composes its own instructions"
+    assert rows["default"] == "general", "a chat call rides the ordinary default like any other"
 
-    survivors = route_mod.route("chat", "qwen3-coder:30b", domain="builder-aider", stacks=stacks,
+    survivors = route_mod.route("chat", "qwen3-coder:30b", stacks=stacks,
                                 overlay={"hex": {"endpoint": "http://fixture-hex:11434"}})["survivors"]
     assert [s["provider"] for s in survivors] == ["hex"], \
-        f"the fenced road lets exactly one rung through: {survivors}"
+        f"the named model resolves to the rung that serves it: {survivors}"
     assert survivors[0]["model"] == "qwen3-coder:30b", "and a named model is never substituted"
 
 
@@ -605,7 +617,7 @@ def _main() -> int:
         test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed,
         test_a_malformed_messages_list_never_reaches_the_host,
         test_the_chat_walk_obeys_the_domains_escalation_rule,
-        test_the_shipped_stacks_declare_and_fence_the_builder_aider_road,
+        test_the_shipped_models_stack_declares_the_chat_verb,
     ]
     for check in checks:
         check()

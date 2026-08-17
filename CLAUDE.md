@@ -22,10 +22,11 @@ construction. Its charter: `CairnCommons/intentions-not-beside-code/I-cairn-clau
 - To be briefed on a device, **stand in its directory**: every component
   co-locates its **charter** (`intention+why.json` — the *summarized design*:
   authored, the settled why+role, changes only when the design shifts) + code +
-  `state` (compiled from the component's tickets; never hand-edited) + `history`
-  (append-only; a ticket's voyage freezes here when it proves out) + `proofs/`
-  and the validations that sealed them. A component without an intention doesn't
-  run. (The filename forces the why — CP3 as schema, not as a field someone can
+  `state` (compiled from the component's tickets; never hand-edited) + the
+  `history` **of what is under way** (append-only; a ticket's voyage freezes here
+  when it proves out, and moves to the commons once it no longer establishes
+  what is going on right now — Law 5) + `proofs/` and the validations that
+  sealed them. A component without an intention doesn't run. (The filename forces the why — CP3 as schema, not as a field someone can
   leave blank.)
 
 ## The Laws
@@ -41,9 +42,25 @@ what can't trace up doesn't belong.
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the
    schema. Until it is, it is a tracked debt (an IOU), not a resting state.
-5. **Intent, its voyage, and its proofs share an address.** Every component
-   carries its charter, its `state` + `history`, and its proofs and validations
-   beside its code. The thing and the story of the thing cannot drift apart.
+5. **Intent, its current state, and its proofs share an address — and the address
+   carries what a mind needs NOW, not everything that ever happened.** Every
+   component carries its charter, its standing `state`, and its proofs and
+   validations beside its code, so a mind arriving cold can tell what is going on
+   *without leaving*. That is what the co-location is FOR, and the purpose sets
+   the bound: **the repo is itself the state of the machine** (Akien,
+   2026-08-17). History of a thing **under way** belongs beside it and is usually
+   short. History past that is noise at the working surface and berths in the
+   commons instead — *"we're not saying DESTROY ALL HISTORY"*; it is kept and
+   still greppable. And what stays is **the key points, not the trail.** Three
+   classes earn a longer stay: anything written for **external users** (the press
+   office); **key notes from a history known to be important** (CC's own record
+   of what it gets wrong); and **history that is load-bearing guidance inside
+   code or a like artifact.** The thing and the story of the thing may live in
+   two roots; what they may never do is contradict each other. **This is
+   designing to the tool:** the reader is Claude, Claude does not reason back
+   that far, and a law demanding a reader nobody is, is a law serving itself —
+   which is **CP4**, the terminal goal, doing its job on the Laws themselves
+   (*"the laws are to serve us. when they chafe, it's time to review"*).
 6. **Everything has exactly one owner — except a tool, which has users.** The
    owner alone gates writes to it; delegated access and ownership transfer happen
    only through the owner's gate, never ambiently. Ownership gates writes to
@@ -131,9 +148,14 @@ what can't trace up doesn't belong.
 
 | Root | Holds | Rule |
 |---|---|---|
-| `~/dev/src/cairn/` | `tools/`, `machines/`, `devices/`, charters, `state`/`history`, proofs, validations | class-space; git; shareable; no *runtime* state |
-| `~/dev/src/CairnCommons/` | intentions, decisions, tickets, questions, troubles, proofs, slates | knowledge; own repo; *if losing it loses knowledge, it's commons* |
+| `~/dev/src/cairn/` | `tools/`, `machines/`, `devices/`, charters, `state`, the `history` of what is **under way**, proofs, validations | class-space; git; shareable; **the repo is itself the state of the machine** — no *runtime* state, and no history past what establishes right-now |
+| `~/dev/src/CairnCommons/` | intentions, decisions, tickets, questions, troubles, proofs, slates, ideas — **and the history that is no longer under way** | knowledge; own repo; *if losing it loses knowledge, it's commons*. Not an archive: most of what is here is **live spec** (decisions, node classes, the roots), which is why "the second repo is the history" undersells it |
 | `~/.cairn/` | logs, credentials, flags, cached state, personal data | instance-space; never in git |
+
+**The cut is not by kind of content — it is by whether the thing still helps, and
+for how long.** *"We keep together things that are helpful. For as long as they're
+helpful"* (Akien, 2026-08-17). History moved out is **kept and greppable, never
+destroyed**: *"having access to it in 50 years might be useful to historians."*
 
 The instance segment is never optional: `devices/<device>/<instance>/` in **both**
 roots, and a singleton is instance `0`, not a special case. A device's held tools
@@ -144,7 +166,10 @@ named and never numbered — so a tool's definition and defaults berth once in
 **Which root?** Ask whether the intention has **one** code address. A
 **code-seam** does, so it berths in `cairn/` beside it — its ticket stages in
 `CairnCommons/tickets/`, then migrates beside the code to become that
-component's `history`. Everything else berths in
+component's `history`, **and migrates back to the commons once it no longer
+establishes what is going on right now** (Law 5). The trip is a round one: the
+commons stages the work, the code holds it while it is under way, the commons
+keeps it after. Everything else berths in
 `CairnCommons/intentions-not-beside-code/` and never migrates: a **concept-piece** (the
 prose *is* the implementation), a **host-seam** (the machine itself — a hook, a
 package, a unit file), the **roots** (`telos.md`, `core-values.md` — implemented
@@ -198,6 +223,14 @@ An IOU without a real ticket is itself the defect this section is made of.
   and the site has no plan showing which lots are still unexcavated. A component whose
   code has stopped matching its charter reads as whatever it last said about itself.
   → green derived from built + running + inspected · *ticket green-is-earned-not-assumed*
+- **Law 5's new bound.** "Under way" is a word a reader has to apply by hand: nothing
+  derives whether a component's history still establishes right-now, nothing moves the
+  rest to the commons, and nothing reds a working surface that has silently become an
+  archive. Measured on the day the Law was restated: **33 `history.json` in class-space**,
+  and `slates/` at 96 stored against exactly 1 the reader ever loads — the rule violated
+  95:1 inside the very artifact whose job is telling the next mind what is going on.
+  → a measure of *reach* (how deep is history actually read?) feeding a migration the
+  door performs · *ticket owed*
 
 **Residues.** These rules ARE physics and are deliberately not restated here —
 what remains is only the part enforcement cannot yet reach. Read the rule at its
@@ -207,7 +240,9 @@ charter, never from this file.
   `inference_domain` and `db_domain` at their own addresses) → a `subprocess`
   dials and imports nothing, and a dynamic import is invisible. · *ticket owed*
 - `state`/`history` (append door + PROVEME drift check) → an in-place edit of
-  *history* itself, and at-rest components between voyages. · *ticket owed*
+  *history* itself, and at-rest components between voyages; **and nothing
+  notices history that has stopped being under way** (Law 5's new bound — see
+  the IOU above). · *ticket owed*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
   in flight from "caveat" in a retrospective. · *ticket owed*
 - ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees

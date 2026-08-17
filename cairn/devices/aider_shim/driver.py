@@ -42,12 +42,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.devices.aider_shim import translate
-from cairn.devices.aider_shim.fence import Fence
+from cairn.devices.aider_shim.fence import DEFAULT_RECORD, Fence
 from cairn.devices.aider_shim.venv import VenvRunFailed, run_in_venv
 
 #: Instance-space, beside the ask log the fence already writes (Law 6: the tool's state
 #: berths under the holder that assembled it). One line per driven piece.
 DEFAULT_DRIVES = Path.home() / ".cairn" / "devices" / "aider_shim" / "0" / "drives.jsonl"
+
+#: WHERE AN UNDIRECTED DRIVE'S ASKS LAND — the fence's own constant, imported rather than
+#: re-spelled, because two spellings of one path is how a store quietly becomes two.
+#:
+#: THIS IS A SCAR. Until the first live fire, ``log_path=None`` meant a ``SeenLog`` with
+#: ``record_path=None`` — an in-memory log that dies with the venv process. Every ask was
+#: stamped with its ticket, every tooth read the stamp back off disk and passed, and
+#: nothing reached ``asks.jsonl``: the offload probe's population would have stayed empty
+#: through any number of real drives, which is the very defect this device's ticket exists
+#: to close. The teeth could not have caught it — each one PASSES a log path, so the
+#: default was the one arrangement no fixture exercised. A fixture that supplies the
+#: argument can never falsify the default that supplies none.
+DEFAULT_ASKS = DEFAULT_RECORD
 
 #: The repository the pieces are driven against. Same root translate.py reads berths for.
 REPO = Path(__file__).resolve().parents[3]
@@ -285,6 +298,7 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
     hand-built Brief, without a chart chain and without instance-space berths."""
     ticket, piece_index = b.ticket, b.piece_index
     model = model or Fence().models[0]
+    log_path = DEFAULT_ASKS if log_path is None else log_path
     if not b.files:
         raise DriveRefused(
             f"the brief for {ticket!r} piece {piece_index} names no editable file — there "

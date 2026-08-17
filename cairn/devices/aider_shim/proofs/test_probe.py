@@ -101,10 +101,22 @@ def verdict_berth(root: Path, ticket: str, outcomes=(PASS,), stamp="20260816T000
 # ------------------------------------------------- the declaration itself
 
 def test_the_probe_is_armed_at_the_path_the_TICKET_names():
-    """The emission gate resolves ARMED from the ticket's spec, so the path is the contract."""
+    """The emission gate resolves ARMED from the ticket's spec, so the path is the contract.
+
+    ASKED THE WAY THE GATE ASKS IT. This tooth used to resolve the berth against the
+    CURRENT WORKING DIRECTORY, and passed for a reason that was luck: this ticket happens
+    to spell its berth absolutely, so cwd never entered. Its sibling's ticket spells the
+    same field relatively, and the identical line went green bare and red under the netns
+    seal — same tooth, same claim, different answer depending on where it was run from.
+    Both now call `armed_error`, which is the gate's own question and joins to the repo
+    root rather than to wherever the runner happened to stand.
+    """
     spec = json.loads((Path.home() / "dev/src/CairnCommons/tickets/aider-shim.json")
                       .read_text(encoding="utf-8"))["watchme"]
-    assert Path(spec["probe"]).resolve() == Path(probe.__file__).resolve(), \
+    from cairn.tools.base.watchme_spec import armed_error
+    refusal = armed_error(spec)
+    assert refusal is None, f"the gate would refuse the WATCHME crossing: {refusal}"
+    assert (REPO / spec["probe"]).resolve() == Path(probe.__file__).resolve(), \
         f"the probe is not where the ticket says: {spec['probe']}"
     assert spec["object"] == "aider_shim_offload_yield"
 

@@ -410,6 +410,43 @@ def test_the_cap_is_what_holds_it_not_the_fixture():
 
 # ============================================================= piece 4: the ticket stamp
 
+def test_an_undirected_drive_records_to_the_fence_s_own_store():
+    """THE ARRANGEMENT NO OTHER TOOTH EXERCISES: a drive that names no log path.
+
+    Every other tooth here passes ``log_path=<tmp>/asks.jsonl``, so all of them passed
+    while the default meant an in-memory log that died with the venv process — stamped
+    correctly, written nowhere, and the offload probe's population empty through any
+    number of real drives. Caught by the first live fire, which is the only thing that
+    could have caught it. Two assertions, because the default has two ways to be wrong:
+    the resolution can stop happening, and it can resolve somewhere that is not the store
+    the probe reads.
+    """
+    from cairn.devices.aider_shim import fence
+
+    assert driver.DEFAULT_ASKS == fence.DEFAULT_RECORD, \
+        ("the driver's undirected drives and the fence's own store have drifted apart — "
+         f"{driver.DEFAULT_ASKS} vs {fence.DEFAULT_RECORD}. Two spellings of one path is "
+         "how a store quietly becomes two, and the probe reads the fence's.")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        repo = a_repo(tmp)
+        stand_in = tmp / "default-asks.jsonl"        # never instance-space, from a proof
+        was = driver.DEFAULT_ASKS
+        driver.DEFAULT_ASKS = stand_in
+        try:
+            driver.drive_brief(a_brief(repo), repo=repo, model=MODEL,
+                               drives_path=tmp / "drives.jsonl",
+                               seams={"resolve": seam_file(tmp, GOOD_REPLY)})
+        finally:
+            driver.DEFAULT_ASKS = was
+        assert stand_in.exists(), \
+            ("a drive with no log_path wrote no ask log at all — the asks live and die "
+             "inside the venv process, so nothing downstream can ever count them")
+        rows = [json.loads(x) for x in stand_in.read_text().splitlines() if x.strip()]
+        assert rows and all(r.get("ticket") == "aider-builds-a-piece" for r in rows), rows
+
+
 def test_every_recorded_ask_names_the_ticket():
     with tempfile.TemporaryDirectory() as tmp:
         _, r = driven(Path(tmp), ticket="a-distinctive-ticket-id")

@@ -105,6 +105,21 @@ def _roll_up(per_file: dict) -> str:
     return "mixed"
 
 
+def _identity(rec: dict) -> tuple:
+    """A drive's own identity, minted by the driver at drive time.
+
+    ONE DRIVE APPENDED TWICE IS STILL ONE DRIVE, and `enough` is a count — a store that
+    gained a row by accident would retire this watch early, having learned four fifths of
+    what it asked for. Observed at n=1 on the day this was built: the live-fire caller
+    called `driver.record` on a result `drive_brief` had already recorded, and the real
+    store carried two rows per drive with byte-identical `at`. The log is append-only and
+    its rows are true — both writes really happened — so the collapse belongs to the
+    reader, not to the record. `at` is an isoformat timestamp with microseconds taken once
+    per drive, so two genuinely separate drives cannot collide on it.
+    """
+    return (rec.get("ticket"), rec.get("piece_index"), rec.get("at"))
+
+
 def dispositions(*, drives_path=None, root=None) -> list[dict]:
     """One row per driven piece, oldest first, in the spec's vocabulary.
 
@@ -116,7 +131,12 @@ def dispositions(*, drives_path=None, root=None) -> list[dict]:
 
     root = Path(root) if root is not None else driver.REPO
     rows = []
+    seen = set()
     for rec in driver.drives(drives_path if drives_path is not None else driver.DEFAULT_DRIVES):
+        ident = _identity(rec)
+        if ident in seen:
+            continue
+        seen.add(ident)
         raw = driver.survival(rec, root=root)
         per_file = {rel: _SPEAK.get(word, word) for rel, word in raw.items()}
         rows.append({

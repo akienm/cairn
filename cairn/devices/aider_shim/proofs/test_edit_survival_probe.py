@@ -216,6 +216,20 @@ def test_FIVE_drives_that_applied_NOTHING_do_not_satisfy_enough():
             "enough went true on five drives that produced no edit at all"
 
 
+def test_ONE_drive_appended_TWICE_is_still_ONE_drive():
+    """Observed at n=1 the day this was built: a caller called `driver.record` on a result
+    `drive_brief` had already recorded, and the real store carried two rows per drive.
+    Both writes really happened — the log is append-only and its rows are true — so the
+    collapse belongs here. Counting it twice would retire the watch one drive early."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root, drives = Path(tmp), Path(tmp) / "drives.jsonl"
+        r = a_drive(root, drives, files={"a.py": "before\n"}, edits={"a.py": "after\n"})
+        driver.record(r, path=drives)                      # the accidental second write
+        assert len(driver.drives(drives)) == 2, "the fixture did not reproduce the double"
+        rows = probe.dispositions(drives_path=drives, root=root)
+        assert len(rows) == 1, f"one drive counted {len(rows)} times: {rows}"
+
+
 def test_enough_goes_TRUE_at_five_recorded_survivals_and_FALSE_at_four():
     with tempfile.TemporaryDirectory() as tmp:
         root, drives = Path(tmp), Path(tmp) / "drives.jsonl"

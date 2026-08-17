@@ -318,6 +318,73 @@ def main() -> None:
         assert [x["judge"] for x in judge_decompose(broken)] and \
             judge_decompose(broken)[0]["judge"] == "decompose_composes_holdings"
 
+        # 20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket
+        #       a-piece-names-where-its-output-lands). This judge is the PROMOTION
+        #       mouth: it sweeps the standing corpus, so it judges a `writes_to`
+        #       that is PRESENT and says nothing at all about one that is absent.
+        #       Lettered rather than renumbered because the charter's falsifier and
+        #       this file cite teeth by number — a number is an address.
+        addressed = dict(derived, sub_problems=[
+            dict(derived["sub_problems"][0], writes_to=["cairn/tools/base/address.py"]),
+            # Does NOT exist, and stays quiet: a build piece names the file it is
+            # about to create. A judge demanding existence would red exactly the
+            # case the field was added to carry.
+            dict(derived["sub_problems"][1], writes_to=["cairn/no/such/module.py"])])
+        assert judge_decompose(addressed) == [], judge_decompose(addressed)
+        outside = dict(derived, sub_problems=[
+            dict(derived["sub_problems"][0], writes_to=["/etc/passwd"])])
+        assert [x["judge"] for x in judge_decompose(outside)] == \
+            ["decompose_composes_holdings"], judge_decompose(outside)
+        assert "outside the cairn repo" in judge_decompose(outside)[0]["finding"]
+        a_dir = dict(derived, sub_problems=[
+            dict(derived["sub_problems"][0], writes_to=["cairn/tools"])])
+        assert "an existing directory" in judge_decompose(a_dir)[0]["finding"], \
+            judge_decompose(a_dir)
+        hollow = dict(derived, sub_problems=[
+            dict(derived["sub_problems"][0], writes_to=[])])
+        assert "not a non-empty list" in judge_decompose(hollow)[0]["finding"]
+        # ...and through the registry sieve, not only the pure judge (two mouths).
+        dpath.write_text(json.dumps(outside))
+        f = inspect(root=root, component="charted")["findings"]
+        assert [x["sieve"] for x in f] == ["decompose_composes_holdings"], f
+        dpath.write_text(json.dumps(addressed))
+        assert inspect(root=root, component="charted")["clean"]
+        dpath.unlink()
+
+        # NO RETRO-RED, ASSERTED OVER THE REAL STANDING CORPUS AS AN INVARIANT —
+        # never as a snapshot count, because _CHART_BERTHS is a live directory that
+        # grows every time anyone charts. The berths charted before this field
+        # existed never had it asked of them, and reading their silence as a finding
+        # would red 51 healthy components against a spec that did not exist when
+        # they were written (tooth 1, and Law 9's bound read the other way). The
+        # count it actually saw is asserted non-zero: an invariant over zero berths
+        # is a hollow green, and this proof's whole exposure is exactly that.
+        corpus, silent = 0, 0
+        # The same glob _charted_packets sweeps: <instance>/packets/ under the root.
+        for real in sorted(Path(saved_berths).glob("*/packets/decompose-*.json")):
+            try:
+                pkt = json.loads(real.read_text())
+            except (OSError, ValueError):
+                continue
+            pieces = pkt.get("sub_problems")
+            if not isinstance(pieces, list) or not pieces:
+                continue
+            corpus += 1
+            if any(isinstance(sp, dict) and "writes_to" in sp for sp in pieces):
+                continue
+            silent += 1
+            said = [x["finding"] for x in judge_decompose(pkt)
+                    if "writes_to" in x["finding"]]
+            assert not said, (str(real), said)
+        assert corpus > 0, (
+            "the no-retro-red arm read ZERO standing decompose berths at %s — an "
+            "invariant over an empty corpus is a hollow green, and this assertion "
+            "is the thing that says so out loud" % saved_berths)
+        assert silent > 0, (
+            "every standing berth already carries `writes_to`, so the silence this "
+            "tooth pins was never exercised — the claim needs a berth that predates "
+            "the field, and there is none left at %s" % saved_berths)
+
         # 21 — THE JUDGES BEFORE THE JUDGED, FOURTH APPLICATION (triage-filters):
         #      an order dropping a split piece fires triage_covers_the_split
         #      naming the dropped piece; an invented or double-ordered piece fires

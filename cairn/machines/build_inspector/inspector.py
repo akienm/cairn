@@ -793,6 +793,81 @@ def judge_decompose(packet: dict) -> list[dict]:
                                           "rule composed); if the piece needs it, "
                                           "the survey must hold it first.",
                     })
+        # WHERE THE PIECE'S OUTPUT LANDS — and this mouth judges only a `writes_to`
+        # that IS PRESENT. The decompose DOOR requires the field; this judge is also
+        # the PROMOTION mouth (_judge_charted sweeps every standing berth claiming a
+        # ticket the component owns), and the 51 berths charted before the field
+        # existed never had it asked of them. Reading their silence as a finding
+        # would red 51 healthy components against a spec that did not exist when
+        # they were written — tooth 1 ("a healthy component draws a finding — a gate
+        # that always fires gets unwired") and Law 9's bound read the other way. The
+        # two-mouth asymmetry is deliberate, and it has precedent at
+        # survey_holdings_resolve. Tagged under composes_holdings because that judge
+        # already carries "every piece has its shape", which is what a malformed
+        # output address is; the split is by claim, not by a third sieve nobody was
+        # taught by.
+        if "writes_to" in sp:
+            frags += _writes_to_frags(i, sp)
+    return frags
+
+
+def _writes_to_frags(i: int, sp: dict) -> list[dict]:
+    """The findings a PRESENT ``writes_to`` can draw — never the finding of its absence.
+
+    An address is judged on three things, and existence is NOT one of them: a build
+    piece names the file it is about to create, so demanding existence would red
+    exactly the case the field was added to carry. What is judged is that the address
+    is a non-empty string, that it is INSIDE the cairn repo, and that it is not an
+    existing DIRECTORY — the downstream reader hands it to an apprentice as an editable
+    file, and a directory handed over as a file is a brief that cannot be honoured.
+    """
+    frags, addrs = [], sp.get("writes_to")
+    if not isinstance(addrs, list) or not addrs:
+        return [{
+            "judge": "decompose_composes_holdings",
+            "finding": "sub-problem %d declares a `writes_to` that is not a "
+                       "non-empty list" % i,
+            "evidence": {"index": i, "what": sp.get("what"), "writes_to": addrs},
+            "why_it_matters": "a piece that names where its output lands and then "
+                              "names nothing has an address field that reads as "
+                              "answered while answering nothing — worse than the "
+                              "absence, which at least measures as absent.",
+        }]
+    root = str(_REPO_ROOT)
+    for addr in addrs:
+        if not isinstance(addr, str) or not addr.strip():
+            frags.append({
+                "judge": "decompose_composes_holdings",
+                "finding": "sub-problem %d declares `writes_to` entry %r, which is "
+                           "not a non-empty string" % (i, addr),
+                "evidence": {"index": i, "what": sp.get("what"), "entry": addr},
+                "why_it_matters": "the address is handed downstream as a path; a "
+                                  "non-string is a brief that cannot be assembled.",
+            })
+            continue
+        resolved = os.path.normpath(os.path.join(root, addr))
+        if not (resolved == root or resolved.startswith(root + os.sep)):
+            frags.append({
+                "judge": "decompose_composes_holdings",
+                "finding": "sub-problem %d writes_to %r — outside the cairn repo" % (i, addr),
+                "evidence": {"index": i, "what": sp.get("what"), "entry": addr,
+                             "repo_root": root},
+                "why_it_matters": "a declared output outside the repo is a write this "
+                                  "system does not gate and git cannot see (Law 6, and "
+                                  "the class-space rule that runtime state never lands "
+                                  "here).",
+            })
+        elif os.path.isdir(resolved):
+            frags.append({
+                "judge": "decompose_composes_holdings",
+                "finding": "sub-problem %d writes_to %r — an existing directory, "
+                           "not a file" % (i, addr),
+                "evidence": {"index": i, "what": sp.get("what"), "entry": addr},
+                "why_it_matters": "the downstream reader hands this to the apprentice "
+                                  "as an editable FILE; a directory is an address that "
+                                  "cannot be edited, and the drive would silently do "
+                                  "nothing there.",
+            })
     return frags
 
 

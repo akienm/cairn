@@ -12,7 +12,7 @@ tooth reading `order[4]` would go red the day somebody re-charts, with nothing b
 the chain is built here, in a temp dir, shaped exactly like the real berths (measured off
 ~/.cairn/devices/chart/0/packets/ on 2026-08-16: orient.intent, constrain.bounds.{in,out},
 constrain.constraints[].{text,source,kind}, survey.holdings[].{what,address},
-decompose.sub_problems[].{what,why,kind,fills,uses}, triage.order[].{what,why_now}). The
+decompose.sub_problems[].{what,why,kind,fills,uses,writes_to}, triage.order[].{what,why_now}). The
 live chain is exercised by the live fire instead — the proof pins the contract, the live
 fire meets the world.
 
@@ -90,18 +90,28 @@ def make_chain(root: Path) -> Path:
         # gamma carries all four holdings so the classification teeth (outside-the-repo,
         # directory, dead path) still have something to classify; alpha carries one, and
         # the DIFFERENCE between them is what a piece-scoped file list means.
+        # AND EVERY PIECE CARRIES `writes_to` (2026-08-17, ticket
+        # a-piece-names-where-its-output-lands), because the decompose door now requires
+        # it: `uses` names survey HOLDINGS — things that EXIST — so it cannot name where
+        # a build piece's output lands. Each piece's writes_to deliberately includes an
+        # address that DOES NOT EXIST, which is the ordinary case for a build piece and
+        # the one a fixture built from `uses` could never contain.
         "sub_problems": [
             {"what": "alpha", "why": "because alpha", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"],
+             "writes_to": ["cairn/devices/aider_shim/alpha_not_yet.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
-             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"],
+             "writes_to": ["cairn/devices/aider_shim/translate.py"]},
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
              "uses": ["cairn/devices/builder/machines/verdict/verdict.py",
                       str(Path.home() / "dev/src/aider/aider/models.py"),
                       "cairn/tools/base",
-                      "cairn/does/not/exist.py"]},
+                      "cairn/does/not/exist.py"],
+             "writes_to": ["cairn/devices/aider_shim/translate.py",
+                           "cairn/devices/aider_shim/gamma_not_yet.py"]},
         ],
     })
     berth(root, "triage", {
@@ -329,6 +339,11 @@ def test_a_holding_OUTSIDE_the_repo_is_never_editable():
     THE FALSIFIER IS THE POINT: this reds the moment a foreign-program holding lands in
     ``fnames``, which is exactly the state in which aider would be free to edit the held
     program — a breach no prompt sentence reliably prevents.
+
+    STRUCTURAL SINCE 2026-08-17 (ticket a-piece-names-where-its-output-lands): a `uses`
+    entry can no longer reach ``fnames`` by ANY path, in the repo or out of it, because
+    the editable list is sourced from `writes_to` alone. The bound used to rest on a
+    path comparison; now the out-of-repo check is the second lock, not the only one.
     """
     with chain() as root:
         b = translate.brief(TICKET, 0, berths_root=root)
@@ -340,20 +355,27 @@ def test_a_holding_OUTSIDE_the_repo_is_never_editable():
 def test_no_DECLARED_use_is_SILENTLY_dropped():
     """Every address the piece declared lands in exactly one of the three lists (Law 7).
 
-    THE DENOMINATOR IS THE PIECE'S `uses`, NOT THE SURVEY'S HOLDINGS, and that changed on
-    2026-08-17 with what it counts. It used to read the survey berth back and count every
-    holding, which was the right check for a function that handed aider the whole survey —
-    and it was exactly the check that could not see the defect, because it was measuring
-    the survey against itself. What the piece named is what may go missing now, so that is
-    what is counted; a directory and a dead path are both in the fixture because both are
-    the ordinary way it happens.
+    THE DENOMINATOR IS THE PIECE'S OWN FIELDS, NOT THE SURVEY'S HOLDINGS, and that changed
+    on 2026-08-17 with what it counts. It used to read the survey berth back and count
+    every holding, which was the right check for a function that handed aider the whole
+    survey — and it was exactly the check that could not see the defect, because it was
+    measuring the survey against itself. What the piece named is what may go missing now,
+    so that is what is counted; a directory and a dead path are both in the fixture
+    because both are the ordinary way it happens.
+
+    AND THE DENOMINATOR IS BOTH FIELDS, not `uses` alone: `writes_to` joined the piece
+    later the same day, and a total counted over one field would go green while the other
+    field's addresses vanished — the precise shape of the defect this whole voyage is
+    about, reproduced in the tooth that exists to catch it.
     """
     with chain() as root:
         b = translate.brief(TICKET, 0, berths_root=root)
         d = json.loads(next((root / "chart" / "packets")
                             .glob("decompose-*.json")).read_text())
         gamma = next(p for p in d["sub_problems"] if p["what"] == "gamma")
-        assert len(b.files) + len(b.read_only) + len(b.skipped) == len(gamma["uses"])
+        declared = len(gamma["uses"]) + len(gamma["writes_to"])
+        assert len(b.files) + len(b.read_only) + len(b.skipped) == declared, (
+            b.files, b.read_only, b.skipped, declared)
         assert {s["why"] for s in b.skipped} == {"a directory, not a file",
                                                  "does not resolve"}
 
@@ -373,13 +395,16 @@ def test_the_file_list_IS_THE_PIECES_not_the_SURVEYS():
     green under both behaviours.
     """
     with chain() as root:
-        gamma = translate.brief(TICKET, 0, berths_root=root)   # uses all four holdings
-        alpha = translate.brief(TICKET, 1, berths_root=root)   # uses exactly one
+        gamma = translate.brief(TICKET, 0, berths_root=root)   # 4 uses, 2 writes_to
+        alpha = translate.brief(TICKET, 1, berths_root=root)   # 1 use,  1 writes_to
         assert len(alpha.files) == 1, alpha.files
-        assert alpha.read_only == [] and alpha.skipped == [], (alpha.read_only,
-                                                              alpha.skipped)
-        assert set(alpha.files) < set(gamma.files) | set(gamma.read_only), \
-            "the piece with fewer declared uses did not get a strictly smaller file list"
+        assert alpha.skipped == [], alpha.skipped
+        assert len(alpha.read_only) == 1, alpha.read_only
+        wide = set(gamma.files) | set(gamma.read_only) | {s["address"] for s in gamma.skipped}
+        narrow = set(alpha.files) | set(alpha.read_only)
+        assert len(narrow) < len(wide), \
+            "the piece that declared fewer addresses did not get a smaller file list"
+        assert narrow != wide, (narrow, wide)
         assert gamma.read_only, "gamma declared a use outside the repo and got no read-only"
         # And the survey's full inventory is still IN THE PROMPT — the narrowing is of
         # what aider is handed as open files, never of what the chain told it exists.
@@ -400,12 +425,15 @@ def test_a_piece_that_declares_NO_uses_REFUSES_rather_than_taking_everything():
     names is upstream, in the split.
     """
     with chain() as root:
+        # Every piece carries `writes_to`, so the ONLY lack is the one under test — a
+        # fixture short of both fields would pass this tooth on the wrong refusal.
         berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
             {"what": "gamma", "why": "because gamma", "kind": "build",
-             "fills": ["any translation"]},
+             "fills": ["any translation"], "writes_to": ["cairn/devices/aider_shim/g.py"]},
             {"what": "alpha", "why": "because alpha", "kind": "build",
-             "fills": ["any translation"]},
+             "fills": ["any translation"], "writes_to": ["cairn/devices/aider_shim/a.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
+             "writes_to": ["cairn/devices/aider_shim/b.py"],
              "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]}]},
               stamp="20260817T235959")
         try:
@@ -429,18 +457,23 @@ def test_the_editable_list_is_absolute_and_deduplicated():
                                             {"what": "same file, absolute",
                                              "address": absolute}]},
               stamp="20260816T235959")
-        # THE PIECE HAS TO DECLARE BOTH SPELLINGS, or there is nothing to deduplicate:
-        # the selection is the piece's `uses` now, so a survey carrying a duplicate no
-        # longer reaches the file list on its own.
+        # THE PIECE HAS TO DECLARE BOTH SPELLINGS IN `writes_to`, or there is nothing to
+        # deduplicate: the editable list is sourced from `writes_to` alone since
+        # 2026-08-17, so neither a survey carrying a duplicate nor a duplicated `uses`
+        # reaches ``fnames`` at all.
         berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
             {"what": "gamma", "why": "because gamma", "kind": "build",
-             "fills": ["any translation"], "uses": [rel, absolute]},
+             "fills": ["any translation"], "uses": [rel], "writes_to": [rel, absolute]},
             {"what": "alpha", "why": "because alpha", "kind": "build",
-             "fills": ["any translation"], "uses": [rel]},
-            {"what": "beta", "why": "because beta", "kind": "compose", "uses": [rel]}]},
+             "fills": ["any translation"], "uses": [rel], "writes_to": [rel]},
+            {"what": "beta", "why": "because beta", "kind": "compose",
+             "uses": [rel], "writes_to": [rel]}]},
               stamp="20260816T235959")
         b = translate.brief(TICKET, 0, berths_root=root)
         assert b.files == [absolute], b.files
+        # And the same file declared BOTH ways is editable only — a file in fnames and
+        # read_only_fnames at once is a state aider's own Coder does not define.
+        assert b.read_only == [], b.read_only
 
 
 def test_the_file_list_does_not_depend_on_THE_CALLERS_CWD():
@@ -462,8 +495,135 @@ def test_the_file_list_does_not_depend_on_THE_CALLERS_CWD():
             b = translate.brief(TICKET, 0, berths_root=root)
         finally:
             os.chdir(here)
-        assert str(REPO / "cairn/devices/builder/machines/verdict/verdict.py") in b.files, \
-            f"a repo-relative holding did not survive a foreign cwd: {b.files} {b.skipped}"
+        assert str(REPO / "cairn/devices/aider_shim/translate.py") in b.files, \
+            f"a repo-relative `writes_to` did not survive a foreign cwd: {b.files} {b.skipped}"
+        assert str(REPO / "cairn/devices/builder/machines/verdict/verdict.py") in b.read_only, \
+            f"a repo-relative `uses` did not survive a foreign cwd: {b.read_only} {b.skipped}"
+
+
+# ------------------ the editable list is WHERE IT WRITES, not what it READS (2026-08-17)
+
+def test_the_editable_list_is_WHERE_IT_WRITES_not_WHAT_IT_READS():
+    """``fnames`` comes from `writes_to` alone; `uses` can only ever be read-only.
+
+    THE DEFECT THIS CATCHES, measured at the first live drive (2026-08-17): the apprentice
+    was handed the file the piece READS as the file to EDIT, and dutifully edited it — a
+    correct drive of a wrong brief, which is the failure mode no amount of prompt wording
+    fixes. The reason is structural and it is why `uses` could never have carried this:
+    `uses` names survey HOLDINGS, and a holding is something the sweep FOUND, so it exists
+    by construction. A build piece's whole job is to create what a measured absence says
+    is missing. The address it writes is therefore excluded from `uses` BY DEFINITION, and
+    no reading of the field could have recovered it.
+
+    THE TOOTH IS A PARTITION, not a membership test: every declared `uses` entry that
+    resolves is in read_only and in NEITHER of the other two, and every `writes_to` entry
+    is editable. A membership-only check goes green under a function that puts everything
+    everywhere.
+    """
+    with chain() as root:
+        b = translate.brief(TICKET, 0, berths_root=root)          # gamma
+        d = json.loads(next((root / "chart" / "packets")
+                            .glob("decompose-*.json")).read_text())
+        gamma = next(p for p in d["sub_problems"] if p["what"] == "gamma")
+        for addr in gamma["writes_to"]:
+            resolved = str((REPO / addr).resolve())
+            assert resolved in b.files, (addr, b.files)
+            assert resolved not in b.read_only, (addr, b.read_only)
+        for addr in gamma["uses"]:
+            p = Path(addr)
+            resolved = str((p if p.is_absolute() else REPO / addr).resolve())
+            assert resolved not in b.files, \
+                f"{addr!r} is something the piece READS and it landed in the editable list"
+        assert b.read_only, b.read_only
+
+
+def test_a_writes_to_THAT_DOES_NOT_EXIST_YET_is_editable_not_skipped():
+    """The ordinary case for a build piece, and the one a skip would silently break.
+
+    A `writes_to` naming a file that is not there yet is not a defect — it is the WHOLE
+    POINT: the piece exists to create it. Skipping it as unresolvable would hand aider an
+    empty editable list for exactly the pieces that have the most to do, and would do it
+    quietly, in the `skipped` list nobody re-reads. The fixture's alpha writes to
+    `alpha_not_yet.py`, which this proof asserts is absent from disk first — a tooth that
+    stopped exercising the case because somebody created the file would otherwise go green
+    for the wrong reason.
+    """
+    target = REPO / "cairn/devices/aider_shim/alpha_not_yet.py"
+    assert not target.exists(), \
+        f"the fixture's deliberately-absent output address exists on disk: {target}"
+    with chain() as root:
+        alpha = translate.brief(TICKET, 1, berths_root=root)
+        assert str(target) in alpha.files, (alpha.files, alpha.skipped)
+        assert not any(s["address"] == str(target) or s["address"].endswith("alpha_not_yet.py")
+                       for s in alpha.skipped), alpha.skipped
+
+
+def test_a_piece_that_declares_NO_writes_to_REFUSES_and_names_THE_RE_CHART():
+    """A berth predating the field is STALE, and the refusal says so with both referents.
+
+    NOT A FALLBACK, and not a guess from the piece's prose — guessing from prose is what
+    handed the apprentice the wrong file in the first place. The refusal has to be
+    actionable at the moment it fires, so it carries BOTH resolvable things a reader
+    needs: the berth that is stale (evidence) and the command that re-makes it (the fix).
+    Naming only the command leaves the reader hunting for which berth; naming only the
+    berth leaves them inventing a repair.
+    """
+    with chain() as root:
+        berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
+            {"what": "gamma", "why": "because gamma", "kind": "build",
+             "fills": ["any translation"],
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
+            {"what": "alpha", "why": "because alpha", "kind": "build",
+             "fills": ["any translation"],
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
+            {"what": "beta", "why": "because beta", "kind": "compose",
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]}]},
+              stamp="20260817T235959")
+        try:
+            b = translate.brief(TICKET, 0, berths_root=root)
+        except ValueError as e:
+            assert "declares no `writes_to`" in str(e), e
+            assert "/chart " + TICKET in str(e), e
+            assert "decompose-20260817T235959" in str(e), \
+                f"the refusal did not name the stale berth it read: {e}"
+        else:
+            raise AssertionError(
+                f"a piece with no declared `writes_to` produced a brief carrying "
+                f"{len(b.files)} editable file(s) — the editable list was guessed from "
+                "somewhere other than the berth, which is the defect itself")
+
+
+def test_a_writes_to_OUTSIDE_THE_REPO_or_A_DIRECTORY_is_skipped_never_editable():
+    """The two ways a well-formed output address is still not a file to open.
+
+    Out-of-repo is constrain's `out` bound read from the OTHER side: `uses` was already
+    barred from ``fnames``, and this closes the door the new field opened. A directory is
+    the shape aider cannot act on at all. Both are `skipped` WITH A REASON rather than
+    dropped — Law 7 at a diagnostic surface: the address was declared, so its absence from
+    the editable list is a fact the record has to carry.
+    """
+    with chain() as root:
+        berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
+            {"what": "gamma", "why": "because gamma", "kind": "build",
+             "fills": ["any translation"],
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"],
+             "writes_to": [str(Path.home() / "dev/src/aider/aider/models.py"),
+                           "cairn/tools/base",
+                           "cairn/devices/aider_shim/translate.py"]},
+            {"what": "alpha", "why": "because alpha", "kind": "build",
+             "fills": ["any translation"], "uses": ["cairn/tools/base/probe.py"],
+             "writes_to": ["cairn/devices/aider_shim/translate.py"]},
+            {"what": "beta", "why": "because beta", "kind": "compose",
+             "uses": ["cairn/tools/base/probe.py"],
+             "writes_to": ["cairn/devices/aider_shim/translate.py"]}]},
+              stamp="20260817T235959")
+        b = translate.brief(TICKET, 0, berths_root=root)
+        assert b.files == [str(REPO / "cairn/devices/aider_shim/translate.py")], b.files
+        assert not any("dev/src/aider" in f for f in b.files), b.files
+        whys = {s["address"]: s["why"] for s in b.skipped}
+        assert whys[str(Path.home() / "dev/src/aider/aider/models.py")] == \
+            "an output address outside this repo — not opened for editing", whys
+        assert whys["cairn/tools/base"] == "a directory, not a file", whys
 
 
 # --------------------------------------- the aider-side contract, measured

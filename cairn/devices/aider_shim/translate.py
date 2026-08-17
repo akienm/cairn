@@ -282,21 +282,52 @@ def brief(ticket: str, piece_index: int, *, test_cmd: str = "",
     if not uses:
         raise ValueError(
             f"piece {piece_index} of {ticket!r} declares no `uses`, so nothing berthed says "
-            "which files it touches. Handing it the whole survey instead is what this "
+            "which files it READS. Handing it the whole survey instead is what this "
             "function used to do, and it is what made every piece's brief identical and "
             "over the model's window. Measured 2026-08-17 across 51 decompose berths: 1 "
             "piece in 321 lacks `uses`, so this is a real state and a rare one — the fix "
             "is upstream, in the split, not a fallback here."
         )
-    editable, read_only, skipped = _files(uses, holdings)
+    writes_to = piece.get("writes_to") or []
+    if not writes_to:
+        raise ValueError(
+            f"piece {piece_index} of {ticket!r} declares no `writes_to`, so nothing berthed "
+            "says where its output LANDS, and the editable file list would have to be "
+            "guessed from the piece's prose — which is exactly what handed the apprentice "
+            "the file it READS at the first live drive (2026-08-17). `uses` cannot stand in: "
+            "it names survey HOLDINGS, things that exist, and a build piece's whole job is "
+            "to create what a measured absence says is missing. THE BERTH IS STALE — it "
+            f"predates the field: {d}. Re-chart the ticket (`/chart {ticket}`) so its "
+            "decompose berth carries the field the door now requires."
+        )
+    editable, read_only, skipped = _files(uses, writes_to, holdings)
     return Brief(ticket=ticket, piece_index=piece_index,
                  spans=[s for s in spans if s is not None],
                  files=editable, read_only=read_only, skipped=skipped,
                  test_cmd=test_cmd, chain=standing)
 
 
-def _files(uses, holdings) -> tuple[list[str], list[str], list[dict]]:
-    """THE PIECE'S declared holdings, sorted into what aider may EDIT and what it may READ.
+def _files(uses, writes_to, holdings) -> tuple[list[str], list[str], list[dict]]:
+    """THE PIECE'S declared addresses, sorted into what aider may EDIT and what it may READ.
+
+    EDITABLE COMES FROM ``writes_to``, READ-ONLY FROM ``uses``, and the asymmetry is the
+    whole ticket (a-piece-names-where-its-output-lands, 2026-08-17). ``uses`` names survey
+    HOLDINGS — things the sweep FOUND, i.e. things that EXIST — and a build piece's whole
+    job is to create what a measured absence says is missing, so its target is excluded
+    from ``uses`` by construction. Handing ``uses`` over as editable was therefore looser
+    and wronger at once: looser because a file the piece merely reads was open for
+    writing, wronger because the file the piece was actually there to write was in no
+    list at all. MEASURED at the first live drive that landed an applied edit: the brief
+    handed the apprentice ``venv.py`` — a holding the piece names in ``uses`` — and the
+    piece's job was to create a new verb. It built the wrong thing in the wrong place,
+    and both halves trace here.
+
+    A ``writes_to`` THAT DOES NOT EXIST PASSES THROUGH AS EDITABLE. That is the subtle
+    half and it is not an oversight: a build piece names the file it is about to create,
+    so reporting it ``skipped`` — the treatment a non-resolving ``uses`` gets, correctly,
+    because a holding that isn't there is a finding about the survey — would reproduce
+    this ticket's exact defect at the exact function that fixes it. aider is given the
+    path and creates it.
 
     THE SELECTION IS DECOMPOSE'S, AND IT USED TO BE NOBODY'S. Until 2026-08-17 this
     function took the whole survey and handed every holding to aider, so every piece of a
@@ -328,9 +359,30 @@ def _files(uses, holdings) -> tuple[list[str], list[str], list[dict]]:
 
     A declared use that resolves to nothing, or to a directory, is REPORTED rather than
     dropped: the piece named it, so its absence is a finding about the split, and Law 7
-    says a diagnostic surface is loud.
+    says a diagnostic surface is loud. The same holds for a ``writes_to`` this function
+    cannot honour — a directory, or an address outside this repo — with the difference
+    that non-existence is not one of those cases.
     """
     editable, read_only, skipped = [], [], []
+    for addr in writes_to:
+        if not isinstance(addr, str) or not addr.strip():
+            skipped.append({"address": addr, "why": "declared as an output address, "
+                                                    "but not a usable path"})
+            continue
+        p = Path(addr)
+        p = p if p.is_absolute() else REPO / addr
+        if REPO not in p.resolve().parents and p.resolve() != REPO:
+            # The decompose door already refuses this and the promotion judge reds it;
+            # a berth that predates both can still carry one, and an out-of-repo output
+            # handed over as editable is a write this system does not gate (Law 6).
+            skipped.append({"address": addr, "why": "an output address outside this "
+                                                    "repo — not opened for editing"})
+        elif p.is_dir():
+            skipped.append({"address": addr, "why": "a directory, not a file"})
+        else:
+            # NOT gated on existence. See the docstring: the piece is here to create it.
+            editable.append(str(p.resolve()))
+
     known = {h.get("address") for h in holdings if isinstance(h, dict)}
     for addr in uses:
         if not isinstance(addr, str) or not addr:
@@ -345,8 +397,10 @@ def _files(uses, holdings) -> tuple[list[str], list[str], list[dict]]:
             skipped.append({"address": addr, "why": "does not resolve"})
         elif p.is_dir():
             skipped.append({"address": addr, "why": "a directory, not a file"})
-        elif REPO in p.resolve().parents:
-            editable.append(str(p.resolve()))
         else:
             read_only.append(str(p.resolve()))
-    return sorted(set(editable)), sorted(set(read_only)), skipped
+    # A piece may legitimately both read and write one file. It goes in the editable
+    # list only — aider's own contract: a path in both `fnames` and `read_only_fnames`
+    # is a contradiction, and the piece's DECLARED OUTPUT is the stronger claim.
+    editable = sorted(set(editable))
+    return editable, sorted(set(read_only) - set(editable)), skipped

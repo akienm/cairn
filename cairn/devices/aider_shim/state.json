@@ -1,25 +1,22 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(aider_shim_offload_yield) -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(aider_shim_edit_survival) -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'aider-shim'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/aider_shim/proofs/test_probe.py (seal 2026-08-16T19:21:05, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(aider_shim_offload_yield) emitted the probe berthed at /home/akien/dev/src/cairn/cairn/devices/aider_shim/probes/offload_yield_probe.py (ticket 'aider-shim')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260816T192157-e18aa4a953b7.json",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'aider-builds-a-piece', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVED' in the code-seam@v2 vocabulary",
-        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -34,90 +31,44 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED moves the cursor off position 4",
-        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
-          "cursor": 4,
-          "resolved": 5
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED",
-        "actual": "WATCHME -> PROVED",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
-            "PROVED",
-            "PROVEME",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_names_a_cast_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "a cast ticket for the WATCHME(aider_shim_offload_yield) crossing",
-        "actual": "a cast ticket for the WATCHME(aider_shim_offload_yield) crossing",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "aider-shim",
-          "watch_object": "aider_shim_offload_yield",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aider-shim.json"
-        }
-      },
-      {
-        "identity": "the_ticket_carries_a_spec_for_this_watch",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "ticket 'aider-shim' carries a watchme spec for 'aider_shim_offload_yield'",
-        "actual": "ticket 'aider-shim' carries a watchme spec for 'aider_shim_offload_yield'",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "aider-shim",
-          "watch_object": "aider_shim_offload_yield",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_promised_probe_is_berthed_and_armed",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "the probe the spec promised is berthed and armed",
-        "actual": "the probe the spec promised is berthed and armed",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "aider-shim",
-          "watch_object": "aider_shim_offload_yield",
-          "berth": "/home/akien/dev/src/cairn/cairn/devices/aider_shim/probes/offload_yield_probe.py",
-          "findings": []
         }
       },
       {
         "identity": "the_crossing_shows_its_ticket_or_its_exemption",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+        "expected": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "aider-shim",
+          "target": "BUILDME",
+          "ticket": "aider-builds-a-piece",
           "component": "aider_shim",
           "exempt": false,
           "roster": []
@@ -127,103 +78,62 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'aider-shim' is cast",
-        "actual": "named ticket 'aider-shim' is cast",
+        "expected": "named ticket 'aider-builds-a-piece' is cast",
+        "actual": "named ticket 'aider-builds-a-piece' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "aider-shim",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aider-shim.json"
+          "target": "BUILDME",
+          "ticket": "aider-builds-a-piece",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aider-builds-a-piece.json"
         }
       },
       {
-        "identity": "the_claiming_chart_is_answered",
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_exit",
+        "code": "transitions.py::inspect_entry",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_exit",
+        "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "aider-shim"
+          "ticket": "aider-builds-a-piece"
         }
       },
       {
-        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "identity": "the_ticket_names_its_intent_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
-        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "component": "aider_shim",
-          "cleared_by": "CC",
-          "exempt": false,
-          "roster": []
+          "findings": [],
+          "ticket": "aider-builds-a-piece"
         }
       },
       {
-        "identity": "the_witness_is_whole",
+        "identity": "the_ticket_names_its_sorted_door_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness carries every field the harbor's gate stamps",
-        "actual": "the witness carries every field the harbor's gate stamps",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "cleared_by": "CC",
-          "missing": [],
-          "demanded": [
-            "proven_by",
-            "proven_seal_date"
-          ]
-        }
-      },
-      {
-        "identity": "the_named_proof_stands_in_proven_space",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/aider_shim/proofs/test_probe.py stands in proven-space",
-        "actual": "cairn/devices/aider_shim/proofs/test_probe.py stands in proven-space",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/aider_shim/proofs/test_probe.py",
-          "why": "sealed green 2026-08-16T19:21:05 by aider_shim, and the component's source fingerprint still matches what was proved (46a8cf981af9…)"
-        }
-      },
-      {
-        "identity": "the_witness_agrees_with_the_seal_it_names",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/aider_shim/proofs/test_probe.py's seal at '2026-08-16T19:21:05'",
-        "actual": "the witness dates cairn/devices/aider_shim/proofs/test_probe.py's seal at '2026-08-16T19:21:05'",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/aider_shim/proofs/test_probe.py",
-          "seal": "2026-08-16T19:21:05",
-          "claimed": "2026-08-16T19:21:05"
+          "findings": [],
+          "ticket": "aider-builds-a-piece"
         }
       }
     ],
-    "checks_proved": 13,
-    "cleared_by": "CC",
+    "checks_proved": 8,
+    "ticket": "aider-builds-a-piece",
     "actor": "CC",
-    "proven_by": "cairn/devices/aider_shim/proofs/test_probe.py",
-    "proven_seal_date": "2026-08-16T19:21:05",
-    "delegated": false,
-    "ticket": "aider-shim",
-    "note": "aider runs in our process, on our inference host, behind a money fence, on a prompt assembled only from berthed chart packets — proved by 80 teeth, sealed under netns, and fired for real once: qwen3-coder:30b on hex produced a correct diff through our surface, meter +3 calls / +3213 tokens.\n\nWHAT THE CLOSE COST, AND IT IS THE PART WORTH READING IN A YEAR. Three defects were found at the very end, and every one of them was found by DOING the thing rather than by checking it. (1) The first live fire died on `import networkx` inside aider's repo map — diagnosed not as a missing package but as a PROMPT hole: the repo map splices a ranked digest of the whole repository into the prompt AFTER translate.py has finished counting spans, so unsourced() would report zero while the no-untraceable-content clause was being violated. map_tokens=0 is the design, not a performance setting. (2) The charter promised a per-piece probe column (did CC have to supply context beyond the piece and the bounds) that the probe did not carry — now carried as a declared hole citing filed edge (c), because a promise nobody can read is worse than a hole somebody can. (3) THE ONE THAT NEARLY SHIPPED: writing the first verdict artifact this ticket ever had, and then reading the probe against it, showed the probe read artifact['criteria'] and compared outcomes to 'passed' while the door writes artifact['verdicts'] with OUTCOMES ('pass','fail'). Both spellings wrong. Every real artifact would have yielded zero rows counted and passed=False — the whole MEASURED half of the watch dead, reporting green=0 forever underneath a carrier that looked perfectly healthy. Identical in shape to the survey-floor trouble standing in the inbox.\n\nAND SEVENTEEN SEALED TEETH MISSED IT, which is the lesson and not the footnote: the proof's fixture HAND-WROTE the reader's invented shape. A fixture that agrees with the READER instead of with the WRITER proves only that one head agrees with itself. The fix is structural — the fixture now goes through the door's own verdict_error before it may stand for an artifact, one tooth builds its artifact THROUGH write_verdict in a synthetic tempdir world, and the door's vocabulary is imported rather than spelled. Restoring the original defect now reds four teeth where it red none.\n\nTHREE INSTRUMENT CORRECTIONS ON THE CHART'S OWN CRITERIA, recorded rather than quietly applied. Criterion 2 and hypothesis 11 both spelled `'litellm' not in sys.modules` — an assertion that goes RED at the exact moment the design succeeds, since the whole mechanism is to PUT our surface there. Measured by identity instead: interceptor.installed(), an isinstance check against our own class. Criterion 1 spelled sorted(domain_rows()) where the correct read is sorted(domain_rows()['rows']). A criterion is a translation like anything else.\n\nTWO HYPOTHESES KILLED BY THE WORLD. (2) six attributes were not the surface — 28 were reached, including 23 exception classes aider finds through dir(), which no grep could have seen. (6) the package closure was neither 24 nor sufficient: it is 23, and it was missing psycopg2 (a closure over the FOREIGN program is silent about what WE need in the same process) and networkx (measured lazy-only, needed by the repo-map path, resolved by turning the repo map off).\n\nTWO THINGS THE VOCABULARY COULD NOT SAY. The verdict door's DISPOSITIONS are confirmed|killed, and hypothesis 8 is marked CARRIED by its own author — forcing it to 'confirmed' overstates it, so the disposition says plainly that it is the deferral being honored plus n=1, not the yield question answered. And the WATCHME history note lost the word 'enough' to bash backtick substitution: history is append-only and a record of truth, so it is corrected here rather than repaired there. Future emit notes go through a file.\n\nThe offload probe stands armed and waiting on five shimmed tickets with both columns filled. Its cost column is still a hole; the horizon is what keeps that waiting loud.",
-    "at": "2026-08-16T19:23:11",
-    "seq": 3
+    "note": "Opening the build of the CALLER the shim has never had. The shim is complete and inert — translate.brief() makes a brief, holder.hold() installs the surfaces, the fence gates the ask, and nothing anywhere constructs an aider Coder; translate.py says it in its own words ('A brief is data; running it is someone else's'). This voyage adds the someone else: one loop, inside the shim's venv interpreter, carrying ONE piece of a cast ticket from its berthed brief to an applied edit plus a run test result. The chart chain is complete and berthed (seven stages, validate at validate-20260817T141033-a5c9d5336837). The triage order solidifies the layer below first: the in-venv transport before anything that executes inside it, and the Coder drive second — the piece carrying the most unmeasured assumption, since nothing has ever built an aider Model or Coder through our surfaces. Every bound named at cast is a CONSTRUCTOR ARGUMENT (map_tokens=0, auto_commits OFF, use_git OFF, files confined to the brief) — a bound checked after the fact is a bound the drive already violated. And the ticket stamp is one kwarg the plumbing has been waiting for: the offload probe's population is empty BY CONSTRUCTION today, which is not the same measurement as empty because nothing has happened yet.",
+    "at": "2026-08-17T14:11:00",
+    "seq": 4
   },
   "window": [
     {
@@ -996,7 +906,143 @@
       "note": "aider runs in our process, on our inference host, behind a money fence, on a prompt assembled only from berthed chart packets — proved by 80 teeth, sealed under netns, and fired for real once: qwen3-coder:30b on hex produced a correct diff through our surface, meter +3 calls / +3213 tokens.\n\nWHAT THE CLOSE COST, AND IT IS THE PART WORTH READING IN A YEAR. Three defects were found at the very end, and every one of them was found by DOING the thing rather than by checking it. (1) The first live fire died on `import networkx` inside aider's repo map — diagnosed not as a missing package but as a PROMPT hole: the repo map splices a ranked digest of the whole repository into the prompt AFTER translate.py has finished counting spans, so unsourced() would report zero while the no-untraceable-content clause was being violated. map_tokens=0 is the design, not a performance setting. (2) The charter promised a per-piece probe column (did CC have to supply context beyond the piece and the bounds) that the probe did not carry — now carried as a declared hole citing filed edge (c), because a promise nobody can read is worse than a hole somebody can. (3) THE ONE THAT NEARLY SHIPPED: writing the first verdict artifact this ticket ever had, and then reading the probe against it, showed the probe read artifact['criteria'] and compared outcomes to 'passed' while the door writes artifact['verdicts'] with OUTCOMES ('pass','fail'). Both spellings wrong. Every real artifact would have yielded zero rows counted and passed=False — the whole MEASURED half of the watch dead, reporting green=0 forever underneath a carrier that looked perfectly healthy. Identical in shape to the survey-floor trouble standing in the inbox.\n\nAND SEVENTEEN SEALED TEETH MISSED IT, which is the lesson and not the footnote: the proof's fixture HAND-WROTE the reader's invented shape. A fixture that agrees with the READER instead of with the WRITER proves only that one head agrees with itself. The fix is structural — the fixture now goes through the door's own verdict_error before it may stand for an artifact, one tooth builds its artifact THROUGH write_verdict in a synthetic tempdir world, and the door's vocabulary is imported rather than spelled. Restoring the original defect now reds four teeth where it red none.\n\nTHREE INSTRUMENT CORRECTIONS ON THE CHART'S OWN CRITERIA, recorded rather than quietly applied. Criterion 2 and hypothesis 11 both spelled `'litellm' not in sys.modules` — an assertion that goes RED at the exact moment the design succeeds, since the whole mechanism is to PUT our surface there. Measured by identity instead: interceptor.installed(), an isinstance check against our own class. Criterion 1 spelled sorted(domain_rows()) where the correct read is sorted(domain_rows()['rows']). A criterion is a translation like anything else.\n\nTWO HYPOTHESES KILLED BY THE WORLD. (2) six attributes were not the surface — 28 were reached, including 23 exception classes aider finds through dir(), which no grep could have seen. (6) the package closure was neither 24 nor sufficient: it is 23, and it was missing psycopg2 (a closure over the FOREIGN program is silent about what WE need in the same process) and networkx (measured lazy-only, needed by the repo-map path, resolved by turning the repo map off).\n\nTWO THINGS THE VOCABULARY COULD NOT SAY. The verdict door's DISPOSITIONS are confirmed|killed, and hypothesis 8 is marked CARRIED by its own author — forcing it to 'confirmed' overstates it, so the disposition says plainly that it is the deferral being honored plus n=1, not the yield question answered. And the WATCHME history note lost the word 'enough' to bash backtick substitution: history is append-only and a record of truth, so it is corrected here rather than repaired there. Future emit notes go through a file.\n\nThe offload probe stands armed and waiting on five shimmed tickets with both columns filled. Its cost column is still a hole; the horizon is what keeps that waiting loud.",
       "at": "2026-08-16T19:23:11",
       "seq": 3
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(aider_shim_edit_survival) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'aider-builds-a-piece', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "aider-builds-a-piece",
+            "component": "aider_shim",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'aider-builds-a-piece' is cast",
+          "actual": "named ticket 'aider-builds-a-piece' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "aider-builds-a-piece",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aider-builds-a-piece.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aider-builds-a-piece"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aider-builds-a-piece"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aider-builds-a-piece"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "ticket": "aider-builds-a-piece",
+      "actor": "CC",
+      "note": "Opening the build of the CALLER the shim has never had. The shim is complete and inert — translate.brief() makes a brief, holder.hold() installs the surfaces, the fence gates the ask, and nothing anywhere constructs an aider Coder; translate.py says it in its own words ('A brief is data; running it is someone else's'). This voyage adds the someone else: one loop, inside the shim's venv interpreter, carrying ONE piece of a cast ticket from its berthed brief to an applied edit plus a run test result. The chart chain is complete and berthed (seven stages, validate at validate-20260817T141033-a5c9d5336837). The triage order solidifies the layer below first: the in-venv transport before anything that executes inside it, and the Coder drive second — the piece carrying the most unmeasured assumption, since nothing has ever built an aider Model or Coder through our surfaces. Every bound named at cast is a CONSTRUCTOR ARGUMENT (map_tokens=0, auto_commits OFF, use_git OFF, files confined to the brief) — a bound checked after the fact is a bound the drive already violated. And the ticket stamp is one kwarg the plumbing has been waiting for: the offload probe's population is empty BY CONSTRUCTION today, which is not the same measurement as empty because nothing has happened yet.",
+      "at": "2026-08-17T14:11:00",
+      "seq": 4
     }
   ],
-  "count": 4
+  "count": 5
 }

@@ -115,6 +115,102 @@ def python() -> Path:
     return VENV / "bin" / "python"
 
 
+# ------------------------------------------------------------------ the transport
+#
+# WHY THIS IS A VERB AND NOT A PATTERN COPIED A SECOND TIME. Everything this device does
+# to aider happens inside the venv's interpreter, because that is the only process where
+# the surfaces stand and the held program is importable. Until 2026-08-17 the only way in
+# was the private ``_import_aider_in_venv`` below — a worked arrangement (sys.path ordered
+# cairn-then-aider, hold BEFORE import, parse the last stdout line) that the next caller
+# would have had to re-derive by reading it. Law 1: the settled answer becomes structure.
+#
+# THE MARKER IS THE HALF THAT LAST-LINE PARSING GOT WRONG. aider prints. rich prints.
+# pip prints. A script whose result is 'whatever the last stdout line happened to be' is a
+# result that a stray print silently replaces, and the failure is a plausible-looking
+# value rather than an error. Emitting through a marked line means noise can never be
+# mistaken for data, and a script that emits nothing is a loud failure instead of ``None``.
+
+_MARKER = "__CAIRN_VENV_RESULT__ "
+
+_PREAMBLE = '''\
+import json as _cairn_json, sys as _cairn_sys
+_cairn_sys.path.insert(0, %(cairn)r)   # cairn, for the shim
+_cairn_sys.path.insert(0, %(aider)r)   # the held foreign program, NOT pip-installed
+ARG = _cairn_json.loads(%(arg)r)
+def emit(obj):
+    _cairn_sys.stdout.write(%(marker)r + _cairn_json.dumps(obj) + "\\n")
+    _cairn_sys.stdout.flush()
+'''
+
+
+class VenvRunFailed(RuntimeError):
+    """The in-venv script did not come back with data. LOUD, and complete on the first pass.
+
+    Carries the interpreter, the returncode and both streams, because the caller is in a
+    different process and has no other way to see what happened (Law 7 at a diagnostic
+    surface; complete-diagnostic-on-first-pass as the shape).
+    """
+
+    def __init__(self, why: str, *, interpreter, returncode, stdout: str = "",
+                 stderr: str = "") -> None:
+        self.interpreter = str(interpreter)
+        self.returncode = returncode
+        self.stdout = stdout or ""
+        self.stderr = stderr or ""
+        super().__init__(
+            f"{why}\n"
+            f"  interpreter: {self.interpreter}\n"
+            f"  returncode : {self.returncode}\n"
+            f"  stderr     : {self.stderr.strip()[-3000:] or '(empty)'}\n"
+            f"  stdout     : {self.stdout.strip()[-3000:] or '(empty)'}"
+        )
+
+
+def run_in_venv(script: str, arg=None, *, timeout: int = 900, cwd=None) -> object:
+    """Run one script inside the shim's interpreter and get serializable data back.
+
+    ``script`` is source text. It is handed ``ARG`` (whatever JSON-serializable value was
+    passed) and an ``emit(obj)`` function; the LAST emitted object is the return value.
+    sys.path is ordered exactly as the arrangement requires — the held program first, then
+    cairn — before a line of the caller's script runs.
+
+    Raises :class:`VenvRunFailed` on a non-zero exit, a timeout, an unparseable emission,
+    or no emission at all. It never returns ``None`` to mean 'something went wrong': the
+    caller cannot tell that apart from a script that legitimately emitted null.
+    """
+    if not python().exists():
+        raise VenvRunFailed(f"no venv at {VENV} — run build() first",
+                            interpreter=python(), returncode=None)
+    source = _PREAMBLE % {
+        "cairn": str(Path(__file__).resolve().parents[3]),
+        "aider": str(AIDER_SRC),
+        "arg": json.dumps(arg),
+        "marker": _MARKER,
+    } + script
+    try:
+        r = subprocess.run([str(python()), "-c", source], capture_output=True, text=True,
+                           timeout=timeout, cwd=None if cwd is None else str(cwd))
+    except subprocess.TimeoutExpired as expired:
+        raise VenvRunFailed(f"the in-venv script exceeded {timeout}s",
+                            interpreter=python(), returncode=None,
+                            stdout=expired.stdout or "", stderr=expired.stderr or "") from None
+    if r.returncode != 0:
+        raise VenvRunFailed("the in-venv script exited non-zero",
+                            interpreter=python(), returncode=r.returncode,
+                            stdout=r.stdout, stderr=r.stderr)
+    marked = [ln for ln in r.stdout.splitlines() if ln.startswith(_MARKER)]
+    if not marked:
+        raise VenvRunFailed("the in-venv script emitted nothing — it must call emit(obj)",
+                            interpreter=python(), returncode=r.returncode,
+                            stdout=r.stdout, stderr=r.stderr)
+    try:
+        return json.loads(marked[-1][len(_MARKER):])
+    except Exception as bad:
+        raise VenvRunFailed(f"the emitted line is not JSON ({bad})",
+                            interpreter=python(), returncode=r.returncode,
+                            stdout=r.stdout, stderr=r.stderr) from None
+
+
 def build(*, upgrade: bool = False) -> dict:
     """Create the venv and install the stated set. Returns what it did, for the record."""
     VENV.parent.mkdir(parents=True, exist_ok=True)
@@ -186,24 +282,19 @@ def _import_aider_in_venv() -> dict:
     device's central claim, measured rather than asserted.
     """
     script = r"""
-import json, sys
-sys.path.insert(0, %r)   # cairn, for the shim
-sys.path.insert(0, %r)   # the held foreign program, NOT pip-installed
+import sys
 from cairn.devices.aider_shim import holder
 holder.hold()
 import aider.coders, aider.models, aider.io
 real = [n for n in ("litellm", "posthog", "mixpanel", "openai")
         if n in sys.modules and not getattr(sys.modules[n], "_cairn_surface", False)]
-print(json.dumps({"ok": not real, "real_modules_loaded": real,
-                  "coders": len(aider.coders.__all__) if hasattr(aider.coders, "__all__") else -1}))
-""" % (str(Path(__file__).resolve().parents[3]), str(AIDER_SRC))
-    r = subprocess.run([str(python()), "-c", script], capture_output=True, text=True)
-    if r.returncode != 0:
-        return {"ok": False, "detail": (r.stderr or "").strip()[-1500:]}
+emit({"ok": not real, "real_modules_loaded": real,
+      "coders": len(aider.coders.__all__) if hasattr(aider.coders, "__all__") else -1})
+"""
     try:
-        d = json.loads(r.stdout.strip().splitlines()[-1])
-    except Exception:
-        return {"ok": False, "detail": f"unparseable: {r.stdout!r} {r.stderr!r}"}
+        d = run_in_venv(script)
+    except VenvRunFailed as failed:
+        return {"ok": False, "detail": str(failed)[-2500:]}
     if d["real_modules_loaded"]:
         return {"ok": False,
                 "detail": f"REAL modules loaded in-process: {d['real_modules_loaded']} — "

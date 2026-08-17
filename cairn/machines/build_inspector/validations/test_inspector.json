@@ -2,19 +2,18 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-08-16T12:31:16",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "date": "2026-08-17T16:58:33",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "build_inspector proofs: all teeth green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7dda8128e47a811f8bf78efae61473a9e3f2b5e720f57ced2cff4ac634075e43",
-      "trail_link": "02814fed4472e7d5a283158286ac163213c82a6d457b48d9e419068b9f8e1be6"
+      "source_fingerprint": "f4d2b28d7bcbd2f40046670ceb64b24a2a808137546fbd43538e2424a3c21a42"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

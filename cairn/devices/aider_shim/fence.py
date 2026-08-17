@@ -81,12 +81,21 @@ class SeenLog:
     entries: list[dict] = field(default_factory=list)
     record_path: Path | None = None
 
-    def record(self, *, model: str, verdict: str, detail: str = "", provider: str = "") -> dict:
+    #: WHY A `ticket` RIDES EVERY ASK. The offload probe has to answer "which tickets were
+    #: actually built through the shim", and this log is the only place that knows: a
+    #: verdict artifact records that a ticket reached a verdict, never that aider was the
+    #: one that moved the code. Without it the probe would have to infer shimmed-ness from
+    #: timing, which is a proxy that goes wrong the first time two voyages overlap.
+    #: Defaults to "" so an ask made outside a ticket (a live fire, a proof) records
+    #: honestly as ticketless rather than being attributed to whatever ran last.
+    def record(self, *, model: str, verdict: str, detail: str = "", provider: str = "",
+               ticket: str = "") -> dict:
         row = {
             "at": datetime.now(timezone.utc).isoformat(),
             "model": model,
             "verdict": verdict,          # "allowed" | "refused"
             "provider": provider,
+            "ticket": ticket,
             "detail": detail,
         }
         self.entries.append(row)

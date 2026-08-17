@@ -148,12 +148,18 @@ class _Surface(types.ModuleType):
 
 
 def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = None,
-          models_stack=None, resolve=None) -> types.ModuleType:
+          models_stack=None, resolve=None, ticket: str = "") -> types.ModuleType:
     """Build the surface module. Nothing is installed until :func:`install` is called.
 
     ``resolver`` and ``resolve`` are injected seams so a proof can drive the whole surface
     without a host: ``resolve`` defaults to ``inference_domain.domain.resolve``, which is
     the metered door and the only legal way to reach a model from here.
+
+    ``ticket`` is stamped on every recorded ask. It is the ONLY thing that will ever say a
+    ticket was built through this shim — a verdict artifact records that a ticket reached a
+    verdict, never who moved the code — and the offload probe's whole population is that
+    stamp. Empty by default, which records a live fire or a proof honestly as ticketless
+    rather than attributing it to whatever voyage happened to be open.
     """
     fence = fence or Fence()
     log = log if log is not None else SeenLog(record_path=DEFAULT_RECORD)
@@ -190,10 +196,12 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         try:
             fence.check_model(model)
         except AskWidened as widened:
-            log.record(model=model, verdict="refused", detail=str(widened))
+            log.record(model=model, verdict="refused", detail=str(widened),
+                       ticket=ticket)
             raise
         if stream:
-            log.record(model=model, verdict="refused", detail="streaming is out of bounds")
+            log.record(model=model, verdict="refused", ticket=ticket,
+                       detail="streaming is out of bounds")
             raise AskWidened(
                 "streaming was requested — this device runs non-streaming by bound."
             )
@@ -214,9 +222,9 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
                 fence.check_provider(provider)
             except AskWidened as widened:
                 log.record(model=model, verdict="refused", provider=provider,
-                           detail=str(widened))
+                           detail=str(widened), ticket=ticket)
                 raise
-        log.record(model=model, verdict="allowed", provider=provider,
+        log.record(model=model, verdict="allowed", provider=provider, ticket=ticket,
                    detail="hit" if out.get("hit") else "miss")
 
         answer = out.get("answer") or {}

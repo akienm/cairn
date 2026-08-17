@@ -15,9 +15,19 @@ than tidy. aider catches ``LiteLLMExceptions.exceptions_tuple()`` — the named 
 error classes (23, measured at HEAD 5dc9490bb) — and retries the retryable ones with exponential backoff to
 ``RETRY_TIMEOUT`` (60s). A refusal that wore one of those names would be ABSORBED by that
 loop: sixty seconds of retrying a decision that will never change, and then a generic
-failure in the record. ``AskWidened`` is outside the tuple, so it propagates out of aider
-untouched — loud at the diagnostic surface, permanent in the record (Law 7). The class
-name also deliberately does not end in ``Error``: ``LiteLLMExceptions._load`` walks
+failure in the record. ``AskWidened`` is outside the tuple, so it escapes THAT loop.
+
+IT DOES NOT ESCAPE AIDER, AND THIS FILE SAID IT DID UNTIL 2026-08-17. The claim here was
+that the refusal "propagates out of aider untouched"; measured, it does not. ``aider``
+catches bare ``Exception`` at ``base_coder.py:1506``, prints the traceback to its own io
+and returns, so a refusal reaches our caller as a quiet result with no error and no edits.
+The retry tuple was one absorber and the design found it; the broad handler two lines of
+control flow later was never looked for. So the refusal cannot be made loud by choosing a
+class name — it is made loud by :class:`SeenLog` writing the row BEFORE the raise, at the
+seam, where nothing downstream can swallow it. Law 7 is satisfied by the record, not by
+the exception's flight path.
+
+The class name still deliberately does not end in ``Error``: ``LiteLLMExceptions._load`` walks
 ``dir(litellm)`` and raises ``ValueError`` on any ``*Error`` attribute it does not know,
 so an attribute named ``AskWidenedError`` on the surface module would break aider at
 import. Measured 2026-08-16 at ``aider/exceptions.py:68``.
@@ -189,7 +199,10 @@ class SeenLog:
         row = {
             "at": datetime.now(timezone.utc).isoformat(),
             "model": model,
-            "verdict": verdict,          # "allowed" | "refused" | "truncated"
+            # "allowed" | "refused" | "truncated" | "failed". Only "allowed" means the
+            # apprentice was heard from; the driver reads exactly that when it decides
+            # whether an empty edit list is evidence about the model or about the setup.
+            "verdict": verdict,
             "provider": provider,
             "ticket": ticket,
             "ask_chars": ask_chars,

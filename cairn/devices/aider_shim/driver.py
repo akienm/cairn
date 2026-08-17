@@ -342,23 +342,27 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
     )
     result.test = run_test(b.test_cmd, cwd=repo)
 
-    # A DRIVE THAT REACHED NO MODEL IS NOT A DRIVE THAT PRODUCED NO EDIT, AND UNTIL
-    # 2026-08-17 THE RECORD COULD NOT TELL THEM APART. Both come back with
-    # `aider_reported_edited: []`, no hash moved, an empty response tail and `error: ""` —
-    # a clean success on its face. The difference is the whole diagnosis: one says the
-    # apprentice was asked and did not deliver, the other says the setup was broken before
-    # a single token was spent, and they call for opposite next moves. Measured at n=1 on
-    # the drive that bore this check: a repo argument that disagreed with the brief's
-    # absolute paths put aider in a tree where none of its files existed, so it asked
-    # nothing and returned quietly — and the record was indistinguishable from the earlier
-    # clamped drives whose misreading cost this device a whole voyage.
+    # AN EMPTY EDIT LIST IS NOT EVIDENCE ABOUT THE APPRENTICE UNLESS THE APPRENTICE WAS
+    # HEARD FROM, AND UNTIL 2026-08-17 THE RECORD COULD NOT TELL THE TWO APART. A drive
+    # where nothing was ever sent, a drive where every ask died at the fence or the host,
+    # and a drive where the model answered and produced nothing all come back the same:
+    # `aider_reported_edited: []`, no hash moved, an empty tail, `error: ""` — a clean
+    # success on its face. The first two say the setup is broken; only the third says
+    # anything at all about the model, and they call for opposite next moves.
     #
-    # The error rides the RECORD before it is raised, so the evidence survives the refusal
-    # (Law 7: loud at the surface, permanent in the record). And the count is exact rather
-    # than a heuristic — the fence logs every ask it dispositions, so zero rows means zero
-    # asks, not "probably none".
-    reached_nothing = not result.asks and not result.error
-    if reached_nothing:
+    # WHY THIS CANNOT BE LEFT TO AIDER TO REPORT: aider catches bare `Exception` at
+    # `base_coder.py:1506`, prints the traceback to its own io, and returns. Measured
+    # 2026-08-17 — the host answered without token counters, `HostUnmetered` was raised at
+    # our seam, aider swallowed it whole, and this function received a result carrying no
+    # error and no edits. Whatever the fence recorded is the ONLY account that survives
+    # that swallow, which is why the disposition below is read from the ask log and not
+    # from `out["error"]`.
+    #
+    # The finding rides the RECORD before it is raised, so the evidence survives the
+    # refusal (Law 7). The counts are exact rather than heuristic: the fence writes a row
+    # for every ask it dispositions, failures included since this same day.
+    heard = [a for a in result.asks if a.get("verdict") == "allowed"]
+    if not result.asks and not result.error:
         result.error = (
             f"THE DRIVE REACHED NO MODEL: the fence recorded zero asks for {ticket} piece "
             f"{piece_index}. aider ran and returned without sending anything, so the empty "
@@ -366,16 +370,23 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
             f"guessed: of {len(b.files)} editable file(s), "
             f"{sum(1 for f in b.files if Path(f).exists())} exist on disk and "
             f"{sum(1 for f in b.files if _inside(f, repo))} are inside the repo actually "
-            f"driven ({repo}). The brief carries ABSOLUTE paths, so a repo argument that "
-            "disagrees with them puts aider in a tree holding none of its files — that is "
-            "the one mechanism seen so far, named as a candidate and not as the cause."
+            f"driven ({repo})."
+        )
+    elif result.asks and not heard and not result.error:
+        result.error = (
+            f"NO ASK SURVIVED: the fence recorded {len(result.asks)} ask(s) for {ticket} "
+            f"piece {piece_index} and not one was allowed through, so the empty edit list "
+            "below says nothing whatever about the apprentice. The dispositions, verbatim "
+            "from the fence's own rows: "
+            + " | ".join(f"{a.get('verdict')}: {a.get('detail', '')}"
+                         for a in result.asks)
         )
     record(result, path=drives_path)
-    # ONLY THE SYNTHESIZED CASE RAISES. A drive that reached a model and then failed has
-    # already said so in its own words; re-raising it here would turn every ordinary
-    # failure into a setup refusal and make the distinction this check exists to draw
-    # unreadable in the other direction.
-    if reached_nothing:
+    # ONLY THE UNHEARD CASES RAISE. A drive whose ask was allowed and then failed further
+    # down has already said so in its own words; re-raising that here would turn an
+    # ordinary failure into a setup refusal and make the distinction unreadable in the
+    # other direction.
+    if not heard:
         raise DriveRefused(result.error)
     return result
 

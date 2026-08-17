@@ -221,11 +221,33 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         # clamped a ~72k-token payload without saying so. inference_domain has merged a
         # caller's ``options`` into the outbound body since it was built; nobody had ever
         # sent any. The plumbing was not missing — the ask was.
-        out = _resolve_door()(
-            {"kind": "chat", "model": model, "messages": wire,
-             "options": {"num_ctx": fence.ask_ctx}},
-            resolver=_resolver(),
-        )
+        # AN ASK THAT FAILED IS STILL AN ASK, AND UNTIL 2026-08-17 THIS LOG DENIED IT.
+        # Every record here happened AFTER the door returned, so a door that raised — a
+        # host refusing to meter, a connection dying, a resolver red — left the log with
+        # nothing at all. The log's own docstring says it holds every ask this device made;
+        # it held every ask that succeeded. Two layers then compounded it: aider catches
+        # bare ``Exception`` at ``base_coder.py:1506``, prints the traceback to its own io
+        # and returns, so nothing reaches our caller either — and the driver, seeing zero
+        # rows, reported in good faith that the drive had REACHED NO MODEL. Measured
+        # 2026-08-17: hex answered without token counters, ``HostUnmetered`` was raised,
+        # swallowed by aider, and the record said the model was never contacted. A false
+        # statement in a record of truth, produced by an honest reading of an incomplete
+        # one (Law 7).
+        #
+        # The row is written BEFORE the raise, which is the whole repair: aider's swallow
+        # cannot erase what is already on disk, and the fence's log stops depending on
+        # anything downstream behaving well.
+        try:
+            out = _resolve_door()(
+                {"kind": "chat", "model": model, "messages": wire,
+                 "options": {"num_ctx": fence.ask_ctx}},
+                resolver=_resolver(),
+            )
+        except BaseException as failed:
+            log.record(model=model, verdict="failed", ticket=ticket, ask_chars=ask_chars,
+                       num_ctx=fence.ask_ctx, prompt_eval_count=None,
+                       detail=f"{type(failed).__name__}: {failed}")
+            raise
         provenance = out.get("provenance") or {}
         provider = provenance.get("provider", "")
         counters = (provenance.get("counters") or {})

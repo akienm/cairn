@@ -578,6 +578,50 @@ def test_a_drive_that_reached_no_model_is_not_read_as_a_drive_that_made_no_edit(
             rows[-1]
 
 
+def test_an_ask_that_died_is_not_an_apprentice_that_declined():
+    """THE SECOND WAY AN EMPTY EDIT LIST LIES, and the one the first check got wrong.
+
+    Measured 2026-08-17: the ask WAS sent, hex answered without token counters, the door
+    raised, and aider swallowed it at `base_coder.py:1506` and returned a clean result. The
+    fence now writes the failed row before raising, so the count is no longer zero — and a
+    check that only asked 'were there zero asks' would have called this a normal drive and
+    handed the empty edit list up as evidence about the model. Only an ALLOWED ask means
+    the apprentice was heard from, and that is what the driver reads.
+    """
+    died = {"asks": [{"at": "2026-08-17T21:18:45+00:00", "model": MODEL,
+                      "verdict": "failed", "provider": "", "ticket": "aider-builds-a-piece",
+                      "ask_chars": 299167, "num_ctx": 81920, "prompt_eval_count": None,
+                      "detail": "HostUnmetered: the host reported no token counters"}],
+            "aider_reported_edited": [], "response_tail": "", "num_reflections": 0,
+            "edit_format": "diff", "error": "", "traceback": ""}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        repo = a_repo(tmp)
+        drives = tmp / "drives.jsonl"
+        was = driver.run_in_venv
+        driver.run_in_venv = lambda *a, **k: json.loads(json.dumps(died))
+        try:
+            driver.drive_brief(a_brief(repo), repo=repo, model=MODEL,
+                               log_path=tmp / "asks.jsonl", drives_path=drives)
+        except driver.DriveRefused as red:
+            said = str(red)
+        else:
+            raise AssertionError(
+                "a drive whose only ask died came back as an ordinary result — the empty "
+                "edit list is now standing in as evidence about the apprentice")
+        finally:
+            driver.run_in_venv = was
+
+        assert "no ask survived" in said.lower(), said
+        # The dispositions ride the message VERBATIM. A count alone would send the next
+        # mind back to a JSONL file to find out what actually went wrong.
+        assert "failed" in said and "no token counters" in said, said
+
+        rows = driver.drives(drives)
+        assert rows and "no ask survived" in rows[-1]["error"].lower(), \
+            f"the refusal ate the evidence: {rows[-1] if rows else None}"
+
+
 # ------------------------------------------------------------------------------ runner
 
 def _main():

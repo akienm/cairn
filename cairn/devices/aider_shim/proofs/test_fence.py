@@ -438,6 +438,112 @@ def test_a_cache_hit_is_not_called_a_clamp():
         "a count was fabricated for a call that never happened (Law 7)"
 
 
+# ------------------------------------------------- the ask that failed is still an ask
+# THE DEFECT THESE ARE MADE OF, measured 2026-08-17 on a real drive: hex answered without
+# token counters, `inference_domain` raised HostUnmetered rather than metering zero, and
+# the fence — which records only after the door returns — wrote nothing. aider caught the
+# exception in its own broad handler and returned quietly, so the driver saw zero asks and
+# reported, in good faith, that the drive had REACHED NO MODEL. Every layer was honest and
+# the conclusion was false, because the record had a hole exactly where the failure was.
+
+
+class HostSaidNo(RuntimeError):
+    """Stands in for HostUnmetered — the tooth must not import the host to raise like it."""
+
+
+def test_an_ask_that_died_at_the_door_is_still_in_the_record():
+    """Law 7 at the seam: the failure is permanent in OUR record before it is raised."""
+    log = SeenLog()
+
+    def dying_door(_request, *, resolver=None, **_kw):
+        raise HostSaidNo("the host reported no token counters")
+
+    mod = interceptor.build(resolve=dying_door, resolver=object(), log=log, fence=Fence())
+    try:
+        mod.completion(model="qwen3-coder:30b",
+                       messages=[{"role": "user", "content": "x" * 400}])
+    except HostSaidNo:
+        pass
+    else:
+        raise AssertionError("the door's failure was swallowed here, at our own seam")
+
+    assert log.entries, \
+        ("the door raised and the fence recorded NOTHING — this is the hole that made a "
+         "real drive report it had never contacted the model")
+    row = log.entries[-1]
+    assert row["verdict"] == "failed", \
+        f"a failed ask was filed under a verdict that reads as something else: {row}"
+    assert "HostSaidNo" in row["detail"] and "no token counters" in row["detail"], \
+        f"the record does not carry what actually went wrong: {row}"
+    assert row["ask_chars"] == 400, \
+        f"the failed row does not say how big the ask was: {row}"
+    assert row["num_ctx"] == Fence().ask_ctx and row["prompt_eval_count"] is None, \
+        f"the failed row fabricates or drops the window it asked for: {row}"
+
+
+def test_the_record_survives_the_handler_that_aider_actually_has():
+    """THE CLAIM THIS FILE USED TO MAKE, corrected by measurement.
+
+    fence.py said the refusal "propagates out of aider untouched". It escapes the RETRY
+    tuple — the tooth above proves that — and then hits ``except Exception`` at
+    ``base_coder.py:1506``, which prints the traceback to aider's io and returns. Measured
+    2026-08-17: our caller got a result with no error and no edits, and nothing anywhere
+    said an ask had been made.
+
+    So this drives the handler shape aider really has, and asserts the only thing that can
+    survive it: the row was already on disk when the exception was thrown. The assertion is
+    about OUR record, deliberately — a tooth asserting that aider still swallows would go
+    red the day aider stops, and that red would be good news read as a defect.
+    """
+    import ast
+    import json
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        path = Path(d) / "asks.jsonl"
+        log = SeenLog(record_path=path)
+
+        def dying_door(_request, *, resolver=None, **_kw):
+            raise HostSaidNo("the host reported no token counters")
+
+        mod = interceptor.build(resolve=dying_door, resolver=object(), log=log,
+                                fence=Fence())
+
+        swallowed = []
+
+        def aiders_send_message():
+            # base_coder.py:1506 — `except Exception as err: ... return`
+            try:
+                return mod.completion(model="qwen3-coder:30b",
+                                      messages=[{"role": "user", "content": "x"}])
+            except Exception as err:                                    # noqa: BLE001
+                swallowed.append(str(err))
+                return None
+
+        assert aiders_send_message() is None and swallowed, \
+            "the stand-in handler did not swallow — this tooth is measuring nothing"
+
+        assert path.exists(), (
+            "aider's handler swallowed the failure and NOTHING was ever written — the "
+            "record was never opened, so there is nothing on disk to survive anything")
+        rows = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x]
+        assert rows and rows[-1]["verdict"] == "failed", (
+            "aider's handler swallowed the failure and the on-disk record has no trace of "
+            f"it — the ask is unattributable exactly when it matters: {rows}")
+
+    # The measurement that corrected the charter, re-derived rather than transcribed: is
+    # there in fact a handler on aider's call path broad enough to catch our refusal?
+    src = Path.home() / "dev" / "src" / "aider" / "aider" / "coders" / "base_coder.py"
+    assert src.exists(), f"the held foreign program is not at its declared address: {src}"
+    broad = []
+    for node in ast.walk(ast.parse(src.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.FunctionDef) and node.name == "send_message":
+            for h in ast.walk(node):
+                if isinstance(h, ast.ExceptHandler):
+                    broad.append("bare except" if h.type is None else ast.unparse(h.type))
+    print(f"       (aider's send_message handlers today: {broad})")
+
+
 def main():
     print("aider_shim :: fence")
     for name, fn in sorted(globals().items()):

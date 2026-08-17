@@ -81,13 +81,27 @@ def make_chain(root: Path) -> Path:
     })
     berth(root, "decompose", {
         "ticket": TICKET,
+        # EVERY PIECE CARRIES `uses`, BECAUSE THE REAL ONES DO. Until 2026-08-17 the two
+        # build pieces here carried only `fills`, and that fixture disagreed with the
+        # producer: measured across 51 decompose berths, 320 of 321 pieces declare `uses`
+        # — 235 of 236 BUILD pieces among them. The file list is selected from `uses`, so
+        # a fixture without it could not have caught the survey-wide selection that made
+        # every piece's brief identical and over the model's window.
+        # gamma carries all four holdings so the classification teeth (outside-the-repo,
+        # directory, dead path) still have something to classify; alpha carries one, and
+        # the DIFFERENCE between them is what a piece-scoped file list means.
         "sub_problems": [
             {"what": "alpha", "why": "because alpha", "kind": "build",
-             "fills": ["any translation"]},
+             "fills": ["any translation"],
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
              "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]},
             {"what": "gamma", "why": "because gamma", "kind": "build",
-             "fills": ["any translation"]},
+             "fills": ["any translation"],
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py",
+                      str(Path.home() / "dev/src/aider/aider/models.py"),
+                      "cairn/tools/base",
+                      "cairn/does/not/exist.py"]},
         ],
     })
     berth(root, "triage", {
@@ -323,33 +337,110 @@ def test_a_holding_OUTSIDE_the_repo_is_never_editable():
         assert all(f.startswith(str(REPO)) for f in b.files), b.files
 
 
-def test_no_holding_is_SILENTLY_dropped():
-    """Every addressed holding lands in exactly one of the three lists (Law 7).
+def test_no_DECLARED_use_is_SILENTLY_dropped():
+    """Every address the piece declared lands in exactly one of the three lists (Law 7).
 
-    The survey's inventory reaching the last hop and shrinking without a word is the
-    failure; a directory and a dead path are both in the fixture because both are the
-    ordinary way it happens.
+    THE DENOMINATOR IS THE PIECE'S `uses`, NOT THE SURVEY'S HOLDINGS, and that changed on
+    2026-08-17 with what it counts. It used to read the survey berth back and count every
+    holding, which was the right check for a function that handed aider the whole survey —
+    and it was exactly the check that could not see the defect, because it was measuring
+    the survey against itself. What the piece named is what may go missing now, so that is
+    what is counted; a directory and a dead path are both in the fixture because both are
+    the ordinary way it happens.
     """
     with chain() as root:
         b = translate.brief(TICKET, 0, berths_root=root)
-        holdings = json.loads(next((root / "chart" / "packets")
-                                   .glob("survey-*.json")).read_text())["holdings"]
-        assert len(b.files) + len(b.read_only) + len(b.skipped) == len(holdings)
+        d = json.loads(next((root / "chart" / "packets")
+                            .glob("decompose-*.json")).read_text())
+        gamma = next(p for p in d["sub_problems"] if p["what"] == "gamma")
+        assert len(b.files) + len(b.read_only) + len(b.skipped) == len(gamma["uses"])
         assert {s["why"] for s in b.skipped} == {"a directory, not a file",
                                                  "does not resolve"}
 
 
+def test_the_file_list_IS_THE_PIECES_not_the_SURVEYS():
+    """Two pieces of ONE chain get different files — which is the whole repair.
+
+    THE DEFECT THIS WOULD HAVE CAUGHT, measured 2026-08-17 on the real chain for
+    `aider-builds-a-piece`: all 8 pieces got a byte-identical file list, because the
+    selection was the survey's 16 holdings and the piece's own `uses` — a berthed field
+    the decompose gate refuses to leave unresolvable — was read into the prompt as prose
+    and ignored where it decides something. Every piece therefore weighed ~74,090 tokens
+    against a send budget of 73,728, and no drive could reach the model at all. Selecting
+    by `uses`, the same pieces weigh 6.8k-41k.
+
+    So the tooth is a DIFFERENCE, not a size: any check on one piece's list alone goes
+    green under both behaviours.
+    """
+    with chain() as root:
+        gamma = translate.brief(TICKET, 0, berths_root=root)   # uses all four holdings
+        alpha = translate.brief(TICKET, 1, berths_root=root)   # uses exactly one
+        assert len(alpha.files) == 1, alpha.files
+        assert alpha.read_only == [] and alpha.skipped == [], (alpha.read_only,
+                                                              alpha.skipped)
+        assert set(alpha.files) < set(gamma.files) | set(gamma.read_only), \
+            "the piece with fewer declared uses did not get a strictly smaller file list"
+        assert gamma.read_only, "gamma declared a use outside the repo and got no read-only"
+        # And the survey's full inventory is still IN THE PROMPT — the narrowing is of
+        # what aider is handed as open files, never of what the chain told it exists.
+        holdings = json.loads(next((root / "chart" / "packets")
+                                   .glob("survey-*.json")).read_text())["holdings"]
+        for h in holdings:
+            assert h["what"] in alpha.prompt, \
+                f"holding {h['what']!r} vanished from the prompt, not just from the files"
+
+
+def test_a_piece_that_declares_NO_uses_REFUSES_rather_than_taking_everything():
+    """The fallback that would quietly restore the defect is refused, and says where to fix.
+
+    A piece with no `uses` has nothing berthed saying which files it touches. The
+    tempting fallback — hand it the survey — is precisely the behaviour that was just
+    removed, and it would come back for the rarest case and be invisible. Measured: 1
+    piece in 321 across 51 berths, so this refusal costs almost nothing and the fix it
+    names is upstream, in the split.
+    """
+    with chain() as root:
+        berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
+            {"what": "gamma", "why": "because gamma", "kind": "build",
+             "fills": ["any translation"]},
+            {"what": "alpha", "why": "because alpha", "kind": "build",
+             "fills": ["any translation"]},
+            {"what": "beta", "why": "because beta", "kind": "compose",
+             "uses": ["cairn/devices/builder/machines/verdict/verdict.py"]}]},
+              stamp="20260817T235959")
+        try:
+            b = translate.brief(TICKET, 0, berths_root=root)
+        except ValueError as e:
+            assert "declares no `uses`" in str(e), e
+            assert "the fix is upstream" in str(e), e
+        else:
+            raise AssertionError(
+                f"a piece with no declared uses produced a brief carrying {len(b.files)} "
+                f"editable and {len(b.read_only)} read-only file(s) — the survey-wide "
+                "selection is back, for the one case nobody looks at")
+
+
 def test_the_editable_list_is_absolute_and_deduplicated():
     """aider resolves fnames against ITS repo root, which is not necessarily our cwd."""
+    rel, absolute = "cairn/tools/base/probe.py", str(REPO / "cairn/tools/base/probe.py")
     with chain() as root:
         berth(root, "survey", {"ticket": TICKET, "sought": ["x"], "absences": [],
-                               "holdings": [
-                                   {"what": "a", "address": "cairn/tools/base/probe.py"},
-                                   {"what": "same file, absolute",
-                                    "address": str(REPO / "cairn/tools/base/probe.py")}]},
+                               "holdings": [{"what": "a", "address": rel},
+                                            {"what": "same file, absolute",
+                                             "address": absolute}]},
+              stamp="20260816T235959")
+        # THE PIECE HAS TO DECLARE BOTH SPELLINGS, or there is nothing to deduplicate:
+        # the selection is the piece's `uses` now, so a survey carrying a duplicate no
+        # longer reaches the file list on its own.
+        berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
+            {"what": "gamma", "why": "because gamma", "kind": "build",
+             "fills": ["any translation"], "uses": [rel, absolute]},
+            {"what": "alpha", "why": "because alpha", "kind": "build",
+             "fills": ["any translation"], "uses": [rel]},
+            {"what": "beta", "why": "because beta", "kind": "compose", "uses": [rel]}]},
               stamp="20260816T235959")
         b = translate.brief(TICKET, 0, berths_root=root)
-        assert b.files == [str(REPO / "cairn/tools/base/probe.py")], b.files
+        assert b.files == [absolute], b.files
 
 
 def test_the_file_list_does_not_depend_on_THE_CALLERS_CWD():

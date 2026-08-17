@@ -278,34 +278,67 @@ def brief(ticket: str, piece_index: int, *, test_cmd: str = "",
 
     spans.append(_scaffold("close"))
 
-    editable, read_only, skipped = _files(holdings)
+    uses = piece.get("uses") or []
+    if not uses:
+        raise ValueError(
+            f"piece {piece_index} of {ticket!r} declares no `uses`, so nothing berthed says "
+            "which files it touches. Handing it the whole survey instead is what this "
+            "function used to do, and it is what made every piece's brief identical and "
+            "over the model's window. Measured 2026-08-17 across 51 decompose berths: 1 "
+            "piece in 321 lacks `uses`, so this is a real state and a rare one — the fix "
+            "is upstream, in the split, not a fallback here."
+        )
+    editable, read_only, skipped = _files(uses, holdings)
     return Brief(ticket=ticket, piece_index=piece_index,
                  spans=[s for s in spans if s is not None],
                  files=editable, read_only=read_only, skipped=skipped,
                  test_cmd=test_cmd, chain=standing)
 
 
-def _files(holdings) -> tuple[list[str], list[str], list[dict]]:
-    """Survey's holdings, sorted into what aider may EDIT and what it may only READ.
+def _files(uses, holdings) -> tuple[list[str], list[str], list[dict]]:
+    """THE PIECE'S declared holdings, sorted into what aider may EDIT and what it may READ.
 
-    THE SPLIT IS CONSTRAIN'S, NOT A CONVENIENCE. Several holdings in a real chain sit
-    outside this repo — the held foreign program's own modules are holdings, because the
-    survey legitimately found them and downstream legitimately needs to see them. Handing
-    those to aider as editable files would invite exactly the edit constrain puts out of
-    bounds ("modifying ~/dev/src/aider itself"), and it would invite it silently, by
-    putting them in the same list as everything else. aider has a real distinction for
-    this — ``fnames`` vs ``read_only_fnames`` — so the bound is expressed in the foreign
-    program's own vocabulary rather than in a hope that the model reads the prompt.
+    THE SELECTION IS DECOMPOSE'S, AND IT USED TO BE NOBODY'S. Until 2026-08-17 this
+    function took the whole survey and handed every holding to aider, so every piece of a
+    ticket got a byte-identical file list and the piece's own ``uses`` — a berthed field
+    the decompose gate already refuses to leave unresolvable — was read into the prompt
+    as prose and then ignored where it decides something. That is Law 1 at the last hop:
+    the chain spent a stage settling which holdings each piece composes, and this module
+    re-derived "all of them". MEASURED, and it is why the falsifier's middle arm never
+    landed: all 8 pieces of `aider-builds-a-piece` weighed ~74,090 tokens against a
+    send budget of 73,728, because 129,155 chars of aider's own source rode along for
+    pieces that never named it. Selecting by ``uses``, the same pieces weigh 6.8k–41k.
 
-    A holding that resolves to nothing, or to a directory, is REPORTED rather than
-    dropped: a file list quietly shorter than the survey found is the survey's finding
-    going missing at the last hop, and Law 7 says a diagnostic surface is loud.
+    THE SHORTER LIST IS NOT A QUIET DROP, and the distinction matters because the old
+    docstring here argued the opposite case correctly. Every holding the survey found is
+    still IN THE PROMPT, by name and address, under the "THESE ALREADY EXIST" scaffold —
+    what narrows is only which of them aider is handed as open files. A survey finding
+    going missing would be invisible; this one is written down two spans above the file
+    list.
+
+    THE EDIT/READ SPLIT IS CONSTRAIN'S, NOT A CONVENIENCE. Several holdings in a real
+    chain sit outside this repo — the held foreign program's own modules are holdings,
+    because the survey legitimately found them and downstream legitimately needs to see
+    them. Handing those to aider as editable files would invite exactly the edit
+    constrain puts out of bounds ("modifying ~/dev/src/aider itself"), and it would
+    invite it silently, by putting them in the same list as everything else. aider has a
+    real distinction for this — ``fnames`` vs ``read_only_fnames`` — so the bound is
+    expressed in the foreign program's own vocabulary rather than in a hope that the
+    model reads the prompt.
+
+    A declared use that resolves to nothing, or to a directory, is REPORTED rather than
+    dropped: the piece named it, so its absence is a finding about the split, and Law 7
+    says a diagnostic surface is loud.
     """
     editable, read_only, skipped = [], [], []
-    for h in holdings:
-        if not isinstance(h, dict) or not h.get("address"):
+    known = {h.get("address") for h in holdings if isinstance(h, dict)}
+    for addr in uses:
+        if not isinstance(addr, str) or not addr:
             continue
-        addr = h["address"]
+        if addr not in known:
+            skipped.append({"address": addr, "why": "declared by the piece, not in the "
+                                                    "survey's holdings"})
+            continue
         p = Path(addr)
         p = p if p.is_absolute() else REPO / addr
         if not p.exists():

@@ -25,7 +25,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import interceptor  # noqa: E402
-from cairn.devices.aider_shim.fence import AskWidened, Fence, SeenLog  # noqa: E402
+from cairn.devices.aider_shim.fence import (  # noqa: E402
+    AskTruncated,
+    AskWidened,
+    Fence,
+    SeenLog,
+)
 
 FAILURES = []
 
@@ -281,6 +286,156 @@ def test_the_default_record_path_is_instance_space():
         f"the device's record berths outside instance-space: {DEFAULT_RECORD}"
     assert "dev/src/cairn" not in str(DEFAULT_RECORD), \
         "the device's record berths in class-space — no runtime state here, ever"
+
+
+# ------------------------------------------------------- the clamp, and the three numbers
+# THE DEFECT THESE ARE MADE OF, measured 2026-08-17: the first real drive sent 289,601
+# chars to hex and the host reported prompt_eval_count=4271, because nothing in this stack
+# ever set ollama's num_ctx and its default is 4096. The clamp is silent by construction —
+# HTTP 200, a fluent answer, no field saying anything was dropped — so the apprentice
+# answered an instruction with none of its files attached, said so, and invented a file.
+# Everything above read that as the model being weak.
+
+
+def test_the_clamp_is_caught_at_the_numbers_the_real_drive_produced():
+    """The founding case, replayed as data: 4271 processed against a 4096 window.
+
+    Pinned to the measured pair rather than to invented round numbers, so this tooth
+    cannot go green on a check that happens to be right about some other arithmetic.
+    """
+    f = Fence(ask_ctx=4096)
+    try:
+        f.check_processed(4271, sent_chars=289601)
+    except AskTruncated as clamped:
+        assert "4271" in str(clamped) and "4096" in str(clamped), \
+            f"the refusal does not carry both numbers a reader needs: {clamped}"
+        assert "289601" in str(clamped), \
+            f"the refusal does not say how big the ask actually was: {clamped}"
+        return
+    raise AssertionError(
+        "a 289,601-char ask that the host processed 4271 tokens of was called a FIT — "
+        "this is the exact reading that produced a fabricated file and was believed"
+    )
+
+
+def test_an_ask_that_fits_is_not_reddened():
+    """The other half, and the half a paranoid check gets wrong.
+
+    A truncation check that reds on everything protects nothing: it would be turned off
+    inside a week. The same 4271 that is a clamp at a 4096 window is an ordinary fit at
+    81920, and the predicate has to tell those apart from the SAME observation.
+    """
+    Fence(ask_ctx=81920).check_processed(4271, sent_chars=289601)
+    Fence(ask_ctx=81920).check_processed(81919, sent_chars=400000)  # one below: still a fit
+
+
+def test_the_three_numbers_come_from_ONE_field():
+    """The repair itself: aider's budget and the host's window trace to a single source.
+
+    The defect was never that a number was wrong — it was that there were THREE numbers in
+    two files with nothing making them agree. This walks the fence's own field out to both
+    ends and asserts they moved together. A build that re-hardcodes either end reds here.
+    """
+    from cairn.devices.aider_shim import interceptor as I
+    f = Fence(ask_ctx=40960, reply_headroom=4096)
+    assert f.send_budget() == 36864, f"send_budget does not derive from ask_ctx: {f}"
+    # THROUGH THE MODULE, WITH A NON-DEFAULT FENCE — and both halves are load-bearing.
+    # Calling `_model_info` directly would prove the function reads a fence it is HANDED
+    # and say nothing about whether `build` hands it one; and a fence carrying the default
+    # numbers cannot tell "wired" from "fell back to Fence()". Mutation-checked: reverting
+    # either call site inside `build` to the two-argument form reds exactly here.
+    mod = I.build(fence=f, log=SeenLog(), resolve=serving_door(), resolver=object())
+    info = mod.get_model_info("qwen3-coder:30b")
+    assert info["max_input_tokens"] == f.send_budget(), \
+        (f"aider is told it may send {info['max_input_tokens']} while the fence budgets "
+         f"{f.send_budget()} — the two ends have drifted apart again")
+    assert info["max_output_tokens"] == f.reply_headroom
+    assert mod.model_cost["qwen3-coder:30b"]["max_input_tokens"] == f.send_budget(), \
+        ("model_cost and get_model_info disagree — aider reads BOTH, and sizes against "
+         "whichever it happens to consult")
+    # And the number aider is told must leave room for the reply — an input budget equal to
+    # the whole window is a payload the answer has nowhere to go after.
+    assert info["max_input_tokens"] < f.ask_ctx, \
+        "aider may fill the entire window, leaving no room for the reply"
+
+
+def test_the_window_actually_rides_the_request():
+    """A window nobody sends is a window that does not exist.
+
+    The plumbing for this was ALREADY THERE — inference_domain has merged a caller's
+    ``options`` into the outbound body since it was built, and this device had never sent
+    any. So the tooth is not 'can options be passed' but 'does this consumer pass one',
+    which is the thing that was false for the whole life of the device.
+    """
+    seen = {}
+
+    def spy(request, resolver=None):
+        seen.update(request)
+        return {"answer": {"text": "ok"}, "hit": False,
+                "provenance": {"provider": "hex", "counters": {"prompt_eval_count": 11,
+                                                               "eval_count": 2}}}
+
+    f = Fence()
+    mod = interceptor.build(fence=f, log=SeenLog(), resolve=spy, resolver=object())
+    mod.completion(model="qwen3-coder:30b", messages=[{"role": "user", "content": "x"}])
+    assert (seen.get("options") or {}).get("num_ctx") == f.ask_ctx, \
+        (f"the request carried options={seen.get('options')!r} — the host will apply "
+         f"ollama's 4096 default and clamp silently, which is the founding defect")
+
+
+def test_the_record_carries_the_ask_size_and_both_counts():
+    """The record of truth stops understating the ask by 20x.
+
+    ``drives.jsonl`` records ``prompt_chars`` — the INSTRUCTION handed to aider (13,932 on
+    the founding drive) — and never the payload aider builds from it (289,601). Nothing in
+    the system wrote the second number down, so the clamp left no trace to find later; it
+    took a live re-ask to reconstruct. These three fields are what make a clamped row
+    self-evident on its face.
+    """
+    rows = []
+
+    def clamping(request, resolver=None):
+        return {"answer": {"text": "fluent nonsense"}, "hit": False,
+                "provenance": {"provider": "hex",
+                               "counters": {"prompt_eval_count": 4271, "eval_count": 300}}}
+
+    log = SeenLog()
+    mod = interceptor.build(fence=Fence(ask_ctx=4096), log=log, resolve=clamping,
+                            resolver=object(), ticket="aider-builds-a-piece")
+    try:
+        mod.completion(model="qwen3-coder:30b",
+                       messages=[{"role": "user", "content": "x" * 289601}])
+    except AskTruncated:
+        rows = log.entries
+    assert rows, "the clamped ask was ANSWERED — a fluent reply to a payload nobody sent"
+    row = rows[-1]
+    assert row["verdict"] == "truncated", \
+        f"a clamped ask was recorded as {row['verdict']!r} — the record agrees with the lie"
+    assert row["ask_chars"] == 289601, f"the ask size is not recorded: {row}"
+    assert row["num_ctx"] == 4096 and row["prompt_eval_count"] == 4271, \
+        f"the two counts whose disagreement IS the defect are not both on the row: {row}"
+    assert row["ticket"] == "aider-builds-a-piece", \
+        "the clamped ask is not attributable to the ticket it was spent on"
+
+
+def test_a_cache_hit_is_not_called_a_clamp():
+    """No call was made, so there is no count — and a missing count is not a shortfall.
+
+    The module's own rule (its docstring: 'what this module may not do: fabricate') read
+    the other way. A check that treated an absent counter as zero would red every single
+    cache hit, and the fix somebody reached for under that pressure would be to weaken the
+    check rather than to fix the reading.
+    """
+    log = SeenLog()
+    mod = interceptor.build(fence=Fence(), log=log, resolver=object(),
+                            resolve=lambda r, resolver=None: {
+                                "answer": {"text": "cached"}, "hit": True,
+                                "provenance": {"provider": "hex"}})
+    out = mod.completion(model="qwen3-coder:30b", messages=[{"role": "user", "content": "x"}])
+    assert out.choices[0].message.content == "cached"
+    assert log.entries[-1]["verdict"] == "allowed", "a cache hit was reddened as a clamp"
+    assert log.entries[-1]["prompt_eval_count"] is None, \
+        "a count was fabricated for a call that never happened (Law 7)"
 
 
 def main():

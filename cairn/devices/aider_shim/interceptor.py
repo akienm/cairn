@@ -35,7 +35,13 @@ from __future__ import annotations
 import sys
 import types
 
-from cairn.devices.aider_shim.fence import DEFAULT_RECORD, AskWidened, Fence, SeenLog
+from cairn.devices.aider_shim.fence import (
+    DEFAULT_RECORD,
+    AskTruncated,
+    AskWidened,
+    Fence,
+    SeenLog,
+)
 
 MODULE_NAME = "litellm"
 
@@ -206,13 +212,24 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
                 "streaming was requested — this device runs non-streaming by bound."
             )
 
+        wire = [{"role": m["role"], "content": m["content"]} for m in messages]
+        ask_chars = sum(len(m["content"] or "") for m in wire)
+
+        # THE CONSUMER ASKS FOR WHAT IT WANTS (Akien's ruling, 2026-08-16) — and a context
+        # window is part of the ask, not a property of the proxy. Until 2026-08-17 this
+        # request carried no options at all, so the host applied ollama's 4096 default and
+        # clamped a ~72k-token payload without saying so. inference_domain has merged a
+        # caller's ``options`` into the outbound body since it was built; nobody had ever
+        # sent any. The plumbing was not missing — the ask was.
         out = _resolve_door()(
-            {"kind": "chat", "model": model,
-             "messages": [{"role": m["role"], "content": m["content"]} for m in messages]},
+            {"kind": "chat", "model": model, "messages": wire,
+             "options": {"num_ctx": fence.ask_ctx}},
             resolver=_resolver(),
         )
         provenance = out.get("provenance") or {}
         provider = provenance.get("provider", "")
+        counters = (provenance.get("counters") or {})
+        processed = counters.get("prompt_eval_count")
         if provider:
             # The second half of the fence: the routed walk chose a provider, and the name
             # check cannot see that choice. A provider off the fence is refused here even
@@ -222,13 +239,32 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
                 fence.check_provider(provider)
             except AskWidened as widened:
                 log.record(model=model, verdict="refused", provider=provider,
-                           detail=str(widened), ticket=ticket)
+                           detail=str(widened), ticket=ticket, ask_chars=ask_chars,
+                           num_ctx=fence.ask_ctx, prompt_eval_count=processed)
                 raise
+
+        # THE INSTRUMENT WAS ALREADY ARRIVING AND NOTHING READ IT. ``provenance.counters``
+        # has carried ``prompt_eval_count`` through ``domain.resolve`` for the chat kind
+        # since inference_domain was built — the host records the measurement at
+        # ``host.py`` and hands it back on every miss. This device was already unpacking it
+        # into aider's ``usage`` object two lines below and had never once asked whether the
+        # number meant the ask had survived. A free measurement, unread, while the failure
+        # it describes was being attributed to the model's ability.
+        if processed is not None:
+            try:
+                fence.check_processed(int(processed), sent_chars=ask_chars)
+            except AskTruncated as clamped:
+                log.record(model=model, verdict="truncated", provider=provider,
+                           detail=str(clamped), ticket=ticket, ask_chars=ask_chars,
+                           num_ctx=fence.ask_ctx, prompt_eval_count=processed)
+                raise
+
         log.record(model=model, verdict="allowed", provider=provider, ticket=ticket,
+                   ask_chars=ask_chars, num_ctx=fence.ask_ctx,
+                   prompt_eval_count=processed,
                    detail="hit" if out.get("hit") else "miss")
 
         answer = out.get("answer") or {}
-        counters = (provenance.get("counters") or {})
         usage = None
         if counters:
             usage = _Usage(int(counters.get("prompt_eval_count", 0)),
@@ -244,7 +280,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         return 0.0
 
     def get_model_info(model, *_a, **_kw):
-        return _model_info(model, models_stack)
+        return _model_info(model, models_stack, fence)
 
     def validate_environment(model, *_a, **_kw):
         # Nothing on this path reads an API key: the route is local and keyless. Reporting
@@ -273,7 +309,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     mod.token_counter = token_counter
     mod.encode = encode
     mod.transcription = transcription
-    mod.model_cost = _model_cost(models_stack)
+    mod.model_cost = _model_cost(models_stack, fence)
     mod._logging = _Logging()
     # LazyLiteLLM sets these three after import; declaring them keeps dir() honest.
     mod.suppress_debug_info = True
@@ -291,13 +327,23 @@ def _stack(models_stack):
     return json.loads((here / "models.json").read_text(encoding="utf-8"))
 
 
-def _model_cost(models_stack) -> dict:
-    """aider reads ``.items()`` and ``.keys()`` off this. Costs are zero: local host."""
+def _model_cost(models_stack, fence: Fence | None = None) -> dict:
+    """aider reads ``.items()`` and ``.keys()`` off this. Costs are zero: local host.
+
+    THE SIZES COME FROM THE FENCE NOW, AND THAT IS THE WHOLE REPAIR. They were literals
+    here — ``max_input_tokens: 32768`` — sitting in a different file from the number the
+    host was (not) being told, which is how the two came to disagree without anybody
+    deciding they should. This is the surface aider SIZES ITS PAYLOAD AGAINST: it is the
+    only thing that stops aider handing us more than the window can hold, and it was
+    reporting a budget nothing downstream honoured. One field on the fence now feeds both
+    ends, so the ask aider builds and the window we buy cannot drift apart.
+    """
     stack = _stack(models_stack)
+    fence = fence or Fence()
     return {
         m["name"]: {
-            "max_input_tokens": 32768,
-            "max_output_tokens": 8192,
+            "max_input_tokens": fence.send_budget(),
+            "max_output_tokens": fence.reply_headroom,
             "input_cost_per_token": 0.0,
             "output_cost_per_token": 0.0,
             "litellm_provider": "cairn",
@@ -307,8 +353,8 @@ def _model_cost(models_stack) -> dict:
     }
 
 
-def _model_info(model: str, models_stack) -> dict:
-    info = _model_cost(models_stack).get(model)
+def _model_info(model: str, models_stack, fence: Fence | None = None) -> dict:
+    info = _model_cost(models_stack, fence).get(model)
     if info is None:
         raise KeyError(
             f"{model!r} is not in inference_domain's models stack — this device answers "

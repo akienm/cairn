@@ -40,6 +40,31 @@ class AskWidened(Exception):
     """The ask left the fence. Raised at the seam, before any host is touched."""
 
 
+class AskTruncated(Exception):
+    """The host processed less than we sent — the model answered a payload we did not make.
+
+    THIS IS THE DEFECT THAT COST THIS DEVICE ITS FIRST REAL DRIVE, and it happened entirely
+    outside our code. ollama's ``num_ctx`` defaults to 4096 REGARDLESS of what the model's
+    own ``context_length`` declares, and an over-long ask is silently CLAMPED: the API
+    returns HTTP 200 and a fluent, coherent answer, with no field saying anything was
+    dropped. Measured 2026-08-17 — the first driven piece sent 289,601 chars (~72k tokens:
+    aider's system prompt, 129,319 chars of read-only reference, 141,238 chars of editable
+    files, and a 13,932-char instruction) and hex reported ``prompt_eval_count=4271``. The
+    apprentice never saw one of the files it was asked to edit, said so plainly (*"since no
+    files have been added to the chat yet, I'll create the new file"*), and invented one.
+    Every layer above read that as the model being weak.
+
+    A silent clamp is a Law 7 breach in somebody else's process, so the fix is not to make
+    ours quieter — it is to make the shortfall LOUD at our seam and permanent in our record.
+
+    NOT NAMED ``*Error``, and not a ``litellm`` class, for exactly the reasons ``AskWidened``
+    is not (see the module docstring): ``LiteLLMExceptions._load`` walks ``dir(litellm)`` and
+    raises on an unknown ``*Error`` attribute, and anything inside aider's exception tuple
+    would be absorbed into its 60-second retry loop — sixty seconds of re-sending an ask that
+    will be clamped identically every time.
+    """
+
+
 @dataclass(frozen=True)
 class Fence:
     """What this device is allowed to ask for, by name.
@@ -50,6 +75,67 @@ class Fence:
 
     models: tuple[str, ...] = ("qwen3-coder:30b",)
     providers: tuple[str, ...] = ("hex",)
+
+    #: THE ONE NUMBER, AND IT HAS TO BE ONE. Three numbers have to agree for an ask to be
+    #: honest — what we tell aider it may send, what we ask the host to allocate, and what
+    #: the host actually processes — and until 2026-08-17 none of the three came from the
+    #: same place. aider was told 32768 (a constant in ``interceptor._model_cost``), the
+    #: host was told nothing (so 4096, its default), and 4271 came back. This field is the
+    #: single source: it rides the request as ``options.num_ctx``, it is what
+    #: ``get_model_info`` reports to aider minus the output headroom, and it is the
+    #: ceiling :meth:`check_processed` measures the answer against.
+    #:
+    #: 81920 is MEASURED, not chosen — and measured on one box at n=1, which is what makes
+    #: it a debt rather than a setting. hex is a 32 GB M1 Studio; re-asking the captured
+    #: 289,601-char payload at 81920 loads at 26.9 GB and answers, and the same ask at
+    #: 98304 returns an empty reply with no counters after 11s. The method is the whole
+    #: value of the number: post the payload to ``/api/chat`` with a candidate ``num_ctx``
+    #: and read ``prompt_eval_count`` back. A second provider on the fence would need its
+    #: own reading, which is why this cannot stay a constant forever — how this device
+    #: LEARNS this number is the open half, recorded in the charter's ``how_it_learns``.
+    ask_ctx: int = 81920
+
+    #: Reserved for the reply, subtracted from :attr:`ask_ctx` before aider is told what it
+    #: may send. Without it aider sizes a payload that fits the window exactly and the
+    #: answer has nowhere to go.
+    reply_headroom: int = 8192
+
+    def send_budget(self) -> int:
+        """What aider may put in an ask, in tokens — the number reported as
+        ``max_input_tokens``."""
+        return max(1, self.ask_ctx - self.reply_headroom)
+
+    def check_processed(self, processed: int, *, sent_chars: int) -> None:
+        """Red when the host filled the window to the brim — that is a clamp, not a fit.
+
+        THE PREDICATE HAS NO ESTIMATE IN IT, deliberately. The obvious check — compare the
+        host's ``prompt_eval_count`` against our own count of what we sent — cannot be made
+        exact from here: this device's ``token_counter`` is a ``chars // 4`` approximation
+        (it says so at its own definition), so the comparison would need a tolerance, and a
+        tolerance is a place for a real truncation to hide.
+
+        What IS exact is the ceiling. ollama clamps by DISCARDING until the payload fits the
+        window, so a clamped ask comes back having processed essentially the whole window,
+        while an ask that genuinely fits leaves headroom below it. Measured at n=1 on the
+        drive that bore this check: ``num_ctx`` 4096 (the default), ``prompt_eval_count``
+        4271 — over the nominal window, because the clamp preserves the system prompt and
+        the tail rather than cutting at exactly N. So the test is *reached the ceiling*,
+        not *equals the window*, and it needs nothing from us but the number we asked for.
+
+        The one false positive this admits is an ask that honestly fills the window to the
+        last token. That is measure-zero, and it errs LOUD — which is the direction Law 7
+        picks when a check has to be wrong in one of two ways.
+        """
+        if processed >= self.ask_ctx:
+            raise AskTruncated(
+                f"the host processed {processed} tokens against a requested window of "
+                f"{self.ask_ctx} — the window was filled to the brim, which is what a "
+                f"CLAMP looks like, not a fit. The ask carried {sent_chars} chars "
+                f"(~{sent_chars // 4} tokens by this device's estimate). The answer this "
+                "would have returned is a fluent reply to a payload nobody sent: the model "
+                "cannot see the files that were discarded and does not know they existed. "
+                "Refusing it here rather than letting it become an edit."
+            )
 
     def check_model(self, name: str) -> None:
         if name not in self.models:
@@ -88,14 +174,29 @@ class SeenLog:
     #: timing, which is a proxy that goes wrong the first time two voyages overlap.
     #: Defaults to "" so an ask made outside a ticket (a live fire, a proof) records
     #: honestly as ticketless rather than being attributed to whatever ran last.
+    #: WHY THE THREE SIZE FIELDS RIDE EVERY ROW. They are the three numbers whose
+    #: disagreement WAS the defect, and before 2026-08-17 this record carried none of them,
+    #: so the clamp left no trace anywhere in the system. `ask_chars` is the only place the
+    #: real size of an ask is ever written down — the driver's `prompt_chars` records the
+    #: INSTRUCTION aider was handed (13,932 on the drive that bore this) and not the payload
+    #: aider then built from it (289,601), a 20x understatement in a record of truth.
+    #: `num_ctx` is what we asked the host to allocate and `prompt_eval_count` is what it
+    #: reports having read; a row where the second reaches the first is a clamped ask, and
+    #: now it says so on its face instead of needing a live re-ask to reconstruct.
     def record(self, *, model: str, verdict: str, detail: str = "", provider: str = "",
-               ticket: str = "") -> dict:
+               ticket: str = "", ask_chars: int = 0, num_ctx: int = 0,
+               prompt_eval_count: int | None = None) -> dict:
         row = {
             "at": datetime.now(timezone.utc).isoformat(),
             "model": model,
-            "verdict": verdict,          # "allowed" | "refused"
+            "verdict": verdict,          # "allowed" | "refused" | "truncated"
             "provider": provider,
             "ticket": ticket,
+            "ask_chars": ask_chars,
+            "num_ctx": num_ctx,
+            # None on a cache hit — no call was made, so there is no count. Honest null
+            # rather than a zero that would read as "processed nothing".
+            "prompt_eval_count": prompt_eval_count,
             "detail": detail,
         }
         self.entries.append(row)

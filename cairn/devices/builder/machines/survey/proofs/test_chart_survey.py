@@ -49,6 +49,7 @@ from cairn.devices.builder.machines.survey.survey import (
     AUTHORED_FIELDS, SurveyRefused, deposit_survey, survey_floor,
     survey_node_content, validate_survey, write_survey,
 )
+from cairn.tools.chain.grammar import component_of, component_roster
 from cairn.tools.tree.tree import nexus_table
 from cairn.devices.db_domain import store
 from cairn.devices.librarian import trees
@@ -85,7 +86,14 @@ def make_root():
     with open(orient_berth, "w") as fh:
         json.dump({"intent": "sweep the alpha territory",
                    "domain": "alpha", "scope": "IN: alpha. OUT: beta.",
-                   "refs": ["alpha", "cairn/alpha/alpha.py",
+                   # PATH-SHAPED, because that is what the orient floor AUTHORS
+                   # since 2026-08-14 — this fixture said "alpha" (a bare name)
+                   # until 2026-08-17, which is why every test below stayed green
+                   # for three days while the real stratum was dead. A fixture
+                   # that agrees with the READER instead of the WRITER cannot
+                   # fail. test_the_fixture_speaks_what_the_orient_floor_AUTHORS
+                   # binds this shape to its producer so it cannot drift again.
+                   "refs": ["cairn/alpha", "cairn/alpha/alpha.py",
                             "tickets/filed.json", "no/such/path.py"],
                    "unknowns": [], "confidence": 0.8,
                    "provenance": {"intent": "claude", "domain": "claude",
@@ -168,6 +176,10 @@ def test_floor_surfaces_the_census_verbatim(root, orient_berth, constrain_berth)
     assert facts["bounds"] == {"in": ["alpha"], "out": ["beta"]}, \
         "the sweep runs inside stage 2's bounds — they travel with the floor"
     rows = {r["component"]: r for r in facts["census_rows"]}
+    assert facts["census_rows"], \
+        "THE STRATUM IS ALIVE — census_rows empty means every component ref fell " \
+        "through to ref_exists(), which PASSES, so the packet looks healthy while " \
+        "the deterministic half measured nothing (the 2026-08-14..17 silent hole)"
     assert list(rows) == ["alpha"], \
         "only chartered components ride the roster (beta is bare code)"
     assert rows["alpha"]["charter_on_disk"] is True
@@ -178,6 +190,43 @@ def test_floor_surfaces_the_census_verbatim(root, orient_berth, constrain_berth)
         "reported missing is a false absence (the floor's own first live-fire bug)"
     assert facts["refs_missing"] == ["no/such/path.py"], \
         "a ref the world lacks is reported missing, never silently dropped"
+
+
+def test_the_fixture_speaks_what_the_orient_floor_AUTHORS(root, orient_berth,
+                                                        constrain_berth):
+    """THE SEAM'S TWO ENDS, EACH READ FROM ITS OWN DECLARATION — the tooth that
+    would have caught the silent hole on the day it opened.
+
+    Every other test here runs against a hand-written orient berth, so they prove
+    what survey does with the shape the FIXTURE chose. That is worth nothing when
+    the question is whether the fixture still matches its producer: on 2026-08-14
+    the orient floor started authoring refs as repo-relative paths, the fixture went
+    on saying "alpha", and survey's whole deterministic stratum died SILENTLY with
+    every test green.
+
+    So this one calls the real writer and asserts the INVARIANT rather than a
+    snapshot: whatever the orient floor authors as a component ref, ``component_of``
+    resolves to a name the census keys by. It never pins the exact strings — pinning
+    output is how a proof starts re-asserting today's accident.
+
+    Takes the synthetic world's handles for the runner's sake and uses NONE of
+    them: the whole question is what the REAL orient floor authors against the
+    REAL roster, and a fixture cannot answer a question about fixtures."""
+    from cairn.devices.builder.machines.orient.orient import floor_packet
+
+    authored = floor_packet("survey the aider_shim device and the tester")
+    refs = authored.get("refs") or []
+    assert refs, "the orient floor grounded no refs for a request naming two live " \
+                 "components — if this is honest the seam cannot be tested here"
+    resolved = [(r, component_of(r)) for r in refs]
+    named = [(r, n) for r, n in resolved if n is not None]
+    assert named, (
+        "NOT ONE ref the orient floor authored resolves to a component the census "
+        "can key. That is the silent hole, reopened: %r" % (resolved,))
+    for ref, name in named:
+        assert name in set(component_roster()), \
+            "component_of(%r) -> %r, which is not on the roster the census keys by" \
+            % (ref, name)
 
 
 def test_schema_gate_refuses_hollow_shapes(root, orient_berth, constrain_berth):
@@ -364,6 +413,7 @@ def _main() -> int:
         test_refusal_is_one_pass_complete,
         test_the_chain_is_physics_at_depth_3,
         test_floor_surfaces_the_census_verbatim,
+        test_the_fixture_speaks_what_the_orient_floor_AUTHORS,
         test_schema_gate_refuses_hollow_shapes,
         test_the_door_composes_the_installed_judges,
         test_the_berth_lands_and_the_door_holds,

@@ -143,6 +143,46 @@ def component_home(name: str, root: str = CAIRN_ROOT) -> str | None:
     return os.path.relpath(str(home), root) if home is not None else None
 
 
+def component_of(ref: str, root: str = CAIRN_ROOT) -> str | None:
+    """WHICH component a ref NAMES — ``component_home``'s counterpart, and the missing
+    half of the grammar the chain speaks.
+
+    A leg holding a ref needs the component's NAME to key anything measured about it
+    (``device_census`` rows, the roster), and since 2026-08-14 the orient floor authors
+    refs as repo-relative PATHS — ``cairn/devices/aider_shim``, not ``aider_shim``.
+    Returns ``None`` for a ref no component answers to.
+
+    THE FAILURE THIS EXISTS TO END, and it is the argument for putting the translation
+    in the grammar rather than in the leg that noticed: ``survey_floor`` kept testing
+    ``if ref in roster and ref in rows`` against path-shaped refs. A path never matched,
+    so ``census_rows`` was ALWAYS empty and every component ref fell through to
+    ``ref_exists``, which PASSES. Survey's whole deterministic stratum — the measured
+    state that stage 3 exists to surface — was structurally dead from 2026-08-14, and
+    SILENTLY: the packet came back with ``refs_found`` populated and ``refs_missing``
+    empty, looking healthy, while the dial attributed the work to ``claude`` because
+    claude was in fact doing all of it by hand. One leg re-deriving a dialect the grammar
+    should own is a Law 1 defect that pays out as a hole, not as a slowdown.
+
+    THE PATH DIRECTION IS THE EASY ONE, which is worth saying because ``component_home``
+    raises ``AmbiguousComponent`` going the other way: two rungs answer to ``orient`` (a
+    tool and a machine), so name -> path cannot choose. Path -> name always can. The
+    floor authoring paths made the chain MORE precise; survey simply never caught up.
+
+    THE LIMIT, stated rather than hidden (CP1): ``device_census`` keys its rows by bare
+    name, so the two ``orient`` rungs collapse to one key there no matter what this
+    returns. That ambiguity is the census's and predates this function; resolving it is
+    not in this fix's bounds."""
+    if not isinstance(ref, str) or not ref.strip():
+        return None
+    roster = set(component_roster(root))
+    if ref in roster:
+        return ref
+    name = os.path.basename(os.path.normpath(ref.strip()))
+    if name in roster and os.path.isdir(os.path.join(root, ref.strip())):
+        return name
+    return None
+
+
 def skill_roster(root: str = CAIRN_ROOT) -> list[str]:
     """The slash-verbs that exist, derived from the one thing that makes a directory a
     skill: a SKILL.md for the host to read.

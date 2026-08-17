@@ -47,7 +47,7 @@ from pathlib import Path
 
 from cairn.machines.build_inspector.inspector import judge_survey
 from cairn.tools.gate import gate
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 from cairn.tools.orient.orient import device_census
 
@@ -115,8 +115,14 @@ def survey_floor(constrain_ref: str, root: str = CAIRN_ROOT) -> dict:
     roster = set(component_roster(root))
     census_rows, refs_found, refs_missing = [], [], []
     for ref in orient_packet.get("refs", []):
-        if ref in roster and ref in rows:
-            census_rows.append(rows[ref])
+        # component_of, not `ref in roster` — the orient floor authors refs as
+        # repo-relative PATHS since 2026-08-14, and a path never matched a
+        # bare-name key. This stratum was dead and silent for every voyage
+        # between then and 2026-08-17; the grammar owns the translation now so
+        # the next leg does not re-derive it (Law 1).
+        name = component_of(ref, root)
+        if name is not None and name in rows:
+            census_rows.append(rows[name])
             continue
         # ref_exists is the gate's own resolution semantics (commons fallback
         # included) — the floor's FIRST live fire reported two filed tickets as

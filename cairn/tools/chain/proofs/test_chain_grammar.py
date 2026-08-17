@@ -18,8 +18,8 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
 
-from cairn.tools.chain.grammar import (identity_lack, ref_exists,  # noqa: E402
-                                       ticket_path)
+from cairn.tools.chain.grammar import (component_of, identity_lack,  # noqa: E402
+                                       ref_exists, ticket_path)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "grammar.py"))
@@ -148,6 +148,40 @@ def test_identity_lack_names_its_remediation(root):
     assert identity_lack({"ticket": "tkt-a"}, None, "intent_ref") is None
     assert identity_lack({}, {}, "intent_ref") is None
 
+
+
+def test_component_of_reads_a_path_the_orient_floor_would_author(root):
+    """THE HOLE THIS CLOSES, and it stayed open for three days: since 2026-08-14 the
+    orient floor authors refs as repo-relative PATHS, while every leg downstream keyed
+    measured state by BARE NAME. ``survey_floor`` tested ``ref in roster``, a path never
+    matched, and the miss fell through to ``ref_exists`` — which PASSES. So the whole
+    deterministic stratum was dead and the packet still looked healthy.
+
+    The tooth is the ROUND TRIP, not a string: a bare name answers itself, the path of
+    a real component answers its name, and a name that only LOOKS right — a path whose
+    last segment matches a component that does not live there — answers None. Pinning
+    'cairn/alpha' -> 'alpha' would re-assert today's layout; this asserts the relation.
+    """
+    for name in ("alpha", "beta"):
+        assert component_of(name, root) == name, \
+            "a bare roster name must answer itself — the pre-2026-08-14 dialect is " \
+            "still spoken by hand-written packets and must not stop resolving"
+        assert component_of(os.path.join("cairn", name), root) == name, \
+            "the shape the orient floor AUTHORS must resolve — this is the whole hole"
+
+    assert component_of("cairn/gamma", root) is None, \
+        "gamma has code and no charter, so it is not on the roster — a census row " \
+        "keyed by it would not exist, and a name for it would be a false hit"
+    assert component_of("nowhere/alpha", root) is None, \
+        "THE LOOK-ALIKE: the basename is a real component, but nothing lives at that " \
+        "path. Matching on the tail alone would let any path claim any component."
+    assert component_of("cairn/alpha/alpha.py", root) is None, \
+        "a FILE inside a component is not the component — it is a plain ref, and " \
+        "existence-measuring it is ref_exists's job, not this one's"
+    for junk in ("", "   ", None, 7, []):
+        assert component_of(junk, root) is None, \
+            "a non-ref answers None rather than raising — the floor loops over " \
+            "whatever a packet carried, and a crash there is a dead stage"
 
 def test_import_allowlist(root):
     """The rung holds: stdlib plus the two tools the grammar composes, and nothing

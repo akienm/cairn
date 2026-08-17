@@ -36,6 +36,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
+from dataclasses import asdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
@@ -198,6 +199,88 @@ def test_the_drive_edits_through_the_real_coder():
         assert r.edit_format == "diff", r.edit_format
         assert len(r.allowed_asks) == 1, r.asks
         assert r.allowed_asks[0]["model"] == MODEL, r.asks
+
+
+#: The reply that put the ROOT on trial. Two blocks: one edits the brief's file at its
+#: repo-relative path, one CREATES a file the brief never named. A new file is the decisive
+#: half — an existing file can be recovered by aider's fuzzy filename matching against the
+#: in-chat files, so only a path with nothing to match against reads the root straight.
+NESTED_REPLY = (
+    "pkg/calc.py\n```python\n<<<<<<< SEARCH\n    return a - b\n=======\n"
+    "    return a + b\n>>>>>>> REPLACE\n```\n"
+    "stray.py\n```python\n<<<<<<< SEARCH\n=======\nVALUE = 7\n>>>>>>> REPLACE\n```\n"
+)
+
+
+def a_nested_repo(where: Path) -> Path:
+    """The brief's only editable file sits one directory DOWN. That is the whole fixture:
+    with a single file at the repo top, the common ancestor of the file list happens to BE
+    the repo, and the defect this pair of teeth pins is invisible."""
+    repo = Path(where) / "repo"
+    (repo / "pkg").mkdir(parents=True)
+    (repo / "pkg" / "calc.py").write_text("def add(a, b):\n    return a - b\n", encoding="utf-8")
+    git(repo, "init", "-q", ".")
+    git(repo, "add", "-A")
+    git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init")
+    return repo
+
+
+def driven_nested(tmp):
+    repo = a_nested_repo(Path(tmp))
+    b = a_brief(repo)
+    b.files = [str(repo / "pkg" / "calc.py")]
+    return repo, driver.drive_brief(
+        b, repo=repo, model=MODEL, log_path=Path(tmp) / "asks.jsonl",
+        drives_path=Path(tmp) / "drives.jsonl",
+        seams={"resolve": seam_file(Path(tmp), NESTED_REPLY)}, max_reflections=0,
+    )
+
+
+def test_aiders_root_is_the_REPO_not_the_ancestor_of_the_file_list():
+    """THE MEASURED FAILURE OF 2026-08-17, made into a tooth.
+
+    With ``use_git=False`` aider has no repo to ask, so ``Coder.__init__`` sets
+    ``self.root = utils.find_common_root(self.abs_fnames)`` (base_coder.py:476, read by
+    AST) — the common ANCESTOR of the editable files. There is no ``root`` constructor
+    argument. While the brief handed aider nine files spanning ``cairn/``, that ancestor
+    WAS the repo and nobody noticed; the first drive with a piece-scoped list had ONE
+    editable file, the ancestor collapsed to that file's directory, and the apprentice's
+    edit landed at a path nested one level deeper than it named — a new file, while the
+    file it was asked to edit was never touched.
+
+    The kill: ``stray.py`` is resolved against the root. Pinned, it lands at the repo top.
+    Unpinned, it lands under ``pkg/`` — so BOTH halves are asserted, because "the file
+    exists" alone stays green in a world where it exists in the wrong place too."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo, r = driven_nested(tmp)
+        assert not r.error, f"{r.error}\n{r.traceback}"
+        assert (repo / "stray.py").exists(), \
+            f"the created file is not at the repo top; tree: {sorted(p.relative_to(repo) for p in repo.rglob('*.py'))}"
+        assert not (repo / "pkg" / "stray.py").exists(), \
+            "the root collapsed to the editable file's directory — the pin is not holding"
+        assert (repo / "pkg" / "calc.py").read_text() == "def add(a, b):\n    return a + b\n", \
+            (repo / "pkg" / "calc.py").read_text()
+
+
+def test_the_record_WITNESSES_an_edit_the_brief_never_named():
+    """A record that images only the brief's files cannot witness a write outside them: every
+    imaged hash stays equal, so ``hashes_moved`` reports nothing moved while a file was
+    created. That is blindness in the one direction a record of truth may not have it
+    (Law 7) — and it is how the 2026-08-17 misplacement went unreported by everything
+    except aider's own edit list. Pinning the root makes the case rare, not impossible.
+
+    ``before`` says ``{"exists": False}`` rather than an image taken after the drive:
+    imaging now would record the drive's own output as the state before it, and
+    ``survival`` would then read a created file as ``untouched``."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo, r = driven_nested(tmp)
+        assert not r.error, f"{r.error}\n{r.traceback}"
+        assert "stray.py" not in r.files, r.files          # never in the brief
+        assert "stray.py" in r.aider_reported_edited, r.aider_reported_edited
+        assert r.before.get("stray.py") == {"exists": False}, r.before
+        assert "stray.py" in r.hashes_moved, r.hashes_moved
+        assert driver.survival(asdict(r), root=repo)["stray.py"] == "survived", \
+            driver.survival(asdict(r), root=repo)
 
 
 def test_construction_alone_makes_no_ask():

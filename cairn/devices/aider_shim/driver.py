@@ -265,6 +265,20 @@ try:
     # reflection, so one run() is one allowed ask. An attribute, not a ctor argument —
     # which is exactly why the ask log has to be able to falsify it from outside.
     coder.max_reflections = ARG["max_reflections"]
+    # THE ROOT IS PINNED, AND UNTIL 2026-08-17 IT WAS A COINCIDENCE OF THE FILE LIST.
+    # With use_git=False aider has no repo to ask, so `Coder.__init__` sets
+    # `self.root = utils.find_common_root(self.abs_fnames)` (base_coder.py:476, read by
+    # AST) — the COMMON ANCESTOR of the editable files. Every relative path the model
+    # emits is then resolved under that, by `abs_root_path`. While the brief handed over
+    # the whole survey the ancestor happened to be the repo, so nothing showed. The first
+    # drive with a piece-scoped list had ONE editable file, the ancestor collapsed to
+    # cairn/devices/aider_shim/, and the apprentice's `cairn/devices/aider_shim/driver.py`
+    # landed at cairn/devices/aider_shim/cairn/devices/aider_shim/driver.py — a new file,
+    # nested, while the file it was asked to edit was never touched. There is no `root`
+    # constructor argument (measured: not in Coder.__init__'s parameter list), so this is
+    # the assignment, and it goes AFTER construction because construction is what computes
+    # the wrong one.
+    coder.root = ARG["repo"]
     out = coder.run(with_message=ARG["prompt"])
     result["response_tail"] = (out or "")[-4000:]
     result["aider_reported_edited"] = sorted(coder.aider_edited_files or [])
@@ -327,7 +341,25 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
         "resolver": (seams or {}).get("resolver"),
     }
     out = run_in_venv(_DRIVE, payload, timeout=timeout, cwd=str(repo))
-    after = image_of(b.files, repo)
+    # THE AFTER-IMAGE COVERS WHAT AIDER SAYS IT TOUCHED, NOT ONLY WHAT WE HANDED IT.
+    # Imaging b.files on both sides makes the record blind in exactly the direction it
+    # must not be: a write OUTSIDE the brief leaves every imaged hash equal, so
+    # `hashes_moved` reports nothing moved while a file was created. Measured 2026-08-17 —
+    # aider's root was unpinned, the apprentice's edit landed at a nested path that was in
+    # nobody's list, and the only trace was aider's own `aider_edited_files`. A path aider
+    # reports that we never imaged gets `{"exists": False}` in `before`, which is the true
+    # statement about a file that did not exist when the drive started; `hashes_moved`
+    # then names it, and that is the point. Pinning the root (see _DRIVE) makes this rare
+    # rather than impossible — aider may still emit any path, and a record that cannot see
+    # an out-of-bounds write cannot report one.
+    touched = [str(Path(repo) / p) if not Path(p).is_absolute() else p
+               for p in out.get("aider_reported_edited", [])]
+    beyond = [p for p in touched if _rel(p, repo) not in before]
+    for p in beyond:
+        # NOT imaged now — imaging after the drive would record the drive's own output as
+        # the state before it, and `survival` would then read a created file as untouched.
+        before[_rel(p, repo)] = {"exists": False}
+    after = image_of(list(b.files) + beyond, repo)
     result = DriveResult(
         ticket=ticket, piece_index=piece_index, model=model,
         at=datetime.now(timezone.utc).isoformat(),

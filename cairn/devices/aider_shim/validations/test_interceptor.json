@@ -1,0 +1,21 @@
+[
+  {
+    "claim": "proof test_interceptor.py passes under python3",
+    "caller": "aider_shim",
+    "date": "2026-08-16T19:21:04",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "aider_shim :: interceptor\n  ok   test_completion_goes_through_the_resolve_door\n  ok   test_every_exception_name_is_a_catchable_class\n  ok   test_fallback_exception_list_matches_the_foreign_programs_own\n  ok   test_install_puts_us_at_the_import_name\n  ok   test_installed_is_FALSE_when_the_module_there_is_not_OURS\n  ok   test_model_cost_is_a_mapping_aider_can_walk\n  ok   test_model_info_answers_from_the_stack_and_refuses_otherwise\n  ok   test_no_stray_Error_attribute\n  ok   test_streaming_is_refused_not_silently_downgraded\n  ok   test_surface_is_complete\n  ok   test_the_refusal_is_outside_aiders_retry_tuple\n  ok   test_touched_is_not_empty\n  ok   test_touched_stays_inside_the_declared_surface\n  ok   test_usage_is_none_when_the_door_reports_no_counters\n  ok   test_usage_is_the_hosts_real_counters_when_reported\n\nGREEN",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "46a8cf981af9e8e97ad58a4f7f0c73c28186740a32cdc9753b9c42b81faef12b"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

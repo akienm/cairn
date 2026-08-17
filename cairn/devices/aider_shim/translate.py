@@ -97,6 +97,19 @@ class Brief:
     test_cmd: str = ""
     chain: dict = field(default_factory=dict)
 
+    #: aider's ``map_tokens``, and ZERO IS THE DESIGN, not a performance setting. aider's
+    #: repo map walks the whole repository and splices a ranked digest of it into the
+    #: prompt — content that traces to no berthed packet field, assembled by the held
+    #: program after this module has finished counting spans. ``unsourced()`` would still
+    #: return empty and clause (7) would still be violated, because the violation happens
+    #: downstream of the only thing that can see it. It is also Law 1 twice over: the
+    #: chart chain already settled which files this piece touches (survey's holdings,
+    #: constrain's bounds), so a repo map is aider re-deriving the settled by heuristic.
+    #: MEASURED, not reasoned: the first live fire died in ``repomap.get_ranked_tags`` on
+    #: ``import networkx`` — a module the venv's closure correctly measured as lazy-only
+    #: and therefore never installed. The traceback is what surfaced the prompt hole.
+    map_tokens: int = 0
+
     @property
     def prompt(self) -> str:
         return "\n\n".join(s.text for s in self.spans if s.text)

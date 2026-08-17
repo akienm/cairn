@@ -391,8 +391,24 @@ def test_the_briefs_fields_are_the_names_aiders_Coder_ACTUALLY_takes():
     init = next(n for n in cls.body
                 if isinstance(n, ast.FunctionDef) and n.name == "__init__")
     params = {a.arg for a in init.args.args + init.args.kwonlyargs}
-    for name in ("fnames", "read_only_fnames", "test_cmd", "auto_test"):
+    for name in ("fnames", "read_only_fnames", "test_cmd", "auto_test", "map_tokens"):
         assert name in params, f"aider's Coder no longer takes {name!r}"
+
+
+def test_the_repo_map_is_OFF_because_it_would_write_into_the_prompt_unseen():
+    """The hole a span count cannot see, closed by the one number that closes it.
+
+    aider's repo map splices a ranked digest of the whole repository into the prompt
+    AFTER this module has finished counting spans, so ``unsourced()`` reports zero while
+    clause (7) is being violated. Zero is therefore the design; a non-zero default here
+    would be a silent widening of what reaches the model. Surfaced by the first live
+    fire, which died on ``import networkx`` inside ``repomap.get_ranked_tags``.
+    """
+    with chain() as root:
+        b = translate.brief(TICKET, 0, berths_root=root)
+    assert b.map_tokens == 0, (
+        "the repo map is ON — aider will assemble prompt content this module never saw, "
+        "and the untraceable-span count will stay at zero while it happens")
 
 
 def main():

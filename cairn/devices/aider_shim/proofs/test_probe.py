@@ -28,8 +28,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim.probes import offload_yield_probe as probe  # noqa: E402
+from cairn.devices.builder.machines.verdict.verdict import (  # noqa: E402
+    OUTCOMES, verdict_error,
+)
 
 REPO = Path(__file__).resolve().parents[4]
+#: The door's word for a passing verdict, IMPORTED. Spelling it here by hand is the
+#: exact defect these teeth were blind to; a rename in the door must red this file.
+PASS, FAIL = OUTCOMES[0], OUTCOMES[1]
 FAILURES = []
 
 
@@ -59,17 +65,36 @@ def refused(ticket, model="gpt-4o"):
             "provider": "", "ticket": ticket, "detail": "off the fence"}
 
 
-def verdict_berth(root: Path, ticket: str, outcomes=("passed",), stamp="20260816T000000"):
+def verdict_berth(root: Path, ticket: str, outcomes=(PASS,), stamp="20260816T000000",
+                  *, door_shaped=True):
+    """A stand-in for an artifact the verdict door wrote — and it must EARN that.
+
+    THE FIXTURE IS CHECKED BY THE WRITER'S OWN GATE, which is the whole lesson of
+    2026-08-16. This helper used to hand-write `{"criteria": [...], "outcome":
+    "passed"}` — a shape the door has never produced in its life — and the probe read
+    exactly that shape, so seventeen teeth went green proving the reader and the fixture
+    agreed with each other. `verdict_error` is the door's own pure-shape check (no disk,
+    no chain), so running the fixture through it makes a fixture the door would refuse
+    unable to stand for one it wrote. `door_shaped=False` is the deliberate escape, and
+    it exists only so a tooth can feed the probe a malformed artifact on purpose.
+    """
     d = root / "chart" / "packets"
     d.mkdir(parents=True, exist_ok=True)
     p = d / f"verdict-{stamp}-{abs(hash(ticket)) % 10**12:012d}.json"
-    p.write_text(json.dumps({
+    artifact = {
         "ticket": ticket,
-        "criteria": [{"claim": f"c{i}", "instrument": "an instrument",
+        "validate_ref": f"falsifier@{ticket}",
+        "verdicts": [{"claim": f"c{i}", "instrument": "an instrument",
                       "outcome": o, "evidence": "evidence"}
                      for i, o in enumerate(outcomes)],
-        "hypotheses": [],
-    }), encoding="utf-8")
+        "dispositions": [],
+    }
+    if door_shaped:
+        refusal = verdict_error(artifact)
+        assert refusal is None, (
+            "THE FIXTURE IS NOT A SHAPE THE DOOR WOULD BERTH, so it cannot stand for an "
+            f"artifact the door wrote: {refusal}")
+    p.write_text(json.dumps(artifact), encoding="utf-8")
     return p
 
 
@@ -195,8 +220,8 @@ def test_passed_is_TRUE_only_when_every_criterion_passed():
         tmp = Path(d)
         log = ask_log(tmp, [allowed("green"), allowed("mixed"), allowed("empty")])
         root = tmp / "berths"
-        verdict_berth(root, "green", ("passed", "passed"))
-        verdict_berth(root, "mixed", ("passed", "failed"), stamp="20260816T000001")
+        verdict_berth(root, "green", (PASS, PASS))
+        verdict_berth(root, "mixed", (PASS, FAIL), stamp="20260816T000001")
         verdict_berth(root, "empty", (), stamp="20260816T000002")
         rows = {r["ticket"]: r["passed"] for r in
                 probe.yields_so_far(ask_log=log, berths_root=root)}
@@ -209,8 +234,8 @@ def test_the_LATEST_verdict_artifact_is_the_one_that_stands():
         tmp = Path(d)
         log = ask_log(tmp, [allowed("t")])
         root = tmp / "berths"
-        verdict_berth(root, "t", ("failed",), stamp="20260816T000000")
-        p = verdict_berth(root, "t", ("passed",), stamp="20260816T235959")
+        verdict_berth(root, "t", (FAIL,), stamp="20260816T000000")
+        p = verdict_berth(root, "t", (PASS,), stamp="20260816T235959")
         rows = probe.yields_so_far(ask_log=log, berths_root=root)
         assert rows[0]["passed"] is True and rows[0]["verdict_berth"] == str(p)
 
@@ -233,6 +258,112 @@ def test_the_COST_column_is_a_declared_hole_never_a_silent_absence():
         carried = probe.PROBE.carry({"ask_log": log, "berths_root": root})
         assert carried["shimmed"] == 1 and carried["green"] == 1
         assert "hole" in carried["reads"]
+
+
+def test_EVERY_column_the_charter_PROMISES_is_present_hole_or_measurement():
+    """The charter's ``how_it_learns`` is a promise about this probe's carry, and drift
+    between them is silent in both directions: the charter reads as a description of a
+    working instrument, and the probe reads as complete because nothing states what it
+    left out. Three columns are named there — passed physics, CC call count, and whether
+    CC had to supply context beyond the piece and the bounds. The third was MISSING at
+    the close of the building voyage; a hole is the honest shape for it, an absence is
+    not, and this is the tooth that keeps a promised column from going quiet.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        log = ask_log(tmp, [allowed("t")])
+        root = tmp / "berths"
+        verdict_berth(root, "t")
+        row = probe.yields_so_far(ask_log=log, berths_root=root)[0]
+        for col in ("passed", "cc_calls", "extra_context"):
+            assert col in row, f"the charter promises {col!r} and the row does not carry it"
+        for hole in ("cc_calls_hole", "extra_context_hole"):
+            assert row.get(hole), f"{hole} is empty — a None with no referent is an absence"
+        assert "filed edge (c)" in row["extra_context_hole"], (
+            "the extra-context hole must name the decision it would falsify, or a reader "
+            "cannot tell why the column is worth waiting for")
+
+
+def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
+    """THE TOOTH THAT WAS MISSING, and its absence cost this device a dead column.
+
+    Until 2026-08-16 the probe read ``artifact["criteria"]`` and compared outcomes to
+    ``"passed"``. The door writes ``verdicts`` and its vocabulary is ``("pass","fail")``.
+    Both spellings were wrong; every real artifact yielded ``0 criteria, passed False``,
+    and the carrier looked healthy while ``green`` sat at zero forever. The seventeen
+    teeth that stood here all missed it because the FIXTURE hand-wrote the reader's
+    invented shape — the two halves of one head agreeing with each other.
+
+    So this tooth refuses to DESCRIBE the artifact at all. It builds one THROUGH THE
+    DOOR'S OWN WRITER and asserts the probe reads it green. The falsifier form
+    (``falsifier@<ticket>``) is used because it needs no chart chain on disk — and both
+    the ticket root and the berth root are injected, so this reads a synthetic world in
+    a tempdir: no CairnCommons, no instance-space. If anyone renames a key or a
+    vocabulary word on either side of the seam, this goes red AT the seam instead of
+    going quiet in the carrier.
+    """
+    from cairn.devices.builder.machines.verdict.verdict import (
+        falsifier_criteria, write_verdict,
+    )
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        ticket = "probe-reads-the-door"
+        tickets = tmp / "CairnCommons" / "tickets"
+        tickets.mkdir(parents=True)
+        (tickets / f"{ticket}.json").write_text(json.dumps({
+            "id": ticket,
+            "falsifier": "RED on any of: (1) the probe cannot read a door-written "
+                         "artifact. (2) the count of verdicts comes back zero.",
+        }), encoding="utf-8")
+        fake_root = str(tmp / "cairn")           # ticket_path reads dirname(root)/CairnCommons
+        owed, err = falsifier_criteria(ticket, root=fake_root)
+        assert err is None and len(owed) == 2, (err, owed)
+
+        log = ask_log(tmp, [allowed(ticket)])
+        root = tmp / "berths"
+        (root / "chart" / "packets").mkdir(parents=True, exist_ok=True)
+        written = write_verdict({
+            "ticket": ticket,
+            "validate_ref": f"falsifier@{ticket}",
+            # claims VERBATIM from the door's own deriver — the point of it being public
+            "verdicts": [{"claim": c["claim"], "instrument": "this tooth",
+                          "outcome": PASS, "evidence": "the assertions below"}
+                         for c in owed],
+            "dispositions": [],
+        }, instance_dir=str(root / "chart" / "packets"), root=fake_root)
+
+        rows = probe.yields_so_far(ask_log=log, berths_root=root)
+        assert len(rows) == 1, f"the door's own artifact was not read at all: {rows}"
+        assert rows[0]["verdict_berth"] == written
+        assert rows[0]["passed"] is True, (
+            "THE PROBE CANNOT READ WHAT THE DOOR WRITES — this is the 2026-08-16 defect "
+            f"returning: {rows[0]}")
+        assert rows[0]["verdicts"] > 0, (
+            "zero verdicts counted from a real artifact: the key the probe reads is not "
+            "the key the door writes")
+        assert rows[0]["shape_refusal"] is None
+
+
+def test_an_artifact_the_DOOR_WOULD_REFUSE_is_not_counted_as_a_FAILED_build():
+    """A malformed artifact and a failed build are different facts, and collapsing them
+    is the quiet lie the old reader told: a shape it could not parse came out as
+    ``passed: False``, indistinguishable from a voyage whose criteria genuinely failed.
+    Now it comes out ``None`` with the door's own refusal text beside it, and the carry
+    counts it in ``unshaped`` rather than in the not-green pile.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        log = ask_log(tmp, [allowed("t")])
+        root = tmp / "berths"
+        p = verdict_berth(root, "t", door_shaped=False)
+        junk = json.loads(p.read_text(encoding="utf-8"))
+        junk["verdicts"][0]["evidence"] = ""      # narration — the door refuses it
+        p.write_text(json.dumps(junk), encoding="utf-8")
+        row = probe.yields_so_far(ask_log=log, berths_root=root)[0]
+        assert row["passed"] is None, "a shape the door refuses was scored as a build result"
+        assert row["shape_refusal"] and "evidence" in row["shape_refusal"]
+        carried = probe.PROBE.carry({"ask_log": log, "berths_root": root})
+        assert carried["green"] == 0 and carried["unshaped"] == 1, carried
 
 
 # ------------------------------------------------- the stopping condition

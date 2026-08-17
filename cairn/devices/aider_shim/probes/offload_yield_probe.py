@@ -33,6 +33,22 @@ link visibly rather than dropping the key: a receiver that gets a row with one c
 missing knows what it is missing; a receiver that gets a row with one column absent thinks
 the row is complete.
 
+THE MEASURED COLUMN'S VOCABULARY IS READ FROM THE DOOR, NEVER RE-SPELLED HERE, and that
+rule is a scar. Until 2026-08-16 this module read `artifact["criteria"]` and compared
+outcomes to the string `"passed"`. The verdict door writes `artifact["verdicts"]` and its
+OUTCOMES vocabulary is `("pass", "fail")` — so BOTH spellings were wrong, and the failure
+was silent in the worst available way: `.get("criteria") or []` returns empty for every
+real artifact, the count reports 0, and `passed` is False for a voyage that passed all
+eight criteria. `green` would have read 0 forever underneath a carrier that looked
+healthy — the same shape as the survey-floor trouble standing in the inbox, where a
+key-mismatch killed a whole stratum and nothing complained. SEVENTEEN SEALED TEETH DID
+NOT CATCH IT, because the proof's fixture hand-wrote the same wrong shape: a fixture
+that agrees with the READER instead of with the WRITER proves only that the two agree
+with each other. The fixture now goes through the door's own `verdict_error` before it
+is allowed to stand for an artifact. Found by the first artifact the door ever wrote for
+this ticket — which, being the only real one that has ever existed, was the only thing
+that could have found it.
+
 AND THAT HOLE IS WHY `enough` DEMANDS BOTH. A stopping condition that could be satisfied by
 the half we can already measure would retire this watch at the exact moment it had learned
 the less interesting half — the apprentice's builds pass, but nobody knows whether they
@@ -98,27 +114,49 @@ def yields_so_far(*, ask_log: Path | None = None, berths_root=None) -> list[dict
     """One row per shimmed ticket that has reached a standing verdict artifact.
 
     THE TWO COLUMNS THE CARRIER ASKS FOR, and the second one is a declared hole. `passed`
-    is measured — every criterion's outcome, read off the artifact. `cc_calls` is
-    `None` with `cc_calls_hole` naming why, per the header.
+    is measured — every verdict's outcome, read off the artifact under the DOOR'S OWN
+    vocabulary (see `_door`). `cc_calls` is `None` with `cc_calls_hole` naming why, per
+    the header.
+
+    AN ARTIFACT THE DOOR WOULD REFUSE IS NOT COUNTED EITHER WAY. `verdict_error` is the
+    door's own pure-shape check, so this asks it rather than trusting the keys it found:
+    a malformed artifact yields `passed: None` and a `shape_refusal`, never a False that
+    reads as a failed build.
     """
+    from cairn.devices.builder.machines.verdict.verdict import (  # noqa: PLC0415
+        OUTCOMES, verdict_error,
+    )
+    passing = OUTCOMES[0]
     rows = []
     for ticket in shimmed_tickets(ask_log=ask_log):
         found = _artifact_for(ticket, berths_root=berths_root)
         if not found:
             continue
         path, artifact = found
-        criteria = artifact.get("criteria") or []
-        outcomes = [c.get("outcome") for c in criteria]
+        refusal = verdict_error(artifact)
+        verdicts = artifact.get("verdicts") or []
+        outcomes = [v.get("outcome") for v in verdicts]
         rows.append({
             "ticket": ticket,
             "verdict_berth": path,
-            "criteria": len(criteria),
-            "passed": bool(criteria) and all(o == "passed" for o in outcomes),
+            "verdicts": len(verdicts),
+            "passed": None if refusal else (bool(verdicts)
+                                            and all(o == passing for o in outcomes)),
+            "shape_refusal": refusal,
             "outcomes": outcomes,
             "cc_calls": None,
             "cc_calls_hole": "no instrument counts CC's tool calls yet (/sail step 9 is a "
                              "hand's act); ticket "
                              "the-builds-tool-calls-are-evidence-about-the-chart owns it",
+            "extra_context": None,
+            "extra_context_hole": "nothing observes whether CC had to supply context "
+                                  "beyond the piece and the bounds; the shim records the "
+                                  "ASK, not what the caller added around it. This is the "
+                                  "column that would falsify the one-piece-per-invocation "
+                                  "decision (filed edge (c)), and it is the charter's "
+                                  "how_it_learns promise — carried as a hole rather than "
+                                  "dropped, because a promise nobody can read is worse "
+                                  "than a hole somebody can",
         })
     return rows
 
@@ -146,10 +184,13 @@ def _carry(context=None) -> dict:
     return {
         "ticket": TICKET,
         "shimmed": len(rows),
-        "green": sum(1 for r in rows if r["passed"]),
+        "green": sum(1 for r in rows if r["passed"] is True),
+        "unshaped": sum(1 for r in rows if r["passed"] is None),
         "rows": rows,
         "asks": str(ASK_LOG),
-        "reads": "green-rate is measured; the CC-call comparison is a declared hole per row",
+        "reads": "green-rate is measured; the CC-call comparison is a declared hole per row. "
+                 "`green` counts only True — an artifact the door would refuse lands in "
+                 "`unshaped`, never silently in the not-green pile",
     }
 
 

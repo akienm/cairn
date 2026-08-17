@@ -1,0 +1,21 @@
+[
+  {
+    "claim": "proof test_fence.py passes under python3",
+    "caller": "aider_shim",
+    "date": "2026-08-16T19:21:04",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "aider_shim :: fence\n  ok   test_a_widened_PROVIDER_is_refused_even_though_the_name_passed\n  ok   test_a_widened_model_is_refused_before_the_door\n  ok   test_an_on_fence_ask_is_allowed_and_recorded_as_allowed\n  ok   test_streaming_is_refused_and_recorded\n  ok   test_the_default_record_path_is_instance_space\n  ok   test_the_fence_is_exact_match_never_a_prefix_or_pattern\n  ok   test_the_record_is_appended_to_disk_when_a_path_is_given\n       (checked against 2 handler(s): ['litellm_ex.exceptions_tuple()', 'AttributeError'])\n  ok   test_the_refusal_escapes_every_handler_on_aiders_actual_call_path\n  ok   test_the_refusal_names_the_widened_model_verbatim_in_the_record\n  ok   test_the_refusal_survives_aiders_retry_loop_unretried\n\nGREEN",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "46a8cf981af9e8e97ad58a4f7f0c73c28186740a32cdc9753b9c42b81faef12b"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

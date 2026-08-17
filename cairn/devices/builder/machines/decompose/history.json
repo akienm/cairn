@@ -1,0 +1,138 @@
+[
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(piece_output_address) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'a-piece-names-where-its-output-lands', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'decompose' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'decompose' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-piece-names-where-its-output-lands",
+          "component": "decompose",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'a-piece-names-where-its-output-lands' is cast",
+        "actual": "named ticket 'a-piece-names-where-its-output-lands' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-piece-names-where-its-output-lands",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-piece-names-where-its-output-lands.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-piece-names-where-its-output-lands"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-piece-names-where-its-output-lands"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-piece-names-where-its-output-lands"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "a-piece-names-where-its-output-lands",
+    "actor": "CC",
+    "note": "A decompose sub-problem gains `writes_to` — the addresses a piece's output lands at, existing or not — and it becomes the source of aider's editable file list, demoting `uses` (survey HOLDINGS, things that exist) to read-only. Measured at the first live drive of aider-builds-a-piece: the brief handed the apprentice the file the piece READS and the piece's job was to create a file nothing named. Strictness splits across the two mouths on purpose — the berth door refuses a new packet whose piece lacks the field, the promotion judge checks only a field that is PRESENT — so the 51 standing berths are not retro-redded by a spec that did not exist when they were written (Law 9's bound read the other way). THE CROSSING RIDES THIS ADDRESS BECAUSE THE TICKET'S owning_intention IS THIS CHARTER, and this component has carried no history until now — the pair is born here. The voyage writes at three addresses (this one, cairn/machines/build_inspector, cairn/devices/aider_shim); 77 of 78 ticketed crossings in the corpus journal at one address, and the one exception is not a precedent worth minting a second here.",
+    "at": "2026-08-17T16:35:48",
+    "seq": 0
+  }
+]

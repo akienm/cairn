@@ -121,6 +121,55 @@ JUDGE_REFUSAL_DECOMPOSE = (
     "decompose packet refused by the installed judges (the door and the promotion gate are one implementation): ")
 
 
+def writes_to_lacks(sub_problems, root: str = CAIRN_ROOT) -> list:
+    """The lacks in the pieces' ``writes_to`` — where each piece's output LANDS.
+
+    ``uses`` cannot carry this, by construction: it names survey HOLDINGS, things the
+    sweep FOUND, and a build piece's whole job is to create what a measured absence says
+    is missing — so its target is excluded from ``uses`` by definition. Measured at the
+    first live drive of aider-builds-a-piece (ticket
+    a-piece-names-where-its-output-lands): the brief handed the apprentice the file the
+    piece READS, and nothing berthed said where the new code went.
+
+    THE HARD REQUIREMENT LIVES AT THIS DOOR AND NOWHERE ELSE. A decompose packet has two
+    mouths: this one judges only the packet being written, while ``judge_decompose`` is
+    also the PROMOTION mouth and reads the standing corpus through ``_charted_packets``.
+    A hard requirement there would red 51 healthy berths whose ``writes_to`` was never
+    asked for — Law 9's bound read the other way, and the build_inspector's own tooth 1
+    ("a healthy component draws a finding — a gate that always fires gets unwired"). The
+    asymmetry is deliberate and has precedent at ``survey_holdings_resolve``.
+
+    EXISTENCE IS NOT CHECKED, and that is the point rather than an omission: a build
+    piece names a file that does not exist YET. What is checked is that the address is a
+    string, non-empty, and IN-REPO — because the only reader downstream hands it to an
+    apprentice as an editable path, and an address outside the repo is a write this
+    system does not gate (Law 6).
+
+    Returns one sentence per offending piece, in packet order; empty when every piece
+    names where it writes.
+    """
+    lacks = []
+    for i, sp in enumerate(sub_problems):
+        if not isinstance(sp, dict):
+            continue  # shape of the piece itself is the judges' question, not this one
+        where = "sub_problem %d (%s)" % (i, str(sp.get("what", "?"))[:60])
+        addrs = sp.get("writes_to")
+        if not isinstance(addrs, list) or not addrs:
+            lacks.append("%s has no non-empty `writes_to` — name the address(es) this "
+                         "piece's output lands at, existing or not" % where)
+            continue
+        for addr in addrs:
+            if not isinstance(addr, str) or not addr.strip():
+                lacks.append("%s: `writes_to` entry %r is not a non-empty string"
+                             % (where, addr))
+                continue
+            resolved = os.path.normpath(os.path.join(root, addr))
+            if not (resolved == root or resolved.startswith(root + os.sep)):
+                lacks.append("%s: `writes_to` %s is outside the cairn repo — a piece may "
+                             "only declare output this system gates writes to" % (where, addr))
+    return lacks
+
+
 def inspect_decompose(packet: dict, root: str = CAIRN_ROOT) -> list:
     """DECOMPOSE'S OWN INSPECTOR — the proof record for the packet it hands the next stage.
 
@@ -163,6 +212,15 @@ def inspect_decompose(packet: dict, root: str = CAIRN_ROOT) -> list:
                                   authored_fields=AUTHORED_FIELDS,
                                   list_fields=('sub_problems', 'unknowns'),
                                   root=root, stage="decompose")
+
+    # THE OUTPUT ADDRESS, and it is THIS mouth's alone. See ``writes_to_lacks`` for why the
+    # hard requirement lives at the door and never in the promotion judge.
+    if isinstance(packet.get("sub_problems"), list) and packet["sub_problems"]:
+        _lacks = writes_to_lacks(packet["sub_problems"], root=root)
+        record.append(inspected(
+            "every_piece_names_where_it_writes", stage="decompose",
+            expected=[], actual=_lacks,
+            lack="; ".join(_lacks)))
 
     # THE COMPOSED JUDGES, and they run only once every entry above passes — the same
     # order the two-tier door has always used, now visible in the record rather than

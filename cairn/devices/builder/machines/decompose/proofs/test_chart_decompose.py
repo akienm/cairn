@@ -18,6 +18,10 @@ Teeth a hollow build could not pass:
     build outside the measured absences, a why-less piece — each refused AT THE
     BERTH by the same judge_decompose the promotion gate runs — asserted by
     identity. And the inspector never imports decompose.
+  - EVERY PIECE NAMES WHERE IT WRITES: the door refuses a packet whose piece
+    carries no non-empty in-repo `writes_to` — and does NOT require the address
+    to exist, because a build piece names the file it is about to create. The
+    entry is ABSENT (not passed) for a packet with no pieces.
   - THE BERTH LANDS AND ROUND-TRIPS; a refused packet leaves nothing behind.
   - THE DEPOSIT-BACK IS GATED: content is the ONE rendering (intent + the
     split, kinds visible), the berth must exist on disk, refusals leave the
@@ -93,9 +97,13 @@ def good_packet(survey_berth):
         "survey_ref": survey_berth,
         "sub_problems": [
             {"what": "compose the settled chart machinery", "why": "it is held",
-             "kind": "compose", "uses": ["chart"]},
+             "kind": "compose", "uses": ["chart"],
+             "writes_to": ["chart/composed.py"]},
             {"what": "build the alpha splitter", "why": "measured absent",
-             "kind": "build", "fills": "an alpha splitter"},
+             "kind": "build", "fills": "an alpha splitter",
+             # NOT a holding, and it does not exist — that is the whole point of the
+             # field: a build piece names the file it is about to create.
+             "writes_to": ["chart/alpha_splitter.py"]},
         ],
         "unknowns": ["whether the splitter needs a second seam"],
         "confidence": 0.7,
@@ -186,23 +194,85 @@ def test_the_door_composes_the_installed_judges(root, orient_berth,
     assert decompose_mod.judge_decompose is inspector_mod.judge_decompose
     rebuilt = dict(good_packet(survey_berth), sub_problems=[
         {"what": "compose a phantom", "why": "it is not held",
-         "kind": "compose", "uses": ["no/such/thing.py"]}])
+         "kind": "compose", "uses": ["no/such/thing.py"],
+         "writes_to": ["chart/x.py"]}])
     expect_refusal(lambda: validate_decompose(rebuilt, root=root),
                    "decompose_composes_holdings")
     invented = dict(good_packet(survey_berth), sub_problems=[
         {"what": "build a whim", "why": "nobody measured it",
-         "kind": "build", "fills": "a thing never sought"}])
+         "kind": "build", "fills": "a thing never sought",
+         "writes_to": ["chart/x.py"]}])
     expect_refusal(lambda: validate_decompose(invented, root=root),
                    "decompose_builds_absences")
     whyless = dict(good_packet(survey_berth), sub_problems=[
         {"what": "a piece with no why", "why": "", "kind": "compose",
-         "uses": ["chart"]}])
+         "uses": ["chart"], "writes_to": ["chart/x.py"]}])
     expect_refusal(lambda: validate_decompose(whyless, root=root),
                    "decompose_composes_holdings")
     # And the inspector never imports decompose — the module cannot shape its judge.
     inspector_src = Path(inspector_mod.__file__).read_text(encoding="utf-8")
     assert "cairn.devices.builder.machines.decompose.decompose" not in inspector_src, \
         "direction inversion: the judge's owner must never import the judged"
+
+
+def test_every_piece_names_where_it_writes(root, orient_berth, constrain_berth,
+                                           survey_berth):
+    """Ticket a-piece-names-where-its-output-lands: the HARD half, and it lives here.
+
+    `uses` cannot carry an output address by construction — it names survey HOLDINGS,
+    things that exist — so a build piece's target is excluded from it by definition. The
+    door demands `writes_to`; the promotion judge (the other mouth, over the standing
+    corpus) deliberately does not.
+    """
+    from cairn.devices.builder.machines.decompose.decompose import inspect_decompose
+
+    naked = dict(good_packet(survey_berth), sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter"}])
+    expect_refusal(lambda: validate_decompose(naked, root=root), "`writes_to`")
+    empty = dict(good_packet(survey_berth), sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter", "writes_to": []}])
+    expect_refusal(lambda: validate_decompose(empty, root=root), "no non-empty `writes_to`")
+    blank = dict(good_packet(survey_berth), sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter", "writes_to": ["   "]}])
+    expect_refusal(lambda: validate_decompose(blank, root=root), "not a non-empty string")
+    outside = dict(good_packet(survey_berth), sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter",
+         "writes_to": ["/etc/passwd"]}])
+    expect_refusal(lambda: validate_decompose(outside, root=root), "outside the cairn repo")
+    escaping = dict(good_packet(survey_berth), sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter",
+         "writes_to": ["../../elsewhere.py"]}])
+    expect_refusal(lambda: validate_decompose(escaping, root=root),
+                   "outside the cairn repo")
+
+    # THE DISTINCTION THE FIELD EXISTS FOR: the address does NOT have to exist. A build
+    # piece names the file it is about to create, and a door that demanded existence
+    # would forbid exactly the case the field was added to carry.
+    assert not os.path.exists(os.path.join(root, "chart", "alpha_splitter.py"))
+    validate_decompose(good_packet(survey_berth), root=root)
+
+    # A CHECK THAT DID NOT RUN IS ABSENT, NOT PASSED: no pieces, no entry — the record
+    # gets SHORTER, never cleaner, and required_fields_present has already closed the gate.
+    ids = lambda p: [e["identity"] for e in inspect_decompose(p, root=root)]
+    no_split = good_packet(survey_berth)
+    del no_split["sub_problems"]
+    assert "every_piece_names_where_it_writes" not in ids(no_split)
+    assert "every_piece_names_where_it_writes" in ids(good_packet(survey_berth))
+
+    # And the lack rides the SAME one-pass refusal as any other shape lack.
+    both = dict(good_packet(survey_berth), confidence=2.0, sub_problems=[
+        {"what": "build the alpha splitter", "why": "measured absent",
+         "kind": "build", "fills": "an alpha splitter"}])
+    try:
+        validate_decompose(both, root=root)
+        raise AssertionError("a doubly-defective packet passed the gate")
+    except DecomposeRefused as e:
+        assert "confidence" in str(e) and "`writes_to`" in str(e), str(e)
 
 
 def test_the_berth_lands_and_the_door_holds(root, orient_berth, constrain_berth,
@@ -357,6 +427,7 @@ def _main() -> int:
         test_floor_hands_the_judges_vocabularies_verbatim,
         test_schema_gate_refuses_hollow_shapes,
         test_the_door_composes_the_installed_judges,
+        test_every_piece_names_where_it_writes,
         test_the_berth_lands_and_the_door_holds,
         test_deposit_back_is_gated,
         test_import_allowlist,

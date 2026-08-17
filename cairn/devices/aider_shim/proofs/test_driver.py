@@ -526,6 +526,58 @@ def test_a_brief_with_no_editable_file_is_refused():
     raise AssertionError("a briefless drive was attempted — that is a spent model call")
 
 
+def test_a_drive_that_reached_no_model_is_not_read_as_a_drive_that_made_no_edit():
+    """THE MEASURED PAYLOAD OF A SILENT DRIVE, REPLAYED. On 2026-08-17 a drive ran 121s
+    and came back with `asks: []`, `aider_reported_edited: []`, an empty `response_tail`,
+    `num_reflections: 0` and `error: ""` — a clean, unremarkable success on its face, and
+    the model had never been reached at all. That record is indistinguishable from a drive
+    where the apprentice was asked and delivered nothing, and the two call for opposite
+    next moves: fix the setup, or judge the apprentice. Misreading one as the other is
+    what cost this device its first voyage.
+
+    WHY THIS REPLAYS THE VENV RESULT INSTEAD OF DRIVING THE REAL AIDER, said plainly rather
+    than hidden: no fixture arrangement found so far makes the real aider go quiet. Pointing
+    it at a repo that holds none of the brief's files was TRIED here first — it asks anyway
+    (measured, this box, 2026-08-17). So the thing under test is `drive_brief`'s own reading
+    of a result it did get, and the result is the one that actually came back, pinned field
+    for field. The real-aider path is exercised by every other tooth in this file.
+    """
+    silent = {"asks": [], "aider_reported_edited": [], "response_tail": "",
+              "num_reflections": 0, "edit_format": "diff", "error": "", "traceback": ""}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        repo = a_repo(tmp)
+        (tmp / "elsewhere").mkdir()
+        elsewhere = a_repo(tmp / "elsewhere")   # where the brief's ABSOLUTE paths point
+        drives = tmp / "drives.jsonl"
+        was = driver.run_in_venv
+        driver.run_in_venv = lambda *a, **k: dict(silent)
+        try:
+            driver.drive_brief(a_brief(elsewhere), repo=repo, model=MODEL,
+                               log_path=tmp / "asks.jsonl", drives_path=drives)
+        except driver.DriveRefused as red:
+            said = str(red)
+        else:
+            raise AssertionError(
+                "a drive that reached no model returned as an ordinary result — the caller "
+                "has no way to tell it from an apprentice that produced nothing")
+        finally:
+            driver.run_in_venv = was
+
+        assert "reached no model" in said.lower(), said
+        # The two counts are MEASUREMENTS, and they must disagree — the file exists, and it
+        # is not in the tree aider was pointed at. A message that only said "zero asks"
+        # would leave the next mind exactly where the silent record left the last one.
+        assert "1 exist on disk" in said and "0 are inside" in said, said
+        assert str(repo) in said, said
+
+        rows = driver.drives(drives)
+        assert rows, ("the refusal ate the evidence — the drive record was never written, "
+                      "so the only account of the silent drive is a raised exception")
+        assert rows[-1]["asks"] == [] and "reached no model" in rows[-1]["error"].lower(), \
+            rows[-1]
+
+
 # ------------------------------------------------------------------------------ runner
 
 def _main():

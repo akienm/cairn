@@ -341,8 +341,53 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
         error=out.get("error", ""), traceback=out.get("traceback", ""),
     )
     result.test = run_test(b.test_cmd, cwd=repo)
+
+    # A DRIVE THAT REACHED NO MODEL IS NOT A DRIVE THAT PRODUCED NO EDIT, AND UNTIL
+    # 2026-08-17 THE RECORD COULD NOT TELL THEM APART. Both come back with
+    # `aider_reported_edited: []`, no hash moved, an empty response tail and `error: ""` —
+    # a clean success on its face. The difference is the whole diagnosis: one says the
+    # apprentice was asked and did not deliver, the other says the setup was broken before
+    # a single token was spent, and they call for opposite next moves. Measured at n=1 on
+    # the drive that bore this check: a repo argument that disagreed with the brief's
+    # absolute paths put aider in a tree where none of its files existed, so it asked
+    # nothing and returned quietly — and the record was indistinguishable from the earlier
+    # clamped drives whose misreading cost this device a whole voyage.
+    #
+    # The error rides the RECORD before it is raised, so the evidence survives the refusal
+    # (Law 7: loud at the surface, permanent in the record). And the count is exact rather
+    # than a heuristic — the fence logs every ask it dispositions, so zero rows means zero
+    # asks, not "probably none".
+    reached_nothing = not result.asks and not result.error
+    if reached_nothing:
+        result.error = (
+            f"THE DRIVE REACHED NO MODEL: the fence recorded zero asks for {ticket} piece "
+            f"{piece_index}. aider ran and returned without sending anything, so the empty "
+            "edit list below says nothing whatever about the apprentice. MEASURED, not "
+            f"guessed: of {len(b.files)} editable file(s), "
+            f"{sum(1 for f in b.files if Path(f).exists())} exist on disk and "
+            f"{sum(1 for f in b.files if _inside(f, repo))} are inside the repo actually "
+            f"driven ({repo}). The brief carries ABSOLUTE paths, so a repo argument that "
+            "disagrees with them puts aider in a tree holding none of its files — that is "
+            "the one mechanism seen so far, named as a candidate and not as the cause."
+        )
     record(result, path=drives_path)
+    # ONLY THE SYNTHESIZED CASE RAISES. A drive that reached a model and then failed has
+    # already said so in its own words; re-raising it here would turn every ordinary
+    # failure into a setup refusal and make the distinction this check exists to draw
+    # unreadable in the other direction.
+    if reached_nothing:
+        raise DriveRefused(result.error)
     return result
+
+
+def _inside(p: str, repo: Path) -> bool:
+    """Is this path under the repo actually driven? Resolved on both sides, because the
+    disagreement this answers is exactly the kind a symlink or a `..` would hide."""
+    try:
+        Path(p).resolve().relative_to(Path(repo).resolve())
+        return True
+    except Exception:
+        return False
 
 
 def _rel(p: str, repo: Path) -> str:

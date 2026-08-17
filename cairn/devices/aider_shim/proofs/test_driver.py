@@ -219,20 +219,31 @@ def a_nested_repo(where: Path) -> Path:
     repo = Path(where) / "repo"
     (repo / "pkg").mkdir(parents=True)
     (repo / "pkg" / "calc.py").write_text("def add(a, b):\n    return a - b\n", encoding="utf-8")
+    # Not in the brief and not in aider's chat — the shape the first live drive hit, where
+    # the stray path was an EXISTING file rather than a created one.
+    (repo / "other.py").write_text("MARKER = 'before'\n", encoding="utf-8")
     git(repo, "init", "-q", ".")
     git(repo, "add", "-A")
     git(repo, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init")
     return repo
 
 
-def driven_nested(tmp):
+#: The shape the FIRST LIVE DRIVE actually took: the brief named venv.py, the apprentice
+#: emitted an edit to driver.py — a file that already existed and was in nobody's list.
+PREEXISTING_REPLY = (
+    "other.py\n```python\n<<<<<<< SEARCH\nMARKER = 'before'\n=======\n"
+    "MARKER = 'after'\n>>>>>>> REPLACE\n```\n"
+)
+
+
+def driven_nested(tmp, reply=NESTED_REPLY):
     repo = a_nested_repo(Path(tmp))
     b = a_brief(repo)
     b.files = [str(repo / "pkg" / "calc.py")]
     return repo, driver.drive_brief(
         b, repo=repo, model=MODEL, log_path=Path(tmp) / "asks.jsonl",
         drives_path=Path(tmp) / "drives.jsonl",
-        seams={"resolve": seam_file(Path(tmp), NESTED_REPLY)}, max_reflections=0,
+        seams={"resolve": seam_file(Path(tmp), reply)}, max_reflections=0,
     )
 
 
@@ -277,9 +288,47 @@ def test_the_record_WITNESSES_an_edit_the_brief_never_named():
         assert not r.error, f"{r.error}\n{r.traceback}"
         assert "stray.py" not in r.files, r.files          # never in the brief
         assert "stray.py" in r.aider_reported_edited, r.aider_reported_edited
-        assert r.before.get("stray.py") == {"exists": False}, r.before
         assert "stray.py" in r.hashes_moved, r.hashes_moved
         assert driver.survival(asdict(r), root=repo)["stray.py"] == "survived", \
+            driver.survival(asdict(r), root=repo)
+        # AND THE BEFORE-STATE IS `unimaged`, NOT `{"exists": False}`. It said the latter
+        # until the first live drive, whose stray path was an existing file — so the record
+        # asserted a file's absence that nobody had measured, which is the same defect one
+        # layer in. `exists: False` would be right for THIS fixture and wrong in the wild,
+        # and a tooth that green-lights a claim only its fixture makes true is the
+        # fixture agreeing with the reader instead of the writer.
+        assert r.before.get("stray.py") == {"unimaged": True}, r.before
+
+
+def test_a_stray_edit_to_an_EXISTING_file_is_not_recorded_as_a_file_that_was_absent():
+    """THE LIVE FIRE'S OWN FINDING, four hours after the tooth above was sealed.
+
+    First real drive: the brief named ``venv.py``, the apprentice emitted an edit to
+    ``driver.py``. The record witnessed it — that much worked — but wrote the before-state
+    as ``{"exists": False}``, and ``driver.py`` had existed all along. The record had been
+    taught to see out-of-bounds writes and, in the same act, to lie about them.
+
+    ``unimaged`` is the honest answer and the reason it is a SENTINEL rather than a late
+    image: a before-image not taken before is not a before-image. ``survival`` then still
+    answers ``survived`` (does the world hold what the drive left? — decidable) and refuses
+    ``reverted`` (was it what it used to be? — not decidable), which is the whole of what
+    the sentinel buys."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo, r = driven_nested(tmp, reply=PREEXISTING_REPLY)
+        assert not r.error, f"{r.error}\n{r.traceback}"
+        assert (repo / "other.py").read_text() == "MARKER = 'after'\n", \
+            (repo / "other.py").read_text()
+        assert "other.py" not in r.files, r.files
+        assert r.before.get("other.py") == {"unimaged": True}, \
+            f"the record claims to know a state it never measured: {r.before}"
+        assert r.after.get("other.py", {}).get("exists") is True, r.after
+        assert "other.py" in r.hashes_moved, r.hashes_moved
+        assert driver.survival(asdict(r), root=repo)["other.py"] == "survived", \
+            driver.survival(asdict(r), root=repo)
+        # And the one the sentinel exists to make unsayable: put the file back the way it
+        # was, and the record must NOT claim it was reverted — it cannot know that.
+        (repo / "other.py").write_text("MARKER = 'before'\n", encoding="utf-8")
+        assert driver.survival(asdict(r), root=repo)["other.py"] == "unknown_before", \
             driver.survival(asdict(r), root=repo)
 
 

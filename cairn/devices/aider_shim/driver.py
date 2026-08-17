@@ -122,6 +122,13 @@ class DriveResult:
 
 # --------------------------------------------------------------------- the images
 
+#: The before-state of a file nobody imaged before the drive — never an image, and never a
+#: claim about existence. It exists because the after-image legitimately covers paths aider
+#: reported that the brief never named, and by then the only honest thing to say about their
+#: past is that we did not look.
+UNIMAGED = {"unimaged": True}
+
+
 def _image(root: Path, rel: str) -> dict:
     p = Path(rel)
     if not p.is_absolute():
@@ -145,13 +152,25 @@ def survival(record: dict, root=REPO) -> dict:
     what it was before the drive), ``changed_again`` (somebody moved it since, neither
     image matches). Collapsing untouched into reverted would report a piece that did
     nothing as a piece whose work was thrown away.
+
+    A FIFTH, ``unknown_before``, for a file aider touched that the brief never named: there
+    is no before-image to compare against (see ``UNIMAGED``), so ``survived`` is still
+    answerable and ``reverted`` is not. It is a smaller answer than the other four ON
+    PURPOSE — the alternative was a confident one that would sometimes be false.
     """
     before, after = record.get("before") or {}, record.get("after") or {}
     out = {}
     for rel, was in before.items():
         became = after.get(rel)
         now = _image(Path(root), rel)
-        if became == was:
+        if was.get("unimaged"):
+            # A FIFTH ANSWER, because the four below all compare against a before-image and
+            # this file has none (see UNIMAGED). `survived` is still decidable — it asks only
+            # whether the world still holds what the drive left — but `reverted` is NOT, and
+            # letting it fall through to `changed_again` would report "somebody moved it
+            # since" about a file nobody ever measured.
+            out[rel] = "survived" if now == became else "unknown_before"
+        elif became == was:
             out[rel] = "untouched"
         elif now == became:
             out[rel] = "survived"
@@ -358,7 +377,14 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
     for p in beyond:
         # NOT imaged now — imaging after the drive would record the drive's own output as
         # the state before it, and `survival` would then read a created file as untouched.
-        before[_rel(p, repo)] = {"exists": False}
+        # AND NOT `{"exists": False}` EITHER, which is what this line said for four hours
+        # until the first live drive falsified it: aider's stray path was `driver.py`, a
+        # file that very much DID exist, and the record asserted it had not. Saying "the
+        # file was absent" when the truth is "nobody looked" is the same class of defect
+        # this whole edge is about — a record of truth stating something it did not
+        # measure (Law 7). UNIMAGED is the honest third answer, and it is not a value we
+        # can compute later: a before-image not taken before is not a before-image.
+        before[_rel(p, repo)] = dict(UNIMAGED)
     after = image_of(list(b.files) + beyond, repo)
     result = DriveResult(
         ticket=ticket, piece_index=piece_index, model=model,

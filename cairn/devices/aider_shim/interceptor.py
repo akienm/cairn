@@ -158,6 +158,11 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     fence = fence or Fence()
     log = log if log is not None else SeenLog(record_path=DEFAULT_RECORD)
     mod = _Surface(MODULE_NAME)
+    #: Marks this as a Cairn surface rather than the real package. Identity via
+    #: ``isinstance`` is the stronger check and :func:`installed` uses it; this flag is for
+    #: callers holding a plain module reference (holder.held(), the venv's verify probe),
+    #: which cannot import ``_Surface`` without importing us.
+    mod._cairn_surface = True
     mod._cairn_touched = set()
     mod._cairn_fence = fence
     mod._cairn_log = log

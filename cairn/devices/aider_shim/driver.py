@@ -215,18 +215,27 @@ def _seam(spec):
 
 from cairn.devices.aider_shim import holder
 from cairn.devices.aider_shim.fence import SeenLog
-from cairn.devices.aider_shim.interceptor import _model_info
 
 log = SeenLog(record_path=Path(ARG["log_path"]) if ARG.get("log_path") else None)
 holder.hold(ticket=ARG["ticket"], log=log,
             resolve=_seam(ARG.get("resolve")), resolver=_seam(ARG.get("resolver")))
 
 import aider.models as M
+import sys as _sys
 from aider.coders import Coder
 from aider.io import InputOutput
 
 # THE UNFENCED REACH, CLOSED AT ITS FIRST LINE — see this module's docstring.
-M.model_info_manager.local_model_metadata[ARG["model"]] = _model_info(ARG["model"], None)
+#
+# ASKED OF THE INSTALLED SURFACE, NOT RE-DERIVED. This line used to call the private
+# `interceptor._model_info(model, None)`, which builds its answer from a DEFAULT Fence and
+# so cannot see the one `hold()` was just given. That made it a third place the ask's size
+# was decided, silently agreeing with the other two only for as long as nobody passed a
+# custom fence — and this is the site that MATTERS, because `local_model_metadata` is where
+# aider learns how big a payload it may build for a real drive. Reading it off the surface
+# leaves exactly one authority for the number.
+M.model_info_manager.local_model_metadata[ARG["model"]] = \
+    _sys.modules["litellm"].get_model_info(ARG["model"])
 
 os.chdir(ARG["repo"])
 result = {"asks": log.entries, "aider_reported_edited": [], "response_tail": "",

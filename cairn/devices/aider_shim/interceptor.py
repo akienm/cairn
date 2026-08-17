@@ -1,0 +1,326 @@
+"""The ``litellm`` surface, answered by Cairn — so aider never dials a provider itself.
+
+THE INTERCEPTION POINT IS ``sys.modules['litellm']``, NOT aider's lazy slot, and that
+correction was measured during this build rather than assumed from the chart. The survey
+held that aider defers ``import litellm`` behind ``LazyLiteLLM`` and that replacing
+``aider.llm.litellm`` before first attribute access would be enough. It is NOT:
+``aider/exceptions.py`` does a bare ``import litellm`` at lines 68 and 87, and
+``Model.simple_send_with_retries`` constructs ``LiteLLMExceptions()`` on EVERY call — so
+the real module would have loaded on the hot path with the slot dutifully replaced. The
+survey's holding was measured by ``grep 'litellm\\.'``, which finds attribute ACCESS and
+is blind to ``import`` statements; that is a finding about the survey leg, not about
+aider. Pre-empting ``sys.modules`` covers both paths at once and is the smaller change:
+``LazyLiteLLM`` keeps working untouched, because its ``importlib.import_module("litellm")``
+now returns this module.
+
+THE SURFACE IS EIGHT FUNCTIONS AND 23 EXCEPTION CLASSES, also measured rather than
+assumed. The charter's first draft said six functions; enumerating every ``litellm.<attr>``
+in the tree found ``completion``, ``completion_cost``, ``model_cost``, ``get_model_info``,
+``validate_environment``, ``token_counter``, ``encode`` and ``transcription`` (the last on
+the voice path only, which the Coder path never reaches — it is supplied and refuses).
+The exception classes are DERIVED from aider's own ``EXCEPTIONS`` list when aider is
+importable, rather than transcribed: ``LiteLLMExceptions._load`` walks ``dir(litellm)``
+and raises ``ValueError`` on any ``*Error`` attribute missing from that list, and reads
+every name in the list off the module — deriving satisfies both directions by construction
+and follows aider's version instead of pinning our copy of its list.
+
+WHAT THIS MODULE MAY NOT DO: fabricate. On a cache hit ``domain.resolve`` returns no token
+counters — because no call was made — and this module returns ``usage = None`` rather than
+a plausible number. aider handles that case natively (it falls back to its own count).
+A fabricated counter would be a Law 7 breach on a record aider then acts on.
+"""
+
+from __future__ import annotations
+
+import sys
+import types
+
+from cairn.devices.aider_shim.fence import DEFAULT_RECORD, AskWidened, Fence, SeenLog
+
+MODULE_NAME = "litellm"
+
+#: The eight module-level callables aider reaches. Measured 2026-08-16 over aider
+#: 0.86.3.dev (HEAD 5dc9490bb) by enumerating every ``litellm.<attr>`` in the tree.
+SURFACE = (
+    "completion",
+    "completion_cost",
+    "model_cost",
+    "get_model_info",
+    "validate_environment",
+    "token_counter",
+    "encode",
+    "transcription",
+)
+
+#: Fallback only — used when aider is not importable (the fixture world, before the venv
+#: exists). Measured from ``aider/exceptions.py`` EXCEPTIONS at HEAD 5dc9490bb. When aider
+#: IS importable the names are derived from it, and which path was taken is recorded on
+#: the module as ``_cairn_exception_source``.
+EXCEPTION_NAMES = (
+    "APIConnectionError", "APIError", "APIResponseValidationError", "AuthenticationError",
+    "AzureOpenAIError", "BadGatewayError", "BadRequestError", "BudgetExceededError",
+    "ContentPolicyViolationError", "ContextWindowExceededError", "ImageFetchError",
+    "InternalServerError", "InvalidRequestError", "JSONSchemaValidationError",
+    "NotFoundError", "PermissionDeniedError", "OpenAIError", "RateLimitError",
+    "RouterRateLimitError", "ServiceUnavailableError", "UnprocessableEntityError",
+    "UnsupportedParamsError", "Timeout",
+)
+
+
+# ---------------------------------------------------------------- response objects
+# Every attribute below was measured off aider's own reads (models.py:1039-1068,
+# base_coder.py:1836-1900 and :1994-2037). Nothing here is speculative shape.
+
+class _Message:
+    def __init__(self, content: str, role: str = "assistant"):
+        self.content = content
+        self.role = role
+        self.tool_calls = None
+        self.reasoning_content = None
+        self.reasoning = None
+
+
+class _Choice:
+    def __init__(self, message: _Message, finish_reason: str = "stop"):
+        self.message = message
+        self.finish_reason = finish_reason
+        self.index = 0
+
+
+class _Usage:
+    def __init__(self, prompt_tokens: int, completion_tokens: int):
+        self.prompt_tokens = prompt_tokens
+        self.completion_tokens = completion_tokens
+        self.total_tokens = prompt_tokens + completion_tokens
+
+
+class _Response:
+    """What ``completion`` returns. ``usage`` is None on a cache hit, and that is honest."""
+
+    def __init__(self, text: str, usage: _Usage | None, *, model: str, cairn: dict):
+        self.choices = [_Choice(_Message(text))]
+        self.usage = usage
+        self.model = model
+        #: Cairn's own provenance, riding back for the shim's record. aider never reads it.
+        self.cairn = cairn
+
+    def __iter__(self):
+        raise AskWidened(
+            "streaming was requested — this device runs non-streaming by bound (the "
+            "consumer runs --no-stream and the chat verb is non-streaming by design)."
+        )
+
+
+class _Logging:
+    """``LazyLiteLLM._load_litellm`` calls ``litellm._logging._disable_debugging()``."""
+
+    @staticmethod
+    def _disable_debugging() -> None:
+        return None
+
+
+# ---------------------------------------------------------------- the surface module
+
+def _exception_names() -> tuple[tuple[str, ...], str]:
+    try:
+        from aider.exceptions import EXCEPTIONS  # noqa: PLC0415 — deliberate, see docstring
+    except Exception:
+        return EXCEPTION_NAMES, "cairn-fallback (aider not importable)"
+    return tuple(e.name for e in EXCEPTIONS), "derived from aider.exceptions.EXCEPTIONS"
+
+
+class _Surface(types.ModuleType):
+    """A module object that RECORDS which of its attributes were actually touched.
+
+    The recording is the instrument for one specific claim — that the surface enumerated
+    by grep is the surface aider actually reaches. Without it, a proof asserting 'the real
+    litellm was never imported' passes just as well when aider never asked for anything,
+    which is the hollow green this device is most exposed to.
+    """
+
+    def __getattribute__(self, name):
+        if not name.startswith("_"):
+            try:
+                object.__getattribute__(self, "_cairn_touched").add(name)
+            except AttributeError:
+                pass
+        return object.__getattribute__(self, name)
+
+
+def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = None,
+          models_stack=None, resolve=None) -> types.ModuleType:
+    """Build the surface module. Nothing is installed until :func:`install` is called.
+
+    ``resolver`` and ``resolve`` are injected seams so a proof can drive the whole surface
+    without a host: ``resolve`` defaults to ``inference_domain.domain.resolve``, which is
+    the metered door and the only legal way to reach a model from here.
+    """
+    fence = fence or Fence()
+    log = log if log is not None else SeenLog(record_path=DEFAULT_RECORD)
+    mod = _Surface(MODULE_NAME)
+    mod._cairn_touched = set()
+    mod._cairn_fence = fence
+    mod._cairn_log = log
+    names, source = _exception_names()
+    mod._cairn_exception_source = source
+
+    for ex_name in names:
+        setattr(mod, ex_name, type(ex_name, (Exception,), {"__module__": MODULE_NAME}))
+
+    def _resolve_door():
+        if resolve is not None:
+            return resolve
+        from cairn.devices.inference_domain import domain  # noqa: PLC0415 — sole path
+        return domain.resolve
+
+    def _resolver():
+        if resolver is not None:
+            return resolver
+        from cairn.devices.inference_domain import host  # noqa: PLC0415 — sole path
+        return host.ollama_resolver(model=fence.models[0])
+
+    def completion(*, model, messages, stream=False, **_kwargs):
+        # THE FENCE FIRES BEFORE ANYTHING ELSE — before the door, before the host, before
+        # any cost can be incurred. A refused ask is recorded and raised, never retried.
+        try:
+            fence.check_model(model)
+        except AskWidened as widened:
+            log.record(model=model, verdict="refused", detail=str(widened))
+            raise
+        if stream:
+            log.record(model=model, verdict="refused", detail="streaming is out of bounds")
+            raise AskWidened(
+                "streaming was requested — this device runs non-streaming by bound."
+            )
+
+        out = _resolve_door()(
+            {"kind": "chat", "model": model,
+             "messages": [{"role": m["role"], "content": m["content"]} for m in messages]},
+            resolver=_resolver(),
+        )
+        provenance = out.get("provenance") or {}
+        provider = provenance.get("provider", "")
+        if provider:
+            # The second half of the fence: the routed walk chose a provider, and the name
+            # check cannot see that choice. A provider off the fence is refused here even
+            # though the answer is already in hand — the record is what matters, and the
+            # next ask must not proceed on a route we do not allow.
+            try:
+                fence.check_provider(provider)
+            except AskWidened as widened:
+                log.record(model=model, verdict="refused", provider=provider,
+                           detail=str(widened))
+                raise
+        log.record(model=model, verdict="allowed", provider=provider,
+                   detail="hit" if out.get("hit") else "miss")
+
+        answer = out.get("answer") or {}
+        counters = (provenance.get("counters") or {})
+        usage = None
+        if counters:
+            usage = _Usage(int(counters.get("prompt_eval_count", 0)),
+                           int(counters.get("eval_count", 0)))
+        return _Response(answer.get("text", ""), usage, model=model,
+                         cairn={"hit": bool(out.get("hit")), "cost": out.get("cost"),
+                                "provenance": provenance, "canonical": out.get("canonical")})
+
+    def completion_cost(*, completion_response=None, **_kwargs):
+        # Zero because the fence allows only a local provider we own. If a paid provider
+        # ever served this device, the fence would have refused before the call — so a
+        # non-zero number here would mean the fence had already failed.
+        return 0.0
+
+    def get_model_info(model, *_a, **_kw):
+        return _model_info(model, models_stack)
+
+    def validate_environment(model, *_a, **_kw):
+        # Nothing on this path reads an API key: the route is local and keyless. Reporting
+        # a missing key would make aider prompt for one that does not exist.
+        return {"keys_in_environment": True, "missing_keys": []}
+
+    def token_counter(*, model=None, messages=None, text=None, **_kw):
+        # AN ESTIMATE, AND LABELLED ONE. The truth is the host's own prompt_eval_count,
+        # which arrives on the response; this is only used for aider's pre-flight sizing.
+        if messages:
+            text = "".join(str(m.get("content") or "") for m in messages)
+        return max(1, len(text or "") // 4)
+
+    def encode(*, model=None, text=None, **_kw):
+        return list(range(token_counter(model=model, text=text)))
+
+    def transcription(*_a, **_kw):
+        raise AskWidened(
+            "transcription is not on this device's surface — the voice path is not held."
+        )
+
+    mod.completion = completion
+    mod.completion_cost = completion_cost
+    mod.get_model_info = get_model_info
+    mod.validate_environment = validate_environment
+    mod.token_counter = token_counter
+    mod.encode = encode
+    mod.transcription = transcription
+    mod.model_cost = _model_cost(models_stack)
+    mod._logging = _Logging()
+    # LazyLiteLLM sets these three after import; declaring them keeps dir() honest.
+    mod.suppress_debug_info = True
+    mod.set_verbose = False
+    mod.drop_params = True
+    return mod
+
+
+def _stack(models_stack):
+    if models_stack is not None:
+        return models_stack
+    import json  # noqa: PLC0415
+    from pathlib import Path  # noqa: PLC0415
+    here = Path(__file__).resolve().parents[2] / "devices" / "inference_domain" / "stacks"
+    return json.loads((here / "models.json").read_text(encoding="utf-8"))
+
+
+def _model_cost(models_stack) -> dict:
+    """aider reads ``.items()`` and ``.keys()`` off this. Costs are zero: local host."""
+    stack = _stack(models_stack)
+    return {
+        m["name"]: {
+            "max_input_tokens": 32768,
+            "max_output_tokens": 8192,
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "litellm_provider": "cairn",
+            "mode": "chat",
+        }
+        for m in stack.get("models", [])
+    }
+
+
+def _model_info(model: str, models_stack) -> dict:
+    info = _model_cost(models_stack).get(model)
+    if info is None:
+        raise KeyError(
+            f"{model!r} is not in inference_domain's models stack — this device answers "
+            "only for models the stack declares."
+        )
+    return dict(info)
+
+
+def install(**kwargs) -> types.ModuleType:
+    """Put the surface at ``sys.modules['litellm']``. Call BEFORE importing aider.
+
+    Returns the installed module. Idempotent in effect: a second call replaces the first,
+    which is what a proof wants between cases.
+    """
+    mod = build(**kwargs)
+    sys.modules[MODULE_NAME] = mod
+    return mod
+
+
+def installed() -> bool:
+    """True iff the module at ``sys.modules['litellm']`` is OURS.
+
+    THIS IS THE HONEST ASSERTION, and it replaces the one the chart wrote. The chart's
+    criterion said ``'litellm' not in sys.modules`` after a driven run — but the whole
+    mechanism is to PUT something there, so that assertion would have gone red at the
+    moment the design succeeded. What matters is not absence; it is identity.
+    """
+    return isinstance(sys.modules.get(MODULE_NAME), _Surface)

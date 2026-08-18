@@ -555,6 +555,28 @@ def derived_successor(address, repo_root=None, exists=None):
     return dress(got) if got else None
 
 
+def resolves_to(address, ticket_id, repo_root=None, exists=None):
+    """THE SUCCESSOR ORDER, SPELLED FOR CALLERS OUTSIDE THIS MODULE — and it is
+    the same order, not a second one: this delegates, and ``_resolves_to`` below
+    remains the only body holding the precedence.
+
+    Added 2026-08-17 (ticket a-deposit-stands-downstream-of-a-move), because the
+    successor family had grown a hole in its own naming: ``derived_successor`` and
+    ``forwarding_residue`` are public, ``_forwarding_map`` and ``_resolves_to``
+    are private — and the private one is the ONLY of the four that carries the
+    precedence rule. So a second component needing 'where did this address go'
+    could reach a public name for either HALF of the answer, and had to go through
+    an underscore for the whole of it. That is the shape in which a rule gets
+    copied instead of composed, and the copy is exactly what
+    one-owner-for-the-instance-address was born of.
+
+    The delegation rather than a rename is deliberate and was priced: renaming
+    would edit the three sieves and this module's own proof, killing
+    build_inspector's seal for a component outside that voyage's bounds. One body,
+    two spellings, and the spelling a stranger reaches for is the public one."""
+    return _resolves_to(address, ticket_id, repo_root=repo_root, exists=exists)
+
+
 def _resolves_to(address, ticket_id, repo_root=None, exists=None):
     """THE ONE SUCCESSOR RESOLVER the three address sieves compose.
 

@@ -45,7 +45,7 @@ import os
 import time
 from pathlib import Path
 
-from cairn.machines.build_inspector.inspector import judge_survey
+from cairn.machines.build_inspector.inspector import judge_survey, resolves_to
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
@@ -251,6 +251,81 @@ def write_survey(packet: dict, *, instance_dir: str = INSTANCE_DIR,
     return path
 
 
+def _finding_survives_a_move(finding: dict, ticket_id) -> bool:
+    """Is this judge finding one that a MOVE explains — an address that resolved when
+    the packet was berthed and has a recorded successor now?
+
+    Composes ``inspector.resolves_to`` rather than restating it; the precedence (the
+    ticket's hand-authored forwarding order first, git's rename record second) has one
+    body and this is not it. Deliberately narrow: only the holdings-resolve judge, and
+    only its ADDRESS finding. A malformed holding, an empty ``sought``, an absence with
+    no measure — none of those are downstream of anything, and all of them still bite.
+    """
+    if finding.get("judge") != "survey_holdings_resolve":
+        return False
+    if "address that does not resolve" not in (finding.get("finding") or ""):
+        return False
+    return bool(resolves_to((finding.get("evidence") or {}).get("address"), ticket_id))
+
+
+def validate_survey_at_deposit(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """THE DEPOSIT'S GATE — ``validate_survey`` plus the one tolerance the berth door
+    must never have, and the asymmetry is the whole design.
+
+    ``judge_survey`` has THREE mouths, and until 2026-08-17 only two were counted. The
+    BERTH DOOR is one, and ``inspector.survey_holdings_resolve``'s docstring states why
+    it keeps the flat rule: at berth time every holding resolves by definition — that is
+    what makes it a holding — so teaching the door about successors would let a packet be
+    berthed naming an address that was already gone. The PROMOTION SIEVE is the other,
+    and it disposes, on the stated ground that it "alone stands downstream of a move".
+
+    IT DOES NOT STAND ALONE. The deposit runs minutes to hours after the berth, on the
+    far side of the build the packet was charted for — so a voyage that legitimately
+    RETIRES an address it surveyed cannot teach its own tree about the work that retired
+    it. Law 1's runtime is the thing that stops: the next similar request re-sweeps blind
+    for want of the crossing that just happened. MEASURED at the crossing that found it:
+    56 berthed survey packets, 45 bitten by the flat holdings judge, 43 of those fully
+    disposed by the successor order that already existed — and 2 correctly not.
+
+    Those 2 are the reason this is a tolerance and not a hole. Both are claimless berths
+    holding ``cairn/chart/proofs``, a directory the chart dissolution retired with no
+    forwarding record; a deposit gate that admitted them would have deleted the judge
+    rather than dated it. The refusal below is the ORIGINAL refusal, unchanged, whenever
+    anything is left after the move is accounted for.
+    """
+    if not isinstance(packet, dict):
+        return validate_survey(packet, root=root)
+
+    record = inspect_survey(packet, root=root)
+    ticket_id = packet.get("ticket")
+    disposed = []
+    for entry in record:
+        if (entry["identity"] != "installed_judges_find_nothing"
+                or gate.passed(entry)):
+            disposed.append(entry)
+            continue
+        findings = entry.get("values", {}).get("findings") or []
+        live = [f for f in findings if not _finding_survives_a_move(f, ticket_id)]
+        if len(live) == len(findings):
+            disposed.append(entry)
+            continue
+        disposed.append(inspected(
+            "installed_judges_find_nothing", stage="survey",
+            expected=[], actual=sorted({v["judge"] for v in live}),
+            lack=JUDGE_REFUSAL_SURVEY + "; ".join(
+                "[%s] %s" % (v["judge"], v["finding"]) for v in live),
+            findings=live,
+            moved=[(f.get("evidence") or {}).get("address")
+                   for f in findings if f not in live]))
+
+    if gate.verdict(disposed)["opens"]:
+        return packet
+    shape = [e for e in disposed if e["identity"] != "installed_judges_find_nothing"]
+    if not gate.verdict(shape)["opens"]:
+        raise SurveyRefused(render_lacks("survey", lacks_of(shape)))
+    raise SurveyRefused(lacks_of(disposed)[0])
+
+
 def survey_node_content(packet: dict) -> str:
     """The ONE rendering of a survey packet as a tree node's content (the
     upstream intent plus the inventory) — used by the deposit and by the live
@@ -267,8 +342,14 @@ def deposit_survey(packet: dict, vector, *, berth_path: str, root: str = CAIRN_R
     """The deposit-back: the inventory becomes the survey tree's memory of this
     class of request — the next similar request walks to what the territory held
     instead of re-sweeping blind (Law 1 as the brick's runtime). Gate before
-    seed; the berth must exist on disk."""
-    validate_survey(packet, root=root)
+    seed; the berth must exist on disk.
+
+    THE GATE IS THE DEPOSIT'S, NOT THE DOOR'S (2026-08-17, ticket
+    a-deposit-stands-downstream-of-a-move). Re-running the berth door here re-asked a
+    question that was already answered when the packet berthed, in a world the build has
+    since changed — see ``validate_survey_at_deposit`` for what the difference is and
+    what it deliberately still refuses."""
+    validate_survey_at_deposit(packet, root=root)
     if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
         raise SurveyRefused(
             "deposit_survey: berth %r does not exist on disk — a node whose "

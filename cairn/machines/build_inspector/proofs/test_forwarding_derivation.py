@@ -112,6 +112,24 @@ def _world(d: str) -> Path:
       5  the straggler follows:     old/straggler.py   -> elsewhere/straggler.py
       6  a directory DISSOLVES:     scatter/{a,b,c}.py -> three unrelated homes
       7  a rename then a delete:    doomed.py -> gone/doomed.py, then removed
+      8  THE NAME COMES BACK:       revenant.py -> kept/revenant.py, and then a NEW
+                                    revenant.py at the old path — live, and a rename
+                                    source. It is its own file rather than a reused
+                                    one because every other path here is load-bearing
+                                    for another tooth: bringing `solo.py` back would
+                                    make tooth (j)'s transitive follow unreachable,
+                                    and bringing `doomed.py` or `scatter/a.py` back
+                                    would let teeth (b) and (d) pass through this
+                                    guard instead of the one they exist to test.
+
+    Commit 8 exists because a MUTATION found tooth (c) passing for the wrong reason.
+    Deleting the "a live address is never forwarded" guard from the resolver reddened
+    NOTHING: the tooth asked about ``new/one.py``, which is live but is a rename
+    TARGET, so it has no record to follow and the answer was None either way. The
+    guard only bites where an address is live AND a rename SOURCE — a name that was
+    moved away and later came back, which is an ordinary thing for a repository to do
+    and the exact shape the laundering takes. A tooth that cannot go red is a tooth
+    that proves the world instead of the code.
     """
     repo = Path(d) / "repo"
     repo.mkdir(parents=True)
@@ -119,7 +137,7 @@ def _world(d: str) -> Path:
 
     for rel in ("old/one.py", "old/two.py", "old/three.py", "old/straggler.py",
                 "scatter/a.py", "scatter/b.py", "scatter/c.py",
-                "solo.py", "doomed.py"):
+                "solo.py", "doomed.py", "revenant.py"):
         _write(repo, rel)
     _commit(repo, "born")
 
@@ -153,6 +171,12 @@ def _world(d: str) -> Path:
     _commit(repo, "a rename")
     _git(repo, "rm", "-q", "gone/doomed.py")
     _commit(repo, "and then a delete")
+
+    (repo / "kept").mkdir()
+    _git(repo, "mv", "revenant.py", "kept/revenant.py")
+    _commit(repo, "a rename whose name will come back")
+    _write(repo, "revenant.py")      # the name comes back — see the header
+    _commit(repo, "the name comes back")
     return repo
 
 
@@ -224,15 +248,29 @@ def test_b_forwarding_into_a_hole_is_declined(d: str) -> None:
 def test_c_a_live_address_is_never_forwarded(d: str) -> None:
     """(iii) CLAUSE (4)'s half of the two-ended check, on the derived side.
 
-    ``new/one.py`` resolves right now. Forwarding it would re-aim a chart's claim at
-    a different thing while the original sits there untouched — the laundering the
-    hand door already refuses at ``forwarding_order_resolves``; the derived door must
-    refuse it identically or the two doors disagree about the same rule.
+    ``revenant.py`` was renamed away and a NEW file took the name back in commit 8.
+    It resolves right now AND git holds a chain leading off it, so this is
+    the only shape where the guard can actually bite: forwarding it would re-aim a
+    chart's claim at ``kept/revenant.py`` while the thing the chart named sits there
+    untouched — the laundering the hand door already refuses at
+    ``forwarding_order_resolves``; the derived door must refuse it identically or the
+    two doors disagree about the same rule.
+
+    THE ADDRESS IN THIS TOOTH WAS CHOSEN BY A MUTATION, NOT BY TASTE. It asked about
+    ``new/one.py`` until 2026-08-17, and deleting the guard outright reddened nothing:
+    a rename TARGET has no chain to follow, so the tooth was measuring git's silence
+    rather than the resolver's refusal. Both addresses are asserted now — the one that
+    can red, and the one that documents the easy case — because the pair is what says
+    the rule is about resolving, not about being a rename target.
     """
     repo = _world(d)
-    got = derived_successor("new/one.py", repo_root=repo, exists=_exists_in(repo))
+    exists = _exists_in(repo)
+    assert exists("revenant.py"), "the fixture must put the name back for this to bite"
+    got = derived_successor("revenant.py", repo_root=repo, exists=exists)
     assert got is None, \
-        "an address that still resolves must never be forwarded; got %r" % (got,)
+        ("a live address that IS a rename source must never be forwarded out from "
+         "under itself; got %r" % (got,))
+    assert derived_successor("new/one.py", repo_root=repo, exists=exists) is None
 
 
 def test_d_a_dissolution_gets_no_manufactured_winner(d: str) -> None:
@@ -486,11 +524,36 @@ def test_m_the_live_corpus_holds_the_two_ended_invariant(d: str) -> None:
     same predicate the hand door applies at ``_forwarding_map``, so the two doors
     cannot come to disagree about what a valid forward is. It stays true when the
     residue reaches zero and when it grows.
+
+    AND THE ACCOUNTING CLOSES OVER PAIRS, WHICH IS THE UNIT THE SIEVE ASKS IN.
+    This tooth caught the report's units coming apart: ``asked`` counted (address,
+    ticket) pairs while ``answered`` counted distinct addresses, so the ledger did
+    not close and the shortfall read like unreported residue. The index is allowed
+    to be smaller than the ledger — one address answered under two tickets is one
+    entry — and that direction is asserted rather than assumed, because the other
+    direction would mean an answer arrived from nowhere.
     """
     from cairn.machines.build_inspector.inspector import ref_exists
     residue = _insp.forwarding_residue()
     assert residue["asked"] == residue["answered"] + len(residue["unanswered"]), \
-        ("the residue accounting must close: %r" % (residue,))
+        ("the residue accounting must close over PAIRS: asked=%r answered=%r "
+         "unanswered=%r" % (residue["asked"], residue["answered"],
+                            len(residue["unanswered"])))
+    assert len(residue["answers"]) <= residue["answered"], \
+        ("the address index may collapse pairs, never exceed them: %d entries "
+         "against %d answered pairs" % (len(residue["answers"]),
+                                        residue["answered"]))
+    # AND AN ADDRESS MAY SIT ON BOTH SIDES AT ONCE. A forwarding order belongs to a
+    # ticket, so an address one voyage forwarded is still owed by another that did
+    # not — reading `answers` as the complete set of settled addresses is reading
+    # the index for the ledger. Asserted as the invariant, never as today's list:
+    # whenever it happens, the two sides must be different tickets.
+    for entry in residue["unanswered"]:
+        if entry["address"] in residue["answers"]:
+            assert entry["charted_by"] != residue["answered_by"].get(entry["address"]), \
+                ("%r is answered and unanswered under the SAME authority %r — the "
+                 "resolver is not a function of (address, ticket)"
+                 % (entry["address"], entry["charted_by"]))
     for src, dst in residue["answers"].items():
         assert not ref_exists(src), \
             "%r still resolves and must never be forwarded (to %r)" % (src, dst)
@@ -524,7 +587,10 @@ def test_n_a_dead_reader_is_distinguishable_from_a_clean_corpus(d: str) -> None:
     assert residue["asked"] > 0, \
         ("with the reader dead the corpus must still report what it ASKED about — "
          "a bare zero here is indistinguishable from a fully-resolved corpus")
-    assert residue["asked"] == residue["answered"] + len(residue["unanswered"])
+    assert residue["asked"] == residue["answered"] + len(residue["unanswered"]), \
+        ("the accounting must close on the reader's worst day too: asked=%r "
+         "answered=%r unanswered=%r" % (residue["asked"], residue["answered"],
+                                        len(residue["unanswered"])))
     # AND EVERY ANSWER THAT SURVIVES IS A HAND-AUTHORED ONE. A dead rename reader
     # costs the DERIVED door and nothing else — the hand orders are files on disk
     # and keep working. That is the precedence order surviving its worst day, not a

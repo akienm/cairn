@@ -1,22 +1,21 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_derivation_keeps_up_with_the_corpus) -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_derivation_keeps_up_with_the_corpus) -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket 'a-bulk-move-forwards-itself-from-gits-own-rename-record', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -31,122 +30,42 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
-            "THINKME"
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
         }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'build_inspector' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'build_inspector' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record",
-          "component": "build_inspector",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'a-bulk-move-forwards-itself-from-gits-own-rename-record' is cast",
-        "actual": "named ticket 'a-bulk-move-forwards-itself-from-gits-own-rename-record' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-bulk-move-forwards-itself-from-gits-own-rename-record.json"
-        }
-      },
-      {
-        "identity": "a_berthed_chart_chain_claims_the_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record"
-        }
-      },
-      {
-        "identity": "the_ticket_names_its_intent_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record"
-        }
-      },
-      {
-        "identity": "the_ticket_names_its_sorted_door_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record"
-        }
       }
     ],
-    "checks_proved": 8,
+    "checks_proved": 3,
     "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record",
-    "note": "BUILDME — the derivation half. Charted seven stages today; the chain shrank the build twice by measuring: tooth 26b already proves the consumption path in seven cases, and the three sieves already sit at band 2 where subprocess also sits, so this build owes teeth on the derivation alone and costs no band change. Six ranked pieces, teeth first — the dangerous failure here is GREEN (a forward to a target that exists and is wrong), and tooth 1 guards only the other direction.",
-    "at": "2026-08-17T19:34:36",
-    "seq": 44
+    "note": "the sieves gain a SECOND successor door and it is derived, not authored: git's own rename record, followed transitively for a file, and a strict-majority plurality over the tracked files that were under a directory. The hand order keeps precedence (gate 3) because only a hand can speak for a DISSOLUTION — measured on the one live dissolution: 4 of chart's 40 files went to skills/chart and the rest scattered to tools/chain, seven builder machines, tools/tree and skills/moreabout, so the plurality correctly declines to invent a winner. Both ends checked exactly as the hand door checks them. Nothing persisted — in-memory cache only; a checked-in table would be runtime state in class-space AND the wrong-intent clause the ticket names. Gate (1)'s -C disposed by measurement and RE-TAKEN as a tooth: git emits no copy records without --find-copies-harder, so -M ships alone. MEASURED: corpus address findings 271 -> 6; residue 17 (address,ticket) pairs over the 5 addresses of the chart dissolution; 444 rename records. Teeth 16, written before the implementation, seeded defects before healthy cases; three of them exist because the LIVE FIRE caught what the fixture could not — absolute addresses never reaching a repo-relative record, a claimless packet never reaching the derived door at all, and a residue that read cleaner than the gate it reports for because it accepted an answer from any ticket that charted the address.",
+    "at": "2026-08-17T20:00:06",
+    "seq": 45
   },
   "window": [
-    {
-      "from": "PROVED",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED",
-      "direction": "back",
-      "severity": 3,
-      "ticket": "a-voyage-names-its-ticket",
-      "note": "THE JURISDICTION TIGHTENS: one helper (_require_named_ticket) replaces the two opt-in isinstance checks at both doors; unnamed or named-but-uncast now refuses (TicketRequiredRed, the fourth sibling); an explicit v0-empty _EXEMPT_ROSTER stands ready with gated-and-clean exemption journaling. Builder: sonnet, delegated per the budget stage-split plan (this stone is the first deliberate subject).",
-      "at": "2026-07-29T11:52:45",
-      "seq": 40
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -319,7 +238,73 @@
       "note": "BUILDME — the derivation half. Charted seven stages today; the chain shrank the build twice by measuring: tooth 26b already proves the consumption path in seven cases, and the three sieves already sit at band 2 where subprocess also sits, so this build owes teeth on the derivation alone and costs no band change. Six ranked pieces, teeth first — the dangerous failure here is GREEN (a forward to a target that exists and is wrong), and tooth 1 guards only the other direction.",
       "at": "2026-08-17T19:34:36",
       "seq": 44
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_derivation_keeps_up_with_the_corpus) -> PROVED",
+      "direction": "forward",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "a-bulk-move-forwards-itself-from-gits-own-rename-record",
+      "note": "the sieves gain a SECOND successor door and it is derived, not authored: git's own rename record, followed transitively for a file, and a strict-majority plurality over the tracked files that were under a directory. The hand order keeps precedence (gate 3) because only a hand can speak for a DISSOLUTION — measured on the one live dissolution: 4 of chart's 40 files went to skills/chart and the rest scattered to tools/chain, seven builder machines, tools/tree and skills/moreabout, so the plurality correctly declines to invent a winner. Both ends checked exactly as the hand door checks them. Nothing persisted — in-memory cache only; a checked-in table would be runtime state in class-space AND the wrong-intent clause the ticket names. Gate (1)'s -C disposed by measurement and RE-TAKEN as a tooth: git emits no copy records without --find-copies-harder, so -M ships alone. MEASURED: corpus address findings 271 -> 6; residue 17 (address,ticket) pairs over the 5 addresses of the chart dissolution; 444 rename records. Teeth 16, written before the implementation, seeded defects before healthy cases; three of them exist because the LIVE FIRE caught what the fixture could not — absolute addresses never reaching a repo-relative record, a claimless packet never reaching the derived door at all, and a residue that read cleaner than the gate it reports for because it accepted an answer from any ticket that charted the address.",
+      "at": "2026-08-17T20:00:06",
+      "seq": 45
     }
   ],
-  "count": 45
+  "count": 46
 }

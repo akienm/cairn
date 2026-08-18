@@ -583,12 +583,32 @@ def forwarding_residue(comp_dir=None) -> dict:
 
     ``reader_failed`` is the field that keeps the report honest at its worst
     moment: zero-because-everything-resolved and zero-because-git-said-nothing are
-    the same number, and this is where they are made different."""
+    the same number, and this is where they are made different.
+
+    THE UNIT IS THE (ADDRESS, TICKET) PAIR, NOT THE ADDRESS — and that is a defect
+    this report had until its second live fire. A forwarding order is one TICKET's
+    record of what ITS build moved, so the sieve asks only the order of the ticket
+    whose packet drew the finding. A residue keyed on the address alone accepts an
+    answer from any ticket that ever charted it, which is strictly more generous
+    than the gate it reports for: one instance-space address read CLEAN here while
+    the sieve still redded it, because a neighbouring voyage's ticket carried the
+    entry and the charting one did not. A residue that reports less work than a
+    hand actually owes is the report failing at its one job.
+
+    SO ``asked`` AND ``answered`` ARE PAIR COUNTS AND ``answers`` IS AN
+    ADDRESS-KEYED INDEX — different units on purpose, and the difference is a
+    measurement rather than a caveat. One address asked under two tickets is two
+    pairs and one entry, and it can appear in ``answers`` AND ``unanswered`` at
+    once: measured on this corpus, ``cairn/chart/intention+why.json`` is answered
+    for the ticket that carries a hand order and unanswered for the claimless
+    packet that has no ticket to carry one. The accounting closes over pairs;
+    reading completeness off ``len(answers)`` is reading the index for the ledger.
+    """
     tickets = _component_tickets(Path(comp_dir)) if comp_dir is not None else None
-    asked: dict = {}
+    asked: dict = {}          # (address, ticket) -> None, in first-seen order
     reader_failed = None
     if _CHART_BERTHS.is_dir():
-        for stage, field in (("orient", "refs"), ("constrain", None), ("survey", None)):
+        for stage in ("orient", "constrain", "survey"):
             for path in sorted(_CHART_BERTHS.glob("*/packets/%s-*.json" % stage)):
                 try:
                     packet = json.loads(path.read_text())
@@ -601,40 +621,36 @@ def forwarding_residue(comp_dir=None) -> dict:
                     continue
                 for addr in _charted_addresses(packet, stage):
                     if not ref_exists(addr):
-                        asked.setdefault(addr, set()).add(tid)
-    answers, answered_by, unanswered_addrs = {}, {}, []
-    for addr, tids in sorted(asked.items()):
+                        asked[(addr, tid if isinstance(tid, str) else None)] = None
+    answers, answered_by, unanswered_pairs, answered_pairs = {}, {}, [], 0
+    for addr, tid in sorted(asked, key=lambda p: (p[0], p[1] or "")):
         got, by = None, None
-        for tid in sorted(t for t in tids if isinstance(t, str)):
+        try:
+            # The hand door needs a ticket; git does not — so a CLAIMLESS packet
+            # still gets the derived door. Measured on first live fire: three
+            # addresses sat in the residue with a perfectly good rename record
+            # behind them, purely because there was no ticket to look an order up
+            # under.
+            got = _resolves_to(addr, tid)
+            by = (tid if tid and _forwarding_map(tid).get(addr) == got else "git")
+        except GitUnreadable as e:                           # pragma: no cover
+            got, by, reader_failed = None, None, str(e)
+        if got is None and reader_failed is None:
             try:
-                got = _resolves_to(addr, tid)
-            except GitUnreadable as e:                       # pragma: no cover
-                reader_failed = str(e)
-                got = None
-            if got:
-                by = tid
-                break
-        if got is None:
-            # AND THE CLAIMLESS PACKET STILL GETS THE DERIVED DOOR. Measured on
-            # first live fire: three addresses sat in the residue with an empty
-            # `charted_by` and a perfectly good rename record behind them, because
-            # the loop above is keyed on tickets and a packet that claims none has
-            # no ticket to iterate. The hand door needs a ticket; git does not.
-            try:
-                got, by = derived_successor(addr), "git"
+                derived_successor(addr)     # the reader's health, asked separately
             except GitUnreadable as e:
-                got, by, reader_failed = None, None, str(e)
+                reader_failed = str(e)
         if got:
+            answered_pairs += 1
             answers[addr] = got
-            answered_by[addr] = by   # WHICH ticket's door answered — the hand order
-                                     # and the derivation are different authorities,
-                                     # and an answer that cannot say which one it
-                                     # came from cannot be audited (Law 3)
+            answered_by[addr] = by   # WHICH door answered — the hand order and the
+                                     # derivation are different authorities, and an
+                                     # answer that cannot say which one it came from
+                                     # cannot be audited (Law 3)
         else:
-            unanswered_addrs.append({"address": addr,
-                                     "charted_by": sorted(t for t in tids if t)})
-    return {"asked": len(asked), "answered": len(answers), "answers": answers,
-            "answered_by": answered_by, "unanswered": unanswered_addrs,
+            unanswered_pairs.append({"address": addr, "charted_by": tid})
+    return {"asked": len(asked), "answered": answered_pairs, "answers": answers,
+            "answered_by": answered_by, "unanswered": unanswered_pairs,
             "reader_failed": reader_failed}
 
 

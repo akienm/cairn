@@ -7,4 +7,5 @@ from cairn.tools.import_sieve.sieve import (        # noqa: F401
     importers_of,
     imports_in,
     module_name,
+    walk_py,
 )

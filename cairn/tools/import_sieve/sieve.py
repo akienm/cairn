@@ -188,7 +188,21 @@ def reach_of(source: str, ladder: dict | None = None) -> dict[str, int]:
     return {name: walk(name, frozenset()) for name in funcs}
 
 
-def _walk_py(root: str):
+def walk_py(root: str):
+    """Every .py file under ``root``, sorted per directory, with the noise pruned.
+
+    PUBLIC since 2026-08-17 (ticket the-instance-address-is-resolved-never-spelled), and
+    the promotion is the whole change — the body is untouched. A second component now
+    needs to shake a rule over the same tree this one does: cairn.tools.base.address_rule,
+    which asks a question about an EXPRESSION rather than about imports. Its two other
+    options were reaching for a private symbol across a component boundary, or rebuilding
+    a walker that already knows which directories are noise — and the second is how two
+    walkers come to disagree about whether .venv counts.
+
+    What is NOT promoted with it: the pruning set itself stays this component's. A caller
+    that needs a different set of noise directories is asking a different question and
+    should say so out loud rather than pass a parameter.
+    """
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.endswith(".egg-info")]
         for fn in sorted(filenames):
@@ -225,7 +239,7 @@ def imports_in(source: str) -> set[str]:
 def import_graph(repo_root: str) -> dict[str, set[str]]:
     """{path relative to repo_root: every dotted name it imports}."""
     graph: dict[str, set[str]] = {}
-    for abs_path in _walk_py(repo_root):
+    for abs_path in walk_py(repo_root):
         rel = os.path.relpath(abs_path, repo_root)
         try:
             src = open(abs_path, encoding="utf-8", errors="replace").read()

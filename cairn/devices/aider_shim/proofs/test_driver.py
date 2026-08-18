@@ -64,9 +64,12 @@ GOOD_REPLY = (
     "calc.py\n```python\n<<<<<<< SEARCH\n    return a - b\n=======\n"
     "    return a + b\n>>>>>>> REPLACE\n```\n"
 )
-#: A SEARCH block that cannot match. aider answers a failed match by REFLECTING — which is
-#: the only lever this proof has for provoking the loop the cap closes, since auto_lint and
-#: auto_test (the other two reflection sources) are OFF by bound.
+#: A SEARCH block that cannot match. aider answers a failed match by REFLECTING — one of
+#: the two levers this proof has for provoking the loop the cap closes. It was the ONLY one
+#: until 2026-08-18, when the driver began constructing the Coder with ``auto_test=True``
+#: (piece 7 below); a failing test is now the second, and the two are not interchangeable —
+#: see the section comment there for why a tooth that means the test path must use a reply
+#: that APPLIES CLEANLY. ``auto_lint`` remains off by bound.
 MISMATCH_REPLY = (
     "calc.py\n```python\n<<<<<<< SEARCH\n    return NOTHING_LIKE_THIS\n=======\n"
     "    return a + b\n>>>>>>> REPLACE\n```\n"

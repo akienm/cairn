@@ -35,14 +35,23 @@ because refusals left no trace at all; counting them would fire the probe at its
 about a world that no longer exists. The floor is when the write path landed on disk,
 2026-08-18T01:25:01-06:00.
 
-AND THE HONEST CAVEAT ON THAT FLOOR, which is a real limit and not a hedge: live means the
-SERVING process, not the disk (the 2026-08-08 stale-process lesson). At the moment of writing,
-the ground loop (pid 973171, started 2026-08-17T18:50:39) predates this build, so any refusal
-raised inside THAT process will not land a row until it restarts — and restarting it is out of
-bounds for the hand that wrote this. So a long-standing zero on clause one is ambiguous between
-"no refusals happened" and "the process that refuses is running yesterday's code", and the
-disambiguation is a restart, not a longer wait. Named here rather than left for a future reader
-to rediscover.
+THIS DOCSTRING CARRIED A FALSE CAVEAT UNTIL 2026-08-18, and the correction is left standing
+here because the false version is the more plausible-sounding one. It claimed the ground loop
+(pid 973171) was a long-running process making inference calls with a pre-build copy of
+``resolve``, so a standing zero on clause one would be ambiguous between "nothing refused" and
+"the busy caller runs yesterday's code", disambiguated only by a restart. THE GROUND LOOP MAKES
+NO INFERENCE CALLS. Measured: ``grep -rn inference cairn/devices/ground_loop/`` returns one hit
+and it is prose in a provenance note — no code path — and no armed probe calls ``resolve``
+either; probes READ rows, they do not ask. The caveat was reasoned from a stale-process lesson
+cited in a neighbouring probe and never checked against the store that would have killed it.
+
+WHAT ACTUALLY WRITES THESE ROWS, measured the same day over the last 400: 205 ``/api/embed``
+calls to ``nomic-embed-text`` at ``domain: "research"`` — the graph-tree embedding in
+``cairn/tools/tree/tree.py``, fired by ``chart counsel`` and ``chart learn`` and by the
+librarian. Those run as short-lived ``python3 -m`` invocations that load fresh code every time,
+so THERE IS NO STALE-CODE ERA PROBLEM ON THIS PATH AT ALL and nothing about this probe's clear
+waits on any process being restarted. The 2026-08-08 stale-process lesson is real; it simply
+does not reach this seam, and saying it did put a demand in front of the owner for nothing.
 
 AND WHAT COUNTS FOR CLAUSE ONE, said plainly so a later reader of the clear is not misled.
 The build's own live fire ARRANGED a refusal (a dial to 127.0.0.1:1) and it landed the first

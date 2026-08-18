@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_active_page.py passes under python3",
-    "caller": "web-server child a — active_page machinery",
-    "date": "2026-07-22T17:24:46",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-08-17T18:52:43",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_floor_is_always_present_and_pulled_from_introspect\n  PASS  test_declared_panes_append_in_order_and_multiples_of_a_kind_are_allowed\n  PASS  test_an_offered_pane_with_no_handler_renders_absent\n  PASS  test_a_handler_that_raises_is_absent_with_reason_and_the_page_survives\n  PASS  test_the_whole_page_is_data_not_html\ngreen — the ACTIVE page machinery: the STATUS+SETTINGS floor is projected from introspect(), declared panes append in order (multiples allowed), a bad pane is loud+absent not fatal, and the whole page is DATA the web server renders",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "79d1bdb7aff18c7d46068693ba4296696305c408259aaaaa8eee4471990edd25"
+      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

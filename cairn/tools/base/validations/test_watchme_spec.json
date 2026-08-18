@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_watchme_spec.py passes under python3",
-    "caller": "watchme-emits-a-probe",
-    "date": "2026-07-30T14:21:07",
+    "caller": "cairn test",
+    "date": "2026-08-17T18:52:52",
     "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  ok   test_the_real_ticket_corpus_is_not_retro_redded\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n\n13/13 green",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  FAIL test_the_real_ticket_corpus_is_not_retro_redded: retro-red on pre-existing cast tickets: a-bulk-move-forwards-itself-from-gits-own-rename-record: WATCHME(None) is carried by the workflow with NO spec — mandatory to satisfy once carried; a-validate-criterion-is-runnable-before-the-crossing: workflow claims v2 and carries no WATCHME, so the ticket must record watchme: \"none, because <reason>\" — silence is not one of the two legal answers (found: None); probescan-resolves-the-real-shim-not-a-discovered-one: WATCHME(None) is carried by the workflow with NO spec — mandatory to satisfy once carried; surveys-floor-keys-on-names-while-orient-hands-it-paths: WATCHME(None) is carried by the workflow with NO spec — mandatory to satisfy once carried; the-beat-spends-2500ms-on-triggers-against-a-1s-cadence: WATCHME(None) is carried by the workflow with NO spec — mandatory to satisfy once carried; the-buildme-gates-guard-a-crossing-not-a-state: WATCHME(None) is carried by the workflow with NO spec — mandatory to satisfy once carried\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n  ok   test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not\n\n13/14 green",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "cbca810122990a1e4cd82086e1d021c983ec3aa31f95134ae7dcbe8e4cbbe07c"
+      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

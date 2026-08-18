@@ -1,0 +1,21 @@
+[
+  {
+    "claim": "proof test_address_rule.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-08-17T18:52:44",
+    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_mention_is_not_a_catch\n  PASS  test_the_rules_own_module_mentions_both_shapes_and_is_not_exempt\n  PASS  test_a_real_spelling_is_a_catch_in_both_shapes\n  PASS  test_a_non_instance_home_path_is_left_alone\n  PASS  test_the_exemption_set_is_a_rule_and_it_is_closed_at_two\n  PASS  test_a_scan_that_read_no_files_raises\n  PASS  test_an_unparseable_file_rides_the_return\n  PASS  test_the_live_corpus_holds_the_invariants_whatever_the_count\ngreen — the address rule is an AST predicate over an expression: a mention is not a catch (proved on a fixture AND on the rule's own module, which is not exempt), both real dialects are caught, a legitimate non-instance home path is left alone, the exemption set is two rules rather than a list of names, an empty tree raises HollowScan, an unparseable file rides the return, and the live corpus is pinned by invariant rather than by today's count",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

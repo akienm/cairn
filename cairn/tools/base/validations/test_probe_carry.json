@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_probe_carry.py passes under python3",
-    "caller": "watchme-emits-a-probe",
-    "date": "2026-07-30T14:21:06",
+    "caller": "cairn test",
+    "date": "2026-08-17T18:52:51",
     "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_no_carrier_says_only_that_the_line_was_crossed\n  ok   test_by_pointer_sends_the_address_and_nothing_else\n  ok   test_by_pointer_passes_a_bare_id_through\n  ok   test_by_copy_sends_the_artifact_and_it_is_deep\n  ok   test_by_text_renders_the_artifact_in_motion\n  ok   test_a_template_hole_is_visible_not_fatal\n  ok   test_the_carrier_runs_at_fire_time_and_wins_over_the_static_body\n  ok   test_the_frozen_declaration_does_not_drift_across_firings\n  ok   test_any_callable_is_a_carrier_not_a_named_kind\n  ok   test_a_broken_carrier_still_lands_the_poke_and_says_so\n  ok   test_a_carrier_returning_a_non_dict_is_caught_the_same_way\n  ok   test_a_non_callable_carry_is_refused_at_construction\n  ok   test_the_shim_fires_the_carrier_against_the_pulse_context\n\n13/13 green",
+      "stdout_tail": "  ok   test_no_carrier_says_only_that_the_line_was_crossed\n  ok   test_by_pointer_sends_the_address_and_nothing_else\n  ok   test_by_pointer_passes_a_bare_path_through\n  ok   test_an_ID_is_no_longer_a_pointer_and_the_hole_is_VISIBLE\n  ok   test_owning_ticket_renders_a_path_when_the_ticket_is_there\n  ok   test_a_MIGRATED_ticket_is_a_hole_that_names_where_it_looked\n  ok   test_every_live_probe_carries_its_ticket_as_a_PATH_not_an_id\n  ok   test_by_copy_sends_the_artifact_and_it_is_deep\n  ok   test_by_text_renders_the_artifact_in_motion\n  ok   test_a_template_hole_is_visible_not_fatal\n  ok   test_the_carrier_runs_at_fire_time_and_wins_over_the_static_body\n  ok   test_the_frozen_declaration_does_not_drift_across_firings\n  ok   test_any_callable_is_a_carrier_not_a_named_kind\n  ok   test_a_broken_carrier_still_lands_the_poke_and_says_so\n  ok   test_a_carrier_returning_a_non_dict_is_caught_the_same_way\n  ok   test_a_non_callable_carry_is_refused_at_construction\n  ok   test_the_shim_fires_the_carrier_against_the_pulse_context\n\n17/17 green",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "c179e19eed6cccb4a8a591bf54d5b14a82981f7af1df378a24f56678842a0e16"
+      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

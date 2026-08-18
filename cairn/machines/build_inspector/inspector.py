@@ -82,6 +82,13 @@ from cairn.tools.base import nest as base_nest  # noqa: E402
 # resolve("instance/devices") is exactly that shape and predates the exclusion. The module
 # imports pathlib and nothing else, so it costs this gate nothing it measures.
 from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
+# cairn.tools.base.address_rule joined 2026-08-17 (same ticket): the ONE spelling of what
+# counts as a hand-spelled instance address, shaken here at inspection time and by
+# tools/base/probes/hand_spelled_instance_paths.py on a pulse — two seats, one rule, the
+# same shape as sole_path_holds. It reaches ast, pathlib and import_sieve's walk, all of
+# which this gate already reaches, so the fire path is unchanged (measured, not assumed).
+from cairn.tools.base import address, address_rule  # noqa: E402
+from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
 
 def _finding(sieve_name: str, component: str, finding: str, evidence, why: str,
@@ -340,6 +347,317 @@ def _forwarding_map(ticket_id) -> dict:
     return good
 
 
+# ── THE SECOND SUCCESSOR DOOR: DERIVED, NOT AUTHORED ─────────────────────────
+# (ticket a-bulk-move-forwards-itself-from-gits-own-rename-record, 2026-08-17)
+#
+# The hand-authored order above works and does not SCALE. Measured on the day it
+# was written: a single reorg left 465 findings of this class across 14 of 29
+# components — the door to proven-space closed on half the system — and clearing
+# base's share took 40 hand-written entries across 4 tickets, every one of them
+# transcribed from `git log --diff-filter=R`. A hand copying a machine-readable
+# record one line at a time is a settled answer being re-derived (Law 1), and the
+# copy can drift from the record it came from.
+#
+# So git's rename record is the SECOND door, and the precedence is not an
+# implementation detail: THE HAND WINS. A rename record can only say where a file
+# went; it cannot say what a DISSOLUTION meant, and a dissolution is precisely
+# where the hand is the only competent witness (this ticket's gate 3).
+#
+# A DIRECTORY IS A CONSENSUS OVER ITS FILES, NOT A SOURCE. Git tracks files, so it
+# never records a directory rename at all. The successor of a directory is read off
+# where its files went — and by PLURALITY, not unanimity, because a bulk move is
+# never unanimous: stragglers move separately, in their own commits, days later.
+# Measured before this was built, over base's 71 unresolved addresses: plurality
+# answered 67, unanimity 64, and the three it lost were real bulk moves voting
+# 6-1-1, 9-1 and 9-1. The vote is bounded from the other side too — only kids whose
+# path SUFFIX survived may vote (a file that was renamed AND moved says nothing
+# about its directory), and the winner must hold a STRICT majority.
+#
+# BOTH ENDS ARE CHECKED, exactly as they are for the hand: the successor must
+# resolve and the source must not. A derived forward into a hole is the same hollow
+# claim as the missing address it disposed, one indirection later — and a derived
+# forward to a target that exists and is WRONG is worse, because a hole reds at the
+# next sieve and wrong-but-live goes green and gets leaned on (Law 8: a false green
+# is worse here than a red, because a peer leans on it).
+#
+# NOTHING IS PERSISTED. The record is read from git at inspection time and memoized
+# in memory for the life of the process. A checked-in table of derived forwards is
+# this ticket's wrong-intent clause (2) — it recreates the hand-maintained second
+# copy under a machine's name — and it would be runtime state in class-space
+# besides. One git snapshot per inspection is also the correct semantics: an
+# inspection is a measurement of one moment.
+
+_default_exists = ref_exists  # the production predicate, named so a proof can
+                              # assert the injectable seam has not become a second
+                              # spelling of what 'resolves' means
+
+
+class GitUnreadable(RuntimeError):
+    """Git could not be read for the rename record.
+
+    RAISED, NEVER RETURNED AS AN EMPTY RECORD. The two are the same number and the
+    opposite fact: an empty record makes every address unresolvable and the residue
+    maximal, so the report reads 'the corpus owes a hundred hand entries' when the
+    truth is 'git did not answer'. Both are zero forwards; only one is true, and
+    they want opposite dispositions."""
+
+
+def _git_lines(repo_root, *args: str) -> list[str]:
+    import subprocess  # local: keeps the module's import surface honest about
+                       # what is a hard dependency of merely IMPORTING the gate
+    root = str(repo_root if repo_root is not None else CAIRN_ROOT)
+    try:
+        out = subprocess.run(["git", "-C", root, *args], capture_output=True,
+                             text=True, check=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as e:
+        raise GitUnreadable("git %s at %s: %s: %s"
+                            % (" ".join(args), root, type(e).__name__, e)) from e
+    return out.stdout.splitlines()
+
+
+def rename_records(repo_root=None) -> tuple:
+    """Git's own record of every rename in this repository, oldest first, as
+    ``((from, to), ...)``.
+
+    ``-M`` and no ``-C``: the ticket's gate (1) named ``-C`` and the measurement
+    disposed it — git emits no copy records without ``--find-copies-harder``, so the
+    two flag sets produce an identical record (re-taken, not cited, at
+    ``proofs/test_forwarding_derivation.py``). Where copy detection DOES surface, it
+    feeds the directory vote a wrong-but-existing target, which is this ticket's
+    wrong-intent clause (5) arriving through a flag nobody questioned."""
+    pairs = []
+    for line in _git_lines(repo_root, "log", "--diff-filter=R", "-M",
+                           "--name-status", "--reverse", "--pretty=format:"):
+        if not line.startswith("R"):
+            continue
+        parts = line.split("\t")
+        if len(parts) != 3 or not parts[1] or not parts[2]:
+            continue
+        pairs.append((parts[1], parts[2]))
+    return tuple(pairs)
+
+
+def tracked_files(repo_root=None) -> frozenset:
+    """Every path git tracks right now. The directory vote counts only kids whose
+    successor the repository still holds."""
+    return frozenset(p for p in _git_lines(repo_root, "ls-files") if p)
+
+
+def _follow_renames(address: str, succ: dict, limit: int = 64):
+    """Walk a rename chain to its end. ``None`` on a cycle or a walk that will not
+    settle — a gate that can hang is a gate that stops being run."""
+    seen, cur = set(), address
+    for _ in range(limit):
+        if cur in seen:
+            return None
+        seen.add(cur)
+        nxt = succ.get(cur)
+        if nxt is None:
+            return cur
+        cur = nxt
+    return None
+
+
+def _directory_successor(directory: str, finals: dict, tracked, exists):
+    """Where a DIRECTORY went, read off its files by strict-majority plurality.
+
+    Only a kid whose path suffix survived the move may vote, and only if its
+    successor is still tracked. A leader without a strict majority is not a
+    consensus about where a directory went — it is a directory that came apart, and
+    the honest answer for one of those is silence (this ticket's wrong-intent
+    clause 5: a target that exists and is wrong disposes a real finding and reds
+    nothing)."""
+    prefix = directory.rstrip("/") + "/"
+    votes: dict = {}
+    for kid, final in finals.items():
+        if not kid.startswith(prefix) or final is None or final not in tracked:
+            continue
+        rel = kid[len(prefix):]
+        if final.endswith("/" + rel):
+            home = final[: -(len(rel) + 1)]
+            votes[home] = votes.get(home, 0) + 1
+    if not votes:
+        return None
+    total = sum(votes.values())
+    best, count = max(sorted(votes.items()), key=lambda kv: kv[1])
+    if count * 2 <= total:
+        return None
+    return best if exists(best) else None
+
+
+def _successor_index_uncached(root_key: str):
+    succ = {}
+    for old, new in rename_records(repo_root=root_key or None):
+        succ[old] = new  # oldest-first, so a later rename overwrites an earlier one
+    finals = {old: _follow_renames(old, succ) for old in succ}
+    return succ, finals, tracked_files(repo_root=root_key or None)
+
+
+_SUCCESSOR_CACHE: dict = {}
+
+
+def _successor_index(root_key: str):
+    """One git snapshot per (process, repository) — in memory, never on disk."""
+    if root_key not in _SUCCESSOR_CACHE:
+        _SUCCESSOR_CACHE[root_key] = _successor_index_uncached(root_key)
+    return _SUCCESSOR_CACHE[root_key]
+
+
+_successor_index.cache_clear = _SUCCESSOR_CACHE.clear  # type: ignore[attr-defined]
+
+
+def _repo_relative(address: str, root) -> str:
+    """Git's rename record is repo-RELATIVE, and charted addresses are not.
+
+    MEASURED on first live fire, and it is the reason this function exists rather
+    than a tidiness: 29 of the corpus's 38 residual addresses were spelled
+    absolutely, and 28 of them had a perfectly good rename record sitting in git
+    under their relative name. The derivation was answering 'no successor' for the
+    wrong reason — a false negative, which is the safe direction (it reds loudly)
+    and still wrong. An address outside the repo comes back untouched: git has
+    nothing to say about it, and saying nothing IS the answer there."""
+    if not os.path.isabs(address):
+        return address
+    root = os.path.normpath(str(root))
+    norm = os.path.normpath(address)
+    if norm.startswith(root + os.sep):
+        return norm[len(root) + 1:]
+    return address
+
+
+def derived_successor(address, repo_root=None, exists=None):
+    """Where git says this address went, or ``None`` — and ``None`` is a real
+    answer, not a failure.
+
+    ``exists`` is injectable so a proof can ask about a synthetic repository; the
+    default is ``ref_exists``, the same predicate the berth gate used to admit the
+    address in the first place, so the judge and the gate cannot disagree about
+    what resolving means."""
+    if not isinstance(address, str) or not address.strip():
+        return None
+    exists = exists or _default_exists
+    if exists(address):
+        return None  # a live address is never forwarded out from under itself
+    root = str(repo_root) if repo_root else CAIRN_ROOT
+    succ, finals, tracked = _successor_index(str(repo_root) if repo_root else "")
+    key = _repo_relative(address, root)
+    # THE ANSWER COMES BACK IN THE FORM IT WAS ASKED IN. An absolute question
+    # answered relatively hands a reader an address it has to re-root itself, and
+    # the whole point of a successor is that it can be USED.
+    dress = (lambda p: os.path.join(root, p)) if key != address else (lambda p: p)
+    if key in succ:
+        final = finals.get(key)
+        if final and final != key and final in tracked and exists(dress(final)):
+            return dress(final)
+        return None
+    got = _directory_successor(key, finals, tracked,
+                               lambda p: exists(dress(p)))
+    return dress(got) if got else None
+
+
+def _resolves_to(address, ticket_id, repo_root=None, exists=None):
+    """THE ONE SUCCESSOR RESOLVER the three address sieves compose.
+
+    Precedence: the ticket's hand-authored order first, git's rename record second.
+    One rule with one spelling — the neighbouring voyage
+    (one-owner-for-the-instance-address) was born of the same rule spelled twice in
+    two seats that then drifted apart, and two answers to 'where did this address
+    go' would be that defect again."""
+    hand = _forwarding_map(ticket_id).get(address)
+    if hand:
+        return hand
+    try:
+        return derived_successor(address, repo_root=repo_root, exists=exists)
+    except GitUnreadable:
+        return None  # the residue report owns the reader's failure and says so
+                     # by name; a sieve's job is not to turn it into a finding
+                     # about the component that happened to be crossing
+
+
+def forwarding_residue(comp_dir=None) -> dict:
+    """WHAT A HAND STILL OWES — the charted addresses no successor door can reach.
+
+    Gate (4) of this ticket: the derivation is MEASURED, not asserted. A residue
+    nobody can enumerate is a residue nobody owes, so this reports the count AND
+    the named list, per address, with the tickets that charted it.
+
+    ``reader_failed`` is the field that keeps the report honest at its worst
+    moment: zero-because-everything-resolved and zero-because-git-said-nothing are
+    the same number, and this is where they are made different."""
+    tickets = _component_tickets(Path(comp_dir)) if comp_dir is not None else None
+    asked: dict = {}
+    reader_failed = None
+    if _CHART_BERTHS.is_dir():
+        for stage, field in (("orient", "refs"), ("constrain", None), ("survey", None)):
+            for path in sorted(_CHART_BERTHS.glob("*/packets/%s-*.json" % stage)):
+                try:
+                    packet = json.loads(path.read_text())
+                except (OSError, json.JSONDecodeError):
+                    continue  # the unreadable berth is its owner's finding, above
+                if not isinstance(packet, dict):
+                    continue
+                tid = packet.get("ticket")
+                if tickets is not None and tid not in tickets:
+                    continue
+                for addr in _charted_addresses(packet, stage):
+                    if not ref_exists(addr):
+                        asked.setdefault(addr, set()).add(tid)
+    answers, answered_by, unanswered_addrs = {}, {}, []
+    for addr, tids in sorted(asked.items()):
+        got, by = None, None
+        for tid in sorted(t for t in tids if isinstance(t, str)):
+            try:
+                got = _resolves_to(addr, tid)
+            except GitUnreadable as e:                       # pragma: no cover
+                reader_failed = str(e)
+                got = None
+            if got:
+                by = tid
+                break
+        if got is None:
+            # AND THE CLAIMLESS PACKET STILL GETS THE DERIVED DOOR. Measured on
+            # first live fire: three addresses sat in the residue with an empty
+            # `charted_by` and a perfectly good rename record behind them, because
+            # the loop above is keyed on tickets and a packet that claims none has
+            # no ticket to iterate. The hand door needs a ticket; git does not.
+            try:
+                got, by = derived_successor(addr), "git"
+            except GitUnreadable as e:
+                got, by, reader_failed = None, None, str(e)
+        if got:
+            answers[addr] = got
+            answered_by[addr] = by   # WHICH ticket's door answered — the hand order
+                                     # and the derivation are different authorities,
+                                     # and an answer that cannot say which one it
+                                     # came from cannot be audited (Law 3)
+        else:
+            unanswered_addrs.append({"address": addr,
+                                     "charted_by": sorted(t for t in tids if t)})
+    return {"asked": len(asked), "answered": len(answers), "answers": answers,
+            "answered_by": answered_by, "unanswered": unanswered_addrs,
+            "reader_failed": reader_failed}
+
+
+def _charted_addresses(packet: dict, stage: str) -> list:
+    """The addresses a berthed packet claims the world holds — read through the same
+    fields the three sieves read, so the residue cannot report on a different
+    population than the one the gate judges."""
+    out = []
+    if stage == "orient":
+        refs = packet.get("refs")
+        if isinstance(refs, list):
+            out += [r for r in refs if isinstance(r, str) and r.strip()]
+    elif stage == "constrain":
+        for c in packet.get("constraints") or []:
+            if isinstance(c, dict) and isinstance(c.get("source"), str):
+                out.append(c["source"])
+    elif stage == "survey":
+        for h in packet.get("holdings") or []:
+            if isinstance(h, dict) and isinstance(h.get("address"), str):
+                out.append(h["address"])
+    return out
+
+
 def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
     """A ticket's forwarding order is checked in the world at both ends: every
     entry says where an address WENT (``to``, which must resolve) and WHY, and
@@ -445,9 +763,10 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
         refs = packet.get("refs")
         if not isinstance(refs, list):
             continue  # shaped at the berth door; unreachable through it
-        forwarded = _forwarding_map(packet.get("ticket"))
+        tid = packet.get("ticket")
         missing = [r for r in refs if not isinstance(r, str) or not ref_exists(r)]
-        missing = [r for r in missing if not (isinstance(r, str) and r in forwarded)]
+        missing = [r for r in missing
+                   if not (isinstance(r, str) and _resolves_to(r, tid))]
         if missing:
             findings.append(_finding(
                 "charted_refs_resolve", row["component"],
@@ -561,8 +880,8 @@ def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
     findings = _judge_charted(row, comp_dir, "constrain", judge_constrain,
                               "constraint_traces", report_unreadable=True)
     return [f for f in findings
-            if f["evidence"].get("source") not in
-            _forwarding_map(f["evidence"].get("ticket"))]
+            if not _resolves_to(f["evidence"].get("source"),
+                                f["evidence"].get("ticket"))]
 
 
 def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -665,8 +984,8 @@ def survey_holdings_resolve(row: dict, comp_dir: Path) -> list[dict]:
     findings = _judge_charted(row, comp_dir, "survey", judge_survey,
                               "survey_holdings_resolve", report_unreadable=True)
     return [f for f in findings
-            if f["evidence"].get("address") not in
-            _forwarding_map(f["evidence"].get("ticket"))]
+            if not _resolves_to(f["evidence"].get("address"),
+                                f["evidence"].get("ticket"))]
 
 
 def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -1874,6 +2193,76 @@ def fire_path_unreachable(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def address_is_resolved_never_spelled(row: dict, comp_dir: Path) -> list[dict]:
+    """A component builds an instance-space path by hand instead of asking the resolver.
+
+    Provenance: ticket ``one-owner-for-the-instance-address``, whose WATCHME predicted the
+    way the design fails — "the resolver becomes an ELEVENTH place a path is built rather
+    than the only one" — and whose charter said in as many words that nothing REFUSED a
+    further hand-spelled path. Between the resolver landing (2026-08-12) and this seat
+    (2026-08-17) the corpus grew from a predicted floor of 1 to a measured 7. The watch was
+    armed and correct the whole time; nobody read it, which is the difference this seat
+    makes: a probe REPORTS, a sieve REDS THE BUILD.
+
+    THE RULE IS NOT HERE — ``cairn/tools/base/address_rule.py`` owns it, and this seat is
+    the same rule at the OTHER moment, the same shape as ``sole_path_holds``: the probe
+    shakes it over the whole corpus on a pulse, this shakes it over ONE component at its
+    inspection. Two seats, one spelling. Re-implementing the pattern here would be the
+    defect the ticket is about, committed inside the gate that judges it.
+
+    ATTRIBUTION IS BY DEEPEST OWNER, not by containment. Components nest — a device's
+    ``machines/<name>/`` is its own component — so a scan rooted at the device would
+    otherwise red the device for its machine's line, and the same site would be caught
+    twice under two names. ``address.component_of`` is the existing answer to exactly that
+    question and is composed rather than re-derived.
+
+    A COMPONENT THIS CANNOT JUDGE READS RED, NOT GREEN (Law 9). ``scan`` raises
+    ``HollowScan`` when it read zero files, and a sieve that swallowed that would report
+    clean for a component it never looked at. Measured 2026-08-17: 0 of 39 components hold
+    no readable Python, so this branch fires on nothing today and is here for the day the
+    census admits a component that does.
+    """
+    try:
+        found = address_rule.scan(root=comp_dir)
+    except HollowScan as e:
+        return [_finding(
+            "address_is_resolved_never_spelled", row["component"],
+            "the address rule could not be shaken over this component",
+            {"root": str(comp_dir), "refusal": str(e)},
+            "A gate that inspects nothing passes everything (Law 8). This component read "
+            "as clean only because the rule found no source to read.")]
+    # The inspection root, recovered from the row rather than re-spelled: ``row["dir"]`` is
+    # comp_dir's path relative to it, and a fixture root is not the repo. ``component_of``
+    # needs the PACKAGE root to know what the components are, and handing it comp_dir's
+    # grandparent would be right only for an unnested component — the exact assumption the
+    # rung move already broke once.
+    pkg_root = comp_dir
+    for _ in Path(row["dir"]).parts:
+        pkg_root = pkg_root.parent
+
+    findings = []
+    for entry in found["sites"]:
+        rel = Path(entry["site"].rsplit(":", 1)[0])
+        # ``scan`` writes repo-relative inside the repo and absolute outside it (a fixture
+        # tree), so both shapes are read rather than one assumed.
+        site_path = rel if rel.is_absolute() else _REPO_ROOT / rel
+        owner = address.component_of(site_path, pkg_root=pkg_root)
+        if owner is not None and owner.resolve() != comp_dir.resolve():
+            continue          # a nested component's line is that component's row, not ours
+        findings.append(_finding(
+            "address_is_resolved_never_spelled", row["component"],
+            f"{entry['site']} spells the instance address by hand: {entry['shape']}",
+            {"site": entry["site"], "shape": entry["shape"],
+             "rule": "cairn/tools/base/address_rule.py",
+             "exemptions": found["exempted"]},
+            "Law 6 / ticket one-owner-for-the-instance-address: the instance address has "
+            "ONE owner, and a second spelling is a copy that drifts. Compose "
+            "cairn.tools.base.address (instance_path / tool_path / machine_path / "
+            "resolve) — the module imports pathlib and nothing else, so it costs no "
+            "component its measured shape."))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -1895,6 +2284,7 @@ SIEVES = {
     "validate_covers_the_build": validate_covers_the_build,
     "sole_path_holds": sole_path_holds,
     "fire_path_unreachable": fire_path_unreachable,
+    "address_is_resolved_never_spelled": address_is_resolved_never_spelled,
 }
 
 

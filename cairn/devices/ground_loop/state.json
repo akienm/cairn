@@ -1,25 +1,22 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a-dropped-pulse-serves-within-a-beat) -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_bench_names_the_right_culprit) -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-pulse-file-is-the-subscription'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/ground_loop/validations/test_pulse_service.json (seal 2026-08-15T10:27:42, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a-dropped-pulse-serves-within-a-beat) emitted the probe berthed at cairn/devices/ground_loop/probes/pulse_service_within_a_beat.py (ticket 'the-pulse-file-is-the-subscription')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260815T103426-9c2706a67f40.json",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'staleness-is-about-this-process-not-about-disk', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVED' in the code-seam@v2 vocabulary",
-        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -34,90 +31,44 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED moves the cursor off position 4",
-        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
-          "cursor": 4,
-          "resolved": 5
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED",
-        "actual": "WATCHME -> PROVED",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
-            "PROVED",
-            "PROVEME",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_names_a_cast_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "a cast ticket for the WATCHME(a-dropped-pulse-serves-within-a-beat) crossing",
-        "actual": "a cast ticket for the WATCHME(a-dropped-pulse-serves-within-a-beat) crossing",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-pulse-file-is-the-subscription",
-          "watch_object": "a-dropped-pulse-serves-within-a-beat",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-pulse-file-is-the-subscription.json"
-        }
-      },
-      {
-        "identity": "the_ticket_carries_a_spec_for_this_watch",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "ticket 'the-pulse-file-is-the-subscription' carries a watchme spec for 'a-dropped-pulse-serves-within-a-beat'",
-        "actual": "ticket 'the-pulse-file-is-the-subscription' carries a watchme spec for 'a-dropped-pulse-serves-within-a-beat'",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-pulse-file-is-the-subscription",
-          "watch_object": "a-dropped-pulse-serves-within-a-beat",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_promised_probe_is_berthed_and_armed",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "the probe the spec promised is berthed and armed",
-        "actual": "the probe the spec promised is berthed and armed",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-pulse-file-is-the-subscription",
-          "watch_object": "a-dropped-pulse-serves-within-a-beat",
-          "berth": "cairn/devices/ground_loop/probes/pulse_service_within_a_beat.py",
-          "findings": []
         }
       },
       {
         "identity": "the_crossing_shows_its_ticket_or_its_exemption",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "expected": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "the-pulse-file-is-the-subscription",
+          "target": "BUILDME",
+          "ticket": "staleness-is-about-this-process-not-about-disk",
           "component": "ground_loop",
           "exempt": false,
           "roster": []
@@ -127,332 +78,64 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'the-pulse-file-is-the-subscription' is cast",
-        "actual": "named ticket 'the-pulse-file-is-the-subscription' is cast",
+        "expected": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
+        "actual": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "the-pulse-file-is-the-subscription",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-pulse-file-is-the-subscription.json"
+          "target": "BUILDME",
+          "ticket": "staleness-is-about-this-process-not-about-disk",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/staleness-is-about-this-process-not-about-disk.json"
         }
       },
       {
-        "identity": "the_claiming_chart_is_answered",
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_exit",
+        "code": "transitions.py::inspect_entry",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_exit",
+        "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "the-pulse-file-is-the-subscription"
+          "ticket": "staleness-is-about-this-process-not-about-disk"
         }
       },
       {
-        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "identity": "the_ticket_names_its_intent_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
-        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "component": "ground_loop",
-          "cleared_by": "CC",
-          "exempt": false,
-          "roster": []
+          "findings": [],
+          "ticket": "staleness-is-about-this-process-not-about-disk"
         }
       },
       {
-        "identity": "the_witness_is_whole",
+        "identity": "the_ticket_names_its_sorted_door_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness carries every field the harbor's gate stamps",
-        "actual": "the witness carries every field the harbor's gate stamps",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "cleared_by": "CC",
-          "missing": [],
-          "demanded": [
-            "proven_by",
-            "proven_seal_date"
-          ]
-        }
-      },
-      {
-        "identity": "the_named_proof_stands_in_proven_space",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/ground_loop/validations/test_pulse_service.json stands in proven-space",
-        "actual": "cairn/devices/ground_loop/validations/test_pulse_service.json stands in proven-space",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/ground_loop/validations/test_pulse_service.json",
-          "why": "sealed green 2026-08-15T10:27:42 by sail:the-pulse-file-is-the-subscription, and the component's source fingerprint still matches what was proved (e91af6fc29d3…)"
-        }
-      },
-      {
-        "identity": "the_witness_agrees_with_the_seal_it_names",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/ground_loop/validations/test_pulse_service.json's seal at '2026-08-15T10:27:42'",
-        "actual": "the witness dates cairn/devices/ground_loop/validations/test_pulse_service.json's seal at '2026-08-15T10:27:42'",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/ground_loop/validations/test_pulse_service.json",
-          "seal": "2026-08-15T10:27:42",
-          "claimed": "2026-08-15T10:27:42"
+          "findings": [],
+          "ticket": "staleness-is-about-this-process-not-about-disk"
         }
       }
     ],
-    "checks_proved": 13,
-    "cleared_by": "CC",
-    "actor": "CC",
-    "proven_by": "cairn/devices/ground_loop/validations/test_pulse_service.json",
-    "proven_seal_date": "2026-08-15T10:27:42",
-    "delegated": false,
-    "ticket": "the-pulse-file-is-the-subscription",
-    "note": "presence IS the subscription now: groundloop/pulse.py at a component address (class or instance level) is found each beat, imported once under a synthetic name, fired through its shim on_pulse, and unloaded from sys.modules the beat it vanishes — nobody registers, nobody restarts. This exists because a loop that could only learn its work at process start measured itself older than its own code nine times overnight (2026-08-14); the fix is that the loop holds NOTHING that can go stale — the disk is the roster. Proved by 11 teeth green twice under netns, and live: the resident singleton (pid 3933751, one deployment restart to load this code) served a dropped pulse in 2.12s and unloaded a removed one in ~3s, one beat each at the measured 3.65s cadence, same pid throughout. The roster rides state() into liveness.json; the armed probe reads that record and clears at ten within-a-beat services under one pid.",
-    "at": "2026-08-15T10:35:18",
-    "seq": 27
+    "checks_proved": 8,
+    "ticket": "staleness-is-about-this-process-not-about-disk",
+    "by": "CC",
+    "note": "The staleness predicate is asked whether THIS PROCESS is older than the code it is judging, and it answers from two numbers that are both on disk: the source's mtime and the mtime embedded in that module's .pyc header. Neither term contains the asker. So any second interpreter that imports the module rewrites the header and repairs the EVIDENCE without repairing the loop — measured tonight, and the second process was my own proof run. The loop then benched the survey device for an ImportError that a fresh interpreter does not reproduce (trouble ground-loop-device-survey, 03:44Z), while loop.py's unblame branch — already built, already correct — sat unreached because the predicate returned empty.\n\nSECOND FIX OF THIS CONDITION. The first shipped staleness.py, was cleared 00:51Z by a restart, and was defeated 2h53m later by ordinary work in the same tree. That is why the horizon is 30 days and why the candidate carries no clock and no bytecode: compare what the process HOLDS against a fresh compile of the disk source, which is evidence one of whose terms is the asker.",
+    "at": "2026-08-17T22:12:52",
+    "seq": 28
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-loop-never-blames-a-device-for-its-own-age) -> [PROVED]",
-      "direction": "forward",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-      "clearance_gate": "cleared by 'CC' onto cairn/devices/ground_loop/proofs/test_staleness.py (seal 2026-08-14T16:38:57, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-loop-never-blames-a-device-for-its-own-age) emitted the probe berthed at cairn/devices/ground_loop/probes/loop_not_stale.py (ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260814T163532-d7575fd67c39.json",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVED' in the code-seam@v2 vocabulary",
-          "actual": "'PROVED' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED moves the cursor off position 4",
-          "actual": "WATCHME -> PROVED moves the cursor off position 4",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "cursor": 4,
-            "resolved": 5
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED",
-          "actual": "WATCHME -> PROVED",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "legal_from_here": [
-              "BUILDME",
-              "PROVED",
-              "PROVEME",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_names_a_cast_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
-          "actual": "a cast ticket for the WATCHME(the-loop-never-blames-a-device-for-its-own-age) crossing",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
-          }
-        },
-        {
-          "identity": "the_ticket_carries_a_spec_for_this_watch",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
-          "actual": "ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' carries a watchme spec for 'the-loop-never-blames-a-device-for-its-own-age'",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_promised_probe_is_berthed_and_armed",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "the probe the spec promised is berthed and armed",
-          "actual": "the probe the spec promised is berthed and armed",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-            "watch_object": "the-loop-never-blames-a-device-for-its-own-age",
-            "berth": "cairn/devices/ground_loop/probes/loop_not_stale.py",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-            "component": "ground_loop",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
-          "actual": "named ticket 'the-loop-names-its-own-staleness-instead-of-benching-a-device' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-loop-names-its-own-staleness-instead-of-benching-a-device.json"
-          }
-        },
-        {
-          "identity": "the_claiming_chart_is_answered",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_exit",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_exit",
-          "values": {
-            "findings": [],
-            "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_clearance_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
-          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "component": "ground_loop",
-            "cleared_by": "CC",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_witness_is_whole",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness carries every field the harbor's gate stamps",
-          "actual": "the witness carries every field the harbor's gate stamps",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "cleared_by": "CC",
-            "missing": [],
-            "demanded": [
-              "proven_by",
-              "proven_seal_date"
-            ]
-          }
-        },
-        {
-          "identity": "the_named_proof_stands_in_proven_space",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
-          "actual": "cairn/devices/ground_loop/proofs/test_staleness.py stands in proven-space",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
-            "why": "sealed green 2026-08-14T16:38:57 by sail:the-loop-names-its-own-staleness-instead-of-benching-a-device, and the component's source fingerprint still matches what was proved (a2990faedaac…)"
-          }
-        },
-        {
-          "identity": "the_witness_agrees_with_the_seal_it_names",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
-          "actual": "the witness dates cairn/devices/ground_loop/proofs/test_staleness.py's seal at '2026-08-14T16:38:57'",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/ground_loop/proofs/test_staleness.py",
-            "seal": "2026-08-14T16:38:57",
-            "claimed": "2026-08-14T16:38:57"
-          }
-        }
-      ],
-      "checks_proved": 13,
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": "cairn/devices/ground_loop/proofs/test_staleness.py",
-      "proven_seal_date": "2026-08-14T16:38:57",
-      "delegated": false,
-      "ticket": "the-loop-names-its-own-staleness-instead-of-benching-a-device",
-      "watch_proven_by": "cairn/devices/ground_loop/proofs/test_loop_not_stale.py",
-      "note": "the watch's own proof is sealed too and is named beside the build's proof: the probe shipped unproved and its every-beat path raised on the first real call, so this crossing leans on two seals, not one",
-      "at": "2026-08-14T16:39:27",
-      "seq": 23
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -1224,7 +907,143 @@
       "note": "presence IS the subscription now: groundloop/pulse.py at a component address (class or instance level) is found each beat, imported once under a synthetic name, fired through its shim on_pulse, and unloaded from sys.modules the beat it vanishes — nobody registers, nobody restarts. This exists because a loop that could only learn its work at process start measured itself older than its own code nine times overnight (2026-08-14); the fix is that the loop holds NOTHING that can go stale — the disk is the roster. Proved by 11 teeth green twice under netns, and live: the resident singleton (pid 3933751, one deployment restart to load this code) served a dropped pulse in 2.12s and unloaded a removed one in ~3s, one beat each at the measured 3.65s cadence, same pid throughout. The roster rides state() into liveness.json; the armed probe reads that record and clears at ten within-a-beat services under one pid.",
       "at": "2026-08-15T10:35:18",
       "seq": 27
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_bench_names_the_right_culprit) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'staleness-is-about-this-process-not-about-disk', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "staleness-is-about-this-process-not-about-disk",
+            "component": "ground_loop",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
+          "actual": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "staleness-is-about-this-process-not-about-disk",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/staleness-is-about-this-process-not-about-disk.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "staleness-is-about-this-process-not-about-disk"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "staleness-is-about-this-process-not-about-disk"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "staleness-is-about-this-process-not-about-disk"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "ticket": "staleness-is-about-this-process-not-about-disk",
+      "by": "CC",
+      "note": "The staleness predicate is asked whether THIS PROCESS is older than the code it is judging, and it answers from two numbers that are both on disk: the source's mtime and the mtime embedded in that module's .pyc header. Neither term contains the asker. So any second interpreter that imports the module rewrites the header and repairs the EVIDENCE without repairing the loop — measured tonight, and the second process was my own proof run. The loop then benched the survey device for an ImportError that a fresh interpreter does not reproduce (trouble ground-loop-device-survey, 03:44Z), while loop.py's unblame branch — already built, already correct — sat unreached because the predicate returned empty.\n\nSECOND FIX OF THIS CONDITION. The first shipped staleness.py, was cleared 00:51Z by a restart, and was defeated 2h53m later by ordinary work in the same tree. That is why the horizon is 30 days and why the candidate carries no clock and no bytecode: compare what the process HOLDS against a fresh compile of the disk source, which is evidence one of whose terms is the asker.",
+      "at": "2026-08-17T22:12:52",
+      "seq": 28
     }
   ],
-  "count": 28
+  "count": 29
 }

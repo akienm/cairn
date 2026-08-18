@@ -242,6 +242,34 @@ def test_the_same_broken_folder_is_benched_when_the_process_is_not_stale():
         assert [t["id"] for t in trouble.live()] == [TROUBLE_PREFIX + "mixed"], trouble.live()
 
 
+def test_the_real_predicate_is_what_the_loop_actually_asks():
+    """THE THIRD LEG OF THE PAIR, added 2026-08-18 (ticket staleness-is-about-this-process-
+    not-about-disk), and it exists because the two teeth above CANNOT catch a broken
+    predicate — by design.
+
+    Both of them inject the ANSWER (``_stale(...)`` / ``lambda: []``), which is right for
+    what they measure: the loop's branch, held apart from the reproduction of real drift. But
+    that isolation is also a seam, and the seam is where this ticket's defect lived — the
+    predicate went blind on 2026-08-18 while every tooth in this file stayed green, because
+    no tooth here ever asked the real one anything. Injection proves the branch; only the
+    default proves the WIRING, and the diagnostic for 'armed by hand or actually wired' is
+    always to CALL IT.
+
+    So: no ``staleness=`` argument at all, a healthy process, a genuinely broken device. The
+    real predicate must answer 'nothing drifted' and the bench must bite. A predicate that
+    over-detects — the cheapest wrong implementation, and the direction a content comparison
+    could plausibly fail — would unblame everybody forever and this tooth would red."""
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _device(root, "mixed", {"broke.py": _BROKEN_IMPORT,
+                                "works.py": _GOOD.format(why="still armed", fires="True")})
+        loop, trouble, _ = _loop(root, root / "_troubles")     # THE DEFAULT PREDICATE
+        record = loop.beat(NOW)
+
+        assert record["pulsed"] == [], record["pulsed"]
+        assert [t["id"] for t in trouble.live()] == [TROUBLE_PREFIX + "mixed"], trouble.live()
+
+
 def test_a_stale_loop_raises_its_trouble_against_ITSELF():
     """The loop is the one party it may make claims about (Law 6). For 29 hours it made a
     claim about fifteen devices instead, and every human reader — me, twice — believed it."""

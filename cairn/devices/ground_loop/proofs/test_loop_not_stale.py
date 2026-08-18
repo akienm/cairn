@@ -86,8 +86,23 @@ def _survey(*, benched: dict, last_seen=None, started=1_000_000.0) -> dict:
     }
 
 
-_IMPORTS = {"on_disk": True, "imports_cleanly": True, "failures": []}
-_BROKEN = {"on_disk": True, "imports_cleanly": False, "failures": ["ImportError: boom"]}
+# THE VERDICT CONTRACT CARRIES TWO READINGS, not one, since 2026-08-18: what THIS process
+# sees, and what a fresh interpreter sees. The deciding one is the fresh one, because the
+# in-process read is taken by the process under suspicion.
+_IMPORTS = {"on_disk": True, "imports_cleanly_in_this_process": True,
+            "imports_cleanly_fresh": True, "fresh_refusal": None,
+            "failures": [], "fresh_failures": []}
+_BROKEN = {"on_disk": True, "imports_cleanly_in_this_process": False,
+           "imports_cleanly_fresh": False, "fresh_refusal": None,
+           "failures": ["ImportError: boom"], "fresh_failures": ["ImportError: boom"]}
+# The stale-loop signature: real here, absent on disk.
+_STALE = {"on_disk": True, "imports_cleanly_in_this_process": False,
+          "imports_cleanly_fresh": True, "fresh_refusal": None,
+          "failures": ["ImportError: boom"], "fresh_failures": []}
+# The child could not be read at all — never silently clean.
+_UNREADABLE = {"on_disk": True, "imports_cleanly_in_this_process": False,
+               "imports_cleanly_fresh": False, "fresh_refusal": "exit 1: boom",
+               "failures": ["ImportError: boom"], "fresh_failures": None}
 
 
 # --- the teeth that take no fixture: the probe against the world ------------------------
@@ -113,10 +128,26 @@ def test_the_probe_loads_under_the_loops_own_discovery():
         "the loop's own discovery did not load this probe"
 
 
-def test_the_healthy_loop_reads_false():
+def test_a_store_with_no_bench_reads_false():
     """A staleness alarm that is always on is a bench that never lifts — the predicate's
-    founding falsification. On this healthy process the probe must be silent."""
-    assert P.PROBE.trigger(None, {}) is False
+    founding falsification. With NOTHING benched, the probe must be silent.
+
+    THIS TOOTH USED TO ASSERT A SNAPSHOT OF THE PRODUCTION STORE (``trigger(None, {}) is
+    False``, no fixture) and it went red on 2026-08-18 for the correct reason: a real bench
+    stood, the device imported cleanly, and the probe fired exactly as designed. So the
+    check reported the world's state where it meant to report the probe's rule, and the
+    louder half is that it had been green only while the store happened to be clean — a
+    proof over live data must assert an INVARIANT, never a value. The invariant is: no bench
+    tickets, no fire. The world-facing tooth that stays is ``test_the_every_beat_path_
+    actually_runs``, which requires a verdict rather than a particular one.
+    """
+    store = _Store()
+    try:
+        store.write("some-unrelated-trouble", last_seen="2026-08-13T09:00:00")
+        assert P._bench_tickets_exist() is False
+        assert P.PROBE.trigger(None, {}) is False
+    finally:
+        store.close()
 
 
 # --- the cheap half: benched means LIVE, not merely named -------------------------------
@@ -242,6 +273,68 @@ def test_the_carry_names_the_diagnosis_order_and_its_own_ticket():
     assert P._OWNING_TICKET in json.dumps(carry["ticket"]), carry["ticket"]
     assert "ERROR STRING" in carry["against_falsifier"], \
         "the hollow pass this build refuses must travel with the finding"
+
+
+def test_the_reading_that_decides_is_taken_where_this_process_is_not():
+    """THE TOOTH FOR THE SECOND TICKET'S OWN DISEASE, found by aiming the finished probe at
+    the world. The first build took the second reading with ``discover()`` IN THIS PROCESS —
+    and this process is the ground loop, the thing suspected of being stale. A stale process
+    re-execs the probe file fine and then binds its ``from cairn... import`` through the
+    boot-time ``sys.modules``, so it REPRODUCES the failure and reads the misattributed bench
+    as a real defect. The probe could only ever fire when run from somewhere other than the
+    loop it watches.
+
+    Measured here rather than argued: one throwaway tree, one module held pre-edit by this
+    interpreter, one probe importing the symbol the edit added. The two readings must
+    DISAGREE — that disagreement is the whole instrument."""
+    import subprocess, sys, textwrap
+    from cairn.devices.ground_loop.discovery import discover
+
+    root = Path(scratch_dir("loop-not-stale")) / f"fresh-{_SERIAL[0]}-{id(object())}"
+    pkg, dev = root / "wtree", root / "devices" / "widget" / "probes"
+    pkg.mkdir(parents=True); dev.mkdir(parents=True)
+    (pkg / "__init__.py").write_text("")
+    (pkg / "gear.py").write_text("OLD = 1\n")
+    (dev / "p.py").write_text(textwrap.dedent("""
+        from wtree.gear import NEWSYM
+        from cairn.tools.base.probe import Probe
+        PROBE = Probe(why="fixture", trigger=lambda now, ctx: False, to="harbor_master",
+                      body={}, carry=lambda ctx: {}, enough=lambda ctx: True)
+    """))
+    sys.path.insert(0, str(root))
+    try:
+        import wtree.gear  # noqa: F401  — HELD by this process, pre-edit
+        (pkg / "gear.py").write_text("OLD = 1\nNEWSYM = 2\n")
+
+        here = discover(root / "devices")["widget"]
+        assert here["failures"], "this process was supposed to hold the pre-edit module"
+
+        fresh = P.fresh_import_reading(here["folder"])
+        assert fresh["refusal"] is None, fresh["refusal"]
+        assert fresh["failures"] == [], fresh["failures"]
+        assert fresh["probes"] == 1, fresh
+    finally:
+        sys.path.remove(str(root))
+        sys.modules.pop("wtree.gear", None)
+        sys.modules.pop("wtree", None)
+
+
+def test_a_device_that_fails_here_and_imports_fresh_is_the_loops_fault():
+    """The judgement over that pair. Before the fix this fixture read as a REAL defect —
+    silent — which is exactly backwards."""
+    seen = P.judge(_survey(benched={"widget": _STALE}, last_seen="2000-01-01T00:00:00+00:00"))
+    assert seen["benched_but_importing"] == ["widget"], seen
+    assert seen["reproduces_here_but_not_fresh"] == ["widget"], seen
+    assert P.PROBE.trigger(None, {"judged": seen}) is True
+
+
+def test_a_fresh_reading_that_refused_never_lifts_a_bench():
+    """A crashed subprocess is not a clean import. Reading a refusal as 'imports cleanly'
+    would lift a real bench on the strength of a dead child process."""
+    seen = P.judge(_survey(benched={"widget": _UNREADABLE},
+                           last_seen="2000-01-01T00:00:00+00:00"))
+    assert seen["benched_but_importing"] == [], seen
+    assert seen["fresh_reading_refused"] == ["widget"], seen
 
 
 if __name__ == "__main__":

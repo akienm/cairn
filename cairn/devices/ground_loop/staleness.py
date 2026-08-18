@@ -26,27 +26,41 @@ again):
 
   VANISHED   the loaded module's file is no longer at that address. Needs no clock at all:
              a module whose source moved away cannot match it. This is the identity face.
-  REWRITTEN  the source mtime no longer matches the mtime recorded IN THE BYTECODE Python
-             wrote when it imported the module. This is the ImportError face.
+  REWRITTEN  what this process HOLDS is not what the file on disk would produce now: a name
+             the disk source defines unconditionally that the held module does not carry, or
+             a held function whose bytecode differs from a fresh compile of the same source.
 
-WHY THE BYTECODE AND NOT A CLOCK. The honest comparison is "was this file written after this
-MODULE was loaded", and per-module load times are exactly the runtime state ground_loop's
-falsifier clause (5) forbids the heartbeat from holding — it may keep no state of its own
-except the ruled liveness record. The ``.pyc`` header already carries the answer for free:
-it embeds the source mtime its bytecode was compiled from, and nobody rewrites it unless the
-module is imported again. A module loaded LATE from a freshly written file therefore reads
-CURRENT (Python just wrote that header), while a module loaded EARLY whose source changed
-since reads REWRITTEN (the header still names the old mtime). MEASURED on both cases before
-this module was written. So the predicate is stateless, computed from ``sys.modules`` and
-disk on the failure path, and clause (5) is not brushed.
+WHY THE EVIDENCE MUST CONTAIN THE ASKER, AND WHY THE BYTECODE HEADER DID NOT — the correction
+this module was rebuilt for (2026-08-18). The first build compared the source's mtime to the
+mtime embedded in that module's ``.pyc`` header, and both of those numbers are ON DISK. The
+``.pyc`` is a SHARED artifact: any second interpreter that imports the module rewrites the
+header, and the evidence is repaired while the asker is not. Measured, and the second process
+was an ordinary proof run in the same tree — the loop then benched an innocent device at
+03:44Z for an ``ImportError`` a fresh interpreter did not reproduce. A predicate whose two
+terms are both on disk cannot in principle tell two processes of different ages apart, so no
+amount of care at that comparison would have held.
+
+The comparison here has the asker in it: one term is the code objects THIS PROCESS holds, the
+other is a fresh compile of the source. It needs no clock and no bytecode file, so clause (5)
+of ground_loop's falsifier — no runtime state beyond the ruled liveness record — is untouched
+for the same reason it was before, by a mechanism that does not depend on who else has run.
+It is also STRICTLY LESS SENSITIVE than the mtime comparison it replaces: a file rewritten
+with identical content reads fresh, because content is what was ever meant.
+
+AND IT ENUMERATES NO FACE. The loud face (a symbol added after boot — ``ImportError``) is a
+name on disk the held module lacks; the quiet face (a probe body exec'd fresh off its path
+whose ``from cairn... import`` dependencies still resolve through the boot-time
+``sys.modules``) is a held function whose bytecode differs. Neither is detected by its error
+text or its symbol name, which is what the charter reds.
 
 WHERE IT IS BLIND, SAID OUT LOUD (Law 9 — absence of evidence is not evidence of freshness).
-With ``-B``/``PYTHONDONTWRITEBYTECODE``, a read-only tree, or PEP 552 hash-based bytecode,
-there is no timestamp to compare and the module reads UNDECIDABLE — never CURRENT. The
-header's mtime field is also one-second granular, so a rewrite landing inside the same second
-as the original is invisible; that bound is real and is orders of magnitude below the 29-hour
-staleness this exists to catch. ``diagnostics()`` reports the undecidable count so a reader
-can tell "nothing drifted" from "I could not look".
+A held object that cannot be matched to a code object reads UNDECIDABLE and never CURRENT:
+a decorated function with no ``__wrapped__``, a C extension attribute, a name bound at import
+time by something other than its own ``def``. A module in which NOTHING was comparable reads
+UNDECIDABLE whole. Names defined inside ``if``/``try`` at module level are not compared at
+all — their absence is legitimate — and that is a deliberate blindness, recorded rather than
+papered over. ``diagnostics()`` reports the undecidable counts, modules and objects apart, so
+a reader can tell "nothing drifted" from "I could not look".
 
 Proofs: ``proofs/test_staleness.py`` (this module) and ``proofs/test_discovery.py`` (the
 benching decision it feeds), both written before this file existed.
@@ -54,10 +68,12 @@ benching decision it feeds), both written before this file existed.
 
 from __future__ import annotations
 
+import ast
 import os
 import struct
 import sys
 from pathlib import Path
+from types import CodeType
 
 # The evidences. Two assert drift; one asserts only that the question could not be answered,
 # and a caller that treats it as either green or red is reading the predicate wrong.
@@ -114,7 +130,13 @@ def _is_pseudo_path(source: str) -> bool:
 
 def _bytecode_source_mtime(module) -> int | None:
     """The source mtime the loaded bytecode was compiled against, or ``None`` when there is
-    no timestamp to compare — absent pyc, unreadable pyc, or hash-based bytecode."""
+    no timestamp to compare — absent pyc, unreadable pyc, or hash-based bytecode.
+
+    PAYLOAD ONLY SINCE 2026-08-18, and kept rather than deleted for the same reason
+    ``tree_newer_than_process`` is kept: it was the predicate, it was measured wrong, and a
+    reader standing over a misattributed bench still wants to see what it says. It decides
+    nothing now — see ``diagnostics``' ``not_the_predicate`` list, where it is named.
+    """
     cached = getattr(module, "__cached__", None)
     if not cached:
         return None
@@ -130,6 +152,155 @@ def _bytecode_source_mtime(module) -> int | None:
     return struct.unpack("<I", head[8:12])[0]
 
 
+def _unconditional_definitions(tree: ast.Module) -> list[str]:
+    """Names the disk source binds at module level UNCONDITIONALLY — direct children of the
+    module body only.
+
+    The bound is the point. A ``STORE_NAME`` scan of the compiled module would be one line
+    shorter and would also collect every name bound inside ``if sys.version_info ...`` or
+    ``try: import x except ImportError:``, where NOT carrying the name is the correct state
+    for a live process. Those branches are how a module legitimately holds fewer names than
+    its source mentions, so comparing them would manufacture drift out of a working import.
+    """
+    names: list[str] = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.append(node.name)
+        elif isinstance(node, ast.Assign):
+            names += [t.id for t in node.targets if isinstance(t, ast.Name)]
+    return names
+
+
+def _index_code(code: CodeType, prefix: str = "") -> dict[str, CodeType]:
+    """Every function body a fresh compile produced, keyed by dotted name.
+
+    One level of nesting is followed — a class body is itself a code object, and its methods
+    are code objects inside it — because that is where the held side can be reached from
+    (``getattr(cls, method)``). A closure nested inside a function is NOT indexed: there is no
+    attribute path to it, so indexing it would only manufacture keys the held view must then
+    report undecidable.
+    """
+    out: dict[str, CodeType] = {}
+    for const in code.co_consts:
+        if not isinstance(const, CodeType):
+            continue
+        name = prefix + const.co_name
+        out[name] = const
+        if not prefix and const.co_name not in ("<lambda>", "<listcomp>", "<dictcomp>",
+                                                "<setcomp>", "<genexpr>"):
+            for inner in const.co_consts:
+                if isinstance(inner, CodeType):
+                    out[name + "." + inner.co_name] = inner
+    return out
+
+
+def _held_code(module, dotted: str) -> CodeType | None:
+    """The code object THIS PROCESS holds for ``dotted``, or ``None`` when it cannot be
+    reached — which is a reading of UNDECIDABLE, never of freshness."""
+    obj = module
+    for part in dotted.split("."):
+        obj = getattr(obj, part, None)
+        if obj is None:
+            return None
+    for _ in range(8):                    # decorator chains, bounded so a cycle cannot hang
+        wrapped = getattr(obj, "__wrapped__", None)
+        if wrapped is None:
+            break
+        obj = wrapped
+    obj = getattr(obj, "__func__", obj)   # classmethod / staticmethod / bound method
+    code = getattr(obj, "__code__", None)
+    return code if isinstance(code, CodeType) else None
+
+
+def _same_code(a: CodeType, b: CodeType) -> bool:
+    """Do these two code objects execute the same thing?
+
+    Compared on instructions, names and constants — NOT on line numbers. A comment added
+    above a function shifts every ``co_firstlineno`` below it while changing nothing this
+    process would execute, and the caller's response to drift is to STOP BENCHING ANYBODY:
+    over-detection hides real device defects just as surely as under-detection blames
+    innocent ones. Nested code objects recurse, so a changed closure body still counts.
+    """
+    if a.co_code != b.co_code or a.co_names != b.co_names \
+            or a.co_varnames != b.co_varnames or len(a.co_consts) != len(b.co_consts):
+        return False
+    for x, y in zip(a.co_consts, b.co_consts):
+        if isinstance(x, CodeType) or isinstance(y, CodeType):
+            if not (isinstance(x, CodeType) and isinstance(y, CodeType) and _same_code(x, y)):
+                return False
+        elif type(x) is not type(y) or x != y:
+            return False
+    return True
+
+
+def held_vs_disk(module, path: Path) -> dict:
+    """The one comparison: what this process holds for this module against what its file
+    would produce now. Returns ``{verdict, detail, comparable, undecidable_objects}`` with
+    verdict in ``REWRITTEN`` | ``UNDECIDABLE`` | ``None`` (nothing found to disagree).
+
+    Never raises. A source that no longer parses reads UNDECIDABLE — the file is mid-write or
+    broken, and calling that freshness would be the same failure one layer over.
+    """
+    try:
+        src = path.read_bytes()
+        tree = ast.parse(src, filename=str(path))
+        fresh = compile(tree, str(path), "exec")
+    except (OSError, SyntaxError, ValueError):
+        return {"verdict": UNDECIDABLE, "comparable": 0, "undecidable_objects": 0,
+                "detail": "the source on disk could not be read or compiled, so what this "
+                          "process holds cannot be compared against it — this is not a "
+                          "report that the two agree"}
+
+    for name in _unconditional_definitions(tree):
+        if not hasattr(module, name):
+            return {"verdict": REWRITTEN, "comparable": 0, "undecidable_objects": 0,
+                    "detail": f"the file defines {name!r} at module level and the module "
+                              "this process holds does not carry it, so the process is "
+                              "older than the file — this is the face that raises "
+                              "ImportError at the importer, named here as a difference "
+                              "rather than as an error string"}
+
+    comparable = undecidable = 0
+    for dotted, code in _index_code(fresh).items():
+        held = _held_code(module, dotted)
+        if held is None:
+            undecidable += 1
+            continue
+        comparable += 1
+        if not _same_code(held, code):
+            return {"verdict": REWRITTEN, "comparable": comparable,
+                    "undecidable_objects": undecidable,
+                    "detail": f"the bytecode this process holds for {dotted!r} differs from "
+                              "a fresh compile of the file, so it has been executing the old "
+                              "body ever since the file changed — the quiet face, which "
+                              "reports healthy at every surface"}
+    if comparable == 0 and undecidable:
+        return {"verdict": UNDECIDABLE, "comparable": 0, "undecidable_objects": undecidable,
+                "detail": "nothing this module holds could be matched to a code object "
+                          "(decorated without __wrapped__, C extension, or bound by "
+                          "something other than its own def), so the question could not be "
+                          "answered here"}
+    return {"verdict": None, "comparable": comparable, "undecidable_objects": undecidable,
+            "detail": ""}
+
+
+def read_all(root: Path | None = None,
+             modules: dict | None = None) -> tuple[list[dict], dict]:
+    """The findings AND the coverage tally, from one pass.
+
+    THE TALLY IS NOT BOOKKEEPING — it is the only thing that separates "I compared 485
+    objects and none of them disagreed" from "I could compare nothing, so of course nothing
+    disagreed". Findings alone cannot say it, because a clean process produces an EMPTY list
+    either way; the first build's ``undecidable`` count had the same hole one level up and
+    read 0 on a process where 181 objects were unreachable. Law 9 on the reader's side of the
+    predicate: absence of evidence is not evidence of freshness, and a reader has to be able
+    to tell the two apart without leaving.
+    """
+    findings = _drift(root, modules, tally := {"modules_read": 0, "comparable_objects": 0,
+                                               "undecidable_objects": 0})
+    return findings, tally
+
+
 def module_drift(root: Path | None = None, modules: dict | None = None) -> list[dict]:
     """Every module THIS PROCESS holds, under ``root``, that no longer matches its file.
 
@@ -141,7 +312,13 @@ def module_drift(root: Path | None = None, modules: dict | None = None) -> list[
     code just as much as ``cairn.tools.base.probe`` is, and a name-prefix scope would have
     silently excluded it. Never raises — a predicate that can take the heartbeat down is
     worse than the defect it reports.
+
+    The findings alone; ``read_all`` returns the same pass's coverage tally beside them.
     """
+    return _drift(root, modules, None)
+
+
+def _drift(root: Path | None, modules: dict | None, tally: dict | None) -> list[dict]:
     root = Path(root) if root is not None else class_space_root()
     findings: list[dict] = []
     for name, module in list((modules if modules is not None else sys.modules).items()):
@@ -165,22 +342,17 @@ def module_drift(root: Path | None = None, modules: dict | None = None) -> list[
                           "same name as whatever now lives there",
             })
             continue
-        embedded = _bytecode_source_mtime(module)
-        if embedded is None:
+        read = held_vs_disk(module, path)
+        if tally is not None:
+            tally["modules_read"] += 1
+            tally["comparable_objects"] += read["comparable"]
+            tally["undecidable_objects"] += read["undecidable_objects"]
+        if read["verdict"] is not None:
             findings.append({
-                "module": name, "evidence": UNDECIDABLE, "file": str(path),
-                "detail": "no timestamped bytecode for this module, so whether its source "
-                          "changed since it was loaded cannot be answered here — this is "
-                          "not a report that it is current",
-            })
-            continue
-        current = int(path.stat().st_mtime) & 0xFFFFFFFF
-        if current != embedded:
-            findings.append({
-                "module": name, "evidence": REWRITTEN, "file": str(path),
-                "detail": f"source mtime {current} does not match the {embedded} recorded in "
-                          "the bytecode this process loaded, so the file was written after "
-                          "this module was imported and the two have disagreed ever since",
+                "module": name, "evidence": read["verdict"], "file": str(path),
+                "detail": read["detail"],
+                "comparable": read["comparable"],
+                "undecidable_objects": read["undecidable_objects"],
             })
     return findings
 
@@ -192,6 +364,32 @@ def is_stale(findings: list[dict] | None = None) -> bool:
     if findings is None:
         findings = module_drift()
     return any(f["evidence"] in DRIFTED for f in findings)
+
+
+def _bytecode_header_disagreements(root: Path) -> list[str]:
+    """What the RETIRED comparison would say right now — payload for a reader, never a test.
+
+    Cheap (one header read per held module, no compile), and it stays out of ``module_drift``
+    so there is exactly one place drift is decided.
+    """
+    out = []
+    for name, module in list(sys.modules.items()):
+        if name.startswith(SYNTHETIC_PREFIX):
+            continue
+        source = getattr(module, "__file__", None)
+        if not source or _is_pseudo_path(source):
+            continue
+        try:
+            path = Path(source).resolve()
+            path.relative_to(root)
+            if not path.exists():
+                continue
+            embedded = _bytecode_source_mtime(module)
+            if embedded is not None and (int(path.stat().st_mtime) & 0xFFFFFFFF) != embedded:
+                out.append(name)
+        except (ValueError, OSError):
+            continue
+    return out
 
 
 def diagnostics(root: Path | None = None, findings: list[dict] | None = None,
@@ -206,8 +404,9 @@ def diagnostics(root: Path | None = None, findings: list[dict] | None = None,
     ``test_the_diagnostic_payload_carries_the_falsified_comparison_labelled`` holds that line.
     """
     root = Path(root) if root is not None else class_space_root()
+    coverage: dict | None = None
     if findings is None:
-        findings = module_drift(root)
+        findings, coverage = read_all(root)
     started = process_started()
 
     # The tree walk is the only expensive thing here — an rglob over the whole class space —
@@ -235,15 +434,32 @@ def diagnostics(root: Path | None = None, findings: list[dict] | None = None,
             if getattr(m, "__file__", None) and str(root) in str(getattr(m, "__file__", ""))),
         "drifted": [f for f in findings if f["evidence"] in DRIFTED],
         "undecidable": sum(1 for f in findings if f["evidence"] == UNDECIDABLE),
+        # MODULES and OBJECTS counted apart, because they answer different questions: the
+        # first is "how many modules could I not look at", the second is "inside the modules
+        # I did look at, how much did I have to skip". A build that reported only the first
+        # could go blind one object at a time without the number ever moving.
+        "undecidable_objects": sum(f.get("undecidable_objects", 0) for f in findings),
+        # THE COVERAGE OF THE PASS, not of the findings. ``None`` when the caller supplied
+        # findings — the tally belongs to a pass, and inventing one for a list handed in from
+        # elsewhere would be a number about nothing.
+        "coverage": coverage,
+        "bytecode_header_disagrees": _bytecode_header_disagreements(root),
         "bytecode_writing": not sys.dont_write_bytecode,
         "tree_walked": tree,
         "tree_newest_file": newest_path,
         "tree_newest_mtime": newest_mtime if tree else None,
         "tree_newer_than_process": (newest_mtime > started) if tree else None,
-        "not_the_predicate": ["tree_newer_than_process"],
+        "not_the_predicate": ["tree_newer_than_process", "bytecode_header_disagrees"],
         "why_not_the_predicate": "MEASURED FALSE on the live healthy loop during this "
                                  "ticket's survey: the loop started 15:17:36 and an ordinary "
                                  "edit landed at 15:30, so this comparison calls every "
                                  "working loop stale. It is here because a reader wants it, "
                                  "and it decides nothing.",
+        "why_the_bytecode_header_is_not_the_predicate": "IT WAS the predicate until "
+                                 "2026-08-18, and it is here so a reader can see what the "
+                                 "old comparison would have said. Both of its terms are on "
+                                 "disk, so any second interpreter importing the module "
+                                 "repairs the evidence without repairing this process — "
+                                 "measured, by an ordinary proof run in the same tree, and "
+                                 "the loop benched an innocent device on the strength of it.",
     }

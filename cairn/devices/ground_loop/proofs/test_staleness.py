@@ -44,7 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 from cairn.devices.ground_loop.staleness import (  # noqa: E402
     DRIFTED, UNDECIDABLE, VANISHED, REWRITTEN,
-    diagnostics, is_stale, module_drift,
+    diagnostics, is_stale, module_drift, read_all,
 )
 
 _PKG_SERIAL = [0]
@@ -192,27 +192,142 @@ def test_a_module_whose_file_moved_away_goes_red():
 
 
 def test_a_module_it_cannot_judge_reads_undecidable_not_green():
-    """LAW 9 ON THE PREDICATE ITSELF. The REWRITTEN evidence is read out of the bytecode
-    Python wrote at import; with no such bytecode (``-B``, a read-only tree, a hash-based
-    pyc) the question is unanswerable. Unanswerable must not read as fresh — a predicate
-    that silently degrades to green is how a watch layer goes dark quietly, which is the
-    entire outage this ticket is about."""
+    """LAW 9 ON THE PREDICATE ITSELF. Unanswerable must not read as fresh — a predicate that
+    silently degrades to green is how a watch layer goes dark quietly, which is the entire
+    outage this ticket is about.
+
+    THE FIXTURE MOVED WITH THE MECHANISM (2026-08-18). It used to remove the ``.pyc``, because
+    the predicate read its evidence out of the bytecode header; that comparison is retired,
+    and the case it called unanswerable — a module whose file gained a symbol — is now
+    ANSWERED, which is the improvement. What remains genuinely unanswerable is a held object
+    that cannot be matched to a code object at all, so that is what the fixture builds now.
+    Two shapes, because they fail differently: an object the process holds that has no
+    ``__code__`` (here a C builtin, standing for every decorated-without-``__wrapped__``,
+    extension-backed or dynamically-bound attribute), and a source that no longer parses.
+    """
     w = _world()
     try:
-        path = w.write("held.py", "VALUE = 1\n")
+        w.write("held.py", "def f():\n    return 1\n")
         mod = w.load("held.py")
-        cached = getattr(mod, "__cached__", None)
-        assert cached and os.path.exists(cached), "fixture needs real bytecode to remove"
-
-        w.write("held.py", "VALUE = 1\nARRIVED_LATER = 2\n")
-        w.age_the_source(path)
-        os.remove(cached)                       # the evidence is now unavailable
-
+        mod.f = len                             # a C builtin: no code object to compare
         findings = w.drift()
         blind = [f for f in findings if f["module"] == f"{w.name}.held"]
         assert blind and blind[0]["evidence"] == UNDECIDABLE, findings
+        assert blind[0]["undecidable_objects"] == 1, blind
     finally:
         w.close()
+
+    w = _world()
+    try:
+        w.write("broken.py", "def f():\n    return 1\n")
+        w.load("broken.py")
+        w.write("broken.py", "def f(:\n")       # mid-write, or simply broken
+        findings = w.drift()
+        blind = [f for f in findings if f["module"] == f"{w.name}.broken"]
+        assert blind and blind[0]["evidence"] == UNDECIDABLE, findings
+    finally:
+        w.close()
+
+
+def test_a_second_interpreter_cannot_repair_the_evidence_for_this_one():
+    """THE TOOTH THE FIRST BUILD COULD NOT HAVE PASSED, and it is the reason there was a
+    second build. Written 2026-08-18, ticket staleness-is-about-this-process-not-about-disk.
+
+    The retired predicate compared the source's mtime to the mtime embedded in that module's
+    ``.pyc`` header. BOTH TERMS ARE ON DISK, and a ``.pyc`` is a SHARED artifact — so any
+    second process that imports the module rewrites the header, and the evidence is repaired
+    while this process is not. That is not a bug in the comparison; it is the comparison
+    being unable, in principle, to tell two processes of different ages apart over one tree.
+
+    THE SECOND INTERPRETER IS THE ENTIRE FIXTURE. Without it, the header still names the
+    pre-edit mtime and the old predicate answers correctly — which is exactly how eleven
+    green teeth stood over a live misattribution, and why this one runs a real subprocess
+    rather than simulating one. Verified to fail by name against HEAD's staleness.py before
+    the fix landed; it must fail, not error, or it is reproducing nothing.
+
+    Both faces are asserted here, because the repaired header hides both: the LOUD one (a
+    name the file gained, which raises ImportError at the importer) and the QUIET one (a body
+    that changed with its name unchanged, which reports healthy at every surface).
+    """
+    import subprocess
+
+    for body, expect_in_detail in (
+            ("def f():\n    return 2\nARRIVED_LATER = 3\n", "'ARRIVED_LATER'"),
+            ("def f():\n    return 2\n", "'f'")):
+        w = _world()
+        try:
+            path = w.write("held.py", "def f():\n    return 1\n")
+            mod = w.load("held.py")
+            assert getattr(mod, "__cached__", None) and os.path.exists(mod.__cached__), \
+                "fixture needs real bytecode for a second interpreter to repair"
+
+            w.write("held.py", body)
+            w.age_the_source(path)
+
+            # The second interpreter. It re-imports the module in a process of its own,
+            # which rewrites the shared .pyc header to the CURRENT source mtime.
+            before = os.stat(mod.__cached__).st_mtime
+            subprocess.run([sys.executable, "-c", f"import {w.name}.held"],
+                           cwd=str(w.root), check=True,
+                           env={"PYTHONPATH": str(w.root), "PATH": "/usr/bin:/bin"})
+            assert os.stat(mod.__cached__).st_mtime != before, \
+                "the second interpreter did not rewrite the bytecode — fixture never took"
+
+            # The retired comparison now reads CLEAN. Asserted, not assumed: if it did not,
+            # this tooth would be green for a reason unrelated to the property. Read INLINE
+            # from the header rather than through the module's helper, so this tooth runs
+            # unchanged against the build that predates the helper — which is the only way
+            # "it reds against HEAD" is a claim anyone can re-check later.
+            import struct
+            with open(mod.__cached__, "rb") as fh:
+                head = fh.read(16)
+            embedded = struct.unpack("<I", head[8:12])[0]
+            assert embedded == (int(os.stat(path).st_mtime) & 0xFFFFFFFF), \
+                "the fixture failed to repair the header, so it reproduces nothing"
+
+            findings = [f for f in w.drift() if f["module"] == f"{w.name}.held"]
+            assert findings and findings[0]["evidence"] == REWRITTEN, findings
+            assert expect_in_detail in findings[0]["detail"], findings[0]["detail"]
+        finally:
+            w.close()
+
+
+def test_the_predicate_names_no_symbol_and_reads_no_clock():
+    """THE CHARTER'S BAN, READ AS A CHECK RATHER THAN AS CARE. ground_loop's falsifier reds
+    'the predicate special-casing the two faces seen in 2026-08 by symbol name or error
+    text', and clause (5) forbids the heartbeat holding runtime state of its own.
+
+    A SPECIAL CASE IS A COMPARISON OR AN ATTRIBUTE REACH — never a sentence. The first draft
+    of this tooth grepped the source text and bit on the word ``ImportError`` inside a
+    ``detail`` string, which is the module EXPLAINING which face a difference corresponds to.
+    Explaining a face is the opposite of enumerating one, so the scan reads the deciding
+    functions' syntax instead: every identifier they touch, and every string constant that
+    takes part in a comparison. The prose is left alone deliberately, and that IS the bound —
+    this shows the banned spellings decide nothing, and cannot show that no other
+    face-specific shortcut hides under a name nobody thought to list.
+    """
+    import ast as _ast
+    import inspect
+    import textwrap
+    from cairn.devices.ground_loop import staleness as st
+
+    touched: set[str] = set()
+    for fn in (st.module_drift, st.held_vs_disk, st._same_code, st._index_code,
+               st._held_code, st._unconditional_definitions):
+        tree = _ast.parse(textwrap.dedent(inspect.getsource(fn)))
+        for node in _ast.walk(tree):
+            if isinstance(node, _ast.Name):
+                touched.add(node.id)
+            elif isinstance(node, _ast.Attribute):
+                touched.add(node.attr)
+            elif isinstance(node, _ast.Compare):
+                for part in [node.left, *node.comparators]:
+                    if isinstance(part, _ast.Constant) and isinstance(part.value, str):
+                        touched.add(part.value)
+
+    for banned in ("Probe", "common_shape_record", "ImportError", "cannot import name",
+                   "st_mtime", "__cached__", "time", "utime", "_bytecode_source_mtime"):
+        assert banned not in touched, (banned, sorted(touched))
 
 
 def test_a_module_that_never_came_from_a_file_is_not_drift():
@@ -255,9 +370,44 @@ def test_the_diagnostic_payload_carries_the_falsified_comparison_labelled():
     the test would pass every tooth above only until an ordinary edit landed."""
     d = diagnostics()
     assert "tree_newer_than_process" in d, sorted(d)
-    assert d["not_the_predicate"] == ["tree_newer_than_process"], d.get("not_the_predicate")
+    # CLOSED ON PURPOSE, and it grew by one on 2026-08-18: the bytecode-header comparison was
+    # the predicate until it was measured wrong, and it now rides beside the other retired
+    # one. Equality rather than containment, so a THIRD thing cannot join the payload without
+    # a hand deciding it belongs there.
+    assert d["not_the_predicate"] == ["tree_newer_than_process",
+                                      "bytecode_header_disagrees"], d.get("not_the_predicate")
+    for key in d["not_the_predicate"]:
+        assert key in d, (key, sorted(d))
     assert isinstance(d["process_started"], float)
     assert d["pid"] == os.getpid()
+
+
+def test_the_coverage_tally_separates_nothing_drifted_from_i_could_not_look():
+    """LAW 9 ON THE READER'S SIDE, and it was found by aiming the finished build at the real
+    world rather than by reasoning: over 77 held modules the payload reported
+    ``undecidable_objects: 0`` while 181 objects were in fact unreachable. Both numbers were
+    honest and the pair was misleading, because the count was summed over FINDINGS and a
+    clean process has none — so "compared everything, all fresh" and "compared nothing"
+    printed identically.
+
+    The tally belongs to the PASS. It is ``None`` when the caller supplies findings, because
+    a coverage number invented for a list handed in from elsewhere is a number about nothing.
+    """
+    findings, tally = read_all()
+    assert tally["modules_read"] > 0, tally
+    assert tally["comparable_objects"] > tally["modules_read"], tally
+    assert tally["undecidable_objects"] >= 0, tally
+    assert diagnostics(findings=findings, tree=False)["coverage"] is None
+
+    w = _world()
+    try:
+        w.write("held.py", "def f():\n    return 1\n")
+        mod = w.load("held.py")
+        mod.f = len                                  # unreachable: no code object
+        _, t = read_all(root=w.root)
+        assert t["comparable_objects"] == 0 and t["undecidable_objects"] == 1, t
+    finally:
+        w.close()
 
 
 def test_the_payload_says_when_the_predicate_is_blind():

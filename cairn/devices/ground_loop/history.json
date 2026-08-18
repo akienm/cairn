@@ -1774,5 +1774,141 @@
     "note": "presence IS the subscription now: groundloop/pulse.py at a component address (class or instance level) is found each beat, imported once under a synthetic name, fired through its shim on_pulse, and unloaded from sys.modules the beat it vanishes — nobody registers, nobody restarts. This exists because a loop that could only learn its work at process start measured itself older than its own code nine times overnight (2026-08-14); the fix is that the loop holds NOTHING that can go stale — the disk is the roster. Proved by 11 teeth green twice under netns, and live: the resident singleton (pid 3933751, one deployment restart to load this code) served a dropped pulse in 2.12s and unloaded a removed one in ~3s, one beat each at the measured 3.65s cadence, same pid throughout. The roster rides state() into liveness.json; the armed probe reads that record and clears at ten within-a-beat services under one pid.",
     "at": "2026-08-15T10:35:18",
     "seq": 27
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_bench_names_the_right_culprit) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'staleness-is-about-this-process-not-about-disk', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "staleness-is-about-this-process-not-about-disk",
+          "component": "ground_loop",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
+        "actual": "named ticket 'staleness-is-about-this-process-not-about-disk' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "staleness-is-about-this-process-not-about-disk",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/staleness-is-about-this-process-not-about-disk.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "staleness-is-about-this-process-not-about-disk"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "staleness-is-about-this-process-not-about-disk"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "staleness-is-about-this-process-not-about-disk"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "staleness-is-about-this-process-not-about-disk",
+    "by": "CC",
+    "note": "The staleness predicate is asked whether THIS PROCESS is older than the code it is judging, and it answers from two numbers that are both on disk: the source's mtime and the mtime embedded in that module's .pyc header. Neither term contains the asker. So any second interpreter that imports the module rewrites the header and repairs the EVIDENCE without repairing the loop — measured tonight, and the second process was my own proof run. The loop then benched the survey device for an ImportError that a fresh interpreter does not reproduce (trouble ground-loop-device-survey, 03:44Z), while loop.py's unblame branch — already built, already correct — sat unreached because the predicate returned empty.\n\nSECOND FIX OF THIS CONDITION. The first shipped staleness.py, was cleared 00:51Z by a restart, and was defeated 2h53m later by ordinary work in the same tree. That is why the horizon is 30 days and why the candidate carries no clock and no bytecode: compare what the process HOLDS against a fresh compile of the disk source, which is evidence one of whose terms is the asker.",
+    "at": "2026-08-17T22:12:52",
+    "seq": 28
   }
 ]

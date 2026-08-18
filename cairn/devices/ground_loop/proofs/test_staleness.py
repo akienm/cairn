@@ -399,6 +399,19 @@ def test_the_coverage_tally_separates_nothing_drifted_from_i_could_not_look():
     assert tally["undecidable_objects"] >= 0, tally
     assert diagnostics(findings=findings, tree=False)["coverage"] is None
 
+    # AND THE TWO COUNTS MAY NOT SHARE A NAME. The payload carries an unreachable-object
+    # count summed over the FINDINGS and another summed over the PASS; spelling both
+    # "undecidable_objects" would re-lay the exact trap this tooth exists for, one line
+    # apart, in the surface a reader consults precisely when something is wrong.
+    d = diagnostics()
+    assert "undecidable_objects" not in d, sorted(d)
+    # An INVARIANT, not a snapshot: the findings-derived count sums over every finding, and
+    # ``drifted`` is a subset of those, so it can only be greater or equal — on this healthy
+    # process both are 0, which is exactly the reading that must not be mistaken for coverage.
+    assert d["undecidable_objects_in_findings"] >= sum(
+        f.get("undecidable_objects", 0) for f in d["drifted"]), d
+    assert d["coverage"]["undecidable_objects"] >= d["undecidable_objects_in_findings"], d
+
     w = _world()
     try:
         w.write("held.py", "def f():\n    return 1\n")

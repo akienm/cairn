@@ -438,7 +438,15 @@ def diagnostics(root: Path | None = None, findings: list[dict] | None = None,
         # first is "how many modules could I not look at", the second is "inside the modules
         # I did look at, how much did I have to skip". A build that reported only the first
         # could go blind one object at a time without the number ever moving.
-        "undecidable_objects": sum(f.get("undecidable_objects", 0) for f in findings),
+        #
+        # AND THE NAME SAYS *IN FINDINGS*, because this sums over the FINDINGS and a clean
+        # pass has none — it read 0 over a process where 181 objects were in fact
+        # unreachable. That is the reading that sent this build back for the coverage tally
+        # below, and leaving both keys spelled the same would have re-laid the same trap one
+        # line apart: same word, two populations (Law 7 — a diagnostic surface may not be
+        # ambiguous about what it counted).
+        "undecidable_objects_in_findings": sum(f.get("undecidable_objects", 0)
+                                               for f in findings),
         # THE COVERAGE OF THE PASS, not of the findings. ``None`` when the caller supplied
         # findings — the tally belongs to a pass, and inventing one for a list handed in from
         # elsewhere would be a number about nothing.

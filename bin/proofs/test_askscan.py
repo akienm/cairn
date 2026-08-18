@@ -97,13 +97,42 @@ def _world(tmp: str, *, age_seconds: float = 60.0):
     return str(Path(tmp)), askscan.prebuild_runs(str(Path(tmp)))
 
 
-def _hook(payload: dict) -> subprocess.CompletedProcess:
+def _hook(payload: dict, home: str | None = None) -> subprocess.CompletedProcess:
+    """Fire the scan AS THE HOOK FIRES IT — a real subprocess, real stdin.
+
+    WITH ITS OWN HOME, AND THAT IS THE FIX FOR A MEASURED DEFECT. Until 2026-08-18
+    this ran with the caller's HOME, so every one of these four cases pointed the
+    live scan at the live instance and appended a fixture row to the PRODUCTION
+    ledger. 15 of the first 19 rows were written by this function — a question that
+    appears in no transcript as anything anyone ever said, and which inflated the
+    ledger's denominator by 4.75x while looking exactly like evidence. Instance
+    space is rooted at HOME (``BERTHS = expanduser("~/.cairn/devices/chart")``), so
+    handing the subprocess a fixture HOME moves its whole world without touching the
+    code under proof. The tooth that catches a regression is case 7.
+    """
+    env = dict(os.environ)
+    env["HOME"] = home or str(Path(tempfile.gettempdir()) / "askscan-proof-nohome")
+    Path(env["HOME"]).mkdir(parents=True, exist_ok=True)
     return subprocess.run([sys.executable, str(ASKSCAN)], input=json.dumps(payload),
-                          capture_output=True, text=True, timeout=60)
+                          capture_output=True, text=True, timeout=60, env=env)
+
+
+def _live_ledgers() -> dict:
+    """Every production ledger's bytes, keyed by path — the before/after witness."""
+    root = Path(os.path.expanduser("~/.cairn/devices/chart"))
+    return {str(p): p.read_bytes() for p in root.glob("*/prebuild-gaps.jsonl")}
 
 
 def main() -> int:
     print("askscan — the prebuild-feedback signal\n")
+
+    # ── 0. THIS PROOF DOES NOT WRITE TO THE THING IT PROVES ──────────────────
+    # Taken FIRST and compared LAST, so it spans every case below including the
+    # four that fire the real hook as a subprocess. It is the tooth this proof
+    # lacked for four days while it quietly wrote 15 rows into the production
+    # ledger — an instrument contaminated by its own test, which is worse than a
+    # broken one because every row looked exactly like evidence.
+    ledgers_before = _live_ledgers()
 
     # ── 1. RULED: it does not stop the work ──────────────────────────────────
     src = ASKSCAN.read_text(encoding="utf-8")
@@ -209,6 +238,61 @@ def main() -> int:
                   askscan.gap(f"Some report text.\n\n{frag}", time.time(),
                               runs=runs) is None)
 
+    # ── 8b. an append-only ledger corrects itself by APPENDING ───────────────
+    with tempfile.TemporaryDirectory() as tmp:
+        root, runs = _world(tmp, age_seconds=60)
+        g = askscan.gap(CLARIFYING, time.time(), runs=runs)
+        askscan.record(g)
+        ledger = Path(root) / "0" / askscan.LEDGER
+        raw_before = ledger.read_bytes()
+
+        out = askscan.retract({"question": g["question"],
+                               "reason": "fixture row, written by the proof itself",
+                               "authority": "CC"}, berths=root)
+        check("a retraction names how many rows it actually retracted",
+              out["retracted"] == 1 and str(ledger) in out["ledgers"], f"got {out}")
+        check("and it APPENDS — the retracted row is still on disk, byte for byte",
+              ledger.read_bytes().startswith(raw_before),
+              "a ledger that can be edited is not a record; the correction is a row")
+
+        standing, retracted, corrections = askscan.apply_corrections(
+            [json.loads(l) for l in ledger.read_text().splitlines() if l.strip()])
+        check("the reader applies it: 0 standing, 1 retracted, 1 correction",
+              (len(standing), len(retracted), len(corrections)) == (0, 1, 1),
+              f"got {len(standing)}/{len(retracted)}/{len(corrections)}")
+        check("a correction row is never itself counted as a gap",
+              all("retracts" not in r for r in standing + retracted))
+
+        # A RETRACTION THAT RETRACTS NOTHING IS A FALSE CLAIM ABOUT THE RECORD.
+        # It would sit in the ledger forever looking like a correction that had
+        # been applied — the exact shape of evidence quietly disappearing.
+        try:
+            askscan.retract({"question": "a question nobody ever asked here",
+                             "reason": "r", "authority": "CC"}, berths=root)
+            check("the door refuses a retraction matching no standing row", False,
+                  "it accepted one")
+        except ValueError as exc:
+            check("the door refuses a retraction matching no standing row",
+                  "retracts nothing" in str(exc), str(exc)[:120])
+        for missing in ("question", "reason", "authority"):
+            packet = {"question": g["question"], "reason": "r", "authority": "CC"}
+            packet[missing] = "  "
+            try:
+                askscan.retract(packet, berths=root)
+                check(f"a correction without a {missing} is refused", False, "accepted")
+            except ValueError as exc:
+                check(f"a correction without a {missing} is refused",
+                      missing in str(exc), str(exc)[:120])
+
+        # And it does not reach forward: a gap written AFTER the correction stands.
+        later = dict(g, at="2099-01-01T00:00:00+00:00")
+        askscan.record(later)
+        standing, _, _ = askscan.apply_corrections(
+            [json.loads(l) for l in ledger.read_text().splitlines() if l.strip()])
+        check("a correction never reaches forward over rows not yet written",
+              len(standing) == 1 and standing[0]["at"].startswith("2099"),
+              f"standing={[s.get('at') for s in standing]}")
+
     # ── 9. the corpus falsifier — invariants, never today's count ────────────
     rc = subprocess.run([sys.executable, str(ASKSCAN), "--corpus"],
                         capture_output=True, text=True, timeout=300)
@@ -239,6 +323,17 @@ def main() -> int:
     check("and it is not vacuously silent — the rule fired on real history",
           bool(reds), "zero reds over the whole prebuild era would mean the scan "
                       "cannot see the thing Akien measured by hand")
+
+    # ── 0 (concluded). the witness taken before case 1 ───────────────────────
+    after = _live_ledgers()
+    grew = {p: len(after.get(p, b"")) - len(b) for p, b in ledgers_before.items()
+            if after.get(p, b"") != b}
+    grew.update({p: len(b) for p, b in after.items() if p not in ledgers_before})
+    check("the proof wrote NOTHING to the production ledger it proves",
+          not grew,
+          f"{grew} — the four hook cases fire the real scan; without an isolated "
+          f"HOME they append fixture rows to the live instance, and 15 of the "
+          f"first 19 production rows got there exactly this way")
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

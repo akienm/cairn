@@ -194,6 +194,15 @@ def asked(message: str) -> dict | None:
 # ── the second condition: had the prebuild chain run? ─────────────────────────
 # Instance-space, and read-only from here. The scan never writes into a packet
 # folder's packets/ — it appends beside them, at the instance that owns the run.
+#
+# RESOLVED THROUGH HOME, AND THAT IS LOAD-BEARING, NOT COSMETIC. A test that wants
+# to fire this scan FOR REAL — which tooth 1 must, because "it never blocks" is a
+# claim about the process, not about a function — otherwise fires it at the live
+# instance and appends a fixture row to the production ledger. That is exactly what
+# happened: 15 of the first 19 rows were written by ``bin/proofs/test_askscan.py``,
+# a question that appears in no transcript as anything anyone ever said. Instance
+# space is rooted at HOME, so a subprocess given a different HOME gets a different
+# instance, and the isolation costs one env var instead of an injection seam.
 BERTHS = os.path.expanduser("~/.cairn/devices/chart")
 LEDGER = "prebuild-gaps.jsonl"
 STAGES = ("orient", "constrain", "survey", "decompose", "triage",
@@ -281,6 +290,90 @@ def record(g: dict) -> str | None:
         return None
 
 
+# ── retraction: how an APPEND-ONLY ledger corrects itself ─────────────────────
+# A ledger that can be edited is not a record, so the 15 contaminated rows are not
+# deleted and never will be. A correction is another ROW — one that names what it
+# retracts and why — and the reader applies it. This is the same shape as the
+# sequencing subtraction one stratum up: the subtraction is visible, so it can be
+# argued with. A retraction nobody can see is indistinguishable from a hand quietly
+# tidying the evidence.
+#
+# THE DOOR REFUSES A RETRACTION THAT RETRACTS NOTHING. "These rows are junk" is a
+# claim about what is on disk, and a claim that matches zero rows is false — it
+# would sit in the ledger forever looking like a correction that had been applied.
+
+def _ledger_paths(berths: str = BERTHS) -> list[str]:
+    return sorted(glob.glob(os.path.join(berths, "*", LEDGER)))
+
+
+def _rows(path: str) -> list[dict]:
+    out = []
+    try:
+        for line in open(path, encoding="utf-8"):
+            if line.strip():
+                try:
+                    out.append(json.loads(line))
+                except Exception:
+                    continue      # an unreadable line is not a gap and not a crash
+    except OSError:
+        pass
+    return out
+
+
+def apply_corrections(rows: list[dict]) -> tuple[list[dict], list[dict], list[dict]]:
+    """Split a ledger's rows into (standing gaps, retracted gaps, corrections).
+
+    A gap is retracted when some correction in the SAME ledger names its question
+    verbatim and was written after it. Verbatim, because a substring rule would let
+    one correction silently swallow rows nobody inspected.
+    """
+    corrections = [r for r in rows if "retracts" in r]
+    gaps = [r for r in rows if "retracts" not in r]
+    standing, retracted = [], []
+    for g in gaps:
+        hit = next((c for c in corrections
+                    if c["retracts"].get("question") == g.get("question")
+                    and g.get("at", "") <= c["retracts"].get("before", "")), None)
+        (retracted if hit else standing).append(g)
+    return standing, retracted, corrections
+
+
+def retract(packet: dict, berths: str = BERTHS) -> dict:
+    """Append a correction row to every ledger holding a matching gap.
+
+    ``packet`` carries ``question`` (verbatim), ``reason``, ``authority``, and
+    optionally ``before`` (default: now — a correction never reaches forward over
+    rows that have not been written yet, which is what makes it safe to leave
+    standing).
+    """
+    for field in ("question", "reason", "authority"):
+        if not str(packet.get(field, "")).strip():
+            raise ValueError(
+                f"retract: '{field}' is required and must say something — a correction "
+                f"without a reason is a row that deletes evidence and explains nothing")
+    before = packet.get("before") or dt.datetime.now(dt.timezone.utc).isoformat()
+    row = {"retracts": {"question": packet["question"], "before": before},
+           "reason": packet["reason"], "authority": packet["authority"],
+           "at": dt.datetime.now(dt.timezone.utc).isoformat()}
+    written, matched = [], 0
+    for path in _ledger_paths(berths):
+        standing, _, _ = apply_corrections(_rows(path))
+        n = sum(1 for g in standing
+                if g.get("question") == packet["question"] and g.get("at", "") <= before)
+        if not n:
+            continue
+        matched += n
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        written.append(path)
+    if not matched:
+        raise ValueError(
+            "retract: that question matches no STANDING gap on any ledger — a "
+            "retraction that retracts nothing is a false claim about the record, and "
+            "it would sit there forever looking like a correction that had been applied")
+    return {"retracted": matched, "ledgers": written, "row": row}
+
+
 # ── corpus mode: the falsifier, kept re-runnable ──────────────────────────────
 
 DEFAULT_CORPUS = os.path.expanduser("~/.claude/projects/-home-akien-dev-src-cairn/*.jsonl")
@@ -345,22 +438,38 @@ def corpus(pattern: str) -> int:
     return 0
 
 
-def report(berths: str = BERTHS) -> int:
-    """Every gap captured so far, oldest first. Attendance, not only objections:
-    the packet count says how many chances there were to leak one."""
+def report(berths: str = BERTHS, show_retracted: bool = False) -> int:
+    """Every STANDING gap, oldest first, with the retracted ones counted apart.
+
+    Attendance, not only objections: the packet count says how many chances there
+    were to leak one. And the retracted count is printed even when it is zero,
+    because a corrected ledger that reads exactly like an uncorrected one is a
+    ledger whose corrections nobody can audit.
+    """
     runs = prebuild_runs(berths)
-    rows = []
-    for path in sorted(glob.glob(os.path.join(berths, "*", LEDGER))):
-        for line in open(path, encoding="utf-8"):
-            try:
-                rows.append(json.loads(line))
-            except Exception:
-                continue
-    print(f"prebuild-feedback ledger — {len(rows)} gap(s) captured over "
-          f"{len(runs)} prebuild packet(s)")
-    for r in rows:
+    standing, retracted, corrections = [], [], []
+    for path in _ledger_paths(berths):
+        s, r, c = apply_corrections(_rows(path))
+        standing += s
+        retracted += r
+        corrections += c
+    standing.sort(key=lambda r: r.get("at", ""))
+    print(f"prebuild-feedback ledger — {len(standing)} standing gap(s) over "
+          f"{len(runs)} prebuild packet(s); {len(retracted)} retracted by "
+          f"{len(corrections)} correction(s)")
+    for r in standing:
+        src = r.get("source")
+        tag = f"  [{src}]" if src else ""
         print(f"  {r.get('at','')[:19]}  +{r.get('gap_seconds')}s after "
-              f"{r.get('after_stage')}\n    {r.get('question','')[:170]}")
+              f"{r.get('after_stage')}{tag}\n    {r.get('question','')[:170]}")
+    for c in sorted(corrections, key=lambda r: r.get("at", "")):
+        print(f"\n  correction {c.get('at','')[:19]} by {c.get('authority')}\n"
+              f"    retracts: {c['retracts'].get('question','')[:110]}\n"
+              f"    because:  {c.get('reason','')[:300]}")
+    if show_retracted:
+        for r in sorted(retracted, key=lambda r: r.get("at", "")):
+            print(f"  RETRACTED {r.get('at','')[:19]}  +{r.get('gap_seconds')}s after "
+                  f"{r.get('after_stage')}")
     return 0
 
 
@@ -369,7 +478,19 @@ def main(argv: list[str]) -> int:
         i = argv.index("--corpus")
         return corpus(argv[i + 1] if len(argv) > i + 1 else DEFAULT_CORPUS)
     if "--report" in argv:
-        return report()
+        return report(show_retracted="--retracted" in argv)
+    if "--retract" in argv:
+        i = argv.index("--retract")
+        if len(argv) <= i + 1:
+            print("askscan --retract <packet.json>", file=sys.stderr)
+            return 2
+        try:
+            out = retract(json.load(open(argv[i + 1], encoding="utf-8")))
+        except ValueError as exc:
+            print(f"askscan: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
 
     raw = sys.stdin.read()
     try:
@@ -384,6 +505,10 @@ def main(argv: list[str]) -> int:
     import time
     g = gap(payload.get("last_assistant_message") or "", time.time())
     if g:
+        # STAMPED WHERE IT IS TRUE, not where it is convenient. Only this path is a
+        # real turn ending; a row without a source predates the stamp and cannot be
+        # attributed, which is precisely the state the first 19 rows were in.
+        g["source"] = "hook"
         where = record(g)
         if where:
             g["recorded_at"] = where

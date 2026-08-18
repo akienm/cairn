@@ -103,6 +103,34 @@ def test_missing_rules_or_overlay_refuse_loudly_naming_the_path():
     assert "hosts.json" in str(e), f"the refusal must name the overlay path: {e}"
 
 
+def test_the_overlay_berths_at_the_resolved_instance_address_never_a_hand_path():
+    """The machine facts sit at devices/inference_domain/0/, and the module ASKS for that
+    address rather than spelling it (ticket the-instance-address-is-resolved-never-spelled;
+    Akien 2026-08-12: "devices/inference_domain/0/ is exactly right. ruled with a smile").
+
+    Asserted three ways, because the first one alone would only prove the module agrees with
+    itself: it equals what the resolver answers (so a hand-spelled regression reds here as well
+    as at the build inspection), it carries the device/instance segments (independent of how the
+    resolver is implemented), and it is NOT under the retired ~/.cairn/inference/ (the address
+    this file moved OFF, and two live spellings of one address is the defect being ended).
+
+    NO I/O. This proof declares in its docstring that it never opens the real overlay, and that
+    holds here — a path is a value, and asserting where the module points needs no file. Whether
+    the migration's bytes landed is the validation's separate act, not a sealed proof's.
+    """
+    from cairn.tools.base.address import instance_path
+
+    assert route.OVERLAY_PATH == instance_path("inference_domain", 0) / "hosts.json", \
+        f"the overlay must be the resolver's answer, not a second spelling: {route.OVERLAY_PATH}"
+    parts = route.OVERLAY_PATH.parts
+    assert parts[-4:] == ("devices", "inference_domain", "0", "hosts.json"), \
+        f"the overlay must berth under the device's own instance: {route.OVERLAY_PATH}"
+    assert str(route.OVERLAY_PATH).startswith(str(Path.home() / ".cairn")), \
+        f"machine facts are instance-space: {route.OVERLAY_PATH}"
+    assert not str(route.OVERLAY_PATH).startswith(str(Path.home() / ".cairn" / "inference")), \
+        f"the retired address must not come back: {route.OVERLAY_PATH}"
+
+
 # ---------------------------------------------------------------- the shake
 
 def test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first():
@@ -365,6 +393,7 @@ def _main() -> int:
         test_a_preference_reorders_survivors_without_changing_the_set,
         test_an_empty_preference_leaves_the_order_untouched,
         test_missing_rules_or_overlay_refuse_loudly_naming_the_path,
+        test_the_overlay_berths_at_the_resolved_instance_address_never_a_hand_path,
         test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first,
         test_loopback_and_unkeyed_rungs_are_cut_and_the_trace_says_by_what,
         test_loopback_never_survives_even_as_the_last_rung_standing,

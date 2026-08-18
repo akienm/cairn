@@ -8,32 +8,46 @@ CairnCommons and this probe deliberately does not follow it there.
 THE EFFICACY QUESTION, and why it is this one. The ticket's own WRONG says it plainly: "the
 resolver becomes an ELEVENTH place a path is built rather than the only one — the sites keep
 their hand-spelled copies and the two shapes drift." A resolver is a CONVENIENCE until
-something notices the eleventh spelling. Nothing in the system refuses one: no schema, no
-gate, no import rule. So the honest state after this build is a tracked debt with a watch on
-it, and this is the watch.
+something notices the eleventh spelling.
 
-**AN EMPTY SCAN IS A RED, NOT A GREEN.** The count travels with the number of files actually
-read. A scan that walked zero files reports zero hand-spellings, which is the vacuous green
-this probe's ``enough`` was written against — the same defect as a leak scan that passes
-because it searched the wrong tree.
+**THIS PROBE NO LONGER OWNS THE RULE, AND THAT IS THE 2026-08-17 CHANGE.** Until then it
+carried its own pair of regexes and its own exclusion list, and ``cairn/tools/base``'s charter
+said in as many words that nothing REFUSES a further hand-spelled path. Two spellings of one
+rule is precisely the defect this ticket is about, so the probe stopped owning a copy: the rule
+lives once, at ``cairn/tools/base/address_rule.py``, as an AST predicate over an EXPRESSION,
+and this module COMPOSES it. What was measured when the two were compared is worth keeping —
+the text scan found 9 hits over 271 files where the AST rule finds 7 over the same tree, and
+the two extra were MENTIONS in prose, one of them a sentence in this very file describing what
+it looked for. A watcher inside its own corpus measured itself, and the old fix was to exclude
+this file BY NAME. Under the rule that exclusion is not needed and is gone: a mention lives in
+an ``ast.Constant``, a spelling is an ``ast.BinOp``, and the rule cannot confuse them.
 
-THE FLOOR IS 2, AND THE TICKET SAID 1. Written down here because the discrepancy is the most
-useful thing this probe knows on its first pulse. The ticket's falsifier (b), authored at
-cast, predicted the scan would return "only the resolver module itself, plus the dispositioned
-inference_domain site". Measured at build (2026-08-12), it returns a third:
+**THE FLOOR IS EMPTY, AND THAT IS ALSO NEW.** It held two named sites, and both of the reasons
+it gave for them have since gone stale — which is exactly the thing this rewrite exists to
+record, because nothing announced either one:
 
-  - ``cairn/devices/inference_domain/route.py:44`` — DISPOSITIONED, and not a stray. A PROVED ticket
-    (``the-inference-proxy-is-a-rules-stack``, closed 2026-08-08) says in its own intention
-    "machine facts in ~/.cairn/inference/", four days before the four-rung ruling existed.
-    That is a disagreement between two rulings and its resolution is Akien's, not a probe's.
-  - ``cairn/machines/build_inspector/inspector.py:216`` — NOT dispositioned, and the finding this
-    build surfaced. It was in the cast's census of ten and was dropped from the conversion
-    piece at decompose, silently, because a piece's file list is prose and nothing checks it
-    against the survey. Two things keep it unconverted rather than one: it addresses a DEVICE
-    ACROSS INSTANCES (``devices/chart``, no instance segment), for which none of the three
-    rungs this build defines is the right shape; and its import allowlist is ALREADY RED with
-    an undecided entry (the live trouble about ``cairn.tools.base.nest``), so admitting a second
-    module there would bury one undecided admission under another.
+  - ``cairn/devices/inference_domain/route.py`` was called a standing disagreement between two
+    rulings ("machine facts in ~/.cairn/inference/", from a ticket PROVED four days before the
+    four-rung ruling existed). It was converted on 2026-08-17: ``hosts.json`` moved to
+    ``devices/inference_domain/0/``, byte-identical, and the prose that followed the address —
+    the charter, the README, the rules stack, a proof's comment — moved with it.
+  - ``cairn/machines/build_inspector/inspector.py`` was called a rung the ladder does not have
+    (a device ACROSS instances) whose import allowlist was already red. It is converted too,
+    through ``address.resolve("instance/devices")``, which is the rooted-token face of the same
+    table — the ladder did have the rung, one level up from the one that was tried. The line
+    number this docstring used to name (``:216``) had ALSO drifted to ``:224`` while nobody
+    looked, which is why the floor is named by FILE and why a floor at all is a liability.
+
+So the floor is ``()`` and ``_enough`` clears by measuring a clean world rather than by
+matching a list. A named floor cannot tell "still true" from "the reason rotted"; an empty one
+has nothing to rot.
+
+**A VACUOUS SCAN IS A RED, AND THE RULE NOW RAISES IT.** The count travels with the number of
+files actually read, and ``address_rule.scan`` raises ``HollowScan`` rather than returning a
+zero — the vacuity check became physics at the producer instead of a condition every reader had
+to remember. This module catches it and turns it into a firing: a probe that raised on a pulse
+would take the shim's beat with it, and the honest surface for "the instrument stopped working"
+is a loud carry, not a traceback in somebody else's loop.
 
 AUTHORITY: none, by construction. This probe deposits and pokes. An eleventh hand-spelled
 path is a spec-level fact about whether Akien's reason (II) is holding — "it leaves open the
@@ -43,88 +57,77 @@ that re-opens this node is the owner's act at the register (Law 6).
 
 from __future__ import annotations
 
-import re
-from pathlib import Path
-
+from cairn.tools.base import address_rule
 from cairn.tools.base.probe import Probe, owning_ticket
-
-_CLASS_SPACE = Path(__file__).resolve().parents[3]      # .../cairn/  (the package)
+from cairn.tools.import_sieve import HollowScan
 
 _OWNING_TICKET = "one-owner-for-the-instance-address"
 
-# EXCLUDED, and each for its own reason:
-#   address.py — the resolver is the ONE place the address is allowed to be spelled, so
-#     counting it would make the floor permanently non-zero for the wrong reason.
-#   this file — a probe that must SAY what it looks for spells the pattern in its own prose,
-#     and its first live fire proved it: the run reported 3 sites, and the third was line 146
-#     of this module, the sentence describing measure (b). That is the sibling probe's lesson
-#     arriving in a new costume (``does_optional_mean_never_carried`` counted its own owning
-#     ticket and read "the author participates" as evidence that authors participate): a
-#     watcher inside its own corpus measures itself. Caught at n=1, by firing it.
-_EXCLUDED = ("address.py", Path(__file__).name)
-
-# THE FLOOR, MEASURED AT BUILD rather than predicted: the two sites above. Named, not
-# tolerated — a bare number would let a THIRD site appear and the count still read "expected"
-# if one of these two were ever converted. The watch is on the NAMES.
-_FLOOR_SITES = (
-    "cairn/devices/inference_domain/route.py",
-    "cairn/machines/build_inspector/inspector.py",
-)
-
-# The same two spellings that produced the cast's census of ten. Its blind spot rides with it
-# and is declared rather than fixed: a path built by string concatenation from a variable, or
-# by a dynamic join, is invisible to both. A stronger scan is a real improvement and is not
-# this ticket's.
-_HOME_DOT_CAIRN = re.compile(r"Path\.home\(\)\s*/\s*[\"']\.cairn[\"']")
-_EXPANDUSER = re.compile(r"expanduser\(\s*[\"']~/\.cairn")
+# THE FLOOR IS EMPTY — see the docstring. Kept as a named constant rather than deleted, because
+# a floor is still the right shape for this watch: if Akien ever rules a site legitimate, it is
+# named HERE, with its reason, instead of being carved out of the rule the whole corpus reads.
+_FLOOR_SITES: tuple[str, ...] = ()
 
 
 def survey_class_space() -> dict:
-    """Count hand-spelled instance-space paths in class-space source, WITH the number of files
-    read. Reads files only — no device, no bus, no network, so the probe stays cheap enough to
-    sit on a pulse and needs no clock of its own.
+    """Shake the one rule over class-space. The rule's own vocabulary, plus ``hollow``.
 
-    Proofs are excluded: a proof that asserts the refusal of a bare absolute path has to spell
-    one, and counting it would make the corpus permanently dirty by its own teeth.
+    COMPOSED, NEVER RE-DERIVED: ``address_rule.scan`` is the single spelling of what counts as
+    a hand-spelled address, and this function adds only the two things a PROBE needs that a
+    rule should not carry — a non-raising surface for the pulse, and the floor comparison.
+
+    Reads files only — no device, no bus, no network, so the probe stays cheap enough to sit on
+    a pulse and needs no clock of its own.
     """
-    sites, scanned = [], 0
-    for p in sorted(_CLASS_SPACE.rglob("*.py")):
-        if "/proofs/" in str(p) or p.name in _EXCLUDED:
-            continue
-        try:
-            src = p.read_text(encoding="utf-8")
-        except OSError:
-            continue                     # unreadable is not "clean" — it is also not a site
-        scanned += 1
-        for pattern in (_HOME_DOT_CAIRN, _EXPANDUSER):
-            for m in pattern.finditer(src):
-                line = src.count("\n", 0, m.start()) + 1
-                rel = str(p.relative_to(_CLASS_SPACE.parent))
-                sites.append(f"{rel}:{line}")
-    return {"count": len(sites), "sites": sorted(set(sites)), "files_scanned": scanned}
+    try:
+        found = address_rule.scan()
+    except HollowScan as e:
+        # The producer's red, carried rather than re-raised. See the docstring: a probe that
+        # raises on a pulse breaks the beat of everything else hanging off it.
+        return {"count": 0, "sites": [], "files_read": 0, "exempted": [],
+                "unreadable": [], "hollow": str(e)}
+    found["hollow"] = None
+    return found
+
+
+def _site_files(s: dict) -> list:
+    """The file halves of the found sites — the floor is named by FILE, since a line number
+    moves whenever anything above it is edited and would make the watch fire on nothing.
+
+    The site strings are the rule's (``{"site": "<path>:<line>", "shape": ...}``); reading the
+    key rather than assuming a bare string is the same lesson the offload probe learned the
+    expensive way — a reader that agrees with itself instead of with the writer proves nothing.
+    """
+    return [entry["site"].rsplit(":", 1)[0] for entry in s["sites"]]
 
 
 def _trigger(now, context: dict) -> bool:
-    """Fires when the count is above the named floor, or when the scan was vacuous.
+    """Fires when the found sites are not exactly the named floor, or when the scan was vacuous.
 
     THE SECOND HALF IS NOT DECORATION. A scan that read no files reports a count of 0, which
     is indistinguishable from a perfectly clean corpus at exactly the moment the probe has
     stopped working. So an empty scan fires the probe rather than clearing it.
     """
     s = context.get("corpus") or survey_class_space()
-    if s["files_scanned"] == 0:
+    if s["hollow"]:
         return True
     return sorted(set(_site_files(s))) != sorted(_FLOOR_SITES)
 
 
-def _site_files(s: dict) -> list:
-    """The file halves of the found sites — the floor is named by FILE, since a line number
-    moves whenever anything above it is edited and would make the watch fire on nothing."""
-    return [site.rsplit(":", 1)[0] for site in s["sites"]]
-
-
-def _enough(now, context: dict) -> bool:
+def _enough(context: dict) -> bool:
     """Never clears on a single quiet pulse, and never clears on a vacuous one.
+
+    THE SIGNATURE IS A FIX, AND IT IS THE 2026-08-17 FINDING WORTH KEEPING. This read
+    ``_enough(now, context)`` from the day it was written, and ``Probe.gathered_enough``
+    calls ``self.enough(context)`` with ONE argument — so the first time a shim asked this
+    watch whether it had gathered enough, it would have raised TypeError instead of
+    answering. It never raised, because nothing beats base's shim on a cadence yet: a probe
+    that is armed and structurally unaskable reads exactly like a probe that is armed and
+    quiet. Censused across the corpus the same hour: 30 probes carry an ``enough``, and this
+    was the only one with the wrong arity — n=1, in the file this ticket owns. The
+    corpus-wide physics (probescan already walks every probe and exercises the send and
+    receive ends; asking whether the shim can ASK the probe is the third end) is outside
+    this ticket's bounds and is a ticket, not a quiet widening.
 
     The ticket's ``enough`` asks for the count to stand at its floor across THREE consecutive
     pulses that each actually exercised the scan, with the floor accounted for name by name.
@@ -134,28 +137,35 @@ def _enough(now, context: dict) -> bool:
     exactly the named floor. The consecutive-pulse half is a declared debt, not a silent one.
     """
     s = context.get("corpus") or survey_class_space()
-    return s["files_scanned"] > 0 and sorted(set(_site_files(s))) == sorted(_FLOOR_SITES)
+    return not s["hollow"] and sorted(set(_site_files(s))) == sorted(_FLOOR_SITES)
 
 
 def _carry(context: dict) -> dict:
-    """What rides back: the count, the named sites, and the files scanned — all three, because
-    a count without its sites is exactly the claim this ticket exists to stop being made."""
+    """What rides back: the count, the named sites, and the files read — all three, because
+    a count without its sites is exactly the claim this ticket exists to stop being made.
+
+    ``exemptions_bearing_weight`` rides too, and it is the half a count cannot say: the rule's
+    exemption set is CLOSED AT TWO (the module that owns the address, and any file under a
+    ``proofs/`` directory), and ``scan`` records a member only when it actually caught
+    something. A member that stopped appearing is one the rule no longer needs, and this is
+    where a reader would see that.
+    """
     s = context.get("corpus") or survey_class_space()
-    vacuous = s["files_scanned"] == 0
     return {
-        "finding": ("the scan read NO FILES — the count is not a measurement"
-                    if vacuous else
-                    f"{s['count']} hand-spelled instance-space path(s) outside the resolver"),
+        "finding": (f"the scan is HOLLOW — {s['hollow']}" if s["hollow"] else
+                    f"{s['count']} hand-spelled instance-space path(s) outside the resolver, "
+                    f"over {s['files_read']} files"),
         "counts": s,
         "floor_expected": list(_FLOOR_SITES),
+        "exemptions_bearing_weight": s["exempted"],
+        "unreadable": s["unreadable"],
+        "rule": "cairn/tools/base/address_rule.py — the one spelling; this probe composes it",
         "ticket": owning_ticket(_OWNING_TICKET),
-        "against_falsifier": "measure (b): a grep for Path.home() with '.cairn' and for "
-                             "expanduser('~/.cairn') across non-proof code returns only the "
-                             "resolver, plus the dispositioned sites",
-        "suggests": ("repair the probe — a vacuous scan cannot report anything" if vacuous
-                     else "read the new site: either it is a rung the ladder does not have "
-                          "(the build_inspector case — a device across instances), or it is "
-                          "a caller that did not adopt the resolver, and those want "
+        "against_falsifier": "measure (b): the address rule shaken across non-proof code "
+                             "returns only the resolver, plus any site Akien has named",
+        "suggests": ("repair the probe — a vacuous scan cannot report anything" if s["hollow"]
+                     else "read the new site: either it is a rung the ladder does not have, or "
+                          "it is a caller that did not adopt the resolver, and those want "
                           "different answers"),
     }
 

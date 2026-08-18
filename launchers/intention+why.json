@@ -66,6 +66,11 @@
     "the rescue ethos — always reach the tool that can help rebuild"
   ],
   "owner": "Akien owns the launch contract (what's always-on is his call); CC drafts.",
+  "gated_by": [
+    "Akien",
+    "CC"
+  ],
+  "why_gated_by": "THE MACHINE-READABLE HALF OF THE LINE ABOVE, added 2026-08-18 when the harbor's clearance gate refused a PROVED crossing for want of it — not a new decision, a TRANSLATION of an owner sentence that was already on file. `owner` says Akien owns the launch contract and CC drafts, which names exactly two hands; this says the same thing in the shape a gate can compare. It is a separate field rather than a parse of the prose for the reason the refusal itself states: measured 2026-08-10, 22 of 24 beside-code charters carry an `owner` over 60 characters, so matching an actor against that sentence would be a substring scan going green for the wrong reason — 'CC' is a substring of plenty of English. Exact membership, or nothing. WHAT IT DOES NOT CHANGE: the ownership. Akien's is the launch contract, and CC's presence here is the drafting hand the sentence already granted, not a promotion.",
   "proof": "proofs/test_bootstrap.py (14 cases, `cairn test launchers/proofs/test_bootstrap.py`) — the floor is measured by importing from a cwd that is NOT the repo root, a broken preflight is measured still reaching `exec claude` with its report attached, and a working one is measured adding nothing to the launch line. Non-vacuity was checked, not assumed: pointed at an unrepairable venv path the proof exits 1 with exactly the four in-situ cases failing. Also hand-run: `superclaude --dry-run` resolves the expected command; a real launch lands in a 1M/200K session per the flag, named + remote + dangerous as specified. The probe's wiring is measured end-to-end in four states (warm / cold / unfixable / logger-absent); with bin/logger_for_bash removed entirely the launch is unchanged, which is the property that keeps the recorder from ever becoming load-bearing.",
   "provenance": "born 2026-07-15 by Akien's spec; reimplemented fresh (not grafted) from the quarry launcher's proven interface.",
   "the_probe": {

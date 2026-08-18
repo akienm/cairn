@@ -46,13 +46,17 @@ OPEN EDGES (filed, not faked — children of this stone):
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
-from cairn.devices.tester.isolation import OPEN, Seal, get_isolation
+from cairn.devices.tester.isolation import (
+    INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal, get_isolation,
+    snapshot_instance_space,
+)
 
 GREEN = "green"
 RED = "red"
@@ -80,6 +84,55 @@ VALIDATION_FIELDS = (
 def _tail(text: str, n: int = 20) -> str:
     """Last ``n`` lines of captured output — enough to see a failure, not a flood."""
     return "\n".join((text or "").splitlines()[-n:])
+
+
+# How many written paths ride in the record before it is summarised. A proof that writes
+# thousands of files has said what it needs to say in the first few dozen, and a VALIDATION
+# is read by a mind — but the COUNT is never capped, so the cap can never hide the scale.
+_WRITES_LISTED = 40
+
+
+def _manifest(root: str) -> dict:
+    """``{relative path: (size, mtime_ns)}`` for every regular file under ``root``.
+
+    Size+mtime rather than a hash: it is ~200x cheaper across 872 files and this is taken
+    twice per proof. The failure mode it cannot see — a rewrite to the identical size within
+    the same nanosecond — is not a failure mode that produces a *misleading* answer, because
+    a proof that rewrote a file byte-identically seeded nothing.
+    """
+    out = {}
+    base = Path(root)
+    for p in base.rglob("*"):
+        if p.is_symlink() or not p.is_file():
+            continue
+        try:
+            st = p.stat()
+        except OSError:
+            continue  # vanished between walk and stat — nothing to compare, and not a write
+        out[str(p.relative_to(base))] = (st.st_size, st.st_mtime_ns)
+    return out
+
+
+def _instance_writes(swap: str | None, before: dict | None) -> dict:
+    """What the subject wrote into the sealed instance world — the seal's free measurement.
+
+    This is the answer to a question that had no instrument before the seal existed: *does
+    this proof write to instance-space, and where?* It costs one directory walk, because the
+    swap must be held for the run anyway. An unsealed run answers ``null`` rather than ``[]``
+    — CP1: "we did not measure" and "we measured zero" are different facts, and collapsing
+    them is how an unsealed run comes to read like a clean one.
+    """
+    if swap is None or before is None:
+        return {"measured": False, "why": "the run was not sealed, so its writes went "
+                                          "un-witnessed — this is not a claim that it wrote nothing"}
+    after = _manifest(swap)
+    changed = sorted(k for k, v in after.items() if before.get(k) != v)
+    return {
+        "measured": True,
+        "count": len(changed),
+        "paths": changed[:_WRITES_LISTED],
+        "elided": max(0, len(changed) - _WRITES_LISTED),
+    }
 
 
 class TesterDevice(BaseDevice):
@@ -204,28 +257,77 @@ class TesterDevice(BaseDevice):
         from cairn.devices.tester.validation_store import source_fingerprint
         fingerprint = source_fingerprint(str(proof_path))
 
-        argv = iso.wrap([sys.executable, str(proof_path)], cwd=str(proof_path.parent))
+        # THE INSTANCE SEAL — ALWAYS ON, AND DELIBERATELY NOT A PARAMETER (ticket
+        # a-proof-cannot-seed-the-tree-it-reads). Every other knob on this method is named at
+        # the call site because a reader should see the choice; this one is not a choice. The
+        # network seal can honestly be declined — a proof that needs no network loses nothing
+        # by running bare. Declining THIS seal has no upside to trade against: it only lets a
+        # proof write into the store every later measurement is read from. So there is no
+        # `instance=` argument to forget, and no exemption roster to adjudicate at the moment
+        # someone is least equipped to (the same reasoning bin/cmd/deletegate carries).
+        #
+        # The swap is a full copy of the live instance root, so READS answer exactly as they
+        # would on the host and only WRITES are discarded — see isolation.py for why an empty
+        # room was the wrong shape and which seven proofs measured that.
+        swap = probe_swap = None
+        before = None
         try:
-            proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
-            verdict = GREEN if proc.returncode == 0 else RED
-            evidence = {
-                "returncode": proc.returncode,
-                "stdout_tail": _tail(proc.stdout),
-                "stderr_tail": _tail(proc.stderr),
+            available, why = bwrap_available()
+            if not available:
+                instance_seal = Seal(
+                    INDETERMINATE,
+                    f"cannot build the instance seal: {why} — this run MAY have written to the "
+                    f"live instance root, and the record says so rather than implying it did not")
+            else:
+                # Two swaps, not one: the probe writes a marker to prove the seal holds, and a
+                # marker sitting in the subject's world would show up in `wrote_to_instance`
+                # as something the proof did. An instrument that contaminates its own reading
+                # is the defect this whole seal exists to remove — at n=1 it would be a
+                # footnote, and a footnote is how it survives to n=100.
+                probe_swap = snapshot_instance_space()
+                instance_seal = check_instance_seal(iso, probe_swap, str(proof_path.parent))
+                if instance_seal.sealed:
+                    swap = snapshot_instance_space()
+                    before = _manifest(swap)
+
+            argv = iso.wrap([sys.executable, str(proof_path)],
+                            cwd=str(proof_path.parent), instance_swap=swap)
+            base_evidence = {
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
                 "source_fingerprint": fingerprint,
             }
-        except subprocess.TimeoutExpired:
-            # A proof that hangs is a red, not a crash of the notary (CP1: say what
-            # happened — we measured a timeout, we did not measure a pass).
-            verdict = RED
-            evidence = {
-                "returncode": None,
-                "stdout_tail": "",
-                "stderr_tail": f"timed out after {timeout}s",
-                "seal": {"verdict": seal.verdict, "detail": seal.detail},
-                "source_fingerprint": fingerprint,
+            try:
+                proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
+                verdict = GREEN if proc.returncode == 0 else RED
+                evidence = {
+                    "returncode": proc.returncode,
+                    "stdout_tail": _tail(proc.stdout),
+                    "stderr_tail": _tail(proc.stderr),
+                    **base_evidence,
+                }
+            except subprocess.TimeoutExpired:
+                # A proof that hangs is a red, not a crash of the notary (CP1: say what
+                # happened — we measured a timeout, we did not measure a pass).
+                verdict = RED
+                evidence = {
+                    "returncode": None,
+                    "stdout_tail": "",
+                    "stderr_tail": f"timed out after {timeout}s",
+                    **base_evidence,
+                }
+            # WHAT THE PROOF WROTE, kept as a measurement rather than thrown away with the
+            # swap. Before this, "does this proof write to instance-space?" was a question
+            # nobody could answer without instrumenting by hand; now every run answers it for
+            # free, because the seal already has to hold the writes somewhere to discard them.
+            evidence["instance_seal"] = {
+                "verdict": instance_seal.verdict,
+                "detail": instance_seal.detail,
+                "wrote_to_instance": _instance_writes(swap, before),
             }
+        finally:
+            for tmp in (swap, probe_swap):
+                if tmp:
+                    shutil.rmtree(Path(tmp).parent, ignore_errors=True)
 
         # The method names HOW the verdict was reached AND how trustworthy the seal
         # under it is — so a reader sees seal-backing without opening the evidence.
@@ -233,7 +335,8 @@ class TesterDevice(BaseDevice):
         record = self._validation(
             claim=f"proof {proof_path.name} passes under {Path(sys.executable).name}",
             caller=caller or self._device_id,
-            method=f"ran the proof as a subprocess ({seal_note}); verdict = exit code (0 → green, else red)",
+            method=f"ran the proof as a subprocess ({seal_note}, instance-seal="
+                   f"{instance_seal.verdict}); verdict = exit code (0 → green, else red)",
             verdict=verdict,
             evidence=evidence,
             falsifier="the same proof exits non-zero on re-run, or the code it proves changes underneath it",

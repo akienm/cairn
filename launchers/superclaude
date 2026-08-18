@@ -261,4 +261,44 @@ if [[ "$dry_run" -eq 1 ]]; then
   exit 0
 fi
 
+# ── THE SESSION RUNS IN ITS OWN CGROUP (measured 2026-08-18) ────────────────
+# Claude Code has taken this laptop down three times by growing to ~12-14GB anon RSS on a
+# 15GB box: 2026-08-11 (2.1.226, 13.7GB), 2026-08-13 (2.1.229, 12.5GB), 2026-08-18 14:57
+# (2.1.232, 12.4GB). All three were a GLOBAL oom-kill (constraint=CONSTRAINT_NONE), and a
+# global kill does not stop at the offender: systemd marked the whole Konsole scope
+# `Failed with result 'oom-kill'` and every sibling in that terminal died with it — on the
+# third one that included the running sudo_relay, i.e. Akien's live root window.
+#
+# THE CAP DOES NOT FIX THE GROWTH; IT FIXES THE BLAST RADIUS. Inside a scope with a limit
+# the kernel does a CONSTRAINT_MEMCG kill instead — verified here 2026-08-18 15:02, a 100M
+# scope killed its own python3 and touched nothing else. So a runaway session dies alone
+# and the terminal, the relay and the desktop stay up.
+#
+# MemorySwapMax is not optional: with swap unbounded the same test walked straight past a
+# 100M MemoryMax into 400MB of swap and never tripped. Unbounded swap is also what turned
+# the 14:57 incident into minutes of thrash (3.6GB swap peak on that scope alone).
+# MemoryHigh is the soft one — the kernel throttles and reclaims there rather than killing,
+# so the session goes visibly slow BEFORE it dies, which is the only warning we get today.
+#
+# GUARDED, under the prime directive: if systemd-run is missing or the probe fails we exec
+# Claude exactly as before. SUPERCLAUDE_NO_SCOPE=1 opts out; the three limits are env-tunable.
+_sc_mem_high="${SUPERCLAUDE_MEM_HIGH:-6G}"
+_sc_mem_max="${SUPERCLAUDE_MEM_MAX:-8G}"
+_sc_mem_swap="${SUPERCLAUDE_MEM_SWAP:-1G}"
+if [[ -z "${SUPERCLAUDE_NO_SCOPE:-}" ]] \
+   && command -v systemd-run >/dev/null 2>&1 \
+   && systemd-run --user --scope --quiet -- true >/dev/null 2>&1; then
+  _sc_log "scope: MemoryHigh=$_sc_mem_high MemoryMax=$_sc_mem_max MemorySwapMax=$_sc_mem_swap (unit superclaude-$$.scope)"
+  exec systemd-run --user --scope --quiet \
+    --unit "superclaude-$$.scope" \
+    -p MemoryHigh="$_sc_mem_high" \
+    -p MemoryMax="$_sc_mem_max" \
+    -p MemorySwapMax="$_sc_mem_swap" \
+    -- "$claude_bin" "$@"
+fi
+if [[ -n "${SUPERCLAUDE_NO_SCOPE:-}" ]]; then
+  _sc_log "scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)"
+else
+  _sc_log "scope: unavailable (no systemd-run, or the probe failed) — launching unbounded (a runaway session can still take the terminal)"
+fi
 exec "$claude_bin" "$@"

@@ -93,6 +93,28 @@ class HostUnmetered(RuntimeError):
     """
 
 
+class HostNonFinal(RuntimeError):
+    """The host answered a NON-STREAMING request with a frame that is not the final one.
+
+    Named for the field that says so: ollama marks the last frame of a response ``done: true``,
+    and a frame carrying ``done: false`` is one of the intermediate ones the STREAMING grammar
+    is made of. Arriving in answer to a request that set ``stream: false``, it means the host
+    accepted the ask and has not finished it — measured on hex 2026-08-18, six times, while a
+    model was loading: HTTP 200, 96 bytes, empty role and empty content, no counters.
+
+    IT EXISTS BECAUSE THE ALTERNATIVE WAS A CONFIDENT WRONG ANSWER. That frame passes three
+    checks on its way in — 200 is not >= 400, there is no "error" key, and the chat branch's
+    shape check accepts ``message`` because an empty string IS a str — and then dies at
+    ``metered_cost``, which reports that the host sent no token counters. True, and useless: it
+    sends the reader to the meter, and the meter is innocent. A diagnostic surface that is loud
+    about the wrong organ costs MORE than silence, because silence gets investigated and a
+    confident wrong answer gets followed (Law 7).
+
+    Deliberately not a retry and not a wait. This says WHAT HAPPENED; what to do about a host
+    that is still warming up is a policy decision with its own falsifier, and it is not here.
+    """
+
+
 class BadRequest(ValueError):
     """The request does not name something this resolver can send. Refused before the host."""
 
@@ -125,6 +147,26 @@ def _post(path: str, payload: dict, *, endpoint: str, timeout: float, transport)
             f"{url} refused (status {status}): {body.get('error', body) if isinstance(body, dict) else body}")
     if not isinstance(body, dict):
         raise HostRefused(f"{url} returned {type(body).__name__}, expected a JSON object")
+    # THE ANSWER MUST BE FINISHED. Every verb this module sends sets stream=False, so the host's
+    # reply is one frame and that frame is the last one — ollama says so with done: true. A
+    # frame carrying done: false is an intermediate one from the streaming grammar, and it means
+    # the ask was accepted and not completed (measured on hex while a model loads, n=6).
+    #
+    # PRESENT AND NOT TRUE, never merely "not true": /api/embed's real responses carry no `done`
+    # key at all, and `body.get("done") is not True` would refuse every embedding this system
+    # has ever taken. The narrower predicate is the whole difference between a fix and an
+    # outage, and proofs/test_host.py holds a tooth on each side of it.
+    #
+    # HERE rather than in the three branches below, because this is a property of the RESPONSE
+    # and holds whatever verb produced it. The frame was reproduced on /api/chat only; putting
+    # the check per-branch would have meant three copies of a claim measured once, and the two
+    # unmeasured verbs left open exactly as they were.
+    if "done" in body and body["done"] is not True:
+        raise HostNonFinal(
+            f"{url} answered a non-streaming request with a NON-FINAL frame "
+            f"(done={body['done']!r}) — the host accepted the ask and has not finished it, so "
+            f"there is no answer here to meter or to read. Model {payload.get('model')!r}. "
+            f"The frame verbatim: {json.dumps(body)[:400]}")
     return body
 
 

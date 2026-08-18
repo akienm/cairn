@@ -1,14 +1,14 @@
 {
   "cursor": {
-    "from": "PROVEME",
+    "from": "WATCHME",
     "to": "PROVED",
     "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a_non_final_answer_is_refused_by_name) -> [PROVED]",
     "direction": "forward",
-    "build_gate": "clean — build_inspector ran 20 sieves over inference_domain, and 21 check(s) are proved on this crossing",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'inference-domain-chat-verb'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/inference_domain/proofs/test_host.py (seal 2026-08-16T17:16:42, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260816T171952-fceeea23b8c8.json",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-non-final-answer-is-refused-by-name'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/inference_domain/validations/test_host.json (seal 2026-08-18T01:01:54, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a_non_final_answer_is_refused_by_name) emitted the probe berthed at cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py (ticket 'a-non-final-answer-is-refused-by-name')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260818T010100-c0d2b60c1cb5.json",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
@@ -25,6 +25,7 @@
             "TICKETME",
             "BUILDME",
             "PROVEME",
+            "WATCHME",
             "PROVED"
           ]
         }
@@ -33,22 +34,22 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "PROVEME -> PROVED moves the cursor off position 3",
-        "actual": "PROVEME -> PROVED moves the cursor off position 3",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
           "target": "PROVED",
-          "cursor": 3,
-          "resolved": 4
+          "cursor": 4,
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "PROVEME -> PROVED",
-        "actual": "PROVEME -> PROVED",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
@@ -56,6 +57,7 @@
           "legal_from_here": [
             "BUILDME",
             "PROVED",
+            "PROVEME",
             "THINKME",
             "TICKETME"
           ],
@@ -63,277 +65,45 @@
         }
       },
       {
-        "identity": "the_census_can_measure_the_component",
+        "identity": "the_crossing_names_a_cast_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_build",
-        "expected": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
-        "actual": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(a_non_final_answer_is_refused_by_name) crossing",
+        "actual": "a cast ticket for the WATCHME(a_non_final_answer_is_refused_by_name) crossing",
         "fatality": "none",
-        "source": "transitions.inspect_build",
+        "source": "transitions.inspect_emission",
         "values": {
-          "component": "inference_domain",
-          "address": "/home/akien/dev/src/cairn/cairn/devices/inference_domain",
-          "sieves_run": [
-            "charted_refs_resolve",
-            "charter_on_disk",
-            "constraint_bounds_complete",
-            "constraint_traces",
-            "decompose_builds_absences",
-            "decompose_composes_holdings",
-            "fire_path_unreachable",
-            "forwarding_order_resolves",
-            "hypothesize_covers_the_ranked",
-            "hypothesize_falsifiable_measured",
-            "proofs_exist",
-            "silent_device",
-            "sole_path_holds",
-            "state_is_projection",
-            "survey_coverage_complete",
-            "survey_holdings_resolve",
-            "triage_covers_the_split",
-            "triage_reasons_the_order",
-            "validate_covers_the_build",
-            "validate_measures_done"
-          ]
+          "ticket": "a-non-final-answer-is-refused-by-name",
+          "watch_object": "a_non_final_answer_is_refused_by_name",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-non-final-answer-is-refused-by-name.json"
         }
       },
       {
-        "identity": "charted_refs_resolve",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
-        "expected": 1.0,
-        "actual": 1.0,
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'a-non-final-answer-is-refused-by-name' carries a watchme spec for 'a_non_final_answer_is_refused_by_name'",
+        "actual": "ticket 'a-non-final-answer-is-refused-by-name' carries a watchme spec for 'a_non_final_answer_is_refused_by_name'",
         "fatality": "none",
-        "source": "build_inspector",
+        "source": "transitions.inspect_emission",
         "values": {
+          "ticket": "a-non-final-answer-is-refused-by-name",
+          "watch_object": "a_non_final_answer_is_refused_by_name",
           "findings": []
         }
       },
       {
-        "identity": "charter_on_disk",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
-        "expected": 1.0,
-        "actual": 1.0,
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
         "fatality": "none",
-        "source": "build_inspector",
+        "source": "transitions.inspect_emission",
         "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "constraint_bounds_complete",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "constraint_traces",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "decompose_builds_absences",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "decompose_composes_holdings",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "fire_path_unreachable",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "forwarding_order_resolves",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "hypothesize_covers_the_ranked",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "hypothesize_falsifiable_measured",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "proofs_exist",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "silent_device",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "sole_path_holds",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "state_is_projection",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "survey_coverage_complete",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "survey_holdings_resolve",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "triage_covers_the_split",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "triage_reasons_the_order",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "validate_covers_the_build",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
-          "findings": []
-        }
-      },
-      {
-        "identity": "validate_measures_done",
-        "location": "inference_domain",
-        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
-        "expected": 1.0,
-        "actual": 1.0,
-        "fatality": "none",
-        "source": "build_inspector",
-        "values": {
+          "ticket": "a-non-final-answer-is-refused-by-name",
+          "watch_object": "a_non_final_answer_is_refused_by_name",
+          "berth": "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
           "findings": []
         }
       },
@@ -347,7 +117,7 @@
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "PROVED",
-          "ticket": "inference-domain-chat-verb",
+          "ticket": "a-non-final-answer-is-refused-by-name",
           "component": "inference_domain",
           "exempt": false,
           "roster": []
@@ -357,14 +127,14 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'inference-domain-chat-verb' is cast",
-        "actual": "named ticket 'inference-domain-chat-verb' is cast",
+        "expected": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
+        "actual": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "PROVED",
-          "ticket": "inference-domain-chat-verb",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/inference-domain-chat-verb.json"
+          "ticket": "a-non-final-answer-is-refused-by-name",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-non-final-answer-is-refused-by-name.json"
         }
       },
       {
@@ -377,7 +147,7 @@
         "source": "transitions.inspect_exit",
         "values": {
           "findings": [],
-          "ticket": "inference-domain-chat-verb"
+          "ticket": "a-non-final-answer-is-refused-by-name"
         }
       },
       {
@@ -418,269 +188,44 @@
         "identity": "the_named_proof_stands_in_proven_space",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/inference_domain/proofs/test_host.py stands in proven-space",
-        "actual": "cairn/devices/inference_domain/proofs/test_host.py stands in proven-space",
+        "expected": "cairn/devices/inference_domain/validations/test_host.json stands in proven-space",
+        "actual": "cairn/devices/inference_domain/validations/test_host.json stands in proven-space",
         "fatality": "none",
         "source": "transitions.inspect_clearance",
         "values": {
           "target": "PROVED",
-          "proof": "cairn/devices/inference_domain/proofs/test_host.py",
-          "why": "sealed green 2026-08-16T17:16:42 by inference-domain-chat-verb, and the component's source fingerprint still matches what was proved (f347c1ff359a…)"
+          "proof": "cairn/devices/inference_domain/validations/test_host.json",
+          "why": "sealed green 2026-08-18T01:01:54 by CC, and the component's source fingerprint still matches what was proved (86c7b5b41a30…)"
         }
       },
       {
         "identity": "the_witness_agrees_with_the_seal_it_names",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/inference_domain/proofs/test_host.py's seal at '2026-08-16T17:16:42'",
-        "actual": "the witness dates cairn/devices/inference_domain/proofs/test_host.py's seal at '2026-08-16T17:16:42'",
+        "expected": "the witness dates cairn/devices/inference_domain/validations/test_host.json's seal at '2026-08-18T01:01:54'",
+        "actual": "the witness dates cairn/devices/inference_domain/validations/test_host.json's seal at '2026-08-18T01:01:54'",
         "fatality": "none",
         "source": "transitions.inspect_clearance",
         "values": {
           "target": "PROVED",
-          "proof": "cairn/devices/inference_domain/proofs/test_host.py",
-          "seal": "2026-08-16T17:16:42",
-          "claimed": "2026-08-16T17:16:42"
+          "proof": "cairn/devices/inference_domain/validations/test_host.json",
+          "seal": "2026-08-18T01:01:54",
+          "claimed": "2026-08-18T01:01:54"
         }
       }
     ],
-    "checks_proved": 31,
+    "checks_proved": 13,
     "cleared_by": "CC",
     "actor": "CC",
-    "proven_by": "cairn/devices/inference_domain/proofs/test_host.py",
-    "proven_seal_date": "2026-08-16T17:16:42",
+    "proven_by": "cairn/devices/inference_domain/validations/test_host.json",
+    "proven_seal_date": "2026-08-18T01:01:54",
     "delegated": false,
-    "ticket": "inference-domain-chat-verb",
-    "note": "The chat verb lands as a VERB and nothing else. /api/chat opens on the sole path, metered by the host's own counters (HostUnmetered refuses a counterless answer), routed and canonicalized like generate and embed. Live-fired through domain.resolve against real hex: answer from http://hex.local:11434/api/chat, model qwen3-coder:30b, yield_report calls 1962->1963, misses 1124->1125, spent 392872->392907. What does NOT land is the builder-aider domains row this ticket was cast carrying. It was built, its fence was watched to fail before being trusted, it was sealed — and it turned test_route.py's row equality red, which the first reading here treated as a stale assertion to widen. Akien ruled 2026-08-16: 'The inference proxy knows about providers and models. it does not understand about consumers. the consumer asks for what it wants. period, end of story' — because 'if the inference proxy knows about consumers, then there is no need for domains. and then the inference proxy becomes extremely complicated.' The row is self-collapsing: admit one caller-named row and every caller earns one, and a vertical stops being a shape of ask. The row was removed, the equality RESTORED not loosened, and the verdict artifact dispositions that hypothesis KILLED. The money-fence therefore has no holder until the aider shim is built and asks narrowly by name; that obligation is recorded on tickets/aider-shim.json rather than left implied.",
-    "at": "2026-08-16T17:24:01",
-    "seq": 13
+    "ticket": "a-non-final-answer-is-refused-by-name",
+    "note": "ollama answers a NON-STREAMING /api/chat with a frame from the STREAMING grammar while a model loads: HTTP 200, 96 bytes, empty role, empty content, done:false, no counters. It walked three of host.py's checks unharmed — 200 is not >=400, there is no 'error' key, and `message` IS a dict whose `content` IS a str because \"\" is one — and died at metered_cost complaining about token counters. LOUD AT THE WRONG ORGAN (Law 7), and it cost one voyage a false sentence in an append-only history. _post now refuses it by name: HostNonFinal.\n\nTHE PREDICATE IS `\"done\" in body and body[\"done\"] is not True` — PRESENT AND NOT TRUE, and the second half is the whole design. Real /api/embed responses carry NO `done` key at all, so the obvious `body.get(\"done\") is not True` would refuse every embedding this system takes. The tooth that stands between the two forms was written FIRST, was green on HEAD, and its entire value is that it stayed green after. Order was evidence-before-assertion and deliberately inverted cheap-first: HEAD already raised on the frame, so a tooth asserting merely 'some error' would be green on a codebase with no fix in it. The discriminating tooth asserts the TYPE, and it was measured RED on HEAD through the _refuses helper's WRONG-TYPE branch — naming HostUnmetered where HostNonFinal was expected — never 'NO REFUSAL AT ALL'.\n\nLIVE FIRE, BOTH HALVES, THROUGH THE REAL RESOLVER. Cold hex (unload, /api/ps to [], num_ctx 81920): 4 asks, 4 HostNonFinal carrying the frame verbatim, zero HostUnmetered. Warm: same ask, same num_ctx, 8 answers at cost 17, zero refusals. Plus 9 asks at default options, all answered — the guard has never bitten a good answer.\n\nAND IT FALSIFIED A CLAIM THIS VOYAGE HAD ALREADY RECORDED. 'num_ctx is NOT the discriminator' was measured WARM, which is the wrong condition; the frame needs COLD LOAD *AND* a large num_ctx. Cold with the resolver's default options answers in ~2s and does not reproduce it. Same family as the earlier timeout story this ticket was born from: a measurement taken in the wrong condition standing in for the one that matters. The correction rides here rather than in a paragraph nobody reads.\n\nTHE WATCH IS ARMED AND ITS SPEC WAS FOUND UNBUILDABLE AS WRITTEN — the finding worth carrying forward. The ticket's `enough` counts refusals from the domain's own ask log; domain.resolve writes the inference_calls row only AFTER resolver(request) RETURNS, so a raise leaves NO ROW and refusals are invisible there. Clause one (the refusal has fired on live traffic) was satisfied AT BIRTH by the live fire, n=4, and is recorded in the verdict rather than re-measured by a probe that would have to dial the host on a clock. The probe watches the fault RETURNING instead: a post-era chat row in inference_calls with no text AND zero cost is a non-final frame that got past _post and was CACHED — worse than the misdiagnosis this ticket started from, because it stops being an error at all and is served to every future asker of that canonical question until its horizon expires. One is the finding; the clear needs 20 clean post-era chat rows. Logging refusals in domain.py is OUTSIDE constrain's `in` list and is a ticket owed, not a silent widening.\n\nVerdict artifact: verdict-20260818T010100-c0d2b60c1cb5.json — 6 criteria all pass, 8 hypotheses all confirmed, with two authored expectations corrected inside their own dispositions: the predicate sits AFTER the not-a-dict guard (it must, it subscripts body), and '5 green validations to 6' is false because the validation store keeps ONE CURRENT RECORD PER PROOF (ticket a-validation-is-one-current-record-not-a-trail) — the seal REPLACED test_host.json's 2026-08-17 record and the prior one is in git, one commit back, exactly where that design puts it. test_host.py: 31 teeth green, twice, then sealed under netns.",
+    "at": "2026-08-18T01:01:57",
+    "seq": 17
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "WATCHME",
-      "standing": "WATCHME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(does-a-domain-ride-the-request):waiting] -> PROVED",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 19 sieves over inference_domain",
-      "ticket": "the-domain-carries-the-inference-side",
-      "note": "the watch is armed at cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py: frozen PROBE, trigger = ONE unmarked post-era row (any verb, hit or miss), enough = >=12 marked post-era rows AND a real non-default vertical riding (all-general cannot buy the clear — the non-vacuity clause), era = the MEASURED go-live restart 2026-08-08T20:19:58-06:00 (ps lstart of the relaunched listener, never the disk landing — the stale-process lesson). Smoke-fired live at arming: 5 post-era rows, 0 undomained, coding and research both riding; would_trigger=false, enough=false — a young berth honestly not clearing. The probe deposits and pokes; it carries no authority (Law 6).",
-      "at": "2026-08-08T20:22:46",
-      "seq": 9
-    },
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(does-a-domain-ride-the-request) -> [PROVED]",
-      "direction": "forward",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-domain-carries-the-inference-side'",
-      "emission_gate": "clean — WATCHME(does-a-domain-ride-the-request) emitted the probe berthed at cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py (ticket 'the-domain-carries-the-inference-side')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260808T202228-f37cf1106b8c.json",
-      "ticket": "the-domain-carries-the-inference-side",
-      "note": "the domains ride: a fourth authored stack (general default / coding / research) dresses requests at domain.resolve — the domain KEY rides the request end-to-end and is excluded from the canonical while the dressing CONTENT canonicalizes, so a bare call is byte-for-byte the pre-build question (the warm cache survived: three pre-build embed rows HIT live, stamped research) and two verticals never share an answer. The routed walk obeys a per-domain allow-rule loudly; preference reorders survivors without touching any sieve. The one labeled hypothesis (ollama accepts system) was CONFIRMED by the single measured call — prompt_eval_count=59 on a ~15-token prompt shows Hex consumed the coding dressing. The librarian is the first real consumer: dual_seam stamps research declared-never-inferred, and the live corpus read back through db_domain shows 5 post-era rows, 0 undomained, both verticals riding. Verdict verdict-20260808T202228-f37cf1106b8c: 4/4 criteria pass by instrument, 8/8 hypotheses confirmed. The watch holds the long question — whether the verticals stay real is its horizon, not this crossing.",
-      "at": "2026-08-08T20:22:57",
-      "seq": 10
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'inference-domain-chat-verb', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "THINKME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "inference-domain-chat-verb",
-            "component": "inference_domain",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'inference-domain-chat-verb' is cast",
-          "actual": "named ticket 'inference-domain-chat-verb' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "inference-domain-chat-verb",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/inference-domain-chat-verb.json"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "inference-domain-chat-verb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "inference-domain-chat-verb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "inference-domain-chat-verb"
-          }
-        }
-      ],
-      "checks_proved": 8,
-      "ticket": "inference-domain-chat-verb",
-      "note": "the chat verb enters the build: a third kind on the sole path opening ollama's /api/chat, non-streaming, metered under the standing HostUnmetered discipline, reachable through the routed walk so it canonicalizes, caches and meters like the two verbs beside it — plus the builder-aider vertical pinning qwen3-coder:30b with escalation.allow ['hex']. THE CHART RESHAPED THE TICKET'S OWN PICTURE: the ticket assumed an escalation fence had to be built; survey measured it already standing in _routed_resolver, so 'escalation off' is a stack row to author, not a mechanism to write. And the one risky assumption is no longer an assumption — a live call to hex.local/api/chat on 2026-08-16T02:39:54Z came back with prompt_eval_count 15 and eval_count 2, so the design kick-back the ticket named is NOT triggered and the captured response becomes the proof's fixture rather than an invented one. Charted this crossing: orient/constrain/survey/decompose/triage/hypothesize/validate all berthed and claiming this ticket.",
-      "at": "2026-08-15T20:48:48",
-      "seq": 11
-    },
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "cursor": 2,
-            "resolved": 3
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME",
-          "actual": "BUILDME -> PROVEME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "legal_from_here": [
-              "PROVEME",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        }
-      ],
-      "checks_proved": 3,
-      "ticket": "inference-domain-chat-verb",
-      "note": "seven new teeth beside the twenty-two already there, all green twice: the chat counter tooth against the REAL captured hex response (cost 15+2 from the host's own numbers), the unmetered-chat refusal (that same response with its counters stripped — a perfectly good answer that must refuse rather than meter 0), the door tooth (one inference url and it is /api/chat), the shape tooth (three malformed 'message' shapes refused rather than indexed into an answer of None), the validation tooth (seven malformed messages lists, each asserting the transport recorded NOTHING — refused-before-spending is a different claim from refused, and on Hex the difference is 18 seconds), the chat fence tooth, and a read of the SHIPPED rows rather than a fixture. ANTI-VACUITY MEASURED BY HAND, not asserted: the escalation filter was removed, the chat fence tooth was run alone, and all THREE of its assertions red independently (provider became p-cheap, the cheap rung was dialed, route_walked went None) — then restored and green again. A fence never watched to fail is a fence with no evidence it can bite.",
-      "at": "2026-08-15T20:52:52",
-      "seq": 12
-    },
     {
       "from": "PROVEME",
       "to": "PROVED",
@@ -1136,7 +681,793 @@
       "note": "The chat verb lands as a VERB and nothing else. /api/chat opens on the sole path, metered by the host's own counters (HostUnmetered refuses a counterless answer), routed and canonicalized like generate and embed. Live-fired through domain.resolve against real hex: answer from http://hex.local:11434/api/chat, model qwen3-coder:30b, yield_report calls 1962->1963, misses 1124->1125, spent 392872->392907. What does NOT land is the builder-aider domains row this ticket was cast carrying. It was built, its fence was watched to fail before being trusted, it was sealed — and it turned test_route.py's row equality red, which the first reading here treated as a stale assertion to widen. Akien ruled 2026-08-16: 'The inference proxy knows about providers and models. it does not understand about consumers. the consumer asks for what it wants. period, end of story' — because 'if the inference proxy knows about consumers, then there is no need for domains. and then the inference proxy becomes extremely complicated.' The row is self-collapsing: admit one caller-named row and every caller earns one, and a vertical stops being a shape of ask. The row was removed, the equality RESTORED not loosened, and the verdict artifact dispositions that hypothesis KILLED. The money-fence therefore has no holder until the aider shim is built and asks narrowly by name; that obligation is recorded on tickets/aider-shim.json rather than left implied.",
       "at": "2026-08-16T17:24:01",
       "seq": 13
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(a_non_final_answer_is_refused_by_name) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'a-non-final-answer-is-refused-by-name', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "component": "inference_domain",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
+          "actual": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-non-final-answer-is-refused-by-name.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-non-final-answer-is-refused-by-name"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-non-final-answer-is-refused-by-name"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "a-non-final-answer-is-refused-by-name"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "actor": "CC",
+      "ticket": "a-non-final-answer-is-refused-by-name",
+      "note": "the chart chain berthed all seven stages (validate berth validate-20260818T004820-bd528a799205). Building in triage's order: the discriminating teeth FIRST, against unmodified HEAD, because HEAD already raises HostUnmetered on the 96-byte non-final frame and a tooth that asserts merely 'some error' would go green on a codebase with no fix in it.",
+      "at": "2026-08-18T00:48:42",
+      "seq": 14
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(a_non_final_answer_is_refused_by_name) -> PROVED",
+      "direction": "forward",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "actor": "CC",
+      "ticket": "a-non-final-answer-is-refused-by-name",
+      "note": "two teeth added to proofs/test_host.py and BOTH measured before the fix, which is the whole hollow-build guard here. The non-final tooth was red on HEAD for the RIGHT reason — _refuses' wrong-type branch, naming HostUnmetered as what fired instead — and the done-less tooth was GREEN on HEAD and stayed green after, which is what stops the predicate from being written as the obvious and wrong `body.get('done') is not True` (every real /api/embed response carries no done key at all). 31 teeth green in test_host.py, and all five of the component's proof files green twice in a row.",
+      "at": "2026-08-18T00:50:40",
+      "seq": 15
+    },
+    {
+      "from": "PROVEME",
+      "to": "WATCHME",
+      "standing": "WATCHME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(a_non_final_answer_is_refused_by_name):waiting] -> PROVED",
+      "direction": "forward",
+      "build_gate": "clean — build_inspector ran 21 sieves over inference_domain, and 22 check(s) are proved on this crossing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+          "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+          "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "cursor": 3,
+            "resolved": 4
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME",
+          "actual": "PROVEME -> WATCHME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME",
+              "TICKETME",
+              "WATCHME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_census_can_measure_the_component",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_build",
+          "expected": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
+          "actual": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
+          "fatality": "none",
+          "source": "transitions.inspect_build",
+          "values": {
+            "component": "inference_domain",
+            "address": "/home/akien/dev/src/cairn/cairn/devices/inference_domain",
+            "sieves_run": [
+              "address_is_resolved_never_spelled",
+              "charted_refs_resolve",
+              "charter_on_disk",
+              "constraint_bounds_complete",
+              "constraint_traces",
+              "decompose_builds_absences",
+              "decompose_composes_holdings",
+              "fire_path_unreachable",
+              "forwarding_order_resolves",
+              "hypothesize_covers_the_ranked",
+              "hypothesize_falsifiable_measured",
+              "proofs_exist",
+              "silent_device",
+              "sole_path_holds",
+              "state_is_projection",
+              "survey_coverage_complete",
+              "survey_holdings_resolve",
+              "triage_covers_the_split",
+              "triage_reasons_the_order",
+              "validate_covers_the_build",
+              "validate_measures_done"
+            ]
+          }
+        },
+        {
+          "identity": "address_is_resolved_never_spelled",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charted_refs_resolve",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charter_on_disk",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_bounds_complete",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_traces",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_builds_absences",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_composes_holdings",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "fire_path_unreachable",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "forwarding_order_resolves",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_covers_the_ranked",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_falsifiable_measured",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "proofs_exist",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "silent_device",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "sole_path_holds",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "state_is_projection",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_coverage_complete",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_holdings_resolve",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_covers_the_split",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_reasons_the_order",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_covers_the_build",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_measures_done",
+          "location": "inference_domain",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        }
+      ],
+      "checks_proved": 25,
+      "actor": "CC",
+      "ticket": "a-non-final-answer-is-refused-by-name",
+      "note": "probe armed at probes/a_non_final_answer_is_refused_by_name.py — AND ITS SPEC WAS FOUND UNBUILDABLE AS WRITTEN, which is the finding worth carrying. The ticket's enough says the probe counts refusals from the domain's own ask log. Measured at build time: domain.resolve writes the inference_calls row only AFTER resolver(request) returns, so a raise leaves NO ROW — refusals are invisible to that log and cannot be counted from it. Adding a refusal row to domain.py is outside constrain's `in` list (host.py's _post, the error class, the proofs, the probe), so it is a ticket owed rather than a silent widening. What the probe watches instead is the fault RETURNING: a chat row in inference_calls with no text AND zero cost is a non-final frame that got past _post and was CACHED, which is strictly worse than the misdiagnosis this ticket started from because it stops being an error at all and gets served to every future asker of that canonical question. One is the finding; the clear needs 20 post-era chat rows all carrying real content. The spec's first clause — the refusal has fired on live traffic — was satisfied AT BIRTH by measurement (4 refusals cold, 8 answers warm, against real hex today) and is recorded in the verdict rather than re-measured by a probe that would have to dial the host on a schedule. Era floor is the netns seal, 2026-08-18T00:50:47-06:00; the serving-process caveat is named in the module.",
+      "at": "2026-08-18T00:59:00",
+      "seq": 16
+    },
+    {
+      "from": "WATCHME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a_non_final_answer_is_refused_by_name) -> [PROVED]",
+      "direction": "forward",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-non-final-answer-is-refused-by-name'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+      "clearance_gate": "cleared by 'CC' onto cairn/devices/inference_domain/validations/test_host.json (seal 2026-08-18T01:01:54, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a_non_final_answer_is_refused_by_name) emitted the probe berthed at cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py (ticket 'a-non-final-answer-is-refused-by-name')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260818T010100-c0d2b60c1cb5.json",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "cursor": 4,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "legal_from_here": [
+              "BUILDME",
+              "PROVED",
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(a_non_final_answer_is_refused_by_name) crossing",
+          "actual": "a cast ticket for the WATCHME(a_non_final_answer_is_refused_by_name) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "watch_object": "a_non_final_answer_is_refused_by_name",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-non-final-answer-is-refused-by-name.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket 'a-non-final-answer-is-refused-by-name' carries a watchme spec for 'a_non_final_answer_is_refused_by_name'",
+          "actual": "ticket 'a-non-final-answer-is-refused-by-name' carries a watchme spec for 'a_non_final_answer_is_refused_by_name'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "watch_object": "a_non_final_answer_is_refused_by_name",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "watch_object": "a_non_final_answer_is_refused_by_name",
+            "berth": "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "component": "inference_domain",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
+          "actual": "named ticket 'a-non-final-answer-is-refused-by-name' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "a-non-final-answer-is-refused-by-name",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-non-final-answer-is-refused-by-name.json"
+          }
+        },
+        {
+          "identity": "the_claiming_chart_is_answered",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_exit",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_exit",
+          "values": {
+            "findings": [],
+            "ticket": "a-non-final-answer-is-refused-by-name"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "component": "inference_domain",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_witness_is_whole",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
+            ]
+          }
+        },
+        {
+          "identity": "the_named_proof_stands_in_proven_space",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "cairn/devices/inference_domain/validations/test_host.json stands in proven-space",
+          "actual": "cairn/devices/inference_domain/validations/test_host.json stands in proven-space",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/inference_domain/validations/test_host.json",
+            "why": "sealed green 2026-08-18T01:01:54 by CC, and the component's source fingerprint still matches what was proved (86c7b5b41a30…)"
+          }
+        },
+        {
+          "identity": "the_witness_agrees_with_the_seal_it_names",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/devices/inference_domain/validations/test_host.json's seal at '2026-08-18T01:01:54'",
+          "actual": "the witness dates cairn/devices/inference_domain/validations/test_host.json's seal at '2026-08-18T01:01:54'",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/inference_domain/validations/test_host.json",
+            "seal": "2026-08-18T01:01:54",
+            "claimed": "2026-08-18T01:01:54"
+          }
+        }
+      ],
+      "checks_proved": 13,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/devices/inference_domain/validations/test_host.json",
+      "proven_seal_date": "2026-08-18T01:01:54",
+      "delegated": false,
+      "ticket": "a-non-final-answer-is-refused-by-name",
+      "note": "ollama answers a NON-STREAMING /api/chat with a frame from the STREAMING grammar while a model loads: HTTP 200, 96 bytes, empty role, empty content, done:false, no counters. It walked three of host.py's checks unharmed — 200 is not >=400, there is no 'error' key, and `message` IS a dict whose `content` IS a str because \"\" is one — and died at metered_cost complaining about token counters. LOUD AT THE WRONG ORGAN (Law 7), and it cost one voyage a false sentence in an append-only history. _post now refuses it by name: HostNonFinal.\n\nTHE PREDICATE IS `\"done\" in body and body[\"done\"] is not True` — PRESENT AND NOT TRUE, and the second half is the whole design. Real /api/embed responses carry NO `done` key at all, so the obvious `body.get(\"done\") is not True` would refuse every embedding this system takes. The tooth that stands between the two forms was written FIRST, was green on HEAD, and its entire value is that it stayed green after. Order was evidence-before-assertion and deliberately inverted cheap-first: HEAD already raised on the frame, so a tooth asserting merely 'some error' would be green on a codebase with no fix in it. The discriminating tooth asserts the TYPE, and it was measured RED on HEAD through the _refuses helper's WRONG-TYPE branch — naming HostUnmetered where HostNonFinal was expected — never 'NO REFUSAL AT ALL'.\n\nLIVE FIRE, BOTH HALVES, THROUGH THE REAL RESOLVER. Cold hex (unload, /api/ps to [], num_ctx 81920): 4 asks, 4 HostNonFinal carrying the frame verbatim, zero HostUnmetered. Warm: same ask, same num_ctx, 8 answers at cost 17, zero refusals. Plus 9 asks at default options, all answered — the guard has never bitten a good answer.\n\nAND IT FALSIFIED A CLAIM THIS VOYAGE HAD ALREADY RECORDED. 'num_ctx is NOT the discriminator' was measured WARM, which is the wrong condition; the frame needs COLD LOAD *AND* a large num_ctx. Cold with the resolver's default options answers in ~2s and does not reproduce it. Same family as the earlier timeout story this ticket was born from: a measurement taken in the wrong condition standing in for the one that matters. The correction rides here rather than in a paragraph nobody reads.\n\nTHE WATCH IS ARMED AND ITS SPEC WAS FOUND UNBUILDABLE AS WRITTEN — the finding worth carrying forward. The ticket's `enough` counts refusals from the domain's own ask log; domain.resolve writes the inference_calls row only AFTER resolver(request) RETURNS, so a raise leaves NO ROW and refusals are invisible there. Clause one (the refusal has fired on live traffic) was satisfied AT BIRTH by the live fire, n=4, and is recorded in the verdict rather than re-measured by a probe that would have to dial the host on a clock. The probe watches the fault RETURNING instead: a post-era chat row in inference_calls with no text AND zero cost is a non-final frame that got past _post and was CACHED — worse than the misdiagnosis this ticket started from, because it stops being an error at all and is served to every future asker of that canonical question until its horizon expires. One is the finding; the clear needs 20 clean post-era chat rows. Logging refusals in domain.py is OUTSIDE constrain's `in` list and is a ticket owed, not a silent widening.\n\nVerdict artifact: verdict-20260818T010100-c0d2b60c1cb5.json — 6 criteria all pass, 8 hypotheses all confirmed, with two authored expectations corrected inside their own dispositions: the predicate sits AFTER the not-a-dict guard (it must, it subscripts body), and '5 green validations to 6' is false because the validation store keeps ONE CURRENT RECORD PER PROOF (ticket a-validation-is-one-current-record-not-a-trail) — the seal REPLACED test_host.json's 2026-08-17 record and the prior one is in git, one commit back, exactly where that design puts it. test_host.py: 31 teeth green, twice, then sealed under netns.",
+      "at": "2026-08-18T01:01:57",
+      "seq": 17
     }
   ],
-  "count": 14
+  "count": 18
 }

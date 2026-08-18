@@ -587,6 +587,76 @@ def test_the_shipped_models_stack_declares_the_chat_verb():
     assert survivors[0]["model"] == "qwen3-coder:30b", "and a named model is never substituted"
 
 
+# ------------------------------------------------- the answer that was never finished
+
+# THE REAL NON-FINAL FRAME, byte-for-byte off the wire. Captured 2026-08-18T06:35Z from hex's
+# ollama, n=6: unload qwen3-coder:30b (POST /api/chat with messages [] and keep_alive 0), confirm
+# /api/ps empty, then fire four IDENTICAL non-streaming chat asks — every one came back HTTP 200
+# carrying exactly this, at 14.2s / 0.1s / 0.1s / 0.1s, with the model resident in /api/ps
+# afterwards. 96 bytes. Note what it is NOT: not a timeout (three orders of magnitude inside the
+# 120s bound), not a num_ctx effect (six successes at 8192/32768/81920 minutes later), not an
+# error (no status >= 400, no "error" key). It is ollama answering a NON-STREAMING request with a
+# frame from the STREAMING grammar while the model loads — and the empty-string content is a str,
+# so the chat branch's shape check waves it through too.
+_REAL_NON_FINAL_CHAT = {"model": "", "created_at": "0001-01-01T00:00:00Z",
+                        "message": {"role": "", "content": ""}, "done": False}
+
+
+def test_a_non_final_answer_is_refused_by_its_own_name():
+    """THE TOOTH THIS TICKET EXISTS FOR — and it is written to be UNPASSABLE BY A HOLLOW BUILD.
+
+    HEAD already raises on this body. Measured against unmodified HEAD before a line of the fix
+    was written: ``HostUnmetered: the host reported no token counters (looked for
+    ['prompt_eval_count', 'eval_count']; response carried ['created_at', 'done', 'message',
+    'model'])``. So a tooth asserting merely "some error is raised" goes GREEN on a codebase
+    containing no fix at all. That is why this one asserts the TYPE, and why _refuses is the
+    right helper: its middle branch says THE GATE DID NOT REFUSE and names what fired instead.
+
+    What the wrong error costs, and it is not tidiness: the message sends the reader to the
+    meter. The meter is innocent. The host never answered — and a diagnostic surface that is
+    loud about the wrong organ costs more than silence, because silence is investigated and a
+    confident wrong answer is followed (Law 7).
+    """
+    t = Transport(_REAL_NON_FINAL_CHAT)
+    _refuses(lambda: _resolver(t)({"kind": "chat", "messages": _A_TURN}), host.HostNonFinal,
+             because="a non-streaming ask answered with a NON-FINAL frame got no answer at all, "
+                     "and must say so by its own name rather than arriving as a complaint about "
+                     "token counters")
+
+    # And the counterpart, on the same verb and the same fixture endpoint: a REAL finished answer
+    # is untouched. Without this half the tooth above is satisfied by refusing everything.
+    t = Transport(_REAL_CHAT)
+    out = _resolver(t)({"kind": "chat", "messages": _A_TURN})
+    assert out["answer"]["text"] == "ok", \
+        f"a finished answer (done true) passes through unchanged: {out['answer']}"
+    assert out["cost"] == 15 + 2, f"and it still meters its own counters: {out['cost']}"
+
+
+def test_a_response_carrying_no_done_key_at_all_is_left_alone():
+    """THE BOUND THE FIX HAD TO BE WRITTEN INSIDE — green before the predicate and green after.
+
+    The obvious predicate is ``body.get("done") is not True``. It is wrong, and wrong in the
+    expensive direction: /api/embed's real responses carry NO ``done`` key at all, so that
+    predicate refuses every embedding this system has ever taken. Measured while charting:
+    ``done`` appears in this 600-line file at exactly two lines, and both are the generate and
+    chat fixtures — every embed fixture and every hand-built shape fixture is done-less.
+
+    So the predicate must key on ``done`` PRESENT and not true. This tooth is what stops that
+    from being softened back later by someone who sees the embed teeth go red and reaches for
+    the smaller diff. It asserts on the REAL captured bodies, because a fixture that invented a
+    done-less shape would only prove the inventor knew the rule.
+    """
+    assert "done" not in _REAL_EMBED, \
+        "the real /api/embed response carries no done key — that is the whole hazard"
+    assert "done" not in _REAL_EMBEDDINGS_UNMETERED, "nor does the older endpoint's"
+
+    t = Transport(_REAL_EMBED)
+    out = _resolver(t)({"kind": "embed", "prompt": "the embedding is the path"})
+    assert len(out["answer"]["vector"]) == 768, \
+        f"a done-less embed answer is an ORDINARY answer and passes: {sorted(out['answer'])}"
+    assert out["cost"] == 9, f"and meters its own prompt_eval_count: {out['cost']}"
+
+
 def _main() -> int:
     checks = [
         test_an_unmetered_response_is_refused_not_metered_as_zero,
@@ -618,6 +688,8 @@ def _main() -> int:
         test_a_malformed_messages_list_never_reaches_the_host,
         test_the_chat_walk_obeys_the_domains_escalation_rule,
         test_the_shipped_models_stack_declares_the_chat_verb,
+        test_a_non_final_answer_is_refused_by_its_own_name,
+        test_a_response_carrying_no_done_key_at_all_is_left_alone,
     ]
     for check in checks:
         check()

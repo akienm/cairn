@@ -36,6 +36,23 @@ pass): it names the command that was blocked, why this root is different, and th
 line to type instead. A gate that only says no gets routed around by the next mind in a
 hurry, which is the same mind that needed the gate.
 
+IT MATCHES BY CO-OCCURRENCE, NOT BY CLAUSE, AND THAT IS DELIBERATE — the finding, measured
+n=2 on 2026-08-18, the day after it shipped. ``verdict`` asks two independent questions of
+the command TEXT: is there a destructive verb anywhere, and is there a guarded form
+anywhere. It never asks whether they are in the same clause. Both refusals it produced that
+day were false positives of exactly that shape: a multi-line command whose ``rm -rf`` and
+``find -delete`` targeted ``/tmp`` paths, while a different line of the same command merely
+MENTIONED ``$HOME/.cairn/venv`` as a thing to read. The fix was to split the command, and
+the gate was left as it is.
+
+That is the trade taken with its eyes open: a false refuse costs one retyped command, a
+false allow costs the data, and there is no symmetric version of this because the two
+outcomes are not the same size. Parsing shell into clauses to tighten it would mean
+building a shell parser inside a hook, and a hook that reasons about ``$(...)``,
+here-documents and ``eval`` has become a thing that can be wrong in ways nobody reviews —
+against a cost of one retype. Recorded here so the next mind meeting a puzzling refusal
+reads a measured property rather than a bug, and knows the answer is to split the command.
+
 Contract, measured 2026-08-18 rather than assumed: stdin is JSON carrying ``tool_name``
 and ``tool_input.command``; exit 0 allows, exit 2 blocks and feeds stderr back to Claude.
 Registered at ``.claude/settings.json`` under ``hooks.PreToolUse`` with matcher ``Bash``.

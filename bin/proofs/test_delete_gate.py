@@ -131,6 +131,34 @@ def test_a_command_that_only_reads_the_root_passes():
         assert gate.verdict(command) is None, f"a read must pass: {command!r}"
 
 
+def test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property():
+    """The gate asks two independent questions of the command TEXT — is a destructive verb
+    anywhere, is a guarded form anywhere — and never asks whether they are the same clause.
+
+    THIS TOOTH EXISTS BECAUSE THE PROPERTY IS A TRADE SOMEBODY CHOSE, and a trade that lives
+    only in a docstring is one refactor from being tidied away by someone who reads the
+    over-refusal as a bug. Both cases below actually happened, n=2 on 2026-08-18, the day
+    after the gate shipped: the delete targeted /tmp and a different line of the same command
+    merely mentioned the guarded root as something to READ. The gate refused. That is correct
+    behaviour under a rule that prefers one retyped command to one lost file, and the tooth
+    pins it so that loosening it has to be a decision rather than a cleanup.
+    """
+    over_refused = [
+        'S=/tmp/x; rm -rf "$S"; echo "compare against $HOME/.cairn/venv"',
+        'find /tmp/copytest -delete\nls ~/.cairn/devices',
+    ]
+    for command in over_refused:
+        assert gate.verdict(command) is not None, (
+            f"the gate stopped refusing a command it is measured to refuse: {command!r}\n"
+            "If this loosening is intended it is a RULING, not a refactor — the trade was "
+            "chosen deliberately (a false refuse costs a retype, a false allow costs the "
+            "data) and clause-level parsing means a shell parser inside a hook.")
+
+    # The other half of the trade, so this tooth cannot be satisfied by refusing everything:
+    # a destructive verb with no guarded form still passes, however alarming it looks.
+    assert gate.verdict('rm -rf /tmp/anything && rm -rf ~/dev/src/cairn/build') is None
+
+
 def test_the_gate_runs_as_a_hook_and_blocks_with_exit_2():
     """END TO END, through the real contract — measured 2026-08-18 rather than assumed:
     stdin is JSON, exit 0 allows, exit 2 blocks and feeds stderr back to Claude."""
@@ -262,6 +290,11 @@ def test_an_entry_with_no_readable_origin_is_reported_not_hidden():
         assert "origin unknown" in rows[0]["lack"], "it says what is missing, and is still listed"
 
 
+# Teeth that RAN but could not be answered here, and why. Not a skip list: a skip is a
+# decision taken in advance, and every entry in this dict was put there by a measurement.
+_INDETERMINATE: dict[str, str] = {}
+
+
 def test_the_guarded_root_and_the_trash_share_a_volume():
     """THE CONDITION THE trash-cli INTEROP CLAIM RESTS ON, asserted as an invariant rather
     than quoted from the charter.
@@ -276,10 +309,32 @@ def test_the_guarded_root_and_the_trash_share_a_volume():
     That is not a defect at the address this door guards — ``~/.cairn`` is on the same device
     as ``$HOME`` — but it IS a load-bearing precondition, and a precondition living only in a
     charter sentence is one nobody re-checks. If ``~/.cairn`` ever moves to its own volume,
-    this goes red and says why, instead of the interop claim quietly becoming false."""
+    this goes red and says why, instead of the interop claim quietly becoming false.
+
+    IT MUST FIRST ASK WHETHER IT CAN SEE THE HOST AT ALL, and that clause was bought with a
+    red the day after this tooth was written. The tester now runs every proof with
+    instance-space swapped for a snapshot on a tmpfs (isolation.py, the instance seal), so
+    inside a sealed run ``~/.cairn`` is on a different device BY CONSTRUCTION — this tooth
+    fired, correctly, about a world that is not the world the claim is about. A host property
+    measured from inside a sandbox is a measurement of the sandbox.
+
+    So it reports INDETERMINATE rather than passing quietly (CP1 — and Law 3: it is still a
+    recorded observation, just not of the thing we wanted). It does NOT red, because the
+    claim is not falsified; and it does not go silent, because a tooth that stops constraining
+    without anyone noticing is the corrosion CLAUDE.md names. The residue is real and filed:
+    a HOST property has no proper home in a sealed proof, and belongs in a host-seam's
+    re-runnable ``verify`` — ticket owed, named in the parent's record."""
     import os
     cairn_root = Path.home() / ".cairn"
     if not cairn_root.exists():                     # a box where nothing has run yet
+        return
+    if _is_mount_point(cairn_root):
+        # Derived, not declared: nothing tells this proof it is sealed, and an environment
+        # flag would be a dial the seal could be ducked with. A bind mount at the instance
+        # root IS the seal's signature, and on the bare host there is no mount there.
+        _INDETERMINATE[test_the_guarded_root_and_the_trash_share_a_volume.__name__] = (
+            "~/.cairn is a mount point (the tester's instance seal), so st_dev compares the "
+            "SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.")
         return
     guarded = os.stat(cairn_root).st_dev
     trash = os.stat(Path.home()).st_dev
@@ -288,6 +343,20 @@ def test_the_guarded_root_and_the_trash_share_a_volume():
         "volumes into the home trash, where trash-cli and KDE would instead expect the "
         "volume trash. The interop the charter claims no longer holds; either move the door "
         "to volume-aware placement or drop the claim.")
+
+
+def _is_mount_point(path: Path) -> bool:
+    """Is ``path`` a mount point? Read from the kernel's own table, not inferred.
+
+    ``Path.is_mount()`` compares st_dev against the parent, which answers "is this a different
+    filesystem" — true for a bind mount only by luck of where the source lives. /proc/self/
+    mountinfo is the kernel saying so directly, and a bind of a tmpfs snapshot over ~/.cairn
+    appears there whether or not the devices happen to differ."""
+    try:
+        with open("/proc/self/mountinfo", encoding="utf-8") as fh:
+            return any(line.split()[4] == str(path) for line in fh if len(line.split()) > 4)
+    except OSError:
+        return False  # no procfs — fall through and take the ordinary measurement
 
 
 def _main() -> int:
@@ -300,6 +369,7 @@ def _main() -> int:
         test_the_door_itself_is_never_refused,
         test_the_bound_the_git_roots_are_not_gated,
         test_a_command_that_only_reads_the_root_passes,
+        test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property,
         test_the_gate_runs_as_a_hook_and_blocks_with_exit_2,
         test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly,
         test_the_gate_is_registered_where_it_claims_to_be,
@@ -312,7 +382,16 @@ def _main() -> int:
     ]
     for check in checks:
         check()
-        print(f"  PASS  {check.__name__}")
+        if check.__name__ not in _INDETERMINATE:
+            print(f"  PASS  {check.__name__}")
+
+    # THE THIRD TALLY, and it is not decoration. A tooth that could not be answered had been
+    # printing its reason and then being counted PASS one line later — which is precisely the
+    # shape of a constraint that stops constraining while the summary keeps saying green. The
+    # count rides the closing line, so a reader who skims exactly one line still sees it.
+    if _INDETERMINATE:
+        for name, why in _INDETERMINATE.items():
+            print(f"  IND   {name}\n        {why}")
 
     after = sorted(p.name for p in real_trash.iterdir()) if real_trash.exists() else []
     assert before == after, (
@@ -321,9 +400,11 @@ def _main() -> int:
         "instrument it proves is the failure this repo has already measured twice.")
     print(f"  PASS  the live trash is untouched ({len(before)} entries before and after)")
 
+    tail = (f" ({len(_INDETERMINATE)} tooth unanswerable in this environment — see IND above)"
+            if _INDETERMINATE else "")
     print("green — the one root where delete is forever now has a gate that refuses ~/.cairn "
           "deletes and names a door that undoes them, the git roots stay ungated, and the "
-          "gate is registered where it says it is")
+          f"gate is registered where it says it is{tail}")
     return 0
 
 

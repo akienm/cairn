@@ -1,0 +1,33 @@
+[
+  {
+    "claim": "proof test_ground_loop_survives_its_caller.py passes under python3",
+    "caller": "sail:the-heartbeat-outlives-its-caller (final state: probe smoke surface honours its pid argument)",
+    "date": "2026-08-18T16:54:29",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  a taken unit name also writes its refusal to the nohup log  — 424 -> 980 bytes; tail=\"as already loaded or has a fragment file.\\n2026-08-18T16:54:24-06:00 ground_loop: cairn-proof-loop-591225-4.service refused the start — nothing was spawned, and NOTHING was spawned another way either, because the name being held means a loop already holds it; the lines above are systemd-run's reason\\n\"\n\nTHE PRIME DIRECTIVE — from parse to exec, nothing may abort the launch\n  PASS  systemd-run unreachable: the launch still reaches the binary  — pty output: 'STAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  and the boot log carries the exec line  — boot log: 'e with this window (singleton guard decides; loser exits 3)\\n20260818.165428.554742.594539: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'\n  PASS  and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20260818.165428.552620.594539: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)\n  PASS  unit name already taken: the launch still reaches the binary  — pty output: 'STAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  --dry-run still exits 0, prints its exec line and starts nothing  — rc=0\n\nONE READER — the cgroup parse exists once, and both consumers import it\n  PASS  exactly one file READS /proc/<pid>/cgroup from python  — readers: ['cairn/devices/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py']\n  PASS  and every other mention of the path is declared with its reason  — undeclared: []\n  PASS  no declared exemption has gone stale (it would be a licence nothing uses)  — stale: []\n    declared, not a python read: launchers/proofs/test_ground_loop_survives_its_caller.py\n      because this file: prose in the docstring and the census pattern itself; the read it uses is the probe's, imported at the top and asserted by the next check\n    declared, not a python read: launchers/proofs/test_superclaude_memory_scope.py\n      because a bash one-liner (`cut -d: -f3 /proc/self/cgroup`) inside the stand-in that REPLACES the claude binary — it runs as the launched process, reporting its own cgroup from inside a scope this proof cannot enter, and it cannot import a python probe\n  PASS  and this proof reaches it by importing the probe, not by re-spelling it\n\nGREEN — the heartbeat is the manager's, and it kept beating over its caller's grave.",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d894ee3b7c3245c77908de495ceb0842dc8cb8b881a57e785c046b2238b7a827",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3hpc0nqa/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 1,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

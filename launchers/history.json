@@ -1,0 +1,559 @@
+[
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_heartbeat_outlives_its_caller) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'the-heartbeat-outlives-its-caller', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'launchers' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'launchers' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "the-heartbeat-outlives-its-caller",
+          "component": "launchers",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'the-heartbeat-outlives-its-caller' is cast",
+        "actual": "named ticket 'the-heartbeat-outlives-its-caller' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "the-heartbeat-outlives-its-caller",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-heartbeat-outlives-its-caller.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "the-heartbeat-outlives-its-caller"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "the-heartbeat-outlives-its-caller"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "the-heartbeat-outlives-its-caller"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "the-heartbeat-outlives-its-caller",
+    "note": "Building at launchers/superclaude:210-234. The spawn is parented on the CALLER'S cgroup: setsid detaches the tty and not the cgroup, so the one resident process in the system dies with whatever window launched it — measured twice (2026-08-10 reboot, 2026-08-18 Konsole scope oom-kill). It becomes a transient user unit (systemd-run --user --unit), a SIBLING of the caller's scope, guarded by the same probe+fall-through shape the memory scope 60 lines below already uses. MEASURED AT CHART AND IT CHANGED THE BUILD: a transient unit that exits NONZERO stays loaded in `failed` state and blocks its own name, and the singleton loser exits 3 BY DESIGN — so the naive change would wedge the unit name on the first losing launch and every later launch would silently fail to start the loop. SuccessExitStatus=3 plus a blind reset-failed (measured harmless on a live unit) close it. Chart chain: seven berths, validate at /home/akien/.cairn/devices/chart/0/packets/validate-20260818T160010-a6527557b941.json. The proof is written FIRST and run against the unmodified launcher, because a proof that has never seen the failure it grips is how a hollow green is bought.",
+    "at": "2026-08-18T16:00:48",
+    "seq": 0
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_heartbeat_outlives_its_caller) -> PROVED",
+    "direction": "forward",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "the-heartbeat-outlives-its-caller",
+    "note": "PROVEME. launchers/proofs/test_ground_loop_survives_its_caller.py — 24 arms, GREEN twice (16:38 and 16:41, 2026-08-18) against the shipped launcher, and RED FIRST: run at 16:23 against the UNMODIFIED launcher it failed on exactly the five arms the defect owns and passed the other fifteen, so the green is evidence about the world and not about the fixture. THE MEASUREMENT THAT MATTERS: before, the kernel put loop and caller in ONE cgroup (cairn-proof-caller-502361-1.scope for both) and the loop died with the caller's cgroup, beats frozen at 1; after, the loop sits in cairn-proof-loop-543825-1.service — kind 'service', lifetime 'manager' — and beats went 1 -> 2 ACROSS the kill of every pid in the caller's cgroup.procs. The kill is a cgroup kill, not a killpg, because setsid has already left the process group and a killpg would spare the loop and buy a hollow green. THE SPAWN WAS RESHAPED MID-BUILD BY ITS OWN COST MEASUREMENT: the first working draft asked the manager three questions per launch (a --scope liveness probe, a blind reset-failed, the start). The ticket's falsifier lists DELAY as wrong intent, so it was attacked: the probe is gone because THE START ATTEMPT IS THE PROBE — and that is the stricter test, not merely the cheaper one, since the old shape committed to the systemd path the moment the proxy passed and a start that then failed left the launch with no loop — and reset-failed moved to the retry, where the state it clears actually exists. The two failure modes are now kept apart: a HELD NAME retries once and then REFUSES, never falling through to a setsid spawn, because that spawn would be a second claimant racing the first (ticket the-beater-holds-the-claim); anything else means systemd is unreachable and the setsid fall-through is right. COST, MEASURED AND UNGATED (the validate berth asked for a reading, not a threshold): n=15 per arm, INTERLEAVED, launcher driven to exec — setsid 76.1ms median, unit 118.0ms. ~42ms. TWO METHOD FINDINGS TRAVEL WITH THAT NUMBER: sequential arms first reported one round trip as SLOWER than three (they were measuring the drift between the arms), and the first per-stage breakdown read 125ms of dbus where the same commands later read 30ms — the difference was load average 18.7 vs 3.5, and the 18.7 was 14 orphaned ground loops LEAKED BY THE MEASURING HARNESS itself, which cleaned up with `systemctl stop <unit>` while its control arm was a setsid with no unit to stop. Both harnesses now clean up by what the process IS (its HOME), not by a name one arm happened to use. TWO PROOF BUGS WERE FOUND BY THE RED AND FIXED BEFORE THE BUILD: the prime-directive arm pruned PATH of every directory holding systemd-run, which on this host is /usr/bin (and /bin, a symlink to it), leaving the launcher without `script` — isolation that removes the world reads exactly like the defect; it now builds a symlink directory withholding systemd-run alone and ASSERTS both halves. And the one-reader census counted a bash one-liner inside the memory-scope proof's stand-in as a second reader; it now counts python reads (exactly one, the probe) and declares every other mention by name with its reason, with a staleness check so a dead exemption reds too. Charter delta at launchers/intention+why.json superclaude.ground_loop_spawn — rewritten for the one-round-trip design, the superseded why_the_blind_reset_failed key REMOVED rather than left standing beside its replacement; recompile gate poked in the same act (exit 0).",
+    "at": "2026-08-18T16:46:01",
+    "seq": 1
+  },
+  {
+    "from": "PROVEME",
+    "to": "WATCHME",
+    "standing": "WATCHME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the_heartbeat_outlives_its_caller):waiting] -> PROVED",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 21 sieves over launchers, and 22 check(s) are proved on this crossing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+        "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+        "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "cursor": 3,
+          "resolved": 4
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME",
+        "actual": "PROVEME -> WATCHME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_census_can_measure_the_component",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_build",
+        "expected": "the census can measure component 'launchers' at /home/akien/dev/src/cairn/launchers",
+        "actual": "the census can measure component 'launchers' at /home/akien/dev/src/cairn/launchers",
+        "fatality": "none",
+        "source": "transitions.inspect_build",
+        "values": {
+          "component": "launchers",
+          "address": "/home/akien/dev/src/cairn/launchers",
+          "sieves_run": [
+            "address_is_resolved_never_spelled",
+            "charted_refs_resolve",
+            "charter_on_disk",
+            "constraint_bounds_complete",
+            "constraint_traces",
+            "decompose_builds_absences",
+            "decompose_composes_holdings",
+            "fire_path_unreachable",
+            "forwarding_order_resolves",
+            "hypothesize_covers_the_ranked",
+            "hypothesize_falsifiable_measured",
+            "proofs_exist",
+            "silent_device",
+            "sole_path_holds",
+            "state_is_projection",
+            "survey_coverage_complete",
+            "survey_holdings_resolve",
+            "triage_covers_the_split",
+            "triage_reasons_the_order",
+            "validate_covers_the_build",
+            "validate_measures_done"
+          ]
+        }
+      },
+      {
+        "identity": "address_is_resolved_never_spelled",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "charted_refs_resolve",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "charter_on_disk",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_bounds_complete",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_traces",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_builds_absences",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_composes_holdings",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "fire_path_unreachable",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "forwarding_order_resolves",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_covers_the_ranked",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_falsifiable_measured",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "proofs_exist",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "silent_device",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "sole_path_holds",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "state_is_projection",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_coverage_complete",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_holdings_resolve",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_covers_the_split",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_reasons_the_order",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_covers_the_build",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_measures_done",
+        "location": "launchers",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      }
+    ],
+    "checks_proved": 25,
+    "ticket": "the-heartbeat-outlives-its-caller",
+    "note": "WATCHME(the_heartbeat_outlives_its_caller). Probe ARMED at the berth the ticket names, cairn/devices/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py, module-level PROBE carrying both a carry and an enough. THE PREDICATE TAKES NO LIST, and that is the answer to the enumeration problem raised at hypothesize: green is a '.service' (a unit the user manager forked and OWNS) and red is a '.scope' (a cgroup built AROUND processes someone else forked, so its lifetime is the forker's). Every terminal — konsole, vte, tmux, sshd, named or unnamed, and whatever ships next — falls out of the second clause without ever being listed. The watch cannot go stale against a terminal nobody thought of, because it was never asking about terminals. READ LIVE AGAINST TWO PIDS at 16:52 on 2026-08-18: the launcher-started loop 574986 GREEN (cairn-ground-loop.service, lifetime 'manager'), and this session's own shell RED (superclaude-350050.scope, lifetime 'caller') — the negative arm run against a real process in a real terminal scope, not a fixture. THE SMOKE SURFACE WAS DEFECTIVE AND IS FIXED IN THE SAME ACT. Its __main__ accepted a pid argument and IGNORED it: two runs against different pids came back byte-identical, under a heading that read like an answer about the pid asked. That is a diagnostic surface answering a question it was not asked (Law 7), and it is the failure mode that would have made every future hand-check of this watch worthless while looking like it worked. It now honours the argument and echoes it back as pid_asked_about, so the reading names its own subject. AND THE FIRST CLEARANCE DOES NOT COUNT — recorded here because the evidence LOOKS like it should. The live fire drove the real launcher with a stand-in binary that exits immediately, so the spawner (574929) was gone within seconds and outlived_its_spawner came back True against a loop only 70 seconds old. That was the FIXTURE satisfying 'enough', not a caller dying. In production the spawner pid IS the claude session, via exec, and it lives for hours. The ticket's spec already ruled on this in advance — 'NOT satisfied by the launch that installs it... Enough when it has seen at least one caller die while the loop kept beating' — and the probe's docstring had claimed a DIFFERENT reason for standing (that the live loop was placed in its unit by hand), which the live fire made false the moment the launcher started the loop itself. The docstring now says the spec's reason. THE WATCH STANDS, and what it is waiting for is a real session's death.",
+    "at": "2026-08-18T16:58:23",
+    "seq": 2
+  }
+]

@@ -225,12 +225,147 @@ fi
 #
 # Backgrounded, detached, /dev/null on stdin, and `|| true`, under the same prime directive as
 # the trace wire: from parse to exec, nothing may abort the launch. A heartbeat that fails to
-# start must cost the session nothing. setsid so it outlives this shell and the terminal.
+# start must cost the session nothing.
+#
+# AND IT IS A UNIT, NOT A setsid — because setsid detaches a TTY and NOT A CGROUP. That one
+# word is what this block used to get wrong, and its own comment said "setsid so it outlives
+# this shell and the terminal", which was true of the tty and false of the terminal. MEASURED
+# 2026-08-18: the kernel oom-killed the claude binary at 14:57:31, systemd marked
+# app-org.kde.konsole-b1d62b21….scope "Failed with result 'oom-kill'" at 14:57:43, and the
+# loop's own trail carries starts at 14:52:55 and 14:58:01 with NOTHING between — the
+# heartbeat went down inside the terminal's cgroup, because that is where setsid left it.
+# It died the same way on 2026-08-10 (74,209 beats, then nothing, and nothing was loud).
+#
+# `systemd-run --user --unit=` parents it on the USER MANAGER instead:
+# /user.slice/user-1000.slice/user@1000.service/app.slice/cairn-ground-loop.service — a
+# SIBLING of the Konsole scope and of the session scope rather than a child of either. This
+# is NOT system-level startup and adds none (Akien's ruling 2026-08-11): a transient unit is
+# created by this launch, survives no reboot, and is `enable`d nowhere.
+#
+# THREE THINGS THAT LOOK OPTIONAL AND ARE NOT, each measured on this host 2026-08-18:
+#
+#   SuccessExitStatus=3 — a transient unit that exits ZERO is garbage-collected and frees
+#   its name; one that exits NONZERO stays loaded in `failed` state and BLOCKS it. The
+#   singleton loser exits 3 BY DESIGN, so without this the FIRST losing launch would wedge
+#   the name and every later launch would silently start nothing — "always up" broken by the
+#   very change meant to secure it. Verified: exit 3 under this flag leaves `is-failed` rc=4
+#   and the name free.
+#
+#   reset-failed, fired blind — for the crash case the flag does not cover. Verified against
+#   a LIVE unit: rc=0, MainPID unchanged, still active, so it cannot disturb a running loop;
+#   against a name that does not exist it is rc=1 "not loaded", hence the `|| true`.
+#
+#   --setenv=HOME/--setenv=PATH — `systemd-run --user` hands the unit the MANAGER's
+#   environment, not this shell's. Verified: PATH came back without ~/.cairn/venv/bin, so the
+#   loop would have run under /usr/bin/python3 rather than the interpreter the preflight just
+#   laid — the preflight's whole point is that `python3` in this session IS that floor.
+#
+#   StandardOutput/StandardError=append: — a unit does not inherit this shell's redirect, and
+#   without it the losing claimant's refusal (the line that tells "refused, one is running"
+#   apart from "broke") would vanish into the journal. The systemd-run call ITSELF is
+#   redirected to the same file for the same reason, and that covers the OTHER refusal: if
+#   the unit name is already taken, systemd-run's "was already loaded or has a fragment
+#   file" is the only evidence a start never happened, and it must not read like one that
+#   did. Both refusals therefore land in one file a human already opens.
+#
+# GUARDED, and the fall-through is today's spawn unchanged: if systemd-run is missing, or the
+# manager refuses for a reason that is NOT "that name is taken", setsid — worse parenting, but
+# a launch. The boot log names which path it took, exactly as the memory-scope block below does.
+#
+# ONE ROUND TRIP ON THE PATH EVERY LAUNCH TAKES, and it is that shape because it was MEASURED
+# into it (2026-08-18, n=7 each, this host). The first draft asked the manager three questions
+# before the loop existed: a `--scope true` liveness probe (46ms median), a blind `reset-failed`
+# (30ms), then the start (46ms) — 125ms of dbus round trips on every launch, against a launcher
+# that reaches `exec` in ~88ms. The ticket this block was built under lists DELAY in its
+# falsifier, so two of the three had to go, and they went by being ANSWERED FROM EVIDENCE
+# rather than ASKED IN ADVANCE:
+#
+#   the liveness probe is gone — THE START ATTEMPT IS THE PROBE. "Could a scope be made?" was a
+#   proxy standing in front of "did the unit start?", which is asked anyway one line later. The
+#   replacement is also STRICTER, not merely cheaper: the old shape committed to the systemd
+#   path the moment the proxy passed, so a probe that passed and a start that then failed left
+#   the launch with no loop at all.
+#
+#   reset-failed moved to the retry, where the state it clears actually exists. SuccessExitStatus=3
+#   already stops the ordinary singleton loser from wedging its name, so a wedged name means a
+#   genuine crash — rare. Paying 30ms on every launch to clear a state almost no launch is in is
+#   exactly the cost the common path should not carry.
+#
+# AND WHICH FAILURE IT WAS DECIDES WHAT HAPPENS NEXT — the two must not collapse into "it
+# didn't work". "Unit … was already loaded or has a fragment file" means the NAME is held: by a
+# live loop, or by a dead unit's corpse. The answer is reset-failed-and-retry, and then, if it
+# still will not start, a REFUSAL — never a setsid spawn, because a setsid spawn here is a
+# second claimant racing the first, which is the very thing the singleton guard exists to stop
+# (two loops held the address for 80 minutes on 2026-08-18 and nothing was loud about it). Any
+# OTHER failure — no bus, no manager, denied — is systemd being unreachable, and there the
+# setsid fall-through is right, because there is no first claimant to race.
+_sc_loop_unit="${SUPERCLAUDE_GROUND_LOOP_UNIT:-cairn-ground-loop}"
+_sc_loop_log="${HOME}/.cairn/logs/ground_loop_nohup.log"
+_sc_loop_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/null && pwd)"
+
+# Spelled ONCE so the retry cannot drift from the first attempt — the retry differs from the
+# first try in nothing but the reset that precedes it, and a second copy of eight flags is a
+# place for that to stop being true. stderr comes back on stdout so the caller can READ which
+# failure it was; `_sc_loop_note` puts it in the log either way, because a refusal only this
+# shell saw is a refusal no human can find (Law 7 at a diagnostic surface).
+_sc_loop_start() {
+  systemd-run --user --quiet \
+    --unit "$_sc_loop_unit" \
+    --working-directory "${_sc_loop_root:-$PWD}" \
+    --setenv=HOME="$HOME" \
+    --setenv=PATH="$PATH" \
+    -p SuccessExitStatus=3 \
+    -p StandardOutput=append:"$_sc_loop_log" \
+    -p StandardError=append:"$_sc_loop_log" \
+    -- python3 -m cairn.devices.ground_loop 2>&1
+}
+_sc_loop_note() {
+  [[ -n "${1:-}" ]] || return 0
+  printf '%s %s\n' "$(date -Is 2>/dev/null || date)" "$1" >>"$_sc_loop_log" 2>/dev/null || true
+}
+
 if [[ "$dry_run" -eq 0 ]]; then
-  ( setsid python3 -m cairn.devices.ground_loop \
-      >>"${HOME}/.cairn/logs/ground_loop_nohup.log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-  disown 2>/dev/null || true
-  _sc_log "ground_loop: spawn attempted (singleton guard decides; loser exits 3)"
+  mkdir -p "$(dirname "$_sc_loop_log")" 2>/dev/null || true
+  # started | refused | unavailable — the three outcomes, decided before anything is logged, so
+  # the log line and the spawn cannot disagree about which path this launch took.
+  _sc_loop_path="unavailable"
+  _sc_loop_err=""
+  if command -v systemd-run >/dev/null 2>&1; then
+    if _sc_loop_err="$(_sc_loop_start)"; then
+      _sc_loop_path="started"
+    else
+      _sc_loop_note "$_sc_loop_err"
+      case "$_sc_loop_err" in
+        *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
+          systemctl --user reset-failed "${_sc_loop_unit}.service" >/dev/null 2>&1 || true
+          if _sc_loop_err="$(_sc_loop_start)"; then
+            _sc_loop_path="started"
+          else
+            _sc_loop_note "$_sc_loop_err"
+            _sc_loop_path="refused"
+          fi
+          ;;
+      esac
+    fi
+  fi
+  case "$_sc_loop_path" in
+    started)
+      _sc_log "ground_loop: spawn attempted as ${_sc_loop_unit}.service on the user manager (singleton guard decides; loser exits 3)"
+      ;;
+    refused)
+      # THE REFUSAL IS WRITTEN WHERE A HUMAN LOOKS, not only where systemd files it. The note
+      # above already carried systemd-run's own complaint into this file; this line says whose
+      # refusal it was, so "started nothing" cannot be mistaken for "started".
+      _sc_loop_note "ground_loop: ${_sc_loop_unit}.service refused the start — nothing was spawned, and NOTHING was spawned another way either, because the name being held means a loop already holds it; the lines above are systemd-run's reason"
+      _sc_log "ground_loop: ${_sc_loop_unit}.service refused the start — nothing was spawned; see $_sc_loop_log"
+      ;;
+    *)
+      ( setsid python3 -m cairn.devices.ground_loop \
+          >>"$_sc_loop_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+      disown 2>/dev/null || true
+      _sc_log "ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)"
+      ;;
+  esac
 fi
 
 # ── THE TRACE WIRE (deploy pass, approved 2026-08-01): a launch is a firing ──

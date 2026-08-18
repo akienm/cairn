@@ -51,13 +51,19 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe, owning_ticket
 
-# The namespace ``superclaude`` exports for its own launch. Resolved the same way the shell
-# side resolves it (``launchers/superclaude``) so the probe and the recorder cannot develop
-# two opinions about where the record is.
+# The namespace ``superclaude`` exports for its own launch. The OVERRIDE and the SEGMENT are
+# this probe's to know — they are the same two things ``launchers/superclaude`` and
+# ``bootstrap.sh`` know, so the probe and the recorder cannot develop two opinions about where
+# the record is. The ROOT is not: ``instance/logs`` is resolved by the module that owns it
+# (Law 6 / ticket one-owner-for-the-instance-address), because a second spelling of ``~/.cairn``
+# here is a copy that drifts the day the root moves. ``log_path()`` is deliberately NOT what is
+# composed: it indexes by ``<device>/<instance>`` and ``boot`` is not a device — it is the
+# machine's own trail, which is exactly the top-level case that ruling carved out.
 DEFAULT_BOOT_LOG = Path(os.environ.get("CAIRN_BOOT_LOG")
-                        or Path.home() / ".cairn" / "logs" / "boot")
+                        or address.resolve(f"instance/{address.LOGS}") / "boot")
 
 # How many launches a finding must SURVIVE before "reported" counts as "not acted on". Three,
 # not two: the second launch is often the same session that was just told, still working. By

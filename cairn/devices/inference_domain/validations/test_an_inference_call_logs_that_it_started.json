@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_an_inference_call_logs_that_it_started.py passes under python3",
+    "caller": "/sail an-inference-call-logs-that-it-started (re-seal after the charter delta moved the component fingerprint)",
+    "date": "2026-08-18T14:40:13",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_miss_lands_a_line_that_names_the_far_end\n  PASS  test_a_hit_records_the_crossing_that_did_not_happen\n  PASS  test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged\n  PASS  test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null\n  PASS  test_the_trail_and_the_meter_agree\n  PASS  test_the_probe_cannot_clear_before_it_can_fire\n  PASS  test_the_probe_fires_on_a_call_the_trail_missed\n  PASS  test_the_probe_fires_on_a_trail_line_the_store_never_got\n  PASS  test_the_probe_sees_the_absence_that_looks_like_nothing\n  PASS  test_the_probe_counts_repeats_rather_than_comparing_sets\n  PASS  test_the_probe_ignores_everything_before_its_era\n  PASS  test_the_probe_reads_the_address_the_device_declares\ngreen — an inference call leaves a record in the device's own trail, and the trail agrees with the meter",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "007c64d6c6f4203de0001e3bc94467791e66f995ae2142282eeae93f7edac77a",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-m97qvh6w/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -81,6 +81,7 @@ import sys
 from datetime import datetime, timezone
 
 from cairn.devices.db_domain import store
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 # inference_domain owns its cache. One append-only table is both the compiled answers
 # (verdict='miss' rows carry the resolved answer) and the meter (every call is a row).
@@ -99,6 +100,81 @@ _CACHE_COLUMNS = {
     "cost": "numeric",           # a miss: tokens SPENT; a hit: tokens AVOIDED
     "created": "timestamptz NOT NULL DEFAULT now()",
 }
+
+
+# ── the trail: this door's crossings, written down ───────────────────────────
+#
+# WHY THERE IS A CLASS IN A MODULE OF PLAIN FUNCTIONS. ``emit`` is a method on
+# ``DiagnosticBase``, and this module has no object for it to hang on. The five lines below
+# ARE that object. They are not a new mechanism: a class defined in this file carries
+# ``cairn.devices.inference_domain.domain`` in its ``__module__``, so ``DiagnosticBase``
+# derives the component — ``inference_domain`` — from the address the class already had, and
+# the records land in ``~/.cairn/logs/inference_domain/0/diagnostics.jsonl`` with nobody
+# wiring anything. Nothing here is hand-spelled; the one authored string is the source name.
+# ``charter.projector`` does the same thing for the same reason (2026-08-18), and copying its
+# shape is cheaper than a floor abstraction bought for a second user.
+#
+# WHY THE CROSSINGS ARE THE THREE BRANCHES OF ``resolve`` AND NOTHING ELSE. Akien's brief
+# draws the grain: "every single everyting is supposed to log major boundry crossings and
+# state changes. that doesn't mean every function call, or every heartbeat from the ground
+# loop... but starting an inference call sure should." A miss IS starting an inference call.
+# A refusal is that same crossing, failed. A hit is the crossing NOT taken, and it earns a
+# record for one reason that is not symmetry: without it the trail cannot be read against the
+# meter, because a trail carrying only misses looks identical whether the hits went
+# unrecorded or never happened. One record per call, at the outcome — never one per routed
+# rung, which would make an ordinary cheapest-first walk read as three failures.
+#
+# THE RECORDS CARRY WHAT THE BRANCH ALREADY HOLDS. Every value below is read out of a dict
+# this function is already holding when it emits — the stored row on a hit, the resolver's
+# provenance on a miss. Nothing re-derives, nothing re-dials, and the compile-once claim
+# (falsifier 1) is untouched: adding the trail does not touch the host one extra time.
+class _Trail(DiagnosticBase):
+    @property
+    def diagnostic_source(self) -> str:
+        return "inference_domain.domain.resolve"
+
+
+_trail = _Trail()
+
+# What a miss record carries about the far end — read out of the same `provenance` dict the
+# row is written from, so the two records cannot disagree about the endpoint.
+#
+# NO COST AND NO COUNTERS, and that bound was MEASURED into place rather than reasoned. The
+# first draft put the spend on both lines; the hit line came back from the receiver DEGRADED,
+# because `cost` off a stored row is a postgres `Decimal` and the trail is a JSONL file. The
+# receiver did the right thing (the crossing survived, the payload was named unwritable), and
+# the failure asked a better question than the bug: why is spend on the trail at all? It is
+# already on the row, keyed by the same canonical the line points at. So the split is one
+# question each — the trail answers "which vertical, which host, over which path, with which
+# model", the meter answers "what did it cost" — and a number living in two records that can
+# drift apart is exactly what this ticket's own agreement criterion exists to forbid.
+_ENDPOINT_KEYS = ("domain", "host", "path", "model", "provider", "route_walked")
+
+
+def set_diagnostic_receiver(receiver) -> None:
+    """Divert this door's stream (an Inspector, a temp-tree ``BreadcrumbLog``), or, with
+    ``None``, silence it and HOLD the records in memory. Not the ordinary path: unwired, the
+    records go to this device's own trail."""
+    _trail.set_diagnostic_receiver(receiver)
+
+
+def set_diagnostic_roots(roots) -> None:
+    """Point the trail at a different WORLD — the seam a proof reaches for. It keeps the
+    default receiver (the mechanism under test) and moves the tree it writes into; wiring a
+    substitute receiver would quietly prove the substitute instead."""
+    _trail.set_diagnostic_roots(roots)
+
+
+def held_diagnostics() -> list[dict]:
+    """Records emitted with nowhere to send them — held, never dropped (Law 7). Non-empty is
+    itself a finding: either this door was deliberately silenced, or the component name
+    stopped deriving and the trail has no address."""
+    return _trail.held_diagnostics()
+
+
+def diagnostic_trail():
+    """Where this door's crossings land. Resolves and touches nothing."""
+    return _trail.diagnostic_trail()
 
 
 def canonicalize(request: dict) -> str:
@@ -234,6 +310,16 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             # On a hit the provenance is the served_from marker, and the cost is the
             # spend AVOIDED — both the stored values, unchanged (Law 7: a cache that
             # mutated what it serves would be worse than none).
+            #
+            # THE TRAIL: the crossing that did NOT happen. The gate is the verdict word the
+            # row already uses, so the trail and the meter speak one vocabulary and can be
+            # counted against each other without a translation table in between.
+            _trail.emit(
+                "hit",
+                pointer=canonical,
+                values={"domain": domain_name, "served_from": str(prior["created"])},
+                now=moment,
+            )
             return {"answer": prior["answer"], "hit": True, "canonical": canonical,
                     "cost": prior["cost"],
                     "provenance": {"served_from": str(prior["created"]), "domain": domain_name}}
@@ -274,6 +360,24 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                 # be, on stderr, and then out of the way.
                 print(f"inference_domain: a refusal went UNRECORDED ({unrecorded!r}); "
                       f"the refusal itself follows", file=sys.stderr)
+            # THE TRAIL: the crossing attempted and failed. In its OWN try, and after the
+            # row rather than inside its try, for two separate reasons. (1) The refusal is
+            # the caller's answer: nothing here may replace it, so a trail failure is caught
+            # and spoken rather than raised — the same contract the row above already holds
+            # to. (2) Sharing the row's try would make a store outage silently cost the trail
+            # line too, and the trail's whole value is being the record that survives when
+            # the store is the thing that broke.
+            try:
+                _trail.emit(
+                    "refused",
+                    pointer=canonical,
+                    values={"domain": domain_name, "refused": type(refusal).__name__,
+                            "detail": str(refusal)[:2000]},
+                    now=moment,
+                )
+            except Exception as untrailed:      # pragma: no cover — the trail being unwritable
+                print(f"inference_domain: a refusal left no trail record ({untrailed!r}); "
+                      f"the refusal itself follows", file=sys.stderr)
             raise
         provenance = dict(result.get("provenance") or {})
         provenance["domain"] = domain_name    # which vertical rode — the watch reads this
@@ -290,6 +394,20 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                 "cost": result.get("cost", 0),
             },
             conn=own,
+        )
+        # THE TRAIL: the crossing that actually happened — "starting an inference call sure
+        # should" log (Akien, 2026-08-18). The endpoint keys are the ones the resolver's own
+        # provenance carries (`host`, `path`, `model` from ollama_resolver; `provider` and
+        # `route_walked` added by the routed resolver when rungs were skipped), lifted by a
+        # roster rather than a chain of `.get`s so a key the resolver did not report is
+        # ABSENT from the record instead of present-and-null. An absent key says the resolver
+        # did not report it; a null one says it reported nothing, and they are different
+        # facts about the host.
+        _trail.emit(
+            "miss",
+            pointer=canonical,
+            values={k: provenance[k] for k in _ENDPOINT_KEYS if k in provenance},
+            now=moment,
         )
         return {"answer": result["answer"], "hit": False, "canonical": canonical,
                 "cost": result.get("cost", 0),

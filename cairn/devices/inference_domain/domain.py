@@ -23,6 +23,33 @@ The meter makes that saving a measured fact, not a hope (Law 3): every call land
 domain being the sole pipe is exactly what makes metering free and complete — there is no
 uninstrumented path to the host.
 
+WHICH ASKS EARN A ROW — the line, and where it is actually drawn (ticket
+a-refused-ask-leaves-a-row). Until 2026-08-18 the row was written only AFTER the resolver
+returned, so every refusal was invisible: the refusal rate of this system's only inference
+door could not be read at all, and "the host is answering" and "the host is refusing every
+ask" produced the same silence in the meter.
+
+The obvious predicate was to sort the host's error classes by whether a byte had been sent —
+BadRequest and RouteRefused fire before the dial, the four Host* classes after it. THAT
+PREDICATE IS NOT AVAILABLE HERE, and the reason is the design rather than an oversight: the
+resolver is INJECTED (the seam below), so this module does not know its host and must not
+import that host's exception names to classify them. It also could not be made to work by
+type: RouteRefused is pre-dispatch and a RuntimeError, exactly like the four post-dispatch
+ones, so no type test separates them.
+
+So the line is drawn where this door can actually see it, and it is the `try:` block rather
+than a list: EVERY RAISE THAT ESCAPES `resolver(request)` EARNS A ROW. That is honest about
+what the domain knows — it handed an ask to the seam and got no answer back; whether the
+seam got as far as dialling is the seam's knowledge, not this one's — and it survives host.py
+growing a seventh error class, which an enumerated tuple would not. What happens BEFORE the
+call (dressing, canonicalization, connecting) writes nothing, which is why the unknown-domain
+refusal stays row-less exactly as its proof has always pinned it.
+
+RECORDING IS NOT HANDLING. The refusal propagates unchanged — same object, same type, same
+message. A refused row carries `answer` NULL, `cost` 0, and a provenance naming the exception
+type and its words; it never moves SPENT or AVOIDED, and it is never served as a hit (the
+read path selects `verdict = 'miss'`, so a refusal cannot become an answer).
+
 APPEND-ONLY, ON PURPOSE (Law 7). The cache is a log, never mutated: a miss appends the
 answer it resolved; a hit appends the reuse it served. A stale answer is not overwritten,
 it is simply out-voted by verification (a later valid miss wins; an expired one is skipped).
@@ -50,6 +77,7 @@ OPEN EDGES, filed not faked:
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime, timezone
 
 from cairn.devices.db_domain import store
@@ -60,7 +88,10 @@ CACHE = "inference_calls"
 CACHE_OWNER = "inference_domain"
 _CACHE_COLUMNS = {
     "canonical": "text NOT NULL",
-    "verdict": "text NOT NULL",  # 'miss' (host was touched) | 'hit' (a prior answer served)
+    # 'miss' (the host was touched) | 'hit' (a prior answer served) | 'refused' (the ask
+    # reached the seam and the seam RAISED). Three values, and no CHECK constraint holds them
+    # to it — the vocabulary is prose in three places and enforced in none. Ticket owed.
+    "verdict": "text NOT NULL",
     "answer": "jsonb",           # structured, so it survives round-trip as structure (Law 7)
     "falsifier": "text",         # carried for T1.4 active invalidation (a filed edge)
     "horizon": "text",           # ISO-8601 expiry; '' = no expiry (first cut)
@@ -210,7 +241,40 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
         # MISS — the one place the host is touched. Meter (this row) + resolve + record, as one
         # append: the answer, its falsifier/horizon (so it can later be invalidated, T1.4), its
         # provenance, and the real `cost` spent.
-        result = resolver(request)
+        try:
+            result = resolver(request)
+        except Exception as refusal:
+            # A REFUSED ASK LEAVES A ROW (Law 3 — an unrecorded refusal is an unmeasured one).
+            # The row records what THIS door knows: which vertical rode, what was raised, and
+            # what it said. No `path`/`host` — the resolver raised before it returned a
+            # provenance, so there is none to record, and inventing one would be manufacturing
+            # a measurement.
+            try:
+                store.write(
+                    table,
+                    CACHE_OWNER,
+                    {
+                        "canonical": canonical,
+                        "verdict": "refused",
+                        "answer": None,
+                        "falsifier": "",
+                        "horizon": "",
+                        "provenance": {
+                            "domain": domain_name,
+                            "refused": type(refusal).__name__,
+                            "detail": str(refusal)[:2000],
+                        },
+                        "cost": 0,
+                    },
+                    conn=own,
+                )
+            except Exception as unrecorded:      # pragma: no cover — the store being down
+                # The refusal is the caller's answer and must reach them UNCHANGED (a
+                # bookkeeping failure may not impersonate a host failure). Loud where it can
+                # be, on stderr, and then out of the way.
+                print(f"inference_domain: a refusal went UNRECORDED ({unrecorded!r}); "
+                      f"the refusal itself follows", file=sys.stderr)
+            raise
         provenance = dict(result.get("provenance") or {})
         provenance["domain"] = domain_name    # which vertical rode — the watch reads this
         store.write(

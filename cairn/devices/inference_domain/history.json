@@ -1567,5 +1567,791 @@
     "note": "ollama answers a NON-STREAMING /api/chat with a frame from the STREAMING grammar while a model loads: HTTP 200, 96 bytes, empty role, empty content, done:false, no counters. It walked three of host.py's checks unharmed — 200 is not >=400, there is no 'error' key, and `message` IS a dict whose `content` IS a str because \"\" is one — and died at metered_cost complaining about token counters. LOUD AT THE WRONG ORGAN (Law 7), and it cost one voyage a false sentence in an append-only history. _post now refuses it by name: HostNonFinal.\n\nTHE PREDICATE IS `\"done\" in body and body[\"done\"] is not True` — PRESENT AND NOT TRUE, and the second half is the whole design. Real /api/embed responses carry NO `done` key at all, so the obvious `body.get(\"done\") is not True` would refuse every embedding this system takes. The tooth that stands between the two forms was written FIRST, was green on HEAD, and its entire value is that it stayed green after. Order was evidence-before-assertion and deliberately inverted cheap-first: HEAD already raised on the frame, so a tooth asserting merely 'some error' would be green on a codebase with no fix in it. The discriminating tooth asserts the TYPE, and it was measured RED on HEAD through the _refuses helper's WRONG-TYPE branch — naming HostUnmetered where HostNonFinal was expected — never 'NO REFUSAL AT ALL'.\n\nLIVE FIRE, BOTH HALVES, THROUGH THE REAL RESOLVER. Cold hex (unload, /api/ps to [], num_ctx 81920): 4 asks, 4 HostNonFinal carrying the frame verbatim, zero HostUnmetered. Warm: same ask, same num_ctx, 8 answers at cost 17, zero refusals. Plus 9 asks at default options, all answered — the guard has never bitten a good answer.\n\nAND IT FALSIFIED A CLAIM THIS VOYAGE HAD ALREADY RECORDED. 'num_ctx is NOT the discriminator' was measured WARM, which is the wrong condition; the frame needs COLD LOAD *AND* a large num_ctx. Cold with the resolver's default options answers in ~2s and does not reproduce it. Same family as the earlier timeout story this ticket was born from: a measurement taken in the wrong condition standing in for the one that matters. The correction rides here rather than in a paragraph nobody reads.\n\nTHE WATCH IS ARMED AND ITS SPEC WAS FOUND UNBUILDABLE AS WRITTEN — the finding worth carrying forward. The ticket's `enough` counts refusals from the domain's own ask log; domain.resolve writes the inference_calls row only AFTER resolver(request) RETURNS, so a raise leaves NO ROW and refusals are invisible there. Clause one (the refusal has fired on live traffic) was satisfied AT BIRTH by the live fire, n=4, and is recorded in the verdict rather than re-measured by a probe that would have to dial the host on a clock. The probe watches the fault RETURNING instead: a post-era chat row in inference_calls with no text AND zero cost is a non-final frame that got past _post and was CACHED — worse than the misdiagnosis this ticket started from, because it stops being an error at all and is served to every future asker of that canonical question until its horizon expires. One is the finding; the clear needs 20 clean post-era chat rows. Logging refusals in domain.py is OUTSIDE constrain's `in` list and is a ticket owed, not a silent widening.\n\nVerdict artifact: verdict-20260818T010100-c0d2b60c1cb5.json — 6 criteria all pass, 8 hypotheses all confirmed, with two authored expectations corrected inside their own dispositions: the predicate sits AFTER the not-a-dict guard (it must, it subscripts body), and '5 green validations to 6' is false because the validation store keeps ONE CURRENT RECORD PER PROOF (ticket a-validation-is-one-current-record-not-a-trail) — the seal REPLACED test_host.json's 2026-08-17 record and the prior one is in git, one commit back, exactly where that design puts it. test_host.py: 31 teeth green, twice, then sealed under netns.",
     "at": "2026-08-18T01:01:57",
     "seq": 17
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(a_refused_ask_leaves_a_row) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'a-refused-ask-leaves-a-row', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-refused-ask-leaves-a-row",
+          "component": "inference_domain",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'a-refused-ask-leaves-a-row' is cast",
+        "actual": "named ticket 'a-refused-ask-leaves-a-row' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "a-refused-ask-leaves-a-row",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-refused-ask-leaves-a-row.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-refused-ask-leaves-a-row"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-refused-ask-leaves-a-row"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "a-refused-ask-leaves-a-row"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "actor": "CC",
+    "ticket": "a-refused-ask-leaves-a-row",
+    "note": "BUILDME under the full chart chain (7 berths, all deposited). THE SWEEP ALREADY DECIDED THE ROW'S SHAPE, and it did so from the outside rather than from taste. Measured tonight: _latest_valid_answer's standing WHERE reads `verdict = 'miss'`, so a third verdict value is excluded from hit selection with ZERO new code — the ticket's worst failure mode (a refusal served back as an answer, falsifier clause 3) is closed by construction. yield_report sums SPENT over misses and AVOIDED over hits, so neither moves; `calls` is len(rows) and WILL rise, named in the chart rather than discovered later. store.write builds its INSERT from row.keys(), so a column subset needs no door widening; create_owned_table is CREATE TABLE IF NOT EXISTS with no ALTER anywhere in db_domain, so a NEW COLUMN is not reachable through the one door and the refusal detail must ride provenance. inference_calls carries zero CHECK constraints and exactly two verdict values ever (hit=1150, miss=1404); answer-is-null → 0 rows and cost-is-null → 0 rows across all 2554, so a null answer is an unoccupied discriminator.\n\nTHE ROW'S SHAPE IS ALSO CONSTRAINED BY THREE ARMED PROBES ON THIS TABLE, one of which is another ticket's standing PROVED evidence from twelve hours ago. does_a_domain_ride_the_request fires on the FIRST post-era row with no provenance.domain — so the refused row must carry the marker, which is free (domain_name is bound at domain.py:171, before anything can raise). a_non_final_answer_is_refused_by_name's _got_through fires on exactly the shape a refused row has (no text AND zero cost) and constrain put ANY edit to it out of bounds — so the row must fall outside its jurisdiction honestly, and it does: _is_chat gates on provenance.path, and at the raise site the resolver has NOT returned, so path and host were never handed back. The domain records what the DOMAIN knows. Not a contrivance — 1150 rows already lack path (every hit) and the probe has never seen one. does_the_route_leave_loopback filters verdict='miss' twice and is blind to it; checked rather than assumed.\n\nORDER IS EVIDENCE-BEFORE-ASSERTION AND DELIBERATELY NOT CHEAP-FIRST: the dispatch-line judgement (which of five error classes earns a row; BadRequest is the open case, kin to the RouteRefused that test_inference_domain.py:193 pins as row-less) → the teeth, RUN ON HEAD with the row tooth red for the RIGHT reason and the other four green → the write → the standing readers RE-MEASURED by running their judges rather than reading their source → the watch. That fourth piece exists because 'the sweep read the code and believes it will' is a chain of true premises with a behavioural link in the middle, which is the shape that put a false sentence into an append-only history two voyages ago.\n\nIN-HOUSE PRIOR ART, cited not grafted: skill_block.fire's 'BOTH EXITS BERTH' — 'a refusal is a datum and not a lost moment', and routed_out is 'the most valuable firing in the system and the only one with no downstream artifact to record it; today it vanishes into conversation.' Word for word this ticket's argument, made at a different door.\n\nCHART MEASUREMENT WORTH CARRYING: the counsel walks returned 3, 3, 0, 0 nodes above the 0.65 floor for constrain/survey/decompose/triage. The trees have no memory of a record-the-failure change at the late stages. Recorded as a measurement, not as silence.",
+    "at": "2026-08-18T01:19:22",
+    "seq": 18
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(a_refused_ask_leaves_a_row) -> PROVED",
+    "direction": "forward",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "actor": "CC",
+    "ticket": "a-refused-ask-leaves-a-row",
+    "note": "PROVEME. Five pieces built in triage order; 13 teeth in test_inference_domain.py (was 11) and 11 new in proofs/test_watch_refused_probe.py; every proof beside inference_domain run TWICE green (test_inference_domain, test_watch_refused_probe, test_host, test_route, test_watch_probe, test_watch_domain_probe). THE CHART'S OWN FRAMING WAS PARTLY FALSIFIED AND THE PREDICATE CHANGED BECAUSE OF IT. Piece 1 set out to sort host.py's FIVE error classes by whether a byte had been sent. Reading every raise site reachable from ollama_resolver and _routed_resolver found SIX, not five: route.RouteRefused (route.py:60, raised at 239/264/270) is reachable from inside resolver(request) because _routed_resolver calls route_mod.route(). It is pre-dispatch, like BadRequest — but it is a RuntimeError, exactly like the four post-dispatch Host* classes, so NO TYPE TEST SEPARATES THEM. And domain.py imports no host at all: the resolver is INJECTED, which is the module's design, so importing host's exception names to classify them would break the seam to save a list. So the predicate is not a list of classes. It is the try: block: EVERY raise that escapes resolver(request) earns a row; everything before the call (dressing, canonicalize, connect) writes nothing. That is what this door can actually see — it handed an ask to the seam and got no answer; whether the seam dialled is the seam's knowledge — and it survives host.py growing a seventh class, which a tuple would not. The row-less unknown-domain refusal (test:193) is untouched: _domain_dressed raises OUTSIDE the try. THE ROW: verdict='refused', answer NULL, cost 0, provenance {domain, refused: <type name>, detail: <message, 2000 chars>}. No path/host — the resolver raised before returning a provenance, and inventing one would be manufacturing a measurement. A store failure while recording prints to stderr and re-raises the ORIGINAL refusal: a bookkeeping failure may not impersonate a host failure. PIECE 2 WAS RED ON HEAD FOR THE RIGHT REASON, measured before the write existed: 'a refused ask must leave exactly one row; found 0' — never 'the call did not raise'. The four assertions ahead of it passed on HEAD (the exception propagated as the same object; the ask reached the seam). PIECE 4 MEASURED THE STANDING READERS INSTEAD OF REASONING ABOUT THEM, because the survey's conclusion was two true endpoints with a behavioural link in the middle. A REAL refused row, made by the real writer over the real store, was fed to all three probes' own judge_rows: a_non_final_answer_is_refused_by_name -> post_era_chat_rows 0 (outside its /api/chat jurisdiction because there is no provenance.path to have, not by luck); does_a_domain_ride_the_request -> post_era_rows 1, undomained [] (it carries its vertical); does_the_route_leave_loopback -> post_era_generate_misses 0 (verdict filter). MEASURED AND NOT FIXED, reported rather than silently widened: yield_report's 'calls' is len(rows), so it now counts refusals and stops equalling hits+misses. Honest (a refused ask IS a call at this door) but a reader whose meaning this build changed with nothing declaring it. Adding a 'refused' key to yield_report is OUTSIDE constrain's bounds.in, which names resolve() and not the meter — so it is a ticket, not a quiet widening. TICKET OWED. ALSO OWED, found in the same read: inference_calls.verdict now has a THREE-value vocabulary living in prose in three places and enforced by nothing — no CHECK constraint, and db_domain has no migration primitive at all to add one through the one door. TICKET OWED (two). THE WATCH IS ARMED at probes/a_refused_ask_leaves_a_row.py and its clear CANNOT be bought by silence: enough requires at least one post-era REFUSED row, because a refusal-recording path that never recorded a refusal is exactly as unproven as the guard this ticket descends from. Era floor 2026-08-18T01:25:01-06:00, with the honest caveat named in the probe: the ground loop (pid 973171, started 2026-08-17T18:50:39) predates the build, so a refusal raised in THAT process lands no row until it restarts — restarting it is out of bounds, so a standing zero on clause one is ambiguous and the disambiguation is a restart, not a longer wait.",
+    "at": "2026-08-18T01:28:08",
+    "seq": 19
+  },
+  {
+    "from": "PROVEME",
+    "to": "WATCHME",
+    "standing": "WATCHME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(a_refused_ask_leaves_a_row):waiting] -> PROVED",
+    "direction": "forward",
+    "build_gate": "clean — build_inspector ran 21 sieves over inference_domain, and 22 check(s) are proved on this crossing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+        "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+        "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "cursor": 3,
+          "resolved": 4
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> WATCHME",
+        "actual": "PROVEME -> WATCHME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "WATCHME",
+          "legal_from_here": [
+            "BUILDME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_census_can_measure_the_component",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_build",
+        "expected": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
+        "actual": "the census can measure component 'inference_domain' at /home/akien/dev/src/cairn/cairn/devices/inference_domain",
+        "fatality": "none",
+        "source": "transitions.inspect_build",
+        "values": {
+          "component": "inference_domain",
+          "address": "/home/akien/dev/src/cairn/cairn/devices/inference_domain",
+          "sieves_run": [
+            "address_is_resolved_never_spelled",
+            "charted_refs_resolve",
+            "charter_on_disk",
+            "constraint_bounds_complete",
+            "constraint_traces",
+            "decompose_builds_absences",
+            "decompose_composes_holdings",
+            "fire_path_unreachable",
+            "forwarding_order_resolves",
+            "hypothesize_covers_the_ranked",
+            "hypothesize_falsifiable_measured",
+            "proofs_exist",
+            "silent_device",
+            "sole_path_holds",
+            "state_is_projection",
+            "survey_coverage_complete",
+            "survey_holdings_resolve",
+            "triage_covers_the_split",
+            "triage_reasons_the_order",
+            "validate_covers_the_build",
+            "validate_measures_done"
+          ]
+        }
+      },
+      {
+        "identity": "address_is_resolved_never_spelled",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "charted_refs_resolve",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "charter_on_disk",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_bounds_complete",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "constraint_traces",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_builds_absences",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "decompose_composes_holdings",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "fire_path_unreachable",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "forwarding_order_resolves",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_covers_the_ranked",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "hypothesize_falsifiable_measured",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "proofs_exist",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "silent_device",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "sole_path_holds",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "state_is_projection",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_coverage_complete",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "survey_holdings_resolve",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_covers_the_split",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "triage_reasons_the_order",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_covers_the_build",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      },
+      {
+        "identity": "validate_measures_done",
+        "location": "inference_domain",
+        "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+        "expected": 1.0,
+        "actual": 1.0,
+        "fatality": "none",
+        "source": "build_inspector",
+        "values": {
+          "findings": []
+        }
+      }
+    ],
+    "checks_proved": 25,
+    "actor": "CC",
+    "ticket": "a-refused-ask-leaves-a-row",
+    "note": "WATCHME(a_refused_ask_leaves_a_row) — the probe is armed at cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py, the exact berth the ticket's watchme spec names, carrying a module-level frozen Probe with both carry and enough. WHAT IT WATCHES: not 'a raise that left no row' — a probe reads rows and cannot see a raise. It watches the three offender shapes the store CAN show: a 'hit' whose provenance carries a refusal (a refusal replayed as an answer), a 'refused' row that cannot name what refused it, and a 'refused' row metered as work (non-zero cost or a non-null answer) — plus hollow answered rows beside the graft. ENOUGH: no offenders, no hollow answers, at least one refused row (the non-vacuity tooth — a corpus that never refused cannot buy the clear), and 12 answered rows past the era. Measured: enough is False on an empty corpus and False on 50 healthy zero-refusal rows. OVER THE REAL CORPUS RIGHT NOW: 2 post-era rows, 1 refused (HostUnreachable, the live fire), 1 answered, 0 offenders, 0 hollow, would_trigger False, enough False — a young berth, correctly not cleared. THE CAVEAT, STATED IN THE PROBE'S OWN DOCSTRING: Akien's ground loop (pid 973171) predates this build, so its resolver has no refusal write in it; a standing zero refused could mean the door is quiet or could mean the only busy caller is running old code. The disambiguation is a restart, and that is his to make. Until then the refused count is honest about what THIS code recorded and silent about the rest.",
+    "at": "2026-08-18T01:33:43",
+    "seq": 20
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a_refused_ask_leaves_a_row) -> [PROVED]",
+    "direction": "forward",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-refused-ask-leaves-a-row'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/inference_domain/proofs/test_inference_domain.py (seal 2026-08-18T01:34:48, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a_refused_ask_leaves_a_row) emitted the probe berthed at cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py (ticket 'a-refused-ask-leaves-a-row')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260818T013119-eec7592ada4d.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "PROVED",
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(a_refused_ask_leaves_a_row) crossing",
+        "actual": "a cast ticket for the WATCHME(a_refused_ask_leaves_a_row) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a-refused-ask-leaves-a-row",
+          "watch_object": "a_refused_ask_leaves_a_row",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-refused-ask-leaves-a-row.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'a-refused-ask-leaves-a-row' carries a watchme spec for 'a_refused_ask_leaves_a_row'",
+        "actual": "ticket 'a-refused-ask-leaves-a-row' carries a watchme spec for 'a_refused_ask_leaves_a_row'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a-refused-ask-leaves-a-row",
+          "watch_object": "a_refused_ask_leaves_a_row",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a-refused-ask-leaves-a-row",
+          "watch_object": "a_refused_ask_leaves_a_row",
+          "berth": "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "a-refused-ask-leaves-a-row",
+          "component": "inference_domain",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'a-refused-ask-leaves-a-row' is cast",
+        "actual": "named ticket 'a-refused-ask-leaves-a-row' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "a-refused-ask-leaves-a-row",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-refused-ask-leaves-a-row.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "a-refused-ask-leaves-a-row"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "inference_domain",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/inference_domain/proofs/test_inference_domain.py stands in proven-space",
+        "actual": "cairn/devices/inference_domain/proofs/test_inference_domain.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+          "why": "sealed green 2026-08-18T01:34:48 by cairn test, and the component's source fingerprint still matches what was proved (51b1cabdcbf6…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/inference_domain/proofs/test_inference_domain.py's seal at '2026-08-18T01:34:48'",
+        "actual": "the witness dates cairn/devices/inference_domain/proofs/test_inference_domain.py's seal at '2026-08-18T01:34:48'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+          "seal": "2026-08-18T01:34:48",
+          "claimed": "2026-08-18T01:34:48"
+        }
+      }
+    ],
+    "checks_proved": 13,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+    "proven_seal_date": "2026-08-18T01:34:48",
+    "delegated": false,
+    "ticket": "a-refused-ask-leaves-a-row",
+    "note": "PROVED — a refused ask leaves a row. THE DEFECT: domain.resolve() wrote its inference_calls row only AFTER resolver(request) returned, so every raise left the store untouched and the refusal rate of the system's ONLY inference door was unreadable. Law 3: an unrecorded refusal is an unmeasured one. THE PREDICATE, AND IT CHANGED DURING THE BUILD (hypothesis 1 KILLED by its own falsifier): the chart planned to sort host.py's error classes by whether a byte had been sent. Unavailable, for two reasons measured rather than argued. (a) domain.py imports NO host — the resolver is INJECTED, which is the module's design; importing host's exception names to classify them would break the seam to save a list. (b) route.RouteRefused (route.py:60, raised at 239/264/270) is a SIXTH reachable class, pre-dispatch like BadRequest but a RuntimeError exactly like the four post-dispatch Host* classes, so NO TYPE TEST SEPARATES THEM. The line is therefore the try: block itself — every raise escaping resolver(request) earns a row, and everything before the call (dressing, canonicalize, connect) writes nothing. That survives host.py growing a seventh class, which a tuple would not. THE ROW: verdict 'refused', answer NULL, cost 0, provenance {domain, refused: <type name>, detail: <message, 2000 chars>}. No path and no host — the resolver raised BEFORE returning a provenance, and inventing one would be manufacturing a measurement. That absence is also what keeps the row honestly outside a_non_final_answer_is_refused_by_name's /api/chat jurisdiction. RECORDING IS NOT HANDLING: the refusal propagates as the SAME object (asserted by identity, `e is boom`). A store failure while recording prints to stderr and re-raises the ORIGINAL — a bookkeeping failure may not impersonate a host failure. That one line cost hypothesis 5 its life (its falsifier named 'a new module-level import' and `import sys` is one); recorded as a kill rather than smoothed. THE FOUR STANDING READERS, MEASURED NOT REASONED: _latest_valid_answer serves WHERE verdict='miss', so a refusal can never be replayed as a hit with zero new code (and a tooth now asserts it, so editing that clause goes red); all three sibling probes RUN against a row the REAL writer made returned zero findings; yield_report's SPENT and AVOIDED are unmoved. THE ONE HONEST WIDENING, REPORTED NOT HIDDEN: yield_report's `calls` is len(rows) and now counts refusals, so it stops equalling hits+misses. Live: calls 2564 vs 1152+1411=2563. constrain's bounds.in named resolve() and not the meter, so this is a widening — measured, asserted, and a TICKET IS OWED. A SECOND TICKET OWED: inference_calls.verdict now carries a three-value vocabulary ('miss'|'hit'|'refused') stated in prose in three places and enforced by no CHECK constraint — and db_domain has no migration primitive at all (create_owned_table is CREATE TABLE IF NOT EXISTS, no ALTER anywhere), so the constraint is unreachable through the one door. That absence is also WHY the refusal detail rides provenance jsonb instead of a new column, and why db_domain was not touched by this build. PROVED TWICE AND SEALED: test_inference_domain.py 11 -> 14 teeth, test_watch_refused_probe.py 11 teeth, both green twice and both sealed under the tester's netns (seal=sealed, not indeterminate). The row tooth was measured RED on unmodified HEAD ('found 0') before the fix and green after — a hollow build could not have passed it. LIVE FIRE, BOTH DIRECTIONS. A real HostUnreachable against http://127.0.0.1:1 landed THE FIRST REFUSED ROW THIS SYSTEM HAS EVER RECORDED (2026-08-18 01:28:54.159653-06:00, cost 0, answer None, refused 'HostUnreachable'). A real routed generate to hex answered ok at cost 15 with full provenance (provider hex) — the answering path is untouched, and a column-shape compare of a pre-build miss row against a post-build one shows identical column sets and identical provenance keys. WHAT THIS DOES NOT CLOSE: the refusal RATE is now recordable, not yet read by anything but the probe; and the ground loop (pid 973171) predates the build, so a standing zero refused stays ambiguous until Akien restarts it.",
+    "at": "2026-08-18T01:35:16",
+    "seq": 21
   }
 ]

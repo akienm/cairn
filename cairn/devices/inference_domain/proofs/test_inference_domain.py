@@ -14,6 +14,12 @@ could not pass:
     a cache that mangles the record it serves is worse than none.
   - THE OWNER GATES THE CACHE (Law 6). Only inference_domain may write the cache table; a
     non-owner write is refused by db_domain's gate.
+  - A REFUSED ASK LEAVES A ROW (Law 3). A resolver that RAISES still lands a row naming the
+    exception's type; the refusal propagates unchanged, spends nothing, and is never served as
+    a hit. A hollow build writes only on success and the refusal rate stays unreadable.
+  - THE STANDING READERS ARE UNMOVED. The third verdict is fed to each of the three probes'
+    own judgements as a REAL row, not reasoned about — the one that fires on (no text, no cost)
+    included.
   - THE METER IS COMPLETE (Law 3). Every call lands a row; yield_report separates tokens SPENT
     (misses) from tokens AVOIDED (hits), so the saving is measured, not asserted.
 
@@ -225,6 +231,188 @@ def test_a_malformed_domains_stack_is_refused():
         assert "lacks" in str(e)
 
 
+class _RefusingResolver(_CountingResolver):
+    """The host seam RAISING instead of returning — the shape every refusal has at this door.
+
+    Subclasses the counting resolver on purpose: `calls` still counts, so a tooth can tell
+    "the ask reached the seam and the seam refused" apart from "the ask never got there."
+    """
+
+    def __init__(self, error: Exception, **kw):
+        super().__init__(**kw)
+        self._error = error
+
+    def __call__(self, request: dict) -> dict:
+        self.calls += 1
+        raise self._error
+
+
+def test_a_refused_ask_leaves_a_row():
+    """A resolver that RAISES must still land a row — the refusal is a measurement (Law 3).
+
+    Five teeth in one, because they only mean anything together:
+      (a) the exception PROPAGATES unchanged — recording is not handling (constrain's bound).
+      (b) a row landed, naming the exception's TYPE. RED ON HEAD, for the reason "no row was
+          written" — never for "the call did not raise".
+      (c) that row is NEVER served as a hit — a refusal is not an answer.
+      (d) SPENT and AVOIDED are unmoved — a refusal costs nothing and avoids nothing.
+      (e) an ordinary ask after the refusal is unchanged — the door still works.
+    """
+    tag = {"q": f"refused_{_NONCE}"}
+    boom = RuntimeError("the host refused this ask")
+    r = _RefusingResolver(boom)
+
+    before = domain.yield_report(table=_TABLE)
+
+    # (a) the exception propagates — the SAME object, not a wrapper.
+    try:
+        domain.resolve(tag, resolver=r, table=_TABLE)
+        raise AssertionError("a raising resolver must PROPAGATE — recording is not handling")
+    except AssertionError:
+        raise
+    except RuntimeError as e:
+        assert e is boom, f"the refusal must propagate unchanged, got {e!r}"
+    assert r.calls == 1, "the ask must have reached the seam"
+
+    # (b) THE TOOTH THE TICKET EXISTS FOR. Red on HEAD: no row is written today.
+    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%refused_{_NONCE}%",))
+    assert len(rows) == 1, (
+        f"a refused ask must leave exactly one row; found {len(rows)}. "
+        "On unmodified HEAD this is red because NO ROW WAS WRITTEN — resolve() writes only "
+        "after the resolver returns, so every refusal is invisible to the meter."
+    )
+    row = rows[0]
+    prov = row["provenance"] or {}
+    assert prov.get("refused") == "RuntimeError", (
+        f"the row must name the exception TYPE so refusals can be counted by kind: {prov}"
+    )
+    assert "the host refused this ask" in (prov.get("detail") or ""), (
+        f"the row must carry the refusal's own words: {prov}"
+    )
+    assert prov.get("domain"), "the refused row must still say which vertical rode (the watch reads this)"
+    assert row["answer"] is None, "a refusal has no answer; a row claiming one would be a lie (Law 7)"
+    assert float(row["cost"] or 0) == 0.0, "a refusal spends nothing"
+
+    # (c) the refusal must NEVER be served as a hit — the host is touched again.
+    again = _RefusingResolver(RuntimeError("second refusal"))
+    try:
+        domain.resolve(tag, resolver=again, table=_TABLE)
+        raise AssertionError("the second ask must reach the seam, not be served from the refused row")
+    except AssertionError:
+        raise
+    except RuntimeError:
+        pass
+    assert again.calls == 1, "a refused row must not satisfy a later ask (it is not an answer)"
+
+    # (d) the meter is untouched by refusals — constrain's hard bound.
+    after = domain.yield_report(table=_TABLE)
+    assert after["spent"] == before["spent"], f"a refusal must not move SPENT: {before} -> {after}"
+    assert after["avoided"] == before["avoided"], f"a refusal must not move AVOIDED: {before} -> {after}"
+    assert after["hits"] == before["hits"] and after["misses"] == before["misses"], (
+        f"a refusal is neither a hit nor a miss: {before} -> {after}"
+    )
+    # MEASURED, NOT FIXED: `calls` is len(rows), so it now counts refusals too and stops
+    # equalling hits+misses. That is honest (a refused ask IS a call at this door) and it is a
+    # reader whose meaning this build widened without declaring it — reported, ticket owed.
+    assert after["calls"] == before["calls"] + 2, (
+        f"both refused asks must be visible as calls: {before} -> {after}"
+    )
+
+    # (e) an ordinary ask still works, and is a plain miss.
+    good = _CountingResolver()
+    ok = domain.resolve({"q": f"after_refusal_{_NONCE}"}, resolver=good, table=_TABLE)
+    assert ok["hit"] is False and good.calls == 1, "the door must still answer after a refusal"
+
+
+def test_the_standing_readers_are_unmoved_by_a_refused_row():
+    """The third verdict arrives beside FOUR standing readers. MEASURE them — do not reason.
+
+    The chart's survey read all four and concluded none would fire on a refused row. That is a
+    chain of true premises with a behavioural link in the middle, which is exactly the shape
+    that has put a false sentence into an append-only history before. So: make one REAL refused
+    row through the real writer, hand it to each reader's own judgement, and read the answer.
+
+      - a_non_final_answer_is_refused_by_name — fires on (no text) AND (zero cost), which is
+        precisely a refused row's shape. It must not fire, and the reason must be HONEST: the
+        row falls outside its `/api/chat` jurisdiction because the resolver raised before it
+        returned a provenance, so there is no path to record. Not a contrivance — 1150 hit rows
+        already lack one.
+      - does_a_domain_ride_the_request — demands provenance.domain on every post-era row. The
+        refused row carries it, so this reader stays clean BECAUSE the row was built right.
+      - does_the_route_leave_loopback — selects verdict='miss'; a third value is invisible to it.
+      - yield_report — SPENT/AVOIDED unmoved (asserted in the tooth above).
+    """
+    from cairn.devices.inference_domain.probes import (
+        a_non_final_answer_is_refused_by_name as nonfinal,
+        does_a_domain_ride_the_request as domained,
+        does_the_route_leave_loopback as loopback,
+    )
+
+    tag = {"kind": "generate", "q": f"readers_{_NONCE}"}
+    r = _RefusingResolver(RuntimeError("refused for the readers"))
+    try:
+        domain.resolve(tag, resolver=r, table=_TABLE)
+    except RuntimeError:
+        pass
+
+    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%readers_{_NONCE}%",))
+    assert len(rows) == 1 and rows[0]["verdict"] == "refused", f"fixture must be a real refused row: {rows}"
+
+    nf = nonfinal.judge_rows(rows)
+    assert nf["got_through"] == [], (
+        f"a refused row must not read as a non-final answer that got through: {nf}"
+    )
+    assert nf["post_era_chat_rows"] == 0, (
+        "and the REASON must be jurisdiction, not luck: a refused row carries no provenance.path, "
+        f"so it is not a chat row at all: {nf}"
+    )
+
+    dm = domained.judge_rows(rows)
+    assert dm["post_era_rows"] == 1, f"the refused row IS post-era for this reader: {dm}"
+    assert dm["undomained"] == [], f"a refused row must still say which vertical rode: {dm}"
+
+    lb = loopback.judge_rows(rows)
+    assert lb["post_era_generate_misses"] == 0, (
+        f"verdict='refused' is not a miss — the loopback reader must not see it: {lb}"
+    )
+    assert lb["loopback_offenders"] == [], f"and nothing may be reported against it: {lb}"
+
+
+def test_the_watch_reads_a_row_the_real_writer_made():
+    """THE WATCH'S FIXTURES, VALIDATED THROUGH THE PRODUCER'S OWN GATE.
+
+    test_watch_refused_probe.py judges hand-built rows. A fixture that agrees only with its
+    READER is the coin-toss-green failure: it proves the judge is self-consistent and nothing
+    about the writer. So make one refused row and one answered row with the REAL writer, over
+    the real store, and hand THOSE to the same judge. If the writer's shape and the watch's
+    expectation ever drift apart, this is where it shows.
+    """
+    from cairn.devices.inference_domain.probes import a_refused_ask_leaves_a_row as watch
+
+    ok = _CountingResolver()
+    domain.resolve({"q": f"watchfix_ok_{_NONCE}"}, resolver=ok, table=_TABLE)
+    bad = _RefusingResolver(RuntimeError("refused for the watch"))
+    try:
+        domain.resolve({"q": f"watchfix_bad_{_NONCE}"}, resolver=bad, table=_TABLE)
+    except RuntimeError:
+        pass
+
+    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%watchfix_%{_NONCE}%",))
+    assert len(rows) == 2, f"expected one answered and one refused row from the real writer: {rows}"
+
+    s = watch.judge_rows(rows)
+    assert s["post_era_rows"] == 2, (
+        f"rows the real writer just made must be in the watch's jurisdiction — if this is 0 the "
+        f"probe's _ERA is ahead of the writer: {s}"
+    )
+    assert s["refused"] == 1 and s["answered"] == 1, s
+    assert s["refused_by_type"] == {"RuntimeError": 1}, (
+        f"the watch must read the exception type the writer actually recorded: {s}"
+    )
+    assert s["offenders"] == [], f"a row the real writer made must not offend its own watch: {s}"
+    assert s["hollow_answers"] == [], f"and the answered row beside it must read healthy: {s}"
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -249,6 +437,9 @@ def _main() -> int:
         test_editing_a_rows_prompt_is_a_new_question,
         test_an_unknown_domain_is_refused_before_any_spend,
         test_a_malformed_domains_stack_is_refused,
+        test_a_refused_ask_leaves_a_row,
+        test_the_standing_readers_are_unmoved_by_a_refused_row,
+        test_the_watch_reads_a_row_the_real_writer_made,
     ]
     try:
         for check in checks:

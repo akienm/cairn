@@ -27,7 +27,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.inference_domain import host, route
 
-# The machine half, as a FIXTURE mirroring ~/.cairn/inference/hosts.json's shape — endpoints are
+# The machine half, as a FIXTURE mirroring ~/.cairn/devices/inference_domain/0/hosts.json's shape — endpoints are
 # this-LAN facts and a sealed proof owns none, so it fabricates them and never opens the real one.
 _FIXTURE_OVERLAY = {
     "hex": {"endpoint": "http://fixture-hex:11434"},

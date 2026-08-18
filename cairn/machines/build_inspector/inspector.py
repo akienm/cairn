@@ -75,6 +75,13 @@ from cairn.tools.import_sieve import sieve as import_sieve  # noqa: E402
 # is import_sieve's domain, banding is block-general, and this inspector is the
 # nest's first TENANT, not its owner.
 from cairn.tools.base import nest as base_nest  # noqa: E402
+# cairn.tools.base.address joined 2026-08-17 (the-instance-address-is-resolved-never-spelled):
+# _CHART_BERTHS below used to spell ~/.cairn by hand, and was held back at the parent ticket
+# for two stated reasons that have both expired — the import allowlist (retired 2026-08-12
+# by reachability-replaces-the-allowlist) and "no rung fits a device across instances", when
+# resolve("instance/devices") is exactly that shape and predates the exclusion. The module
+# imports pathlib and nothing else, so it costs this gate nothing it measures.
+from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 
 
 def _finding(sieve_name: str, component: str, finding: str, evidence, why: str,
@@ -221,7 +228,11 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
 # history names its tickets (crossings carry them) — so the gate finds a build's
 # charted packets by reading two records that already exist. No new side channel.
 
-_CHART_BERTHS = Path.home() / ".cairn" / "devices" / "chart"
+# STILL A MODULE-LEVEL CONSTANT, and that is a bound rather than a style: the comment
+# below says a proof swaps it, so the conversion had to keep something swappable. An
+# inlined resolve() call at the read sites would pass every value check and silently
+# break the swap.
+_CHART_BERTHS = resolve_address("instance/devices") / "chart"
 
 # Where this gate looks up a ticket. A constant so a proof can swap it (the
 # _CHART_BERTHS pattern), and composed through chart.orient's ticket_path so the

@@ -45,8 +45,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cairn.tools.base.address import instance_path
+
 #: Instance-space. Law 6 and the three roots: no runtime state in class-space, ever.
-VENV = Path.home() / ".cairn" / "devices" / "aider_shim" / "0" / "venv"
+#: RESOLVED, NEVER SPELLED (2026-08-17) — and the contrast with ``AIDER_SRC`` two lines
+#: down is the whole reason the enforcement is a rule about an EXPRESSION rather than a
+#: rule about who may call ``Path.home()``: one of these is instance-space and one is a
+#: held foreign program, and only the first has an owner that computes it.
+VENV = instance_path("aider_shim", 0) / "venv"
 
 #: The held foreign program. NEVER pip-installed — `pip install -e` writes an egg-info
 #: into the checkout, and constrain puts modifying ~/dev/src/aider out of bounds. The

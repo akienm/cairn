@@ -90,7 +90,7 @@ from a device (the tester), never from the hand that wrote the code.
 **About the inference host.** Cairn routes to a local Ollama box (an Apple M1 Studio, called
 Hex here) as the default rung, with Ollama Cloud and Gemini as keyed failovers behind it.
 The routable rungs are authored in `cairn/devices/inference_domain/stacks/` — **shareable rules
-only.** Your LAN endpoints and API keys go in `~/.cairn/inference/hosts.json` and never
+only.** Your LAN endpoints and API keys go in `~/.cairn/devices/inference_domain/0/hosts.json` and never
 enter git. If you have no inference host, everything except the graph trees still runs.
 
 The two repositories are expected to be siblings:

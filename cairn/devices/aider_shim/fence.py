@@ -40,10 +40,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.address import instance_path
+
 # Instance-space, per Law 6 and the three roots: the tool's state berths under the holder
 # that assembled it, never in class-space. A proof passes its own path — a sealed proof
 # may not read instance-space.
-DEFAULT_RECORD = Path.home() / ".cairn" / "devices" / "aider_shim" / "0" / "asks.jsonl"
+# RESOLVED, NEVER SPELLED (2026-08-17): the address comes from the one module that owns it.
+DEFAULT_RECORD = instance_path("aider_shim", 0) / "asks.jsonl"
 
 
 class AskWidened(Exception):

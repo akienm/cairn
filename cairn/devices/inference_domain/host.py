@@ -51,7 +51,8 @@ import urllib.error
 import urllib.request
 
 # The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
-# read from ~/.cairn/inference/hosts.json through route.py's overlay, and the default-built
+# read from ~/.cairn/devices/inference_domain/0/hosts.json through route.py's overlay (moved
+# there 2026-08-17 — the device's state in the device's own space), and the default-built
 # resolver ROUTES through the rules stacks instead of dialing a literal (ruling
 # 2026-08-08-inference-proxy-is-a-rules-stack). There is no default endpoint constant to
 # fall back to on purpose — a literal that survives "just in case" is the defect returning.

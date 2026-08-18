@@ -43,6 +43,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
+from cairn.tools.base.address import resolve
 from cairn.tools.base.probe import Probe
 
 # The directory that holds a device's watchers. One name, here, so "where do probes live"
@@ -208,8 +209,13 @@ def discover(root: Path | None = None, cache: ProbeCache | None = None,
 def instance_devices_root() -> Path:
     """Where instance-space device addresses live: ``~/.cairn/devices``. A pulse at
     ``~/.cairn/devices/<device>/<instance>/groundloop/pulse.py`` is served the same beat
-    as a class-level one — the unit is the FILE, both fire."""
-    return Path.home() / ".cairn" / "devices"
+    as a class-level one — the unit is the FILE, both fire.
+
+    RESOLVED, NEVER SPELLED (2026-08-17): a function whose entire body was the expression
+    ``cairn.tools.base.address`` owns. It is the clearest of the seven conversions, and it
+    puts the resolver's DEVICES token on the path of the one process that runs unattended.
+    """
+    return resolve("instance/devices")
 
 
 def pulse_sites(class_root: Path | None = None,

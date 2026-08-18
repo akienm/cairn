@@ -44,10 +44,15 @@ from pathlib import Path
 from cairn.devices.aider_shim import translate
 from cairn.devices.aider_shim.fence import DEFAULT_RECORD, Fence
 from cairn.devices.aider_shim.venv import VenvRunFailed, run_in_venv
+from cairn.tools.base.address import instance_path
 
 #: Instance-space, beside the ask log the fence already writes (Law 6: the tool's state
 #: berths under the holder that assembled it). One line per driven piece.
-DEFAULT_DRIVES = Path.home() / ".cairn" / "devices" / "aider_shim" / "0" / "drives.jsonl"
+#: RESOLVED, NEVER SPELLED (2026-08-17): the address is ``cairn.tools.base.address``'s to
+#: compute, and the four sites in this device were four of the five hand-spellings written
+#: in the five days after the resolver landed — which is the measurement that turned the
+#: rule into a gate.
+DEFAULT_DRIVES = instance_path("aider_shim", 0) / "drives.jsonl"
 
 #: WHERE AN UNDIRECTED DRIVE'S ASKS LAND — the fence's own constant, imported rather than
 #: re-spelled, because two spellings of one path is how a store quietly becomes two.

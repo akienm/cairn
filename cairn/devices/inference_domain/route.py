@@ -7,7 +7,9 @@ And the lowest cost answer is NEVER 127.0.0.1."
 Three authored stacks live beside this module in ``stacks/`` — providers (costs, connection
 handling, enabled+why), models (names, parameters, pros/cons, scores, serves), combos (the
 provider/model pairings and their specifics). The machine half — THIS LAN's endpoints, API
-keys — lives in ``~/.cairn/inference/hosts.json`` (instance-space, never git; the edge
+keys — lives in ``~/.cairn/devices/inference_domain/0/hosts.json`` (instance-space, never git;
+moved there 2026-08-17 on Akien's ruling — a device's own state lives in that device's own
+space, and the address is now resolved rather than spelled; the edge
 host.py filed 2026-07-26 closes here). This module composes ``cairn.tools.base.nest`` over the
 combos: every sieve is a rule a combo must pass, the shake is one pass coarse-first, and
 what survives is ordered cheapest-first for the resolver to dial — the second carrier of
@@ -38,10 +40,21 @@ import json
 from pathlib import Path
 
 from cairn.tools.base import nest as base_nest
+from cairn.tools.base.address import instance_path
 from cairn.tools.import_sieve import sieve as import_sieve
 
 STACKS_DIR = Path(__file__).resolve().parent / "stacks"
-OVERLAY_PATH = Path.home() / ".cairn" / "inference" / "hosts.json"
+
+# TRANSCRIBING A RULING, NOT SETTLING A QUESTION (2026-08-17). This constant sat off the
+# devices/ ladder at ``~/.cairn/inference/hosts.json`` and was held back at the parent
+# ticket as "a spec question about whether all instance-space is device-space, which an
+# edit would answer invisibly". Akien answered it the same day, and the answer is recorded
+# verbatim in the resolver's own docstring: *"devices/inference_domain/0/ is exactly right.
+# ruled with a smile"* — hosts.json is this device's own state, so it lives in this
+# device's own space. The 673-byte overlay was moved to the ruled address by hand in the
+# same act, because the resolver may not provision and an address that moves without its
+# file is a device that comes up with no overlay.
+OVERLAY_PATH = instance_path("inference_domain", 0) / "hosts.json"
 
 
 class RouteRefused(RuntimeError):

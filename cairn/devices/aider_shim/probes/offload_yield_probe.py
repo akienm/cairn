@@ -65,15 +65,20 @@ import json
 import os
 from pathlib import Path
 
+from cairn.tools.base.address import instance_path
 from cairn.tools.base.probe import Probe
 
 TICKET = "aider-shim"
 
-#: Instance-space, and the same path fence.DEFAULT_RECORD writes. Imported rather than
-#: re-spelled would be better, and is not possible without dragging the fence's whole
-#: import into a module the emission gate loads to READ — so it is asserted against the
-#: fence by this device's proof instead, which is where a two-spellings drift gets caught.
-ASK_LOG = Path.home() / ".cairn" / "devices" / "aider_shim" / "0" / "asks.jsonl"
+#: Instance-space, and the same path fence.DEFAULT_RECORD writes. THE COMMENT HERE USED TO
+#: SAY THIS COULD NOT BE FIXED — "imported rather than re-spelled would be better, and is
+#: not possible without dragging the fence's whole import into a module the emission gate
+#: loads to READ". The resolver answers exactly that: ``cairn.tools.base.address`` imports
+#: ``pathlib`` and nothing else (measured, and leaned on by every caller that pins an
+#: import allowlist), so the address arrives without the fence coming with it. The two
+#: constants are still asserted equal by this device's proof — a resolver removes the
+#: second DERIVATION, not the need to check that both ends still mean one file.
+ASK_LOG = instance_path("aider_shim", 0) / "asks.jsonl"
 
 #: Where verdict artifacts berth. The resolver below is composed, never re-derived.
 _VERDICT_STAGE = "verdict"

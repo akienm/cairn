@@ -276,7 +276,25 @@ try:
         auto_commits=False,               # the apprentice never commits on our behalf
         dirty_commits=False,
         auto_lint=False,
-        auto_test=False,                  # WE run the test, so its result is ours to carry
+        # THE PIECE'S TEST NOW RUNS TWICE, ON PURPOSE, AND THE TWO RUNS ARE NOT
+        # INTERCHANGEABLE. This one is aider's — it fires inside coder.run() after edits
+        # land, and its ONLY job is to be the apprentice's feedback signal: a failure sets
+        # self.reflected_message, which is the sole thing that makes run_one's `while
+        # message:` loop ask again (base_coder.py:1616-1622, and auto_test is the only
+        # gate on that block). The parent's own run_test, further down this module, is
+        # unchanged and is still the RECORD'S AUTHORITY — DriveResult.test is that run,
+        # never this one. Until 2026-08-18 this line read False with the comment "WE run
+        # the test, so its result is ours to carry", which was true about the record and
+        # silently also decided that a failing test never reached the model at all; that
+        # second consequence was never anybody's decision, and `num_reflections: 0` read
+        # identically for "converged" and "nothing could reach it".
+        #
+        # test_cmd IS A STRING AND CANNOT BE ANYTHING ELSE — measured, not chosen.
+        # commands.cmd_test accepts a callable, but get_platform_info does
+        # `platform_text += self.test_cmd + "\n"` unguarded (base_coder.py:1169) on every
+        # system-prompt format, so a function raises TypeError before the first ask.
+        auto_test=True,
+        test_cmd=ARG["test_cmd"],
         use_git=False,
         stream=False,
         suggest_shell_commands=False,
@@ -359,6 +377,12 @@ def drive_brief(b, *, repo=REPO, model: str | None = None, log_path=None,
         "files": list(b.files),           # translate hands these back ABSOLUTE, already
         "read_only": list(b.read_only),   # split by constrain's bound, not by convenience
         "map_tokens": b.map_tokens, "edit_format": EDIT_FORMAT,
+        # The brief's test command crosses into the venv so AIDER can run it too. It rides
+        # as a string because a callable does not survive this boundary and aider could not
+        # take one anyway (see the ctor above). Empty is the honest default: aider's
+        # cmd_test does nothing without a command, so a piece with no test simply gets no
+        # feedback loop rather than a broken one.
+        "test_cmd": b.test_cmd or "",
         "max_reflections": max_reflections,
         "log_path": None if log_path is None else str(log_path),
         "resolve": (seams or {}).get("resolve"),

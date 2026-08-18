@@ -83,10 +83,80 @@ def resolve(request, *, resolver=None, **_kw):
 '''
 
 
+#: A seam that answers a SEQUENCE. The reflection teeth need the apprentice to say two
+#: different things inside ONE coder.run() — a first reply that leaves the piece's test
+#: failing, then a second that fixes it — and the constant seam above cannot stage that.
+#:
+#: The counter is plain module state, and that is a MEASURED choice rather than a lucky
+#: one. driver._DRIVE resolves a seam by exec'ing the file ONCE per drive and handing the
+#: bound attribute to holder.hold(), so this module lives exactly as long as the venv
+#: subprocess: state persists across calls within a drive and cannot leak into the next
+#: one. The disk sidecar this fixture was hypothesized to need would have been a second
+#: mechanism for a lifetime the process boundary already gives for free.
+#:
+#: Past the end of the list it REPEATS the last reply instead of raising. An IndexError
+#: would report "the fixture ran out" as a crash, which reads as a broken proof; repeating
+#: makes an over-reflecting drive show up as what it is — extra asks carrying nothing new.
+_SEAM_MULTI_SRC = r'''
+import json as _json
+
+REPLIES = %r
+TRANSCRIPT = %r
+_n = [0]
+
+def resolve(request, *, resolver=None, **_kw):
+    """The injected door, answering a sequence and TRANSCRIBING what it was asked.
+
+    The transcript is the only way the question 'did the second ask carry the test's
+    failure text?' can be answered. The fence's ask log records ask_chars and never the
+    payload, deliberately — a persistent record of every prompt is a different artifact
+    with different costs. But the seam IS the apprentice's ear, so what reached it is
+    exactly what a fixture may keep, for the life of one tmpdir.
+
+    THIS sidecar is on disk because it has to cross a process boundary: the seam runs
+    inside the venv subprocess and the tooth reading it does not. The reply counter above
+    needs no such thing — it is consumed in the same process that increments it.
+    """
+    i = min(_n[0], len(REPLIES) - 1)
+    _n[0] += 1
+    with open(TRANSCRIPT, "a", encoding="utf-8") as fh:
+        fh.write(_json.dumps({"n": _n[0], "messages": request.get("messages", []),
+                              "model": request.get("model")}) + "\n")
+    return {"answer": {"text": REPLIES[i], "role": "assistant"}, "hit": False,
+            "canonical": "fixture", "cost": 0,
+            "provenance": {"provider": "hex", "counters": {}}}
+'''
+
+
 def seam_file(where: Path, reply: str) -> str:
     p = Path(where) / "seam.py"
     p.write_text(_SEAM_SRC % reply, encoding="utf-8")
     return f"{p}:resolve"
+
+
+def seam_file_multi(where: Path, replies: list, name: str = "seam_multi") -> str:
+    """A seam file whose replies are handed out in order, transcribing every ask it takes.
+    ``name`` keeps two seams in one tmpdir from overwriting each other."""
+    p = Path(where) / f"{name}.py"
+    p.write_text(_SEAM_MULTI_SRC % (list(replies), str(Path(where) / f"{name}.asks.jsonl")),
+                 encoding="utf-8")
+    return f"{p}:resolve"
+
+
+def seam_asks(where: Path, name: str = "seam_multi") -> list:
+    """What the multi-reply seam was actually asked, in order. Empty when it was never
+    reached — which is itself readable, and different from 'asked once'."""
+    p = Path(where) / f"{name}.asks.jsonl"
+    if not p.exists():
+        return []
+    return [json.loads(x) for x in p.read_text(encoding="utf-8").splitlines() if x.strip()]
+
+
+def ask_text(ask: dict) -> str:
+    """Every message of one ask, flattened. The failure text can land in any role's
+    content depending on how aider frames a reflection, so a tooth that looked only at
+    the last user message could go green for the wrong reason."""
+    return "\n".join(str(m.get("content", "")) for m in ask.get("messages", []))
 
 
 def a_repo(where: Path) -> Path:
@@ -647,6 +717,156 @@ def test_the_test_result_rides_the_drive():
         _, r = driven(Path(tmp), test_cmd="python3 -c \"import calc; assert calc.add(1,2)==3\"")
         assert r.test["ran"] is True, r.test
         assert r.test["passed"] is True, r.test
+
+
+# ====================================================== piece 7: the reflection loop
+#
+# WHAT THESE TEETH ARE FOR, and why they are not a check on the constructor. Flipping
+# auto_test and asserting the Coder received True is the hollow build this section exists
+# to refuse: it was MEASURED that the device's existing bounds tooth
+# (test_every_bound_is_a_constructor_argument) writes its own Coder.create call with
+# auto_test=False as a literal and asserts it back off its own instance, so it stays green
+# through this entire change and says nothing about what driver.py constructs. A tooth
+# that cannot go red when the thing it names breaks is a fixture agreeing with its reader.
+#
+# So every tooth below drives the REAL driver.drive_brief and reads the outcome off the
+# drive's own record: the reflection count, the ask log, and what the apprentice's ear
+# actually heard.
+
+
+FAIL_MARK = "TESTFAILMARK-5518"
+
+#: A reply that APPLIES CLEANLY AND STILL FAILS THE TEST. This pair, not MISMATCH_REPLY, is
+#: what makes the section honest — and the difference was MEASURED, not reasoned. Written
+#: first against MISMATCH_REPLY, test_a_failing_test_reaches_the_apprentice went GREEN
+#: against the unchanged driver: aider reflects on a failed SEARCH match all by itself, so
+#: the tooth was watching the mismatch path and would have called it the test path. A reply
+#: that lands its edit removes that other source of reflection entirely, leaving auto_test
+#: as the only thing that can produce a second ask.
+APPLIES_BUT_FAILS = (
+    "calc.py\n```python\n<<<<<<< SEARCH\n    return a - b\n=======\n"
+    "    return a * b\n>>>>>>> REPLACE\n```\n"
+)
+#: The follow-up, searching for what APPLIES_BUT_FAILS actually left behind.
+FIX_AFTER_FAIL = (
+    "calc.py\n```python\n<<<<<<< SEARCH\n    return a * b\n=======\n"
+    "    return a + b\n>>>>>>> REPLACE\n```\n"
+)
+
+
+def a_gated_test(repo: Path) -> str:
+    """A test command that FAILS LOUDLY until add() returns a sum — the lever the whole
+    section turns on. It fails on the pre-edit repo, passes once the good reply lands, and
+    prints a marker no other part of this file emits, so 'the failure text reached the
+    apprentice' is a substring question rather than a judgement call."""
+    (repo / "check.py").write_text(
+        "import sys\n"
+        "if 'a + b' in open('calc.py').read():\n"
+        "    print('check ok')\n"
+        "    sys.exit(0)\n"
+        "sys.stderr.write(%r ': add() still subtracts, the piece is not done\\n')\n"
+        "sys.exit(3)\n" % FAIL_MARK,
+        encoding="utf-8")
+    return "python3 check.py"
+
+
+def driven_multi(tmp, *, replies, max_reflections=1, gated=True, name="seam_multi"):
+    """A drive whose apprentice answers a SEQUENCE, against a test that gates on the edit."""
+    tmp = Path(tmp)
+    repo = a_repo(tmp)
+    test_cmd = a_gated_test(repo) if gated else ""
+    return repo, driver.drive_brief(
+        a_brief(repo, test_cmd=test_cmd), repo=repo, model=MODEL,
+        log_path=tmp / "asks.jsonl", drives_path=tmp / "drives.jsonl",
+        seams={"resolve": seam_file_multi(tmp, replies, name=name)},
+        max_reflections=max_reflections,
+    )
+
+
+def test_a_failing_test_reaches_the_apprentice():
+    """THE VOYAGE'S CENTRAL CLAIM. A first reply that leaves the test failing must earn a
+    SECOND ask — and the count is read off the drive, not off the constructor."""
+    with tempfile.TemporaryDirectory() as tmp:
+        _, r = driven_multi(tmp, replies=[APPLIES_BUT_FAILS, FIX_AFTER_FAIL], max_reflections=1)
+        assert not r.error, r.error
+        assert r.num_reflections >= 1, (
+            "the drive reflected zero times against a test that FAILED — the apprentice was "
+            f"never told. num_reflections={r.num_reflections}, test={r.test}, asks={r.asks}")
+        assert len(r.allowed_asks) >= 2, (
+            "one ask against a failing test means the loop did not close: aider answered, "
+            f"the test ran, and nothing went back. asks={r.asks}")
+
+
+def test_the_second_ask_carries_the_tests_own_failure():
+    """A LOOP THAT CLOSES CARRYING NOTHING IS NOT A LOOP. The mechanism can report firing
+    while the apprentice is simply asked again with no new information — which is the exact
+    shape the ticket's watch stops early and loudly on."""
+    with tempfile.TemporaryDirectory() as tmp:
+        _, r = driven_multi(tmp, replies=[APPLIES_BUT_FAILS, FIX_AFTER_FAIL], max_reflections=1)
+        asks = seam_asks(tmp)
+        assert len(asks) >= 2, f"the seam was asked {len(asks)} time(s); expected >= 2"
+        first, second = ask_text(asks[0]), ask_text(asks[1])
+        assert FAIL_MARK not in first, (
+            "the failure marker was in the FIRST ask — the test cannot have failed yet, so "
+            "this tooth would pass without any reflection happening at all")
+        assert FAIL_MARK in second, (
+            "the second ask does not carry the test's own output. The apprentice was asked "
+            "again and told nothing, which is a spent call rather than a correction. "
+            f"second ask was {len(second)} chars")
+
+
+def test_the_cap_still_holds_against_a_failing_test():
+    """THE BOUND CONSTRAIN DREW. This voyage may not raise the number of asks any existing
+    caller spends on the metered host, and every existing caller takes the default."""
+    with tempfile.TemporaryDirectory() as tmp:
+        _, r = driven_multi(tmp, replies=[APPLIES_BUT_FAILS, FIX_AFTER_FAIL], max_reflections=0)
+        assert r.num_reflections == 0, r.num_reflections
+        assert len(r.allowed_asks) == 1, (
+            "a default-configured drive spent more than one ask — reflection escaped the "
+            f"cap and every current caller just got more expensive. asks={r.asks}")
+        rows = [json.loads(x) for x in
+                (Path(tmp) / "asks.jsonl").read_text().splitlines() if x.strip()]
+        assert len(rows) == 1, rows        # from the LOG, not the return value
+
+
+def test_the_default_max_reflections_is_still_zero():
+    """The cap tooth above is only worth its assertion while the DEFAULT is the thing being
+    capped. A default that drifted upward would leave that tooth measuring an argument
+    nobody passes."""
+    import inspect
+    for fn in (driver.drive, driver.drive_brief):
+        sig = inspect.signature(fn)
+        assert sig.parameters["max_reflections"].default == 0, (fn.__name__, sig)
+
+
+def test_the_arrangement_carries_the_briefs_own_test_command():
+    """READ OFF THE DRIVE, NOT OFF A HAND-WRITTEN COPY. The gap survey measured was that the
+    venv payload had no test_cmd field at all, so the Coder could not have been told the
+    command whatever the constructor said. This asserts the command CROSSED — by its
+    effect: the test ran inside aider's process, which is the only way a mismatch reply can
+    provoke a reflection carrying the marker."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo, r = driven_multi(tmp, replies=[APPLIES_BUT_FAILS, FIX_AFTER_FAIL], max_reflections=1)
+        assert r.test.get("ran") is True, (
+            "the PARENT's run_test did not run — the record's authority is missing and "
+            f"nothing here can be about the second run. test={r.test}")
+        assert FAIL_MARK in "\n".join(ask_text(a) for a in seam_asks(tmp)), (
+            "no ask carries the marker, so aider never ran the command itself: the payload "
+            "carried no test_cmd, or auto_test is off, or both")
+
+
+def test_a_passing_test_provokes_no_reflection():
+    """THE COMMON CASE, asserted so the loop cannot fire on success. A well-scoped piece
+    whose first reply works must still cost exactly one ask."""
+    with tempfile.TemporaryDirectory() as tmp:
+        _, r = driven_multi(tmp, replies=[GOOD_REPLY, MISMATCH_REPLY], max_reflections=1)
+        assert not r.error, r.error
+        assert r.test.get("passed") is True, (
+            f"the gated test did not pass after the good reply — the fixture is wrong, not "
+            f"the driver. test={r.test}")
+        assert len(r.allowed_asks) == 1, (
+            f"a drive whose test PASSED still spent a second ask. asks={r.asks}")
+        assert r.num_reflections == 0, r.num_reflections
 
 
 def test_a_brief_with_no_editable_file_is_refused():

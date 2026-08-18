@@ -57,6 +57,21 @@ _TABLE = f"_trees_{_NONCE}"
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
 
 
+def _fresh_librarian() -> LibrarianDevice:
+    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = LibrarianDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def _refuses(exc, fn, *args, **kwargs):
     try:
         fn(*args, **kwargs)
@@ -201,7 +216,7 @@ def test_the_owner_gate_holds_through_the_stack():
 
 
 def test_crossings_breadcrumb_and_reads_stay_silent():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     r1 = dev.deposit("a breadcrumbed crossing, observed end to end",
                      [0.5, 0.5, 0.0], _PROV, tree="t1", table=_TABLE)
     dev.deposit("a breadcrumbed crossing, observed end to end",
@@ -219,7 +234,7 @@ def test_crossings_breadcrumb_and_reads_stay_silent():
 
 
 def test_device_hood_and_the_ordered_surface():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     assert isinstance(dev, BaseDevice) and dev.device_id == "librarian"
     surface = dev.introspect()
     assert list(surface) == ["intention", "state", "settings", "other"], "Form v0 #2 order is the contract"

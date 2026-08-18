@@ -92,7 +92,13 @@ def _wired():
     ]))
     gl.subscribe(alpha)
     gl.subscribe(beta)
-    return WebServerDevice(gl, port=8799), gl
+    web = WebServerDevice(gl, port=8799)
+    # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): un-wired now WRITES to
+    # ~/.cairn/logs/<device>/<instance>/ instead of holding, which would both empty the lists this
+    # proof reads and seed the live tree from a proof. Holding is now asked for, not an accident.
+    gl.set_diagnostic_receiver(None)
+    web.set_diagnostic_receiver(None)
+    return web, gl
 
 
 def test_the_nav_is_the_roster():
@@ -150,8 +156,8 @@ def test_the_crossings_are_no_longer_silent():
     """The silent_device disposition (troubles/silent-devices-2026-07-27.json): a request
     crossing the surface leaves ONE breadcrumb — per crossing (a request is an event, not
     a pulse) — and a 404 breadcrumbs the same as a 200: the surface may collapse an error
-    into a coherent page (Law 7), never the record that it happened. HELD when no receiver
-    is wired, never dropped."""
+    into a coherent page (Law 7), never the record that it happened. The device is SILENCED in
+    ``_wired`` so the crossings hold here and this proof leaves no trail in the live logs tree."""
     web, _ = _wired()
     assert web.held_diagnostics() == [], "construction is not a crossing"
     web.serve("/")

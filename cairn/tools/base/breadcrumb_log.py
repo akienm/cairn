@@ -30,17 +30,38 @@ now", and the answer replaces itself every second. This is a TRAIL: a line alrea
 never rewritten, which is what makes it a record of truth rather than a second liveness (Law 7).
 The two files sit in the same directory and that adjacency is the whole distinction on display.
 
-WHERE IT LANDS, and this is a ruling not a preference. Finding #5 named ``~/.cairn/logs/``,
-because that is where it looked. Akien ruled the address question on 2026-08-12, after the
-trouble was written, and his test is OWNERSHIP rather than depth: "a file that answers 'what is
-true of this machine' lives at the top; a file that answers 'what is true of this device' lives
-under ``devices/<name>/<instance>/``" — with ``logs``, ``backups`` and ``venv`` named in the same
-breath as legitimately top-level, machine-scoped things. A device's breadcrumb trail is that
-device's own state, so it lands in that device's own space, one file per instance. That also
-makes Law 6 hold for the FILE and not merely for the code: the bus's records never land in the
-ground loop's space, and there is no shared trail for two owners to write into.
+WHERE IT LANDS — ``~/.cairn/logs/<device>/<instance>/``, ruled by Akien on 2026-08-18, and this
+paragraph is the correction of the one that stood here before. That paragraph read "this is a
+ruling not a preference" and sent the trail to ``devices/<name>/<instance>/`` on the strength of
+his 2026-08-12 OWNERSHIP test. The test was quoted correctly and the conclusion was still wrong,
+which is worth saying plainly because a superseded ruling left standing in confident prose is how
+the next reader re-derives a dead address from a document that sounds authoritative.
 
-THE ADDRESS COMES FROM THE ONE OWNER. ``cairn.tools.base.address.instance_path`` — built 2026-08-12
+The two rulings COMPOSE. 2026-08-12 named ``logs``, ``backups`` and ``venv`` in one breath as
+legitimately top-level machine-scoped things, so it had already settled that ``logs`` IS a root;
+what it never said was what the inside of it looks like. 2026-08-18 says: *"in
+~/.cairn/logs/<device>/<instance>/<whatever else> so the path mirrors the code tree"* — and the
+segments under ``logs`` are an INDEX, not a second ownership claim. The ownership test itself is
+untouched: what is TRUE of a device (its state) still lives under ``devices/<name>/<instance>/``;
+what HAPPENED to it lives here.
+
+AND THE WHY IS RETENTION, which is what makes the two addresses different rather than redundant:
+*"easy to delete everything in the logs tree over 30 days old in one go."* One root is one
+deletion crossing nobody's gate; fourteen trails scattered through fourteen devices' own spaces
+would be fourteen sweeps, each reaching into a space its owner gates. So the move does not weaken
+Law 6 for the FILE, it is the thing that keeps the coming sweep from breaking it. What the old
+paragraph got right survives unchanged: one file per instance, the bus's records are the bus's,
+and there is no shared trail for two owners to write into.
+
+WHY IT SITS AT THE FLOOR AND NOT IN ``diagnostic_inspector`` (moved 2026-08-18, ticket
+``a-device-logs-without-being-wired``). Because ``DiagnosticBase`` — a TOOL, inherited by every
+device — now constructs one by default, and a tool that imported a machine would be the
+complexity axis running backwards. Same shape and same why as the ``ROOTS`` table's own lowering
+out of ``skill_block`` on 2026-08-12: it was already right, and "what it lacked was an address
+the rest of the system could stand on". The inspector is unaffected — it imports this from here,
+which is a machine importing a tool, the direction that was always legal.
+
+THE ADDRESS COMES FROM THE ONE OWNER. ``cairn.tools.base.address.log_path`` — built 2026-08-12
 out of ten hand-spelled derivations, importing ``pathlib`` and nothing else, which is what makes
 it a legal floor even here. This module hand-spells nothing; there is no ``Path.home()`` below
 and no literal ``.cairn``. The ``roots`` table rides through so a proof writes to a temp
@@ -75,6 +96,7 @@ to make the trail look busy would be the firehose the discipline forbids AND wou
 measurement.
 
     python3 cairn/machines/diagnostic_inspector/proofs/test_breadcrumb_log.py     # exit 0 = green
+    python3 cairn/tools/base/proofs/test_device_logs_unwired.py                   # exit 0 = green
 """
 
 from __future__ import annotations
@@ -82,7 +104,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.address import instance_path
+from cairn.tools.base.address import log_path
 
 RECORD_NAME = "diagnostics.jsonl"
 
@@ -94,7 +116,7 @@ class LogUnreadable(Exception):
 
 
 class BreadcrumbLog:
-    """A ``DiagnosticBase`` receiver whose home is the owning device instance's own space.
+    """A ``DiagnosticBase`` receiver whose home is that device instance's berth in the logs tree.
 
     Answers the two contracts the in-memory ``Mailbox`` answers, so it drops into the same
     places: ``receive_diagnostic(record)`` to write, ``records()`` to read back. Construction
@@ -106,7 +128,7 @@ class BreadcrumbLog:
     def __init__(self, device: str, instance: int = 0, *, roots: dict[str, Path] | None = None) -> None:
         self.device = device
         self.instance = instance
-        self._path = instance_path(device, instance, roots) / RECORD_NAME
+        self._path = log_path(device, instance, roots) / RECORD_NAME
 
     @property
     def path(self) -> Path:

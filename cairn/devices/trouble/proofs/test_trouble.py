@@ -38,7 +38,14 @@ WHY = "the single write-door accepts a record no reader can read"
 
 
 def _dev(tmp):
-    return TroubleDevice(root=tmp)
+    dev = TroubleDevice(root=tmp)
+    # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): an un-wired device now
+    # writes its trail to ~/.cairn/logs/trouble/0/ instead of holding. ``tmp`` here is the
+    # TROUBLE STORE's root, not the roots table — it redirects the store and not the trail — so
+    # silencing is what keeps this proof out of the live logs tree, and what keeps the held list
+    # its breadcrumb tooth reads from going empty.
+    dev.set_diagnostic_receiver(None)
+    return dev
 
 
 def test_the_first_raise_notifies():

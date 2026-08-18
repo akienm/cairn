@@ -157,11 +157,17 @@ def test_the_crossing_is_no_longer_silent():
     is the DEFAULT — every device speaks the common discipline; the audit trail did not
     answer for the device surface because they are Law 7's two different kinds (record of
     truth vs diagnostic breadcrumb). One breadcrumb per round-trip, pointing at the audit
-    record; HELD when no receiver is wired, never dropped."""
+    record; SILENCED here so the crossings hold and this proof can read them.
+
+    The silencing is not decoration (ticket a-device-logs-without-being-wired, 2026-08-18): an
+    un-wired device now WRITES its trail to ~/.cairn/logs/sudo_relay/0/ rather than holding it,
+    so without this line the list below is empty AND the live tree gains a trail written by a
+    proof. Holding is now asked for; it used to be the accident of nobody assembling the device."""
     import threading
 
     _fresh_instance()
     dev = SudoRelayDevice()
+    dev.set_diagnostic_receiver(None)
     assert dev.held_diagnostics() == [], "construction is not a crossing"
 
     # A one-iteration 'daemon': poll process_pending until the submitted command lands,
@@ -191,7 +197,7 @@ def test_the_crossing_is_no_longer_silent():
     assert crumb["values"] == {"returncode": 3}, \
         "thin values: the one fact worth reading without following the pointer"
     assert crumb["home"] == "held", \
-        "with no receiver wired the breadcrumb HOLDS (Law 7) — never silently dropped"
+        "a silenced device HOLDS the breadcrumb (Law 7) — never silently dropped"
     # Reads are not crossings: the surface emits nothing.
     dev.state(), dev.settings()
     assert len(dev.held_diagnostics()) == 1, "state()/settings() must not emit — no crossing"

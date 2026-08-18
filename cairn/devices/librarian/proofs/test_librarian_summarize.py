@@ -47,6 +47,21 @@ _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_summary_{_NONCE}"
 
 
+def _fresh_librarian() -> LibrarianDevice:
+    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = LibrarianDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def fake_seam(script: list[str], overrides: dict | None = None):
     """Both verbs, one fake door, inference_domain's shape. Embeds are deterministic —
     exact-text overrides for teeth needing controlled geometry, else a nonzero 3-dim
@@ -109,7 +124,7 @@ def _geometry():
 
 def test_the_transducer_renders_a_cited_summary():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     ids = _seed(dev, "render", rows)
     draft = "The anchor fact grounds the answer [1], and the support extends it [2]."
     seam = fake_seam([draft], over)
@@ -125,7 +140,7 @@ def test_the_transducer_renders_a_cited_summary():
 
 def test_the_summary_deposits_back_and_a_walk_finds_it():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     ids = _seed(dev, "landed", rows)
     draft = "One landed line carrying the anchor's why [1]."
     # The landed prose embeds RIGHT AT the question — if it were walkable-only-in-theory
@@ -147,7 +162,7 @@ def test_the_summary_deposits_back_and_a_walk_finds_it():
 
 def test_the_transducer_never_eats_its_own_output_and_rewrites_nothing():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "idem", rows)
     draft = "The idempotent line, grounded on the anchor [1]."
     # The summary embeds right at the question — the STRONGEST temptation for the next
@@ -178,7 +193,7 @@ def test_an_empty_region_refuses():
 
 def test_an_unanchored_draft_refuses_loudly():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "hollow", rows)
     raw = "Confident prose that cites nothing at all."
     msg = _refuses(SummaryRefused, summarize, _Q, resolve=fake_seam([raw], over),
@@ -190,7 +205,7 @@ def test_an_unanchored_draft_refuses_loudly():
 
 def test_a_minted_citation_refuses_loudly():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "minted", rows)
     raw = "A claim resting on a passage that does not exist [7]."
     msg = _refuses(SummaryRefused, summarize, _Q, resolve=fake_seam([raw], over),
@@ -202,7 +217,7 @@ def test_a_minted_citation_refuses_loudly():
 
 def test_depth_travels_with_the_artifact():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "depth", rows)
     draft = "A shallow cut, honestly labeled, resting on the anchor [1]."
     got = summarize(_Q, resolve=fake_seam([draft], over), tree="depth", k=2,
@@ -233,7 +248,7 @@ def test_comma_grouped_marks_are_citations_not_invention():
 
 def test_the_summarize_crossing_breadcrumbs():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "crumbs", rows)
     draft = "The breadcrumbed line rests on the anchor [1] and its support [2]."
     summarize(_Q, resolve=fake_seam([draft], over), tree="crumbs", k=3,
@@ -253,7 +268,7 @@ def test_no_seam_and_no_question_refuse():
 
 def test_the_render_prompt_carries_the_region_whole():
     over, rows = _geometry()
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "whole", rows)
     region = gather(over[_Q], k=3, tree="whole", table=_TABLE, dev=dev)
     prompt = render_prompt(_Q, region)

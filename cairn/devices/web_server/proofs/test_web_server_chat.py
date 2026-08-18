@@ -83,7 +83,14 @@ def _wired(face=None):
     heartbeat = GroundLoopDevice()
     shim = LibrarianShim(session_factory=lambda dev: face)
     heartbeat.subscribe(shim)
-    return WebServerDevice(heartbeat, port=8799), shim
+    web = WebServerDevice(heartbeat, port=8799)
+    # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): a device nobody wired now
+    # WRITES its trail to ~/.cairn/logs/<device>/0/ rather than holding it. The serve-crossing
+    # tooth below reads ``web.held_diagnostics()``, and both devices would otherwise leave a
+    # proof-written trail in the live tree — the instrument writing into what it measures.
+    heartbeat.set_diagnostic_receiver(None)
+    web.set_diagnostic_receiver(None)
+    return web, shim
 
 
 def test_the_librarian_rides_the_roster_and_its_page_carries_the_chat_pane():

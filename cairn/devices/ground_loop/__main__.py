@@ -37,7 +37,6 @@ from datetime import datetime, timezone
 from cairn.tools.base.address import instance_path
 from cairn.devices.bus.bus import BusDevice
 from cairn.devices.bus.shim import BusShim
-from cairn.machines.diagnostic_inspector.log import BreadcrumbLog
 from cairn.devices.ground_loop.discovery import discover, pulse_sites
 from cairn.devices.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.ground_loop.liveness import read_liveness
@@ -82,17 +81,24 @@ def main(home=None, roots=None) -> int:
     # ``discover``, because this runner is where the loop meets the real disk.
     device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice(),
                               bus=bus, pulse_finder=pulse_sites)
-    # THE BREADCRUMBS GET A HOME (ticket a-record-reaches-disk). Until this line every emit in
-    # the running system marked itself ``home='held'`` and appended to a list on an object
-    # inside a process that was about to exit — ``set_diagnostic_receiver`` had no live caller
-    # anywhere, so 22 emit sites wrote to nothing that outlived the run. Wired HERE because
-    # this runner is the one place that hands these devices the real world, the same way it
-    # hands them a wall clock and a discoverer. ONE TRAIL PER DEVICE, each in that device's own
-    # instance space: the bus's records are the bus's (Law 6 on the file, not merely in the
-    # code), and there is no shared file for two owners to write into. Both, not one — wiring
-    # the loop and leaving the bus held would close half the finding in the same three lines.
-    device.set_diagnostic_receiver(BreadcrumbLog("ground_loop", 0, roots=roots))
-    bus.set_diagnostic_receiver(BreadcrumbLog("bus", 0, roots=roots))
+    # THE BREADCRUMBS GET A WORLD — and no longer a NAME (ticket a-device-logs-without-being-wired,
+    # 2026-08-18). These two lines used to read ``set_diagnostic_receiver(BreadcrumbLog("ground_loop",
+    # 0, roots=roots))`` and the same for the bus, and they were the ONLY place in the running
+    # system that knew those two strings. That is why they were also the only two trails that
+    # existed: 17 components emit, one runner wired, and the other 15 appended to a list on an
+    # object inside a process about to exit. A device now derives its own component name from its
+    # class's module address and writes to ~/.cairn/logs/<device>/<instance>/ with nobody wiring
+    # anything, so the naming half of these lines is gone and the trails are unchanged.
+    #
+    # WHAT STAYS IS THE WORLD-HANDING, which was always this runner's actual job — the same
+    # reason it hands these devices a wall clock and a discoverer. ``roots`` is ``None`` in
+    # production (the live tree) and a temp table for a caller running the whole loop against a
+    # fixture; passing it here is what keeps such a caller from seeding the tree it is about to
+    # read. Both devices, not one: the bus's records are the bus's (Law 6 on the file, not merely
+    # in the code), and redirecting the loop while leaving the bus pointed at the live tree would
+    # be half a fixture, which is worse than none.
+    device.set_diagnostic_roots(roots)
+    bus.set_diagnostic_roots(roots)
     # THE POSTMAN, hand-subscribed. Delivery is the BUS's act, never the heartbeat's — the
     # ground_loop does not route (that clause is the 584aa74 goof's headstone) — so the bus's
     # own shim drains the transit table on each pulse and hands each envelope to the shim of

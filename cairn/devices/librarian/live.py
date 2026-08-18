@@ -159,7 +159,7 @@ def _loop(argv: list[str]) -> int:
         "verdict": {k: v for k, v in verdict.items() if k != "nodes"},
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],
                   "standing": n["standing"]} for n in verdict["nodes"]],
-        "breadcrumbs": dev.held_diagnostics(),
+        "trail": str(dev.diagnostic_trail()),
         "yield": domain.yield_report(),
     }, indent=2, default=str))
     return 0
@@ -208,7 +208,7 @@ def _learn(argv: list[str]) -> int:
     dev = LibrarianDevice()
     resolve = dual_seam()
     got = learn_verb(address, resolve=resolve, tree=tree, dev=dev)
-    print(json.dumps({"learn": got, "breadcrumbs": dev.held_diagnostics(),
+    print(json.dumps({"learn": got, "trail": str(dev.diagnostic_trail()),
                       "yield": domain.yield_report()}, indent=2, default=str))
     return 0
 
@@ -223,7 +223,7 @@ def _summarize(argv: list[str]) -> int:
     tree, question = argv[0], argv[1]
     dev = LibrarianDevice()
     got = summarize(question, resolve=dual_seam(), tree=tree, dev=dev)
-    print(json.dumps({"summarize": got, "breadcrumbs": dev.held_diagnostics(),
+    print(json.dumps({"summarize": got, "trail": str(dev.diagnostic_trail()),
                       "yield": domain.yield_report()}, indent=2, default=str))
     return 0
 
@@ -248,7 +248,7 @@ def _main(argv: list[str]) -> int:
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],
                   "provenance": n["provenance"], "standing": n["standing"]}
                  for n in ranked],
-        "breadcrumbs": dev.held_diagnostics(),
+        "trail": str(dev.diagnostic_trail()),
         "yield": domain.yield_report(),
     }, indent=2, default=str))
     return 0 if ranked else 1

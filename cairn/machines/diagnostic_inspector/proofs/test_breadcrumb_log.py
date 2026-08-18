@@ -58,9 +58,9 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.machines.diagnostic_inspector import CompletenessRegistry, Inspector, by_gate, by_pointer
-from cairn.machines.diagnostic_inspector.log import RECORD_NAME, BreadcrumbLog, LogUnreadable
+from cairn.tools.base.breadcrumb_log import RECORD_NAME, BreadcrumbLog, LogUnreadable
 
-_LOG_SOURCE = _REPO_ROOT / "cairn" / "machines" / "diagnostic_inspector" / "log.py"
+_LOG_SOURCE = _REPO_ROOT / "cairn" / "tools" / "base" / "breadcrumb_log.py"
 _INSPECTOR_SOURCE = _REPO_ROOT / "cairn" / "machines" / "diagnostic_inspector" / "inspector.py"
 
 # A device name no real device answers to, so a tooth that accidentally reached the live tree
@@ -113,7 +113,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
 from cairn.tools.base.diagnostic import DiagnosticBase
-from cairn.machines.diagnostic_inspector.log import BreadcrumbLog
+from cairn.tools.base.breadcrumb_log import BreadcrumbLog
 
 class Dev(DiagnosticBase):
     pass
@@ -215,8 +215,15 @@ def the_address_comes_from_the_one_owner(tmp: Path) -> None:
     ok(str(log.path).startswith(str(tmp)),
        "an injected roots table lands the trail under it — which is what lets a proof run without "
        "writing into the live tree it will later be judged against")
-    ok(log.path == tmp / "devices" / "addressed" / "3" / RECORD_NAME,
-       "and the shape is the settled one: devices/<device>/<instance>/, the instance never omitted")
+    # CORRECTED 2026-08-18 (ticket a-device-logs-without-being-wired). This read
+    # ``devices/<device>/<instance>/`` and called it "the settled one" — settled by Akien's
+    # 2026-08-12 OWNERSHIP ruling, which was quoted correctly and applied to the wrong question.
+    # He ruled the interior of the logs tree on 2026-08-18: "in ~/.cairn/logs/<device>/<instance>/
+    # <whatever else> so the path mirrors the code tree", and the why is the sweep — "easy to
+    # delete everything in the logs tree over 30 days old in one go". What is TRUE of a device
+    # still lives under devices/; what HAPPENED to it lives here.
+    ok(log.path == tmp / "logs" / "addressed" / "3" / RECORD_NAME,
+       "and the shape is the ruled one: logs/<device>/<instance>/, the instance never omitted")
 
     source = _LOG_SOURCE.read_text()
     # Measured over the PARSED module, not the raw text. A first pass grepped the file and went
@@ -229,7 +236,7 @@ def the_address_comes_from_the_one_owner(tmp: Path) -> None:
        "address in class-space and is what the address module was built out of")
     ok(not [s for s in literals if ".cairn" in s],
        "and no code-level string spells the instance root either")
-    ok("from cairn.tools.base.address import instance_path" in source,
+    ok("from cairn.tools.base.address import log_path" in source,
        "it composes the one owner of where things live, rather than re-deriving it")
 
 

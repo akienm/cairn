@@ -44,7 +44,14 @@ _TABLE = f"_bus_traffic_{_NONCE}"     # the ephemeral transit table this proof o
 
 
 def _fresh_bus() -> BusDevice:
-    return BusDevice(table=_TABLE)
+    bus = BusDevice(table=_TABLE)
+    # SILENCED, and it belongs in the constructor rather than in the one test that reads
+    # breadcrumbs (ticket a-device-logs-without-being-wired, 2026-08-18). An un-wired device now
+    # WRITES to ~/.cairn/logs/bus/0/ — so a proof that leaves it alone both loses the held list
+    # its assertions read AND seeds the live tree it is later read against. One line here covers
+    # every construction in the file; one line in the reading test would leave the rest polluting.
+    bus.set_diagnostic_receiver(None)
+    return bus
 
 
 def test_a_message_round_trips_with_why_and_causality():

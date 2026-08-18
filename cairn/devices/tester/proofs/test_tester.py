@@ -110,9 +110,11 @@ def test_it_exercises_the_bases_armed_trap():
 def test_the_crossings_are_no_longer_silent():
     """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the
     notary's crossing is the notary ACT — one breadcrumb per run_proof, red and green
-    alike (a red is the notary working, not an anomaly of the notary). HELD when no
-    receiver is wired, never dropped (Law 7)."""
+    alike (a red is the notary working, not an anomaly of the notary). SILENCED below so the
+    breadcrumbs hold — un-wired WRITES since 2026-08-18 (ticket a-device-logs-without-being-wired);
+    Law 7 is unchanged, the record is never silently dropped, only its default home moved."""
     t = TesterDevice()
+    t.set_diagnostic_receiver(None)
     assert t.held_diagnostics() == [], "construction is not a crossing"
     g = t.run_proof(_GREEN_FIXTURE, sink="none")
     t.run_proof(_RED_FIXTURE, sink="none")

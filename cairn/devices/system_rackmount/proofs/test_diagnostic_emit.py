@@ -22,14 +22,17 @@ Teeth a hollow instrumentation could not pass:
   - LAW 6 — THIN. The breadcrumb carries no owned reading (``values`` empty): the CPU number the
     device samples never rides the diagnostic surface, only the pointer does.
   - LAW 7 — HELD, NEVER DROPPED. With no receiver wired the breadcrumb HOLDS on the device
-    (``held_diagnostics`` — home "held"), not silently lost; once a receiver is wired it sends.
+    (``held_diagnostics`` — home "held"), not silently lost. Since 2026-08-18 the un-wired
+    device WRITES to its own trail instead of holding, and holding is a thing you ask for.
 
     python3 cairn/devices/system_rackmount/proofs/test_diagnostic_emit.py     # exit 0 = green
 """
 
 from __future__ import annotations
 
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -91,18 +94,52 @@ def test_law6_the_breadcrumb_is_thin_no_owned_reading_leaks():
     assert "95" not in json.dumps(authored), "the device's private reading never touches the diagnostic surface (Law 6)"
 
 
-def test_law7_held_never_dropped_when_no_receiver_then_sends_once_wired():
-    dev = SystemRackmountDevice(sampler=lambda: {"cpu": 10})   # NO receiver wired
+def test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk():
+    """REWRITTEN 2026-08-18 (ticket a-device-logs-without-being-wired), because the state this
+    tooth was built on stopped existing. It read ``dev = SystemRackmountDevice(...)  # NO receiver
+    wired`` and asserted the breadcrumb was HELD — true then, and the reason only two trails
+    existed in the whole system. Un-wired now WRITES, to this device's own trail in the logs
+    tree, so the old assertion would have gone red for the exact reason the ticket was cast.
 
-    held_sub = dev.subscribe("cpu_threshold", address="ops/personal", why="w", value=80)
-    held = dev.held_diagnostics()
-    assert len(held) == 1 and held[0]["pointer"] == held_sub, "no home wired → the breadcrumb HELD, not lost (Law 7)"
-    assert held[0]["home"] == "held"
+    What Law 7 actually demanded is untouched and is still pinned below: a record is never
+    silently dropped. Holding is now a thing you ASK for (``set_diagnostic_receiver(None)`` — how
+    a temporary instrument is torn down) rather than the accident of nobody having assembled the
+    device, and both halves are checked here so the sentinel is proved rather than assumed.
 
-    box = Mailbox()
-    dev.set_diagnostic_receiver(box)
-    sent_sub = dev.subscribe("cpu_threshold", address="ops/personal", why="w", value=90)
-    assert [r["pointer"] for r in box.records()] == [sent_sub], "once wired, the next gate contact sends home"
+    THE ROOTS TABLE IS NOT OPTIONAL IN THIS FILE ANY MORE. This tooth constructs a REAL device,
+    which now writes by default — and on the first run after the change it seeded
+    ``~/.cairn/logs/system_rackmount/0/diagnostics.jsonl`` in the live tree. Measured, not
+    hypothetical: it is the proof-writes-into-the-instrument failure, and the fix is to hand the
+    device a temp world, which is what ``set_diagnostic_roots`` exists for."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        roots = {"repo": Path(__file__).resolve().parents[4], "commons": tmp, "instance": tmp}
+
+        silenced = SystemRackmountDevice(sampler=lambda: {"cpu": 10})
+        silenced.set_diagnostic_roots(roots)
+        silenced.set_diagnostic_receiver(None)          # SILENCED, deliberately
+        held_sub = silenced.subscribe("cpu_threshold", address="ops/personal", why="w", value=80)
+        held = silenced.held_diagnostics()
+        assert len(held) == 1 and held[0]["pointer"] == held_sub, \
+            "a silenced device HOLDS the breadcrumb, never drops it (Law 7)"
+        assert held[0]["home"] == "held"
+
+        unwired = SystemRackmountDevice(sampler=lambda: {"cpu": 10})
+        unwired.set_diagnostic_roots(roots)             # a world, not a receiver
+        disk_sub = unwired.subscribe("cpu_threshold", address="ops/personal", why="w", value=85)
+        trail = tmp / "logs" / "system_rackmount" / "0" / "diagnostics.jsonl"
+        assert trail.exists(), \
+            f"a real device NOBODY wired must leave its own trail at {trail} — the ticket"
+        written = [json.loads(x) for x in trail.read_text().splitlines() if x.strip()]
+        assert [r["pointer"] for r in written] == [disk_sub], \
+            "and the crossing on disk is the one that happened"
+        assert unwired.held_diagnostics() == [], "nothing is held once there is a home"
+
+        box = Mailbox()
+        unwired.set_diagnostic_receiver(box)
+        sent_sub = unwired.subscribe("cpu_threshold", address="ops/personal", why="w", value=90)
+        assert [r["pointer"] for r in box.records()] == [sent_sub], \
+            "an override still diverts the next gate contact away from the default trail"
 
 
 def _main() -> int:
@@ -110,7 +147,7 @@ def _main() -> int:
         test_a_real_device_emits_at_the_subscribe_gate_and_the_inspector_crawls_it,
         test_law6_isolation_another_subscription_does_not_bleed_in,
         test_law6_the_breadcrumb_is_thin_no_owned_reading_leaks,
-        test_law7_held_never_dropped_when_no_receiver_then_sends_once_wired,
+        test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk,
     ]
     for check in checks:
         check()

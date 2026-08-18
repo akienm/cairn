@@ -81,9 +81,16 @@ class RecordRefused(ValueError):
 # inherits rather than a second one of its own (Law 1 — one emitter, one shape). Import
 # stays stdlib-deep: ``DiagnosticBase`` is datetime-only, so the boot-order law holds.
 #
-# Unwired by default. With no receiver the records HOLD on the surface (never dropped,
-# Law 7) — so the instrument is inert until someone attaches, which is the targeted-and-
-# temporary discipline the diagnostic charter asks for.
+# IT WRITES BY DEFAULT, and the change is the point (ticket a-device-logs-without-being-wired,
+# 2026-08-18). This block used to read "unwired by default ... the instrument is inert until
+# someone attaches", and inert was doing more damage here than anywhere else in the corpus:
+# THIS is the one call every voyage in Cairn advances through, and it was emitting into a list
+# on a module object that died with the process. ``DiagnosticBase`` now derives the component
+# from its class's module address — ``cairn.tools.charter.projector`` → ``charter`` — so every
+# gate progression appends to ``~/.cairn/logs/charter/0/diagnostics.jsonl`` with nobody wiring
+# anything. Attaching a receiver is now an OVERRIDE (the inspector diverting a slice, a proof
+# handing over a temp world), and ``None`` is how a caller asks for the old holding behaviour.
+# Law 7 is untouched: a record was never dropped, and now it also outlives the process.
 class _AppendDoor(DiagnosticBase):
     @property
     def diagnostic_source(self) -> str:
@@ -99,7 +106,8 @@ def set_diagnostic_receiver(receiver) -> None:
 
 
 def held_diagnostics() -> list[dict]:
-    """Records emitted while nothing was attached — held, not lost."""
+    """Records emitted while the door was SILENCED (``set_diagnostic_receiver(None)``) — held,
+    not lost. Empty in ordinary running, where the records go to the trail instead."""
     return _door.held_diagnostics()
 
 

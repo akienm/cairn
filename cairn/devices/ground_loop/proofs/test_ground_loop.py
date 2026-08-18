@@ -183,10 +183,17 @@ def test_the_crossings_are_no_longer_silent():
     """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the
     heartbeat's crossings are ROSTER CHANGES and pulse FAILURES — never the beat itself.
     A breadcrumb per beat would be the per-pulse firehose the discipline forbids; a
-    healthy beat's evidence is the beat-record it already returns. HELD when no receiver
-    is wired, never dropped (Law 7)."""
+    healthy beat's evidence is the beat-record it already returns.
+
+    SILENCED, DELIBERATELY (ticket a-device-logs-without-being-wired, 2026-08-18). This tooth
+    used to say "HELD when no receiver is wired" and lean on it: un-wired meant held, so the
+    proof read ``held_diagnostics()`` for free. Un-wired now WRITES to
+    ``~/.cairn/logs/ground_loop/0/`` — which would empty this list and seed the live tree in the
+    same stroke. ``set_diagnostic_receiver(None)`` asks for the holding that used to be an
+    accident; what Law 7 forbids (a silent drop) is what the assertions below still check."""
     bus = _SpyBus()
     gl = GroundLoopDevice()
+    gl.set_diagnostic_receiver(None)
     s = _Shim("steady", bus)
     gl.subscribe(s)
     gl.subscribe(s)                      # idempotent re-subscribe: no roster change, no breadcrumb
@@ -207,9 +214,10 @@ def test_the_crossings_are_no_longer_silent():
     assert refused["values"]["beat"] == rec["beat"] and "RuntimeError" in refused["values"]["error"], \
         "the error rides the breadcrumb whole — complete on first pass, no re-run to gather it"
     assert all(h["home"] == "held" for h in held), \
-        "with no receiver wired the records HOLD (Law 7) — never silently dropped"
+        "a SILENCED device holds its records (Law 7) — never silently dropped"
     # More healthy beats: still nothing new from health.
     gl2 = GroundLoopDevice()
+    gl2.set_diagnostic_receiver(None)
     gl2.subscribe(_Shim("quiet"))
     for t in ("t0", "t1", "t2"):
         gl2.beat(now=t)

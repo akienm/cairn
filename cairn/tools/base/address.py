@@ -99,6 +99,7 @@ ROOTS = {"repo": _REPO, "commons": _COMMONS, "instance": _INSTANCE}
 DEVICES = "devices"
 TOOLS = "tools"
 MACHINES = "machines"
+LOGS = "logs"
 
 
 class Unreadable(Exception):
@@ -132,6 +133,35 @@ def instance_path(device: str, instance: int = 0, roots: dict[str, Path] | None 
     return resolve(f"instance/{DEVICES}", roots) / str(device) / str(instance)
 
 
+def log_path(device: str, instance: int = 0, roots: dict[str, Path] | None = None) -> Path:
+    """``<instance root>/logs/<device>/<instance>`` — where a thing's LOGS live.
+
+    NOT A SECOND ``instance_path``, and the difference is the one Akien's two rulings draw
+    between them. ``instance_path`` answers "where does this device keep what is TRUE of it" —
+    its state, and its own to gate (Law 6). This answers "where does this device write what
+    HAPPENED to it", and the segments below ``logs`` are an INDEX, not a second ownership
+    claim: *"in ~/.cairn/logs/<device>/<instance>/<whatever else> so the path mirrors the code
+    tree"* (Akien, 2026-08-18).
+
+    THE WHY IS RETENTION, AND HE STATED IT IN THE SAME BREATH AS THE SHAPE: *"easy to delete
+    everything in the logs tree over 30 days old in one go."* That is what makes the two
+    addresses different rather than redundant. A trail filed under each device's own state
+    directory is fourteen sweeps, each reaching into a space its owner gates; one root is one
+    deletion crossing nobody's gate. So the shape does not strain Law 6, it PROTECTS it — the
+    prohibition this module carries above (a shared helper must not reach into every device's
+    space to CREATE) reads identically in the DELETE direction, and this is how the sweep
+    avoids it. Akien read that reasoning and ruled "agree" (2026-08-18).
+
+    IT COMPOSES WITH THE 2026-08-12 RULING RATHER THAN OVERTURNING IT. That ruling — recorded
+    at the top of this file — named ``logs`` top-level in the same breath as ``venv`` and
+    ``backups``, so it had already settled that ``logs`` IS a machine-scoped root. What it did
+    not say was what the inside of it looks like, and that is what 2026-08-18 settles. The
+    ownership test is untouched: a file answering "what is true of this device" still lives
+    under ``devices/<name>/<instance>/``.
+    """
+    return resolve(f"instance/{LOGS}", roots) / str(device) / str(instance)
+
+
 def tool_path(device: str, instance: int, tool: str,
               roots: dict[str, Path] | None = None) -> Path:
     """``.../<device>/<instance>/tools/<tool>`` — a tool held by that instance.
@@ -162,6 +192,43 @@ def machine_path(device: str, instance: int, machine: str,
 # device's LIFE under ~/.cairn; this addresses its CLASS under the repo — "one address written
 # in two roots" (CLAUDE.md, ruled 2026-08-13).
 CLASS_RUNGS = (TOOLS, MACHINES, DEVICES)
+
+
+def component_of_module(module: str) -> str | None:
+    """WHICH COMPONENT OWNS THIS DOTTED MODULE NAME — ``cairn.devices.bus.bus`` -> ``bus``.
+    ``None`` when the name sits under no rung at all.
+
+    The third face of a question this module already answers twice: ``component_dir`` goes from
+    a name to a directory, ``component_of`` goes from a path to a directory, and this goes from
+    an IMPORT NAME to a component name. It exists because a class can be handed its own address
+    for free — ``type(self).__module__`` is always there — which is what lets a device know what
+    device it is without anybody telling it (``cairn/tools/base/diagnostic.py``, the caller this
+    was written for). Before it, the only place in the running system that knew the string
+    ``"ground_loop"`` was the runner that hand-spelled it, and a device that cannot name itself
+    cannot write to an address keyed on its name.
+
+    STRINGS ONLY, NO DISK, NO TREE WALK. ``component_of`` reads the real tree and is honest but
+    expensive; this is asked at construction time by every device, so it is a split on a dotted
+    name. The cost of that choice is real and named: this will happily answer for a module that
+    does not exist, because it never checks. That is the right trade for the caller (a class
+    that imported is a module that exists) and the wrong one for a caller holding an unvalidated
+    string — such a caller wants ``component_dir``, which walks.
+
+    THE DEEPEST RUNG WINS, which is the same rule ``component_of`` states and for the same
+    reason: components nest, so ``cairn.devices.builder.machines.orient.orient`` sits under both
+    the ``builder`` device and the ``orient`` machine. Both are true and only one is its address;
+    answering with the holder would attribute a machine's records to the device that assembles it.
+
+    A NAME UNDER NO RUNG GETS ``None`` RATHER THAN A GUESS. ``__main__``, a doctest, a class
+    defined in a proof — all real, none of them components, and inventing a component name for
+    them would file records under a device that does not exist. The caller decides what to do
+    with the honest absence; this does not decide for it.
+    """
+    parts = module.split(".")
+    rungs = [i for i, p in enumerate(parts) if p in CLASS_RUNGS]
+    if not rungs or rungs[-1] + 1 >= len(parts):
+        return None
+    return parts[rungs[-1] + 1]
 
 
 def package_root(roots: dict[str, Path] | None = None) -> Path:

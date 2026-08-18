@@ -61,6 +61,21 @@ _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_chat_{_NONCE}"
 
 
+def _fresh_librarian() -> LibrarianDevice:
+    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = LibrarianDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def fake_seam(script: list[str], overrides: dict | None = None):
     """Both verbs, one fake door, inference_domain's shape — the summarize proof's
     harness: deterministic embeds (exact-text overrides for controlled geometry, else a
@@ -136,7 +151,7 @@ def test_the_correction_prefix_routes_free_with_the_host_face_down():
 
 
 def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the_shape():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     wrong = "the reading room shuts at four on weekdays, per the old sign"
     (nid,) = _seed(dev, "corrected", [(wrong, [1.0, 0.0, 0.0])])
     seam = fake_seam(["unused — a correction turn spends NO generate"])
@@ -168,7 +183,7 @@ def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the
 
 
 def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "warm", [(_A, [0.95, 0.05, 0.0])])
     draft = "The record holds exactly that: the anchor fact, stated plainly [1]."
     seam = fake_seam([draft], {_Q: [1.0, 0.0, 0.0]})
@@ -192,7 +207,7 @@ def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
 
 
 def test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     fresh = "the freshly learned fact that grounds the anchor question"
     honest = "I have just learned the freshly learned fact [1] — ask me again."
     spoken = "It comes down to the freshly learned fact [1]."
@@ -237,7 +252,7 @@ def test_the_chat_parse_zero_anchors_legal_minted_refused():
 
 
 def test_a_minted_citation_becomes_a_loud_refused_turn():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "minted", [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["A claim the walk never held [9]."], {_Q: [1.0, 0.0, 0.0]})
     got = chat_turn(_Q, resolve=seam, tree="minted", table=_TABLE, dev=dev)
@@ -248,7 +263,7 @@ def test_a_minted_citation_becomes_a_loud_refused_turn():
 
 
 def test_summarizing_when_asked_returns_cited_prose_that_lands():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "shelfed", [(_A, [0.95, 0.05, 0.0])])
     draft = "The anchor's why, carried into prose [1]."
     seam = fake_seam([draft], {"the anchor topic": [1.0, 0.0, 0.0]})
@@ -278,7 +293,7 @@ def test_a_refusal_is_a_reply_and_the_session_survives_it():
 
 
 def test_the_page_is_data_a_surface_can_render():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "paged", [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     session = ChatSession(resolve=seam, tree="paged", table=_TABLE, dev=dev)
@@ -293,7 +308,7 @@ def test_the_page_is_data_a_surface_can_render():
 
 
 def test_the_chat_crossing_breadcrumbs_thin():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "crumbed", [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     chat_turn(_Q, resolve=seam, tree="crumbed", table=_TABLE, dev=dev)
@@ -305,7 +320,7 @@ def test_the_chat_crossing_breadcrumbs_thin():
 
 
 def test_the_chat_window_is_a_declared_pane():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     panes = dev.declared_panes()
     assert panes == [{"kind": "chat", "label": "Chat", "handler": None}], \
         "the window is OFFERED from birth — unattached, its handler is honestly None " \
@@ -318,7 +333,7 @@ def test_the_chat_window_is_a_declared_pane():
 
 
 def test_receive_routes_chat_mail_and_refuses_the_rest():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     _seed(dev, "mailed", [(_A, [0.95, 0.05, 0.0])])
     session = ChatSession(resolve=fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]}),
                           tree="mailed", table=_TABLE, dev=dev)
@@ -329,7 +344,7 @@ def test_receive_routes_chat_mail_and_refuses_the_rest():
     assert session.page()["turns"] == [turn], "the delivered turn landed in the transcript"
     msg = _refuses(ValueError, dev.receive, {"channel": "bogus", "body": {}})
     assert "bogus" in msg, "mail the device cannot process refuses loudly, never vanishes"
-    _refuses(RuntimeError, LibrarianDevice().receive,
+    _refuses(RuntimeError, _fresh_librarian().receive,
              {"channel": "chat", "body": {"utterance": _Q}})
 
 

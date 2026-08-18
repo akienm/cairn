@@ -64,6 +64,21 @@ _NEAR = [0.99, 0.05, 0.0]
 _FAR = [0.0, 1.0, 0.0]
 
 
+def _fresh_librarian() -> LibrarianDevice:
+    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = LibrarianDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def fake_seam(embeds: dict, scripts: list):
     """A resolver seam in inference_domain's shape: embed looks up (default far),
     generate pops the next scripted draft. Records every generate prompt."""
@@ -365,7 +380,7 @@ def test_an_unparseable_backfill_is_loud_with_the_raw_whole():
 
 
 def test_crossings_breadcrumb_resolved_and_unresolved_alike():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     deposit("the resident node that already answers this", _NEAR, _PROV,
             tree="crumbs", table=_TABLE)
     resolve_query("the question", resolve=fake_seam({"the question": [1.0, 0.0, 0.0]}, []),

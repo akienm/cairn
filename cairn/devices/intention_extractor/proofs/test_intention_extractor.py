@@ -47,6 +47,21 @@ _SOURCE = (
 )
 
 
+def _fresh_extractor() -> IntentionExtractorDevice:
+    """A IntentionExtractorDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/intention_extractor/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = IntentionExtractorDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def _resolver_returning(text: str, counter: list | None = None):
     """A fake resolve seam in inference_domain.resolve's return shape, optionally counting calls."""
     def resolve(request: dict) -> dict:
@@ -70,7 +85,7 @@ def _good_draft() -> dict:
 
 
 def test_a_grounded_draft_passes():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     draft = _good_draft()
     out = dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(draft)))
     assert out["verdict"] == "PASS" and out["findings"] == []
@@ -80,7 +95,7 @@ def test_a_grounded_draft_passes():
 
 
 def test_a_fabricated_anchor_is_caught():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     draft = _good_draft()
     fabricated = "the graph type is a coordinate, not a class"  # the founding specimen
     draft["anchors"].append(fabricated)
@@ -92,7 +107,7 @@ def test_a_fabricated_anchor_is_caught():
 
 
 def test_a_missing_why_and_field_drift_are_refused():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     hollow = _good_draft()
     hollow["why"] = "  "
     out = dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(hollow)))
@@ -111,7 +126,7 @@ def test_a_missing_why_and_field_drift_are_refused():
 
 
 def test_an_unparseable_draft_is_loud_and_still_breadcrumbs():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     prose = "Sure! The intention here seems to be about prebuild steps."
     try:
         dev.extract(_SOURCE, resolve=_resolver_returning(prose))
@@ -125,7 +140,7 @@ def test_an_unparseable_draft_is_loud_and_still_breadcrumbs():
 
 
 def test_a_fenced_draft_parses():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     fenced = "```json\n" + json.dumps(_good_draft()) + "\n```"
     out = dev.extract(_SOURCE, resolve=_resolver_returning(fenced))
     assert out["verdict"] == "PASS", "a markdown fence is wrapping, not content"
@@ -136,7 +151,7 @@ def test_a_quote_wrapped_anchor_is_not_a_fabrication():
     wrapped every anchor in literal quotation marks — all three honest quotes refused as
     fabricated. Wrapping is not content; and stripping it must NOT admit an actual
     fabrication that arrives wearing quotes."""
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     honest = _good_draft()
     honest["anchors"] = [f'"{a}"' for a in honest["anchors"]]
     out = dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(honest)))
@@ -149,7 +164,7 @@ def test_a_quote_wrapped_anchor_is_not_a_fabrication():
 
 
 def test_an_empty_source_never_touches_the_host():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     calls: list = []
     seam = _resolver_returning(json.dumps(_good_draft()), calls)
     for source in ("", "   \n  ", "too short to mean"):
@@ -163,7 +178,7 @@ def test_an_empty_source_never_touches_the_host():
 
 
 def test_no_seam_no_extraction():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     try:
         dev.extract(_SOURCE, resolve=None)
         raise AssertionError("no seam must mean no extraction — nothing is invented")
@@ -189,7 +204,7 @@ def test_the_crossings_are_no_longer_silent():
     """Born instrumented — the silent-devices trouble (2026-07-27) applied at birth, not
     retrofitted: one breadcrumb per extraction crossing, REFUSED riding the same shape as
     PASS (a refusal is the checks working), reads adding nothing, HELD when no receiver."""
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     assert dev.held_diagnostics() == [], "construction is not a crossing"
     dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(_good_draft())))
     bad = _good_draft()
@@ -213,7 +228,7 @@ def test_the_crossings_are_no_longer_silent():
 
 
 def test_device_hood_and_owned_state():
-    dev = IntentionExtractorDevice()
+    dev = _fresh_extractor()
     assert isinstance(dev, CoreValuesMixin), "the extractor is a device (Law 2)"
     assert list(dev.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
     dev.extract(_SOURCE, resolve=_resolver_returning(json.dumps(_good_draft())))

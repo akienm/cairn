@@ -53,6 +53,21 @@ _SRC = _TMP / "sources"
 _SRC.mkdir(parents=True)
 
 
+def _fresh_librarian() -> LibrarianDevice:
+    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
+
+    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
+    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
+    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
+    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
+    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
+    silently dropped, only its default home moved.
+    """
+    dev = LibrarianDevice()
+    dev.set_diagnostic_receiver(None)
+    return dev
+
+
 def _source(name: str, text: str) -> Path:
     p = _SRC / name
     p.write_text(text, encoding="utf-8")
@@ -199,7 +214,7 @@ def test_learned_nodes_resolve_with_their_citation_intact():
     seam = fake_embed({a: [1.0, 0.0, 0.0], b: [0.0, 1.0, 0.0]})
     learn("lessons/walkback.txt", resolve=seam, tree="walkback",
           library=_SHELF, table=_TABLE)
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     walk = dev.nearest([0.99, 0.05, 0.0], k=2, tree="walkback", table=_TABLE)
     assert walk[0]["content"] == a, "the learned passage is reachable as structure"
     assert walk[0]["provenance"] == {"source": "library:lessons/walkback.txt",
@@ -210,7 +225,7 @@ def test_learned_nodes_resolve_with_their_citation_intact():
 
 
 def test_the_learn_crossing_breadcrumbs():
-    dev = LibrarianDevice()
+    dev = _fresh_librarian()
     learn("lessons/teach.txt", resolve=fake_embed(), tree="taught",
           library=_SHELF, table=_TABLE, dev=dev)
     crumbs = [c for c in dev.held_diagnostics() if c["gate"] == "learn"]

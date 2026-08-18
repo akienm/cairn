@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""cairn trash — the recoverable delete, for the root where delete is forever.
+
+WHAT HAPPENED, 2026-08-18, and this file is its headstone. CC ran
+``rm -rf ~/.cairn/logs`` to clear eight diagnostics trails a proof run had seeded, and
+took six files with them that were nobody's to take — including
+``logs/archive/boot.pre-decontamination``, a 54-record pre-image somebody had
+deliberately preserved. Measured immediately after: ext4, no snapshots, no
+``~/.cairn`` in any backup, and the only entry in ``~/.cairn/backups`` a crontab from
+July. The loss was total within about four seconds of deciding to tidy up.
+
+THE ASYMMETRY WAS ALREADY WRITTEN DOWN — CLAUDE.md's three-roots table — and nobody had
+made it physical:
+
+    ~/dev/src/cairn/        git      a bad delete costs a checkout
+    ~/dev/src/CairnCommons/ git      a bad delete costs a checkout
+    ~/.cairn/               NOTHING  a bad delete is the end of that data
+
+So this is not a rule about being careful with ``rm``. It is the one root where delete
+has no undo, given a door that gives it one. ``bin/cmd/deletegate`` is the physics that
+makes the door unavoidable (Law 4); this is the door.
+
+IT BORROWS THE PLATFORM RATHER THAN MINTING A FOURTH ROOT. Entries land in the
+**freedesktop trash** — ``~/.local/share/Trash/{files,info}`` — which means three things
+we would otherwise have had to build and then teach someone about: KDE's own file
+manager already shows it and restores from it with a right-click (this box runs Konsole,
+so that surface is already open); ``trash-cli`` reads and writes exactly this format, so
+installing it later adds ``trash-restore``'s picker over the same data with nothing to
+migrate; and the trash is OUTSIDE ``~/.cairn``, which a safety copy has to be — a
+snapshot living inside the thing it protects is not a snapshot.
+
+WHY NOT JUST INSTALL trash-cli AND ALIAS rm. Two reasons, and the second is the one that
+decided it. An alias binds interactive shells; the delete that caused this ran from a
+tool call, where no alias of Akien's was ever going to be consulted — the protection has
+to sit where the act actually happens, which is the tool gate. And aliasing ``rm`` to
+something that does not unlink changes the meaning of a standard verb for every script
+on the box, which is how a safety measure turns into a source of surprises. ``rm`` still
+means ``rm`` here. It is simply refused at one address, and this is what to type instead.
+
+    bin/cmd/trash <path>...          move into the trash, recoverable
+    bin/cmd/trash --list             what is in there, with where it came from
+    bin/cmd/trash --restore <name>   put one back where it was
+    bin/cmd/trash --empty <days>     drop entries older than N days
+
+RETENTION IS THE SAME SWEEP THE LOGS TREE IS OWED. Ticket
+``the-logs-tree-forgets-after-30-days`` is cast for a 30-day sweep over one root, and a
+trash can wants exactly the same thing over its own. ``--empty`` is that sweep, hand-fired
+for now; when the logs sweep gets its trigger this should ride the same one rather than
+grow a second clock (Law 1 — and the shrinking-footprint discipline: no poller).
+
+Proof: ``bin/proofs/test_delete_gate.py`` (exit 0 = green) — ONE proof for the door and
+the gate together, deliberately. They are two files but one mechanism: a gate with no
+door is a wall, a door nothing forces you through is a suggestion. Proving them apart
+would let either half go green while the pair failed to protect anything.
+"""
+
+from __future__ import annotations
+
+import shutil
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import quote, unquote
+
+TRASH_HOME = Path.home() / ".local" / "share" / "Trash"
+
+
+def trash_dirs(home: Path | None = None) -> tuple[Path, Path]:
+    """``(files, info)`` — the spec's two halves. Injectable so a proof never touches the
+    real trash; the same seam ``address.roots`` is, for the same reason."""
+    root = (home / ".local" / "share" / "Trash") if home else TRASH_HOME
+    return root / "files", root / "info"
+
+
+def _unique(files: Path, name: str) -> str:
+    """A name no entry already holds. The spec allows renaming on collision and says
+    nothing about how; ``name.2`` keeps the suffix readable, which matters because the
+    name in ``files/`` is the only handle ``--restore`` has."""
+    if not (files / name).exists():
+        return name
+    n = 2
+    while (files / f"{name}.{n}").exists():
+        n += 1
+    return f"{name}.{n}"
+
+
+def put(path: Path, home: Path | None = None, now: datetime | None = None) -> Path:
+    """Move one path into the trash and record where it came from. Returns the entry.
+
+    The info file is written BEFORE the move, and that order is the whole reliability of
+    this door: if the move fails we are left with an info file pointing at something
+    still in place — noise a reader can see and delete. The other order loses the origin
+    on any failure between the two writes, and an entry in ``files/`` with no origin is
+    exactly as recoverable as ``rm`` was."""
+    files, info = trash_dirs(home)
+    files.mkdir(parents=True, exist_ok=True)
+    info.mkdir(parents=True, exist_ok=True)
+
+    src = path.expanduser().resolve()
+    if not src.exists() and not src.is_symlink():
+        raise FileNotFoundError(f"{src} does not exist — nothing to trash")
+
+    name = _unique(files, src.name)
+    stamp = (now or datetime.now(timezone.utc).astimezone()).strftime("%Y-%m-%dT%H:%M:%S")
+    (info / f"{name}.trashinfo").write_text(
+        f"[Trash Info]\nPath={quote(str(src))}\nDeletionDate={stamp}\n", encoding="utf-8")
+    shutil.move(str(src), str(files / name))
+    return files / name
+
+
+def entries(home: Path | None = None) -> list[dict]:
+    """Everything in the trash, newest first: ``{name, origin, deleted_at}``.
+
+    An entry whose info file is missing or unreadable is REPORTED, never skipped (Law 7):
+    it is still recoverable by hand, and a listing that silently omitted it would be the
+    surface deciding the reader does not need to know."""
+    files, info = trash_dirs(home)
+    if not files.exists():
+        return []
+    out = []
+    for entry in sorted(files.iterdir()):
+        meta = info / f"{entry.name}.trashinfo"
+        origin, deleted = None, None
+        if meta.exists():
+            for line in meta.read_text(encoding="utf-8").splitlines():
+                if line.startswith("Path="):
+                    origin = unquote(line[5:])
+                elif line.startswith("DeletionDate="):
+                    deleted = line[13:]
+        out.append({"name": entry.name, "origin": origin, "deleted_at": deleted,
+                    "lack": None if origin else "no readable .trashinfo — origin unknown"})
+    return sorted(out, key=lambda e: e["deleted_at"] or "", reverse=True)
+
+
+def restore(name: str, home: Path | None = None) -> Path:
+    """Put one entry back where it came from. Refuses to overwrite what is there now —
+    a restore that clobbered a live file would be this whole file's own defect, wearing
+    the costume of a fix."""
+    files, info = trash_dirs(home)
+    entry = files / name
+    if not entry.exists():
+        raise FileNotFoundError(f"no trash entry named {name!r}")
+    found = [e for e in entries(home) if e["name"] == name]
+    origin = found[0]["origin"] if found else None
+    if not origin:
+        raise ValueError(f"{name!r} has no readable origin — restore it by hand from {entry}")
+    dest = Path(origin)
+    if dest.exists():
+        raise FileExistsError(f"{dest} exists — refusing to overwrite it with the trashed copy")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(entry), str(dest))
+    (info / f"{name}.trashinfo").unlink(missing_ok=True)
+    return dest
+
+
+def empty(days: int, home: Path | None = None, now: datetime | None = None) -> list[str]:
+    """Drop entries deleted more than ``days`` ago. Returns what went, by name.
+
+    An entry with no readable date is KEPT, not swept. The sweep's job is forgetting what
+    is provably old; treating unknown as old is how a retention window quietly becomes a
+    second unrecoverable delete."""
+    files, info = trash_dirs(home)
+    ref = now or datetime.now(timezone.utc).astimezone()
+    gone = []
+    for e in entries(home):
+        if not e["deleted_at"]:
+            continue
+        try:
+            when = datetime.strptime(e["deleted_at"], "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            continue
+        if (ref.replace(tzinfo=None) - when).days <= days:
+            continue
+        target = files / e["name"]
+        shutil.rmtree(target) if target.is_dir() else target.unlink(missing_ok=True)
+        (info / f"{e['name']}.trashinfo").unlink(missing_ok=True)
+        gone.append(e["name"])
+    return gone
+
+
+def _main(argv: list[str]) -> int:
+    if not argv or argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0 if argv else 2
+
+    if argv[0] == "--list":
+        rows = entries()
+        if not rows:
+            print("trash is empty")
+            return 0
+        for e in rows:
+            print(f"{e['deleted_at'] or '?':<20} {e['name']}")
+            print(f"{'':<20} from {e['origin'] or e['lack']}")
+        return 0
+
+    if argv[0] == "--restore":
+        if len(argv) < 2:
+            print("usage: trash --restore <name>   (names come from --list)", file=sys.stderr)
+            return 2
+        try:
+            print(f"restored to {restore(argv[1])}")
+        except (FileNotFoundError, FileExistsError, ValueError) as exc:
+            print(f"trash: {exc}", file=sys.stderr)
+            return 1
+        return 0
+
+    if argv[0] == "--empty":
+        days = int(argv[1]) if len(argv) > 1 else 30
+        gone = empty(days)
+        print(f"dropped {len(gone)} entr{'y' if len(gone) == 1 else 'ies'} older than {days} days")
+        return 0
+
+    failed = False
+    for raw in argv:
+        try:
+            print(f"trashed {raw} -> {put(Path(raw))}")
+        except (FileNotFoundError, OSError) as exc:
+            print(f"trash: {exc}", file=sys.stderr)
+            failed = True
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main(sys.argv[1:]))

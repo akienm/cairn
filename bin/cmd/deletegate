@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""cairn deletegate — the PreToolUse gate on unrecoverable deletes.
+
+THE MEASURED FAILURE, 2026-08-18. CC ran ``rm -rf ~/.cairn/logs`` to clear eight
+diagnostics trails a proof run had seeded, and destroyed six files it had never read —
+among them a 54-record pre-image somebody had deliberately archived. Measured within the
+minute: ext4, no snapshots, ``~/.cairn`` in no backup. Nothing was recoverable, and the
+whole event took one tool call.
+
+WHY A GATE AND NOT A RESOLUTION TO BE CAREFUL. The intent was correct at every step —
+clean up after the proofs, using the same verb everybody uses. What went wrong was the
+BLAST RADIUS of one flag against one root, and no amount of resolving to be careful
+survives the next tidy-up six weeks from now. Law 4: a rule that matters is enforced by
+physics, not policy. The policy version of this rule already existed, in CLAUDE.md's
+three-roots table, which has said since the beginning that instance-space is never in
+git — and it did not stop anything, because a table is read by a mind and a mind is
+exactly the component that was going fast.
+
+WHAT IT REFUSES, and it is deliberately one rule with no exemption roster: **a delete
+under ~/.cairn goes through bin/cmd/trash.** Not "an unread delete", not "a recursive
+delete", not "a delete of more than N files" — every one of those needs someone to
+adjudicate an edge at the moment they are least equipped to, and the exemption roster is
+what let a node through with no watch at all (``tester/scratch.py`` records that lesson
+about this very repo). One root, one verb, one door.
+
+WHAT IT DOES NOT TOUCH, and the bound is the point. The two git roots are NOT gated: a
+bad delete there costs a checkout, so gating them would be friction bought with nothing.
+That is the same asymmetry the three-roots table already draws; this gate is that table
+made physical at the one row where it bites. Untracked files in the git roots are the
+honest hole — they are as unrecoverable as instance-space and this does not cover them.
+Named rather than closed, because closing it means gating every delete in the working
+tree, and n=1 does not buy that much friction (CP4: the rule serves us).
+
+THE REFUSAL IS LOUD AND CARRIES THE WAY THROUGH (Law 7, and complete-diagnostic-on-first-
+pass): it names the command that was blocked, why this root is different, and the exact
+line to type instead. A gate that only says no gets routed around by the next mind in a
+hurry, which is the same mind that needed the gate.
+
+Contract, measured 2026-08-18 rather than assumed: stdin is JSON carrying ``tool_name``
+and ``tool_input.command``; exit 0 allows, exit 2 blocks and feeds stderr back to Claude.
+Registered at ``.claude/settings.json`` under ``hooks.PreToolUse`` with matcher ``Bash``.
+
+Proof: ``bin/proofs/test_delete_gate.py`` (exit 0 = green).
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+# The one guarded root. Spelled three ways because a command may carry any of them, and
+# the gate reads the TEXT the tool was handed — the shell has not expanded anything yet.
+GUARDED = "/.cairn"
+GUARDED_FORMS = ("~/.cairn", "$HOME/.cairn", str(Path.home() / ".cairn"), ".cairn")
+
+# The verbs that unlink. `find -delete` and `-exec rm` are here because the miss that
+# taught this repo about spellings was exactly this shape: the first corpus tooth for the
+# temp-dir leak grepped for `mkdtemp` and missed a leak wearing `gettempdir` (scratch.py,
+# 2026-08-03). A gate narrower than its own defect is the hollow kind.
+DESTRUCTIVE = re.compile(
+    r"(?:^|[\s;&|(])(?:rm|rmdir|shred|unlink)\b"
+    r"|(?:^|[\s;&|(])find\b[^;&|]*?(?:-delete\b|-exec\s+rm\b|-execdir\s+rm\b)"
+    r"|(?:^|[\s;&|(])truncate\b"
+    r"|(?:^|[\s;&|(])(?:mkfs|dd)\b",
+)
+
+REFUSAL = """REFUSED — this deletes under ~/.cairn, the one root with no undo.
+
+  blocked: {command}
+
+~/.cairn is instance-space: never in git, on ext4 with no snapshots, in no backup.
+A delete here is final. The two git roots are not gated — a bad delete there costs a
+checkout — so this refusal is specifically about the row of CLAUDE.md's three-roots
+table where the loss is total.
+
+Use the door instead, which is recoverable and shows up in KDE's trash:
+
+  bin/cmd/trash <path>...        move it, recoverably
+  bin/cmd/trash --list           see what is in there and where it came from
+  bin/cmd/trash --restore <name> put it back
+
+Deleting many files by pattern:
+
+  find ~/.cairn/logs -name diagnostics.jsonl -exec bin/cmd/trash {{}} +
+
+This gate was built the day `rm -rf ~/.cairn/logs` destroyed six files nobody had read,
+including a 54-record archive that was kept on purpose. If it is genuinely wrong here,
+that is a finding worth recording rather than a flag worth adding — say so to Akien."""
+
+
+def verdict(command: str) -> str | None:
+    """``None`` to allow; the refusal text to block. The whole judgement, one function,
+    so the proof measures what the hook does rather than something shaped like it."""
+    if not command:
+        return None
+    if not DESTRUCTIVE.search(command):
+        return None
+    if not any(form in command for form in GUARDED_FORMS):
+        return None
+    # The door itself must pass — otherwise the way through is also blocked, and the gate
+    # is a wall. Read as a substring of the command because that is how it will be typed.
+    if "cmd/trash" in command or "bin/cmd/trash" in command:
+        return None
+    return REFUSAL.format(command=command.strip()[:400])
+
+
+def _main() -> int:
+    try:
+        payload = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        # CP1: say what happened. A gate that cannot read its input must not silently
+        # allow — but it must not block the whole session either, so it speaks and allows.
+        print("deletegate: could not read the hook payload as JSON — allowing, unguarded",
+              file=sys.stderr)
+        return 0
+
+    if payload.get("tool_name") != "Bash":
+        return 0
+
+    refusal = verdict((payload.get("tool_input") or {}).get("command", ""))
+    if refusal is None:
+        return 0
+    print(refusal, file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

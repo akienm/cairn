@@ -262,6 +262,34 @@ def test_an_entry_with_no_readable_origin_is_reported_not_hidden():
         assert "origin unknown" in rows[0]["lack"], "it says what is missing, and is still listed"
 
 
+def test_the_guarded_root_and_the_trash_share_a_volume():
+    """THE CONDITION THE trash-cli INTEROP CLAIM RESTS ON, asserted as an invariant rather
+    than quoted from the charter.
+
+    Measured 2026-08-18, both directions: a file the door trashed showed up in ``trash-list``
+    and ``trash-restore`` put it back, byte for byte. But a file on ``/tmp`` trashed with
+    ``trash-put`` did NOT appear in the door's listing — it went to ``/tmp/.Trash-1000/``,
+    because the freedesktop spec sends a file to its own VOLUME's trash and ``/tmp`` is a
+    tmpfs. The door always uses the home trash. So the two agree exactly when the source
+    shares a volume with home, and diverge when it does not.
+
+    That is not a defect at the address this door guards — ``~/.cairn`` is on the same device
+    as ``$HOME`` — but it IS a load-bearing precondition, and a precondition living only in a
+    charter sentence is one nobody re-checks. If ``~/.cairn`` ever moves to its own volume,
+    this goes red and says why, instead of the interop claim quietly becoming false."""
+    import os
+    cairn_root = Path.home() / ".cairn"
+    if not cairn_root.exists():                     # a box where nothing has run yet
+        return
+    guarded = os.stat(cairn_root).st_dev
+    trash = os.stat(Path.home()).st_dev
+    assert guarded == trash, (
+        f"~/.cairn is on device {guarded} and $HOME on {trash} — the door would move ACROSS "
+        "volumes into the home trash, where trash-cli and KDE would instead expect the "
+        "volume trash. The interop the charter claims no longer holds; either move the door "
+        "to volume-aware placement or drop the claim.")
+
+
 def _main() -> int:
     real_trash = Path.home() / ".local" / "share" / "Trash" / "files"
     before = sorted(p.name for p in real_trash.iterdir()) if real_trash.exists() else []
@@ -280,6 +308,7 @@ def _main() -> int:
         test_restore_refuses_to_overwrite_what_is_there_now,
         test_the_sweep_keeps_what_it_cannot_date,
         test_an_entry_with_no_readable_origin_is_reported_not_hidden,
+        test_the_guarded_root_and_the_trash_share_a_volume,
     ]
     for check in checks:
         check()

@@ -1,21 +1,25 @@
 {
   "cursor": {
-    "from": "BUILDME",
-    "to": "PROVEME",
-    "standing": "PROVEME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_address_gate_bites) -> PROVED",
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_address_gate_bites) -> [PROVED]",
     "direction": "forward",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-instance-address-is-resolved-never-spelled'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/tools/base/proofs/test_address_rule.py (seal 2026-08-17T21:05:35, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_address_gate_bites) emitted the probe berthed at cairn/machines/build_inspector/probes/does_the_address_gate_bite.py (ticket 'the-instance-address-is-resolved-never-spelled')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260817T190347-ce325abeeed7.json",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "PROVED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -30,68 +34,198 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
-          "cursor": 2,
-          "resolved": 3
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME",
-        "actual": "BUILDME -> PROVEME",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "PROVED",
           "legal_from_here": [
+            "BUILDME",
+            "PROVED",
             "PROVEME",
             "THINKME",
             "TICKETME"
           ],
           "direction": "forward"
         }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the_address_gate_bites) crossing",
+        "actual": "a cast ticket for the WATCHME(the_address_gate_bites) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "the-instance-address-is-resolved-never-spelled",
+          "watch_object": "the_address_gate_bites",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-instance-address-is-resolved-never-spelled.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'the-instance-address-is-resolved-never-spelled' carries a watchme spec for 'the_address_gate_bites'",
+        "actual": "ticket 'the-instance-address-is-resolved-never-spelled' carries a watchme spec for 'the_address_gate_bites'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "the-instance-address-is-resolved-never-spelled",
+          "watch_object": "the_address_gate_bites",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "the-instance-address-is-resolved-never-spelled",
+          "watch_object": "the_address_gate_bites",
+          "berth": "cairn/machines/build_inspector/probes/does_the_address_gate_bite.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "the-instance-address-is-resolved-never-spelled",
+          "component": "base",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'the-instance-address-is-resolved-never-spelled' is cast",
+        "actual": "named ticket 'the-instance-address-is-resolved-never-spelled' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "the-instance-address-is-resolved-never-spelled",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-instance-address-is-resolved-never-spelled.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "the-instance-address-is-resolved-never-spelled"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "base",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/tools/base/proofs/test_address_rule.py stands in proven-space",
+        "actual": "cairn/tools/base/proofs/test_address_rule.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_address_rule.py",
+          "why": "sealed green 2026-08-17T21:05:35 by CC, and the component's source fingerprint still matches what was proved (ac101a258eba…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/tools/base/proofs/test_address_rule.py's seal at '2026-08-17T21:05:35'",
+        "actual": "the witness dates cairn/tools/base/proofs/test_address_rule.py's seal at '2026-08-17T21:05:35'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_address_rule.py",
+          "seal": "2026-08-17T21:05:35",
+          "claimed": "2026-08-17T21:05:35"
+        }
       }
     ],
-    "checks_proved": 3,
-    "ticket": "the-instance-address-is-resolved-never-spelled",
+    "checks_proved": 13,
+    "cleared_by": "CC",
     "actor": "CC",
-    "note": "PROVEME — the rule got ONE spelling and TWO seats, and the corpus went to zero. cairn/tools/base/address_rule.py is now the single definition of a hand-spelled instance address, as an AST predicate over an EXPRESSION rather than a text scan: a mention lives in an ast.Constant and a spelling is an ast.BinOp, which is why the old watcher's exclude-my-own-file-by-name is gone rather than re-implemented. SEAT ONE, build time: build_inspector's address_is_resolved_never_spelled sieve, registered 21st, attributing by deepest owner (address.component_of) so a holder never wears its nested machine's finding. SEAT TWO, pulse time: cairn/machines/build_inspector/probes/does_the_address_gate_bite.py, which reads the REGISTRY as well as the count, because zero sites is what a working gate and a deleted one both produce. MEASURED: 0 hand-spelled sites over 274 files, two exemptions each bearing weight at exactly one line (cairn/tools/base/address.py:94 and cairn/devices/aider_shim/proofs/test_fence.py:285) — the cast predicted THREE exemptions and the AST shape retired the third. PROOFS GREEN TWICE UNDER NETNS: build_inspector 3/3 (incl. the new test_address_sieve.py, defect-first with nine teeth because the corpus was converted in the same voyage and the sieve was born green), inference_domain 5/5 (incl. the new tooth that the overlay berths at the resolved instance address), aider_shim 7/7, ground_loop 5/5, tools/base 19/20 — the one red being the pre-existing filed trouble test_watchme_spec.py, which this voyage did not touch. TWO DEFECTS CAUGHT MID-BUILD BY STANDING PHYSICS, both fixed. (1) hand_spelled_instance_paths._enough had the signature (now, context) while Probe.gathered_enough calls enough(context) — it had never raised because nothing pulses base's shim; censused across all 30 probes carrying an enough, n=1, and it was the file this ticket owns. (2) test_probe_carry's corpus tooth redded the new probe on arrival for carrying its ticket as a bare id instead of a path built by owning_ticket() — the 2026-08-05 ruling made physics, doing exactly its job. AND THE LOOP CAUGHT ME TOO: the beat at 00:46:55Z benched the base device on a real ImportError from a window in this build (walk_py not yet exported from cairn.tools.import_sieve). Fixed on disk, and the bench then survived a clear because the two-day-old daemon held the pre-export module; restarted (pid 973171), verified through the loop's own discover(), cleared through TroubleDevice.clear, and base is back on the roster at 20 subscribers.",
-    "at": "2026-08-17T18:52:35",
-    "seq": 46
+    "proven_by": "cairn/tools/base/proofs/test_address_rule.py",
+    "proven_seal_date": "2026-08-17T21:05:35",
+    "delegated": false,
+    "ticket": "the-instance-address-is-resolved-never-spelled",
+    "note": "PROVED — the instance address is resolved, never spelled, and the corpus is at zero with a gate standing over it in two seats. WHAT THIS VOYAGE ACTUALLY SETTLED: the rule got ONE spelling. cairn/tools/base/address_rule.py is the single definition of a hand-spelled instance address, and it is an AST PREDICATE OVER AN EXPRESSION rather than a text scan — a mention lives in an ast.Constant, a spelling is an ast.BinOp — which is why the old watcher's exclude-my-own-file-by-name is gone rather than re-implemented: the rule's own module is not exempt and is proved not to be. SEAT ONE is build time (build_inspector's address_is_resolved_never_spelled sieve, registered 21st, attributing by deepest owner so a holder never wears its nested machine's finding); SEAT TWO is pulse time (cairn/machines/build_inspector/probes/does_the_address_gate_bite.py), and the second seat exists because ZERO SITES IS WHAT A WORKING GATE AND A DELETED ONE BOTH PRINT — the probe reads the REGISTRY as well as the count, which no count could have told anyone. MEASURED AT THE CLOSE: 0 hand-spelled sites over 276 files, sieve registered, 3 exemptions each bearing weight at exactly one line. The cast predicted three exemptions and the AST shape retired one of them at PROVEME (274 files, 2 exemptions); the third is back at 3 because the corpus grew two files, which is the exemption set behaving as a RULE closed at two dialects rather than a list of names — the thing test_address_rule.py's tooth pins. THE CHART WAS ANSWERED FIRST (verdict-20260817T190347-ce325abeeed7): 13 criteria run by their instruments, all pass; 11 hypotheses dispositioned, all confirmed. THE WATCH IS ARMED AND READ AT ARMING, n=0 toward a horizon of three non-vacuous zero readings, with the asymmetry the ticket demands: one standing site in a component built after this lands is STRONG falsification and satisfies alone, because a green gate gets leaned on and that is worse than no gate; a vacuous reading (files_read == 0) counts toward neither branch and is itself a red. TWO DEFECTS WERE CAUGHT MID-BUILD BY STANDING PHYSICS AND BOTH ARE FIXED: hand_spelled_instance_paths._enough carried the signature (now, context) while Probe.gathered_enough calls enough(context) — censused across all 30 probes carrying an enough, n=1, and it was the file this ticket owns; and test_probe_carry's corpus tooth redded the new probe on arrival for carrying its ticket as a bare id instead of a path built by owning_ticket(), the 2026-08-05 ruling doing exactly the job it was made physics for. AND THE GROUND LOOP CAUGHT ME: the beat benched the base device on a real ImportError from a window in this build (walk_py not yet exported from cairn.tools.import_sieve); fixed on disk, the daemon restarted because a two-day-old process held the pre-export module, cleared through TroubleDevice.clear, and base is back on the roster. CLEARED ONTO cairn/tools/base/proofs/test_address_rule.py, re-sealed under the tester in the moment before this crossing — because the honest moment to lean on a seal is the moment after it is cut, and this component's fingerprint moves every time its own history is appended to.",
+    "at": "2026-08-17T21:05:56",
+    "seq": 48
   },
   "window": [
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(hand-spelled-instance-paths) -> PROVED",
-      "direction": "forward",
-      "ticket": "one-owner-for-the-instance-address",
-      "actor": "CC",
-      "note": "PROVEME. Built the seven pieces in the berthed triage order. cairn/tools/base/address.py holds the lowered root table plus instance_path/tool_path/machine_path — resolve-only, never provisions, no position on what is a device; measured import_map ['__future__','pathlib'], which is what makes it a legal floor for callers whose proofs pin an allowlist. counters.py re-exports resolve/Unreadable so the class identity stays single and test_skilldial.py passes unedited (59 teeth, output byte-identical against a clean HEAD worktree). Seven sites converted; every before/after resolved value IDENTICAL, and the learning_block device and its own probe now share one expression — the n=1 drift the ticket was cast on is closed. TWO THINGS THE CHART DID NOT PREDICT, recorded rather than absorbed. (1) Two import allowlists had to admit cairn.tools.base.address — librarian/proofs/test_librarian_library.py and chart/proofs/test_chart_orient.py — each widened WITH a dated comment naming this ticket and the measurement, per the precedent every prior widening in the corpus followed. That is an assertion-adjacent edit and validate criterion 4 says 'with no assertion edited', so it goes to the verdict as a deviation, not as housekeeping. (2) THE FLOOR IS 2, NOT 1. The ticket's falsifier measure (b) predicted the scan would return the resolver plus the dispositioned inference_domain site alone. Measured: cairn/machines/build_inspector/inspector.py:216 as well. It was in the cast's census of ten and was dropped from the conversion piece at decompose, silently, because a piece's file list is prose and no gate checks it against the survey berth. It stays unconverted for two independent reasons: it addresses a DEVICE ACROSS INSTANCES (devices/chart, no instance segment), a shape none of the three rungs built here fits; and its allowlist is ALREADY RED on an undecided entry (the live cairn.tools.base.nest trouble), so admitting a second module there would bury one undecided admission under another. The criterion was NOT retuned to match what happened — a falsifier tuned to the outcome cannot report an outcome. Corpus: 98 proofs, 96 green, 2 red, and BOTH reds reproduce at HEAD dc71f1c in a clean worktree — this build introduced none.",
-      "at": "2026-08-12T11:27:10",
-      "seq": 42
-    },
-    {
-      "from": "PROVEME",
-      "to": "WATCHME",
-      "standing": "WATCHME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(hand-spelled-instance-paths):waiting] -> PROVED",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 19 sieves over base",
-      "ticket": "one-owner-for-the-instance-address",
-      "actor": "CC",
-      "note": "WATCHME(hand-spelled-instance-paths). The probe is armed at the berth the ticket named, cairn/tools/base/probes/hand_spelled_instance_paths.py — a module-level frozen Probe carrying both carry and enough, berthed with WHAT IT WATCHES (the resolver) rather than with the ticket it was compiled from. Fired live three ways: at the floor it reports 2 sites and NAMES both with 119 files scanned; seeded with a fake hand-spelling it reports 3 and names the new one; and a scan that reads zero files FIRES rather than clears, carrying 'the scan read NO FILES — the count is not a measurement', because a zero over an unwalked tree is the vacuous green this watch was written against. THE FIRST LIVE FIRE CAUGHT ITS BUILDER, as first live fires keep doing: the probe counted ITSELF — line 146, the sentence in its own prose describing the pattern it hunts. That is the sibling probe's lesson in a new costume (does_optional_mean_never_carried counted its own owning ticket), so the exclusion is now explicit and commented with the why. Caught at n=1, by firing it. THE FLOOR IS NAMED, NOT TOLERATED: the enough clause compares the site FILES against a named pair, so converting one of the two while a third appears cannot read as 'expected'. The floor recorded here is 2, not the 1 the ticket predicted — the criterion was not retuned to match. The probe carries no authority: it deposits and pokes, and the eleventh hand-spelled path is a spec-level fact for Akien's gate (Law 6).",
-      "at": "2026-08-12T11:28:58",
-      "seq": 43
-    },
     {
       "from": "WATCHME",
       "to": "BUILDME",
@@ -306,7 +440,590 @@
       "note": "PROVEME — the rule got ONE spelling and TWO seats, and the corpus went to zero. cairn/tools/base/address_rule.py is now the single definition of a hand-spelled instance address, as an AST predicate over an EXPRESSION rather than a text scan: a mention lives in an ast.Constant and a spelling is an ast.BinOp, which is why the old watcher's exclude-my-own-file-by-name is gone rather than re-implemented. SEAT ONE, build time: build_inspector's address_is_resolved_never_spelled sieve, registered 21st, attributing by deepest owner (address.component_of) so a holder never wears its nested machine's finding. SEAT TWO, pulse time: cairn/machines/build_inspector/probes/does_the_address_gate_bite.py, which reads the REGISTRY as well as the count, because zero sites is what a working gate and a deleted one both produce. MEASURED: 0 hand-spelled sites over 274 files, two exemptions each bearing weight at exactly one line (cairn/tools/base/address.py:94 and cairn/devices/aider_shim/proofs/test_fence.py:285) — the cast predicted THREE exemptions and the AST shape retired the third. PROOFS GREEN TWICE UNDER NETNS: build_inspector 3/3 (incl. the new test_address_sieve.py, defect-first with nine teeth because the corpus was converted in the same voyage and the sieve was born green), inference_domain 5/5 (incl. the new tooth that the overlay berths at the resolved instance address), aider_shim 7/7, ground_loop 5/5, tools/base 19/20 — the one red being the pre-existing filed trouble test_watchme_spec.py, which this voyage did not touch. TWO DEFECTS CAUGHT MID-BUILD BY STANDING PHYSICS, both fixed. (1) hand_spelled_instance_paths._enough had the signature (now, context) while Probe.gathered_enough calls enough(context) — it had never raised because nothing pulses base's shim; censused across all 30 probes carrying an enough, n=1, and it was the file this ticket owns. (2) test_probe_carry's corpus tooth redded the new probe on arrival for carrying its ticket as a bare id instead of a path built by owning_ticket() — the 2026-08-05 ruling made physics, doing exactly its job. AND THE LOOP CAUGHT ME TOO: the beat at 00:46:55Z benched the base device on a real ImportError from a window in this build (walk_py not yet exported from cairn.tools.import_sieve). Fixed on disk, and the bench then survived a clear because the two-day-old daemon held the pre-export module; restarted (pid 973171), verified through the loop's own discover(), cleared through TroubleDevice.clear, and base is back on the roster at 20 subscribers.",
       "at": "2026-08-17T18:52:35",
       "seq": 46
+    },
+    {
+      "from": "PROVEME",
+      "to": "WATCHME",
+      "standing": "WATCHME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(the_address_gate_bites):waiting] -> PROVED",
+      "direction": "forward",
+      "build_gate": "clean — build_inspector ran 21 sieves over base, and 22 check(s) are proved on this crossing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+          "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+          "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "cursor": 3,
+            "resolved": 4
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME",
+          "actual": "PROVEME -> WATCHME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME",
+              "TICKETME",
+              "WATCHME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_census_can_measure_the_component",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_build",
+          "expected": "the census can measure component 'base' at /home/akien/dev/src/cairn/cairn/tools/base",
+          "actual": "the census can measure component 'base' at /home/akien/dev/src/cairn/cairn/tools/base",
+          "fatality": "none",
+          "source": "transitions.inspect_build",
+          "values": {
+            "component": "base",
+            "address": "/home/akien/dev/src/cairn/cairn/tools/base",
+            "sieves_run": [
+              "address_is_resolved_never_spelled",
+              "charted_refs_resolve",
+              "charter_on_disk",
+              "constraint_bounds_complete",
+              "constraint_traces",
+              "decompose_builds_absences",
+              "decompose_composes_holdings",
+              "fire_path_unreachable",
+              "forwarding_order_resolves",
+              "hypothesize_covers_the_ranked",
+              "hypothesize_falsifiable_measured",
+              "proofs_exist",
+              "silent_device",
+              "sole_path_holds",
+              "state_is_projection",
+              "survey_coverage_complete",
+              "survey_holdings_resolve",
+              "triage_covers_the_split",
+              "triage_reasons_the_order",
+              "validate_covers_the_build",
+              "validate_measures_done"
+            ]
+          }
+        },
+        {
+          "identity": "address_is_resolved_never_spelled",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charted_refs_resolve",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charter_on_disk",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_bounds_complete",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_traces",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_builds_absences",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_composes_holdings",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "fire_path_unreachable",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "forwarding_order_resolves",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_covers_the_ranked",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_falsifiable_measured",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "proofs_exist",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "silent_device",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "sole_path_holds",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "state_is_projection",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_coverage_complete",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_holdings_resolve",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_covers_the_split",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_reasons_the_order",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_covers_the_build",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_measures_done",
+          "location": "base",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        }
+      ],
+      "checks_proved": 25,
+      "ticket": "the-instance-address-is-resolved-never-spelled",
+      "actor": "CC",
+      "note": "WATCHME(the_address_gate_bites) — armed at cairn/machines/build_inspector/probes/does_the_address_gate_bite.py, which is the berth the ticket's spec names, and THIS CROSSING IS THE MEASUREMENT THAT IT IS ARMED: the emission gate resolves the spec's probe path and raises WatchmeEmissionRed on an unarmed one, so a passing crossing is the instrument, not a claim about it. THE PROBE BERTHS WITH WHAT IT WATCHES, NOT WITH THE TICKET IT WAS COMPILED FROM — the thing being watched is the SIEVE REGISTRY, which is build_inspector's, so the probe sits there even though the ticket's component is cairn/tools/base. The corpus half of the same question is read without authority by the resolver's own watch at cairn/tools/base/probes/hand_spelled_instance_paths.py; this one reads BOTH halves. WHY BOTH, and it is the whole design: a count alone cannot tell a working gate from a deleted one — a rule dropped out of build_inspector.SIEVES leaves the corpus reading clean, and 0 sites is what a live gate and an absent gate both print. So the carry names three states that a bare zero collapses: gate_absent (the sieve is not registered), gate_did_not_bite (a site stands while the sieve IS registered — the gate is present and green anyway), and vacuous (files_read == 0, a scan that read nothing, indistinguishable from a clean corpus at the moment the instrument broke). ENOUGH IS DELIBERATELY ASYMMETRIC, per the ticket: ONE hand-spelled site standing in a component built after this ticket lands is STRONG falsification and satisfies alone, because a green gate gets leaned on and that is worse than no gate; THREE consecutive non-vacuous readings at zero, at least one taken after a component that NEEDED instance state was built, is WEAK confirmation and also satisfies. A vacuous reading counts toward neither and is itself a red. READ AT ARMING (n=0 toward the horizon, and recorded so a later reading has a baseline that is not a memory): 0 hand-spelled sites over 276 files, sieve registered, 3 exemptions each bearing weight at exactly one line, would_trigger False, enough False, readings_needed_to_confirm 3, readings_seen 0. The at_proved snapshot the probe carries reads 0 sites over 274 files with 3 exemptions — so the corpus has grown by two files since the PROVED-side measurement and stayed at zero, which is the only kind of clean reading that means anything here.",
+      "at": "2026-08-17T21:04:55",
+      "seq": 47
+    },
+    {
+      "from": "WATCHME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_address_gate_bites) -> [PROVED]",
+      "direction": "forward",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-instance-address-is-resolved-never-spelled'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+      "clearance_gate": "cleared by 'CC' onto cairn/tools/base/proofs/test_address_rule.py (seal 2026-08-17T21:05:35, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_address_gate_bites) emitted the probe berthed at cairn/machines/build_inspector/probes/does_the_address_gate_bite.py (ticket 'the-instance-address-is-resolved-never-spelled')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260817T190347-ce325abeeed7.json",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "cursor": 4,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "legal_from_here": [
+              "BUILDME",
+              "PROVED",
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(the_address_gate_bites) crossing",
+          "actual": "a cast ticket for the WATCHME(the_address_gate_bites) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-instance-address-is-resolved-never-spelled",
+            "watch_object": "the_address_gate_bites",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-instance-address-is-resolved-never-spelled.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket 'the-instance-address-is-resolved-never-spelled' carries a watchme spec for 'the_address_gate_bites'",
+          "actual": "ticket 'the-instance-address-is-resolved-never-spelled' carries a watchme spec for 'the_address_gate_bites'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-instance-address-is-resolved-never-spelled",
+            "watch_object": "the_address_gate_bites",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "the-instance-address-is-resolved-never-spelled",
+            "watch_object": "the_address_gate_bites",
+            "berth": "cairn/machines/build_inspector/probes/does_the_address_gate_bite.py",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "the-instance-address-is-resolved-never-spelled",
+            "component": "base",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'the-instance-address-is-resolved-never-spelled' is cast",
+          "actual": "named ticket 'the-instance-address-is-resolved-never-spelled' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "the-instance-address-is-resolved-never-spelled",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/the-instance-address-is-resolved-never-spelled.json"
+          }
+        },
+        {
+          "identity": "the_claiming_chart_is_answered",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_exit",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_exit",
+          "values": {
+            "findings": [],
+            "ticket": "the-instance-address-is-resolved-never-spelled"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "component": "base",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_witness_is_whole",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
+            ]
+          }
+        },
+        {
+          "identity": "the_named_proof_stands_in_proven_space",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "cairn/tools/base/proofs/test_address_rule.py stands in proven-space",
+          "actual": "cairn/tools/base/proofs/test_address_rule.py stands in proven-space",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/tools/base/proofs/test_address_rule.py",
+            "why": "sealed green 2026-08-17T21:05:35 by CC, and the component's source fingerprint still matches what was proved (ac101a258eba…)"
+          }
+        },
+        {
+          "identity": "the_witness_agrees_with_the_seal_it_names",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/tools/base/proofs/test_address_rule.py's seal at '2026-08-17T21:05:35'",
+          "actual": "the witness dates cairn/tools/base/proofs/test_address_rule.py's seal at '2026-08-17T21:05:35'",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/tools/base/proofs/test_address_rule.py",
+            "seal": "2026-08-17T21:05:35",
+            "claimed": "2026-08-17T21:05:35"
+          }
+        }
+      ],
+      "checks_proved": 13,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/tools/base/proofs/test_address_rule.py",
+      "proven_seal_date": "2026-08-17T21:05:35",
+      "delegated": false,
+      "ticket": "the-instance-address-is-resolved-never-spelled",
+      "note": "PROVED — the instance address is resolved, never spelled, and the corpus is at zero with a gate standing over it in two seats. WHAT THIS VOYAGE ACTUALLY SETTLED: the rule got ONE spelling. cairn/tools/base/address_rule.py is the single definition of a hand-spelled instance address, and it is an AST PREDICATE OVER AN EXPRESSION rather than a text scan — a mention lives in an ast.Constant, a spelling is an ast.BinOp — which is why the old watcher's exclude-my-own-file-by-name is gone rather than re-implemented: the rule's own module is not exempt and is proved not to be. SEAT ONE is build time (build_inspector's address_is_resolved_never_spelled sieve, registered 21st, attributing by deepest owner so a holder never wears its nested machine's finding); SEAT TWO is pulse time (cairn/machines/build_inspector/probes/does_the_address_gate_bite.py), and the second seat exists because ZERO SITES IS WHAT A WORKING GATE AND A DELETED ONE BOTH PRINT — the probe reads the REGISTRY as well as the count, which no count could have told anyone. MEASURED AT THE CLOSE: 0 hand-spelled sites over 276 files, sieve registered, 3 exemptions each bearing weight at exactly one line. The cast predicted three exemptions and the AST shape retired one of them at PROVEME (274 files, 2 exemptions); the third is back at 3 because the corpus grew two files, which is the exemption set behaving as a RULE closed at two dialects rather than a list of names — the thing test_address_rule.py's tooth pins. THE CHART WAS ANSWERED FIRST (verdict-20260817T190347-ce325abeeed7): 13 criteria run by their instruments, all pass; 11 hypotheses dispositioned, all confirmed. THE WATCH IS ARMED AND READ AT ARMING, n=0 toward a horizon of three non-vacuous zero readings, with the asymmetry the ticket demands: one standing site in a component built after this lands is STRONG falsification and satisfies alone, because a green gate gets leaned on and that is worse than no gate; a vacuous reading (files_read == 0) counts toward neither branch and is itself a red. TWO DEFECTS WERE CAUGHT MID-BUILD BY STANDING PHYSICS AND BOTH ARE FIXED: hand_spelled_instance_paths._enough carried the signature (now, context) while Probe.gathered_enough calls enough(context) — censused across all 30 probes carrying an enough, n=1, and it was the file this ticket owns; and test_probe_carry's corpus tooth redded the new probe on arrival for carrying its ticket as a bare id instead of a path built by owning_ticket(), the 2026-08-05 ruling doing exactly the job it was made physics for. AND THE GROUND LOOP CAUGHT ME: the beat benched the base device on a real ImportError from a window in this build (walk_py not yet exported from cairn.tools.import_sieve); fixed on disk, the daemon restarted because a two-day-old process held the pre-export module, cleared through TroubleDevice.clear, and base is back on the roster. CLEARED ONTO cairn/tools/base/proofs/test_address_rule.py, re-sealed under the tester in the moment before this crossing — because the honest moment to lean on a seal is the moment after it is cut, and this component's fingerprint moves every time its own history is appended to.",
+      "at": "2026-08-17T21:05:56",
+      "seq": 48
     }
   ],
-  "count": 47
+  "count": 49
 }

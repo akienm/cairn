@@ -6,11 +6,11 @@ Cairn is a working system and a design method that are the same thing. The metho
 that every answered question should become *structure* — a gate, a schema, a compiled
 view — so that no mind, human or model, ever pays to answer it twice. The system is what
 happens when you apply that rule to the process of building the system, continuously, for
-a month, and refuse to make an exception for yourself.
+five weeks, and refuse to make an exception for yourself.
 
 The most useful thing in this repository is probably not the code. It is the **record of
-the code being built** — 39 charters, 101 tickets, 33 verbatim rulings, 324 journaled state
-transitions, and 77 session-boundary slates, all in git beside the thing they describe.
+the code being built** — 56 charters, 172 tickets, 62 verbatim rulings, 423 journaled state
+transitions, and 112 session-boundary slates, all in git beside the thing they describe.
 
 ---
 
@@ -18,17 +18,18 @@ transitions, and 77 session-boundary slates, all in git beside the thing they de
 
 > **Law 9 — red is the default; green is earned.**
 
-Cairn is 28 days old (first commit 2026-07-14). It has one user, who is its author. It is
+Cairn is 36 days old (first commit 2026-07-14). It has one user, who is its author. It is
 **not a product and there is no supported install.** You can check it out and run pieces of
 it; you cannot bring up "a Cairn" and have it do something for you, because:
 
-- **The runtime spine has never run.** The heartbeat, the message bus and the diagnostic
-  trail have no live caller. There is no daemon. Everything the system has produced was
-  produced by code invoked from a session or a proof.
+- **The runtime spine is young.** The heartbeat, the message bus and the web server are
+  running for the first time — the ground loop as a live process, the web server as a systemd
+  unit, the bus with 607 real records from over 20 senders. This is green at the "it runs"
+  rung and red at the "it has been observed running well" rung.
 - **Half the design is specified and unbuilt** — and each unbuilt piece is named as unbuilt
   in the charter that owns it, not in a roadmap.
-- **Eleven live trouble tickets** are open, and the system shouts two of them at every
-  session start until someone names what changed.
+- **Zero live trouble tickets** — the normal operating state, reached for the first time on
+  2026-08-19. 36 have been filed over the system's life; all 36 are cleared.
 
 The honest measured state, with the command that produced every number, is
 [`press_office/FactSheet.md`](press_office/FactSheet.md). Read it before you read anything
@@ -41,13 +42,13 @@ there was executed on 2026-08-11 before it was written down.
 
 ## The idea, in five minutes
 
-Six laws hold everywhere, in dependency order. They are in
+Ten laws hold everywhere, in dependency order. They are in
 [`CLAUDE.md`](CLAUDE.md) in full; here is the shape.
 
 **1. The resolver is spent on the novel, not on re-deriving the settled.**
 Re-deriving a settled answer is a *defect*, not an inefficiency. This is the whole thesis.
-The measurable consequence: 1,400 inference calls went through Cairn's one inference door,
-560 of them were served from stored structure, and **34.3% of the tokens that would have
+The measurable consequence: 2,858 inference calls went through Cairn's one inference door,
+1,262 of them were served from stored structure, and **36.1% of the tokens that would have
 been spent were not spent.** That fraction is the thesis, measured.
 
 **2. Intent, its voyage, and its proofs share an address.**
@@ -72,7 +73,7 @@ one path to a state transition. Not by convention — by a sieve that parses eve
 the tree into an import graph and reds a build that opened a second door.
 
 **6. Nothing enters proven-space without a proof a hollow build couldn't pass.**
-51.8% of the Python in this repository lives in `proofs/`. The verdict and the seal come
+50.7% of the Python in this repository lives in `proofs/`. The verdict and the seal come
 from a device (the tester), never from the hand that wrote the code.
 
 ---
@@ -141,7 +142,7 @@ Every command below was run on 2026-08-11 and produced output.
 
 ```bash
 cairn                     # list the verbs; the dispatcher owns no logic of what it runs
-cairn cairnmap            # THE PLACE TO START — the help surface, compiled from all 39
+cairn cairnmap            # THE PLACE TO START — the help surface, compiled from all 56
                           # charters with zero inference, ending in a completeness verdict
 cairn test <proof-path>   # run a proof under the tester and seal a validation
 cairn compile             # recompile the intentions model
@@ -234,24 +235,32 @@ summary:
 
 **Built, proved, and exercised in real work**
 
-- The charter/state/history/proof/validation layout, on all 24 components
+- The charter/state/history/proof/validation layout, on all 39 components under `cairn/`
 - The tester — proofs run under network isolation, verdict and seal from a hand the builder
   did not guide, validations that carry a falsifier and a horizon and therefore expire
-- `db_domain` — the single owner-gated path to Postgres; 15 tables, every one owned
+- `db_domain` — the single owner-gated path to Postgres; 14 core tables, every one owned
 - `inference_domain` — the single path to every inference host, with a metered cache;
-  1,400 calls, 40% served from structure
+  2,858 calls, 44% served from structure
 - `import_sieve` — the import graph and the sieves that enforce the single-door rules
-- The emit chokepoint and the workflow's state machine — 324 journaled crossings
-- `chart` — the pre-build preamble as seven schema-gated question nexi; 587 accumulated nodes
+- The emit chokepoint and the workflow's state machine — 423 journaled crossings
+- `chart` — the pre-build preamble as seven schema-gated question nexi; 1,179 accumulated nodes
 - The skills: `/idea`, `/intent`, `/design`, `/sorted`, `/chart`, `/sail`, `/saveslate`,
   `/note`, `/commit`, `/moreabout`, `/challenge`
 - `cairnmap` — the help surface, compiled, completeness-gated
 - `harbor_master`'s clearance gate — which recorded its first real refusal on 2026-08-11
-- The librarian's graph trees and tenure loop — 88 nodes, 3 with earned standing
+- The librarian's graph trees and tenure loop — 123 nodes, 3 with earned standing
+- The trouble device — 36 tickets filed, 0 live; amend door, 25 passing proofs
+- The aider shim — transport works (n=1 drive); apprentice has 0 surviving edits
 
-**Built but never run in anger**
+**Running**
 
-- The bus (2 records, both a fixture), the ground loop, the system rackmount, the web server
+- The ground loop — a live process; the heartbeat
+- The web server — a running systemd unit; serves the panes
+- The bus — 607 records from 20+ senders; the spine is alive
+
+**Built but lightly exercised**
+
+- `system_rackmount` — the host-predicate owner; young
 
 **Designed, specified, and not built**
 

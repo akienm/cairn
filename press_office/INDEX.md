@@ -28,7 +28,7 @@ says otherwise.
 
 ## 1. The measurement component
 
-**[`FactSheet.md`](FactSheet.md)** — measured 2026-08-11 against `cairn` and `CairnCommons`
+**[`FactSheet.md`](FactSheet.md)** — measured 2026-08-19 against `cairn` and `CairnCommons`
 at named commits. Every number in the pattern series and the spine traces here, and here
 only.
 
@@ -154,6 +154,7 @@ An index that only lists is a catalogue. This section is what makes it an instru
 | `GraphTreeMemoryTechnicalBrief.md` §2 and §8 | states the tenure loop is *"designed and not yet built"* and that *"every node in the store honestly still reads `hypothesis`"* | **the tenure loop was built and proved 2026-08-09**; nodes have since earned standing | corrected in the piece, 2026-08-11 |
 | `NoveltyDrivenGraphTreeExpansion.md` §falsifiers | lists *"every node remains `hypothesis` in live use"* as an open falsifier of the design | that falsifier has been **survived**, not merely asserted — and the surviving is the news | corrected in the piece, 2026-08-11 |
 | `IntentionBasedDesignForHumans.md` | predates the fact sheet; its numbers were true when written and are not re-measured | cite [`FactSheet.md`](FactSheet.md) for any figure | on the shelf, marked |
+| Pattern series (all 12) | numbers cite fact sheet measured 2026-08-11; the sheet moved to 2026-08-19 | the pieces cite the sheet, so the sheet is right and the pieces are stale — the pattern's own numbers (1,400 calls, 324 crossings, 88 nodes, etc.) were correct at time of writing | fact sheet re-measured 2026-08-19; pattern series not yet updated |
 
 **Nothing in this table is a defect in the writing.** A signed stone is allowed to age; what
 is not allowed is aging *silently*. This section is the whole reason the shelf is edited in

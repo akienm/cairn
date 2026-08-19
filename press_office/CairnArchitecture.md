@@ -15,7 +15,7 @@ pattern document, listed in §12, and each of those is self-contained. This docu
 is to make the pattern documents make sense together.
 
 Every number in this document comes from [`FactSheet.md`](FactSheet.md), measured
-2026-08-11, which prints the command that produced each one. Where something is designed
+2026-08-19, which prints the command that produced each one. Where something is designed
 and not built, this document says so in the same sentence, not in a footnote. That is
 Law 3, and it applies to this file as hard as it applies to the code.
 
@@ -55,8 +55,9 @@ directly. Over 1,400 real inference calls made during its own construction, 40% 
 from stored structure rather than the host, avoiding **34.3% of the tokens that would
 otherwise have been spent**.
 
-The system is 28 days old, has one user, and its runtime spine has never run. Read every
-claim here as evidence about the *method*, not about the *artifact*.
+The system is 36 days old and has one user. Its runtime spine — the heartbeat, the bus,
+the web server — has been running for less than two weeks. Read every claim here as
+evidence about the *method*, not about the *artifact*.
 
 ---
 
@@ -117,17 +118,17 @@ That untouched host call *is* compilation happening, and it is countable. Cairn'
 
 | | |
 |---|---|
-| Calls through the door | 1,400 |
-| Served from structure | 560 (40.0%) |
-| Tokens spent | 274,348 |
-| **Tokens avoided** | **142,948 (34.3% of the would-be total)** |
+| Calls through the door | 2,858 |
+| Served from structure | 1,262 (44.2%) |
+| Tokens spent | 776,570 |
+| **Tokens avoided** | **438,234 (36.1% of the would-be total)** |
 
 Two honest caveats, both from the component's own charter:
 
 - The canonicaliser is **exact-match, not semantic.** The domain "learns *whether* the cache
-  pays; it does not yet learn *which questions are the same*." 40% is what a dumb
+  pays; it does not yet learn *which questions are the same*." 44% is what a dumb
   canonicaliser reaches, not a ceiling anyone has approached.
-- These 1,400 calls are Cairn building Cairn. That is a genuinely repetitive workload, and
+- These 2,858 calls are Cairn building Cairn. That is a genuinely repetitive workload, and
   the number should not be transplanted to a different one without re-measuring.
 
 The generalisation is what matters, and it is not really about caching. **Any answer, once
@@ -179,7 +180,7 @@ becomes a check some contract enforces — CP1 becomes real when no device can r
 without passing an honesty gate. Cairn tracks that consumption per component rather than
 claiming it globally.
 
-### Layer 1 — the Laws (nine)
+### Layer 1 — the Laws (ten)
 
 Present-tense contracts in dependency order. Abridged; the full text is in `CLAUDE.md`.
 
@@ -198,6 +199,10 @@ Present-tense contracts in dependency order. Abridged; the full text is in `CLAU
    may.
 8. **Nothing enters proven-space without a proof a hollow build couldn't pass.**
 9. **Red is the default; green is earned.**
+
+**10. Nothing in the system is immeasurable — except Claude, for now.** The ground-most
+   assumption: everything on this laptop and connected to it can be measured. Akien is inside
+   that set. The one temporary exception is Claude. Every recorded observation IS measurement.
 
 Law 9 deserves unpacking because it is the least conventional and does the most work. It is
 CP6 turned on the corpus. The specification is a fixed picture in the author's head; every
@@ -493,9 +498,9 @@ question-shaped, and therefore wins the similarity race for that question *by co
 The fix forces a three-valued verdict — RESOLVED / PROVISIONAL / UNRESOLVED — and reclassified
 the system's own first success as PROVISIONAL.
 
-Today's numbers, which are the design working rather than failing: 88 nodes, of which **3
-have earned standing**, 84 are hypotheses and 1 has been refuted. A store where most nodes
-were `earned` after two weeks would be a store that was confirming itself.
+Today's numbers, which are the design working rather than failing: 123 nodes, of which **3
+have earned standing**, 119 are hypotheses and 1 has been refuted. A store where most nodes
+were `earned` after five weeks would be a store that was confirming itself.
 
 **What is not built:** the running schema still carries `tree` and `vector` on the node row.
 The node/leaf separation is in the design documents and not in the database. There are no
@@ -541,14 +546,14 @@ individually shareable; this section is the index.
 |---|---|---|
 | [**Intention-based development**](PatternIntentionBasedDevelopment.md) | intent beside implementation; the name forces the why | built, in use throughout |
 | [**Gates and inspectors**](PatternGatesAndInspectors.md) | enforcement as gated ownership; deterministic filter stacks | built; several gates still prose |
-| [**The workflow and its artifacts**](PatternWorkflowAndArtifacts.md) | node classes, workflow strings, the emit chokepoint | built; 324 journaled crossings |
+| [**The workflow and its artifacts**](PatternWorkflowAndArtifacts.md) | node classes, workflow strings, the emit chokepoint | built; 423 journaled crossings |
 | [**The development knowledge base**](PatternDevelopmentKnowledgeBase.md) | the commons: rulings, questions, troubles, slates | built; in daily use |
 | [**Graph trees as an inference cache**](PatternGraphTreeCaching.md) | miss → resolver → deposit; the three intake paths | built at the node level |
 | [**Tree architecture**](PatternTreeArchitecture.md) | node list, per-tree leaf tables, `database.tree.leaf`, calving | **designed, not built** |
 | [**The librarian**](PatternTheLibrarian.md) | owner of the trees; the chatbot that learns always and summarizes on request | first face whole; tenure loop proved |
-| [**The inference proxy**](PatternInferenceProxy.md) | one door, metered, cached, with an escalating provider ladder | built; 1,400 calls metered |
-| [**The bus**](PatternTheBus.md) | the sole path for inter-device communication; four channels | built, **never run in anger** (2 records) |
-| [**The ground loop**](PatternTheGroundLoop.md) | one heartbeat; every device's shim hangs its probes on it | built, **never run** |
+| [**The inference proxy**](PatternInferenceProxy.md) | one door, metered, cached, with an escalating provider ladder | built; 2,858 calls metered |
+| [**The bus**](PatternTheBus.md) | the sole path for inter-device communication; four channels | **running**; 607 records from 20+ senders |
+| [**The ground loop**](PatternTheGroundLoop.md) | one heartbeat; every device's shim hangs its probes on it | **running** as a live process |
 | [**superclaude**](PatternTheLauncher.md) | the launcher and the rescue tier below the machinery | built, in daily use |
 | [**What is planned**](PatternWhatIsPlanned.md) | the ruled ladder, the cocoon, the parallel inspectable clone | not built, and named as such |
 
@@ -559,20 +564,19 @@ individually shareable; this section is the index.
 Full detail with instruments in [`FactSheet.md`](FactSheet.md). The five numbers that carry
 the most weight:
 
-**51.8%** — the share of Cairn's 52,652 lines of Python that lives in `proofs/`. More than
-half the code is the code that tries to falsify the other half. Not a testing culture; Law 8
-showing up as a line count.
+**50.7%** — the share of Cairn's 85,690 lines of Python that lives in `proofs/`. More than
+half the code is the code that tries to falsify the other half, and the ratio held as the
+codebase grew from 52K to 85K lines. Not a testing culture; Law 8 showing up as a line count.
 
-**34.3%** — the share of would-be inference tokens avoided by structure, over 1,400 real
-calls. The thesis, measured.
+**36.1%** — the share of would-be inference tokens avoided by structure, over 2,858 real
+calls. The thesis, measured — and climbing (was 34.3% at 1,400 calls).
 
-**39 of 39** — components whose charter is on disk, with the compiled help surface reporting
-a **green** completeness verdict: every command, skill and component traces to a charter, and
-nothing renders without one.
+**56** — charters compiled into the help surface. Each traces to a component, and nothing
+renders without one.
 
-**3 of 88** — librarian nodes with earned standing. Deposits are cheap; standing is not.
+**3 of 123** — librarian nodes with earned standing. Deposits are cheap; standing is not.
 
-**324** — journaled workflow crossings across 29 append-only histories, over 28 days.
+**423** — journaled workflow crossings across 36 append-only histories, over 36 days.
 
 ---
 
@@ -582,12 +586,14 @@ An architecture document that cannot be wrong is marketing. Here is what would r
 central claims, stated so that someone could go and check.
 
 **The thesis fails** if the avoided-token fraction does not hold, or falls, as the workload
-becomes less repetitive. The current 34.3% comes from a system building itself, which is an
+becomes less repetitive. The current 36.1% comes from a system building itself, which is an
 unusually self-similar workload. If a genuinely varied workload drives the hit rate toward
-zero, inference compilation is a property of this corpus and not of the method.
+zero, inference compilation is a property of this corpus and not of the method. The trend so
+far is positive: from 34.3% at 1,400 calls to 36.1% at 2,858 — the cache pays more as the
+corpus deepens.
 
 **The physics claim fails** if rules keep migrating *into* the prose IOU list faster than they
-migrate out. That list is designed to shrink monotonically. It is currently four entries plus
+migrate out. That list is designed to shrink monotonically. It is currently six entries plus
 four residues. If it grows across a quarter, "enforced by physics, not policy" has become the
 thing it was built to replace.
 
@@ -610,19 +616,25 @@ currently untestable.
 
 ---
 
-## 15. What is not built
+## 15. What is and is not running
 
 Restated plainly, because it is easy to lose in a document this long.
 
-- **The runtime spine has never run.** No heartbeat, no live bus, no daemon. The bus holds 2
-  records, both from a fixture on 2026-07-25. Everything measured above was produced by code
-  invoked from a session or a proof.
+**Running, as of 2026-08-19:**
+
+- **The runtime spine is alive.** The ground loop runs as a process, the web server as a
+  systemd unit, the bus with 607 records from 20+ senders. This is green at "it runs" and
+  red at "it has been observed running well" — the spine has been up for less than two weeks.
+- **Zero live troubles.** 36 have been filed; all 36 are cleared. The normal operating state.
+
+**Not built:**
+
 - **The node/leaf separation is not in the schema.** No per-tree leaf tables. No calving, no
   shear.
 - **The inference cache is exact-match.** Semantic canonicalisation is named as the next
   horizon and is unbuilt.
-- **Eleven live troubles**, two of which the system announces at every session start.
-- **Twelve tickets stand at the author's gate**, and 68 findings await a verdict.
+- **231 findings await the author's verdict.** Zero tickets stand at his gate, but the
+  findings backlog is real.
 - **Rules still enforced by prose** are enumerated in `CLAUDE.md` under *rules awaiting
   physics*, which is an explicit debt register rather than a wish list.
 
@@ -665,5 +677,5 @@ meant to be derivable from it rather than memorised.
 
 *`press_office/CairnArchitecture.md`. The spine document; the pattern series in this folder
 goes deeper on each subsystem. All numbers from [`FactSheet.md`](FactSheet.md), measured
-2026-08-11. A draft awaiting the signature gate — the press office's pieces are signed stones
+2026-08-19. A draft awaiting the signature gate — the press office's pieces are signed stones
 that learn by supersession, not by silent edit.*

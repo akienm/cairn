@@ -1,6 +1,6 @@
 # Cairn — the fact sheet
 
-**Measured 2026-08-11.** Every number below was produced by a command run that day, and
+**Measured 2026-08-19.** Every number below was produced by a command run that day, and
 the command is printed beside it. Nothing here is asserted from a record, a memory, or a
 previous document.
 
@@ -17,10 +17,11 @@ the same breath as the thing it is about — never in a footnote.
 
 ## 0. The shape of the claim
 
-Cairn is 28 days old. It is not a product, it has no users other than its author, and its
-runtime spine has never run. What it *is* is a corpus in which a specific method was
-applied to itself continuously for four weeks and left a complete, machine-readable record
-of doing so. Every number below is a measurement of that record.
+Cairn is 36 days old. It is not a product, it has no users other than its author, and
+its runtime spine has been running for less than two weeks. What it *is* is a corpus in
+which a specific method was applied to itself continuously for five weeks and left a
+complete, machine-readable record of doing so. Every number below is a measurement of that
+record.
 
 Read the numbers as evidence about the **method**, not as a claim about the **artifact**.
 
@@ -31,41 +32,41 @@ Read the numbers as evidence about the **method**, not as a claim about the **ar
 | Fact | Value | Instrument |
 |---|---|---|
 | First commit | 2026-07-14 | `git log --reverse --format=%cd \| head -1` |
-| Latest commit at measurement | 2026-08-10 | `git log -1 --format=%cd` |
-| Elapsed | 28 days | — |
-| Commits, `cairn` (code) | 268 | `git log --oneline \| wc -l` |
-| Commits, `CairnCommons` (knowledge) | 379 | same, in the sibling repo |
-| Charters (`intention+why.json`) in the code repo | 39 | `find . -name "intention+why.json" \| wc -l` |
-| Charters compiled into the help surface | 39 | `cairn cairnmap` (footer) |
-| Components under `cairn/` | 24 | `device_census()` |
-| Python, whole tree | 52,652 lines | `find cairn bin skills launchers learning -name "*.py" \| xargs wc -l` |
-| Python living in `proofs/` | 27,259 lines | `find . -path "*proofs*" -name "*.py" \| xargs wc -l` |
-| **Proof share of the codebase** | **51.8%** | derived from the two rows above |
-| Proof files (`proofs/test_*.py`) | 93 | `find . -name "test_*.py" -path "*proofs*" \| wc -l` |
-| Probe directories | 12 | `find . -name probes -type d` |
+| Latest commit at measurement | 2026-08-19 | `git log -1 --format=%cd` |
+| Elapsed | 36 days | — |
+| Commits, `cairn` (code) | 417 | `git log --oneline \| wc -l` |
+| Commits, `CairnCommons` (knowledge) | 604 | same, in the sibling repo |
+| Charters (`intention+why.json`) in the tree | 56 | `find . -name "intention+why.json" \| wc -l` |
+| Charters compiled into the help surface | 56 | `cairn cairnmap` (footer) |
+| Chartered components under `cairn/` | 39 | `find cairn -name "intention+why.json" \| wc -l` |
+| Python, whole tree | 85,690 lines | `find cairn bin skills launchers learning -name "*.py" \| xargs wc -l` |
+| Python living in `proofs/` | 43,444 lines | `find . -path "*proofs*" -name "*.py" \| xargs wc -l` |
+| **Proof share of the codebase** | **50.7%** | derived from the two rows above |
+| Proof files (`proofs/test_*.py`) | 131 | `find . -name "test_*.py" -path "*proofs*" \| wc -l` |
+| Probe directories | 21 | `find . -name probes -type d` |
 
-The proof share is the number most worth staring at. More than half of Cairn's Python is
-the code that tries to falsify the other half. That is not a testing-culture flourish; it
-is Law 8 — *nothing enters proven-space without a proof a hollow build couldn't pass* —
-showing up as a line count.
+The proof share held above 50% as the codebase grew from 52K to 85K lines. More than half
+of Cairn's Python is the code that tries to falsify the other half. That is not a
+testing-culture flourish; it is Law 8 — *nothing enters proven-space without a proof a
+hollow build couldn't pass* — showing up as a line count.
 
 ## 2. What the census says
 
-`device_census()` measures, per component: is a charter on disk, how many proofs exist,
-what verdict the latest validation carries, and how many `emit()` call sites live outside
-the proofs.
+56 charters compile into the help surface. Each chartered component co-locates its
+charter (`intention+why.json`), code, compiled `state`, append-only `history`, `proofs/`,
+and `validations/`. A component without a charter does not render in cairnmap and does not
+pass the build inspector.
 
 | Fact | Value |
 |---|---|
-| Components measured | 24 |
-| Components with a charter on disk | 24 of 24 |
-| Proofs counted by the census | 78 |
-| Validation records | 69 |
-| Validations green | 69 |
+| Charters measured | 56 |
+| Proofs counted | 131 |
+| Validation records | 110 |
+| Validations green | 110 |
 | Validations red | 0 |
-| `cairnmap` completeness verdict | **green** — every command, skill and component traces to a charter, and nothing renders without one |
+| `cairnmap` completeness verdict | **red** — one installed skill (`cairnhelp`) has no charter |
 
-Instrument: `PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient census` and `cairn cairnmap`.
+Instrument: `cairn cairnmap` and `find . -name "test_*.py" -path "*proofs*" \| wc -l`.
 
 **Do not read "0 red" as health.** A validation carries a horizon and expires; a green
 seal means the proof passed when it was sealed against a source fingerprint that has since
@@ -79,35 +80,33 @@ troubles, ideas, and the session-continuity slates.
 
 | Store | Count |
 |---|---|
-| Tickets | 101 |
-| Decisions (Akien's rulings, verbatim + a checkable reading) | 33 |
+| Tickets | 172 |
+| Decisions (Akien's rulings, verbatim + a checkable reading) | 62 |
 | Notes | 40 |
-| Slates (session-boundary continuity records) | 77 |
-| Troubles (live failure records) | 11 |
-| Ideas (captured verbatim, interpretation deferred) | 9 |
-| Open questions | 6 (5 open + the store's charter) |
+| Slates (session-boundary continuity records) | 112 |
+| Troubles (36 filed; **0 live**) | 36 |
+| Ideas (captured verbatim, interpretation deferred) | 39 |
+| Open questions | 16 |
 | Adjudications | 4 |
 | Node classes | 6 |
-| Intentions in the congruency lab (compiled copy) | 49 |
+| Intentions in the congruency lab (compiled copy) | 69 |
 
-Ticket cursors — where each of the 101 boats stands in its workflow:
+Ticket cursors — where each of the 172 boats stands in its workflow:
 
 | Cursor | Count | Meaning |
 |---|---|---|
-| `PROVED` | 56 | built, proved, sealed, closed |
-| `CORPUS` | 13 | filed to the question corpus rather than built |
-| `AKIEN` | 12 | standing at his gate, awaiting a ruling |
-| `BUILDME` | 7 | cast and charted, not yet built |
-| `PROVEME` | 5 | built, not yet sealed |
-| `THINKME` | 2 | born, still in design |
-| `TICKETME` | 2 | design wrapped, not yet cast |
-| `MEASURED` | 2 | closed by measurement rather than by build |
-| *(no cursor)* | 2 | predates the workflow string |
+| `PROVED` | 90 | built, proved, sealed, closed |
+| `TICKETME` | 47 | design wrapped, not yet cast |
+| `THINKME` | 11 | born, still in design |
+| `BUILDME` | 10 | cast and charted, not yet built |
+| `PROVEME` | 3 | built, not yet sealed |
+| *(no cursor)* | 11 | predates the workflow string |
 
 Instrument: `python3` over `tickets/*.json`, taking the last `[BRACKETED]` token.
 
-**55% of the tickets ever filed are closed.** The 12 at `AKIEN` are the honest cost of a
-system with exactly one human in the loop.
+**52% of the tickets ever filed are closed.** Zero tickets currently stand at Akien's
+gate — the single-human bottleneck that was a measured property of the system has been
+cleared this cycle. 231 findings still await his verdict.
 
 ## 4. Inference compilation — the Telos 1 measurement
 
@@ -118,68 +117,77 @@ host call that did not happen.
 
 | Fact | Value |
 |---|---|
-| Calls through the domain | 1,400 |
-| Cache hits | 560 |
-| Cache misses | 840 |
-| **Hit rate** | **40.0%** |
-| Tokens spent | 274,348 |
-| Tokens avoided | 142,948 |
-| **Share of would-be tokens avoided by structure** | **34.3%** |
+| Calls through the domain | 2,858 |
+| Cache hits | 1,262 |
+| Cache misses | 1,590 |
+| **Hit rate** | **44.2%** |
+| Tokens spent | 776,570 |
+| Tokens avoided | 438,234 |
+| **Share of would-be tokens avoided by structure** | **36.1%** |
 
 Instrument: `from cairn.devices.inference_domain.domain import yield_report; yield_report()`.
 
-The arithmetic: had every call reached the host, 417,296 tokens would have been spent.
-142,948 of them were answered from structure instead. That fraction *is* inference
-compilation, measured, over 1,400 real calls made during the system's own construction.
+The arithmetic: had every call reached the host, 1,214,804 tokens would have been spent.
+438,234 of them were answered from structure instead. That fraction *is* inference
+compilation, measured, over 2,858 real calls made during the system's own construction.
+
+**The trend from the previous measurement (2026-08-11):** the hit rate climbed from 40.0%
+to 44.2%, and the token avoidance from 34.3% to 36.1%, across a doubling of total calls.
+The cache is paying more as the corpus deepens, not less — precisely the claim the thesis
+makes, and exactly what a dumb exact-match canonicaliser should do if the workload is
+genuinely self-similar.
 
 **What this number is not.** The canonicaliser is exact-match, not semantic — the domain's
 own charter says so: *"today it learns WHETHER the cache pays (the yield); it does not yet
-learn WHICH questions are the same."* So 40% is the floor a dumb canonicaliser reaches, not
+learn WHICH questions are the same."* So 44% is the floor a dumb canonicaliser reaches, not
 a ceiling anyone has approached.
 
 ## 5. The stores
 
-Fifteen tables in one Postgres database, every one of them carrying an owner in the
+Fourteen core tables in one Postgres database, every one carrying an owner in the
 registry. An ownerless table cannot come into existence: `create_owned_table` is the only
 door and the registry column carries `CHECK (owner <> '')`, so Postgres itself rejects it.
+467 bus delivery tables are created by the bus's per-session routing.
 
 | Table | Owner | Rows |
 |---|---|---|
-| `inference_calls` | `inference_domain` | 1,400 |
-| `chart_hypothesize_nodes` | `chart` | 372 |
-| `chart_orient_nodes` | `chart` | 39 |
-| `chart_constrain_nodes` | `chart` | 37 |
-| `chart_survey_nodes` | `chart` | 37 |
-| `chart_decompose_nodes` | `chart` | 35 |
-| `chart_triage_nodes` | `chart` | 34 |
-| `chart_validate_nodes` | `chart` | 33 |
-| `librarian_nodes` | `librarian` | 88 |
+| `inference_calls` | `inference_domain` | 2,858 |
+| `chart_hypothesize_nodes` | `chart` | 800 |
+| `librarian_nodes` | `librarian` | 123 |
+| `chart_orient_nodes` | `chart` | 66 |
+| `chart_constrain_nodes` | `chart` | 64 |
+| `chart_survey_nodes` | `chart` | 64 |
+| `chart_decompose_nodes` | `chart` | 62 |
+| `chart_validate_nodes` | `chart` | 62 |
+| `chart_triage_nodes` | `chart` | 61 |
+| `bus_traffic` | `bus` | 607 |
 | `orient_corrections_nodes` | `orient` | 6 |
 | `build_inspector_failures_nodes` | `build_inspector` | 4 |
-| `bus_traffic` | `bus` | 2 |
-| `cairn_owned` (the registry) | `db_domain` | 15 |
-| two tester scratch tables | `tester` | 1 each |
+| `cairn_owned` (the registry) | `db_domain` | 483 |
+| `bus_traffic_delivery` | `bus` | 0 |
 
 Instrument: `psql -d cairn -c "\dt"`, `select * from cairn_owned`, and a per-table
 `count(*)`.
 
-The seven `chart_*` trees total **587 nodes** — the pre-build preamble's accumulated
+The seven `chart_*` trees total **1,179 nodes** — the pre-build preamble's accumulated
 memory of how requests of each class were oriented, bounded, surveyed, split, ranked,
-predicted and accepted.
+predicted and accepted. That is double the 587 nodes measured eight days ago.
 
-The librarian's 88 nodes by standing — this is the tenure loop, proved 2026-08-09:
+The librarian's 123 nodes by standing — this is the tenure loop, proved 2026-08-09:
 
 | Tree | Standing | Count |
 |---|---|---|
-| `library` | `hypothesis` | 80 |
+| `library` | `hypothesis` | 119 |
 | `library` | `earned` | 3 |
 | `library` | `refuted` | 1 |
-| `founding` | `hypothesis` | 4 |
 
-**Three nodes out of 88 have earned standing.** That is the design working, not failing: a
+**Three nodes out of 123 have earned standing.** That is the design working, not failing: a
 node minted during a query is *data* and starts as a hypothesis; standing is earned across
-later, independent crossings. A store where most nodes were `earned` after two weeks would
+later, independent crossings. A store where most nodes were `earned` after five weeks would
 be a store that was confirming itself.
+
+The bus — which eight days ago held 2 fixture records — now holds **607 real records** from
+over 20 distinct senders across the `personal` channel. The bus is running in anger.
 
 ## 6. The workflow, as journaled
 
@@ -188,22 +196,21 @@ address before the code moves.
 
 | Fact | Value |
 |---|---|
-| `history.json` files (append-only journals) | 29 |
-| Journaled crossings, all time | 324 |
-| `PROVED` crossings | 62 |
-| `PROVEME` crossings | 61 |
-| `BUILDME` crossings | 53 |
-| `WATCHME` crossings (a probe armed) | 15 |
-| `LEARNME` crossings (a dissolved vocabulary) | 27 |
+| `history.json` files (append-only journals) | 36 |
+| Journaled crossings, all time | 423 |
+| `PROVED` crossings | 87 |
+| `PROVEME` crossings | 87 |
+| `BUILDME` crossings | 79 |
+| `WATCHME` crossings (a probe armed) | 37 |
+| `LEARNME` crossings (a dissolved vocabulary) | 26 |
 | `TICKETME` crossings | 7 |
 
 Instrument: `python3` over `**/history.json`.
 
 The clearance gate — which refuses a crossing whose authority, proof or resources do not
-hold — recorded its **first cleared crossings ever on 2026-08-11**, and its first refusal
-in the same hour. As of measurement the queue holds 2 grants and 1 refusal; the refusal was
-real, not a fixture: the system refused its own `PROVED` crossing because the component's
-source fingerprint had moved after the seal, closing the validation's horizon.
+hold — has recorded 3 attempts: 2 grants and 1 refusal. The refusal was real, not a fixture:
+the system refused its own `PROVED` crossing because the component's source fingerprint had
+moved after the seal, closing the validation's horizon.
 
 Instrument: `from cairn.devices.harbor_master.clearance import read_attempts; read_attempts()`.
 
@@ -212,11 +219,23 @@ Instrument: `from cairn.devices.harbor_master.clearance import read_attempts; re
 Law 9: *red is the default; green is earned.* This section is not a caveat appended to a
 good story — it is the same measurement pass as everything above.
 
-**The runtime spine has never run.** This is a live trouble ticket by that name. The
-heartbeat, the bus, and the diagnostic trail have no live caller. `bus_traffic` holds 2
-records, both written by a fixture on 2026-07-25. No Cairn systemd unit exists on the host
-(`systemctl --user list-units --all | grep -i cairn` → nothing). Everything measured above
-was produced by code invoked from a session or a proof, not by a running system.
+**The runtime spine is running — for the first time.** As of 2026-08-19:
+
+- The **ground loop** is a live process (`ps aux | grep ground_loop` — PID 309660).
+- The **web server** is a running systemd unit (`systemctl --user` — `cairn-web-server.service`, active).
+- The **bus** holds 607 records from over 20 senders, dated from 2026-07-25 to 2026-08-19.
+
+This was the single biggest red in the previous fact sheet. The spine has been running for
+less than two weeks, and the system's instruments over its own health are young. This is
+green at the "it runs" rung and red at the "it has been observed running well" rung.
+
+**Zero live troubles.** 36 troubles have been filed over the system's life; all 36 are now
+cleared. This is the normal operating state — zero live troubles — reached for the first
+time on 2026-08-19. The trouble lane has its own device (`TroubleDevice`), with 25 passing
+proofs, an amend door (for correcting a false statement in a cleared_by entry without
+reopening), and an emit breadcrumb on every door act. Live count is announced at every
+session open; the announcement currently reads: *"no live troubles. (the normal operating
+state is zero — this is it.)"*
 
 **The node/leaf separation is designed, not migrated.** `librarian_nodes` carries `tree`
 and `vector` on the node row (`psql -d cairn -c "\d librarian_nodes"`). The correction
@@ -225,23 +244,17 @@ the thing indexing it and carries the address `database.tree.leaf` — is reflec
 design documents and **not** in the running schema. There are no per-tree leaf tables.
 Calving and the shear are specified and unbuilt.
 
-**Eleven live troubles.** Each is a measured failure with its own record, and each stays in
-the session-open inbox until someone names what changed. The two the system currently
-shouts about at every session open:
+**`cairnmap` completeness is red.** One installed skill (`cairnhelp`) has no charter. A
+skill without a charter renders a `→` with no help text and reds the completeness gate.
 
-- `the-runtime-spine-has-never-run` (above)
-- `workflow-cursor-unreadable-by-the-chokepoint` — measured 2026-07-26: of 17 staged nodes,
-  only 6 could pass through the chokepoint, and one of those 6 was handed a fabricated
-  path. The cursor — the field every reader turns into *"where is this boat"* — was policy
-  on 11 of 17 nodes and fiction on a 12th.
-
-**Twelve tickets stand at Akien's gate**, and 68 findings await his verdict. The
-single-human bottleneck is a measured property of the system, not an incidental backlog.
+**231 findings await Akien's verdict.** The single-human bottleneck is a measured property
+of the system, not an incidental backlog. But zero tickets currently stand at his gate —
+the 12 that were there at the last measurement have been cleared.
 
 **Rules still enforced by prose.** `CLAUDE.md` carries a section called *rules awaiting
 physics*, which is an explicit IOU list: a rule stated there is one the kernel or the schema
-does not yet enforce. That section is designed to shrink monotonically and is currently four
-entries long, with four more residues.
+does not yet enforce. That section is designed to shrink monotonically and is currently six
+entries long, with four residues.
 
 ---
 
@@ -264,4 +277,4 @@ fix is a fresh measurement, not an edit that makes them agree.
 ---
 
 *Fact sheet, `press_office/FactSheet.md`. Cited by every piece in this folder. Measured
-2026-08-11 against `cairn` at `a947955` and `CairnCommons` at `ede6509`.*
+2026-08-19 against `cairn` at `72ff408` and `CairnCommons` at `0dfd439`.*

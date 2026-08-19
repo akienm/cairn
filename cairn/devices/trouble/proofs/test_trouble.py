@@ -302,6 +302,92 @@ def test_the_crossings_are_no_longer_silent():
             "with no receiver wired the records HOLD (Law 7) — never silently dropped"
 
 
+def test_an_amendment_appends_a_correction_beside_the_false_statement():
+    """Law 7: the false statement stays permanent; the correction stands beside it so a reader
+    of the original sees both. NOT a second clear — standing is untouched."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY)
+        d.clear(IDENT, by="cc", what_changed="patched the gate — or so I thought")
+        out = d.amend(IDENT, by="cc",
+                      correction="the gate was already patched since 2026-08-16; "
+                                 "the clear's claim of NOT DONE is false")
+        assert out["outcome"] == "amended"
+        assert out["standing"] == CLEARED, "an amendment does NOT change standing"
+        on_disk = json.loads((Path(tmp) / f"{IDENT}.json").read_text(encoding="utf-8"))
+        assert len(on_disk["cleared_by"]) == 2, "the original clear + the amendment"
+        original = on_disk["cleared_by"][0]
+        amendment = on_disk["cleared_by"][1]
+        assert "amendment" not in original, "the original clear is untouched"
+        assert amendment["amendment"] is True
+        assert amendment["correction"].startswith("the gate was already patched")
+        assert amendment["by"] == "cc"
+        assert "at" in amendment
+
+
+def test_an_amendment_on_a_nonexistent_ticket_is_refused():
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            _dev(tmp).amend("ghost", by="cc", correction="fixing nothing")
+        except TroubleError as e:
+            assert "no trouble" in str(e)
+        else:
+            raise AssertionError("amending a nonexistent ticket must be refused")
+
+
+def test_an_amendment_without_a_cleared_by_entry_is_refused():
+    """Amending a record that was never cleared is amending nothing."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY)
+        try:
+            d.amend(IDENT, by="cc", correction="correcting a clear that never happened")
+        except TroubleError as e:
+            assert "no cleared_by" in str(e)
+        else:
+            raise AssertionError("a correction without an original is not an amendment")
+
+
+def test_an_empty_correction_is_refused():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY)
+        d.clear(IDENT, by="cc", what_changed="something")
+        try:
+            d.amend(IDENT, by="cc", correction="")
+        except TroubleError as e:
+            assert "empty correction" in str(e)
+        else:
+            raise AssertionError("a change that says nothing changed is not an amendment")
+
+
+def test_an_amendment_does_not_change_standing():
+    """The amendment is append-only context, not a state transition."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY)
+        d.clear(IDENT, by="cc", what_changed="fixed")
+        assert d.live() == [], "cleared"
+        d.amend(IDENT, by="cc", correction="the fix claim was wrong")
+        assert d.live() == [], "still cleared — an amendment is NOT a re-open"
+        on_disk = json.loads((Path(tmp) / f"{IDENT}.json").read_text(encoding="utf-8"))
+        assert on_disk["standing"] == CLEARED
+
+
+def test_an_amendment_emits_a_breadcrumb():
+    """The amendment is a door-act and a durable write — it breadcrumbs (Law 7)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY)
+        d.clear(IDENT, by="cc", what_changed="fixed")
+        d.amend(IDENT, by="cc", correction="that clear was wrong")
+        held = d.held_diagnostics()
+        amend_crumbs = [h for h in held if h["gate"] == "amend"]
+        assert len(amend_crumbs) == 1
+        assert amend_crumbs[0]["values"]["outcome"] == "amended"
+        assert amend_crumbs[0]["pointer"] == IDENT
+
+
 # DERIVED, NOT TYPED OUT (2026-08-12). This was a hand-written roster of sixteen names, and
 # it caught its author the same hour: two new teeth were added above, the file printed
 # "16/16 green", and NEITHER NEW TOOTH HAD RUN. A hand roster beside the thing it lists is a

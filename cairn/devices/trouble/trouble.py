@@ -232,6 +232,36 @@ class TroubleDevice(BaseDevice):
         return {"outcome": "cleared" if not outstanding else "partially_cleared",
                 "id": ident, "standing": ticket["standing"], "outstanding": outstanding}
 
+    def amend(self, identity: str, *, by: str, correction: str) -> dict:
+        """A CORRECTION appended to a clear that carried a false statement.
+
+        The false statement stays (Law 7 — permanent in the record of truth). The
+        correction stands beside it so a reader of the original sees both. This is
+        NOT a second clear — it does not change standing, does not re-resolve, and
+        does not require the ticket to be live. It requires the ticket to HAVE a
+        cleared_by entry, because amending a record that was never cleared is
+        amending nothing.
+
+        The shape mirrors validation_store's verdict_change: a changed verdict
+        announced before the replace lands. Here the replace is the append."""
+        ident = self._slug(identity)
+        ticket = self._read(ident)
+        if not ticket:
+            raise TroubleError(f"no trouble {ident!r} to amend")
+        if not ticket.get("cleared_by"):
+            raise TroubleError(f"trouble {ident!r} has no cleared_by entry to amend — "
+                               "a correction without an original is not an amendment")
+        if not correction:
+            raise TroubleError("an amendment carries a correction — an empty correction "
+                               "is a change that says nothing changed")
+
+        ticket["cleared_by"].append(
+            {"amendment": True, "by": by, "at": _now(), "correction": correction})
+        self._write(ident, ticket)
+        self.emit("amend", pointer=ident,
+                  values={"outcome": "amended", "standing": ticket.get("standing")})
+        return {"outcome": "amended", "id": ident, "standing": ticket.get("standing")}
+
     # --- reading ------------------------------------------------------------
 
     def live(self) -> list[dict]:

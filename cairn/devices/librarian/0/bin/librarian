@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+# cairn librarian — ensure the librarian is up and reachable on the web.
+#
+# Starts the web_server listener as a systemd transient unit if it is not already running.
+# The listener wires up the ground loop with the librarian's shim, so the librarian's chat
+# window is live at /device/librarian as soon as this returns. The ground loop is started
+# too (same singleton pattern — if it's already running, the new one exits 3 and the unit
+# cleans itself up via SuccessExitStatus=3).
+#
+# Modeled on the ground loop spawn in superclaude: systemd-run --user transient unit with
+# SuccessExitStatus=3, reset-failed retry, setsid fallback. NOT a daemon — a listener that
+# acts only when a browser request arrives.
+#
+#   cairn librarian           start the web surface (idempotent)
+#   cairn librarian --status  just report whether it's up
+#
+# After reboot: `cairn superclaude` or `cairn librarian` brings it up. No system-level
+# startup required (Akien's ruling 2026-08-11 — generalized from the ground loop).
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+WEB_LOG="${HOME}/.cairn/logs/web_server.log"
+WEB_UNIT="${CAIRN_WEB_UNIT:-cairn-web-server}"
+LOOP_UNIT="${CAIRN_GROUND_LOOP_UNIT:-cairn-ground-loop}"
+LOOP_LOG="${HOME}/.cairn/logs/ground_loop_nohup.log"
+
+mkdir -p "$(dirname "$WEB_LOG")" 2>/dev/null || true
+mkdir -p "$(dirname "$LOOP_LOG")" 2>/dev/null || true
+
+# --- status check -----------------------------------------------------------
+_is_listening() {
+  ss -tlnH 2>/dev/null | grep -q ':80\b'
+}
+
+if [[ "${1:-}" == "--status" ]]; then
+  if _is_listening; then
+    echo "librarian: web server is listening on port 80"
+    echo "  http://127.0.0.1/"
+    echo "  http://10.0.0.229/"
+    exit 0
+  else
+    echo "librarian: web server is NOT listening" >&2
+    exit 1
+  fi
+fi
+
+# --- resolve the venv so python3 is the floor we laid -----------------------
+_venv_bin="${CAIRN_VENV:-$HOME/.cairn/venv}/bin"
+if [[ -d "$_venv_bin" ]]; then
+  export PATH="$_venv_bin:$PATH"
+fi
+
+# --- start function (shared by first attempt and retry) ---------------------
+_start_unit() {
+  local unit="$1" log="$2" cmd="$3"
+  shift 3
+  systemd-run --user --quiet \
+    --unit "$unit" \
+    --working-directory "$REPO_ROOT" \
+    --setenv=HOME="$HOME" \
+    --setenv=PATH="$PATH" \
+    -p SuccessExitStatus=3 \
+    -p StandardOutput=append:"$log" \
+    -p StandardError=append:"$log" \
+    -- $cmd "$@" 2>&1
+}
+
+_note() {
+  local log="$1"; shift
+  printf '%s %s\n' "$(date -Is 2>/dev/null || date)" "$*" >>"$log" 2>/dev/null || true
+}
+
+# --- ensure the ground loop is up (same singleton pattern as superclaude) ----
+_ensure_loop() {
+  if ! command -v systemd-run >/dev/null 2>&1; then
+    ( setsid python3 -m cairn.devices.ground_loop \
+        >>"$LOOP_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+    return
+  fi
+  local err
+  if err="$(_start_unit "$LOOP_UNIT" "$LOOP_LOG" python3 -m cairn.devices.ground_loop)"; then
+    return
+  fi
+  _note "$LOOP_LOG" "$err"
+  case "$err" in
+    *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
+      systemctl --user reset-failed "${LOOP_UNIT}.service" >/dev/null 2>&1 || true
+      _start_unit "$LOOP_UNIT" "$LOOP_LOG" python3 -m cairn.devices.ground_loop >/dev/null 2>&1 || true
+      ;;
+  esac
+}
+
+# --- ensure the web server is up --------------------------------------------
+_ensure_web() {
+  if _is_listening; then
+    echo "librarian: web server already listening on port 80"
+    return 0
+  fi
+
+  if ! command -v systemd-run >/dev/null 2>&1; then
+    echo "librarian: systemd-run unavailable — starting with setsid (will die with this terminal)" >&2
+    ( setsid python3 "$REPO_ROOT/cairn/devices/web_server/listener.py" \
+        >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+    disown 2>/dev/null || true
+    sleep 1
+    if _is_listening; then
+      echo "librarian: web server started (setsid fallback)"
+    else
+      echo "librarian: web server failed to start — see $WEB_LOG" >&2
+      return 1
+    fi
+    return 0
+  fi
+
+  local err path="unavailable"
+  if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
+      python3 "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
+    path="started"
+  else
+    _note "$WEB_LOG" "$err"
+    case "$err" in
+      *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
+        systemctl --user reset-failed "${WEB_UNIT}.service" >/dev/null 2>&1 || true
+        if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
+            python3 "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
+          path="started"
+        else
+          _note "$WEB_LOG" "$err"
+          path="refused"
+        fi
+        ;;
+    esac
+  fi
+
+  case "$path" in
+    started)
+      sleep 1
+      if _is_listening; then
+        echo "librarian: web server started as ${WEB_UNIT}.service"
+      else
+        echo "librarian: unit started but port 80 not yet listening — see $WEB_LOG" >&2
+      fi
+      ;;
+    refused)
+      echo "librarian: ${WEB_UNIT}.service refused — see $WEB_LOG" >&2
+      return 1
+      ;;
+    *)
+      echo "librarian: systemd-run failed — starting with setsid" >&2
+      ( setsid python3 "$REPO_ROOT/cairn/devices/web_server/listener.py" \
+          >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+      disown 2>/dev/null || true
+      sleep 1
+      if _is_listening; then
+        echo "librarian: web server started (setsid fallback)"
+      else
+        echo "librarian: web server failed to start — see $WEB_LOG" >&2
+        return 1
+      fi
+      ;;
+  esac
+}
+
+# --- main -------------------------------------------------------------------
+_ensure_loop
+_ensure_web
+
+if _is_listening; then
+  echo ""
+  echo "  http://127.0.0.1/"
+  echo "  http://10.0.0.229/"
+  echo "  http://10.0.0.229/device/librarian"
+fi

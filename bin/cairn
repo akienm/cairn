@@ -1,36 +1,58 @@
 #!/usr/bin/env bash
-# cairn — the user-facing command runner.
+# cairn — the single entry point into the system.
 #
-#   cairn <name> <args...>   execs  bin/cmd/<name> <args...>   (args verbatim, exit code intact)
+#   cairn <device> [verb] [args...]
 #
-# UU's `uu $1 $2 ...` pattern, Cairn's name. A dumb dispatcher: it resolves a NAME to a
-# script and hands off (Law 6 — each facility owns itself; the runner owns no logic of what
-# it runs). Unknown names fail LOUD, never a silent no-op (CP1). New verbs are just a new
-# executable in bin/cmd/ — no edit here.
+# Resolves through the FILESYSTEM — no registry, no config (Law 4: physics, not policy).
+# The dispatch:
 #
-# The full name lives in git; any 2-letter shorthand is a PERSONAL shell alias in your
-# dotfiles (instance-space), never baked into this shared tree.
+#   cairn librarian              →  ~/.cairn/devices/librarian/0/bin/librarian
+#   cairn librarian learn "X"    →  ~/.cairn/devices/librarian/0/bin/learn "X"
+#   cairn superclaude            →  ~/.cairn/devices/superclaude/0/bin/superclaude
+#   cairn akien show myissues    →  ~/.cairn/devices/akien/0/bin/show myissues
 #
-# CAIRN_CMD_DIR overrides the command directory (used by the proof to point at a stub tree).
+# The instance-space bin/ is (usually) a symlink to class-space:
+#   ~/.cairn/devices/<dev>/0/bin  →  ~/dev/src/cairn/cairn/devices/<dev>/0/bin
+# so the code lives once in git and customization is "unlink, copy, have fun."
+#
+# VERB DEFAULTS TO DEVICE NAME: `cairn librarian` is shorthand for `cairn librarian librarian`
+# — the self-named launcher script. Every device with a bin/ has one.
+#
+# TRANSITION: old-style flat verbs (`cairn test`, `cairn ruling`) still resolve through
+# bin/cmd/ if no device matches. This fallback shrinks monotonically as verbs find their
+# device homes.
 set -euo pipefail
 
-# Resolve through symlinks BEFORE taking the dirname: the entry point is linked into
-# ~/.local/bin so `cairn <verb>` works from anywhere, and without readlink -f the dirname
-# is the LINK's directory (~/.local/bin), so CMD_DIR would point at a tree with no verbs
-# in it — the runner would report "(none yet)" while every verb sat in the repo. Measured
-# 2026-07-26, the first time the link was made.
+INSTANCE_ROOT="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
+
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-CMD_DIR="${CAIRN_CMD_DIR:-$HERE/cmd}"
+LEGACY_CMD_DIR="${CAIRN_CMD_DIR:-$HERE/cmd}"
 
 _usage() {
-  echo "cairn: usage: cairn <command> [args...]" >&2
-  echo "commands:" >&2
-  local found=0 f
-  for f in "$CMD_DIR"/*; do
-    if [ -f "$f" ] && [ -x "$f" ]; then echo "  $(basename "$f")" >&2; found=1; fi
+  echo "cairn: usage: cairn <device> [verb] [args...]" >&2
+  echo "" >&2
+  echo "devices:" >&2
+  local found=0 d
+  for d in "$INSTANCE_ROOT"/*/0/bin; do
+    if [ -d "$d" ]; then
+      echo "  $(basename "$(dirname "$(dirname "$d")")")" >&2
+      found=1
+    fi
   done
-  [ "$found" -eq 0 ] && echo "  (none yet)" >&2
-  return 0   # never leak a non-zero from the lister — set -e would swallow the real exit code
+  [ "$found" -eq 0 ] && echo "  (none wired yet)" >&2
+  # show legacy verbs if any remain
+  local legacy=0 f
+  for f in "$LEGACY_CMD_DIR"/*; do
+    if [ -f "$f" ] && [ -x "$f" ]; then
+      if [ "$legacy" -eq 0 ]; then
+        echo "" >&2
+        echo "legacy verbs (transitional — moving into devices):" >&2
+        legacy=1
+      fi
+      echo "  $(basename "$f")" >&2
+    fi
+  done
+  return 0
 }
 
 if [ $# -eq 0 ]; then
@@ -38,13 +60,46 @@ if [ $# -eq 0 ]; then
   exit 2
 fi
 
-name="$1"; shift
-target="$CMD_DIR/$name"
+device="$1"; shift
 
-if [ ! -x "$target" ]; then
-  echo "cairn: no such command: $name" >&2
-  _usage
-  exit 127
+# --- device dispatch: ~/.cairn/devices/<device>/0/bin/<verb> ---
+device_bin="$INSTANCE_ROOT/$device/0/bin"
+
+if [ -d "$device_bin" ]; then
+  if [ $# -eq 0 ]; then
+    # no verb: self-named launcher
+    verb="$device"
+  elif [ -x "$device_bin/$1" ]; then
+    # $1 names a real verb in this device's bin
+    verb="$1"; shift
+  else
+    # $1 is not a verb — pass everything to the self-named launcher
+    verb="$device"
+  fi
+  target="$device_bin/$verb"
+  if [ ! -x "$target" ]; then
+    echo "cairn $device: no such verb: $verb" >&2
+    echo "verbs for $device:" >&2
+    local_found=0
+    for f in "$device_bin"/*; do
+      if [ -f "$f" ] && [ -x "$f" ]; then
+        echo "  $(basename "$f")" >&2
+        local_found=1
+      fi
+    done
+    [ "$local_found" -eq 0 ] && echo "  (none)" >&2
+    exit 127
+  fi
+  exec "$target" "$@"
 fi
 
-exec "$target" "$@"
+# --- legacy fallback: bin/cmd/<verb> (transitional) ---
+legacy_target="$LEGACY_CMD_DIR/$device"
+if [ -f "$legacy_target" ] && [ -x "$legacy_target" ]; then
+  exec "$legacy_target" "$@"
+fi
+
+# --- nothing matched ---
+echo "cairn: no such device or command: $device" >&2
+_usage
+exit 127

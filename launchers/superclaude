@@ -368,6 +368,66 @@ if [[ "$dry_run" -eq 0 ]]; then
   esac
 fi
 
+# ── THE WEB SERVER IS ALWAYS UP (same ruling, generalized) ───────────────────
+# The librarian's web face answers on http://10.0.0.229/ — the same "if it's not up,
+# launching an entry point launches it" principle as the ground loop above. The web_server
+# listener is NOT a daemon: it acts only when a browser request arrives. It wires up the
+# ground loop with the librarian's shim, so the chat window is live at /device/librarian.
+#
+# Same transient-unit pattern: SuccessExitStatus is unnecessary here (the listener doesn't
+# exit 3 — it's not a singleton guard, it just binds a port and serves), but the retry and
+# setsid fallback apply. The listener is idempotent in practice: if port 80 is already
+# bound, the second one fails to bind and exits — but unlike the ground loop, that failure
+# is an OS error, not a designed exit code, so we check the port first to avoid a noisy
+# failure in the log.
+_sc_web_unit="${SUPERCLAUDE_WEB_UNIT:-cairn-web-server}"
+_sc_web_log="${HOME}/.cairn/logs/web_server.log"
+_sc_web_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/null && pwd)"
+
+_sc_web_start() {
+  systemd-run --user --quiet \
+    --unit "$_sc_web_unit" \
+    --working-directory "${_sc_web_root:-$PWD}" \
+    --setenv=HOME="$HOME" \
+    --setenv=PATH="$PATH" \
+    -p StandardOutput=append:"$_sc_web_log" \
+    -p StandardError=append:"$_sc_web_log" \
+    -- python3 "$_sc_web_root/cairn/devices/web_server/listener.py" 2>&1
+}
+
+if [[ "$dry_run" -eq 0 ]]; then
+  mkdir -p "$(dirname "$_sc_web_log")" 2>/dev/null || true
+  if ss -tlnH 2>/dev/null | grep -q ':80\b'; then
+    _sc_log "web_server: already listening on port 80"
+  elif command -v systemd-run >/dev/null 2>&1; then
+    _sc_web_err=""
+    if _sc_web_err="$(_sc_web_start)"; then
+      _sc_log "web_server: started as ${_sc_web_unit}.service"
+    else
+      _sc_loop_note "$_sc_web_err"
+      case "$_sc_web_err" in
+        *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
+          systemctl --user reset-failed "${_sc_web_unit}.service" >/dev/null 2>&1 || true
+          if _sc_web_err="$(_sc_web_start)"; then
+            _sc_log "web_server: started as ${_sc_web_unit}.service (after reset-failed)"
+          else
+            _sc_loop_note "$_sc_web_err"
+            _sc_log "web_server: ${_sc_web_unit}.service refused — see $_sc_web_log"
+          fi
+          ;;
+        *)
+          _sc_log "web_server: systemd-run failed: $_sc_web_err"
+          ;;
+      esac
+    fi
+  else
+    ( setsid python3 "$_sc_web_root/cairn/devices/web_server/listener.py" \
+        >>"$_sc_web_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+    disown 2>/dev/null || true
+    _sc_log "web_server: systemd-run unavailable — spawned with setsid"
+  fi
+fi
+
 # ── THE TRACE WIRE (deploy pass, approved 2026-08-01): a launch is a firing ──
 # door_pass on a clean floor; send_back with the lack NAMED when the preflight was
 # bypassed or left residue — launched anyway (the prime directive is untouched), but

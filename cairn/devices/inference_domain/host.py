@@ -56,7 +56,7 @@ import urllib.request
 # resolver ROUTES through the rules stacks instead of dialing a literal (ruling
 # 2026-08-08-inference-proxy-is-a-rules-stack). There is no default endpoint constant to
 # fall back to on purpose — a literal that survives "just in case" is the defect returning.
-DEFAULT_TIMEOUT = 120.0
+DEFAULT_TIMEOUT = 300.0
 
 # The counters a metered response must carry at least one of. Named here so the refusal below
 # has one place to point at, and so a host that renames them fails loudly instead of quietly

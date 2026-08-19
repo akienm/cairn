@@ -197,6 +197,24 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         return host.ollama_resolver(model=fence.models[0])
 
     def completion(*, model, messages, stream=False, **_kwargs):
+        # BORDER CROSSING 1: ARRIVAL — what aider sent, BEFORE any fence or door.
+        # The kwargs aider passed that this surface does not forward are the blind
+        # segment diagnosed 2026-08-19: temperature, num_ctx, timeout, tools,
+        # tool_choice, and extra_params are all silently dropped by **_kwargs.
+        # This record is the only place both sides of the seam meet.
+        _known_keys = {"model", "messages", "stream"}
+        _extra = {k: (v if isinstance(v, (int, float, bool, str, type(None)))
+                       else type(v).__name__)
+                  for k, v in _kwargs.items()}
+        log.record(model=model, verdict="arrival", ticket=ticket,
+                   ask_chars=sum(len((m.get("content") or "")
+                                     if isinstance(m, dict) else "")
+                                for m in messages),
+                   detail=str({"dropped_kwargs": _extra,
+                               "message_count": len(messages),
+                               "stream": stream}) if _extra else
+                          str({"message_count": len(messages), "stream": stream}))
+
         # THE FENCE FIRES BEFORE ANYTHING ELSE — before the door, before the host, before
         # any cost can be incurred. A refused ask is recorded and raised, never retried.
         try:
@@ -214,6 +232,15 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 
         wire = [{"role": m["role"], "content": m["content"]} for m in messages]
         ask_chars = sum(len(m["content"] or "") for m in wire)
+
+        # BORDER CROSSING 2: DEPARTURE — what we actually send to inference_domain.
+        # The options dict is the one place aider's caller-side params should land;
+        # anything aider sent that is not in this dict was dropped at the seam.
+        outbound_options = {"num_ctx": fence.ask_ctx}
+        log.record(model=model, verdict="departure", ticket=ticket,
+                   ask_chars=ask_chars, num_ctx=fence.ask_ctx,
+                   detail=str({"options": outbound_options,
+                               "wire_roles": [m["role"] for m in wire]}))
 
         # THE CONSUMER ASKS FOR WHAT IT WANTS (Akien's ruling, 2026-08-16) — and a context
         # window is part of the ask, not a property of the proxy. Until 2026-08-17 this
@@ -240,7 +267,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         try:
             out = _resolve_door()(
                 {"kind": "chat", "model": model, "messages": wire,
-                 "options": {"num_ctx": fence.ask_ctx}},
+                 "options": outbound_options},
                 resolver=_resolver(),
             )
         except BaseException as failed:
@@ -291,7 +318,18 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         if counters:
             usage = _Usage(int(counters.get("prompt_eval_count", 0)),
                            int(counters.get("eval_count", 0)))
-        return _Response(answer.get("text", ""), usage, model=model,
+        response_text = answer.get("text", "")
+
+        # BORDER CROSSING 3: RETURN — what we hand back to aider.
+        log.record(model=model, verdict="return", ticket=ticket,
+                   ask_chars=ask_chars, num_ctx=fence.ask_ctx,
+                   prompt_eval_count=processed,
+                   detail=str({"response_chars": len(response_text),
+                               "hit": bool(out.get("hit")),
+                               "has_usage": usage is not None,
+                               "provider": provider}))
+
+        return _Response(response_text, usage, model=model,
                          cairn={"hit": bool(out.get("hit")), "cost": out.get("cost"),
                                 "provenance": provenance, "canonical": out.get("canonical")})
 

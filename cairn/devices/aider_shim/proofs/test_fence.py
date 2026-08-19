@@ -99,8 +99,10 @@ def test_the_refusal_names_the_widened_model_verbatim_in_the_record():
             mod.completion(model=name, messages=[{"role": "user", "content": "x"}])
         except AskWidened:
             pass
-    assert log.names() == ["gpt-4o", "claude-opus-5", "qwen3-coder:480b"], \
-        f"the record does not carry each ask verbatim and in order: {log.names()}"
+    fence_names = [e["model"] for e in log.entries
+                    if e["verdict"] not in ("arrival", "departure", "return")]
+    assert fence_names == ["gpt-4o", "claude-opus-5", "qwen3-coder:480b"], \
+        f"the record does not carry each ask verbatim and in order: {fence_names}"
     for row in log.refused():
         assert row["model"] in row["detail"], \
             f"the recorded detail does not name the model it refused: {row}"
@@ -126,8 +128,8 @@ def test_an_on_fence_ask_is_allowed_and_recorded_as_allowed():
     log = SeenLog()
     mod = interceptor.build(resolve=serving_door(), resolver=object(), log=log)
     mod.completion(model="qwen3-coder:30b", messages=[{"role": "user", "content": "x"}])
-    assert log.entries and log.entries[-1]["verdict"] == "allowed", \
-        f"an on-fence ask was not allowed: {log.entries}"
+    allowed = [e for e in log.entries if e["verdict"] == "allowed"]
+    assert allowed, f"an on-fence ask was not allowed: {log.entries}"
     assert not log.refused(), "an on-fence ask was refused — the fence is a wall"
 
 
@@ -274,9 +276,10 @@ def test_the_record_is_appended_to_disk_when_a_path_is_given():
             except AskWidened:
                 pass
         lines = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x]
-        assert [r["model"] for r in lines] == ["gpt-4o", "claude-opus-5"], \
-            f"the on-disk record does not match what was asked: {lines}"
-        assert all(r["verdict"] == "refused" for r in lines)
+        fence_lines = [r for r in lines if r["verdict"] not in ("arrival", "departure", "return")]
+        assert [r["model"] for r in fence_lines] == ["gpt-4o", "claude-opus-5"], \
+            f"the on-disk record does not match what was asked: {fence_lines}"
+        assert all(r["verdict"] == "refused" for r in fence_lines)
 
 
 def test_the_default_record_path_is_instance_space():
@@ -433,8 +436,9 @@ def test_a_cache_hit_is_not_called_a_clamp():
                                 "provenance": {"provider": "hex"}})
     out = mod.completion(model="qwen3-coder:30b", messages=[{"role": "user", "content": "x"}])
     assert out.choices[0].message.content == "cached"
-    assert log.entries[-1]["verdict"] == "allowed", "a cache hit was reddened as a clamp"
-    assert log.entries[-1]["prompt_eval_count"] is None, \
+    allowed = [e for e in log.entries if e["verdict"] == "allowed"]
+    assert allowed, "a cache hit was reddened as a clamp"
+    assert allowed[-1]["prompt_eval_count"] is None, \
         "a count was fabricated for a call that never happened (Law 7)"
 
 

@@ -601,7 +601,8 @@ def test_the_cap_holds_the_ask_to_one():
         assert r.num_reflections == 0, r.num_reflections
         rows = [json.loads(x) for x in
                 (Path(tmp) / "asks.jsonl").read_text().splitlines() if x.strip()]
-        assert len(rows) == 1, rows       # read from the LOG, not from the return value
+        allowed = [r for r in rows if r["verdict"] == "allowed"]
+        assert len(allowed) == 1, rows    # read from the LOG, not from the return value
 
 
 def test_the_cap_is_what_holds_it_not_the_fixture():
@@ -829,7 +830,8 @@ def test_the_cap_still_holds_against_a_failing_test():
             f"cap and every current caller just got more expensive. asks={r.asks}")
         rows = [json.loads(x) for x in
                 (Path(tmp) / "asks.jsonl").read_text().splitlines() if x.strip()]
-        assert len(rows) == 1, rows        # from the LOG, not the return value
+        allowed = [r for r in rows if r["verdict"] == "allowed"]
+        assert len(allowed) == 1, rows     # from the LOG, not the return value
 
 
 def test_the_default_max_reflections_is_still_zero():

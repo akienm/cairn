@@ -198,9 +198,8 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 
     def completion(*, model, messages, stream=False, **_kwargs):
         # BORDER CROSSING 1: ARRIVAL — what aider sent, BEFORE any fence or door.
-        # The kwargs aider passed that this surface does not forward are the blind
-        # segment diagnosed 2026-08-19: temperature, num_ctx, timeout, tools,
-        # tool_choice, and extra_params are all silently dropped by **_kwargs.
+        # temperature is now forwarded (see departure); other kwargs (tools,
+        # tool_choice, timeout, extra_params) are still dropped.
         # This record is the only place both sides of the seam meet.
         _known_keys = {"model", "messages", "stream"}
         _extra = {k: (v if isinstance(v, (int, float, bool, str, type(None)))
@@ -231,12 +230,40 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
             )
 
         wire = [{"role": m["role"], "content": m["content"]} for m in messages]
+
+        # THE SHARP SYSTEM PROMPT — injected at the seam, not at the model's template,
+        # because hex's qwen3-coder uses ollama's native RENDERER (not a Jinja2 template).
+        # Credit: peculiar-ragdoll/Qwen-Sharp-Chat-Templates on HuggingFace; a Reddit
+        # poster benchmarked the same model family with aider against Opus 5 and won.
+        _sharp = (
+            "Answer directly, after thinking. Lead with the answer, then only "
+            "what it needs to be correct and usable.\n"
+            "Never: open with preamble or pleasantries; restate the question; "
+            "add filler transitions; hedge with niceties; or repeat a point "
+            "you've already made.\n"
+            "Always: keep essential steps, caveats, uncertainties, and specifics "
+            "— never drop correctness or a needed warning for brevity. Keep the "
+            "final answer lean. Use the least structure that conveys it (plain "
+            "prose when short; lists or code only when they earn their place). "
+            "If genuinely uncertain, say so and explain why — never omit "
+            "uncertainty for the sake of brevity.\n"
+            "If a user request is genuinely ambiguous, ask a sharp question, "
+            "don't guess."
+        )
+        if wire and wire[0]["role"] == "system":
+            wire[0] = {**wire[0], "content": wire[0]["content"] + "\n\n" + _sharp}
+        else:
+            wire.insert(0, {"role": "system", "content": _sharp})
+
         ask_chars = sum(len(m["content"] or "") for m in wire)
 
         # BORDER CROSSING 2: DEPARTURE — what we actually send to inference_domain.
-        # The options dict is the one place aider's caller-side params should land;
-        # anything aider sent that is not in this dict was dropped at the seam.
+        # The options dict carries aider's caller-side params that belong on the wire.
+        # temperature is forwarded when aider sends it; the host's default (0.0)
+        # contradicts the model's own parameter (0.7), and the caller knows what it wants.
         outbound_options = {"num_ctx": fence.ask_ctx}
+        if "temperature" in _kwargs:
+            outbound_options["temperature"] = _kwargs["temperature"]
         log.record(model=model, verdict="departure", ticket=ticket,
                    ask_chars=ask_chars, num_ctx=fence.ask_ctx,
                    detail=str({"options": outbound_options,

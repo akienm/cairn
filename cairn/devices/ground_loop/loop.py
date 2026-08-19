@@ -132,6 +132,11 @@ class GroundLoopDevice(BaseDevice):
         self._pulse_finder = pulse_finder
         self._pulse_cache = None        # built lazily; only a loop with a finder needs one
         self._pulse_events: list = []   # recent activations/deactivations/refusals, capped
+        self._stale = False             # set True when this process's code has drifted from disk
+
+    @property
+    def stale(self) -> bool:
+        return self._stale
 
     @property
     def device_id(self) -> str:
@@ -442,6 +447,7 @@ class GroundLoopDevice(BaseDevice):
         # evidence. trouble.py's damper then makes a persisting staleness one ticket with a
         # count instead of one per beat.
         if unblamed:
+            self._stale = True
             self._blame_myself(drifted or [], unblamed)
 
     # --- the one capability: one beat ---------------------------------------

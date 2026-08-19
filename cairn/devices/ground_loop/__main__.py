@@ -33,6 +33,7 @@ import signal
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.devices.bus.bus import BusDevice
@@ -45,6 +46,12 @@ from cairn.devices.trouble.trouble import TroubleDevice
 
 CADENCE_S = 1.0   # the ruled cadence: once per second (Akien, 2026-07-30)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
+
+# THE FLAGS (ticket a-stale-loop-restarts-itself, Akien's design 2026-08-19).
+# Menu in <instance>/flags/ (permanent, ls shows all); active signals as zero-byte copies
+# in the instance folder. The runner checks the signal folder once per beat — two stats.
+COMMAND_EXIT = "COMMAND_EXIT.flag"
+COMMAND_DO_NOT_RESTART = "COMMAND_DO_NOT_RESTART.flag"
 
 
 def main(home=None, roots=None) -> int:
@@ -106,6 +113,13 @@ def main(home=None, roots=None) -> int:
     # hand because it is the one shim that must hold a reference to the heartbeat itself, and
     # a folder on disk cannot express that.
     device.subscribe(BusShim(bus, device))
+
+    # THE FLAGS MENU (permanent; ls flags/ shows what is available).
+    flags_dir = Path(home) / "flags"
+    flags_dir.mkdir(parents=True, exist_ok=True)
+    for flag in (COMMAND_EXIT, COMMAND_DO_NOT_RESTART):
+        (flags_dir / flag).touch(exist_ok=True)
+
     stopping = {"now": False}
 
     def _stop(signum, frame):  # noqa: ARG001 — the signal API's shape
@@ -115,6 +129,11 @@ def main(home=None, roots=None) -> int:
     signal.signal(signal.SIGINT, _stop)
     while not stopping["now"]:
         device.beat(datetime.now(timezone.utc).astimezone())
+        # TWO STAT CALLS PER BEAT — the flag check IS the poll (no inotify, no daemon).
+        if (Path(home) / COMMAND_EXIT).exists():
+            break
+        if device.stale and not (Path(home) / COMMAND_DO_NOT_RESTART).exists():
+            break
         time.sleep(CADENCE_S)
     return 0
 

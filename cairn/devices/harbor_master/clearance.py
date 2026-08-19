@@ -81,7 +81,7 @@ import os
 import time
 from dataclasses import dataclass, field
 
-from cairn.tools.base.transitions import emit
+from cairn.tools.base.transitions import emit, parse_workflow, resolve_target
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.devices.tester.validation_store import standing
 
@@ -94,6 +94,15 @@ from cairn.devices.tester.validation_store import standing
 CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 COMMONS_ROOT = os.path.join(os.path.dirname(CAIRN_ROOT), "CairnCommons")
 TICKETS_DIR = os.path.join(COMMONS_ROOT, "tickets")
+
+# THE KEY A CHARTER CARRIES WHEN IT HAS STOPPED BEING THE DESIGN. Named for the verb the
+# corpus already uses at its one existing retirement door — cairn/machines/ruling/ruling.py
+# calls itself "THE RETIREMENT DOOR" and derives a ``retired_ids`` set — so a reader meets
+# one word for one act in both places. ``superseded_by`` is the FIELD inside it rather than
+# the key, because a retirement with no successor is a real state and a key spelled
+# "superseded_by" could not say it (build-to-the-tool naming: the term has to be derivable
+# from its native use, and nobody memorises a mapping).
+_RETIREMENT_KEY = "retired"
 
 # How long a minted grant stays spendable. RULED BY AKIEN AT 10 SECONDS, 2026-08-04: "the thing
 # asks for it, and has 10 seconds to take it to the build gate."
@@ -308,6 +317,128 @@ class OwnerUnresolvable(Exception):
     invented."""
 
 
+class IntentionRetired(Exception):
+    """The boat is riding an intention that has been RETIRED — so the gate refuses a
+    forward crossing and names what replaced it.
+
+    Not an authority failure: the actor may be a perfectly admitted hand, and the move may
+    be perfectly legal. It is a failure of the thing the work is FOR. An intention is the
+    design a boat is a translation of (Law 9), so a boat still sailing under a retired one
+    is building toward a picture nobody holds any more — and the whole point of this
+    refusal is that the state cannot be passed SILENTLY while boats still ride it.
+
+    THE BACK-EDGE IS EXEMPT, and that is not a softening. A retreat is how a boat that has
+    lost its intention gets DEALT WITH — sent back to design, re-parented, ended. Refusing
+    the retreat too would leave such a boat with no legal move at all, which is a gate that
+    has stopped being a gate and started being a wall.
+
+    AND THE GATE DECIDES NOTHING BEYOND THE REFUSAL. What happens to a boat found riding a
+    retired intention — ended, re-parented, sailed on under a ruling — is the owner's act
+    (Law 6). A gate that resolved it automatically would have taken the owner's gate."""
+
+
+class RetirementUnreadable(Exception):
+    """A charter carries the retirement key and the gate cannot read it — so it refuses.
+
+    Deliberately NOT collapsed into "not retired". A malformed retirement is exactly the
+    shape that would let the state pass silently: the key is there, somebody meant
+    something by it, and treating it as absence is a record of truth being smoothed into a
+    coherent shape (Law 7). Every lack is named in one pass, the way ``ruling.supersede``
+    names all six of its refusals at once — a caller fixing one field at a time learns the
+    schema one refusal at a time, which is the door teaching badly."""
+
+
+@dataclass(frozen=True)
+class Retirement:
+    """A charter's retirement, as the gate reads it off the charter.
+
+    ``superseded_by`` IS NULLABLE ON PURPOSE, and that nullability is the whole reason this
+    state lives on the RETIRED charter rather than on its successor. ``ruling.supersede``
+    (cairn/machines/ruling/ruling.py) does it the other way — the successor appends to its
+    own ``supersedes`` list and the retired packet is never touched — because what it
+    retires is a packet carrying Akien's signature, and rewriting a signed record is the
+    thing that door exists to prevent.
+
+    A charter is not that. It is an authored design record that has always grown by
+    ADDITION, and three measurements say the inversion does not transfer:
+
+      - A deprecation with NO successor would be inexpressible. An intention can simply
+        stop being the design without another one taking its place, and a scheme that can
+        only say "X replaced Y" cannot say that at all.
+      - Reading it would cost a scan of every charter in the corpus (59 of them, measured
+        2026-08-18) inside EVERY crossing, for a state that is almost always absent.
+      - The one seat that needs the answer — ``boat_owner_of`` — already has the retired
+        charter's dict in hand, because it opened that file to read ``gated_by``. On this
+        side the read is one ``.get``; on the other it is a corpus walk.
+
+    WHAT DOES TRANSFER FROM THE RULING DOOR, and it is the part that matters: evidence is
+    REQUIRED (a retirement with no stated why is a design change nobody can argue with),
+    and the shape is normalised on READ, never by rewriting what is on disk."""
+
+    superseded_by: str | None
+    when: str
+    evidence: str
+
+
+def retirement_of(charter: dict, *, at: str = "<charter>") -> Retirement | None:
+    """Read a charter's retirement — one ``.get`` on a dict the caller already holds.
+
+    Returns ``None`` when the charter carries no retirement key at all, which is the
+    ordinary case for every charter in the corpus today. Raises ``RetirementUnreadable``
+    when the key is PRESENT and malformed — the distinction the caller must not be allowed
+    to collapse.
+
+    The shape::
+
+        "retired": {"superseded_by": "<address>" | null,   # null = retired, nothing replaced it
+                    "when":          "<date>",
+                    "evidence":      "<why this stopped being the design>"}
+
+    Normalises on read and never by rewrite: a bare string under the key is taken as the
+    successor address with the rest unstated, because that is the shape a hand reaches for
+    first and refusing it would teach nothing a default cannot. ``ruling.py`` pays the same
+    price for the same reason — its ``_supersessions`` normalises two on-disk shapes on
+    READ, and the measured lesson recorded there is that normalising by rewrite costs the
+    record while normalising on read costs one function.
+    """
+    raw = charter.get(_RETIREMENT_KEY)
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        raw = {"superseded_by": raw.strip() or None}
+    if not isinstance(raw, dict):
+        raise RetirementUnreadable(
+            f"{at} carries a {_RETIREMENT_KEY!r} key of type {type(raw).__name__}, which "
+            f"is neither an object nor an address string. It is NOT read as 'not retired' "
+            f"— a key somebody meant something by, treated as absence, is exactly how this "
+            f"state passes silently. Shape: {{\"superseded_by\": <address or null>, "
+            f"\"when\": <date>, \"evidence\": <why>}}."
+        )
+
+    lacks = []
+    succ = raw.get("superseded_by")
+    if succ is not None and (not isinstance(succ, str) or not succ.strip()):
+        lacks.append("'superseded_by' must be an address string, or null for a retirement "
+                     "with nothing replacing it — an empty string is neither")
+    when = raw.get("when")
+    if not isinstance(when, str) or not when.strip():
+        lacks.append("'when' must be a non-empty date string — a retirement with no date "
+                     "cannot be told apart from one recorded years ago")
+    evidence = raw.get("evidence")
+    if not isinstance(evidence, str) or not evidence.strip():
+        lacks.append("'evidence' must be a non-empty string saying WHY this stopped being "
+                     "the design — required for the same reason ruling.supersede requires "
+                     "it: a retirement nobody can argue with is a design change nobody can "
+                     "argue with")
+    if lacks:
+        raise RetirementUnreadable(
+            f"{at} carries a malformed {_RETIREMENT_KEY!r}, {len(lacks)} lack(s), all named "
+            "in one pass:\n  - " + "\n  - ".join(lacks)
+        )
+    return Retirement(superseded_by=(succ.strip() if isinstance(succ, str) else None),
+                      when=when.strip(), evidence=evidence.strip())
+
+
 @dataclass(frozen=True)
 class BoatOwner:
     """Who owns a boat, as the gate reads it off the boat — TWO facts, kept apart.
@@ -322,6 +453,13 @@ class BoatOwner:
 
     intention: str
     hands: tuple[str, ...]
+    # THE THIRD READ FACT, and it costs nothing to carry: the charter this owner was read
+    # from was already open and parsed to reach ``gated_by``, so the retirement is one more
+    # ``.get`` on a dict in hand rather than a lookup. ``None`` for every charter in the
+    # corpus today. Defaulted so that every existing constructor call — proofs included —
+    # keeps working unchanged; a boat whose owner was built without this simply reads as
+    # riding a living intention, which is what it was already asserting.
+    retired: "Retirement | None" = None
 
 
 def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
@@ -408,7 +546,156 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
             "characters and 2 carry an empty one, so matching an actor against it would be "
             "a substring scan that goes green for the wrong reason."
         )
-    return BoatOwner(intention=addr, hands=tuple(hands))
+    # AND THE RETIREMENT, OFF THE SAME DICT. No second file, no second parse: this charter
+    # was opened above to reach ``gated_by`` and is still in hand. A malformed key RAISES
+    # rather than reading as absence — see ``retirement_of`` — and it raises as
+    # ``RetirementUnreadable``, not ``OwnerUnresolvable``, because the owner IS resolvable
+    # and telling a caller otherwise would send them to fix the wrong line.
+    return BoatOwner(intention=addr, hands=tuple(hands),
+                     retired=retirement_of(charter, at=charter_path))
+
+
+@dataclass(frozen=True)
+class Riders:
+    """Who is riding one intention right now — and, inseparably, what the read COULD NOT SEE.
+
+    The four blind fields are not diagnostics hung off the side of the answer; they are half
+    of the answer. A scan that reports only what it found is a green earned by not looking,
+    and this read has a specific, measured way to earn one: on 2026-08-18 THIS FUNCTION
+    measured the live corpus at 69 boats in flight, of which 40 named no owning intention at
+    all, 7 named one that resolves under neither root, and 3 carried a state it could not
+    judge — 22 attributable out of 69. (The hand sweep that cast the ticket said 28 of 72,
+    because it neither filtered to in-flight nor parsed the workflow string; the instrument's
+    numbers are the ones that stand.) A string-matched reverse read over that corpus would
+    have reported a clean "nobody is riding this" for almost any address — the exact hollow
+    the ticket that built this names as its wrong-shape.
+
+    THE THIRD CLASS WAS NOT IN THE TICKET, AND IT IS THE WORST OF THEM. ``unresolvable``
+    boats DO carry an ``owning_intention``, so a naive read counts them as attributed — to
+    an intention that does not exist. They vanish from the real owner's list AND inflate the
+    attributed total, which is invisible in the direction that matters. One of the eight was
+    written by this hand on the day this was built, hours after reading the resolution rule.
+
+    ``unreadable`` covers a ticket the read could not judge at all — bad JSON, or a ``state``
+    the chokepoint's own parser cannot make a workflow of. THREE today, and it was predicted
+    to be zero: the ticket's hypothesis named two blind classes and the corpus has three, so
+    this one is reported as its own rather than folded into "not riding". It is reported even
+    at zero, because a class that only appears when it is non-zero is a class a reader learns
+    to assume away.
+    """
+
+    intention: str
+    riding: tuple[str, ...]
+    in_flight: int
+    # COUNTED IN THE WALK, NOT DERIVED — and the difference was measured rather than
+    # reasoned. This started as ``in_flight - len(unattributed) - len(unresolvable)``, which
+    # made the partition identity below TRUE BY ARITHMETIC: dropping a blind class from the
+    # report raised ``attributable`` by exactly as much and every check stayed green. The
+    # mutation tooth in test_clearance.py caught it on its first run — a report whose
+    # blindness cannot be removed without something going red is the whole claim here, and
+    # for one commit it was a claim about subtraction.
+    attributable: int
+    unattributed: tuple[str, ...]
+    unresolvable: tuple[tuple[str, str], ...]
+    unreadable: tuple[tuple[str, str], ...]
+
+    @property
+    def blind(self) -> dict:
+        """The three blind classes as counts — always all three, even at zero."""
+        return {"unattributed": len(self.unattributed),
+                "unresolvable": len(self.unresolvable),
+                "unreadable": len(self.unreadable)}
+
+
+def _in_flight(state: str):
+    """Is this boat still sailing? Returns True/False, or raises for a state it cannot judge.
+
+    Settled ONCE, here, and derived rather than listed: a boat is in flight when its cursor
+    is not the last state of its own workflow path. There is deliberately no set of terminal
+    state names in this file — a second list of states is a second place for the workflow
+    grammar to live, and the chokepoint's parser already knows where a path ends.
+
+    A prose state (no bracket, no arrows) is not judgeable and says so by raising; the caller
+    counts it in ``unreadable`` rather than guessing a boat into or out of the fleet.
+    """
+    wf = parse_workflow(state)          # MalformedWorkflow for anything it cannot read
+    return wf.cursor < len(wf.path) - 1
+
+
+def riders_of(intention: str, *, tickets_dir: str = TICKETS_DIR,
+              cairn_root: str = CAIRN_ROOT,
+              commons_root: str = COMMONS_ROOT) -> Riders:
+    """THE REVERSE OF ``boat_owner_of``: given an intention address, which in-flight boats
+    name it — and how many the read could not attribute at all.
+
+    Files only, exactly like the forward hop it inverts, and for the same hard reason: this
+    is read at a moment when somebody is deciding whether to retire an intention, and an
+    answer that depends on something else being up is an answer that stops working for
+    reasons unrelated to itself.
+
+    NOT AN INDEX AND NOT A CACHE. It is a walk of the ticket corpus, computed on read, the
+    way the fleet register is (Law 7 — an aggregate that is stored is an aggregate that can
+    drift from the boats). At corpus scale that is 72 small file reads; when it turns hot,
+    the event-fired cache the register already names is the grow-against-need step, never a
+    poll.
+
+    The match is by RESOLVED PATH, not by string. Two tickets can spell the same charter two
+    ways (an address relative to either root), and a string match would file them under two
+    different owners while reporting neither as blind.
+    """
+    want = _resolved_charter(intention, cairn_root=cairn_root, commons_root=commons_root)
+    riding, unattributed, unresolvable, unreadable = [], [], [], []
+    in_flight = attributable = 0
+
+    for name in sorted(os.listdir(tickets_dir) if os.path.isdir(tickets_dir) else []):
+        if not name.endswith(".json"):
+            continue
+        path = os.path.join(tickets_dir, name)
+        try:
+            ticket = json.loads(open(path, encoding="utf-8").read())
+        except (ValueError, OSError) as exc:
+            unreadable.append((name, f"unreadable ticket: {exc}"))
+            continue
+        boat_id, state = ticket.get("id"), ticket.get("state")
+        if not boat_id or not isinstance(state, str):
+            continue                    # not a boat (the folder's own schema doc) — the
+                                        # register's rule for what a boat IS, composed
+        try:
+            if not _in_flight(state):
+                continue                # berthed: it is not riding anything any more
+        except Exception as exc:        # noqa: BLE001 — any parse failure is the same fact
+            unreadable.append((boat_id, f"state not judgeable: {exc}"))
+            continue
+
+        in_flight += 1
+        addr = ticket.get("owning_intention")
+        if not isinstance(addr, str) or not addr.strip():
+            unattributed.append(boat_id)
+            continue
+        got = _resolved_charter(addr, cairn_root=cairn_root, commons_root=commons_root)
+        if got is None:
+            unresolvable.append((boat_id, addr))
+            continue
+        attributable += 1
+        if want is not None and got == want:
+            riding.append(boat_id)
+
+    return Riders(intention=intention, riding=tuple(riding), in_flight=in_flight,
+                  attributable=attributable, unattributed=tuple(unattributed),
+                  unresolvable=tuple(unresolvable), unreadable=tuple(unreadable))
+
+
+def _resolved_charter(addr: str, *, cairn_root: str, commons_root: str) -> str | None:
+    """An intention address -> the real file it names, or None. The same two-root rule
+    ``boat_owner_of`` walks, spelled once and shared, so the forward hop and its inverse can
+    never disagree about what an address means."""
+    if not isinstance(addr, str) or not addr.strip():
+        return None
+    for root in (cairn_root, commons_root):
+        candidate = os.path.join(root, addr)
+        if os.path.isfile(candidate):
+            return os.path.realpath(candidate)
+    return None
 
 
 @dataclass(frozen=True)
@@ -704,6 +991,39 @@ def _decide(
                 f"{actor!r} holds a grant for boat {boat_id!r} -> {target!r} that LAPSED: "
                 f"minted with a {grant.ttl_seconds}s window and spent after it closed. Ask "
                 f"again — a stale yes is not a yes, because what it was true about has moved"
+            )
+
+    # 1b. THE INTENTION MUST STILL BE THE DESIGN (Law 9). The charter was already opened and
+    #     parsed in step 1 to reach ``gated_by``, so this costs one ``.get`` on a dict in
+    #     hand — no second file, no lookup, no scan. It sits AFTER authority deliberately:
+    #     an actor with no standing here is turned away before anything about the boat is
+    #     inspected, which is the ladder's existing rule and not a new one.
+    #
+    #     FORWARD ONLY. A retreat is how a boat that has lost its intention gets dealt with;
+    #     refusing that too would leave it with no legal move at all. The direction is read
+    #     through the chokepoint's own grammar rather than a second rule of this file's —
+    #     ``resolve_target`` is what decides which POSITION naming a target means, so asking
+    #     it is asking the same authority ``emit`` will ask a few lines below.
+    if owner.retired is not None:
+        try:
+            _forward = resolve_target(parse_workflow(workflow_str), target) > \
+                parse_workflow(workflow_str).cursor
+        except Exception:               # noqa: BLE001 — an unparseable string is emit's red
+            _forward = True             # to raise, not this gate's to swallow; treat the
+                                        # crossing as forward so the retirement is never
+                                        # skipped by a malformed workflow
+        if _forward:
+            _succ = owner.retired.superseded_by
+            raise IntentionRetired(
+                f"boat {boat_id!r} may not move forward to {target!r}: the intention it "
+                f"sails under, {owner.intention}, was RETIRED on {owner.retired.when} — "
+                + (f"superseded by {_succ}. " if _succ else
+                   "with nothing replacing it (retired outright, no successor). ")
+                + f"Why: {owner.retired.evidence} "
+                "The boat is not ended and not re-parented by this refusal — that is the "
+                "owner's act (Law 6). Retreating is still legal; this gate refuses only "
+                "forward motion, so a boat that has lost its design cannot quietly build "
+                "toward it."
             )
 
     # 2. PROVEN-SPACE (Law 8) — the code the move summons must be proven, and still be the code

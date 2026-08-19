@@ -1,20 +1,32 @@
 [
   {
     "claim": "proof test_clearance.py passes under python3",
-    "caller": "CC",
-    "date": "2026-08-10T22:22:47",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:a-superseded-intention-is-never-silent",
+    "date": "2026-08-18T19:51:03",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_lapsed_grant_is_refused_and_nothing_is_written\n  PASS  test_the_same_grant_inside_its_window_still_clears\n  PASS  test_a_crossed_resource_line_refuses_an_otherwise_perfect_move\n  PASS  test_the_gate_asks_for_a_verdict_and_never_counts_anything\n  PASS  test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides\n  PASS  test_a_caller_may_not_hand_this_gate_its_own_witness\n  PASS  test_the_owner_cannot_be_stated_by_any_route\n  PASS  test_a_grant_minted_from_an_owner_the_minter_invented_authorizes_nothing\n  PASS  test_an_actor_merely_similar_to_an_admitted_one_is_refused\n  PASS  test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written\n  PASS  test_an_unresolvable_hop_refuses_by_name_and_never_defaults\n  PASS  test_the_read_reaches_nothing_outward\n  PASS  test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason\n  PASS  test_a_grant_and_a_refusal_are_one_field_apart_in_one_store\n  PASS  test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate\n  PASS  test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one\n  PASS  test_the_public_door_and_the_decision_it_wraps_have_one_signature\n  PASS  test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them\n  PASS  test_this_proof_never_wrote_to_the_live_queue\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet",
+      "stdout_tail": "  PASS  test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written\n  PASS  test_an_unresolvable_hop_refuses_by_name_and_never_defaults\n  PASS  test_the_read_reaches_nothing_outward\n  PASS  test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason\n  PASS  test_a_grant_and_a_refusal_are_one_field_apart_in_one_store\n  PASS  test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate\n  PASS  test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one\n  PASS  test_the_public_door_and_the_decision_it_wraps_have_one_signature\n  PASS  test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them\n  PASS  test_this_proof_never_wrote_to_the_live_queue\n  PASS  test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED\n  PASS  test_a_malformed_retirement_REFUSES_and_never_reads_as_not_retired\n  PASS  test_a_boat_riding_a_retired_intention_MAY_NOT_MOVE_FORWARD\n  PASS  test_but_it_may_still_RETREAT_because_a_wall_is_not_a_gate\n  PASS  test_a_retirement_with_NO_SUCCESSOR_still_refuses_and_says_so\n  PASS  test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register\n  PASS  test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED\n  PASS  test_the_read_face_prints_only_numbers_the_library_returned\n  PASS  test_this_build_added_no_tracing_of_its_own\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "e46b3389d04238b33f6ccaf137e2683628758cee0da6eda0f0f721d58bb5327b",
-      "trail_link": "edd1be649ec6cf8027160deecdf78028e8a456177f33cdd9f7cad40533dc5130"
+      "source_fingerprint": "13af83e5be009b52142f14edb7aa1c5a635ae651635923dbfc5ed27566a95769",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-ptezsksj/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/charter/0/diagnostics.jsonl",
+            "logs/tester/0/diagnostics.jsonl"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

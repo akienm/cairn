@@ -41,6 +41,7 @@ faked a seal or a verdict dies before the teeth even start.
 from __future__ import annotations
 
 import contextlib
+import io
 import json
 import os
 import sys
@@ -58,7 +59,11 @@ from cairn.devices.harbor_master.clearance import (
     GRANT_TTL_SECONDS,
     HARBOR_LINES,
     GrantExpired,
+    IntentionRetired,
     OwnerUnresolvable,
+    Retirement,
+    RetirementUnreadable,
+    Riders,
     Unauthorized,
     Unproven,
     Unresourced,
@@ -69,7 +74,11 @@ from cairn.devices.harbor_master.clearance import (
     boat_owner_of,
     clear,
     mint_grant,
+    retirement_of,
+    riders_of,
 )
+from cairn.devices.harbor_master import clearance as _clearance
+from cairn.devices.harbor_master import register as _register
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.scratch import scratch_dir
@@ -918,32 +927,331 @@ def test_the_read_reaches_nothing_outward():
     assert not (imported & set(forbidden)), \
         f"clearance imports {sorted(imported & set(forbidden))} — falsifier clause (2)"
 
-    fn = next(n for n in ast.walk(tree)
-              if isinstance(n, ast.FunctionDef) and n.name == "boat_owner_of")
     # The whitelist is FILE READS AND PURE BUILTINS — nothing that can wait on a socket, a
     # port, a process or a clock. It is enumerated rather than grown by adding whatever the
     # assertion last complained about, which would turn it into a rubber stamp that ratifies
     # the code instead of judging it.
+    #
+    # AND ADMITTING A HELPER COSTS PROVING THE HELPER. When ``boat_owner_of`` grew a call to
+    # ``retirement_of`` (2026-08-18) this tooth went red, correctly: a name on the whitelist
+    # is a promise about everything behind it. So the sieve runs over the whole reachable
+    # set rather than one function, and a helper is admitted by being CHECKED, never by
+    # being named. That is the difference between a whitelist and a rubber stamp.
     allowed = {"open", "isinstance", "json.loads", "os.path.join", "os.path.isfile",
+               "os.path.realpath", "os.path.isdir", "os.listdir",
                "OwnerUnresolvable", "BoatOwner", "tuple", "str", "read", "strip",
-               "get", "encode", "list", "sorted", "len", "repr", "any", "all"}
-    called = set()
-    for node in ast.walk(fn):
-        if isinstance(node, ast.Call):
-            f = node.func
-            parts = []
-            while isinstance(f, ast.Attribute):
-                parts.append(f.attr)
-                f = f.value
-            if isinstance(f, ast.Name):
-                parts.append(f.id)
-            called.add(".".join(reversed(parts)) if parts else "<computed>")
-    stray = {c for c in called if c not in allowed and c.split(".")[-1] not in allowed}
-    assert not stray, (
-        f"the owner resolution calls {sorted(stray)}, which is outside the files-only "
-        f"whitelist — a crossing must not depend on anything being up (falsifier clause 2)"
-    )
-    assert "open" in called, "the resolution opens no file — it is not reading the boat at all"
+               "get", "encode", "list", "sorted", "len", "repr", "any", "all",
+               # the retirement read (ticket a-superseded-intention-is-never-silent) —
+               # a pure dict read over a dict the caller already holds, checked below
+               "retirement_of", "Retirement", "RetirementUnreadable", "type", "append",
+               # the reverse read, bound by the same rule for the same reason: it is what
+               # a hand consults while deciding to retire an intention
+               "_resolved_charter", "_in_flight", "Riders", "parse_workflow", "endswith",
+               "int", "join"}
+
+    def _calls(name):
+        fn = next(n for n in ast.walk(tree)
+                  if isinstance(n, ast.FunctionDef) and n.name == name)
+        out = set()
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Call):
+                f, parts = node.func, []
+                while isinstance(f, ast.Attribute):
+                    parts.append(f.attr)
+                    f = f.value
+                if isinstance(f, ast.Name):
+                    parts.append(f.id)
+                out.add(".".join(reversed(parts)) if parts else "<computed>")
+        return out
+
+    # boat_owner_of and everything it reaches; riders_of and everything IT reaches.
+    for name in ("boat_owner_of", "retirement_of", "riders_of", "_resolved_charter", "_in_flight"):
+        called = _calls(name)
+        stray = {c for c in called if c not in allowed and c.split(".")[-1] not in allowed}
+        assert not stray, (
+            f"{name} calls {sorted(stray)}, which is outside the files-only whitelist — a "
+            f"crossing must not depend on anything being up (falsifier clause 2)"
+        )
+    assert "open" in _calls("boat_owner_of"), \
+        "the resolution opens no file — it is not reading the boat at all"
+    assert "open" in _calls("riders_of"), "the reverse read opens no file"
+
+
+
+
+# ── A RETIRED INTENTION IS NEVER SILENT (ticket a-superseded-intention-is-never-silent) ──
+#
+# THE FIXTURE SPLIT, STATED ONCE SO IT IS NOT MISTAKEN FOR CONVENIENCE. The READ half is
+# proved against real files on disk, because ``boat_owner_of`` takes root parameters exactly
+# so a proof can point it at a fixture. The GATE half cannot be: ``clear`` accepts no root
+# injection — deliberately, since a ``tickets_dir=`` parameter would hand the caller back
+# the choice of what the gate reads — and there is no retired intention in the live corpus
+# to sail a real boat under. So the refusal is proved by substituting the READ (the seam the
+# gate calls), which proves the ladder's position, the forward/back asymmetry, and that
+# nothing is written. What it does NOT prove is that the gate reads a real charter; the tooth
+# above proves that, on real files, and the two together cover the seam end to end.
+
+
+def _retired_fixture(tmp, *, retired):
+    """A real ticket + a real charter on disk, the charter carrying (or not) a retirement."""
+    tickets, charters = Path(tmp) / "tickets", Path(tmp) / "charters"
+    tickets.mkdir()
+    (charters / "thing").mkdir(parents=True)
+    (tickets / "a-boat.json").write_text(
+        json.dumps({"id": "a-boat", "owning_intention": "thing/intention+why.json",
+                    "state": "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME "
+                             "-> LEARNME -> PROVED"}), encoding="utf-8")
+    charter = {"gated_by": ["CC"]}
+    if retired is not None:
+        charter["retired"] = retired
+    (charters / "thing" / "intention+why.json").write_text(json.dumps(charter), encoding="utf-8")
+    return str(tickets), str(charters)
+
+
+def test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED():
+    """The state costs one ``.get`` on a dict already in hand — asserted by COUNTING FILE
+    OPENS, not by reading the code and agreeing with it. A retired charter and a living one
+    must cost the gate exactly the same number of opens; the moment the retirement needs a
+    lookup of its own, this goes red."""
+    import builtins
+
+    def _opens(retired):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, c = _retired_fixture(tmp, retired=retired)
+            real, seen = builtins.open, []
+
+            def counting(f, *a, **k):
+                seen.append(str(f))
+                return real(f, *a, **k)
+
+            builtins.open = counting
+            try:
+                owner = boat_owner_of("a-boat", tickets_dir=t, cairn_root=c, commons_root=c)
+            finally:
+                builtins.open = real
+            return owner, len(seen)
+
+    living, n_living = _opens(None)
+    dead, n_dead = _opens({"superseded_by": "other/intention+why.json",
+                           "when": "2026-08-18", "evidence": "the design moved"})
+    assert living.retired is None, "a charter with no retirement key is not retired"
+    assert isinstance(dead.retired, Retirement), dead.retired
+    assert dead.retired.superseded_by == "other/intention+why.json"
+    assert dead.retired.when == "2026-08-18" and dead.retired.evidence == "the design moved"
+    assert n_dead == n_living == 2, \
+        f"reading a retirement must cost NO extra file open: {n_dead} vs {n_living} (want 2)"
+
+
+def test_a_malformed_retirement_REFUSES_and_never_reads_as_not_retired():
+    """The silent-pass shape, killed. A key somebody meant something by, treated as absence,
+    is exactly how this state slips through — so a malformed one raises, and it names every
+    lack in one pass the way ``ruling.supersede`` does rather than teaching the schema one
+    refusal at a time."""
+    with tempfile.TemporaryDirectory() as tmp:
+        t, c = _retired_fixture(tmp, retired={"superseded_by": "x/intention+why.json"})
+        try:
+            boat_owner_of("a-boat", tickets_dir=t, cairn_root=c, commons_root=c)
+        except RetirementUnreadable as e:
+            msg = str(e)
+        else:
+            raise AssertionError("a retirement missing when AND evidence read as readable")
+        assert "2 lack(s)" in msg, msg
+        assert "'when'" in msg and "'evidence'" in msg, "every lack, one pass: " + msg
+
+    # A retirement key of the wrong TYPE is refused too — and never as 'not retired'.
+    for bad in (7, [], True):
+        try:
+            retirement_of({"retired": bad}, at="<fixture>")
+        except RetirementUnreadable:
+            pass
+        else:
+            raise AssertionError(f"retired={bad!r} read as a retirement or as absence")
+
+    # Evidence is REQUIRED — the discipline that transfers from the ruling door whole.
+    try:
+        retirement_of({"retired": {"superseded_by": None, "when": "2026-08-18"}})
+    except RetirementUnreadable as e:
+        assert "evidence" in str(e)
+    else:
+        raise AssertionError("a retirement with no stated why was accepted")
+
+    # And the shape a hand reaches for first is normalised ON READ, never by rewrite.
+    bare = {"retired": "other/intention+why.json"}
+    try:
+        retirement_of(bare)
+    except RetirementUnreadable:
+        pass
+    assert bare == {"retired": "other/intention+why.json"}, "the reader rewrote the record"
+
+
+def _riding_a_retired(retired):
+    """Substitute the READ the gate makes — see the note above this section for why."""
+    owner = _clearance.BoatOwner(intention="thing/intention+why.json", hands=("CC",),
+                                 retired=retired)
+    return contextlib.ExitStack(), owner
+
+
+@contextlib.contextmanager
+def _owner_is(owner):
+    real = _clearance.boat_owner_of
+    _clearance.boat_owner_of = lambda *a, **k: owner
+    try:
+        yield
+    finally:
+        _clearance.boat_owner_of = real
+
+
+def test_a_boat_riding_a_retired_intention_MAY_NOT_MOVE_FORWARD():
+    """Clause (a) of the ticket's falsifier: the next forward crossing refuses, naming the
+    retirement and the successor. And it refuses BEFORE ``emit`` — no history file appears,
+    so a refused crossing leaves no partial record, exactly like the four refusals beside it."""
+    _, owner = _riding_a_retired(Retirement(superseded_by="new/intention+why.json",
+                                            when="2026-08-18",
+                                            evidence="the design moved to the new seam"))
+    with tempfile.TemporaryDirectory() as tmp, _owner_is(owner):
+        hp, sp = _paths(tmp)
+        try:
+            clear(_WF, "PROVEME", actor="CC", boat_id=_BOAT, proven_by=_PROVEN,
+                  history_path=hp, state_path=sp)
+        except IntentionRetired as e:
+            msg = str(e)
+        else:
+            raise AssertionError("a boat sailed forward under a retired intention")
+        assert "thing/intention+why.json" in msg, "name the retired intention: " + msg
+        assert "new/intention+why.json" in msg, "name the successor: " + msg
+        assert "2026-08-18" in msg and "the design moved to the new seam" in msg, msg
+        assert not Path(hp).exists(), "a refused crossing wrote a history record"
+        assert not Path(sp).exists(), "a refused crossing wrote a state record"
+
+
+def test_but_it_may_still_RETREAT_because_a_wall_is_not_a_gate():
+    """The back-edge is exempt and that is load-bearing: a retreat is how a boat that has
+    lost its intention gets dealt with. Refusing it too would leave such a boat with no
+    legal move at all — a gate that has stopped being a gate."""
+    _, owner = _riding_a_retired(Retirement(superseded_by=None, when="2026-08-18",
+                                            evidence="retired outright"))
+    with tempfile.TemporaryDirectory() as tmp, _owner_is(owner):
+        hp, sp = _paths(tmp)
+        after = clear(_WF, "TICKETME", actor="CC", boat_id=_BOAT, proven_by=_PROVEN,
+                      history_path=hp, state_path=sp, ticket=_BOAT)
+        assert "[TICKETME" in after, after   # the retreat landed (cursor carries a phase)
+        assert Path(hp).exists(), "the retreat was cleared but nothing was journaled"
+
+
+def test_a_retirement_with_NO_SUCCESSOR_still_refuses_and_says_so():
+    """The state the ruling door's shape could not express at all, and the reason this key
+    lives on the retired charter rather than on a successor that may not exist."""
+    _, owner = _riding_a_retired(Retirement(superseded_by=None, when="2026-08-18",
+                                            evidence="the problem it solved stopped existing"))
+    with tempfile.TemporaryDirectory() as tmp, _owner_is(owner):
+        hp, sp = _paths(tmp)
+        try:
+            clear(_WF, "PROVEME", actor="CC", boat_id=_BOAT, proven_by=_PROVEN,
+                  history_path=hp, state_path=sp)
+        except IntentionRetired as e:
+            assert "nothing replacing it" in str(e), str(e)
+            assert "the problem it solved stopped existing" in str(e)
+        else:
+            raise AssertionError("a successorless retirement was silent")
+
+
+def test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register():
+    """Clause (b), asserted as INVARIANTS over the LIVE corpus — never a snapshot count,
+    because a number written here goes red on the day somebody casts a ticket.
+
+    Two invariants: the four buckets partition the in-flight population exactly, and every
+    boat the reverse read returns is one the fleet register also calls open. If the two
+    disagree about what a boat IS, that disagreement is the finding."""
+    r = riders_of("cairn/devices/harbor_master/intention+why.json")
+    assert isinstance(r, Riders)
+    assert r.attributable + len(r.unattributed) + len(r.unresolvable) == r.in_flight, \
+        f"the buckets do not partition the fleet: {r.blind} over {r.in_flight}"
+    assert set(r.blind) == {"unattributed", "unresolvable", "unreadable"}, \
+        "all three blind classes are reported, at zero as well as non-zero"
+    open_ids = {b["id"] for b in _register.register()["open"]}
+    assert set(r.riding) <= open_ids, \
+        f"the reverse read returned boats the register does not call open: " \
+        f"{set(r.riding) - open_ids}"
+    assert set(u for u in r.unattributed) <= open_ids
+    # THIS voyage's own boat rides harbor_master's charter, so the read cannot be vacuous.
+    assert "a-superseded-intention-is-never-silent" in r.riding, \
+        "the read cannot even find the boat that built it"
+
+
+def test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED():
+    """The non-hollow floor for a scan: removing the measurement must turn the check red.
+    A report that names only what it found is a green earned by not looking, and the ONLY
+    way to know a tooth actually bites on that is to break it and watch.
+
+    Each blind class is removed in turn from a stand-in ``Riders`` and the partition
+    assertion is re-run; a class whose removal changes nothing is a class nobody is
+    checking."""
+    live = riders_of("cairn/devices/harbor_master/intention+why.json")
+    assert live.blind["unattributed"] > 0 and live.blind["unresolvable"] > 0, \
+        ("this tooth needs a corpus where the blindness is real; if both went to zero the "
+         "backfill happened and the tooth should be re-cut, not deleted")
+
+    def partitions(r):
+        return r.attributable + len(r.unattributed) + len(r.unresolvable) == r.in_flight
+
+    assert partitions(live)
+    for field in ("unattributed", "unresolvable"):
+        hollowed = _clearance.Riders(**{**live.__dict__, field: ()})
+        assert not partitions(hollowed), \
+            f"dropping {field!r} from the report left every check green — the count is decorative"
+    # ``unreadable`` is outside the partition by construction (those boats could not be
+    # judged in or out of flight at all), so its tooth is that it is REPORTED, not summed.
+    assert "unreadable" in live.blind and isinstance(live.unreadable, tuple)
+
+
+def test_the_read_face_prints_only_numbers_the_library_returned():
+    """A presentation surface may arrange; it may not compute a second version of the truth
+    (Law 7). Every integer the report prints is checked against the one the library returned
+    on the same corpus — so the printed answer and the programmatic answer cannot drift."""
+    addr = "cairn/devices/harbor_master/intention+why.json"
+    r = riders_of(addr)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = _register._retirement_report(addr)
+    out = buf.getvalue()
+    assert rc == 0
+    for label, n in r.blind.items():
+        assert f"{label:12}  {n:4}" in out, f"{label}={n} not printed as the library reports it"
+    assert f"over {r.in_flight} in-flight boats, {r.attributable} were attributable" in out
+    for boat in r.riding:
+        assert boat in out, f"a found boat was not printed: {boat}"
+    for boat, _addr in r.unresolvable:
+        assert boat in out, f"an unresolvable boat was not named: {boat}"
+
+
+def test_this_build_added_no_tracing_of_its_own():
+    """``clear``'s frame-level ``try/except BaseException`` already records every refusal
+    that leaves the function — "including refusals nobody has thought of yet", as its
+    docstring says. This build leaned on that and wrote none of its own; the census is what
+    keeps that true tomorrow. A second write site is a second record of the same fact, which
+    is the rival-record shape Law 7 and Law 6 both refuse."""
+    import ast as _ast
+
+    tree = _ast.parse(Path(_clearance.__file__).read_text(encoding="utf-8"))
+    sites = {}          # function name -> how many times it calls the trace writer
+    for fn in _ast.walk(tree):
+        if not isinstance(fn, _ast.FunctionDef):
+            continue
+        for node in _ast.walk(fn):
+            if isinstance(node, _ast.Call) and getattr(node.func, "id", None) == "write_trace":
+                sites[fn.name] = sites.get(fn.name, 0) + 1
+    assert sites == {"_trace_attempt": 1}, \
+        f"the trace store is written from {sites} — it has exactly one writer, by design"
+
+    callers = {fn.name for fn in _ast.walk(tree) if isinstance(fn, _ast.FunctionDef)
+               for n in _ast.walk(fn)
+               if isinstance(n, _ast.Call) and getattr(n.func, "id", None) == "_trace_attempt"}
+    assert callers == {"clear"}, \
+        (f"the gate's queue is written from {sorted(callers)} — the frame-level tracer in "
+         "clear() covers every refusal that leaves the function, 'including refusals nobody "
+         "has thought of yet'. A refusal that wrote its own trace would be a second record "
+         "of the same fact, and the retirement refusal added in 2026-08-18 deliberately "
+         "wrote none.")
 
 
 def _main() -> int:
@@ -978,6 +1286,16 @@ def _main() -> int:
         test_the_public_door_and_the_decision_it_wraps_have_one_signature,
         test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them,
         test_this_proof_never_wrote_to_the_live_queue,
+        # A RETIRED INTENTION IS NEVER SILENT (ticket a-superseded-intention-is-never-silent).
+        test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED,
+        test_a_malformed_retirement_REFUSES_and_never_reads_as_not_retired,
+        test_a_boat_riding_a_retired_intention_MAY_NOT_MOVE_FORWARD,
+        test_but_it_may_still_RETREAT_because_a_wall_is_not_a_gate,
+        test_a_retirement_with_NO_SUCCESSOR_still_refuses_and_says_so,
+        test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register,
+        test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED,
+        test_the_read_face_prints_only_numbers_the_library_returned,
+        test_this_build_added_no_tracing_of_its_own,
     ]
     for check in checks:
         check()

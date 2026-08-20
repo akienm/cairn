@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# cairn edges — the frontier projector, compiled from charters and questions.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+exec "$PY" -m cairn.tools.edges.cli "$@"

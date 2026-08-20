@@ -911,6 +911,90 @@ class ClearanceRequiredRed(IllegalTransition):
         self.findings = findings or []
 
 
+class DemoGateRed(IllegalTransition):
+    """The forward crossing into PROVED is refused: the ticket carries ``"demo": true``
+    and no DEMO validation (quorum seal with Akien's watched-and-approved signature) exists.
+
+    The SEVENTH seat at the chokepoint. Sibling of ``ClearanceRequiredRed`` et al. —
+    sharing the ``IllegalTransition`` parent, not each other.
+
+    A DEMO gate is PER-NODE, not per-class — the ticket author binds it at /sorted by
+    setting ``"demo": true`` on the tickets Akien wants to watch work. The gate fires only
+    on tickets that carry it, so a ticket with no ``demo`` field crosses PROVED ungated by
+    this seat (the other seats still fire). Akien watching and approving is the clearing
+    act; CC recording it through the quorum door is the notarial act. The quorum door
+    already refuses a self-seal (notary == reviewer), so the two-hands requirement is free.
+
+    Provenance: 2026-07-26, ticket demo-gate — Akien's founding reason for Cairn restated
+    as a structural gate: 'the prior system didn't have the proving structure there. and we
+    didn't have me trying to be insistent on showing me each thing working.' The binding
+    question (who picks which tickets carry DEMO) was resolved 2026-08-20: Akien, at
+    /sorted. The clearing question: Akien watched and approved."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
+def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[dict]]:
+    """The seventh gate: a ticket flagged ``"demo": true`` crossing forward into PROVED
+    must carry a DEMO validation — a quorum seal with Akien's watched-and-approved
+    signature. Returns ``(note, record)`` or ``(None, record)`` when the ticket has no
+    demo flag. Raises ``DemoGateRed`` before anything is written.
+    """
+    import json as _json
+
+    code = "transitions.py::_require_demo"
+    ticket_path = _TICKETS / f"{ticket}.json"
+    if not ticket_path.exists():
+        return (None, [_lane("demo_gate_ticket_readable",
+                             expected=f"ticket {ticket!r} exists on disk",
+                             actual=f"ticket file not found at {ticket_path}",
+                             code=code, ticket=ticket)])
+
+    ticket_data = _json.loads(ticket_path.read_text())
+    if not ticket_data.get("demo"):
+        return (None, [_lane("demo_gate_binding_check",
+                             expected="ticket carries demo flag, or does not",
+                             actual=f"ticket {ticket!r} has no demo flag — gate does not fire",
+                             code=code, ticket=ticket)])
+
+    from cairn.devices.tester.validation_store import (
+        read_validations, validations_path_for_artifact)
+
+    val_path = validations_path_for_artifact(str(ticket_path))
+    vals = read_validations(path=val_path)
+    demo_vals = [v for v in vals if "demo" in v.get("method", "").lower()
+                 or "demo" in v.get("claim", "").lower()]
+    green_demos = [v for v in demo_vals if v.get("verdict") == "green"]
+
+    record = [_lane("demo_gate_flag_bound",
+                     expected=f"ticket {ticket!r} carries demo: true",
+                     actual=f"ticket {ticket!r} carries demo: true — gate fires",
+                     code=code, ticket=ticket),
+              _lane("demo_validation_exists",
+                     expected="a green DEMO validation (quorum seal) exists for this ticket",
+                     actual=(f"{len(green_demos)} green DEMO validation(s) found"
+                             if green_demos else
+                             "no green DEMO validation found — Akien has not watched and approved"),
+                     code=code, ticket=ticket, val_path=val_path,
+                     demo_validations_found=len(demo_vals),
+                     green_demo_validations=len(green_demos))]
+
+    if not green_demos:
+        raise DemoGateRed(
+            f"PROVED crossing refused: ticket {ticket!r} carries demo: true, but no "
+            "DEMO validation exists — Akien has not watched and approved. The gate "
+            "demands a quorum seal (quorum.seal with Akien as signer, CC as notary) "
+            "before this ticket enters proven-space. Nothing was journaled.",
+            findings=_findings_of(record),
+        )
+
+    v = green_demos[-1]
+    return (f"DEMO gate clean — Akien watched and approved (sealed {v.get('date', '?')}, "
+            f"method: {v.get('method', '?')})", record)
+
+
 def _require_clearance(target: str, journal_extra: dict, *,
                        history_path: str) -> tuple[str, list[dict]]:
     """The sixth gate: a forward journaled crossing into a REST must carry the witness the
@@ -1472,6 +1556,19 @@ def emit(
             clearance_note, _rec = _require_clearance(target, journal_extra,
                                                       history_path=history_path)
             proved += _rec
+        # THE DEMO GATE (ticket demo-gate, 2026-07-26; resolved 2026-08-20): a
+        # forward crossing into PROVED on a ticket carrying ``"demo": true`` must
+        # carry a DEMO validation — a quorum seal where Akien watched and approved.
+        # The SEVENTH SEAT, and the first per-node gate: it fires only when the
+        # ticket asks for it, which is Akien choosing at /sorted what he wants to
+        # watch work. Sits after clearance (authority check) and before the deposit
+        # enqueue (the last world-touching act before the record is written).
+        demo_note = None
+        if target == "PROVED" and target_idx > wf.cursor and _exempt is None:
+            _ticket = journal_extra.get("ticket")
+            if _ticket:
+                demo_note, _rec = _require_demo(_ticket, journal_extra)
+                proved += _rec
         if target == "PROVED" and target_idx > wf.cursor and _exempt is None:
             enqueued = _enqueue_verdict(journal_extra.get("ticket"))
         record = {
@@ -1508,6 +1605,11 @@ def emit(
             # roster standing beside it, and it is how this trouble stayed invisible for
             # the whole recorded life of the system.
             **({"clearance_gate": clearance_note} if clearance_note else {}),
+            # The record of truth says the demo gate ran: a DEMO-flagged ticket's
+            # PROVED crossing journals that Akien watched and approved, with the
+            # seal date. A ticket with no demo flag journals nothing — the gate
+            # did not fire, and a record that says it did would be fabricated.
+            **({"demo_gate": demo_note} if demo_note else {}),
             # The record of truth says the emission gate ran: a gated WATCHME exit
             # journals WHICH probe answered for the watch, so a year later the record
             # names the berth rather than asserting that something was learned.

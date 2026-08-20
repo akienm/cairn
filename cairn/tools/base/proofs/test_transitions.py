@@ -1418,13 +1418,100 @@ def test_a_lane_that_refuses_and_names_nothing_still_speaks():
         transitions.inspect_rules(wf, "PROVEME", class_def=class_def)) == []
 
 
+def test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval():
+    """A ticket with ``"demo": true`` cannot cross into PROVED without a DEMO validation
+    (quorum seal with Akien as signer). The gate reads the ticket file — if it carries the
+    flag, it demands the seal. If no seal exists, DemoGateRed fires before anything is
+    written.
+
+    Provenance: ticket demo-gate, 2026-07-26. Akien's founding reason: 'the prior system
+    didn't have me trying to be insistent on showing me each thing working.' Binding
+    resolved 2026-08-20: Akien picks at /sorted; clearing is: he watched and approved."""
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        # Create a ticket with demo: true
+        ticket_dir = Path(d) / "tickets"
+        ticket_dir.mkdir()
+        ticket_path = ticket_dir / "test-demo-ticket.json"
+        ticket_path.write_text(json.dumps({"id": "test-demo-ticket", "demo": True,
+                                            "state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"}))
+
+        wf_str = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
+        # The gate reads from _TICKETS; we cannot redirect that without patching,
+        # so test the gate function directly.
+        note, record = transitions._require_demo("test-demo-ticket", {},)
+        # With no ticket file at the real _TICKETS path, the gate returns None (does not fire)
+        assert note is None, f"gate fired on a missing ticket file — expected None, got {note!r}"
+
+        # Now test the _require_demo against a ticket that DOES exist with demo: true
+        # by writing to the real tickets path temporarily
+        import shutil
+        real_tickets = transitions._TICKETS
+        real_path = real_tickets / "test-demo-ticket.json"
+        try:
+            real_path.write_text(json.dumps({"id": "test-demo-ticket", "demo": True}))
+            try:
+                transitions._require_demo("test-demo-ticket", {})
+                raise AssertionError("DemoGateRed should have fired — no DEMO validation exists")
+            except transitions.DemoGateRed:
+                pass  # correct: refused without Akien's approval
+        finally:
+            real_path.unlink(missing_ok=True)
+
+
+def test_demo_gate_does_not_fire_on_a_ticket_without_the_flag():
+    """A ticket with no ``demo`` field crosses PROVED freely — this gate seat does not
+    fire, the other seats still do their jobs."""
+    real_tickets = transitions._TICKETS
+    real_path = real_tickets / "test-no-demo-ticket.json"
+    try:
+        real_path.write_text(json.dumps({"id": "test-no-demo-ticket"}))
+        note, record = transitions._require_demo("test-no-demo-ticket", {})
+        assert note is None, f"gate fired on a ticket with no demo flag — got {note!r}"
+    finally:
+        real_path.unlink(missing_ok=True)
+
+
+def test_demo_gate_passes_with_a_green_quorum_seal():
+    """A ticket with ``demo: true`` AND a green DEMO validation crosses PROVED cleanly.
+    The gate returns a note naming the seal date — the record of truth carries the evidence."""
+    import os
+    real_tickets = transitions._TICKETS
+    real_path = real_tickets / "test-demo-sealed-ticket.json"
+    val_dir = real_tickets / "validations"
+    val_path = val_dir / "test-demo-sealed-ticket.json"
+    try:
+        real_path.write_text(json.dumps({"id": "test-demo-sealed-ticket", "demo": True}))
+        val_dir.mkdir(exist_ok=True)
+        val_path.write_text(json.dumps([{
+            "claim": "DEMO — Akien watched and approved",
+            "caller": "akien",
+            "date": "2026-08-20T12:00:00",
+            "method": "DEMO quorum signature gate",
+            "verdict": "green",
+            "evidence": {"signatures": [{"signer": "akien", "verdict": "green",
+                                          "restated": "watched it work"}],
+                          "notary": "cc"},
+            "falsifier": "demo-gate",
+            "horizon": "next design shift",
+        }]))
+        note, record = transitions._require_demo("test-demo-sealed-ticket", {})
+        assert note is not None, "gate returned None — should have returned a passing note"
+        assert "Akien watched and approved" in note, f"note does not name the approval: {note}"
+    finally:
+        real_path.unlink(missing_ok=True)
+        val_path.unlink(missing_ok=True)
+        if val_dir.exists() and not any(val_dir.iterdir()):
+            val_dir.rmdir()
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, never hand-typed. A tooth nobody listed is a tooth that did not
     # run, and the file prints the same green line — the same defect as the proof record, one
     # level up. Caught twice by hand on 2026-08-13 before it was made physics here.
     checks = [v for k, v in sorted(globals().items())
               if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 55, (
+    assert len(checks) >= 58, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:
@@ -1474,7 +1561,10 @@ def _main() -> int:
           "crossing lands with the proof and the seal it leaned on in its own record (Law 5); "
           "a crossing into a summons and a retreat are both untouched, by design; and the "
           "clearance roster is a SECOND roster, empty in production — this gate's own voyage "
-          "CLEARED rather than being waived through it")
+          "CLEARED rather than being waived through it — AND THE SEVENTH SEAT (ticket "
+          "demo-gate, 2026-07-26, resolved 2026-08-20): a ticket carrying demo: true "
+          "cannot cross into PROVED without a DEMO validation (quorum seal with Akien as "
+          "signer); a ticket without the flag crosses freely; a sealed ticket passes cleanly")
     return 0
 
 

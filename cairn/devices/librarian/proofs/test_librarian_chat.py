@@ -33,6 +33,9 @@ The dual seam is a fake in inference_domain's shape (deterministic embeds, scrip
 drafts); the DB is the real one through db_domain (nonce table, self-cleaning), as in
 the trees, loop, library, and summarize proofs.
 
+Three-table migration (2026-08-19): each test "tree" is its own nonce leaf table; node-level
+data (standing, provenance, created) is read from cairn_nodes (NODES_TABLE), not the leaf.
+
     python3 cairn/devices/librarian/proofs/test_librarian_chat.py     # exit 0 = green
 """
 
@@ -55,22 +58,32 @@ from cairn.devices.db_domain import store
 from cairn.devices.librarian import chat as chat_module
 from cairn.devices.librarian.chat import ChatRefused, ChatSession, chat_turn, parse_reply, route
 from cairn.devices.librarian.shim import LibrarianShim
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.trees import NODES_TABLE, OWNER, LibrarianDevice
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_chat_{_NONCE}"
+
+_TABLES: list[str] = []
+
+
+def _t(name: str) -> str:
+    """Per-test nonce leaf table — each test "tree" IS its own leaf table (three-table design)."""
+    t = f"_chat_{name}_{_NONCE}"
+    if t not in _TABLES:
+        _TABLES.append(t)
+    return t
+
+
+def _node(node_id: str) -> dict:
+    """Read a node from the shared cairn_nodes table."""
+    return store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+
+
+def _leaf_count(table: str) -> int:
+    """Count leaf rows in a nonce table."""
+    return len(store.read(table))
 
 
 def _fresh_librarian() -> LibrarianDevice:
-    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
-
-    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
-    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
-    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
-    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
-    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
-    silently dropped, only its default home moved.
-    """
     dev = LibrarianDevice()
     dev.set_diagnostic_receiver(None)
     return dev
@@ -99,17 +112,13 @@ def fake_seam(script: list[str], overrides: dict | None = None):
     return resolve
 
 
-def _seed(dev: LibrarianDevice, tree: str, rows: list[tuple[str, list[float]]]) -> list[str]:
+def _seed(dev: LibrarianDevice, tree: str, table: str, rows: list[tuple[str, list[float]]]) -> list[str]:
     ids = []
     for content, vector in rows:
         r = dev.deposit(content, vector, {"source": f"seed:{tree}"},
-                        tree=tree, table=_TABLE)
+                        tree=tree, table=table)
         ids.append(r["node_id"])
     return ids
-
-
-def _rows(tree: str) -> list[dict]:
-    return store.read(_TABLE, where="tree = %s", params=(tree,))
 
 
 def _refuses(exc, fn, *args, **kwargs):
@@ -140,8 +149,6 @@ def test_the_correction_prefix_routes_free_with_the_host_face_down():
     assert route("CORRECT:  abc123 the hours are six")[0] == "correct", "case does not gate it"
     assert route("please correct the record")[0] == "resolve", "no NLP guessing"
 
-    # The host CANNOT be reached from here: route takes the utterance and nothing else,
-    # so there is no seam to call — the freeness is structural, not a promise.
     assert list(inspect.signature(route).parameters) == ["utterance"], \
         "route must take no resolve seam — a routing decision is never inferred"
     for utterance, kind in (("correct: abc123 why", "correct"),
@@ -152,43 +159,41 @@ def test_the_correction_prefix_routes_free_with_the_host_face_down():
 
 def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the_shape():
     dev = _fresh_librarian()
-    wrong = "the reading room shuts at four on weekdays, per the old sign"
-    (nid,) = _seed(dev, "corrected", [(wrong, [1.0, 0.0, 0.0])])
+    tbl = _t("corrected")
+    wrong = f"the reading room shuts at four on weekdays, per the old sign ({_NONCE})"
+    (nid,) = _seed(dev, "corrected", tbl, [(wrong, [1.0, 0.0, 0.0])])
     seam = fake_seam(["unused — a correction turn spends NO generate"])
 
     turn = chat_turn(f"correct: {nid} the posted hours say six, not four",
-                     resolve=seam, tree="corrected", table=_TABLE, dev=dev)
+                     resolve=seam, tree="corrected", table=tbl, dev=dev)
     assert turn["kind"] == "correct", turn
     assert seam.prompts == [], "a correction spends one embed and no generate"
-    row = store.read(_TABLE, where="node_id = %s", params=(nid,))[0]
+    row = _node(nid)
     assert row["standing"] == "refuted" and row["content"] == wrong, \
         "invalidate, never delete — the content stays byte-identical"
     assert row["provenance"]["attestations"][-1]["source"] == "refutation"
     assert turn["reply"]["retired"]["was"] == "hypothesis"
-    # The refuter is IN the record, so the retirement cites something walkable.
-    assert store.read(_TABLE, where="node_id = %s",
+    assert store.read(NODES_TABLE, where="node_id = %s",
                       params=(turn["reply"]["refuter"]["node_id"],))
 
-    # A malformed correction refuses with the SHAPE it wanted — never a guessed id.
     turn = chat_turn(f"correct: {nid}", resolve=seam, tree="corrected",
-                     table=_TABLE, dev=dev)
+                     table=tbl, dev=dev)
     assert turn["kind"] == "refused", turn
     assert "correct: <node_id>" in turn["reply"]["refusal"], turn["reply"]["refusal"]
 
-    # And a refusal from the retirement door is a legible reply, not a crash: the second
-    # retirement of the same node is refused and the session survives it.
     turn = chat_turn(f"correct: {nid} saying it a second time", resolve=seam,
-                     tree="corrected", table=_TABLE, dev=dev)
+                     tree="corrected", table=tbl, dev=dev)
     assert turn["kind"] == "refused" and "already refuted" in turn["reply"]["refusal"], turn
 
 
 def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
     dev = _fresh_librarian()
-    _seed(dev, "warm", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("warm")
+    _seed(dev, "warm", tbl, [(_A, [0.95, 0.05, 0.0])])
     draft = "The record holds exactly that: the anchor fact, stated plainly [1]."
     seam = fake_seam([draft], {_Q: [1.0, 0.0, 0.0]})
-    rows_before = len(_rows("warm"))
-    got = chat_turn(_Q, resolve=seam, tree="warm", table=_TABLE, dev=dev)
+    leaves_before = _leaf_count(tbl)
+    got = chat_turn(_Q, resolve=seam, tree="warm", table=tbl, dev=dev)
     assert got["kind"] == "resolve" and got["reply"]["prose"] == draft
     loop = got["reply"]["loop"]
     assert loop["verdict"] == "RESOLVED" and loop["backfills"] == 0
@@ -202,23 +207,20 @@ def test_a_resolved_turn_converses_one_generate_spent_on_articulation():
     assert f"[1] {_A}" in seam.prompts[0] and _Q in seam.prompts[0], \
         "the walk rides the render prompt whole and numbered — the transducer's cache " \
         "mechanism: same utterance + same graph is a byte-identical prompt"
-    assert len(_rows("warm")) == rows_before, \
+    assert _leaf_count(tbl) == leaves_before, \
         "reply prose is runtime state — nothing deposits from a chat reply"
 
 
 def test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers():
     dev = _fresh_librarian()
+    tbl = _t("cold")
     fresh = "the freshly learned fact that grounds the anchor question"
     honest = "I have just learned the freshly learned fact [1] — ask me again."
     spoken = "It comes down to the freshly learned fact [1]."
-    # The graph starts empty. The backfill supplies the node — and the tenure loop
-    # keeps the crossing honest: a same-turn mint cannot resolve the utterance that
-    # spawned it, so round 2 re-offers the same node (a duplicate, zero fresh), the
-    # first turn lands UNRESOLVED-"learned", and the reply still CONVERSES about it.
     seam = fake_seam([json.dumps({"nodes": [fresh]}), json.dumps({"nodes": [fresh]}),
                       honest, spoken],
                      {_Q: [1.0, 0.0, 0.0], fresh: [0.98, 0.02, 0.0]})
-    first = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
+    first = chat_turn(_Q, resolve=seam, tree="cold", table=tbl, dev=dev)
     loop = first["reply"]["loop"]
     assert first["kind"] == "resolve" and loop["verdict"] == "UNRESOLVED"
     assert loop["reason"] == "learned" and len(loop["deposited"]) == 1, \
@@ -230,7 +232,7 @@ def test_learning_always_a_miss_teaches_the_graph_and_the_graph_remembers():
         "an honest UNRESOLVED turn still ARTICULATES — the chat converses about learning"
     generates_after_first = len(seam.prompts)
 
-    second = chat_turn(_Q, resolve=seam, tree="cold", table=_TABLE, dev=dev)
+    second = chat_turn(_Q, resolve=seam, tree="cold", table=tbl, dev=dev)
     assert second["reply"]["loop"]["verdict"] == "RESOLVED"
     assert second["reply"]["loop"]["backfills"] == 0
     assert second["reply"]["prose"] == spoken
@@ -253,9 +255,10 @@ def test_the_chat_parse_zero_anchors_legal_minted_refused():
 
 def test_a_minted_citation_becomes_a_loud_refused_turn():
     dev = _fresh_librarian()
-    _seed(dev, "minted", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("minted")
+    _seed(dev, "minted", tbl, [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["A claim the walk never held [9]."], {_Q: [1.0, 0.0, 0.0]})
-    got = chat_turn(_Q, resolve=seam, tree="minted", table=_TABLE, dev=dev)
+    got = chat_turn(_Q, resolve=seam, tree="minted", table=tbl, dev=dev)
     assert got["kind"] == "refused" and "minted" in got["reply"]["refusal"], \
         "free-answering dies on the refusal-is-a-reply path — it never lands as prose"
     assert "A claim the walk never held [9]." in got["reply"]["refusal"], \
@@ -264,27 +267,29 @@ def test_a_minted_citation_becomes_a_loud_refused_turn():
 
 def test_summarizing_when_asked_returns_cited_prose_that_lands():
     dev = _fresh_librarian()
-    _seed(dev, "shelfed", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("shelfed")
+    _seed(dev, "shelfed", tbl, [(_A, [0.95, 0.05, 0.0])])
     draft = "The anchor's why, carried into prose [1]."
     seam = fake_seam([draft], {"the anchor topic": [1.0, 0.0, 0.0]})
     got = chat_turn("summarize: the anchor topic", resolve=seam,
-                    tree="shelfed", table=_TABLE, dev=dev)
+                    tree="shelfed", table=tbl, dev=dev)
     assert got["kind"] == "summarize" and got["reply"]["summary"] == draft
     assert [c["n"] for c in got["reply"]["citations"]] == [1], "citations code-built"
-    assert any(n["provenance"].get("source") == "summary:shelfed"
-               for n in _rows("shelfed")), "the summary landed back in the tree"
+    leaf_nids = [r["node_id"] for r in store.read(tbl)]
+    assert any(_node(nid)["provenance"].get("source") == "summary:shelfed"
+               for nid in leaf_nids), "the summary landed back in the tree"
 
 
 def test_a_refusal_is_a_reply_and_the_session_survives_it():
+    tbl = _t("vacant")
     seam = fake_seam(["a courteous reply, grounded on nothing"],
                      {_Q: [1.0, 0.0, 0.0], _A: [0.95, 0.05, 0.0]})
-    session = ChatSession(resolve=seam, tree="vacant", table=_TABLE)
+    session = ChatSession(resolve=seam, tree="vacant", table=tbl)
     got = session.turn("summarize: anything at all")
     assert got["kind"] == "refused" and "Learn first" in got["reply"]["refusal"], \
         "the verb's loud refusal becomes the turn's legible reply — nothing swallowed"
     assert seam.prompts == [], "the refusal preceded the host"
-    # The conversation continues: seed the tree through a later turn's walk target.
-    _seed(session.dev, "vacant", [(_A, [0.95, 0.05, 0.0])])
+    _seed(session.dev, "vacant", tbl, [(_A, [0.95, 0.05, 0.0])])
     after = session.turn(_Q)
     assert after["kind"] == "resolve" and after["reply"]["loop"]["verdict"] == "RESOLVED", \
         "the session survived the refusal — a refused turn is a turn, not a crash"
@@ -294,9 +299,10 @@ def test_a_refusal_is_a_reply_and_the_session_survives_it():
 
 def test_the_page_is_data_a_surface_can_render():
     dev = _fresh_librarian()
-    _seed(dev, "paged", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("paged")
+    _seed(dev, "paged", tbl, [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
-    session = ChatSession(resolve=seam, tree="paged", table=_TABLE, dev=dev)
+    session = ChatSession(resolve=seam, tree="paged", table=tbl, dev=dev)
     session.turn(_Q)
     page = session.page()
     assert page["tree"] == "paged" and len(page["turns"]) == 1
@@ -309,9 +315,10 @@ def test_the_page_is_data_a_surface_can_render():
 
 def test_the_chat_crossing_breadcrumbs_thin():
     dev = _fresh_librarian()
-    _seed(dev, "crumbed", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("crumbed")
+    _seed(dev, "crumbed", tbl, [(_A, [0.95, 0.05, 0.0])])
     seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
-    chat_turn(_Q, resolve=seam, tree="crumbed", table=_TABLE, dev=dev)
+    chat_turn(_Q, resolve=seam, tree="crumbed", table=tbl, dev=dev)
     crumbs = [c for c in dev.held_diagnostics() if c["gate"] == "chat"]
     assert len(crumbs) == 1
     assert crumbs[0]["pointer"] == hashlib.sha256(_Q.encode("utf-8")).hexdigest()[:12]
@@ -325,7 +332,8 @@ def test_the_chat_window_is_a_declared_pane():
     assert panes == [{"kind": "chat", "label": "Chat", "handler": None}], \
         "the window is OFFERED from birth — unattached, its handler is honestly None " \
         "(the shim machinery renders that absent-with-reason, never a missing surface)"
-    session = ChatSession(resolve=fake_seam(["a spoken line"]), tree="paned", table=_TABLE, dev=dev)
+    tbl = _t("paned")
+    session = ChatSession(resolve=fake_seam(["a spoken line"]), tree="paned", table=tbl, dev=dev)
     dev.attach_chat(session)
     handler = dev.declared_panes()[0]["handler"]
     assert handler() == session.page(), \
@@ -334,9 +342,10 @@ def test_the_chat_window_is_a_declared_pane():
 
 def test_receive_routes_chat_mail_and_refuses_the_rest():
     dev = _fresh_librarian()
-    _seed(dev, "mailed", [(_A, [0.95, 0.05, 0.0])])
+    tbl = _t("mailed")
+    _seed(dev, "mailed", tbl, [(_A, [0.95, 0.05, 0.0])])
     session = ChatSession(resolve=fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]}),
-                          tree="mailed", table=_TABLE, dev=dev)
+                          tree="mailed", table=tbl, dev=dev)
     dev.attach_chat(session)
     turn = dev.receive({"sender": "web_server", "to": "librarian", "channel": "chat",
                         "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
@@ -349,16 +358,17 @@ def test_receive_routes_chat_mail_and_refuses_the_rest():
 
 
 def test_the_shim_wakes_the_device_on_demand():
+    tbl = _t("woken")
     seam = fake_seam(["a spoken line, grounded on nothing"], {_Q: [1.0, 0.0, 0.0]})
     shim = LibrarianShim(session_factory=lambda dev: ChatSession(
-        resolve=seam, tree="woken", table=_TABLE, dev=dev))
+        resolve=seam, tree="woken", table=tbl, dev=dev))
     assert not shim.running, "the shim is the always-on front; the device sleeps"
     page = shim.active_page()
     assert shim.running, "querying the page is a poke — the shim STARTS its device"
     assert [p["kind"] for p in page["panes"]] == ["status", "settings", "chat"], \
         "the woken device's page carries the floor + the declared chat window"
     dev = shim.device()
-    _seed(dev, "woken", [(_A, [0.95, 0.05, 0.0])])
+    _seed(dev, "woken", tbl, [(_A, [0.95, 0.05, 0.0])])
     shim.deliver({"sender": "web_server", "to": "librarian", "channel": "chat",
                   "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
     assert shim.device() is dev, "one wake — every poke after it reaches the SAME device"
@@ -368,8 +378,9 @@ def test_the_shim_wakes_the_device_on_demand():
 
 
 def test_no_seam_and_no_utterance_refuse():
-    _refuses(ChatRefused, chat_turn, _Q, resolve=None, table=_TABLE)
-    _refuses(ChatRefused, chat_turn, "   ", resolve=fake_seam(["x"]), table=_TABLE)
+    tbl = _t("noseam")
+    _refuses(ChatRefused, chat_turn, _Q, resolve=None, table=tbl)
+    _refuses(ChatRefused, chat_turn, "   ", resolve=fake_seam(["x"]), table=tbl)
 
 
 def test_the_seam_stamps_the_research_domain_declared_never_inferred():
@@ -429,8 +440,15 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
+            for t in _TABLES:
+                cur.execute("SELECT 1 FROM information_schema.tables "
+                            "WHERE table_name = %s", (t,))
+                if cur.fetchone():
+                    cur.execute(
+                        f'DELETE FROM "{NODES_TABLE}" WHERE node_id IN '
+                        f'(SELECT node_id FROM "{t}")')
+                    cur.execute(f'DROP TABLE "{t}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
     finally:
         conn.close()
 

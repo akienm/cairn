@@ -32,6 +32,9 @@ could not pass:
 Seams are FAKES injected in inference_domain's shape — no host; the DB is the real one
 through db_domain (nonce table, self-cleaning), as in the trees proof.
 
+Three-table migration (2026-08-19): each test "tree" is its own nonce leaf table; node-level
+data (standing, provenance, created) is read from cairn_nodes (NODES_TABLE), not the leaf.
+
     python3 cairn/devices/librarian/proofs/test_librarian_loop.py     # exit 0 = green
 """
 
@@ -51,12 +54,27 @@ from cairn.devices.db_domain import store
 from cairn.devices.inference_domain import domain
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query
-from cairn.devices.librarian.trees import (OWNER, LibrarianDevice, corroborate, deposit,
-                                   node_id_for, refute)
+from cairn.devices.librarian.trees import (NODES_TABLE, OWNER, LibrarianDevice, corroborate,
+                                           deposit, node_id_for, refute)
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_loop_{_NONCE}"
 _PROV = {"source": "proofs/test_librarian_loop.py", "ground": "fixture"}
+
+_TABLES: list[str] = []
+
+
+def _t(name: str) -> str:
+    """Per-test nonce leaf table — each test "tree" IS its own leaf table (three-table design)."""
+    t = f"_loop_{name}_{_NONCE}"
+    if t not in _TABLES:
+        _TABLES.append(t)
+    return t
+
+
+def _node(node_id: str) -> dict:
+    """Read a node from the shared cairn_nodes table."""
+    return store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+
 
 # Fake embedding space: the query points at [1,0,0]; "near" content lands beside it,
 # everything unknown lands far away at [0,1,0] (valid direction, poor cosine).
@@ -65,15 +83,6 @@ _FAR = [0.0, 1.0, 0.0]
 
 
 def _fresh_librarian() -> LibrarianDevice:
-    """A LibrarianDevice, SILENCED — the proof reads its breadcrumbs off the device.
-
-    Ticket a-device-logs-without-being-wired (2026-08-18): a device with no receiver used to HOLD
-    its breadcrumbs, so a proof got the held list for free. It now derives its own component name
-    and WRITES to ``~/.cairn/logs/librarian/0/`` — which would empty every held-list assertion in this
-    file and seed the live tree from a proof in the same stroke. ``set_diagnostic_receiver(None)``
-    asks for the holding that used to be an accident. Law 7 is untouched: the record is never
-    silently dropped, only its default home moved.
-    """
     dev = LibrarianDevice()
     dev.set_diagnostic_receiver(None)
     return dev
@@ -108,20 +117,21 @@ def _refuses(exc, fn, *args, **kwargs):
 def test_a_refuted_node_stays_present_labelled_and_uncounted():
     """The falsifier the ticket actually turns on: PRESENT, LABELLED, NOT COUNTED.
     A deleted node would also 'fail to count' — that is the hollow build this excludes."""
-    wrong = deposit("the reading room shuts at four", _NEAR, _PROV,
-                    tree="retired", table=_TABLE)["node_id"]
-    said = deposit("no — the posted hours say six", _FAR, {"source": "correction"},
-                   tree="retired", table=_TABLE)["node_id"]
-    refute(wrong, said, "the posted hours say six", tree="retired", table=_TABLE)
+    tbl = _t("retired")
+    wrong = deposit(f"the reading room shuts at four ({_NONCE})", _NEAR, _PROV,
+                    tree="retired", table=tbl)["node_id"]
+    said = deposit(f"no — the posted hours say six ({_NONCE})", _FAR, {"source": "correction"},
+                   tree="retired", table=tbl)["node_id"]
+    refute(wrong, said, "the posted hours say six", tree="retired", table=tbl)
 
     q = "when does the reading room shut"
     seam = fake_seam({q: [1.0, 0.0, 0.0]},
                      scripts=['{"nodes": ["a backfilled node that lands nowhere near"]}'])
-    got = resolve_query(q, resolve=seam, tree="retired", table=_TABLE, max_backfills=1)
+    got = resolve_query(q, resolve=seam, tree="retired", table=tbl, max_backfills=1)
 
     walked = {n["node_id"]: n for n in got["nodes"]}
     assert wrong in walked, "the refuted node must still be PRESENT in the walk, not deleted"
-    assert walked[wrong]["content"] == "the reading room shuts at four", "and readable"
+    assert f"the reading room shuts at four ({_NONCE})" in walked[wrong]["content"], "and readable"
     assert walked[wrong]["evidence"] is False, "a refuted node may never count as evidence"
     assert "refuted" in (walked[wrong].get("evidence_why") or ""), \
         f"the label must say WHY: {walked[wrong].get('evidence_why')!r}"
@@ -133,18 +143,19 @@ def test_a_node_earned_then_refuted_is_still_uncounted():
     """The ONE tooth that distinguishes correct clause placement from incorrect: the
     earned pass-through short-circuits, so a refuted-but-previously-earned node would
     come back evidence:True if the refuted clause were placed after it."""
-    nid = deposit("an earned claim that later turned out wrong", _NEAR, _PROV,
-                  tree="earned-then-wrong", table=_TABLE)["node_id"]
-    said = deposit("that claim does not survive the measurement", _FAR,
-                   {"source": "correction"}, tree="earned-then-wrong", table=_TABLE)["node_id"]
-    store.update(_TABLE, OWNER, {"standing": "earned"},
-                 where="node_id = %s AND tree = %s", params=(nid, "earned-then-wrong"))
+    tbl = _t("earned_then_wrong")
+    nid = deposit(f"an earned claim that later turned out wrong ({_NONCE})", _NEAR, _PROV,
+                  tree="earned-then-wrong", table=tbl)["node_id"]
+    said = deposit(f"that claim does not survive the measurement ({_NONCE})", _FAR,
+                   {"source": "correction"}, tree="earned-then-wrong", table=tbl)["node_id"]
+    store.update(NODES_TABLE, OWNER, {"standing": "earned"},
+                 where="node_id = %s", params=(nid,))
     out = refute(nid, said, "it does not survive the measurement",
-                 tree="earned-then-wrong", table=_TABLE)
+                 tree="earned-then-wrong", table=tbl)
     assert out["was"] == "earned", "the fixture must retire a node that HAD earned tenure"
 
-    walk = [dict(r, similarity=0.99) for r in
-            store.read(_TABLE, where="node_id = %s", params=(nid,))]
+    row = _node(nid)
+    walk = [dict(row, similarity=0.99)]
     loop._label_evidence(walk, deposited=[], now=datetime.now(timezone.utc))
     assert walk[0]["evidence"] is False, \
         "a previously-EARNED node that was refuted must not short-circuit to True"
@@ -155,16 +166,16 @@ def test_the_receipts_cite_only_what_the_record_holds():
     """Akien's 'cite back to changes': the join names the earlier question each acted-on
     node was born from — and 19 of the 78 live rows carry no birth question, so the
     absence is REPORTED, never filled with a plausible invention."""
-    tree = "receipts"
+    tbl = _t("receipts")
     with_q = deposit("a node born of an earlier asking", _NEAR,
                      {**_PROV, "question": "what did they ask before"},
-                     tree=tree, table=_TABLE)["node_id"]
+                     tree="receipts", table=tbl)["node_id"]
     without_q = deposit("a library fold that nobody asked for", [0.98, 0.06, 0.0],
-                        {"source": "library-fold"}, tree=tree, table=_TABLE)["node_id"]
+                        {"source": "library-fold"}, tree="receipts", table=tbl)["node_id"]
 
     seam = fake_seam({"a fresh question about the same region": [1.0, 0.0, 0.0]}, scripts=[])
     got = resolve_query("a fresh question about the same region", resolve=seam,
-                        tree=tree, table=_TABLE)
+                        tree="receipts", table=tbl)
     assert got["verdict"] == "RESOLVED"
     assert seam.prompts == [], "labelling and receipts add ZERO generates"
 
@@ -173,18 +184,18 @@ def test_the_receipts_cite_only_what_the_record_holds():
     assert receipts[with_q]["question"] == "what did they ask before"
     assert receipts[without_q]["question"] is None, \
         "a node with no birth question must come back None, never a manufactured one"
-    # Nothing is cited that the record does not literally hold.
-    held = {(r["provenance"] or {}).get("question")
-            for r in store.read(_TABLE, where="tree = %s", params=(tree,))}
+    held = {(_node(nid)["provenance"] or {}).get("question")
+            for nid in (with_q, without_q)}
     for r in got["receipts"]:
         assert r["question"] is None or r["question"] in held, f"minted citation: {r}"
 
 
 def test_the_graph_answers_first_and_the_host_stays_out():
+    tbl = _t("warm")
     deposit("the resident node that already answers this", _NEAR, _PROV,
-            tree="warm", table=_TABLE)
+            tree="warm", table=tbl)
     seam = fake_seam({"the question": [1.0, 0.0, 0.0]}, scripts=[])
-    got = resolve_query("the question", resolve=seam, tree="warm", table=_TABLE)
+    got = resolve_query("the question", resolve=seam, tree="warm", table=tbl)
     assert got["verdict"] == "RESOLVED" and got["backfills"] == 0
     assert seam.prompts == [], "a resolved walk must NEVER touch the generate verb"
     assert got["nodes"][0]["content"] == "the resident node that already answers this"
@@ -192,14 +203,13 @@ def test_the_graph_answers_first_and_the_host_stays_out():
 
 
 def test_a_first_touch_learns_and_a_later_crossing_resolves():
-    # THE RE-SCOPED CLAUSE (ticket the-tenure-loop): the mint lands, the crossing says
-    # so honestly, and validation completes at the NEXT crossing — through structure.
+    tbl = _t("cold")
     q = "a question the cold tree cannot answer"
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0], "the supplied node that grounds it": _NEAR},
         scripts=['{"nodes": ["the supplied node that grounds it", "an unrelated aside"]}'],
     )
-    got = resolve_query(q, resolve=seam, tree="cold", table=_TABLE, max_backfills=1)
+    got = resolve_query(q, resolve=seam, tree="cold", table=tbl, max_backfills=1)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned", \
         "a first touch that only minted is UNRESOLVED-but-learned, never RESOLVED"
     assert len(got["deposited"]) == 2, "the supplied nodes took residence for the future"
@@ -208,26 +218,25 @@ def test_a_first_touch_learns_and_a_later_crossing_resolves():
         "the mint IS the best walk hit — exactly the shape that used to manufacture RESOLVED"
     assert top["evidence"] is False, "…and it is labeled out of the evidence, not hidden"
     assert got["best"] is None, "best is best-among-EVIDENCE — nothing counted here"
-    rows = store.read(_TABLE, where="tree = %s", params=("cold",))
+    rows = [_node(nid) for nid in got["deposited"]]
     assert {r["provenance"]["source"] for r in rows} == {"llm-backfill"}
     assert all(r["standing"] == "hypothesis" for r in rows), "backfilled nodes are hypotheses (Law 3)"
 
-    # The LATER crossing: same question, standing structure, zero backfills — RESOLVED.
     later = fake_seam({q: [1.0, 0.0, 0.0]}, scripts=[])
-    got2 = resolve_query(q, resolve=later, tree="cold", table=_TABLE)
+    got2 = resolve_query(q, resolve=later, tree="cold", table=tbl)
     assert got2["verdict"] == "RESOLVED" and got2["backfills"] == 0
     assert later.prompts == [], "standing structure answers — the host stays out"
-    # The birth-question echo is a TOUCH, not a corroboration — no tenure on self-echoes.
     assert got2["tenure"] == {"corroborated": [], "promoted": []}
 
 
 def test_the_livelock_is_broken_by_key_physics():
+    tbl = _t("tworound")
     q = "a question needing two rounds"
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0], "round two finally grounds it": _NEAR},
         scripts=['{"nodes": ["round one lands but far away"]}',
                  '{"nodes": ["round two finally grounds it"]}'])
-    got = resolve_query(q, resolve=seam, tree="tworound", table=_TABLE, max_backfills=2)
+    got = resolve_query(q, resolve=seam, tree="tworound", table=tbl, max_backfills=2)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned" and got["backfills"] == 2
     p1, p2 = seam.prompts
     assert p1 != p2, "a changed graph must change the backfill prompt"
@@ -240,37 +249,34 @@ def test_the_livelock_is_broken_by_key_physics():
 
 
 def test_no_progress_terminates_loudly_instead_of_spinning():
+    tbl = _t("stuck")
     q = "a question the model cannot ground"
-    # Every round re-supplies the same far node: round 1 deposits it (fresh), round 2
-    # gets DUPLICATE-only — the progress gate must fire there, not spin to exhaustion.
-    # The crossing DID learn (round 1 landed), so the honest reason is "learned".
     seam = fake_seam({q: [1.0, 0.0, 0.0]},
                      scripts=['{"nodes": ["the same far node, forever"]}',
                               '{"nodes": ["the same far node, forever"]}'])
-    got = resolve_query(q, resolve=seam, tree="stuck", table=_TABLE)
+    got = resolve_query(q, resolve=seam, tree="stuck", table=tbl)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned"
     assert got["backfills"] == 2 and len(seam.prompts) == 2
-    rows = store.read(_TABLE, where="tree = %s", params=("stuck",))
-    assert len(rows) == 1, "the duplicate round grew the table by nothing"
-    attests = rows[0]["provenance"].get("attestations") or []
+    nid = got["deposited"][0]
+    row = _node(nid)
+    attests = row["provenance"].get("attestations") or []
     assert len(attests) == 1 and attests[0]["question"] == q, \
         "…but the duplicate's provenance LANDED as an attestation (edge b's switch, flipped)"
 
-    # A crossing that lands NOTHING at all is the plain progress-gate verdict.
+    tbl2 = _t("stuck2")
     q2 = "a question whose only draft is refused at the door"
     stuck = fake_seam({q2: [1.0, 0.0, 0.0]}, scripts=['{"nodes": ["tiny"]}'])
-    got2 = resolve_query(q2, resolve=stuck, tree="stuck2", table=_TABLE)
+    got2 = resolve_query(q2, resolve=stuck, tree="stuck2", table=tbl2)
     assert got2["verdict"] == "UNRESOLVED" and got2["reason"] == "no_progress"
     assert got2["deposited"] == []
 
 
 def test_exhaustion_is_a_named_verdict():
-    # "exhausted" is the ZERO-LEARNING budget-out: the walk fell short and no backfill
-    # was allowed to land anything. With deposits, the honest reason is "learned".
-    deposit("a resident that points the wrong way", _FAR, _PROV, tree="deep", table=_TABLE)
+    tbl = _t("deep")
+    deposit("a resident that points the wrong way", _FAR, _PROV, tree="deep", table=tbl)
     q = "a question the budget cannot reach"
     seam = fake_seam({q: [1.0, 0.0, 0.0]}, scripts=[])
-    got = resolve_query(q, resolve=seam, tree="deep", table=_TABLE, max_backfills=0)
+    got = resolve_query(q, resolve=seam, tree="deep", table=tbl, max_backfills=0)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "exhausted"
     assert got["best"] is not None and got["best"] < got["floor"], \
         "the verdict shows exactly how far short the walk fell"
@@ -278,30 +284,30 @@ def test_exhaustion_is_a_named_verdict():
     q2 = "a question three fresh-but-useless rounds cannot resolve"
     seam2 = fake_seam({q2: [1.0, 0.0, 0.0]},
                       scripts=[f'{{"nodes": ["fresh but far node number {i}"]}}' for i in (1, 2, 3)])
-    got2 = resolve_query(q2, resolve=seam2, tree="deep", table=_TABLE, max_backfills=3)
+    got2 = resolve_query(q2, resolve=seam2, tree="deep", table=tbl, max_backfills=3)
     assert got2["verdict"] == "UNRESOLVED" and got2["reason"] == "learned"
     assert got2["backfills"] == 3 and len(got2["deposited"]) == 3
 
 
 def test_door_refusals_ride_the_verdict():
+    tbl = _t("mixed")
     q = "a question whose backfill includes an untenable node"
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0], "the one node that lands and grounds it": _NEAR},
         scripts=['{"nodes": ["tiny", "the one node that lands and grounds it"]}'])
-    got = resolve_query(q, resolve=seam, tree="mixed", table=_TABLE, max_backfills=1)
+    got = resolve_query(q, resolve=seam, tree="mixed", table=tbl, max_backfills=1)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned"
     assert len(got["refused_at_door"]) == 1 and got["refused_at_door"][0]["content"] == "tiny"
     assert "floor" in got["refused_at_door"][0]["refusal"], "the door's full refusal is carried"
 
 
 def test_the_home_field_shape_is_unmanufacturable():
-    # THE 2026-08-09 REPLAY (the ticket's falsifier, clause 1): an echo mint scoring
-    # near-perfect against its own birth question must not read as RESOLVED.
+    tbl = _t("homefield")
     q = "what are your origins, librarian?"
     echo = "the librarian's origins are whatever the asker just said"
     seam = fake_seam({q: [1.0, 0.0, 0.0], echo: [1.0, 0.0, 0.0]},
                      scripts=[f'{{"nodes": ["{echo}"]}}'])
-    got = resolve_query(q, resolve=seam, tree="homefield", table=_TABLE, max_backfills=1)
+    got = resolve_query(q, resolve=seam, tree="homefield", table=tbl, max_backfills=1)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned", \
         "the manufactured resolution of 2026-08-09 must be unmanufacturable"
     assert got["nodes"][0]["similarity"] > 0.99 and got["nodes"][0]["evidence"] is False, \
@@ -309,64 +315,57 @@ def test_the_home_field_shape_is_unmanufacturable():
 
 
 def test_cross_question_corroboration_promotes_at_threshold():
+    tbl = _t("tenure")
     fact = "the standing fact that answers several distinct questions"
-    nid = node_id_for("tenure", fact)
+    nid = node_id_for(fact)
     deposit(fact, _NEAR, {"source": "llm-backfill", "question": "the birth question"},
-            tree="tenure", table=_TABLE)
+            tree="tenure", table=tbl)
     q1, q2 = "a first independent question", "a second independent question"
     embeds = {q1: [1.0, 0.0, 0.0], q2: [1.0, 0.0, 0.0], "the birth question": [1.0, 0.0, 0.0]}
 
-    got1 = resolve_query(q1, resolve=fake_seam(embeds, []), tree="tenure", table=_TABLE)
+    got1 = resolve_query(q1, resolve=fake_seam(embeds, []), tree="tenure", table=tbl)
     assert got1["verdict"] == "RESOLVED" and got1["tenure"]["corroborated"] == [nid]
     assert got1["tenure"]["promoted"] == [], "one corroboration is not tenure"
-    row = store.read(_TABLE, where="node_id = %s", params=(nid,))[0]
+    row = _node(nid)
     assert row["standing"] == "hypothesis" and len(row["provenance"]["attestations"]) == 1
 
-    # The SAME question again corroborates nothing — distinctness is the count.
-    again = resolve_query(q1, resolve=fake_seam(embeds, []), tree="tenure", table=_TABLE)
+    again = resolve_query(q1, resolve=fake_seam(embeds, []), tree="tenure", table=tbl)
     assert again["tenure"] == {"corroborated": [], "promoted": []}
 
-    # The birth question's own echo is a touch, never a corroboration.
     birth = resolve_query("the birth question", resolve=fake_seam(embeds, []),
-                          tree="tenure", table=_TABLE)
+                          tree="tenure", table=tbl)
     assert birth["tenure"] == {"corroborated": [], "promoted": []}
 
-    # A SECOND distinct question crosses PROMOTION_THRESHOLD — earned, read from the row.
-    got2 = resolve_query(q2, resolve=fake_seam(embeds, []), tree="tenure", table=_TABLE)
+    got2 = resolve_query(q2, resolve=fake_seam(embeds, []), tree="tenure", table=tbl)
     assert got2["tenure"]["promoted"] == [nid]
-    row = store.read(_TABLE, where="node_id = %s", params=(nid,))[0]
+    row = _node(nid)
     assert row["standing"] == "earned", "promotion is a ROW fact, not a narration"
     assert len(row["provenance"]["attestations"]) == loop.PROMOTION_THRESHOLD
     assert row["provenance"]["question"] == "the birth question", "birth provenance survives whole"
 
 
 def test_lazy_decay_fades_the_uncorroborated_only():
+    tbl = _t("fade")
     aged = "an aged shard nobody ever walked back to"
-    nid = node_id_for("fade", aged)
-    deposit(aged, _NEAR, {"source": "llm-backfill", "question": "its own birth question"},
-            tree="fade", table=_TABLE)
-    # Back-date the birth PAST the horizon — through the owner's own update face. The
-    # assertions below are INVARIANTS (aged-uncorroborated excluded, corroborated
-    # restored), never snapshots of a moving clock.
-    store.update(_TABLE, OWNER,
+    nid = deposit(aged, _NEAR, {"source": "llm-backfill", "question": "its own birth question"},
+                  tree="fade", table=tbl)["node_id"]
+    store.update(NODES_TABLE, OWNER,
                  {"created": datetime.now(timezone.utc) - loop.DECAY_HORIZON - timedelta(days=1)},
                  where="node_id = %s", params=(nid,))
     q = "a question the faded shard would have answered"
     embeds = {q: [1.0, 0.0, 0.0]}
-    got = resolve_query(q, resolve=fake_seam(embeds, []), tree="fade", table=_TABLE,
+    got = resolve_query(q, resolve=fake_seam(embeds, []), tree="fade", table=tbl,
                         max_backfills=0)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "exhausted"
     assert got["nodes"][0]["node_id"] == nid and got["nodes"][0]["evidence"] is False, \
         "an uncorroborated hypothesis past the horizon no longer counts as evidence"
     assert got["best"] is None, "the floor test read no evidence at all"
 
-    # ONE attestation restores it whole — corroboration, not age, is what decides.
     corroborate(nid, "an independent question that reached it", promote_at=loop.PROMOTION_THRESHOLD,
-                tree="fade", table=_TABLE)
-    got2 = resolve_query(q, resolve=fake_seam(embeds, []), tree="fade", table=_TABLE)
+                tree="fade", table=tbl)
+    got2 = resolve_query(q, resolve=fake_seam(embeds, []), tree="fade", table=tbl)
     assert got2["verdict"] == "RESOLVED" and got2["nodes"][0]["evidence"] is True
-    # …and that resolution was itself the second distinct cross-question: earned.
-    assert store.read(_TABLE, where="node_id = %s", params=(nid,))[0]["standing"] == "earned"
+    assert _node(nid)["standing"] == "earned"
 
 
 def test_an_unparseable_backfill_is_loud_with_the_raw_whole():
@@ -374,24 +373,24 @@ def test_an_unparseable_backfill_is_loud_with_the_raw_whole():
         msg = _refuses(BackfillRefused, parse_backfill, bad)
         assert bad in msg, "the raw draft rides the refusal whole (first-pass diagnostic)"
     assert parse_backfill('```json\n{"nodes": ["a fenced node"]}\n```') == ["a fenced node"]
+    tbl = _t("garbage")
     q = "a question whose draft is garbage"
     seam = fake_seam({q: [1.0, 0.0, 0.0]}, scripts=["utter nonsense"])
-    _refuses(BackfillRefused, resolve_query, q, resolve=seam, tree="garbage", table=_TABLE)
+    _refuses(BackfillRefused, resolve_query, q, resolve=seam, tree="garbage", table=tbl)
 
 
 def test_crossings_breadcrumb_resolved_and_unresolved_alike():
+    tbl = _t("crumbs")
     dev = _fresh_librarian()
     deposit("the resident node that already answers this", _NEAR, _PROV,
-            tree="crumbs", table=_TABLE)
+            tree="crumbs", table=tbl)
     resolve_query("the question", resolve=fake_seam({"the question": [1.0, 0.0, 0.0]}, []),
-                  tree="crumbs", table=_TABLE, dev=dev)
-    # This question points ORTHOGONALLY to everything resident and everything supplied —
-    # nothing in the space can clear the floor for it.
+                  tree="crumbs", table=tbl, dev=dev)
     resolve_query("an ungroundable question",
                   resolve=fake_seam({"an ungroundable question": [0.0, 0.0, 1.0]},
                                     ['{"nodes": ["a far node that does not help"]}',
                                      '{"nodes": ["a far node that does not help"]}']),
-                  tree="crumbs", table=_TABLE, dev=dev)
+                  tree="crumbs", table=tbl, dev=dev)
     crumbs = [c for c in dev.held_diagnostics() if c["gate"] == "resolve"]
     assert len(crumbs) == 2, "every loop crossing breadcrumbs — RESOLVED and UNRESOLVED alike"
     assert crumbs[0]["values"]["verdict"] == "RESOLVED"
@@ -400,8 +399,9 @@ def test_crossings_breadcrumb_resolved_and_unresolved_alike():
 
 
 def test_no_seam_no_loop_and_no_empty_questions():
-    _refuses(BackfillRefused, resolve_query, "a question", resolve=None, table=_TABLE)
-    _refuses(BackfillRefused, resolve_query, "   ", resolve=lambda r: r, table=_TABLE)
+    tbl = _t("noseam")
+    _refuses(BackfillRefused, resolve_query, "a question", resolve=None, table=tbl)
+    _refuses(BackfillRefused, resolve_query, "   ", resolve=lambda r: r, table=tbl)
 
 
 def test_loop_opens_no_door_of_its_own():
@@ -423,8 +423,15 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
+            for t in _TABLES:
+                cur.execute("SELECT 1 FROM information_schema.tables "
+                            "WHERE table_name = %s", (t,))
+                if cur.fetchone():
+                    cur.execute(
+                        f'DELETE FROM "{NODES_TABLE}" WHERE node_id IN '
+                        f'(SELECT node_id FROM "{t}")')
+                    cur.execute(f'DROP TABLE "{t}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
     finally:
         conn.close()
 

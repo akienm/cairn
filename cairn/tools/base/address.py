@@ -379,6 +379,25 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
     return homes[0] if homes else None
 
 
+def rung_of(comp_dir: Path | str, pkg_root: Path | str | None = None) -> str | None:
+    """Which rung this component sits on: ``'devices'``, ``'tools'``, or ``'machines'``.
+    ``None`` for a component outside the rung structure (skills, bin, launchers).
+
+    Reads the path, never a declaration — the rung IS the directory name on the path,
+    and a directory under ``cairn/devices/`` is a device by being there (Law 4).
+    """
+    root = Path(pkg_root) if pkg_root is not None else package_root()
+    try:
+        rel = Path(comp_dir).resolve().relative_to(root.resolve())
+    except ValueError:
+        return None
+    found = None
+    for part in rel.parts:
+        if part in CLASS_RUNGS:
+            found = part
+    return found
+
+
 def component_of(path: Path | str, pkg_root: Path | str | None = None) -> Path | None:
     """WHICH COMPONENT OWNS THIS PATH — the other half of ``component_dir``, which answers
     the same question from the other end. ``None`` when the path sits under no component.

@@ -65,6 +65,9 @@ superclaude — Cairn's Claude Code launcher.
                     that's silent too, launch unconstrained (1M)
 
   Launcher-only:
+    --instance=N    launch as instance N (default 0). Each instance gets its own
+                    session name (<host>_cc_N) and cgroup scope. The ground loop
+                    and web server are shared singletons regardless.
     --dry-run       print the resolved context state + claude command, do not launch
     --no-preflight  skip the floor check entirely (rescue hatch: use if the preflight
                     itself is what's broken — the launch must always be reachable)
@@ -86,6 +89,7 @@ want_1m=0
 want_200k=0
 dry_run=0
 no_preflight=0
+instance=""
 pass=()
 for arg in "$@"; do
   case "$arg" in
@@ -93,6 +97,7 @@ for arg in "$@"; do
     --200k|--no-1m)  want_200k=1 ;;
     --dry-run)       dry_run=1 ;;
     --no-preflight)  no_preflight=1 ;;
+    --instance=*)    instance="${arg#--instance=}" ;;
     -h|--help)       show_help; exit 0 ;;
     *)               pass+=("$arg") ;;
   esac
@@ -119,9 +124,13 @@ else
   context_state="1M (unconstrained — nothing decided)"          # nothing said → unconstrained
 fi
 
-# ── session identity: <hostname>_cc_0 ────────────────────────────────────────
+# ── session identity: <hostname>_cc_<instance> ──────────────────────────────
+# Instance 0 is the default singleton. --instance=1 (or 2, 3, ...) launches a
+# parallel session with its own name and cgroup scope. The ground loop and web
+# server are shared singletons regardless.
 host=$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')
-session="${host}_cc_0"
+instance="${instance:-0}"
+session="${host}_cc_${instance}"
 
 # ── preflight: get ourselves started ─────────────────────────────────────────
 # "Launch with as many of the things as you can already working" (Akien, 2026-07-30) —

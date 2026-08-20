@@ -56,6 +56,19 @@ _usage() {
 }
 
 if [ $# -eq 0 ]; then
+  # No arguments: launch the librarian. If instance-space isn't wired yet, bootstrap first.
+  device_bin="$INSTANCE_ROOT/librarian/0/bin"
+  if [ -x "$device_bin/librarian" ]; then
+    exec "$device_bin/librarian"
+  fi
+  # Not wired — try the bootstrap, which wires everything up
+  bootstrap="$HERE/../launchers/bootstrap_first_run.sh"
+  if [ -x "$bootstrap" ]; then
+    exec "$bootstrap"
+  fi
+  echo "cairn: librarian not wired and no bootstrap found." >&2
+  echo "  expected: $device_bin/librarian" >&2
+  echo "  or: $bootstrap" >&2
   _usage
   exit 2
 fi

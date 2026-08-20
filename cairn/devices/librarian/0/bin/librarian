@@ -170,4 +170,14 @@ if _is_listening; then
   echo "  http://127.0.0.1/"
   echo "  http://10.0.0.229/"
   echo "  http://10.0.0.229/device/librarian"
+  # Open the browser if this looks like an interactive launch (not --status, not piped)
+  if [[ -t 1 ]] && [[ "${1:-}" != "--status" ]]; then
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "http://127.0.0.1/device/librarian" 2>/dev/null &
+      disown 2>/dev/null || true
+    elif command -v open >/dev/null 2>&1; then
+      open "http://127.0.0.1/device/librarian" 2>/dev/null &
+      disown 2>/dev/null || true
+    fi
+  fi
 fi

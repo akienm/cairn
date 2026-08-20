@@ -181,6 +181,61 @@ def copy_to_lab(
     return {"copied": sorted(plan), "removed": removed, "count": len(plan)}
 
 
+def verify_lab(
+    commons_root: str | None = None,
+    code_root: str | None = None,
+    lab_dir: str | None = None,
+) -> dict:
+    """The READ-ONLY mirror of the write-door: is the lab currently true?
+
+    Returns ``{"ok": bool, "drifted": [...], "missing_copies": [...],
+    "extra_files": [...], "sources_checked": n, "lab_files_checked": n}``.
+
+    NEVER writes. A check that regenerates before verifying is vacuous by
+    construction — the ticket's own falsifier (5).
+    """
+    d_commons, d_code = _default_roots()
+    commons_root = commons_root or d_commons
+    code_root = code_root or d_code
+    lab_dir = lab_dir or lab_path(commons_root)
+
+    plan = plan_copies(gather_sources(commons_root, code_root))
+
+    drifted: list[dict] = []
+    missing_copies: list[dict] = []
+    extra_files: list[str] = []
+
+    for name, src in sorted(plan.items()):
+        lab_file = os.path.join(lab_dir, name)
+        if not os.path.isfile(lab_file):
+            missing_copies.append({"lab_name": name, "source": src})
+            continue
+        src_bytes = open(src, "rb").read()
+        lab_bytes = open(lab_file, "rb").read()
+        if src_bytes != lab_bytes:
+            drifted.append({"lab_name": name, "source": src,
+                            "source_bytes": len(src_bytes),
+                            "lab_bytes": len(lab_bytes)})
+
+    lab_names_in_plan = set(plan)
+    if os.path.isdir(lab_dir):
+        for name in sorted(os.listdir(lab_dir)):
+            if name.startswith("_") or name.startswith("."):
+                continue
+            if name not in lab_names_in_plan:
+                extra_files.append(name)
+
+    ok = not drifted and not missing_copies and not extra_files
+    return {
+        "ok": ok,
+        "drifted": drifted,
+        "missing_copies": missing_copies,
+        "extra_files": extra_files,
+        "sources_checked": len(plan),
+        "lab_files_checked": len(plan) - len(missing_copies),
+    }
+
+
 if __name__ == "__main__":       # a bare hand-crank: `python3 -m ...compiler` copies once
     r = copy_to_lab()
     print(f"copied {r['count']} intention+why files -> {_LAB}/"

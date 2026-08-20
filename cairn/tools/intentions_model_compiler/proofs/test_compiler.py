@@ -169,6 +169,95 @@ def test_the_real_repo_reaches_both_trees_and_every_charter():
     assert gathered == on_disk, f"gathered {gathered} of {on_disk} charters on disk"
 
 
+# ── verify_lab — the read-only mirror (ticket the-lab-is-derived-never-authored) ──
+
+
+def test_verify_catches_a_drifted_copy():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        Path(lab, "telos.md").write_text("HAND-EDITED")
+        v = compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        assert not v["ok"], "drifted copy must be caught"
+        assert len(v["drifted"]) == 1
+        assert v["drifted"][0]["lab_name"] == "telos.md"
+
+
+def test_verify_catches_a_missing_copy():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        os.remove(os.path.join(lab, "telos.md"))
+        v = compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        assert not v["ok"], "a source with no copy must be caught"
+        assert len(v["missing_copies"]) == 1
+        assert v["missing_copies"][0]["lab_name"] == "telos.md"
+
+
+def test_verify_catches_an_extra_file():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        Path(lab, "ghost.json").write_text("{}")
+        v = compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        assert not v["ok"], "a file with no source must be caught"
+        assert "ghost.json" in v["extra_files"]
+
+
+def test_verify_ignores_underscore_prefixed_files():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        Path(lab, "_charter+why.json").write_text("hand-authored")
+        v = compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        assert v["ok"], "_-prefixed files are authored, not drift"
+        assert "_charter+why.json" not in v["extra_files"]
+
+
+def test_verify_does_not_write():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        Path(lab, "telos.md").write_text("DRIFTED")
+        before = {name: Path(lab, name).read_bytes()
+                  for name in os.listdir(lab) if not name.startswith(".")}
+        compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        after = {name: Path(lab, name).read_bytes()
+                 for name in os.listdir(lab) if not name.startswith(".")}
+        assert before == after, "verify_lab must NEVER write — a check that regenerates is vacuous"
+
+
+def test_verify_reports_green_over_a_clean_lab():
+    with tempfile.TemporaryDirectory() as d:
+        commons, code = _tree(d)
+        lab = os.path.join(commons, "intentions-congruency-lab")
+        compiler.copy_to_lab(commons_root=commons, code_root=code, out_dir=lab)
+
+        v = compiler.verify_lab(commons_root=commons, code_root=code, lab_dir=lab)
+        assert v["ok"], f"a freshly copied lab must pass: {v}"
+        assert v["sources_checked"] == 3
+        assert v["lab_files_checked"] == 3
+
+
+def test_verify_on_the_real_repo():
+    commons = str(Path(_REPO_ROOT).parent / "CairnCommons")
+    v = compiler.verify_lab(commons_root=commons, code_root=str(_REPO_ROOT))
+    assert v["ok"], (
+        f"the real lab drifts from its sources: drifted={v['drifted']}, "
+        f"missing={v['missing_copies']}, extra={v['extra_files']}")
+    assert v["sources_checked"] > 0, "a green over zero sources is not a green"
+
+
 def _main() -> int:
     checks = [
         test_a_copy_is_byte_identical_to_its_source,
@@ -179,14 +268,22 @@ def _main() -> int:
         test_a_name_collision_is_loud_never_last_write_wins,
         test_the_plan_is_deterministic,
         test_the_real_repo_reaches_both_trees_and_every_charter,
+        test_verify_catches_a_drifted_copy,
+        test_verify_catches_a_missing_copy,
+        test_verify_catches_an_extra_file,
+        test_verify_ignores_underscore_prefixed_files,
+        test_verify_does_not_write,
+        test_verify_reports_green_over_a_clean_lab,
+        test_verify_on_the_real_repo,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — intentions_model_compiler: intentions-congruency-lab/ holds a BYTE-IDENTICAL "
-          "copy of every intention+why in both trees (all of them, not just cairn/*/); a removed "
-          "source removes its copy; a hand-edit is overwritten; a name collision raises; the "
-          "store's own _charter+why.json is never touched (Law 6/7)")
+    print(f"green — intentions_model_compiler ({len(checks)} teeth): "
+          "the copier (byte-identical, reaches both trees, removes stale, overwrites drift, "
+          "collision raises, store charter untouched, deterministic) + verify_lab (catches "
+          "drift/missing/extra, ignores _-prefixed, never writes, green on clean lab, "
+          "green on the real repo)")
     return 0
 
 

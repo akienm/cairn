@@ -2301,6 +2301,60 @@ def address_is_resolved_never_spelled(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+_HONEST_ABSENCE = re.compile(
+    r"FIRST CROSSING|once its ticket|once the seam crosses|once a ticket|"
+    r"until a ticket crosses|NONE,? and",
+    re.IGNORECASE,
+)
+
+
+def charter_asserts_file_present(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter's PRESENT-TENSE claim about a file beside it is checked against the address.
+
+    Provenance: 2026-08-14, ticket a-charter-may-not-assert-a-file-that-is-not-there —
+    seven chart-machine charters asserted 'state.json + history.json beside this charter.
+    Both were born at the carve-out', and neither file existed at seven of eight addresses.
+    The mechanism named was also wrong: no journal has ever been born at a carve-out.
+    The check is NOT limited to state.json and history.json — the defect is a charter
+    asserting ANY file beside it that is not there (falsifier point 4).
+
+    A charter that HONESTLY QUALIFIES the absence — "born at this address's first crossing",
+    "once its ticket exists", "once the seam crosses" — is describing a not-yet state,
+    not asserting present existence. Those pass. A charter that asserts files without
+    qualification, or names a past event that never happened ("born at the carve-out"),
+    is the finding.
+    """
+    charter_path = comp_dir / "intention+why.json"
+    if not charter_path.is_file():
+        return []
+    try:
+        charter = json.loads(charter_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    text = charter.get("state_and_history", "")
+    if not text:
+        return []
+    if _HONEST_ABSENCE.search(text):
+        return []
+    asserted = set(re.findall(r'\b(\w+\.(?:json|py|md))\b', text))
+    findings = []
+    for name in sorted(asserted):
+        if not (comp_dir / name).is_file():
+            findings.append(_finding(
+                "charter_asserts_file_present", row["component"],
+                f"charter asserts {name} beside it, but the file is absent",
+                {"asserted_file": name,
+                 "field": "state_and_history",
+                 "charter": str(charter_path),
+                 "exists": False},
+                "Law 5 / ticket a-charter-may-not-assert-a-file-that-is-not-there: "
+                "a charter that misdescribes what is at its own address is the drift "
+                "Law 5 is built to make impossible. The fix is the SENTENCE, never the "
+                "files — creating an empty journal manufactures a record of a voyage that "
+                "did not happen (Law 7)."))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2323,6 +2377,7 @@ SIEVES = {
     "sole_path_holds": sole_path_holds,
     "fire_path_unreachable": fire_path_unreachable,
     "address_is_resolved_never_spelled": address_is_resolved_never_spelled,
+    "charter_asserts_file_present": charter_asserts_file_present,
 }
 
 

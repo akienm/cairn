@@ -445,8 +445,10 @@ def attractor(*, table: str = NODES, owner: str = OWNER, conn=None) -> list[floa
     """
     own = conn or store.connect()
     try:
-        ensure_trees(table=table, owner=owner, conn=own)
-        rows = _leaf_rows(table=table, conn=own)
+        try:
+            rows = _leaf_rows(table=table, conn=own)
+        except Exception:
+            return None
         if not rows:
             return None
         dim = len(rows[0]["vector"])

@@ -20,6 +20,15 @@ dependencies = [
   "psycopg2-binary>=2.9",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "wtree",
+]
+aider = [
+  "aider-chat",
+]
+
 # `pip install -e .` stays green at all times (MAP.md spine). The import root is
 # the single `cairn` package (one heart). Proofs live beside code (Law 5) and are
 # run in place — they are not shipped as importable subpackages.

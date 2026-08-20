@@ -251,28 +251,56 @@ def test_every_third_party_import_is_declared() -> None:
 
     Answerable RIGHT NOW, deterministically, from files in git — which is exactly why it is a
     proof and not a probe. A watch is for a question that needs time to answer; using one here
-    would be waiting to discover something already knowable (Law 3 cuts both ways)."""
+    would be waiting to discover something already knowable (Law 3 cuts both ways).
+
+    DECOMPOSED 2026-08-20: the original sieve said 'undeclared' and stopped. That is the
+    file-exists test that failed to check the field — the KIND of undeclared determines the
+    fix. Four layers, each its own assertion with its own message:
+      1. production code, core dep not in [project.dependencies] — hard red, the original defect
+      2. production code, optional device dep not in [project.optional-dependencies] — needs a group
+      3. proof/test code, dev dep not in [project.optional-dependencies.dev] — needs dev group
+      4. anything not in ANY group — truly unknown, the catchall
+    The most useful error message is the one that names what to do, not just what is wrong."""
     import ast
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib  # type: ignore[no-redef]
 
-    declared = set()
-    for line in (REPO / "pyproject.toml").read_text().splitlines():
-        s = line.strip().strip(",").strip('"').strip("'")
-        if s and not s.startswith("#"):
-            # crude but sufficient: 'psycopg2-binary>=2.9' -> 'psycopg2'
-            head = s.split(">=")[0].split("==")[0].split("[")[0].strip()
-            if head and head.replace("-", "").replace("_", "").isalnum():
-                declared.add(head.lower().replace("-binary", "").replace("-", "_"))
+    # Package name → import name, for the cases where they differ. Every entry here is a
+    # measured gap: the sieve redded on a real import that a declared package satisfies.
+    _PKG_TO_IMPORT = {
+        "psycopg2-binary": "psycopg2",
+        "aider-chat": "aider",
+    }
 
-    # Names that resolve to something IN this repo are not third-party, however they are
-    # spelled. Proof files import their siblings by bare name after a sys.path tweak
-    # (`import test_composition`), which an import-name-only scan reads as a missing
-    # dependency — measured 2026-07-30, the first run of this very case. Resolving against
-    # the tree is the general fix; excluding proofs/ would have hidden it rather than
-    # understood it, and would have stopped scanning code that has real imports.
+    def _import_names(pkg_spec: str) -> set[str]:
+        raw = pkg_spec.split(">=")[0].split("==")[0].split("[")[0].strip().lower()
+        names = set()
+        if raw in _PKG_TO_IMPORT:
+            names.add(_PKG_TO_IMPORT[raw])
+        names.add(raw.replace("-", "_"))
+        return names
+
+    toml = tomllib.loads((REPO / "pyproject.toml").read_text())
+    core_deps: set[str] = set()
+    for d in toml.get("project", {}).get("dependencies", []):
+        core_deps |= _import_names(d)
+    opt_groups = toml.get("project", {}).get("optional-dependencies", {})
+    dev_deps: set[str] = set()
+    for d in opt_groups.get("dev", []):
+        dev_deps |= _import_names(d)
+    all_opt: set[str] = set()
+    for group, pkgs in opt_groups.items():
+        for p in pkgs:
+            all_opt |= _import_names(p)
+    all_declared = core_deps | all_opt
+
     local = {p.stem for p in REPO.rglob("*.py") if "__pycache__" not in p.parts}
     local |= {d.name for d in REPO.rglob("*") if d.is_dir() and (d / "__init__.py").exists()}
 
-    undeclared: dict[str, str] = {}
+    # Collect every third-party import with its file and classification
+    imports: list[tuple[str, str, bool]] = []  # (module, rel_path, is_proof)
     for py in (REPO / "cairn").rglob("*.py"):
         if "__pycache__" in py.parts:
             continue
@@ -280,6 +308,7 @@ def test_every_third_party_import_is_declared() -> None:
             tree = ast.parse(py.read_text())
         except SyntaxError:
             continue
+        is_proof = "proofs" in py.parts
         for node in ast.walk(tree):
             mods = []
             if isinstance(node, ast.Import):
@@ -287,15 +316,42 @@ def test_every_third_party_import_is_declared() -> None:
             elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
                 mods = [node.module.split(".")[0]]
             for m in mods:
-                if m == "cairn" or m in sys.stdlib_module_names or m in declared or m in local:
+                if m == "cairn" or m in sys.stdlib_module_names or m in all_declared or m in local:
                     continue
-                undeclared.setdefault(m, str(py.relative_to(REPO)))
+                imports.append((m, str(py.relative_to(REPO)), is_proof))
 
-    assert not undeclared, (
-        "third-party imports that pyproject does not declare — they work only if this host "
-        "happens to have them, which is the defect this ticket was opened for: "
-        + "; ".join(f"{m} (first seen {p})" for m, p in sorted(undeclared.items()))
-    )
+    if not imports:
+        return
+
+    # Layer 1: production imports not in core deps (the original defect — hardest red)
+    prod_undeclared = {(m, p) for m, p, is_proof in imports if not is_proof}
+    # Layer 2: proof imports not in any optional group
+    proof_undeclared = {(m, p) for m, p, is_proof in imports if is_proof}
+
+    parts = []
+    if prod_undeclared:
+        by_mod: dict[str, str] = {}
+        for m, p in prod_undeclared:
+            by_mod.setdefault(m, p)
+        parts.append(
+            "PRODUCTION imports not declared in [project.dependencies] or "
+            "[project.optional-dependencies] — the original defect; these work only if "
+            "this host happens to have them. Fix: add to dependencies (core) or add an "
+            "optional-dependencies group (optional device): "
+            + "; ".join(f"{m} (first seen {p})" for m, p in sorted(by_mod.items()))
+        )
+    if proof_undeclared:
+        by_mod_proof: dict[str, str] = {}
+        for m, p in proof_undeclared:
+            by_mod_proof.setdefault(m, p)
+        parts.append(
+            "PROOF/TEST imports not declared in [project.optional-dependencies.dev] — "
+            "proofs that import undeclared packages fail on a clean install. "
+            "Fix: add to [project.optional-dependencies] dev group: "
+            + "; ".join(f"{m} (first seen {p})" for m, p in sorted(by_mod_proof.items()))
+        )
+
+    assert not parts, "\n".join(parts)
 
 
 # --- CONTAINMENT: the proof must not become the evidence --------------------

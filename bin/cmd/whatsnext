@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# cairn whatsnext — report each open ticket's stage-needs with ages, so 'what's next?'
+# reads measurements rather than assertions.
+#
+# The view is DERIVED ON READ, never a maintained file — compile-if-stale on read, the
+# read IS the event, no daemon (ticket stage-needs, child b). Both Akien and Claude can
+# read it (Akien's reason, 2026-07-26: 'that you and i can both read').
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -c "
+import json, os, re, sys
+from datetime import date
+from pathlib import Path
+
+repo = Path('$REPO')
+sys.path.insert(0, str(repo))
+
+from cairn.tools.base.needs import project_needs, unmeasured, render_needs, declared_path
+from cairn.tools.base.transitions import parse_workflow
+
+tickets_dir = repo.parent / 'CairnCommons' / 'tickets'
+today = date.today()
+
+# Collect open tickets with stage_needs
+open_tickets = []
+for f in sorted(tickets_dir.glob('*.json')):
+    try:
+        data = json.loads(f.read_text())
+    except Exception:
+        continue
+    state = data.get('state', '')
+    if isinstance(state, str):
+        m = re.search(r'\[([A-Z_]+)', state)
+        if m and m.group(1) == 'PROVED':
+            continue
+        if state == '[SUPERSEDED]':
+            continue
+    if data.get('stage_needs'):
+        open_tickets.append(data)
+
+if not open_tickets:
+    print('no open tickets carry stage_needs.')
+    sys.exit(0)
+
+# Three categories from the ticket's own filed_edges:
+#   1. can move now (all needs at current stage DONE)
+#   2. blocked on a measurement nobody has taken (unmeasured needs)
+#   3. blocked on real work (needs marked MISSING)
+can_move = []
+blocked_measurement = []
+blocked_work = []
+has_needs = []
+
+for t in open_tickets:
+    tid = t.get('id', '?')
+    state = t.get('state', '')
+    try:
+        wf = parse_workflow(state)
+    except Exception:
+        continue
+
+    view = project_needs(t, today=today)
+    current_stage = wf.here
+
+    # Get needs for the current stage
+    current_needs = view.get(current_stage, [])
+    if not current_needs:
+        continue
+
+    has_needs.append(t)
+    all_done = all(n['status'] == 'DONE' for n in current_needs)
+    any_unmeasured = any(n['status'] is None for n in current_needs)
+    any_missing = any(n['status'] == 'MISSING' for n in current_needs)
+
+    entry = {'id': tid, 'stage': current_stage, 'needs': current_needs}
+
+    if all_done:
+        can_move.append(entry)
+    elif any_unmeasured:
+        blocked_measurement.append(entry)
+    elif any_missing:
+        blocked_work.append(entry)
+    else:
+        blocked_work.append(entry)
+
+# Report
+def _print_entry(e):
+    print(f'  {e[\"id\"]}  [{e[\"stage\"]}]')
+    for n in e['needs']:
+        status = n['status'] or 'never looked'
+        age = f'{n[\"age_days\"]}d ago' if n['age_days'] is not None else ''
+        how = n['how_measured'] or ''
+        mark = f'{n[\"when\"]} ({age}): {how}' if n['when'] else ''
+        print(f'    {status:8s}  {n[\"need\"]}' + (f'  — {mark}' if mark else ''))
+
+if can_move:
+    print(f'CAN MOVE NOW ({len(can_move)}):')
+    for e in can_move:
+        _print_entry(e)
+    print()
+
+if blocked_measurement:
+    print(f'BLOCKED ON A MEASUREMENT NOBODY HAS TAKEN ({len(blocked_measurement)}):')
+    for e in blocked_measurement:
+        _print_entry(e)
+    print()
+
+if blocked_work:
+    print(f'BLOCKED ON WORK ({len(blocked_work)}):')
+    for e in blocked_work:
+        _print_entry(e)
+    print()
+
+# Full view: all tickets with any stage_needs, rendered in Akien's sketch format
+if '--full' in sys.argv[1:]:
+    print('--- FULL VIEW ---')
+    for t in open_tickets:
+        tid = t.get('id', '?')
+        rendered = render_needs(t, today=today)
+        if rendered:
+            print(f'\n{tid}:')
+            print(rendered)
+
+if not can_move and not blocked_measurement and not blocked_work:
+    print('no open tickets have needs at their current stage.')
+" "$@"

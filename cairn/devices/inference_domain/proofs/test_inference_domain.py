@@ -311,11 +311,11 @@ def test_a_refused_ask_leaves_a_row():
     assert after["hits"] == before["hits"] and after["misses"] == before["misses"], (
         f"a refusal is neither a hit nor a miss: {before} -> {after}"
     )
-    # MEASURED, NOT FIXED: `calls` is len(rows), so it now counts refusals too and stops
-    # equalling hits+misses. That is honest (a refused ask IS a call at this door) and it is a
-    # reader whose meaning this build widened without declaring it — reported, ticket owed.
-    assert after["calls"] == before["calls"] + 2, (
-        f"both refused asks must be visible as calls: {before} -> {after}"
+    assert after["refused"] == before["refused"] + 2, (
+        f"both refused asks must be counted as refused: {before} -> {after}"
+    )
+    assert after["calls"] == after["hits"] + after["misses"] + after["refused"], (
+        f"calls == hits + misses + refused must be a checkable identity: {after}"
     )
 
     # (e) an ordinary ask still works, and is a plain miss.

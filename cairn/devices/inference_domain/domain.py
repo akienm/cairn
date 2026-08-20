@@ -426,12 +426,14 @@ def yield_report(*, table: str = CACHE, conn=None) -> dict:
     rows = store.read(table, conn=conn)
     hits = [r for r in rows if r["verdict"] == "hit"]
     misses = [r for r in rows if r["verdict"] == "miss"]
+    refused = [r for r in rows if r["verdict"] == "refused"]
     spent = float(sum((r["cost"] or 0) for r in misses))
     avoided = float(sum((r["cost"] or 0) for r in hits))
     return {
         "calls": len(rows),
         "hits": len(hits),
         "misses": len(misses),
+        "refused": len(refused),
         "spent": spent,
         "avoided": avoided,
     }

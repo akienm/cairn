@@ -53,6 +53,11 @@ from cairn.devices.librarian.trees import (
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_trees_{_NONCE}"
+_TABLE2 = f"_trees2_{_NONCE}"
+_TABLE_TENANT = f"_tenant_{_NONCE}"
+_TABLE_EMPTY = f"_empty_{_NONCE}"
+_TABLE_RETIRE = f"_retire_{_NONCE}"
+_CREATED_NODES: list[str] = []
 
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
 
@@ -101,31 +106,41 @@ def test_vectors_are_physics_at_both_doors():
 def test_a_node_lands_and_is_born_a_hypothesis():
     r = deposit("the embedding is the path through the graph trees",
                 [1.0, 0.0, 0.0], _PROV, tree="t1", table=_TABLE)
+    _CREATED_NODES.append(r["node_id"])
     assert r["duplicate"] is False and r["dim"] == 3
-    rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
-    assert len(rows) == 1, "the node must be durably readable"
-    row = rows[0]
-    assert row["standing"] == "hypothesis", "every node is born a hypothesis (Law 3)"
-    assert row["provenance"]["source"] == _PROV["source"], "provenance must round-trip as structure"
-    assert row["vector"] == [1.0, 0.0, 0.0], "the vector must round-trip exactly"
+    node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
+    assert len(node_rows) == 1, "the node must land in cairn_nodes"
+    node = node_rows[0]
+    assert node["standing"] == "hypothesis", "every node is born a hypothesis (Law 3)"
+    assert node["provenance"]["source"] == _PROV["source"], "provenance must round-trip as structure"
+    emb_rows = store.read(trees.EMBEDDINGS_TABLE, where="node_id = %s", params=(r["node_id"],))
+    assert len(emb_rows) == 1, "an embedding must land in cairn_embeddings"
+    assert emb_rows[0]["vector"] == [1.0, 0.0, 0.0], "the vector must round-trip exactly"
+    leaf_rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
+    assert len(leaf_rows) == 1, "a leaf must land in the caller's table"
 
 
 def test_a_duplicate_grows_nothing_but_its_provenance_lands():
-    # Edge (b)'s switch, flipped by ticket the-tenure-loop: Law 1 still refuses the
-    # redundant ROW; the redundant ARRIVAL now lands as an attestation on the standing
-    # row — independent reach is evidence the tenure loop counts, not litter to drop.
     content = "the embedding is the path through the graph trees"
-    before = len(store.read(_TABLE, where="tree = %s", params=("t1",)))
-    r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_TABLE)
-    after = len(store.read(_TABLE, where="tree = %s", params=("t1",)))
+    conn = store.connect()
+    cur = conn.cursor()
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    nodes_before = cur.fetchone()[0]
+    cur.execute(f"SELECT count(*) FROM {_TABLE}")
+    leaves_before = cur.fetchone()[0]
+    r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_TABLE, conn=conn)
     assert r["duplicate"] is True, "the standing node must come back flagged"
     assert r["provenance_appended"] is True
-    assert before == after, "a duplicate deposit must grow the table by NOTHING (Law 1)"
-    row = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))[0]
-    attests = row["provenance"].get("attestations") or []
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    assert cur.fetchone()[0] == nodes_before, "a duplicate must grow cairn_nodes by NOTHING (Law 1)"
+    cur.execute(f"SELECT count(*) FROM {_TABLE}")
+    assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"
+    node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],), conn=conn)[0]
+    attests = node["provenance"].get("attestations") or []
     assert len(attests) == 1 and attests[0]["source"] == "a-second-witness" and attests[0]["at"], \
         "the incoming provenance must land WHOLE as an attestation, timestamped"
-    assert row["provenance"]["source"] == _PROV["source"], "the birth provenance survives untouched"
+    assert node["provenance"]["source"] == _PROV["source"], "the birth provenance survives untouched"
+    conn.close()
 
 
 def test_dimension_mismatch_is_refused_not_answered():
@@ -135,50 +150,47 @@ def test_dimension_mismatch_is_refused_not_answered():
 
 
 def test_nearest_ranks_by_proximity_and_derives_the_path():
-    # Three known directions: the query points almost exactly at `east`.
-    deposit("east-pointing node, the close one", [1.0, 0.1, 0.0], _PROV, tree="t1", table=_TABLE)
-    deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_TABLE)
+    r1 = deposit("east-pointing node, the close one", [1.0, 0.1, 0.0], _PROV, tree="t1", table=_TABLE)
+    _CREATED_NODES.append(r1["node_id"])
+    r2 = deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_TABLE)
+    _CREATED_NODES.append(r2["node_id"])
     got = nearest([1.0, 0.05, 0.0], k=2, tree="t1", table=_TABLE)
     assert [n["content"] for n in got][0] == "east-pointing node, the close one"
     assert got[0]["similarity"] > got[1]["similarity"], "ranked by cosine, descending"
     assert all(-1.0 <= n["similarity"] <= 1.0 for n in got), "cosine stays in [-1, 1]"
-    # An empty tree is an honest [] — absence is not an error.
-    assert nearest([1.0], k=3, tree="empty-tree", table=_TABLE) == []
+    assert nearest([1.0], k=3, tree="empty", table=_TABLE_EMPTY) == []
 
 
 def test_the_walk_itself_never_decays_a_tenant():
-    # MULTI-TENANT NEUTRALITY (ticket the-tenure-loop, out-of-bounds clause): the chart's
-    # nexi walk these same tools with their own tables. Tenure's decay lives in the
-    # LIBRARIAN'S answer path (loop.py), never here — an aged, uncorroborated node still
-    # ranks at full raw cosine in nearest, and created merely RIDES the walk for readers
-    # who weigh it.
     aged = "an old resident a tenant's walk must still surface first"
-    r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_TABLE)
-    deposit("a nearer-in-time but farther-in-space node", [0.3, 0.9, 0.0], _PROV,
-            tree="tenant", table=_TABLE)
-    store.update(_TABLE, trees.OWNER,
+    r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_TABLE_TENANT)
+    _CREATED_NODES.append(r["node_id"])
+    r2 = deposit("a nearer-in-time but farther-in-space node", [0.3, 0.9, 0.0], _PROV,
+                 tree="tenant", table=_TABLE_TENANT)
+    _CREATED_NODES.append(r2["node_id"])
+    store.update(trees.NODES_TABLE, trees.OWNER,
                  {"created": datetime.now(timezone.utc) - timedelta(days=365)},
                  where="node_id = %s", params=(r["node_id"],))
-    got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_TABLE)
+    got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_TABLE_TENANT)
     assert got[0]["node_id"] == r["node_id"], \
         "a year-old node still ranks FIRST by raw cosine — no decay at the shared walk"
     assert got[0]["created"] is not None, "created rides the walk as data for the reader"
 
 
 def test_trees_do_not_cross():
-    deposit("a node that lives in another tree entirely", [1.0, 0.09, 0.0],
-            _PROV, tree="t2", table=_TABLE)
+    r = deposit("a node that lives in another tree entirely", [1.0, 0.09, 0.0],
+                _PROV, tree="t2", table=_TABLE2)
+    _CREATED_NODES.append(r["node_id"])
     surfaced = nearest([1.0, 0.09, 0.0], k=50, tree="t1", table=_TABLE)
     assert all("another tree" not in n["content"] for n in surfaced), \
-        "a walk of t1 must never surface a t2 node — trees do not cross"
+        "a walk of _TABLE must never surface a _TABLE2 node — leaf tables are separate trees"
 
 
 def test_neighbors_are_derived_and_exclude_self():
-    nid = trees.node_id_for("t1", "east-pointing node, the close one")
+    nid = trees.node_id_for("east-pointing node, the close one")
     got = neighbors(nid, k=2, tree="t1", table=_TABLE)
     assert got, "a node among siblings has derived neighbors"
     assert all(n["node_id"] != nid for n in got), "a node is not its own neighbor"
-    # A ghost has no neighborhood — refused, not an empty list wearing 'isolated'.
     _refuses(WalkRefused, neighbors, "no-such-node", tree="t1", table=_TABLE)
 
 
@@ -189,13 +201,14 @@ def test_tree_state_moves_with_the_tree_and_only_with_it():
     again = trees.tree_state("t1", table=_TABLE)
     assert before == again, "the fingerprint is a pure function of the tree's members"
     assert before["nodes"] > 0 and before["digest"] != "empty"
-    deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
+    r = deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
+    _CREATED_NODES.append(r["node_id"])
     moved = trees.tree_state("t1", table=_TABLE)
     assert moved["digest"] != before["digest"] and moved["nodes"] == before["nodes"] + 1
     deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
     assert trees.tree_state("t1", table=_TABLE) == moved, \
         "a duplicate writes nothing, so the fingerprint must not move"
-    assert trees.tree_state("never-touched", table=_TABLE) == {"digest": "empty", "nodes": 0}
+    assert trees.tree_state("never-touched", table=_TABLE_EMPTY) == {"digest": "empty", "nodes": 0}
 
 
 def test_no_edge_table_exists():
@@ -208,8 +221,7 @@ def test_no_edge_table_exists():
 def test_the_owner_gate_holds_through_the_stack():
     try:
         store.write(_TABLE, "impostor", {
-            "node_id": "forced", "tree": "t1", "content": "should never land",
-            "vector": [1.0], "provenance": {"source": "x"}, "standing": "hypothesis"})
+            "leaf_id": "forced", "node_id": "forced", "embedding_id": "forced"})
         raise AssertionError("a non-librarian write must be REFUSED by db_domain (Law 6)")
     except OwnershipError:
         pass
@@ -245,7 +257,8 @@ def test_device_hood_and_the_ordered_surface():
 
 def test_trees_opens_no_door_of_its_own():
     # Allowlist, not blocklist: an import outside these prefixes is a second door and reds.
-    allowed = ("__future__", "hashlib", "math", "datetime", "cairn.tools.base", "cairn.devices.db_domain")
+    allowed = ("__future__", "hashlib", "math", "datetime", "cairn.tools.base", "cairn.devices.db_domain",
+               "psycopg2")
     src = Path(trees.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):
@@ -263,8 +276,12 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
+            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE):
+                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
+            for nid in _CREATED_NODES:
+                cur.execute(f'DELETE FROM "{trees.EMBEDDINGS_TABLE}" WHERE node_id = %s', (nid,))
+                cur.execute(f'DELETE FROM "{trees.NODES_TABLE}" WHERE node_id = %s', (nid,))
     finally:
         conn.close()
 
@@ -277,12 +294,12 @@ _RETIRE_TREE = "retire"
 
 
 def _row(nid):
-    rows = store.read(_TABLE, where="node_id = %s AND tree = %s", params=(nid, _RETIRE_TREE))
+    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))
     return rows[0] if rows else None
 
 
 def _fingerprint(nid) -> str:
-    """A hash of the WHOLE row — so a refused call cannot have moved one byte of it."""
+    """A hash of the WHOLE node row — so a refused call cannot have moved one byte of it."""
     return hashlib.sha256(
         json.dumps(_row(nid), sort_keys=True, default=str).encode("utf-8")
     ).hexdigest()
@@ -290,12 +307,14 @@ def _fingerprint(nid) -> str:
 
 def _land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
-    return deposit(content, vector, prov, tree=_RETIRE_TREE, table=_TABLE)["node_id"]
+    r = deposit(content, vector, prov, tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+    _CREATED_NODES.append(r["node_id"])
+    return r["node_id"]
 
 
 def _make_earned(nid):
-    store.update(_TABLE, "librarian", {"standing": "earned"},
-                 where="node_id = %s AND tree = %s", params=(nid, _RETIRE_TREE))
+    store.update(trees.NODES_TABLE, trees.OWNER, {"standing": "earned"},
+                 where="node_id = %s", params=(nid,))
 
 
 def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
@@ -315,7 +334,7 @@ def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
     trees.store.update = counting_update
     try:
         out = trees.refute(target, refuter, "the posted hours say six",
-                           tree=_RETIRE_TREE, table=_TABLE)
+                           tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     finally:
         trees.store.update = real_update
     assert len(calls) == 1, f"the retirement must be ONE update, saw {len(calls)}"
@@ -323,9 +342,7 @@ def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
     after = _row(target)
     assert out["refuted"] and out["was"] == "hypothesis", out
     assert after["standing"] == "refuted", after["standing"]
-    # INVALIDATE, NEVER DELETE: the row is still there and its content is byte-identical.
     assert after["content"] == before["content"], "content must not move"
-    assert after["vector"] == before["vector"], "the vector must not move"
     assert after["provenance"]["source"] == before["provenance"]["source"], "birth provenance must not move"
     att = after["provenance"]["attestations"][-1]
     assert att["source"] == "refutation" and att["refuter"] == refuter, att
@@ -336,7 +353,7 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     target = _land("mondays are for the archive stacks", [0.5, 0.5])
     refuter = _land("the stacks are shut on mondays entirely", [0.4, 0.6], source="correction")
     dead = _land("a claim that will itself be retired", [0.1, 0.9], source="correction")
-    trees.refute(dead, refuter, "this one goes first", tree=_RETIRE_TREE, table=_TABLE)
+    trees.refute(dead, refuter, "this one goes first", tree=_RETIRE_TREE, table=_TABLE_RETIRE)
 
     # Each refusal raises BEFORE any write — the row's whole fingerprint is unmoved.
     before = _fingerprint(target)
@@ -349,7 +366,7 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     }
     for name, (n, r, e) in cases.items():
         msg = _refuses(trees.RefutationRefused, trees.refute, n, r, e,
-                       tree=_RETIRE_TREE, table=_TABLE)
+                       tree=_RETIRE_TREE, table=_TABLE_RETIRE)
         assert "Nothing landed" in msg, f"{name}: the refusal must say nothing landed"
         assert _fingerprint(target) == before, f"{name}: the row moved on a REFUSED call"
 
@@ -360,15 +377,15 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
 
     # ONE PASS, not one per run: a call wrong in three ways names all three at once.
     msg = _refuses(trees.RefutationRefused, trees.refute, "0" * 16, "f" * 16, "",
-                   tree=_RETIRE_TREE, table=_TABLE)
+                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     for expected in ("evidence is empty", "0" * 16, "f" * 16):
         assert expected in msg, f"the door must name {expected!r} in the same pass: {msg}"
 
     # And the doubled retirement: the first receipt is who the record owes.
-    trees.refute(target, refuter, "the stacks are shut", tree=_RETIRE_TREE, table=_TABLE)
+    trees.refute(target, refuter, "the stacks are shut", tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     after_first = _fingerprint(target)
     msg = _refuses(trees.RefutationRefused, trees.refute, target, refuter, "again",
-                   tree=_RETIRE_TREE, table=_TABLE)
+                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     assert "already refuted" in msg, msg
     assert _fingerprint(target) == after_first, "a doubled retirement overwrote the first receipt"
 
@@ -384,7 +401,7 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
 
     before = _fingerprint(earned_a)
     msg = _refuses(trees.RefutationRefused, trees.refute, earned_a, guess, "I reckon not",
-                   tree=_RETIRE_TREE, table=_TABLE)
+                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     assert "standing gate" in msg and "outvote" in msg, msg
     assert _fingerprint(earned_a) == before, "the earned node moved on a refused call"
 
@@ -394,13 +411,13 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
     earned_r = _land("an earned refuter with standing of its own", [0.2, 0.8])
     _make_earned(earned_r)
     assert trees.refute(earned_b, earned_r, "measured otherwise",
-                        tree=_RETIRE_TREE, table=_TABLE)["was"] == "earned"
+                        tree=_RETIRE_TREE, table=_TABLE_RETIRE)["was"] == "earned"
 
     # hypothesis -> hypothesis passes: the gate guards EARNED knowledge, nothing else.
     hyp = _land("an ordinary hypothesis nobody corroborated", [0.55, 0.45])
     hyp_r = _land("another ordinary hypothesis that disagrees", [0.45, 0.55])
     assert trees.refute(hyp, hyp_r, "disagrees on the facts",
-                        tree=_RETIRE_TREE, table=_TABLE)["was"] == "hypothesis"
+                        tree=_RETIRE_TREE, table=_TABLE_RETIRE)["was"] == "hypothesis"
 
     # LAW 9: a STATED CORRECTION is an input from outside, not the system's own guess —
     # it retires an earned node even though it is itself born a hypothesis.
@@ -408,7 +425,7 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
     _make_earned(earned_c)
     said = _land("no, that is not what the charter says", [0.75, 0.25], source="correction")
     out = trees.refute(earned_c, said, "no, that is not what the charter says",
-                       tree=_RETIRE_TREE, table=_TABLE)
+                       tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     assert out["was"] == "earned" and _row(earned_c)["standing"] == "refuted", out
 
 

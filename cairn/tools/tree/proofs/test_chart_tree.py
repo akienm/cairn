@@ -142,13 +142,16 @@ def test_deposit_back_lands_and_dedups():
         packet = _packet()
         berth = _berthed_fixture(tmp, packet)
         r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_NEXUS)
+        _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False
-        rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
-        assert rows and rows[0]["content"] == packet["intent"], \
+        node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
+        assert node_rows and node_rows[0]["content"] == packet["intent"], \
             "the node's content is the packet's intent"
-        assert rows[0]["provenance"]["source"] == berth, "provenance names the berth"
-        assert rows[0]["provenance"]["confidence"] == packet["confidence"]
-        assert rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
+        assert node_rows[0]["provenance"]["source"] == berth, "provenance names the berth"
+        assert node_rows[0]["provenance"]["confidence"] == packet["confidence"]
+        assert node_rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
+        leaf_rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
+        assert leaf_rows, "a leaf must land in the nexus's table"
         # The same packet again: a duplicate writes nothing (Law 1).
         before = trees.tree_state(_NEXUS, table=_TABLE, owner="chart")
         r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_NEXUS)
@@ -164,8 +167,9 @@ def test_counsel_keeps_its_floor_visible():
     assert "guess" in got["floor_is"] and "n=1" in got["floor_is"], \
         "the floor's label travels — a guess must say it is one"
     # A populated tree: above_floor holds only nodes at/above the floor.
-    deposit_learning(_NEXUS, "a learning pointing far away from the query",
-                     [0.0, 0.0, 1.0], _PROV)
+    r_far = deposit_learning(_NEXUS, "a learning pointing far away from the query",
+                             [0.0, 0.0, 1.0], _PROV)
+    _CREATED_NODES.append(r_far["node_id"])
     got = counsel([0.9, 0.1, 0.0], nexus=_NEXUS, k=10)
     assert got["walk"], "the walk sees the tree"
     assert all(n["similarity"] >= got["floor"] for n in got["above_floor"])
@@ -293,6 +297,9 @@ def test_tree_is_a_legal_stratum_at_the_packet_gate():
         "an undeclared floor-authored field is derived, and this packet carries no request"
 
 
+_CREATED_NODES: list[str] = []
+
+
 def _cleanup():
     conn = store.connect()
     try:
@@ -300,6 +307,9 @@ def _cleanup():
             for t in (_TABLE, nexus_table(f"{_NEXUS}_empty")):
                 cur.execute(f'DROP TABLE IF EXISTS "{t}"')
                 cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
+            for nid in _CREATED_NODES:
+                cur.execute(f'DELETE FROM "{trees.EMBEDDINGS_TABLE}" WHERE node_id = %s', (nid,))
+                cur.execute(f'DELETE FROM "{trees.NODES_TABLE}" WHERE node_id = %s', (nid,))
     finally:
         conn.close()
 

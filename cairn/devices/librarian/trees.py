@@ -1,36 +1,30 @@
 """librarian/trees.py — the graph-tree store: the librarian's spine, db_domain's first tenant.
 
-Akien's founding facts (settled 2026-07-22, notes/held-librarian.json): "the embedding IS
-the path through the graph trees" — edges are DERIVED from vector proximity, never stored
-(O(n) vectors, and the paths fall out); the librarian OWNS the graph (Law 6), so every
-write passes db_domain's owner-gate under the name ``librarian``. The face this feeds
-(named the current goal 2026-07-27): a chatbot, learning always, summarizing when asked —
-a query resolves by traversing structure, and the resolver is spent only on the novel.
+Three-table schema (paper §3.1, §6.4, ticket node-embedding-leaf-separation):
+  - **cairn_nodes**: what is remembered, tree-free. node_id + content + provenance +
+    standing + created. One shared set per database, owned by the librarian (Law 6).
+  - **cairn_embeddings**: renderings as coordinates. embedding_id + node_id + vector +
+    render_method. Many per node (one today), derived, owned by the librarian.
+  - **per-tree leaf tables**: how a node is found. leaf_id + node_id + embedding_id.
+    Each consumer keeps its own leaf table (the existing *_nodes tables become these).
+
+Akien's founding facts (settled 2026-07-22): "the embedding IS the path through the graph
+trees" — edges are DERIVED from vector proximity, never stored. The librarian OWNS the
+nodes and embeddings; each consumer owns its leaf table through db_domain's owner-gate.
 
 THE CONTRACT
-  - A node is content + vector + PROVENANCE + standing. The deposit door refuses a node
-    nobody can trace: fabricated attribution at the extractor was a draft problem; here it
-    would be a permanent resident. Provenance names at least its ``source``.
-  - Every node is born ``standing = "hypothesis"`` (Law 3): a node the LLM provided — or
-    anyone else — has not yet earned tenure. Tenure is a MEASUREMENT, and the three
-    standings are the whole vocabulary: ``hypothesis`` at birth, ``earned`` when distinct
-    crossings corroborate it (``corroborate``, 2026-08-09, ticket the-tenure-loop), and
-    ``refuted`` when a stated correction retires it (``refute``, 2026-08-10, ticket
-    revision-with-receipts). A retired node is invalidated, never deleted.
-  - Edges are NEVER stored. ``nearest`` walks a tree by cosine proximity to a query
-    vector; ``neighbors`` derives a node's edges the same way. No edge table can exist —
-    the proof pins that nothing named like one is ever registered.
-  - Dimensions are physics, not luck: the first deposit into a tree sets its dimension;
-    a mismatched deposit or query is REFUSED loudly (a 4-dim query against 768-dim nodes
-    is a wrong question, and answering it would be a silent wrong answer).
-  - A duplicate deposit (same tree, same content) writes NOTHING and says so — the
-    cheapest deposit is the one never made (Law 1, the cache's shape). Its dropped
-    provenance is a filed edge: corroboration becomes evidence when the tenure loop lands.
+  - A node is content + PROVENANCE + standing — no tree, no vector (those belong to
+    embeddings and leaves). The deposit door refuses a node nobody can trace.
+  - Every node is born ``standing = "hypothesis"`` (Law 3). Tenure is a MEASUREMENT.
+  - Edges are NEVER stored. ``nearest`` walks a leaf table, joins through embeddings to
+    get vectors, and computes cosine. §6.2's bounded weighted similarity links are a
+    designed successor — not yet built, not yet falsified.
+  - Dimensions are physics: the first embedding deposited sets the tree's dimension.
+  - A duplicate deposit (same content, ANY tree) writes no new node row — the same claim
+    IS the same node however many trees index it (§4.3, constraint 4).
 
-This module is import-pure toward the network: vectors arrive as DATA (the embed call is
-the caller's, through inference_domain — live wiring in ``live.py``, never here), and the
-database is reached only through db_domain (the sole path; Law 4). The proof pins both
-by AST allowlist.
+This module is import-pure toward the network: vectors arrive as DATA, the database is
+reached only through db_domain (the sole path; Law 4). The proof pins both by AST allowlist.
 """
 
 from __future__ import annotations
@@ -42,26 +36,32 @@ from datetime import datetime, timezone
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain import store
 
-# The librarian's one table (a `tree` column partitions the forest). The filed edge about
-# "other owners' trees" landed 2026-07-28 (ticket chart-tree), and simpler than a grant:
-# every function takes an ``owner`` (default: the librarian), so a second tenant — chart's
-# nexi first — reaches ITS OWN table through the same tools and db_domain's same gate
-# (Law 6 held per-tenant; the ratified unification: one tool set, many owners).
+NODES_TABLE = "cairn_nodes"
+EMBEDDINGS_TABLE = "cairn_embeddings"
 NODES = "librarian_nodes"
 OWNER = "librarian"
 
-# The floor under content: a node distilled from near-nothing is invention wearing a
-# vector (the extractor's _MIN_SOURCE_CHARS lesson, one layer down).
 _MIN_CONTENT_CHARS = 8
 
-_COLUMNS = {
+_NODE_COLUMNS = {
     "node_id": "text PRIMARY KEY",
-    "tree": "text NOT NULL",
     "content": "text NOT NULL",
-    "vector": "jsonb NOT NULL",
     "provenance": "jsonb NOT NULL",
     "standing": "text NOT NULL",
     "created": "timestamptz NOT NULL DEFAULT now()",
+}
+
+_EMBEDDING_COLUMNS = {
+    "embedding_id": "text PRIMARY KEY",
+    "node_id": "text NOT NULL",
+    "vector": "jsonb NOT NULL",
+    "render_method": "text NOT NULL",
+}
+
+_LEAF_COLUMNS = {
+    "leaf_id": "text PRIMARY KEY",
+    "node_id": "text NOT NULL",
+    "embedding_id": "text NOT NULL",
 }
 
 
@@ -89,9 +89,19 @@ class RefutationRefused(RuntimeError):
 _REFUTER_AUTHORITIES = frozenset({"correction"})
 
 
-def node_id_for(tree: str, content: str) -> str:
-    """Deterministic identity: the same content in the same tree IS the same node."""
-    return hashlib.sha256(f"{tree}\n{content}".encode("utf-8")).hexdigest()[:16]
+def node_id_for(content: str) -> str:
+    """Deterministic identity: the same content IS the same node, regardless of tree."""
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
+
+
+def embedding_id_for(node_id: str, render_method: str) -> str:
+    """Deterministic embedding identity: same node + same rendering = same embedding."""
+    return hashlib.sha256(f"{node_id}\n{render_method}".encode("utf-8")).hexdigest()[:16]
+
+
+def leaf_id_for(node_id: str, embedding_id: str) -> str:
+    """Deterministic leaf identity within a leaf table."""
+    return hashlib.sha256(f"{node_id}\n{embedding_id}".encode("utf-8")).hexdigest()[:16]
 
 
 def _norm(s: str) -> str:
@@ -133,30 +143,41 @@ def cosine(a: list[float], b: list[float]) -> float:
 
 
 def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
-    """The table, owner-gated into existence. Idempotent; ownership is recorded at birth."""
-    store.create_owned_table(table, owner, _COLUMNS, conn=conn)
+    """The shared tables + the caller's leaf table, owner-gated into existence."""
+    store.create_owned_table(NODES_TABLE, OWNER, _NODE_COLUMNS, conn=conn)
+    store.create_owned_table(EMBEDDINGS_TABLE, OWNER, _EMBEDDING_COLUMNS, conn=conn)
+    store.create_owned_table(table, owner, _LEAF_COLUMNS, conn=conn)
 
 
-def _tree_rows(tree: str, *, table: str, conn) -> list[dict]:
-    return store.read(table, where="tree = %s", params=(tree,), conn=conn)
+def _leaf_rows(*, table: str, conn) -> list[dict]:
+    """All rows in a leaf table, joined through embedding->node."""
+    from psycopg2 import sql as psql
+    from psycopg2.extras import RealDictCursor
+    stmt = psql.SQL(
+        "SELECT l.leaf_id, n.node_id, n.content, e.vector, n.provenance, "
+        "n.standing, n.created, e.embedding_id, e.render_method "
+        "FROM {leaf} l "
+        "JOIN {embed} e ON l.embedding_id = e.embedding_id "
+        "JOIN {node} n ON l.node_id = n.node_id"
+    ).format(
+        leaf=psql.Identifier(table),
+        embed=psql.Identifier(EMBEDDINGS_TABLE),
+        node=psql.Identifier(NODES_TABLE),
+    )
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute(stmt)
+        return [dict(r) for r in cur.fetchall()]
 
 
 def deposit(content: str, vector, provenance: dict, *,
             tree: str = "commons", table: str = NODES, owner: str = OWNER,
+            render_method: str = "embed:default",
             conn=None) -> dict:
     """The deposit door: one node in, judged before it lands.
 
-    Returns ``{"node_id", "duplicate": bool, "dim"}``. A duplicate (same tree + content)
-    grows the table by nothing — the standing node's id comes back with
-    ``duplicate: True`` and ``provenance_appended: True``: since 2026-08-09 (ticket
-    the-tenure-loop) the incoming provenance lands as an attestation on the standing
-    row's ``provenance.attestations`` instead of being dropped.
-    Refusals (all BEFORE any write, all first-pass complete):
-      - content under the floor (a node from near-nothing is invention),
-      - a vector without direction (empty / non-numeric / non-finite / zero),
-      - provenance that is not a dict naming a non-empty ``source`` (an untraceable node
-        is fabricated attribution taking up permanent residence),
-      - a dimension that disagrees with the tree's (the first deposit set it).
+    Three-table write: node -> cairn_nodes, embedding -> cairn_embeddings,
+    leaf -> the caller's leaf table. A duplicate node (same content, ANY tree) appends
+    provenance as an attestation; a new leaf is still written for this tree.
     """
     if not isinstance(content, str) or len(_norm(content)) < _MIN_CONTENT_CHARS:
         raise DepositRefused(
@@ -176,41 +197,57 @@ def deposit(content: str, vector, provenance: dict, *,
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
-        nid = node_id_for(tree, content)
-        existing = store.read(table, where="node_id = %s", params=(nid,), conn=own)
-        if existing:
-            # Edge (b)'s recorded switch, flipped 2026-08-09 (ticket the-tenure-loop):
-            # a duplicate still writes no NEW ROW — Law 1 stops redundant STRUCTURE —
-            # but its provenance now lands as an ATTESTATION on the standing row.
-            # Redundant arrival is evidence of independent reach, and the tenure loop
-            # counts it; dropping it was the filed debt.
-            prior = existing[0]["provenance"] or {}
+        nid = node_id_for(content)
+        eid = embedding_id_for(nid, render_method)
+        lid = leaf_id_for(nid, eid)
+
+        existing_node = store.read(NODES_TABLE, where="node_id = %s", params=(nid,), conn=own)
+        node_is_dup = bool(existing_node)
+
+        if node_is_dup:
+            prior = existing_node[0]["provenance"] or {}
             attests = list(prior.get("attestations") or [])
             attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
             merged = {**prior, "attestations": attests}
-            store.update(table, owner, {"provenance": merged},
+            store.update(NODES_TABLE, OWNER, {"provenance": merged},
                          where="node_id = %s", params=(nid,), conn=own)
-            return {"node_id": nid, "duplicate": True, "dim": len(existing[0]["vector"]),
-                    "provenance_appended": True}
+        else:
+            store.write(NODES_TABLE, OWNER, {
+                "node_id": nid,
+                "content": content,
+                "provenance": provenance,
+                "standing": "hypothesis",
+            }, conn=own)
 
-        siblings = _tree_rows(tree, table=table, conn=own)
-        if siblings:
-            tree_dim = len(siblings[0]["vector"])
-            if len(v) != tree_dim:
-                raise DepositRefused(
-                    f"deposit: vector dim {len(v)} vs tree {tree!r} dim {tree_dim} — a "
-                    "mixed-dimension tree cannot be walked; refusing (the first deposit "
-                    "set the tree's dimension)."
-                )
-        store.write(table, owner, {
-            "node_id": nid,
-            "tree": tree,
-            "content": content,
-            "vector": v,
-            "provenance": provenance,
-            "standing": "hypothesis",   # born one, stays one until tenure is a measurement
-        }, conn=own)
-        return {"node_id": nid, "duplicate": False, "dim": len(v)}
+        existing_emb = store.read(EMBEDDINGS_TABLE, where="embedding_id = %s", params=(eid,), conn=own)
+        if not existing_emb:
+            siblings = _leaf_rows(table=table, conn=own)
+            if siblings:
+                tree_dim = len(siblings[0]["vector"])
+                if len(v) != tree_dim:
+                    raise DepositRefused(
+                        f"deposit: vector dim {len(v)} vs tree {tree!r} dim {tree_dim} — a "
+                        "mixed-dimension tree cannot be walked; refusing (the first deposit "
+                        "set the tree's dimension)."
+                    )
+            store.write(EMBEDDINGS_TABLE, OWNER, {
+                "embedding_id": eid,
+                "node_id": nid,
+                "vector": v,
+                "render_method": render_method,
+            }, conn=own)
+
+        existing_leaf = store.read(table, where="leaf_id = %s", params=(lid,), conn=own)
+        leaf_is_dup = bool(existing_leaf)
+        if not leaf_is_dup:
+            store.write(table, owner, {
+                "leaf_id": lid,
+                "node_id": nid,
+                "embedding_id": eid,
+            }, conn=own)
+
+        return {"node_id": nid, "duplicate": node_is_dup and leaf_is_dup,
+                "dim": len(v), "provenance_appended": node_is_dup}
     finally:
         if conn is None:
             own.close()
@@ -219,28 +256,19 @@ def deposit(content: str, vector, provenance: dict, *,
 def corroborate(node_id: str, question: str, *, promote_at: int,
                 tree: str = "commons", table: str = NODES, owner: str = OWNER,
                 conn=None) -> dict:
-    """The earning write, fired by the librarian's resolution event (ticket
-    the-tenure-loop) — never by a clock.
+    """The earning write on the SHARED node (cairn_nodes), fired by the
+    librarian's resolution event — never by a clock.
 
-    Appends a corroboration attestation for ``question`` onto the standing node's
-    provenance, UNLESS it is the node's birth question (a node cannot tenure on echoes
-    of its own birth — that touch does not corroborate) or already attested (distinct
-    questions are the count, not raw arrivals). Once distinct cross-question
-    corroborations — resolution corroborations and duplicate-deposit attestations
-    alike — reach ``promote_at``, standing turns ``'earned'`` in the same write. Both
-    mutations ride db_domain's owner-gated update face; the promotion check runs even
-    when nothing new appends, so a node that reached threshold between resolutions is
-    not stranded at hypothesis.
-
-    Returns ``{"corroborated": bool, "promoted": bool, "distinct": int}``.
+    The tree/table params kept for API compatibility but the attestation
+    lands on the shared node.
     """
     own = conn or store.connect()
     try:
-        rows = store.read(table, where="node_id = %s AND tree = %s",
-                          params=(node_id, tree), conn=own)
+        rows = store.read(NODES_TABLE, where="node_id = %s",
+                          params=(node_id,), conn=own)
         if not rows:
             raise DepositRefused(
-                f"corroborate: no standing node {node_id!r} in tree {tree!r} — nothing to attest")
+                f"corroborate: no standing node {node_id!r} — nothing to attest")
         row = rows[0]
         prov = dict(row["provenance"] or {})
         birth_q = prov.get("question")
@@ -260,8 +288,8 @@ def corroborate(node_id: str, question: str, *, promote_at: int,
             changes["standing"] = "earned"
             promoted = True
         if changes:
-            store.update(table, owner, changes, where="node_id = %s AND tree = %s",
-                         params=(node_id, tree), conn=own)
+            store.update(NODES_TABLE, OWNER, changes, where="node_id = %s",
+                         params=(node_id,), conn=own)
         return {"corroborated": corroborated, "promoted": promoted, "distinct": len(distinct)}
     finally:
         if conn is None:
@@ -288,36 +316,9 @@ def _may_retire_earned(refuter: dict) -> bool:
 def refute(node_id: str, refuter_id: str, evidence: str, *,
            tree: str = "commons", table: str = NODES, owner: str = OWNER,
            minted_this_crossing=(), conn=None) -> dict:
-    """The retirement door: a standing node marked WRONG, in one owner-gated act.
+    """The retirement door on the SHARED node (cairn_nodes).
 
-    The third write face beside ``deposit`` and ``corroborate``, and the fifth tenure
-    behaviour (ticket revision-with-receipts). Invalidate, never delete: the row keeps its
-    content, its vector and its birth provenance byte-for-byte, and gains
-    ``standing = "refuted"`` plus one appended attestation
-    ``{source: "refutation", refuter, evidence, at}``. What was believed and then found
-    wrong is a record of truth, and a record of truth is permanent (Law 7) — a deleted node
-    would leave every later reader unable to tell "never known" from "known and retired".
-
-    Refutation is an INPUT, never a discovery. Nothing here looks for contradictions:
-    cosine finds nodes that are ALIKE, and a statement and its negation are alike.
-
-    Refusals — ALL named in one pass, ALL before any write:
-      - evidence that is empty (a retirement nobody can read back is an unexplained hole),
-      - a node id, either one, that does not stand in this tree,
-      - self-refutation (a node arguing itself down is not evidence, it is a loop),
-      - a doubled retirement (the second one would overwrite the first's receipt),
-      - a refuter that is itself refuted (retired knowledge does not get to retire more),
-      - THE STANDING GATE: a refuter that may not outvote an EARNED node — see
-        ``_may_retire_earned``. This is the borrow's whole point, and the only thing
-        between a hallucinated backfill and corroborated knowledge.
-      - crossing honesty, unchanged from the tenure loop: a node minted DURING this
-        crossing may not act as the refuter in it (pass the crossing's own mints as
-        ``minted_this_crossing``). A loop that mints its own refuter has manufactured a
-        revision the same way manufactured resolution was closed.
-
-    Returns ``{"refuted", "node_id", "refuter", "was", "attestations"}`` — ``was`` is the
-    standing being retired, so a caller can tell a hypothesis's retirement from an earned
-    node's without a second read.
+    tree/table params kept for API compatibility; reads/writes go to cairn_nodes.
     """
     lacks: list[str] = []
     ev = evidence.strip() if isinstance(evidence, str) else ""
@@ -334,18 +335,18 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
         for wanted in (node_id, refuter_id):
             if wanted in seen:
                 continue
-            found = store.read(table, where="node_id = %s AND tree = %s",
-                               params=(wanted, tree), conn=own)
+            found = store.read(NODES_TABLE, where="node_id = %s",
+                               params=(wanted,), conn=own)
             if found:
                 seen[wanted] = found[0]
         target = seen.get(node_id)
         refuter = seen.get(refuter_id)
 
         if target is None:
-            lacks.append(f"no standing node {node_id!r} in tree {tree!r} — nothing to retire")
+            lacks.append(f"no standing node {node_id!r} — nothing to retire")
         if refuter is None:
             lacks.append(
-                f"no standing node {refuter_id!r} in tree {tree!r} — the refuter must itself "
+                f"no standing node {refuter_id!r} — the refuter must itself "
                 "be in the record, or the retirement cites nothing"
             )
         if node_id == refuter_id:
@@ -383,16 +384,13 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
                 "refute: " + "; ".join(lacks) + ". Nothing landed."
             )
 
-        # ONE act, one owner moment (Law 6): the standing change and the receipt land
-        # together, exactly as corroborate's promotion does. Two writes would invent a
-        # window in which a node is retired with no reason attached to it.
         prov = dict(target["provenance"] or {})
         attests = list(prov.get("attestations") or [])
         attests.append({"source": "refutation", "refuter": refuter_id, "evidence": ev,
                         "at": datetime.now(timezone.utc).isoformat()})
-        store.update(table, owner,
+        store.update(NODES_TABLE, OWNER,
                      {"standing": "refuted", "provenance": {**prov, "attestations": attests}},
-                     where="node_id = %s AND tree = %s", params=(node_id, tree), conn=own)
+                     where="node_id = %s", params=(node_id,), conn=own)
         return {"refuted": True, "node_id": node_id, "refuter": refuter_id,
                 "was": target["standing"], "attestations": len(attests)}
     finally:
@@ -403,16 +401,12 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
 def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) -> dict:
     """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
 
-    This is what makes 'same request, changed graph' DISTINGUISHABLE: the core loop folds
-    this digest into the backfill key, so a resubmit against a changed tree is a genuine
-    cache MISS while a resubmit against an unchanged tree is honestly the same question
-    (the livelock fix, filed 2026-07-27 in held-librarian's ruling section, as physics).
-    An empty tree fingerprints as ``"empty"`` — a nameable state, not an error.
+    Reads the leaf table to enumerate what nodes this tree contains.
     """
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
-        ids = sorted(r["node_id"] for r in _tree_rows(tree, table=table, conn=own))
+        ids = sorted(r["node_id"] for r in _leaf_rows(table=table, conn=own))
         digest = hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()[:16] if ids else "empty"
         return {"digest": digest, "nodes": len(ids)}
     finally:
@@ -422,10 +416,9 @@ def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) 
 
 def nearest(vector, *, k: int = 5, tree: str = "commons",
             table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
-    """The walk: the k nodes of ``tree`` nearest the query vector, by cosine.
+    """The walk: the k nodes nearest the query vector, by cosine.
 
-    THE derived edge — nothing is looked up, proximity is computed (the embedding is the
-    path). An empty tree returns an honest ``[]``. A dimension mismatch is refused.
+    Reads the leaf table (three-table join) to get content + vector + provenance.
     """
     if not isinstance(k, int) or k < 1:
         raise WalkRefused(f"nearest: k must be a positive int, got {k!r}")
@@ -433,7 +426,7 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
-        rows = _tree_rows(tree, table=table, conn=own)
+        rows = _leaf_rows(table=table, conn=own)
         if not rows:
             return []
         tree_dim = len(rows[0]["vector"])
@@ -446,8 +439,6 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
             ({"node_id": r["node_id"], "content": r["content"],
               "similarity": cosine(v, [float(x) for x in r["vector"]]),
               "provenance": r["provenance"], "standing": r["standing"],
-              # created rides the walk so a READER can weigh age (the librarian's lazy
-              # decay does, in its own path); the RANKING here stays raw cosine only.
               "created": r["created"]}
              for r in rows),
             key=lambda n: n["similarity"], reverse=True)
@@ -459,22 +450,18 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
 
 def neighbors(node_id: str, *, k: int = 5, tree: str = "commons",
               table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
-    """A node's derived edges: its k nearest siblings, itself excluded.
-
-    Asking for the neighbors of a node that is not there is refused loudly — a ghost has
-    no neighborhood, and an empty answer would read as 'isolated', a different fact.
-    """
+    """A node's derived edges: its k nearest siblings in this tree, itself excluded."""
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
-        home = store.read(table, where="node_id = %s AND tree = %s",
-                          params=(node_id, tree), conn=own)
-        if not home:
+        emb = store.read(EMBEDDINGS_TABLE, where="node_id = %s",
+                         params=(node_id,), conn=own)
+        if not emb:
             raise WalkRefused(
-                f"neighbors: node {node_id!r} is not in tree {tree!r} — a ghost has no "
+                f"neighbors: node {node_id!r} has no embedding — a ghost has no "
                 "neighborhood (an empty [] would claim 'isolated', which is a different fact)."
             )
-        ranked = nearest([float(x) for x in home[0]["vector"]], k=k + 1, tree=tree,
+        ranked = nearest([float(x) for x in emb[0]["vector"]], k=k + 1, tree=tree,
                          table=table, conn=own)
         return [n for n in ranked if n["node_id"] != node_id][:k]
     finally:
@@ -506,9 +493,11 @@ class LibrarianDevice(BaseDevice):
         return "librarian"
 
     def deposit(self, content: str, vector, provenance: dict, *,
-                tree: str = "commons", table: str = NODES, conn=None) -> dict:
+                tree: str = "commons", table: str = NODES,
+                render_method: str = "embed:default", conn=None) -> dict:
         """One deposit crossing — judged at the door, breadcrumbed after it lands."""
-        result = deposit(content, vector, provenance, tree=tree, table=table, conn=conn)
+        result = deposit(content, vector, provenance, tree=tree, table=table,
+                         render_method=render_method, conn=conn)
         verdict = "DUPLICATE" if result["duplicate"] else "DEPOSITED"
         self._deposits += 1
         self._verdicts[verdict] += 1

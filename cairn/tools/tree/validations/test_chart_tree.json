@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_chart_tree.py passes under python3",
-    "caller": "chart",
-    "date": "2026-07-28T19:00:28",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "node-embedding-leaf-separation",
+    "date": "2026-08-20T10:22:06",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "b7b3067ddbe95ffbb5a24536ec9f89e3ffe53a01909268ff22d0ec1bb7cee0b7"
+      "source_fingerprint": "7f2de3d8f2245ec690d17c9ee0eb31f41bae555547e7a18322c28a9f2b919d7a",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-t6afjzr8/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

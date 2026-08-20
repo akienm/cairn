@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_librarian_trees.py passes under python3",
-    "caller": "revision-with-receipts voyage close",
-    "date": "2026-08-10T14:27:32",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "node-embedding-leaf-separation",
+    "date": "2026-08-20T10:21:59",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,8 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0f8ef2c1fbe6a8231501386e5176083f60a1426fd193185a3e6dfe4205ee79e7",
-      "trail_link": "698f3dbed1eb23e3886f275d6de577a4388868375c3e04a5df87ee5b67695cb9"
+      "source_fingerprint": "67f222250e2b49a6685810b408b7fe5de369209ea53838c5de915e6122695fe5",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-ovh0k5ys/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,63 +1,231 @@
 {
   "cursor": {
-    "from": "PROVEME",
+    "from": "WATCHME",
     "to": "PROVED",
     "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(node-embedding-leaf-schema) -> [PROVED]",
     "direction": "forward",
-    "build_gate": "clean — build_inspector ran 19 sieves over librarian",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-probe-reads-the-tree-the-face-writes'",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260810T153340-cc36400fd97a.json",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'node-embedding-leaf-separation'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/librarian/proofs/test_librarian_trees.py (seal 2026-08-20T10:21:59, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(node-embedding-leaf-schema) emitted the probe berthed at cairn/devices/librarian/proofs/probe_three_table_schema.py (ticket 'node-embedding-leaf-separation')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260820T102018-bb1aba9cbb19.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "PROVED",
+            "PROVEME",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(node-embedding-leaf-schema) crossing",
+        "actual": "a cast ticket for the WATCHME(node-embedding-leaf-schema) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "node-embedding-leaf-separation",
+          "watch_object": "node-embedding-leaf-schema",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/node-embedding-leaf-separation.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'node-embedding-leaf-separation' carries a watchme spec for 'node-embedding-leaf-schema'",
+        "actual": "ticket 'node-embedding-leaf-separation' carries a watchme spec for 'node-embedding-leaf-schema'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "node-embedding-leaf-separation",
+          "watch_object": "node-embedding-leaf-schema",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "node-embedding-leaf-separation",
+          "watch_object": "node-embedding-leaf-schema",
+          "berth": "cairn/devices/librarian/proofs/probe_three_table_schema.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "node-embedding-leaf-separation",
+          "component": "librarian",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'node-embedding-leaf-separation' is cast",
+        "actual": "named ticket 'node-embedding-leaf-separation' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "node-embedding-leaf-separation",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/node-embedding-leaf-separation.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "node-embedding-leaf-separation"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "librarian",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/librarian/proofs/test_librarian_trees.py stands in proven-space",
+        "actual": "cairn/devices/librarian/proofs/test_librarian_trees.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+          "why": "sealed green 2026-08-20T10:21:59 by node-embedding-leaf-separation, and the component's source fingerprint still matches what was proved (67f222250e2b…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/librarian/proofs/test_librarian_trees.py's seal at '2026-08-20T10:21:59'",
+        "actual": "the witness dates cairn/devices/librarian/proofs/test_librarian_trees.py's seal at '2026-08-20T10:21:59'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+          "seal": "2026-08-20T10:21:59",
+          "claimed": "2026-08-20T10:21:59"
+        }
+      }
+    ],
+    "checks_proved": 13,
+    "cleared_by": "CC",
     "actor": "CC",
-    "ticket": "a-probe-reads-the-tree-the-face-writes",
-    "note": "PROVED: a-probe-reads-the-tree-the-face-writes — the-tenure-loop was sealed with a DEAD EYE. Its armed WATCHME held _TREE = 'commons' and censused only that tree, while the live face composes its session with tree='library' (LibrarianShim.__init__). Measured 2026-08-10: 88 rows live, {library: 84, founding: 4}, and 'commons' an ABSENT KEY — no row has ever existed there. So the instrument reported neither health nor decoration; it reported nothing, and silence at a watch is indistinguishable from health. That is how a hollow watch passed a PROVED crossing. BOTH of the ticket's own falsifiers were REFUTED BY MEASUREMENT rather than by confidence: MISAIMED died at survey (all four RATIFIED rows — 3 earned, 1 refuted — sit in 'library', and the charter says 'commons' zero times against 'library' 19), and INSUFFICIENT died at build (one line changed and the census returned 80 hypothesis / 3 earned / 1 refuted, 9 crossings, every earned node spanning exactly 2 distinct questions = PROMOTION_THRESHOLD, so promotion is real and not hollow). THE TOOTH WAS WRITTEN FIRST AND RED — exit 1, its failure text naming both ends of the seam — and the identical bytes (sha256 78ccd412…) went green after; re-verified by stashing the repair and re-running the current tooth, which reds again. It reads the face's tree from inspect.signature(LibrarianShim.__init__) and never from a literal, so it reds on DISAGREEMENT and survives both ends moving to a third tree together. Five teeth: the seam, non-vacuity (a neighbour tree's row must NOT be seen — a pass-through census fails this while passing the seam), the predicates fed by the census, THE DEFECT'S OWN SIGNATURE (a severed census stands both predicates DOWN in silence, never loud — kept so it cannot return unnamed), and the probe still a reader. Sealed netns, seal measured (1.1.1.1:53 gone inside, socket through). Both predicates still stand down and now for TRACEABLE reasons: 9 < 20 crossings (young tree), 0 shards past a 14-day horizon whose oldest row is 13 days — UNRIPE, not unreachable; it ripens tomorrow. THE HONEST GAP, stated: done here is 'the instrument measures', NOT 'the tenure loop is healthy'. This voyage closes green with the efficacy question still open, which is the probe's job over the next crossings, not this repair's.",
-    "at": "2026-08-10T15:34:00",
-    "seq": 44
+    "proven_by": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+    "proven_seal_date": "2026-08-20T10:21:59",
+    "delegated": false,
+    "ticket": "node-embedding-leaf-separation",
+    "note": "three-table schema built (cairn_nodes, cairn_embeddings, per-tree leaf tables), migrated 1320 rows across 10 tables, 30 proof teeth green x2, verdict artifact passed, probe armed at cairn/devices/librarian/proofs/probe_three_table_schema.py",
+    "at": "2026-08-20T10:22:17",
+    "seq": 48
   },
   "window": [
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'a-probe-reads-the-tree-the-face-writes', and the ticket names its /intent firing and its /sorted door firing",
-      "actor": "CC",
-      "ticket": "a-probe-reads-the-tree-the-face-writes",
-      "note": "BUILDME journaled LATE and said so: the build ran before this record moved, which inverts the chokepoint order (the record of truth moves before the code does). The earlier BUILDME emit this session was called without history_path/state_path, so it returned a string and journaled nothing — zero records stood for this ticket. The crossing itself is legal (the entry gate reads the validate berth at validate-20260810T152430-b4118f721672.json); only its timing was wrong, and the record says so rather than backdating.",
-      "at": "2026-08-10T15:31:00",
-      "seq": 40
-    },
-    {
-      "act": "pickup",
-      "actor": "CC",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:in-process] -> PROVEME -> PROVED",
-      "ticket": "a-probe-reads-the-tree-the-face-writes",
-      "at": "2026-08-10T15:31:09",
-      "seq": 41
-    },
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "actor": "CC",
-      "ticket": "a-probe-reads-the-tree-the-face-writes",
-      "note": "The tooth was written FIRST and RED against the unrepaired probe (exit 1), its failure text naming both ends of the seam: face library / census commons. Only then did the constant move. Same bytes, sha256 78ccd412…, green twice after; the proof file mtime precedes the probe file mtime by 21s, so the tooth was not written by someone who already knew the answer. It reads the face tree from inspect.signature(LibrarianShim.__init__) rather than a literal, so it reds on DISAGREEMENT and survives both ends moving to a third tree together. Live smoke-fire now reads 84 rows (80 hypothesis / 3 earned / 1 refuted), 9 crossings since landing, each earned node spanning exactly 2 distinct questions — every one of those fields was empty before. All six librarian proofs green.",
-      "at": "2026-08-10T15:31:09",
-      "seq": 42
-    },
-    {
-      "act": "pickup",
-      "actor": "CC",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:in-process] -> PROVED",
-      "ticket": "a-probe-reads-the-tree-the-face-writes",
-      "at": "2026-08-10T15:33:59",
-      "seq": 43
-    },
     {
       "from": "PROVEME",
       "to": "PROVED",
@@ -72,7 +240,790 @@
       "note": "PROVED: a-probe-reads-the-tree-the-face-writes — the-tenure-loop was sealed with a DEAD EYE. Its armed WATCHME held _TREE = 'commons' and censused only that tree, while the live face composes its session with tree='library' (LibrarianShim.__init__). Measured 2026-08-10: 88 rows live, {library: 84, founding: 4}, and 'commons' an ABSENT KEY — no row has ever existed there. So the instrument reported neither health nor decoration; it reported nothing, and silence at a watch is indistinguishable from health. That is how a hollow watch passed a PROVED crossing. BOTH of the ticket's own falsifiers were REFUTED BY MEASUREMENT rather than by confidence: MISAIMED died at survey (all four RATIFIED rows — 3 earned, 1 refuted — sit in 'library', and the charter says 'commons' zero times against 'library' 19), and INSUFFICIENT died at build (one line changed and the census returned 80 hypothesis / 3 earned / 1 refuted, 9 crossings, every earned node spanning exactly 2 distinct questions = PROMOTION_THRESHOLD, so promotion is real and not hollow). THE TOOTH WAS WRITTEN FIRST AND RED — exit 1, its failure text naming both ends of the seam — and the identical bytes (sha256 78ccd412…) went green after; re-verified by stashing the repair and re-running the current tooth, which reds again. It reads the face's tree from inspect.signature(LibrarianShim.__init__) and never from a literal, so it reds on DISAGREEMENT and survives both ends moving to a third tree together. Five teeth: the seam, non-vacuity (a neighbour tree's row must NOT be seen — a pass-through census fails this while passing the seam), the predicates fed by the census, THE DEFECT'S OWN SIGNATURE (a severed census stands both predicates DOWN in silence, never loud — kept so it cannot return unnamed), and the probe still a reader. Sealed netns, seal measured (1.1.1.1:53 gone inside, socket through). Both predicates still stand down and now for TRACEABLE reasons: 9 < 20 crossings (young tree), 0 shards past a 14-day horizon whose oldest row is 13 days — UNRIPE, not unreachable; it ripens tomorrow. THE HONEST GAP, stated: done here is 'the instrument measures', NOT 'the tenure loop is healthy'. This voyage closes green with the efficacy question still open, which is the probe's job over the next crossings, not this repair's.",
       "at": "2026-08-10T15:34:00",
       "seq": 44
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(node-embedding-leaf-schema) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'node-embedding-leaf-separation', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'librarian' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'librarian' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "node-embedding-leaf-separation",
+            "component": "librarian",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'node-embedding-leaf-separation' is cast",
+          "actual": "named ticket 'node-embedding-leaf-separation' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "node-embedding-leaf-separation",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/node-embedding-leaf-separation.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "node-embedding-leaf-separation"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "node-embedding-leaf-separation"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "node-embedding-leaf-separation"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "ticket": "node-embedding-leaf-separation",
+      "note": "Three-table schema built: cairn_nodes + cairn_embeddings + per-tree leaf tables. 1,320 rows migrated. All proofs green x2.",
+      "at": "2026-08-20T10:11:28",
+      "seq": 45
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(node-embedding-leaf-schema) -> PROVED",
+      "direction": "forward",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "node-embedding-leaf-separation",
+      "note": "Proofs green x2: test_librarian_trees.py (19 teeth) + test_chart_tree.py (11 teeth). Three-table JOIN verified live on migrated data.",
+      "at": "2026-08-20T10:11:38",
+      "seq": 46
+    },
+    {
+      "from": "PROVEME",
+      "to": "WATCHME",
+      "standing": "WATCHME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(node-embedding-leaf-schema):waiting] -> PROVED",
+      "direction": "forward",
+      "build_gate": "clean — build_inspector ran 21 sieves over librarian, and 22 check(s) are proved on this crossing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'WATCHME' in the code-seam@v2 vocabulary",
+          "actual": "'WATCHME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME moves the cursor off position 3",
+          "actual": "PROVEME -> WATCHME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "cursor": 3,
+            "resolved": 4
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> WATCHME",
+          "actual": "PROVEME -> WATCHME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "WATCHME",
+            "legal_from_here": [
+              "BUILDME",
+              "THINKME",
+              "TICKETME",
+              "WATCHME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_census_can_measure_the_component",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_build",
+          "expected": "the census can measure component 'librarian' at /home/akien/dev/src/cairn/cairn/devices/librarian",
+          "actual": "the census can measure component 'librarian' at /home/akien/dev/src/cairn/cairn/devices/librarian",
+          "fatality": "none",
+          "source": "transitions.inspect_build",
+          "values": {
+            "component": "librarian",
+            "address": "/home/akien/dev/src/cairn/cairn/devices/librarian",
+            "sieves_run": [
+              "address_is_resolved_never_spelled",
+              "charted_refs_resolve",
+              "charter_on_disk",
+              "constraint_bounds_complete",
+              "constraint_traces",
+              "decompose_builds_absences",
+              "decompose_composes_holdings",
+              "fire_path_unreachable",
+              "forwarding_order_resolves",
+              "hypothesize_covers_the_ranked",
+              "hypothesize_falsifiable_measured",
+              "proofs_exist",
+              "silent_device",
+              "sole_path_holds",
+              "state_is_projection",
+              "survey_coverage_complete",
+              "survey_holdings_resolve",
+              "triage_covers_the_split",
+              "triage_reasons_the_order",
+              "validate_covers_the_build",
+              "validate_measures_done"
+            ]
+          }
+        },
+        {
+          "identity": "address_is_resolved_never_spelled",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charted_refs_resolve",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "charter_on_disk",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_bounds_complete",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "constraint_traces",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_builds_absences",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "decompose_composes_holdings",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "fire_path_unreachable",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "forwarding_order_resolves",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_covers_the_ranked",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "hypothesize_falsifiable_measured",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "proofs_exist",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "silent_device",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:silent_device",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "sole_path_holds",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "state_is_projection",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_coverage_complete",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "survey_holdings_resolve",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_covers_the_split",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "triage_reasons_the_order",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_covers_the_build",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        },
+        {
+          "identity": "validate_measures_done",
+          "location": "librarian",
+          "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
+          "expected": 1.0,
+          "actual": 1.0,
+          "fatality": "none",
+          "source": "build_inspector",
+          "values": {
+            "findings": []
+          }
+        }
+      ],
+      "checks_proved": 25,
+      "ticket": "node-embedding-leaf-separation",
+      "note": "probe armed at cairn/devices/librarian/proofs/probe_three_table_schema.py — watches the three-table schema under real resolution load",
+      "at": "2026-08-20T10:19:00",
+      "seq": 47
+    },
+    {
+      "from": "WATCHME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(node-embedding-leaf-schema) -> [PROVED]",
+      "direction": "forward",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket 'node-embedding-leaf-separation'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
+      "clearance_gate": "cleared by 'CC' onto cairn/devices/librarian/proofs/test_librarian_trees.py (seal 2026-08-20T10:21:59, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(node-embedding-leaf-schema) emitted the probe berthed at cairn/devices/librarian/proofs/probe_three_table_schema.py (ticket 'node-embedding-leaf-separation')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260820T102018-bb1aba9cbb19.json",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "cursor": 4,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "legal_from_here": [
+              "BUILDME",
+              "PROVED",
+              "PROVEME",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(node-embedding-leaf-schema) crossing",
+          "actual": "a cast ticket for the WATCHME(node-embedding-leaf-schema) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "node-embedding-leaf-separation",
+            "watch_object": "node-embedding-leaf-schema",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/node-embedding-leaf-separation.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket 'node-embedding-leaf-separation' carries a watchme spec for 'node-embedding-leaf-schema'",
+          "actual": "ticket 'node-embedding-leaf-separation' carries a watchme spec for 'node-embedding-leaf-schema'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "node-embedding-leaf-separation",
+            "watch_object": "node-embedding-leaf-schema",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "node-embedding-leaf-separation",
+            "watch_object": "node-embedding-leaf-schema",
+            "berth": "cairn/devices/librarian/proofs/probe_three_table_schema.py",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "node-embedding-leaf-separation",
+            "component": "librarian",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'node-embedding-leaf-separation' is cast",
+          "actual": "named ticket 'node-embedding-leaf-separation' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "node-embedding-leaf-separation",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/node-embedding-leaf-separation.json"
+          }
+        },
+        {
+          "identity": "the_claiming_chart_is_answered",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_exit",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_exit",
+          "values": {
+            "findings": [],
+            "ticket": "node-embedding-leaf-separation"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "component": "librarian",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_witness_is_whole",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
+            ]
+          }
+        },
+        {
+          "identity": "the_named_proof_stands_in_proven_space",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "cairn/devices/librarian/proofs/test_librarian_trees.py stands in proven-space",
+          "actual": "cairn/devices/librarian/proofs/test_librarian_trees.py stands in proven-space",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+            "why": "sealed green 2026-08-20T10:21:59 by node-embedding-leaf-separation, and the component's source fingerprint still matches what was proved (67f222250e2b…)"
+          }
+        },
+        {
+          "identity": "the_witness_agrees_with_the_seal_it_names",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/devices/librarian/proofs/test_librarian_trees.py's seal at '2026-08-20T10:21:59'",
+          "actual": "the witness dates cairn/devices/librarian/proofs/test_librarian_trees.py's seal at '2026-08-20T10:21:59'",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+            "seal": "2026-08-20T10:21:59",
+            "claimed": "2026-08-20T10:21:59"
+          }
+        }
+      ],
+      "checks_proved": 13,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/devices/librarian/proofs/test_librarian_trees.py",
+      "proven_seal_date": "2026-08-20T10:21:59",
+      "delegated": false,
+      "ticket": "node-embedding-leaf-separation",
+      "note": "three-table schema built (cairn_nodes, cairn_embeddings, per-tree leaf tables), migrated 1320 rows across 10 tables, 30 proof teeth green x2, verdict artifact passed, probe armed at cairn/devices/librarian/proofs/probe_three_table_schema.py",
+      "at": "2026-08-20T10:22:17",
+      "seq": 48
     }
   ],
-  "count": 45
+  "count": 49
 }

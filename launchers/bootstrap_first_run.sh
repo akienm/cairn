@@ -133,13 +133,9 @@ fi
 
 # ── Step 5: open the browser ───────────────────────────────────────────────
 echo "[5/5] opening the librarian..."
-LIBRARIAN_URL="http://127.0.0.1/"
-if command -v xdg-open >/dev/null 2>&1; then
-  xdg-open "$LIBRARIAN_URL" 2>/dev/null &
-  disown 2>/dev/null || true
-  echo "  opened $LIBRARIAN_URL in your browser."
-elif command -v open >/dev/null 2>&1; then
-  open "$LIBRARIAN_URL" 2>/dev/null &
+LIBRARIAN_URL="http://10.0.0.229/device/librarian"
+if command -v python3 >/dev/null 2>&1; then
+  python3 -m webbrowser "$LIBRARIAN_URL" >/dev/null 2>&1 &
   disown 2>/dev/null || true
   echo "  opened $LIBRARIAN_URL in your browser."
 else

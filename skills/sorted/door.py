@@ -197,11 +197,11 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
                               "why": f"routed_forward carries disposition {d!r} — a forward "
                                      "routing IS the cast; anything else is a route wearing "
                                      "the wrong exit"})
-            if exit_value == "routed_out" and not (d == "back-to-design" or
+            if exit_value == "routed_out" and not (d == "not-ready" or
                                                    d.startswith("escalated:")):
                 lacks.append({"field": "disposition",
                               "why": f"routed_out carries disposition {d!r} — the real route is "
-                                     "'back-to-design' or 'escalated:<rung>', so the two-exit "
+                                     "'not-ready' or 'escalated:<rung>', so the two-exit "
                                      "vocabulary never flattens the three real outcomes"})
 
     return lacks

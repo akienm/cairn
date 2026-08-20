@@ -96,7 +96,8 @@ def survey_the_arrivals() -> dict:
             rec = json.loads(p.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
-        if str((rec.get("answers") or {}).get("disposition", "")).strip() == "back-to-design":
+        d = str((rec.get("answers") or {}).get("disposition", "")).strip()
+        if d in ("back-to-design", "not-ready"):
             promised += 1
 
     return {"openings": openings, "nodes": len(nodes), "returns": returns,

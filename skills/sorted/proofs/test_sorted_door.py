@@ -85,7 +85,7 @@ def main() -> int:
         # 1-2. triple-defective packet: ONE refusal, every planted lack named — twice
         bad = dict(GOOD, node_class="no-such-class",
                    watchme={"object": "door-health", "trigger": "every firing"},
-                   disposition="back-to-design")
+                   disposition="not-ready")
         for attempt in (1, 2):
             try:
                 door.fire(bad, **roots)
@@ -197,10 +197,10 @@ def main() -> int:
 
         # 12-13. exit/disposition coherence
         try:
-            door.fire(dict(GOOD, disposition="back-to-design"), **roots)
-            ok("forward+back-to-design refused", False)
+            door.fire(dict(GOOD, disposition="not-ready"), **roots)
+            ok("forward+not-ready refused", False)
         except DoorRefused as exc:
-            ok("forward+back-to-design refused", "disposition" in fields_of(exc))
+            ok("forward+not-ready refused", "disposition" in fields_of(exc))
         try:
             door.fire(dict(GOOD, exit="routed_out", disposition="cast"), **roots)
             ok("routed_out+cast refused", False)

@@ -38,7 +38,7 @@ SUBSTANCE (a one-word pass is the hollow check the door refuses):
   (why of each side, exclusive-and-terminal), or a distinction to record?
 
 **Red on any of these → the firing exits `routed_out`, `disposition:
-"back-to-design"`.** Casting an incomplete node is the defect this gate exists to
+"not-ready"`.** Casting an incomplete node is the defect this gate exists to
 stop — and the kill gets fired too: a red that lives only in conversation teaches
 nobody.
 
@@ -77,7 +77,7 @@ nobody.
 - **children** — the deconstruction, if any (`/sorted` fires again per child;
   children prove before parents), or `"none, because <X>"`.
 - **exit / disposition** — `routed_forward` + `"cast"`; or `routed_out` +
-  `"back-to-design"` / `"escalated:<rung>"`. The escalation ladder, cheapest
+  `"not-ready"` / `"escalated:<rung>"`. The escalation ladder, cheapest
   first: back up and re-question · `/advisor` · a bounded subagent · review the
   field · **ask Akien**. Stuck → escalate, don't confabulate (CP1).
 - **bullets** — what this firing learned that Akien should see, `{text, stratum}`,
@@ -126,8 +126,8 @@ client command you cannot fire; making the boundary loud is the step.
 
 ## Routing
 
-- Completeness red → `routed_out` / `back-to-design`, fired and berthed, then back
-  to design.
+- Completeness red → `routed_out` / `not-ready`, fired and berthed. The node stays
+  in hand; re-question the gap or escalate.
 - Can't resolve → `routed_out` / `escalated:<rung>` (not a dead end).
 - Resolved → the node is cast through the door, filed with its berth, and its
   gate-set is now live; build proceeds under the bound gates, prove closes it (or

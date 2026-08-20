@@ -17,8 +17,8 @@ THE CONTRACT
     embeddings and leaves). The deposit door refuses a node nobody can trace.
   - Every node is born ``standing = "hypothesis"`` (Law 3). Tenure is a MEASUREMENT.
   - Edges are NEVER stored. ``nearest`` walks a leaf table, joins through embeddings to
-    get vectors, and computes cosine. §6.2's bounded weighted similarity links are a
-    designed successor — not yet built, not yet falsified.
+    get vectors, and computes cosine. Bounded weighted similarity links (§6.2) add a
+    learned layer: stored associations populated on deposit and reinforced by traversal.
   - Dimensions are physics: the first embedding deposited sets the tree's dimension.
   - A duplicate deposit (same content, ANY tree) writes no new node row — the same claim
     IS the same node however many trees index it (§4.3, constraint 4).
@@ -64,6 +64,19 @@ _LEAF_COLUMNS = {
     "embedding_id": "text NOT NULL",
 }
 
+LINKS_TABLE = "cairn_links"
+
+_LINK_COLUMNS = {
+    "link_id": "text PRIMARY KEY",
+    "source_id": "text NOT NULL",
+    "target_id": "text NOT NULL",
+    "weight": "real NOT NULL",
+    "traversals": "integer NOT NULL DEFAULT 0",
+    "created": "timestamptz NOT NULL DEFAULT now()",
+}
+
+CALVE_THRESHOLD = 5000
+
 
 class DepositRefused(RuntimeError):
     """A deposit the door cannot honestly accept — refused loudly, nothing landed (Law 7)."""
@@ -102,6 +115,12 @@ def embedding_id_for(node_id: str, render_method: str) -> str:
 def leaf_id_for(node_id: str, embedding_id: str) -> str:
     """Deterministic leaf identity within a leaf table."""
     return hashlib.sha256(f"{node_id}\n{embedding_id}".encode("utf-8")).hexdigest()[:16]
+
+
+def link_id_for(a: str, b: str) -> str:
+    """Deterministic, direction-independent link identity."""
+    pair = "\n".join(sorted([a, b]))
+    return hashlib.sha256(pair.encode("utf-8")).hexdigest()[:16]
 
 
 def _norm(s: str) -> str:
@@ -414,6 +433,251 @@ def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) 
             own.close()
 
 
+# ── attractor ────────────────────────────────────────────────────────────────
+
+
+def attractor(*, table: str = NODES, owner: str = OWNER, conn=None) -> list[float] | None:
+    """The tree's attractor: centroid of all embedding vectors in this leaf table.
+
+    None for an empty tree (no leaves = no direction). The attractor IS the
+    tree's identity in vector space — routing (ρ) compares queries to it, and
+    calving triggers when the attractor stops representing its members.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, conn=own)
+        rows = _leaf_rows(table=table, conn=own)
+        if not rows:
+            return None
+        dim = len(rows[0]["vector"])
+        centroid = [0.0] * dim
+        for r in rows:
+            v = r["vector"]
+            for i in range(dim):
+                centroid[i] += float(v[i])
+        n = len(rows)
+        return [c / n for c in centroid]
+    finally:
+        if conn is None:
+            own.close()
+
+
+# ── calving ──────────────────────────────────────────────────────────────────
+
+
+def _kmeans2(vectors: list[list[float]], max_iter: int = 20) -> tuple[list[int], list[list[float]]]:
+    """2-means clustering. Returns (assignments, [centroid_0, centroid_1])."""
+    n = len(vectors)
+    if n < 2:
+        return [0] * n, [list(vectors[0])] if vectors else []
+    dim = len(vectors[0])
+    centroid = [sum(v[d] for v in vectors) / n for d in range(dim)]
+    s0 = max(range(n), key=lambda i: 1.0 - cosine(vectors[i], centroid))
+    s1 = max(range(n), key=lambda i: 1.0 - cosine(vectors[i], vectors[s0]))
+    if s0 == s1:
+        return [0] * n, [centroid]
+    centroids = [list(vectors[s0]), list(vectors[s1])]
+    assignments = [0] * n
+    for _ in range(max_iter):
+        changed = False
+        for i, v in enumerate(vectors):
+            a = 0 if cosine(v, centroids[0]) >= cosine(v, centroids[1]) else 1
+            if a != assignments[i]:
+                assignments[i] = a
+                changed = True
+        if not changed:
+            break
+        for c in range(2):
+            members = [vectors[i] for i, a in enumerate(assignments) if a == c]
+            if members:
+                centroids[c] = [sum(m[d] for m in members) / len(members) for d in range(dim)]
+    return assignments, centroids
+
+
+def calve(*, table: str = NODES, owner: str = OWNER,
+          threshold: int = CALVE_THRESHOLD, conn=None) -> dict | None:
+    """Split a leaf table into two child tables by 2-means clustering.
+
+    Returns None if the table has fewer than ``threshold`` leaves (no split needed).
+    On split: creates ``{table}_0`` and ``{table}_1``, moves every leaf into the
+    nearer child, and empties the parent. The parent table stays (its name may be
+    held by callers); the children are the new walk targets.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, conn=own)
+        rows = _leaf_rows(table=table, conn=own)
+        if len(rows) < threshold:
+            return None
+
+        vectors = [[float(x) for x in r["vector"]] for r in rows]
+        assignments, centroids = _kmeans2(vectors)
+
+        if len(centroids) < 2 or all(a == 0 for a in assignments):
+            return None
+
+        child_a = f"{table}_0"
+        child_b = f"{table}_1"
+        store.create_owned_table(child_a, owner, _LEAF_COLUMNS, conn=own)
+        store.create_owned_table(child_b, owner, _LEAF_COLUMNS, conn=own)
+
+        sizes = [0, 0]
+        for i, r in enumerate(rows):
+            target = child_a if assignments[i] == 0 else child_b
+            store.write(target, owner, {
+                "leaf_id": r["leaf_id"],
+                "node_id": r["node_id"],
+                "embedding_id": r["embedding_id"],
+            }, conn=own)
+            sizes[assignments[i]] += 1
+
+        from psycopg2 import sql as psql
+        with own.cursor() as cur:
+            cur.execute(psql.SQL("DELETE FROM {}").format(psql.Identifier(table)))
+
+        return {
+            "children": [child_a, child_b],
+            "sizes": sizes,
+            "attractors": centroids,
+        }
+    finally:
+        if conn is None:
+            own.close()
+
+
+# ── bidirectional links (§6.2) ───────────────────────────────────────────────
+
+
+def _ensure_links(conn) -> None:
+    store.create_owned_table(LINKS_TABLE, OWNER, _LINK_COLUMNS, conn=conn)
+
+
+def link(source_id: str, target_id: str, weight: float, *, conn=None) -> dict:
+    """Create or update a bidirectional link between two nodes."""
+    own = conn or store.connect()
+    try:
+        _ensure_links(own)
+        lid = link_id_for(source_id, target_id)
+        existing = store.read(LINKS_TABLE, where="link_id = %s", params=(lid,), conn=own)
+        if existing:
+            store.update(LINKS_TABLE, OWNER, {"weight": weight},
+                         where="link_id = %s", params=(lid,), conn=own)
+            return {"link_id": lid, "updated": True}
+        store.write(LINKS_TABLE, OWNER, {
+            "link_id": lid,
+            "source_id": source_id,
+            "target_id": target_id,
+            "weight": weight,
+        }, conn=own)
+        return {"link_id": lid, "updated": False}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def link_neighbors(node_id: str, *, k: int = 5, table: str = NODES,
+                   owner: str = OWNER, conn=None) -> list[dict]:
+    """Create links between a node and its k nearest neighbors in the tree."""
+    own = conn or store.connect()
+    try:
+        _ensure_links(own)
+        emb = store.read(EMBEDDINGS_TABLE, where="node_id = %s",
+                         params=(node_id,), conn=own)
+        if not emb:
+            return []
+        vector = [float(x) for x in emb[0]["vector"]]
+        nears = nearest(vector, k=k + 1, table=table, conn=own)
+        results = []
+        for n in nears:
+            if n["node_id"] != node_id:
+                r = link(node_id, n["node_id"], n["similarity"], conn=own)
+                results.append(r)
+        if len(results) > k:
+            results = results[:k]
+        return results
+    finally:
+        if conn is None:
+            own.close()
+
+
+def traverse_link(source_id: str, target_id: str, *, conn=None) -> dict | None:
+    """Record a link traversal — increment the use count."""
+    own = conn or store.connect()
+    try:
+        _ensure_links(own)
+        lid = link_id_for(source_id, target_id)
+        existing = store.read(LINKS_TABLE, where="link_id = %s", params=(lid,), conn=own)
+        if not existing:
+            return None
+        new_count = existing[0]["traversals"] + 1
+        store.update(LINKS_TABLE, OWNER, {"traversals": new_count},
+                     where="link_id = %s", params=(lid,), conn=own)
+        return {"link_id": lid, "traversals": new_count}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def linked(node_id: str, *, conn=None) -> list[dict]:
+    """All stored links for a node, both directions, ordered by weight."""
+    own = conn or store.connect()
+    try:
+        _ensure_links(own)
+        from psycopg2 import sql as psql
+        from psycopg2.extras import RealDictCursor
+        with own.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                psql.SQL(
+                    "SELECT l.link_id, l.source_id, l.target_id, l.weight, "
+                    "l.traversals, l.created, n.content, n.standing "
+                    "FROM {links} l "
+                    "JOIN {nodes} n ON n.node_id = CASE "
+                    "  WHEN l.source_id = %s THEN l.target_id "
+                    "  ELSE l.source_id END "
+                    "WHERE l.source_id = %s OR l.target_id = %s "
+                    "ORDER BY l.weight DESC"
+                ).format(
+                    links=psql.Identifier(LINKS_TABLE),
+                    nodes=psql.Identifier(NODES_TABLE),
+                ),
+                (node_id, node_id, node_id),
+            )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        if conn is None:
+            own.close()
+
+
+# ── multi-tree routing ρ(q) ─────────────────────────────────────────────────
+
+
+def route(vector, *, tables: list[str], k: int = 3, conn=None) -> list[dict]:
+    """Multi-tree routing: rank trees by attractor proximity to the query vector.
+
+    Each tree's attractor (centroid) is compared to the query; the top k trees
+    are returned. An empty tree (no attractor) is skipped.
+    """
+    v = _check_vector(vector, who="route")
+    own = conn or store.connect()
+    try:
+        scored = []
+        for t in tables:
+            a = attractor(table=t, owner=OWNER, conn=own)
+            if a is not None:
+                scored.append({
+                    "table": t,
+                    "similarity": cosine(v, a),
+                })
+        scored.sort(key=lambda x: x["similarity"], reverse=True)
+        return scored[:k]
+    finally:
+        if conn is None:
+            own.close()
+
+
+# ── walks ────────────────────────────────────────────────────────────────────
+
+
 def nearest(vector, *, k: int = 5, tree: str = "commons",
             table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
     """The walk: the k nodes nearest the query vector, by cosine.
@@ -517,6 +781,25 @@ class LibrarianDevice(BaseDevice):
                   table: str = NODES, conn=None) -> list[dict]:
         return neighbors(node_id, k=k, tree=tree, table=table, conn=conn)
 
+    def attractor(self, *, table: str = NODES, conn=None) -> list[float] | None:
+        return attractor(table=table, conn=conn)
+
+    def calve(self, *, table: str = NODES, threshold: int = CALVE_THRESHOLD,
+              conn=None) -> dict | None:
+        result = calve(table=table, threshold=threshold, conn=conn)
+        if result:
+            self.emit("calve", pointer=table,
+                      values={"children": result["children"],
+                              "sizes": result["sizes"]})
+        return result
+
+    def route(self, vector, *, tables: list[str], k: int = 3,
+              conn=None) -> list[dict]:
+        return route(vector, tables=tables, k=k, conn=conn)
+
+    def linked(self, node_id: str, *, conn=None) -> list[dict]:
+        return linked(node_id, conn=conn)
+
     # --- the chat window: a surface the base shim class understands ---------
 
     def attach_chat(self, session) -> None:
@@ -578,7 +861,9 @@ class LibrarianDevice(BaseDevice):
             "owner": OWNER,
             "min_content_chars": _MIN_CONTENT_CHARS,
             "standing_at_birth": "hypothesis (Law 3; the tenure loop is a filed edge)",
-            "edges": "derived from cosine proximity at walk time — no edge table exists",
+            "edges": "derived from cosine proximity at walk time; stored links (cairn_links) "
+                    "add a learned layer reinforced by traversal",
+            "calve_threshold": CALVE_THRESHOLD,
             "seam": "vectors arrive as data; the embed call is the caller's, through "
                     "inference_domain (live wiring in live.py, never here)",
         }

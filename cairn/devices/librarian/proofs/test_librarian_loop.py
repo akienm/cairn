@@ -167,10 +167,10 @@ def test_the_receipts_cite_only_what_the_record_holds():
     node was born from — and 19 of the 78 live rows carry no birth question, so the
     absence is REPORTED, never filled with a plausible invention."""
     tbl = _t("receipts")
-    with_q = deposit("a node born of an earlier asking", _NEAR,
+    with_q = deposit(f"a node born of an earlier asking ({_NONCE})", _NEAR,
                      {**_PROV, "question": "what did they ask before"},
                      tree="receipts", table=tbl)["node_id"]
-    without_q = deposit("a library fold that nobody asked for", [0.98, 0.06, 0.0],
+    without_q = deposit(f"a library fold that nobody asked for ({_NONCE})", [0.98, 0.06, 0.0],
                         {"source": "library-fold"}, tree="receipts", table=tbl)["node_id"]
 
     seam = fake_seam({"a fresh question about the same region": [1.0, 0.0, 0.0]}, scripts=[])
@@ -251,9 +251,10 @@ def test_the_livelock_is_broken_by_key_physics():
 def test_no_progress_terminates_loudly_instead_of_spinning():
     tbl = _t("stuck")
     q = "a question the model cannot ground"
+    far_node = f"the same far node, forever ({_NONCE})"
     seam = fake_seam({q: [1.0, 0.0, 0.0]},
-                     scripts=['{"nodes": ["the same far node, forever"]}',
-                              '{"nodes": ["the same far node, forever"]}'])
+                     scripts=[f'{{"nodes": ["{far_node}"]}}',
+                              f'{{"nodes": ["{far_node}"]}}'])
     got = resolve_query(q, resolve=seam, tree="stuck", table=tbl)
     assert got["verdict"] == "UNRESOLVED" and got["reason"] == "learned"
     assert got["backfills"] == 2 and len(seam.prompts) == 2
@@ -316,7 +317,7 @@ def test_the_home_field_shape_is_unmanufacturable():
 
 def test_cross_question_corroboration_promotes_at_threshold():
     tbl = _t("tenure")
-    fact = "the standing fact that answers several distinct questions"
+    fact = f"the standing fact that answers several distinct questions ({_NONCE})"
     nid = node_id_for(fact)
     deposit(fact, _NEAR, {"source": "llm-backfill", "question": "the birth question"},
             tree="tenure", table=tbl)
@@ -346,7 +347,7 @@ def test_cross_question_corroboration_promotes_at_threshold():
 
 def test_lazy_decay_fades_the_uncorroborated_only():
     tbl = _t("fade")
-    aged = "an aged shard nobody ever walked back to"
+    aged = f"an aged shard nobody ever walked back to ({_NONCE})"
     nid = deposit(aged, _NEAR, {"source": "llm-backfill", "question": "its own birth question"},
                   tree="fade", table=tbl)["node_id"]
     store.update(NODES_TABLE, OWNER,

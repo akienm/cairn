@@ -182,25 +182,33 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     tickets_dir = _REPO_ROOT.parent / "CairnCommons" / "tickets"
     versions = transitions.load_class_def("code-seam")["workflow_versions"]
     found = None
+    scanned = 0
+    rejected = 0
     for t in sorted(tickets_dir.glob("*.json")):
+        scanned += 1
         try:
             state = json.loads(t.read_text()).get("state")
             wf = transitions.parse_workflow(state) if isinstance(state, str) else None
         except (ValueError, OSError):
-            continue                      # prose state / garbled ticket — not a code-seam workflow string
+            rejected += 1
+            continue
         if not (wf and wf.node_class == "code-seam" and wf.version in versions):
+            rejected += 1
             continue
         reg = versions[wf.version]
         free = set(reg.get("free_summons", []))
         if [x for x in wf.path if x not in free] == list(reg["path"]):
             found = (t.name, wf, tuple(reg["path"]), free)
             break
+        rejected += 1
     assert found, ("no live code-seam ticket in CairnCommons/tickets/ conforms to any registered "
                    "version — the real-ticket tooth needs at least one on-disk code-seam ticket "
-                   "(a green over zero would be hollow, Law 8)")
+                   f"(a green over zero would be hollow, Law 8; scanned {scanned}, rejected all)")
     name, wf, canonical, free = found
     assert wf.here in canonical or wf.here in free, \
         f"cursor mis-parsed from the real string ({name}, not a real stage): {wf.here}"
+    print(f"  (denominator: scanned {scanned}, rejected {rejected}, "
+          f"found {name} at position {rejected + 1})")
 
 
 def test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path():

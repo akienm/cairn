@@ -3,13 +3,21 @@
 ### Two tiers of novelty, and a defense against self-confirming retrieval
 
 **Draft paper.** Author: Akien MacIain · Status: draft, awaiting signature gate ·
-Date: 2026-08-05, revised 2026-08-11 · Target venues: AAAI, CogSci, NeurIPS/ICLR
+Date: 2026-08-05, revised 2026-08-20 · Target venues: AAAI, CogSci, NeurIPS/ICLR
 workshop tracks, AGI
 
 *Revision of 2026-08-11:* §4.2's tenure mechanism moved from designed to built
 (2026-08-09) and carries a measured status note; the corroboration defect it
 predicted is fixed; falsifier 3 is marked survived at $n = 88$ and kept on the
-list, with its inverse named. All figures trace to `press_office/FactSheet.md`.
+list, with its inverse named.
+
+*Revision of 2026-08-20:* Four structural features moved from designed to built
+and proved: attractors (§6.4), calving (§6.4), bidirectional weighted links (§6.2),
+and multi-tree routing (§3.1). The three-table schema (nodes / embeddings / leaves)
+is the running store. Tenure measured at $n = 1{,}770$: 11 earned, 26 refuted. §10
+added: cross-domain structural embeddings as future work, connecting `render_method`
+to Gentner's structure-mapping theory. All figures trace to
+`press_office/FactSheet.md`.
 
 ---
 
@@ -367,19 +375,21 @@ because it is the kind of defect that hides behind a passing test. **Corrected
 `provenance_appended`, landing the incoming provenance as an attestation on the
 standing row.
 
-**Implementation status of §4.2.** Built and proved 2026-08-09; measured 2026-08-11
-over a single-tree store of 88 nodes: 80 $\textsf{hypothesis}$, 3
-$\textsf{earned}$, 1 $\textsf{refuted}$. Four properties are enforced rather than
-described — a node cannot tenure on an echo of its own $\mu(n)$; promotion requires
-$m = 2$ distinct cross-questions; a refuter may retire an $\textsf{earned}$ node only
-if it has earned tenure itself **or** its provenance names it an authority — the
-second arm exists so that a stated correction from outside the system can always
-outrank the corpus, which a standing-only gate would forbid; and decay is evaluated
-**lazily on read** against a 14-day horizon, with only a *cross*-question attestation
-exempting a node, so no sweeper process exists. The numbers are $n = 88$ and are an
-existence proof of the
-mechanism, **not** evidence about the promotion rule's calibration. Nothing in §7's
-protocol is discharged by them.
+**Implementation status of §4.2.** Built and proved 2026-08-09; measured 2026-08-20
+over a multi-tree store of 1,770 nodes across 8 leaf tables: 1,733
+$\textsf{hypothesis}$, 11 $\textsf{earned}$, 26 $\textsf{refuted}$. Four properties
+are enforced rather than described — a node cannot tenure on an echo of its own
+$\mu(n)$; promotion requires $m = 2$ distinct cross-questions; a refuter may retire
+an $\textsf{earned}$ node only if it has earned tenure itself **or** its provenance
+names it an authority — the second arm exists so that a stated correction from
+outside the system can always outrank the corpus, which a standing-only gate would
+forbid; and decay is evaluated **lazily on read** against a 14-day horizon, with
+only a *cross*-question attestation exempting a node, so no sweeper process exists.
+The numbers are an existence proof of the mechanism at growing scale, **not**
+evidence about the promotion rule's calibration. Nothing in §7's protocol is
+discharged by them. Notably, the earned fraction (0.6%) remains low — the inverse
+of falsifier 3 (§8) — consistent with the criterion measuring correctness rather
+than popularity.
 
 ### 4.3 The constraint layer: what may join the graph
 
@@ -419,7 +429,12 @@ Two further constraints govern *derived* artifacts:
 
 We regard this layer as an equal contribution to the novelty mechanism. **Expansion
 without admission control produces a graph that cannot be audited, and a graph that
-cannot be audited cannot be trusted with the answer.**
+cannot be audited cannot be trusted with the answer.** Each constraint above is a
+**hard gate** — a door that refuses, deterministically, with no override path and no
+model in the loop. The architectural principle is stated in full in the companion
+pattern document (see `PatternGatesAndInspectors.md`, §2.1): *every rule that
+matters is a door that refuses.* A rule enforced by policy degrades with context
+length, model version, and the hour; a rule enforced by a `raise` does not.
 
 ---
 
@@ -546,12 +561,16 @@ two is authorship, not cost: an articulated edge is asserted and is wrong if it
 misstates its author; a similarity edge is learned and is wrong only if it stops
 predicting.
 
-*Status:* designed, not built. The running `nearest` and `neighbors` compute
-proximity by exhaustive cosine at walk time, and the proof asserting that no
-similarity-edge table can be registered is still green — it pins the superseded
-half of the ruling and is to be retired deliberately, with a successor asserting
-the new invariant: **bounded and weighted; nothing of unbounded degree
-registrable.**
+*Status (updated 2026-08-20):* built and proved. The `cairn_links` table stores
+bounded, weighted, bidirectional links. Four operations are implemented:
+`link` (create or update), `linked` (read from either end), `traverse_link`
+(increment traversal count), and `link_neighbors` (create $k$ links from a node to
+its nearest neighbors by cosine). Link identity is deterministic and
+direction-independent: $\mathrm{id}(a,b) = \mathrm{id}(b,a)$, so the mirror
+invariant of §6.4 holds by construction. Six proof teeth cover creation, update,
+bidirectional read, traversal counting, and neighbor linking. The running `nearest`
+and `neighbors` still compute proximity by exhaustive cosine at walk time; the links
+are the learned layer that allows traversal to improve with use.
 
 ### 6.3 Which makes a bound mandatory
 
@@ -638,24 +657,32 @@ operation or the link must not exist; the falsifier is the existence of an out-l
 without its mirror. Monotonic leaf-number allocation (never reusing a number after
 a shear) converts any residual miss from a silent retarget into a loud dangle.
 
-**Status and burden of proof.** The running store is a single-table form in which
-the node, the vector and the leaf are all the same row, with no link columns — so
-the node/embedding/leaf separation is a *prerequisite* for calving rather than a
-refinement of it. Open and named as open: the bound (provisionally 5,000 leaves,
-moved from 1,000 in an earlier generation, which is evidence it is a parameter to
-learn rather than a constant to fix); the rate at which a similarity weight falls,
-since a weight that only rises on resolution is a positive feedback loop and
-requires counter-evidence to lower it faster than confirmation raises it — a
-constant we have not measured; whether a node carries back-references to its
-leaves, which decides whether the never-touches-a-node property survives; and the
-fact that
-cross-tree in-links are **cross-owner writes**, so under one-owner-per-store a
-shear's fixup must travel through the other owner's gate. Two-way links make that
-tractable — the shear knows exactly whom to notify — but not free. **The design
-must be measured at the scale it was designed for, $\sim 2.5 \times 10^6$ nodes,
-and the test is two-sided because the baseline in §6.1 is two-sided: access time
-must not degrade with graph size, and write cost must not grow with corpus size.
-Demonstrating the shape on a few hundred rows does not count.**
+**Status and burden of proof (updated 2026-08-20).** The running store is the
+three-table form: `cairn_nodes` (shared), `cairn_embeddings` (many per node via
+`render_method`), per-tree leaf tables. At time of writing: 1,770 nodes, 1,779
+embeddings, 8 leaf tables across two devices. Calving is built and proved: 2-means
+clustering along the dominant attractor boundary, splitting a tree above threshold
+$B$ (default 5,000) into `{table}_0` and `{table}_1`, emptying the parent. Three
+proof teeth cover below-threshold (returns None), correct splitting (union covers
+parent, intersection empty, parent emptied), and distinct attractors on children.
+Multi-tree routing is built: `route(q)` ranks tables by cosine to each tree's
+attractor, skipping empty trees. Three proof teeth cover ranking, empty-tree
+skipping, and the $k$ bound.
+
+Open and named as open: the bound (provisionally 5,000 leaves, moved from 1,000 in
+an earlier generation, which is evidence it is a parameter to learn rather than a
+constant to fix); the rate at which a similarity weight falls, since a weight that
+only rises on resolution is a positive feedback loop and requires counter-evidence
+to lower it faster than confirmation raises it — a constant we have not measured;
+whether a node carries back-references to its leaves, which decides whether the
+never-touches-a-node property survives; and the fact that cross-tree in-links are
+**cross-owner writes**, so under one-owner-per-store a shear's fixup must travel
+through the other owner's gate. Two-way links make that tractable — the shear knows
+exactly whom to notify — but not free. **The design must be measured at the scale
+it was designed for, $\sim 2.5 \times 10^6$ nodes, and the test is two-sided
+because the baseline in §6.1 is two-sided: access time must not degrade with graph
+size, and write cost must not grow with corpus size. Demonstrating the shape on
+$\sim 1{,}800$ rows does not count.**
 
 ---
 
@@ -743,12 +770,13 @@ before submission.
    criterion measures something other than correctness, and $W(n)$ is the wrong
    witness definition.
 3. **Every node remains `hypothesis` in live use.** Then tenure never operated,
-   standing is decorative, and §4.2 is prose. *Survived once, at $n = 88$
-   (2026-08-11): 3 earned, 1 refuted.* It stays on this list, because surviving at
-   88 nodes is not evidence about $2.5\times10^6$ — and because the inverse is the
-   sharper failure: an earned fraction that climbs **fast** means $W(n)$ is
-   measuring popularity rather than correctness, which is falsifier 2 arriving from
-   the other side.
+   standing is decorative, and §4.2 is prose. *Survived twice: at $n = 88$
+   (2026-08-11, 3 earned, 1 refuted) and at $n = 1{,}770$ (2026-08-20, 11 earned,
+   26 refuted).* It stays on this list, because surviving at 1,770 nodes is not
+   evidence about $2.5\times10^6$ — and because the inverse is the sharper failure:
+   an earned fraction that climbs **fast** means $W(n)$ is measuring popularity
+   rather than correctness, which is falsifier 2 arriving from the other side. At
+   0.6% earned the fraction is low, which is consistent but not conclusive.
 4. **Answers arrive from the model when the graph already holds the structure.**
    Then the architecture is a vector cache with additional ceremony.
 5. **Access degrades with graph size at $2.5\times10^6$ nodes, or write cost grows
@@ -796,6 +824,52 @@ before submission.
 7. **An evaluation protocol and a falsifier set**, offered in place of results we do
    not yet have — including two experiments (E7, E8) that would refute load-bearing
    parts of our own architecture.
+
+---
+
+## 10. Future direction: cross-domain structural embeddings
+
+The architecture described above uses one embedding per node (modulo render
+variants). A direction we intend to explore: **multiple embeddings per node, each
+organized around a different structural question.** The `render_method` field in
+`cairn_embeddings` already supports this — today all entries are `embed:default`,
+but the schema is designed for `embed:energy_flow`, `embed:constraint_topology`,
+`embed:decision_points`, and similar structural lenses.
+
+**The observation.** Cross-domain pattern matching — the insight that debugging
+a person's reasoning, debugging code, and debugging a physical system all
+*look the same* to an experienced practitioner — happens because the underlying
+structural invariant is the same across domain boundaries. Surface similarity
+(the words, the domain vocabulary) differs; **how things work** does not. An
+embedding that captures structural invariants rather than surface semantics would
+make cross-domain retrieval fall out of the geometry, rather than requiring the
+consumer to recognize the analogy.
+
+This connects to Gentner's **Structure-Mapping Theory** (1983), which
+distinguishes attribute similarity (surface features) from relational similarity
+(how entities relate). Analogies fire when relational similarity is high and
+attribute similarity is low — exactly the cross-domain transfer described above.
+Recent mechanistic work (Minegishi et al.) formalizes analogical reasoning in
+transformers as functors: geometric alignment of relational structure in embedding
+space. The `render_method` mechanism is a concrete implementation path for this
+insight: different structural questions produce different vectors from the same
+content, and each vector lives in a tree organized around that question. Routing
+by attractor ($\rho(q)$, §3.1) then sends a query to the structurally appropriate
+tree, not the topically appropriate one.
+
+**Reading to a question as the seeding mechanism.** A curated reading list — books
+on AI, cognition, psychology, programming, and the project's own history — read
+through multiple structural questions simultaneously. Each question *is* a
+`render_method`. The same passage produces one node, multiple embeddings, multiple
+tree placements. The cross-domain matching this paper's architecture was designed
+for falls out of the geometry without any explicit domain-bridging step. Web
+exploration extends the same loop outward.
+
+**What is built.** The `render_method` field, the many-per-node embedding schema,
+`route()` selecting trees by structural attractor. **What is not built.** The
+multi-lens embedding producer — different embedding prompts per structural
+dimension — and the reading pipeline that populates trees along multiple axes
+simultaneously. Both are immediate next work.
 
 ---
 

@@ -132,6 +132,12 @@ both are legitimate.
 | An intention traces up | the `/intent` door refuses a birth whose `traces_to` is empty, and requires the exit `routed_out` to be *recorded* rather than reasoned to |
 | Every charter has a copy in one portable folder | `intentions_model_compiler` regenerates `intentions-congruency-lab/` whole; a copy must be byte-identical to its source, and a deleted source takes its copy with it |
 
+Every mechanism above is a **hard gate** — a deterministic door that refuses, with no model in
+the loop and no override path. This is not incidental to the pattern: the measured failure in §1
+was a rule enforced by discipline (policy), and discipline degrades silently. The principle — a
+rule that matters is enforced by physics, not policy — is stated in full in the companion pattern
+(`PatternGatesAndInspectors.md`, §2.1) and is the operational meaning of Law 4.
+
 **Still prose (tracked as debt, per Law 4):**
 
 - **A charter that has stopped matching its code reads as whatever it last said about itself.**

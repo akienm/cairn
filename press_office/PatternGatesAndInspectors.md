@@ -1,4 +1,4 @@
-# Pattern — Gates and inspectors
+# Pattern — Gates and inspectors (hard gates)
 
 ### There is no supervisor. Enforcement *is* gated ownership.
 
@@ -40,10 +40,13 @@ hour. His conclusion, verbatim on 2026-07-27:
 
 ## 2. The pattern
 
-### 2.1 Every rule that matters is a door that refuses
+### 2.1 Every rule that matters is a door that refuses — the hard gate
 
-Not a lint warning, not a code review checklist, not a convention. A call that returns an
-exception.
+A **hard gate** is a deterministic door that refuses, with no model in the loop and no override
+path. Not a lint warning, not a code review checklist, not a convention. A call that returns an
+exception. The term names the distinction this pattern is built on: a *soft* gate is a rule that
+depends on an observer remembering to apply it, and §1's measurements are the record of how
+that goes.
 
 | Door | What it refuses |
 |---|---|

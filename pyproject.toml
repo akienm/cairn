@@ -39,5 +39,8 @@ aider = [
 # outright — so the promise could not have been kept where it was being made. The venv the
 # bootstrap builds (cairn/launchers/bootstrap.sh) is what makes this line true rather than
 # aspirational; `cairn test cairn/launchers/proofs/test_bootstrap.py` is what keeps it true.
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+
 [tool.setuptools.packages.find]
 include = ["cairn*"]

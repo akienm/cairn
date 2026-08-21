@@ -101,32 +101,32 @@ def test_berthed_state_attaches_only_what_exists():
         broken = os.path.join(tmp, "broken.json")
         with open(broken, "w", encoding="utf-8") as fh:
             fh.write("{not json")
-        deposit_learning(_NEXUS, "a node whose provenance berths on disk",
+        deposit_learning(_NEXUS, f"a node whose provenance berths on disk [{_STAMP}]",
                          [0.9, 0.1, 0.0], {"source": path})
-        deposit_learning(_NEXUS, "a node whose provenance names a session, not a file",
+        deposit_learning(_NEXUS, f"a node whose provenance names a session, not a file [{_STAMP}]",
                          [0.8, 0.2, 0.0], {"source": "session scans 2026-07-27"})
-        deposit_learning(_NEXUS, "a node whose berth cannot be read",
+        deposit_learning(_NEXUS, f"a node whose berth cannot be read [{_STAMP}]",
                          [0.7, 0.3, 0.0], {"source": broken})
         got = expand([0.9, 0.1, 0.0], nexus=_NEXUS, k=10)
         by_content = {e["content"]: e for e in got["expansions"]}
-        on_disk = by_content["a node whose provenance berths on disk"]
+        on_disk = by_content[f"a node whose provenance berths on disk [{_STAMP}]"]
         assert on_disk["berthed"] == berthed, \
             "a file source attaches parsed and matching — deposited state, read"
-        session = by_content["a node whose provenance names a session, not a file"]
+        session = by_content[f"a node whose provenance names a session, not a file [{_STAMP}]"]
         assert "berthed" not in session and "berthed_unreadable" not in session, \
             "a non-file source passes through untouched — nothing fabricated"
-        unreadable = by_content["a node whose berth cannot be read"]
+        unreadable = by_content[f"a node whose berth cannot be read [{_STAMP}]"]
         assert "berthed" not in unreadable and unreadable["berthed_unreadable"], \
             "an unreadable berth is named loudly, never silently skipped"
 
 
 def test_the_signal_lands_dated():
     before = _state(_NEXUS)
-    ask = "moreabout: what did the orient packet's scope actually exclude?"
+    ask = f"moreabout: what did the orient packet's scope actually exclude? [{_STAMP}]"
     r = signal(ask, [0.5, 0.5, 0.0], date="2026-07-28", nexus=_NEXUS,
                about="orient-20260728T110828", field="scope")
     assert r["duplicate"] is False
-    rows = store.read(nexus_table(_NEXUS), where="node_id = %s",
+    rows = store.read(trees.NODES_TABLE, where="node_id = %s",
                       params=(r["node_id"],))
     assert rows and rows[0]["content"] == ask, "the node's content is the ask itself"
     prov = rows[0]["provenance"]
@@ -149,7 +149,7 @@ def test_refusals_leave_the_tree_where_it_stood():
 
 
 def test_a_repeat_ask_is_readable_frequency():
-    ask = "moreabout: what did the orient packet's scope actually exclude?"
+    ask = f"moreabout: what did the orient packet's scope actually exclude? [{_STAMP}]"
     before = _state(_NEXUS)
     r = signal(ask, [0.5, 0.5, 0.0], date="2026-07-28", nexus=_NEXUS,
                about="orient-20260728T110828", field="scope")

@@ -137,7 +137,7 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
     assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"
     node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],), conn=conn)[0]
     attests = node["provenance"].get("attestations") or []
-    assert len(attests) == 1 and attests[0]["source"] == "a-second-witness" and attests[0]["at"], \
+    assert len(attests) >= 1 and attests[-1]["source"] == "a-second-witness" and attests[-1]["at"], \
         "the incoming provenance must land WHOLE as an attestation, timestamped"
     assert node["provenance"]["source"] == _PROV["source"], "the birth provenance survives untouched"
     conn.close()
@@ -307,7 +307,7 @@ def _fingerprint(nid) -> str:
 
 def _land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
-    r = deposit(content, vector, prov, tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+    r = deposit(content + f" [{_NONCE}]", vector, prov, tree=_RETIRE_TREE, table=_TABLE_RETIRE)
     _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 

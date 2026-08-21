@@ -57,6 +57,8 @@ class _Device(BaseDevice):
     def settings(self) -> dict:
         return {"bind": "localhost"}
 
+_Device.__module__ = "__main__"
+
 
 class _CCShim(BaseShim):
     """Stands in for CC's own shim (``cc_0``) — the diagnostic mailbox, for now."""

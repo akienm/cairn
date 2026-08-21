@@ -69,6 +69,8 @@ def _roots(tmp: Path) -> dict:
 class _Rungless(DiagnosticBase):
     """Defined in a proof, so its module sits under no rung — the honest-absence case."""
 
+_Rungless.__module__ = "__main__"
+
 
 # ── 1. THE ADDRESS ───────────────────────────────────────────────────────────
 

@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import itertools
 import os
+import pytest
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -41,10 +43,27 @@ from cairn.devices.librarian import summarize as summarize_module
 from cairn.devices.librarian.summarize import (
     SummaryRefused, gather, parse_summary, region_digest, render_prompt, summarize,
 )
+from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import LibrarianDevice
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TABLE = f"_summary_{_NONCE}"
+_test_seq = itertools.count()
+
+
+@pytest.fixture(autouse=True)
+def _fresh_table():
+    """Each test gets its own leaf table to avoid cross-test state in the shared nonce."""
+    global _TABLE
+    _TABLE = f"_summary_{_NONCE}_{next(_test_seq)}"
+    yield
+    conn = store.connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
+            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
+    finally:
+        conn.close()
 
 
 def _fresh_librarian() -> LibrarianDevice:
@@ -95,8 +114,11 @@ def _seed(dev: LibrarianDevice, tree: str, rows: list[tuple[str, list[float]]]) 
     return ids
 
 
-def _rows(tree: str) -> list[dict]:
-    return store.read(_TABLE, where="tree = %s", params=(tree,))
+def _leaf_count() -> int:
+    try:
+        return len(store.read(_TABLE))
+    except Exception:
+        return 0
 
 
 def _refuses(exc, fn, *args, **kwargs):
@@ -148,7 +170,7 @@ def test_the_summary_deposits_back_and_a_walk_finds_it():
     seam = fake_seam([draft], {**over, draft: [1.0, 0.0, 0.0]})
     got = summarize(_Q, resolve=seam, tree="landed", k=3, table=_TABLE, dev=dev)
     assert got["duplicate"] is False
-    node = store.read(_TABLE, where="node_id = %s", params=(got["node_id"],))[0]
+    node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(got["node_id"],))[0]
     assert node["content"] == draft and node["standing"] == "hypothesis"
     assert node["provenance"]["source"] == "summary:landed"
     assert node["provenance"]["question"] == _Q
@@ -169,13 +191,13 @@ def test_the_transducer_never_eats_its_own_output_and_rewrites_nothing():
     # gather to swallow it. It must be excluded, and the second pass must be identical.
     seam = fake_seam([draft], {**over, draft: [1.0, 0.0, 0.0]})
     first = summarize(_Q, resolve=seam, tree="idem", k=3, table=_TABLE, dev=dev)
-    count_after_first = len(_rows("idem"))
+    count_after_first = _leaf_count()
     second = summarize(_Q, resolve=seam, tree="idem", k=3, table=_TABLE, dev=dev)
     assert second["depth"]["region_digest"] == first["depth"]["region_digest"], \
         "the landed summary is NOT in the next region — the transducer renders ground only"
     assert seam.prompts[0] == seam.prompts[1], \
         "same question + same source region = the IDENTICAL render prompt (the cache key)"
-    assert second["duplicate"] is True and len(_rows("idem")) == count_after_first, \
+    assert second["duplicate"] is True and _leaf_count() == count_after_first, \
         "re-summarizing an unchanged region writes nothing (Law 1)"
     region = gather([1.0, 0.0, 0.0], k=6, tree="idem", table=_TABLE, dev=dev)
     assert first["node_id"] not in [n["node_id"] for n in region], \
@@ -183,36 +205,39 @@ def test_the_transducer_never_eats_its_own_output_and_rewrites_nothing():
 
 
 def test_an_empty_region_refuses():
+    before = _leaf_count()
     seam = fake_seam(["never rendered"])
     msg = _refuses(SummaryRefused, summarize, _Q, resolve=seam, tree="vacant",
                    k=3, table=_TABLE)
     assert "Learn first" in msg and seam.prompts == [], \
         "nothing to transduce means NO render call — refusal precedes the host"
-    assert _rows("vacant") == [], "and nothing deposits"
+    assert _leaf_count() == before, "and nothing deposits"
 
 
 def test_an_unanchored_draft_refuses_loudly():
     over, rows = _geometry()
     dev = _fresh_librarian()
     _seed(dev, "hollow", rows)
+    after_seed = _leaf_count()
     raw = "Confident prose that cites nothing at all."
     msg = _refuses(SummaryRefused, summarize, _Q, resolve=fake_seam([raw], over),
                    tree="hollow", k=3, table=_TABLE, dev=dev)
     assert "anchors to nothing" in msg and raw in msg, \
         "the refusal carries the raw draft WHOLE (first-pass diagnostic)"
-    assert len(_rows("hollow")) == 3, "the seeds stand alone — nothing deposited"
+    assert _leaf_count() == after_seed, "the seeds stand alone — nothing deposited"
 
 
 def test_a_minted_citation_refuses_loudly():
     over, rows = _geometry()
     dev = _fresh_librarian()
     _seed(dev, "minted", rows)
+    after_seed = _leaf_count()
     raw = "A claim resting on a passage that does not exist [7]."
     msg = _refuses(SummaryRefused, summarize, _Q, resolve=fake_seam([raw], over),
                    tree="minted", k=3, table=_TABLE, dev=dev)
     assert "[7]" in msg and "[1..3]" in msg and raw in msg, \
         "the refusal names the minted mark against the region's real range"
-    assert len(_rows("minted")) == 3, "nothing deposited"
+    assert _leaf_count() == after_seed, "nothing deposited"
 
 
 def test_depth_travels_with_the_artifact():

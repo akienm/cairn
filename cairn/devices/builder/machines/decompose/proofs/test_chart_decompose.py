@@ -336,12 +336,13 @@ def test_deposit_back_is_gated(root, orient_berth, constrain_berth, survey_berth
                    "does not exist")
     assert trees.tree_state(_NEXUS, table=table, owner="chart") == before
     # The real deposit lands in the decompose corpus with the berth as provenance.
-    r = trees.deposit(content, [1.0, 0.0, 0.0],
+    unique = content + f" [{_NEXUS}]"
+    r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "survey_ref": packet["survey_ref"],
                        "confidence": packet["confidence"]},
                       tree=_NEXUS, table=table, owner="chart")
-    rows = store.read(table, where="node_id = %s", params=(r["node_id"],))
-    assert rows and rows[0]["content"] == content
+    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
+    assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
     assert rows[0]["standing"] == "hypothesis"
 

@@ -42,6 +42,7 @@ from cairn.devices.librarian import library
 from cairn.devices.librarian.library import (
     LearnRefused, ShelfRefused, learn, passages, shelf_entry, shelve,
 )
+from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import LibrarianDevice
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
@@ -158,8 +159,10 @@ def test_learn_deposits_every_passage_anchored_to_the_shelf():
                 library=_SHELF, table=_TABLE)
     assert got["passages"] == 2 and len(got["deposited"]) == 2
     assert got["duplicates"] == 0 and got["refused"] == []
-    rows = store.read(_TABLE, where="tree = %s", params=("taught",))
-    assert len(rows) == 2
+    leaf_rows = store.read(_TABLE)
+    assert len(leaf_rows) == 2
+    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(lr["node_id"],))[0]
+            for lr in leaf_rows]
     for r in rows:
         assert r["provenance"]["source"] == "library:lessons/teach.txt"
         assert r["provenance"]["sha256"] == shelved["sha256"][:12], \
@@ -173,7 +176,7 @@ def test_relearn_writes_nothing():
                 library=_SHELF, table=_TABLE)
     assert got["duplicates"] == 2 and got["deposited"] == [], \
         "the graph already holds the frozen file — re-learning is all duplicates (Law 1)"
-    assert len(store.read(_TABLE, where="tree = %s", params=("taught",))) == 2
+    assert len(store.read(_TABLE)) == 2
 
 
 def test_learn_refuses_the_unshelved_the_missing_and_the_rotted():
@@ -207,8 +210,8 @@ def test_binary_shelves_but_refuses_to_learn():
 
 
 def test_learned_nodes_resolve_with_their_citation_intact():
-    a = "the anchor passage this tooth will walk straight back to"
-    b = "the decoy passage pointing in an orthogonal direction entirely"
+    a = f"the anchor passage this tooth will walk straight back to [{_NONCE}]"
+    b = f"the decoy passage pointing in an orthogonal direction entirely [{_NONCE}]"
     src = _source("walkback.txt", f"{a}\n\n{b}\n")
     shelve(src, "lessons", library=_SHELF)
     seam = fake_embed({a: [1.0, 0.0, 0.0], b: [0.0, 1.0, 0.0]})

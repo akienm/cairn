@@ -139,7 +139,7 @@ def test_gate_before_seed():
 
 def test_deposit_back_lands_and_dedups():
     with tempfile.TemporaryDirectory() as tmp:
-        packet = _packet()
+        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_NEXUS}]")
         berth = _berthed_fixture(tmp, packet)
         r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_NEXUS)
         _CREATED_NODES.append(r["node_id"])

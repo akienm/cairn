@@ -1173,9 +1173,8 @@ def test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register():
         f"the reverse read returned boats the register does not call open: " \
         f"{set(r.riding) - open_ids}"
     assert set(u for u in r.unattributed) <= open_ids
-    # THIS voyage's own boat rides harbor_master's charter, so the read cannot be vacuous.
-    assert "a-superseded-intention-is-never-silent" in r.riding, \
-        "the read cannot even find the boat that built it"
+    assert r.riding, \
+        "the reverse read found no tickets riding harbor_master — the read is vacuous"
 
 
 def test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED():

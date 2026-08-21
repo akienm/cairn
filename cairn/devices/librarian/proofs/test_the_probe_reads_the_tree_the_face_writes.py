@@ -59,6 +59,7 @@ from cairn.devices.db_domain import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.probes import standing_moves_under_live_use as probe
 from cairn.devices.librarian.shim import LibrarianShim
+from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import OWNER, corroborate, deposit, node_id_for
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
@@ -94,7 +95,7 @@ def test_the_census_sees_a_node_the_faces_tree_holds():
     armed probe runs. Nothing here asserts a tree NAME — only that the reader and the writer
     agree, so the tooth stays true if the whole librarian moves to a third tree tomorrow."""
     content = "a node the live face would have deposited"
-    nid = node_id_for(_FACE_TREE, content)
+    nid = node_id_for(content)
     deposit(content, _VEC, {"source": _PROV_SOURCE, "question": "what the face asked"},
             tree=_FACE_TREE, table=_TABLE)
 
@@ -119,7 +120,7 @@ def test_the_census_is_not_a_pass_through():
             tree=_DECOY_TREE, table=_TABLE)
 
     seen = _census()
-    rows_in_face_tree = store.read(_TABLE, where="tree = %s", params=(_FACE_TREE,))
+    rows_in_face_tree = store.read(_TABLE)
     counted = sum(seen["standing_distribution"].values())
     assert counted == len(rows_in_face_tree), (
         f"the census counted {counted} rows but tree {_FACE_TREE!r} holds "
@@ -133,19 +134,19 @@ def test_the_predicates_are_fed_by_the_census():
     across PROMOTION_THRESHOLD distinct cross-questions, and an uncorroborated shard aged
     past DECAY_HORIZON) and the probe must clear. Both halves are staged through the
     librarian's own doors, so nothing here asserts a snapshot of the live corpus."""
-    earned_content = "a node that earned its standing across independent questions"
-    earned_id = node_id_for(_FACE_TREE, earned_content)
+    earned_content = f"a node that earned its standing across independent questions [{_NONCE}]"
+    earned_id = node_id_for(earned_content)
     deposit(earned_content, _VEC, {"source": _PROV_SOURCE, "question": "its birth question"},
             tree=_FACE_TREE, table=_TABLE)
     for i in range(PROMOTION_THRESHOLD):
         corroborate(earned_id, f"an independent question, number {i}",
                     promote_at=PROMOTION_THRESHOLD, tree=_FACE_TREE, table=_TABLE)
 
-    shard_content = "an aged shard nobody ever walked back to"
-    shard_id = node_id_for(_FACE_TREE, shard_content)
+    shard_content = f"an aged shard nobody ever walked back to [{_NONCE}]"
+    shard_id = node_id_for(shard_content)
     deposit(shard_content, _VEC, {"source": _PROV_SOURCE, "question": "its own birth question"},
             tree=_FACE_TREE, table=_TABLE)
-    store.update(_TABLE, OWNER,
+    store.update(trees.NODES_TABLE, OWNER,
                  {"created": datetime.now(timezone.utc) - DECAY_HORIZON - timedelta(days=1)},
                  where="node_id = %s", params=(shard_id,))
 
@@ -167,21 +168,32 @@ def test_the_predicates_are_fed_by_the_census():
 
 def test_a_severed_census_stands_down_silently():
     """THE DEFECT'S OWN SIGNATURE, kept so it cannot return unnamed. Aim the census at a
-    tree nothing writes and the probe does not go loud — the survey comes back empty and
+    table nothing writes and the probe does not go loud — the survey comes back empty and
     BOTH predicates stand down. Serene green from a dead address is the failure mode this
-    ticket exists to close, and it is a property of the design, not of today's data."""
-    standing = probe._TREE
+    ticket exists to close, and it is a property of the design, not of today's data.
+
+    Three-table schema: tree-level filtering is now at the TABLE level (each tree gets
+    its own leaf table), so a severed address means an empty or non-existent table."""
+    _DEAD = f"_probeseam_dead_{_NONCE}"
+    store.create_owned_table(_DEAD, OWNER, trees._LEAF_COLUMNS)
     try:
-        probe._TREE = f"a_tree_no_face_ever_writes_{_NONCE}"
-        seen = _census()
+        probe.NODES = _DEAD
+        seen = probe.survey_the_tree()
         assert seen["standing_distribution"] == {} and seen["crossings_since_landing"] == 0, \
-            f"the dead-tree census must be empty, not merely small: {seen}"
+            f"the dead-table census must be empty, not merely small: {seen}"
         assert probe._trigger(None, {"survey": seen}) is False, \
             "a severed census stands the trigger DOWN — it never reports ill health"
         assert probe._enough({"survey": seen}) is False, \
             "and it never clears either: the watch is simply disarmed, in silence"
     finally:
-        probe._TREE = standing
+        probe.NODES = _TABLE
+        conn = store.connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f'DROP TABLE IF EXISTS "{_DEAD}"')
+                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_DEAD,))
+        finally:
+            conn.close()
 
 
 def test_the_probe_declares_a_probe_and_stays_a_reader():

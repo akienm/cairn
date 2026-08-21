@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import ast
 import os
+import pytest
 import re
 import sys
 from datetime import datetime
@@ -53,6 +54,13 @@ _TABLE = nexus_table(_NONCE, owner="orient")
 _PROV = {"source": "proofs/test_orient_nexus.py", "date": "2026-07-28"}
 
 
+@pytest.fixture(autouse=True)
+def _nonce_corpus():
+    nexus.CORPUS = _NONCE
+    yield
+    nexus.CORPUS = "corrections"
+
+
 def _refuses(exc, fn, *args, **kwargs):
     try:
         fn(*args, **kwargs)
@@ -62,7 +70,7 @@ def _refuses(exc, fn, *args, **kwargs):
 
 
 def test_the_corpus_table_is_born_owned_by_orient():
-    r = deposit_correction("the first correction of an orient-owned corpus",
+    r = deposit_correction(f"the first correction of an orient-owned corpus [{_NONCE}]",
                            [1.0, 0.0, 0.0], _PROV)
     assert r["duplicate"] is False
     assert store.owner_of(_TABLE) == "orient", \
@@ -103,7 +111,7 @@ def test_the_founding_corrections_carry_their_scars():
 
 
 def test_counsel_walks_with_its_floor_visible():
-    deposit_correction("a second correction, far from the first",
+    deposit_correction(f"a second correction, far from the first [{_NONCE}]",
                        [0.0, 0.0, 1.0], _PROV)
     got = counsel_corrections([0.9, 0.1, 0.0], k=10)
     assert got["walk"], "the walk sees the corpus"

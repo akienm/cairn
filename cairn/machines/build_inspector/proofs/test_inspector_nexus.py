@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import ast
 import os
+import pytest
 import re
 import sys
 from datetime import datetime
@@ -55,6 +56,13 @@ _TABLE = nexus_table(_NONCE, owner="build_inspector")
 _PROV = {"source": "proofs/test_inspector_nexus.py", "date": "2026-07-28"}
 
 
+@pytest.fixture(autouse=True)
+def _nonce_corpus():
+    nexus.CORPUS = _NONCE
+    yield
+    nexus.CORPUS = "failures"
+
+
 def _refuses(exc, fn, *args, **kwargs):
     try:
         fn(*args, **kwargs)
@@ -64,7 +72,7 @@ def _refuses(exc, fn, *args, **kwargs):
 
 
 def test_the_corpus_table_is_born_owned_by_the_inspector():
-    r = deposit_failure("the first failure of an inspector-owned corpus",
+    r = deposit_failure(f"the first failure of an inspector-owned corpus [{_NONCE}]",
                         [1.0, 0.0, 0.0], _PROV)
     assert r["duplicate"] is False
     assert store.owner_of(_TABLE) == "build_inspector", \
@@ -108,7 +116,7 @@ def test_the_founding_questions_are_seeded_but_unbuilt():
 
 
 def test_counsel_walks_with_its_floor_visible():
-    deposit_failure("a second failure, far from the first", [0.0, 0.0, 1.0], _PROV)
+    deposit_failure(f"a second failure, far from the first [{_NONCE}]", [0.0, 0.0, 1.0], _PROV)
     got = counsel_failures([0.9, 0.1, 0.0], k=10)
     assert got["walk"], "the walk sees the corpus"
     assert "guess" in got["floor_is"] and "n=1" in got["floor_is"], \

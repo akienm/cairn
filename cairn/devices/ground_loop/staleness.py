@@ -324,6 +324,9 @@ def _drift(root: Path | None, modules: dict | None, tally: dict | None) -> list[
     for name, module in list((modules if modules is not None else sys.modules).items()):
         if name.startswith(SYNTHETIC_PREFIX):
             continue
+        loader = getattr(module, "__loader__", None)
+        if loader is not None and type(loader).__name__ == "AssertionRewritingHook":
+            continue
         source = getattr(module, "__file__", None)
         if not source:
             continue                      # builtins, namespace packages: nothing to compare

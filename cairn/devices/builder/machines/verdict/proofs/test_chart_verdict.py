@@ -267,12 +267,13 @@ def test_the_deposit_face_is_gated(root, berths, val):
     # The real landing, with the berth as provenance (scratch corpus, as the
     # sibling proofs: the LIVE hypothesize tree is never a fixture).
     content = verdict_node_content(a)
-    r = trees.deposit(content, [1.0, 0.0, 0.0],
+    unique = content + f" [{_NEXUS}]"
+    r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "validate_ref": a["validate_ref"],
                        "ticket": a["ticket"]},
                       tree=_NEXUS, table=table, owner="chart")
-    rows = store.read(table, where="node_id = %s", params=(r["node_id"],))
-    assert rows and rows[0]["content"] == content
+    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
+    assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
     assert rows[0]["provenance"]["ticket"] == "sworn"
 
@@ -375,9 +376,9 @@ def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val)
     # That sharing is the stone's win and has its own tooth below; here it would just
     # blur what this one is asking.
     drained_artifact = dict(good_artifact(val))
-    drained_artifact["verdicts"] = [dict(v, evidence=v["evidence"] + " — drained")
+    drained_artifact["verdicts"] = [dict(v, evidence=v["evidence"] + f" — drained [{_NEXUS}]")
                                     for v in drained_artifact["verdicts"]]
-    drained_artifact["dispositions"] = [dict(d, by=d["by"] + " — drained")
+    drained_artifact["dispositions"] = [dict(d, by=d["by"] + f" — drained [{_NEXUS}]")
                                         for d in drained_artifact["dispositions"]]
     art = _berth_a_verdict(berths, drained_artifact, "20260729T040000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
@@ -391,12 +392,12 @@ def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val)
     node_ids = drained[0]["deposited"]
     parts = verdict_node_parts(drained_artifact)
     assert len(node_ids) == len(parts) == 4, (node_ids, parts)
-    rows = [store.read(table, where="node_id = %s", params=(n,))[0] for n in node_ids]
+    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(n,))[0] for n in node_ids]
     assert [r["content"] for r in rows] == [c for _, c in parts], rows
     assert all(r["provenance"]["source"] == art for r in rows), rows
     assert all(r["provenance"]["ticket"] == "sworn" for r in rows), rows
     whole = verdict_node_content(drained_artifact)
-    assert not store.read(table, where="content = %s", params=(whole,)), \
+    assert not store.read(trees.NODES_TABLE, where="content = %s", params=(whole,)), \
         "the WHOLE verdict must never be persisted as a node — one node holds one claim"
     assert pending(ledger_path=ledger) == [], "the landed berth is marked, not pending"
     standing = trees.tree_state(_NEXUS, table=table, owner="chart")
@@ -530,8 +531,10 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     the parts are bare by construction and the attribution has to ride SOMEWHERE."""
     ledger = os.path.join(root, "instance", "ledger7", "verdict-deposits.jsonl")
     a = dict(good_artifact(val))
-    a["verdicts"] = [dict(v, evidence=v["evidence"] + " — byte-identity tooth")
+    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — byte-identity tooth [{_NEXUS}]")
                      for v in a["verdicts"]]
+    a["dispositions"] = [dict(d, by=d["by"] + f" — byte-identity [{_NEXUS}]")
+                         for d in a["dispositions"]]
     art = _berth_a_verdict(berths, a, "20260729T080000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
     seen = []
@@ -547,7 +550,7 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     assert "failed" not in drained[0], drained
     assert seen == [c for _, c in verdict_node_parts(a)], \
         "the seam was handed something other than the parts: %r" % (seen,)
-    rows = [store.read(table, where="node_id = %s", params=(n,))[0]
+    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(n,))[0]
             for n in drained[0]["deposited"]]
     assert [r["content"] for r in rows] == seen, \
         "a node holds bytes its vector never saw — the two renderings drifted"
@@ -569,7 +572,7 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     second = dict(a)
     second["verdicts"] = [a["verdicts"][0],
                           dict(a["verdicts"][1],
-                               evidence="VerdictRefused raised on the second run too")]
+                               evidence=f"VerdictRefused raised on the second run too [{_NEXUS}]")]
     art2 = _berth_a_verdict(berths, second, "20260729T081500")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art2
     grew_from = trees.tree_state(_NEXUS, table=table, owner="chart")
@@ -605,8 +608,8 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
     path exists, and the next tooth proves no length is even consulted."""
     ledger = os.path.join(root, "instance", "ledger8", "verdict-deposits.jsonl")
     a = dict(good_artifact(val))
-    a["dispositions"] = [dict(d, by=d["by"] + " — refusal tooth") for d in a["dispositions"]]
-    a["verdicts"] = [dict(v, evidence=v["evidence"] + " — refusal tooth")
+    a["dispositions"] = [dict(d, by=d["by"] + f" — refusal tooth [{_NEXUS}]") for d in a["dispositions"]]
+    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — refusal tooth [{_NEXUS}]")
                      for v in a["verdicts"]]
     art = _berth_a_verdict(berths, a, "20260729T090000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
@@ -629,7 +632,7 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
     assert not [r for r in read_ledger(ledger_path=ledger) if r["kind"] == "deposited"], \
         "nothing may claim a landing that did not happen"
     parts = verdict_node_parts(a)
-    landed = [store.read(table, where="content = %s", params=(c,)) for _, c in parts]
+    landed = [store.read(trees.NODES_TABLE, where="content = %s", params=(c,)) for _, c in parts]
     assert [bool(x) for x in landed] == [True, True, False, False], \
         "the parts before the refusal landed; the refused one and its successors did not"
     # THE RETRY: the same berth, a seam that no longer refuses. The already-landed

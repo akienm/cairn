@@ -109,7 +109,8 @@ def test_completion_goes_through_the_resolve_door():
     assert len(door.seen) == 1, "the door was not called exactly once"
     req = door.seen[0]
     assert req["kind"] == "chat", f"wrong verb: {req['kind']!r}"
-    assert req["messages"] == [{"role": "user", "content": "hi"}]
+    assert req["messages"][0]["role"] == "system", "the sharp system prompt is prepended"
+    assert req["messages"][-1] == {"role": "user", "content": "hi"}
     assert res.choices[0].message.content == "hello"
 
 

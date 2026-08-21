@@ -138,9 +138,9 @@ def test_a_typod_path_is_loud_and_never_a_green_over_nothing() -> None:
 
 
 def test_the_verb_is_registered_with_the_dispatcher() -> None:
-    """The whole point was that `cairn test` is the ADDRESS. If the dispatcher does not list
-    it, the next session guesses again and the four tool calls come back."""
-    r = subprocess.run([str(CAIRN)], capture_output=True, text=True, timeout=60)
+    """The whole point was that `cairn test` is the ADDRESS. The dispatcher lists legacy verbs
+    on an unknown-device error, not on no-args (which launches the librarian now)."""
+    r = subprocess.run([str(CAIRN), "no-such-device-9f3a"], capture_output=True, text=True, timeout=60)
     listed = r.stdout + r.stderr
     assert "test" in listed.split(), f"`cairn` does not list `test` among its verbs — {listed!r}"
 

@@ -64,10 +64,10 @@ from cairn.devices.builder.machines.verdict.verdict import claiming_packets, una
 #   validator, so the gate and the crossing's deposit-enqueue cannot disagree
 #   about WHICH artifact answered.
 from cairn.tools.orient.orient import ScanRefused, device_census  # noqa: E402
-# cairn.tools.import_sieve joined 2026-08-06 (the-questions-are-the-sieve): a sieve's BAND
-# is derived from what its own body reaches, never authored — so the nest reads this
-# module's source through the same AST primitive that seals the inference/db doors.
-# It is tree-free (ast + pathlib + os only) and pinned transitively by the allowlist
+# cairn.tools.import_sieve joined 2026-08-06 (the-questions-are-the-sieve): a sieve's
+# PHASE is derived from what it reads, never authored — phase_of reads this module's
+# source and classifies each sieve as preprocess/record/postprocess.
+# Tree-free (ast + pathlib + os only) and pinned transitively by the allowlist
 # tooth, exactly like chart.orient and chart.verdict.
 from cairn.tools.import_sieve import sieve as import_sieve  # noqa: E402
 # The ASSEMBLY and the SHAKE ride the general berth since 2026-08-07 (ruling
@@ -2385,36 +2385,18 @@ _NEST_CACHE: list | None = None
 
 
 def the_nest() -> list:
-    """The sieves assembled coarsest-first, as [(band, [sieve names]), ...].
+    """The sieves assembled coarsest-first, as [(phase, [sieve names]), ...].
 
-    BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
-    2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to
-    true based on whatever it's inspecting. it's specific to the device being inspected
-    and provides a true false ruling." No bands, no ladder, no ordering are part of what
-    a sieve IS — SIEVES below is the real structure, and each entry is one boolean about
-    one component. Bands were CC's ("we added bands and ordering because you thought you
-    needed it. I DONT") and remain only by leave to remain ("i do not think the existing
-    stuff needs to go"), which does not extend to growing them. Do not read the
-    2026-08-06/08-07 citations below as him asking for this; he ruled on an object CC
-    put in front of him. See cairn/tools/base/nest.py's header for the full note.
-
-    DERIVED, NEVER AUTHORED (ticket the-questions-are-the-sieve, and its first
-    falsifier): each sieve's band comes from what its own body REACHES — is the answer
-    in hand, on local disk, spread across local sources, or off this box — read out of
-    this module's source by import_sieve. A hand-set band would be exactly the learned
-    value stranded in a human's head that the derivation exists to end, and it would go
-    stale silently the first time a sieve started reaching further.
-
-    A BAND SEQUENCES, IT NEVER FORBIDS (Akien, 2026-08-06). The off-box band is empty
-    today; that is a MEASUREMENT over the sieves that exist, not a rule that one may not
-    be built. There are already two hosts, and four laptops once ran this system
-    overnight against local models — 'will we do that? I don't know. but we CAN.'
+    BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21). Three phases:
+    preprocess (produces subjects), record (scores subjects — every current sieve),
+    postprocess (picks from results — "the which is smallest is simply a post
+    processing sieve"). DERIVED from what the sieve reads, never authored.
     """
     global _NEST_CACHE
     if _NEST_CACHE is None:
-        reaches = import_sieve.reach_of(Path(__file__).read_text())
+        phases = import_sieve.phase_of(Path(__file__).read_text())
         _NEST_CACHE = base_nest.nest(
-            {name: reaches.get(fn.__name__, 0) for name, fn in SIEVES.items()})
+            {name: phases.get(fn.__name__, 1) for name, fn in SIEVES.items()})
     return _NEST_CACHE
 
 

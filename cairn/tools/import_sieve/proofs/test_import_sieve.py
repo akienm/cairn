@@ -307,105 +307,61 @@ def test_the_hollow_floor_guards_the_new_kind_too():
         raise AssertionError("a reachability sieve over 6 files returned clean (Law 8)")
 
 
-# ── REACH: the band a sieve has to look through ──────────────────────────────
-# These teeth exist because the FIRST cut of this derivation was a coin-toss red:
-# it matched call-name tails and put 15 of build_inspector's 18 checks off-box,
-# since Path.resolve() and inference_domain.resolve() share a tail. That failure is
-# tooth `test_a_path_resolve_is_not_a_host_resolve` and it is the one that must never
-# go quiet.
+# ── PHASE: when a sieve can run ───────────────────────────────────────────────
+# SUPERSEDES the proximity-based reach tests (2026-08-06 through 2026-08-11).
+# The band axis changed from HOW FAR A SIEVE LOOKS to WHEN IT CAN RUN (Akien,
+# 2026-08-12, ruled; confirmed 2026-08-21). The tell: WHAT THE SIEVE READS.
+# A recording sieve takes the SUBJECT (band 1). A postprocessing sieve takes
+# PRIOR STAMPS (band 2). Preprocessing produces subjects (band 0).
 
-_REACH_FIXTURE = """
-import subprocess
-from pathlib import Path
-from cairn.devices.inference_domain import resolve
+_PHASE_FIXTURE = """
+def produces_subjects():
+    return [{"name": "a"}, {"name": "b"}]
 
-def arithmetic_only(row):
-    return row["a"] + row["b"]
+def scores_a_subject(row, comp_dir):
+    return row["score"] > 0.5
 
-def reads_one_file(p):
-    return Path(p).read_text()
+def also_scores(view):
+    return view.get("ok", False)
 
-def walks_a_tree(root):
-    return sorted(Path(root).rglob("*.json"))
+def picks_from_stamps(stamps, row):
+    return min(stamps, key=lambda s: s["cost"])
 
-def asks_the_host(q):
-    return resolve(q)
-
-def shells_out(cmd):
-    return subprocess.run(cmd, capture_output=True)
-
-def path_resolve_is_local(p):
-    return Path(p).resolve()
-
-def calls_a_walker(root):
-    return walks_a_tree(root)
+def delegates_to_picker(row, comp_dir):
+    return picks_from_stamps(get_stamps(), row)
 """
 
 
-def test_reach_bands_a_body_by_how_far_it_looks():
-    r = sieve.reach_of(_REACH_FIXTURE)
-    assert r["arithmetic_only"] == 0, r
-    assert r["reads_one_file"] == 1, r
-    assert r["walks_a_tree"] == 2, r
-    assert r["shells_out"] == 2, r
-    assert r["asks_the_host"] == 3, r
+def test_phase_classifies_by_what_the_sieve_reads():
+    p = sieve.phase_of(_PHASE_FIXTURE)
+    assert p["produces_subjects"] == 0, f"no params should be preprocess: {p}"
+    assert p["scores_a_subject"] == 1, f"takes subject should be record: {p}"
+    assert p["also_scores"] == 1, f"takes subject should be record: {p}"
+    assert p["picks_from_stamps"] == 2, f"takes stamps should be postprocess: {p}"
 
 
-def test_a_path_resolve_is_not_a_host_resolve():
-    """The v1 failure, armed permanently.
-
-    `Path(p).resolve()` and `inference_domain.resolve(q)` are spelled the same at the
-    tail. A derivation that reads names instead of bindings calls the first one off-box
-    and the whole nest inverts — the cheap local check sinks to the bottom and the
-    expensive one floats. Both directions are pinned, because a tooth that only checks
-    the local half is satisfied by a derivation that bands NOTHING off-box.
-    """
-    r = sieve.reach_of(_REACH_FIXTURE)
-    assert r["path_resolve_is_local"] == 0, (
-        "Path.resolve() was read as leaving the box — reach is matching call-name "
-        f"tails again, not import bindings: {r}")
-    assert r["asks_the_host"] == 3, (
-        "the imported resolve() stopped counting as off-box, so the tooth above passes "
-        f"for the wrong reason: {r}")
+def test_phase_is_transitive_through_an_in_module_helper():
+    """A function that calls a postprocess helper becomes postprocess."""
+    p = sieve.phase_of(_PHASE_FIXTURE)
+    assert p["delegates_to_picker"] == 2, (
+        f"calls picks_from_stamps but did not inherit postprocess phase: {p}")
 
 
-def test_reach_is_transitive_through_an_in_module_helper():
-    """A check that calls a helper reaches whatever the helper reaches — its answer
-    depends on it. Without this, every real sieve reads as band 0, because real sieves
-    delegate."""
-    r = sieve.reach_of(_REACH_FIXTURE)
-    assert r["calls_a_walker"] == 2, r
+def test_phase_on_unparseable_source_is_empty():
+    assert sieve.phase_of("this is not python %%%") == {}
 
 
-def test_an_empty_ladder_cannot_band_anything():
-    """NON-VACUITY. An accept-everything ladder must collapse every band to 0 — if this
-    fixture still bands with no rules, the bands are coming from somewhere other than the
-    ladder and the ladder is decoration."""
-    r = sieve.reach_of(_REACH_FIXTURE, ladder={})
-    assert set(r.values()) == {0}, r
-
-
-# The assembly row (coarsest-first, empty bands omitted) MIGRATED to
-# cairn/tools/base/proofs/test_nest.py on 2026-08-07 with the code it proves (ticket
-# banding-berths-at-the-general-level) — the proof berths beside the primitive.
-
-
-def test_the_real_inspector_separates_into_bands():
-    """Measured over the live corpus, 2026-08-06: the eighteen checks separate into
-    THREE populated bands. Asserted as an INVARIANT, not a snapshot — the counts move as
-    checks are added, and pinning them would turn every new sieve into a spurious red.
-    What must hold is that reach DISCRIMINATES: if every check lands in one band the
-    derivation has stopped telling them apart, which is the failure this replaces."""
+def test_the_real_inspector_sieves_are_all_record():
+    """All current inspector sieves take the subject — they are record sieves (band 1).
+    No preprocess or postprocess sieves exist yet. When one arrives, this test grows
+    to assert the separation."""
     src = (_REPO_ROOT / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text()
     from cairn.machines.build_inspector.inspector import SIEVES
     wanted = {f.__name__ for f in SIEVES.values()}
-    bands = {k: v for k, v in sieve.reach_of(src).items() if k in wanted}
-    assert bands, "no SIEVES resolved to module-level functions — the walk missed them"
-    assert len(set(bands.values())) >= 2, (
-        f"every check banded identically ({bands}) — reach is no longer discriminating")
-    assert bands["charter_on_disk"] < bands["charted_refs_resolve"], (
-        "the cheapest precondition check did not sort above a chart-packet judge, so "
-        f"the nest would run them in the wrong order: {bands}")
+    phases = {k: v for k, v in sieve.phase_of(src).items() if k in wanted}
+    assert phases, "no SIEVES resolved to module-level functions — the walk missed them"
+    assert all(v == 1 for v in phases.values()), (
+        f"expected all record (1), got: {phases}")
 
 
 def _main() -> int:
@@ -433,11 +389,10 @@ def _main() -> int:
         test_unreachable_catches_a_breach_at_the_start_itself,
         test_unreachable_is_clean_on_the_real_corpus,
         test_the_hollow_floor_guards_the_new_kind_too,
-        test_reach_bands_a_body_by_how_far_it_looks,
-        test_a_path_resolve_is_not_a_host_resolve,
-        test_reach_is_transitive_through_an_in_module_helper,
-        test_an_empty_ladder_cannot_band_anything,
-        test_the_real_inspector_separates_into_bands,
+        test_phase_classifies_by_what_the_sieve_reads,
+        test_phase_is_transitive_through_an_in_module_helper,
+        test_phase_on_unparseable_source_is_empty,
+        test_the_real_inspector_sieves_are_all_record,
     ]
     for check in checks:
         check()

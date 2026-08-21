@@ -830,29 +830,28 @@ def main() -> None:
 
     # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
     #
-    # DEFECT-FIRST, and the defect is the one the derivation exists to prevent: a band
-    # that was authored would sit still while the sieve it labels started reaching
-    # further. So the tooth EDITS a sieve's body and demands the band MOVE, with no
-    # other change and nothing hand-set anywhere.
+    # BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21). All current
+    # sieves take the subject — they are record sieves (band 1). The tooth verifies
+    # that, and then mutates a sieve to take prior stamps and demands the phase MOVE
+    # to postprocess (band 2) — DERIVED, never authored.
     nest = _insp.the_nest()
     banded = {name: b for b, names in nest for name in names}
-    assert banded["charter_on_disk"] == 0, banded          # answer is in the census row
-    assert banded["state_is_projection"] >= 1, banded      # has to open history.json
+    assert all(b == 1 for b in banded.values()), (
+        f"all current sieves should be record (1): {banded}")
     assert [b for b, _ in nest] == sorted(b for b, _ in nest), \
         "the nest is shaken coarse band first — that ordering IS the nest"
 
     src = pathlib.Path(_insp.__file__).read_text()
-    reaches = _insp.import_sieve.reach_of(src)
-    assert reaches["charter_on_disk"] == 0, reaches["charter_on_disk"]
-    # now make that same sieve reach off-box, changing NOTHING else
+    phases = _insp.import_sieve.phase_of(src)
+    assert phases["charter_on_disk"] == 1, phases["charter_on_disk"]
+    # now make that same sieve take stamps — it should become postprocess
     mutant = src.replace(
         "def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:",
-        "def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:\n"
-        "    import cairn.devices.db_domain as _d; _d.connect()", 1)
+        "def charter_on_disk(stamps, row: dict, comp_dir: Path) -> list[dict]:", 1)
     assert mutant != src, "the mutation did not apply — the tooth would be vacuous"
-    moved = _insp.import_sieve.reach_of(mutant)
-    assert moved["charter_on_disk"] == 3, (
-        "a sieve that started reaching off the box kept its band — the band is being "
+    moved = _insp.import_sieve.phase_of(mutant)
+    assert moved["charter_on_disk"] == 2, (
+        "a sieve that started reading stamps kept its phase — the phase is being "
         "authored somewhere instead of derived, which is this ticket's first falsifier: "
         f"{moved['charter_on_disk']}")
 

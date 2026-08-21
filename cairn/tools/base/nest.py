@@ -1,47 +1,20 @@
 """nest — bands, the coarsest-first assembly, and the one-shake. Block-general.
 
-READ THIS FIRST — BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
-2026-08-11-a-sieve-is-one-true-false-rule). THE DEFINITION IS: "a seive is something
-that evaluates to true based on whatever it's inspecting. it's specific to the device
-being inspected and provides a true false ruling." That is the whole of it — no bands,
-no ladder, no ordering are part of what a sieve IS.
-
-BANDS WERE CC'S IDEA: "we added bands and ordering because you thought you needed it.
-I DONT." They stay only because he said so in the same breath — "i do not think the
-existing stuff needs to go" — which is LEAVE TO REMAIN, not endorsement, and it does
-not extend to growing them (the ticket to make a band into stored data was killed).
-
-WHY THIS PARAGRAPH EXISTS AT ALL. Everything below cites rulings of 2026-08-06 and
-2026-08-07 and attributes lines to Akien by name. Those citations are REAL — he did
-rule on this structure. But he ruled on an object CC put in front of him, and for four
-days every later reader (CC) treated those rulings as evidence of what he WANTED. A
-ruling on someone's invention does not make it theirs. If you are about to build on
-what follows, the question is not "is this ruling current" but "whose idea was this
-originally" — and the answer here is CC's.
+THE BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21: "BANDING IS
+PREPROCESS, MEASURE AND POSTPROCESS"): preprocess, record, postprocess. His words:
+"each question is a seive. and because we might have seives that come after others
+(which is min, which is max) this is the kind of bands that we replace our previous
+ideas with: preprocessing, recording, postprocessing. and the which is smallest is
+simply a post processing seive." So the band axis is WHEN IT CAN RUN, not how far
+it reaches. The proximity ladder (in-hand/local-disk/correlated-local/off-box) is
+superseded — those distinctions remain true about what they described and are no
+longer the spec (ticket the-questions-are-the-sieve, distinction 50).
 
 THE GENERAL CASE, BY RULING (2026-08-07-the-nest-is-block-general): "nest/banding
 is the general case." Nest, gradation and bands are a block-general primitive any
-inspector or block carries — build_inspector is the first tenant, not the owner,
-and this berth is where a consumer can read the gradation without importing a
-tenant. Berthed beside probe.py by the same precedent: block-general machinery
-lives in cairn.tools.base under base's charter, and grows a component of its own only
-when a real need arrives that base cannot serve.
-
-WHAT MOVED AND WHAT DID NOT. The band vocabulary and the assembly moved here from
-import_sieve (2026-08-07, ticket banding-berths-at-the-general-level); the shake
-moved here from inside build_inspector.inspect()'s loop. Band DERIVATION did not
-move: reach_of and the ladder stay in import_sieve, because how far an import
-looks is that component's own domain. A tenant derives its reaches however its
-domain demands, then assembles and shakes them HERE. Derivation is tenant-
-specific; assembly and shake are general — that distinction is the whole lift.
-
-THE BOUNDARIES ARE WHERE THE FAILURE MODE CHANGES, not where the milliseconds do
-(Akien, 2026-08-06 — reasoning about answer-proximity, which is why it survives
-the move out of the import domain). In-hand cannot fail environmentally. Local
-disk fails on absence. Correlated local work fails on inconsistency. Off-box
-fails on UNAVAILABILITY, which nothing above it can do — and that last boundary
-is the one that earns its keep, because an unreachable host must never mask a
-local finding.
+inspector or block carries — build_inspector is the first tenant, not the owner.
+A tenant derives its phases however its domain demands, then assembles and shakes
+them HERE. Derivation is tenant-specific; assembly and shake are general.
 
 A BAND SEQUENCES; IT NEVER FORBIDS (Akien, 2026-08-06). An empty band is empty,
 not closed. And the names are DATA a tenant may extend, not a closed taxonomy —
@@ -52,7 +25,7 @@ from __future__ import annotations
 
 from typing import Callable, Iterable, Mapping
 
-BAND_NAMES = {0: "in-hand", 1: "local-disk", 2: "correlated-local", 3: "off-box"}
+BAND_NAMES = {0: "preprocess", 1: "record", 2: "postprocess"}
 
 
 def nest(reaches: dict[str, int]) -> list[tuple[int, list[str]]]:

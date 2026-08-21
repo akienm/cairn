@@ -35,14 +35,11 @@ def test_a_nest_is_coarsest_first_and_omits_empty_bands():
     assert n[1] == (2, ["a", "c"]), "within a band the order is sorted, never invented"
 
 
-def test_band_names_are_data_a_tenant_may_extend():
-    # The integers order the shake; the words are for the reader. Extending is a
-    # tenant-side act on a copy — the vocabulary here is a first cut, not a schema.
-    assert BAND_NAMES == {0: "in-hand", 1: "local-disk", 2: "correlated-local",
-                          3: "off-box"}
-    widened = {**BAND_NAMES, 4: "off-planet"}
-    n = nest({"deep": 4, "near": 0})
-    assert [widened[b] for b, _ in n] == ["in-hand", "off-planet"], (
+def test_band_names_are_phases_and_extensible():
+    assert BAND_NAMES == {0: "preprocess", 1: "record", 2: "postprocess"}
+    widened = {**BAND_NAMES, 3: "cleanup"}
+    n = nest({"late": 3, "early": 0})
+    assert [widened[b] for b, _ in n] == ["preprocess", "cleanup"], (
         "a band outside the shipped vocabulary must assemble fine — the names are "
         "data, not a gate")
 
@@ -98,7 +95,7 @@ def test_scores_are_binary_and_the_rollup_is_min_never_mean():
 
 def _main() -> int:
     for check in (test_a_nest_is_coarsest_first_and_omits_empty_bands,
-                  test_band_names_are_data_a_tenant_may_extend,
+                  test_band_names_are_phases_and_extensible,
                   test_a_toy_second_tenant_shakes_importing_only_the_general_berth,
                   test_scores_are_binary_and_the_rollup_is_min_never_mean):
         check()

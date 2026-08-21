@@ -28,10 +28,10 @@ provides a true false ruling." The sentence above about a sieve CUTTING with a
 self-naming finding is the part that matters; the banding is CC's, kept only by leave
 to remain and not to be grown. See cairn/tools/base/nest.py's header.
 
-Bands are DERIVED from what each sieve's body reaches (import_sieve.reach_of, the
-inspector's precedent) — a hand-set band would be a learned value stranded in a head.
-Every sieve here reads data already in hand, so today the nest is one band; that is a
-measurement, not a design constraint.
+Bands are PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21), derived from what
+each sieve reads (import_sieve.phase_of) — a hand-set phase would be a learned value
+stranded in a head. Every sieve here takes the subject, so the nest is one band (record);
+that is a measurement, not a design constraint.
 """
 
 from __future__ import annotations
@@ -202,13 +202,13 @@ _NEST_CACHE: list | None = None
 
 
 def the_nest() -> list:
-    """The sieves assembled coarsest-first — bands derived from each sieve's own reach,
+    """The sieves assembled by phase — derived from what each sieve reads,
     never hand-set (the inspector's the_nest() precedent, and the same one-shake word)."""
     global _NEST_CACHE
     if _NEST_CACHE is None:
-        reaches = import_sieve.reach_of(Path(__file__).read_text())
+        phases = import_sieve.phase_of(Path(__file__).read_text())
         _NEST_CACHE = base_nest.nest(
-            {name: reaches.get(fn.__name__, 0) for name, fn in SIEVES.items()})
+            {name: phases.get(fn.__name__, 1) for name, fn in SIEVES.items()})
     return _NEST_CACHE
 
 

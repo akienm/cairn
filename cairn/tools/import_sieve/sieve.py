@@ -53,123 +53,57 @@ class HollowScan(RuntimeError):
     """The sieve was shaken over a tree it did not read. Never a pass."""
 
 
-# ── REACH: how far a sieve has to look ───────────────────────────────────────
-# A sieve's MESH is how strict its check is (ruling 2026-08-05-a-check-is-worth-
-# its-mesh). Its BAND is how far it must REACH to answer — and Akien drew that line
-# himself on 2026-08-06: coarseness is "not computation time... more like how deep we
-# have to look. is it a file lookup? is it a value in a file? is it a value i have to
-# compute from multiple local sources? do i need the web? --- more related to
-# proximity?" The band is a characteristic of the KIND OF THING the sieve does, not
-# of where it is installed, which is what makes a sieve portable between nests.
+# ── PHASE: when a sieve can run ─────────────────────────────────────────────
+# THE BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21: "BANDING
+# IS PREPROCESS, MEASURE AND POSTPROCESS"). His words: "each question is a seive.
+# and because we might have seives that come after others (which is min, which is
+# max) this is the kind of bands that we replace our previous ideas with:
+# preprocessing, recording, postprocessing. and the which is smallest is simply a
+# post processing seive."
 #
-# BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
-# 2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to
-# true based on whatever it's inspecting. it's specific to the device being inspected
-# and provides a true false ruling." This module's REAL sieve work is imports_in /
-# import_graph / _matches — "does this file reach through a forbidden door" is exactly
-# one boolean about one device. reach_of and the ladder below are the band derivation,
-# CC's idea, kept by leave to remain and not to be grown (the ticket to make a band
-# into stored data was killed the day it was cast). See cairn/tools/base/nest.py's header.
+# THE TELL (proposed by CC, ruled to hold): WHAT THE SIEVE READS. A recording
+# sieve takes the SUBJECT; a postprocessing sieve takes PRIOR STAMPS;
+# preprocessing produces the subjects rather than scoring them. Different input,
+# visible in the body. Akien: "that holds."
 #
-# THE VOCABULARY AND THE ASSEMBLY LEFT FOR THE GENERAL BERTH, 2026-08-07 (ruling
-# the-nest-is-block-general, ticket banding-berths-at-the-general-level): BAND_NAMES,
-# nest() and the shake live at cairn.tools.base.nest now, with the boundaries-are-where-
-# the-failure-mode-changes reasoning beside them. What stays HERE is DERIVATION —
-# reach_of and the ladder — because how far an import looks is this component's own
-# domain. A tenant derives its reaches here, then assembles and shakes them there.
+# SUPERSEDES the proximity ladder (in-hand/local-disk/correlated-local/off-box).
+# Those distinctions remain true about what they described and are no longer the
+# spec. The derivation is still DERIVED, NEVER AUTHORED — a hand-set phase would
+# be the same defect as a hand-set band was.
 #
-# WHY THIS IS NOT import_graph's JOB, measured 2026-08-06: the graph is MODULE-
-# granular and a sieve is a FUNCTION. inspector.py imports pathlib once and holds
-# eighteen checks with different reaches. So the function-level walk sits on top of
-# the graph rather than beside it.
+# DETERMINISTIC CODE DRIVEN BY CONFIG DATA (Akien, 2026-08-12): "mesh levels are
+# now preprocess, record and postprocess, in deterministic code driven by config
+# data." The levels are DATA the assembly reads, not a taxonomy compiled into the
+# vocabulary.
 
-# The ladder is DATA and it is a first cut (2026-08-06), not a settled taxonomy: it
-# was derived from the eighteen checks that existed on the day, and the sorting pass
-# that produced it found three of the four bands populated. Widening it is expected.
-DEFAULT_LADDER = {
-    3: {"modules": ("cairn.devices.db_domain", "cairn.devices.inference_domain", "cairn.devices.librarian",
-                    "cairn.tools.tree.tree", "psycopg", "psycopg2", "socket", "urllib.request",
-                    "http.client", "requests"),
-        "calls": ()},
-    2: {"modules": ("subprocess", "ast", "cairn.tools.orient"),
-        "calls": ("walk", "glob", "rglob", "iterdir", "iglob")},
-    1: {"modules": (),
-        "calls": ("read_text", "read_bytes", "exists", "is_file", "is_dir", "stat",
-                  "write_text", "write_bytes", "open", "load", "listdir")},
-}
+POSTPROCESS_PARAMS = frozenset({"stamps", "scores", "gradation", "prior_stamps"})
 
 
-def _alias_modules(tree: ast.AST) -> dict[str, str]:
-    """{name as bound in this module: the dotted module it came from}.
+def _local_phase(fn: ast.AST) -> int:
+    """The phase this function belongs to, derived from what it reads.
 
-    THE WHOLE POINT OF ANCHORING ON IMPORTS. A first cut of this derivation matched
-    call-name tails and put 15 of build_inspector's 18 checks off-box, because
-    `Path.resolve()` and `inference_domain.resolve()` share a tail and `dict.get()`
-    looks like an HTTP get. That is the same mention-not-capability failure this
-    module's header records twice, arriving a third time in a new shape — so reach is
-    resolved through what the alias actually BINDS, never through what it is spelled.
+    Band 0 (preprocess): no sieve-shaped parameters — produces subjects.
+    Band 1 (record): takes the subject and scores it — the normal sieve.
+    Band 2 (postprocess): takes prior stamps — picks from results.
     """
-    binding: dict[str, str] = {}
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for a in node.names:
-                binding[a.asname or a.name.split(".")[0]] = a.name
-        elif isinstance(node, ast.ImportFrom):
-            if node.level or not node.module:
-                continue
-            for a in node.names:
-                binding[a.asname or a.name] = f"{node.module}.{a.name}"
-    return binding
+    params = {a.arg for a in fn.args.args}
+    if params & POSTPROCESS_PARAMS:
+        return 2
+    if params:
+        return 1
+    return 0
 
 
-def _root_name(node: ast.AST) -> str | None:
-    """The leftmost Name of an attribute chain — the alias that anchors it."""
-    while isinstance(node, ast.Attribute):
-        node = node.value
-    return node.id if isinstance(node, ast.Name) else None
+def phase_of(source: str) -> dict[str, int]:
+    """{function name: its phase}, for every module-level function in `source`.
 
-
-def _local_band(fn: ast.AST, binding: dict[str, str], ladder: dict) -> int:
-    """The band this function body reaches on its own, ignoring in-module callees."""
-    band = 0
-    for node in ast.walk(fn):
-        if not isinstance(node, ast.Call):
-            continue
-        f = node.func
-        anchor = f.id if isinstance(f, ast.Name) else _root_name(f)
-        bound = binding.get(anchor, "") if anchor else ""
-        tail = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
-        for level in sorted(ladder, reverse=True):
-            if level <= band:
-                break
-            spec = ladder[level]
-            if bound and any(_matches(bound, m) for m in spec.get("modules", ())):
-                band = level
-                break
-            # A bare call whose name is not bound to any import is a builtin or a
-            # method on a local object: `open(...)`, `p.read_text()`. Those are read
-            # by SHAPE, and only below the off-box band — a name alone can never buy
-            # a claim about leaving the box, which is the v1 error.
-            if not bound and tail in spec.get("calls", ()):
-                band = level
-                break
-    return band
-
-
-def reach_of(source: str, ladder: dict | None = None) -> dict[str, int]:
-    """{function name: its band}, for every module-level function in `source`.
-
-    Reach is TRANSITIVE within the module: a check that calls a helper reaches
-    whatever the helper reaches, because the caller's answer depends on it. Recursion
-    is cycle-safe and an unparseable source yields {} rather than a confident empty
-    claim about a file nobody could read.
+    Phase is transitive: a function that calls a postprocess helper becomes
+    postprocess. Cycle-safe; an unparseable source yields {}.
     """
-    ladder = DEFAULT_LADDER if ladder is None else ladder
     try:
         tree = ast.parse(source)
     except SyntaxError:
         return {}
-    binding = _alias_modules(tree)
     funcs = {n.name: n for n in tree.body
              if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
 
@@ -177,13 +111,13 @@ def reach_of(source: str, ladder: dict | None = None) -> dict[str, int]:
         if name in seen or name not in funcs:
             return 0
         seen = seen | {name}
-        band = _local_band(funcs[name], binding, ladder)
+        phase = _local_phase(funcs[name])
         for node in ast.walk(funcs[name]):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 callee = node.func.id
                 if callee in funcs:
-                    band = max(band, walk(callee, seen))
-        return band
+                    phase = max(phase, walk(callee, seen))
+        return phase
 
     return {name: walk(name, frozenset()) for name in funcs}
 

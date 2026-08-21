@@ -1,0 +1,13 @@
+{
+  "component": "plan_inspector",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "The plan-against-itself gate: reads charters' filed_edges and finds work the component admits is unbuilt. Complements the build_inspector (code against code) — this one reads the PLAN's own admissions and surfaces them before a planning surface can read a component as done while it says otherwise. Two sieves: open_filed_edges (any open filed edge — the component's own record of what it does not yet do) and charter_asserts_unbuilt (edges that explicitly name unbuilt work — 'not yet wired', 'deferred', 'waits on'). CLI: `python3 -m cairn.machines.plan_inspector.inspector [component]`. Exit 0 = clean, 1 = findings. Inference-free by construction.",
+  "why": "Provenance: 2026-07-26 — Akien asked for a step-back sanity check and CC found three components (inference_domain, db_domain, web_server) reading as done on the build order while their own filed_edges said otherwise. The hand-run became the instrument (Law 1). The deeper why: a filed_edge is the component's own honest record of what it does not yet do — a planning surface that cannot read these is planning against claims the components themselves deny.",
+  "invoke": "CLI: `python3 -m cairn.machines.plan_inspector.inspector` (whole repo) or `python3 -m cairn.machines.plan_inspector.inspector <component>`. Import: `from cairn.machines.plan_inspector.inspector import inspect`. Prove: `python3 -m cairn.machines.plan_inspector.proofs.test_inspector`.",
+  "how_it_learns": "Same pattern as build_inspector: a new class of planning mismatch seeds a new sieve. The growth rule: a gap Akien catches that this inspector could have caught becomes a sieve (Law 1).",
+  "filed_edges": [
+    "(a) the founding measurement surfaced inference_domain, db_domain, and web_server — the instrument is built and running; the three original components still RED on today's tree (falsifier verified 2026-08-20)",
+    "(b) CLOSED 2026-08-20 — letter-prefixed edges like '(b) CLOSED 2026-08-08...' were read as open because _is_closed checked the raw string starting with '(' not 'CLOSED'. Fixed by stripping letter prefixes before the check. Proven by test_letter_prefix_closed and test_letter_prefix_in_charter."
+  ]
+}

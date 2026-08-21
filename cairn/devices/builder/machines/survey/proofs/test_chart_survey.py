@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -109,6 +110,26 @@ def make_root():
                    "provenance": {"intent_ref": "floor", "constraints": "claude",
                                   "bounds": "claude", "unknowns": "claude"}}, fh)
     return root, orient_berth, constrain_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def orient_berth(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def constrain_berth(_world):
+    return _world[2]
 
 
 def good_packet(constrain_berth):

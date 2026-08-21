@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import subprocess
 import sys
 from pathlib import Path
@@ -193,6 +194,11 @@ def _exists_in(repo: Path):
 
 
 # ── THE SEEDED DEFECTS, FIRST ─────────────────────────────────────────────────
+
+@pytest.fixture
+def d():
+    return str(scratch_dir("forwarding_derivation_proof_"))
+
 
 def test_a_dead_git_raises_and_never_answers_empty(d: str) -> None:
     """(i) THE SILENT FAILURE, and it is the reason the reader is its own piece.

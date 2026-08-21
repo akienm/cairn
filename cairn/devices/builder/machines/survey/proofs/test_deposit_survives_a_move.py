@@ -40,6 +40,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+import pytest
 import shutil
 import sys
 from pathlib import Path
@@ -128,6 +129,11 @@ def expect_refusal(fn, needle):
         assert needle in str(err), "refusal lacks %r: %s" % (needle, err)
         return str(err)
     raise AssertionError("expected a refusal naming %r, got none" % (needle,))
+
+
+@pytest.fixture
+def tmp():
+    return str(scratch_dir("deposit_move_proof_"))
 
 
 def test_the_fixture_is_one_the_writer_admits(tmp):

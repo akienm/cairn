@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -90,6 +91,31 @@ def make_root():
                    "absences": [{"what": "an alpha splitter",
                                  "measure": "path check, absent"}]}, fh)
     return root, orient_berth, constrain_berth, survey_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def orient_berth(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def constrain_berth(_world):
+    return _world[2]
+
+
+@pytest.fixture
+def survey_berth(_world):
+    return _world[3]
 
 
 def good_packet(survey_berth):

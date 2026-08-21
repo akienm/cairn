@@ -29,6 +29,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import pytest
 import sys
 from pathlib import Path
 
@@ -60,6 +61,21 @@ def make_root():
     with open(os.path.join(tickets, "unfalsifiable.json"), "w") as fh:
         json.dump({"id": "unfalsifiable"}, fh)
     return root, tickets
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def tickets(_world):
+    return _world[1]
 
 
 def artifact_for(ticket, root, *, drop=(), fail=(), **extra):

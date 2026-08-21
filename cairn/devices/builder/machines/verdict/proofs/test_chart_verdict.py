@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -110,6 +111,26 @@ def make_root():
                         "instrument": "the door's own gate",
                         "covers": ["compose the settled machinery"]}]}, fh)
     return root, berths, val
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def berths(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def val(_world):
+    return _world[2]
 
 
 def good_artifact(val):

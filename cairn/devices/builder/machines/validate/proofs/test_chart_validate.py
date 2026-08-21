@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -114,6 +115,26 @@ def make_root():
                         "instrument": "the door's own gate, fixture ref"}],
                    "unknowns": ["whether the seam question surfaces"]}, fh)
     return root, triage_berth, hypothesize_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def triage_berth(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def hypothesize_berth(_world):
+    return _world[2]
 
 
 def good_packet(hypothesize_berth):

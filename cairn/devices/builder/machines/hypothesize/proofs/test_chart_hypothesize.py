@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -103,6 +104,26 @@ def make_root():
                         "why_now": "rides on the splitter once it stands"}],
                    "unknowns": ["whether the seam question surfaces mid-build"]}, fh)
     return root, decompose_berth, triage_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def decompose_berth(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def triage_berth(_world):
+    return _world[2]
 
 
 def good_packet(triage_berth):

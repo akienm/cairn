@@ -31,6 +31,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -119,6 +120,21 @@ def make_root():
                                   "scope": "claude", "refs": "floor",
                                   "unknowns": "claude"}}, fh)
     return root, orient_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def orient_berth(_world):
+    return _world[1]
 
 
 def good_packet(orient_berth):

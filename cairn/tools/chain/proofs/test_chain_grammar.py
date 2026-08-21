@@ -13,6 +13,7 @@ Hermetic (a fabricated temp root — no live snapshot values are pinned); the
 live-root assertions are MEMBERSHIP invariants only. Exit 0 = green.
 """
 import os
+import pytest
 import shutil
 import sys
 
@@ -52,6 +53,11 @@ def make_root():
                 fh.write("{}\n")
     os.makedirs(os.path.join(root, "skills", "chart"))
     return root
+
+
+@pytest.fixture
+def root():
+    return make_root()
 
 
 def test_the_roster_is_measured_ONCE_per_process_and_forgetting_re_measures(root):

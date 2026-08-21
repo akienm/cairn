@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import os
+import pytest
 import shutil
 import sys
 from datetime import datetime
@@ -93,6 +94,26 @@ def make_root():
                         "fills": "an alpha splitter"}],
                    "unknowns": ["whether the splitter needs a second seam"]}, fh)
     return root, survey_berth, decompose_berth
+
+
+@pytest.fixture
+def _world():
+    return make_root()
+
+
+@pytest.fixture
+def root(_world):
+    return _world[0]
+
+
+@pytest.fixture
+def survey_berth(_world):
+    return _world[1]
+
+
+@pytest.fixture
+def decompose_berth(_world):
+    return _world[2]
 
 
 def good_packet(decompose_berth):

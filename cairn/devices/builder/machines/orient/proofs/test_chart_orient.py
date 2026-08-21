@@ -8,6 +8,7 @@ pinned); the two live-root teeth assert MEMBERSHIP invariants only. Exit 0 = gre
 import ast
 import json
 import os
+import pytest
 import shutil
 import sys
 
@@ -65,6 +66,11 @@ def make_root():
     with open(os.path.join(root, "skills", "chart", "SKILL.md"), "w") as fh:
         fh.write("# /chart\n")
     return root
+
+
+@pytest.fixture
+def root():
+    return make_root()
 
 
 def good_packet():

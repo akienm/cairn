@@ -196,7 +196,7 @@ An IOU without a real ticket is itself the defect this section is made of.
   store primitives; shareable provenance is git-JSON beside the code, not a row.
   → *where data lives* is not *who imports a driver*: `import_sieve` now seals the
   door (below), but nothing yet reds a component that keeps relational state
-  somewhere else entirely. · *ticket owed*
+  somewhere else entirely. · *ticket relational-state-goes-through-the-one-door*
 - Everything in `intentions-congruency-lab/` is **derived, never authored** — it is a
   viewing surface (Akien, 2026-08-06). *Several* derived writers are legitimate: the
   compiler copying the whole folder, and a formalization step updating the one
@@ -230,7 +230,7 @@ An IOU without a real ticket is itself the defect this section is made of.
   and `slates/` at 96 stored against exactly 1 the reader ever loads — the rule violated
   95:1 inside the very artifact whose job is telling the next mind what is going on.
   → a measure of *reach* (how deep is history actually read?) feeding a migration the
-  door performs · *ticket owed*
+  door performs · *ticket history-reach-feeds-a-migration*
 
 **Residues.** These rules ARE physics and are deliberately not restated here —
 what remains is only the part enforcement cannot yet reach. Read the rule at its
@@ -238,15 +238,15 @@ charter, never from this file.
 
 - sole path to the inference host and to 5432 (`import_sieve`, shaken by
   `inference_domain` and `db_domain` at their own addresses) → a `subprocess`
-  dials and imports nothing, and a dynamic import is invisible. · *ticket owed*
+  dials and imports nothing, and a dynamic import is invisible. · *ticket sole-path-sees-subprocess-and-dynamic-import*
 - `state`/`history` (append door + PROVEME drift check) → an in-place edit of
   *history* itself, and at-rest components between voyages; **and nothing
   notices history that has stopped being under way** (Law 5's new bound — see
-  the IOU above). · *ticket owed*
+  the IOU above). · *ticket state-and-history-door-catches-in-place-edits*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
-  in flight from "caveat" in a retrospective. · *ticket owed*
+  in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*
 - ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees
-  packets that exist, not rulings never recorded. · *ticket owed*
+  packets that exist, not rulings never recorded. · *ticket ruling-intake-ensures-packets-are-opened*
 
 This file has its own charter and answers to `/challenge` — whose firing event
 is every node birth at `/intent` (ticket challenge-fires-at-intent); as a settled

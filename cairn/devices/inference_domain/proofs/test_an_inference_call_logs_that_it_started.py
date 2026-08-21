@@ -57,7 +57,6 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -67,6 +66,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.db_domain import store
 from cairn.devices.inference_domain import domain
+from cairn.devices.tester.scratch import scratch_dir
 from cairn.tools.base import address
 
 _NONCE = f"{os.getpid()}_{datetime.now(timezone.utc).strftime('%H%M%S%f')}"
@@ -121,13 +121,12 @@ def _isolated_trail():
     world on the way out, unconditionally — a proof that leaves a device pointed at a deleted
     temp tree has broken the next tooth in the same process.
     """
-    tmp = Path(tempfile.mkdtemp(prefix="cairn_trail_"))
+    tmp = scratch_dir("cairn_trail_")
     domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
     try:
         yield tmp
     finally:
         domain.set_diagnostic_roots(None)
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def _lines(path: Path) -> list[dict]:
@@ -302,13 +301,12 @@ def test_the_trail_and_the_meter_agree():
         # THE WITNESS. Send the next crossing's line to a different world; the row still lands
         # in the same table. The equality above must now be false — which is what makes it a
         # measurement rather than a tautology.
-        elsewhere = Path(tempfile.mkdtemp(prefix="cairn_trail_elsewhere_"))
+        elsewhere = scratch_dir("cairn_trail_elsewhere_")
         try:
             domain.set_diagnostic_roots({**address.ROOTS, "instance": elsewhere})
             domain.resolve({"q": f"{tag}_9"}, resolver=r, table=_TABLE)
         finally:
             domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
-            shutil.rmtree(elsewhere, ignore_errors=True)
 
         assert row_misses() == 4, "the store recorded the fourth host call"
         assert trail_misses() == 3, "the trail did not — its line went to the other world"

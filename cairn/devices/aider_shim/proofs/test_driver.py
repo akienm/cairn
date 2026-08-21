@@ -43,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import driver, venv  # noqa: E402
 from cairn.devices.aider_shim.translate import Brief, Span  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 FAILURES = []
 MODEL = "qwen3-coder:30b"
@@ -430,14 +431,14 @@ coder = Coder.create(main_model=M.Model(ARG["model"]),
 emit({"asks": log.entries, "map_tokens": coder.repo_map is not None,
       "repo": coder.repo is not None, "fnames": sorted(coder.abs_fnames),
       "auto_commits": coder.auto_commits})
-''', {"model": MODEL, "file": str(Path(tempfile.mkdtemp()) / "x.py")})
+''', {"model": MODEL, "file": str(scratch_dir("aider-proof-nosplit-") / "x.py")})
     assert got["asks"] == [], got["asks"]
 
 
 def test_every_bound_is_a_constructor_argument():
     """Read the bounds back OFF THE INSTANCE — a bound checked after the run is a bound
     the run already violated."""
-    tmpdir = Path(tempfile.mkdtemp())
+    tmpdir = scratch_dir("aider-proof-bounds-")
     f = tmpdir / "x.py"
     got = venv.run_in_venv(r'''
 from pathlib import Path
@@ -484,7 +485,6 @@ def test_model_construction_reaches_no_network():
     half ever stops reaching, this tooth has gone vacuous and says so.
     """
     script = r'''
-import tempfile
 from pathlib import Path
 from cairn.devices.aider_shim import holder
 from cairn.devices.aider_shim.fence import SeenLog
@@ -498,7 +498,7 @@ requests.get = tripwire
 import aider.models as M
 from cairn.devices.aider_shim.interceptor import _model_info
 mim = M.model_info_manager
-cold = Path(tempfile.mkdtemp())
+cold = Path(ARG["cold_cache"])
 mim.cache_dir = cold; mim.cache_file = cold / "cache.json"
 mim.content = None; mim._cache_loaded = False
 if ARG["seed"]:
@@ -510,11 +510,13 @@ except BaseException as bad:
     info = None; err = "%s: %s" % (type(bad).__name__, bad)
 emit({"reached": reached, "info": info, "err": err})
 '''
-    seeded = venv.run_in_venv(script, {"model": MODEL, "seed": True})
+    seeded = venv.run_in_venv(script, {"model": MODEL, "seed": True,
+                                       "cold_cache": str(scratch_dir("aider-proof-cache-"))})
     assert seeded["reached"] == [], \
         f"the driver's arrangement reached the network unfenced: {seeded['reached']}"
     assert seeded["info"], seeded
-    cold = venv.run_in_venv(script, {"model": MODEL, "seed": False})
+    cold = venv.run_in_venv(script, {"model": MODEL, "seed": False,
+                                     "cold_cache": str(scratch_dir("aider-proof-cache-"))})
     assert cold["reached"], \
         ("unseeded construction reached nothing — the tooth above is now vacuous, because "
          "the thing it claims to prevent no longer happens. Re-read aider's "
@@ -698,20 +700,20 @@ def test_hashes_moved_agrees_with_what_aider_reported():
 # ============================================================== piece 6: the test command
 
 def test_a_passing_test_cmd_is_carried():
-    out = driver.run_test("printf PASSMARK-4471", cwd=Path(tempfile.mkdtemp()))
+    out = driver.run_test("printf PASSMARK-4471", cwd=scratch_dir("aider-proof-run-test-"))
     assert out["ran"] is True and out["returncode"] == 0 and out["passed"] is True, out
     assert "PASSMARK-4471" in out["stdout"], out
 
 
 def test_a_failing_test_cmd_keeps_its_own_output():
-    out = driver.run_test("printf FAILMARK-8823 >&2; exit 3", cwd=Path(tempfile.mkdtemp()))
+    out = driver.run_test("printf FAILMARK-8823 >&2; exit 3", cwd=scratch_dir("aider-proof-run-test-"))
     assert out["ran"] is True and out["returncode"] == 3 and out["passed"] is False, out
     assert "FAILMARK-8823" in out["stderr"], \
         "the failing output did not survive — a generic failure is exactly what Law 7 forbids"
 
 
 def test_an_empty_test_cmd_is_not_run_and_not_passed():
-    out = driver.run_test("", cwd=Path(tempfile.mkdtemp()))
+    out = driver.run_test("", cwd=scratch_dir("aider-proof-run-test-"))
     assert out["ran"] is False, out
     assert "passed" not in out, "an unrun test must not carry a verdict at all"
 

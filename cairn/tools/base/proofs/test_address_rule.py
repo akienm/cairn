@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import sys
 import tempfile
+from cairn.devices.tester.scratch import scratch_dir
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
@@ -83,9 +84,9 @@ LEGITIMATE = Path.home() / "dev" / "src" / "aider"
 
 def _plant(source: str, name: str = "planted.py") -> str:
     """Write one source file into a fresh temp tree and return the tree's path."""
-    td = tempfile.mkdtemp()
-    (Path(td) / name).write_text(source, encoding="utf-8")
-    return td
+    td = scratch_dir("cairn-address-rule-proof-")
+    (td / name).write_text(source, encoding="utf-8")
+    return str(td)
 
 
 def test_a_mention_is_not_a_catch():

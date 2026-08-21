@@ -55,6 +55,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from cairn.devices.tester.scratch import scratch_dir
 import time
 from pathlib import Path
 
@@ -111,7 +112,7 @@ def _hook(payload: dict, home: str | None = None) -> subprocess.CompletedProcess
     code under proof. The tooth that catches a regression is case 7.
     """
     env = dict(os.environ)
-    env["HOME"] = home or str(Path(tempfile.gettempdir()) / "askscan-proof-nohome")
+    env["HOME"] = home or str(scratch_dir("askscan-proof-nohome-"))
     Path(env["HOME"]).mkdir(parents=True, exist_ok=True)
     return subprocess.run([sys.executable, str(ASKSCAN)], input=json.dumps(payload),
                           capture_output=True, text=True, timeout=60, env=env)

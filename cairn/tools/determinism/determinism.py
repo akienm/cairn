@@ -88,9 +88,12 @@ LLM = ("cairn.devices.inference_domain",)
 
 # Off-box but NOT an oracle: state that can change under a re-run. Reported beside the
 # verdict, never folded into it — grading these as oracles is the error this module's
-# first cut shipped with.
-OFF_BOX = tuple(m for m in import_sieve.DEFAULT_LADDER[3]["modules"]
-                if not m.startswith("cairn.devices.inference_domain"))
+# first cut shipped with. Listed directly — the proximity ladder these were derived from
+# is superseded by phase-based bands, and determinism's question (what reaches off-box)
+# was never the same question as the sieve banding question anyway.
+OFF_BOX = ("cairn.devices.db_domain", "cairn.devices.librarian",
+           "cairn.tools.tree.tree", "psycopg", "psycopg2", "socket",
+           "urllib.request", "http.client", "requests")
 
 # THE GATE PRIMITIVE. A gate is a component that reaches this — the module holding the ==
 # compare Akien specified. Derived, never declared: a charter field saying "I am a gate"

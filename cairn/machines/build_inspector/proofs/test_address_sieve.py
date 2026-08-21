@@ -52,7 +52,7 @@ def _component(root: Path, rel: str) -> Path:
 
 def _sieved(root: Path, component: str) -> list[dict]:
     return [f for f in inspect(root=root, component=component)["findings"]
-            if f["sieve"] == _SIEVE]
+            if f["method"] == _SIEVE]
 
 
 def main() -> None:
@@ -73,14 +73,13 @@ def main() -> None:
     (spelled / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_A}\n")
     f = _sieved(root, "spelled")
     assert len(f) == 1, f"the planted spelling must be caught exactly once: {f}"
-    assert "berth.py:3" in f[0]["finding"], f[0]
-    assert f[0]["evidence"]["shape"], f[0]
-    assert f[0]["score"] == 0.0, f[0]
+    assert "berth.py:3" in f[0]["about"], f[0]
+    assert f[0]["values"]["shape"], f[0]
 
     # 2 — the OTHER shape, so the seat is not proved on one dialect. Both are the corpus's.
     (spelled / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_B}\n")
     f = _sieved(root, "spelled")
-    assert len(f) == 1 and "berth.py:3" in f[0]["finding"], f
+    assert len(f) == 1 and "berth.py:3" in f[0]["about"], f
 
     # 3 — A MENTION IS NOT A CATCH, and this is the whole reason the rule stopped being a
     #     text scan. The regex the probe used to own caught prose — including a sentence in
@@ -112,7 +111,7 @@ def main() -> None:
     (nested / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_A}\n")
     fh, fn = _sieved(root, "holder"), _sieved(root, "nested")
     assert fh == [], f"the holder must not wear its machine's finding: {fh}"
-    assert len(fn) == 1 and "berth.py:3" in fn[0]["finding"], fn
+    assert len(fn) == 1 and "berth.py:3" in fn[0]["about"], fn
 
     # 7 — a clean component stays clean while the tree above is dirty. Another component's
     #     hand-spelled path must never red an innocent row.
@@ -136,9 +135,9 @@ def main() -> None:
             f"the sieve did not run against {comp} — absent means not-shaken, and a " \
             "component silently exempt from a gate is the vacuous green"
     for f in live["findings"]:
-        if f["sieve"] != _SIEVE:
+        if f["method"] != _SIEVE:
             continue
-        site = Path(f["evidence"]["site"].rsplit(":", 1)[0])
+        site = Path(f["values"]["site"].rsplit(":", 1)[0])
         assert (site if site.is_absolute() else _REPO_ROOT / site).exists(), \
             f"the sieve named a file the world does not hold: {f}"
 

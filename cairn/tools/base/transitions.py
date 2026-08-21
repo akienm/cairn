@@ -264,11 +264,12 @@ def _findings_of(record: list[dict]) -> list[dict]:
     for entry in _mismatches(record):
         found = (entry.get("values") or {}).get("findings")
         out.extend(found or [{
-            "sieve": entry["identity"],
-            "finding": "lane %s refused and named no finding" % entry["identity"],
-            "why_it_matters": "a refusal with no sentence is the silence the proof record "
-                              "exists to end",
-            "evidence": {"expected": entry["expected"], "actual": entry["actual"]},
+            "about": "lane %s refused and named no finding" % entry["identity"],
+            "expected": entry["expected"],
+            "actual": entry["actual"],
+            "compare": "exact",
+            "method": entry["identity"],
+            "component": entry["identity"],
         }])
     return out
 
@@ -290,7 +291,7 @@ def _sieve_lane(identity: str, findings: list[dict], *, code: str, **values) -> 
     """
     return _lane(identity,
                  expected=[],
-                 actual=[f.get("finding", str(f)) for f in findings],
+                 actual=[f.get("about", str(f)) for f in findings],
                  code=code, findings=findings, **values)
 
 
@@ -1208,8 +1209,8 @@ def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
             % (ticket, _proved_note("the entry gate", record)), record
         )
     lines = [
-        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
-        f"{json.dumps(f['evidence'], default=str)})"
+        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
         for f in findings
     ]
     raise EntryGateRed(
@@ -1264,8 +1265,8 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
         return ("clean — no unanswered chart claim stands against ticket %r; %s"
                 % (ticket, _proved_note("the exit gate", record)), record)
     lines = [
-        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
-        f"{json.dumps(f['evidence'], default=str)})"
+        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
         for f in findings
     ]
     raise ExitGateRed(
@@ -1383,8 +1384,8 @@ def _build_gate(history_path: str) -> tuple[str, list[dict]]:
         return (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
                 f"{len(record)} check(s) are proved on this crossing", record)
     lines = [
-        f"  [{f['sieve']}] {f['finding']} — {f['why_it_matters']} (evidence: "
-        f"{json.dumps(f['evidence'], default=str)})"
+        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
         for f in findings
     ]
     raise BuildGateRed(

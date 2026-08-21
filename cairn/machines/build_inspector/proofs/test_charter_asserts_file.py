@@ -47,7 +47,7 @@ def test_false_assertion_is_caught():
         comp = _make_charter(d, "state.json + history.json beside this charter, born at the carve-out.")
         result = charter_asserts_file_present({"component": "test_component"}, comp)
         assert len(result) >= 1, f"false assertion must be caught, got {result}"
-        names = {f["evidence"]["asserted_file"] for f in result}
+        names = {f["values"]["asserted_file"] for f in result}
         assert "state.json" in names, f"state.json must be caught: {names}"
         assert "history.json" in names, f"history.json must be caught: {names}"
 
@@ -77,7 +77,7 @@ def test_not_hardcoded_to_two_filenames():
         comp = _make_charter(d, "config.json beside this charter, always present.")
         result = charter_asserts_file_present({"component": "test_component"}, comp)
         assert len(result) == 1, f"any asserted file must be caught, got {result}"
-        assert result[0]["evidence"]["asserted_file"] == "config.json"
+        assert result[0]["values"]["asserted_file"] == "config.json"
 
 
 def test_live_corpus_is_clean():
@@ -86,7 +86,7 @@ def test_live_corpus_is_clean():
     for d in dirs:
         result = charter_asserts_file_present({"component": d.name}, d)
         if result:
-            failures.extend(f"{f['component']}: {f['finding']}" for f in result)
+            failures.extend(f"{f['component']}: {f['about']}" for f in result)
     assert not failures, (
         f"the live corpus must be clean after corrections, {len(failures)} finding(s):\n"
         + "\n".join(failures))

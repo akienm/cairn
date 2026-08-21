@@ -32,8 +32,7 @@ from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 # "component" stopped being enough to say which one was caught, and the gradation is now
 # keyed by address. "at" is what correlates a finding back to its own row; without it a
 # reader (and the tooth below at the gradation) can only guess between two subjects.
-_FINDING_SHAPE = {"sieve", "component", "finding", "evidence", "score", "why_it_matters",
-                  "at"}
+_FINDING_SHAPE = {"method", "component", "about", "expected", "actual", "compare", "at"}
 
 
 def _refuses(fn, because):
@@ -83,7 +82,7 @@ def main() -> None:
                            ("no_proofs", "proofs_exist"),
                            ("silent", "silent_device")]:
         f = inspect(root=root, component=comp)["findings"]
-        assert [x["sieve"] for x in f] == [expected], (comp, f)
+        assert [x["method"] for x in f] == [expected], (comp, f)
 
     # 3 — state_is_projection: a voyage written THROUGH THE DOOR is clean...
     h, s = root / "healthy" / "history.json", root / "healthy" / "state.json"
@@ -95,8 +94,8 @@ def main() -> None:
     edited["cursor"] = {"gate": "PROVED"}  # the lie: promotion without a crossing
     s.write_text(json.dumps(edited))
     f = inspect(root=root, component="healthy")["findings"]
-    assert [x["sieve"] for x in f] == ["state_is_projection"], f
-    assert "cursor" in f[0]["evidence"]["diverging_keys"], f[0]
+    assert [x["method"] for x in f] == ["state_is_projection"], f
+    assert "cursor" in f[0]["about"], f[0]
 
     # 5 — repair goes through the door (append), never an edit — and the gate agrees.
     projector.append_entry(str(h), str(s), {"standing": "BUILDME", "note": "re-projected"})
@@ -106,7 +105,7 @@ def main() -> None:
     orphan = _component(root, "orphan")
     (orphan / "state.json").write_text("{}")
     f = inspect(root=root, component="orphan")["findings"]
-    assert [x["sieve"] for x in f] == ["state_is_projection"] and "without" in f[0]["finding"]
+    assert [x["method"] for x in f] == ["state_is_projection"] and "missing" in f[0]["about"]
 
     # 7 — the gate cannot silently inspect nothing: unknown component refuses, and
     #     names what the census actually sees (complete on first pass).
@@ -122,7 +121,7 @@ def main() -> None:
     sweep = inspect(root=root)
     assert not sweep["clean"]
     for x in sweep["findings"]:
-        assert set(x) == _FINDING_SHAPE and len(x["why_it_matters"]) > 40, x
+        assert set(x) - {"values"} == _FINDING_SHAPE and x["about"], x
 
     # 10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance
     #      naming its seeding failure (dated or IOU-named) — a sieve nobody was
@@ -136,7 +135,7 @@ def main() -> None:
     assert real["components_inspected"] >= 10, "the sweep barely saw the tree"
     assert real["sieves_run"] == sorted(SIEVES)
     for x in real["findings"]:
-        assert set(x) == _FINDING_SHAPE, x
+        assert set(x) - {"values"} == _FINDING_SHAPE, x
     assert real["clean"] == (not real["findings"])
 
     # 12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,
@@ -181,8 +180,8 @@ def main() -> None:
         (p / "orient-20260728T000001-bbbb.json").write_text(
             json.dumps({"ticket": "wire-proof", "refs": ["base", "no/such/ref.py"]}))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["charted_refs_resolve"], f
-        assert f[0]["evidence"]["missing"] == ["no/such/ref.py"], f[0]
+        assert [x["method"] for x in f] == ["charted_refs_resolve"], f
+        assert "no/such/ref.py" in f[0]["about"], f[0]
         # The world matching the chart again: quiet again.
         (p / "orient-20260728T000001-bbbb.json").write_text(
             json.dumps({"ticket": "wire-proof", "refs": ["base"]}))
@@ -195,8 +194,8 @@ def main() -> None:
         assert inspect(root=root, component="charted")["clean"], \
             "an unreadable berth must not fire on other components' crossings"
         f = inspect(root=root, component="chart")["findings"]
-        assert [x["sieve"] for x in f] == ["charted_refs_resolve"], f
-        assert "unreadable" in f[0]["finding"], f[0]
+        assert [x["method"] for x in f] == ["charted_refs_resolve"], f
+        assert "readable" in f[0]["about"], f[0]
         # 15 — THE JUDGES BEFORE THE JUDGED (constrain-filters): a charted constrain
         #      packet with an unresolvable source fires constraint_traces; an empty
         #      bounds.out fires constraint_bounds_complete; a whole packet is quiet.
@@ -214,13 +213,13 @@ def main() -> None:
                                            "kind": "charter"}])
         cpath.write_text(json.dumps(minted))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["constraint_traces"], f
-        assert f[0]["evidence"]["source"] == "no/such/charter.json", f[0]
+        assert [x["method"] for x in f] == ["constraint_traces"], f
+        assert f[0]["values"]["source"] == "no/such/charter.json", f[0]
         unbounded = dict(whole, bounds={"in": ["the gate only"], "out": []})
         cpath.write_text(json.dumps(unbounded))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["constraint_bounds_complete"], f
-        assert f[0]["evidence"]["side"] == "out", f[0]
+        assert [x["method"] for x in f] == ["constraint_bounds_complete"], f
+        assert f[0]["values"]["side"] == "out", f[0]
 
         # 16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry sieves report exactly
         #      what the pure judge reports — no drift between door and gate is
@@ -249,17 +248,17 @@ def main() -> None:
                                         "address": "no/such/thing.py"}])
         spath.write_text(json.dumps(phantom))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["survey_holdings_resolve"], f
-        assert f[0]["evidence"]["address"] == "no/such/thing.py", f[0]
+        assert [x["method"] for x in f] == ["survey_holdings_resolve"], f
+        assert f[0]["values"]["address"] == "no/such/thing.py", f[0]
         unswept = dict(held, sought=[])
         spath.write_text(json.dumps(unswept))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["survey_coverage_complete"], f
+        assert [x["method"] for x in f] == ["survey_coverage_complete"], f
         unmeasured = dict(held, absences=[{"what": "a survey module"}])
         spath.write_text(json.dumps(unmeasured))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["survey_coverage_complete"], f
-        assert "measure" in f[0]["finding"], f[0]
+        assert [x["method"] for x in f] == ["survey_coverage_complete"], f
+        assert "measure" in f[0]["about"], f[0]
 
         # 18 — one implementation, two mouths, for the survey judge too.
         from cairn.machines.build_inspector.inspector import judge_survey
@@ -294,20 +293,20 @@ def main() -> None:
              "kind": "compose", "uses": ["no/such/thing.py"]}])
         dpath.write_text(json.dumps(rebuilt))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["decompose_composes_holdings"], f
-        assert f[0]["evidence"]["uses"] == "no/such/thing.py", f[0]
+        assert [x["method"] for x in f] == ["decompose_composes_holdings"], f
+        assert f[0]["values"]["uses"] == "no/such/thing.py", f[0]
         invented = dict(derived, sub_problems=[
             {"what": "build a whim", "why": "nobody measured it",
              "kind": "build", "fills": "a thing never sought"}])
         dpath.write_text(json.dumps(invented))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["decompose_builds_absences"], f
-        assert f[0]["evidence"]["fills"] == "a thing never sought", f[0]
+        assert [x["method"] for x in f] == ["decompose_builds_absences"], f
+        assert f[0]["values"]["fills"] == "a thing never sought", f[0]
         broken = dict(derived, survey_ref=str(tmp / "gone.json"))
         dpath.write_text(json.dumps(broken))
         f = inspect(root=root, component="charted")["findings"]
-        assert "decompose_composes_holdings" in [x["sieve"] for x in f], f
-        assert any("survey berth" in x["finding"] for x in f), f
+        assert "decompose_composes_holdings" in [x["method"] for x in f], f
+        assert any("survey berth" in x["about"] for x in f), f
         dpath.unlink()
 
         # 20 — one implementation, two mouths, for the decompose judge too.
@@ -346,7 +345,7 @@ def main() -> None:
         # ...and through the registry sieve, not only the pure judge (two mouths).
         dpath.write_text(json.dumps(outside))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["decompose_composes_holdings"], f
+        assert [x["method"] for x in f] == ["decompose_composes_holdings"], f
         dpath.write_text(json.dumps(addressed))
         assert inspect(root=root, component="charted")["clean"]
         dpath.unlink()
@@ -412,25 +411,25 @@ def main() -> None:
         dropped = dict(ranked, order=ranked["order"][:1])
         tpath.write_text(json.dumps(dropped))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["triage_covers_the_split"], f
-        assert f[0]["evidence"]["dropped"] == ["compose the base door"], f[0]
+        assert [x["method"] for x in f] == ["triage_covers_the_split"], f
+        assert f[0]["values"]["dropped"] == ["compose the base door"], f[0]
         invented_rank = dict(ranked, order=ranked["order"] + [
             {"what": "polish a whim", "why_now": "it would be nice"}])
         tpath.write_text(json.dumps(invented_rank))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["triage_covers_the_split"], f
-        assert f[0]["evidence"]["what"] == "polish a whim", f[0]
+        assert [x["method"] for x in f] == ["triage_covers_the_split"], f
+        assert f[0]["values"]["what"] == "polish a whim", f[0]
         unreasoned = dict(ranked, order=[
             dict(ranked["order"][0], why_now=""), ranked["order"][1]])
         tpath.write_text(json.dumps(unreasoned))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["triage_reasons_the_order"], f
-        assert f[0]["evidence"]["what"] == "build the module", f[0]
+        assert [x["method"] for x in f] == ["triage_reasons_the_order"], f
+        assert f[0]["values"]["what"] == "build the module", f[0]
         chainless = dict(ranked, decompose_ref=str(tmp / "gone.json"))
         tpath.write_text(json.dumps(chainless))
         f = inspect(root=root, component="charted")["findings"]
-        assert "triage_covers_the_split" in [x["sieve"] for x in f], f
-        assert any("decompose berth" in x["finding"] for x in f), f
+        assert "triage_covers_the_split" in [x["method"] for x in f], f
+        assert any("decompose berth" in x["about"] for x in f), f
         tpath.unlink()
 
         # 22 — one implementation, two mouths, for the triage judge too; and the
@@ -478,27 +477,27 @@ def main() -> None:
         uncovered = dict(expected, hypotheses=expected["hypotheses"][:1])
         hpath.write_text(json.dumps(uncovered))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["hypothesize_covers_the_ranked"], f
-        assert f[0]["evidence"]["uncovered"] == ["compose the base door"], f[0]
+        assert [x["method"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert f[0]["values"]["uncovered"] == ["compose the base door"], f[0]
         invented_h = dict(expected, hypotheses=expected["hypotheses"] + [
             {"piece": "polish a whim", "expect": "it gleams",
              "falsifier": "it does not", "instrument": "a glance"}])
         hpath.write_text(json.dumps(invented_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["hypothesize_covers_the_ranked"], f
-        assert f[0]["evidence"]["piece"] == "polish a whim", f[0]
+        assert [x["method"] for x in f] == ["hypothesize_covers_the_ranked"], f
+        assert f[0]["values"]["piece"] == "polish a whim", f[0]
         unmeasured_h = dict(expected, hypotheses=[
             dict(expected["hypotheses"][0], falsifier="", instrument="  "),
             expected["hypotheses"][1]])
         hpath.write_text(json.dumps(unmeasured_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["hypothesize_falsifiable_measured"], f
-        assert f[0]["evidence"]["lacking"] == ["falsifier", "instrument"], f[0]
+        assert [x["method"] for x in f] == ["hypothesize_falsifiable_measured"], f
+        assert f[0]["values"]["lacking"] == ["falsifier", "instrument"], f[0]
         chainless_h = dict(expected, triage_ref=str(tmp / "gone.json"))
         hpath.write_text(json.dumps(chainless_h))
         f = inspect(root=root, component="charted")["findings"]
-        assert "hypothesize_covers_the_ranked" in [x["sieve"] for x in f], f
-        assert any("triage berth" in x["finding"] for x in f), f
+        assert "hypothesize_covers_the_ranked" in [x["method"] for x in f], f
+        assert any("triage berth" in x["about"] for x in f), f
         hpath.unlink()
 
         # 24 — one implementation, two mouths, for the hypothesize judge too.
@@ -547,25 +546,25 @@ def main() -> None:
             done_set["criteria"][1]])
         vpath.write_text(json.dumps(unmeasured_c))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["validate_measures_done"], f
-        assert f[0]["evidence"]["lacking"] == ["instrument"], f[0]
+        assert [x["method"] for x in f] == ["validate_measures_done"], f
+        assert f[0]["values"]["lacking"] == ["instrument"], f[0]
         unclaimed = dict(done_set, criteria=done_set["criteria"] + [
             {"claim": "a whim gleams", "instrument": "a glance",
              "covers": ["polish a whim"]}])
         vpath.write_text(json.dumps(unclaimed))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["validate_covers_the_build"], f
-        assert f[0]["evidence"]["covers"] == "polish a whim", f[0]
+        assert [x["method"] for x in f] == ["validate_covers_the_build"], f
+        assert f[0]["values"]["covers"] == "polish a whim", f[0]
         partial = dict(done_set, criteria=done_set["criteria"][:1])
         vpath.write_text(json.dumps(partial))
         f = inspect(root=root, component="charted")["findings"]
-        assert [x["sieve"] for x in f] == ["validate_covers_the_build"], f
-        assert f[0]["evidence"]["uncovered"] == ["compose the base door"], f[0]
+        assert [x["method"] for x in f] == ["validate_covers_the_build"], f
+        assert f[0]["values"]["uncovered"] == ["compose the base door"], f[0]
         chainless_v = dict(done_set, hypothesize_ref=str(tmp / "gone.json"))
         vpath.write_text(json.dumps(chainless_v))
         f = inspect(root=root, component="charted")["findings"]
-        assert "validate_covers_the_build" in [x["sieve"] for x in f], f
-        assert any("hypothesize berth" in x["finding"] for x in f), f
+        assert "validate_covers_the_build" in [x["method"] for x in f], f
+        assert any("hypothesize berth" in x["about"] for x in f), f
         vpath.unlink()
 
         # 26 — one implementation, two mouths, for the validate judge too.
@@ -622,7 +621,7 @@ def main() -> None:
              "bounds": {"in": ["the move"], "out": ["everything else"]}}))
 
         # (i) NO ORDER: all three mouths red. The tolerance is opt-in, never the default.
-        names = lambda comp: sorted(x["sieve"] for x in           # noqa: E731
+        names = lambda comp: sorted(x["method"] for x in           # noqa: E731
                                     inspect(root=root, component=comp)["findings"])
         assert names("moved") == ["charted_refs_resolve", "constraint_traces",
                                   "survey_holdings_resolve"], \
@@ -646,9 +645,9 @@ def main() -> None:
         #      different thing while the original sits there untouched.
         _order({"librarian": {"to": "base", "why": "not a move at all"}})
         assert "forwarding_order_resolves" in names("moved"), names("moved")
-        assert "still resolves" in [x["finding"] for x in
+        assert "retired" in [x["about"] for x in
                                     inspect(root=root, component="moved")["findings"]
-                                    if x["sieve"] == "forwarding_order_resolves"][0]
+                                    if x["method"] == "forwarding_order_resolves"][0]
 
         # (v) THE WHY IS FORCED STRUCTURALLY (CP3), and so is the shape.
         for broken in ({"gone/away.py": {"to": "base"}},
@@ -710,10 +709,9 @@ def main() -> None:
         ep = eroot / "0" / "packets"
         ep.mkdir(parents=True)
         ef = buildme_rides_the_chart("lonely", berths_root=eroot)
-        assert [x["sieve"] for x in ef] == ["buildme_rides_the_chart"], ef
-        assert ef[0]["evidence"]["ticket"] == "lonely" and \
-            ef[0]["evidence"]["searched"] == str(eroot) and \
-            "/chart" in ef[0]["why_it_matters"], ef[0]
+        assert [x["method"] for x in ef] == ["buildme_rides_the_chart"], ef
+        assert ef[0]["component"] == "lonely" and \
+            ef[0]["values"]["searched"] == str(eroot), ef[0]
         # a claim on ANOTHER ticket, an unreadable berth, a non-validate stage: still red
         (ep / "validate-20260729T000000-aaaa.json").write_text(
             json.dumps({"ticket": "someone-else"}))
@@ -754,10 +752,9 @@ def main() -> None:
                                                  "covers": ["p1"]}]}))
         # claimed, no verdict artifact: ONE red naming the missing answer + disposition
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
-        assert [x["sieve"] for x in xf] == ["proved_answers_the_chart"], xf
-        assert "no verdict artifact" in xf[0]["finding"] and \
-            str(val) in xf[0]["evidence"]["claiming"] and \
-            "write_verdict" in xf[0]["why_it_matters"], xf[0]
+        assert [x["method"] for x in xf] == ["proved_answers_the_chart"], xf
+        assert xf[0]["about"] == "verdict artifact exists" and \
+            str(val) in xf[0]["values"]["claiming"], xf[0]
         # a verdict answering someone ELSE's chart: red, not an answer here
         stray = xp / "verdict-20260729T000002-cccc.json"
         stray.write_text(json.dumps(
@@ -767,7 +764,7 @@ def main() -> None:
              "dispositions": [{"piece": "p1", "expect": "e1",
                                "disposition": "confirmed", "by": "obs"}]}))
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
-        assert xf and "does not claim this ticket" in xf[0]["finding"], xf
+        assert xf and "claiming" in xf[0]["about"], xf
         # narration (empty evidence) is malformed, loudly — done may not live there
         stray.unlink()
         bad = xp / "verdict-20260729T000003-dddd.json"
@@ -777,8 +774,7 @@ def main() -> None:
                            "evidence": ""}],
              "dispositions": []}))
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
-        assert xf and "malformed" in xf[0]["finding"] and \
-            "narration" in xf[0]["finding"], xf
+        assert xf and xf[0]["about"] == "verdict artifact well-formed", xf
         # answered-and-FAILED + undispositioned: one complete finding EACH, first pass
         bad.unlink()
         half = xp / "verdict-20260729T000004-eeee.json"
@@ -789,8 +785,8 @@ def main() -> None:
              "dispositions": []}))
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
         assert len(xf) == 2, xf
-        assert "FAILED" in xf[0]["finding"] and "kick-back" in xf[0]["finding"], xf[0]
-        assert "undispositioned" in xf[1]["finding"] and "p1" in xf[1]["finding"], xf[1]
+        assert "FAILED" in xf[0]["about"] and "kick-back" in xf[0]["about"], xf[0]
+        assert "undispositioned" in xf[1]["about"] and "p1" in xf[1]["about"], xf[1]
         # the complete answer stands: LATEST artifact wins, green, empty findings
         (xp / "verdict-20260729T000005-ffff.json").write_text(json.dumps(
             {"ticket": "sworn", "validate_ref": str(val),
@@ -815,9 +811,9 @@ def main() -> None:
     rogue = _component(root, "rogue")
     (rogue / "dialer.py").write_text("import urllib.request\n")
     f = inspect(root=root, component="rogue")["findings"]
-    assert [x["sieve"] for x in f] == ["sole_path_holds"], \
+    assert [x["method"] for x in f] == ["sole_path_holds"], \
         f"the planted dialer must red exactly sole_path_holds: {f}"
-    assert "dialer.py" in f[0]["finding"] and "SECOND door" in f[0]["finding"], f[0]
+    assert "dialer.py" in f[0]["about"], f[0]
     # the rogue's door reds the ROGUE's row alone — healthy keeps its clean.
     assert inspect(root=root, component="healthy")["clean"], \
         "another component's door must never red a clean component's row"
@@ -870,18 +866,17 @@ def main() -> None:
         assert rep["component_scores"][comp] == min(scores.values()), (
             "the roll-up is min() — one zero sinks the component, and a pile of passes "
             "may not buy past a real catch")
-    caught = {f["sieve"] for f in rep["findings"]}
+    caught = {f["method"] for f in rep["findings"]}
     for f in rep["findings"]:
-        assert f["score"] == 0.0, f
         # BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's
         # dir because two components answer to "orient"; correlating on the bare name here
         # would either KeyError (as it did the day the builder device landed) or, worse,
         # silently match the wrong subject's row and pronounce the pairing sound.
-        assert rep["gradation"][f["at"]][f["sieve"]] == 0.0, f
+        assert rep["gradation"][f["at"]][f["method"]] == 0.0, f
     for comp, scores in rep["gradation"].items():
         for name, s in scores.items():
             if s == 1.0:
-                assert not any(f["sieve"] == name and f["at"] == comp
+                assert not any(f["method"] == name and f["at"] == comp
                                for f in rep["findings"]), \
                     ("a sieve scored 1.0 while emitting a finding — the score and "
                      "the finding are two faces of one judgement and cannot disagree")

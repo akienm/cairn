@@ -216,7 +216,7 @@ def test_one_validator_two_mouths_by_identity(root, berths, val):
     with open(art, "w") as fh:
         json.dump(dict(a, dispositions=a["dispositions"][:1]), fh)
     gate = inspector_mod.proved_answers_the_chart("sworn", berths_root=Path(berths))
-    assert gate and "undispositioned" in gate[0]["finding"], gate
+    assert gate and "undispositioned" in gate[0]["about"], gate
     expect_refusal(lambda: validate_verdict(dict(a, dispositions=a["dispositions"][:1]),
                                             root=root), "undispositioned")
     os.unlink(art)

@@ -265,7 +265,7 @@ def test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds():
         try:
             transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
         except transitions.BuildGateRed as e:
-            assert [f["sieve"] for f in e.findings] == ["charter_on_disk"], e.findings
+            assert [f["method"] for f in e.findings] == ["charter_on_disk"], e.findings
             assert "charter_on_disk" in str(e) and "Law 8" in str(e), \
                 "the refusal must carry the findings and the why, first pass, in the message"
         else:
@@ -355,7 +355,7 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
                 transitions.emit(_AT_TICKET, "BUILDME",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.EntryGateRed as e:
-                assert [f["sieve"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert [f["method"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
                 assert "widget" in str(e) and "/chart" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"
             else:
@@ -477,7 +477,7 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
                 transitions.emit(_AT_TICKET_SKILL, "BUILDME",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.EntryGateRed as e:
-                assert [f["sieve"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
+                assert [f["method"] for f in e.findings] == ["buildme_rides_the_chart"], e.findings
                 assert "widget" in str(e) and "/chart" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"
             else:
@@ -606,7 +606,7 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
                 transitions.emit(_AT_LEARN, "PROVED",
                                  history_path=hist, state_path=state, ticket="widget")
             except transitions.ExitGateRed as e:
-                assert [f["sieve"] for f in e.findings] == ["proved_answers_the_chart"], \
+                assert [f["method"] for f in e.findings] == ["proved_answers_the_chart"], \
                     e.findings
                 assert "widget" in str(e) and "write_verdict" in str(e), \
                     "the refusal must name the ticket and the disposition, first pass"
@@ -1396,7 +1396,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
             transitions._TICKETS, _insp._CHART_BERTHS = saved
     assert raised == transitions._findings_of(record), \
         "the refusal's findings and the record's mismatches must be ONE derivation"
-    assert [f["sieve"] for f in raised] == ["buildme_rides_the_chart"], raised
+    assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised
     # and the record still lists what PASSED beside the one that did not — the half a
     # findings list throws away
     assert len(record) == 3 and sum(transitions.gate.passed(e) for e in record) == 2, record
@@ -1411,8 +1411,8 @@ def test_a_lane_that_refuses_and_names_nothing_still_speaks():
     class_def = transitions.load_class_def(wf.node_class)
     out = transitions._findings_of(
         transitions.inspect_rules(wf, "NOPE", class_def=class_def))
-    assert len(out) == 1 and "named no finding" in out[0]["finding"], out
-    assert out[0]["evidence"]["expected"] and out[0]["evidence"]["actual"], out
+    assert len(out) == 1 and "named no finding" in out[0]["about"], out
+    assert out[0]["expected"] and out[0]["actual"], out
     # non-vacuity: an all-passing record contributes nothing
     assert transitions._findings_of(
         transitions.inspect_rules(wf, "PROVEME", class_def=class_def)) == []

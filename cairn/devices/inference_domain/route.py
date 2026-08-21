@@ -125,10 +125,16 @@ def load_overlay(path: str | Path | None = None) -> dict:
 # and returns findings — empty means the combo passes this mesh. The finding shape names
 # the sieve, the combo, and the fix, so the trace answers the operator without a re-run.
 
-def _finding(sieve: str, view: dict, why: str) -> dict:
-    return {"sieve": sieve,
-            "combo": f"{view['combo']['provider']}/{view['combo']['model']}",
-            "why": why}
+def _finding(method: str, view: dict, about: str, expected, actual,
+             compare: str = "exact") -> dict:
+    return {
+        "about": about,
+        "expected": expected,
+        "actual": actual,
+        "compare": compare,
+        "method": method,
+        "component": f"{view['combo']['provider']}/{view['combo']['model']}",
+    }
 
 
 def enabled(view: dict) -> list:
@@ -137,7 +143,7 @@ def enabled(view: dict) -> list:
     p = view["provider"]
     if not p.get("enabled"):
         return [_finding("enabled", view,
-                         f"provider {p['name']!r} is disabled — its row says why: {p.get('why', '(no why recorded)')}")]
+                         "provider enabled", expected=True, actual=False)]
     return []
 
 
@@ -147,7 +153,7 @@ def never_routed(view: dict) -> list:
     p = view["provider"]
     if p.get("never_route"):
         return [_finding("never_routed", view,
-                         f"provider {p['name']!r} is listed never-route: {p.get('why', '(no why recorded)')}")]
+                         "provider not never-route", expected=True, actual=False)]
     return []
 
 
@@ -158,14 +164,14 @@ def serves_kind(view: dict) -> list:
     m, want = view["model"], view["kind"]
     if m is None:
         return [_finding("serves_kind", view,
-                         f"combo names model {view['combo']['model']!r} but the models stack has no such row")]
+                         "model row exists", expected=True, actual=False)]
     if want not in (m.get("serves") or []):
         return [_finding("serves_kind", view,
-                         f"model {m['name']!r} serves {m.get('serves')}, not {want!r}")]
+                         "model serves kind", expected=want, actual=m.get("serves"))]
     asked = view["requested_model"]
     if asked and m["name"] != asked:
         return [_finding("serves_kind", view,
-                         f"the request names model {asked!r}; this combo carries {m['name']!r}")]
+                         "combo carries requested model", expected=asked, actual=m["name"])]
     return []
 
 
@@ -175,8 +181,7 @@ def keyed(view: dict) -> list:
     p = view["provider"]
     if p.get("needs_key") and not (view["host"] or {}).get("api_key"):
         return [_finding("keyed", view,
-                         f"provider {p['name']!r} needs a key and none is set — the rung goes "
-                         f"live the day a key lands in {OVERLAY_PATH} (Akien's act, instance-space)")]
+                         "provider keyed", expected=True, actual=False)]
     return []
 
 
@@ -185,8 +190,7 @@ def addressed(view: dict) -> list:
     machine address cannot be dialed, however sound its rules."""
     if not (view["host"] or {}).get("endpoint"):
         return [_finding("addressed", view,
-                         f"no endpoint for provider {view['provider']['name']!r} in the overlay "
-                         f"({OVERLAY_PATH}) — a rule row routes only where a machine fact lands it")]
+                         "provider addressed", expected=True, actual=False)]
     return []
 
 
@@ -271,7 +275,7 @@ def route(kind: str, model: str | None = None, *, domain: str | None = None,
             f"no combo survives the nest for kind={kind!r}"
             + (f", model={model!r}" if model else "")
             + " — the trace names what cut each rung: "
-            + "; ".join(f"[{f['sieve']}] {f['combo']}: {f['why']}" for f in shaken["findings"]),
+            + "; ".join(f"[{f['method']}] {f['component']}: {f['about']}" for f in shaken["findings"]),
             findings=shaken["findings"])
     return {"survivors": survivors, "gradation": shaken["gradation"],
             "findings": shaken["findings"]}

@@ -91,30 +91,33 @@ from cairn.tools.base import address, address_rule  # noqa: E402
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
 
-def _finding(sieve_name: str, component: str, finding: str, evidence, why: str,
-             score: float = 0.0) -> dict:
-    """A finding carries the DATUM and a SCORE — Akien, 2026-08-06: 'each finding can
-    have a datum AND a score, because the score is relative to the requirement.'
+def _finding(method: str, component: str, about: str, expected, actual,
+             compare: str = "exact", **values) -> dict:
+    """A FINDING IS A STAMPED CONDITION (Akien, 2026-08-12, distinction 53 on ticket
+    the-questions-are-the-sieve): '{about: checks for x, expected: true, actual: false}'
+    — you can put EVERYTHING you need into that.
 
-    ``evidence`` IS the datum, under the name it has carried since the founding sieves;
-    minting a second key for the same measured value would be terminology drift, not a
-    new field. What is genuinely new is ``score``: the measurement read AGAINST the
-    requirement, which the datum alone cannot say. Float, because elapsed time and
-    performance values are coming; 1.0/0.0 today because every sieve here is binary
-    (his call: 'binary but as a float? and for now it's 1 and 0').
+    SUPERSEDES datum+score (distinction 47, same ticket). Scoring is not a third
+    operation: the compare field absorbs it. Gate-mode vs select-mode is the PRESENCE
+    OF expected, which is data too.
 
-    A finding is emitted only when a sieve CATCHES, so the default is 0.0. Passes carry
-    no finding — they appear in the report's gradation, which is where the vector he drew
+    A finding is emitted only when a sieve CATCHES. Passes carry no finding — they
+    appear in the report's gradation, which is where the vector Akien drew
     ([1.0, 1.0, 0.0, 1.0, 1.0] = 0.0) actually lives.
+
+    Extra keyword arguments land in ``values`` — the same pattern as gate.proved().
     """
-    return {
-        "sieve": sieve_name,
+    entry = {
+        "about": about,
+        "expected": expected,
+        "actual": actual,
+        "compare": compare,
+        "method": method,
         "component": component,
-        "finding": finding,
-        "evidence": evidence,          # the datum
-        "score": score,                # the datum read against the requirement
-        "why_it_matters": why,
     }
+    if values:
+        entry["values"] = values
+    return entry
 
 
 # ── the founding sieves — one per failure that seeded it ────────────────────
@@ -132,10 +135,7 @@ def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:
         return []
     return [_finding(
         "charter_on_disk", row["component"],
-        "component has code but no intention+why.json beside it",
-        {"expected": str(comp_dir / "intention+why.json"), "exists": False},
-        "Law 5 / CLAUDE.md: intent, voyage and proofs share an address; a component "
-        "without an intention doesn't run. The filename forces the why (CP3 as schema).",
+        "charter on disk", expected=True, actual=False,
     )]
 
 
@@ -150,10 +150,7 @@ def proofs_exist(row: dict, comp_dir: Path) -> list[dict]:
         return []
     return [_finding(
         "proofs_exist", row["component"],
-        "component has code but zero proofs under proofs/",
-        {"proofs_found": 0, "looked_in": str(comp_dir / "proofs")},
-        "Law 8: nothing enters proven-space without a proof a hollow build couldn't "
-        "pass. Code with no proof is a hypothesis parked in class-space.",
+        "proofs exist", expected=True, actual=False,
     )]
 
 
@@ -173,11 +170,7 @@ def silent_device(row: dict, comp_dir: Path) -> list[dict]:
         return []
     return [_finding(
         "silent_device", row["component"],
-        "subclasses BaseDevice (inherits emit()) but never calls self.emit() outside proofs",
-        {"device_subclasses": row["device_subclasses"], "self_emit_call_sites_outside_proofs": 0},
-        "Law 7 + MAP.md:434 ('every crossing logged... no device can opt out'): a "
-        "silent device fails invisibly — the exact gap that motivated DiagnosticBase. "
-        "This sieve is the enforcement half of that 2026-07-14 claim.",
+        "device calls emit()", expected=True, actual=False,
     )]
 
 
@@ -196,19 +189,16 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
         present, absent = (h, s) if h.exists() else (s, h)
         return [_finding(
             "state_is_projection", row["component"],
-            f"{present.name} exists without {absent.name} — the pair is the contract",
-            {"present": present.name, "absent": absent.name},
-            "Law 7 / charter-state-history split: state is a projection of history; "
-            "one without the other means a write bypassed the append door.",
+            f"state/history pair complete ({absent.name} missing)",
+            expected=True, actual=False,
         )]
     try:
         on_disk = json.loads(s.read_text())
     except json.JSONDecodeError as e:
         return [_finding(
             "state_is_projection", row["component"],
-            "state.json is unreadable JSON",
-            {"error": str(e)},
-            "Law 7: a record of truth's projection must at minimum parse.",
+            f"state.json readable ({e})",
+            expected=True, actual=False,
         )]
     projected = projector.project(projector.read_history(str(h)))
     if on_disk == projected:
@@ -218,14 +208,8 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
     )
     return [_finding(
         "state_is_projection", row["component"],
-        "state.json is NOT the projection of history.json — hand-edited, or written "
-        "by a stale projector",
-        {"diverging_keys": diverging,
-         "cursor_on_disk": (on_disk.get("cursor") or {}).get("gate"),
-         "cursor_projected": (projected.get("cursor") or {}).get("gate")},
-        "Law 7 + the awaiting-physics rule: a compiled view is written only by the "
-        "projector's append door. Fix by APPENDING through the door (which rewrites "
-        "state from truth), never by editing either file.",
+        f"state.json matches projection (diverging: {diverging})",
+        expected=True, actual=False,
     )]
 
 
@@ -286,10 +270,8 @@ def _unreadable_findings(sieve_name: str, row: dict, unreadable) -> list[dict]:
         return []  # the berth owner carries the finding, exactly once per sweep
     return [_finding(
         sieve_name, row["component"],
-        "berthed packet %s is unreadable" % path.name,
-        {"berth": str(path), "why": why},
-        "Law 7: a record the gate cannot read is a named finding, never a silent "
-        "skip — an unreadable chart could be hiding any claim.",
+        f"packet readable: {path.name}",
+        expected=True, actual=False,
     ) for path, why in unreadable]
 
 
@@ -724,11 +706,8 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
         except (OSError, json.JSONDecodeError) as e:
             findings.append(_finding(
                 "forwarding_order_resolves", row["component"],
-                "ticket %r cannot be read (%s: %s)" % (tid, type(e).__name__, e),
-                {"ticket": tid, "path": filed},
-                "Law 7: a record of truth the gate cannot read is a named finding, "
-                "never a silent skip — an unreadable ticket could be forwarding "
-                "anything anywhere.",
+                f"ticket readable: {tid} ({type(e).__name__})",
+                expected=True, actual=False,
             ))
             continue
         order = ticket.get("forwarding")
@@ -737,11 +716,8 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
         if not isinstance(order, dict):
             findings.append(_finding(
                 "forwarding_order_resolves", row["component"],
-                "ticket %r's forwarding order is not a map of from -> {to, why}" % tid,
-                {"ticket": tid, "got": order},
-                "a forwarding order the gate cannot read entry-by-entry cannot be "
-                "checked at both ends — and an unreadable order that silently "
-                "granted tolerance would be the laundering this sieve exists to stop.",
+                f"forwarding order shaped: {tid}",
+                expected=True, actual=False,
             ))
             continue
         for old, entry in order.items():
@@ -749,37 +725,30 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
             if not isinstance(old, str) or not old.strip() or not isinstance(entry, dict):
                 findings.append(_finding(
                     "forwarding_order_resolves", row["component"],
-                    "forwarding entry %r has no shape (needs a non-empty address "
-                    "mapping to {to, why})" % (old,), ev,
-                    "an entry that names no address forwards nothing and can be "
-                    "checked against nothing.",
+                    f"forwarding entry shaped: {old!r}",
+                    expected=True, actual=False,
                 ))
                 continue
             to, why = entry.get("to"), entry.get("why")
             if not all(isinstance(v, str) and v.strip() for v in (to, why)):
                 findings.append(_finding(
                     "forwarding_order_resolves", row["component"],
-                    "forwarding entry %r lacks 'to' and/or 'why'" % old, ev,
-                    "the why is forced structurally: a move nobody can justify at "
-                    "the gate is a move nobody can adjudicate in a year (CP3).",
+                    f"forwarding entry complete: {old!r}",
+                    expected=True, actual=False,
                 ))
                 continue
             if not ref_exists(to):
                 findings.append(_finding(
                     "forwarding_order_resolves", row["component"],
-                    "forwarding %r -> %r: the successor does not resolve" % (old, to), ev,
-                    "Law 8 + the 2026-07-24 failure: forwarding to an address the "
-                    "world does not hold is the same hollow claim as the missing "
-                    "ref it was offered to dispose, one indirection later.",
+                    f"forwarding successor resolves: {old!r} -> {to!r}",
+                    expected=True, actual=False,
                 ))
                 continue
             if ref_exists(old):
                 findings.append(_finding(
                     "forwarding_order_resolves", row["component"],
-                    "forwarding %r -> %r: the FROM address still resolves" % (old, to), ev,
-                    "a forwarding order is for what MOVED. Pointing a live address "
-                    "somewhere else would let a chart's claim be re-aimed at a "
-                    "different thing while the original sits there untouched.",
+                    f"forwarding source retired: {old!r} -> {to!r}",
+                    expected=True, actual=False,
                 ))
     return findings
 
@@ -808,11 +777,8 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
         if missing:
             findings.append(_finding(
                 "charted_refs_resolve", row["component"],
-                "charted refs no longer resolve at promotion: %s" % ", ".join(map(str, missing)),
-                {"berth": str(path), "ticket": packet.get("ticket"), "missing": missing},
-                "Law 8 + the 2026-07-24 failure: the world drifted from the chart "
-                "between berth and promotion — a build promoted over refs that no "
-                "longer exist is a hollow claim.",
+                f"charted refs resolve: {', '.join(map(str, missing))}",
+                expected=True, actual=False,
             ))
     return findings
 
@@ -880,10 +846,11 @@ def _judge_charted(row: dict, comp_dir: Path, stage: str, judge,
     for path, packet in packets:
         for frag in judge(packet):
             if frag["judge"] == judge_name:
+                ev = dict(frag.get("evidence") or {}, berth=str(path),
+                          ticket=packet.get("ticket"))
                 findings.append(_finding(
                     judge_name, row["component"], frag["finding"],
-                    dict(frag["evidence"], berth=str(path), ticket=packet.get("ticket")),
-                    frag["why_it_matters"]))
+                    expected=True, actual=False, **ev))
     return findings
 
 
@@ -918,8 +885,8 @@ def constraint_traces(row: dict, comp_dir: Path) -> list[dict]:
     findings = _judge_charted(row, comp_dir, "constrain", judge_constrain,
                               "constraint_traces", report_unreadable=True)
     return [f for f in findings
-            if not _resolves_to(f["evidence"].get("source"),
-                                f["evidence"].get("ticket"))]
+            if not _resolves_to((f.get("values") or {}).get("source"),
+                                (f.get("values") or {}).get("ticket"))]
 
 
 def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -1022,8 +989,8 @@ def survey_holdings_resolve(row: dict, comp_dir: Path) -> list[dict]:
     findings = _judge_charted(row, comp_dir, "survey", judge_survey,
                               "survey_holdings_resolve", report_unreadable=True)
     return [f for f in findings
-            if not _resolves_to(f["evidence"].get("address"),
-                                f["evidence"].get("ticket"))]
+            if not _resolves_to((f.get("values") or {}).get("address"),
+                                (f.get("values") or {}).get("ticket"))]
 
 
 def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
@@ -1746,12 +1713,9 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
                 return []
     return [_finding(
         "buildme_rides_the_chart", ticket,
-        "no berthed chart chain claims ticket %r — the build has no charted course" % ticket,
-        {"ticket": ticket, "searched": str(root), "wanted": "*/packets/validate-*.json with a 'ticket' field naming this ticket"},
-        "Law 4 + Law 1: the preamble is compiled once into berths and the build runs "
-        "inside them; a BUILDME with no chart is the step-skipping the chain exists to "
-        "refuse. Disposition: run /chart for this request (the validate berth carries "
-        "the claim), then cross again.",
+        "chart chain claims this ticket",
+        expected=True, actual=False,
+        searched=str(root),
     )]
 
 
@@ -1811,33 +1775,21 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
         return []
 
     berth = doc.get("intent_berth") if isinstance(doc, dict) else None
-    why = (
-        "Akien's ruling 2026-08-01: /intent is the cheapest gate in the system and an "
-        "intention that shouldn't exist dies there, before any cost is spent on it "
-        "(Law 1). A ticket that cannot name its /intent firing was cast without one — "
-        "or with one nobody recorded, which is the same thing to every later reader "
-        "(Law 3). Disposition: fire /intent for this request and put its berth path in "
-        "the ticket's 'intent_berth', or record an explicit exemption "
-        f"('{_EXEMPT_PREFIX}<why>') — silence is the one answer that is not legal."
-    )
 
     if berth is None:
         return [_finding(
             "buildme_rides_the_intent", ticket,
-            "ticket %r names no /intent firing — no 'intent_berth' field at all" % ticket,
-            {"ticket": ticket, "ticket_file": str(filed), "found": None,
-             "wanted": "an 'intent_berth' path to a berthed /intent firing, or "
-                       f"'{_EXEMPT_PREFIX}<why>'"},
-            why,
+            "ticket names /intent firing",
+            expected=True, actual=False,
+            ticket_file=str(filed),
         )]
 
     if not isinstance(berth, str) or not berth.strip():
         return [_finding(
             "buildme_rides_the_intent", ticket,
-            "ticket %r carries an empty or non-string 'intent_berth'" % ticket,
-            {"ticket": ticket, "ticket_file": str(filed), "found": berth,
-             "wanted": "a berth path, or " + f"'{_EXEMPT_PREFIX}<why>'"},
-            why,
+            "intent_berth well-formed",
+            expected=True, actual=False,
+            ticket_file=str(filed), found=berth,
         )]
 
     exempt = _EXEMPT_RE.match(berth)
@@ -1846,11 +1798,9 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
         if not reason:
             return [_finding(
                 "buildme_rides_the_intent", ticket,
-                "ticket %r claims an /intent exemption with no reason after "
-                "'%s'" % (ticket, _EXEMPT_PREFIX),
-                {"ticket": ticket, "ticket_file": str(filed), "found": berth},
-                "An exemption whose reason is blank is silence with a prefix on it. The "
-                "whole point of the named exemption is that a later reader can judge it.",
+                "exemption reason present",
+                expected=True, actual=False,
+                ticket_file=str(filed), found=berth,
             )]
         return []
 
@@ -1858,22 +1808,17 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
     if doc_berth is None:
         return [_finding(
             "buildme_rides_the_intent", ticket,
-            "ticket %r names an /intent berth that does not read: %s" % (ticket, berth),
-            {"ticket": ticket, "ticket_file": str(filed), "intent_berth": berth,
-             "found": "missing or unparseable"},
-            "A berth path that resolves to nothing is state reported from records — the "
-            "gate would be passing on a promise. " + why,
+            "intent berth readable",
+            expected=True, actual=False,
+            ticket_file=str(filed), intent_berth=berth,
         )]
 
     if doc_berth.get("skill") != "intent":
         return [_finding(
             "buildme_rides_the_intent", ticket,
-            "ticket %r names a berth for skill %r, not 'intent'"
-            % (ticket, doc_berth.get("skill")),
-            {"ticket": ticket, "ticket_file": str(filed), "intent_berth": berth,
-             "found_skill": doc_berth.get("skill")},
-            "The gate reads which skill actually fired, not which one the field is named "
-            "after — otherwise any berth at all would satisfy it. " + why,
+            "intent berth skill",
+            expected="intent", actual=doc_berth.get("skill"),
+            ticket_file=str(filed), intent_berth=berth,
         )]
 
     return []
@@ -1944,35 +1889,21 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
         return []
 
     berth = doc.get("sorted_berth") if isinstance(doc, dict) else None
-    why = (
-        "Ticket sorted-becomes-a-learning-block (2026-08-03): the cast rides a door, so "
-        "a partial cast survives on disk instead of dying with the context (Law 1) and "
-        "the completeness answers are a record, not a memory. A ticket that cannot name "
-        "its /sorted firing was cast around the door. Disposition: fire the cast packet "
-        "through skills/sorted/door.py and put the printed berth path in the ticket's "
-        "'sorted_berth', or record an explicit exemption "
-        f"('{_EXEMPT_PREFIX}<why>' — the why must carry a resolvable referent: a path, "
-        "a cast ticket id, or a roster command) — silence is the one answer that is "
-        "not legal."
-    )
 
     if berth is None:
         return [_finding(
             "buildme_rides_the_sorted", ticket,
-            "ticket %r names no /sorted door firing — no 'sorted_berth' field at all" % ticket,
-            {"ticket": ticket, "ticket_file": str(filed), "found": None,
-             "wanted": "a 'sorted_berth' path to a berthed /sorted firing, or "
-                       f"'{_EXEMPT_PREFIX}<why>'"},
-            why,
+            "ticket names /sorted firing",
+            expected=True, actual=False,
+            ticket_file=str(filed),
         )]
 
     if not isinstance(berth, str) or not berth.strip():
         return [_finding(
             "buildme_rides_the_sorted", ticket,
-            "ticket %r carries an empty or non-string 'sorted_berth'" % ticket,
-            {"ticket": ticket, "ticket_file": str(filed), "found": berth,
-             "wanted": "a berth path, or " + f"'{_EXEMPT_PREFIX}<why>'"},
-            why,
+            "sorted_berth well-formed",
+            expected=True, actual=False,
+            ticket_file=str(filed), found=berth,
         )]
 
     exempt = _EXEMPT_RE.match(berth)
@@ -1981,21 +1912,16 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
         if not reason:
             return [_finding(
                 "buildme_rides_the_sorted", ticket,
-                "ticket %r claims a /sorted exemption with no reason after "
-                "'%s'" % (ticket, _EXEMPT_PREFIX),
-                {"ticket": ticket, "ticket_file": str(filed), "found": berth},
-                "An exemption whose reason is blank is silence with a prefix on it. " + why,
+                "exemption reason present",
+                expected=True, actual=False,
+                ticket_file=str(filed), found=berth,
             )]
         if not reason_has_referent(reason):
             return [_finding(
                 "buildme_rides_the_sorted", ticket,
-                "ticket %r claims a /sorted exemption whose reason points at nothing "
-                "checkable" % ticket,
-                {"ticket": ticket, "ticket_file": str(filed), "found": berth,
-                 "wanted": "a reason carrying a resolvable referent — a path on disk, "
-                           "a cast ticket id, or a roster command (bin/cmd/<name>)"},
-                "A plausible sentence a later reader cannot go verify is the hollow pass "
-                "the sorted door was built against (opus-pass rank 3). " + why,
+                "exemption reason resolvable",
+                expected=True, actual=False,
+                ticket_file=str(filed), found=berth,
             )]
         return []
 
@@ -2003,22 +1929,17 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
     if doc_berth is None:
         return [_finding(
             "buildme_rides_the_sorted", ticket,
-            "ticket %r names a /sorted berth that does not read: %s" % (ticket, berth),
-            {"ticket": ticket, "ticket_file": str(filed), "sorted_berth": berth,
-             "found": "missing or unparseable"},
-            "A berth path that resolves to nothing is state reported from records — the "
-            "gate would be passing on a promise. " + why,
+            "sorted berth readable",
+            expected=True, actual=False,
+            ticket_file=str(filed), sorted_berth=berth,
         )]
 
     if doc_berth.get("skill") != "sorted":
         return [_finding(
             "buildme_rides_the_sorted", ticket,
-            "ticket %r names a berth for skill %r, not 'sorted'"
-            % (ticket, doc_berth.get("skill")),
-            {"ticket": ticket, "ticket_file": str(filed), "sorted_berth": berth,
-             "found_skill": doc_berth.get("skill")},
-            "The gate reads which skill actually fired, not which one the field is named "
-            "after — otherwise any berth at all would satisfy it. " + why,
+            "sorted berth skill",
+            expected="sorted", actual=doc_berth.get("skill"),
+            ticket_file=str(filed), sorted_berth=berth,
         )]
 
     return []
@@ -2062,44 +1983,37 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     artifacts = claiming_packets(ticket, "verdict", berths_root=root)
     if not claiming:
         return []  # unclaimed — ungated (v0 jurisdiction, inherited from the entry gate)
-    disposition = ("Disposition: run the claiming validate berth's criteria by their "
-                   "instruments, write the verdict artifact through "
-                   "cairn.devices.builder.machines.verdict.verdict.write_verdict, deposit it, then cross again.")
     if not artifacts:
         return [_finding(
             "proved_answers_the_chart", ticket,
-            "no verdict artifact answers the chart claiming ticket %r — the voyage "
-            "is closing on narration" % ticket,
-            {"ticket": ticket, "searched": str(root),
-             "claiming": [str(p) for p, _ in claiming],
-             "wanted": "*/packets/verdict-*.json with a 'ticket' field naming this ticket"},
-            "Law 3 + Law 4: PROVED asserts done, and done is verified in the world by "
-            "the instrument, never the narration. " + disposition)]
+            "verdict artifact exists",
+            expected=True, actual=False,
+            searched=str(root),
+            claiming=[str(p) for p, _ in claiming],
+        )]
     path, artifact = artifacts[-1]  # the latest answer is the one that stands
     err = verdict_error(artifact)
     if err:
         return [_finding(
             "proved_answers_the_chart", ticket,
-            "the verdict artifact is malformed — %s" % err,
-            {"ticket": ticket, "artifact": str(path)},
-            "A verdict without its instrument and evidence is narration wearing a "
-            "filename (Law 7: loud at the surface, permanent in the record). " + disposition)]
+            "verdict artifact well-formed",
+            expected=True, actual=False,
+            artifact=str(path), error=err,
+        )]
     if artifact.get("validate_ref") not in {str(p) for p, _ in claiming}:
         return [_finding(
             "proved_answers_the_chart", ticket,
-            "the verdict artifact answers a chart that does not claim this ticket "
-            "(validate_ref %r is not a claiming berth)" % artifact.get("validate_ref"),
-            {"ticket": ticket, "artifact": str(path),
-             "claiming": [str(p) for p, _ in claiming]},
-            "An answer to someone else's chart answers nothing here (Law 6: the claim "
-            "and its answer share an owner). " + disposition)]
+            "verdict answers claiming chart",
+            expected=True, actual=False,
+            artifact=str(path),
+            claiming=[str(p) for p, _ in claiming],
+        )]
     return [_finding(
         "proved_answers_the_chart", ticket,
         item,
-        {"ticket": ticket, "artifact": str(path),
-         "validate_ref": artifact["validate_ref"]},
-        "Law 3 as the close: an unanswered claim leaves the voyage a hypothesis, and "
-        "a hypothesis may not rest at PROVED. " + disposition)
+        expected=True, actual=False,
+        artifact=str(path),
+        validate_ref=artifact["validate_ref"])
         for item in unanswered(artifact)]
 
 
@@ -2143,9 +2057,9 @@ def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
         findings.append(_finding(
             "sole_path_holds", row["component"],
             caught,
-            {"rule": {k: v for k, v in _SOLE_PATH.items()}, "file": str(comp_dir.parent / path)},
-            "Ruling 2026-08-08 item 1 / Law 6: the proxy alone reaches inference hosts; "
-            "a second importer is a second door, and this seat makes it a build-time red."))
+            expected=True, actual=False,
+            rule=dict(_SOLE_PATH), file=str(comp_dir.parent / path),
+        ))
     return findings
 
 
@@ -2222,12 +2136,10 @@ def fire_path_unreachable(row: dict, comp_dir: Path) -> list[dict]:
         findings.append(_finding(
             "fire_path_unreachable", row["component"],
             caught,
-            {"rule": {k: v for k, v in _FIRE_PATH.items()},
-             "file": str(_REPO_ROOT / caught.split(" imports ", 1)[0])},
-            "A verdict is always hardware (Law 3): a fire path that can reach a tree, a "
-            "database or a host can return an opinion wearing a measurement's clothes. "
-            "Break the import chain the finding names, or bring the new capability "
-            "through Akien's gate — never widen the denied set to make this green."))
+            expected=True, actual=False,
+            rule=dict(_FIRE_PATH),
+            file=str(_REPO_ROOT / caught.split(" imports ", 1)[0]),
+        ))
     return findings
 
 
@@ -2265,10 +2177,10 @@ def address_is_resolved_never_spelled(row: dict, comp_dir: Path) -> list[dict]:
     except HollowScan as e:
         return [_finding(
             "address_is_resolved_never_spelled", row["component"],
-            "the address rule could not be shaken over this component",
-            {"root": str(comp_dir), "refusal": str(e)},
-            "A gate that inspects nothing passes everything (Law 8). This component read "
-            "as clean only because the rule found no source to read.")]
+            "address rule shakeable",
+            expected=True, actual=False,
+            root=str(comp_dir), refusal=str(e),
+        )]
     # The inspection root, recovered from the row rather than re-spelled: ``row["dir"]`` is
     # comp_dir's path relative to it, and a fixture root is not the repo. ``component_of``
     # needs the PACKAGE root to know what the components are, and handing it comp_dir's
@@ -2289,15 +2201,12 @@ def address_is_resolved_never_spelled(row: dict, comp_dir: Path) -> list[dict]:
             continue          # a nested component's line is that component's row, not ours
         findings.append(_finding(
             "address_is_resolved_never_spelled", row["component"],
-            f"{entry['site']} spells the instance address by hand: {entry['shape']}",
-            {"site": entry["site"], "shape": entry["shape"],
-             "rule": "cairn/tools/base/address_rule.py",
-             "exemptions": found["exempted"]},
-            "Law 6 / ticket one-owner-for-the-instance-address: the instance address has "
-            "ONE owner, and a second spelling is a copy that drifts. Compose "
-            "cairn.tools.base.address (instance_path / tool_path / machine_path / "
-            "resolve) — the module imports pathlib and nothing else, so it costs no "
-            "component its measured shape."))
+            f"address resolved not spelled: {entry['site']}",
+            expected=True, actual=False,
+            site=entry["site"], shape=entry["shape"],
+            rule="cairn/tools/base/address_rule.py",
+            exemptions=found["exempted"],
+        ))
     return findings
 
 
@@ -2342,16 +2251,12 @@ def charter_asserts_file_present(row: dict, comp_dir: Path) -> list[dict]:
         if not (comp_dir / name).is_file():
             findings.append(_finding(
                 "charter_asserts_file_present", row["component"],
-                f"charter asserts {name} beside it, but the file is absent",
-                {"asserted_file": name,
-                 "field": "state_and_history",
-                 "charter": str(charter_path),
-                 "exists": False},
-                "Law 5 / ticket a-charter-may-not-assert-a-file-that-is-not-there: "
-                "a charter that misdescribes what is at its own address is the drift "
-                "Law 5 is built to make impossible. The fix is the SENTENCE, never the "
-                "files — creating an empty journal manufactures a record of a voyage that "
-                "did not happen (Law 7)."))
+                f"asserted file present: {name}",
+                expected=True, actual=False,
+                asserted_file=name,
+                field="state_and_history",
+                charter=str(charter_path),
+            ))
     return findings
 
 
@@ -2488,7 +2393,7 @@ def proof_record(gradation: dict, findings: list) -> list[dict]:
     """
     by_site = {}
     for f in findings:
-        by_site.setdefault((f.get("sieve"), f.get("at")), []).append(f)
+        by_site.setdefault((f.get("method"), f.get("at")), []).append(f)
     out = []
     for at in sorted(gradation):
         for sieve_name in sorted(gradation[at]):

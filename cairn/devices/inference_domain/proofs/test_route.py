@@ -145,7 +145,7 @@ def test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first():
 def test_loopback_and_unkeyed_rungs_are_cut_and_the_trace_says_by_what():
     plan = route.route("generate", "qwen2.5:7b",
                        stacks=route.load_stacks(), overlay=_FIXTURE_OVERLAY)
-    cuts = {(f["sieve"], f["combo"]) for f in plan["findings"]}
+    cuts = {(f["method"], f["component"]) for f in plan["findings"]}
     assert ("never_routed", "loopback/qwen2.5:7b") in cuts, \
         "loopback must be cut BY the never_routed sieve — the categorical rule, named in the trace"
     assert ("keyed", "ollama-cloud/qwen2.5:7b") in cuts, \

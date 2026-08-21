@@ -466,8 +466,8 @@ def test_gate_reds_a_ticket_that_names_no_intent_firing():
     root = _tickets(t={"id": "t"})
     found = gate("t", tickets_root=root)
     assert len(found) == 1, f"one finding, complete on the first pass: {found}"
-    assert found[0]["sieve"] == "buildme_rides_the_intent"
-    assert "intent_berth" in found[0]["finding"], found[0]
+    assert found[0]["method"] == "buildme_rides_the_intent"
+    assert "intent" in found[0]["about"], found[0]
 
 
 def test_gate_greens_a_ticket_naming_a_real_intent_berth():
@@ -483,7 +483,7 @@ def test_gate_reds_a_berth_that_does_not_resolve():
     from cairn.machines.build_inspector.inspector import buildme_rides_the_intent as gate
     root = _tickets(t={"id": "t", "intent_berth": "/nowhere/intent-000.json"})
     found = gate("t", tickets_root=root)
-    assert len(found) == 1 and "does not read" in found[0]["finding"], found
+    assert len(found) == 1 and "readable" in found[0]["about"], found
 
 
 def test_gate_reds_a_berth_for_the_wrong_skill():
@@ -494,7 +494,7 @@ def test_gate_reds_a_berth_for_the_wrong_skill():
                   trace_root=traces)
     root = _tickets(t={"id": "t", "intent_berth": out["berth"]})
     found = gate("t", tickets_root=root)
-    assert len(found) == 1 and "not 'intent'" in found[0]["finding"], found
+    assert len(found) == 1 and "skill" in found[0]["about"], found
 
 
 def test_gate_accepts_a_NAMED_exemption_and_refuses_a_blank_one():
@@ -507,13 +507,13 @@ def test_gate_accepts_a_NAMED_exemption_and_refuses_a_blank_one():
     )
     assert gate("good", tickets_root=root) == [], "a named exemption is legal"
     found = gate("blank", tickets_root=root)
-    assert len(found) == 1 and "no reason" in found[0]["finding"], (
+    assert len(found) == 1 and "exemption reason" in found[0]["about"], (
         f"an exemption with a blank reason is silence with a prefix on it: {found}")
     # The blank case is exactly where a .strip() before the prefix test hides: it eats
     # the trailing space and the value falls through to the path branch, redding for a
     # reason that would send the reader to fix a berth path that was never one.
-    assert "does not read" not in found[0]["finding"], (
-        f"redded as a bad path instead of a blank exemption: {found[0]['finding']}")
+    assert "readable" not in found[0]["about"], (
+        f"redded as a bad path instead of a blank exemption: {found[0]['about']}")
 
 
 def test_gate_stays_silent_on_an_unfiled_ticket():

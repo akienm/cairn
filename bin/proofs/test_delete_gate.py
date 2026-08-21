@@ -18,7 +18,7 @@ Teeth a hollow gate could not pass:
   - THE SPELLINGS. ``~/.cairn``, ``$HOME/.cairn``, the absolute path, ``cd`` then delete,
     ``find -delete``, ``find -exec rm``. This repo has already been bitten once by a tooth
     narrower than its own defect (``tester/scratch.py``: the temp-leak check grepped for
-    ``mkdtemp`` and missed a leak spelled ``gettempdir``).
+    one spelling of "make a temp dir" and missed a leak spelled differently).
   - THE ORIGIN SURVIVES THE MOVE. An entry in the trash with no record of where it came
     from is exactly as recoverable as ``rm`` was — so the info file is written first, and
     that ordering is checked, not assumed.

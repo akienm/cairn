@@ -19,9 +19,12 @@ import re
 from pathlib import Path
 
 from cairn.devices.ground_loop.guard import LOCK_NAME
-from cairn.devices.ground_loop.liveness import RECORD_NAME
+from cairn.devices.ground_loop.liveness import RECORD_NAME, instance_home
+from cairn.tools.base.probe import Probe, owning_ticket
 
 _PROC_LOCKS = Path("/proc/locks")
+_OWNING_TICKET = "the-beater-holds-the-claim"
+_HORIZON = 1000
 
 
 def lock_holder_pid(home: Path) -> dict:
@@ -97,3 +100,35 @@ def check(home: Path) -> dict:
             "beater_pid": beating, "inode": holder["inode"],
             "detail": (f"the flock holder (pid {holder['pid']}) is not the beater "
                        f"(pid {beating}) — two loops or a leaked claim")}
+
+
+def _trigger(now, context: dict) -> bool:
+    """TRUE on MISMATCH or UNABLE — the conditions that must be loud (Law 7).
+    A MATCH is the healthy state and needs no poke."""
+    result = check(instance_home())
+    context["_result"] = result
+    return result["outcome"] in ("MISMATCH", "UNABLE")
+
+
+def _carry(context: dict) -> dict:
+    result = context.get("_result") or check(instance_home())
+    return {
+        "finding": result.get("detail", result["outcome"]),
+        "outcome": result["outcome"],
+        "holder_pid": result.get("holder_pid") or (result.get("holder") or {}).get("pid"),
+        "beater_pid": result.get("beater_pid"),
+        "inode": result.get("inode") or (result.get("holder") or {}).get("inode"),
+        "ticket": owning_ticket(_OWNING_TICKET),
+    }
+
+
+PROBE = Probe(
+    why="the 80-minute double-loop incident was measurable the whole time it went "
+        "unmeasured — two numbers, both already on the machine; this watches the "
+        "comparison every beat and makes a mismatch permanent and loud (Law 7)",
+    trigger=_trigger,
+    to="harbor_master",
+    body={"nexus": "ground_loop", "kind": "efficacy"},
+    carry=_carry,
+    horizon=_HORIZON,
+)

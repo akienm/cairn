@@ -189,6 +189,37 @@ def half_two_in_situ() -> None:
         )
 
 
+def half_two_b_per_instance_override() -> None:
+    print("\nPER-INSTANCE — CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE overrides the global default")
+
+    got_default = _limits(_launch({}))
+    got_override = _limits(_launch({"CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE": "4G"}))
+
+    check(
+        "the per-instance launch reaches the binary",
+        "ARGV" in got_override,
+        repr(got_override),
+    )
+    check(
+        "the per-instance launch sits in a superclaude scope",
+        got_override.get("CGROUP", "").rstrip("/").split("/")[-1].startswith("superclaude-"),
+        got_override.get("CGROUP", "<none>"),
+    )
+    default_max = got_default.get("MAX", "")
+    override_max = got_override.get("MAX", "")
+    if default_max.isdigit() and override_max.isdigit():
+        check(
+            "the per-instance value is not the global default",
+            int(override_max) != int(default_max),
+            f"override={int(override_max)/2**30:.1f}GiB default={int(default_max)/2**30:.1f}GiB",
+        )
+        check(
+            "the kernel sees the per-instance value (4G)",
+            abs(int(override_max) - 4 * 2**30) < 2**20,
+            f"max={int(override_max)/2**30:.2f}GiB (expected ~4.0GiB)",
+        )
+
+
 def half_three_the_directive_outranks_the_cap() -> None:
     print("\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing")
 
@@ -239,6 +270,7 @@ def main() -> int:
     print(f"superclaude memory scope — boot log redirected to {_PROOF_BOOT_LOG}")
     half_one_mechanism()
     half_two_in_situ()
+    half_two_b_per_instance_override()
     half_three_the_directive_outranks_the_cap()
 
     print()

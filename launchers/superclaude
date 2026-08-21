@@ -487,7 +487,7 @@ fi
 # GUARDED, under the prime directive: if systemd-run is missing or the probe fails we exec
 # Claude exactly as before. SUPERCLAUDE_NO_SCOPE=1 opts out; the three limits are env-tunable.
 _sc_mem_high="${SUPERCLAUDE_MEM_HIGH:-6G}"
-_sc_mem_max="${SUPERCLAUDE_MEM_MAX:-8G}"
+_sc_mem_max="${CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE:-${SUPERCLAUDE_MEM_MAX:-8G}}"
 _sc_mem_swap="${SUPERCLAUDE_MEM_SWAP:-1G}"
 if [[ -z "${SUPERCLAUDE_NO_SCOPE:-}" ]] \
    && command -v systemd-run >/dev/null 2>&1 \

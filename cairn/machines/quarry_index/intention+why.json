@@ -1,0 +1,13 @@
+{
+  "component": "quarry_index",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "One-time compiler that reads TheIgorsProject's articulated layer (subsystem_index, design_docs, decisions, rules, tickets-as-pointers) and produces a deduped JSON index at CairnCommons/quarry/index.json. Every entry carries an UNPROVEN-PRIOR-SYSTEM stamp (Law 8). Deduplicates across the 4+ duplicate trees by content hash. The index is a lookup table — inference-free, compiled once.",
+  "why": "Measured 2026-07-26: three ideas were re-derived from scratch in one session while they sat on disk in ~/TheIgorsProject (the Channel pattern, calving thresholds, and the node record envelope). Law 1's defect in its purest form — the resolver spent on re-deriving the settled. The fix: compile the quarry ONCE so /challenge's 'prior art?' question has something to search. Ideas to steal, not code (Akien 2026-07-26).",
+  "invoke": "CLI: `python3 -m cairn.machines.quarry_index.compiler` (compile and write) or `--dry-run` (stats only). Prove: `python3 -m cairn.machines.quarry_index.proofs.test_compiler`.",
+  "how_it_learns": "It doesn't, because the quarry is frozen (measured: 6 files touched since 2026-07-01). The index does not go stale from the quarry side. A scope error on ours would reopen the ticket.",
+  "filed_edges": [
+    "(a) /CHALLENGE fired at /INTENT is the CONSUMER that makes this index pay — a separate node. This index is useful without it (a human or CC can query it), but the loop only closes when something fires the question automatically.",
+    "(b) THE 537 TICKETS are indexed as POINTERS ONLY (id, title, status, path) — not summarized. Summarizing 537 tickets ahead of evidence is the volume problem this node exists to avoid."
+  ]
+}

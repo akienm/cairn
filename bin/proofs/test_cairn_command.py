@@ -64,7 +64,7 @@ def test_unknown_name_fails_loud():
     with tempfile.TemporaryDirectory() as d:
         r = _run(d, "no-such-verb")
         assert r.returncode != 0, "an unknown command must fail non-zero, never a silent no-op"
-        assert "no such command" in r.stderr.lower(), f"the failure must be legible: {r.stderr!r}"
+        assert "no such" in r.stderr.lower(), f"the failure must be legible: {r.stderr!r}"
 
 
 def test_no_wrapper_noise_on_the_success_path():

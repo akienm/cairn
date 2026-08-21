@@ -272,3 +272,81 @@ def read(table: str, *, where: str | None = None, params: tuple = (), conn=None)
     finally:
         if conn is None:
             own_conn.close()
+
+
+def query(template: str, *, tables: dict[str, str], params: tuple = (), conn=None) -> list[dict]:
+    """Execute a SELECT with safely-quoted table identifiers, returning dicts.
+
+    ``template`` is a SQL string with ``{name}`` placeholders for table identifiers.
+    ``tables`` maps each placeholder name to the real table name, which is quoted
+    through ``sql.Identifier``. Value parameters use ``%s`` as usual.
+
+    Reads are not owner-gated (Law 6 gates writes). This is the door for JOINs and
+    other multi-table reads that ``read()`` cannot express.
+    """
+    own_conn = conn or connect()
+    try:
+        stmt = sql.SQL(template).format(**{k: sql.Identifier(v) for k, v in tables.items()})
+        with own_conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(stmt, params)
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def delete(table: str, owner: str, *, where: str | None = None, params: tuple = (), conn=None) -> int:
+    """Delete rows from ``table`` — owner-gated like every other write (Law 6).
+
+    Without ``where``, deletes ALL rows (the caller said so explicitly). Returns the
+    count of rows removed.
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is None:
+        raise OwnershipError(f"{table!r} was not created through db_domain — it has no owner to gate a delete")
+    if recorded != owner:
+        raise OwnershipError(f"{owner!r} may not delete from {table!r} — its owner is {recorded!r} (Law 6)")
+
+    own_conn = conn or connect()
+    try:
+        stmt = sql.SQL("DELETE FROM {tbl}").format(tbl=sql.Identifier(table))
+        if where:
+            stmt = stmt + sql.SQL(" WHERE ") + sql.SQL(where)
+        with own_conn.cursor() as cur:
+            cur.execute(stmt, params)
+            return cur.rowcount
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def drop_table(table: str, owner: str, *, conn=None) -> bool:
+    """Drop ``table`` and remove its registry entry — owner-gated (Law 6).
+
+    Returns True if the table existed, False if it was already gone. The registry
+    entry is removed either way (idempotent cleanup).
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is not None and recorded != owner:
+        raise OwnershipError(f"{owner!r} may not drop {table!r} — its owner is {recorded!r} (Law 6)")
+
+    own_conn = conn or connect()
+    try:
+        with own_conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.tables "
+                "WHERE table_schema = 'public' AND table_name = %s", (table,)
+            )
+            existed = cur.fetchone() is not None
+            if existed:
+                cur.execute(sql.SQL("DROP TABLE {}").format(sql.Identifier(table)))
+            cur.execute(
+                sql.SQL("DELETE FROM {reg} WHERE table_name = %s").format(
+                    reg=sql.Identifier(_REGISTRY)
+                ),
+                (table,),
+            )
+            return existed
+    finally:
+        if conn is None:
+            own_conn.close()

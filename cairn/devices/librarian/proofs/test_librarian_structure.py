@@ -63,49 +63,24 @@ def _deposit(content: str, vector, table: str):
 def teardown_module():
     conn = store.connect()
     try:
-        from psycopg2 import sql as psql
-        with conn.cursor() as cur:
-            for t in _TABLES:
-                cur.execute(
-                    "SELECT 1 FROM information_schema.tables WHERE table_name = %s", (t,)
-                )
-                if cur.fetchone():
-                    cur.execute(psql.SQL("DELETE FROM {}").format(psql.Identifier(t)))
-            nids = set()
-            for t in _TABLES:
-                cur.execute(
-                    "SELECT 1 FROM information_schema.tables WHERE table_name = %s", (t,)
-                )
-                if not cur.fetchone():
-                    continue
-                cur.execute(psql.SQL("SELECT node_id FROM {}").format(psql.Identifier(t)))
-                nids.update(r[0] for r in cur.fetchall())
-            for t in _TABLES:
-                cur.execute(
-                    "SELECT 1 FROM information_schema.tables WHERE table_name = %s", (t,)
-                )
-                if cur.fetchone():
-                    cur.execute(psql.SQL("DROP TABLE {}").format(psql.Identifier(t)))
-            if nids:
-                cur.execute(
-                    f"DELETE FROM {EMBEDDINGS_TABLE} WHERE node_id = ANY(%s)",
-                    (list(nids),),
-                )
-                cur.execute(
-                    f"DELETE FROM {NODES_TABLE} WHERE node_id = ANY(%s)",
-                    (list(nids),),
-                )
-            cur.execute(
-                "SELECT 1 FROM information_schema.tables WHERE table_name = %s",
-                (LINKS_TABLE,),
-            )
-            if cur.fetchone():
-                cur.execute(
-                    f"DELETE FROM {LINKS_TABLE} WHERE "
-                    f"link_id LIKE %s",
-                    (f"%",),
-                )
-        conn.commit()
+        nids = set()
+        for t in _TABLES:
+            if store.owner_of(t, conn=conn) is None:
+                continue
+            for r in store.read(t, conn=conn):
+                nids.add(r["node_id"])
+        for t in _TABLES:
+            owner = store.owner_of(t, conn=conn)
+            if owner is not None:
+                store.drop_table(t, owner, conn=conn)
+        if nids:
+            store.delete(EMBEDDINGS_TABLE, OWNER,
+                         where="node_id = ANY(%s)", params=(list(nids),), conn=conn)
+            store.delete(NODES_TABLE, OWNER,
+                         where="node_id = ANY(%s)", params=(list(nids),), conn=conn)
+        if store.owner_of(LINKS_TABLE, conn=conn) is not None:
+            store.delete(LINKS_TABLE, OWNER,
+                         where="link_id LIKE %s", params=("%",), conn=conn)
     finally:
         conn.close()
 

@@ -170,22 +170,15 @@ def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
 
 def _leaf_rows(*, table: str, conn) -> list[dict]:
     """All rows in a leaf table, joined through embedding->node."""
-    from psycopg2 import sql as psql
-    from psycopg2.extras import RealDictCursor
-    stmt = psql.SQL(
+    return store.query(
         "SELECT l.leaf_id, n.node_id, n.content, e.vector, n.provenance, "
         "n.standing, n.created, e.embedding_id, e.render_method "
         "FROM {leaf} l "
         "JOIN {embed} e ON l.embedding_id = e.embedding_id "
-        "JOIN {node} n ON l.node_id = n.node_id"
-    ).format(
-        leaf=psql.Identifier(table),
-        embed=psql.Identifier(EMBEDDINGS_TABLE),
-        node=psql.Identifier(NODES_TABLE),
+        "JOIN {node} n ON l.node_id = n.node_id",
+        tables={"leaf": table, "embed": EMBEDDINGS_TABLE, "node": NODES_TABLE},
+        conn=conn,
     )
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute(stmt)
-        return [dict(r) for r in cur.fetchall()]
 
 
 def deposit(content: str, vector, provenance: dict, *,
@@ -533,9 +526,7 @@ def calve(*, table: str = NODES, owner: str = OWNER,
             }, conn=own)
             sizes[assignments[i]] += 1
 
-        from psycopg2 import sql as psql
-        with own.cursor() as cur:
-            cur.execute(psql.SQL("DELETE FROM {}").format(psql.Identifier(table)))
+        store.delete(table, owner, conn=own)
 
         return {
             "children": [child_a, child_b],
@@ -625,26 +616,19 @@ def linked(node_id: str, *, conn=None) -> list[dict]:
     own = conn or store.connect()
     try:
         _ensure_links(own)
-        from psycopg2 import sql as psql
-        from psycopg2.extras import RealDictCursor
-        with own.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                psql.SQL(
-                    "SELECT l.link_id, l.source_id, l.target_id, l.weight, "
-                    "l.traversals, l.created, n.content, n.standing "
-                    "FROM {links} l "
-                    "JOIN {nodes} n ON n.node_id = CASE "
-                    "  WHEN l.source_id = %s THEN l.target_id "
-                    "  ELSE l.source_id END "
-                    "WHERE l.source_id = %s OR l.target_id = %s "
-                    "ORDER BY l.weight DESC"
-                ).format(
-                    links=psql.Identifier(LINKS_TABLE),
-                    nodes=psql.Identifier(NODES_TABLE),
-                ),
-                (node_id, node_id, node_id),
-            )
-            return [dict(r) for r in cur.fetchall()]
+        return store.query(
+            "SELECT l.link_id, l.source_id, l.target_id, l.weight, "
+            "l.traversals, l.created, n.content, n.standing "
+            "FROM {links} l "
+            "JOIN {nodes} n ON n.node_id = CASE "
+            "  WHEN l.source_id = %s THEN l.target_id "
+            "  ELSE l.source_id END "
+            "WHERE l.source_id = %s OR l.target_id = %s "
+            "ORDER BY l.weight DESC",
+            tables={"links": LINKS_TABLE, "nodes": NODES_TABLE},
+            params=(node_id, node_id, node_id),
+            conn=own,
+        )
     finally:
         if conn is None:
             own.close()

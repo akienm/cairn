@@ -41,6 +41,9 @@ aider = [
 # aspirational; `cairn test cairn/launchers/proofs/test_bootstrap.py` is what keeps it true.
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"
+filterwarnings = [
+  "ignore:cannot collect test class 'TesterDevice':pytest.PytestCollectionWarning",
+]
 
 [tool.setuptools.packages.find]
 include = ["cairn*"]

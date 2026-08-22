@@ -272,8 +272,8 @@ def main() -> int:
         file_ticket({})
         found = gate("t", tickets_root=tickets_root)
         ok("consumer: missing field reds with the remedy",
-           len(found) == 1 and "sorted_berth" in found[0]["finding"]
-           and "none, because" in json.dumps(found[0]["evidence"]))
+           len(found) == 1 and "sorted" in found[0]["about"]
+           and found[0]["method"] == "buildme_rides_the_sorted")
 
         # 22. blank exemption reason reds
         file_ticket({"sorted_berth": "none, because "})
@@ -284,7 +284,7 @@ def main() -> int:
         file_ticket({"sorted_berth": "none, because this is a one-off"})
         found = gate("t", tickets_root=tickets_root)
         ok("consumer: hollow exemption reds naming the kinds",
-           len(found) == 1 and "referent" in json.dumps(found[0]["evidence"]))
+           len(found) == 1 and "resolvable" in found[0]["about"])
 
         # 24. exemption whose reason resolves (a real cast ticket id, live commons) passes
         file_ticket({"sorted_berth":
@@ -299,7 +299,7 @@ def main() -> int:
         file_ticket({"sorted_berth": str(wrong)})
         found = gate("t", tickets_root=tickets_root)
         ok("consumer: wrong-skill berth reds",
-           len(found) == 1 and "'sorted'" in found[0]["finding"])
+           len(found) == 1 and found[0]["expected"] == "sorted")
 
         # 26. the real berth from tooth 15 opens the door
         file_ticket({"sorted_berth": result["berth"]})
@@ -320,11 +320,11 @@ def main() -> int:
             _entry_gate("t")
             ok("entry gate: triple lack in one raise", False, "gate passed")
         except EntryGateRed as exc:
-            sieves = {f["sieve"] for f in exc.findings}
+            methods = {f["method"] for f in exc.findings}
             ok("entry gate: triple lack in one raise",
                {"buildme_rides_the_chart", "buildme_rides_the_intent",
-                "buildme_rides_the_sorted"} <= sieves,
-               f"sieves seen: {sieves}")
+                "buildme_rides_the_sorted"} <= methods,
+               f"methods seen: {methods}")
         finally:
             insp._TICKETS_ROOT = saved
 

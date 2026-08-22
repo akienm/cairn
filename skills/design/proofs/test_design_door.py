@@ -90,7 +90,7 @@ def main() -> int:
         "gates_bound": "prove_gate: this proof, beside the code",
         "watchme": "none, because skills/design/proofs/test_design_door.py is the watch itself",
         "children": "none, because skills/design/door.py is the one seam under proof",
-        "exit": "routed_out", "disposition": "back-to-design",
+        "exit": "routed_out", "disposition": "not-ready",
         "bullets": [{"text": "t", "stratum": "code"}]}, **kw)["berth"]
 
     good = {"intent_berth": alive, "entering_from": "intent",

@@ -68,6 +68,9 @@ SCAFFOLD = {
     # design refuses to have one, and would break the two-kinds invariant to do it.
     "proof": "Your work is judged by a test command that runs automatically after each "
              "edit. It must pass, and it was not written to be easy to pass.",
+    "critique": "Before you begin: if anything in this brief is unclear, contradictory, "
+                "or missing information you need, say what SPECIFICALLY is wrong. Your "
+                "assessment is recorded and inspectable after the fact.",
     "close": "Make the smallest change that does the piece. If something needed is "
              "missing, say what and stop — do not invent it.",
 }
@@ -276,6 +279,7 @@ def brief(ticket: str, piece_index: int, *, test_cmd: str = "",
     if test_cmd:
         spans.append(_scaffold("proof"))
 
+    spans.append(_scaffold("critique"))
     spans.append(_scaffold("close"))
 
     uses = piece.get("uses") or []

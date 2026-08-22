@@ -417,6 +417,48 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             own.close()
 
 
+def read_ticket(*, canonical: str | None = None, limit: int | None = None,
+                table: str = CACHE, conn=None) -> list[dict]:
+    """The reader face: inference_calls rows themselves, not an aggregate (yield_report) but
+    the individual tickets — request and answer.
+
+    By canonical (exact match), or by recency (most recent first). Each returned row carries:
+      - ``request``: the decoded request dict (canonical round-tripped through json.loads)
+      - ``body_status``: ``"whole"`` if the answer carries the host's raw body,
+        ``"unknowable"`` if the row predates the build that carries it (pre-build rows are
+        never "empty" — absent-not-empty, which is where a hollow green would hide)
+      - everything else the row already has
+    """
+    own_conn = conn or store.connect()
+    try:
+        if canonical is not None:
+            rows = store.read(table, where="canonical = %s", params=(canonical,), conn=own_conn)
+        else:
+            rows = store.read(table, conn=own_conn)
+        rows.sort(key=lambda r: r["created"], reverse=True)
+        if limit is not None:
+            rows = rows[:limit]
+        result = []
+        for row in rows:
+            enriched = dict(row)
+            try:
+                enriched["request"] = json.loads(row["canonical"])
+            except (json.JSONDecodeError, TypeError):
+                enriched["request"] = None
+            answer = row.get("answer")
+            if answer is None:
+                enriched["body_status"] = "unknowable"
+            elif isinstance(answer, dict) and "body" in answer:
+                enriched["body_status"] = "whole"
+            else:
+                enriched["body_status"] = "unknowable"
+            result.append(enriched)
+        return result
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
 def yield_report(*, table: str = CACHE, conn=None) -> dict:
     """The meter read back (how_it_learns): tokens SPENT vs AVOIDED — is compilation paying off?
 

@@ -413,6 +413,117 @@ def test_the_watch_reads_a_row_the_real_writer_made():
     assert s["hollow_answers"] == [], f"and the answered row beside it must read healthy: {s}"
 
 
+class _BodyCarryingResolver:
+    """A resolver whose response body carries a key the PARSE never extracts — the tooth
+    that proves the raw body is present, not just the extracted fields."""
+
+    def __init__(self):
+        self.calls = 0
+
+    def __call__(self, request: dict) -> dict:
+        self.calls += 1
+        return {
+            "answer": {
+                "text": "the parsed text",
+                "body": {
+                    "response": "the parsed text",
+                    "model": "fixture-model",
+                    "done": True,
+                    "prompt_eval_count": 10,
+                    "eval_count": 5,
+                    "context": [1, 2, 3],
+                    "load_duration": 42000000,
+                    "total_duration": 99000000,
+                    "_unparsed_key": "THIS KEY IS NEVER EXTRACTED BY THE PARSE",
+                },
+            },
+            "cost": 15.0,
+            "provenance": {"host": "fixture-host"},
+        }
+
+
+def test_the_ticket_comes_back_whole():
+    """THE INFERENCE TICKET IS RETRIEVABLE AND COMPLETE — the four clauses of the falsifier.
+
+    (a) A caller names a call and gets its ticket back carrying the full request AND body.
+    (b) The answer carries a key the parse never extracted (proving body, not just text).
+    (c) A pre-build row lacking the body reads back UNKNOWABLE, not empty.
+    (d) The reader round-trips canonical to the request dict, EQUALITY not containment.
+    """
+    # First, seed a PRE-BUILD row (no body on the answer) to test clause (c).
+    plain = _CountingResolver()
+    domain.resolve({"q": f"prebuild_{_NONCE}"}, resolver=plain, table=_TABLE)
+
+    # Now seed a row whose answer carries the raw body.
+    r = _BodyCarryingResolver()
+    request_dict = {"q": f"whole_{_NONCE}", "kind": "generate", "prompt": "p"}
+    domain.resolve(request_dict, resolver=r, table=_TABLE)
+    assert r.calls == 1
+
+    canonical = domain.canonicalize(request_dict)
+    tickets = domain.read_ticket(canonical=canonical, table=_TABLE)
+    assert len(tickets) >= 1, f"the reader must find the row by canonical: {tickets}"
+    ticket = tickets[0]
+
+    # (a) The ticket carries the full request AND the full response body.
+    assert ticket["request"] is not None, "the request must be decoded from canonical"
+    answer = ticket["answer"]
+    assert isinstance(answer, dict), f"answer must be a dict, got {type(answer)}"
+    assert "body" in answer, f"the answer must carry the raw body: {sorted(answer)}"
+    assert "text" in answer, "the parsed text must still be present (additive)"
+
+    # (b) The body carries a key the parse never extracted.
+    body = answer["body"]
+    assert "_unparsed_key" in body, (
+        f"the body must carry keys the parse never extracted — this is what proves the BODY "
+        f"is present, not just the text: {sorted(body)}"
+    )
+    assert body["_unparsed_key"] == "THIS KEY IS NEVER EXTRACTED BY THE PARSE"
+
+    # (c) The pre-build row reads UNKNOWABLE, not empty.
+    pre_canonical = domain.canonicalize({"q": f"prebuild_{_NONCE}"})
+    pre_tickets = domain.read_ticket(canonical=pre_canonical, table=_TABLE)
+    assert len(pre_tickets) >= 1
+    assert pre_tickets[0]["body_status"] == "unknowable", (
+        f"a pre-build row lacking the body must read UNKNOWABLE, never empty: "
+        f"{pre_tickets[0].get('body_status')}"
+    )
+
+    # The new row IS whole.
+    assert ticket["body_status"] == "whole", (
+        f"a row with the body must read WHOLE: {ticket.get('body_status')}"
+    )
+
+    # (d) The reader round-trips canonical → request dict, EQUALITY not containment.
+    # The canonical strips "domain" (by canonicalize's own rule), so compare against the
+    # canonicalized form of the input — the same transform the writer applied.
+    roundtripped = ticket["request"]
+    expected = {k: v for k, v in request_dict.items() if k != "domain"}
+    assert roundtripped == expected, (
+        f"the reader must round-trip canonical → request dict by EQUALITY, not containment.\n"
+        f"  got:      {roundtripped}\n"
+        f"  expected: {expected}"
+    )
+
+    # Recency: read_ticket with limit returns newest first.
+    all_tickets = domain.read_ticket(limit=5, table=_TABLE)
+    assert len(all_tickets) >= 2, "the reader must see both rows"
+    assert all_tickets[0]["created"] >= all_tickets[1]["created"], \
+        "read_ticket must return rows newest first"
+
+    # A refused row is also UNKNOWABLE (answer is None).
+    bad = _RefusingResolver(RuntimeError("for wholeness"))
+    try:
+        domain.resolve({"q": f"refused_whole_{_NONCE}"}, resolver=bad, table=_TABLE)
+    except RuntimeError:
+        pass
+    refused_canonical = domain.canonicalize({"q": f"refused_whole_{_NONCE}"})
+    refused_tickets = domain.read_ticket(canonical=refused_canonical, table=_TABLE)
+    assert len(refused_tickets) >= 1
+    assert refused_tickets[0]["body_status"] == "unknowable", \
+        "a refused row (answer=None) must read UNKNOWABLE"
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -440,6 +551,7 @@ def _main() -> int:
         test_a_refused_ask_leaves_a_row,
         test_the_standing_readers_are_unmoved_by_a_refused_row,
         test_the_watch_reads_a_row_the_real_writer_made,
+        test_the_ticket_comes_back_whole,
     ]
     try:
         for check in checks:
@@ -447,7 +559,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered")
+    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole")
     return 0
 
 

@@ -352,7 +352,7 @@ def ollama_resolver(
                          endpoint=endpoint, timeout=timeout, transport=send)
             if "response" not in body:
                 raise HostRefused(f"/api/generate returned no 'response' field: {sorted(body)}")
-            answer = {"text": body["response"]}
+            answer = {"text": body["response"], "body": body}
         elif kind == "embed":
             # /api/embed, NOT /api/embeddings — the older path reports no counters (measured
             # 2026-07-26, see the module note). It returns a LIST of vectors for a list input;
@@ -366,7 +366,7 @@ def ollama_resolver(
                     f"/api/embed returned an unexpected 'embeddings' shape for a single input: "
                     f"{type(vectors).__name__}"
                     + (f" of {len(vectors)}" if isinstance(vectors, list) else ""))
-            answer = {"vector": vectors[0], "dim": len(vectors[0])}
+            answer = {"vector": vectors[0], "dim": len(vectors[0]), "body": body}
         elif kind == "chat":
             # /api/chat is generate's turn-taking sibling: same counters, same stream flag,
             # a messages list where generate has a prompt. MEASURED against the live host
@@ -387,7 +387,7 @@ def ollama_resolver(
                     f"/api/chat returned an unexpected 'message' shape: "
                     f"{type(message).__name__}"
                     + (f" carrying {sorted(message)}" if isinstance(message, dict) else ""))
-            answer = {"text": message["content"], "role": message.get("role", "assistant")}
+            answer = {"text": message["content"], "role": message.get("role", "assistant"), "body": body}
         else:
             raise BadRequest(
                 f"unknown request kind {kind!r} — this resolver sends 'generate', 'embed' or "

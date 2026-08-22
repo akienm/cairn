@@ -12,9 +12,10 @@ everything provable lives under this wrapper, sudo_relay daemon.py's shape.
 TWO KINDS OF SIDE EFFECT, and the difference is the whole of Law 7. Every beat
 REPLACES ``~/.cairn/devices/ground_loop/0/liveness.json`` — a snapshot answering
 "is it alive right now", true only at the instant it is read (the write is part
-of the pass, in loop.py). Every gate contact APPENDS to ``diagnostics.jsonl``
-beside it — a trail, where a line already written is never rewritten. The two
-files sit in the same directory and that adjacency is the distinction on display.
+of the pass, in loop.py). Every gate contact EMITS one JSON file per record under
+``~/.cairn/logs/<device>/<instance>/`` — a trail, where a file already written is
+never rewritten. The snapshot and the trail sit in different directories and that
+separation is the distinction on display.
 Timestamps are timezone-aware — the read face subtracts.
 
 THE DOOR GUARDS ITSELF (ticket an-entry-point-starts-the-loop-only-once): the

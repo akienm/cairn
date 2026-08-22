@@ -110,7 +110,7 @@ _CACHE_COLUMNS = {
 # ARE that object. They are not a new mechanism: a class defined in this file carries
 # ``cairn.devices.inference_domain.domain`` in its ``__module__``, so ``DiagnosticBase``
 # derives the component — ``inference_domain`` — from the address the class already had, and
-# the records land in ``~/.cairn/logs/inference_domain/0/diagnostics.jsonl`` with nobody
+# the records land in ``~/.cairn/logs/inference_domain/0/`` as one JSON file per emission, with nobody
 # wiring anything. Nothing here is hand-spelled; the one authored string is the source name.
 # ``charter.projector`` does the same thing for the same reason (2026-08-18), and copying its
 # shape is cheaper than a floor abstraction bought for a second user.

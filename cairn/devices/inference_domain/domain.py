@@ -76,6 +76,7 @@ OPEN EDGES, filed not faked:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from datetime import datetime, timezone
@@ -194,6 +195,12 @@ def canonicalize(request: dict) -> str:
     """
     view = {k: v for k, v in request.items() if k != "domain"}
     return json.dumps(view, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def canonical_digest(text: str) -> str:
+    """SHA-256 hex digest of canonical text — the thin pointer that replaces the full text
+    in the trail, joinable back to the store's ``canonical`` column by hashing that column."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def _domain_dressed(request: dict, *, stacks: dict | None = None) -> tuple[dict, str]:
@@ -316,7 +323,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             # counted against each other without a translation table in between.
             _trail.emit(
                 "hit",
-                pointer=canonical,
+                pointer=canonical_digest(canonical),
                 values={"domain": domain_name, "served_from": str(prior["created"])},
                 now=moment,
             )
@@ -370,7 +377,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             try:
                 _trail.emit(
                     "refused",
-                    pointer=canonical,
+                    pointer=canonical_digest(canonical),
                     values={"domain": domain_name, "refused": type(refusal).__name__,
                             "detail": str(refusal)[:2000]},
                     now=moment,
@@ -405,7 +412,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
         # facts about the host.
         _trail.emit(
             "miss",
-            pointer=canonical,
+            pointer=canonical_digest(canonical),
             values={k: provenance[k] for k in _ENDPOINT_KEYS if k in provenance},
             now=moment,
         )

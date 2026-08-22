@@ -182,16 +182,17 @@ def test_an_unwired_device_reaches_disk_from_another_process() -> None:
         ok(child.returncode == 0,
            f"the child process must emit cleanly; stderr:\n{child.stderr}")
         ts = child.stdout.strip()
-        trail = tmp / "logs" / "bus" / "0" / RECORD_NAME
-        ok(trail.exists(),
-           f"an unwired device's trail must exist at {trail} after the process that wrote it "
-           f"has exited — this is the whole ticket")
-        lines = [json.loads(x) for x in trail.read_text().splitlines() if x.strip()]
-        ok(len(lines) == 1, f"exactly one record, got {len(lines)}")
-        ok(lines[0]["ts"] == ts,
+        trail_dir = tmp / "logs" / "bus" / "0"
+        ok(trail_dir.exists(),
+           f"an unwired device's trail directory must exist at {trail_dir} after the process "
+           f"that wrote it has exited — this is the whole ticket")
+        emission_files = sorted(trail_dir.glob("*.json"))
+        ok(len(emission_files) == 1, f"exactly one emission file, got {len(emission_files)}")
+        rec = json.loads(emission_files[0].read_text())
+        ok(rec["ts"] == ts,
            "the record read back must be the one the dead process wrote, byte for byte")
-        ok(lines[0]["gate"] == "subscribe" and lines[0]["home"] == "sent",
-           f"the crossing and its home must survive the process: {lines[0]}")
+        ok(rec["gate"] == "subscribe" and rec["home"] == "sent",
+           f"the crossing and its home must survive the process: {rec}")
 
 
 def test_the_trail_is_appended_never_rewritten() -> None:
@@ -202,11 +203,15 @@ def test_the_trail_is_appended_never_rewritten() -> None:
         dev.set_diagnostic_roots(_roots(tmp))
         dev.set_diagnostic_receiver(BreadcrumbLog("bus", 0, roots=_roots(tmp)))
         dev.emit("first", pointer="a")
-        first = (tmp / "logs" / "bus" / "0" / RECORD_NAME).read_text()
+        trail_dir = tmp / "logs" / "bus" / "0"
+        first_files = sorted(trail_dir.glob("*.json"))
+        ok(len(first_files) == 1, "one emission, one file")
+        first_content = first_files[0].read_bytes()
         dev.emit("second", pointer="b")
-        both = (tmp / "logs" / "bus" / "0" / RECORD_NAME).read_text()
-        ok(both.startswith(first), "an already-written line is never rewritten")
-        ok(len(both.splitlines()) == 2, "one line per crossing")
+        after_files = sorted(trail_dir.glob("*.json"))
+        ok(len(after_files) == 2, "two emissions, two files")
+        ok(first_files[0].read_bytes() == first_content,
+           "an already-written emission file is never rewritten")
 
 
 # ── 4. WHAT THE RECEIVER STILL DOES ──────────────────────────────────────────
@@ -232,7 +237,7 @@ def test_silence_is_still_askable_and_is_not_the_unwired_state() -> None:
         writer.set_diagnostic_roots(_roots(tmp))
         ok(writer.emit("gate", pointer="p")["home"] == "sent",
            "the same class NOT silenced must write — else the sentinel proves nothing")
-        ok((tmp / "logs" / "trouble" / "0" / RECORD_NAME).exists(),
+        ok(list((tmp / "logs" / "trouble" / "0").glob("*.json")),
            "and it lands under its own derived name")
 
 
@@ -254,7 +259,7 @@ def test_the_override_still_diverts() -> None:
         dev.set_diagnostic_receiver(Catcher())
         dev.emit("gate", pointer="p")
         ok(len(caught) == 1, "an overridden receiver receives")
-        ok(not (tmp / "logs" / "bus" / "0" / RECORD_NAME).exists(),
+        ok(not (tmp / "logs" / "bus" / "0").exists(),
            "and the default trail is NOT also written — an override replaces, it does not tee")
 
 

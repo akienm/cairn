@@ -21,9 +21,11 @@ which is what makes it a legal floor for callers that pin an allowlist) and
 at this same floor, ``cairn/tools/base/__init__.py`` is empty by that same law, and neither
 pulls in a database, a logging framework, or anything outside the repo.
 
-WHERE HOME IS — ``~/.cairn/logs/<device>/<instance>/diagnostics.jsonl``, THE DEVICE'S OWN, AND
-NOBODY HAS TO WIRE IT (2026-08-18, ticket ``a-device-logs-without-being-wired``). A device
-derives its own component name from its class's module address and writes there by default.
+WHERE HOME IS — ``~/.cairn/logs/<device>/<instance>/``, THE DEVICE'S OWN, AND NOBODY HAS TO
+WIRE IT (2026-08-18, ticket ``a-device-logs-without-being-wired``; 2026-08-19, ticket
+``an-emission-is-one-file-named-by-its-pointer`` — one JSON file per emission, named by its
+UTC stamp, source, and gate). A device derives its own component name from its class's module
+address and writes there by default.
 
 WHAT THAT REPLACED, AND WHY THE OLD SHAPE WAS RIGHT WHEN IT WAS WRITTEN. This paragraph used to
 say home was CC's shim — the diagnostic mailbox — and that the receiver is INJECTED

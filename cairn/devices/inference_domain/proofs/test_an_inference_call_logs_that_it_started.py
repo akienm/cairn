@@ -129,16 +129,23 @@ def _isolated_trail():
         domain.set_diagnostic_roots(None)
 
 
-def _lines(path: Path) -> list[dict]:
-    """The trail read the way a human at a terminal reads it: open the file, parse the bytes.
+def _lines(trail_dir: Path) -> list[dict]:
+    """The trail read the way a human at a terminal reads it: list the directory, parse the files.
 
     Never ``emit``'s return value. A tooth that asserts against the returned record proves the
     function built a dict and says nothing about whether anything reached disk — which is the
     entire claim this ticket makes.
     """
-    if not path.exists():
+    if not trail_dir.exists():
         return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    from cairn.tools.base.breadcrumb_log import RECORD_NAME
+    out = []
+    jsonl = trail_dir / RECORD_NAME
+    if jsonl.is_file():
+        out.extend(json.loads(line) for line in jsonl.read_text(encoding="utf-8").splitlines() if line.strip())
+    for p in sorted(trail_dir.glob("*.json")):
+        out.append(json.loads(p.read_text(encoding="utf-8")))
+    return out
 
 
 def test_a_miss_lands_a_line_that_names_the_far_end():
@@ -149,7 +156,7 @@ def test_a_miss_lands_a_line_that_names_the_far_end():
         # THE DEVICE NAMED ITSELF. Nothing in domain.py spells "inference_domain" for the
         # trail; the address is derived from the door class's __module__. A build that
         # hand-spelled it passes every other tooth in this file and fails here.
-        assert trail == tmp / "logs" / "inference_domain" / "0" / "diagnostics.jsonl", (
+        assert trail == tmp / "logs" / "inference_domain" / "0", (
             f"the trail must resolve to the device's own berth in the logs tree, got {trail}")
 
         # The before-witness, taken inside the proof rather than remembered from a shell.
@@ -165,8 +172,8 @@ def test_a_miss_lands_a_line_that_names_the_far_end():
         assert rec["gate"] == "miss", f"the gate must name the branch: {rec}"
         assert rec["home"] == "sent", f"the record must have reached a home, not been held: {rec}"
         assert rec["source"] == "inference_domain.domain.resolve", rec
-        assert rec["pointer"] == out["canonical"], (
-            f"the pointer must be the question, so a line can be tied to its row: {rec}")
+        assert rec["pointer"] == domain.canonical_digest(out["canonical"]), (
+            f"the pointer must be a digest of the canonical, joinable to the store's canonical column: {rec}")
 
         v = rec["values"]
         assert v["host"] == "http://hex.local:11434", f"the line must name the host: {v}"
@@ -323,9 +330,10 @@ def _probe():
 def _line(gate: str, canonical: str, ts: str = "2026-08-18T15:00:00-06:00") -> dict:
     """One trail line as the receiver writes it. Built to the SHAPE the real writer produces —
     the teeth above already assert that shape against bytes off disk, so these fixtures are
-    tied to the producer rather than agreeing only with the reader that consumes them."""
+    tied to the producer rather than agreeing only with the reader that consumes them.
+    The pointer is now a canonical digest, matching the real writer's output."""
     return {"ts": ts, "us": "000000", "source": "inference_domain.domain.resolve",
-            "gate": gate, "pointer": canonical, "values": {}, "home": "sent"}
+            "gate": gate, "pointer": domain.canonical_digest(canonical), "values": {}, "home": "sent"}
 
 
 def _row(canonical: str, verdict: str = "miss",
@@ -351,8 +359,10 @@ def test_the_probe_fires_on_a_call_the_trail_missed():
     s = p.judge([_line("miss", "{\"q\":1}")],
                 [_row("{\"q\":1}"), _row("{\"q\":2}")])
     assert p._trigger(None, {"corpus": s}) is True, f"a missing trail line must fire: {s}"
-    assert s["in_store_not_in_trail"] == [{"canonical": "{\"q\":2}", "short_by": 1}], (
+    assert len(s["in_store_not_in_trail"]) == 1 and s["in_store_not_in_trail"][0]["short_by"] == 1, (
         f"and it must name WHICH call, not just how many: {s}")
+    assert s["in_store_not_in_trail"][0]["canonical"] == domain.canonical_digest("{\"q\":2}"), (
+        f"the finding carries the digest so it joins back to the store: {s}")
     assert p._enough({"corpus": s}) is False, "a disagreeing corpus must never clear"
 
 
@@ -362,7 +372,8 @@ def test_the_probe_fires_on_a_trail_line_the_store_never_got():
     p = _probe()
     s = p.judge([_line("miss", "{\"q\":1}"), _line("miss", "{\"q\":3}")], [_row("{\"q\":1}")])
     assert p._trigger(None, {"corpus": s}) is True, f"an invented call must fire: {s}"
-    assert s["in_trail_not_in_store"] == [{"canonical": "{\"q\":3}", "short_by": 1}], s
+    assert len(s["in_trail_not_in_store"]) == 1 and s["in_trail_not_in_store"][0]["short_by"] == 1, s
+    assert s["in_trail_not_in_store"][0]["canonical"] == domain.canonical_digest("{\"q\":3}"), s
 
 
 def test_the_probe_sees_the_absence_that_looks_like_nothing():
@@ -382,8 +393,9 @@ def test_the_probe_counts_repeats_rather_than_comparing_sets():
     p = _probe()
     s = p.judge([_line("miss", "{\"q\":1}")], [_row("{\"q\":1}"), _row("{\"q\":1}")])
     assert s["store_misses"] == 2 and s["trail_misses"] == 1, s
-    assert s["in_store_not_in_trail"] == [{"canonical": "{\"q\":1}", "short_by": 1}], (
+    assert len(s["in_store_not_in_trail"]) == 1 and s["in_store_not_in_trail"][0]["short_by"] == 1, (
         f"the second miss of the same question must be visible as short_by 1: {s}")
+    assert s["in_store_not_in_trail"][0]["canonical"] == domain.canonical_digest("{\"q\":1}"), s
 
 
 def test_the_probe_ignores_everything_before_its_era():

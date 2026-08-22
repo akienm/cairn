@@ -87,7 +87,7 @@ class RecordRefused(ValueError):
 # THIS is the one call every voyage in Cairn advances through, and it was emitting into a list
 # on a module object that died with the process. ``DiagnosticBase`` now derives the component
 # from its class's module address — ``cairn.tools.charter.projector`` → ``charter`` — so every
-# gate progression appends to ``~/.cairn/logs/charter/0/diagnostics.jsonl`` with nobody wiring
+# gate progression writes into ``~/.cairn/logs/charter/0/`` with nobody wiring
 # anything. Attaching a receiver is now an OVERRIDE (the inspector diverting a slice, a proof
 # handing over a temp world), and ``None`` is how a caller asks for the old holding behaviour.
 # Law 7 is untouched: a record was never dropped, and now it also outlives the process.

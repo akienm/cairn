@@ -159,33 +159,34 @@ def a_record_emitted_in_one_process_is_read_back_in_another(tmp: Path) -> None:
 def construction_touches_no_disk(tmp: Path) -> None:
     log = BreadcrumbLog("never_written", 0, roots=_roots(tmp))
     ok(not log.path.exists(),
-       "constructing a log creates nothing — computing an address opens no file (address.py's own bound)")
+       "constructing a log creates nothing — computing an address opens no directory (address.py's own bound)")
     ok(not log.path.parent.exists(),
        "and it does not provision the device's space either; provisioning is a different act with a different owner (Law 6)")
     ok(log.records() == [],
        "an absent trail reads as EMPTY, not as an error — nothing has crossed a gate yet is a true state")
 
 
-def the_write_appends_and_never_rewrites(tmp: Path) -> None:
+def each_emission_is_its_own_file(tmp: Path) -> None:
     dev = _Dev()
     log = BreadcrumbLog("appender", 0, roots=_roots(tmp))
     dev.set_diagnostic_receiver(log)
 
     dev.emit("first", pointer="p1", now=_t(1))
-    first_bytes = log.path.read_bytes()
-    dev.emit("second", pointer="p2", now=_t(2))
-    after = log.path.read_bytes()
+    files_after_first = sorted(log.path.glob("*.json"))
+    ok(len(files_after_first) == 1,
+       "ONE FILE PER EMISSION: the first emit creates exactly one file")
+    first_content = files_after_first[0].read_bytes()
 
-    ok(after.startswith(first_bytes),
-       "APPEND, NOT REPLACE: the bytes written first are still the first bytes, untouched — "
-       "a record already on disk is never rewritten (Law 7)")
-    ok(len(after.splitlines()) == len(first_bytes.splitlines()) + 1,
-       "the second write added exactly one line")
-    ok(not list(log.path.parent.glob("*.tmp")),
-       "NO .tmp IS PRODUCED — the read-modify-write shape both house precedents use leaves one, "
-       "and its absence is what says this file is a trail rather than a snapshot")
+    dev.emit("second", pointer="p2", now=_t(2))
+    files_after_second = sorted(log.path.glob("*.json"))
+    ok(len(files_after_second) == 2,
+       "the second emit creates a SECOND file, not a line appended to the first")
+    ok(files_after_first[0].read_bytes() == first_content,
+       "and the first file is UNTOUCHED — a written emission file is never reopened (Law 7)")
+    ok(not list(log.path.glob("*.tmp")),
+       "NO .tmp IS PRODUCED — write_text, not mkstemp-then-replace")
     ok([r["gate"] for r in log.records()] == ["first", "second"],
-       "the trail reads back in the order it was written")
+       "the trail reads back in write order, sorted by filename")
 
 
 def two_devices_get_two_trails(tmp: Path) -> None:
@@ -197,15 +198,13 @@ def two_devices_get_two_trails(tmp: Path) -> None:
     a.emit("gate_a", pointer="a")
     b.emit("gate_b", pointer="b")
 
-    ok(log_a.path != log_b.path, "two owners, two files — there is no shared trail")
+    ok(log_a.path != log_b.path, "two owners, two directories — there is no shared trail")
     ok([r["gate"] for r in log_a.records()] == ["gate_a"],
        "LAW 6 ON THE FILE: one owner's records never land in another owner's space")
     ok([r["gate"] for r in log_b.records()] == ["gate_b"],
        "and the other direction holds too")
-    ok(log_a.path.parent.name == "0" and log_a.path.parent.parent.name == "owner_a",
+    ok(log_a.path.name == "0" and log_a.path.parent.name == "owner_a",
        "the trail sits in the owning device INSTANCE's space — instance 0 is the singleton, not an exemption")
-    ok(log_a.path.name == RECORD_NAME,
-       "the file's name is the module's one constant, not a string a caller spells")
 
 
 # ── THE ADDRESS ──────────────────────────────────────────────────────────────
@@ -222,7 +221,7 @@ def the_address_comes_from_the_one_owner(tmp: Path) -> None:
     # <whatever else> so the path mirrors the code tree", and the why is the sweep — "easy to
     # delete everything in the logs tree over 30 days old in one go". What is TRUE of a device
     # still lives under devices/; what HAPPENED to it lives here.
-    ok(log.path == tmp / "logs" / "addressed" / "3" / RECORD_NAME,
+    ok(log.path == tmp / "logs" / "addressed" / "3",
        "and the shape is the ruled one: logs/<device>/<instance>/, the instance never omitted")
 
     source = _LOG_SOURCE.read_text()
@@ -304,38 +303,27 @@ def an_unserializable_payload_degrades_but_the_crossing_is_still_recorded(tmp: P
        "the unwritable payload is not half-written; it is replaced, with the failure beside it")
 
 
-def a_trail_that_will_not_parse_is_loud_by_line_number(tmp: Path) -> None:
+def a_file_that_will_not_parse_is_loud(tmp: Path) -> None:
     dev = _Dev()
     log = BreadcrumbLog("corrupted", 0, roots=_roots(tmp))
     dev.set_diagnostic_receiver(log)
     dev.emit("good", pointer="p", now=_t(1))
-    with open(log.path, "a", encoding="utf-8") as fh:
-        fh.write("{this is not json\n")
+    bad_file = log.path / "20260812.120000.000002.bad.corrupt.json"
+    bad_file.write_text("{this is not json\n", encoding="utf-8")
 
     try:
         log.records()
     except LogUnreadable as exc:
-        ok("line 2" in str(exc),
-           "an unreadable trail names the LINE — a diagnostic surface that drops the line it could "
-           "not parse is reporting a world it did not read, and that line is the likely one")
-        ok("this is not json" in str(exc),
-           "and it carries the raw text, so the resolver needs no second look (complete first pass)")
+        ok("corrupt.json" in str(exc),
+           "an unreadable emission file names the FILE — a diagnostic surface that drops the file "
+           "it could not parse is reporting a world it did not read")
+        ok("this is not json" in str(exc) or "Expecting" in str(exc),
+           "and it carries the parse error, so the resolver needs no second look (complete first pass)")
     else:
-        raise AssertionError("a corrupt line must raise LogUnreadable, never be silently skipped")
+        raise AssertionError("a corrupt file must raise LogUnreadable, never be silently skipped")
 
-    ok(log.path.read_text().count("\n") == 2,
-       "and reading did not repair or truncate the file — a reader never mutates what it counts")
-
-
-def blank_lines_are_not_records(tmp: Path) -> None:
-    dev = _Dev()
-    log = BreadcrumbLog("blanks", 0, roots=_roots(tmp))
-    dev.set_diagnostic_receiver(log)
-    dev.emit("one", pointer="p", now=_t(1))
-    with open(log.path, "a", encoding="utf-8") as fh:
-        fh.write("\n   \n")
-    ok(len(log.records()) == 1,
-       "whitespace between records is not a record — a trailing newline must not read as a crossing")
+    ok(bad_file.exists(),
+       "and reading did not remove the corrupt file — a reader never mutates what it counts")
 
 
 # ── THE ROSTER, DERIVED ──────────────────────────────────────────────────────

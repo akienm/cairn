@@ -2,8 +2,9 @@
 
 Berth for the WATCHME that ticket ``an-inference-call-logs-that-it-started`` carries. Berthed
 beside ``cairn/devices/inference_domain`` because that is WHAT IT WATCHES: as of 2026-08-18
-``domain.resolve`` writes a line into ``~/.cairn/logs/inference_domain/0/diagnostics.jsonl`` at
-each of its three branches, beside the row it has always written into ``inference_calls``.
+``domain.resolve`` writes one emission file per call into ``~/.cairn/logs/inference_domain/0/``
+at each of its three branches, pointer carried as a canonical digest, beside the row it has
+always written into ``inference_calls``.
 
 WHY AGREEMENT IS THE QUESTION, AND NOT "IS THERE A LOG". The store has recorded every call at
 this door since long before the trail existed, so the trail is a SECOND record of the same
@@ -100,7 +101,8 @@ def judge(trail_records: list[dict], rows: list[dict], *, trail_exists: bool = T
     rows_post = [r for r in rows if _post_era_row(r)]
     lines_post = [rec for rec in trail_records if _post_era_line(rec)]
 
-    row_misses = Counter(str(r.get("canonical")) for r in rows_post if r.get("verdict") == "miss")
+    from cairn.devices.inference_domain.domain import canonical_digest
+    row_misses = Counter(canonical_digest(str(r.get("canonical"))) for r in rows_post if r.get("verdict") == "miss")
     line_misses = Counter(str(rec.get("pointer")) for rec in lines_post if rec.get("gate") == "miss")
 
     in_store_not_in_trail = [
@@ -130,26 +132,23 @@ def survey_the_corpus() -> dict:
 
     Asking ``domain.diagnostic_trail()`` rather than rebuilding the path is the point — if the
     device's berth ever moves, a probe carrying its own copy of the address goes on reading an
-    empty file and reports a catastrophe that is really a stale constant. A DB this probe
+    empty directory and reports a catastrophe that is really a stale constant. A DB this probe
     cannot reach raises rather than reporting a clean zero, because a silent 0/0 reads as both
     "no finding" and "not yet enough".
     """
     from cairn.devices.db_domain import store            # late: imports clean without a DB
     from cairn.devices.inference_domain import domain
+    from cairn.tools.base.breadcrumb_log import BreadcrumbLog, LogUnreadable
 
     trail = domain.diagnostic_trail()
-    records: list[dict] = []
     exists = trail is not None and trail.exists()
+    records: list[dict] = []
     if exists:
-        for line in trail.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                records.append(json.loads(line))
-            except ValueError:
-                # An unparseable line is a finding in its own right, and it must not be
-                # silently skipped into agreement: count it as a line that cannot match.
-                records.append({"ts": None, "gate": "(unparseable)", "pointer": None})
+        try:
+            log = BreadcrumbLog("inference_domain", 0)
+            records = log.records()
+        except LogUnreadable:
+            records.append({"ts": None, "gate": "(unparseable)", "pointer": None})
     return judge(records, store.read("inference_calls"), trail_exists=exists)
 
 

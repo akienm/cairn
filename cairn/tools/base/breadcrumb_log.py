@@ -68,14 +68,17 @@ and no literal ``.cairn``. The ``roots`` table rides through so a proof writes t
 directory instead of seeding the live tree it will later be read against — an acceptance
 read-back cannot mean anything if running the proof could have written the file.
 
-PURE APPEND, ON PURPOSE, AGAINST BOTH PRECEDENTS. The two JSONL writers already in the house
-rebuild the whole file and ``os.replace`` it: ``learning_block.write_trace`` does it because it
-EXPIRES debug records at the write, and ``liveness.write_liveness`` does it because it is
-replacing a snapshot. This one expires nothing, so read-modify-write would buy nothing and would
-make a record already on disk rewritable. The write is ``open(..., "a")``, one line, closed —
-which is what carries the record past the death of the process that wrote it, the single
-failure #4 names. No ``fsync``: the close hands the bytes to the OS, and surviving the PROCESS
-is the falsifier's bar. Surviving a power cut is a different claim and this file does not make it.
+PURE APPEND, ON PURPOSE, AGAINST BOTH PRECEDENTS — and then ONE FILE PER EMISSION (2026-08-19,
+ticket ``an-emission-is-one-file-named-by-its-pointer``), which is MORE append-only, not less:
+a written emission file is never reopened at all, where the appended trail was reopened by every
+later write. The shape change also gives per-record mtime, which makes per-record expiry
+expressible — Akien's 2026-08-18 "easy to delete everything over 30 days old in one go" can now
+act on individual emissions rather than on an entire device's history. ``records()`` tolerates
+both shapes during the retention window: the standing ``diagnostics.jsonl`` is read first, then
+per-file emissions sorted by filename. The previous design (the paragraph that stood here) was
+right when it was written: the two JSONL writers already in the house rebuilt the whole file and
+``os.replace``'d it, and this one appended instead, which was the stronger shape for a trail.
+The change is not a correction — it is a grain change driven by the filename carrying the task.
 
 TWO FAILURE MODES, DELIBERATELY DIFFERENT, and the difference is Law 7 read carefully.
 An unserializable ``values`` payload DEGRADES: the crossing is still recorded, with the payload
@@ -102,11 +105,28 @@ measurement.
 from __future__ import annotations
 
 import json
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
 
 RECORD_NAME = "diagnostics.jsonl"
+
+_SAFE = re.compile(r"[^a-zA-Z0-9_]")
+
+
+def _emission_filename(record: dict) -> str:
+    ts_str = record.get("ts", "")
+    try:
+        dt = datetime.fromisoformat(ts_str)
+        utc = dt.astimezone(timezone.utc)
+    except (ValueError, TypeError):
+        utc = datetime.now(timezone.utc)
+    stamp = utc.strftime("%Y%m%d.%H%M%S") + f".{utc.microsecond:06d}"
+    source = _SAFE.sub("_", record.get("source", "unknown"))
+    gate = _SAFE.sub("_", record.get("gate", "unknown"))
+    return f"{stamp}.{source}.{gate}.json"
 
 
 class LogUnreadable(Exception):
@@ -123,55 +143,71 @@ class BreadcrumbLog:
     touches no disk — the directory is made at the first write, because computing an address
     must not create anything (``cairn.tools.base.address``'s own bound, and Law 6: provisioning is a
     different act with a different owner).
+
+    ONE FILE PER EMISSION (ticket ``an-emission-is-one-file-named-by-its-pointer``, 2026-08-19):
+    each ``receive_diagnostic`` call writes a single JSON file named by its UTC-normalised stamp,
+    source, and gate — not a line appended to a shared trail. ``records()`` tolerates BOTH
+    shapes during the retention window: the standing ``diagnostics.jsonl`` is read first (its
+    records predate all per-file emissions), then per-file emissions sorted by filename.
     """
 
     def __init__(self, device: str, instance: int = 0, *, roots: dict[str, Path] | None = None) -> None:
         self.device = device
         self.instance = instance
-        self._path = log_path(device, instance, roots) / RECORD_NAME
+        self._dir = log_path(device, instance, roots)
 
     @property
     def path(self) -> Path:
-        """Where the trail lives. Exposed because the acceptance instrument is a human reading
-        this file from another shell — an address you cannot ask for is one you have to
-        re-derive, which is what put ten copies of it in class-space."""
-        return self._path
+        """Where the trail lives — the directory holding per-emission files. Exposed because
+        the acceptance instrument is a human reading this directory from another shell."""
+        return self._dir
 
     def receive_diagnostic(self, record: dict) -> None:
-        """Append one breadcrumb, as one JSON line. The contract ``DiagnosticBase.emit`` calls.
+        """Write one emission as one file. The contract ``DiagnosticBase.emit`` calls.
 
         A record whose payload will not serialize is written ANYWAY, with the payload replaced
         by a named failure — the crossing is the thing that must not be lost. Everything else
         is left to fail loudly."""
         try:
-            line = json.dumps(record, sort_keys=True)
+            body = json.dumps(record, sort_keys=True)
         except (TypeError, ValueError) as exc:
             degraded = {k: v for k, v in record.items() if k != "values"}
             degraded["values"] = {}
             degraded["values_unwritable"] = (
                 f"the payload could not be serialized ({type(exc).__name__}: {exc}) — the "
                 f"crossing is recorded, the payload is not: {record.get('values')!r}")
-            line = json.dumps(degraded, sort_keys=True, default=repr)
-        self._path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._path, "a", encoding="utf-8") as fh:
-            fh.write(line + "\n")
+            body = json.dumps(degraded, sort_keys=True, default=repr)
+        self._dir.mkdir(parents=True, exist_ok=True)
+        target = self._dir / _emission_filename(record)
+        target.write_text(body + "\n", encoding="utf-8")
 
     def records(self) -> list[dict]:
         """The trail, in the order it was written. The contract ``Inspector.inspect`` consumes.
 
         An absent trail is an EMPTY trail, not an error: nothing has crossed a gate yet, which
         is a true and common state. A trail that exists and will not parse is an error, named
-        by line number — see ``LogUnreadable``."""
-        if not self._path.exists():
+        by file — see ``LogUnreadable``.
+
+        Tolerates both shapes: the old ``diagnostics.jsonl`` (read first, its records predate
+        all per-file emissions) and individual ``.json`` emission files sorted by filename."""
+        if not self._dir.exists():
             return []
         out: list[dict] = []
-        for n, line in enumerate(self._path.read_text(encoding="utf-8").splitlines(), start=1):
-            if not line.strip():
-                continue
+        jsonl = self._dir / RECORD_NAME
+        if jsonl.is_file():
+            for n, line in enumerate(jsonl.read_text(encoding="utf-8").splitlines(), start=1):
+                if not line.strip():
+                    continue
+                try:
+                    out.append(json.loads(line))
+                except ValueError as exc:
+                    raise LogUnreadable(
+                        f"{jsonl}: line {n} is not readable JSON ({exc}). The trail is not "
+                        f"silently truncated at it — the raw line is: {line!r}") from exc
+        for p in sorted(self._dir.glob("*.json")):
             try:
-                out.append(json.loads(line))
+                out.append(json.loads(p.read_text(encoding="utf-8")))
             except ValueError as exc:
                 raise LogUnreadable(
-                    f"{self._path}: line {n} is not readable JSON ({exc}). The trail is not "
-                    f"silently truncated at it — the raw line is: {line!r}") from exc
+                    f"{p}: not readable JSON ({exc}).") from exc
         return out

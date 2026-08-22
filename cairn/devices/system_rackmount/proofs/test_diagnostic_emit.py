@@ -127,11 +127,13 @@ def test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk():
         unwired = SystemRackmountDevice(sampler=lambda: {"cpu": 10})
         unwired.set_diagnostic_roots(roots)             # a world, not a receiver
         disk_sub = unwired.subscribe("cpu_threshold", address="ops/personal", why="w", value=85)
-        trail = tmp / "logs" / "system_rackmount" / "0" / "diagnostics.jsonl"
-        assert trail.exists(), \
-            f"a real device NOBODY wired must leave its own trail at {trail} — the ticket"
-        written = [json.loads(x) for x in trail.read_text().splitlines() if x.strip()]
-        assert [r["pointer"] for r in written] == [disk_sub], \
+        trail_dir = tmp / "logs" / "system_rackmount" / "0"
+        assert trail_dir.exists(), \
+            f"a real device NOBODY wired must leave its own trail at {trail_dir} — the ticket"
+        emission_files = sorted(trail_dir.glob("*.json"))
+        assert len(emission_files) == 1, f"one emission, one file; got {len(emission_files)}"
+        written = json.loads(emission_files[0].read_text())
+        assert written["pointer"] == disk_sub, \
             "and the crossing on disk is the one that happened"
         assert unwired.held_diagnostics() == [], "nothing is held once there is a home"
 

@@ -22,6 +22,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.inference_domain import domain
+from cairn.tools.base.probe import Probe, owning_ticket
 
 
 def judge_rows(rows: list[dict]) -> dict:
@@ -103,6 +104,52 @@ def main() -> int:
 
     print(f"\nGREEN — {result['whole']} whole, {result['unknowable']} unknowable (pre-build)")
     return 0
+
+
+_OWNING_TICKET = "the-inference-ticket-comes-back-whole"
+_HORIZON = 1000
+
+
+def _read_population():
+    try:
+        return domain.read_ticket(table=domain.CACHE)
+    except Exception:
+        return []
+
+
+def _trigger(now, context: dict) -> bool:
+    result = judge_rows(_read_population())
+    return result["broken"] > 0
+
+
+def _enough(context: dict) -> bool:
+    result = judge_rows(_read_population())
+    return result["whole"] > 0 and result["broken"] == 0
+
+
+def _carry(context: dict) -> dict:
+    result = judge_rows(_read_population())
+    return {
+        "finding": f"{result['broken']} broken row(s) in inference_calls",
+        "total": result["total"],
+        "whole": result["whole"],
+        "unknowable": result["unknowable"],
+        "broken": result["broken"],
+        "broken_rows": result["broken_rows"][:10],
+        "ticket": owning_ticket(_OWNING_TICKET),
+    }
+
+
+PROBE = Probe(
+    why="the inference ticket must come back whole — every answer carries the host's "
+        "raw response body so the reader can inspect what the host actually said",
+    trigger=_trigger,
+    to="harbor_master",
+    body={"nexus": "hypothesize", "kind": "efficacy"},
+    carry=_carry,
+    enough=_enough,
+    horizon=_HORIZON,
+)
 
 
 if __name__ == "__main__":

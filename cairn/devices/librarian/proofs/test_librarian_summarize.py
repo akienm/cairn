@@ -344,12 +344,23 @@ def _main() -> int:
         test_the_render_prompt_carries_the_region_whole,
         test_summarize_opens_no_door_of_its_own,
     ]
+    tables_used = []
     try:
         for check in checks:
+            global _TABLE
+            _TABLE = f"_summary_{_NONCE}_{next(_test_seq)}"
+            tables_used.append(_TABLE)
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        conn = store.connect()
+        try:
+            with conn.cursor() as cur:
+                for t in tables_used:
+                    cur.execute(f'DROP TABLE IF EXISTS "{t}"')
+                    cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
+        finally:
+            conn.close()
     print("green — librarian/summarize: citations are code-built and traceable, the "
           "summary lands back in the graph and a walk finds it, the transducer never "
           "eats its own output and rewrites nothing, unanchored and minted drafts refuse "

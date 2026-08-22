@@ -18,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cairn.tools.base.probe import Probe, owning_ticket
+
 REPO = Path(__file__).resolve().parents[4]
 STORE = Path("cairn/devices/db_domain/store.py")
 
@@ -104,6 +106,43 @@ def main() -> int:
     else:
         print(f"FINDING — {total} hit(s) outside the one door")
         return 1
+
+
+_OWNING_TICKET = "a-standing-table-gains-its-constraint-through-the-one-door"
+_HORIZON = 1000
+
+
+def _trigger(now, context: dict) -> bool:
+    hits = sweep()
+    hits.extend(check_psql_invocations())
+    return len(hits) > 0
+
+
+def _enough(context: dict) -> bool:
+    return False
+
+
+def _carry(context: dict) -> dict:
+    schema_hits = sweep()
+    psql_hits = check_psql_invocations()
+    return {
+        "finding": f"{len(schema_hits)} schema-change(s) + {len(psql_hits)} psql hit(s) outside store.py",
+        "schema_hits": schema_hits,
+        "psql_hits": psql_hits,
+        "ticket": owning_ticket(_OWNING_TICKET),
+    }
+
+
+PROBE = Probe(
+    why="the constraint door (add_owned_constraint) is the one path to ALTER TABLE; "
+        "a schema change outside store.py is a bypass of the owner gate (Law 6)",
+    trigger=_trigger,
+    to="harbor_master",
+    body={"nexus": "hypothesize", "kind": "efficacy"},
+    carry=_carry,
+    enough=_enough,
+    horizon=_HORIZON,
+)
 
 
 if __name__ == "__main__":

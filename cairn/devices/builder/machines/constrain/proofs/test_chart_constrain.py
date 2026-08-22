@@ -323,7 +323,6 @@ def test_the_berth_lands_and_the_door_holds(root, orient_berth):
         pass
     assert len(os.listdir(berth_dir)) == 1, \
         "a refused packet leaves nothing behind the door"
-    return path
 
 
 def test_deposit_back_is_gated(root, orient_berth):

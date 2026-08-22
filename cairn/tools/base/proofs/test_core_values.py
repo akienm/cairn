@@ -73,20 +73,25 @@ def test_core_value_lookup_helper():
         raise AssertionError("core_value should raise KeyError for unknown id")
 
 
+_drift_gate_ran = False
+
+
 def test_code_matches_the_commons_record():
+    global _drift_gate_ran
     # Falsifier from core-values.md itself: "Any drift between the code and this
     # record is a red — physics, not a keep-in-sync comment." Bites when the sibling
     # commons repo is present (Akien's env); loudly abstains if it is not, rather
     # than making green depend on an external checkout (CP1 — say what wasn't measured).
     if not _COMMONS_RECORD.exists():
         print(f"NOTE: commons record not found at {_COMMONS_RECORD} — drift gate ABSTAINED (not measured)")
-        return False
+        _drift_gate_ran = False
+        return
     record = _norm(_COMMONS_RECORD.read_text())
     for v in CORE_VALUES:
         assert v.id in record, f"{v.id} absent from commons record"
         assert _norm(v.narrative) in record, f"{v.id} narrative drifted from commons record"
         assert _norm(v.why) in record, f"{v.id} why drifted from commons record"
-    return True
+    _drift_gate_ran = True
 
 
 def _main() -> int:
@@ -96,13 +101,10 @@ def _main() -> int:
         test_core_value_lookup_helper,
         test_code_matches_the_commons_record,
     ]
-    drift_ran = None
     for check in checks:
-        result = check()
-        if check is test_code_matches_the_commons_record:
-            drift_ran = result
+        check()
         print(f"  PASS  {check.__name__}")
-    gate = "bit" if drift_ran else "ABSTAINED (commons record absent)"
+    gate = "bit" if _drift_gate_ran else "ABSTAINED (commons record absent)"
     print(f"green — CP1-CP6 pinned; commons drift gate {gate}")
     return 0
 

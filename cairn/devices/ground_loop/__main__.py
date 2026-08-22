@@ -45,7 +45,7 @@ from cairn.devices.ground_loop.liveness import read_liveness
 from cairn.devices.ground_loop.loop import GroundLoopDevice
 from cairn.devices.trouble.trouble import TroubleDevice
 
-CADENCE_S = 1.0   # the ruled cadence: once per second (Akien, 2026-07-30)
+CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22; was 1.0s)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
 
 # THE FLAGS (ticket a-stale-loop-restarts-itself, Akien's design 2026-08-19).

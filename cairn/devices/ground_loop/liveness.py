@@ -35,10 +35,11 @@ from pathlib import Path
 from cairn.tools.base.address import instance_path
 
 # THE STALENESS THRESHOLD — RULED by Akien 2026-07-31 (recorded on the ticket):
-# five missed ticks at the ruled once-per-second cadence. Three-times-the-
-# interval is the standard heuristic; five gives slack for a loaded box. This is
-# the ONE class-space definition site; consumers read the verdict, not this.
-STALENESS_THRESHOLD_S = 5.0
+# five missed ticks at the ruled cadence. Three-times-the-interval is the
+# standard heuristic; five gives slack for a loaded box. This is the ONE
+# class-space definition site; consumers read the verdict, not this.
+# Cadence moved from 1.0s to 60.0s (Akien, 2026-08-22).
+STALENESS_THRESHOLD_S = 300.0
 
 RECORD_NAME = "liveness.json"
 

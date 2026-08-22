@@ -463,7 +463,7 @@ def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
             "the loser reports what the RECORD said (pid), never a process-table scan"
         # A STALE record behind a still-held claim — alive inside its first beats or
         # merely slow: the lock outranks the read, so still no second loop.
-        write_liveness(_dt.now(_tz.utc).astimezone() - _td(seconds=60),
+        write_liveness(_dt.now(_tz.utc).astimezone() - _td(seconds=STALENESS_THRESHOLD_S + 60),
                        {"beats": 4}, 4242, home)
         slow = _subprocess.run([sys.executable, "-c", door, str(home)],
                                capture_output=True, text=True, timeout=10, env=env)

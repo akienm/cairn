@@ -30,7 +30,7 @@ from cairn.tools.base.probe import Probe, owning_ticket
 
 _OWNING_TICKET = "the-beat-spends-2500ms-on-triggers-against-a-1s-cadence"
 
-CADENCE_S = 1.0
+CADENCE_S = 60.0
 
 _ENOUGH_BEATS = 5000
 
@@ -112,7 +112,7 @@ def _carry(context: dict) -> dict:
         "last_pulsed_count": s["last_pulsed_count"],
         "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": "the ticket's falsifier reds on widening CADENCE_S or the "
-                             "5s DEAD threshold (plaster on a ruled bound), on dropping "
+                             "300s DEAD threshold (plaster on a ruled bound), on dropping "
                              "or sampling probes to buy the number, and on making the "
                              "sweep concurrent before the five are diagnosed",
         "suggests": "read the per-shim timing if the beat overruns — a-beat-costs-what-changed "

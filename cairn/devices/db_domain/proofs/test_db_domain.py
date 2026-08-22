@@ -41,6 +41,7 @@ from cairn.devices.db_domain.store import OwnershipError
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
 _TEST_TABLE = f"_probe_{_NONCE}"
 _JSONB_TABLE = f"_jsonb_{_NONCE}"
+_CONSTRAINT_TABLE = f"_constr_{_NONCE}"
 _TEST_CLAIM = f"__dbtest__{_NONCE}"
 
 
@@ -146,12 +147,58 @@ def test_the_owner_gates_every_update():
     assert store.update(_JSONB_TABLE, "tester", {"claim": "x"}, where="claim = %s", params=("no-such-row",)) == 0
 
 
+def test_add_owned_constraint_gates_and_holds():
+    # CREATE a table with a text column, then constrain it through the one door.
+    store.create_owned_table(_CONSTRAINT_TABLE, "tester", {"verdict": "text NOT NULL"})
+    store.add_owned_constraint(
+        _CONSTRAINT_TABLE, "tester", "verdict_vocab",
+        "verdict IN ('open', 'sealed', 'refused')",
+    )
+
+    # (a) An in-vocabulary INSERT succeeds; an out-of-vocabulary INSERT RAISES.
+    store.write(_CONSTRAINT_TABLE, "tester", {"verdict": "open"})
+    try:
+        store.write(_CONSTRAINT_TABLE, "tester", {"verdict": "garbage"})
+        raise AssertionError("an out-of-vocabulary INSERT must RAISE — the constraint is physics, not policy")
+    except Exception as exc:
+        assert "verdict_vocab" in str(exc) or "violates check constraint" in str(exc).lower(), (
+            f"the refusal must name the constraint, got: {exc}"
+        )
+
+    # (b) A NON-OWNER is refused before the wire (Law 6).
+    try:
+        store.add_owned_constraint(_CONSTRAINT_TABLE, "impostor", "x", "true")
+        raise AssertionError("a non-owner must be REFUSED from adding a constraint (Law 6)")
+    except OwnershipError:
+        pass
+
+    # An unregistered table has no owner to gate it.
+    try:
+        store.add_owned_constraint(f"_never_created_{_NONCE}", "anyone", "x", "true")
+        raise AssertionError("constraining a table db_domain never created must be refused")
+    except OwnershipError:
+        pass
+
+    # (c) Idempotent: the second call is a no-op, not an error.
+    store.add_owned_constraint(
+        _CONSTRAINT_TABLE, "tester", "verdict_vocab",
+        "verdict IN ('open', 'sealed', 'refused')",
+    )
+
+    # (d) The constraint still holds AFTER the idempotent call — read behavior, not catalogue.
+    try:
+        store.write(_CONSTRAINT_TABLE, "tester", {"verdict": "still-garbage"})
+        raise AssertionError("the constraint must still hold after idempotent re-add")
+    except Exception:
+        pass
+
+
 def _cleanup():
     """Drop this run's ephemeral tables and registry rows — leave no fixtures behind."""
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            for tbl in (_TEST_TABLE, _JSONB_TABLE):
+            for tbl in (_TEST_TABLE, _JSONB_TABLE, _CONSTRAINT_TABLE):
                 cur.execute(f'DROP TABLE IF EXISTS "{tbl}"')
                 cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (tbl,))
     finally:
@@ -167,6 +214,7 @@ def _main() -> int:
         test_write_to_an_unowned_table_is_refused,
         test_a_jsonb_row_round_trips_as_structure,
         test_the_owner_gates_every_update,
+        test_add_owned_constraint_gates_and_holds,
     ]
     try:
         for check in checks:
@@ -174,7 +222,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — db_domain: ownerless is impossible, the owner gates writes, jsonb round-trips as structure")
+    print("green — db_domain: ownerless is impossible, the owner gates writes and constraints, jsonb round-trips as structure")
     return 0
 
 

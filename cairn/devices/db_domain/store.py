@@ -188,6 +188,48 @@ def create_owned_table(table: str, owner: str, columns: dict[str, str], *, conn=
             own_conn.close()
 
 
+def add_owned_constraint(table: str, owner: str, name: str, expression: str, *, conn=None) -> None:
+    """Add a CHECK constraint to an already-created, owned table — owner-gated (Law 6).
+
+    Idempotent: a startup path can call this beside create_owned_table without caring
+    whether the constraint is already there. Postgres validates against every existing row
+    and refuses if any violate — no NOT VALID escape hatch.
+
+    Takes a NAME and an EXPRESSION, never a statement. That bound keeps the one door from
+    becoming a DDL passthrough.
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is None:
+        raise OwnershipError(f"{table!r} was not created through db_domain — it has no owner to gate a constraint")
+    if recorded != owner:
+        raise OwnershipError(f"{owner!r} may not constrain {table!r} — its owner is {recorded!r} (Law 6)")
+    if not name or not name.strip():
+        raise ValueError("a constraint needs a name")
+    if not expression or not expression.strip():
+        raise ValueError("a constraint needs an expression")
+
+    own_conn = conn or connect()
+    try:
+        with own_conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.table_constraints "
+                "WHERE table_schema = 'public' AND table_name = %s AND constraint_name = %s",
+                (table, name),
+            )
+            if cur.fetchone() is not None:
+                return
+            cur.execute(
+                sql.SQL("ALTER TABLE {tbl} ADD CONSTRAINT {cname} CHECK ({expr})").format(
+                    tbl=sql.Identifier(table),
+                    cname=sql.Identifier(name),
+                    expr=sql.SQL(expression),
+                )
+            )
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
 def write(table: str, owner: str, row: dict, *, conn=None) -> None:
     """Insert `row` into `table` — but only if `owner` is the table's recorded owner.
 

@@ -1,5 +1,7 @@
 # The memory system: graph trees as an inference cache
 
+**Cairn: Cognition Apparatus for Investigation of Reasoning Networks**
+
 *A technical brief.*
 
 **Audience:** someone who builds AI systems for a living and wants the mechanism, not the pitch. Math where math is clearer than prose.

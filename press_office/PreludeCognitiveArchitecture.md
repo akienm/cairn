@@ -1,6 +1,8 @@
 # Prelude — for a cognitive architecture researcher
 
-### Part I of three. Written for someone who thinks in impasses, chunks, activation, and utility.
+### Cairn: Cognition Apparatus for Investigation of Reasoning Networks
+
+*Part I of three. Written for someone who thinks in impasses, chunks, activation, and utility.*
 
 **Prelude 1 of 3.** Part II is
 [`NoveltyDrivenGraphTreeExpansion.md`](NoveltyDrivenGraphTreeExpansion.md) — the

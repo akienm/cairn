@@ -1,6 +1,8 @@
 # Cairn — the architecture
 
-### An operating system for work that must not be done twice
+### Cognition Apparatus for Investigation of Reasoning Networks
+
+*An operating system for work that must not be done twice*
 
 ---
 

@@ -1,6 +1,8 @@
 # The outreach packet
 
-### Who to show this to, in what order, what to send them, and what would count as signal
+### Cairn: Cognition Apparatus for Investigation of Reasoning Networks
+
+*Who to show this to, in what order, what to send them, and what would count as signal*
 
 **Status:** drafted 2026-08-11, awaiting the signature gate. Nothing here has been sent.
 Sending is Akien's act, not the drafter's.

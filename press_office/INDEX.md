@@ -1,5 +1,7 @@
 # The Cairn press office — the shelf
 
+**Cairn: Cognition Apparatus for Investigation of Reasoning Networks**
+
 *What is here, what it is for, what supersedes what, and what is known stale.*
 
 This is **the shelf, not a page.** Every other document in this folder is a signed stone

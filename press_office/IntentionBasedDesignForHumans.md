@@ -1,5 +1,7 @@
 # Intention-Based Design, for humans
 
+**Cairn: Cognition Apparatus for Investigation of Reasoning Networks**
+
 *How Cairn is built so it doesn't rot — and how you could build this way too.*
 
 This is an explainer for someone standing outside the system, looking in. You do

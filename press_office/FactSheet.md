@@ -1,5 +1,7 @@
 # Cairn — the fact sheet
 
+**Cognition Apparatus for Investigation of Reasoning Networks**
+
 **Measured 2026-08-19.** Every number below was produced by a command run that day, and
 the command is printed beside it. Nothing here is asserted from a record, a memory, or a
 previous document.

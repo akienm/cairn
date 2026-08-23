@@ -1,6 +1,8 @@
 # Cairn
 
-**Compiled navigation: stones stacked so the next mind doesn't re-derive the route.**
+**Cognition Apparatus for Investigation of Reasoning Networks**
+
+*Compiled navigation: stones stacked so the next mind doesn't re-derive the route.*
 
 Cairn is a working system and a design method that are the same thing. The method says
 that every answered question should become *structure* — a gate, a schema, a compiled

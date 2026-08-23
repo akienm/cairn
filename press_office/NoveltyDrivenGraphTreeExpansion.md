@@ -2,6 +2,8 @@
 
 ### Two tiers of novelty, and a defense against self-confirming retrieval
 
+**Cairn: Cognition Apparatus for Investigation of Reasoning Networks**
+
 **Draft paper.** Author: Akien MacIain · Status: draft, awaiting signature gate ·
 Date: 2026-08-05, revised 2026-08-20 · Target venues: AAAI, CogSci, NeurIPS/ICLR
 workshop tracks, AGI

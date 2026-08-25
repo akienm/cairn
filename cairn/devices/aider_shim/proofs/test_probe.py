@@ -85,7 +85,8 @@ def verdict_berth(root: Path, ticket: str, outcomes=(PASS,), stamp="20260816T000
         "ticket": ticket,
         "validate_ref": f"falsifier@{ticket}",
         "verdicts": [{"claim": f"c{i}", "instrument": "an instrument",
-                      "outcome": o, "evidence": "evidence"}
+                      "outcome": o, "evidence": "evidence",
+                      "discriminating_observation": "reverted the fix; instrument exits 1"}
                      for i, o in enumerate(outcomes)],
         "dispositions": [],
     }
@@ -339,7 +340,8 @@ def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
             "validate_ref": f"falsifier@{ticket}",
             # claims VERBATIM from the door's own deriver — the point of it being public
             "verdicts": [{"claim": c["claim"], "instrument": "this tooth",
-                          "outcome": PASS, "evidence": "the assertions below"}
+                          "outcome": PASS, "evidence": "the assertions below",
+                          "discriminating_observation": "reverted the fix; instrument exits 1"}
                          for c in owed],
             "dispositions": [],
         }, instance_dir=str(root / "chart" / "packets"), root=fake_root)

@@ -760,7 +760,8 @@ def main() -> None:
         stray.write_text(json.dumps(
             {"ticket": "sworn", "validate_ref": str(xp / "elsewhere.json"),
              "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
-                           "evidence": "seen"}],
+                           "evidence": "seen",
+                           "discriminating_observation": "reverted the fix; instrument exits 1"}],
              "dispositions": [{"piece": "p1", "expect": "e1",
                                "disposition": "confirmed", "by": "obs"}]}))
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
@@ -781,7 +782,8 @@ def main() -> None:
         half.write_text(json.dumps(
             {"ticket": "sworn", "validate_ref": str(val),
              "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "fail",
-                           "evidence": "it broke"}],
+                           "evidence": "it broke",
+                           "discriminating_observation": "the failing run itself"}],
              "dispositions": []}))
         xf = proved_answers_the_chart("sworn", berths_root=xroot)
         assert len(xf) == 2, xf
@@ -791,7 +793,8 @@ def main() -> None:
         (xp / "verdict-20260729T000005-ffff.json").write_text(json.dumps(
             {"ticket": "sworn", "validate_ref": str(val),
              "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
-                           "evidence": "seen: exit 0 twice"}],
+                           "evidence": "seen: exit 0 twice",
+                           "discriminating_observation": "reverted the fix; instrument exits 1"}],
              "dispositions": [{"piece": "p1", "expect": "e1",
                                "disposition": "killed", "by": "the second run"}]}))
         assert proved_answers_the_chart("sworn", berths_root=xroot) == []

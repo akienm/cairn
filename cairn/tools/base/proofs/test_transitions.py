@@ -540,7 +540,8 @@ def _exit_world(d: Path, *, cast=("widget",), claim=True, verdict=None):
 
 _ANSWERED = {
     "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
-                  "evidence": "seen: exit 0 twice"}],
+                  "evidence": "seen: exit 0 twice",
+                  "discriminating_observation": "reverted the fix; the instrument exits 1"}],
     "dispositions": [{"piece": "p1", "expect": "e1", "disposition": "confirmed",
                       "by": "the run observed"}],
 }
@@ -620,7 +621,8 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
                 {"ticket": "widget",
                  "validate_ref": str(packets / "validate-20260729T000001-feed.json"),
                  "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "fail",
-                               "evidence": "it broke"}],
+                               "evidence": "it broke",
+                               "discriminating_observation": "the failing run itself"}],
                  "dispositions": _ANSWERED["dispositions"]}))
             try:
                 transitions.emit(_AT_LEARN, "PROVED",

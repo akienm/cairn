@@ -312,6 +312,22 @@ def inspect_verdict(artifact, root: str = CAIRN_ROOT) -> list:
     if err:
         return record
 
+    hollow = []
+    for i, v in enumerate(artifact.get("verdicts") or []):
+        if isinstance(v, dict):
+            obs = v.get("discriminating_observation")
+            if not isinstance(obs, str) or not obs.strip():
+                hollow.append("verdicts[%d]" % i)
+    record.append(inspected(
+        "every_criterion_carries_a_discriminating_observation", stage="verdict",
+        expected=[], actual=hollow,
+        lack=("verdict artifact refused — %s: discriminating_observation must be "
+              "a non-empty string (a criterion whose instrument was never shown "
+              "capable of failing is a hollow green — Law 8)"
+              % ", ".join(hollow)) if hollow else ""))
+    if hollow:
+        return record
+
     claimed = "ticket" in artifact
     record.append(inspected(
         "verdict_claims_its_ticket", stage="verdict",

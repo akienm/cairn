@@ -92,7 +92,9 @@ def artifact_for(ticket, root, *, drop=(), fail=(), **extra):
         verdicts.append({"claim": c["claim"],
                          "instrument": "the probe's survey of the ticket corpus",
                          "outcome": "fail" if i in fail else "pass",
-                         "evidence": "measured %d of 57 tickets; clause held" % (i + 1)})
+                         "evidence": "measured %d of 57 tickets; clause held" % (i + 1),
+                         "discriminating_observation": "re-ran against a corpus with "
+                         "clause %d violated; the probe reported it" % (i + 1)})
     return dict({"ticket": ticket, "validate_ref": FALSIFIER_REF + ticket,
                  "verdicts": verdicts, "dispositions": []}, **extra)
 

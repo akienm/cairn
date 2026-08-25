@@ -140,10 +140,12 @@ def good_artifact(val):
         "verdicts": [
             {"claim": "the splitter is green twice",
              "instrument": "python3 proofs/test_splitter.py, twice",
-             "outcome": "pass", "evidence": "exit 0 on both runs"},
+             "outcome": "pass", "evidence": "exit 0 on both runs",
+             "discriminating_observation": "reverted the fix; the same instrument exits 1"},
             {"claim": "the door refuses the phantom",
              "instrument": "the door's own gate",
-             "outcome": "pass", "evidence": "VerdictRefused raised, tree untouched"},
+             "outcome": "pass", "evidence": "VerdictRefused raised, tree untouched",
+             "discriminating_observation": "removed the ref check; the phantom berths"},
         ],
         "dispositions": [
             {"piece": "build the alpha splitter",
@@ -181,6 +183,24 @@ def test_the_shape_gate_refuses_narration(root, berths, val):
     ]:
         err = verdict_error(hollow)
         assert err and needle in err, (needle, err)
+
+
+def test_a_hollow_instrument_is_refused_at_the_write_gate(root, berths, val):
+    """The discriminating_observation is checked at the WRITE gate (inspect_verdict /
+    validate_verdict), not at verdict_error — so existing artifacts on disk without
+    the field are not retroactively refused by the exit gate, but new artifacts
+    going through the door are."""
+    a = good_artifact(val)
+    for hollow in [
+        dict(a, verdicts=[dict(a["verdicts"][0], discriminating_observation="")]),
+        dict(a, verdicts=[{k: v for k, v in a["verdicts"][0].items()
+                            if k != "discriminating_observation"}]),
+    ]:
+        assert verdict_error(hollow) is None, \
+            "verdict_error must NOT check discriminating_observation — the exit gate reads it"
+        expect_refusal(
+            lambda h=hollow: validate_verdict(h, root=root),
+            "discriminating_observation")
 
 
 def test_coverage_is_complete_on_first_pass(root, berths, val):

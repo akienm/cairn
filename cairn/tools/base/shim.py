@@ -69,9 +69,10 @@ from abc import ABC, abstractmethod
 
 from cairn.tools.base.probe import Probe
 from cairn.tools.base.core_values import CoreValuesMixin
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 
-class BaseShim(CoreValuesMixin, ABC):
+class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     """Abstract base for every Cairn device shim.
 
     Composes ``CoreValuesMixin`` (CP1-CP6, Law 2). Pins ``device_id`` (one shim per device).

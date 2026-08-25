@@ -163,3 +163,16 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
         home (Law 6), not re-implemented per device.
         """
         return []
+
+    def declared_verbs(self) -> dict[str, "Callable"]:
+        """The verbs this device handles — verb name → callable.
+
+        The ONE public menu of what a device accepts (bus-completion child a). A caller
+        knows an ADDRESS and a VERB; the method behind the verb is private and gets no
+        system-term (Law 6 — the device resolves its own method internally). The shim's
+        ``deliver()`` resolves verb → handler through this; an unknown verb goes RED.
+
+        Default empty: a device that declares no verbs refuses all inbound mail, which
+        is honest — an empty menu and a missing menu are the same refusal.
+        """
+        return {}

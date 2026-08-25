@@ -306,11 +306,11 @@ class BaseShim(CoreValuesMixin, ABC):
         artifact as it was AT the gate, in whatever form the receiver can process."""
         body = cb.payload(context)
         if self._bus is None:
-            return {"to": cb.to, "channel": cb.channel, "why": cb.why,
+            return {"to": cb.to, "verb": cb.verb, "channel": cb.channel, "why": cb.why,
                     "outcome": "unwired", "body": body}
-        envelope = self._bus.post(sender=self.device_id, to=cb.to, channel=cb.channel,
-                                  why=cb.why, body=body)
-        return {"to": cb.to, "channel": cb.channel, "why": cb.why,
+        envelope = self._bus.post(sender=self.device_id, to=cb.to, verb=cb.verb,
+                                  channel=cb.channel, why=cb.why, body=body)
+        return {"to": cb.to, "verb": cb.verb, "channel": cb.channel, "why": cb.why,
                 "outcome": "ok", "envelope": envelope["id"]}
 
     # --- the web presentation surface: assemble the device's ACTIVE page ----
@@ -408,12 +408,29 @@ class BaseShim(CoreValuesMixin, ABC):
         self._ensure_device()
         if self._device is None:
             self._device = self._start_device()   # loud by contract; see _start_device
+        verb = envelope.get("verb", "")
+        if verb:
+            verbs = {}
+            if hasattr(self._device, "declared_verbs") and callable(self._device.declared_verbs):
+                verbs = self._device.declared_verbs()
+            if verb not in verbs:
+                declared = list(verbs) if verbs else "none"
+                raise NotImplementedError(
+                    f"{self.device_id} has no verb {verb!r} — declared verbs: {declared}. "
+                    "An unknown verb goes RED, never a silent drop (Law 7)")
+            handler = verbs[verb]
+            if not callable(handler):
+                raise NotImplementedError(
+                    f"{self.device_id} declares verb {verb!r} but its handler is not "
+                    "callable — a declared verb that cannot serve is RED (Law 7)")
+            return handler(envelope)
         receive = getattr(self._device, "receive", None)
         if not callable(receive):
             raise NotImplementedError(
-                f"{self.device_id} was delivered mail but its device declares no receive() — "
-                "a device that can be addressed on the bus must say what it does with an "
-                "envelope; silently dropping it would lose a record of truth")
+                f"{self.device_id} was delivered mail but its device declares no receive() "
+                "and the envelope carries no verb — a device that can be addressed on the "
+                "bus must declare its verbs or a receive(); silently dropping mail would "
+                "lose a record of truth (Law 7)")
         return receive(envelope)
 
     @property

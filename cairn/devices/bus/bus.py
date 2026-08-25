@@ -61,6 +61,8 @@ import re
 import uuid
 from datetime import datetime
 
+from psycopg2 import sql
+
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain import store
 
@@ -85,6 +87,7 @@ _TRAFFIC_COLUMNS = {
     "addressee": "text",
     "channel": "text",
     "kind": "text",
+    "verb": "text NOT NULL DEFAULT ''",
     "why": "text",
     "body": "jsonb",
     "reply_to": "text",
@@ -193,6 +196,20 @@ class BusDevice(BaseDevice):
         if not self._ensured:
             store.create_owned_table(self._table, _BUS_OWNER, _TRAFFIC_COLUMNS)
             store.create_owned_table(self._delivery_table, _BUS_OWNER, _DELIVERY_COLUMNS)
+            # Migrate: add verb column to an existing transit table that predates it.
+            conn = store.connect()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT 1 FROM information_schema.columns "
+                        "WHERE table_schema = 'public' AND table_name = %s "
+                        "AND column_name = 'verb'", (self._table,))
+                    if cur.fetchone() is None:
+                        cur.execute(sql.SQL(
+                            "ALTER TABLE {} ADD COLUMN verb text NOT NULL DEFAULT ''"
+                        ).format(sql.Identifier(self._table)))
+            finally:
+                conn.close()
             self._ensured = True
             # GATE CONTACT (DiagnosticBase): the transit table came into being — a durable
             # state change, once per instance, never per message. Thin: the pointer is the
@@ -202,7 +219,8 @@ class BusDevice(BaseDevice):
     # --- the one way to send ------------------------------------------------
 
     def post(self, *, sender: str, to: str, channel: str, why: str,
-             body: dict | None = None, reply_to: str | None = None) -> dict:
+             verb: str = "", body: dict | None = None,
+             reply_to: str | None = None) -> dict:
         """Send one message — the SOLE path for inter-device communication. Builds the envelope
         (carrying why + causality, Law 5), writes it as an owned transit row through db_domain
         (owner ``"bus"``, Law 6), and returns it. A missing ``why`` is refused (CP3 — a message
@@ -216,6 +234,7 @@ class BusDevice(BaseDevice):
             "addressee": to,
             "channel": channel,
             "kind": kind,
+            "verb": verb,
             "why": why,
             "body": body or {},
             "reply_to": reply_to,

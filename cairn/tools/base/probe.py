@@ -330,6 +330,7 @@ class Probe:
     why: str
     trigger: Callable[..., bool]
     to: str
+    verb: str = ""
     channel: str = "personal"
     body: dict = field(default_factory=dict)
     carry: Callable[[dict], dict] | None = None

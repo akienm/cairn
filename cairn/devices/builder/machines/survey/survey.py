@@ -45,7 +45,7 @@ import os
 import time
 from pathlib import Path
 
-from cairn.machines.build_inspector.inspector import judge_survey, resolves_to
+from cairn.machines.build_inspector.inspector import judge_survey, resolves_to, SURVEY_ROSTER
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
@@ -196,13 +196,15 @@ def inspect_survey(packet: dict, root: str = CAIRN_ROOT) -> list:
     # implied by control flow. judge_survey is the build inspector's, so a packet this
     # door passes is a packet the promotion gate passes: one implementation, two mouths.
     if all(gate.passed(e) for e in record):
-        verdicts = judge_survey(packet)
+        attendance = judge_survey(packet)
+        all_findings = [f for a in attendance for f in a["findings"]]
         record.append(inspected(
-            "installed_judges_find_nothing", stage="survey",
-            expected=[], actual=sorted({v["judge"] for v in verdicts}),
+            "judges_all_passed", stage="survey",
+            expected=sorted(SURVEY_ROSTER),
+            actual=sorted(a["judge"] for a in attendance if not a["findings"]),
             lack=JUDGE_REFUSAL_SURVEY + "; ".join(
-                "[%s] %s" % (v["judge"], v["finding"]) for v in verdicts),
-            findings=verdicts))
+                "[%s] %s" % (f["judge"], f["finding"]) for f in all_findings),
+            attendance=attendance))
     return record
 
 
@@ -229,7 +231,7 @@ def validate_survey(packet: dict, root: str = CAIRN_ROOT) -> dict:
     if gate.verdict(record)["opens"]:
         return packet
 
-    shape = [e for e in record if e["identity"] != "installed_judges_find_nothing"]
+    shape = [e for e in record if e["identity"] != "judges_all_passed"]
     if not gate.verdict(shape)["opens"]:
         raise SurveyRefused(render_lacks("survey", lacks_of(shape)))
     raise SurveyRefused(lacks_of(record)[0])
@@ -300,27 +302,33 @@ def validate_survey_at_deposit(packet: dict, root: str = CAIRN_ROOT) -> dict:
     ticket_id = packet.get("ticket")
     disposed = []
     for entry in record:
-        if (entry["identity"] != "installed_judges_find_nothing"
+        if (entry["identity"] != "judges_all_passed"
                 or gate.passed(entry)):
             disposed.append(entry)
             continue
-        findings = entry.get("values", {}).get("findings") or []
-        live = [f for f in findings if not _finding_survives_a_move(f, ticket_id)]
-        if len(live) == len(findings):
+        attendance = entry.get("values", {}).get("attendance") or []
+        all_findings = [f for a in attendance for f in a["findings"]]
+        live = [f for f in all_findings if not _finding_survives_a_move(f, ticket_id)]
+        if len(live) == len(all_findings):
             disposed.append(entry)
             continue
+        new_att = [{"judge": a["judge"], "ran": True,
+                    "findings": [f for f in a["findings"]
+                                 if not _finding_survives_a_move(f, ticket_id)]}
+                   for a in attendance]
         disposed.append(inspected(
-            "installed_judges_find_nothing", stage="survey",
-            expected=[], actual=sorted({v["judge"] for v in live}),
+            "judges_all_passed", stage="survey",
+            expected=sorted(SURVEY_ROSTER),
+            actual=sorted(a["judge"] for a in new_att if not a["findings"]),
             lack=JUDGE_REFUSAL_SURVEY + "; ".join(
-                "[%s] %s" % (v["judge"], v["finding"]) for v in live),
-            findings=live,
+                "[%s] %s" % (f["judge"], f["finding"]) for f in live),
+            attendance=new_att,
             moved=[(f.get("evidence") or {}).get("address")
-                   for f in findings if f not in live]))
+                   for f in all_findings if f not in live]))
 
     if gate.verdict(disposed)["opens"]:
         return packet
-    shape = [e for e in disposed if e["identity"] != "installed_judges_find_nothing"]
+    shape = [e for e in disposed if e["identity"] != "judges_all_passed"]
     if not gate.verdict(shape)["opens"]:
         raise SurveyRefused(render_lacks("survey", lacks_of(shape)))
     raise SurveyRefused(lacks_of(disposed)[0])

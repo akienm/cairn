@@ -82,7 +82,8 @@ def read_the_corpus() -> dict:
             continue
         read += 1
         ticket = packet.get("ticket") if isinstance(packet, dict) else None
-        findings = [f for f in judge_survey(packet)
+        findings = [f for att in judge_survey(packet)
+                    for f in att["findings"]
                     if f.get("judge") == "survey_holdings_resolve"
                     and _NEEDLE in (f.get("finding") or "")]
         moved = [f for f in findings

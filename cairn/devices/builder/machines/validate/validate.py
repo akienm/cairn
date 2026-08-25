@@ -52,7 +52,7 @@ import json
 import os
 import time
 
-from cairn.machines.build_inspector.inspector import judge_validate
+from cairn.machines.build_inspector.inspector import judge_validate, VALIDATE_ROSTER
 from cairn.devices.builder.machines.hypothesize.hypothesize import _read_triage_berth
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
@@ -177,13 +177,15 @@ def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
     # implied by control flow. judge_validate is the build inspector's, so a packet this
     # door passes is a packet the promotion gate passes: one implementation, two mouths.
     if all(gate.passed(e) for e in record):
-        verdicts = judge_validate(packet)
+        attendance = judge_validate(packet)
+        all_findings = [f for a in attendance for f in a["findings"]]
         record.append(inspected(
-            "installed_judges_find_nothing", stage="validate",
-            expected=[], actual=sorted({v["judge"] for v in verdicts}),
+            "judges_all_passed", stage="validate",
+            expected=sorted(VALIDATE_ROSTER),
+            actual=sorted(a["judge"] for a in attendance if not a["findings"]),
             lack=JUDGE_REFUSAL_VALIDATE + "; ".join(
-                "[%s] %s" % (v["judge"], v["finding"]) for v in verdicts),
-            findings=verdicts))
+                "[%s] %s" % (f["judge"], f["finding"]) for f in all_findings),
+            attendance=attendance))
     return record
 
 
@@ -211,7 +213,7 @@ def validate_validate(packet: dict, root: str = CAIRN_ROOT) -> dict:
     if gate.verdict(record)["opens"]:
         return packet
 
-    shape = [e for e in record if e["identity"] != "installed_judges_find_nothing"]
+    shape = [e for e in record if e["identity"] != "judges_all_passed"]
     if not gate.verdict(shape)["opens"]:
         raise ValidateRefused(render_lacks("validate", lacks_of(shape)))
     raise ValidateRefused(lacks_of(record)[0])

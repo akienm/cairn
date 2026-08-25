@@ -791,12 +791,28 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
 # structurally cannot shape its own acceptance criteria. One implementation, two
 # mouths: the door refuses at berth time, these sieves re-judge at promotion.
 
+CONSTRAIN_ROSTER = ("constraint_traces", "constraint_bounds_complete")
+
+
+def _attendance(frags, roster):
+    """Group judge fragments into attendance records — one per roster member.
+
+    The attendance record is emitted by the judge, not asserted by the caller
+    (ticket a-judge-declares-its-attendance, falsifier clause 4). A judge that
+    ran produces {judge, ran, findings}; a judge absent from the return never ran.
+    """
+    by_judge = {name: [] for name in roster}
+    for f in frags:
+        by_judge[f["judge"]].append(f)
+    return [{"judge": name, "ran": True, "findings": findings}
+            for name, findings in sorted(by_judge.items())]
+
 
 def judge_constrain(packet: dict) -> list[dict]:
-    """The pure judge over ONE constrain packet — fragments tagged by which sieve
-    owns them ({judge, finding, evidence, why_it_matters}). Composed by the berth
-    door and wrapped by the gate sieves below; if the two mouths ever disagree,
-    this function's singleness is the broken claim."""
+    """The pure judge over ONE constrain packet — attendance records per judge,
+    each carrying its findings (possibly empty). Composed by the berth door and
+    wrapped by the gate sieves below; if the two mouths ever disagree, this
+    function's singleness is the broken claim."""
     frags = []
     for i, c in enumerate(packet.get("constraints") or []):
         if not isinstance(c, dict):
@@ -833,7 +849,7 @@ def judge_constrain(packet: dict) -> list[dict]:
                                   "an empty side is exactly that failure as data; a "
                                   "packet must say what is OUT, not just what is in.",
             })
-    return frags
+    return _attendance(frags, CONSTRAIN_ROSTER)
 
 
 def _judge_charted(row: dict, comp_dir: Path, stage: str, judge,
@@ -844,13 +860,14 @@ def _judge_charted(row: dict, comp_dir: Path, stage: str, judge,
     packets, unreadable = _charted_packets(comp_dir, stage)
     findings = _unreadable_findings(judge_name, row, unreadable) if report_unreadable else []
     for path, packet in packets:
-        for frag in judge(packet):
-            if frag["judge"] == judge_name:
-                ev = dict(frag.get("evidence") or {}, berth=str(path),
-                          ticket=packet.get("ticket"))
-                findings.append(_finding(
-                    judge_name, row["component"], frag["finding"],
-                    expected=True, actual=False, **ev))
+        for att in judge(packet):
+            if att["judge"] == judge_name:
+                for frag in att["findings"]:
+                    ev = dict(frag.get("evidence") or {}, berth=str(path),
+                              ticket=packet.get("ticket"))
+                    findings.append(_finding(
+                        judge_name, row["component"], frag["finding"],
+                        expected=True, actual=False, **ev))
     return findings
 
 
@@ -908,6 +925,8 @@ def constraint_bounds_complete(row: dict, comp_dir: Path) -> list[dict]:
 # second instance proves it' (edge (b)); this is that instance. Same physics: the
 # judge is the inspector's, the future berth door composes it, never the reverse.
 
+SURVEY_ROSTER = ("survey_holdings_resolve", "survey_coverage_complete")
+
 
 def judge_survey(packet: dict) -> list[dict]:
     """The pure judge over ONE survey packet — fragments tagged by owning sieve.
@@ -964,7 +983,7 @@ def judge_survey(packet: dict) -> list[dict]:
                                   "established by word-grep; the measure must "
                                   "travel with the claim so it can be challenged.",
             })
-    return frags
+    return _attendance(frags, SURVEY_ROSTER)
 
 
 def survey_holdings_resolve(row: dict, comp_dir: Path) -> list[dict]:
@@ -1014,6 +1033,8 @@ def survey_coverage_complete(row: dict, comp_dir: Path) -> list[dict]:
 # berth with its OWN minimal read — importing chart's chain reader would be the
 # inspector importing from the module family it judges.
 
+DECOMPOSE_ROSTER = ("decompose_builds_absences", "decompose_composes_holdings")
+
 
 def judge_decompose(packet: dict) -> list[dict]:
     """The pure judge over ONE decompose packet — fragments tagged by owning
@@ -1057,7 +1078,7 @@ def judge_decompose(packet: dict) -> list[dict]:
                               "unmeasured against the inventory (the stone-1 "
                               "parallel-roster failure, wholesale).",
         })
-        return frags
+        return _attendance(frags, DECOMPOSE_ROSTER)
     for i, sp in enumerate(sub_problems):
         if not isinstance(sp, dict) or not all(
                 isinstance(sp.get(k), str) and sp.get(k).strip()
@@ -1143,7 +1164,7 @@ def judge_decompose(packet: dict) -> list[dict]:
         # taught by.
         if "writes_to" in sp:
             frags += _writes_to_frags(i, sp)
-    return frags
+    return _attendance(frags, DECOMPOSE_ROSTER)
 
 
 def _writes_to_frags(i: int, sp: dict) -> list[dict]:
@@ -1240,6 +1261,8 @@ def decompose_builds_absences(row: dict, comp_dir: Path) -> list[dict]:
 # door composes it, never the reverse. The judge reads the packet's decompose_ref
 # berth with its OWN minimal read — same reason as judge_decompose above.
 
+TRIAGE_ROSTER = ("triage_covers_the_split", "triage_reasons_the_order")
+
 
 def judge_triage(packet: dict) -> list[dict]:
     """The pure judge over ONE triage packet — fragments tagged by owning
@@ -1284,7 +1307,7 @@ def judge_triage(packet: dict) -> list[dict]:
                               "unstated-standard reflex this gate exists to "
                               "stop.",
         })
-        return frags
+        return _attendance(frags, TRIAGE_ROSTER)
     ordered_counts = {}
     for i, entry in enumerate(order):
         if not isinstance(entry, dict) or not isinstance(entry.get("what"), str) \
@@ -1355,7 +1378,7 @@ def judge_triage(packet: dict) -> list[dict]:
                                   "is a bounds question for Akien, never a "
                                   "ranking.",
             })
-    return frags
+    return _attendance(frags, TRIAGE_ROSTER)
 
 
 def triage_covers_the_split(row: dict, comp_dir: Path) -> list[dict]:
@@ -1392,6 +1415,8 @@ def triage_reasons_the_order(row: dict, comp_dir: Path) -> list[dict]:
 # hypothesize module exists. Same physics: the judge is the inspector's, the
 # future berth door composes it, never the reverse. The judge reads the packet's
 # triage_ref berth with its OWN minimal read — same reason as the judges above.
+
+HYPOTHESIZE_ROSTER = ("hypothesize_covers_the_ranked", "hypothesize_falsifiable_measured")
 
 
 def judge_hypothesize(packet: dict) -> list[dict]:
@@ -1436,7 +1461,7 @@ def judge_hypothesize(packet: dict) -> list[dict]:
                               "2026-07-26/27 wrong-about-the-world class, "
                               "wholesale.",
         })
-        return frags
+        return _attendance(frags, HYPOTHESIZE_ROSTER)
     covered = set()
     for i, h in enumerate(hypotheses):
         if not isinstance(h, dict) or not isinstance(h.get("piece"), str) \
@@ -1494,7 +1519,7 @@ def judge_hypothesize(packet: dict) -> list[dict]:
                                   "is what makes a kill a FINDING instead of "
                                   "a surprise.",
             })
-    return frags
+    return _attendance(frags, HYPOTHESIZE_ROSTER)
 
 
 def hypothesize_covers_the_ranked(row: dict, comp_dir: Path) -> list[dict]:
@@ -1535,6 +1560,8 @@ def hypothesize_falsifiable_measured(row: dict, comp_dir: Path) -> list[dict]:
 # THE PREVIOUS GATE'S INVARIANT — a berthed hypothesize covering equals the
 # ranked set (hypothesize-filters enforced it), so this judge reads ONE link
 # with one minimal open; each judge stays small by standing on the gate below.
+
+VALIDATE_ROSTER = ("validate_covers_the_build", "validate_measures_done")
 
 
 def judge_validate(packet: dict) -> list[dict]:
@@ -1577,7 +1604,7 @@ def judge_validate(packet: dict) -> list[dict]:
                               "whose done is narration — the 2026-07-24 class, "
                               "wholesale.",
         })
-        return frags
+        return _attendance(frags, VALIDATE_ROSTER)
     covered = set()
     for i, c in enumerate(criteria):
         if not isinstance(c, dict):
@@ -1645,7 +1672,7 @@ def judge_validate(packet: dict) -> list[dict]:
                                   "coverage is what makes acceptance a "
                                   "measurement of the whole build.",
             })
-    return frags
+    return _attendance(frags, VALIDATE_ROSTER)
 
 
 def validate_measures_done(row: dict, comp_dir: Path) -> list[dict]:

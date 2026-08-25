@@ -201,13 +201,14 @@ def test_the_public_name_is_the_same_order():
     for path in sorted(glob.glob(os.path.join(BERTHS, "survey-*.json"))):
         packet = json.load(open(path))
         tid = packet.get("ticket")
-        for frag in judge_survey(packet):
-            address = (frag.get("evidence") or {}).get("address")
-            if not isinstance(address, str):
-                continue
-            asked += 1
-            assert resolves_to(address, tid) == inspector_mod._resolves_to(address, tid), \
-                "the public name answers differently for %r" % (address,)
+        for att in judge_survey(packet):
+            for frag in att["findings"]:
+                address = (frag.get("evidence") or {}).get("address")
+                if not isinstance(address, str):
+                    continue
+                asked += 1
+                assert resolves_to(address, tid) == inspector_mod._resolves_to(address, tid), \
+                    "the public name answers differently for %r" % (address,)
     assert asked, "the corpus asked nothing — this tooth measured no addresses"
 
 
@@ -233,7 +234,8 @@ def test_the_live_corpus_carries_no_moved_refusal():
     for path in paths:
         packet = json.load(open(path))
         tid = packet.get("ticket")
-        moved = [f["finding"] for f in judge_survey(packet)
+        moved = [f["finding"] for att in judge_survey(packet)
+                 for f in att["findings"]
                  if f["judge"] == "survey_holdings_resolve"
                  and resolves_to((f.get("evidence") or {}).get("address"), tid)]
         if moved:

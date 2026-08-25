@@ -91,7 +91,8 @@ def expand(vector, *, nexus: str = "orient", owner: str = OWNER, k: int = 3,
 
 
 def signal(ask: str, vector, *, date: str, nexus: str = "orient", owner: str = OWNER,
-           about: str | None = None, field: str | None = None, conn=None) -> dict:
+           about: str | None = None, field: str | None = None,
+           context: str | None = None, conn=None) -> dict:
     """The invocation written back — the ask as a dated moreabout_signal node in the
     tenant's own tree. Refusals leave the tree exactly where it stood."""
     if not isinstance(ask, str) or not ask.strip():
@@ -107,5 +108,7 @@ def signal(ask: str, vector, *, date: str, nexus: str = "orient", owner: str = O
         provenance["about"] = about
     if field:
         provenance["field"] = field
+    if context:
+        provenance["context"] = context
     return deposit_learning(nexus, ask.strip(), vector, provenance,
                             owner=owner, conn=conn)

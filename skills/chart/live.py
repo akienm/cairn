@@ -275,8 +275,17 @@ def _learn(argv: list[str]) -> int:
 
 def _moreabout(argv: list[str]) -> int:
     if not argv:
-        print('usage: live moreabout "<ask>" [nexus] [owner]', file=sys.stderr)
+        print('usage: live moreabout "<ask>" [nexus] [owner] [--context build]',
+              file=sys.stderr)
         return 1
+    context = None
+    if "--context" in argv:
+        idx = argv.index("--context")
+        if idx + 1 < len(argv):
+            context = argv[idx + 1]
+            argv = argv[:idx] + argv[idx + 2:]
+        else:
+            argv = argv[:idx]
     ask, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
     kw = {"owner": argv[2]} if len(argv) > 2 else {}
     vector = embed_via_domain()(ask)
@@ -284,7 +293,7 @@ def _moreabout(argv: list[str]) -> int:
     top = got["expansions"][0] if got["expansions"] else None
     about = (top.get("provenance") or {}).get("source") if top else None
     sig = signal(ask, vector, date=date.today().isoformat(), nexus=nexus,
-                 about=about, **kw)
+                 about=about, context=context, **kw)
     print(json.dumps({"ask": ask, "expansion": got, "signal": sig},
                      indent=2, default=str))
     return 0

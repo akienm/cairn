@@ -78,6 +78,10 @@ build. The record of truth moves before the code does.
   the stone-1 failure with the survey sitting right there.
 - **survey's absences are what you may BUILD** — each was measured absent;
   build minimal, grow against need.
+- **If the prebuild packet is thin — fire `/moreabout`** with `--context build`
+  to expand what you need before proceeding. The invocation itself is the
+  training signal: it records that the prebuild was not adequate, so the
+  chart learns to carry more next time.
 - Packets claiming this ticket will judge the promotion — build as if the
   inspector is watching, because it is.
 

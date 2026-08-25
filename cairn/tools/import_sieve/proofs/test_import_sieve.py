@@ -364,6 +364,80 @@ def test_the_real_inspector_sieves_are_all_record():
         f"expected all record (1), got: {phases}")
 
 
+# ── dynamic_import and subprocess_dial: the edges import_sieve could not see ──
+# Paired like the graph-based kinds: a planted tree with a defect that must be caught,
+# and the complement that must pass — because either half alone is satisfied by a rule
+# that fires on everything or on nothing.
+
+
+def _planted_sources(**files):
+    """A (graph, sources) pair for testing rules that need source text."""
+    g = {f"filler/mod_{i}.py": {"json"} for i in range(25)}
+    sources = {f"filler/mod_{i}.py": "import json\n" for i in range(25)}
+    for path, src in files.items():
+        g[path] = sieve.imports_in(src)
+        sources[path] = src
+    return g, sources
+
+
+def test_dynamic_import_of_guarded_module_reds():
+    """importlib.import_module('psycopg2') is import psycopg2 wearing a function-call
+    costume. The import graph cannot see it; this rule can."""
+    g, sources = _planted_sources(**{
+        "rogue/loader.py": "import importlib\nimportlib.import_module('psycopg2')\n"
+    })
+    caught = sieve.catches(g, {"kind": "dynamic_import", "capability": "port 5432",
+                                "modules": ("psycopg2",)}, sources=sources)
+    assert len(caught) == 1, f"the dynamic import should be caught: {caught}"
+    assert "psycopg2" in caught[0] and "rogue/loader.py" in caught[0]
+
+
+def test_dynamic_import_of_unguarded_module_passes():
+    """importlib.import_module('json') is not a sole-path violation — json is not guarded."""
+    g, sources = _planted_sources(**{
+        "util/compat.py": "import importlib\nimportlib.import_module('json')\n"
+    })
+    caught = sieve.catches(g, {"kind": "dynamic_import", "capability": "port 5432",
+                                "modules": ("psycopg2",)}, sources=sources)
+    assert caught == [], f"an unguarded dynamic import was caught: {caught}"
+
+
+def test_subprocess_of_guarded_binary_reds():
+    """subprocess.run(['psql', ...]) dials the database and imports nothing."""
+    g, sources = _planted_sources(**{
+        "scripts/migrate.py": "import subprocess\nsubprocess.run(['psql', '-c', 'SELECT 1'])\n"
+    })
+    caught = sieve.catches(g, {"kind": "subprocess_dial", "capability": "the database",
+                                "guarded": {"binaries": ["psql", "pg_dump", "pg_restore"],
+                                            "url_fragments": ["11434"]}}, sources=sources)
+    assert len(caught) == 1, f"the subprocess to psql should be caught: {caught}"
+    assert "psql" in caught[0] and "scripts/migrate.py" in caught[0]
+
+
+def test_subprocess_of_unguarded_binary_passes():
+    """subprocess.run(['git', 'log']) is not a sole-path violation."""
+    g, sources = _planted_sources(**{
+        "tools/vcs.py": "import subprocess\nsubprocess.run(['git', 'log'])\n"
+    })
+    caught = sieve.catches(g, {"kind": "subprocess_dial", "capability": "the database",
+                                "guarded": {"binaries": ["psql", "pg_dump", "pg_restore"],
+                                            "url_fragments": ["11434"]}}, sources=sources)
+    assert caught == [], f"an unguarded subprocess was caught: {caught}"
+
+
+def test_subprocess_with_computed_argument_is_opaque():
+    """A subprocess whose arguments are computed cannot be cleared or convicted from the
+    AST alone. The finding names the opacity; silence would be a false green."""
+    g, sources = _planted_sources(**{
+        "tools/runner.py": "import subprocess\ncmd = get_command()\nsubprocess.run(cmd)\n"
+    })
+    caught = sieve.catches(g, {"kind": "subprocess_dial", "capability": "the database",
+                                "guarded": {"binaries": ["psql"],
+                                            "url_fragments": ["11434"]}}, sources=sources)
+    assert len(caught) == 1, f"the opaque subprocess should be flagged: {caught}"
+    assert "OPAQUE" in caught[0], f"the finding must say OPAQUE: {caught[0]}"
+
+
 def _main() -> int:
     checks = [
         test_a_parse_is_not_a_dial,
@@ -393,6 +467,11 @@ def _main() -> int:
         test_phase_is_transitive_through_an_in_module_helper,
         test_phase_on_unparseable_source_is_empty,
         test_the_real_inspector_sieves_are_all_record,
+        test_dynamic_import_of_guarded_module_reds,
+        test_dynamic_import_of_unguarded_module_passes,
+        test_subprocess_of_guarded_binary_reds,
+        test_subprocess_of_unguarded_binary_passes,
+        test_subprocess_with_computed_argument_is_opaque,
     ]
     for check in checks:
         check()

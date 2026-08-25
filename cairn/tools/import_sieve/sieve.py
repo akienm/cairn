@@ -30,10 +30,11 @@ assertion at the end of the tooth, which is exactly the kind of step a second co
 forgets. It lives inside the door now, so a caller cannot skip it by not knowing.
 
 WHAT THIS DOES NOT SEE, stated so nobody reads a green as wider than it is:
-  - a subprocess. `subprocess.run(["curl", ...])` dials and imports nothing.
-  - a dynamic import. `importlib.import_module(name)` with a computed name.
   - a WRITE. "no second writer of intentions-congruency-lab/" is a different scan
     over a different verb; this module does not do it and does not claim to.
+Two former gaps are now physics: subprocess dials and dynamic imports are caught by
+the `dynamic_import` and `subprocess_dial` rule kinds in catches(). A computed
+subprocess argument is flagged OPAQUE rather than silently passed.
 """
 
 from __future__ import annotations
@@ -47,6 +48,10 @@ import os
 # is for.
 
 SKIP_DIRS = {"__pycache__", ".git", "node_modules", ".venv", "venv"}
+
+_SUBPROCESS_CALLABLES = frozenset({
+    'run', 'Popen', 'call', 'check_output', 'check_call',
+})
 
 
 class HollowScan(RuntimeError):
@@ -264,10 +269,93 @@ def reaches(graph: dict[str, set[str]], start: str) -> dict[str, list[str]]:
     return trail
 
 
-def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str]:
+def _dynamic_imports_in(tree, file_imports):
+    """Dynamic-import calls: importlib.import_module(X) and __import__(X).
+
+    Returns [{module: str|None, opaque: bool, line: int}].
+    """
+    has_importlib = any(
+        i == 'importlib' or i.startswith('importlib.') for i in file_imports)
+    has_direct = 'importlib.import_module' in file_imports
+    results = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        match = False
+        if isinstance(func, ast.Name) and func.id == '__import__':
+            match = True
+        elif (isinstance(func, ast.Attribute) and func.attr == 'import_module'
+              and isinstance(func.value, ast.Name) and func.value.id == 'importlib'
+              and has_importlib):
+            match = True
+        elif (isinstance(func, ast.Name) and func.id == 'import_module'
+              and has_direct):
+            match = True
+        if not match or not node.args:
+            continue
+        arg = node.args[0]
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            results.append({'module': arg.value, 'opaque': False, 'line': node.lineno})
+        else:
+            results.append({'module': None, 'opaque': True, 'line': node.lineno})
+    return results
+
+
+def _subprocess_calls_in(tree, file_imports):
+    """Subprocess calls: subprocess.run / Popen / call / check_output / check_call.
+
+    Returns [{targets: [str], opaque: bool, line: int, callable: str}].
+    """
+    has_subprocess = any(
+        i == 'subprocess' or i.startswith('subprocess.') for i in file_imports)
+    direct = {}
+    for imp in file_imports:
+        if imp.startswith('subprocess.'):
+            name = imp.rsplit('.', 1)[-1]
+            if name in _SUBPROCESS_CALLABLES:
+                direct[name] = imp
+    results = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        callable_name = None
+        if (isinstance(func, ast.Attribute) and func.attr in _SUBPROCESS_CALLABLES
+                and isinstance(func.value, ast.Name) and func.value.id == 'subprocess'
+                and has_subprocess):
+            callable_name = f'subprocess.{func.attr}'
+        elif isinstance(func, ast.Name) and func.id in direct:
+            callable_name = direct[func.id]
+        if callable_name is None:
+            continue
+        if not node.args:
+            results.append({'targets': [], 'opaque': False,
+                            'line': node.lineno, 'callable': callable_name})
+            continue
+        arg = node.args[0]
+        targets = []
+        opaque = False
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            targets = [arg.value]
+        elif isinstance(arg, ast.List):
+            for elt in arg.elts:
+                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                    targets.append(elt.value)
+                else:
+                    opaque = True
+        else:
+            opaque = True
+        results.append({'targets': targets, 'opaque': opaque,
+                        'line': node.lineno, 'callable': callable_name})
+    return results
+
+
+def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
+            *, sources: dict[str, str] | None = None) -> list[str]:
     """Shake one sieve over the graph and return what its mesh caught.
 
-    Three rule kinds, because the corpus asks three questions and they are not the same
+    Five rule kinds, because the corpus asks five questions and they are not the same
     shape:
 
       sole_path — `modules` may be imported ONLY from inside `only`. This is the domain
@@ -289,10 +377,21 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str
                   that was). Naming the CAPABILITY that must stay out of reach is what
                   makes the rule general: the innocent never need signatures.
 
+      dynamic_import — a dynamic import (importlib.import_module, __import__) of a
+                  ``modules``-listed target. The import graph cannot see it; this kind
+                  can. Requires ``sources={path: source_text}``.
+
+      subprocess_dial — a subprocess call (subprocess.run / Popen / call / check_output
+                  / check_call) that reaches a guarded target. The guarded targets are
+                  DATA in ``rule["guarded"]``: ``binaries`` (exact binary names) and
+                  ``url_fragments`` (substrings in string arguments). A COMPUTED argument
+                  is flagged OPAQUE — it cannot be cleared or convicted from the AST
+                  alone. Requires ``sources={path: source_text}``.
+
     Returns [] when nothing is caught. Raises HollowScan rather than returning [] when
     the graph is too small to have looked at anything — the difference between "clean"
     and "did not run" is the difference this raise exists to keep, and it guards ALL
-    THREE kinds because it is asked before the kind is: a reachability walk over a
+    FIVE kinds because it is asked before the kind is: a reachability walk over a
     half-read tree returns a short closure, and a short closure is clean for the wrong
     reason.
     """
@@ -336,7 +435,53 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20) -> list[str
                 route = " -> ".join(module_name(p) for p in chain)
                 caught.append(f"{path} imports {found} — {what} is reachable from {start} "
                               f"by import, along {route}; nothing on that path may reach it")
+    elif kind == "dynamic_import":
+        if sources is None:
+            raise ValueError("dynamic_import rule requires sources={path: source_text}")
+        for path in sorted(sources):
+            src = sources[path]
+            try:
+                tree = ast.parse(src)
+            except SyntaxError:
+                continue
+            for dyn in _dynamic_imports_in(tree, imports_in(src)):
+                if dyn['opaque']:
+                    caught.append(f"{path}:{dyn['line']} has a dynamic import with a "
+                                  f"computed name — OPAQUE; cannot determine the target")
+                elif any(_matches(dyn['module'], t) for t in modules):
+                    caught.append(f"{path}:{dyn['line']} dynamically imports "
+                                  f"{dyn['module']!r} — a door to {what} invisible "
+                                  f"to the import graph")
+    elif kind == "subprocess_dial":
+        if sources is None:
+            raise ValueError("subprocess_dial rule requires sources={path: source_text}")
+        guarded = rule.get("guarded", {})
+        binaries = frozenset(guarded.get("binaries", ()))
+        url_fragments = tuple(guarded.get("url_fragments", ()))
+        for path in sorted(sources):
+            src = sources[path]
+            try:
+                tree = ast.parse(src)
+            except SyntaxError:
+                continue
+            for call in _subprocess_calls_in(tree, imports_in(src)):
+                if call['opaque']:
+                    caught.append(f"{path}:{call['line']} calls {call['callable']} "
+                                  f"with a computed argument — OPAQUE; cannot "
+                                  f"determine the target")
+                else:
+                    for target in call['targets']:
+                        if target in binaries:
+                            caught.append(
+                                f"{path}:{call['line']} calls {call['callable']} "
+                                f"with {target!r} — a subprocess dial to {what}")
+                        elif any(frag in target for frag in url_fragments):
+                            caught.append(
+                                f"{path}:{call['line']} calls {call['callable']} "
+                                f"with {target!r} (contains guarded fragment) — "
+                                f"a subprocess dial to {what}")
     else:
         raise ValueError(
-            f"unknown sieve kind {kind!r} — sole_path, forbidden or unreachable")
+            f"unknown sieve kind {kind!r} — sole_path, forbidden, unreachable, "
+            f"dynamic_import or subprocess_dial")
     return caught

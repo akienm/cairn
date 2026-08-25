@@ -57,12 +57,16 @@ if str(_REPO_ROOT) not in sys.path:
 
 # The rungs the receive check can reach, worst to best. The ORDER is the meaning: a
 # reader sees how far a real delivery would get before it hit something.
-NO_SHIM = "0-no-shim"                  # nothing on disk answers to this id
-NO_WAKE = "1-no-start-device"          # a shim exists; it cannot wake a device
-NO_FACE = "2-no-receive-face"          # a device woke; it declares no receive()
-RESOLVED = "3-resolved-not-delivered"  # a receive face is callable — NOT invoked here
+NO_SHIM = "0-no-shim"                      # nothing on disk answers to this id
+DISCOVERED_ONLY = "1-discovered-only"      # no registered shim; fronts the beat for probes, by design
+NO_WAKE = "2-no-start-device"              # a registered shim exists; it cannot wake a device
+NO_FACE = "3-no-receive-face"              # a device woke; it declares no receive() and no verbs
+RESOLVED = "4-resolved-not-delivered"      # a receive face is callable — NOT invoked here
 
 _CAN_RECEIVE = {RESOLVED}
+# DISCOVERED_ONLY is not a defect in the DEVICE — it is a device with no page and no
+# receiver by design. A probe that ADDRESSES it still has a broken feedback path (it is
+# sending somewhere nothing can take it), but the device is not what is wrong.
 
 
 def probe_modules(root: Path) -> list[Path]:
@@ -150,29 +154,92 @@ def scan_probes(root: Path, devices: set[str]) -> list[dict]:
     return rows
 
 
-def can_receive(device_id: str) -> dict:
+def _find_shim_class(device_id: str, root: Path):
+    """Find the registered shim class for a device from its ``shim.py`` on disk.
+
+    The same preference ``GroundLoopDevice._reconcile`` performs — a hand-subscribed
+    shim takes precedence over a DiscoveredShim — borrowed as a disk convention: a
+    device whose directory holds a ``shim.py`` with a ``BaseShim`` subclass has a
+    registered shim. Returns the class, or ``None``.
+    """
+    from cairn.devices.ground_loop.discovery import device_folders, load_module
+    from cairn.tools.base.shim import BaseShim
+
+    for did, folder in device_folders(root):
+        if did != device_id:
+            continue
+        shim_path = folder.parent / "shim.py"
+        if not shim_path.is_file():
+            continue
+        try:
+            mod = load_module(shim_path)
+        except Exception:  # noqa: BLE001
+            continue
+        for attr_name in dir(mod):
+            obj = getattr(mod, attr_name)
+            if isinstance(obj, type) and issubclass(obj, BaseShim) and obj is not BaseShim:
+                return obj
+    return None
+
+
+def _try_construct(cls):
+    """Construct a shim class with no args first, then with ``None`` for required positionals."""
+    import inspect
+
+    try:
+        return cls()
+    except TypeError:
+        pass
+    sig = inspect.signature(cls.__init__)
+    required = [p for p in list(sig.parameters.values())[1:]
+                if p.default is inspect.Parameter.empty
+                and p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+    if not required:
+        raise
+    return cls(*([None] * len(required)))
+
+
+def can_receive(device_id: str, root: Path | None = None) -> dict:
     """Walk the postman's own path as far as it goes WITHOUT delivering.
 
-    Mirrors ``BaseShim.deliver`` step for step so the answer is the answer a real envelope
-    would get: resolve a shim for the id, wake the device, look for the receive face. Each
-    failure is the REAL exception from the REAL code, not a guess about it.
+    Resolves the device's REGISTERED shim first (from its ``shim.py`` on disk) — the
+    same preference ``GroundLoopDevice._reconcile`` performs, borrowed rather than
+    re-implemented — and falls back to ``DISCOVERED_ONLY`` only when no registered shim
+    exists. Each failure is the REAL exception from the REAL code, not a guess about it.
     """
-    from cairn.devices.ground_loop.discovered import DiscoveredShim
+    from cairn.devices.ground_loop.discovery import repo_root
 
+    root = Path(root) if root is not None else repo_root()
     result = {"device": device_id, "rung": NO_SHIM, "detail": None, "shim_class": None}
-    try:
-        shim = DiscoveredShim(device_id)
-    except Exception as exc:  # noqa: BLE001
-        result["detail"] = f"{type(exc).__name__}: {exc}"
+
+    shim_cls = _find_shim_class(device_id, root)
+
+    if shim_cls is None:
+        result["rung"] = DISCOVERED_ONLY
+        result["detail"] = (
+            f"{device_id} has no registered shim (no shim.py in its device folder) — "
+            "it fronts the beat for its probes, not the web surface; no page, no receiver by design"
+        )
         return result
-    result["shim_class"] = type(shim).__name__
+
+    result["shim_class"] = shim_cls.__name__
+
+    try:
+        shim = _try_construct(shim_cls)
+    except Exception as exc:  # noqa: BLE001
+        result["rung"] = NO_WAKE
+        result["detail"] = (
+            f"registered shim {shim_cls.__name__} could not be constructed: "
+            f"{type(exc).__name__}: {exc}"
+        )
+        return result
 
     # deliver()'s first act, verbatim: ensure the device, then start it if there is none.
     try:
         shim._ensure_device()
         device = shim._device
         if device is None:
-            device = shim._start_device()   # this is where the refusal lives today
+            device = shim._start_device()
     except NotImplementedError as exc:
         result["rung"] = NO_WAKE
         result["detail"] = str(exc)
@@ -182,19 +249,36 @@ def can_receive(device_id: str) -> dict:
         result["detail"] = f"{type(exc).__name__}: {exc}"
         return result
 
+    if device is None:
+        result["rung"] = NO_WAKE
+        result["detail"] = (
+            f"{shim_cls.__name__}._start_device() returned None — the shim requires "
+            "runtime wiring (a live device handed at construction) to wake"
+        )
+        return result
+
     recv = getattr(device, "receive", None)
-    if not callable(recv):
+    verbs = {}
+    if hasattr(device, "declared_verbs") and callable(device.declared_verbs):
+        verbs = device.declared_verbs()
+
+    if not callable(recv) and not verbs:
         result["rung"] = NO_FACE
         result["detail"] = (
-            f"{type(device).__name__} declares no callable receive(); "
+            f"{type(device).__name__} declares no callable receive() and no verbs; "
             "BaseShim.deliver would raise NotImplementedError here"
         )
         return result
 
+    faces = []
+    if callable(recv):
+        faces.append("receive()")
+    if verbs:
+        faces.append(f"verbs: {list(verbs)}")
     result["rung"] = RESOLVED
     result["detail"] = (
-        f"{type(device).__name__}.receive is callable — NOT invoked: a check that delivers "
-        "mail has written to a record of truth"
+        f"{type(device).__name__} can take mail ({', '.join(faces)}) — NOT invoked: "
+        "a check that delivers mail has written to a record of truth"
     )
     return result
 
@@ -261,7 +345,7 @@ def scan(root: Path | None = None) -> dict:
     # Only the addressees actually written to are checked — the scan reports on the
     # graph that EXISTS, never on every device that might one day be addressed.
     addressees = sorted({p["to"] for p in probes if p["to"]})
-    receiving = {a: can_receive(a) for a in addressees}
+    receiving = {a: can_receive(a, root) for a in addressees}
 
     try:
         mail = scan_mail(devices)

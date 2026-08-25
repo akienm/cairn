@@ -89,7 +89,7 @@ def test_it_goes_green_when_the_feedback_path_is_whole():
         try:
             # The receive END is stubbed to the answer a device WITH a face would give —
             # the scan's own composition is what is under test here, not DiscoveredShim.
-            probescan.can_receive = lambda d: {
+            probescan.can_receive = lambda d, root=None: {
                 "device": d, "rung": probescan.RESOLVED,
                 "detail": "fixture receiver", "shim_class": "_Receiver"}
             r = probescan.scan(root)
@@ -113,23 +113,30 @@ def test_it_reds_and_names_the_addressee_and_the_rung():
         assert r["probes_broken"] == 1
         faults = " ".join(r["broken"][0]["faults"])
         assert "sink" in faults, f"the fault must NAME the addressee: {faults}"
-        assert probescan.NO_WAKE in faults, f"the fault must name the RUNG reached: {faults}"
+        assert probescan.DISCOVERED_ONLY in faults, f"the fault must name the RUNG reached: {faults}"
 
 
 def test_the_receive_check_is_exercised_not_read():
-    """The refusal must come from the shim's own code — so a shim that later gains a wake
-    path flips this answer with no edit to the scan."""
-    res = probescan.can_receive("harbor_master")
-    assert res["rung"] == probescan.NO_WAKE
-    assert res["shim_class"] == "DiscoveredShim", "the real shim must have been constructed"
-    # The text is DiscoveredShim's own, not a sentence this scan composed about it.
-    assert "pulsed" in (res["detail"] or "").lower(), f"refusal not from the shim: {res}"
+    """The resolution must find the REAL shim when one exists and the DISCOVERED_ONLY rung
+    when it does not — so adding a shim.py to a device flips its answer with no edit here."""
+    # harbor_master has no shim.py → DISCOVERED_ONLY, not the old universal NO_WAKE
+    hm = probescan.can_receive("harbor_master")
+    assert hm["rung"] == probescan.DISCOVERED_ONLY, (
+        f"a device without a shim.py must reach DISCOVERED_ONLY, not {hm['rung']}")
+    assert hm["shim_class"] is None
+
+    # librarian HAS a shim.py with a registered shim → the real shim resolves
+    lib = probescan.can_receive("librarian")
+    assert lib["rung"] == probescan.RESOLVED, (
+        f"librarian has a registered shim and receive() — must reach RESOLVED, not {lib['rung']}")
+    assert lib["shim_class"] == "LibrarianShim", (
+        f"the real shim must have been resolved: {lib['shim_class']}")
 
 
 def test_the_check_never_delivers():
     """Law 7: a check that delivers mail has written to a record of truth. The best rung
     is 'resolved-not-delivered', and it must be exactly that."""
-    assert probescan.RESOLVED.startswith("3-resolved-not-delivered")
+    assert probescan.RESOLVED.startswith("4-resolved-not-delivered")
     assert probescan._CAN_RECEIVE == {probescan.RESOLVED}, (
         "only the resolved rung may count as receiving — a rung that counted a DELIVERY "
         "would make the scan a sender"

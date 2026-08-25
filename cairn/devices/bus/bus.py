@@ -61,8 +61,6 @@ import re
 import uuid
 from datetime import datetime
 
-from psycopg2 import sql
-
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain import store
 
@@ -205,9 +203,12 @@ class BusDevice(BaseDevice):
                         "WHERE table_schema = 'public' AND table_name = %s "
                         "AND column_name = 'verb'", (self._table,))
                     if cur.fetchone() is None:
-                        cur.execute(sql.SQL(
-                            "ALTER TABLE {} ADD COLUMN verb text NOT NULL DEFAULT ''"
-                        ).format(sql.Identifier(self._table)))
+                        if not _IDENTIFIER.match(self._table or ""):
+                            raise ValueError(
+                                f"refusing {self._table!r} as a table name for migration")
+                        cur.execute(
+                            f'ALTER TABLE "{self._table}" ADD COLUMN '
+                            "verb text NOT NULL DEFAULT ''")
             finally:
                 conn.close()
             self._ensured = True

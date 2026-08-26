@@ -47,7 +47,7 @@ import time
 
 from cairn.machines.build_inspector.inspector import judge_decompose, DECOMPOSE_ROSTER
 from cairn.tools.gate import gate
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack, is_skeleton)
 from cairn.devices.builder.machines.survey.survey import _read_constrain_berth
 from cairn.tools.tree.tree import deposit_learning
 
@@ -149,6 +149,8 @@ def writes_to_lacks(sub_problems, root: str = CAIRN_ROOT) -> list:
     names where it writes.
     """
     lacks = []
+    if is_skeleton(sub_problems):
+        return lacks
     for i, sp in enumerate(sub_problems):
         if not isinstance(sp, dict):
             continue  # shape of the piece itself is the judges' question, not this one

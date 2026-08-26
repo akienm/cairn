@@ -67,6 +67,21 @@ INSTANCE_DIR = str(instance_path("chart", 0) / "packets")
 
 STRATA = ("floor", "tree", "claude")
 
+SKELETON = "NOT IN THIS DATA VERSION YET"
+
+
+def is_skeleton(value) -> bool:
+    """True when a field carries the skeleton sentinel — the prebuild's delegation
+    marker saying 'this part is yours, builder'. Recursive: handles the sentinel as a
+    bare string, as every leaf in a nested dict, or as every element of a list."""
+    if value == SKELETON:
+        return True
+    if isinstance(value, dict):
+        return len(value) > 0 and all(is_skeleton(v) for v in value.values())
+    if isinstance(value, list):
+        return len(value) > 0 and all(is_skeleton(e) for e in value)
+    return False
+
 _TICKET_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 
 _ROSTER_MEMO: dict[str, list[str]] = {}

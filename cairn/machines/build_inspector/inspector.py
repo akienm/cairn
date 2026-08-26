@@ -49,7 +49,7 @@ from cairn.tools.gate import gate  # noqa: E402
 #   gate-ness a MEASURABLE fact: `cairn determinism` derives "this is a gate" from this
 #   import and reds any gate whose closure reaches the LLM.
 from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
-                                ticket_path)             #   module — the verdict
+                                ticket_path, is_skeleton)  #   module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
 #   composes the berth gate's OWN ref semantics so the two mouths cannot disagree.
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
@@ -814,6 +814,8 @@ def judge_constrain(packet: dict) -> list[dict]:
     wrapped by the gate sieves below; if the two mouths ever disagree, this
     function's singleness is the broken claim."""
     frags = []
+    if is_skeleton(packet.get("constraints")) and is_skeleton(packet.get("bounds")):
+        return _attendance(frags, CONSTRAIN_ROSTER)
     for i, c in enumerate(packet.get("constraints") or []):
         if not isinstance(c, dict):
             frags.append({
@@ -934,6 +936,9 @@ def judge_survey(packet: dict) -> list[dict]:
     resolves), and the sweep's COVERAGE must be on record (sought non-empty; every
     absence carrying the measure that established it — an absence is a claim)."""
     frags = []
+    if is_skeleton(packet.get("holdings")) and is_skeleton(packet.get("sought")) \
+            and is_skeleton(packet.get("absences")):
+        return _attendance(frags, SURVEY_ROSTER)
     for i, h in enumerate(packet.get("holdings") or []):
         if not isinstance(h, dict) or not isinstance(h.get("what"), str) \
                 or not h.get("what").strip():
@@ -1043,6 +1048,8 @@ def judge_decompose(packet: dict) -> list[dict]:
     piece may only fill an absence the survey MEASURED — known-vs-novel as
     physics, a stage early."""
     frags = []
+    if is_skeleton(packet.get("sub_problems")):
+        return _attendance(frags, DECOMPOSE_ROSTER)
     holding_addrs, absence_whats, chain_ok = set(), set(), False
     ref = packet.get("survey_ref")
     try:
@@ -1272,6 +1279,8 @@ def judge_triage(packet: dict) -> list[dict]:
     carry its why_now (the ranking standard stated, so the order can be
     adjudicated)."""
     frags = []
+    if is_skeleton(packet.get("order")):
+        return _attendance(frags, TRIAGE_ROSTER)
     piece_counts, chain_ok = {}, False
     ref = packet.get("decompose_ref")
     try:
@@ -1427,6 +1436,8 @@ def judge_hypothesize(packet: dict) -> list[dict]:
     nothing); and every hypothesis carries its expect, its falsifier, and its
     instrument, so the claim can be challenged."""
     frags = []
+    if is_skeleton(packet.get("hypotheses")):
+        return _attendance(frags, HYPOTHESIZE_ROSTER)
     ranked, chain_ok = set(), False
     ref = packet.get("triage_ref")
     try:
@@ -1571,6 +1582,8 @@ def judge_validate(packet: dict) -> list[dict]:
     pieces the hypothesize berth claims; and the union of covers equals that
     piece set — every piece's done is measured by at least one criterion."""
     frags = []
+    if is_skeleton(packet.get("criteria")):
+        return _attendance(frags, VALIDATE_ROSTER)
     claimed, chain_ok = set(), False
     ref = packet.get("hypothesize_ref")
     try:

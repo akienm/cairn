@@ -679,20 +679,31 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         # voyage that is running this very proof makes a circle — the proof cannot pass
         # until the verdict is written, and the verdict cannot be written until the proof
         # passes. The gate was right and the fixture was wrong.
-        new = clear(
-            at_learn, "PROVED",
-            actor=_OWNER, boat_id=_OTHER_BOAT,
-            proven_by=_PROVEN, history_path=hp, state_path=sp,
-            ticket=_OTHER_BOAT,
-        )
-        assert "[PROVED]" in new, new
-        rec = projector.read_history(hp)[0]
-        assert rec["ticket"] == _OTHER_BOAT, \
-            f"the ticket must ride through to the record the gates read: {rec}"
-        assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _PROVEN, rec
-        assert "re-read at the door" in rec.get("clearance_gate", ""), (
-            "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
-            f"through this gate satisfies that gate rather than being waived past it: {rec}")
+        #
+        # ISOLATED BERTHS: skeleton chart chains (the prebuild's delegation markers) now
+        # claim every BUILDME ticket in live instance-space, so the exit gate would see a
+        # chart claim with no verdict. The test is about the clearance mechanism, not the
+        # chart gate — an empty berths root lets it pass without fabricating a verdict.
+        import cairn.machines.build_inspector.inspector as _insp
+        _saved = _insp._CHART_BERTHS
+        _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+        try:
+            new = clear(
+                at_learn, "PROVED",
+                actor=_OWNER, boat_id=_OTHER_BOAT,
+                proven_by=_PROVEN, history_path=hp, state_path=sp,
+                ticket=_OTHER_BOAT,
+            )
+            assert "[PROVED]" in new, new
+            rec = projector.read_history(hp)[0]
+            assert rec["ticket"] == _OTHER_BOAT, \
+                f"the ticket must ride through to the record the gates read: {rec}"
+            assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _PROVEN, rec
+            assert "re-read at the door" in rec.get("clearance_gate", ""), (
+                "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
+                f"through this gate satisfies that gate rather than being waived past it: {rec}")
+        finally:
+            _insp._CHART_BERTHS = _saved
 
 
 def test_a_caller_may_not_hand_this_gate_its_own_witness():

@@ -1572,7 +1572,8 @@ def hypothesize_falsifiable_measured(row: dict, comp_dir: Path) -> list[dict]:
 # ranked set (hypothesize-filters enforced it), so this judge reads ONE link
 # with one minimal open; each judge stays small by standing on the gate below.
 
-VALIDATE_ROSTER = ("validate_covers_the_build", "validate_measures_done")
+VALIDATE_ROSTER = ("validate_covers_the_build", "validate_measures_done",
+                   "validate_criterion_is_runnable_before_the_crossing")
 
 
 def judge_validate(packet: dict) -> list[dict]:
@@ -1644,6 +1645,29 @@ def judge_validate(packet: dict) -> list[dict]:
                                   "files stood unmoved; the instrument was "
                                   "never run.",
             })
+        inst = c.get("instrument", "")
+        if isinstance(inst, str) and inst.strip():
+            markers = []
+            if re.search(r"cursor\s*\[PROVED\]", inst):
+                markers.append("cursor [PROVED]")
+            if re.search(r"after the (?:PROVED )?crossing", inst, re.IGNORECASE):
+                markers.append("after the crossing")
+            if re.search(r"after the cursor write", inst, re.IGNORECASE):
+                markers.append("after the cursor write")
+            if markers:
+                frags.append({
+                    "judge": "validate_criterion_is_runnable_before_the_crossing",
+                    "finding": "criterion %d instrument reads post-crossing "
+                               "state: %s" % (i, ", ".join(markers)),
+                    "evidence": {"index": i, "instrument": inst,
+                                 "post_crossing_markers": markers},
+                    "why_it_matters":
+                        "the verdict gates the PROVED crossing — a criterion "
+                        "whose instrument reads state that only exists after "
+                        "the crossing is a verdict deferred past the gate "
+                        "that reads it, measured 2026-08-15 on "
+                        "verdict-20260815T150437-70306f8bfca3.",
+                })
         covers = c.get("covers")
         if (not isinstance(covers, list) or not covers
                 or any(not isinstance(w, str) or not w.strip() for w in covers)):

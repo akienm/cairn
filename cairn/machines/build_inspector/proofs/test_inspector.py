@@ -22,6 +22,11 @@ from cairn.tools.charter import projector  # noqa: E402
 from cairn.tools.orient.orient import ScanRefused  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
+
+def _jfindings(attendance):
+    """Extract flat findings from attendance records."""
+    return [f for rec in attendance for f in rec["findings"]]
+
 # "score" joined 2026-08-06 (the-questions-are-the-sieve): a finding carries the DATUM
 # (evidence, under the name it has always had) AND the score — the datum read against
 # the requirement, which the datum alone cannot say. Pinned here so a sieve cannot emit
@@ -225,9 +230,9 @@ def main() -> None:
         #      what the pure judge reports — no drift between door and gate is
         #      possible because there is nothing to drift between.
         from cairn.machines.build_inspector.inspector import judge_constrain
-        assert judge_constrain(whole) == []
-        assert [x["judge"] for x in judge_constrain(minted)] == ["constraint_traces"]
-        assert [x["judge"] for x in judge_constrain(unbounded)] == ["constraint_bounds_complete"]
+        assert not _jfindings(judge_constrain(whole))
+        assert [x["judge"] for x in _jfindings(judge_constrain(minted))] == ["constraint_traces"]
+        assert [x["judge"] for x in _jfindings(judge_constrain(unbounded))] == ["constraint_bounds_complete"]
         cpath.unlink()
 
         # 17 — THE JUDGES BEFORE THE JUDGED, SECOND INSTANCE (survey-filters): a
@@ -262,10 +267,10 @@ def main() -> None:
 
         # 18 — one implementation, two mouths, for the survey judge too.
         from cairn.machines.build_inspector.inspector import judge_survey
-        assert judge_survey(held) == []
-        assert [x["judge"] for x in judge_survey(phantom)] == ["survey_holdings_resolve"]
-        assert [x["judge"] for x in judge_survey(unswept)] == ["survey_coverage_complete"]
-        assert [x["judge"] for x in judge_survey(unmeasured)] == ["survey_coverage_complete"]
+        assert not _jfindings(judge_survey(held))
+        assert [x["judge"] for x in _jfindings(judge_survey(phantom))] == ["survey_holdings_resolve"]
+        assert [x["judge"] for x in _jfindings(judge_survey(unswept))] == ["survey_coverage_complete"]
+        assert [x["judge"] for x in _jfindings(judge_survey(unmeasured))] == ["survey_coverage_complete"]
         spath.unlink()
 
         # 19 — THE JUDGES BEFORE THE JUDGED, THIRD APPLICATION (decompose-filters):
@@ -311,11 +316,11 @@ def main() -> None:
 
         # 20 — one implementation, two mouths, for the decompose judge too.
         from cairn.machines.build_inspector.inspector import judge_decompose
-        assert judge_decompose(derived) == []
-        assert [x["judge"] for x in judge_decompose(rebuilt)] == ["decompose_composes_holdings"]
-        assert [x["judge"] for x in judge_decompose(invented)] == ["decompose_builds_absences"]
-        assert [x["judge"] for x in judge_decompose(broken)] and \
-            judge_decompose(broken)[0]["judge"] == "decompose_composes_holdings"
+        assert not _jfindings(judge_decompose(derived))
+        assert [x["judge"] for x in _jfindings(judge_decompose(rebuilt))] == ["decompose_composes_holdings"]
+        assert [x["judge"] for x in _jfindings(judge_decompose(invented))] == ["decompose_builds_absences"]
+        assert _jfindings(judge_decompose(broken)) and \
+            _jfindings(judge_decompose(broken))[0]["judge"] == "decompose_composes_holdings"
 
         # 20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket
         #       a-piece-names-where-its-output-lands). This judge is the PROMOTION
@@ -329,19 +334,19 @@ def main() -> None:
             # about to create. A judge demanding existence would red exactly the
             # case the field was added to carry.
             dict(derived["sub_problems"][1], writes_to=["cairn/no/such/module.py"])])
-        assert judge_decompose(addressed) == [], judge_decompose(addressed)
+        assert not _jfindings(judge_decompose(addressed)), judge_decompose(addressed)
         outside = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=["/etc/passwd"])])
-        assert [x["judge"] for x in judge_decompose(outside)] == \
+        assert [x["judge"] for x in _jfindings(judge_decompose(outside))] == \
             ["decompose_composes_holdings"], judge_decompose(outside)
-        assert "outside the cairn repo" in judge_decompose(outside)[0]["finding"]
+        assert "outside the cairn repo" in _jfindings(judge_decompose(outside))[0]["finding"]
         a_dir = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=["cairn/tools"])])
-        assert "an existing directory" in judge_decompose(a_dir)[0]["finding"], \
+        assert "an existing directory" in _jfindings(judge_decompose(a_dir))[0]["finding"], \
             judge_decompose(a_dir)
         hollow = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=[])])
-        assert "not a non-empty list" in judge_decompose(hollow)[0]["finding"]
+        assert "not a non-empty list" in _jfindings(judge_decompose(hollow))[0]["finding"]
         # ...and through the registry sieve, not only the pure judge (two mouths).
         dpath.write_text(json.dumps(outside))
         f = inspect(root=root, component="charted")["findings"]
@@ -372,7 +377,7 @@ def main() -> None:
             if any(isinstance(sp, dict) and "writes_to" in sp for sp in pieces):
                 continue
             silent += 1
-            said = [x["finding"] for x in judge_decompose(pkt)
+            said = [x["finding"] for x in _jfindings(judge_decompose(pkt))
                     if "writes_to" in x["finding"]]
             assert not said, (str(real), said)
         assert corpus > 0, (
@@ -435,15 +440,15 @@ def main() -> None:
         # 22 — one implementation, two mouths, for the triage judge too; and the
         #      double-order fires with its counts in evidence.
         from cairn.machines.build_inspector.inspector import judge_triage
-        assert judge_triage(ranked) == []
-        assert [x["judge"] for x in judge_triage(dropped)] == ["triage_covers_the_split"]
-        assert [x["judge"] for x in judge_triage(unreasoned)] == ["triage_reasons_the_order"]
+        assert not _jfindings(judge_triage(ranked))
+        assert [x["judge"] for x in _jfindings(judge_triage(dropped))] == ["triage_covers_the_split"]
+        assert [x["judge"] for x in _jfindings(judge_triage(unreasoned))] == ["triage_reasons_the_order"]
         doubled = dict(ranked, order=ranked["order"] + [ranked["order"][0]])
-        frs = judge_triage(doubled)
+        frs = _jfindings(judge_triage(doubled))
         assert [x["judge"] for x in frs] == ["triage_covers_the_split"] and \
             frs[0]["evidence"] == {"what": "build the module", "ordered": 2, "split": 1}, frs
-        assert judge_triage(chainless) and \
-            judge_triage(chainless)[0]["judge"] == "triage_covers_the_split"
+        assert _jfindings(judge_triage(chainless)) and \
+            _jfindings(judge_triage(chainless))[0]["judge"] == "triage_covers_the_split"
 
         # 23 — THE JUDGES BEFORE THE JUDGED, FIFTH APPLICATION
         #      (hypothesize-filters): a ranked piece with no hypothesis fires
@@ -502,13 +507,13 @@ def main() -> None:
 
         # 24 — one implementation, two mouths, for the hypothesize judge too.
         from cairn.machines.build_inspector.inspector import judge_hypothesize
-        assert judge_hypothesize(expected) == []
-        assert [x["judge"] for x in judge_hypothesize(uncovered)] == \
+        assert not _jfindings(judge_hypothesize(expected))
+        assert [x["judge"] for x in _jfindings(judge_hypothesize(uncovered))] == \
             ["hypothesize_covers_the_ranked"]
-        assert [x["judge"] for x in judge_hypothesize(unmeasured_h)] == \
+        assert [x["judge"] for x in _jfindings(judge_hypothesize(unmeasured_h))] == \
             ["hypothesize_falsifiable_measured"]
-        assert judge_hypothesize(chainless_h) and \
-            judge_hypothesize(chainless_h)[0]["judge"] == "hypothesize_covers_the_ranked"
+        assert _jfindings(judge_hypothesize(chainless_h)) and \
+            _jfindings(judge_hypothesize(chainless_h))[0]["judge"] == "hypothesize_covers_the_ranked"
 
         # 25 — THE JUDGES BEFORE THE JUDGED, SIXTH APPLICATION
         #      (validate-filters): a criterion without its instrument fires
@@ -569,13 +574,44 @@ def main() -> None:
 
         # 26 — one implementation, two mouths, for the validate judge too.
         from cairn.machines.build_inspector.inspector import judge_validate
-        assert judge_validate(done_set) == []
-        assert [x["judge"] for x in judge_validate(unmeasured_c)] == \
+        assert not _jfindings(judge_validate(done_set))
+        assert [x["judge"] for x in _jfindings(judge_validate(unmeasured_c))] == \
             ["validate_measures_done"]
-        assert [x["judge"] for x in judge_validate(partial)] == \
+        assert [x["judge"] for x in _jfindings(judge_validate(partial))] == \
             ["validate_covers_the_build"]
-        assert judge_validate(chainless_v) and \
-            judge_validate(chainless_v)[0]["judge"] == "validate_covers_the_build"
+        assert _jfindings(judge_validate(chainless_v)) and \
+            _jfindings(judge_validate(chainless_v))[0]["judge"] == "validate_covers_the_build"
+
+        # 26a — validate_criterion_is_runnable_before_the_crossing: a criterion
+        #       whose instrument reads post-crossing state is refused. Proved by
+        #       refiring the two defective criteria from
+        #       verdict-20260815T150437-70306f8bfca3's source berth verbatim.
+        post_crossing_c = dict(done_set, criteria=[
+            {"claim": "the compiler's history carries this ticket's crossings",
+             "instrument": "read of the compiler's history.json/state.json "
+                           "(three crossings, this ticket, cursor [PROVED])",
+             "covers": ["build the module"]},
+            {"claim": "cleanup landed after the crossing",
+             "instrument": "_cleanup_landed() called live after the PROVED "
+                           "crossing",
+             "covers": ["compose the base door"]}])
+        post_f = _jfindings(judge_validate(post_crossing_c))
+        time_f = [f for f in post_f
+                  if f["judge"] == "validate_criterion_is_runnable_before_the_crossing"]
+        assert len(time_f) == 2, time_f
+        assert time_f[0]["evidence"]["index"] == 0
+        assert "cursor [PROVED]" in time_f[0]["evidence"]["post_crossing_markers"]
+        assert time_f[1]["evidence"]["index"] == 1
+        assert "after the crossing" in time_f[1]["evidence"]["post_crossing_markers"]
+        pre_crossing_only = dict(done_set, criteria=[
+            {"claim": "the module's teeth pass under seal",
+             "instrument": "python3 proofs/test_module.py under netns",
+             "covers": ["build the module"]},
+            {"claim": "the door refuses a phantom ref",
+             "instrument": "feed the door a non-existent path, observe refusal",
+             "covers": ["compose the base door"]}])
+        assert not [f for f in _jfindings(judge_validate(pre_crossing_only))
+                    if f["judge"] == "validate_criterion_is_runnable_before_the_crossing"]
 
         # 26b — THE FORWARDING ORDER (watchme-emits-a-probe, 2026-07-30). A charted
         #       address stops resolving two ways: the world DRIFTED (the 2026-07-24
@@ -676,7 +712,7 @@ def main() -> None:
         _order({"gone/away.py": {"to": "base", "why": "renamed by piece (f)"}})
         assert names("moved") == [], "the promotion side disposes a whole order"
         berthed = json.loads((mp / "survey-20260730T000001-2222.json").read_text())
-        assert [x["judge"] for x in judge_survey(berthed)] == ["survey_holdings_resolve"], \
+        assert [x["judge"] for x in _jfindings(judge_survey(berthed))] == ["survey_holdings_resolve"], \
             "the berth door must still refuse a holding the world does not hold"
         # and the same for the constrain door, whose promotion side just learned the
         # tolerance: the two mouths of judge_constrain must NOT come to agree. If a
@@ -685,7 +721,7 @@ def main() -> None:
         # to stop, one door upstream of where anyone is looking.
         from cairn.machines.build_inspector.inspector import judge_constrain
         berthed_c = json.loads((mp / "constrain-20260730T000002-3333.json").read_text())
-        assert [x["judge"] for x in judge_constrain(berthed_c)] == ["constraint_traces"], \
+        assert [x["judge"] for x in _jfindings(judge_constrain(berthed_c))] == ["constraint_traces"], \
             "the berth door must still refuse a constraint whose source is not there"
 
         # (vii) A TICKET THAT MOVES NOTHING is the normal case and says nothing.

@@ -1,0 +1,9 @@
+{
+  "role": "charter",
+  "what": "Structural completeness checks for CairnCommons/tickets/ — the ticket-side counterpart of build_inspector.",
+  "why": "MEASURED 2026-08-26: 305 findings across 79 of 86 not-done tickets, 16 defect classes. The build loop stalls re-discovering what is missing from each ticket. The sorted door checks at cast time; nothing checks at rest. This tool checks at rest.",
+  "how_it_learns": "A new defect class adds a check to the roster, same as build_inspector gains a sieve when a new failure class is found. The roster is the enumeration; a check outside it is invisible.",
+  "owns": "The check roster, the finding shape, the CLI entry point (cairn tickets). Does NOT own the tickets themselves — it reads them.",
+  "gated_by": "Each check fires on a fixture exhibiting its defect and stays quiet on a clean ticket. The roster coverage test asserts every check in the roster fires on at least one fixture.",
+  "complexity_rung": "tool — stateless predicates over ticket JSON, no owned state. Tools have users, not owners (Law 6)."
+}

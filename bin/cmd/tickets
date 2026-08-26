@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# cairn tickets — structural completeness check over CairnCommons/tickets/.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tools.ticket_inspector.inspector "$@"

@@ -66,6 +66,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.address import resolve
 from cairn.tools.base.probe import Probe, owning_ticket
 
 _OWNING_TICKET = "the-heartbeat-outlives-its-caller"
@@ -196,7 +197,7 @@ def survey_pid(pid: int | str = "self", *, against: int | str | None = None) -> 
 def _boot_log_path() -> Path:
     return Path(os.environ.get("CAIRN_LOGTARGET")
                 or os.environ.get("CAIRN_BOOT_LOG")
-                or (Path.home() / ".cairn" / "logs" / "boot"))
+                or resolve("instance/logs") / "boot")
 
 
 def spawner_of(loop_started_at: float | None, *, boot_log: Path | None = None) -> dict:

@@ -2,8 +2,8 @@
   {
     "claim": "proof test_ground_loop.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-08-17T18:54:08",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-08-26T08:01:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,32 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f0507610dfe7df322e4ef6be67c8798b0d6293ffab99ab2606bc1995b614f264"
+      "source_fingerprint": "6e5f9fc8ce558edfadd0e68e0d488895e3debee2e98bbf692e529e0f27548203",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-_adc5789/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 14,
+          "paths": [
+            "logs/ground_loop/0/20260826.140101.389089.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.389388.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.389591.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.389818.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.390031.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.390193.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.390297.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260826.140101.390435.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.390556.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.391003.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.790746.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.791000.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.791143.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260826.140101.791265.GroundLoopDevice.subscribe.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

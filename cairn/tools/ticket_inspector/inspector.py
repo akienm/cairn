@@ -239,8 +239,11 @@ def inspect_corpus(tickets_dir: Path | None = None) -> dict:
             t = json.loads(f.read_text())
         except (json.JSONDecodeError, OSError):
             continue
-        cursor = _cursor(t.get("state", ""))
-        if cursor == "PROVED":
+        if t.get("role") in ("store-charter", "charter"):
+            continue
+        state = t.get("state", "")
+        cursor = _cursor(state)
+        if cursor in ("PROVED", "SUPERSEDED"):
             continue
         checked += 1
         ff = inspect_ticket(t)

@@ -1,20 +1,29 @@
 [
   {
     "claim": "proof test_db_domain.py passes under python3",
-    "caller": "the-tenure-loop voyage close",
-    "date": "2026-08-09T18:39:27",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-08-26T07:57:12",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_connect_reaches_the_cairn_database\n  PASS  test_ownerless_table_is_impossible\n  PASS  test_owned_table_records_its_owner\n  PASS  test_the_owner_gates_every_write\n  PASS  test_write_to_an_unowned_table_is_refused\n  PASS  test_a_jsonb_row_round_trips_as_structure\n  PASS  test_the_owner_gates_every_update\ngreen — db_domain: ownerless is impossible, the owner gates writes, jsonb round-trips as structure",
+      "stdout_tail": "  PASS  test_connect_reaches_the_cairn_database\n  PASS  test_ownerless_table_is_impossible\n  PASS  test_owned_table_records_its_owner\n  PASS  test_the_owner_gates_every_write\n  PASS  test_write_to_an_unowned_table_is_refused\n  PASS  test_a_jsonb_row_round_trips_as_structure\n  PASS  test_the_owner_gates_every_update\n  PASS  test_add_owned_constraint_gates_and_holds\ngreen — db_domain: ownerless is impossible, the owner gates writes and constraints, jsonb round-trips as structure",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7d96a837ea636a42dd420e929d0b9224b504110f14f3c1b2361ec2be9a01acc3",
-      "trail_link": "4c8a1ac8295916edec5ce4351871283c0c113016e39159d00a7059d1cc397e22"
+      "source_fingerprint": "ed11acefe9fed8c29e9d5792accb40a60d7cd443e679e0066d33df57b196ea0f",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-7z3cwdcf/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

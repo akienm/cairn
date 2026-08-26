@@ -2,18 +2,56 @@
   {
     "claim": "proof test_inference_domain.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-08-18T01:34:48",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-08-26T07:57:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\n  PASS  test_a_bare_call_and_the_explicit_default_are_one_question\n  PASS  test_two_domains_are_never_one_question\n  PASS  test_the_provenance_carries_the_domain_marker_on_both_paths\n  PASS  test_editing_a_rows_prompt_is_a_new_question\n  PASS  test_an_unknown_domain_is_refused_before_any_spend\n  PASS  test_a_malformed_domains_stack_is_refused\n  PASS  test_a_refused_ask_leaves_a_row\n  PASS  test_the_standing_readers_are_unmoved_by_a_refused_row\n  PASS  test_the_watch_reads_a_row_the_real_writer_made\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered",
+      "stdout_tail": "  PASS  test_compile_once_a_repeat_does_not_touch_the_host\n  PASS  test_key_order_is_the_same_question\n  PASS  test_verify_before_answer_a_stale_entry_re_resolves\n  PASS  test_the_owner_gates_the_cache\n  PASS  test_the_meter_measures_spent_against_avoided\n  PASS  test_a_bare_call_and_the_explicit_default_are_one_question\n  PASS  test_two_domains_are_never_one_question\n  PASS  test_the_provenance_carries_the_domain_marker_on_both_paths\n  PASS  test_editing_a_rows_prompt_is_a_new_question\n  PASS  test_an_unknown_domain_is_refused_before_any_spend\n  PASS  test_a_malformed_domains_stack_is_refused\n  PASS  test_a_refused_ask_leaves_a_row\n  PASS  test_the_standing_readers_are_unmoved_by_a_refused_row\n  PASS  test_the_watch_reads_a_row_the_real_writer_made\n  PASS  test_the_ticket_comes_back_whole\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "51b1cabdcbf670543303a0c7a8b58015995b727ea1540ab4d10df53fca8bccf3"
+      "source_fingerprint": "2e98376450f5a5fd4a79501f8db86faa111738f3a622c9049cca8b6392a21895",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-lb8_tfk_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 27,
+          "paths": [
+            "logs/inference_domain/0/20260826.135715.219935.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.229350.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.239242.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.248104.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.256906.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.266153.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.287477.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.297903.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.307234.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.321547.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.331396.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.341595.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.351646.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.361199.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.369644.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260826.135715.378581.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.387974.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.397326.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.413564.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260826.135715.428669.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260826.135715.443620.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.460026.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260826.135715.475257.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.484282.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260826.135715.498601.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.508105.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260826.135715.534537.inference_domain_domain_resolve.refused.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

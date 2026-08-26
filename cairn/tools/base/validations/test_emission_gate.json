@@ -2,8 +2,8 @@
   {
     "claim": "proof test_emission_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-08-17T18:52:50",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-08-26T07:53:53",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,22 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
+      "source_fingerprint": "6d85275b88caa197a2561a2c23f18686d31fc3f072d98709c4bae1e030e07da7",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2cnssiio/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 4,
+          "paths": [
+            "logs/charter/0/20260826.135352.523601.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260826.135352.527333.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260826.135352.528562.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260826.135352.530490.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

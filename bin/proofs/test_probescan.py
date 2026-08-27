@@ -119,11 +119,11 @@ def test_it_reds_and_names_the_addressee_and_the_rung():
 def test_the_receive_check_is_exercised_not_read():
     """The resolution must find the REAL shim when one exists and the DISCOVERED_ONLY rung
     when it does not — so adding a shim.py to a device flips its answer with no edit here."""
-    # harbor_master has no shim.py → DISCOVERED_ONLY, not the old universal NO_WAKE
-    hm = probescan.can_receive("harbor_master")
-    assert hm["rung"] == probescan.DISCOVERED_ONLY, (
-        f"a device without a shim.py must reach DISCOVERED_ONLY, not {hm['rung']}")
-    assert hm["shim_class"] is None
+    # db_domain has no shim.py → DISCOVERED_ONLY, not the old universal NO_WAKE
+    dd = probescan.can_receive("db_domain")
+    assert dd["rung"] == probescan.DISCOVERED_ONLY, (
+        f"a device without a shim.py must reach DISCOVERED_ONLY, not {dd['rung']}")
+    assert dd["shim_class"] is None
 
     # librarian HAS a shim.py with a registered shim → the real shim resolves
     lib = probescan.can_receive("librarian")

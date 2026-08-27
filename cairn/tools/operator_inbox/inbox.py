@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 CAIRN_ROOT = Path.home() / "dev" / "src" / "cairn"
@@ -24,6 +25,13 @@ SECTION_ORDER = [
     "intentions",
     "ideas",
 ]
+
+
+def _slugify(text: str, max_len: int = 60) -> str:
+    s = text.lower().strip()
+    s = re.sub(r'[^a-z0-9\s-]', '', s)
+    s = re.sub(r'\s+', '-', s)
+    return s[:max_len].rstrip('-')
 
 
 def _cursor(state: str) -> str | None:
@@ -198,8 +206,14 @@ def format_inbox(data: dict) -> str:
             fid = f.get("id", "?")[:12]
             block = f.get("block", "?")
             when = (f.get("when", "") or "")[:10]
-            bullets = f.get("data", {}).get("bullets", [])
-            lines.append(f"    {fid}  [{block}]  {when}")
+            data = f.get("data", {})
+            subject = data.get("subject", "")
+            bullets = data.get("bullets", [])
+            if subject:
+                slug = _slugify(subject)
+                lines.append(f"    {fid}  [{block}]  {when}-{slug}")
+            else:
+                lines.append(f"    {fid}  [{block}]  {when}")
             for b in bullets[:2]:
                 text = b.get("text", "") if isinstance(b, dict) else str(b)
                 lines.append(f"        {text[:90]}")

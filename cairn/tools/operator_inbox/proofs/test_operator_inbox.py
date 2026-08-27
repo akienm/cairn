@@ -111,6 +111,48 @@ def test_no_akien_in_headers():
                 f"Header uses 'Akien' instead of 'Operator': {line}"
 
 
+def test_emit_finding_subject_kwarg():
+    from cairn.machines.learning_block.learning_block import emit_finding
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        rec_with = emit_finding('test:subj', [{'text': 'b', 'stratum': 'code'}],
+                                subject='the aim in plain words', root=root)
+        assert rec_with['data']['subject'] == 'the aim in plain words'
+
+        rec_without = emit_finding('test:nosubj', [{'text': 'b', 'stratum': 'code'}],
+                                   root=root)
+        assert 'subject' not in rec_without['data']
+
+
+def test_adjudication_shows_subject_when_present():
+    from cairn.tools.operator_inbox.inbox import _slugify
+    finding_with = {
+        'id': 'aabbccddee0011223344',
+        'block': 'skill:idea',
+        'when': '2026-08-27T12:00:00',
+        'data': {
+            'bullets': [{'text': 'a note', 'stratum': 'code'}],
+            'subject': 'design is the workflow step',
+        },
+    }
+    finding_without = {
+        'id': 'ff00112233445566aabb',
+        'block': 'skill:sorted',
+        'when': '2026-08-27T13:00:00',
+        'data': {'bullets': [{'text': 'sorted note', 'stratum': 'code'}]},
+    }
+    data = gather_all()
+    data['adjudications'] = {'findings': [finding_with, finding_without], 'count': 2}
+    output = format_inbox(data)
+    assert '2026-08-27-design-is-the-workflow-step' in output
+    assert 'ff0011223344' in output
+    lines = output.split('\n')
+    for line in lines:
+        if 'ff0011223344' in line:
+            assert 'design-is-the-workflow-step' not in line
+
+
 def test_format_uses_operator_not_akien():
     data = gather_all()
     output = format_inbox(data)

@@ -312,7 +312,8 @@ def fire_door(contract: dict, payload: dict, *,
 # ── FINDING — the bullet list the gate reads ─────────────────────────────────
 
 def emit_finding(block: str, bullets: list[dict], *,
-                 hex_source=None, now: datetime | None = None,
+                 hex_source=None, subject: str | None = None,
+                 now: datetime | None = None,
                  root: Path | None = None) -> dict:
     """The exit-time finding. Caller bullets carry stratum code|tree only; hex
     bullets are MINTED HERE from the injected callable (the seam toward
@@ -335,7 +336,10 @@ def emit_finding(block: str, bullets: list[dict], *,
     if hex_source is not None:
         for text in hex_source():
             checked.append({"text": str(text), "stratum": "hex"})
-    return write_trace(block, "finding", "training", {"bullets": checked},
+    data: dict = {"bullets": checked}
+    if subject and str(subject).strip():
+        data["subject"] = str(subject).strip()
+    return write_trace(block, "finding", "training", data,
                        now=now, root=root)
 
 

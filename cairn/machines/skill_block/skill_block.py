@@ -258,8 +258,9 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
                                                      judged=judge is not None),
                          judge=judge_name)
 
+    subject = payload.get("what") or (payload.get("prose", "") or "")[:80] or None
     finding_rec = emit_finding(block, list(payload.get("bullets") or []),
-                               now=when, root=trace_root)
+                               subject=subject, now=when, root=trace_root)
     path = _write_berth(skill, payload, door_rec, finding_rec, when, root=berths)
     return {
         "berth": str(path),

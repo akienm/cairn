@@ -188,6 +188,12 @@ class TesterDevice(BaseDevice):
             "six trails' worth of callers did not.",
         }
 
+    def receive(self, envelope: dict) -> dict:
+        """Accept an incoming bus envelope — probe findings addressed to the tester."""
+        self.emit("received", pointer=envelope.get("sender", "unknown"),
+                  values={"why": (envelope.get("why") or "")[:120]})
+        return {"accepted": True, "device": self.device_id}
+
     # --- the one capability: prove and attest -------------------------------
 
     def run_proof(

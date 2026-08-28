@@ -28,9 +28,10 @@ import os
 
 from cairn.tools.chain.grammar import component_of, CAIRN_ROOT
 from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.address import instance_path
 
 _OWNING_TICKET = "surveys-floor-keys-on-names-while-orient-hands-it-paths"
-_PACKETS = os.path.expanduser("~/.cairn/devices/chart/0/packets")
+_PACKETS = str(instance_path("chart") / "packets")
 _ENOUGH_BERTHS = 20
 _SAMPLE_SIZE = 30
 

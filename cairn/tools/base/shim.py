@@ -487,6 +487,14 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     def last_known(self) -> dict | None:
         return self._last_known
 
+    def declared_contract(self) -> dict:
+        """The device's static contract — verb names and pane kinds — readable without waking it.
+
+        Default empty: a shim that declares no contract is honest (the device has not
+        declared what it does yet). A concrete shim overrides to return its device's
+        capabilities, so a caller can enumerate them from the always-on shim alone."""
+        return {"verbs": [], "panes": []}
+
     def _capture_last_known(self) -> None:
         now = datetime.now(timezone.utc)
         self._last_known = {"presence": self._presence, "timestamp": now.isoformat()}

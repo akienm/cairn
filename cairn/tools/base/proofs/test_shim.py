@@ -334,6 +334,42 @@ def test_last_known_persisted_to_instance_space(tmp_path, monkeypatch):
         f"on-disk record must match in-memory: disk={on_disk}, mem={shim.last_known}"
 
 
+# --- device contract teeth (ticket the-shim-declares-its-device-contract) ------
+
+def test_contract_default_is_empty():
+    """The default contract returns empty verb and pane lists — a shim with no override
+    is honest, not broken."""
+    shim = _Shim()
+    c = shim.declared_contract()
+    assert c == {"verbs": [], "panes": []}, f"default contract must be empty, got {c}"
+
+
+def test_contract_readable_without_waking():
+    """declared_contract() is readable from a never-booted shim without triggering
+    _ensure_device — the contract is static, not a wake-to-discover."""
+    shim = _Shim()
+    assert shim.presence == NEVER_BOOTED, "shim must start never-booted"
+    c = shim.declared_contract()
+    assert shim.presence == NEVER_BOOTED, \
+        f"declared_contract() must not wake the device — presence is {shim.presence}"
+    assert isinstance(c, dict), "contract must be a dict"
+
+
+def test_contract_override_declares_capabilities():
+    """A concrete shim that overrides declared_contract() returns its device's capabilities."""
+    class _ContractShim(BaseShim):
+        @property
+        def device_id(self):
+            return "contracted"
+        def declared_contract(self):
+            return {"verbs": ["ping", "status"], "panes": ["console", "chat"]}
+    shim = _ContractShim()
+    c = shim.declared_contract()
+    assert c["verbs"] == ["ping", "status"], f"verbs mismatch: {c['verbs']}"
+    assert c["panes"] == ["console", "chat"], f"panes mismatch: {c['panes']}"
+    assert shim.presence == NEVER_BOOTED, "contract read must not wake the device"
+
+
 def _main() -> int:
     for check in (test_a_pulse_fires_due_probes_and_holds_the_rest,
                   test_a_batch_does_not_die_on_one_bad_probe,
@@ -346,10 +382,13 @@ def _main() -> int:
                   test_handle_bounce_default_emits_diagnostic,
                   test_handle_bounce_override_fires,
                   test_is_bounce_guard_prevents_infinite_loop,
-                  test_last_known_is_none_before_boot):
+                  test_last_known_is_none_before_boot,
+                  test_contract_default_is_empty,
+                  test_contract_readable_without_waking,
+                  test_contract_override_declares_capabilities):
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — BaseShim: probes fire, device wakes on demand, bounce returns to sender, last-known captured")
+    print("green — BaseShim: probes fire, device wakes on demand, bounce returns to sender, last-known captured, contract declared")
     return 0
 
 

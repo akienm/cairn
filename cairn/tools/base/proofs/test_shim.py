@@ -201,6 +201,101 @@ def test_it_is_a_shim():
     assert [v.id for v in shim.CORE_VALUES] == ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
 
 
+# --- bounce-to-sender teeth (ticket undeliverable-mail-returns-to-sender) ------
+
+class _VerbDevice:
+    """A device that declares specific verbs — the bounce tests deliver unknown ones."""
+    def __init__(self):
+        self.handled = []
+    def declared_verbs(self):
+        return {"ping": self._ping}
+    def _ping(self, envelope):
+        self.handled.append(envelope)
+        return "pong"
+
+
+class _VerbShim(BaseShim):
+    """A shim whose device declares verbs, wired to a spy bus for bounce tests."""
+    def __init__(self, bus=None):
+        super().__init__(bus=bus)
+        self._verb_device = _VerbDevice()
+    @property
+    def device_id(self):
+        return "verb_device"
+    def _start_device(self):
+        return self._verb_device
+
+
+class _OverrideShim(BaseShim):
+    """A shim that overrides handle_bounce — proves the override fires."""
+    def __init__(self, bus=None):
+        super().__init__(bus=bus)
+        self.bounces_handled = []
+    @property
+    def device_id(self):
+        return "override_device"
+    def _start_device(self):
+        return _Woken()
+    def handle_bounce(self, bounce_envelope):
+        self.bounces_handled.append(bounce_envelope)
+        return {"handled": True, "custom": True}
+
+
+def test_bounce_fires_on_unknown_verb():
+    """Delivering a message with an unknown verb bounces it back to the sender via the bus
+    instead of raising NotImplementedError."""
+    bus = _SpyBus()
+    shim = _VerbShim(bus=bus)
+    envelope = {"id": "e1", "sender": "alice", "addressee": "verb_device",
+                "verb": "nonexistent", "body": {}}
+    result = shim.deliver(envelope)
+    assert result["bounced"] is True, f"expected bounce, got {result}"
+    assert result["to"] == "alice", "bounce goes to the original sender"
+    assert len(bus.posted) == 1, "exactly one bounce message posted"
+    bounce = bus.posted[0]
+    assert bounce["to"] == "alice" and bounce["sender"] == "verb_device"
+    assert bounce["body"]["is_bounce"] is True, "bounce carries the guard flag"
+    assert "nonexistent" in bounce["body"].get("original_verb", "")
+
+
+def test_handle_bounce_default_emits_diagnostic():
+    """The default handle_bounce emits a diagnostic (Law 7) and returns handled=False."""
+    bus = _SpyBus()
+    shim = _VerbShim(bus=bus)
+    bounce_env = {"id": "b1", "sender": "target", "body": {
+        "is_bounce": True, "reason": "no verb foobar", "original_verb": "foobar"}}
+    result = shim.deliver(bounce_env)
+    assert result["handled"] is False, "default handle_bounce says handled=False"
+    diags = shim.held_diagnostics()
+    bounce_diags = [d for d in diags if d.get("gate") == "bounced_mail"]
+    assert len(bounce_diags) == 1, f"expected 1 bounced_mail diagnostic, got {len(bounce_diags)}"
+    assert bounce_diags[0]["values"]["reason"] == "no verb foobar"
+
+
+def test_handle_bounce_override_fires():
+    """A device that overrides handle_bounce gets the override called instead of the default."""
+    bus = _SpyBus()
+    shim = _OverrideShim(bus=bus)
+    bounce_env = {"id": "b2", "sender": "target", "body": {
+        "is_bounce": True, "reason": "test bounce", "original_verb": "x"}}
+    result = shim.deliver(bounce_env)
+    assert result["handled"] is True and result.get("custom") is True, \
+        "override handle_bounce must fire and return its own result"
+    assert len(shim.bounces_handled) == 1, "override received the bounce envelope"
+    assert shim.bounces_handled[0] is bounce_env
+
+
+def test_is_bounce_guard_prevents_infinite_loop():
+    """A message with is_bounce=True and an unknown verb raises instead of bouncing again."""
+    bus = _SpyBus()
+    shim = _VerbShim(bus=bus)
+    bounce_env = {"id": "e2", "sender": "alice", "addressee": "verb_device",
+                  "verb": "nonexistent", "body": {"is_bounce": True, "reason": "prior bounce"}}
+    result = shim.deliver(bounce_env)
+    assert result["handled"] is False, "is_bounce envelope triggers handle_bounce, not re-bounce"
+    assert len(bus.posted) == 0, "no second bounce posted — the guard holds"
+
+
 def _main() -> int:
     for check in (test_a_pulse_fires_due_probes_and_holds_the_rest,
                   test_a_batch_does_not_die_on_one_bad_probe,
@@ -208,11 +303,14 @@ def _main() -> int:
                   test_a_horizon_is_declared_not_inferred,
                   test_the_device_is_started_on_demand,
                   test_a_shim_with_no_start_hook_refuses_loudly,
-                  test_it_is_a_shim):
+                  test_it_is_a_shim,
+                  test_bounce_fires_on_unknown_verb,
+                  test_handle_bounce_default_emits_diagnostic,
+                  test_handle_bounce_override_fires,
+                  test_is_bounce_guard_prevents_infinite_loop):
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — BaseShim: a pulse fires due probes onto the bus (holding the rest), a bad "
-          "probe can't abort the batch, and the device is woken on demand")
+    print("green — BaseShim: probes fire, device wakes on demand, bounce returns to sender")
     return 0
 
 

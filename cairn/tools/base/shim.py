@@ -394,18 +394,19 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         not running (3), then hand the envelope to it (2). This is the wake-to-a-poke: the shim
         is always on and receiving; the device is woken only when there is mail.
 
-        REFUSES LOUDLY WHEN THERE IS NOBODY TO RECEIVE, and that is a 2026-08-11 correction
-        with teeth. This used to return ``None`` for a shim with no device, and ``None`` again
-        for a device with no ``receive`` — and with the postman built, a quiet ``None`` is
-        read as a successful delivery, a receipt gets written, and the message is gone with
-        nothing anywhere showing it never arrived. That is the exact silent loss the bus
-        exists to make impossible (Law 7). The refusal is a ``NotImplementedError`` in both
-        cases because the fix is the same one: this device needs a way to be reached.
+        BOUNCES BACK TO SENDER WHEN THERE IS NO HANDLER (ticket
+        undeliverable-mail-returns-to-sender, 2026-08-27). The sender owns the decision about
+        what to do with returned mail (Law 6); the base class fallback (handle_bounce) emits a
+        diagnostic and returns — loud, not silent (Law 7). Devices override handle_bounce when
+        they grow capacity. An ``is_bounce`` flag in the body prevents infinite loops: a bounced
+        message that itself has no handler raises instead of bouncing again.
 
         Note the ``_device is None`` check rather than ``_ensure_device`` alone: a shim that is
         always-on (``_running`` true from birth, like a discovered one) never enters the lazy
         start, so asking ``_running`` would answer "yes, running" about a shim holding no
         device at all."""
+        if envelope.get("body", {}).get("is_bounce"):
+            return self.handle_bounce(envelope)
         self._ensure_device()
         if self._device is None:
             self._device = self._start_device()   # loud by contract; see _start_device
@@ -416,23 +417,51 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                 verbs = self._device.declared_verbs()
             if verb not in verbs:
                 declared = list(verbs) if verbs else "none"
-                raise NotImplementedError(
-                    f"{self.device_id} has no verb {verb!r} — declared verbs: {declared}. "
-                    "An unknown verb goes RED, never a silent drop (Law 7)")
+                reason = (f"{self.device_id} has no verb {verb!r} — declared verbs: "
+                          f"{declared}")
+                return self._bounce_to_sender(envelope, reason)
             handler = verbs[verb]
             if not callable(handler):
-                raise NotImplementedError(
-                    f"{self.device_id} declares verb {verb!r} but its handler is not "
-                    "callable — a declared verb that cannot serve is RED (Law 7)")
+                reason = (f"{self.device_id} declares verb {verb!r} but its handler is "
+                          "not callable")
+                return self._bounce_to_sender(envelope, reason)
             return handler(envelope)
         receive = getattr(self._device, "receive", None)
         if not callable(receive):
-            raise NotImplementedError(
-                f"{self.device_id} was delivered mail but its device declares no receive() "
-                "and the envelope carries no verb — a device that can be addressed on the "
-                "bus must declare its verbs or a receive(); silently dropping mail would "
-                "lose a record of truth (Law 7)")
+            reason = (f"{self.device_id} was delivered mail but its device declares no "
+                      "receive() and the envelope carries no verb")
+            return self._bounce_to_sender(envelope, reason)
         return receive(envelope)
+
+    def _bounce_to_sender(self, envelope: dict, reason: str):
+        """Post a bounce message back to the sender via the bus. If no bus or no sender,
+        raise — the bounce cannot be delivered, so the original error surfaces instead."""
+        sender = envelope.get("sender")
+        if not sender or not self._bus:
+            raise NotImplementedError(
+                f"{reason}. Cannot bounce: "
+                f"{'no sender on envelope' if not sender else 'no bus on shim'}")
+        self._bus.post(
+            sender=self.device_id, to=sender, channel="personal",
+            why=f"bounced: {reason}",
+            body={"is_bounce": True, "reason": reason,
+                  "original_verb": envelope.get("verb", ""),
+                  "original_addressee": envelope.get("addressee", "")})
+        self.emit("bounce_sent", pointer=envelope.get("id"),
+                  values={"reason": reason, "to": sender})
+        return {"bounced": True, "reason": reason, "to": sender}
+
+    def handle_bounce(self, bounce_envelope: dict):
+        """Handle a bounced message that was returned to this device as sender. The default
+        emits a diagnostic (permanent in records of truth — Law 7) and returns. Devices
+        override this when they grow capacity to deal with returned mail (Law 6)."""
+        body = bounce_envelope.get("body", {})
+        reason = body.get("reason", "unknown")
+        original_verb = body.get("original_verb", "?")
+        self.emit("bounced_mail", pointer=bounce_envelope.get("id"),
+                  values={"reason": reason, "original_verb": original_verb,
+                          "from": bounce_envelope.get("sender", "?")})
+        return {"handled": False, "reason": reason}
 
     @property
     def running(self) -> bool:

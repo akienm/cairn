@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_shim.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-17T18:52:51",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "undeliverable-mail-returns-to-sender",
+    "date": "2026-08-27T18:35:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_pulse_fires_due_probes_and_holds_the_rest\n  PASS  test_a_batch_does_not_die_on_one_bad_probe\n  PASS  test_an_armed_and_never_fired_probe_is_loud\n  PASS  test_a_horizon_is_declared_not_inferred\n  PASS  test_the_device_is_started_on_demand\n  PASS  test_a_shim_with_no_start_hook_refuses_loudly\n  PASS  test_it_is_a_shim\ngreen — BaseShim: a pulse fires due probes onto the bus (holding the rest), a bad probe can't abort the batch, and the device is woken on demand",
+      "stdout_tail": "  PASS  test_a_pulse_fires_due_probes_and_holds_the_rest\n  PASS  test_a_batch_does_not_die_on_one_bad_probe\n  PASS  test_an_armed_and_never_fired_probe_is_loud\n  PASS  test_a_horizon_is_declared_not_inferred\n  PASS  test_the_device_is_started_on_demand\n  PASS  test_a_shim_with_no_start_hook_refuses_loudly\n  PASS  test_it_is_a_shim\n  PASS  test_bounce_fires_on_unknown_verb\n  PASS  test_handle_bounce_default_emits_diagnostic\n  PASS  test_handle_bounce_override_fires\n  PASS  test_is_bounce_guard_prevents_infinite_loop\ngreen — BaseShim: probes fire, device wakes on demand, bounce returns to sender",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
+      "source_fingerprint": "ebe0550ac2a563feaa817a0dab403ea72e52ee1474f9fac5a16baad6ab588137",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-dkffhph6/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

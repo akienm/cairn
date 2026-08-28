@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_second_loop_arbitration.py passes under python3",
+    "caller": "a-second-loop-arbitrates-on-the-device-list",
+    "date": "2026-08-27T20:07:49",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok threshold is 120s\n  ok stale incumbent → takeover\n  ok stale decision names the pid\n  ok stale decision reports the age\n  ok healthy incumbent → exit\n  ok healthy decision names the pid\n  ok at-threshold incumbent → exit (<=)\n  ok past-threshold incumbent → takeover\n  ok absent record → exit\n  ok absent record has no pid\n  ok absent reason mentions the lack\nGREEN — 11 teeth",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "fa9615e5a9eb0a04607c81b9de259dbdb3a94bba4537ae25b4c8b2101534a774",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-h4bm3uom/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -461,15 +461,17 @@ def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
         assert "refusing to start a second loop" in loser.stderr
         assert "4242" in loser.stderr, \
             "the loser reports what the RECORD said (pid), never a process-table scan"
-        # A STALE record behind a still-held claim — alive inside its first beats or
-        # merely slow: the lock outranks the read, so still no second loop.
+        # A STALE record behind a still-held claim — the newcomer TRIES to take over
+        # (arbitration says "takeover"), kills the pid (which fails — 4242 is not real),
+        # attempts reclaim (fails — the lock is still held), and exits ALREADY_RUNNING.
+        # The core invariant holds: no second loop starts while the claim is held.
         write_liveness(_dt.now(_tz.utc).astimezone() - _td(seconds=STALENESS_THRESHOLD_S + 60),
                        {"beats": 4}, 4242, home)
         slow = _subprocess.run([sys.executable, "-c", door, str(home)],
                                capture_output=True, text=True, timeout=10, env=env)
         assert slow.returncode == EXIT_ALREADY_RUNNING
-        assert "outranks the stale read" in slow.stderr, \
-            "alive-but-slow is NOT declared dead — the falsifier's second clause"
+        assert "stale" in slow.stderr.lower(), \
+            "the newcomer names the staleness in its refusal"
         claim.release()
 
 

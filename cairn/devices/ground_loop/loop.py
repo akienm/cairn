@@ -79,6 +79,36 @@ def liveness_pane_data(now, home=None) -> dict:
     }
 
 
+ARBITRATION_THRESHOLD_S = 120.0
+
+
+def arbitrate_newcomer(now, home) -> dict:
+    """Pure decision: should a newcomer that lost the singleton claim kill the
+    incumbent or exit? Reads only the liveness record (owned data, Law 6).
+
+    Returns {"action": "takeover"|"exit", "pid": int|None, "age_s": float|None,
+             "reason": str}.
+
+    The 120s threshold is two beat cycles at the ruled 60s cadence. A loop that
+    has not written a liveness record in 120s is stale — its heartbeat is not
+    beating, and a newcomer that exits would leave the system without a pulse."""
+    found = read_liveness(now, home)
+    record = found.get("record") or {}
+    age_s = found.get("age_s")
+    pid = record.get("pid")
+
+    if age_s is None:
+        return {"action": "exit", "pid": pid, "age_s": age_s,
+                "reason": found.get("lack", "no liveness record")}
+
+    if age_s > ARBITRATION_THRESHOLD_S:
+        return {"action": "takeover", "pid": pid, "age_s": age_s,
+                "reason": f"incumbent liveness is {age_s:.1f}s old (>{ARBITRATION_THRESHOLD_S}s)"}
+
+    return {"action": "exit", "pid": pid, "age_s": age_s,
+            "reason": f"incumbent is healthy ({age_s:.1f}s old)"}
+
+
 class GroundLoopDevice(BaseDevice):
     """The heartbeat as a device (carries CP1-CP6; reports intention/state/settings). Its one
     capability is ``beat`` — pulse every subscribed shim once. It holds no method registry, no

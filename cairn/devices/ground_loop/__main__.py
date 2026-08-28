@@ -42,7 +42,7 @@ from cairn.devices.bus.shim import BusShim
 from cairn.devices.ground_loop.discovery import discover, pulse_sites
 from cairn.devices.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.ground_loop.liveness import read_liveness
-from cairn.devices.ground_loop.loop import GroundLoopDevice
+from cairn.devices.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
 from cairn.devices.trouble.trouble import TroubleDevice
 
 CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22; was 1.0s)
@@ -64,18 +64,37 @@ def main(home=None, roots=None) -> int:
     try:
         claim = claim_singleton(home)  # noqa: F841 — held for the process's whole life
     except ClaimRefused as refusal:
-        found = read_liveness(datetime.now(timezone.utc).astimezone(), home)
-        record = found.get("record") or {}
-        if found["verdict"] == "LIVE":
-            detail = (f"the record says pid {record.get('pid')} last ran "
-                      f"{found['age_s']:.2f}s ago")
+        now = datetime.now(timezone.utc).astimezone()
+        decision = arbitrate_newcomer(now, home)
+        if decision["action"] == "takeover" and decision.get("pid"):
+            import os as _os
+            print(f"ground_loop: incumbent is stale ({decision['reason']}), "
+                  f"killing pid {decision['pid']}", file=sys.stderr)
+            try:
+                _os.kill(decision["pid"], signal.SIGTERM)
+                time.sleep(2)
+            except OSError as kill_err:
+                print(f"ground_loop: kill failed ({kill_err}), "
+                      "proceeding to reclaim", file=sys.stderr)
+            try:
+                claim = claim_singleton(home)  # noqa: F841
+            except ClaimRefused:
+                print("ground_loop: reclaim failed after killing stale incumbent — "
+                      "another newcomer may have taken it", file=sys.stderr)
+                return EXIT_ALREADY_RUNNING
         else:
-            detail = ("the claim is held but the record is "
-                      f"{found.get('lack', 'stale')} — a loop alive inside its first beats "
-                      "or merely slow; the held lock outranks the stale read")
-        print(f"ground_loop: refusing to start a second loop — {refusal}\n"
-              f"ground_loop: {detail}", file=sys.stderr)
-        return EXIT_ALREADY_RUNNING
+            found = read_liveness(now, home)
+            record = found.get("record") or {}
+            if found["verdict"] == "LIVE":
+                detail = (f"the record says pid {record.get('pid')} last ran "
+                          f"{found['age_s']:.2f}s ago")
+            else:
+                detail = ("the claim is held but the record is "
+                          f"{found.get('lack', 'stale')} — a loop alive inside its first beats "
+                          "or merely slow; the held lock outranks the stale read")
+            print(f"ground_loop: refusing to start a second loop — {refusal}\n"
+                  f"ground_loop: {detail}", file=sys.stderr)
+            return EXIT_ALREADY_RUNNING
 
     # THE RESIDENT LOOP IS THE WIRED ONE. The device stays provable without a filesystem or a
     # trouble store (both injected, both defaulting to None — the pure-physics proofs build it

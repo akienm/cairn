@@ -46,10 +46,27 @@ nobody.
 - **node_class** — name it (`skill`, `concept-piece`, `code-seam`, …). The class is
   a charter in `CairnCommons/node_classes/`; the door refuses one that does not
   resolve — an absent class needed is a demand to write it FIRST.
-- **workflow** — the full string with its cursor at the cast
-  (`code-seam@v2: THINKME -> [TICKETME] -> …`). The door runs the chokepoint's own
-  parser and conformance check, so a drifted string costs one fix here instead of a
-  dead voyage at its first crossing.
+- **workflow** — **render it, never hand-write it.** Build the workflow string
+  through `cairn.tools.base.transitions.render()` by constructing a `Workflow` from
+  the node class definition's registered path and calling `render(wf, 'TICKETME')`.
+  For nodes carrying a `WATCHME(<object>)`, place the object in the Workflow's
+  `objects` tuple at the corresponding position. The cursor position is the leaf
+  fork — express it as `render()`'s target, never by deleting a skippable summons
+  from the path. Example:
+
+      ```python
+      from cairn.tools.base.transitions import Workflow, render, load_class_def
+      cd = load_class_def(node_class)
+      ver = cd["workflow_versions"]["v2"]  # or whichever version
+      path = tuple(ver["path"])
+      objects = tuple(None for _ in path)  # add WATCHME objects where needed
+      wf = Workflow(node_class=node_class, version="v2", path=path, cursor=0, objects=objects)
+      workflow_str = render(wf, "TICKETME")
+      ```
+
+  The door validates the result through `parse_workflow` and `_conform` — a
+  render()-produced string passes by construction, so a drifted string costs one
+  fix here instead of a dead voyage at its first crossing.
 - **gates_bound** — the class's gate-set transcribed onto this node. Invariant for
   every class: it gets **proved** and it **feeds back to origin on failure** (Laws
   3 + 8). Variable per class: which gate, which check-type.

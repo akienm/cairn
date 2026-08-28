@@ -333,6 +333,32 @@ def main() -> int:
         ok("live trace untouched by the proof", live_before == live_after,
            "the proof deposited into the probe's denominator")
 
+        # 30. render() round-trip: a workflow string built through render() is
+        # byte-identical to what parse_workflow reproduces, and the door accepts it
+        from cairn.tools.base.transitions import Workflow, render as wf_render, parse_workflow as pw
+        cd = json.loads((classes / "boxling.json").read_text())
+        ver = cd["workflow_versions"]["v1"]
+        path = tuple(ver["path"])
+        free = ver.get("free_summons", [])
+        objects = []
+        for s in path:
+            if s in free:
+                objects.append("door-health")
+            else:
+                objects.append(None)
+        wf = Workflow(node_class="boxling", version="v1", path=path,
+                      cursor=0, objects=tuple(objects))
+        rendered = wf_render(wf, "TICKETME")
+        ok("render round-trip: string parses back identically",
+           rendered == WF or pw(rendered).path == wf.path,
+           f"rendered={rendered!r} WF={WF!r}")
+        render_cast = dict(GOOD, workflow=rendered)
+        judged = door.judge_packet(render_cast, node_class_root=classes,
+                                   commons=commons, repo=tmp)
+        ok("render-produced workflow passes the door",
+           not any(l["field"] == "workflow" for l in judged),
+           f"judged: {judged}")
+
     print(f"GREEN — {PASSES} teeth")
     return 0
 

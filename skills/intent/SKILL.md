@@ -153,6 +153,23 @@ opens the build door later. A cast with no /intent firing behind it can still be
 made honest — `"none, because <why>"` is the one other legal value — but the
 judgeable reason is the price, and silence is not on the menu.
 
+## Operator reviews the intention
+
+After the door fires, **present the intention to the operator**. Read the berth
+at its printed path and show the intention's actual text — what, how, traces_to,
+shape, falsifier, challenge, and bullets. The operator reviews the artifact itself
+before it proceeds to /sorted.
+
+**Wait for the operator's response.** Three outcomes:
+- **Sign-off** — the intention is accepted as written. Proceed to /sorted.
+- **Correction** — the operator names what to fix. The berth is sealed; if the
+  correction is substantive (changes the what/how/traces_to), re-fire the door
+  with the corrected packet and present the new berth.
+- **Rejection** — the intent should not have been born. Fire the door again with
+  `exit: routed_out` and the operator's reason in the bullets.
+
+This is the review surface — the artifact itself, not a finding about it.
+
 The natural next move:
 
 - **`/sorted`** — when the points feel wrapped and you're ready for the resolution

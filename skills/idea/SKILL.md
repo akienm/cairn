@@ -55,6 +55,22 @@ every lack in one pass and is itself recorded.
 idea, its `from_idea` field takes that id — the commons one — because a berth path is
 meaningless on any other machine.
 
+## Operator reviews the record
+
+After the door fires, **present the idea record to the operator**. Read the idea
+file at its printed path (`CairnCommons/ideas/<id>.json`) and show its full
+content. The operator reviews the actual text — the prose as captured, the author,
+the bullets — before the idea goes on.
+
+**Wait for the operator's response.** Three outcomes:
+- **Sign-off** — the idea record is accepted as written. Proceed.
+- **Correction** — the operator names what to fix. Edit the record, present it
+  again.
+- **Rejection** — the idea should not have been captured this way. Note why in
+  the bullets.
+
+This is the review surface — the artifact itself, not a finding about it.
+
 ## Then stop
 
 *"It's a one and done. Its end state is just when you and I move on to the next

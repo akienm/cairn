@@ -132,6 +132,22 @@ poke the compiled model's sole write-door in the **same act**, so the next
 A cast that only files a `tickets/` entry is *not* a model source yet — it becomes
 one when its charter is written beside the code, and that write pokes the door then.
 
+### 5b. Operator reviews the ticket
+
+After filing to CairnCommons, **present the ticket to the operator**. Read the
+ticket file at `CairnCommons/tickets/<id>.json` and show its full content. The
+operator reviews the actual text — intention, why, falsifier, watchme, gates,
+how — before the ticket goes on to /sail.
+
+**Wait for the operator's response.** Three outcomes:
+- **Sign-off** — the ticket is accepted as written. Proceed to close the boundary.
+- **Correction** — the operator names what to fix. Edit the ticket, present it
+  again.
+- **Rejection** — the ticket should not have been cast this way. Route back to
+  the gap.
+
+This is the review surface — the artifact itself, not a finding about it.
+
 ### 6. Close the boundary — /saveslate, then /compact
 
 A resolution pivot is a compaction-safe boundary by construction: the cast node,

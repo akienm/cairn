@@ -131,11 +131,10 @@ def inspect_ticket(t: dict) -> list[dict]:
     if not nc:
         finding("node_class_resolves", "no node_class")
     elif isinstance(nc, str):
-        nc_clean = nc.split("(")[0].split(" ")[0].strip()
-        nc_path = COMMONS_ROOT / "node_classes" / f"{nc_clean}.json"
+        nc_path = COMMONS_ROOT / "node_classes" / f"{nc}.json"
         if not nc_path.exists():
             finding("node_class_resolves",
-                    f"node_class '{nc_clean}' has no file in node_classes/",
+                    f"node_class '{nc}' has no file in node_classes/",
                     {"node_class": nc, "tried": str(nc_path)})
 
     # --- TRACES_TO ---
@@ -217,11 +216,10 @@ def inspect_ticket(t: dict) -> list[dict]:
     # --- STATE MATCHES NODE_CLASS ---
     if nc and isinstance(nc, str) and re.search(r"\w+@v\d+:", state):
         state_class = state.split("@")[0].strip() if "@" in state else ""
-        nc_clean = nc.split("(")[0].split(" ")[0].strip()
-        if state_class and nc_clean and state_class != nc_clean:
+        if state_class and nc and state_class != nc:
             finding("state_matches_node_class",
-                    f"state class '{state_class}' != node_class '{nc_clean}'",
-                    {"state_class": state_class, "node_class": nc_clean})
+                    f"state class '{state_class}' != node_class '{nc}'",
+                    {"state_class": state_class, "node_class": nc})
 
     return findings
 

@@ -94,6 +94,67 @@ def validate_chart_notes(node: dict) -> None:
             )
 
 
+def charted_paths(chain: dict) -> set:
+    """Every file path the chain's berths mention — the detector's vocabulary of 'known'.
+
+    Reads each berth in the chain dict (stage -> path-or-None), loads it, and extracts
+    paths from the fields that carry them:
+      orient:    refs[]
+      survey:    holdings[].address, absences[].what (substring paths)
+      decompose: sub_problems[].uses[], sub_problems[].writes_to[]
+      validate:  criteria[].instrument (substring paths)
+
+    A path that is not a real file path (prose) is included harmlessly — the comparison
+    is against git's actual file list, so a prose string simply never matches.
+    """
+    paths = set()
+    for _stage, berth_path in (chain or {}).items():
+        if not berth_path or not os.path.isfile(berth_path):
+            continue
+        try:
+            with open(berth_path, encoding="utf-8") as fh:
+                pkt = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        for ref in pkt.get("refs") or []:
+            if isinstance(ref, str):
+                paths.add(ref)
+        for h in pkt.get("holdings") or []:
+            if isinstance(h, dict) and isinstance(h.get("address"), str):
+                paths.add(h["address"])
+        for sp in pkt.get("sub_problems") or []:
+            if isinstance(sp, dict):
+                for u in sp.get("uses") or []:
+                    if isinstance(u, str):
+                        paths.add(u)
+                for w in sp.get("writes_to") or []:
+                    if isinstance(w, str):
+                        paths.add(w)
+    return paths
+
+
+def uncharted_modifications(charted: set, modified: list, added: list) -> list:
+    """Files the build MODIFIED that the chain never mentioned.
+
+    Excludes added files (new files cannot appear in a chart that predates them)
+    and files mentioned in any berth. The return is the detector's finding —
+    each entry is a path the reader can adjudicate.
+
+    THE SUBSTRING TEST IS GENEROUS BY CHOICE: a file mentioned in a berth for
+    any reason at all reads as chartered. The standing consequence is asymmetric
+    evidence — this detector's NOISE is strong and its SILENCE is weak.
+    """
+    added_set = set(added or [])
+    findings = []
+    for path in (modified or []):
+        if path in added_set:
+            continue
+        if any(path in c or c in path for c in charted):
+            continue
+        findings.append(path)
+    return sorted(findings)
+
+
 def scan(tickets_dir: str) -> list[dict]:
     """EVERY nonconformance under ``tickets_dir``, never just the first.
 

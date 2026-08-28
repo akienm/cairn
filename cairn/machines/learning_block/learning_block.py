@@ -462,3 +462,20 @@ def pending_findings(gate: str | None = None, *, root: Path | None = None) -> li
         pend = [f for f in pend if f.get("block") == gate]
     pend.sort(key=lambda r: str(r.get("when", "")))
     return pend
+
+
+def answered_finding_ids(*, root: Path | None = None) -> set[str]:
+    """Every finding ID that has an approve or disprove verdict — the set
+    pending_findings subtracts from. Extracted so the berth sweep can ask
+    'is this finding settled?' without re-deriving the full pending list."""
+    base = root if root is not None else trace_root()
+    if not base.is_dir():
+        return set()
+    answered: set[str] = set()
+    for path in sorted(base.glob("*.jsonl")):
+        for rec in read_trace(path.stem, root=base):
+            if rec.get("event") == "verdict":
+                data = rec.get("data") or {}
+                if data.get("signal") in ("approve", "disprove") and data.get("finding_id"):
+                    answered.add(data["finding_id"])
+    return answered

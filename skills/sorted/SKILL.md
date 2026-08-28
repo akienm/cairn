@@ -36,6 +36,13 @@ SUBSTANCE (a one-word pass is the hollow check the door refuses):
   ready to cast.)
 - **collision_check** — collides with an existing intention/Law/decision — *really*
   (why of each side, exclusive-and-terminal), or a distinction to record?
+- **builder_check** — putting on the hat of Boris Cherny, what questions will a
+  Haiku-level builder need answered which aren't? The existing checks are
+  self-referential (same mind writes and judges); this forces a perspective shift
+  to the cheapest possible builder, who cannot infer what the caster left implicit.
+  Answer with the questions a builder would need, or the explicit finding that the
+  ticket already carries everything. Cocoon principle: inference cost paid here in
+  the cast, not at build time where it's expensive.
 
 **Red on any of these → the firing exits `routed_out`, `disposition:
 "not-ready"`.** Casting an incomplete node is the defect this gate exists to

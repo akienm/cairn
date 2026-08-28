@@ -43,6 +43,7 @@ import platform
 import sys
 
 from cairn.machines.learning_block import learning_block as lb
+from cairn.machines.skill_block.skill_block import find_paired_sorted, sweep_adjudicated
 
 _USAGE = (
     "usage: cairn recordverdict                                — list what stands at the gate\n"
@@ -163,6 +164,31 @@ def _recordverdict(args: list[str]) -> int:
         return 2
     print(f"recorded: {signal} on {finding['id']} ({finding['block']}) -> {path}")
     print(json.dumps(lb.dial(finding["block"])))
+    # When an intent is approved, auto-approve its paired sorted.
+    if signal == "approve" and finding.get("block") == "skill:intent":
+        data = finding.get("data") or {}
+        when = str(data.get("when") or finding.get("when", ""))
+        paired = find_paired_sorted(finding["id"], when)
+        if paired:
+            paired_doc = paired["doc"]
+            paired_finding = {
+                "id": paired_doc.get("finding_id"),
+                "block": paired_doc.get("block", "skill:sorted"),
+                "data": {"bullets": paired_doc.get("bullets", [])},
+            }
+            try:
+                lb.record_verdict(
+                    paired_finding["block"], paired_finding, "approve",
+                    f"auto-approved: paired intent {finding['id']} was approved",
+                    session=session,
+                    note="auto-closed sorted — its intent was approved at the gate")
+                print(f"auto-approved paired sorted {paired_doc.get('finding_id')} "
+                      f"(intent {finding['id']} approved)")
+            except lb.VerdictRefused:
+                pass
+    moved = sweep_adjudicated()
+    if moved:
+        print(f"swept {len(moved)} adjudicated berth(s) to logs")
     return 0
 
 

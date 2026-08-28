@@ -427,7 +427,8 @@ def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
             new = transitions.emit(_AT_PROVE, "BUILDME", history_path=hist3, state_path=state3)
             rec = projector.read_history(hist3)[0]
             assert "[BUILDME:waiting]" in new and rec["direction"] == "back"
-            assert "entry_gate" not in rec, "a kick-back into BUILDME is never gated"
+            assert rec["entry_gate"] == "not_applicable", \
+                "a kick-back into BUILDME is never gated — the field must say not_applicable"
         finally:
             transitions._TICKETS = saved
 

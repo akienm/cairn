@@ -266,25 +266,22 @@ def test_it_is_a_sibling_not_a_subclass_of_the_other_four():
 def test_a_node_that_carries_no_watch_is_untouched():
     """The crossing must COMPLETE, not merely avoid this seat's refusal.
 
-    STRENGTHENED 2026-08-03. It used to cross PROVEME -> PROVED and accept any
-    ``IllegalTransition`` as "some other gate's business". That made it green for a weaker
-    reason than it claimed: PROVEME-forward is the BUILD gate's crossing, so the tooth was
-    passing because ``BuildGateRed`` refused first — it never reached a state where the
-    emission gate's silence was the thing being observed. A synthetic fixture can never clear
-    the build gate (no charter, no proofs), so the answer is not a richer fixture: it is to
-    cross where NO OTHER GATE SITS. BUILDME -> PROVEME is that crossing — the build gate reads
-    ``here == PROVEME``, the entry gate ``target == BUILDME``, the exit gate
-    ``target == PROVED``, and none of them is this. What is left is exactly this seat, silent,
-    and a completed crossing proves the silence.
+    STRENGTHENED 2026-08-03, then MOVED 2026-08-28 (ticket
+    the-buildme-gates-guard-a-crossing-not-a-state widened the entry gate to fire at
+    ``here == BUILDME`` too, so BUILDME -> PROVEME is no longer gate-free). The crossing is
+    now THINKME -> TICKETME — the build gate reads ``here == PROVEME``, the entry gate
+    ``target == BUILDME or here == BUILDME``, the exit gate ``target == PROVED``, and none of
+    them is this. What is left is exactly this seat, silent, and a completed crossing proves
+    the silence.
     """
-    bare = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
+    bare = "code-seam@v2: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> PROVED"
     with _Corpus({}), tempfile.TemporaryDirectory() as td:
         try:
-            new, hist = _cross(bare, "PROVEME", ticket="nope", td=td)
+            new, hist = _cross(bare, "TICKETME", ticket="nope", td=td)
         except transitions.WatchmeEmissionRed as e:
             raise AssertionError(
                 f"the emission gate fired at a crossing with no WATCHME in it: {e}") from e
-        assert "[PROVEME:waiting]" in new, new
+        assert "[TICKETME:waiting]" in new, new
         assert "emission_gate" not in hist[-1], \
             "a crossing that carries no watch must journal no emission_gate note — a gate " \
             f"that annotates a crossing it does not govern is claiming jurisdiction: {hist[-1]}"

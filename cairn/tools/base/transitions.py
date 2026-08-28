@@ -1507,13 +1507,20 @@ def emit(
         entry_note = None
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
-            _exempt, _rec = _require_named_ticket(target, _ticket, history_path=history_path)
+            _exempt, _rec = _require_named_ticket("BUILDME", _ticket, history_path=history_path)
             proved += _rec
             if _exempt is not None:
                 entry_note = _exempt
             else:
                 entry_note, _rec = _entry_gate(_ticket)
                 proved += _rec
+        elif wf.here == "BUILDME" and target_idx > wf.cursor:
+            _ticket = journal_extra.get("ticket")
+            if _ticket is not None:
+                entry_note, _rec = _entry_gate(_ticket)
+                proved += _rec
+            else:
+                entry_note = "not_checked"
         # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
         # — or the crossing's own component on the explicit exempt roster — else it
         # refuses BEFORE anything is written (ticket a-voyage-names-its-ticket,
@@ -1593,9 +1600,9 @@ def emit(
             # The record of truth says the gate ran: a PROVEME exit journals what the
             # build_inspector saw, so a promotion's evidence travels with the crossing.
             **({"build_gate": gate_note} if gate_note else {}),
-            # The record of truth says the entry gate ran: a gated BUILDME entry
-            # journals that its chart claim was checked and found standing.
-            **({"entry_gate": entry_note} if entry_note else {}),
+            # ALWAYS PRESENT (ticket the-buildme-gates-guard-a-crossing-not-a-state):
+            # "not_applicable" when no build-relevant crossing, else the gate's note.
+            "entry_gate": entry_note if entry_note is not None else "not_applicable",
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),

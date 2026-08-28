@@ -65,11 +65,17 @@ FILED EDGES (children of this stone, not faked):
 
 from __future__ import annotations
 
+import json
+import os
+import tempfile
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.tools.base.probe import Probe
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.base.address import instance_path
 
 
 NEVER_BOOTED = "NEVER_BOOTED"
@@ -120,6 +126,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         # here because "pulse.py will be our webserver's SHIM's pulse" — the loop only
         # beats, and firing stays in the shim. Empty for every device without one.
         self._pulse_mods: list = []
+        self._last_known: dict | None = None
 
     @property
     @abstractmethod
@@ -476,10 +483,38 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     def running(self) -> bool:
         return self._presence == ONLINE
 
+    @property
+    def last_known(self) -> dict | None:
+        return self._last_known
+
+    def _capture_last_known(self) -> None:
+        now = datetime.now(timezone.utc)
+        self._last_known = {"presence": self._presence, "timestamp": now.isoformat()}
+        self._persist_last_known()
+
+    def _persist_last_known(self) -> None:
+        device = self.diagnostic_device
+        if device is None:
+            return
+        home = instance_path(device, self.diagnostic_instance)
+        home.mkdir(parents=True, exist_ok=True)
+        final = home / "last_known.json"
+        fd, tmp = tempfile.mkstemp(prefix="last_known.json.", dir=str(home))
+        try:
+            with os.fdopen(fd, "w") as fh:
+                json.dump(self._last_known, fh)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, final)
+        finally:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+
     def _ensure_device(self) -> None:
         if self._presence != ONLINE:
             self._device = self._start_device()
             self._presence = ONLINE
+            self._capture_last_known()
 
     def _start_device(self):
         """Wake the device (the heavier process) — the shim's process-manager role. A shim that

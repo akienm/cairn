@@ -299,6 +299,41 @@ def test_is_bounce_guard_prevents_infinite_loop():
     assert len(bus.posted) == 0, "no second bounce posted — the guard holds"
 
 
+# --- last-known capture and persistence teeth (ticket the-shim-remembers-last-known) ------
+
+def test_last_known_is_none_before_boot():
+    """A shim that has never booted has no last-known record — None, not a guess."""
+    shim = _Shim()
+    assert shim.last_known is None, "last_known must be None before any poke"
+
+
+def test_last_known_captured_on_boot(tmp_path):
+    """After _ensure_device, last_known is populated with presence and a timestamp."""
+    shim = _Shim()
+    shim._diagnostic_instance = 0
+    shim.deliver({"id": "e1", "body": {"hi": 1}})
+    lk = shim.last_known
+    assert lk is not None, "last_known must be populated after boot"
+    assert lk["presence"] == "ONLINE", f"presence must be ONLINE, got {lk['presence']}"
+    assert "timestamp" in lk and len(lk["timestamp"]) > 10, \
+        "last_known must carry a real ISO timestamp"
+
+
+def test_last_known_persisted_to_instance_space(tmp_path, monkeypatch):
+    """The last-known record is written atomically to instance-space and matches in-memory."""
+    import json as _json
+    from cairn.tools.base import address as _addr
+    monkeypatch.setattr(_addr, "ROOTS", {"instance": tmp_path})
+    shim = _Shim()
+    shim.deliver({"id": "e1", "body": {}})
+    device_name = shim.diagnostic_device
+    lk_file = tmp_path / "devices" / device_name / "0" / "last_known.json"
+    assert lk_file.exists(), f"last_known.json must exist at {lk_file}"
+    on_disk = _json.loads(lk_file.read_text())
+    assert on_disk == shim.last_known, \
+        f"on-disk record must match in-memory: disk={on_disk}, mem={shim.last_known}"
+
+
 def _main() -> int:
     for check in (test_a_pulse_fires_due_probes_and_holds_the_rest,
                   test_a_batch_does_not_die_on_one_bad_probe,
@@ -310,10 +345,11 @@ def _main() -> int:
                   test_bounce_fires_on_unknown_verb,
                   test_handle_bounce_default_emits_diagnostic,
                   test_handle_bounce_override_fires,
-                  test_is_bounce_guard_prevents_infinite_loop):
+                  test_is_bounce_guard_prevents_infinite_loop,
+                  test_last_known_is_none_before_boot):
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — BaseShim: probes fire, device wakes on demand, bounce returns to sender")
+    print("green — BaseShim: probes fire, device wakes on demand, bounce returns to sender, last-known captured")
     return 0
 
 

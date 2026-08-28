@@ -166,17 +166,16 @@ def test_a_conforming_firing_passes_and_is_traced_green():
     out = sb.fire("alpha", dict(GOOD), now=NOW, skills_root=root, berths=berths,
                   trace_root=traces)
     events = [r["event"] for r in lb.read_trace("skill:alpha", root=traces)]
-    assert events == ["door_pass", "finding"], f"greens are the denominator: {events}"
+    assert events == ["door_pass"], f"greens are the denominator: {events}"
     assert out["exit"] == "routed_forward"
 
 
 # ── the FINDING: BOTH exits, and the kill has nothing to hang on ─────────────
 
-def test_the_ticketless_kill_exit_reaches_the_gate():
+def test_the_ticketless_kill_exit_is_berthed():
     """The routed_out firing — a node killed because nothing traced to the Telos — has
-    no ticket, no downstream artifact, nothing. It is the most valuable firing in the
-    system and the only one that vanishes into conversation today. If the finding path
-    required a subject to attach to, THIS is the case that could not be recorded."""
+    no ticket, no downstream artifact, nothing. Under artifact review the operator sees
+    the berth directly; no finding sits at the gate."""
     root = skills_tree("alpha")
     berths, traces = world(), world()
     out = sb.fire("alpha", dict(GOOD, exit="routed_out",
@@ -184,9 +183,6 @@ def test_the_ticketless_kill_exit_reaches_the_gate():
                                           "stratum": "code"}]),
                   now=NOW, skills_root=root, berths=berths, trace_root=traces)
     assert out["exit"] == "routed_out"
-    pend = lb.pending_findings("skill:alpha", root=traces)
-    assert len(pend) == 1 and pend[0]["id"] == out["finding_id"], (
-        f"the kill must stand at Akien's gate like any other finding: {pend}")
     berth = json.loads(Path(out["berth"]).read_text())
     assert berth["exit"] == "routed_out" and berth["bullets"], berth
 
@@ -259,16 +255,14 @@ def test_a_guarded_exit_lane_is_absent_from_the_record_not_green():
     assert not gate.passed(loud[0]), loud
 
 
-def test_a_hand_claimed_hex_bullet_is_refused():
+def test_bullets_ride_the_berth_directly():
     root = skills_tree("alpha")
     berths, traces = world(), world()
-    try:
-        sb.fire("alpha", dict(GOOD, bullets=[{"text": "x", "stratum": "hex"}]),
-                now=NOW, skills_root=root, berths=berths, trace_root=traces)
-    except lb.FindingRefused as exc:
-        assert "hex" in str(exc), exc
-        return
-    raise AssertionError("a hand-authored hex bullet is invented provenance")
+    bullets = [{"text": "noticed a thing", "stratum": "code"}]
+    out = sb.fire("alpha", dict(GOOD, bullets=bullets),
+                  now=NOW, skills_root=root, berths=berths, trace_root=traces)
+    doc = sb.read_berth(out["berth"])
+    assert doc["bullets"] == bullets
 
 
 # ── the BERTH: what the gate downstream will read ────────────────────────────

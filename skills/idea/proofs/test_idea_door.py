@@ -121,7 +121,6 @@ def main() -> int:
     events = [r["event"] for r in recs]
     ok("every refusal traced", events.count("send_back") == 3, str(events))
     ok("every capture traced", events.count("door_pass") == 2, str(events))
-    ok("a finding rides each capture", events.count("finding") == 2, str(events))
 
     # ── the CLI, which is what the skill actually calls ───────────────────────
     # The subprocess gets the roots too, or the CLI tooth pollutes the very denominator

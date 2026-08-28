@@ -201,14 +201,13 @@ def main() -> int:
     ok("the berth carries the gathers it was fired on",
        berth["answers"]["rulings"]["oldest_id"] == WORLD["rulings_oldest_id"])
     ok("the berth carries the exit", berth["exit"] == "routed_forward")
-    ok("a finding rides the firing to Akien's gate", bool(result["finding_id"]))
+    ok("a berth id rides the firing", bool(result["finding_id"]))
 
     recs = read_trace("skill:whatslefttodo", root=traces)
     events = [r["event"] for r in recs]
     ok("every refusal above was traced, not swallowed", events.count("send_back") >= 1,
        str(events))
     ok("the passing firing is traced", events.count("door_pass") == 1, str(events))
-    ok("one finding per passing firing", events.count("finding") == 1, str(events))
 
     # ── the LIVE world: shape asserted, never a value ─────────────────────────
     w = door.measure_the_world()

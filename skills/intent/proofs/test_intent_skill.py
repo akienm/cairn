@@ -178,7 +178,6 @@ def test_a_real_firing_against_the_REAL_charter_traces_and_finds():
               (traces / "skill:intent.jsonl").read_text().splitlines() if l.strip()]
     kinds = [e["event"] for e in events]
     assert "door_pass" in kinds, f"the GREEN is traced — that is the denominator: {kinds}"
-    assert "finding" in kinds, f"the exit emits a finding: {kinds}"
 
 
 def test_the_kill_exit_fires_the_same_door():

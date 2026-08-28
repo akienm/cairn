@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -32,9 +31,7 @@ from cairn.tools.base.address import instance_path
 from cairn.tools.gate import gate
 from cairn.machines.learning_block.learning_block import (
     DoorRefused,
-    answered_finding_ids,
     declare_contract,
-    emit_finding,
     fire_door,
 )
 
@@ -149,7 +146,7 @@ def berth_root(root: Path | str | None = None) -> Path:
     return Path(root) if root is not None else _BERTHS
 
 
-def _write_berth(skill: str, payload: dict, door_rec: dict, finding_rec: dict,
+def _write_berth(skill: str, payload: dict, door_rec: dict, berth_id: str,
                  when: datetime, *, root: Path | None = None,
                  from_finding: str | None = None) -> Path:
     base = berth_root(root) / skill
@@ -162,9 +159,9 @@ def _write_berth(skill: str, payload: dict, door_rec: dict, finding_rec: dict,
         "when": when.isoformat(),
         "exit": payload.get("exit"),
         "answers": {k: v for k, v in payload.items() if k != "bullets"},
-        "bullets": finding_rec["data"]["bullets"],
+        "bullets": list(payload.get("bullets") or []),
         "trace_id": door_rec["id"],
-        "finding_id": finding_rec["id"],
+        "finding_id": berth_id,
     }
     if from_finding:
         doc["from_finding"] = from_finding
@@ -265,17 +262,15 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
                                                      judged=judge is not None),
                          judge=judge_name)
 
-    subject = payload.get("what") or (payload.get("prose", "") or "")[:80] or None
-    finding_rec = emit_finding(block, list(payload.get("bullets") or []),
-                               subject=subject, now=when, root=trace_root)
-    path = _write_berth(skill, payload, door_rec, finding_rec, when, root=berths,
+    berth_id = uuid.uuid4().hex[:12]
+    path = _write_berth(skill, payload, door_rec, berth_id, when, root=berths,
                         from_finding=from_finding)
     return {
         "berth": str(path),
         "block": block,
         "exit": exit_value,
         "trace_id": door_rec["id"],
-        "finding_id": finding_rec["id"],
+        "finding_id": berth_id,
     }
 
 
@@ -288,41 +283,6 @@ def read_berth(path: Path | str) -> dict | None:
     except (OSError, json.JSONDecodeError):
         return None
     return doc if isinstance(doc, dict) else None
-
-
-_ADJUDICATED_LOG = Path(os.environ.get(
-    "CAIRN_SKILL_ADJUDICATED_LOG",
-    instance_path("skill_block", 0) / "logs" / "adjudicated"))
-
-
-def sweep_adjudicated(*, root: Path | None = None,
-                      dest: Path | None = None) -> list[Path]:
-    """Move berths whose finding_id has a verdict to the log directory for cycling.
-
-    Returns the list of destination paths for what was moved. Pure filesystem
-    operation — the learning_block trace is the authority on what's answered;
-    this just clears the working surface.
-    """
-    answered = answered_finding_ids()
-    if not answered:
-        return []
-    base = berth_root(root)
-    target = dest if dest is not None else _ADJUDICATED_LOG
-    moved: list[Path] = []
-    for skill_dir in sorted(base.iterdir()):
-        if not skill_dir.is_dir():
-            continue
-        for berth_file in sorted(skill_dir.glob("*.json")):
-            doc = read_berth(berth_file)
-            if doc is None:
-                continue
-            if doc.get("finding_id") in answered:
-                skill_dest = target / skill_dir.name
-                skill_dest.mkdir(parents=True, exist_ok=True)
-                dst = skill_dest / berth_file.name
-                shutil.move(str(berth_file), str(dst))
-                moved.append(dst)
-    return moved
 
 
 _PAIR_WINDOW_SECONDS = 300
@@ -359,5 +319,5 @@ def find_paired_sorted(intent_finding_id: str, intent_when: str,
 __all__ = [
     "EXITS", "SkillBlockRefused", "DoorRefused",
     "block_name", "load_contract", "judge_for", "berth_root", "fire", "read_berth",
-    "inspect_firing", "sweep_adjudicated", "find_paired_sorted",
+    "inspect_firing", "find_paired_sorted",
 ]

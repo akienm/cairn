@@ -43,7 +43,7 @@ import platform
 import sys
 
 from cairn.machines.learning_block import learning_block as lb
-from cairn.machines.skill_block.skill_block import find_paired_sorted, sweep_adjudicated
+from cairn.machines.skill_block.skill_block import find_paired_sorted
 
 _USAGE = (
     "usage: cairn recordverdict                                — list what stands at the gate\n"
@@ -186,9 +186,6 @@ def _recordverdict(args: list[str]) -> int:
                       f"(intent {finding['id']} approved)")
             except lb.VerdictRefused:
                 pass
-    moved = sweep_adjudicated()
-    if moved:
-        print(f"swept {len(moved)} adjudicated berth(s) to logs")
     return 0
 
 

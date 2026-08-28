@@ -1,0 +1,24 @@
+{
+  "component": "skill:/ruled",
+  "role": "charter",
+  "schema_version": "v0",
+  "axis": "work-loop",
+
+  "what": "Akien's RULED marker fires the ruling door in the same act he types it — /ruled <id> confirms a packet, bare /ruled lists open unmarked, /ruled <no-match> refuses loudly naming the store searched.",
+  "why": "n=2 measured 2026-08-15: both confirmations of the authority ruling reached the door only because CC noticed 'so /ruled ...' in conversation and hand-ran confirm — the marker enforced by CC's attention, which is policy doing physics' job (Law 4). The skill makes his typing the command the confirmation, with no relay.",
+  "invoke": "/ruled [<id>]",
+  "state": "v0 — first build 2026-08-27.",
+
+  "produces": "a confirmed ruling packet (when <id> matches), a listing of open unmarked rulings (bare), or a loud refusal naming the store (no match).",
+  "input_contract": {
+    "id": "optional — the ruling id to confirm. When present, the skill calls ruling.confirm(id, evidence) where evidence is the invocation itself. When absent, lists open unmarked rulings.",
+    "evidence": "derived from the invocation — his slash command IS his words verbatim."
+  },
+
+  "how_it_learns": "It does not — the skill is a thin pass-through to ruling.confirm/open_rulings/verify. The ruling machine's own learning (its proofs, its hook, its edges) covers the domain.",
+  "traces_to": ["Telos", "Law 4 (the marker reaches the door because he typed it, not because CC was paying attention)", "Law 6 (confirmation stays his)"],
+  "owner": "the skills charter gates writes to this file; Akien ratifies changes (signature gate)",
+  "gated_by": ["CC"],
+  "proof": "skills/ruled/proofs/test_ruled.py — exercises all three modes against a synthetic store.",
+  "provenance": "Akien's idea verbatim 2026-08-15: 'and we should add a /RULED since i seem to keep using it :)'. Ticket CairnCommons/tickets/ruled.json."
+}

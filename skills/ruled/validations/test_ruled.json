@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_ruled.py passes under python3",
+    "caller": "ruled",
+    "date": "2026-08-27T20:54:25",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 5 items\n\ntest_ruled.py::test_confirm_records_evidence PASSED                      [ 20%]\ntest_ruled.py::test_confirm_verify_green_ruled PASSED                    [ 40%]\ntest_ruled.py::test_refuse_on_no_match PASSED                            [ 60%]\ntest_ruled.py::test_list_open_shows_unmarked PASSED                      [ 80%]\ntest_ruled.py::test_main_dispatches_correctly PASSED                     [100%]\n\n============================== 5 passed in 0.03s ===============================",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "971a91bdd7ee01664ea1a01b4e587900413b11068cb91f67d3aac9bbd722dbaf",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1taq8eax/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

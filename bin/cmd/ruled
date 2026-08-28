@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m skills.ruled.door "$@"

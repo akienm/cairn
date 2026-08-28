@@ -125,7 +125,7 @@ def test_the_meter_measures_spent_against_avoided():
 def _stacks_with_prompts(text: str) -> dict:
     """A fixture domains stack riding the REAL other three (the seam only reads domains
     rows), with a non-default vertical whose generate dressing is ``text``."""
-    from cairn.devices.inference_domain import route
+    from cairn.devices.inference_domain.machines.route import route
     stacks = dict(route.load_stacks())
     stacks["domains"] = {"domains": [
         {"name": "general", "default": True, "why": "fixture default",
@@ -199,7 +199,7 @@ def test_editing_a_rows_prompt_is_a_new_question():
 def test_an_unknown_domain_is_refused_before_any_spend():
     """A vertical is an authored row, never an ad-hoc string — and the refusal costs no
     host call and lands no row."""
-    from cairn.devices.inference_domain.route import RouteRefused
+    from cairn.devices.inference_domain.machines.route.route import RouteRefused
     r = _CountingResolver()
     try:
         domain.resolve({"q": "unknown", "kind": "generate", "prompt": "p",
@@ -212,7 +212,7 @@ def test_an_unknown_domain_is_refused_before_any_spend():
 
 def test_a_malformed_domains_stack_is_refused():
     """Exactly one default, every row complete — the loader refuses, never defaults."""
-    from cairn.devices.inference_domain import route
+    from cairn.devices.inference_domain.machines.route import route
     stacks = dict(route.load_stacks())
     stacks["domains"] = {"domains": [
         {"name": "a", "default": True, "why": "w", "prompts": {}, "escalation": {}},

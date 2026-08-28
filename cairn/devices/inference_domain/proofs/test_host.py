@@ -565,7 +565,7 @@ def test_the_shipped_models_stack_declares_the_chat_verb():
     ``qwen3-coder:30b`` and the hex rung when it calls, and asking for exactly that is the
     whole of the safety. What survives here is the half that IS provider-and-model knowledge:
     the model declares which verbs it serves."""
-    from cairn.devices.inference_domain import route as route_mod
+    from cairn.devices.inference_domain.machines.route import route as route_mod
     stacks = route_mod.load_stacks()
 
     serving_chat = [m["name"] for m in stacks["models"]["models"] if "chat" in (m.get("serves") or [])]

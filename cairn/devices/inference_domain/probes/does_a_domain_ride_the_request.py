@@ -54,7 +54,7 @@ _ENOUGH = 12
 def _default_domain() -> str:
     """The default row's name, read from the domains stack itself — the stack owns which
     row is default; a literal here would drift the day the stack changes."""
-    from cairn.devices.inference_domain import route
+    from cairn.devices.inference_domain.machines.route import route
     return route.domain_rows()["default"]
 
 

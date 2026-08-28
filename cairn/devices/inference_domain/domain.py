@@ -214,7 +214,7 @@ def _domain_dressed(request: dict, *, stacks: dict | None = None) -> tuple[dict,
     model), and a caller's own ``system`` outranks the row's — the reasoning stays in the
     calling device; the row only supplies what the caller left unsaid.
     """
-    from cairn.devices.inference_domain import route as route_mod   # lazy: keeps import-light
+    from cairn.devices.inference_domain.machines.route import route as route_mod   # lazy: keeps import-light
     table = route_mod.domain_rows(stacks)
     name = request.get("domain") or table["default"]
     row = table["rows"].get(name)

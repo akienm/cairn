@@ -119,7 +119,7 @@ def _carry(context: dict) -> dict:
         except ValueError:
             req = {}
         try:
-            from cairn.devices.inference_domain import route
+            from cairn.devices.inference_domain.machines.route import route
             plan = route.route("generate", req.get("model"))
             traces.append({"canonical": off["canonical"],
                            "survivors": plan["survivors"], "trace": plan["findings"]})

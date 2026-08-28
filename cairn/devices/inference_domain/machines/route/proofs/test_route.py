@@ -12,7 +12,7 @@ the code — but the machine overlay is instance-space and is NEVER read in a pr
 call below gets a fixture overlay injected, and every dialed rung an injected transport. The
 live measurement against real Hex is the validation's separate, deliberate act.
 
-    python3 cairn/devices/inference_domain/proofs/test_route.py     # exit 0 = green, no host, no ~/.cairn
+    python3 cairn/devices/inference_domain/machines/route/proofs/test_route.py     # exit 0 = green, no host, no ~/.cairn
 """
 
 from __future__ import annotations
@@ -21,11 +21,12 @@ import ast
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.inference_domain import host, route
+from cairn.devices.inference_domain import host
+from cairn.devices.inference_domain.machines.route import route
 
 # The machine half, as a FIXTURE mirroring ~/.cairn/devices/inference_domain/0/hosts.json's shape — endpoints are
 # this-LAN facts and a sealed proof owns none, so it fabricates them and never opens the real one.
@@ -386,32 +387,37 @@ def test_an_empty_preference_leaves_the_order_untouched():
         "general must be indistinguishable from a bare shake — the default adds nothing"
 
 
+def test_the_mesh_holds_no_seam_of_its_own():
+    """THE WHOLE REASON THIS MACHINE EXISTS AS A SEPARATE COMPONENT. The sieve mesh was
+    import-pure but lived inside a component that dials the host; the carve-out moves it
+    to an address where bin/cmd/determinism can see it apart from the oracle-reaching
+    device. The carve-out is only worth anything if the import surface stays this narrow,
+    so the property is measured here rather than asserted in the docstring. Precedent:
+    cairn/devices/intention_extractor/machines/judge/proofs/test_judge.py."""
+    tree = ast.parse(Path(route.__file__).read_text(encoding="utf-8"))
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(a.name for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imported.add(node.module or "")
+    assert imported == {
+        "__future__", "json", "pathlib",
+        "cairn.tools.base", "cairn.tools.base.address", "cairn.tools.import_sieve",
+    }, f"import surface widened beyond pure dependencies: {sorted(imported)}"
+
+
 def _main() -> int:
-    checks = [
-        test_the_three_stacks_carry_the_ruled_rows_by_content,
-        test_the_domains_stack_carries_the_ruled_verticals_by_content,
-        test_a_preference_reorders_survivors_without_changing_the_set,
-        test_an_empty_preference_leaves_the_order_untouched,
-        test_missing_rules_or_overlay_refuse_loudly_naming_the_path,
-        test_the_overlay_berths_at_the_resolved_instance_address_never_a_hand_path,
-        test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first,
-        test_loopback_and_unkeyed_rungs_are_cut_and_the_trace_says_by_what,
-        test_loopback_never_survives_even_as_the_last_rung_standing,
-        test_a_request_for_an_unserved_kind_or_foreign_model_routes_nothing,
-        test_the_nest_is_the_general_nest_not_a_private_copy,
-        test_the_walk_dials_the_second_rung_when_the_first_is_unreachable,
-        test_a_hosts_own_refusal_is_carried_not_retried_elsewhere,
-        test_an_exhausted_walk_raises_naming_every_rung_it_tried,
-        test_a_protocol_without_a_transport_is_walked_past_loudly_never_dialed,
-    ]
+    checks = [v for k, v in sorted(globals().items())
+              if k.startswith("test_") and callable(v)]
+    assert len(checks) >= 16, f"the derived roster collapsed: {len(checks)}"
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — the stacks carry the ruled rows by content, the nest cuts loopback "
-          "categorically (even as the last rung standing) and unkeyed rungs loudly, hex "
+    print("green — the stacks carry the ruled rows by content, the mesh's import surface "
+          "is pure (no oracle-reaching imports), the nest cuts loopback categorically, hex "
           "survives both verbs cheapest-first, and the walk fails over on unreachability "
-          "only — never retrying a host's own refusal, never dialing a protocol it has no "
-          "transport for")
+          "only — never retrying a host's own refusal")
     return 0
 
 

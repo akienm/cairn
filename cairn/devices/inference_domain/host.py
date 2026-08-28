@@ -423,7 +423,7 @@ def _routed_resolver(*, model: str, timeout: float, transport, get, temperature:
     transport yet (gemini, until its key lands and the transport is built) is noted and
     walked past — listed, refusing, never silently dialed with the wrong protocol.
     """
-    from cairn.devices.inference_domain import route as route_mod  # late: keeps the import edge one-way
+    from cairn.devices.inference_domain.machines.route import route as route_mod  # late: keeps the import edge one-way
 
     inners: dict[str, object] = {}
 

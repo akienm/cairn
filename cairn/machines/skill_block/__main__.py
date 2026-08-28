@@ -68,6 +68,13 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(payload, dict):
             return _refuse(f"packet {packet_path!r} must be a JSON object, not "
                            f"{type(payload).__name__}")
+
+        from cairn.machines.skill_block.skill_block import _door_module
+        door = _door_module(skill)
+        if door is not None and getattr(door, "COMPOSING_DOOR", False):
+            door_main = getattr(door, "main", None)
+            if callable(door_main):
+                return door_main([packet_path])
         try:
             result = fire(skill, payload)
         except OSError as exc:

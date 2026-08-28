@@ -1,0 +1,35 @@
+[
+  {
+    "claim": "proof test_entry_gate_jurisdiction.py passes under python3",
+    "caller": "the-buildme-gates-guard-a-crossing-not-a-state",
+    "date": "2026-08-28T09:24:44",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_leg_a_complete_ticket_passes_at_leaving_buildme\n  green  test_leg_b_chartless_ticket_refused_at_leaving_buildme\n  green  test_leg_c_unticketed_crossing_records_not_checked\n  green  test_entry_gate_field_always_present\n  green  test_into_buildme_still_refuses_chartless",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "1f612352fc043a9aeacfcb57e50448fb50dc8dc7d34080112048848a83723fbc",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-51els85f/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 3,
+          "paths": [
+            "logs/charter/0/20260828.152442.089650.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260828.152442.091836.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260828.152442.093205.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

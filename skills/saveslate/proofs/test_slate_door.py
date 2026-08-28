@@ -175,6 +175,67 @@ def main() -> int:
         live_after = live_trace.read_bytes() if live_trace.exists() else None
         ok("live trace untouched by the proof", live_before == live_after)
 
+    # --- teeth below test the GENERIC CLI path (the side-path ticket) ---
+    import subprocess as _sp
+    live = door.live_git_heads()
+    slate_id = f"proof-fixture-generic-cli-{datetime.now().strftime('%Y%m%dT%H%M%S')}"
+
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        packet_path = tmp / "cli_packet.json"
+        packet_path.write_text(json.dumps({
+            "slate_id": slate_id,
+            "at_sea": "fixture via generic CLI",
+            "next_direction": "fixture next",
+            "open_threads": ["one thread"],
+            "instruments_read": {"git_heads": live,
+                                 "cursors_touched": "t1 -> PROVED"},
+            "bullets": [{"text": "generic CLI test", "stratum": "code"}],
+            "exit": "routed_forward",
+        }))
+
+        # 14. the generic CLI for saveslate produces both a berth AND a slate
+        r = _sp.run([sys.executable, "-m", "cairn.machines.skill_block",
+                     "fire", "saveslate", str(packet_path)],
+                    capture_output=True, text=True, timeout=30,
+                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO)})
+        try:
+            ok("generic CLI exits 0 for saveslate", r.returncode == 0, r.stderr)
+            result = json.loads(r.stdout)
+            ok("generic CLI berths saveslate", bool(result.get("berth")))
+            ok("generic CLI writes the slate file",
+               bool(result.get("slate")) and Path(result["slate"]).exists())
+            slate_data = json.loads(Path(result["slate"]).read_text())
+            ok("the slate carries the template keys",
+               set(slate_data.keys()) == {"id", "date", "written_at", "session", "author",
+                                          "at_sea", "next_direction", "open_threads"})
+        finally:
+            slate_file = _REPO.parent / "CairnCommons" / "slates" / f"{slate_id}.json"
+            if slate_file.exists():
+                slate_file.unlink()
+
+        # 15. a non-composing-door skill still fires through the generic path
+        intent_path = tmp / "intent_packet.json"
+        intent_path.write_text(json.dumps({
+            "from_idea": "none, because proof fixture — see skills/saveslate/proofs/test_slate_door.py",
+            "what": "proof fixture", "how": "fixture",
+            "traces_to": "nothing — fixture",
+            "shape": "aside", "falsifier": "fixture",
+            "challenge": {"better_approach": "none", "prior_art": "none",
+                          "hidden_assumption": "none", "real_collision": "none",
+                          "back_up": "proceed"},
+            "exit": "routed_out",
+            "bullets": [{"text": "fixture", "stratum": "code"}],
+        }))
+        r = _sp.run([sys.executable, "-m", "cairn.machines.skill_block",
+                     "fire", "intent", str(intent_path)],
+                    capture_output=True, text=True, timeout=30,
+                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO)})
+        ok("non-composing skill fires through generic path", r.returncode == 0, r.stderr)
+        result = json.loads(r.stdout)
+        ok("non-composing skill berths normally", bool(result.get("berth")))
+        ok("non-composing skill has no slate key", "slate" not in result)
+
     print(f"GREEN — {PASSES} teeth")
     return 0
 

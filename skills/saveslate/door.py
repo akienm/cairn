@@ -91,6 +91,12 @@ def live_git_heads(repo: Path | None = None, commons: Path | None = None) -> dic
 # knows must not change because a seam started deriving it (Law 7).
 JUDGE_NAME = "slate-door"
 
+# The skill declares itself: "I have a composing door — refuse me bare." The generic
+# seam CLI checks this and delegates to main() so the slate write runs alongside the
+# berth. Without it, the generic path berths through the seam alone and no slate is
+# written — the side-path this ticket closes.
+COMPOSING_DOOR = True
+
 
 def judge_packet(payload: dict, *, heads: dict | None = None,
                  slates_dir: Path | str | None = None) -> list[dict]:

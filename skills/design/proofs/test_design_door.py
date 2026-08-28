@@ -95,16 +95,20 @@ def main() -> int:
 
     good = {"intent_berth": alive, "entering_from": "intent",
             "open_questions": ["who owns the probe roster?"],
-            "ready_when": "the gates can be bound", "bullets": BULLET}
+            "ready_when": "the gates can be bound", "bullets": BULLET,
+            "intentions_cleared": ["I-cairn-claude-md"],
+            "tickets_reviewed": ["design-step-gains-gated-exits"]}
 
     # ── the entry gate: every lack in ONE raise ───────────────────────────────
     try:
         door.fire({}, **kw)
         ok("empty packet refused", False, "the door opened a design session on nothing")
     except DoorRefused as exc:
-        ok("entry gate: all five lacks in one raise",
+        ok("entry gate: all seven lacks in one raise",
            fields_of(exc) == ["bullets", "entering_from", "intent_berth",
-                              "open_questions", "ready_when"], str(fields_of(exc)))
+                              "intentions_cleared", "open_questions",
+                              "ready_when", "tickets_reviewed"],
+           str(fields_of(exc)))
 
     # ── the berth judges ──────────────────────────────────────────────────────
     try:
@@ -189,6 +193,70 @@ def main() -> int:
         ok("blank list entry refused", fields_of(exc) == ["open_questions"])
         ok("blank-entry why names the index", "[1]" in why_of(exc, "open_questions"))
 
+    # ── intentions_cleared: the lab sweep record ───────────────────────────
+    try:
+        door.fire({**good, "intentions_cleared": "I checked the lab"}, **kw)
+        ok("non-exemption string refused for intentions_cleared", False)
+    except DoorRefused as exc:
+        ok("non-exemption string refused for intentions_cleared",
+           fields_of(exc) == ["intentions_cleared"])
+        ok("intentions_cleared why names the exemption",
+           "none checked" in why_of(exc, "intentions_cleared"))
+
+    try:
+        door.fire({**good, "intentions_cleared": ["I-cairn-claude-md", ""]}, **kw)
+        ok("blank entry in intentions_cleared refused", False)
+    except DoorRefused as exc:
+        ok("blank entry in intentions_cleared refused",
+           fields_of(exc) == ["intentions_cleared"])
+        ok("blank-intentions why names the index",
+           "[1]" in why_of(exc, "intentions_cleared"))
+
+    try:
+        door.fire({**good, "intentions_cleared": 42}, **kw)
+        ok("wrong type for intentions_cleared refused", False)
+    except DoorRefused as exc:
+        ok("wrong type for intentions_cleared refused",
+           fields_of(exc) == ["intentions_cleared"])
+        ok("wrong-type-intentions why names the type",
+           "int" in why_of(exc, "intentions_cleared"))
+
+    ic_exempt = door.fire({**good, "intentions_cleared": "none checked"}, **kw)
+    ok("intentions_cleared exemption 'none checked' passes",
+       read_berth(ic_exempt["berth"]) is not None)
+
+    # ── tickets_reviewed: the neighbourhood sweep record ─────────────────
+    try:
+        door.fire({**good, "tickets_reviewed": "I read some tickets"}, **kw)
+        ok("non-exemption string refused for tickets_reviewed", False)
+    except DoorRefused as exc:
+        ok("non-exemption string refused for tickets_reviewed",
+           fields_of(exc) == ["tickets_reviewed"])
+        ok("tickets_reviewed why names the exemption",
+           "none reviewed" in why_of(exc, "tickets_reviewed"))
+
+    try:
+        door.fire({**good, "tickets_reviewed": ["design-step-gains-gated-exits", ""]}, **kw)
+        ok("blank entry in tickets_reviewed refused", False)
+    except DoorRefused as exc:
+        ok("blank entry in tickets_reviewed refused",
+           fields_of(exc) == ["tickets_reviewed"])
+        ok("blank-tickets why names the index",
+           "[1]" in why_of(exc, "tickets_reviewed"))
+
+    try:
+        door.fire({**good, "tickets_reviewed": 42}, **kw)
+        ok("wrong type for tickets_reviewed refused", False)
+    except DoorRefused as exc:
+        ok("wrong type for tickets_reviewed refused",
+           fields_of(exc) == ["tickets_reviewed"])
+        ok("wrong-type-tickets why names the type",
+           "int" in why_of(exc, "tickets_reviewed"))
+
+    tr_exempt = door.fire({**good, "tickets_reviewed": "none reviewed"}, **kw)
+    ok("tickets_reviewed exemption 'none reviewed' passes",
+       read_berth(tr_exempt["berth"]) is not None)
+
     # ── one pass, not a dribble ───────────────────────────────────────────────
     try:
         door.fire({"intent_berth": corpse, "entering_from": "nonsense",
@@ -196,8 +264,9 @@ def main() -> int:
         ok("multi-lack refused", False)
     except DoorRefused as exc:
         ok("ONE PASS: flat and semantic lacks raised together",
-           fields_of(exc) == ["entering_from", "intent_berth", "open_questions",
-                              "ready_when"], str(fields_of(exc)))
+           fields_of(exc) == ["entering_from", "intent_berth", "intentions_cleared",
+                              "open_questions", "ready_when", "tickets_reviewed"],
+           str(fields_of(exc)))
 
     # ── the conforming opening ────────────────────────────────────────────────
     clean = door.fire(good, **kw)
@@ -211,11 +280,11 @@ def main() -> int:
     # ── the trace ─────────────────────────────────────────────────────────────
     recs = read_trace("skill:design", root=traces)
     sends = [r for r in recs if r["event"] == "send_back"]
-    ok("every refusal traced", len(sends) == 11, str(len(sends)))
+    ok("every refusal traced", len(sends) == 17, str(len(sends)))
     ok("refusal trace names the judge",
        all(r["data"].get("judge") == "design-door" for r in sends))
     ok("every opening traced",
-       len([r for r in recs if r["event"] == "door_pass"]) == 3)
+       len([r for r in recs if r["event"] == "door_pass"]) == 5)
 
     # ── the CLI ───────────────────────────────────────────────────────────────
     env = {**os.environ, "PYTHONPATH": str(_REPO),
@@ -223,6 +292,8 @@ def main() -> int:
     bad = tmp / "bad.json"
     bad.write_text(json.dumps({"intent_berth": corpse, "entering_from": "intent",
                                "open_questions": ["q"], "ready_when": "r",
+                               "intentions_cleared": "none checked",
+                               "tickets_reviewed": "none reviewed",
                                "bullets": BULLET}))
     p = subprocess.run([sys.executable, str(_REPO / "skills/design/door.py"), str(bad)],
                        capture_output=True, text=True, env=env)

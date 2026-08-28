@@ -144,6 +144,46 @@ def judge_packet(payload: dict, *, repo: Path | None = None,
                           "why": f"entries {blank} are blank — an empty slot in a work list "
                                  "reads as a question nobody wrote down"})
 
+    intentions = payload.get("intentions_cleared")
+    if intentions is not None:
+        if isinstance(intentions, str) and intentions.strip():
+            if intentions.strip().lower() != "none checked":
+                lacks.append({"field": "intentions_cleared",
+                              "why": f"{intentions!r} is a string but not the exemption "
+                                     "'none checked' — the field is a LIST of intention names "
+                                     "or paths, or the literal 'none checked'"})
+        elif isinstance(intentions, (list, tuple)):
+            blank = [i for i, x in enumerate(intentions)
+                     if not str(x or "").strip()]
+            if blank:
+                lacks.append({"field": "intentions_cleared",
+                              "why": f"entries {blank} are blank — each must name "
+                                     "an intention that was actually checked"})
+        elif intentions is not None:
+            lacks.append({"field": "intentions_cleared",
+                          "why": f"carries a {type(intentions).__name__} — the legal values "
+                                 "are a list of intention names/paths or 'none checked'"})
+
+    tickets = payload.get("tickets_reviewed")
+    if tickets is not None:
+        if isinstance(tickets, str) and tickets.strip():
+            if tickets.strip().lower() != "none reviewed":
+                lacks.append({"field": "tickets_reviewed",
+                              "why": f"{tickets!r} is a string but not the exemption "
+                                     "'none reviewed' — the field is a LIST of ticket ids "
+                                     "or the literal 'none reviewed'"})
+        elif isinstance(tickets, (list, tuple)):
+            blank = [i for i, x in enumerate(tickets)
+                     if not str(x or "").strip()]
+            if blank:
+                lacks.append({"field": "tickets_reviewed",
+                              "why": f"entries {blank} are blank — each must name "
+                                     "a ticket that was actually reviewed"})
+        elif tickets is not None:
+            lacks.append({"field": "tickets_reviewed",
+                          "why": f"carries a {type(tickets).__name__} — the legal values "
+                                 "are a list of ticket ids or 'none reviewed'"})
+
     return lacks
 
 

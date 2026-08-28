@@ -25,7 +25,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.probe import Probe  # noqa: E402
-from cairn.tools.base.shim import BaseShim  # noqa: E402
+from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.db_domain import store  # noqa: E402
 
@@ -103,7 +103,7 @@ class _VerbShim(BaseShim):
     def __init__(self, device, bus=None, device_id="test_verb_device"):
         super().__init__(bus=bus)
         self._device = device
-        self._running = True
+        self._presence = ONLINE
         self._device_id = device_id
 
     @property

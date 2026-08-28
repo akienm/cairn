@@ -35,7 +35,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.probe import Probe
 from cairn.tools.base.core_values import CoreValuesMixin
-from cairn.tools.base.shim import BaseShim
+from cairn.tools.base.shim import BaseShim, NEVER_BOOTED, ONLINE
 
 
 class _SpyBus:
@@ -176,8 +176,10 @@ def test_a_horizon_is_declared_not_inferred():
 def test_the_device_is_started_on_demand():
     shim = _Shim()
     assert not shim.running, "a shim starts with its device asleep"
+    assert shim.presence == NEVER_BOOTED, "presence is NEVER_BOOTED before any poke"
     out = shim.deliver({"id": "e1", "body": {"hi": 1}})
     assert out == "handled" and shim.running and shim.started == 1
+    assert shim.presence == ONLINE, "presence is ONLINE after poke"
     # A second delivery does NOT restart the device — it is already awake.
     shim.deliver({"id": "e2"})
     assert shim.started == 1, "the device is woken once, then stays awake"
@@ -219,6 +221,7 @@ class _VerbShim(BaseShim):
     def __init__(self, bus=None):
         super().__init__(bus=bus)
         self._verb_device = _VerbDevice()
+        self.set_diagnostic_receiver(None)
     @property
     def device_id(self):
         return "verb_device"

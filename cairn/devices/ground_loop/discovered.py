@@ -38,7 +38,7 @@ prefers that one when both exist — see ``GroundLoopDevice._reconcile``.
 from __future__ import annotations
 
 from cairn.tools.base.probe import Probe
-from cairn.tools.base.shim import BaseShim
+from cairn.tools.base.shim import BaseShim, ONLINE
 
 
 class DiscoveredShim(BaseShim):
@@ -49,7 +49,7 @@ class DiscoveredShim(BaseShim):
         self._device_id = device_id
         self._folder = folder
         self._probes: list[Probe] = []
-        self._running = True   # the shim is the always-on part; there is no heavier process here
+        self._presence = ONLINE  # the shim is the always-on part; there is no heavier process here
 
     @property
     def device_id(self) -> str:

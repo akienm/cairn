@@ -72,6 +72,11 @@ from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
 
 
+NEVER_BOOTED = "NEVER_BOOTED"
+OFFLINE = "OFFLINE"
+ONLINE = "ONLINE"
+
+
 class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     """Abstract base for every Cairn device shim.
 
@@ -85,7 +90,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         super().__init__()
         self._bus = bus
         self._device = None      # the heavier process, instantiated on demand
-        self._running = False
+        self._presence = NEVER_BOOTED
         self._pulses = 0
         self._last_pulse: dict | None = None
         # Which declarations were TRUE at the last pulse — the memory that turns a level into a
@@ -402,8 +407,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         message that itself has no handler raises instead of bouncing again.
 
         Note the ``_device is None`` check rather than ``_ensure_device`` alone: a shim that is
-        always-on (``_running`` true from birth, like a discovered one) never enters the lazy
-        start, so asking ``_running`` would answer "yes, running" about a shim holding no
+        always-on (``_presence`` ONLINE from birth, like a discovered one) never enters the lazy
+        start, so asking ``_presence`` would answer "ONLINE" about a shim holding no
         device at all."""
         if envelope.get("body", {}).get("is_bounce"):
             return self.handle_bounce(envelope)
@@ -464,13 +469,17 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         return {"handled": False, "reason": reason}
 
     @property
+    def presence(self) -> str:
+        return self._presence
+
+    @property
     def running(self) -> bool:
-        return self._running
+        return self._presence == ONLINE
 
     def _ensure_device(self) -> None:
-        if not self._running:
+        if self._presence != ONLINE:
             self._device = self._start_device()
-            self._running = True
+            self._presence = ONLINE
 
     def _start_device(self):
         """Wake the device (the heavier process) — the shim's process-manager role. A shim that

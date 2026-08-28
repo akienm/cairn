@@ -36,7 +36,7 @@ which is its owner's call, not the bus's.
 
 from __future__ import annotations
 
-from cairn.tools.base.shim import BaseShim
+from cairn.tools.base.shim import BaseShim, ONLINE
 
 # How many envelopes one beat will move. A bound, so a device that was unreachable for an
 # hour drains over several beats instead of one enormous transaction — and the oldest mail
@@ -60,7 +60,7 @@ class BusShim(BaseShim):
         self._heartbeat = heartbeat
         self._limit = limit
         self._device = bus
-        self._running = True
+        self._presence = ONLINE
         # Which envelopes have already been REPORTED undeliverable. The crossing-memory
         # pattern the shim already uses for probes (``_was_true``), applied to the same
         # problem: mail that cannot be delivered stays in the inbox, so without this every

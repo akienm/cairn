@@ -40,7 +40,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.shim import BaseShim  # noqa: E402
+from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.bus.shim import BusShim  # noqa: E402
 from cairn.devices.db_domain import store  # noqa: E402
@@ -71,7 +71,7 @@ class MailboxShim(BaseShim):
         super().__init__()
         self._device_id = device_id
         self._device = device
-        self._running = True
+        self._presence = ONLINE
 
     @property
     def device_id(self) -> str:

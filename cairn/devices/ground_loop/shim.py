@@ -22,7 +22,7 @@ the surface can reach it, not so it can wake itself.
 
 from __future__ import annotations
 
-from cairn.tools.base.shim import BaseShim
+from cairn.tools.base.shim import BaseShim, ONLINE
 
 
 class GroundLoopShim(BaseShim):
@@ -32,7 +32,7 @@ class GroundLoopShim(BaseShim):
     def __init__(self, loop, bus=None) -> None:
         super().__init__(bus=bus)
         self._device = loop
-        self._running = True
+        self._presence = ONLINE
 
     @property
     def device_id(self) -> str:

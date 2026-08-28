@@ -70,8 +70,10 @@ def test_tickets_match_independent_read():
 def test_ideas_match_independent_read():
     result = read_ideas()
     if IDEAS_DIR.exists():
+        from cairn.tools.operator_inbox.inbox import _acted_on_idea_ids
+        acted = _acted_on_idea_ids()
         independent = [p for p in IDEAS_DIR.glob("*.json")
-                       if not p.stem.startswith("_")]
+                       if not p.stem.startswith("_") and p.stem not in acted]
         assert result["count"] == len(independent)
     else:
         assert result["count"] == 0

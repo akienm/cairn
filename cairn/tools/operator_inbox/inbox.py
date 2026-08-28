@@ -94,9 +94,36 @@ def read_intentions() -> dict:
     return {"count": len(items), "items": items}
 
 
+def _acted_on_idea_ids() -> set[str]:
+    """Idea ids that appear in a ticket's from_idea or provenance field."""
+    acted: set[str] = set()
+    if not TICKETS_DIR.exists():
+        return acted
+    all_idea_ids: set[str] = set()
+    if IDEAS_DIR.exists():
+        for p in IDEAS_DIR.glob("*.json"):
+            if not p.stem.startswith("_"):
+                all_idea_ids.add(p.stem)
+    for p in TICKETS_DIR.glob("*.json"):
+        try:
+            d = json.loads(p.read_text())
+        except (json.JSONDecodeError, OSError):
+            continue
+        fi = d.get("from_idea", "")
+        if isinstance(fi, str) and fi and not fi.startswith("none"):
+            acted.add(fi)
+        prov = d.get("provenance", "")
+        if isinstance(prov, str):
+            for idea_id in all_idea_ids:
+                if idea_id in prov:
+                    acted.add(idea_id)
+    return acted
+
+
 def read_ideas() -> dict:
     if not IDEAS_DIR.exists():
         return {"count": 0, "items": []}
+    acted = _acted_on_idea_ids()
     items = []
     for p in sorted(IDEAS_DIR.glob("*.json")):
         if p.stem.startswith("_"):
@@ -104,6 +131,8 @@ def read_ideas() -> dict:
         try:
             d = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):
+            continue
+        if p.stem in acted:
             continue
         items.append({
             "id": p.stem,

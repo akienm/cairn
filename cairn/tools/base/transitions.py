@@ -114,6 +114,7 @@ the clearance gate summons ``validation_store.standing`` the same way — all mo
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -1636,8 +1637,25 @@ def emit(
             "checks_proved": len(proved),
             **journal_extra,
         }
+        record["fingerprint"] = _crossing_fingerprint(record)
         projector.append_entry(history_path, state_path, record)
     return new_str
+
+
+_FINGERPRINT_EXCLUDE = frozenset({"fingerprint", "at", "seq"})
+
+
+def _crossing_fingerprint(record: dict) -> str:
+    body = {k: v for k, v in record.items() if k not in _FINGERPRINT_EXCLUDE}
+    canonical = json.dumps(body, sort_keys=True, separators=(",", ": "), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def verify_crossing_fingerprint(record: dict) -> bool:
+    fp = record.get("fingerprint")
+    if fp is None:
+        return False
+    return _crossing_fingerprint(record) == fp
 
 
 def pickup(

@@ -213,6 +213,34 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+def crossing_fingerprints_verified(row: dict, comp_dir: Path) -> list[dict]:
+    """Every crossing record carrying a fingerprint field must verify under re-hash.
+
+    Provenance: ticket crossing-fingerprints-are-verified — a crossing record is the
+    record of truth for gate passage (Law 7); a fingerprint makes it self-verifying.
+    Records without a fingerprint field (pre-existing, before the change) are skipped.
+    """
+    from cairn.tools.base.transitions import verify_crossing_fingerprint
+
+    h = comp_dir / "history.json"
+    if not h.exists():
+        return []
+    entries = projector.read_history(str(h))
+    findings = []
+    for i, entry in enumerate(entries):
+        if "fingerprint" not in entry:
+            continue
+        if not verify_crossing_fingerprint(entry):
+            findings.append(_finding(
+                "crossing_fingerprints_verified", row["component"],
+                f"crossing record {i} fingerprint verifies",
+                expected=True, actual=False,
+                entry_from=entry.get("from", "?"),
+                entry_to=entry.get("to", "?"),
+            ))
+    return findings
+
+
 # ── PACKET JURISDICTION (ticket packet-inspector-wire, 2026-07-28) ───────────
 # A build is judged against the packet that charted it. The walk is the wire's whole
 # claim: the packet claims its ticket (gated at the berth door), the component's own
@@ -2347,6 +2375,7 @@ SIEVES = {
     "fire_path_unreachable": fire_path_unreachable,
     "address_is_resolved_never_spelled": address_is_resolved_never_spelled,
     "charter_asserts_file_present": charter_asserts_file_present,
+    "crossing_fingerprints_verified": crossing_fingerprints_verified,
 }
 
 

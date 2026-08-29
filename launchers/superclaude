@@ -64,6 +64,11 @@ superclaude — Cairn's Claude Code launcher.
     (neither)       inherit the environment; if it's silent, the file default; if
                     that's silent too, launch unconstrained (1M)
 
+  tmux mode — headless CC in a tmux session:
+    --tmux          launch CC inside a tmux session instead of foreground.
+                    The shim can detect idle and inject commands. Override with
+                    CAIRN_SUPERCLAUDE_TMUX=1 in the environment.
+
   Launcher-only:
     --instance=N    launch as instance N (default 0). Each instance gets its own
                     session name (<host>_cc_N) and cgroup scope. The ground loop
@@ -87,6 +92,7 @@ HELP
 # ── parse OUR flags; forward everything else ─────────────────────────────────
 want_1m=0
 want_200k=0
+want_tmux=0
 dry_run=0
 no_preflight=0
 instance=""
@@ -95,6 +101,7 @@ for arg in "$@"; do
   case "$arg" in
     --1m)            want_1m=1 ;;
     --200k|--no-1m)  want_200k=1 ;;
+    --tmux)          want_tmux=1 ;;
     --dry-run)       dry_run=1 ;;
     --no-preflight)  no_preflight=1 ;;
     --instance=*)    instance="${arg#--instance=}" ;;
@@ -122,6 +129,15 @@ elif [[ "$FILE_DEFAULT_200K" -eq 1 ]]; then
   context_state="200K (file default)"
 else
   context_state="1M (unconstrained — nothing decided)"          # nothing said → unconstrained
+fi
+
+# ── resolve tmux mode (command line > environment) ──────────────────────────
+# Same precedence as the context switch: command line wins, environment fills in.
+tmux_mode=0
+if [[ "$want_tmux" -eq 1 ]]; then
+  tmux_mode=1
+elif [[ "${CAIRN_SUPERCLAUDE_TMUX:-}" == "1" ]]; then
+  tmux_mode=1
 fi
 
 # ── session identity: <hostname>_cc_<instance> ──────────────────────────────
@@ -458,11 +474,47 @@ fi
 if [[ "$dry_run" -eq 1 ]]; then
   echo "# superclaude --dry-run"
   echo "# context: $context_state"
+  echo "# tmux: $([[ "$tmux_mode" -eq 1 ]] && echo "on (session: cairn_cc_${instance})" || echo "off")"
   echo "# CLAUDE_CODE_DISABLE_1M_CONTEXT=${CLAUDE_CODE_DISABLE_1M_CONTEXT:-<unset>}"
-  printf 'exec %s' "$claude_bin"
-  printf ' %q' "$@"
-  echo
+  if [[ "$tmux_mode" -eq 1 ]]; then
+    printf 'tmux new-session -d -s %q -- %s' "cairn_cc_${instance}" "$claude_bin"
+    printf ' %q' "$@"
+    echo
+  else
+    printf 'exec %s' "$claude_bin"
+    printf ' %q' "$@"
+    echo
+  fi
   exit 0
+fi
+
+# ── TMUX MODE: headless CC in a tmux session ────────────────────────────────
+# When --tmux is set (or CAIRN_SUPERCLAUDE_TMUX=1), CC runs inside a tmux session
+# instead of foreground. The session name is cairn_cc_<instance>. The shim can then
+# detect idle and inject commands — the cocoon's channel to CC.
+#
+# The cgroup scope still wraps the tmux session (below), so memory limits apply.
+# A tmux session that already exists is attached to, not duplicated.
+if [[ "$tmux_mode" -eq 1 ]]; then
+  _sc_tmux_session="cairn_cc_${instance}"
+  if tmux has-session -t "$_sc_tmux_session" 2>/dev/null; then
+    _sc_log "tmux: session $_sc_tmux_session already exists — attaching"
+    exec tmux attach-session -t "$_sc_tmux_session"
+  fi
+  _sc_log "tmux: creating session $_sc_tmux_session"
+  # The cgroup scope wraps the tmux new-session, so memory limits still apply.
+  if [[ -z "${SUPERCLAUDE_NO_SCOPE:-}" ]] \
+     && command -v systemd-run >/dev/null 2>&1 \
+     && systemd-run --user --scope --quiet -- true >/dev/null 2>&1; then
+    _sc_log "scope: MemoryHigh=$_sc_mem_high MemoryMax=$_sc_mem_max MemorySwapMax=$_sc_mem_swap (tmux mode, unit superclaude-$$.scope)"
+    exec systemd-run --user --scope --quiet \
+      --unit "superclaude-$$.scope" \
+      -p MemoryHigh="$_sc_mem_high" \
+      -p MemoryMax="$_sc_mem_max" \
+      -p MemorySwapMax="$_sc_mem_swap" \
+      -- tmux new-session -d -s "$_sc_tmux_session" "$claude_bin" "$@" \; attach-session -t "$_sc_tmux_session"
+  fi
+  exec tmux new-session -s "$_sc_tmux_session" "$claude_bin" "$@"
 fi
 
 # ── THE SESSION RUNS IN ITS OWN CGROUP (measured 2026-08-18) ────────────────

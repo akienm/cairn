@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""cairn mailcheck — CC hook: check for waiting mail and inject a notification.
+
+Reads ~/.cairn/devices/cc/0/mail/ for pending messages. When mail is waiting,
+outputs a notification line that CC's hook system injects into the session.
+Outputs nothing when the mailbox is empty — silence is the normal state.
+
+Registered as a PreToolUse hook so the notification appears before each tool use,
+giving CC a chance to process mail before acting.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+_MAIL_DIR = Path.home() / ".cairn" / "devices" / "cc" / "0" / "mail"
+
+
+def main() -> int:
+    if not _MAIL_DIR.is_dir():
+        return 0
+    messages = sorted(_MAIL_DIR.glob("msg-*.json"))
+    if not messages:
+        return 0
+    senders = set()
+    for p in messages:
+        try:
+            rec = json.loads(p.read_text())
+            env = rec.get("envelope", {})
+            senders.add(env.get("from", env.get("sender", "unknown")))
+        except (json.JSONDecodeError, OSError):
+            continue
+    if not senders:
+        return 0
+    count = len(messages)
+    sender_list = ", ".join(sorted(senders))
+    # The output is what CC sees — terse, actionable
+    print(f"You have {count} waiting message{'s' if count != 1 else ''} "
+          f"from: {sender_list}. "
+          f"Read with: from cairn.devices.cc.shim import CCShim; "
+          f"CCShim.consume_mail()")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

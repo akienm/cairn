@@ -1,0 +1,21 @@
+{
+  "component": "cc",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "The Claude Code device — CC's presence in the Cairn rack. Its shim receives bus messages and pokes CC of them; its probes let the ground loop fire health checks each beat. Without this device the cocoon strategy has no address to deliver work to, and a second Cairn instance cannot spin up its own CC.",
+  "why": "CC is the primary resolver in the system, but it had no address in the rack — no charter, no shim, no probes. Two filed tickets (superclaude-tmux-mode, cc-chat-pane-via-hook-append) are pieces that belong to a device that did not exist. The cocoon wraps CC (memory cocoon-settle-stages-around-cc), but the thing being wrapped needs a rack address for the wrapper to find.",
+  "how": "A device class at cairn/devices/cc/ following the established pattern: (1) this charter defining CC's role, ownership, and learning; (2) a shim inheriting BaseShim — device_id 'cc', probes loaded by discover(), messages received via deliver(); (3) probes the ground loop fires each beat; (4) instance 0 at ~/.cairn/devices/cc/0/. The device composes BaseShim (lifecycle, message routing) and the Probe pattern (heartbeat-driven monitoring). CC's process is NOT started by this device — CC starts itself; the shim only gives it a rack address.",
+  "falsifier": "RED on any of: (1) cairn/devices/cc/ does not exist with an intention+why.json charter, a shim inheriting BaseShim, and at least one probe; (2) the ground loop's discover() does not find the device and load its probes with zero failures; (3) a message sent through the bus to device_id 'cc' does not reach the shim's deliver() — verified by sending a test message and observing it arrive in the shim's diagnostic mailbox.",
+  "gates": {
+    "proof_gate": "tester runs probes via discover() — the device's probe folder loads with zero failures, the shim inherits BaseShim and arms on instantiation, and a message round-trips through deliver()",
+    "durability_gate": "git commit — cairn/devices/cc/ and its contents are committed and pushed"
+  },
+  "owner": "CC gates writes to its own device class; Akien gates the design.",
+  "how_it_learns": "The shim's probes monitor CC's operational state — session liveness, message delivery reach. Probe findings travel the bus to the harbor master. The device does not learn autonomously; it is the subject of other devices' learning (the cocoon's cheaper stages learn about CC's patterns).",
+  "traces_to": [
+    "Telos 1 — inference compilation: the shim driving CC on idle is the system doing its own work.",
+    "Design: cocoon-settle-stages-around-cc — cheaper stages pre-process around CC.",
+    "Design: implementation-order-claude-first — CC is the first consumer of its own automation.",
+    "The ruled ladder: ground loop → rack → CC's shim → Akien's shim → web server → librarian."
+  ]
+}

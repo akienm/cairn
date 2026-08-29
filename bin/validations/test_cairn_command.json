@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_cairn_command.py passes under python3",
-    "caller": "sail:recordverdict-cli-door",
-    "date": "2026-08-01T13:03:07",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "recordverdict-retires-in-favor-of-review",
+    "date": "2026-08-29T02:18:35",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "eb448e3be013f39aa3cb78ab912f365c16601a3c25116de8527bd48b4f9378f2"
+      "source_fingerprint": "c827758f146d05464d6a5e25fc1a0f1a86cecd4ccb7ae02f6881ba060bef98ba",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2dj22u8i/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

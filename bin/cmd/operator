@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# cairn operator — the operator's reach into live state.
+# Thin dispatcher to cairn.tools.operator_inbox.inbox.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tools.operator_inbox.inbox "$@"

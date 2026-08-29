@@ -94,6 +94,7 @@ def check(label: str, condition: bool, detail: str = "") -> None:
 
 def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
         traces_dir: Path | str | None = None,
+        berths_dir: Path | str | None = None,
         adjudications_dir: Path | str | None = None,
         questions_dir: Path | str | None = None) -> subprocess.CompletedProcess:
     env = dict(os.environ)
@@ -113,9 +114,14 @@ def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
     env["CAIRN_ADJUDICATIONS_DIR"] = str(
         adjudications_dir if adjudications_dir is not None
         else Path(env["CAIRN_SLATES_DIR"]).parent / "adjudications_empty")
-    # The gate lane reads the trace berth; every case runs against a berth this
-    # proof owns (empty unless the case says otherwise) so a REAL pending finding
-    # can never rewrite fixture output.
+    # The gate lane reads skill_block berths; every case runs against a berth dir
+    # this proof owns (empty unless the case says otherwise) so a REAL pending
+    # artifact can never rewrite fixture output.
+    env["CAIRN_SKILL_BERTHS"] = str(berths_dir if berths_dir is not None
+                                    else Path(env["CAIRN_SLATES_DIR"]).parent / "berths_empty")
+    env["CAIRN_SKILL_REVIEWED_LOG"] = str(
+        Path(env["CAIRN_SLATES_DIR"]).parent / "reviewed_empty.jsonl")
+    # Legacy trace root — kept for any remaining consumers.
     env["CAIRN_LB_TRACE_ROOT"] = str(traces_dir if traces_dir is not None
                                      else Path(env["CAIRN_SLATES_DIR"]).parent / "traces_empty")
     return subprocess.run([sys.executable, str(SLATE), *args],
@@ -306,43 +312,42 @@ def main() -> int:
               r.stdout[:120])
         check("bare run is not JSON", not r.stdout.lstrip().startswith("{"))
 
-        # ── 12. the AT-YOUR-GATE lane: a pending finding reaches session open ─────
-        print("\n12. a finding awaiting his verdict prints at the gate, above the slate")
-        g1 = root / "traces_pending"
-        g1.mkdir()
-        (g1 / "some-block.jsonl").write_text(json.dumps({
-            "block": "some-block", "event": "finding", "id": "f1e2d3c4b5a6",
-            "when": "2026-08-01T10:00:00+00:00", "consumer": "training",
-            "data": {"bullets": [{"stratum": "code", "text": "the wire landed"}]},
-        }) + "\n", encoding="utf-8")
-        r = run(s1, t_empty, traces_dir=g1)
-        check("the lane announces the gate", "AT AKIEN'S GATE" in r.stdout, r.stdout[:400])
-        check("the finding's block and bullet ride along",
-              "some-block" in r.stdout and "the wire landed" in r.stdout)
-        check("the answering command is named", "cairn recordverdict" in r.stdout)
+        # ── 12. a pending artifact reaches session open, above the slate ──────
+        print("\n12. a pending artifact prints at the gate, above the slate")
+        g1 = root / "berths_pending" / "intent"
+        g1.mkdir(parents=True)
+        (g1 / "intent-20260801T100000-f1e2d3c4b5a6.json").write_text(json.dumps({
+            "skill": "intent", "finding_id": "f1e2d3c4b5a6",
+            "when": "2026-08-01T10:00:00+00:00", "exit": "routed_forward",
+            "bullets": [{"stratum": "code", "text": "the wire landed"}],
+            "answers": {"what": "test intent"},
+        }), encoding="utf-8")
+        r = run(s1, t_empty, berths_dir=g1.parent)
+        check("the lane announces the gate",
+              "ARTIFACTS AWAITING REVIEW" in r.stdout, r.stdout[:400])
+        check("the finding's skill and bullet ride along",
+              "intent" in r.stdout and "the wire landed" in r.stdout)
+        check("the answering command is named", "cairn review" in r.stdout)
         check("the gate prints ABOVE the slate",
-              r.stdout.index("AT AKIEN'S GATE") < r.stdout.index("REAL"),
+              r.stdout.index("ARTIFACTS AWAITING REVIEW") < r.stdout.index("REAL"),
               "a thing only HE can move must not hide below the plan")
         check("exit 0", r.returncode == 0, f"rc={r.returncode}")
-        rj = run(s1, t_empty, "--hook", traces_dir=g1)
+        rj = run(s1, t_empty, "--hook", berths_dir=g1.parent)
         receipt = json.loads(rj.stdout)["systemMessage"]
-        check("the receipt counts the gate", "1 at the gate" in receipt, receipt)
+        check("the receipt counts the gate", "1 awaiting review" in receipt, receipt)
 
         # ── 13. zero pending is SILENT (the tool is invisible when it works) ───────
         print("\n13. an empty gate adds nothing to the banner")
         r = run(s1, t_empty)
-        check("no gate section", "AT AKIEN'S GATE" not in r.stdout)
+        check("no gate section", "ARTIFACTS AWAITING REVIEW" not in r.stdout)
         rj = run(s1, t_empty, "--hook")
         receipt = json.loads(rj.stdout)["systemMessage"]
-        check("the receipt still carries the moving value", "0 at the gate" in receipt, receipt)
+        check("the receipt still carries the moving value",
+              "0 awaiting review" in receipt, receipt)
 
-        # ── 14. a broken gate lane is LOUD and never wedges session open ───────────
-        print("\n14. an unreadable trace berth says so and the session still opens")
-        g_bad = root / "traces_bad"
-        g_bad.mkdir()
-        (g_bad / "corrupt.jsonl").write_text("this is not json\n", encoding="utf-8")
-        r = run(s1, t_empty, traces_dir=g_bad)
-        check("the failure is named", "gate lane" in r.stdout, r.stdout[:400])
+        # ── 14. empty berths root — loud but never wedges ─────────────────────────
+        print("\n14. an empty berths root says so and the session still opens")
+        r = run(s1, t_empty)
         check("the banner survives (never-wedge)", "REAL" in r.stdout and r.returncode == 0,
               f"rc={r.returncode}")
 

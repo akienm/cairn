@@ -74,6 +74,10 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent.parent          # <...>/cairn
 COMMONS = REPO.parent / "CairnCommons"
 
+# Ensure the repo is importable — the tool lives inside the package.
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
 # Injectable roots, the same idiom bin/cairn uses for CAIRN_CMD_DIR ("used by the proof
 # to point at a stub tree"). Without these the proof would have to read the real commons,
 # and a proof over live data can only assert invariants — it could never pin the ONE
@@ -190,109 +194,85 @@ def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
 
 
 def _live_troubles() -> tuple[list[dict], str | None]:
-    """Ask the device, never the directory. The trouble lane owns what LIVE means —
-    ``live()`` counts a missing or malformed standing as live on purpose, and
-    re-deriving that rule here would be a second owner of it (Law 6)."""
-    sys.path.insert(0, str(REPO))
+    """Ask the tool's reader — single source for live-state reads."""
     try:
-        from cairn.devices.trouble.trouble import TroubleDevice
+        from cairn.tools.operator_inbox.inbox import read_troubles
     except Exception as exc:
         return [], f"trouble lane unreachable: {exc}"
     try:
-        return TroubleDevice(TROUBLES).live(), None
+        data = read_troubles(path=TROUBLES)
+        return data["live"], None
     except Exception as exc:
         return [], f"trouble lane failed to read: {exc}"
 
 
 def _at_the_gate() -> tuple[list[dict], str | None]:
-    """Artifacts awaiting operator review. The skill_block owns the berths
-    and the reviewed set — this lane only renders what its reader says."""
-    sys.path.insert(0, str(REPO))
+    """Artifacts awaiting operator review — via the tool's reader."""
     try:
-        from cairn.machines.skill_block.skill_block import pending_reviews
+        from cairn.tools.operator_inbox.inbox import read_adjudications
     except Exception as exc:
         return [], f"review lane unreachable: {exc}"
     try:
-        return pending_reviews(), None
+        data = read_adjudications()
+        return data["findings"], None
     except Exception as exc:
         return [], f"review lane failed to read: {exc}"
 
 
 def _unadjudicated() -> tuple[list[dict], str | None]:
-    """THE LAP — things needing a decision by Akien, CC, or both, before they can be
-    anything else. Akien, 2026-08-02: "akien asks what's next? surface what's in that
-    folder."
-
-    Read straight off the directory, deliberately: this store has no device and does not
-    need one. An item is unresolved iff ``resolved`` is null/absent, which is a rule the
-    store's own charter states and nothing else owns — so reading it here is not a second
-    owner, it is the only one. When the store grows a device this moves behind it, exactly
-    as the trouble lane did.
-
-    A malformed item counts as UNRESOLVED and says so, the same direction the trouble
-    lane chose: a decision nobody can read is not a decision that got made (Law 7).
-    """
-    if not ADJUDICATIONS.is_dir():
-        return [], None                 # not every clone has one yet; silence, not noise
-    out, bad = [], []
-    for p in sorted(ADJUDICATIONS.glob("*.json")):
-        if p.name.startswith("_"):
-            continue
-        try:
-            d = json.loads(p.read_text(encoding="utf-8"))
-        except Exception as exc:
-            bad.append(f"{p.name}: {exc}")
-            out.append({"id": p.stem, "what": "UNREADABLE — counts as unresolved",
-                        "whose": "?", "blocks": "?"})
-            continue
-        if not d.get("resolved"):
-            out.append(d)
-    return out, ("unreadable adjudication(s): " + "; ".join(bad)) if bad else None
+    """THE LAP — via the tool's reader. The tool owns the read logic (what is
+    unresolved, how malformed items count); this is a presenting surface."""
+    try:
+        from cairn.tools.operator_inbox.inbox import read_lap
+    except Exception as exc:
+        return [], f"adjudication lane unreachable: {exc}"
+    try:
+        data = read_lap(adjudications_dir=ADJUDICATIONS)
+        return data["items"], data["error"]
+    except Exception as exc:
+        return [], f"adjudication lane failed to read: {exc}"
 
 
 def _open_questions() -> tuple[list[dict], str | None]:
-    """THE OPEN LANE — CC's frontier, surfaced to Akien. Akien, 2026-08-11: "open
-    questions lands with you... open questions is part of what i should see from the
-    hook where it says 'you still have things to decide on'."
+    """THE OPEN LANE — via the tool's reader."""
+    try:
+        from cairn.tools.operator_inbox.inbox import read_questions
+    except Exception as exc:
+        return [], f"questions lane unreachable: {exc}"
+    try:
+        data = read_questions(questions_dir=QUESTIONS)
+        return data["open"], data.get("error")
+    except Exception as exc:
+        return [], f"questions lane failed to read: {exc}"
 
-    NOT THE SAME TIER AS THE GATE OR THE LAP, and the header says so. Those two are
-    work only Akien can move. These are CC's — he owns raising them, holding them and
-    checking them at every "what's next"; Akien sees the lane, he does not own it
-    (Law 6, and the ruling is explicit that the surface is not the custody).
 
-    IT SHOWS HALF THE LANE AND SAYS SO. The store's charter compiles this lane from
-    TWO sources: homeless `open-*.json` here, and every charter's `filed_edges`, which
-    live beside the code they bound (Law 5) and can only appear through a projector.
-    That projector does not exist — and is itself already a member of the lane it is
-    missing from (open-the-frontier-projector.json). A lane that showed the homeless
-    half silently would be the cropped map this ruling was made against, so the count
-    is labelled at the surface rather than being quietly partial.
-
-    The `open-` prefix IS the lane boundary — the charter states it outright: "a probe
-    file never wears it, an open question always does." So the glob is the membership
-    rule and not a second owner of it. Unresolved iff ``resolved`` is null/absent, and
-    an unreadable one counts as unresolved and says so — the same direction the trouble
-    and lap lanes chose (Law 7).
-    """
-    if not QUESTIONS.is_dir():
-        return [], None                 # not every clone has one yet; silence, not noise
-    out, bad = [], []
-    for p in sorted(QUESTIONS.glob("open-*.json")):
-        try:
-            d = json.loads(p.read_text(encoding="utf-8"))
-        except Exception as exc:
-            bad.append(f"{p.name}: {exc}")
-            out.append({"id": p.stem, "question": "UNREADABLE — counts as unresolved",
-                        "raised_by": "?"})
-            continue
-        if not d.get("resolved"):
-            out.append(d)
-    return out, ("unreadable open question(s): " + "; ".join(bad)) if bad else None
+def _ticket_summary() -> str | None:
+    """Active ticket counts — via the tool's reader. Returns a short string
+    for the receipt, or None if the read fails."""
+    try:
+        from cairn.tools.operator_inbox.inbox import read_tickets
+        data = read_tickets()
+        if not data["total_not_done"]:
+            return None
+        by_state = data["by_state"]
+        parts = []
+        for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
+            count = len(by_state.get(s, []))
+            if count:
+                parts.append(f"{s} {count}")
+        waiting = sum(len(v) for k, v in by_state.items()
+                      if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME"))
+        if waiting:
+            parts.append(f"other {waiting}")
+        return f"{data['total_not_done']} tickets ({', '.join(parts)})"
+    except Exception:
+        return None
 
 
 def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str | None,
              pending: list, g_err: str | None, unadj: list | None = None,
-             questions: list | None = None) -> str:
+             questions: list | None = None,
+             ticket_summary: str | None = None) -> str:
     """The one line Akien sees. Carries the values that MOVE — which slate was
     chosen, how many troubles are live, and how many findings stand at his gate
     — so a wrong answer is visible at a glance. A fixed string here would be a
@@ -302,7 +282,8 @@ def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str |
     gate = "review lane UNREACHABLE" if g_err else f"{len(pending)} awaiting review"
     lap = f" · {len(unadj)} in the lap" if unadj else ""
     open_q = f" · {len(questions)} open question(s)" if questions else ""
-    return f"🪝 slate · {which} · {lane} · {gate}{lap}{open_q}"
+    tickets = f" · {ticket_summary}" if ticket_summary else ""
+    return f"\U0001fa9d slate · {which} · {lane} · {gate}{lap}{open_q}{tickets}"
 
 
 def build() -> tuple[str, str]:
@@ -315,6 +296,7 @@ def build() -> tuple[str, str]:
     pending, g_err = _at_the_gate()
     unadj, a_err = _unadjudicated()
     questions, q_err = _open_questions()
+    tkt_summary = _ticket_summary()
     path, slate, s_warn = _newest_slate()
 
     lines.append(_rule("═"))
@@ -393,7 +375,7 @@ def build() -> tuple[str, str]:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
         lines.append(_rule("═"))
-        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj, questions)
+        return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj, questions, tkt_summary)
 
     if s_warn:
         lines.append(f"!! {s_warn}")
@@ -421,7 +403,7 @@ def build() -> tuple[str, str]:
         "that check is yours, it did not compile.", ""))
     lines.append(_rule("═"))
 
-    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err, unadj, questions)
+    return "\n".join(lines), _receipt(slate, path, troubles, t_err, pending, g_err, unadj, questions, tkt_summary)
 
 
 def main(argv: list[str]) -> int:

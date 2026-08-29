@@ -1,17 +1,37 @@
-"""Deterministic operator inbox — reads live state, stores nothing."""
+"""Deterministic operator inbox — reads live state, stores nothing.
+
+THE SINGLE SOURCE of live-state reads for every surface: the session-open banner
+(bin/cmd/slate), the standalone ``cairn operator show inbox``, and any future
+consumer. Each reader calls the source's own API and the script assembles the
+results. A new data source is a new reader function added here, not a reimplementation
+in another file.
+
+Paths are injectable via env vars for proofs (same idiom as the slate and the
+skill_block berths).
+"""
 
 from __future__ import annotations
 
 import json
+import os
 import re
+import sys
 from pathlib import Path
 
-CAIRN_ROOT = Path.home() / "dev" / "src" / "cairn"
-COMMONS_ROOT = Path.home() / "dev" / "src" / "CairnCommons"
-TICKETS_DIR = COMMONS_ROOT / "tickets"
-IDEAS_DIR = COMMONS_ROOT / "ideas"
-QUESTIONS_DIR = COMMONS_ROOT / "questions"
-INTENTIONS_DIR = COMMONS_ROOT / "intentions-not-beside-code"
+CAIRN_ROOT = Path(os.environ.get(
+    "CAIRN_ROOT", Path.home() / "dev" / "src" / "cairn"))
+COMMONS_ROOT = Path(os.environ.get(
+    "CAIRN_COMMONS_ROOT", Path.home() / "dev" / "src" / "CairnCommons"))
+TICKETS_DIR = Path(os.environ.get(
+    "CAIRN_TICKETS_DIR", COMMONS_ROOT / "tickets"))
+IDEAS_DIR = Path(os.environ.get(
+    "CAIRN_IDEAS_DIR", COMMONS_ROOT / "ideas"))
+QUESTIONS_DIR = Path(os.environ.get(
+    "CAIRN_QUESTIONS_DIR", COMMONS_ROOT / "questions"))
+INTENTIONS_DIR = Path(os.environ.get(
+    "CAIRN_INTENTIONS_DIR", COMMONS_ROOT / "intentions-not-beside-code"))
+ADJUDICATIONS_DIR = Path(os.environ.get(
+    "CAIRN_ADJUDICATIONS_DIR", COMMONS_ROOT / "adjudications"))
 
 TERMINAL_STATES = {"PROVED", "SUPERSEDED", "RETIRED", "KILLED", "ABSORBED"}
 
@@ -19,6 +39,7 @@ SECTION_ORDER = [
     "troubles",
     "email",
     "adjudications",
+    "lap",
     "questions",
     "design",
     "tickets",
@@ -40,12 +61,20 @@ def _cursor(state: str) -> str | None:
     for part in state.split():
         if part.startswith("[") and part.endswith("]"):
             return part.strip("[]")
+        if ":" in part:
+            base = part.split(":")[0]
+            if base.startswith("["):
+                return base.strip("[]")
     return None
 
 
-def read_troubles() -> dict:
+# ---------------------------------------------------------------------------
+# Readers — each calls the source's own API, never stores.
+# ---------------------------------------------------------------------------
+
+def read_troubles(*, path: str | None = None) -> dict:
     from cairn.devices.trouble.trouble import TroubleDevice
-    td = TroubleDevice()
+    td = TroubleDevice(path)
     live = td.live()
     total = td.all()
     return {"live": live, "live_count": len(live), "total_count": len(total)}
@@ -57,20 +86,59 @@ def read_adjudications() -> dict:
     return {"findings": pr, "count": len(pr)}
 
 
-def read_questions() -> dict:
-    if not QUESTIONS_DIR.exists():
+def read_lap(*, adjudications_dir: Path | None = None) -> dict:
+    """The 'needs adjudication' lane — things needing a decision before they can
+    be anything else. An unresolved item is one whose ``resolved`` is null/absent.
+    A malformed item counts as UNRESOLVED (Law 7)."""
+    d = adjudications_dir or ADJUDICATIONS_DIR
+    if not d.is_dir():
+        return {"items": [], "count": 0, "error": None}
+    out: list[dict] = []
+    bad: list[str] = []
+    for p in sorted(d.glob("*.json")):
+        if p.name.startswith("_"):
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:
+            bad.append(f"{p.name}: {exc}")
+            out.append({"id": p.stem, "what": "UNREADABLE — counts as unresolved",
+                        "whose": "?", "blocks": "?"})
+            continue
+        if not data.get("resolved"):
+            out.append(data)
+    error = ("unreadable adjudication(s): " + "; ".join(bad)) if bad else None
+    return {"items": out, "count": len(out), "error": error}
+
+
+def read_questions(*, questions_dir: Path | None = None) -> dict:
+    d = questions_dir or QUESTIONS_DIR
+    if not d.exists():
         return {"open": [], "count": 0}
-    open_q = sorted(p.stem for p in QUESTIONS_DIR.glob("open-*.json"))
-    all_q = sorted(p.stem for p in QUESTIONS_DIR.glob("*.json")
+    items: list[dict] = []
+    bad: list[str] = []
+    for p in sorted(d.glob("open-*.json")):
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:
+            bad.append(f"{p.name}: {exc}")
+            items.append({"id": p.stem, "question": "UNREADABLE — counts as unresolved",
+                          "raised_by": "?"})
+            continue
+        if not data.get("resolved"):
+            items.append(data)
+    all_q = sorted(p.stem for p in d.glob("*.json")
                    if not p.stem.startswith("_"))
-    return {"open": open_q, "count": len(open_q), "total": len(all_q)}
+    error = ("unreadable open question(s): " + "; ".join(bad)) if bad else None
+    return {"open": items, "count": len(items), "total": len(all_q), "error": error}
 
 
-def read_tickets() -> dict:
-    if not TICKETS_DIR.exists():
+def read_tickets(*, tickets_dir: Path | None = None) -> dict:
+    d = tickets_dir or TICKETS_DIR
+    if not d.exists():
         return {"by_state": {}, "total_not_done": 0}
     by_state: dict[str, list[str]] = {}
-    for p in sorted(TICKETS_DIR.glob("*.json")):
+    for p in sorted(d.glob("*.json")):
         try:
             t = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):
@@ -87,24 +155,27 @@ def read_tickets() -> dict:
     return {"by_state": by_state, "total_not_done": total}
 
 
-def read_intentions() -> dict:
-    if not INTENTIONS_DIR.exists():
+def read_intentions(*, intentions_dir: Path | None = None) -> dict:
+    d = intentions_dir or INTENTIONS_DIR
+    if not d.exists():
         return {"count": 0, "items": []}
-    items = sorted(p.stem for p in INTENTIONS_DIR.glob("I-*.md"))
+    items = sorted(p.stem for p in d.glob("I-*.md"))
     return {"count": len(items), "items": items}
 
 
-def _acted_on_idea_ids() -> set[str]:
-    """Idea ids that appear in a ticket's from_idea or provenance field."""
+def _acted_on_idea_ids(*, tickets_dir: Path | None = None,
+                       ideas_dir: Path | None = None) -> set[str]:
+    td = tickets_dir or TICKETS_DIR
+    id_ = ideas_dir or IDEAS_DIR
     acted: set[str] = set()
-    if not TICKETS_DIR.exists():
+    if not td.exists():
         return acted
     all_idea_ids: set[str] = set()
-    if IDEAS_DIR.exists():
-        for p in IDEAS_DIR.glob("*.json"):
+    if id_.exists():
+        for p in id_.glob("*.json"):
             if not p.stem.startswith("_"):
                 all_idea_ids.add(p.stem)
-    for p in TICKETS_DIR.glob("*.json"):
+    for p in td.glob("*.json"):
         try:
             d = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):
@@ -120,24 +191,26 @@ def _acted_on_idea_ids() -> set[str]:
     return acted
 
 
-def read_ideas() -> dict:
-    if not IDEAS_DIR.exists():
+def read_ideas(*, ideas_dir: Path | None = None,
+               tickets_dir: Path | None = None) -> dict:
+    d = ideas_dir or IDEAS_DIR
+    if not d.exists():
         return {"count": 0, "items": []}
-    acted = _acted_on_idea_ids()
+    acted = _acted_on_idea_ids(tickets_dir=tickets_dir, ideas_dir=d)
     items = []
-    for p in sorted(IDEAS_DIR.glob("*.json")):
+    for p in sorted(d.glob("*.json")):
         if p.stem.startswith("_"):
             continue
         try:
-            d = json.loads(p.read_text())
+            data = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):
             continue
         if p.stem in acted:
             continue
         items.append({
             "id": p.stem,
-            "author": d.get("author", "?"),
-            "prose_prefix": (d.get("prose", "") or "")[:80],
+            "author": data.get("author", "?"),
+            "prose_prefix": (data.get("prose", "") or "")[:80],
         })
     return {"count": len(items), "items": items}
 
@@ -146,18 +219,24 @@ def read_email() -> dict:
     return {"count": 0, "note": "bus unresolved-messages query not yet built"}
 
 
-def gather_all() -> dict:
+def gather_all(**kw) -> dict:
     return {
-        "troubles": read_troubles(),
+        "troubles": read_troubles(path=kw.get("troubles_dir")),
         "email": read_email(),
         "adjudications": read_adjudications(),
-        "questions": read_questions(),
+        "lap": read_lap(adjudications_dir=kw.get("adjudications_dir")),
+        "questions": read_questions(questions_dir=kw.get("questions_dir")),
         "design": {},
-        "tickets": read_tickets(),
-        "intentions": read_intentions(),
-        "ideas": read_ideas(),
+        "tickets": read_tickets(tickets_dir=kw.get("tickets_dir")),
+        "intentions": read_intentions(intentions_dir=kw.get("intentions_dir")),
+        "ideas": read_ideas(ideas_dir=kw.get("ideas_dir"),
+                            tickets_dir=kw.get("tickets_dir")),
     }
 
+
+# ---------------------------------------------------------------------------
+# Formatting
+# ---------------------------------------------------------------------------
 
 def _line(width: int = 76) -> str:
     return "=" * width
@@ -166,6 +245,55 @@ def _line(width: int = 76) -> str:
 def _section_line(title: str, width: int = 76) -> str:
     dashes = "-" * (width - len(title) - 4)
     return f"-- {title} {dashes}"
+
+
+def _wrap(text: str, indent: str = "  ", width: int = 76) -> str:
+    out, line = [], indent
+    for word in str(text).split():
+        if len(line) + len(word) + 1 > width and line.strip():
+            out.append(line.rstrip())
+            line = indent + word + " "
+        else:
+            line += word + " "
+    if line.strip():
+        out.append(line.rstrip())
+    return "\n".join(out)
+
+
+def format_summary(data: dict) -> str:
+    """One-line summary of live state — the shape the receipt carries."""
+    troubles = data["troubles"]
+    adjudications = data["adjudications"]
+    questions = data["questions"]
+    tickets = data["tickets"]
+    ideas = data["ideas"]
+    lap = data.get("lap", {"count": 0})
+
+    parts = []
+    if troubles["live_count"]:
+        parts.append(f"{troubles['live_count']} live trouble(s)")
+    else:
+        parts.append("0 live troubles")
+    parts.append(f"{adjudications['count']} artifact(s) awaiting review")
+    parts.append(f"{questions['count']} open question(s)")
+
+    by_state = tickets["by_state"]
+    state_parts = []
+    for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
+        count = len(by_state.get(s, []))
+        if count:
+            state_parts.append(f"{s} {count}")
+    waiting = sum(len(v) for k, v in by_state.items()
+                  if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME"))
+    if waiting:
+        state_parts.append(f"other {waiting}")
+    if state_parts:
+        parts.append(f"{tickets['total_not_done']} tickets ({', '.join(state_parts)})")
+    else:
+        parts.append(f"{tickets['total_not_done']} tickets")
+
+    parts.append(f"{ideas['count']} idea(s)")
+    return " | ".join(parts)
 
 
 def format_inbox(data: dict) -> str:
@@ -177,6 +305,7 @@ def format_inbox(data: dict) -> str:
     intentions = data["intentions"]
     ideas = data["ideas"]
     email = data["email"]
+    lap = data.get("lap", {"items": [], "count": 0, "error": None})
 
     by_state = tickets["by_state"]
     thinkme = by_state.get("THINKME", [])
@@ -187,17 +316,8 @@ def format_inbox(data: dict) -> str:
     lines.append(_line())
     lines.append("")
 
-    # Totals
-    parts = []
-    if troubles["live_count"]:
-        parts.append(f"{troubles['live_count']} live trouble(s)")
-    else:
-        parts.append("0 live troubles")
-    parts.append(f"{adjudications['count']} artifact(s) awaiting review")
-    parts.append(f"{questions['count']} open question(s)")
-    parts.append(f"{tickets['total_not_done']} tickets (CC work)")
-    parts.append(f"{ideas['count']} idea(s)")
-    lines.append("  " + " | ".join(parts))
+    # Summary line
+    lines.append("  " + format_summary(data))
     lines.append("")
 
     # TROUBLES
@@ -243,6 +363,23 @@ def format_inbox(data: dict) -> str:
                 text = b.get("text", "") if isinstance(b, dict) else str(b)
                 lines.append(f"        {text[:90]}")
         lines.append(f"  review with: cairn review <id> \"your words\"")
+        lines.append(f"  deep view:   cairn operator show artifact <id>")
+        lines.append("")
+
+    # THE LAP
+    if lap["error"]:
+        lines.append(f"  !! {lap['error']}")
+    if lap["count"]:
+        lines.append("")
+        lines.append(_section_line(f"NEEDS ADJUDICATION ({lap['count']})"))
+        lines.append("")
+        for a in lap["items"]:
+            lines.append(f"    [{a.get('whose', '?')}] {a.get('id', '?')}")
+            what = a.get("what", "<no what recorded>")
+            lines.append(f"      {what[:90]}")
+            blocks = a.get("blocks")
+            if blocks:
+                lines.append(f"      blocks: {blocks}")
         lines.append("")
 
     # QUESTIONS
@@ -253,7 +390,8 @@ def format_inbox(data: dict) -> str:
         lines.append(_section_line(f"QUESTIONS FOR OPERATOR ({questions['count']})"))
         lines.append("")
         for q in questions["open"]:
-            lines.append(f"    {q}")
+            qid = q.get("id", "?") if isinstance(q, dict) else str(q)
+            lines.append(f"    {qid}")
         lines.append("")
 
     # DESIGN (THINKME tickets — not yet designed, need operator input)
@@ -267,14 +405,18 @@ def format_inbox(data: dict) -> str:
             lines.append(f"    {t}")
         lines.append("")
 
-    # TICKETS (all CC work — summary only)
+    # TICKETS (all CC work — summary by state)
     lines.append("")
     state_parts = []
-    for s in ["THINKME", "TICKETME", "BUILDME", "PROVEME", "WATCHME"]:
-        count = len(by_state.get(s, []))
-        if count:
-            state_parts.append(f"{s} ({count})")
-    lines.append(f"  TICKETS ({tickets['total_not_done']} not done, all CC work): "
+    for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
+        bucket = by_state.get(s, [])
+        if bucket:
+            state_parts.append(f"{s} ({len(bucket)})")
+    waiting = {k: v for k, v in by_state.items()
+               if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME") and v}
+    for k, v in sorted(waiting.items()):
+        state_parts.append(f"{k} ({len(v)})")
+    lines.append(f"  TICKETS ({tickets['total_not_done']} not done): "
                  + " | ".join(state_parts))
 
     # INTENTIONS
@@ -296,9 +438,145 @@ def format_inbox(data: dict) -> str:
     return "\n".join(lines)
 
 
-def build_inbox() -> str:
-    return format_inbox(gather_all())
+# ---------------------------------------------------------------------------
+# Artifact deep view
+# ---------------------------------------------------------------------------
+
+def show_artifact(id_prefix: str) -> str:
+    """Show the full content of a pending artifact by id prefix."""
+    from cairn.machines.skill_block.skill_block import pending_reviews, read_berth
+    pending = pending_reviews()
+    matches = [p for p in pending if p["berth_id"].startswith(id_prefix)]
+
+    if not matches:
+        return f"no pending artifact matches {id_prefix!r}"
+    if len(matches) > 1:
+        lines = [f"ambiguous — {len(matches)} match {id_prefix!r}:"]
+        for m in matches:
+            lines.append(f"  [{m['skill']}] {m['berth_id']}")
+        return "\n".join(lines)
+
+    hit = matches[0]
+    berth_path = Path(hit["path"])
+    doc = read_berth(berth_path)
+    if doc is None:
+        return f"berth file unreadable: {berth_path}"
+    return _format_artifact(doc, berth_path)
+
+
+def _format_artifact(doc: dict, path: Path) -> str:
+    lines: list[str] = []
+    width = 76
+
+    skill = doc.get("skill", "?")
+    bid = doc.get("finding_id", "?")
+    when = (doc.get("when", "") or "")[:19]
+    exit_val = doc.get("exit", "?")
+
+    lines.append("=" * width)
+    lines.append(f"  ARTIFACT: [{skill}] {bid}")
+    lines.append(f"  when: {when}   exit: {exit_val}")
+    lines.append(f"  path: {path}")
+    lines.append("=" * width)
+    lines.append("")
+
+    # Bullets
+    bullets = doc.get("bullets", [])
+    if bullets:
+        lines.append("BULLETS:")
+        for b in bullets:
+            stratum = b.get("stratum", "?") if isinstance(b, dict) else "?"
+            text = b.get("text", "") if isinstance(b, dict) else str(b)
+            lines.append(f"  [{stratum}] {text}")
+        lines.append("")
+
+    # Answers — the substantive content
+    answers = doc.get("answers", {})
+    if answers:
+        lines.append("ANSWERS:")
+        for key in sorted(answers.keys()):
+            val = answers[key]
+            lines.append(f"  {key}:")
+            if isinstance(val, str):
+                lines.append(_wrap(val, "    ", width))
+            elif isinstance(val, dict):
+                for k2, v2 in val.items():
+                    lines.append(f"    {k2}:")
+                    lines.append(_wrap(str(v2), "      ", width))
+            elif isinstance(val, list):
+                for item in val:
+                    lines.append(_wrap(f"· {item}", "    ", width))
+            else:
+                lines.append(f"    {val}")
+            lines.append("")
+
+    # Trace
+    trace_id = doc.get("trace_id")
+    if trace_id:
+        lines.append(f"  trace_id: {trace_id}")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Entry points
+# ---------------------------------------------------------------------------
+
+def build_inbox(**kw) -> str:
+    return format_inbox(gather_all(**kw))
+
+
+USAGE = """usage: cairn operator <command>
+
+commands:
+  show inbox              full operator inbox
+  show inbox --summary    one-line summary only
+  show artifact <id>      deep view of a pending artifact (id prefix match)
+"""
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(argv if argv is not None else sys.argv[1:])
+
+    if not args:
+        print(build_inbox())
+        return 0
+
+    if args[0] == "show":
+        if len(args) < 2:
+            print(USAGE)
+            return 2
+        target = args[1]
+
+        if target == "inbox":
+            if "--summary" in args:
+                data = gather_all()
+                print(format_summary(data))
+            else:
+                print(build_inbox())
+            return 0
+
+        if target == "artifact":
+            if len(args) < 3:
+                print("usage: cairn operator show artifact <id-prefix>",
+                      file=sys.stderr)
+                return 2
+            result = show_artifact(args[2])
+            print(result)
+            return 0
+
+        print(f"unknown target: {target!r}\n\n{USAGE}", file=sys.stderr)
+        return 2
+
+    # Bare invocation with no subcommand — show the inbox
+    if args == ["inbox"]:
+        print(build_inbox())
+        return 0
+
+    print(USAGE, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":
-    print(build_inbox())
+    raise SystemExit(main())

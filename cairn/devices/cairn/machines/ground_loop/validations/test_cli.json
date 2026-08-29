@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "proof test_cli.py passes under python3",
+    "caller": "cairn-device-absorbs-foundational-infrastructure",
+    "date": "2026-08-29T16:43:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n  clear-trouble   clear the ground-loop-is-older trouble ticket\n\nPASS: help returns 0\nPASS: unknown command returns 1\nground_loop: no live trouble ticket 'ground-loop-is-older-than-the-code-it-judges'\nPASS: clear-trouble returns 0 when no trouble exists\nground_loop: cleared trouble 'ground-loop-is-older-than-the-code-it-judges'\nPASS: clear-trouble clears the ground-loop-is-older ticket\nPASS: bin/cmd/groundloop exists and is executable\n\n8 passed, 0 failed out of 8",
+      "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n  clear-trouble   clear the ground-loop-is-older trouble ticket\n",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "022b58c7d054a0770a3870603869a97568253baffdf7ecd1025e0ed277c50847",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-h4se3d38/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/trouble/0/20260829.224259.927065.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20260829.224259.927721.TroubleDevice.clear.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

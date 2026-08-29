@@ -52,7 +52,7 @@ _HORIZON = 1000
 _STUCK_NEEDLE = 20
 _MIN_SAMPLES_FOR_ENOUGH = 3
 
-_HISTORY = instance_path("ground_loop") / "probes" / "device_column_history.jsonl"
+_HISTORY = instance_path("cairn") / "machines" / "ground_loop" / "probes" / "device_column_history.jsonl"
 
 
 def _load_probescan():
@@ -74,7 +74,7 @@ def _sample_column() -> dict:
     column carries, built from the same function.
     """
     probescan = _load_probescan()
-    from cairn.devices.ground_loop.discovery import device_folders
+    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders
 
     devices = sorted({d for d, _ in device_folders(_REPO_ROOT)})
     return {d: probescan.can_receive(d, _REPO_ROOT)["rung"] for d in devices}

@@ -38,7 +38,7 @@ re-derive completeness checking over it: measuring whether a record carries its 
 diagnostic_inspector's job and it already does it. What lives here is the compare.
 
     from cairn.tools.gate import gate
-    record = [gate.proved(identity="charter_on_disk", location="devices/bus",
+    record = [gate.proved(identity="charter_on_disk", location="devices/cairn/machines/bus",
                           code="inspector.py:charter_on_disk", expected=1.0, actual=1.0,
                           source="build_inspector")]
     v = gate.verdict(record)

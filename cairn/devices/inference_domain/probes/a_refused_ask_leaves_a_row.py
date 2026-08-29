@@ -40,7 +40,7 @@ here because the false version is the more plausible-sounding one. It claimed th
 (pid 973171) was a long-running process making inference calls with a pre-build copy of
 ``resolve``, so a standing zero on clause one would be ambiguous between "nothing refused" and
 "the busy caller runs yesterday's code", disambiguated only by a restart. THE GROUND LOOP MAKES
-NO INFERENCE CALLS. Measured: ``grep -rn inference cairn/devices/ground_loop/`` returns one hit
+NO INFERENCE CALLS. Measured: ``grep -rn inference cairn/devices/cairn/machines/ground_loop/`` returns one hit
 and it is prose in a provenance note — no code path — and no armed probe calls ``resolve``
 either; probes READ rows, they do not ask. The caveat was reasoned from a stale-process lesson
 cited in a neighbouring probe and never checked against the store that would have killed it.

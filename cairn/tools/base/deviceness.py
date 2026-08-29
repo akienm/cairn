@@ -16,7 +16,7 @@ device-ness by reading ``BaseDevice`` inheritance TWICE. A rule that loses to a 
 one session is not a rule yet (Law 4) — so it is a function now, and the function is the
 rule.
 
-THIS COMPOSES, IT DOES NOT RE-DERIVE. Membership is ``cairn.devices.ground_loop.discovery``'s to
+THIS COMPOSES, IT DOES NOT RE-DERIVE. Membership is ``cairn.devices.cairn.machines.ground_loop.discovery``'s to
 know: it is the mechanism Akien ruled, it shipped, and it is what the running loop actually
 fits shims to (``loop.py::_reconcile``). Asking it here is Law 1 — the answered question
 became structure, and a second parallel roster would be exactly the failure the folder rule
@@ -62,11 +62,11 @@ HEALTH_QUERY_CLAUSE = (
 def fitted_device_ids(root: Path | str | None = None) -> set[str]:
     """The device roster, as the running loop knows it — the ruled predicate, RUN.
 
-    Composed from ``cairn.devices.ground_loop.discovery.device_folders``, never reimplemented: the
+    Composed from ``cairn.devices.cairn.machines.ground_loop.discovery.device_folders``, never reimplemented: the
     folder walk, its pruning, and its ``probes/`` convention are ground_loop's to own, and a
     second copy here would drift from the one the beat actually uses.
     """
-    from cairn.devices.ground_loop.discovery import device_folders  # deferred: ground_loop imports base
+    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders  # deferred: ground_loop imports base
 
     return {device_id for device_id, _folder in device_folders(root)}
 
@@ -120,7 +120,7 @@ def claims_device_by_inheritance(root: Path | str | None = None) -> set[str]:
     Kept because the divergence is the finding. Deleting the old measure would make the two
     axes agree by making one of them unaskable.
     """
-    from cairn.devices.ground_loop.discovery import repo_root  # deferred, same reason as above
+    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root  # deferred, same reason as above
 
     root = Path(root) if root is not None else repo_root()
     return set(_class_census(root, "BaseDevice"))
@@ -134,7 +134,7 @@ def has_fitted_shim_class(root: Path | str | None = None) -> set[str]:
     address, not at the device's). That gap is precisely what makes a Calibre-shaped member
     representable, so the two are reported separately rather than reconciled into one count.
     """
-    from cairn.devices.ground_loop.discovery import repo_root  # deferred, same reason as above
+    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root  # deferred, same reason as above
 
     root = Path(root) if root is not None else repo_root()
     return set(_class_census(root, "BaseShim"))

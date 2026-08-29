@@ -214,7 +214,7 @@ hold — has recorded 3 attempts: 2 grants and 1 refusal. The refusal was real, 
 the system refused its own `PROVED` crossing because the component's source fingerprint had
 moved after the seal, closing the validation's horizon.
 
-Instrument: `from cairn.devices.harbor_master.clearance import read_attempts; read_attempts()`.
+Instrument: `from cairn.devices.cairn.machines.harbor_master.clearance import read_attempts; read_attempts()`.
 
 ## 7. What is red
 

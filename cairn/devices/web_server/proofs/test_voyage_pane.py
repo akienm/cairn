@@ -39,8 +39,8 @@ os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.devices.ground_loop.loop import GroundLoopDevice
-from cairn.devices.harbor_master import voyage
+from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.devices.cairn.machines.harbor_master import voyage
 from cairn.devices.web_server import render
 from cairn.devices.web_server.server import WebServerDevice
 

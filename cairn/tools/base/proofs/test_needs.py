@@ -51,7 +51,7 @@ _GOOD_MARK = {
     "need": "the bus device",
     "status": "DONE",
     "when": "2026-07-26",
-    "how_measured": "imported cairn.devices.bus and read its state.json cursor: gate=proven",
+    "how_measured": "imported cairn.devices.cairn.machines.bus and read its state.json cursor: gate=proven",
 }
 
 

@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_liveness.py passes under python3",
+    "caller": "cairn-device-absorbs-foundational-infrastructure",
+    "date": "2026-08-29T16:38:13",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 2,
+      "stdout_tail": "",
+      "stderr_tail": "/home/akien/.cairn/venv/bin/python3: can't open file '/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_liveness.py': [Errno 2] No such file or directory",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d5b176cff50a2f4abb4ad9f417921a440595baabb49e9cd6c71ca851ed96c98f",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-94c75tce/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

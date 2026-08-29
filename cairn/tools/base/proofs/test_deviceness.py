@@ -58,7 +58,7 @@ from cairn.tools.base.deviceness import (
     fitted_device_ids,
     is_device,
 )
-from cairn.devices.ground_loop.discovery import device_folders
+from cairn.devices.cairn.machines.ground_loop.discovery import device_folders
 
 
 def _fixture_tree(root: Path) -> None:
@@ -231,7 +231,7 @@ def test_the_enough_condition_is_reachable():
 def test_discovery_arms_the_probe_with_no_hand_registration():
     """``cairn/tools/base`` is itself a discovered device, so the pass that reports the divergence
     is the pass that arms the reporter. No subscribe call, no list to go stale."""
-    from cairn.devices.ground_loop.discovery import discover
+    from cairn.devices.cairn.machines.ground_loop.discovery import discover
 
     found = discover()
     assert "base" in found, "cairn/tools/base must be discovered as a device"

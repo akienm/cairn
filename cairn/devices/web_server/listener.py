@@ -42,9 +42,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.ground_loop.loop import GroundLoopDevice
-from cairn.devices.ground_loop.shim import GroundLoopShim
-from cairn.devices.harbor_master import voyage
+from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim
+from cairn.devices.cairn.machines.harbor_master import voyage
 from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.web_server.server import WebServerDevice
 

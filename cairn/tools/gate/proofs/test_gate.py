@@ -29,7 +29,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.gate import gate
 
-OK = gate.proved(identity="charter_on_disk", location="devices/bus",
+OK = gate.proved(identity="charter_on_disk", location="devices/cairn/machines/bus",
                  code="inspector.py:charter_on_disk", expected=1.0, actual=1.0,
                  source="build_inspector")
 BAD = gate.proved(identity="proofs_exist", location="devices/builder",

@@ -1,0 +1,59 @@
+[
+  {
+    "claim": "proof test_pulse_service.py passes under python3",
+    "caller": "cairn-device-absorbs-foundational-infrastructure",
+    "date": "2026-08-29T16:41:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_pulse_only_device_survives_the_probes_reconcile\n  PASS  test_a_raising_pulse_is_recorded_once_and_damped\n  PASS  test_activation_is_once_and_later_beats_are_a_stat\n  PASS  test_an_in_place_edit_is_remove_plus_add_in_one_beat\n  PASS  test_class_and_instance_pair_both_fire\n  PASS  test_no_new_durable_record_and_the_face_tracks_add_remove\n  PASS  test_one_devices_raising_hook_does_not_stop_anothers_service\n  PASS  test_removal_unloads_and_readd_reexecutes\n  PASS  test_the_cache_alone_never_raises_and_events_are_complete\n  PASS  test_the_walk_finds_both_levels_and_leaves_probes_alone\n  PASS  test_the_watchme_probe_is_armed_and_judges_from_fixtures\ngreen — presence is the subscription, absence is the unload, and the loop only beats",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d5b176cff50a2f4abb4ad9f417921a440595baabb49e9cd6c71ca851ed96c98f",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-dgm2xc1l/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 27,
+          "paths": [
+            "logs/ground_loop/0/20260829.224100.580854.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.581272.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.582156.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260829.224100.582369.GroundLoopDevice.undiscovered.json",
+            "logs/ground_loop/0/20260829.224100.583224.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260829.224100.584166.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.584302.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.585296.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.585456.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.587063.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.587221.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.587929.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260829.224100.588040.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.589931.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.590131.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.590304.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.592694.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.592884.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.593705.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260829.224100.595298.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.595439.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.595563.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.595696.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.596748.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260829.224100.596907.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260829.224100.597311.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260829.224100.597967.GroundLoopDevice.pulse_activated.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

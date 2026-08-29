@@ -51,9 +51,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base.core_values import CoreValuesMixin
-from cairn.devices.bus.bus import BusDevice
+from cairn.devices.cairn.machines.bus.bus import BusDevice
 from cairn.devices.db_domain import store
-from cairn.devices.ground_loop.loop import GroundLoopDevice
+from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 from cairn.devices.system_rackmount.rackmount import (
     SystemRackmountDevice,
     SystemRackmountShim,

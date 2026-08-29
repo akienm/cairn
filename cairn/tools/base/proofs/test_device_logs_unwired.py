@@ -128,8 +128,8 @@ def test_real_device_classes_name_their_own_component() -> None:
     """The two devices that HAD hand-spelled names now derive them, and the derived name is
     checked against where the class's file actually lives — not against the string that used
     to be in the runner, which is gone precisely because this works."""
-    from cairn.devices.bus.bus import BusDevice
-    from cairn.devices.ground_loop.loop import GroundLoopDevice
+    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
     import inspect
     for cls in (BusDevice, GroundLoopDevice):
         derived = component_of_module(cls.__module__)
@@ -160,7 +160,7 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 # saved there. Nothing else is wired: no receiver, no log, no address.
 class Dev(DiagnosticBase):
     pass
-Dev.__module__ = "cairn.devices.bus.bus"
+Dev.__module__ = "cairn.devices.cairn.machines.bus.bus"
 
 tmp = Path(sys.argv[2])
 dev = Dev()
@@ -253,7 +253,7 @@ def test_the_override_still_diverts() -> None:
         tmp = Path(td)
         class Named(DiagnosticBase):
             pass
-        Named.__module__ = "cairn.devices.bus.bus"
+        Named.__module__ = "cairn.devices.cairn.machines.bus.bus"
         dev = Named()
         dev.set_diagnostic_roots(_roots(tmp))
         dev.set_diagnostic_receiver(Catcher())

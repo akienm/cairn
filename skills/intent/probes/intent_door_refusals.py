@@ -153,7 +153,7 @@ def _carry(context: dict) -> dict:
 # THE HORIZON, and the residual it does NOT cover. Same tracked debt as the sibling's: the
 # unit is PULSES because the shim counts pulses, but nothing pulses this shim yet (the
 # wall-clock backing that would call `beat` on a cadence is a filed edge in
-# cairn/devices/ground_loop/loop.py, not built), so today the loudness rides the READ-SIDE door
+# cairn/devices/cairn/machines/ground_loop/loop.py, not built), so today the loudness rides the READ-SIDE door
 # (`BaseShim.overdue()`) alone. 1000 is honest as a placeholder and dishonest as a
 # measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

@@ -218,7 +218,7 @@ def read_ideas(*, ideas_dir: Path | None = None,
 def read_email() -> dict:
     """Undelivered bus messages — a live measurement, never stored."""
     try:
-        from cairn.devices.bus.bus import BusDevice
+        from cairn.devices.cairn.machines.bus.bus import BusDevice
         bus = BusDevice()
         waiting = bus.undelivered(limit=10000)
     except Exception:

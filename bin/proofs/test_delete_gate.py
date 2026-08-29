@@ -113,7 +113,7 @@ def test_the_bound_the_git_roots_are_not_gated():
     for command in [
         "rm -rf /tmp/scratch",
         "rm -rf ~/dev/src/cairn/build",
-        "rm -f cairn/devices/bus/proofs/__pycache__/x.pyc",
+        "rm -f cairn/devices/cairn/machines/bus/proofs/__pycache__/x.pyc",
         "find . -name '__pycache__' -exec rm -rf {} +",
     ]:
         assert gate.verdict(command) is None, f"outside the guarded root, allow: {command!r}"

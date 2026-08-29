@@ -45,7 +45,7 @@ def test_the_shim_probes_return_a_list():
 
 
 def test_discover_finds_cc_with_zero_failures():
-    from cairn.devices.ground_loop.discovery import discover
+    from cairn.devices.cairn.machines.ground_loop.discovery import discover
 
     roster = discover(root=DEVICE_DIR.parent.parent)
     assert "cc" in roster, f"discover() did not find 'cc'; found: {sorted(roster)}"

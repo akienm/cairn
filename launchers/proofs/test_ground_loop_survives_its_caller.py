@@ -134,7 +134,7 @@ def _cleanup_strays() -> int:
             env_blob = (pid_dir / "environ").read_bytes()
         except OSError:
             continue
-        if b"cairn.devices.ground_loop" not in cmd:
+        if b"cairn.devices.cairn.machines.ground_loop" not in cmd:
             continue
         if f"HOME={_SCRATCH}".encode() not in env_blob:
             continue

@@ -2,7 +2,7 @@
 
 The shim is where the goof is corrected: the ground_loop only BEATS; the FIRING lives here.
 This proof exercises the three jobs against a spy bus (hermetic — no DB; the real bus is
-proven in cairn/devices/bus/proofs/test_bus.py, and the full heartbeat→shim→bus chain in the system
+proven in cairn/devices/cairn/machines/bus/proofs/test_bus.py, and the full heartbeat→shim→bus chain in the system
 device's proof).
 
 Teeth a hollow shim could not pass:

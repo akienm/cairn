@@ -1,0 +1,32 @@
+[
+  {
+    "at": "2026-07-18",
+    "standing": "Born (evening) as the first NEW component of the heartbeat+callback+bus rework — the second substrate and sole path for inter-device communication, built before the ground_loop and shim because both fire onto the bus.",
+    "gate": "proven",
+    "proof": "proofs/test_bus.py",
+    "seq": 0
+  },
+  {
+    "at": "2026-07-18",
+    "standing": "IMPLEMENTED to v0 and PROVEN green bare and under the tester — messages round-trip with why + causality in causal order, unknown/whyless refused, record channels refuse to collapse while diagnostic views digest, and transit is owner-gated through db_domain.",
+    "gate": "proven",
+    "proof": "proofs/test_bus.py",
+    "seq": 1
+  },
+  {
+    "at": "2026-07-25",
+    "standing": "SCOPE MADE HONEST (append, not an edit — Law 7). The 2026-07-18 entry said 'IMPLEMENTED to v0 and PROVEN' and every word of it was true, but it was SILENTLY PARTIAL: the whole weight of 'incomplete' sat on the two characters 'v0', which do not say WHAT is missing. Measured 2026-07-25: what is PROVEN is the SUBSTRATE ONLY — one door (post), addresses, four channels, owner-gated transit through db_domain, why + causality on every envelope. What was NEVER BUILT: there are NO VERBS (the envelope carries an opaque body, no dispatch); NO MENU (a device publishes no list of what it accepts); NO DELIVERY PATH AT ALL (post() writes a row and stops — shim.deliver() has zero callers outside proofs and no device anywhere defines receive); NO SYNC (reply_to is an orphan field with no correlation, no wait, no timeout); and shim.deliver silently returns None on a missing handler (a Law 7 breach in the delivery path). The bus has ONE producer in the whole tree (cairn/tools/base/shim.py:122) and ZERO consumers — every other device talks AROUND it. COST OF THE QUIET RECORD: Akien read 'PROVEN', took the bus as existing, and directed months of work onto things standing on top of it — his words, 'if i'd known we didn't actually HAVE a bus yet, we wouldn't have been on the things we've been on.' A record of truth may be permanent and loud; this one was permanent and quiet. NOTE ALSO: proofs/test_bus.py is scoped to the substrate, so it stays green forever on a bus nobody can use — not hollow, but partial and not saying so. Completion is cast as CairnCommons/tickets/bus-completion.json (children a-f). ORDERING RULED BY AKIEN 2026-07-25: after the ground loop and the db, the bus comes before everything else.",
+    "gate": "partial — substrate proven, the usable half unbuilt",
+    "proof": "proofs/test_bus.py (substrate scope only)",
+    "seq": 2
+  },
+  {
+    "gate": "proved",
+    "standing": "PROVED — THE CROSSINGS ARE NO LONGER SILENT. First disposition of troubles/silent-devices-2026-07-27.json (bus first: the boundary the logging standard names first). Two gate-contacts, per the discipline: transit_table_ensured (once per instance, the durable state change) and post (per crossing, never per pulse — the shim lesson; emitted AFTER the write lands; thin pointer=envelope id + routing facts, the envelope itself stays the record of truth in transit). Reads emit nothing — no crossing, no state change. New tooth pins exactly-two-then-three held breadcrumbs, pointer=id, thin values, table-birth-once. 6/6 green, netns-sealed; bus now CLEAN under the build gate's silent_device filter — measured, not asserted.",
+    "proof": "cairn/devices/cairn/machines/bus/proofs/test_bus.py",
+    "validation": "cairn/devices/cairn/machines/bus/validations/test_bus.json",
+    "kin": "CairnCommons/troubles/silent-devices-2026-07-27.json",
+    "at": "2026-07-27T13:25:12",
+    "seq": 3
+  }
+]

@@ -165,7 +165,7 @@ def _carry(context: dict) -> dict:
 
 
 # THE HORIZON, in pulses because the shim counts pulses. Nothing pulses this shim yet (the
-# wall-clock backing is a filed edge in cairn/devices/ground_loop/loop.py, not built), so
+# wall-clock backing is a filed edge in cairn/devices/cairn/machines/ground_loop/loop.py, not built), so
 # the loudness rides the read-side door (`BaseShim.overdue()`) alone. Honest as a
 # placeholder, dishonest as a measurement, and MUST be re-tuned when the beat is real.
 _HORIZON = 1000

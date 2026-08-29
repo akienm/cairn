@@ -10,7 +10,7 @@ follow it there.
 
 THE EFFICACY QUESTION. Akien ruled device-ness twice on 2026-08-11 — "a shim fits TO the
 device" and "the unit is the folder, not the registration" — and the second ruling SHIPPED
-the same day (``cairn/devices/ground_loop/discovery.py``, commit 2081efa). So the mechanism is not
+the same day (``cairn/devices/cairn/machines/ground_loop/discovery.py``, commit 2081efa). So the mechanism is not
 what is missing. What is missing is anything LOUD: the old axis (subclass ``BaseDevice``)
 and the ruled axis (a ``probes/`` directory) disagree about NINETEEN of a twenty-member
 union, and nothing anywhere says so. An empty disagreement and an unmeasured disagreement
@@ -43,7 +43,7 @@ a claim about the world that the world refused. This paragraph carried a second 
      ARMED and — until a heartbeat runs — has NEVER FIRED."
 
 IT HAD ALREADY FIRED WHEN THAT WAS WRITTEN. Measured at /sail step 5: ``python3 -m
-cairn.devices.ground_loop`` is running (pid 109150, up since 13:37:45), 1344 beats, pulsing 13
+cairn.devices.cairn.machines.ground_loop`` is running (pid 109150, up since 13:37:45), 1344 beats, pulsing 13
 subscribers of which ``base`` is one, and this probe's poke is ON THE BUS — envelope
 ``a813b9fd37964d42a99bd93321c22a4a``, ``base -> harbor_master``, 2026-08-11T14:20:07,
 carrying the nineteen-way divergence by name. So the beat runs, the shim is pulsed, the

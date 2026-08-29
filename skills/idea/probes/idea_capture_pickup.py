@@ -146,7 +146,7 @@ _TICKET = owning_ticket("an-idea-has-an-address")
 # THE HORIZON, and the residual it does NOT cover — the same tracked debt every probe in
 # the roster carries: the unit is PULSES because the shim counts pulses, but nothing
 # pulses this shim yet (the wall-clock backing is a filed edge in
-# cairn/devices/ground_loop/loop.py), so today the loudness rides the READ-SIDE door
+# cairn/devices/cairn/machines/ground_loop/loop.py), so today the loudness rides the READ-SIDE door
 # (``BaseShim.overdue()``) alone. 1000 is honest as a placeholder and dishonest as a
 # measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

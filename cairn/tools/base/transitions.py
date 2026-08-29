@@ -1142,7 +1142,7 @@ def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
         f"{target} crossing refused: this is a forward crossing into a REST — the move that "
         f"ENTERS proven-space — and it carries no evidence that the authority rung ran. "
         "Nothing was journaled. Cross through the harbor's gate instead of the bare door: "
-        "cairn.devices.harbor_master.clearance.clear(workflow_str, target, actor=..., boat_id=..., "
+        "cairn.devices.cairn.machines.harbor_master.clearance.clear(workflow_str, target, actor=..., boat_id=..., "
         "boat_owner=..., proven_by=<the proof your PROVEME step just sealed>, "
         "history_path=..., state_path=..., ticket=...). That call stamps cleared_by itself "
         "— you cannot supply it here, and a crossing that could would make the check "

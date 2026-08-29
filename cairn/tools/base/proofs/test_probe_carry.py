@@ -212,7 +212,7 @@ def test_a_non_callable_carry_is_refused_at_construction():
 def test_the_shim_fires_the_carrier_against_the_pulse_context():
     """End to end: the poke that reaches the bus carries what the trigger just saw."""
     from cairn.tools.base.shim import BaseShim
-    from cairn.devices.bus.bus import BusDevice
+    from cairn.devices.cairn.machines.bus.bus import BusDevice
 
     seen = {"ticket": {"id": "T-7", "gate": "PROVEME"}}
 

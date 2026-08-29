@@ -49,7 +49,7 @@ WHICH DEVICE AM I — derived, never configured, and it is the rung that was act
 ``BaseDevice`` had no ``__init__`` and carried no name and no instance, so the only place in the
 running system that knew the string ``"ground_loop"`` was the runner that hand-spelled it. The
 name now comes from ``type(self).__module__`` through ``address.component_of_module``
-(``cairn.devices.bus.bus`` -> ``bus``), which is house style with a proof behind it — the same
+(``cairn.devices.cairn.machines.bus.bus`` -> ``bus``), which is house style with a proof behind it — the same
 derive-from-your-own-address move as the roots table. The INSTANCE defaults to ``0``, which is
 CLAUDE.md's rule rather than a shortcut ("a singleton is instance 0, never an exemption"), and
 ``set_diagnostic_instance`` is the seam for the day a second instance exists. A class under no

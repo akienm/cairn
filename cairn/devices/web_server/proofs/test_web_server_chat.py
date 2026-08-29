@@ -41,7 +41,7 @@ import os, tempfile  # noqa: E401
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
-from cairn.devices.ground_loop.loop import GroundLoopDevice
+from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.web_server.server import WebServerDevice
 

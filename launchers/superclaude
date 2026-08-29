@@ -238,7 +238,7 @@ fi
 # ITS A SINGLETON, SO IF IT SEES ITS ALREADY RUNNING, THE NEW ONE STOPS."
 #
 # SPAWN BLIND — deliberately. This does NOT check whether a loop is running first; the
-# singleton claim in cairn/devices/ground_loop/guard.py is the mechanism, and a launcher that
+# singleton claim in cairn/devices/cairn/machines/ground_loop/guard.py is the mechanism, and a launcher that
 # re-derived the check would be a second opinion about who is running (Law 1, and the guard's
 # own docstring names this caller). A loser exits 3 after printing what it found, which lands
 # in the log below — distinct from a crash, so "refused, one is running" reads differently
@@ -342,7 +342,7 @@ _sc_loop_start() {
     -p SuccessExitStatus=3 \
     -p StandardOutput=append:"$_sc_loop_log" \
     -p StandardError=append:"$_sc_loop_log" \
-    -- python3 -m cairn.devices.ground_loop 2>&1
+    -- python3 -m cairn.devices.cairn.machines.ground_loop 2>&1
 }
 _sc_loop_note() {
   [[ -n "${1:-}" ]] || return 0
@@ -385,7 +385,7 @@ if [[ "$dry_run" -eq 0 ]]; then
       _sc_log "ground_loop: ${_sc_loop_unit}.service refused the start — nothing was spawned; see $_sc_loop_log"
       ;;
     *)
-      ( setsid python3 -m cairn.devices.ground_loop \
+      ( setsid python3 -m cairn.devices.cairn.machines.ground_loop \
           >>"$_sc_loop_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
       disown 2>/dev/null || true
       _sc_log "ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)"

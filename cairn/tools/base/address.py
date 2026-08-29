@@ -52,7 +52,7 @@ owner.
 
 **IT TAKES NO POSITION ON WHETHER A NAME IS A DEVICE.** It computes an address for whatever
 name it is handed. Which names are devices is answered elsewhere and by someone else —
-``cairn/devices/ground_loop/discovery.device_folders`` for class-space, ``cairn/tools/base/deviceness.py`` for
+``cairn/devices/cairn/machines/ground_loop/discovery.device_folders`` for class-space, ``cairn/tools/base/deviceness.py`` for
 the predicate — and a path resolver that quietly became the roster would be a second answer to
 a question that already has one.
 
@@ -86,7 +86,7 @@ from pathlib import Path
 # cairn/tools/chain/grammar.py both admit it by name, each with the measurement in the comment;
 # the grammar's seat was orient's until 2026-08-13, when the chain grammar was carved out and
 # took the address with it — the admitters change, the reason does not). Note what is NOT claimed: cairn/tools/base as a PACKAGE is not import-clean —
-# deviceness.py reaches cairn.devices.ground_loop.discovery and transitions.py reaches four
+# deviceness.py reaches cairn.devices.cairn.machines.ground_loop.discovery and transitions.py reaches four
 # components. The floor is this FILE, and the package __init__ is empty by the boot-order law
 # written into it, so importing this leaf pulls none of that in.
 _REPO = Path(__file__).resolve().parents[3]
@@ -195,7 +195,7 @@ CLASS_RUNGS = (TOOLS, MACHINES, DEVICES)
 
 
 def component_of_module(module: str) -> str | None:
-    """WHICH COMPONENT OWNS THIS DOTTED MODULE NAME — ``cairn.devices.bus.bus`` -> ``bus``.
+    """WHICH COMPONENT OWNS THIS DOTTED MODULE NAME — ``cairn.devices.cairn.machines.bus.bus`` -> ``bus``.
     ``None`` when the name sits under no rung at all.
 
     The third face of a question this module already answers twice: ``component_dir`` goes from

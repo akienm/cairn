@@ -137,7 +137,7 @@ def _carry(context: dict) -> dict:
 #
 # WHY A ROUND NUMBER AND NOT A DERIVED ONE: the unit is PULSES because the shim counts pulses
 # and a clock is bounded OUT — but the wall-clock backing that would call ``beat`` on a
-# cadence is a FILED EDGE, not built (cairn/devices/ground_loop/loop.py header). So today nothing
+# cadence is a FILED EDGE, not built (cairn/devices/cairn/machines/ground_loop/loop.py header). So today nothing
 # pulses this shim at all, no pulse-record is ever produced, and the loudness rides the
 # READ-SIDE door (``BaseShim.overdue()``) alone. 1000 is "clearly a long standing" against
 # any beat rate we would plausibly pick; it is honest as a placeholder and dishonest as a

@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_data_recorder.py passes under python3",
+    "caller": "feedback-data-recorder",
+    "date": "2026-08-28T23:58:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  pass  two writes produce different ids\n  pass  read returns 2 records after 2 writes\n  pass  clear returns count of removed\n  pass  after clear, only second record remains\n  pass  remaining record is the second one\n  pass  clear last record\n  pass  after clearing all, read returns []\n  pass  clear nonexistent id returns 0\n  pass  JSONL: 2 writes produce 2 lines\n  pass  JSONL: line 0 is valid JSON\n  pass  JSONL: line 1 is valid JSON\n  pass  missing finding refused\n  pass  missing inspector_target refused\n  pass  missing probe_source refused\n  pass  non-dict refused\n  pass  timestamp auto-populated\n  pass  separate inspectors get separate records\n  pass  clear([]) is no-op\n\n23 teeth: 23 pass, 0 fail",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "1128850a883ac89098b14dfbef115ad2d3feddf6b9d47c011446e6f78eb5417a",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-pfjhudv3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

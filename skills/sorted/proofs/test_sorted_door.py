@@ -63,6 +63,7 @@ def main() -> int:
         GOOD = {
             "assumption_check": "none remain: the seam's contract capability was measured, not assumed",
             "missing_check": "all points wrapped; the census ran (76 tickets, 30 pre-BUILDME)",
+            "builder_check": "a Haiku-level builder needs the fixture class definition and the injected roots layout — both are in the test preamble, nothing implicit",
             "falsifier_check": "RED if the door passes a hollow watchme; horizon: next roster migration",
             "collision_check": "no collision — pays the charter's own tracked debt (casting has no chokepoint)",
             "node_class": "boxling",
@@ -104,6 +105,15 @@ def main() -> int:
             f = fields_of(exc)
             ok("flat+semantic one pass", "bullets" in f and "node_class" in f,
                f"named {f}")
+
+        # 3b. missing builder_check refused by name
+        no_bc = {k: v for k, v in GOOD.items() if k != "builder_check"}
+        try:
+            door.fire(no_bc, **roots)
+            ok("missing builder_check refused", False, "door passed without builder_check")
+        except DoorRefused as exc:
+            ok("missing builder_check refused", "builder_check" in fields_of(exc),
+               f"lacks named only {fields_of(exc)}")
 
         # 4. drifted workflow string refused (path not in registered version)
         drifted = dict(GOOD, workflow="boxling@v1: THINKME -> [TICKETME] -> SHIPME -> PROVED")

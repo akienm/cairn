@@ -1,29 +1,28 @@
 [
   {
     "claim": "proof test_superclaude_memory_scope.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-18T15:06:04",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "superclaude-per-instance-memory-max",
+    "date": "2026-08-28T23:41:54",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  the sibling that did not balloon is still alive  — pid 282680\n  PASS  the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — stdout='REACHED 400' rc=0\n\nIN SITU — the real launcher, driven through a pty, asked of the kernel\n  PASS  the launch reaches the binary at all (the prime directive)  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-282687.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  the launched process sits in a superclaude scope, not the terminal's  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-282687.scope\n  PASS  MemoryMax is a finite limit on the launched process  — MAX='8589934592'\n  PASS  MemoryHigh is a finite limit on the launched process  — HIGH='6442450944'\n  PASS  MemorySwapMax is a finite limit on the launched process  — SWAP='1073741824'\n  PASS  MemoryHigh sits BELOW MemoryMax (throttle before kill)  — high=6442450944 max=8589934592\n  PASS  the cap is below the smallest measured blowup (12.4GB, 2026-08-18)  — max=8.0GiB\n\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing\n  PASS  SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/app-org.kde.konsole-b96e117d5924466fbd14ac228996af45.scope', 'MAX': 'max', 'HIGH': 'max', 'SWAP': 'max', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  and it launches OUTSIDE a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/app-org.kde.konsole-b96e117d5924466fbd14ac228996af45.scope\n  PASS  the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20260818.150603.831369.282716: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)\n  PASS  a scoped launch says so too, with its limits  — 20260818.150603.745784.282687: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-282687.scope)\n  PASS  --dry-run still exits 0 and prints its exec line  — rc=0\n\nGREEN — a runaway session dies alone, and the launch is still unstoppable.",
+      "stdout_tail": "  PASS  MemoryMax is a finite limit on the launched process  — MAX='8589934592'\n  PASS  MemoryHigh is a finite limit on the launched process  — HIGH='6442450944'\n  PASS  MemorySwapMax is a finite limit on the launched process  — SWAP='1073741824'\n  PASS  MemoryHigh sits BELOW MemoryMax (throttle before kill)  — high=6442450944 max=8589934592\n  PASS  the cap is below the smallest measured blowup (12.4GB, 2026-08-18)  — max=8.0GiB\n\nPER-INSTANCE — CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE overrides the global default\n  PASS  the per-instance launch reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-3365606.scope', 'MAX': '4294967296', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  the per-instance launch sits in a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-3365606.scope\n  PASS  the per-instance value is not the global default  — override=4.0GiB default=8.0GiB\n  PASS  the kernel sees the per-instance value (4G)  — max=4.00GiB (expected ~4.0GiB)\n\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing\n  PASS  SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-1156415.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  NO_SCOPE does not create a NEW superclaude scope for this launch  — child=superclaude-1156415.scope parent=superclaude-1156415.scope (if both superclaude-*, child must equal parent — inherited, not new)\n  PASS  the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20260828.234152.376120.3365663: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)\n  PASS  a scoped launch says so too, with its limits  — 20260828.234152.035905.3365502: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-3365502.scope)\n  PASS  --dry-run still exits 0 and prints its exec line  — rc=0\n\nGREEN — a runaway session dies alone, and the launch is still unstoppable.",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "db2e5377e38d3a18e62694dce5e027d11e1c116c909ccd4deb2cdbe9e3567716",
+      "source_fingerprint": "c7bdb8011f99c8ec2f067adead7fb3c5da246c2d57ab29b3615b71ffe98b4897",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-0_29tsh6/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-qss8pmnj/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 2,
           "paths": [
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
-            "logs/bus/0/diagnostics.jsonl",
-            "logs/ground_loop/0/diagnostics.jsonl"
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         }

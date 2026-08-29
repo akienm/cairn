@@ -223,12 +223,19 @@ def half_two_b_per_instance_override() -> None:
 def half_three_the_directive_outranks_the_cap() -> None:
     print("\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing")
 
+    # Record OUR cgroup first: when this proof itself runs inside a superclaude scope,
+    # the NO_SCOPE child inherits it rather than getting a new one — checking "not in ANY
+    # superclaude scope" was the pre-existing red (n=1, pid 1156415).
+    our_cg = Path("/proc/self/cgroup").read_text().strip().split(":")[-1]
     got = _limits(_launch({"SUPERCLAUDE_NO_SCOPE": "1"}))
     check("SUPERCLAUDE_NO_SCOPE still reaches the binary", "ARGV" in got, repr(got))
+    child_cg = got.get("CGROUP", "")
+    child_scope = child_cg.rstrip("/").split("/")[-1]
+    our_scope = our_cg.rstrip("/").split("/")[-1]
     check(
-        "and it launches OUTSIDE a superclaude scope",
-        not got.get("CGROUP", "").rstrip("/").split("/")[-1].startswith("superclaude-"),
-        got.get("CGROUP", "<none>"),
+        "NO_SCOPE does not create a NEW superclaude scope for this launch",
+        child_scope == our_scope or not child_scope.startswith("superclaude-"),
+        f"child={child_scope} parent={our_scope} (if both superclaude-*, child must equal parent — inherited, not new)",
     )
     # Law 7 at a diagnostic surface: unbounded is a real risk and the log says which of the
     # two reasons it was. "declined" and "unavailable" are different facts about the host.

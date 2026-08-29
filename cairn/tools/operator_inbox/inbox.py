@@ -216,7 +216,20 @@ def read_ideas(*, ideas_dir: Path | None = None,
 
 
 def read_email() -> dict:
-    return {"count": 0, "note": "bus unresolved-messages query not yet built"}
+    """Undelivered bus messages — a live measurement, never stored."""
+    try:
+        from cairn.devices.bus.bus import BusDevice
+        bus = BusDevice()
+        waiting = bus.undelivered(limit=10000)
+    except Exception:
+        return {"count": 0, "note": "bus unavailable"}
+    if not waiting:
+        return {"count": 0}
+    by_addressee: dict[str, int] = {}
+    for env in waiting:
+        addr = env.get("addressee", "?")
+        by_addressee[addr] = by_addressee.get(addr, 0) + 1
+    return {"count": len(waiting), "by_addressee": by_addressee}
 
 
 def gather_all(**kw) -> dict:
@@ -341,7 +354,10 @@ def format_inbox(data: dict) -> str:
     else:
         lines.append(_section_line("EMAIL NEEDING OPERATOR ATTENTION"))
         lines.append("")
-        lines.append(f"    {email['count']} unresolved message(s)")
+        lines.append(f"    {email['count']} undelivered message(s)")
+        for addr, n in sorted((email.get("by_addressee") or {}).items(),
+                               key=lambda x: -x[1]):
+            lines.append(f"      {addr}: {n}")
         lines.append("")
 
     # ARTIFACT REVIEWS

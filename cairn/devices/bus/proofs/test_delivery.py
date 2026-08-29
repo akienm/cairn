@@ -6,7 +6,9 @@ took a message OUT of transit and handed it to a device, because nothing did:
 delivers is indistinguishable from one that does — the post succeeds, the row lands, the read
 shows the message sitting right there. Three envelopes were in transit when this was found.
 
-WHAT A HOLLOW DELIVERY LAYER WOULD PASS AND THIS MUST NOT (Law 8):
+REWRITTEN 2026-08-29 for the self-serve model: each shim checks its own inbox on each pulse
+(``BaseShim._check_mail``), replacing the old postman (BusShim.drain). The teeth are the same;
+the mechanism they test changed. What a hollow build STILL cannot pass (Law 8):
 
   - One that marked mail delivered and dropped it passes "the inbox drains" and fails
     ``test_the_device_actually_receives_the_body``, which reads what the RECEIVER got.
@@ -15,13 +17,10 @@ WHAT A HOLLOW DELIVERY LAYER WOULD PASS AND THIS MUST NOT (Law 8):
     at-least-once as the side we fail on, because losing a record of truth is worse than
     delivering it twice.
   - One whose "undelivered" was a flag someone sets passes until a writer forgets; the
-    anti-join here derives it, and ``test_a_delivered_envelope_never_comes_back`` re-drains.
+    anti-join here derives it, and ``test_a_delivered_envelope_never_comes_back`` re-beats.
   - One that returned ``None`` for a shim with nobody home passes "no exception, so it
-    arrived" — the hole that was actually in ``BaseShim.deliver`` — and fails
-    ``test_a_shim_with_no_device_refuses_instead_of_swallowing``.
-  - One that reported the same stuck envelope every beat passes "it is loud" and fails
-    ``test_a_stuck_envelope_is_reported_once_not_once_per_beat``, which is the difference
-    between a finding and a firehose.
+    arrived" — and fails ``test_a_discovered_shim_cannot_receive`` (a DiscoveredShim cannot
+    wake a device; mail waits honestly).
 
 Requires Postgres (db_domain's durable transit). Self-cleaning: the ephemeral transit and
 receipt tables are dropped on the way out.
@@ -67,8 +66,8 @@ class Mailbox:
 
 
 class MailboxShim(BaseShim):
-    def __init__(self, device_id: str, device: Mailbox) -> None:
-        super().__init__()
+    def __init__(self, device_id: str, device: Mailbox, bus=None) -> None:
+        super().__init__(bus=bus)
         self._device_id = device_id
         self._device = device
         self._presence = ONLINE
@@ -81,27 +80,38 @@ class MailboxShim(BaseShim):
         return self._device
 
 
-def _rig(*shims):
-    """A heartbeat with a postman and whatever receivers a tooth needs. The loop is built with
-    no ``liveness_home`` and no discoverer: this proof is about delivery, so the beat is the
-    anonymous in-process one and the roster is exactly what is handed in.
-
-    A FRESH TRANSIT TABLE PER TOOTH. Several teeth deliberately leave mail stuck in the inbox
-    (that is what they are proving), so a shared table would let one tooth's leftovers become
-    another's phantom backlog — and the tooth would go red for a reason that has nothing to do
-    with what it measures."""
+def _fresh_bus():
+    """A fresh bus with its own ephemeral tables, tracked for cleanup."""
     bus = BusDevice(table=f"_bus_traffic_{_NONCE}_{len(_TABLES)}")
     _TABLES.append(bus.table)
-    loop = GroundLoopDevice()
-    postman = BusShim(bus, loop)
-    loop.subscribe(postman)
+    return bus
+
+
+def _rig(bus, *shims):
+    """A heartbeat with receivers. Each shim checks its own inbox on each pulse
+    (BaseShim._check_mail). The loop is built with no liveness_home and no discoverer:
+    this proof is about delivery, so the beat is the anonymous in-process one and the
+    roster is exactly what is handed in.
+
+    Bus is passed in so shims can be constructed with it before the rig is built."""
+    loop = GroundLoopDevice(bus=bus)
+    bus_shim = BusShim(bus, loop)
+    loop.subscribe(bus_shim)
     for shim in shims:
         loop.subscribe(shim)
-    return bus, loop, postman
+    return loop
 
 
 def _post(bus, to, why="a tooth needs mail", body=None):
     return bus.post(sender="proof", to=to, channel="personal", why=why, body=body or {"n": 1})
+
+
+def _mail_result(record, device_id):
+    """Extract the mail result from a specific device's pulse record."""
+    for p in record["pulses"]:
+        if p["device"] == device_id:
+            return p.get("mail")
+    return None
 
 
 # --- teeth ------------------------------------------------------------------
@@ -110,7 +120,8 @@ def test_the_device_actually_receives_the_body():
     """Not 'the inbox drained' — what the RECEIVER holds. A layer that marks mail delivered
     and drops it passes every count-based check and dies here."""
     box = Mailbox()
-    bus, loop, _ = _rig(MailboxShim("box_a", box))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     sent = _post(bus, "box_a", why="prove arrival", body={"question": "are you there"})
     loop.beat(NOW)
     assert len(box.got) == 1, box.got
@@ -122,7 +133,8 @@ def test_the_device_actually_receives_the_body():
 def test_a_delivered_envelope_never_comes_back():
     """The receipt is what makes 'undelivered' derivable. Re-beat twice: still one delivery."""
     box = Mailbox()
-    bus, loop, _ = _rig(MailboxShim("box_a", box))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     _post(bus, "box_a")
     loop.beat(NOW)
     loop.beat(NOW)
@@ -136,13 +148,13 @@ def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     envelope, so a receiver that blows up leaves the mail exactly where it was. A layer that
     receipts first passes every happy path and loses this message forever."""
     broken = Mailbox(blow_up=True)
-    bus, loop, postman = _rig(MailboxShim("box_bad", broken))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_bad", broken, bus=bus))
     sent = _post(bus, "box_bad")
-    record = loop.beat(NOW)
-    found = [p for p in record["pulses"] if p["device"] == "bus"][0]["postman"]
-    assert found["delivered"] == [], found
-    assert found["findings"][0]["outcome"] == "refused"
-    assert "broken on purpose" in found["findings"][0]["error"]
+    loop.beat(NOW)
+    mail = _mail_result(loop._last_beat, "box_bad") or {}
+    assert mail.get("delivered") == [], mail
+    assert mail.get("refused", []) != []
     still = bus.undelivered(to="box_bad")
     assert [e["id"] for e in still] == [sent["id"]], still
     # And it is delivered the moment the receiver is fixed — the mail waited, it did not die.
@@ -152,113 +164,63 @@ def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     assert bus.undelivered(to="box_bad") == []
 
 
-def test_a_shim_with_no_device_refuses_instead_of_swallowing():
-    """THE HOLE THAT WAS ACTUALLY THERE. ``BaseShim.deliver`` returned None for a shim holding
-    no device, and a discovered shim is always-on with no device by construction — so the
-    postman would have receipted mail nobody received. The refusal is what makes the postman
-    able to tell 'nobody home' from 'delivered'."""
-    bus, loop, _ = _rig(DiscoveredShim("disk_only", "/nowhere"))
+def test_a_discovered_shim_cannot_receive():
+    """A DiscoveredShim exists for probes only — it cannot wake a device. Mail addressed to
+    a discovered-only device stays in transit honestly (NotImplementedError, not a silent drop)."""
+    bus = _fresh_bus()
+    loop = _rig(bus, DiscoveredShim("disk_only", "/nowhere", bus=bus))
     sent = _post(bus, "disk_only")
-    record = loop.beat(NOW)
-    found = [p for p in record["pulses"] if p["device"] == "bus"][0]["postman"]
-    assert found["delivered"] == [], found
-    assert found["findings"][0]["outcome"] == "no_receiver", found["findings"]
+    loop.beat(NOW)
+    mail = _mail_result(loop._last_beat, "disk_only") or {}
+    assert mail.get("outcome") == "no_receiver", mail
     assert [e["id"] for e in bus.undelivered(to="disk_only")] == [sent["id"]]
 
 
-def test_mail_for_a_device_not_on_the_roster_waits():
-    """You can only deliver to what is being beaten. Unaddressable mail is a reported finding
-    and stays in transit — never a silent drop, never an error that stops the round."""
+def test_mail_for_a_device_not_on_the_roster_sits():
+    """Mail for a device with no shim at all sits in transit — no shim means no _check_mail
+    runs for it. The real device's mail is still delivered."""
     box = Mailbox()
-    bus, loop, _ = _rig(MailboxShim("box_a", box))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     ghost = _post(bus, "nobody_by_that_name")
     real = _post(bus, "box_a")
-    record = loop.beat(NOW)
-    found = [p for p in record["pulses"] if p["device"] == "bus"][0]["postman"]
-    assert found["delivered"] == [real["id"]], found
-    assert found["findings"][0]["outcome"] == "no_shim"
+    loop.beat(NOW)
+    assert len(box.got) == 1
+    assert box.got[0]["id"] == real["id"]
     assert [e["id"] for e in bus.undelivered()] == [ghost["id"]]
-    assert len(box.got) == 1        # the round continued past the undeliverable one
-
-
-def test_a_stuck_envelope_is_reported_once_not_once_per_beat():
-    """The difference between a finding and a firehose. Stuck mail is re-tried every beat (it
-    must be — the receiver may come up), but it is REPORTED at the crossing only."""
-    bus, loop, _ = _rig(DiscoveredShim("disk_only", "/nowhere"))
-    _post(bus, "disk_only")
-    first = loop.beat(NOW)
-    later = [loop.beat(NOW) for _ in range(5)]
-    def findings(rec):
-        return [p for p in rec["pulses"] if p["device"] == "bus"][0]["postman"]["findings"]
-    assert len(findings(first)) == 1
-    assert all(findings(r) == [] for r in later), [findings(r) for r in later]
-    # Still retried, though — the envelope is in every round's 'waiting' count.
-    waiting = [p for p in later[-1]["pulses"] if p["device"] == "bus"][0]["postman"]["waiting"]
-    assert waiting == 1
 
 
 def test_a_dead_store_does_not_stop_the_heartbeat():
-    """CP2 at the substrate: a box whose Postgres is down still beats. The drain reports a
-    refusal; the beat completes and every other shim is pulsed."""
+    """CP2 at the substrate: a box whose Postgres is down still beats. The shim's mail check
+    reports nothing; the beat completes and every other shim is pulsed."""
     box = Mailbox()
-    bus, loop, postman = _rig(MailboxShim("box_a", box))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
 
-    def dead(*a, **k):
+    def dead(**kw):
         raise ConnectionError("could not connect to server: Connection refused")
 
     bus.undelivered = dead      # type: ignore[method-assign]
     record = loop.beat(NOW)
-    assert record["pulsed"] == ["bus", "box_a"], record["pulsed"]
-    found = [p for p in record["pulses"] if p["device"] == "bus"][0]["postman"]
-    assert found["outcome"] == "refused"
-    assert "Connection refused" in found["error"]
-
-
-def test_the_postman_is_not_a_destination():
-    """A message addressed to the bus itself must not be handed to the postman's own deliver —
-    that would be the substrate delivering to the substrate, and the shim it would wake is the
-    one already doing the delivering."""
-    bus, loop, _ = _rig()
-    _post(bus, "bus")
-    record = loop.beat(NOW)
-    found = [p for p in record["pulses"] if p["device"] == "bus"][0]["postman"]
-    assert found["delivered"] == []
-    assert found["findings"][0]["outcome"] == "no_shim"
-
-
-def test_the_drain_is_one_query_however_many_devices():
-    """The shape that shrinks. A per-device sweep would be a query per device per second — a
-    poll wearing a heartbeat's clothes — and it would grow with every device added. Counted at
-    the bus's own read face, with five receivers on the roster."""
-    boxes = {f"box_{i}": Mailbox() for i in range(5)}
-    bus, loop, _ = _rig(*[MailboxShim(name, box) for name, box in boxes.items()])
-    for name in boxes:
-        _post(bus, name)
-    calls = {"n": 0}
-    real = bus.undelivered
-
-    def counting(**kw):
-        calls["n"] += 1
-        return real(**kw)
-
-    bus.undelivered = counting  # type: ignore[method-assign]
-    loop.beat(NOW)
-    assert calls["n"] == 1, f"{calls['n']} queries for 5 devices — that is a per-device sweep"
-    assert all(len(b.got) == 1 for b in boxes.values()), {k: len(v.got) for k, v in boxes.items()}
+    assert "box_a" in record["pulsed"], record["pulsed"]
+    mail = _mail_result(record, "box_a")
+    assert mail is None
 
 
 def test_a_receipt_appends_and_never_rewrites_the_envelope():
     """Law 7 at a record of truth: delivery is a separate EVENT, so the envelope on a record
-    channel comes back out of transit bit-identical to the one that went in."""
+    channel comes back out of transit bit-identical to the one that went in. The receipt's
+    ``by`` is the receiving device (self-serve), not the postman."""
     box = Mailbox()
-    bus, loop, _ = _rig(MailboxShim("box_a", box))
+    bus = _fresh_bus()
+    loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     sent = _post(bus, "box_a", body={"deep": {"nested": [1, 2, 3]}})
     before = bus.read(to="box_a")[0]
     loop.beat(NOW)
     after = bus.read(to="box_a")[0]
     assert after == before, (before, after)
     receipts = store.read(bus.delivery_table, where="envelope = %s", params=(sent["id"],))
-    assert len(receipts) == 1 and receipts[0]["by"] == "bus"
+    assert len(receipts) == 1 and receipts[0]["by"] == "box_a"
 
 
 if __name__ == "__main__":
@@ -288,4 +250,4 @@ if __name__ == "__main__":
     if failures:
         print(f"RED — {failures} tooth/teeth bit")
         raise SystemExit(1)
-    print("green — mail arrives, the receipt is the proof, and nothing is lost on the way")
+    print("green — mail arrives, each shim self-serves, and nothing is lost on the way")

@@ -40,6 +40,7 @@ from cairn.tools.base.address import instance_path
 from cairn.devices.bus.bus import BusDevice
 from cairn.devices.bus.shim import BusShim
 from cairn.devices.ground_loop.discovery import discover, pulse_sites
+from cairn.devices.harbor_master.shim import HarborMasterShim
 from cairn.devices.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.ground_loop.liveness import read_liveness
 from cairn.devices.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
@@ -126,13 +127,13 @@ def main(home=None, roots=None) -> int:
     # be half a fixture, which is worse than none.
     device.set_diagnostic_roots(roots)
     bus.set_diagnostic_roots(roots)
-    # THE POSTMAN, hand-subscribed. Delivery is the BUS's act, never the heartbeat's — the
-    # ground_loop does not route (that clause is the 584aa74 goof's headstone) — so the bus's
-    # own shim drains the transit table on each pulse and hands each envelope to the shim of
-    # its addressee, reached through the roster the heartbeat already publishes. Subscribed by
-    # hand because it is the one shim that must hold a reference to the heartbeat itself, and
-    # a folder on disk cannot express that.
+    # HAND-SUBSCRIBED SHIMS — devices that need a real shim beyond what disk discovery gives.
+    # Each shim checks its own inbox on each pulse (BaseShim._check_mail); the BusShim's old
+    # postman role (drain-and-dispatch) is dissolved. The bus still needs a shim for its probes.
+    # The harbor_master needs a real shim so it can wake and receive the 29 probes' findings
+    # that are addressed to it — as a DiscoveredShim it could only be pulsed, not paged.
     device.subscribe(BusShim(bus, device))
+    device.subscribe(HarborMasterShim(bus=bus))
 
     # THE FLAGS MENU (permanent; ls flags/ shows what is available).
     flags_dir = Path(home) / "flags"

@@ -1,37 +1,22 @@
-"""BusShim — the POSTMAN. The half of the bus that had never been built.
+"""BusShim — the bus's own face on the heartbeat.
 
-WHAT WAS MEASURED MISSING, 2026-08-11. ``post`` wrote durable envelopes and ``read`` returned
-them whole, and ``BaseShim.deliver`` — the method that hands an envelope to a device and wakes
-it — stood with **zero callers** since the day it was written. Nothing drained an inbox. So a
-device could be sent a question and had no way on earth to receive it, and from the sender's
-side that is indistinguishable from a working bus: the post succeeds, the row lands, the read
-shows it sitting there. Three envelopes were sitting in transit when this was found, the
-oldest addressed to a device that has never once looked.
+THE POSTMAN IS DISSOLVED (2026-08-29). Each device's shim now checks its own inbox on each
+pulse (``BaseShim._check_mail``), so the bus no longer drains and dispatches on their behalf.
+The old shape — one query for all devices, the BusShim as middleman routing through
+``shim_for`` — worked but carried crossing-memory, drain limits, and the no_receiver path
+that left 998 messages undelivered for weeks (harbor_master had no real shim). The new shape:
+each shim reads its own mail, delivers to itself, records its own receipt. N queries per
+minute (N devices, 60s cadence) is trivial at current scale.
 
-WHY THE DELIVERER IS THE BUS'S OWN SHIM, and not the heartbeat. The heartbeat's charter is one
-sentence long and the ground_loop "does NOT execute, resolve, schedule, ROUTE, or write"
-(``ground_loop/loop.py`` — that clause is the 584aa74 goof's headstone). Handing an envelope
-to its addressee is routing. It belongs to the device whose whole charter is *the sole path
-for inter-device communication* (Law 6: the owner of the traffic delivers it), and it reaches
-the addressee's shim through ``heartbeat.shim_for`` — the accessor the heartbeat already
-publishes for exactly this, "you can only reach what is on the roster."
+WHY THE SHIM STILL EXISTS. The bus is a device (pending absorption into the cairn device —
+ticket cairn-device-absorbs-foundational-infrastructure) and has probes in its folder that
+the heartbeat fires on each pulse. That firing lives here.
 
-ONE QUERY PER BEAT, FOR THE WHOLE SYSTEM. The drain asks ``bus.undelivered()`` once and
-dispatches what comes back. A per-device sweep would be a query per device per second — a
-poll wearing a heartbeat's clothes, and it would grow with every device added. This is the
-shape that shrinks instead: one question, however many devices.
+The ``drain()`` and ``_deliver_one()`` methods are kept for callers that need to sweep mail
+outside the pulse (e.g. a backlog migration), but they no longer run every beat.
 
-MAIL IS NEVER LOST AND NEVER SILENTLY EATEN. The receipt is written only AFTER the device has
-taken the envelope, so a receiver that raises leaves the mail in the inbox for the next beat.
-An addressee with no shim on the roster, or a shim that cannot wake a device, is reported —
-once per envelope, not once per beat — and its mail waits. That "waits" is honest: it names
-the next rung (a device needs a real shim before it can answer) instead of faking an arrival.
-
-FILED EDGE, not faked here: the drain is asked on a cadence because the beat is what exists
-today. The event-shaped answer is the store telling the postman a row landed (Postgres
-LISTEN/NOTIFY through db_domain's gate), which turns one query per second into zero queries
-until there is mail. That waits on a real volume — and on db_domain growing a listen face,
-which is its owner's call, not the bus's.
+FILED EDGE, not faked: Postgres LISTEN/NOTIFY through db_domain's gate, replacing the
+per-device poll with an event — waits on volume and on db_domain growing a listen face.
 """
 
 from __future__ import annotations
@@ -155,13 +140,13 @@ class BusShim(BaseShim):
                 "delivered": [r["envelope"] for r in delivered], "findings": fresh}
 
     def on_pulse(self, now, context: dict | None = None) -> dict:
-        """The heartbeat's pulse, doing both jobs: the standard probe firing (inherited, so
-        the bus can carry watches like any device) and then the drain.
+        """The heartbeat's pulse — probe firing (inherited) and the bus's own mail check
+        (inherited from BaseShim._check_mail).
 
-        The drain runs AFTER firing so an envelope a probe posts on this very beat is
-        available to the NEXT one — delivering it in the same pass would let one beat cascade
-        an unbounded chain of post-and-deliver, which is the heartbeat doing work instead of
-        keeping time."""
-        record = super().on_pulse(now, context)
-        record["postman"] = self.drain()
-        return record
+        THE POSTMAN IS DISSOLVED. Each device's shim now checks its own inbox on each
+        pulse (BaseShim._check_mail), so the bus no longer drains and dispatches on their
+        behalf. The drain() method is kept for callers that need it (operator inbox
+        backlog sweep), but it no longer runs every beat. What dissolved: the one-query-
+        for-all-devices sweep, the shim_for lookup, the crossing-memory set, the
+        no_receiver/no_shim outcomes — all replaced by each shim reading its own mail."""
+        return super().on_pulse(now, context)

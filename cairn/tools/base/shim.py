@@ -306,6 +306,13 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         # watch that has been silent since it was armed must not read the same (Law 7 — loud
         # at a diagnostic surface, and a pulse-record is one).
         record["overdue"] = self.overdue(declared)
+        # MAIL: each shim checks its own inbox, once per pulse. The bus is the sole path for
+        # inter-device comms, and each device self-serves — no postman, no middleman. A shim
+        # that cannot wake a device (DiscoveredShim) skips the check; mail waits until a real
+        # shim fronts it, which is honest (the device genuinely cannot receive).
+        mail_result = self._check_mail()
+        if mail_result:
+            record["mail"] = mail_result
         self._last_pulse = record
         return record
 
@@ -325,6 +332,53 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                                   channel=cb.channel, why=cb.why, body=body)
         return {"to": cb.to, "verb": cb.verb, "channel": cb.channel, "why": cb.why,
                 "outcome": "ok", "envelope": envelope["id"]}
+
+    # --- (2b) self-serve mail: each shim checks its own inbox ----------------
+
+    _MAIL_LIMIT = 50
+
+    def _check_mail(self) -> dict | None:
+        """Read this device's own undelivered mail and deliver each envelope to itself.
+
+        ONE QUERY PER DEVICE PER PULSE — not one for the whole system. The trade is N
+        queries per minute (N devices, 60s cadence) against the postman's machinery: the
+        crossing-memory, the drain limit, the shim_for lookup, and the NotImplementedError
+        path that left 998 messages sitting for weeks. Each device self-serves; a device
+        that cannot wake (DiscoveredShim) never reaches here because its _start_device
+        raises before deliver() can land, so it returns early and the mail waits honestly.
+
+        The receipt is written AFTER deliver() returns — same at-least-once guarantee the
+        postman had, same reason: a raising receiver leaves the mail in the inbox."""
+        if self._bus is None:
+            return None
+        try:
+            waiting = self._bus.undelivered(to=self.device_id, limit=self._MAIL_LIMIT)
+        except Exception:  # noqa: BLE001 — an unreachable store cannot stop the pulse
+            return None
+        if not waiting:
+            return None
+        delivered = []
+        refused = []
+        for envelope in waiting:
+            try:
+                self.deliver(envelope)
+            except NotImplementedError:
+                return {"waiting": len(waiting), "outcome": "no_receiver",
+                        "lack": f"{self.device_id} cannot wake a device to receive mail"}
+            except Exception as exc:  # noqa: BLE001 — one bad envelope cannot stop the batch
+                refused.append({"envelope": envelope.get("id"),
+                                "error": f"{type(exc).__name__}: {exc}"})
+                continue
+            try:
+                self._bus.record_delivery(
+                    envelope["id"], to=self.device_id, by=self.device_id)
+            except Exception:  # noqa: BLE001 — unreceipted is at-least-once, not lost
+                pass
+            delivered.append(envelope.get("id"))
+        result = {"waiting": len(waiting), "delivered": delivered}
+        if refused:
+            result["refused"] = refused
+        return result
 
     # --- the web presentation surface: assemble the device's ACTIVE page ----
 

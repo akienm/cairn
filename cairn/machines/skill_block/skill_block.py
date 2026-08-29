@@ -316,8 +316,94 @@ def find_paired_sorted(intent_finding_id: str, intent_when: str,
     return None
 
 
+_REVIEWED_LOG = Path(os.environ.get(
+    "CAIRN_SKILL_REVIEWED_LOG",
+    instance_path("skill_block", 0) / "reviewed.jsonl"))
+
+
+def reviewed_berth_ids(*, path: Path | None = None) -> set[str]:
+    p = path if path is not None else _REVIEWED_LOG
+    if not p.exists():
+        return set()
+    ids: set[str] = set()
+    for line in p.read_text().splitlines():
+        if not line.strip():
+            continue
+        try:
+            ids.add(json.loads(line)["berth_id"])
+        except (json.JSONDecodeError, KeyError):
+            continue
+    return ids
+
+
+def mark_reviewed(berth_id: str, words: str, *,
+                  path: Path | None = None,
+                  now: datetime | None = None) -> dict:
+    when = now or datetime.now()
+    p = path if path is not None else _REVIEWED_LOG
+    p.parent.mkdir(parents=True, exist_ok=True)
+    rec = {"berth_id": berth_id, "when": when.isoformat(), "words": words}
+    with open(p, "a") as f:
+        f.write(json.dumps(rec, sort_keys=True) + "\n")
+    return rec
+
+
+def pending_reviews(*, root: Path | None = None,
+                    reviewed_path: Path | None = None) -> list[dict]:
+    base = berth_root(root)
+    if not base.is_dir():
+        return []
+    reviewed = reviewed_berth_ids(path=reviewed_path)
+    pending: list[dict] = []
+    for skill_dir in sorted(base.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        for berth_file in sorted(skill_dir.glob("*.json")):
+            doc = read_berth(berth_file)
+            if doc is None:
+                continue
+            if doc.get("finding_id") in reviewed:
+                continue
+            pending.append({
+                "berth_id": doc.get("finding_id"),
+                "skill": doc.get("skill", skill_dir.name),
+                "when": doc.get("when", ""),
+                "exit": doc.get("exit"),
+                "bullets": doc.get("bullets", []),
+                "path": str(berth_file),
+            })
+    pending.sort(key=lambda r: r.get("when", ""))
+    return pending
+
+
+def sweep_reviewed(*, root: Path | None = None,
+                   reviewed_path: Path | None = None) -> list[Path]:
+    base = berth_root(root)
+    reviewed = reviewed_berth_ids(path=reviewed_path)
+    if not reviewed:
+        return []
+    dest = base.parent / "logs" / "reviewed"
+    moved: list[Path] = []
+    for skill_dir in sorted(base.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        for berth_file in sorted(skill_dir.glob("*.json")):
+            doc = read_berth(berth_file)
+            if doc is None:
+                continue
+            if doc.get("finding_id") in reviewed:
+                skill_dest = dest / skill_dir.name
+                skill_dest.mkdir(parents=True, exist_ok=True)
+                dst = skill_dest / berth_file.name
+                import shutil
+                shutil.move(str(berth_file), str(dst))
+                moved.append(dst)
+    return moved
+
+
 __all__ = [
     "EXITS", "SkillBlockRefused", "DoorRefused",
     "block_name", "load_contract", "judge_for", "berth_root", "fire", "read_berth",
     "inspect_firing", "find_paired_sorted",
+    "reviewed_berth_ids", "mark_reviewed", "pending_reviews", "sweep_reviewed",
 ]

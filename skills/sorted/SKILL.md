@@ -141,19 +141,10 @@ one when its charter is written beside the code, and that write pokes the door t
 
 ### 5b. Operator reviews the ticket
 
-After filing to CairnCommons, **present the ticket to the operator**. Read the
-ticket file at `CairnCommons/tickets/<id>.json` and show its full content. The
-operator reviews the actual text — intention, why, falsifier, watchme, gates,
-how — before the ticket goes on to /sail.
-
-**Wait for the operator's response.** Three outcomes:
-- **Sign-off** — the ticket is accepted as written. Proceed to close the boundary.
-- **Correction** — the operator names what to fix. Edit the ticket, present it
-  again.
-- **Rejection** — the ticket should not have been cast this way. Route back to
-  the gap.
-
-This is the review surface — the artifact itself, not a finding about it.
+The artifact is **queued for operator review** — it shows up in the session-open
+banner and the operator inbox. The operator reviews it with `cairn review <id>
+"words"` when ready. **Do not block waiting** — proceed to close the boundary.
+The review queue replaces the old adjudication model.
 
 ### 6. Close the boundary — /saveslate, then /compact
 

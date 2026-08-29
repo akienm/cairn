@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# cairn review — operator reviews queued skill artifacts.
+#
+# cairn review             — list artifacts awaiting review
+# cairn review <id> "words" — mark one as reviewed
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+cd "$REPO"
+exec python3 -m cairn.machines.skill_block review "$@"

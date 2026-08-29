@@ -22,11 +22,15 @@ import sys
 from pathlib import Path
 
 from cairn.machines.learning_block.learning_block import DoorRefused, FindingRefused
-from cairn.machines.skill_block.skill_block import SkillBlockRefused, fire, load_contract
+from cairn.machines.skill_block.skill_block import (
+    SkillBlockRefused, fire, load_contract,
+    pending_reviews, mark_reviewed, sweep_reviewed,
+)
 
 USAGE = """usage:
   python3 -m cairn.machines.skill_block fire <skill> <packet.json>
   python3 -m cairn.machines.skill_block contract <skill>
+  python3 -m cairn.machines.skill_block review [<id-prefix> "words"]
 
 The packet is a JSON object carrying the skill's declared input_contract fields
 (see `contract`), plus `bullets` — a list of {text, stratum} with stratum in
@@ -120,7 +124,53 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
 
+    if verb == "review":
+        return _review(rest)
+
     return _refuse(f"no such verb: {verb!r}\n\n{USAGE}")
+
+
+def _review(args: list[str]) -> int:
+    if not args:
+        pending = pending_reviews()
+        if not pending:
+            print("no artifacts awaiting review")
+            return 0
+        print(f"{len(pending)} artifact(s) awaiting review:\n")
+        for p in pending:
+            bid = p["berth_id"]
+            skill = p["skill"]
+            when = p["when"][:19] if p["when"] else "?"
+            bullets = p.get("bullets", [])
+            print(f"  [{skill}] {bid}  {when}")
+            for b in bullets[:3]:
+                text = b.get("text", "")
+                print(f"       · {text[:80]}")
+        print(f"\nreview with: cairn review <id> \"your words\"")
+        return 0
+
+    if len(args) < 2:
+        return _refuse("usage: cairn review <id-prefix> \"your words\"")
+
+    prefix, words = args[0], " ".join(args[1:])
+    pending = pending_reviews()
+    matches = [p for p in pending if p["berth_id"].startswith(prefix)]
+
+    if not matches:
+        return _refuse(f"no pending artifact matches {prefix!r}")
+    if len(matches) > 1:
+        print(f"ambiguous — {len(matches)} match {prefix!r}:", file=sys.stderr)
+        for m in matches:
+            print(f"  [{m['skill']}] {m['berth_id']}", file=sys.stderr)
+        return 2
+
+    hit = matches[0]
+    mark_reviewed(hit["berth_id"], words)
+    print(f"reviewed: {hit['berth_id']} ({hit['skill']})")
+    moved = sweep_reviewed()
+    if moved:
+        print(f"swept {len(moved)} reviewed berth(s) to logs")
+    return 0
 
 
 if __name__ == "__main__":

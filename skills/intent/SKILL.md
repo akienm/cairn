@@ -155,20 +155,10 @@ judgeable reason is the price, and silence is not on the menu.
 
 ## Operator reviews the intention
 
-After the door fires, **present the intention to the operator**. Read the berth
-at its printed path and show the intention's actual text — what, how, traces_to,
-shape, falsifier, challenge, and bullets. The operator reviews the artifact itself
-before it proceeds to /sorted.
-
-**Wait for the operator's response.** Three outcomes:
-- **Sign-off** — the intention is accepted as written. Proceed to /sorted.
-- **Correction** — the operator names what to fix. The berth is sealed; if the
-  correction is substantive (changes the what/how/traces_to), re-fire the door
-  with the corrected packet and present the new berth.
-- **Rejection** — the intent should not have been born. Fire the door again with
-  `exit: routed_out` and the operator's reason in the bullets.
-
-This is the review surface — the artifact itself, not a finding about it.
+The artifact is **queued for operator review** — it shows up in the session-open
+banner and the operator inbox. The operator reviews it with `cairn review <id>
+"words"` when ready. **Do not block waiting** — continue with the next work.
+The review queue replaces the old adjudication model.
 
 The natural next move:
 

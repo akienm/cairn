@@ -52,9 +52,9 @@ def read_troubles() -> dict:
 
 
 def read_adjudications() -> dict:
-    from cairn.machines.learning_block.learning_block import pending_findings
-    pf = pending_findings()
-    return {"findings": pf, "count": len(pf)}
+    from cairn.machines.skill_block.skill_block import pending_reviews
+    pr = pending_reviews()
+    return {"findings": pr, "count": len(pr)}
 
 
 def read_questions() -> dict:
@@ -193,7 +193,7 @@ def format_inbox(data: dict) -> str:
         parts.append(f"{troubles['live_count']} live trouble(s)")
     else:
         parts.append("0 live troubles")
-    parts.append(f"{adjudications['count']} adjudication(s)")
+    parts.append(f"{adjudications['count']} artifact(s) awaiting review")
     parts.append(f"{questions['count']} open question(s)")
     parts.append(f"{tickets['total_not_done']} tickets (CC work)")
     parts.append(f"{ideas['count']} idea(s)")
@@ -224,28 +224,25 @@ def format_inbox(data: dict) -> str:
         lines.append(f"    {email['count']} unresolved message(s)")
         lines.append("")
 
-    # ADJUDICATIONS
+    # ARTIFACT REVIEWS
     if adjudications["count"] == 0:
-        lines.append("  ADJUDICATIONS: 0 at the gate")
+        lines.append("  ARTIFACT REVIEWS: 0 awaiting review")
     else:
         lines.append("")
-        lines.append(_section_line(f"ADJUDICATIONS ({adjudications['count']})"))
+        lines.append(_section_line(f"ARTIFACTS AWAITING REVIEW ({adjudications['count']})"))
         lines.append("")
         for f in adjudications["findings"]:
-            fid = f.get("id", "?")[:12]
-            block = f.get("block", "?")
-            when = (f.get("when", "") or "")[:10]
-            data = f.get("data", {})
-            subject = data.get("subject", "")
-            bullets = data.get("bullets", [])
-            if subject:
-                slug = _slugify(subject)
-                lines.append(f"    {fid}  [{block}]  {when}-{slug}")
-            else:
-                lines.append(f"    {fid}  [{block}]  {when}")
+            bid = f.get("berth_id", f.get("id", "?"))[:12]
+            skill = f.get("skill", f.get("block", "?"))
+            when = (f.get("when", "") or "")[:19]
+            bullets = f.get("bullets", [])
+            if not isinstance(bullets, list):
+                bullets = (f.get("data", {}) or {}).get("bullets", [])
+            lines.append(f"    {bid}  [{skill}]  {when}")
             for b in bullets[:2]:
                 text = b.get("text", "") if isinstance(b, dict) else str(b)
                 lines.append(f"        {text[:90]}")
+        lines.append(f"  review with: cairn review <id> \"your words\"")
         lines.append("")
 
     # QUESTIONS

@@ -205,19 +205,17 @@ def _live_troubles() -> tuple[list[dict], str | None]:
 
 
 def _at_the_gate() -> tuple[list[dict], str | None]:
-    """Findings awaiting Akien's verdict. The learning_block owns pendingness
-    (a question keeps a finding at the gate; only approve/disprove clear it) —
-    this lane only renders what the primitive's own reader says (Law 6), the
-    same never-a-second-owner rule the trouble lane lives by."""
+    """Artifacts awaiting operator review. The skill_block owns the berths
+    and the reviewed set — this lane only renders what its reader says."""
     sys.path.insert(0, str(REPO))
     try:
-        from cairn.machines.learning_block.learning_block import pending_findings
+        from cairn.machines.skill_block.skill_block import pending_reviews
     except Exception as exc:
-        return [], f"gate lane unreachable: {exc}"
+        return [], f"review lane unreachable: {exc}"
     try:
-        return pending_findings(), None
+        return pending_reviews(), None
     except Exception as exc:
-        return [], f"gate lane failed to read: {exc}"
+        return [], f"review lane failed to read: {exc}"
 
 
 def _unadjudicated() -> tuple[list[dict], str | None]:
@@ -301,7 +299,7 @@ def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str |
     receipt for having a hook, not for having read the slate."""
     which = "NO SLATE RESTORED" if slate is None else str(slate.get("id") or (path.stem if path else "?"))
     lane = "trouble lane UNREACHABLE" if t_err else f"{len(troubles)} live trouble(s)"
-    gate = "gate lane UNREACHABLE" if g_err else f"{len(pending)} at the gate"
+    gate = "review lane UNREACHABLE" if g_err else f"{len(pending)} awaiting review"
     lap = f" · {len(unadj)} in the lap" if unadj else ""
     open_q = f" · {len(questions)} open question(s)" if questions else ""
     return f"🪝 slate · {which} · {lane} · {gate}{lap}{open_q}"
@@ -340,38 +338,18 @@ def build() -> tuple[str, str]:
         lines.append("   no live troubles. (the normal operating state is zero — this is it.)")
         lines.append("")
 
-    # The gate, second — above the plan for the same reason troubles are: a finding
-    # awaiting his verdict is work only HE can move, and it must not hide below the
-    # slate. Zero pending prints NOTHING (the tool is invisible when it works).
     if g_err:
         lines.append(f"!! {g_err}")
         lines.append("")
     elif pending:
-        lines.append(f"⚖  AT AKIEN'S GATE — {len(pending)} finding(s) awaiting his verdict:")
-        # The gate must be LOUD, and a wall nobody scrolls is quiet: 121 findings
-        # rendered whole put ~180KB into every session open (measured 2026-08-15).
-        # The COUNT is the loud part. Older findings become one line each — the id is
-        # what recordverdict answers by, so every row stays actionable and nothing
-        # leaves the surface (Law 7 lets a presentation surface collapse; the
-        # learning_block's record stays whole). The newest keep their bullets: they
-        # are the ones no prior session has put in front of him.
-        # Ruling: 2026-08-15-the-review-findings-are-cleared-and-cited.
+        lines.append(f"⚖  ARTIFACTS AWAITING REVIEW — {len(pending)} artifact(s):")
         FULL_BULLETS = 8
-        older = pending[:-FULL_BULLETS] if len(pending) > FULL_BULLETS else []
-        if older:
-            lines.append(f"   … {len(older)} older, id-only (each still answerable "
-                         f"by id; bullets live in the block's own record):")
-            for f in older:
-                lines.append(f"   [{f.get('block', '?')}] {f.get('id', '?')}"
-                             f"  {str(f.get('when', ''))[:19]}")
-            lines.append(f"   ── the {len(pending) - len(older)} newest, in full: ──")
         for f in pending[-FULL_BULLETS:]:
-            lines.append(f"   [{f.get('block', '?')}] {f.get('id', '?')}"
+            lines.append(f"   [{f.get('skill', '?')}] {f.get('berth_id', '?')}"
                          f"  {str(f.get('when', ''))[:19]}")
-            for b in (f.get("data") or {}).get("bullets", []):
+            for b in f.get("bullets", []):
                 lines.append(_render(f"· {b.get('text', '')}", "        "))
-        lines.append(_wrap('answer with: cairn recordverdict [<block-or-id>] '
-                           '"<your words>"', "   "))
+        lines.append(_wrap('review with: cairn review <id> "<your words>"', "   "))
         lines.append("")
 
     # THE LAP, third — same tier as the gate and for the same reason: a thing that cannot

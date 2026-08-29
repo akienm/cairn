@@ -206,7 +206,8 @@ def _tenure_on_resolution(question: str, walk: list[dict], floor: float, *,
 
 def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
                   floor: float = RESOLUTION_FLOOR, max_backfills: int = MAX_BACKFILLS,
-                  table: str = NODES, conn=None, dev: LibrarianDevice | None = None) -> dict:
+                  table: str = NODES, conn=None, dev: LibrarianDevice | None = None,
+                  session_id: str | None = None) -> dict:
     """One crossing of the core loop. Returns a VERDICT, never a guess::
 
         {"verdict": "RESOLVED" | "UNRESOLVED",
@@ -257,6 +258,8 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
         for content in nodes:
             provenance = {"source": "llm-backfill", "question": question,
                           "graph_state": state["digest"]}
+            if session_id:
+                provenance["origin_session"] = session_id
             try:
                 r = dev.deposit(content, embed(content), provenance,
                                 tree=tree, table=table, conn=conn)
@@ -289,6 +292,31 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
     tenure = _tenure_on_resolution(question, walk, floor, tree=tree, table=table, conn=conn)
     return _verdict(dev, question, "RESOLVED", None, walk, best, floor,
                     backfills, deposited, refused, tree, tenure=tenure)
+
+
+def _promotion_callbacks(walk: list[dict], tenure: dict | None) -> list[dict]:
+    """Callbacks for promoted nodes whose depositing session should be notified.
+
+    Rides the resolution event — no clock, no poll. Only nodes with an
+    ``origin_session`` in their provenance produce a callback; nodes deposited
+    before session tracking was added, or deposited without a session context,
+    are silently skipped."""
+    if not tenure or not tenure.get("promoted"):
+        return []
+    promoted_ids = set(tenure["promoted"])
+    callbacks = []
+    for node in walk:
+        if node["node_id"] not in promoted_ids:
+            continue
+        origin = (node.get("provenance") or {}).get("origin_session")
+        if origin:
+            callbacks.append({
+                "node_id": node["node_id"],
+                "origin_session": origin,
+                "content": node["content"],
+                "event": "promoted",
+            })
+    return callbacks
 
 
 def _receipts(walk: list[dict], tenure: dict | None) -> list[dict]:
@@ -343,4 +371,7 @@ def _verdict(dev, question, verdict, reason, walk, best, floor,
            "receipts": _receipts(walk, tenure)}
     if tenure is not None:
         out["tenure"] = tenure
+    callbacks = _promotion_callbacks(walk, tenure)
+    if callbacks:
+        out["callbacks"] = callbacks
     return out

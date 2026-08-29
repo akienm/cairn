@@ -737,6 +737,7 @@ class LibrarianDevice(BaseDevice):
         self._verdicts = {"DEPOSITED": 0, "DUPLICATE": 0}
         self._last_node: str | None = None
         self._chat = None        # the conversational face — attached by the shim at wake
+        self._notifications: list[dict] = []
 
     @property
     def device_id(self) -> str:
@@ -797,10 +798,13 @@ class LibrarianDevice(BaseDevice):
         self._chat = session
 
     def declared_panes(self) -> list[dict]:
-        """The chat window, offered as a pane. Unattached (nobody woke the face) it
-        is honestly ABSENT-with-reason on the page, not a missing surface."""
-        return [{"kind": "chat", "label": "Chat",
-                 "handler": None if self._chat is None else self._chat.page}]
+        """The chat window and notifications, offered as panes."""
+        panes = [{"kind": "chat", "label": "Chat",
+                  "handler": None if self._chat is None else self._chat.page}]
+        panes.append({"kind": "notifications", "label": "Notifications",
+                      "handler": lambda: {"pending": self.pending_notifications(),
+                                          "total": len(self._notifications)}})
+        return panes
 
     def receive(self, envelope: dict) -> dict:
         """Incoming mail (web_server → shim → here: the designed path, in-process
@@ -817,7 +821,35 @@ class LibrarianDevice(BaseDevice):
                 "librarian: a chat envelope arrived but no face is attached — the "
                 "shim wires the ChatSession at wake; an unwired face refuses, it "
                 "does not pretend")
-        return self._chat.turn(str((envelope.get("body") or {}).get("utterance", "")))
+        session_id = (envelope.get("body") or {}).get("session_id")
+        return self._chat.turn(
+            str((envelope.get("body") or {}).get("utterance", "")),
+            session_id=session_id)
+
+    # --- proactive resolution callbacks ---------------------------------------
+
+    def notify_callbacks(self, callbacks: list[dict]) -> None:
+        """Record promotion callbacks — fired by the resolution event, never a clock.
+
+        Each callback carries the origin_session that deposited the node and the
+        node's content. The notification surfaces on the pane; a dead session's
+        notifications surface the next time its user opens the librarian."""
+        now = datetime.now(timezone.utc).isoformat()
+        for cb in callbacks:
+            self._notifications.append({**cb, "at": now, "seen": False})
+
+    def pending_notifications(self) -> list[dict]:
+        return [n for n in self._notifications if not n.get("seen")]
+
+    def mark_notifications_seen(self, node_ids: set | None = None) -> int:
+        marked = 0
+        for n in self._notifications:
+            if n.get("seen"):
+                continue
+            if node_ids is None or n.get("node_id") in node_ids:
+                n["seen"] = True
+                marked += 1
+        return marked
 
     # --- Form v0 #2 surface -------------------------------------------------
 

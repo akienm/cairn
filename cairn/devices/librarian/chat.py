@@ -202,7 +202,8 @@ def articulate(utterance: str, verdict: dict, *, resolve) -> dict:
 
 def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
               summary_k: int = SUMMARY_REGION_K, table: str = NODES, conn=None,
-              dev: LibrarianDevice | None = None) -> dict:
+              dev: LibrarianDevice | None = None,
+              session_id: str | None = None) -> dict:
     """One conversational turn. Returns the TURN, whichever way it lands::
 
         {"utterance": what was said,
@@ -234,7 +235,8 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
                                     table=table, conn=conn)
         else:
             verdict = resolve_query(question, resolve=resolve, tree=tree, k=k,
-                                    table=table, conn=conn, dev=dev)
+                                    table=table, conn=conn, dev=dev,
+                                    session_id=session_id)
             reply = articulate(question, verdict, resolve=resolve)
     except (SummaryRefused, BackfillRefused, ChatRefused, RefutationRefused,
             DepositRefused) as e:
@@ -270,10 +272,13 @@ class ChatSession:
     def dev(self) -> LibrarianDevice:
         return self._dev
 
-    def turn(self, utterance: str) -> dict:
+    def turn(self, utterance: str, session_id: str | None = None) -> dict:
         got = chat_turn(utterance, resolve=self._resolve, tree=self._tree, k=self._k,
                         summary_k=self._summary_k, table=self._table, conn=self._conn,
-                        dev=self._dev)
+                        dev=self._dev, session_id=session_id)
+        callbacks = (got.get("reply") or {}).get("loop", {}).get("callbacks")
+        if callbacks:
+            self._dev.notify_callbacks(callbacks)
         self._turns.append(got)
         return got
 

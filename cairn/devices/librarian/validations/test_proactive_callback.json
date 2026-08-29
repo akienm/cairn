@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_proactive_callback.py passes under python3",
+    "caller": "CC",
+    "date": "2026-08-29T03:39:11",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_chat_turn_threads_session_id\n  PASS  test_deposit_records_origin_session\n  PASS  test_deposit_without_session_has_no_origin\n  PASS  test_device_stores_and_surfaces_notifications\n  PASS  test_mark_notifications_seen\n  PASS  test_notifications_pane_surfaces\n  PASS  test_promotion_produces_callback_with_origin\n  PASS  test_promotion_without_origin_produces_no_callback\ngreen — proactive resolution callback: deposits carry origin_session, promotions produce callbacks, notifications surface on the pane",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e050c28347655d2a1a9be4bf1b7ce729a9991c2ac54ed7a83f5adde5cfe22d9e",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-_y_lvr46/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

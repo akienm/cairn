@@ -329,13 +329,14 @@ def test_the_chat_crossing_breadcrumbs_thin():
 def test_the_chat_window_is_a_declared_pane():
     dev = _fresh_librarian()
     panes = dev.declared_panes()
-    assert panes == [{"kind": "chat", "label": "Chat", "handler": None}], \
+    chat_panes = [p for p in panes if p["kind"] == "chat"]
+    assert len(chat_panes) == 1 and chat_panes[0]["handler"] is None, \
         "the window is OFFERED from birth — unattached, its handler is honestly None " \
         "(the shim machinery renders that absent-with-reason, never a missing surface)"
     tbl = _t("paned")
     session = ChatSession(resolve=fake_seam(["a spoken line"]), tree="paned", table=tbl, dev=dev)
     dev.attach_chat(session)
-    handler = dev.declared_panes()[0]["handler"]
+    handler = [p for p in dev.declared_panes() if p["kind"] == "chat"][0]["handler"]
     assert handler() == session.page(), \
         "attached, the pane's DATA is the session's page — the one web server renders it"
 
@@ -365,14 +366,15 @@ def test_the_shim_wakes_the_device_on_demand():
     assert not shim.running, "the shim is the always-on front; the device sleeps"
     page = shim.active_page()
     assert shim.running, "querying the page is a poke — the shim STARTS its device"
-    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "chat"], \
+    pane_kinds = [p["kind"] for p in page["panes"]]
+    assert "status" in pane_kinds and "settings" in pane_kinds and "chat" in pane_kinds, \
         "the woken device's page carries the floor + the declared chat window"
     dev = shim.device()
     _seed(dev, "woken", tbl, [(_A, [0.95, 0.05, 0.0])])
     shim.deliver({"sender": "web_server", "to": "librarian", "channel": "chat",
                   "why": "a POST crossed the web surface", "body": {"utterance": _Q}})
     assert shim.device() is dev, "one wake — every poke after it reaches the SAME device"
-    chat_pane = shim.active_page()["panes"][2]
+    chat_pane = [p for p in shim.active_page()["panes"] if p["kind"] == "chat"][0]
     assert len(chat_pane["data"]["turns"]) == 1, \
         "the delivered turn shows on the page the surface will render"
 

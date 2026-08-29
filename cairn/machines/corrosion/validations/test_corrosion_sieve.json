@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_corrosion_sieve.py passes under python3",
+    "caller": "a-constraint-that-stopped-constraining-carries-a-ruling",
+    "date": "2026-08-29T17:13:57",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS: weakening without ruling fires a finding\nPASS: ruled weakening does NOT fire (beneficial drift)\nPASS: present constraint is untouched (no finding)\nPASS: constraint set excluding itself fires self-reference finding\nPASS: stale unrelated ruling does NOT satisfy the check\nPASS: all four constraint kinds caught by the same predicate\nPASS: non-corrosion component returns empty (no false positives)\nPASS: missing constraint set fires a finding\nPASS: empty constraint set fires a finding\n\n9 passed, 0 failed out of 9",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e9ab7470438c4fb0c116ca90fe247b426ed4109adfcd0feb45274b24b34f0f8b",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-bqd_g6wm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

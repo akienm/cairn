@@ -217,7 +217,9 @@ An IOU without a real ticket is itself the defect this section is made of.
   deterministic red offers nothing to negotiate with.
   → this is one face of **corrosion** — drift with a ruling behind it is the system
   learning, drift with none is decay — and the enforcement is one predicate over both:
-  *a constraint stopped constraining, and no ruling sits in the same act*
+  *a constraint stopped constraining, and no ruling sits in the same act*.
+  **PHYSICS SHIPPED:** `constraint_enforcement_holds` sieve in `build_inspector`,
+  reading `cairn/machines/corrosion/constraint_set.json`. The residue moves below.
   · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
 - **Law 9 itself.** Red is a word a reader has to remember to apply; nothing derives it,
   and the site has no plan showing which lots are still unexcavated. A component whose
@@ -247,6 +249,11 @@ charter, never from this file.
   in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*
 - ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees
   packets that exist, not rulings never recorded. · *ticket ruling-intake-ensures-packets-are-opened*
+- corrosion (`constraint_enforcement_holds` sieve in `build_inspector`, declared set
+  at `cairn/machines/corrosion/constraint_set.json`) → the set is hand-authored and
+  the predicate cannot discover constraints not listed; a constraint silently
+  dropped from the set is corrosion the check cannot see (though narrowing fires
+  the self-reference tooth). · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
 
 This file has its own charter and answers to `/challenge` — whose firing event
 is every node birth at `/intent` (ticket challenge-fires-at-intent); as a settled

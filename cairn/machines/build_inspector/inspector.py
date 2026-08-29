@@ -2352,6 +2352,68 @@ def charter_asserts_file_present(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
+    """A declared constraint stopped constraining with no ruling in the same act.
+
+    Provenance: ruling 2026-08-14-corrosion-is-drift-with-no-ruling-behind-it.
+    Akien: 'presenting a deterministic result of an error will prompt you to fix
+    it, not to plaster over it.' ONE PREDICATE: drift with a ruling behind it is
+    the system learning; drift with none is corrosion.
+
+    Checks the declared constraint set (cairn/machines/corrosion/constraint_set.json)
+    when the corrosion component is inspected. The set includes itself as a member
+    (self-reference: narrowing the set fires the check on itself).
+    """
+    if row["component"] != "corrosion":
+        return []
+    set_path = comp_dir / "constraint_set.json"
+    if not set_path.exists():
+        return [_finding(
+            "constraint_enforcement_holds", row["component"],
+            "constraint set exists", expected=True, actual=False,
+        )]
+    try:
+        cset = json.loads(set_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return [_finding(
+            "constraint_enforcement_holds", row["component"],
+            "constraint set readable", expected=True, actual=False,
+        )]
+    constraints = cset.get("constraints", [])
+    if not constraints:
+        return [_finding(
+            "constraint_enforcement_holds", row["component"],
+            "constraint set non-empty", expected=True, actual=False,
+        )]
+    from cairn.machines.corrosion.citation import ruling_covers_path
+    findings = []
+    repo_root = comp_dir
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    for entry in constraints:
+        cpath = entry.get("path", "")
+        cid = entry.get("id", cpath)
+        abs_path = repo_root / cpath
+        if not abs_path.exists():
+            covering = ruling_covers_path(cpath)
+            if not covering:
+                findings.append(_finding(
+                    "constraint_enforcement_holds", row["component"],
+                    f"constraint present: {cid}",
+                    expected=True, actual=False,
+                    constraint_id=cid,
+                    constraint_path=cpath,
+                    constraint_kind=entry.get("kind", "unknown"),
+                ))
+    if not any("corrosion" in str(e.get("path", "")) for e in constraints):
+        findings.append(_finding(
+            "constraint_enforcement_holds", row["component"],
+            "constraint set includes itself",
+            expected=True, actual=False,
+        ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2376,6 +2438,7 @@ SIEVES = {
     "address_is_resolved_never_spelled": address_is_resolved_never_spelled,
     "charter_asserts_file_present": charter_asserts_file_present,
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
+    "constraint_enforcement_holds": constraint_enforcement_holds,
 }
 
 

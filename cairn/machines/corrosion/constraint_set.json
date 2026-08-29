@@ -1,0 +1,24 @@
+{
+  "schema_version": "constraint-set-v1",
+  "description": "The declared constraint set — every entry is a constraint the corrosion predicate watches. Narrowing this set fires the check on itself (self-reference). The predicate is only as good as the set it watches.",
+  "constraints": [
+    {
+      "id": "corrosion-sieve-self-reference",
+      "path": "cairn/machines/corrosion/constraint_set.json",
+      "description": "The declared constraint set itself — narrowing it fires the check on itself, because a check about suppressing checks can be killed by the exact move it catches",
+      "kind": "check"
+    },
+    {
+      "id": "claude-md-rules-awaiting-physics",
+      "path": "cairn/CLAUDE.md",
+      "description": "The Rules awaiting physics section — prose IOUs for enforcement. Each retires when physics covers it; removing one without a ruling is corrosion.",
+      "kind": "why"
+    },
+    {
+      "id": "law-9-no-triage-authority",
+      "path": "cairn/CLAUDE.md",
+      "description": "Law 9: 'there is no triage authority — not environmental, not pre-existing, not out of scope.' The vocabulary of the plaster move.",
+      "kind": "threshold"
+    }
+  ]
+}

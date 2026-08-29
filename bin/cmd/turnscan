@@ -129,7 +129,7 @@ def strip_quoted(text: str) -> str:
     return text
 
 
-def scan(message: str) -> dict | None:
+def scan(message: str, tool_positions: list[int] | None = None) -> dict | None:
     """Return the red, or None. The red carries BOTH markers and their excerpt —
     a finding that does not show its evidence is a finding nobody can falsify
     (Law 3), and a complete diagnostic on the first pass is the standing method."""
@@ -149,12 +149,18 @@ def scan(message: str) -> dict | None:
         return None
     f_at, f_pat, f_txt = min(found_f)
 
-    return {
+    red = {
         "concern": {"at": c_at, "pattern": c_pat, "text": c_txt.strip()},
         "forward": {"at": f_at, "pattern": f_pat, "text": f_txt.strip()},
         "gap": f_at - c_at,
         "excerpt": " ".join(message[max(0, c_at - 60):c_at + 200].split()),
     }
+
+    if tool_positions:
+        max_tool = max(tool_positions)
+        red["classification"] = "mid_build" if c_at < max_tool else "retrospective_caveat"
+
+    return red
 
 
 def receipt(red: dict) -> str:
@@ -206,6 +212,41 @@ def corpus(pattern: str) -> int:
 DEFAULT_CORPUS = os.path.expanduser("~/.claude/projects/-home-akien-dev-src-cairn/*.jsonl")
 
 
+def extract_tool_positions(transcript_path: str) -> list[int] | None:
+    """Read the transcript JSONL and compute tool_use block positions in the last
+    assistant message's text coordinate system.  Returns None on any failure —
+    the caller falls back to unclassified scan."""
+    try:
+        last_assistant = None
+        with open(transcript_path, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("type") != "assistant":
+                    continue
+                msg = d.get("message", {})
+                content = msg.get("content")
+                if isinstance(content, list) and content:
+                    last_assistant = content
+        if not last_assistant:
+            return None
+        positions = []
+        char_offset = 0
+        for block in last_assistant:
+            if not isinstance(block, dict):
+                continue
+            btype = block.get("type")
+            if btype == "text":
+                char_offset += len(block.get("text", ""))
+            elif btype == "tool_use":
+                positions.append(char_offset)
+        return positions if positions else None
+    except Exception:
+        return None
+
+
 def main(argv: list[str]) -> int:
     if "--corpus" in argv:
         i = argv.index("--corpus")
@@ -216,19 +257,20 @@ def main(argv: list[str]) -> int:
     try:
         payload = json.loads(raw) if raw.strip() else {}
     except Exception as exc:
-        # A malformed hook input is the host's business, not a reason to shout at
-        # Akien every turn. Loud on the diagnostic surface, silent on the receipt.
         print(f"turnscan: unreadable hook input: {exc}", file=sys.stderr)
         return 0
 
-    # Never re-fire into a turn this hook already acted on.
     if payload.get("stop_hook_active"):
         return 0
 
-    red = scan(payload.get("last_assistant_message") or "")
-    if red:
-        # systemMessage ONLY. No "decision": see the module docstring — blocking
-        # would take the owner's call, which is the defect being measured.
+    text = payload.get("last_assistant_message") or ""
+    tool_pos = None
+    tp = payload.get("transcript_path")
+    if tp:
+        tool_pos = extract_tool_positions(tp)
+
+    red = scan(text, tool_positions=tool_pos)
+    if red and red.get("classification") != "retrospective_caveat":
         print(json.dumps({"systemMessage": receipt(red)}, ensure_ascii=False))
     return 0
 

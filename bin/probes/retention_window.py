@@ -44,10 +44,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from cairn.tools.base.address import resolve
 from cairn.tools.base.probe import Probe, owning_ticket
 
 DEFAULT_LOGDIR = Path(os.environ.get("CAIRN_LOGDIR")
-                      or Path.home() / ".cairn" / "logs")
+                      or resolve("instance/logs"))
 
 # The window the recorder defaults to, resolved the way the recorder resolves it. Read from
 # the environment rather than hardcoded: the whole point of the watch is that this number is

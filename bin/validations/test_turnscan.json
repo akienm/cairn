@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_turnscan.py passes under python3",
+    "caller": "turnscan-distinguishes-work-from-retrospective",
+    "date": "2026-08-29T01:14:33",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "7. against the real transcript corpus: invariants only\n  ok   corpus mode exits 0\n  ok   reports transcripts and turns scanned\n  ok   reports a red RATE\n  ok   the red rate is under the 10% ceiling\n\n8. tool_positions classify a concern as mid-build or retrospective\n  ok   mid-build concern emits a receipt\n  ok   retrospective caveat suppresses the receipt\n  ok   retrospective caveat still exits 0\n  ok   no tool_use blocks in transcript still receipts\n  ok   absent transcript_path still receipts (backward compat)\n\n9. a bad transcript_path never wedges a turn\n  ok   nonexistent transcript: exit 0\n  ok   nonexistent transcript: still receipts (falls back to unclassified)\n  ok   empty transcript: exit 0\n  ok   empty transcript: still receipts\n\n32/32 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "0940b3c558005fa2bf589f242e18514d6edde7a393a97dc4efd7f0a7dbc110c3",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-o03f8v4h/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

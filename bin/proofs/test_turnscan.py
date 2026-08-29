@@ -37,8 +37,10 @@ Pinning "6 reds" would go red the next time anyone talks about a caveat.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -70,6 +72,17 @@ def scan(message: str, **extra) -> tuple[dict | None, subprocess.CompletedProces
     if not r.stdout.strip():
         return None, r
     return json.loads(r.stdout), r
+
+
+def make_transcript(content_blocks: list[dict]) -> str:
+    """Write a fixture JSONL transcript and return the path.  Caller must unlink."""
+    f = tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False,
+                                    dir=os.environ.get("TMPDIR", "/tmp"))
+    entry = {"type": "assistant", "message": {
+        "role": "assistant", "stop_reason": "end_turn", "content": content_blocks}}
+    f.write(json.dumps(entry) + "\n")
+    f.close()
+    return f.name
 
 
 # The canonical defect, in CLAUDE.md's own words.
@@ -178,6 +191,69 @@ def main() -> int:
     # measuring my vocabulary. The ceiling is the falsifier, not the count.
     check("the red rate is under the 10% ceiling", rate is not None and rate < 10.0,
           f"rate={rate}% — a detector this loud would be noise, not physics")
+
+    # ── 8. CLASSIFICATION: mid-build vs retrospective ──────────────────────
+    print("\n8. tool_positions classify a concern as mid-build or retrospective")
+    # Mid-build: concern BEFORE the last tool_use position
+    tp_mid = make_transcript([
+        {"type": "text", "text": RED_TURN},
+        {"type": "tool_use", "id": "t1", "name": "Edit", "input": {}}
+    ])
+    out_mid, r_mid = scan(RED_TURN, transcript_path=tp_mid)
+    check("mid-build concern emits a receipt",
+          out_mid is not None and "systemMessage" in (out_mid or {}),
+          f"stdout={r_mid.stdout[:200]}")
+    os.unlink(tp_mid)
+
+    # Retrospective: concern AFTER all tool_use positions
+    retro_text = ("I read the file and ran the build. "
+                  "One caveat though: the test might flake under load. "
+                  "Anyway, here's the plan for the next step.")
+    tp_retro = make_transcript([
+        {"type": "text", "text": "Done."},
+        {"type": "tool_use", "id": "t2", "name": "Read", "input": {}},
+        {"type": "text", "text": " I read the file and ran the build. "
+                                  "One caveat though: the test might flake under load. "
+                                  "Anyway, here's the plan for the next step."}
+    ])
+    retro_msg = ("Done. I read the file and ran the build. "
+                 "One caveat though: the test might flake under load. "
+                 "Anyway, here's the plan for the next step.")
+    out_retro, r_retro = scan(retro_msg, transcript_path=tp_retro)
+    check("retrospective caveat suppresses the receipt",
+          out_retro is None,
+          f"expected silence, got: {r_retro.stdout[:200]}")
+    check("retrospective caveat still exits 0", r_retro.returncode == 0)
+    os.unlink(tp_retro)
+
+    # No tool_use blocks: backward compatible, still receipts
+    tp_notools = make_transcript([
+        {"type": "text", "text": RED_TURN}
+    ])
+    out_nt, r_nt = scan(RED_TURN, transcript_path=tp_notools)
+    check("no tool_use blocks in transcript still receipts",
+          out_nt is not None and "systemMessage" in (out_nt or {}))
+    os.unlink(tp_notools)
+
+    # No transcript_path at all: backward compatible
+    out_notp, _ = scan(RED_TURN)
+    check("absent transcript_path still receipts (backward compat)",
+          out_notp is not None and "systemMessage" in (out_notp or {}))
+
+    # ── 9. NEVER WEDGES on bad transcript ────────────────────────────────
+    print("\n9. a bad transcript_path never wedges a turn")
+    out_bad, r_bad = scan(RED_TURN, transcript_path="/nonexistent/path.jsonl")
+    check("nonexistent transcript: exit 0", r_bad.returncode == 0)
+    check("nonexistent transcript: still receipts (falls back to unclassified)",
+          out_bad is not None and "systemMessage" in (out_bad or {}))
+
+    tp_empty = tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False)
+    tp_empty.close()
+    out_empty, r_empty = scan(RED_TURN, transcript_path=tp_empty.name)
+    check("empty transcript: exit 0", r_empty.returncode == 0)
+    check("empty transcript: still receipts",
+          out_empty is not None and "systemMessage" in (out_empty or {}))
+    os.unlink(tp_empty.name)
 
     print()
     print(f"{CHECKS - len(FAILURES)}/{CHECKS} green")

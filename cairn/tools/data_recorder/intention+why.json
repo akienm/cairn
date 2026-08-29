@@ -1,0 +1,21 @@
+{
+  "component": "data_recorder",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "A mailbox that holds structured feedback records until an LLM inspection pass reads them. Three operations: write(record) appends one JSON record to a JSONL file, read() returns all accumulated records, clear(ids) removes consumed records by id. The passive consumer's mailbox — probes deposit feedback here, and scheduled-llm-gate-inspection reads and acts on it.",
+  "why": "Akien, 2026-08-21: 'the data recorder was never discussed on how to implement it, but it's so common in the world around me it just seemed a sensible TOOL.' An inspector cannot act on feedback — it has no agency of its own. But it CAN be adjusted: change what questions it asks, change its parameters. That adjustment is the LLM's job (scheduled-llm-gate-inspection). Between the feedback arriving and the LLM reviewing it, the feedback needs somewhere to live. That is the data recorder — a mailbox that holds feedback in structured form, readable by the LLM when the scheduled inspection fires.",
+  "invoke": "`from cairn.tools.data_recorder.data_recorder import DataRecorder` — `DataRecorder(base_dir)` where base_dir is the holder's instance-space path for this inspector: `~/.cairn/devices/<device>/<instance>/tools/data_recorder/<inspector_name>/`. `dr.write(record)` appends (returns id), `dr.read()` returns accumulated, `dr.clear(ids)` removes consumed. Prove: `python3 cairn/tools/data_recorder/proofs/test_data_recorder.py` (exit 0 = green).",
+  "node_class": "tool",
+  "entry": "FRESH build, 2026-08-28. Nothing was grafted. The JSONL append pattern is composed from breadcrumb_log.py's design (atomic append, one record per line), adapted to include read-back and selective clear — the two operations breadcrumb_log deliberately does not have because it is a trail, not a mailbox.",
+  "state_and_history": "No state or history at this address — the tool's definition lives here in class-space; its ongoing state (the accumulated records) lives under the holder in instance-space, per ruling 2026-08-14-tools-and-machines-remember-under-their-holder.",
+  "how_it_learns": "IT DOESN'T. This tool is a mailbox, not a mind. What learns is at the far end — the scheduled-llm-gate-inspection that reads the accumulated records and proposes parameter adjustments. This tool holds the records in between.",
+  "gates": "Proof gate: proofs/test_data_recorder.py. The tool gates no writes at its own address — it is a tool (Law 6). The holder's gate is what protects the instance-space path.",
+  "falsifier": "RED on any of: (1) the recorder gates writes at its own address — that makes it a machine, not a tool (Law 6 test); (2) records are prose rather than structured JSON — Hex needs parseable input; (3) the recorder has its own LLM — the LLM is in the scheduled inspection, not here; (4) the recorder can ACT on feedback — that makes it an active consumer; (5) nobody reads from it — a mailbox nobody opens is a black hole.",
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Probes write to it, scheduled-llm-gate-inspection reads from it. Akien owns the concept; CC writes the code and proofs.",
+  "traces_to": [
+    "Law 6 (a tool has users, not an owner — the recorder's state is the holder's to own and gate)",
+    "2026-08-21-feedback-is-probes-two-consumer-kinds (the ruling that names this tool as the passive consumer's target)",
+    "scheduled-llm-gate-inspection (the consumer that reads from this tool)"
+  ],
+  "proof": "proofs/test_data_recorder.py — teeth exercising write/read/clear round-trip, selective clear, empty-read, JSONL atomicity, schema enforcement, and the Law 6 test (no write-gating at own address)."
+}

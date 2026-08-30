@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_history_integrity.py passes under python3",
+    "caller": "state-and-history-door-catches-in-place-edits",
+    "date": "2026-08-29T19:28:56",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_modified_past_entry_reds\n  PASS  test_uncommitted_append_flags\n  PASS  test_untouched_passes\n  PASS  test_no_history_skips\n  PASS  test_state_json_tamper_detected\n  PASS  test_deleted_entry_reds\n\n6 teeth, all green.",
+      "stderr_tail": "/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:55: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_modified\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:75: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_append\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:90: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_clean\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:100: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_nohistory\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:113: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_state\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:129: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_deleted\") as root:",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d10b360270e6b92f7d5a3df06a8199af7d7e32ecbca966345f8c42aea0fc58ce",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-jk_3qk7n/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

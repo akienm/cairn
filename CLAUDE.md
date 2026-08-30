@@ -241,10 +241,14 @@ charter, never from this file.
 - sole path to the inference host and to 5432 (`import_sieve`, shaken by
   `inference_domain` and `db_domain` at their own addresses) → a `subprocess`
   dials and imports nothing, and a dynamic import is invisible. · *ticket sole-path-sees-subprocess-and-dynamic-import*
-- `state`/`history` (append door + PROVEME drift check) → an in-place edit of
-  *history* itself, and at-rest components between voyages; **and nothing
-  notices history that has stopped being under way** (Law 5's new bound — see
-  the IOU above). · *ticket state-and-history-door-catches-in-place-edits*
+- `state`/`history` (append door + PROVEME drift check) → **PHYSICS SHIPPED:**
+  `history_integrity` sieve in `build_inspector` compares working-copy
+  history.json and state.json against committed version via `git show HEAD:<path>`;
+  at-rest probe on cairn device fires the same check on the beat. The residue:
+  an in-place edit of *history* itself, and at-rest components between voyages
+  are now caught; **nothing yet notices history that has stopped being under way**
+  (Law 5's new bound — see the IOU above, and gap (3) belongs to
+  history-reach-feeds-a-migration). · *ticket state-and-history-door-catches-in-place-edits*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
   in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*
 - ruling intake (`cairn ruling`) → **PHYSICS SHIPPED:** Stop hook pairing detector

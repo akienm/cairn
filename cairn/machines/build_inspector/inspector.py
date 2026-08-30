@@ -2414,6 +2414,75 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
+    """Working-copy history.json and state.json match their last committed version.
+
+    Provenance: ticket state-and-history-door-catches-in-place-edits.
+    The append door (transitions.emit) writes and commits atomically — the
+    committed version IS the ground truth. An in-place edit changes a past entry
+    silently; an uncommitted append bypasses the door. state_is_projection catches
+    state-vs-history drift but not working-vs-committed drift, because an in-place
+    edit changes both consistently.
+    """
+    import subprocess
+    repo_root = comp_dir
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    if not (repo_root / ".git").exists():
+        return []
+    findings = []
+    for fname in ("history.json", "state.json"):
+        fpath = comp_dir / fname
+        if not fpath.exists():
+            continue
+        rel = fpath.relative_to(repo_root)
+        try:
+            proc = subprocess.run(
+                ["git", "-C", str(repo_root), "show", f"HEAD:{rel}"],
+                capture_output=True, text=True, timeout=30,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if proc.returncode != 0:
+            continue
+        try:
+            working = json.loads(fpath.read_text(encoding="utf-8"))
+            committed = json.loads(proc.stdout)
+        except (json.JSONDecodeError, OSError):
+            continue
+        if fname == "history.json" and isinstance(working, list) and isinstance(committed, list):
+            for i, entry in enumerate(committed):
+                if i >= len(working):
+                    findings.append(_finding(
+                        "history_integrity", row["component"],
+                        f"committed entry {i} present in working copy ({fname})",
+                        expected=True, actual=False,
+                        entry_index=i,
+                    ))
+                elif entry != working[i]:
+                    findings.append(_finding(
+                        "history_integrity", row["component"],
+                        f"entry {i} unchanged from committed ({fname})",
+                        expected=True, actual=False,
+                        entry_index=i,
+                    ))
+            uncommitted_count = len(working) - len(committed)
+            if uncommitted_count > 0:
+                findings.append(_finding(
+                    "history_integrity", row["component"],
+                    f"all entries committed ({fname}, {uncommitted_count} uncommitted)",
+                    expected=True, actual=False,
+                    uncommitted_count=uncommitted_count,
+                ))
+        elif working != committed:
+            findings.append(_finding(
+                "history_integrity", row["component"],
+                f"{fname} matches committed version",
+                expected=True, actual=False,
+            ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2439,6 +2508,7 @@ SIEVES = {
     "charter_asserts_file_present": charter_asserts_file_present,
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
     "constraint_enforcement_holds": constraint_enforcement_holds,
+    "history_integrity": history_integrity,
 }
 
 

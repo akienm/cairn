@@ -224,7 +224,11 @@ An IOU without a real ticket is itself the defect this section is made of.
 - **Law 9 itself.** Red is a word a reader has to remember to apply; nothing derives it,
   and the site has no plan showing which lots are still unexcavated. A component whose
   code has stopped matching its charter reads as whatever it last said about itself.
-  → green derived from built + running + inspected · *ticket green-is-earned-not-assumed*
+  **PHYSICS SHIPPED:** `component_color` sieve in `build_inspector` derives red/green
+  per component from validation seal state + source_fingerprint match;
+  `unbuilt_intentions` scan compares intentions-not-beside-code against the census to
+  catch invisible lots. The residue moves below.
+  · *ticket green-is-earned-not-assumed*
 - **Law 5's new bound.** "Under way" is a word a reader has to apply by hand: nothing
   derives whether a component's history still establishes right-now, nothing moves the
   rest to the commons, and nothing reds a working surface that has silently become an
@@ -262,6 +266,11 @@ charter, never from this file.
   the predicate cannot discover constraints not listed; a constraint silently
   dropped from the set is corrosion the check cannot see (though narrowing fires
   the self-reference tooth). · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
+- component color (`component_color` sieve + `unbuilt_intentions` in `build_inspector`)
+  → yellow (dependency-change-only) is not yet derived — all changes read as red;
+  self-cleaning via operational logs is not yet instrumented; `unbuilt_intentions`
+  uses word-overlap matching which may miss or false-positive on oddly named
+  intentions. · *ticket green-is-earned-not-assumed*
 
 This file has its own charter and answers to `/challenge` — whose firing event
 is every node birth at `/intent` (ticket challenge-fires-at-intent); as a settled

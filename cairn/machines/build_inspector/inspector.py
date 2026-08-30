@@ -2483,6 +2483,128 @@ def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def _source_fingerprint(comp_dir: Path) -> str:
+    import hashlib
+    digest = hashlib.sha256()
+    for dirpath, dirnames, filenames in os.walk(comp_dir):
+        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
+        for name in sorted(filenames):
+            if not name.endswith(".py"):
+                continue
+            full = os.path.join(dirpath, name)
+            rel = os.path.relpath(full, comp_dir)
+            digest.update(rel.encode("utf-8"))
+            digest.update(b"\0")
+            with open(full, "rb") as f:
+                digest.update(f.read())
+            digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def component_color(row: dict, comp_dir: Path) -> list[dict]:
+    """A component whose validation seals are expired, absent, or red.
+
+    Provenance: 2026-08-04 — Law 9 ruled as default-red by Akien: 'everything
+    not working is red should have been one of the very first rules.' A component
+    whose validation seals are expired or absent reads as though nothing was
+    proved; the existing proofs_exist catches zero proofs, but a component with
+    proofs that stopped matching its code looks green to everything except this
+    sieve. Ticket green-is-earned-not-assumed.
+    """
+    proofs_dir = comp_dir / "proofs"
+    vals_dir = comp_dir / "validations"
+    proof_files = sorted(proofs_dir.glob("test_*.py")) if proofs_dir.is_dir() else []
+    if not proof_files:
+        return []
+    current_fp = _source_fingerprint(comp_dir)
+    findings = []
+    for proof in proof_files:
+        val_file = vals_dir / (proof.stem + ".json")
+        if not val_file.exists():
+            findings.append(_finding(
+                "component_color", row["component"],
+                f"proof {proof.name} has a validation seal",
+                expected=True, actual=False,
+                proof=proof.name,
+                reason="no seal — never proved (Law 9)",
+            ))
+            continue
+        try:
+            records = json.loads(val_file.read_text(encoding="utf-8"))
+            seal = records[-1] if isinstance(records, list) and records else records
+        except (json.JSONDecodeError, OSError):
+            findings.append(_finding(
+                "component_color", row["component"],
+                f"validation seal for {proof.name} is readable",
+                expected=True, actual=False,
+                proof=proof.name,
+            ))
+            continue
+        if not isinstance(seal, dict):
+            continue
+        verdict = seal.get("verdict")
+        if verdict != "green":
+            findings.append(_finding(
+                "component_color", row["component"],
+                f"proof {proof.name} sealed green",
+                expected=True, actual=False,
+                proof=proof.name,
+                verdict=verdict,
+            ))
+            continue
+        recorded_fp = (seal.get("evidence") or {}).get("source_fingerprint")
+        if recorded_fp is None or recorded_fp != current_fp:
+            findings.append(_finding(
+                "component_color", row["component"],
+                f"proof {proof.name} fingerprint matches working tree",
+                expected=True, actual=False,
+                proof=proof.name,
+                reason="code changed since seal — horizon closed (Law 3)",
+                recorded=recorded_fp[:12] + "…" if recorded_fp else None,
+                current=current_fp[:12] + "…",
+            ))
+    return findings
+
+
+def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
+    """Intentions with no corresponding proved component — the unbuilt lots.
+
+    Provenance: 2026-08-04 — Law 9's site-plan ruling: 'a newly minted IDEA is
+    red until it's in code and running.' A site plan that only knows about
+    buildings already started is not a site plan; the reddest lots are the ones
+    nobody has broken ground on. Ticket green-is-earned-not-assumed.
+
+    Not a row-level sieve: unbuilt intentions have no census row by definition.
+    Called by inspect() after the sieve shake.
+    """
+    commons = root.parent.parent / "CairnCommons"
+    intentions_dir = commons / "intentions-not-beside-code"
+    if not intentions_dir.is_dir():
+        return []
+    census_dirs = {r["dir"] for r in census_rows}
+    census_names = {r["component"] for r in census_rows}
+    all_census_text = " ".join(census_dirs) + " " + " ".join(census_names)
+    findings = []
+    for ifile in sorted(intentions_dir.glob("I-*.md")):
+        stem = ifile.stem[2:]
+        slug = stem.replace("-", "_")
+        words = set(stem.split("-")) - {"a", "an", "the", "is", "and", "or", "not"}
+        has_component = (
+            slug in all_census_text
+            or stem in all_census_text
+            or any(w in all_census_text for w in words if len(w) > 3)
+        )
+        if not has_component:
+            findings.append(_finding(
+                "unbuilt_intention", stem,
+                "intention has a corresponding proved component",
+                expected=True, actual=False,
+                intention_file=ifile.name,
+                reason="unbuilt lot — red by default (Law 9)",
+            ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2509,6 +2631,7 @@ SIEVES = {
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
     "constraint_enforcement_holds": constraint_enforcement_holds,
     "history_integrity": history_integrity,
+    "component_color": component_color,
 }
 
 
@@ -2579,6 +2702,14 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         return caught
 
     shaken = base_nest.shake(nest, {row["dir"]: row for row in rows}, fire)
+    # Unbuilt intentions — the site-plan scan for lots nobody has broken ground on.
+    # Not a sieve (no census row), so it runs after the shake and reports separately —
+    # it cannot be in gradation (no census row to grade) or in SIEVES (it is a scan,
+    # not a per-row sieve), so mixing it into findings would break the invariants
+    # the proof record relies on.
+    unbuilt = []
+    if component is None:
+        unbuilt = unbuilt_intentions(rows, root)
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
     record = proof_record(shaken["gradation"], shaken["findings"])
@@ -2593,7 +2724,8 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "gradation": shaken["gradation"],
         "component_scores": shaken["roll_up"],
         "findings": shaken["findings"],
-        "clean": not shaken["findings"],
+        "unbuilt_intentions": unbuilt,
+        "clean": not shaken["findings"] and not unbuilt,
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

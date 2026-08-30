@@ -52,6 +52,17 @@ def _refuses(fn, because):
     raise AssertionError(f"NO REFUSAL AT ALL — {because}.")
 
 
+def _reseal(comp_dir: Path):
+    from cairn.machines.build_inspector.inspector import _source_fingerprint
+    fp = _source_fingerprint(comp_dir)
+    vals = comp_dir / "validations"
+    for vf in vals.glob("*.json"):
+        records = json.loads(vf.read_text())
+        if isinstance(records, list) and records:
+            records[-1].setdefault("evidence", {})["source_fingerprint"] = fp
+        vf.write_text(json.dumps(records))
+
+
 def _component(root: Path, name: str, *, charter=True, proof=True, device=True, emits=True):
     d = root / name
     (d / "proofs").mkdir(parents=True)
@@ -62,6 +73,16 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
     body = "from base import BaseDevice\n\n\nclass D(BaseDevice):\n    def work(self):\n"
     body += "        self.emit('gate')\n" if emits else "        return 1\n"
     (d / "dev.py").write_text(body if device else "def helper():\n    return 1\n")
+    if proof:
+        from cairn.machines.build_inspector.inspector import _source_fingerprint
+        fp = _source_fingerprint(d)
+        (d / "validations").mkdir(exist_ok=True)
+        (d / "validations" / "test_x.json").write_text(json.dumps([{
+            "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
+            "method": "fixture", "verdict": "green",
+            "evidence": {"source_fingerprint": fp},
+            "falsifier": "test", "horizon": "test",
+        }]))
     return d
 
 
@@ -849,6 +870,7 @@ def main() -> None:
     # sieve made of solid sheet metal — the leak-scan-coin-toss-red lesson.
     rogue = _component(root, "rogue")
     (rogue / "dialer.py").write_text("import urllib.request\n")
+    _reseal(rogue)
     f = inspect(root=root, component="rogue")["findings"]
     assert [x["method"] for x in f] == ["sole_path_holds"], \
         f"the planted dialer must red exactly sole_path_holds: {f}"
@@ -860,6 +882,7 @@ def main() -> None:
     # sole path itself, not a second door.
     dom = _component(root, "inference_domain")
     (dom / "host.py").write_text("import urllib.request\n")
+    _reseal(dom)
     assert inspect(root=root, component="inference_domain")["clean"], \
         "inference_domain IS the door — the mesh's 'only' must spare it"
 

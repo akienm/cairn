@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_component_color.py passes under python3",
+    "caller": "green-is-earned-not-assumed",
+    "date": "2026-08-29T20:48:51",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  GREEN  test_healthy_component_is_green\n  GREEN  test_code_changed_since_seal_is_red\n  GREEN  test_never_proved_is_red\n  GREEN  test_red_verdict_is_red\n  GREEN  test_no_proofs_defers_to_proofs_exist\n  GREEN  test_unbuilt_intention_is_red\n  GREEN  test_existing_component_not_flagged_as_unbuilt\n\nbuild_inspector component_color proofs: all teeth green",
+      "stderr_tail": "/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:63: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"component_color_healthy\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:78: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"component_color_changed\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:89: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"component_color_unproved\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:99: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"component_color_red\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:110: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"component_color_noproofs\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:123: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"unbuilt_intention\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_component_color.py:143: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"built_intention\") as root:",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "7f1c71b146131e6e3df149ea979bb432de138aef8ae093ffde39cdcf071d056d",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-a_bl0uvo/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

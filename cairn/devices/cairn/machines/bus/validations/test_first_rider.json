@@ -1,0 +1,65 @@
+[
+  {
+    "claim": "proof test_first_rider.py passes under python3",
+    "caller": "bus-completion",
+    "date": "2026-08-29T20:10:46",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_probe_arrives_at_target\n  PASS  test_probe_body_arrives_intact\n  PASS  test_probe_to_unwired_device_sits\n  PASS  test_receipt_is_written_after_delivery\ngreen — the first real rider: probes fire, arrive, and the loop is closed",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "ae5bd386a1ddd580b1c9dacc391e8f0f066c3038b2078f85ffabf6797619af17",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-y_qcnyap/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 33,
+          "paths": [
+            "logs/bus/0/20260830.021043.104503.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021043.120687.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.142559.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.165593.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.188524.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021043.204599.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.254413.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021043.269701.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.291610.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.312640.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.333679.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021043.348851.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.398458.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021043.412689.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.433788.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.448515.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.504762.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021043.518711.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.538473.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.584461.BusDevice.post.json",
+            "logs/bus/0/20260830.021043.606730.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021043.621809.BusDevice.post.json",
+            "logs/ground_loop/0/20260830.021043.056214.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.056441.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.056550.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.211898.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.212108.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.212210.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.355400.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.355627.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.462043.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.462282.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021043.462400.GroundLoopDevice.subscribe.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "claim": "proof test_verb.py passes under python3",
+    "caller": "bus-completion",
+    "date": "2026-08-29T20:16:51",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_post_carries_verb_in_envelope\n  PASS  test_deliver_resolves_verb_to_handler\n  PASS  test_unknown_verb_goes_red\n  PASS  test_no_verbs_no_receive_refuses\n  PASS  test_empty_verb_falls_back_to_receive\n  PASS  test_probe_carries_verb\n  PASS  test_verb_column_in_transit_table\n  PASS  test_probe_default_verb_is_empty\n8/8 green — the verb resolves, unknown goes RED, legacy falls back",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "b35da1b9c6d3010704792aa6c3a4874bb4c21daea664d7e9e9fd580d9225f9c8",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-jt3wgby_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 5,
+          "paths": [
+            "logs/bus/0/20260830.021649.229082.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021649.242437.BusDevice.post.json",
+            "logs/bus/0/20260830.021649.284681.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021649.298356.BusDevice.post.json",
+            "logs/bus/0/20260830.021649.340440.BusDevice.transit_table_ensured.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

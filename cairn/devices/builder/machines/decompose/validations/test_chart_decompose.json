@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_chart_decompose.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-17T16:57:48",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T05:23:24",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "316a76584d11daf645725802fbb8179fa83358efc22e0aa583b16060a63ae07f"
+      "source_fingerprint": "92cccddec2d5d90e2c519900bc29bd27a1429eed669d723ddc55992d443b8b4c",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-z9ka8w0l/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

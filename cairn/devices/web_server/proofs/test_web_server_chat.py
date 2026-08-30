@@ -65,7 +65,7 @@ class _FakeFace:
         self._dies = dies
         self._reply = reply or _REPLY
 
-    def turn(self, utterance: str) -> dict:
+    def turn(self, utterance: str, **kwargs) -> dict:
         if self._dies:
             raise RuntimeError("the inference host is unreachable")
         self.taken.append(utterance)

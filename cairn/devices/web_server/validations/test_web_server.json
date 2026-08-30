@@ -1,19 +1,46 @@
 [
   {
     "claim": "proof test_web_server.py passes under python3",
-    "caller": "cc-session-librarian-chat-surface",
-    "date": "2026-07-28T09:51:41",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "web-server",
+    "date": "2026-08-29T21:20:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
+      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_the_trace_wire_counts_a_pass_and_a_refusal\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "662d8d7b441beb143fa3a28bbc185c0bb9f97a174a5841953aaf70f56f6f8f77"
+      "source_fingerprint": "c6bf19e3089ad675a1b480158723213690556c6cc21d06ca6bdc1c5916dc62dc",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-u9n5c2yj/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 16,
+          "paths": [
+            "logs/ground_loop/0/20260830.032014.316404.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.316608.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.316950.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.317087.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.317476.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.317604.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.317924.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.318049.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.318519.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.318660.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.319042.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.319169.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.319494.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.319626.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.320148.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.032014.320273.GroundLoopDevice.subscribe.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

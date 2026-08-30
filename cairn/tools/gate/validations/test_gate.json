@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_gate.py passes under python3",
+    "caller": "gate-proof-absorption-fix",
+    "date": "2026-08-29T22:39:30",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_every_check_proved_opens_the_gate\n  ok   test_b_one_mismatch_closes_it_and_names_which\n  ok   test_c_an_empty_record_raises_it_does_not_pass\n  ok   test_d_the_record_lists_what_passed_not_only_what_failed\n  ok   test_e_an_entry_without_expected_or_actual_raises\n  ok   test_f_proved_builds_the_seed_shape_so_every_gate_emits_the_same_one\n  ok   test_g_fatality_is_derived_not_asked_for\n  ok   test_h_key_order_in_a_value_cannot_decide_a_verdict\n  ok   test_i_an_unserializable_value_does_not_crash_the_gate\n  ok   test_j_the_gate_holds_no_state_between_calls\n  ok   test_k_the_real_inspector_emits_a_record_that_is_not_silent\n\ngreen: 0 failing",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "724a54a60f894553119c9d46f9f4bd26a2404f5bfba6f081000caf9a5175011e",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-b_id0hbv/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -67,7 +67,7 @@ def test_d_the_record_lists_what_passed_not_only_what_failed():
     AND "nothing ran" AND "the subject wasn't found" — a gate on that is a gate on silence.
     Here twenty checks that pass and zero that pass are different records."""
     v = gate.verdict([OK, OK, BAD])
-    assert v["proved"] == ["charter_on_disk @ devices/bus"] * 2, v["proved"]
+    assert v["proved"] == ["charter_on_disk @ devices/cairn/machines/bus"] * 2, v["proved"]
     assert v["checks"] == 3, "the record must count every check that RAN, not just failures"
 
 

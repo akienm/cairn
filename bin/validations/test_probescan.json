@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_probescan.py passes under python3",
+    "caller": "probescan-import-fix",
+    "date": "2026-08-29T21:56:15",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok  test_it_goes_green_when_the_feedback_path_is_whole\n  ok  test_it_reds_and_names_the_addressee_and_the_rung\n  ok  test_the_check_never_delivers\n  ok  test_the_population_is_the_disk_not_the_roster\n  ok  test_the_receive_check_is_exercised_not_read\n\ngreen",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-8j35pqr0/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

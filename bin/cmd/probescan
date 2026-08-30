@@ -116,7 +116,7 @@ def _declared_probe_names(path: Path) -> list[str]:
 
 def scan_probes(root: Path, devices: set[str]) -> list[dict]:
     """The send end, one row per probe module: armed? addressed? does the address exist?"""
-    from cairn.devices.ground_loop.discovery import load_module
+    from cairn.devices.cairn.machines.ground_loop.discovery import load_module
 
     rows = []
     for path in probe_modules(root):
@@ -162,7 +162,7 @@ def _find_shim_class(device_id: str, root: Path):
     device whose directory holds a ``shim.py`` with a ``BaseShim`` subclass has a
     registered shim. Returns the class, or ``None``.
     """
-    from cairn.devices.ground_loop.discovery import device_folders, load_module
+    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders, load_module
     from cairn.tools.base.shim import BaseShim
 
     for did, folder in device_folders(root):
@@ -207,7 +207,7 @@ def can_receive(device_id: str, root: Path | None = None) -> dict:
     re-implemented — and falls back to ``DISCOVERED_ONLY`` only when no registered shim
     exists. Each failure is the REAL exception from the REAL code, not a guess about it.
     """
-    from cairn.devices.ground_loop.discovery import repo_root
+    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root
 
     root = Path(root) if root is not None else repo_root()
     result = {"device": device_id, "rung": NO_SHIM, "detail": None, "shim_class": None}
@@ -335,7 +335,7 @@ def scan_mail(devices: set[str]) -> dict:
 
 def scan(root: Path | None = None) -> dict:
     """The whole check. Importable, so a future standing watch composes it (Law 1)."""
-    from cairn.devices.ground_loop.discovery import device_folders, repo_root
+    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders, repo_root
 
     root = Path(root) if root is not None else repo_root()
     devices = {d for d, _ in device_folders(root)}

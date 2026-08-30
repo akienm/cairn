@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_retention_window_probe.py passes under python3",
+    "caller": "retention-window-probe",
+    "date": "2026-08-29T21:37:49",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "proof: the retention-window probe — berth=bin/probes/retention_window.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_namespace_is_identified_by_grammar_not_by_name\n  PASS  test_a_kept_copy_is_not_a_second_namespace\n  PASS  test_a_full_window_holding_one_process_is_a_peephole\n  PASS  test_a_window_that_has_not_filled_is_not_judged\n  PASS  test_a_surviving_trim_mark_counts_as_turnover_on_its_own\n  PASS  test_an_absent_log_directory_is_not_a_finding\n  PASS  test_the_window_under_test_is_read_from_the_environment\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_datum_points_at_the_ticket_and_carries_the_rows\n  PASS  test_it_reaches_nowhere\n\nall green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-xggscunm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

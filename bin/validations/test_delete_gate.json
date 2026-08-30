@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_delete_gate.py passes under python3",
+    "caller": "delete-gate",
+    "date": "2026-08-29T21:52:58",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_command_that_caused_the_loss_is_refused\n  PASS  test_every_spelling_of_the_same_delete_is_caught\n  PASS  test_the_door_itself_is_never_refused\n  PASS  test_the_bound_the_git_roots_are_not_gated\n  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (0 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-qkzl94g5/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

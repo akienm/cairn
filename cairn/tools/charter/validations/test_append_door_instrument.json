@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_append_door_instrument.py passes under python3",
+    "caller": "charter-append-door",
+    "date": "2026-08-29T21:26:44",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_gate_progression_emits_one_contact\n  ok   test_the_expected_vs_actual_is_the_real_transition\n  ok   test_the_second_advance_carries_where_it_came_from\n  ok   test_the_seed_is_the_floor_not_the_horizon\n  ok   test_the_findings_are_honestly_incomplete\n  ok   test_a_carried_datum_is_never_reported_missing\n  ok   test_unattached_the_record_holds_and_is_not_lost\n  ok   test_the_instrument_does_not_disturb_the_door\n  ok   test_a_record_without_standing_is_refused_before_the_write\n  ok   test_an_empty_standing_is_refused_too\n  ok   test_the_floor_is_exactly_one_field_and_the_rest_stay_free\n  ok   test_every_real_history_on_disk_would_pass_the_gate\n\n12/12 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e794200b280352bceeee9373985979363a36f1dc3563884f9dcc1af125c0c693",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2fc_d20p/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

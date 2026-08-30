@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_cairnmap.py passes under python3",
+    "caller": "cairnmap-tool",
+    "date": "2026-08-29T21:26:33",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_a_check_that_stops_running_makes_the_record_shorter\n  green  test_check_is_derived_from_the_record_and_never_parallel\n  green  test_code_without_a_charter_reds\n  green  test_corrupt_charter_is_loud_and_the_rest_still_renders\n  green  test_first_sentence_is_a_cut_never_a_break\n  green  test_gate_exit_codes_and_render_always_presents\n  green  test_green_world_and_direction_one\n  green  test_installed_without_charter_reds\n  green  test_misaimed_symlink_reds\n  green  test_named_brief_and_unknown_name_refusal\n  green  test_render_mutates_nothing\n  green  test_roster_entry_with_no_charter_reds\n  green  test_roster_omission_reds\n  green  test_standing_in_a_directory_briefs_on_it\n  green  test_the_gate_lists_what_it_proved_not_only_what_failed\n  green  test_uncharted_command_reds_and_does_not_render\n  green  test_uninstalled_skill_reds\n\n17/17 teeth green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d8b72f0d8a26b486c098802e226dd2786ad4b745ab5189faa2cb7b64b4b405af",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-gw517rcn/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

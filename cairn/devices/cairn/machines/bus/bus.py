@@ -263,14 +263,15 @@ class BusDevice(BaseDevice):
         self.emit("post", pointer=envelope["id"], values={
             "sender": sender, "addressee": to, "channel": channel,
         })
-        hook = self._delivery_hooks.get(to)
-        if hook is not None:
-            try:
-                hook(envelope)
-            except Exception as exc:  # noqa: BLE001
-                self.emit("delivery_failed", pointer=envelope["id"], values={
-                    "addressee": to, "error": f"{type(exc).__name__}: {exc}",
-                })
+        if channel == "personal":
+            hook = self._delivery_hooks.get(to)
+            if hook is not None:
+                try:
+                    hook(envelope)
+                except Exception as exc:  # noqa: BLE001
+                    self.emit("delivery_failed", pointer=envelope["id"], values={
+                        "addressee": to, "error": f"{type(exc).__name__}: {exc}",
+                    })
         return envelope
 
     # --- the record (full truth) and the view (collapsible) -----------------
@@ -295,13 +296,12 @@ class BusDevice(BaseDevice):
     # --- delivery: the half that was missing --------------------------------
 
     def undelivered(self, *, to: str | None = None, limit: int = 200) -> list[dict]:
-        """The mail that has been POSTED and never ARRIVED — the postman's whole query.
+        """Mail that was POSTED to a personal channel and never ARRIVED.
 
-        ONE query for the entire system, not one per device, because it is asked on every
-        heartbeat beat and a per-device sweep would cost a query per device per second — a
-        poll wearing a heartbeat's clothes. The anti-join is against the receipt table, so
-        "undelivered" is derived from what is recorded, never from a flag someone has to
-        remember to set.
+        Only personal-channel mail is deliverable — announce/info/debug are RECORD
+        or DIAGNOSTIC channels read by their audience, never pushed to the addressee.
+        The anti-join is against the receipt table, so "undelivered" is derived from
+        what is recorded, never from a flag someone has to remember to set.
 
         ``limit`` bounds one drain, not the backlog: a device that was down for an hour gets
         its mail over several beats instead of one enormous transaction. Ordered by ``ctid``,
@@ -309,7 +309,8 @@ class BusDevice(BaseDevice):
         a bound that took the newest would starve exactly the mail that has waited longest.
         """
         self._ensure()
-        clauses = [sql_missing_receipt(self._table, self._delivery_table)]
+        clauses = [sql_missing_receipt(self._table, self._delivery_table),
+                   "channel = 'personal'"]
         params: list = []
         if to is not None:
             clauses.append("addressee = %s")

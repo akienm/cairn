@@ -326,10 +326,36 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             return None
         self._bus.wire_delivery(self.device_id, self._receive_poke)
         self._delivery_wired = True
+        self._announce_menu()
         result = self._check_mail()
         if result:
             self.emit("delivery_backlog_drained", values=result)
         return result
+
+    def _announce_menu(self) -> None:
+        """Publish this device's verb menu onto its own announce channel.
+
+        COMPILED from declared_verbs() — add a handler, it appears, no second edit (Law 1).
+        The menu is a record on the announce channel, not a deliverable message — readers
+        come to it via bus.read(to=device_id, channel='announce')."""
+        if self._bus is None:
+            return
+        try:
+            self._ensure_device()
+            dev = self._device
+            if dev is None:
+                dev = self._start_device()
+                self._device = dev
+        except Exception:  # noqa: BLE001
+            return
+        verbs = {}
+        if hasattr(dev, "declared_verbs") and callable(dev.declared_verbs):
+            verbs = dev.declared_verbs()
+        self._bus.post(
+            sender=self.device_id, to=self.device_id, channel="announce",
+            why="menu published at wiring",
+            body={"verbs": sorted(verbs.keys())},
+        )
 
     def _receive_poke(self, _envelope: dict) -> None:
         """Poke from the bus at post time. Processes ALL undelivered mail for this device,

@@ -858,6 +858,122 @@ def test_a_check_that_could_not_run_is_absent_from_the_record():
             f"one fault must produce exactly one failing entry: {failed}")
 
 
+def test_marker_scanner_finds_all_strong_markers():
+    hits = ruling.scan_for_ruling_markers("ok RULED: this is the way")
+    assert len(hits) == 1 and hits[0]["match"] == "RULED", f"RULED not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("i rule that we do it this way")
+    assert any(h["match"] == "i rule" for h in hits), f"'i rule' not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("my ruling is we keep it")
+    assert any(h["match"] == "my ruling" for h in hits), f"'my ruling' not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("the ruling is that we proceed")
+    assert any(h["match"] == "the ruling is" for h in hits), f"'the ruling is' not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("let me state this clearly as a directive")
+    assert any("let me state this clearly as" in h["match"] for h in hits), f"'let me state...' not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("that's a law now")
+    assert any(h["match"] == "that's a law" for h in hits), f"'that's a law' not found: {hits}"
+    hits = ruling.scan_for_ruling_markers("that holds for all cases")
+    assert any(h["match"] == "that holds" for h in hits), f"'that holds' not found: {hits}"
+    assert not hits[0]["strong"], "'that holds' should be weak"
+    no_hits = ruling.scan_for_ruling_markers("this is just normal conversation about something")
+    assert no_hits == [], f"false positive on clean text: {no_hits}"
+    no_hits = ruling.scan_for_ruling_markers("he ruled that it was fine")
+    assert no_hits == [], f"lowercase 'ruled' should not match: {no_hits}"
+
+
+def test_strong_only_skips_weak_markers():
+    hits = ruling.scan_for_ruling_markers("that holds for all cases", strong_only=True)
+    assert hits == [], f"'that holds' should be excluded in strong_only mode: {hits}"
+    hits = ruling.scan_for_ruling_markers("RULED: that holds", strong_only=True)
+    assert len(hits) == 1 and hits[0]["match"] == "RULED", f"RULED should still match: {hits}"
+
+
+def test_hook_fires_on_marker_without_packet():
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        transcript = os.path.join(d, "transcript.jsonl")
+        Path(transcript).write_text(
+            json.dumps({"type": "user", "message": {"role": "user",
+                        "content": "RULED: memory monitoring goes on the CC shim"}}) + "\n"
+            + json.dumps({"type": "assistant", "message": {"role": "assistant",
+                          "content": [{"type": "text", "text": "Understood."}]}}) + "\n"
+        )
+        env = {**os.environ, "CAIRN_ROOTS_PARENT": d, "PYTHONPATH": str(_REPO_ROOT)}
+        payload = json.dumps({"transcript_path": transcript})
+        result = subprocess.run(
+            [sys.executable, "-m", "cairn.machines.ruling.cli", "--hook"],
+            input=payload, capture_output=True, text=True, cwd=str(_REPO_ROOT), env=env)
+        assert result.returncode == 0, f"hook must never wedge: {result.returncode}"
+        assert "ruling-shaped language" in result.stdout, (
+            f"hook should fire on RULED with no packet: {result.stdout}")
+
+
+def test_hook_silent_when_packet_opened():
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        transcript = os.path.join(d, "transcript.jsonl")
+        Path(transcript).write_text(
+            json.dumps({"type": "user", "message": {"role": "user",
+                        "content": "RULED: memory monitoring goes on the CC shim"}}) + "\n"
+            + json.dumps({"type": "assistant", "message": {"role": "assistant",
+                          "content": [{"type": "text", "text": "Opening ruling packet."},
+                                      {"type": "tool_use", "id": "t1", "name": "Bash",
+                                       "input": {"command": "cairn ruling open packet.json"}}]}}) + "\n"
+        )
+        env = {**os.environ, "CAIRN_ROOTS_PARENT": d, "PYTHONPATH": str(_REPO_ROOT)}
+        payload = json.dumps({"transcript_path": transcript})
+        result = subprocess.run(
+            [sys.executable, "-m", "cairn.machines.ruling.cli", "--hook"],
+            input=payload, capture_output=True, text=True, cwd=str(_REPO_ROOT), env=env)
+        assert result.returncode == 0
+        assert "ruling-shaped language" not in result.stdout, (
+            f"hook should NOT fire when packet was opened: {result.stdout}")
+
+
+def test_casual_that_holds_does_not_fire():
+    with tempfile.TemporaryDirectory() as d:
+        _world(d)
+        transcript = os.path.join(d, "transcript.jsonl")
+        Path(transcript).write_text(
+            json.dumps({"type": "user", "message": {"role": "user",
+                        "content": "yeah that holds for this case too, good point"}}) + "\n"
+            + json.dumps({"type": "assistant", "message": {"role": "assistant",
+                          "content": [{"type": "text", "text": "Agreed."}]}}) + "\n"
+        )
+        env = {**os.environ, "CAIRN_ROOTS_PARENT": d, "PYTHONPATH": str(_REPO_ROOT)}
+        payload = json.dumps({"transcript_path": transcript})
+        result = subprocess.run(
+            [sys.executable, "-m", "cairn.machines.ruling.cli", "--hook"],
+            input=payload, capture_output=True, text=True, cwd=str(_REPO_ROOT), env=env)
+        assert result.returncode == 0
+        assert "ruling-shaped language" not in result.stdout, (
+            f"casual 'that holds' should not trigger: {result.stdout}")
+
+
+def test_hook_is_unconditional():
+    settings_path = os.path.join(str(_REPO_ROOT), ".claude", "settings.json")
+    assert os.path.isfile(settings_path), f"settings.json not found at {settings_path}"
+    settings = json.load(open(settings_path))
+    hooks = settings.get("hooks", {})
+    stop_entries = hooks.get("Stop", [])
+    found = False
+    for entry in stop_entries:
+        if isinstance(entry, dict) and "hooks" in entry:
+            for h in entry["hooks"]:
+                cmd = h.get("command", "") if isinstance(h, dict) else str(h)
+                if "ruling" in cmd and "--hook" in cmd:
+                    found = True
+                    break
+        elif isinstance(entry, dict):
+            cmd = entry.get("command", "")
+            if "ruling" in cmd and "--hook" in cmd:
+                found = True
+        elif isinstance(entry, str) and "ruling" in entry and "--hook" in entry:
+            found = True
+        if found:
+            break
+    assert found, f"ruling --hook not in Stop hooks: {stop_entries}"
+
+
 def _main() -> int:
     checks = [
         test_every_refusal_lands_on_the_first_pass,
@@ -894,6 +1010,12 @@ def _main() -> int:
         test_a_file_nothing_imports_may_still_be_sentenced,
         test_verify_lists_every_check_it_ran_not_only_the_failures,
         test_a_check_that_could_not_run_is_absent_from_the_record,
+        test_marker_scanner_finds_all_strong_markers,
+        test_strong_only_skips_weak_markers,
+        test_hook_fires_on_marker_without_packet,
+        test_hook_silent_when_packet_opened,
+        test_casual_that_holds_does_not_fire,
+        test_hook_is_unconditional,
     ]
     for check in checks:
         check()

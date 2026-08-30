@@ -1,19 +1,31 @@
 [
   {
-    "claim": "proof test_ruling.py passes at 23 teeth — the supersede retirement door stamps the confirmed successor and leaves the retired packet byte-identical; the retired packet leaves the hook but stays on disk and stays red under verify",
-    "caller": "CC/fable-5 ruling supersede-path 2026-08-02 (ticket ruling-door-supersede-path)",
-    "date": "2026-08-02T16:33:34",
-    "method": "ran the proof bare (python3) and under the tester (cairn test cairn/ruling/proofs/test_ruling.py — 1 proof, 1 green); six teeth added, replaying the 2026-08-02 misfile in a synthetic world. WHAT AKIEN WAS EXPERIENCING: every session opened with the hook saying '/intent was ruled dead and is on disk', reading exactly like his skill being deleted, when the truth was a misfiled what_dies field nobody could retire without editing his confirmed record. LIVE VERIFICATION, same day: the real misfiled packet retired through the new verb; sha256 of the original identical before and after (d094da9a...654b2); `echo '{}' | bin/cmd/ruling --hook` silent, exit 0 — the ticket's own falsifier, clauses (a) and (b), satisfied on the store it was written about.",
+    "claim": "proof test_ruling.py passes under python3",
+    "caller": "ruling-intake-ensures-packets-are-opened",
+    "date": "2026-08-29T18:36:29",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "teeth": 23,
-      "live_act": "cairn ruling supersede 2026-08-02-three-entry-points-and-structural 2026-08-02-three-entry-points-and-structural-refiled",
-      "retired_packet_sha256_unchanged": "d094da9a88416ff4f3bbc0128767990ddf710bff2f7060b65771bec691a654b2",
-      "hook_after": "",
-      "trail_link": "2fcd758ee5eb85409523c55369b8ef51ac2e37c487cb292267340170a848d14a"
+      "stdout_tail": "  PASS  test_supersede_refuses_with_every_reason\n  PASS  test_supersede_writes_only_to_the_superseding_record\n  PASS  test_a_superseded_ruling_leaves_the_hook_but_not_the_disk\n  PASS  test_one_successor_retires_many_without_erasing_the_first_act\n  PASS  test_the_single_slot_shape_still_retires\n  PASS  test_a_retired_ruling_answers_for_nothing\n  PASS  test_supersession_does_not_silence_an_unrelated_red\n  PASS  test_the_hook_goes_quiet_after_a_cli_supersession\n  PASS  test_the_hook_names_what_is_open_and_never_wedges_a_turn\n  PASS  test_a_file_the_corpus_still_imports_cannot_be_sentenced\n  PASS  test_a_file_nothing_imports_may_still_be_sentenced\n  PASS  test_verify_lists_every_check_it_ran_not_only_the_failures\n  PASS  test_a_check_that_could_not_run_is_absent_from_the_record\n  PASS  test_marker_scanner_finds_all_strong_markers\n  PASS  test_strong_only_skips_weak_markers\n  PASS  test_hook_fires_on_marker_without_packet\n  PASS  test_hook_silent_when_packet_opened\n  PASS  test_casual_that_holds_does_not_fire\n  PASS  test_hook_is_unconditional\ngreen — cairn/machines/ruling: a ruling is refused unless it carries HIS WORDS beside my one-line reading and names real paths; the recorder cannot author its own confirmation and is never asked twice; and a file ruled dead that comes back is RED (the 2026-07-31 regression, replayed).",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "584b21475d2cb46a5fd519410216dc3a43322462ad5a1053db64ed5ab353d3a0",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-gd3imt16/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
-    "falsifier": "supersede() mutates the retired packet's bytes; or a retired ruling still appears in open_rulings/--hook; or an unconfirmed, unsourced, doubled, or retired-by-the-retired supersession is accepted; or the proof exits non-zero on re-run",
-    "horizon": "valid until cairn/ruling/ruling.py, cli.py or the proof changes (Law 3: a VALIDATION expires)"
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

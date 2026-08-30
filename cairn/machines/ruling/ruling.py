@@ -141,6 +141,40 @@ SPEC_MAX = 280
 # see `verify`, where unmarked is a separate fact from red and never stops the work.
 RULED = re.compile(r"\bRULED\b")
 
+RULING_MARKERS_STRONG = [
+    re.compile(r"\bRULED\b"),
+    re.compile(r"\bi rule\b", re.IGNORECASE),
+    re.compile(r"\bmy ruling\b", re.IGNORECASE),
+    re.compile(r"\bthe ruling is\b", re.IGNORECASE),
+    re.compile(r"\blet me state this clearly as\b", re.IGNORECASE),
+    re.compile(r"\bthat'?s a law\b", re.IGNORECASE),
+]
+
+RULING_MARKERS_WEAK = [
+    re.compile(r"\bthat holds\b", re.IGNORECASE),
+]
+
+RULING_MARKERS = RULING_MARKERS_STRONG + RULING_MARKERS_WEAK
+
+
+def scan_for_ruling_markers(text: str, *, strong_only: bool = False) -> list[dict]:
+    """Scan arbitrary text for ruling-shaped markers. Returns a list of
+    ``{"marker": <pattern_str>, "match": <matched_text>, "start": <int>, "strong": <bool>}``
+    dicts, one per match found. Empty list means no markers.
+
+    ``strong_only=True`` skips weak markers ('that holds') that need session
+    context to distinguish ruling from casual agreement."""
+    markers = RULING_MARKERS_STRONG if strong_only else RULING_MARKERS
+    strong_set = {id(p) for p in RULING_MARKERS_STRONG}
+    hits = []
+    for pat in markers:
+        for m in pat.finditer(text):
+            hits.append({"marker": pat.pattern, "match": m.group(),
+                         "start": m.start(), "strong": id(pat) in strong_set})
+    hits.sort(key=lambda h: h["start"])
+    return hits
+
+
 _ID = re.compile(r"^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 

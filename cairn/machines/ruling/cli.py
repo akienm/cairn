@@ -21,6 +21,7 @@ session is a worse defect than the silence it replaces.
 from __future__ import annotations
 
 import json
+import os
 import sys
 
 from cairn.machines.ruling import ruling
@@ -129,8 +130,60 @@ def _cmd_supersede(old_id: str, new_id: str, evidence: list[str]) -> int:
     return 0
 
 
+def _extract_user_messages(transcript_path: str) -> list[str]:
+    """Read user messages from a Claude Code session transcript JSONL."""
+    messages = []
+    try:
+        with open(transcript_path, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("type") != "user":
+                    continue
+                content = d.get("message", {}).get("content", "")
+                if isinstance(content, str) and content.strip():
+                    messages.append(content)
+    except Exception:
+        pass
+    return messages
+
+
+def _packets_opened_this_session(transcript_path: str) -> bool:
+    """Whether `cairn ruling open` was called in this session's assistant turns."""
+    try:
+        with open(transcript_path, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("type") != "assistant":
+                    continue
+                content = d.get("message", {}).get("content")
+                if not isinstance(content, list):
+                    continue
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    if block.get("type") == "tool_use":
+                        inp = block.get("input", {})
+                        cmd = inp.get("command", "")
+                        if "ruling" in cmd and "open" in cmd:
+                            return True
+                    if block.get("type") == "text":
+                        text = block.get("text", "")
+                        if "ruling open" in text or "ruling.cli" in text:
+                            return True
+    except Exception:
+        pass
+    return False
+
+
 def _hook() -> int:
-    """Stop-hook mode: one line to Akien when a ruling is open or contradicted."""
+    """Stop-hook mode: one line to Akien when a ruling is open or contradicted,
+    AND when a ruling-shaped exchange happened with no packet opened."""
     raw = sys.stdin.read()
     try:
         payload = json.loads(raw) if raw.strip() else {}
@@ -139,16 +192,48 @@ def _hook() -> int:
     if payload.get("stop_hook_active"):
         return 0
 
+    messages = []
+
     reds = ruling.open_rulings()
-    if not reds:
+    if reds:
+        parts = [f"{v['id']}: {v['failures'][0]}" for v in reds]
+        msg = f"⚖ {len(reds)} ruling(s) not settled — " + " | ".join(parts)
+        messages.append(msg)
+
+    transcript_path = payload.get("transcript_path")
+    if transcript_path and os.path.isfile(transcript_path):
+        user_msgs = _extract_user_messages(transcript_path)
+        strong_found = False
+        marked_msgs = []
+        for text in user_msgs:
+            hits = ruling.scan_for_ruling_markers(text, strong_only=True)
+            if hits:
+                strong_found = True
+                marked_msgs.append((text, hits))
+
+        if strong_found:
+            for text in user_msgs:
+                weak_hits = ruling.scan_for_ruling_markers(text)
+                weak_only = [h for h in weak_hits if not h["strong"]]
+                if weak_only and not any(t is text for t, _ in marked_msgs):
+                    marked_msgs.append((text, weak_only))
+
+        if marked_msgs:
+            packet_opened = _packets_opened_this_session(transcript_path)
+            if not packet_opened:
+                for text, hits in marked_msgs:
+                    snippet = text[:120].replace("\n", " ")
+                    marker_words = ", ".join(h["match"] for h in hits[:3])
+                    messages.append(
+                        f"⚖ ruling-shaped language ({marker_words}) in user message "
+                        f"but no `cairn ruling open` in this session: \"{snippet}…\""
+                    )
+
+    if not messages:
         return 0
 
-    # The receipt names the ruling and its first failure — a marker that only ever says
-    # "something is open" is a check that goes green for the wrong reason, because it
-    # reads identically over a packet nobody can act on.
-    parts = [f"{v['id']}: {v['failures'][0]}" for v in reds]
-    msg = f"⚖ {len(reds)} ruling(s) not settled — " + " | ".join(parts)
-    print(json.dumps({"systemMessage": msg}, ensure_ascii=False))
+    combined = " | ".join(messages)
+    print(json.dumps({"systemMessage": combined}, ensure_ascii=False))
     return 0
 
 

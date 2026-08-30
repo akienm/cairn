@@ -2,8 +2,8 @@
   {
     "claim": "proof test_chart_survey.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-08-17T13:52:13",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "date": "2026-08-30T16:56:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "628b1e64fe943c45fe5edee251c91e124bca8d060ac4e9aab92217ecf7082e70"
+      "source_fingerprint": "075dbaa5506e747c0c74b2d2956a36ce92b72aac42e52c59e3d170ae88a07d45",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-oo8ku2uh/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

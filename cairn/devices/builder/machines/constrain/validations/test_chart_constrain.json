@@ -1,20 +1,35 @@
 [
   {
     "claim": "proof test_chart_constrain.py passes under python3",
-    "caller": "sail-constrain-checks",
-    "date": "2026-08-14T17:31:09",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-08-30T16:55:57",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_template_fill_linkage_is_physics\n  PASS  test_floor_surfaces_charters_verbatim\n  PASS  test_a_path_ref_reaches_its_component\n  PASS  test_the_deepest_owner_wins_never_the_holder\n  PASS  test_the_floor_authors_constraints_and_unknowns\n  PASS  test_an_empty_floor_is_None_and_not_an_empty_list\n  PASS  test_the_check_set_is_discovered_never_enumerated\n  PASS  test_a_named_check_is_never_reported_unrun\n  PASS  test_one_red_check_does_not_blanket_the_report\n  PASS  test_a_check_source_must_name_the_instrument_not_merely_resolve\n  PASS  test_floor_kinds_names_every_kind_the_floor_emits\n  PASS  test_provenance_is_measured_not_declared\n  PASS  test_the_floor_label_is_reachable_and_both_mutations_red\n  PASS  test_a_misdeclared_floor_label_is_refused_not_corrected\n  PASS  test_schema_gate_refuses_hollow_shapes\n  PASS  test_the_door_composes_the_installed_judges\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_deposit_back_is_gated\n  PASS  test_import_allowlist\ngreen — chart/constrain, 21 teeth: stage 2 fills only from a berthed stage 1; a ref reaches its component BY NAME OR BY PATH and the DEEPEST owner wins, never the holder; the floor AUTHORS constraints (charter falsifier/gates/owner, verbatim, with their address) and unknowns (with the why), and returns None rather than an empty list when it has nothing; the floor DISCOVERS the instruments that judge the ref'd components (composing the tester's own collector, agreeing with it set for set) and RUNS them — a proof planted at a ref'd address appears with no code change, a failing one is reported red and rides out as an unknown, a vanished one is reported unrunnable rather than dropped, three instruments in three states never collapse to one verdict, a check whose source RESOLVES but does not name a discovered instrument is refused, and every kind the floor emits is named in FLOOR_KINDS; provenance for those two is MEASURED by re-running the floor, the 'floor' label is reachable and BOTH mutations (drop one, forge one) red it, and a misdeclared label is refused rather than quietly corrected; the schema gate refuses hollow shapes, the door composes the inspector's own judges (by identity), the berth round-trips, the deposit-back is gated, and the brick's doors are exactly the three composed ones",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b311672a41357d03a2a2fe90cdbc4884918b80effe5a14c58ed9903ae89e4230",
-      "trail_link": "56885fec700363564608c8d1dfe4de5d9e722c9576d9eeffa38cd7750da694d1"
+      "source_fingerprint": "01ae7dc634443522460aa154e508ae4786ab3393df4ddaa748d42374398e147b",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-_miuh4uw/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 5,
+          "paths": [
+            "logs/tester/0/20260830.225434.052575.TesterDevice.run_proof.json",
+            "logs/tester/0/20260830.225446.474486.TesterDevice.run_proof.json",
+            "logs/tester/0/20260830.225503.870970.TesterDevice.run_proof.json",
+            "logs/tester/0/20260830.225525.501198.TesterDevice.run_proof.json",
+            "logs/tester/0/20260830.225549.836801.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,20 +1,29 @@
 [
   {
     "claim": "proof test_chart_orient.py passes under python3",
-    "caller": "sail:orient-floor-authors-and-provenance-is-measured",
-    "date": "2026-08-14T13:32:34",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-08-30T16:56:15",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "PASS test_a_declared_floor_provenance_is_refused_not_believed\nPASS test_a_packet_without_a_request_cannot_earn_floor\nPASS test_an_ambiguous_name_becomes_an_unknown_never_a_guess\nPASS test_empty_request_refuses\nPASS test_floor_authored_fields_earn_floor_by_reproducing\nPASS test_floor_composes_the_orient_instrument\nPASS test_floor_reports_only_what_exists\nPASS test_floor_slash_verb_is_a_skill_not_a_path\nPASS test_good_packet_validates_and_berths\nPASS test_import_allowlist\nPASS test_invented_ref_refuses\nPASS test_live_roster_carries_charter_bearing_components\nPASS test_provenance_must_cover_authored_fields\nPASS test_refusal_is_one_pass_complete\nPASS test_schema_gate_refuses_bad_confidence\nPASS test_schema_gate_refuses_missing_fields\nPASS test_the_floor_never_invents_a_ref\nPASS test_ticket_claim_is_gated\nPASS test_write_door_is_gated\ngreen: 19 teeth",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "f338cec9568afcda5ae4b854352d9467a220f071008c69dcb9839d0ab694d0d6",
-      "trail_link": "b30b990695f5f5b53eb72a3bf025cb4dfb8ef5b701b1eb39acd4a6efdf5617d5"
+      "source_fingerprint": "e0b28f786b02fbe7b1ca8bb061168b26a947293c4408562d39de26f80d9c9964",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-muxah33n/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

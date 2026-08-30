@@ -9,10 +9,12 @@ Provenance: ticket a-constraint-that-stopped-constraining-carries-a-ruling.
 import json
 import os
 import sys
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
+from cairn.devices.tester.scratch import scratch_dir
 
 PASS = 0
 FAIL = 0
@@ -20,7 +22,7 @@ FAIL = 0
 
 def _tmp_corrosion_component(constraints: list[dict] | None = None) -> tuple[Path, Path]:
     """Create a temporary repo-like structure with a corrosion component."""
-    root = Path(tempfile.mkdtemp(prefix="corrosion_"))
+    root = scratch_dir("corrosion_")
     (root / ".git").mkdir()
     comp_dir = root / "cairn" / "machines" / "corrosion"
     comp_dir.mkdir(parents=True)

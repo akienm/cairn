@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -17,12 +16,12 @@ from unittest.mock import patch
 
 import pytest
 
+from cairn.devices.tester.scratch import scratch_dir
+
 
 @pytest.fixture
 def mail_dir():
-    d = tempfile.mkdtemp(prefix="cairn-cc-mail-test-")
-    yield Path(d)
-    shutil.rmtree(d)
+    return scratch_dir("cairn-cc-mail-test-")
 
 
 # ── mail persistence ────────────────────────────────────────────────────
@@ -86,9 +85,7 @@ def test_pending_mail_returns_empty_for_no_dir():
 
 @pytest.fixture
 def fake_home():
-    d = tempfile.mkdtemp(prefix="cairn-cc-fakehome-")
-    yield Path(d)
-    shutil.rmtree(d)
+    return scratch_dir("cairn-cc-fakehome-")
 
 
 def test_mailcheck_outputs_notification_when_mail_waiting(fake_home):

@@ -9,6 +9,8 @@ import os
 import subprocess
 import sys
 import tempfile
+
+from cairn.devices.tester.scratch import scratch_dir
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -21,7 +23,7 @@ FAIL = 0
 
 
 def _tmp_instance():
-    d = tempfile.mkdtemp(prefix="gl_cli_")
+    d = scratch_dir("gl_cli_")
     flags = Path(d) / "flags"
     flags.mkdir()
     (flags / "COMMAND_EXIT.flag").touch()
@@ -111,7 +113,7 @@ def test_unknown_command():
 def test_clear_trouble_when_none():
     global PASS, FAIL
     from cairn.devices.trouble.trouble import TroubleDevice
-    d = tempfile.mkdtemp(prefix="gl_trouble_")
+    d = scratch_dir("gl_trouble_")
     try:
         trouble = TroubleDevice(root=Path(d))
         with patch("cairn.devices.trouble.trouble.TroubleDevice", return_value=trouble):
@@ -130,7 +132,7 @@ def test_clear_trouble_when_none():
 def test_clear_trouble_clears():
     global PASS, FAIL
     from cairn.devices.trouble.trouble import TroubleDevice
-    d = tempfile.mkdtemp(prefix="gl_trouble_")
+    d = scratch_dir("gl_trouble_")
     try:
         trouble = TroubleDevice(root=Path(d))
         trouble.raise_trouble("ground-loop-is-older-than-the-code-it-judges",

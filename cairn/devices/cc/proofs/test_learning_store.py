@@ -6,18 +6,17 @@ is surfaced when a like decision recurs later (the read half).
 
 from __future__ import annotations
 
-import shutil
 import tempfile
 from pathlib import Path
 
 import pytest
 
+from cairn.devices.tester.scratch import scratch_dir
+
 
 @pytest.fixture
 def store_dir():
-    d = tempfile.mkdtemp(prefix="cairn-cc-learning-test-")
-    yield Path(d)
-    shutil.rmtree(d)
+    return scratch_dir("cairn-cc-learning-test-")
 
 
 def test_write_record_creates_a_file_at_the_store_path(store_dir):

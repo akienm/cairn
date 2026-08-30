@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_exchange.py passes under python3",
+    "caller": "bus-completion",
+    "date": "2026-08-29T20:13:42",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_async_post_still_fire_and_forget\n  PASS  test_reply_to_correlation_is_exact\n  PASS  test_request_uses_post_not_a_second_door\n  PASS  test_sync_returns_correlated_reply\n  PASS  test_timeout_raises_not_returns_empty\ngreen — one door, correlated replies, loud timeout",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "f008a991b68835dfc43bb94401480021738433a1daf20ef4d49696a9b98dd1af",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-vke6y_fk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 54,
+          "paths": [
+            "logs/bus/0/20260830.021338.776187.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021338.790088.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.810085.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.829169.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.849194.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.862398.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021338.905671.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021338.921842.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.941693.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.960663.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.979784.BusDevice.post.json",
+            "logs/bus/0/20260830.021338.998672.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.017826.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.030774.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.049702.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.091474.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.113696.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.129629.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.180514.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021339.196649.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.217598.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.236524.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.255721.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.276682.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.295524.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.308574.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.362163.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021339.375755.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.395702.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.414809.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.433563.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.452889.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.471702.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.484854.BusDevice.delivered.json",
+            "logs/bus/0/20260830.021339.564141.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021339.581457.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.605691.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.625600.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.644654.BusDevice.post.json",
+            "logs/bus/0/20260830.021339.664637.BusDevice.delivered.json"
+          ],
+          "elided": 14
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

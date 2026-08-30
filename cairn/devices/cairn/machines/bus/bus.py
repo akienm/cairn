@@ -276,10 +276,12 @@ class BusDevice(BaseDevice):
 
     # --- the record (full truth) and the view (collapsible) -----------------
 
-    def read(self, *, to: str | None = None, channel: str | None = None) -> list[dict]:
+    def read(self, *, to: str | None = None, channel: str | None = None,
+             reply_to: str | None = None) -> list[dict]:
         """Read the feed — the RECORD, always the full truth (Law 7: the substrate never
-        collapses). Filter by addressee and/or channel. Reading a device's feed IS inspecting
-        it. Ordered by insertion (ctid) so causality reads in the order it happened."""
+        collapses). Filter by addressee, channel, and/or reply_to. Reading a device's feed
+        IS inspecting it. Ordered by insertion (ctid) so causality reads in the order it
+        happened."""
         if channel is not None:
             _require_channel(channel)
         self._ensure()
@@ -290,8 +292,38 @@ class BusDevice(BaseDevice):
         if channel is not None:
             clauses.append("channel = %s")
             params.append(channel)
+        if reply_to is not None:
+            clauses.append("reply_to = %s")
+            params.append(reply_to)
         where = (" AND ".join(clauses) + " ORDER BY ctid") if clauses else "TRUE ORDER BY ctid"
         return store.read(self._table, where=where, params=tuple(params))
+
+    def request(self, *, sender: str, to: str, channel: str = "personal", why: str,
+                verb: str = "", body: dict | None = None,
+                timeout: float = 30.0) -> dict:
+        """Synchronous exchange: post, then read the correlated reply. ONE DOOR — this is
+        post() + a correlated read, not a second path (falsifier 4).
+
+        In the in-process model, the poke chain fires synchronously within post(): the
+        target's verb handler posts a reply (with reply_to set to this envelope's id),
+        and the reply is in the transit table by the time post() returns. The timeout
+        fires only when the reply never comes — LOUD, not empty (CP1)."""
+        envelope = self.post(sender=sender, to=to, channel=channel, why=why,
+                             verb=verb, body=body)
+        replies = self.read(reply_to=envelope["id"])
+        if replies:
+            return replies[0]
+        import time
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            time.sleep(min(0.1, deadline - time.monotonic()))
+            replies = self.read(reply_to=envelope["id"])
+            if replies:
+                return replies[0]
+        raise TimeoutError(
+            f"no reply to envelope {envelope['id'][:8]}… from {to} "
+            f"within {timeout}s — the target did not reply (CP1: loud, not empty)"
+        )
 
     # --- delivery: the half that was missing --------------------------------
 

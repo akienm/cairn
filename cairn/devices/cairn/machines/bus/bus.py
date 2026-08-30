@@ -174,6 +174,13 @@ class BusDevice(BaseDevice):
         self._posted = 0
         self._delivered = 0
         self._last_envelope: dict | None = None
+        self._delivery_hooks: dict[str, "Callable"] = {}
+
+    def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
+        self._delivery_hooks[device_id] = deliver
+
+    def unwire_delivery(self, device_id: str) -> None:
+        self._delivery_hooks.pop(device_id, None)
 
     @property
     def device_id(self) -> str:
@@ -256,6 +263,14 @@ class BusDevice(BaseDevice):
         self.emit("post", pointer=envelope["id"], values={
             "sender": sender, "addressee": to, "channel": channel,
         })
+        hook = self._delivery_hooks.get(to)
+        if hook is not None:
+            try:
+                hook(envelope)
+            except Exception as exc:  # noqa: BLE001
+                self.emit("delivery_failed", pointer=envelope["id"], values={
+                    "addressee": to, "error": f"{type(exc).__name__}: {exc}",
+                })
         return envelope
 
     # --- the record (full truth) and the view (collapsible) -----------------

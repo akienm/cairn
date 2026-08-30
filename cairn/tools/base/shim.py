@@ -95,6 +95,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     def __init__(self, bus=None) -> None:
         super().__init__()
         self._bus = bus
+        self._delivery_wired = False
         self._device = None      # the heavier process, instantiated on demand
         self._presence = NEVER_BOOTED
         self._pulses = 0
@@ -306,15 +307,36 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         # watch that has been silent since it was armed must not read the same (Law 7 — loud
         # at a diagnostic surface, and a pulse-record is one).
         record["overdue"] = self.overdue(declared)
-        # MAIL: each shim checks its own inbox, once per pulse. The bus is the sole path for
-        # inter-device comms, and each device self-serves — no postman, no middleman. A shim
-        # that cannot wake a device (DiscoveredShim) skips the check; mail waits until a real
-        # shim fronts it, which is honest (the device genuinely cannot receive).
-        mail_result = self._check_mail()
-        if mail_result:
-            record["mail"] = mail_result
+        if not self._delivery_wired:
+            mail = self._wire_delivery()
+            if mail is not None:
+                record["mail"] = mail
         self._last_pulse = record
         return record
+
+    def _wire_delivery(self) -> dict | None:
+        """Register this shim with the bus for event-driven delivery and drain any backlog.
+
+        Called once, on the first pulse — by then device_id is guaranteed to be set. After
+        wiring, post() pokes this shim directly at post time; no per-pulse poll needed.
+        Returns the drain result (same shape as ``_check_mail``) so the pulse record
+        can carry it."""
+        if self._bus is None:
+            self._delivery_wired = True
+            return None
+        self._bus.wire_delivery(self.device_id, self._receive_poke)
+        self._delivery_wired = True
+        result = self._check_mail()
+        if result:
+            self.emit("delivery_backlog_drained", values=result)
+        return result
+
+    def _receive_poke(self, _envelope: dict) -> None:
+        """Poke from the bus at post time. Processes ALL undelivered mail for this device,
+        including the just-posted envelope and any retries from earlier failures. The envelope
+        argument is ignored — it is already in the transit table and will be found by
+        undelivered()."""
+        self._check_mail()
 
     def _fire(self, cb: Probe, context: dict | None = None) -> dict:
         """Fire one probe: POKE its target on the bus (the fire path). With no bus wired, it
@@ -333,19 +355,20 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         return {"to": cb.to, "verb": cb.verb, "channel": cb.channel, "why": cb.why,
                 "outcome": "ok", "envelope": envelope["id"]}
 
-    # --- (2b) self-serve mail: each shim checks its own inbox ----------------
+    # --- (2b) event-driven mail: poked by the bus at post time ----------------
 
     _MAIL_LIMIT = 50
 
     def _check_mail(self) -> dict | None:
         """Read this device's own undelivered mail and deliver each envelope to itself.
 
-        ONE QUERY PER DEVICE PER PULSE — not one for the whole system. The trade is N
-        queries per minute (N devices, 60s cadence) against the postman's machinery: the
-        crossing-memory, the drain limit, the shim_for lookup, and the NotImplementedError
-        path that left 998 messages sitting for weeks. Each device self-serves; a device
-        that cannot wake (DiscoveredShim) never reaches here because its _start_device
-        raises before deliver() can land, so it returns early and the mail waits honestly.
+        Called from two event-driven sites — never per-pulse:
+        (1) ``_wire_delivery`` — one-time backlog drain at wiring.
+        (2) ``_receive_poke`` — bus poke at post() time.
+
+        Each device self-serves; a device that cannot wake (DiscoveredShim)
+        never reaches here because its _start_device raises before deliver()
+        can land, so it returns early and the mail waits honestly.
 
         The receipt is written AFTER deliver() returns — same at-least-once guarantee the
         postman had, same reason: a raising receiver leaves the mail in the inbox."""

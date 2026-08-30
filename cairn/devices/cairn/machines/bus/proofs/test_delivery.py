@@ -6,9 +6,10 @@ took a message OUT of transit and handed it to a device, because nothing did:
 delivers is indistinguishable from one that does — the post succeeds, the row lands, the read
 shows the message sitting right there. Three envelopes were in transit when this was found.
 
-REWRITTEN 2026-08-29 for the self-serve model: each shim checks its own inbox on each pulse
-(``BaseShim._check_mail``), replacing the old postman (BusShim.drain). The teeth are the same;
-the mechanism they test changed. What a hollow build STILL cannot pass (Law 8):
+REWRITTEN 2026-08-29 for event-driven delivery: ``post()`` pokes the addressee's shim at post
+time (``_receive_poke``), and the first pulse wires delivery and drains any backlog
+(``_wire_delivery``). The per-pulse ``_check_mail`` poll is gone — delivery is event-driven.
+What a hollow build STILL cannot pass (Law 8):
 
   - One that marked mail delivered and dropped it passes "the inbox drains" and fails
     ``test_the_device_actually_receives_the_body``, which reads what the RECEIVER got.
@@ -88,8 +89,8 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    """A heartbeat with receivers. Each shim checks its own inbox on each pulse
-    (BaseShim._check_mail). The loop is built with no liveness_home and no discoverer:
+    """A heartbeat with receivers. The first pulse wires event-driven delivery; subsequent
+    posts poke the shim directly. The loop is built with no liveness_home and no discoverer:
     this proof is about delivery, so the beat is the anonymous in-process one and the
     roster is exactly what is handed in.
 
@@ -146,7 +147,11 @@ def test_a_delivered_envelope_never_comes_back():
 def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     """AT-LEAST-ONCE IS THE SIDE WE FAIL ON. The receipt is written after the device takes the
     envelope, so a receiver that blows up leaves the mail exactly where it was. A layer that
-    receipts first passes every happy path and loses this message forever."""
+    receipts first passes every happy path and loses this message forever.
+
+    Delivery is event-driven: the bus pokes at post() time and the shim drains its backlog at
+    wiring time (first pulse). After the first-pulse drain fails, mail waits until the NEXT POST
+    triggers a poke — which retries ALL undelivered mail, including earlier failures."""
     broken = Mailbox(blow_up=True)
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("box_bad", broken, bus=bus))
@@ -157,10 +162,11 @@ def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     assert mail.get("refused", []) != []
     still = bus.undelivered(to="box_bad")
     assert [e["id"] for e in still] == [sent["id"]], still
-    # And it is delivered the moment the receiver is fixed — the mail waited, it did not die.
+    # The receiver is fixed. The next POST pokes the shim, which retries all undelivered mail.
     broken.blow_up = False
-    loop.beat(NOW)
-    assert [e["id"] for e in broken.got] == [sent["id"]]
+    retry = _post(bus, "box_bad", why="retry trigger")
+    assert len(broken.got) == 2, [e["id"] for e in broken.got]
+    assert {e["id"] for e in broken.got} == {sent["id"], retry["id"]}
     assert bus.undelivered(to="box_bad") == []
 
 
@@ -177,8 +183,8 @@ def test_a_discovered_shim_cannot_receive():
 
 
 def test_mail_for_a_device_not_on_the_roster_sits():
-    """Mail for a device with no shim at all sits in transit — no shim means no _check_mail
-    runs for it. The real device's mail is still delivered."""
+    """Mail for a device with no shim at all sits in transit — no shim means no delivery
+    hook wired, so no poke fires. The real device's mail is still delivered."""
     box = Mailbox()
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("box_a", box, bus=bus))

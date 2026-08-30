@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_charter_split.py passes under python3",
-    "caller": "akiendelllinux_cc_0",
-    "date": "2026-07-24T21:40:30",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T03:11:56",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (14 split: bin, base, bus, charter, db_domain, diagnostic_inspector, ground_loop, harbor_master, inference_domain, intentions_model_compiler, sudo_relay, system_rackmount, tester, web_server)\n  PASS  test_at_least_one_component_is_split\n  PASS  test_state_is_exactly_the_projection_of_history_no_drift\n  PASS  test_history_is_append_only_shape_monotonic_seq_from_zero\n  PASS  test_the_migrated_charter_is_pure_intention_why_no_state_field\ngreen — the charter-state-history split is faithful in situ: every split component's state.json is exactly project(history.json) (no drift, Law 1), its history is append-only (Law 7), and its charter is pure intention+why (the split is real)",
+      "stdout_tail": "    (1 split: bin)\n  PASS  test_at_least_one_component_is_split\n  PASS  test_state_is_exactly_the_projection_of_history_no_drift\n  PASS  test_history_is_append_only_shape_monotonic_seq_from_zero\n  PASS  test_the_migrated_charter_is_pure_intention_why_no_state_field\ngreen — the charter-state-history split is faithful in situ: every split component's state.json is exactly project(history.json) (no drift, Law 1), its history is append-only (Law 7), and its charter is pure intention+why (the split is real)",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "59192fead5be68b9d8f0295484a2314f08617b8aa3e9403873b71e87631040cb"
+      "source_fingerprint": "e794200b280352bceeee9373985979363a36f1dc3563884f9dcc1af125c0c693",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-t1zudxry/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

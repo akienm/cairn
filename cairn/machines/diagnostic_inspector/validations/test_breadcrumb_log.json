@@ -1,20 +1,29 @@
 [
   {
     "claim": "proof test_breadcrumb_log.py passes under python3",
-    "caller": "a-record-reaches-disk",
-    "date": "2026-08-12T15:57:04",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T02:45:00",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_record_emitted_in_one_process_is_read_back_in_another\n  PASS  a_trail_that_will_not_parse_is_loud_by_line_number\n  PASS  an_unserializable_payload_degrades_but_the_crossing_is_still_recorded\n  PASS  blank_lines_are_not_records\n  PASS  construction_touches_no_disk\n  PASS  running_this_proof_writes_nothing_into_the_live_tree\n  PASS  the_address_comes_from_the_one_owner\n  PASS  the_disk_log_drops_into_the_inspector_unchanged\n  PASS  the_write_appends_and_never_rewrites\n  PASS  two_devices_get_two_trails\ngreen — breadcrumb log: 39 assertions over 10 teeth. A record emitted by a device in one process is read back from disk in another (the tooth the trouble demanded); the trail appends and never rewrites; its address comes from the one owner and lands in the owning device instance's own space; it drops into the Inspector with inspector.py untouched; and the two failure modes stay different — a payload degrades, a corrupt trail is loud.",
+      "stdout_tail": "  PASS  a_file_that_will_not_parse_is_loud\n  PASS  a_record_emitted_in_one_process_is_read_back_in_another\n  PASS  an_unserializable_payload_degrades_but_the_crossing_is_still_recorded\n  PASS  construction_touches_no_disk\n  PASS  each_emission_is_its_own_file\n  PASS  running_this_proof_writes_nothing_into_the_live_tree\n  PASS  the_address_comes_from_the_one_owner\n  PASS  the_disk_log_drops_into_the_inspector_unchanged\n  PASS  two_devices_get_two_trails\ngreen — breadcrumb log: 38 assertions over 9 teeth. A record emitted by a device in one process is read back from disk in another (the tooth the trouble demanded); the trail appends and never rewrites; its address comes from the one owner and lands in the owning device instance's own space; it drops into the Inspector with inspector.py untouched; and the two failure modes stay different — a payload degrades, a corrupt trail is loud.",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f5b7000a2e521a61d4a699f7033bc34300ad433736e31578ccb756839b11a43a",
-      "trail_link": "64e06dc996d9b1e559a2ce54bcd9b7aed0d01284b17b61a29c19167f3a1ae9f9"
+      "source_fingerprint": "4cdc0c17d9faa5c499f32ba5e725f0a939bdfbcd7ac758ee1ccb8d2d63584f79",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-p19jonjp/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

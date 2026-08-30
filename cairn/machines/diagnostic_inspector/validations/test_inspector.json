@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "diagnostic_inspector",
-    "date": "2026-07-24T16:41:16",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T02:51:26",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_findings_filter_one_items_transaction_ordered_and_isolated\n  PASS  test_filters_compose_pointer_and_gate\n  PASS  test_the_inspector_reads_it_does_not_mutate\n  PASS  test_a_first_miss_is_learned_and_folded_forward\n  PASS  test_a_learned_gap_that_recurs_is_loud\n  PASS  test_a_complete_findings_is_clean\n  PASS  test_the_signal_is_distinguished_from_the_re_derivation\n  PASS  test_learned_completeness_persists\ngreen — diagnostic_inspector: filters a log into an ordered, isolated findings slice (the tokens saved — no second exploration), filters compose, and the inspector gets better over time — a first miss is folded forward (Law 1), a learned recurrence is LOUD (Law 7, the terminal falsifier).",
+      "stdout_tail": "  PASS  test_findings_filter_one_items_transaction_ordered_and_isolated\n  PASS  test_filters_compose_pointer_and_gate\n  PASS  test_the_inspector_reads_it_does_not_mutate\n  PASS  test_a_first_miss_is_learned_and_folded_forward\n  PASS  test_a_learned_gap_that_recurs_is_loud\n  PASS  test_a_complete_findings_is_clean\n  PASS  test_the_signal_is_distinguished_from_the_re_derivation\n  PASS  test_learned_completeness_persists\n  PASS  test_a_valueless_record_is_named_loud_with_its_count\n  PASS  test_every_record_carrying_values_reports_nothing_loud\n  PASS  test_the_every_value_clause_is_not_folded_into_complete\n  PASS  test_the_seed_matches_the_intention_it_claims_to_carry\n  PASS  test_source_is_demanded_and_the_envelope_answers_it\ngreen — diagnostic_inspector: filters a log into an ordered, isolated findings slice (the tokens saved — no second exploration), filters compose, and the inspector gets better over time — a first miss is folded forward (Law 1), a learned recurrence is LOUD (Law 7, the terminal falsifier).",
       "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "4f4e09eda77711bfd00445bf55fbd781e1dbe60d7afd2a600d0d98daaad4f246"
+      "source_fingerprint": "4cdc0c17d9faa5c499f32ba5e725f0a939bdfbcd7ac758ee1ccb8d2d63584f79",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-62bwbmw_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

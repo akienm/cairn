@@ -1,19 +1,50 @@
 [
   {
     "claim": "proof test_projector.py passes under python3",
-    "caller": "charter/projector build 2026-07-21",
-    "date": "2026-07-21T15:50:30",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T03:18:20",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
-      "seal": {
-        "detail": "none: no seal requested — the route is open by construction, and the record says so",
-        "verdict": "open"
-      },
       "returncode": 0,
-      "stderr_tail": "",
       "stdout_tail": "  PASS  test_state_is_derived_not_authored\n  PASS  test_count_window_is_bounded\n  PASS  test_history_is_append_only\n  PASS  test_since_gate_window_self_sizes\n  PASS  test_cursor_tracks_the_head\ngreen — charter/projector: state is compiled from history, bounded, append-only, drift-free",
-      "trail_link": "d3a27ef3c85f16bbe2b87333d0dece49ca7b15d525c096cc719b1e7e7790a230"
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e794200b280352bceeee9373985979363a36f1dc3563884f9dcc1af125c0c693",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-dfc15a5a/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 20,
+          "paths": [
+            "logs/charter/0/20260830.091808.938265.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091809.253327.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091809.255668.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091809.258155.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091809.260277.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091809.261781.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.205075.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.206736.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.208575.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.210525.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.212124.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.213742.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.215411.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.217226.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.218780.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.534684.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.537047.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.538658.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.539254.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260830.091810.539853.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

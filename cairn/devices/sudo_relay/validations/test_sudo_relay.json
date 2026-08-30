@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_sudo_relay.py passes under python3",
-    "caller": "cc-session-2026-07-27-silent-devices",
-    "date": "2026-07-27T14:48:08",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-30T02:21:29",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "b76f6e6ba9eff8aad5288e0788019a5e3186eda24ab9a257e918eb0d1cf9faaf"
+      "source_fingerprint": "a23b9372c59bb4e272679ffede1588dfcb5a44e6c4cda4506ef76cdde4c385b6",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-14c7aetk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_judge.py passes under python3",
+    "caller": "intention-extractor-judge",
+    "date": "2026-08-29T21:30:42",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_check_is_taught_and_pinned\n  PASS  test_a_pass_lists_the_lanes_it_ran_not_only_that_nothing_objected\n  PASS  test_the_attribution_lane_is_absent_when_there_are_no_anchors_to_walk\n  PASS  test_a_lane_that_refuses_and_names_nothing_is_louder_than_a_silent_drop\n  PASS  test_the_judge_holds_no_seam_of_its_own\ngreen — judge: the checks report what they proved, and reach nothing",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "e4f90a0daa545f3a71b88b07536ade5beaf19568e4f5d2bbe681ad54c233a991",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-fm38vr97/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

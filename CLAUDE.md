@@ -247,8 +247,12 @@ charter, never from this file.
   the IOU above). · *ticket state-and-history-door-catches-in-place-edits*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
   in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*
-- ruling intake (`cairn ruling`) → nothing makes me open a packet; the hook sees
-  packets that exist, not rulings never recorded. · *ticket ruling-intake-ensures-packets-are-opened*
+- ruling intake (`cairn ruling`) → **PHYSICS SHIPPED:** Stop hook pairing detector
+  scans user messages for ruling markers with no `cairn ruling open` in the session.
+  Strong markers fire unconditionally; `that holds` fires only with strong context.
+  The residue: the detector checks for `ruling open` in tool_use command text, so a
+  ruling opened via subprocess or outside the transcript is invisible.
+  · *ticket ruling-intake-ensures-packets-are-opened*
 - corrosion (`constraint_enforcement_holds` sieve in `build_inspector`, declared set
   at `cairn/machines/corrosion/constraint_set.json`) → the set is hand-authored and
   the predicate cannot discover constraints not listed; a constraint silently

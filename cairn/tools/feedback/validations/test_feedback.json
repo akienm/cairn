@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_feedback.py passes under python3",
+    "caller": "feedback-tool",
+    "date": "2026-08-29T21:25:14",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   and whitespace is not a why\n  ok   a route to a path that does not exist is refused\n  ok   resolves() accepts a real component directory\n  ok   and rejects one nobody built\n  ok   and rejects the empty string\n  ok   a module that only MENTIONS the constructors is not a producer\n  ok   a module that CALLS one is\n  ok   a finding built inside proofs/ does not make the component a producer\n  ok   a HEALTHY world produces a non-empty, all-passing record\n  ok   and its gate OPENS\n  ok   the passing entry states WHERE it routes, not merely that it does\n  ok   an unrouted producer yields exactly ONE failing entry, carrying its lack\n  ok   and the gate is CLOSED\n  ok   a component that stops constructing findings leaves NO entry, not a green one\n  ok   the live corpus has finding-producers (the rule is not vacuous)\n  ok   every producer names a directory that exists and carries a charter\n  ok   the live record has exactly one entry per producer\n  ok   and every entry carries the compare's preconditions\n\n22/22 green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "0ce02b7bd1576aa4173fdd75be831c85c0b8bce0473bdd7597170ac11041d195",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-eii2jg21/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

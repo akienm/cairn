@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_charter_asserts_file.py passes under python3",
+    "caller": "charter-asserts-file",
+    "date": "2026-08-29T21:23:55",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames\n  PASS  test_live_corpus_is_clean\ngreen — charter_asserts_file_present (5 teeth): a false assertion is caught, an honest qualification passes, present files pass, the check is not hardcoded to two filenames, and the live corpus is clean",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "5d8fc912f741e0231dcde4b5ae96473e3797f7777d53b2a5e00857a254495571",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-yf_ned8q/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

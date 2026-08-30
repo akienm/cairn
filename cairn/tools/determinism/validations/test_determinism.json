@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_determinism.py passes under python3",
+    "caller": "determinism-tool",
+    "date": "2026-08-29T21:24:46",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_pure_imports_are_pure\n  ok   test_b_shelling_out_does_not_cost_purity\n  ok   test_c_a_computed_argv_is_not_chased\n  ok   test_d_off_box_state_is_reported_but_does_not_set_the_verdict\n  ok   test_e_the_llm_in_the_fire_path_reaches_an_oracle\n  ok   test_f_a_sleep_seam_does_not_red_the_fire_path\n  ok   test_g_a_seam_reachable_from_the_fire_path_still_counts\n  ok   test_h_an_llm_off_the_path_is_not_caught\n  ok   test_i_a_charter_with_no_code_is_not_on_the_roster\n  ok   test_j_the_hollow_floor_refuses_an_unread_tree\n  ok   test_k_the_real_corpus_is_read_by_invariant\n  ok   test_l2_calling_a_gate_does_not_make_you_one\n  ok   test_l_a_gate_is_derived_from_the_import_not_from_a_charter\n  ok   test_m_a_gate_that_reaches_an_oracle_is_a_violation\n  ok   test_n_a_gate_may_not_have_a_sleep_seam_either\n  ok   test_o_a_non_gate_reaching_an_oracle_is_not_a_violation\n  ok   test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates\n  ok   test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle\n\ngreen: 0 failing",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "1a99e6f782460c2dac83bdb47e9de92156317bcfcca7e191c5b43754bc8170d2",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-fefuoevi/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

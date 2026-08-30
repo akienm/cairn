@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_edges.py passes under python3",
+    "caller": "edges-tool",
+    "date": "2026-08-29T21:25:00",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  pass  test_non_vacuity\n  pass  test_edges_from_charters\n  pass  test_non_string_edge_is_red\n  pass  test_open_vs_resolved_questions\n  pass  test_lanes_never_mixed\n  pass  test_render_mutates_nothing\n  pass  test_summary_line\n  pass  test_unreadable_question_is_red\n  pass  test_live_corpus_renders\n\nGREEN — 9/9 passed",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d45fc1825309cc711d5ee7c48988d2184f69f4993daeb781141f6a090a3ae778",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-_elhsqfl/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

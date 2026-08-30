@@ -1,0 +1,52 @@
+[
+  {
+    "claim": "proof test_external_adapter.py passes under python3",
+    "caller": "bus-completion",
+    "date": "2026-08-29T20:15:40",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_external_can_read_device_announce\n  PASS  test_external_post_uses_same_bus\n  PASS  test_external_reads_own_feed\n  PASS  test_menu_on_announce_channel\n  PASS  test_no_device_process_needed\n  PASS  test_unread_mail_waits\ngreen — external participants: same bus, own feed, no poke needed",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "b35da1b9c6d3010704792aa6c3a4874bb4c21daea664d7e9e9fd580d9225f9c8",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2vg_886a/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 20,
+          "paths": [
+            "logs/bus/0/20260830.021537.504705.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021537.517846.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.539606.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.611914.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021537.624849.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.688159.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021537.718949.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.764905.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.797857.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.856113.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021537.872870.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.929152.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021537.946866.BusDevice.post.json",
+            "logs/bus/0/20260830.021537.963863.BusDevice.post.json",
+            "logs/bus/0/20260830.021538.041674.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260830.021538.070925.BusDevice.post.json",
+            "logs/ground_loop/0/20260830.021537.460135.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021537.460350.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021537.630721.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260830.021537.630925.GroundLoopDevice.subscribe.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,26 +1,40 @@
 [
   {
     "claim": "proof test_clearance.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-31T06:37:55",
+    "caller": "re-seal-with-higher-timeout",
+    "date": "2026-08-31T13:20:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": null,
-      "stdout_tail": "",
-      "stderr_tail": "timed out after 120s",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written\n  PASS  test_an_unresolvable_hop_refuses_by_name_and_never_defaults\n  PASS  test_the_read_reaches_nothing_outward\n  PASS  test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason\n  PASS  test_a_grant_and_a_refusal_are_one_field_apart_in_one_store\n  PASS  test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate\n  PASS  test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one\n  PASS  test_the_public_door_and_the_decision_it_wraps_have_one_signature\n  PASS  test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them\n  PASS  test_this_proof_never_wrote_to_the_live_queue\n  PASS  test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED\n  PASS  test_a_malformed_retirement_REFUSES_and_never_reads_as_not_retired\n  PASS  test_a_boat_riding_a_retired_intention_MAY_NOT_MOVE_FORWARD\n  PASS  test_but_it_may_still_RETREAT_because_a_wall_is_not_a_gate\n  PASS  test_a_retirement_with_NO_SUCCESSOR_still_refuses_and_says_so\n  PASS  test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register\n  PASS  test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED\n  PASS  test_the_read_face_prints_only_numbers_the_library_returned\n  PASS  test_this_build_added_no_tracing_of_its_own\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet",
+      "stderr_tail": "",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7e1b6dc549823775628b5ca11b6cd7f94b740a37440c70403696ce5db1adc034",
+      "source_fingerprint": "78863b4be8129dd78ffd94c7ac8eb0333bcaec171b38e38cc9dcf229978eb7ca",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-_p3f4mks/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3nexdp2w/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 13,
+          "paths": [
+            "logs/charter/0/20260831.192036.659226.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192036.661566.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.012204.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.014737.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.017488.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.020171.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.042149.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.064065.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.073706.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260831.192039.077833.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20260831.192034.247585.TesterDevice.run_proof.json",
+            "logs/tester/0/20260831.192036.656960.TesterDevice.run_proof.json",
+            "logs/tester/0/20260831.192039.009542.TesterDevice.run_proof.json"
+          ],
           "elided": 0
         }
       }

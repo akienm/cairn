@@ -66,6 +66,7 @@ class _RecordingBus:
 
     def __init__(self) -> None:
         self.posted: list[dict] = []
+        self._wired: dict = {}
 
     def post(self, sender, to, channel, **kw):
         # ``id`` is what the shim reads back off the envelope to record the delivery; a fake
@@ -75,6 +76,15 @@ class _RecordingBus:
                     "channel": channel, **kw}
         self.posted.append(envelope)
         return envelope
+
+    def wire_delivery(self, device_id: str, deliver) -> None:
+        self._wired[device_id] = deliver
+
+    def unwire_delivery(self, device_id: str) -> None:
+        self._wired.pop(device_id, None)
+
+    def read(self, **kw):
+        return []
 
 
 def _loop(root: Path, trouble_root: Path, staleness=None, bus=None):

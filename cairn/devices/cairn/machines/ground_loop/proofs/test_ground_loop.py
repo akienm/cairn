@@ -47,11 +47,21 @@ from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 class _SpyBus:
     def __init__(self) -> None:
         self.posted: list[dict] = []
+        self._wired: dict = {}
 
     def post(self, **envelope) -> dict:
         envelope = {"id": f"env{len(self.posted)}", **envelope}
         self.posted.append(envelope)
         return envelope
+
+    def wire_delivery(self, device_id: str, deliver) -> None:
+        self._wired[device_id] = deliver
+
+    def unwire_delivery(self, device_id: str) -> None:
+        self._wired.pop(device_id, None)
+
+    def read(self, **kw):
+        return []
 
 
 class _Shim(BaseShim):
@@ -114,11 +124,13 @@ def test_the_firing_is_the_shims_not_the_heartbeats():
 
     gl.beat(now="t0", context={"hot": True})
 
-    assert len(bus.posted) == 1 and bus.posted[0]["to"] == "ops/personal", \
+    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
+    assert len(pokes) == 1 and pokes[0]["to"] == "ops/personal", \
         "the due probe pokes the bus through its shim; the heartbeat itself pokes nothing"
     # A beat where nothing is due pokes nobody.
     gl.beat(now="t1", context={"hot": False})
-    assert len(bus.posted) == 1, "no probe due → no poke"
+    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
+    assert len(pokes) == 1, "no probe due → no poke"
 
 
 def test_subscribe_is_idempotent_and_typed():
@@ -145,7 +157,8 @@ def test_one_shim_raising_cannot_stop_the_beat():
 
     outcomes = {p["device"]: p.get("outcome", "ok") for p in rec["pulses"]}
     assert outcomes["angry"] == "refused", "the throwing shim is a loud, permanent entry (Law 7)"
-    assert len(bus.posted) == 1 and bus.posted[0]["to"] == "ok/personal", \
+    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
+    assert len(pokes) == 1 and pokes[0]["to"] == "ok/personal", \
         "the healthy shim still fired after the angry one (CP2)"
 
 
@@ -549,7 +562,8 @@ def test_the_self_subscription_is_inert_under_the_beat():
         "the loop pulsing its own probe-less shim evaluates nothing, fires nothing, raises nothing"
     assert rec["pulses"][1] == baseline["pulses"][0], \
         "the rider's pulse-record is identical with the self-subscription present"
-    assert bus.posted == [], "no pokes either way — the self-join changes no firing"
+    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
+    assert pokes == [], "no pokes either way — the self-join changes no firing"
     assert [d["device"] for d in looped.roster()["devices"]] == ["ground_loop", "rider"], \
         "the one difference is the honest one: the roster (and so the nav) carries ground_loop"
 

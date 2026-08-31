@@ -1,40 +1,40 @@
 [
   {
     "claim": "proof test_ground_loop.py passes under python3",
-    "caller": "cairn-device-absorbs-foundational-infrastructure",
-    "date": "2026-08-29T16:40:05",
+    "caller": "re-seal-stale-fingerprint",
+    "date": "2026-08-31T05:10:11",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_subscribe_is_idempotent_and_typed\n  PASS  test_one_shim_raising_cannot_stop_the_beat\n  PASS  test_the_executor_goof_is_gone\n  PASS  test_the_roster_is_the_nav_published_at_all_times\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\n  PASS  test_the_stamp_advances_across_beats_and_pid_and_state_ride\n  PASS  test_the_instance_dir_is_born_on_first_write\n  PASS  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn\n  PASS  test_a_reader_never_sees_a_torn_record\n  PASS  test_a_homeless_device_writes_nothing\n  PASS  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly\n  PASS  test_a_sigkilled_winner_leaves_no_stale_claim\n  PASS  test_the_held_claim_survives_the_records_churn\n  PASS  test_the_doors_loser_reports_from_the_record_and_exits_distinctly\n  PASS  test_the_pane_renders_what_the_record_says_and_never_derives\n  PASS  test_an_absent_record_renders_the_named_lack_never_blank\n  PASS  test_the_page_assembles_through_the_standard_machinery\n  PASS  test_the_self_subscription_is_inert_under_the_beat\ngreen — ground_loop: the heartbeat beats and pulses subscribed shims (in order, survivably); the firing is the shim's, and the executor goof is gone",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_beat_pulses_every_shim_in_order\n  PASS  test_the_firing_is_the_shims_not_the_heartbeats\n  PASS  test_subscribe_is_idempotent_and_typed\n  PASS  test_one_shim_raising_cannot_stop_the_beat\n  PASS  test_the_executor_goof_is_gone\n  PASS  test_the_roster_is_the_nav_published_at_all_times",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py\", line 587, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py\", line 579, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py\", line 201, in test_the_crossings_are_no_longer_silent\n    assert [h[\"gate\"] for h in gl.held_diagnostics()] == [\"subscribe\"], \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: one roster change → one breadcrumb; the healthy beat and the re-subscribe add none",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "d5b176cff50a2f4abb4ad9f417921a440595baabb49e9cd6c71ca851ed96c98f",
+      "source_fingerprint": "5fcb9f4b559f2104b8563bdb6f68ded670b8afc62044eeb8b1dbb4b1344c4861",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-0hik_82u/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-i7ad58wx/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/ground_loop/0/20260829.224001.823221.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.823517.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.823761.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.824016.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.824218.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.824402.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.824544.GroundLoopDevice.pulse_refused.json",
-            "logs/ground_loop/0/20260829.224001.824750.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.824928.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224001.825539.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224002.418491.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224002.418815.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224002.419009.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260829.224002.419178.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260831.110948.416911.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.417132.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.417260.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.417379.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.417516.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.417682.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.417800.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.417911.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.418047.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.418170.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.418264.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.418376.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260831.110948.418497.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260831.110948.418612.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         }

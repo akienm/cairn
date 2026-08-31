@@ -130,8 +130,14 @@ def _cmd_supersede(old_id: str, new_id: str, evidence: list[str]) -> int:
     return 0
 
 
+_COMPACTED_PREFIX = "This session is being continued from a previous conversation"
+
+
 def _extract_user_messages(transcript_path: str) -> list[str]:
-    """Read user messages from a Claude Code session transcript JSONL."""
+    """Read user messages from a Claude Code session transcript JSONL.
+
+    Skips compacted-context injections — these are system-generated summaries
+    carrying forward prior session context, not the user's own words."""
     messages = []
     try:
         with open(transcript_path, encoding="utf-8") as fh:
@@ -144,6 +150,8 @@ def _extract_user_messages(transcript_path: str) -> list[str]:
                     continue
                 content = d.get("message", {}).get("content", "")
                 if isinstance(content, str) and content.strip():
+                    if content.lstrip().startswith(_COMPACTED_PREFIX):
+                        continue
                     messages.append(content)
     except Exception:
         pass
@@ -207,6 +215,9 @@ def _hook() -> int:
         marked_msgs = []
         for text in user_msgs:
             hits = ruling.scan_for_ruling_markers(text, strong_only=True)
+            # skip hits inside the hook's own output — a self-referential loop
+            hits = [h for h in hits
+                    if "ruling-shaped language" not in text[max(0, h["start"] - 80):h["start"]]]
             if hits:
                 strong_found = True
                 marked_msgs.append((text, hits))

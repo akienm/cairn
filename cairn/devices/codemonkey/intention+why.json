@@ -1,0 +1,22 @@
+{
+  "component": "codemonkey",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "The CodeMonkey device — adversarial-by-default pattern library that surfaces what CC needs to know about X while working on Y. Builds and maintains a typed pattern library per project: graph tree paths as the type system, intentions as positive types, corrections and mistakes as negative types, proposed changes type-checked by unification.",
+  "why": "CC violated the ground loop boundary 3x in one day (2026-08-29). Memory doesn't stick (corrected and repeated same day), flags are policy (comment in __init__.py), prebuild steps are task-specific (they answer what's asked, they don't manage ongoing context). Akien: 'a huge part of what we've learned is: it does not matter what we do it will be wrong. and what's making it wrong right now is too many things in your head. or not enough. or the wrong things. constantly.' This device IS the physics (Law 4) that replaces the policy of 'remember not to do that.'",
+  "how": "Two labs: an intentions lab (compiled positive body — what things ARE) and a constraints lab (compiled negative body — what things are NOT, what's been tried and burned). Same compilation mechanism, mirror bodies. Five capabilities: (1) mine — cold-start pattern lattice from a codebase scan; (2) training ingestion — parse transcripts, memory files, learning records, rulings, git history into negative types; (3) challenge — adversarial type-check of proposed changes against the library; (4) query — what matters about X while working on Y, area-scoped not task-scoped; (5) digest — nighttime batch mode on Hex, consolidate corrections, notice dying error classes. Constraint proofs are three-sided: founding incident (measurement), live catch (ongoing proof), retirement (cause gone). Design posture is adversarial by default — constraints-first, the mirror world to the intentions folder. Own PID, shim-launched on demand via MCP/chat/CLI/skill steps. Per-project learned state at ~/.cairn/devices/codemonkey/0/projects/<project>/.",
+  "falsifier": "RED on any of: (1) a pattern violation that would previously have reached code review is NOT caught at challenge time; (2) the device becomes a linter — deterministic checks belong in sieves, this is for learned/judgment-based patterns; (3) it becomes project-specific — portability to any codebase is load-bearing; (4) it fails to learn from corrections — a static constraint list is not what was designed. WRONG INTENT if: the device blocks CC from acting (it surfaces information as a peer, does not gate writes it doesn't own).",
+  "gates": {
+    "proof_gate": "tester runs proofs exercising the five capabilities against real code — a hollow proof that the device passes without catching a real violation is the specific Law 8 risk",
+    "durability_gate": "git commit + push"
+  },
+  "owner": "CC gates writes to the codemonkey device class; Akien gates the design.",
+  "gated_by": ["cc"],
+  "how_it_learns": "The device IS a learning system. It mines codebases to learn positive types, ingests corrections/transcripts/memory to learn negative types, consolidates on Hex overnight, and retires constraints whose causes are gone. Every CC-- and every Akien mistake feeds the constraints lab. The founding incident IS the measurement (Law 10); the live catch IS the ongoing proof; retirement IS the lifecycle. The why does the dedup — digest consolidates incidents with the same why.",
+  "traces_to": [
+    "Law 4 — a rule that matters is enforced by physics, not policy. This device IS the physics.",
+    "I-the-system-is-a-learning-block — the system learns its gates from evidence.",
+    "CP1 — epistemic honesty: the device measures what it claims.",
+    "Telos — the system learns to constrain itself from its own operational history."
+  ]
+}

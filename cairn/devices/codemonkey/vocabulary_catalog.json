@@ -1,0 +1,171 @@
+[
+  {
+    "name": "single-responsibility",
+    "why": "A component with multiple reasons to change is fragile — a change for one reason risks breaking the other.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "component has one stated purpose", "weight": 1.0},
+      {"description": "changes cluster around one concern", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "SOLID/SRP",
+    "tags": ["solid", "cohesion"]
+  },
+  {
+    "name": "open-closed",
+    "why": "A component that must be modified to extend is brittle — extension without modification is the design goal.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "new behavior added without modifying existing code", "weight": 1.0},
+      {"description": "extension point exists for the kind of change being made", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "SOLID/OCP",
+    "tags": ["solid", "extensibility"]
+  },
+  {
+    "name": "dependency-inversion",
+    "why": "High-level policy depending on low-level detail inverts the dependency — the detail should conform to the policy.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "high-level module imports from low-level module", "weight": 1.0},
+      {"description": "abstraction depends on detail rather than the reverse", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "SOLID/DIP",
+    "tags": ["solid", "coupling"]
+  },
+  {
+    "name": "interface-segregation",
+    "why": "A consumer forced to depend on methods it does not use couples it to changes in those methods.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "consumer uses a subset of the interface", "weight": 1.0},
+      {"description": "interface has methods irrelevant to this consumer", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "SOLID/ISP",
+    "tags": ["solid", "coupling"]
+  },
+  {
+    "name": "liskov-substitution",
+    "why": "A subtype that surprises callers of the base type breaks the contract the base type advertised.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "subclass overrides method with different semantics", "weight": 1.0},
+      {"description": "subclass strengthens preconditions or weakens postconditions", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "SOLID/LSP",
+    "tags": ["solid", "substitutability"]
+  },
+  {
+    "name": "observer",
+    "why": "One-to-many notification without the subject knowing its observers — decoupling the event source from its consumers.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "component notifies registered listeners of state changes", "weight": 1.0},
+      {"description": "publish-subscribe or callback registration", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "GOF/Observer",
+    "tags": ["gof", "decoupling"]
+  },
+  {
+    "name": "strategy",
+    "why": "Encapsulate a family of algorithms so they are interchangeable — the algorithm varies independently from the client.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "algorithm selected at runtime via injection or configuration", "weight": 1.0},
+      {"description": "multiple implementations behind a common interface", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "GOF/Strategy",
+    "tags": ["gof", "extensibility"]
+  },
+  {
+    "name": "facade",
+    "why": "A unified interface to a subsystem simplifies the caller's world — the complexity is behind the door.",
+    "polarity": "positive",
+    "signals": [
+      {"description": "single entry point wrapping multiple internal components", "weight": 1.0},
+      {"description": "caller interacts with simplified interface", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "GOF/Facade",
+    "tags": ["gof", "simplification"]
+  },
+  {
+    "name": "god-object",
+    "why": "A component that knows or does too much — it attracts changes from every direction and resists decomposition.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "component has many unrelated responsibilities", "weight": 1.0},
+      {"description": "high fan-in from diverse callers", "weight": 0.8},
+      {"description": "file is disproportionately large", "weight": 0.6}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "cohesion"]
+  },
+  {
+    "name": "shotgun-surgery",
+    "why": "A single logical change requires edits scattered across many files — the concern is dispersed, not cohesive.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "one feature change touches many files", "weight": 1.0},
+      {"description": "related logic duplicated across locations", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "cohesion"]
+  },
+  {
+    "name": "feature-envy",
+    "why": "A method that uses another object's data more than its own — the behavior belongs with the data it reads.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "method accesses another module's internals extensively", "weight": 1.0},
+      {"description": "logic belongs closer to the data it operates on", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "coupling"]
+  },
+  {
+    "name": "leaky-abstraction",
+    "why": "An abstraction that forces callers to understand what is behind it — the seam is transparent when it should be opaque.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "caller handles implementation details of the abstraction", "weight": 1.0},
+      {"description": "abstraction exposes internal state or error shapes", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "encapsulation"]
+  },
+  {
+    "name": "circular-dependency",
+    "why": "Two components that depend on each other — changes in either can break the other, and neither can be understood alone.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "module A imports from module B and B imports from A", "weight": 1.0},
+      {"description": "bidirectional coupling between components", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "coupling"]
+  },
+  {
+    "name": "premature-abstraction",
+    "why": "An abstraction built for hypothetical future requirements — it adds complexity without current value.",
+    "polarity": "negative",
+    "signals": [
+      {"description": "abstraction has exactly one implementation", "weight": 1.0},
+      {"description": "interface designed for cases that do not exist yet", "weight": 0.8}
+    ],
+    "scope": "universal",
+    "source": "architectural-smell",
+    "tags": ["smell", "overengineering"]
+  }
+]

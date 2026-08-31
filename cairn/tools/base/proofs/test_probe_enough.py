@@ -62,7 +62,7 @@ class _Shim(BaseShim):
 
 
 def _cb(dial, *, why="gather efficacy for this intention", **kw):
-    return Probe(why=why, trigger=lambda now, ctx: dial["over"], to="dave", **kw)
+    return Probe(why=why, trigger=lambda now, ctx: dial["over"], to="test_recipient", **kw)
 
 
 def _pokes(record):
@@ -185,7 +185,7 @@ def test_the_memory_is_the_shims_and_the_probe_stays_frozen():
 
 def test_a_non_callable_enough_is_refused_at_construction():
     try:
-        Probe(why="w", trigger=lambda now, ctx: True, to="dave", enough=5)
+        Probe(why="w", trigger=lambda now, ctx: True, to="test_recipient", enough=5)
     except TypeError as exc:
         assert "callable" in str(exc), exc
     else:

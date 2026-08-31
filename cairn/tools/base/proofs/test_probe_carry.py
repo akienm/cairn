@@ -57,7 +57,7 @@ ALWAYS = lambda now, ctx: True   # noqa: E731 — a trigger is a predicate, not 
 
 
 def _cb(**kw):
-    return Probe(why="a gate was crossed", trigger=ALWAYS, to="dave", **kw)
+    return Probe(why="a gate was crossed", trigger=ALWAYS, to="test_recipient", **kw)
 
 
 def test_no_carrier_says_only_that_the_line_was_crossed():
@@ -223,7 +223,7 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
 
         def probes(self):
             return [Probe(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
-                             to="dave", carry=by_text("ticket detected at {gate} as {ticket}"))]
+                             to="test_recipient", carry=by_text("ticket detected at {gate} as {ticket}"))]
 
     # An EPHEMERAL transit table this proof owns — the durable bus is shared, so counting a
     # live channel would pin a legitimately-moving value and go red on the second run.
@@ -231,7 +231,7 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
     try:
         shim = _Shim(bus=bus)
         shim.on_pulse(now="2026-07-25", context={**seen, "gate": "PROVEME"})
-        posted = bus.read(to="dave", channel="personal")
+        posted = bus.read(to="test_recipient", channel="personal")
         assert len(posted) == 1, f"one fire, one poke — got {len(posted)}"
         assert posted[0]["body"]["text"] == \
             "ticket detected at PROVEME as {'id': 'T-7', 'gate': 'PROVEME'}", posted[0]["body"]

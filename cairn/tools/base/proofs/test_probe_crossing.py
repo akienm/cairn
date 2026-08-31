@@ -55,7 +55,7 @@ class _Shim(BaseShim):
 
 
 def _cb(dial, *, why="cpu over 90", **kw):
-    return Probe(why=why, trigger=lambda now, ctx: dial["over"], to="dave", **kw)
+    return Probe(why=why, trigger=lambda now, ctx: dial["over"], to="test_recipient", **kw)
 
 
 def _pokes(record):
@@ -134,7 +134,7 @@ def test_a_raising_trigger_does_not_swallow_the_next_poke():
             raise RuntimeError("the reading was unavailable")
         return state["over"]
 
-    shim = _Shim([Probe(why="cpu over 90", trigger=trigger, to="dave")])
+    shim = _Shim([Probe(why="cpu over 90", trigger=trigger, to="test_recipient")])
     first = shim.on_pulse(now="t0")
     assert first["fired"][0]["outcome"] == "refused", "the kick-back is loud and permanent"
     state["boom"] = False

@@ -42,11 +42,25 @@ _LEGIT = 'Path.home() / "dev" / "src" / "aider"'
 
 def _component(root: Path, rel: str) -> Path:
     """The smallest thing the census will call a component: a dir with a charter and a .py."""
+    import json as _json
     d = root / rel
     (d / "proofs").mkdir(parents=True)
-    (d / "intention+why.json").write_text('{"component": "%s"}' % Path(rel).name)
+    rung = Path(rel).parts[0].rstrip("s") if Path(rel).parts[0] in ("tools", "machines", "devices") else "tool"
+    charter = {"component": Path(rel).name, "runtime_role": rung,
+               "learns": "fixture component — does not learn",
+               "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}
+    (d / "intention+why.json").write_text(_json.dumps(charter))
     (d / "proofs" / "test_x.py").write_text("assert True\n")
     (d / "code.py").write_text("def helper():\n    return 1\n")
+    from cairn.machines.build_inspector.inspector import _source_fingerprint
+    fp = _source_fingerprint(d)
+    (d / "validations").mkdir(exist_ok=True)
+    (d / "validations" / "test_x.json").write_text(_json.dumps([{
+        "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
+        "method": "fixture", "verdict": "green",
+        "evidence": {"source_fingerprint": fp},
+        "falsifier": "test", "horizon": "test",
+    }]))
     return d
 
 

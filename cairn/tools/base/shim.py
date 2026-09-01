@@ -441,6 +441,24 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         self._ensure_device()
         return self._device
 
+    def _personal_feed_pane(self) -> dict:
+        """Floor pane: the personal channel projected as a conversation view."""
+        if self._bus is None:
+            return {"kind": "personal_feed", "label": "Chat",
+                    "data": None, "absent": "no bus injected"}
+        try:
+            messages = self._bus.read(to=self.device_id, channel="personal")
+        except Exception as exc:  # noqa: BLE001
+            return {"kind": "personal_feed", "label": "Chat",
+                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
+        turns = [
+            {"sender": m.get("sender", "?"),
+             "date": m.get("date", "?"),
+             "body": m.get("body", {})}
+            for m in messages
+        ]
+        return {"kind": "personal_feed", "label": "Chat", "data": {"turns": turns}}
+
     def active_page(self) -> dict:
         """Assemble the device's ACTIVE page as structured DATA — the STANDARD
         machinery, here in the shim and not in each device (Law 6) and not in the web
@@ -467,6 +485,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             {"kind": "status", "label": "Status",
              "data": {"intention": surface["intention"], "state": surface["state"]}},
             {"kind": "settings", "label": "Settings", "data": surface["settings"]},
+            self._personal_feed_pane(),
         ]
         for desc in dev.declared_panes():
             kind = desc.get("kind")

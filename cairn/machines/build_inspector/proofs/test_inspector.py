@@ -1020,6 +1020,7 @@ def main() -> None:
     from cairn.machines.build_inspector.inspector import history_reach, slate_reach
 
     # Tooth 1 — a component with PROVED-ticket history entries fires
+    # history_reach(root) scans root.rglob("history.json"), tickets via _TICKETS_ROOT
     with scratch_dir("inspector-proof-hr-stale-") as hr_root:
         comp = hr_root / "stale_history"
         comp.mkdir(parents=True)
@@ -1036,8 +1037,7 @@ def main() -> None:
         saved_tr = _insp._TICKETS_ROOT
         try:
             _insp._TICKETS_ROOT = str(hr_root)
-            findings = history_reach(
-                {"component": "stale_history", "dir": "stale_history"}, comp)
+            findings = history_reach(hr_root)
         finally:
             _insp._TICKETS_ROOT = saved_tr
         assert len(findings) == 1, \
@@ -1061,8 +1061,7 @@ def main() -> None:
         saved_tr = _insp._TICKETS_ROOT
         try:
             _insp._TICKETS_ROOT = str(hr_root)
-            findings = history_reach(
-                {"component": "active_history", "dir": "active_history"}, comp)
+            findings = history_reach(hr_root)
         finally:
             _insp._TICKETS_ROOT = saved_tr
         assert findings == [], \
@@ -1072,8 +1071,7 @@ def main() -> None:
     with scratch_dir("inspector-proof-hr-none-") as hr_root:
         comp = hr_root / "no_history"
         comp.mkdir(parents=True)
-        findings = history_reach(
-            {"component": "no_history", "dir": "no_history"}, comp)
+        findings = history_reach(hr_root)
         assert findings == [], \
             f"a component with no history.json must not fire: {findings}"
 

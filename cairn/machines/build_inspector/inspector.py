@@ -2483,61 +2483,67 @@ def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
-def history_reach(row: dict, comp_dir: Path) -> list[dict]:
+def history_reach(root: Path) -> list[dict]:
     """History entries about PROVED tickets — stale history at the working surface.
 
     Provenance: ticket history-reach-feeds-a-migration — Law 5's new bound.
     RULED 2026-08-21: the line is PROVED. A ticket at any active stage is under
     way; only PROVED history has stopped being under way. The measurement IS the
     detector: a finding for stale entries means history should have migrated.
+
+    Not a row-level sieve: the measurement feeds a migration that doesn't exist
+    yet — reddening the component before the migration can act is premature.
+    Called by inspect() after the sieve shake, alongside slate_reach.
     """
-    h = comp_dir / "history.json"
-    if not h.exists():
-        return []
-    try:
-        entries = json.loads(h.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return []
-    if not isinstance(entries, list) or not entries:
-        return []
     tickets_dir = Path(_TICKETS_ROOT).parent / "CairnCommons" / "tickets"
-    stale = 0
-    active = 0
-    unclassifiable = 0
-    for e in entries:
-        if not isinstance(e, dict):
-            continue
-        tid = e.get("ticket")
-        if not isinstance(tid, str) or not tid:
-            unclassifiable += 1
-            continue
-        tfile = tickets_dir / (tid + ".json")
-        if not tfile.is_file():
-            unclassifiable += 1
-            continue
+    findings = []
+    for h in sorted(root.rglob("history.json")):
+        comp_dir = h.parent
+        comp_name = comp_dir.name
         try:
-            tdata = json.loads(tfile.read_text(encoding="utf-8"))
+            entries = json.loads(h.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
-            unclassifiable += 1
             continue
-        state = tdata.get("state", "")
-        if isinstance(state, str) and "[PROVED]" in state:
-            stale += 1
-        else:
-            active += 1
-    if stale == 0:
-        return []
-    total = stale + active + unclassifiable
-    return [_finding(
-        "history_reach", row["component"],
-        "history entries about under-way work only (no stale PROVED-ticket entries)",
-        expected=True, actual=False,
-        stale=stale,
-        active=active,
-        unclassifiable=unclassifiable,
-        total=total,
-        stale_fraction=round(stale / total, 2) if total else 0,
-    )]
+        if not isinstance(entries, list) or not entries:
+            continue
+        stale = 0
+        active = 0
+        unclassifiable = 0
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            tid = e.get("ticket")
+            if not isinstance(tid, str) or not tid:
+                unclassifiable += 1
+                continue
+            tfile = tickets_dir / (tid + ".json")
+            if not tfile.is_file():
+                unclassifiable += 1
+                continue
+            try:
+                tdata = json.loads(tfile.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                unclassifiable += 1
+                continue
+            state = tdata.get("state", "")
+            if isinstance(state, str) and "[PROVED]" in state:
+                stale += 1
+            else:
+                active += 1
+        if stale == 0:
+            continue
+        total = stale + active + unclassifiable
+        findings.append(_finding(
+            "history_reach", comp_name,
+            "history entries about under-way work only (no stale PROVED-ticket entries)",
+            expected=True, actual=False,
+            stale=stale,
+            active=active,
+            unclassifiable=unclassifiable,
+            total=total,
+            stale_fraction=round(stale / total, 2) if total else 0,
+        ))
+    return findings
 
 
 def _source_fingerprint(comp_dir: Path) -> str:
@@ -2925,7 +2931,6 @@ SIEVES = {
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
     "constraint_enforcement_holds": constraint_enforcement_holds,
     "history_integrity": history_integrity,
-    "history_reach": history_reach,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,
@@ -3010,9 +3015,11 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     # the proof record relies on.
     unbuilt = []
     stale_slates = []
+    stale_histories = []
     if component is None:
         unbuilt = unbuilt_intentions(rows, root)
         stale_slates = slate_reach(root)
+        stale_histories = history_reach(root)
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
     record = proof_record(shaken["gradation"], shaken["findings"])
@@ -3029,7 +3036,8 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "findings": shaken["findings"],
         "unbuilt_intentions": unbuilt,
         "stale_slates": stale_slates,
-        "clean": not shaken["findings"] and not unbuilt and not stale_slates,
+        "stale_histories": stale_histories,
+        "clean": not shaken["findings"] and not unbuilt and not stale_slates and not stale_histories,
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

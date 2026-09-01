@@ -116,9 +116,9 @@ def make_root():
                             os.path.join(NESTED_HOME, "nested.py"),
                             os.path.join("cairn", "nowhere", "gone.py")],
                    "unknowns": [], "confidence": 0.8,
-                   "provenance": {"intent": "claude", "domain": "claude",
-                                  "scope": "claude", "refs": "floor",
-                                  "unknowns": "claude"}}, fh)
+                   "provenance": {"intent": "cc", "domain": "cc",
+                                  "scope": "cc", "refs": "floor",
+                                  "unknowns": "cc"}}, fh)
     return root, orient_berth
 
 
@@ -151,8 +151,8 @@ def good_packet(orient_berth):
         "bounds": {"in": ["alpha's gate"], "out": ["beta", "the network"]},
         "unknowns": ["whether beta consumes alpha's output"],
         "confidence": 0.75,
-        "provenance": {"intent_ref": "floor", "constraints": "claude",
-                       "bounds": "claude", "unknowns": "claude"},
+        "provenance": {"intent_ref": "floor", "constraints": "cc",
+                       "bounds": "cc", "unknowns": "cc"},
     }
 
 
@@ -477,7 +477,7 @@ def _floor_true_packet(root, orient_berth):
     # The sender still declares the fields the floor does not author — ``intent_ref`` and
     # ``bounds``. Only the FLOOR_AUTHORED keys are the door's to write, and dropping the
     # rest would leave provenance uncovered, which is a different refusal entirely.
-    p["provenance"] = {"intent_ref": "floor", "bounds": "claude"}
+    p["provenance"] = {"intent_ref": "floor", "bounds": "cc"}
     return p, fl
 
 
@@ -515,12 +515,12 @@ def test_the_floor_label_is_reachable_and_both_mutations_red(root, orient_berth)
     assert constrain_mod.measured_provenance(honest, root=root)["constraints"] == "floor"
 
     dropped = dict(honest, constraints=honest["constraints"][1:])
-    assert constrain_mod.measured_provenance(dropped, root=root)["constraints"] == "claude", \
+    assert constrain_mod.measured_provenance(dropped, root=root)["constraints"] == "cc", \
         "MUTATION A undetected: a floor constraint went missing and the field kept 'floor'"
 
     forged = dict(honest, constraints=honest["constraints"] + [
         {"text": "invented", "source": "base", "kind": "charter"}])
-    assert constrain_mod.measured_provenance(forged, root=root)["constraints"] == "claude", \
+    assert constrain_mod.measured_provenance(forged, root=root)["constraints"] == "cc", \
         "MUTATION B undetected: the ceiling forged a charter-kind constraint the floor " \
         "never produced and wore the floor's label for it"
 
@@ -543,7 +543,7 @@ def test_a_misdeclared_floor_label_is_refused_not_corrected(root, orient_berth):
     p, _ = _floor_true_packet(root, orient_berth)
     lying = dict(p, constraints=p["constraints"][1:],
                  provenance={"intent_ref": "floor", "constraints": "floor",
-                             "bounds": "claude", "unknowns": "claude"})
+                             "bounds": "cc", "unknowns": "cc"})
     try:
         validate_constrain(lying, root=root)
         raise AssertionError("a packet declaring an unreproducible 'floor' passed")

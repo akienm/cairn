@@ -141,8 +141,8 @@ def good_packet(triage_berth):
         ],
         "unknowns": ["whether the splitter's second seam shows up under load"],
         "confidence": 0.7,
-        "provenance": {"triage_ref": "floor", "hypotheses": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"triage_ref": "floor", "hypotheses": "cc",
+                       "unknowns": "cc"},
     }
 
 

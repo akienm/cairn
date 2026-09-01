@@ -91,7 +91,7 @@ def good_packet():
         "refs": ["alpha", "cairn/tools/alpha/intention+why.json"],
         "unknowns": ["whether beta consumes the gated output"],
         "confidence": 0.8,
-        "provenance": {"intent": "claude", "scope": "claude"},
+        "provenance": {"intent": "cc", "scope": "cc"},
     }
 
 
@@ -177,8 +177,8 @@ def test_a_declared_floor_provenance_is_refused_not_believed(root):
     honest = good_packet()
     honest["domain"] = liar["domain"]
     validate_orient(honest, root=root)
-    assert honest["provenance"]["domain"] == "claude", honest["provenance"]
-    assert honest["provenance"]["refs"] == "claude", honest["provenance"]
+    assert honest["provenance"]["domain"] == "cc", honest["provenance"]
+    assert honest["provenance"]["refs"] == "cc", honest["provenance"]
 
 
 def test_floor_authored_fields_earn_floor_by_reproducing(root):
@@ -199,15 +199,15 @@ def test_floor_authored_fields_earn_floor_by_reproducing(root):
     # A REORDER IS NOT AN EDIT. refs is a collection, and calling a shuffle "the ceiling
     # added something" would understate the floor by the cost of a cosmetic difference.
     shuffled = dict(packet, refs=list(reversed(packet["refs"])),
-                    provenance={"intent": "claude", "scope": "claude"})
+                    provenance={"intent": "cc", "scope": "cc"})
     validate_orient(shuffled, root=root)
     assert shuffled["provenance"]["refs"] == "floor", shuffled["provenance"]
 
     # One added ref and it is the ceiling's field again — the whole value, not a fraction.
     widened = dict(packet, refs=list(packet["refs"]) + ["alpha"],
-                   provenance={"intent": "claude", "scope": "claude"})
+                   provenance={"intent": "cc", "scope": "cc"})
     validate_orient(widened, root=root)
-    assert widened["provenance"]["refs"] == "claude", widened["provenance"]
+    assert widened["provenance"]["refs"] == "cc", widened["provenance"]
 
 
 def test_a_packet_without_a_request_cannot_earn_floor(root):
@@ -221,7 +221,7 @@ def test_a_packet_without_a_request_cannot_earn_floor(root):
                  unknowns=fp["unknowns"] or ["nothing ungrounded"])
     del blind["request"]
     validate_orient(blind, root=root)
-    assert set(blind["provenance"][f] for f in FLOOR_AUTHORED) == {"claude"}, \
+    assert set(blind["provenance"][f] for f in FLOOR_AUTHORED) == {"cc"}, \
         blind["provenance"]
 
 

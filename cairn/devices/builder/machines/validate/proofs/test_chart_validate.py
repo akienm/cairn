@@ -150,8 +150,8 @@ def good_packet(hypothesize_berth):
         ],
         "unknowns": ["whether acceptance wants a third, whole-system criterion"],
         "confidence": 0.7,
-        "provenance": {"hypothesize_ref": "floor", "criteria": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"hypothesize_ref": "floor", "criteria": "cc",
+                       "unknowns": "cc"},
     }
 
 

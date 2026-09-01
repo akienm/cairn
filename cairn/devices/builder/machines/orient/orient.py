@@ -320,7 +320,7 @@ def measured_provenance(packet: dict, root: str = CAIRN_ROOT) -> dict:
         if proposed is not None and _survived(packet[field], proposed):
             prov[field] = "floor"
         elif prov.get(field) != "tree":
-            prov[field] = "claude"
+            prov[field] = "cc"
     return prov
 
 

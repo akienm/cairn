@@ -133,8 +133,8 @@ def good_packet(survey_berth):
         ],
         "unknowns": ["whether the splitter needs a second seam"],
         "confidence": 0.7,
-        "provenance": {"survey_ref": "floor", "sub_problems": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"survey_ref": "floor", "sub_problems": "cc",
+                       "unknowns": "cc"},
     }
 
 

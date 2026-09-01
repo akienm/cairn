@@ -65,7 +65,8 @@ from cairn.tools.orient.orient import device_census
 CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 INSTANCE_DIR = str(instance_path("chart", 0) / "packets")
 
-STRATA = ("floor", "tree", "claude")
+STRATA = ("floor", "tree", "cc")
+_STRATA_ACCEPTED = frozenset(STRATA) | {"claude"}
 
 SKELETON = "NOT IN THIS DATA VERSION YET"
 
@@ -399,7 +400,7 @@ def common_shape_record(packet: dict, *, required_fields, authored_fields,
                 expected=sorted(authored_fields),
                 actual=sorted(f for f in authored_fields if f in provenance),
                 lack="provenance does not cover: %s" % ", ".join(uncovered)))
-            bad = sorted(str(s) for s in set(provenance.values()) if s not in STRATA)
+            bad = sorted(str(s) for s in set(provenance.values()) if s not in _STRATA_ACCEPTED)
             record.append(inspected(
                 "provenance_strata_are_known", stage=stage,
                 expected=[], actual=bad,

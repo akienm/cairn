@@ -87,7 +87,7 @@ def _packet(intent="wire the tree stratum into the orient nexus of the chart dev
         # validate_orient now derives those by re-running the floor, and a fixture that
         # declares one gets refused for THAT rather than for the thing the tooth is
         # about, which is how this proof found the change.
-        "provenance": {"intent": "claude", "scope": "claude"},
+        "provenance": {"intent": "cc", "scope": "cc"},
     }
     p.update(over)
     return p
@@ -211,10 +211,10 @@ def test_the_librarians_tools_are_the_only_door():
 def _dial_fixture(tmp: str) -> None:
     packets = [
         ("orient-20260728T100000-aaaaaaaaaaaa.json",
-         {"intent": "claude", "domain": "claude", "scope": "claude",
-          "refs": "floor", "unknowns": "claude"}),          # floor .2 tree .0 claude .8
+         {"intent": "cc", "domain": "cc", "scope": "cc",
+          "refs": "floor", "unknowns": "cc"}),          # floor .2 tree .0 claude .8
         ("orient-20260728T110000-bbbbbbbbbbbb.json",
-         {"intent": "tree", "domain": "tree", "scope": "claude",
+         {"intent": "tree", "domain": "tree", "scope": "cc",
           "refs": "floor", "unknowns": "floor"}),           # floor .4 tree .4 claude .2
         ("orient-20260728T120000-cccccccccccc.json",
          {"intent": "floor", "domain": "tree", "scope": "tree",
@@ -233,9 +233,9 @@ def test_the_dial_reads_exact_fractions_in_time_order():
         series = got["nexi"]["orient"]["series"]
         assert [e["at"] for e in series] == sorted(e["at"] for e in series), \
             "the series is in time order — the stamp rides the filename"
-        assert (series[0]["floor"], series[0]["tree"], series[0]["claude"]) == (0.2, 0.0, 0.8)
-        assert (series[1]["floor"], series[1]["tree"], series[1]["claude"]) == (0.4, 0.4, 0.2)
-        assert (series[2]["floor"], series[2]["tree"], series[2]["claude"]) == (0.4, 0.6, 0.0)
+        assert (series[0]["floor"], series[0]["tree"], series[0]["cc"]) == (0.2, 0.0, 0.8)
+        assert (series[1]["floor"], series[1]["tree"], series[1]["cc"]) == (0.4, 0.4, 0.2)
+        assert (series[2]["floor"], series[2]["tree"], series[2]["cc"]) == (0.4, 0.6, 0.0)
         agg = got["nexi"]["orient"]["aggregate"]
         assert abs(sum(agg.values()) - 1.0) < 1e-9
         assert abs(agg["tree"] - (0.0 + 0.4 + 0.6) / 3) < 1e-9
@@ -293,7 +293,7 @@ def test_tree_is_a_legal_stratum_at_the_packet_gate():
     # one wrong label for another and erase the only stratum the tree walk can claim.
     assert p["provenance"]["domain"] == "tree", p["provenance"]
     assert p["provenance"]["unknowns"] == "tree", p["provenance"]
-    assert p["provenance"]["refs"] == "claude", \
+    assert p["provenance"]["refs"] == "cc", \
         "an undeclared floor-authored field is derived, and this packet carries no request"
 
 

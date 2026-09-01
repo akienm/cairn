@@ -97,9 +97,9 @@ def make_root():
                    "refs": ["cairn/alpha", "cairn/alpha/alpha.py",
                             "tickets/filed.json", "no/such/path.py"],
                    "unknowns": [], "confidence": 0.8,
-                   "provenance": {"intent": "claude", "domain": "claude",
-                                  "scope": "claude", "refs": "floor",
-                                  "unknowns": "claude"}}, fh)
+                   "provenance": {"intent": "cc", "domain": "cc",
+                                  "scope": "cc", "refs": "floor",
+                                  "unknowns": "cc"}}, fh)
     constrain_berth = os.path.join(berth_dir, "constrain-20260728T170001-cafecafecafe.json")
     with open(constrain_berth, "w") as fh:
         json.dump({"intent_ref": orient_berth,
@@ -107,8 +107,8 @@ def make_root():
                                     "kind": "charter"}],
                    "bounds": {"in": ["alpha"], "out": ["beta"]},
                    "unknowns": [], "confidence": 0.75,
-                   "provenance": {"intent_ref": "floor", "constraints": "claude",
-                                  "bounds": "claude", "unknowns": "claude"}}, fh)
+                   "provenance": {"intent_ref": "floor", "constraints": "cc",
+                                  "bounds": "cc", "unknowns": "cc"}}, fh)
     return root, orient_berth, constrain_berth
 
 
@@ -147,9 +147,9 @@ def good_packet(constrain_berth):
                       "measure": "survey tree walk returned no node over the floor"}],
         "unknowns": ["whether beta consumes alpha's output"],
         "confidence": 0.7,
-        "provenance": {"constrain_ref": "floor", "sought": "claude",
-                       "holdings": "floor", "absences": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"constrain_ref": "floor", "sought": "cc",
+                       "holdings": "floor", "absences": "cc",
+                       "unknowns": "cc"},
     }
 
 

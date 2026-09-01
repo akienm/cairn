@@ -127,8 +127,8 @@ def good_packet(decompose_berth):
         ],
         "unknowns": ["whether the splitter's seam question surfaces mid-build"],
         "confidence": 0.7,
-        "provenance": {"decompose_ref": "floor", "order": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"decompose_ref": "floor", "order": "cc",
+                       "unknowns": "cc"},
     }
 
 

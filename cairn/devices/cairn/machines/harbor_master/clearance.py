@@ -815,8 +815,9 @@ def _decide(
         Measured before settling: 16 records already carried an ``actor`` and already
         carried TWO spellings for one mover — ``"CC"`` x12 and ``"claude"`` x4 — because
         nothing had ever gated the field. The majority spelling wins on the ordinary
-        ground that it is what Akien calls this hand. The 4 dissenting records are NOT
-        repaired: they are a record of truth and they were never improper (Law 7).
+        ground that it is what Akien calls this hand. The 4 dissenting records were
+        normalized to ``"CC"`` on 2026-09-01 (Akien: "CC is a valid class name and cc
+        is a valid instance name. i think of you as cc.0").
       - ``boat_id`` — THE TICKET, and since 2026-08-10 also the only thing the gate needs
         in order to know whose boat it is. It is already on every gated crossing, so it
         adds no vocabulary; it names WHICH voyage is moving, and the owner is READ from it.

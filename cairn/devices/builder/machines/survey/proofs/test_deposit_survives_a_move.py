@@ -79,9 +79,9 @@ def base_packet():
                                  "--include=*.py for the successor order: 0 hits"}],
         "unknowns": [],
         "confidence": 0.8,
-        "provenance": {"constrain_ref": "floor", "sought": "claude",
-                       "holdings": "claude", "absences": "claude",
-                       "unknowns": "claude"},
+        "provenance": {"constrain_ref": "floor", "sought": "cc",
+                       "holdings": "cc", "absences": "cc",
+                       "unknowns": "cc"},
     }
 
 

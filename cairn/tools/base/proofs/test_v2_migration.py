@@ -171,7 +171,7 @@ def test_every_v1_boat_on_disk_reaches_a_conforming_v2():
     for p in sorted(_TICKETS.glob("*.json")):
         if p.name.startswith("_"):
             continue
-        w = json.loads(p.read_text(encoding="utf-8")).get("state")
+        w = json.loads(p.read_text(encoding="utf-8")).get("workflow_and_state")
         scanned.append(p)
         if isinstance(w, str) and "@v1:" in w:
             boats.append((p.name, w))
@@ -246,7 +246,7 @@ def test_the_dissolved_state_is_empty_and_nothing_may_enter_it():
             at_learnme.append(p.parent.name)
     for p in sorted(_TICKETS.glob("*.json")):
         if not p.name.startswith("_") and "[LEARNME]" in str(
-                json.loads(p.read_text(encoding="utf-8")).get("state")):
+                json.loads(p.read_text(encoding="utf-8")).get("workflow_and_state")):
             at_learnme.append(p.stem)
 
     assert at_learnme == [], (

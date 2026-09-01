@@ -43,7 +43,7 @@ _TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
 # mechanism teeth must not depend on what any live ticket happens to say today.
 _NODE = {
     "id": "synthetic-for-proof",
-    "state": "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED",
+    "workflow_and_state": "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED",
     "stage_needs": {"BUILDME": [{"need": "the bus device", "marks": []}]},
 }
 

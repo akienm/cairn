@@ -227,6 +227,9 @@ def owning_ticket(name: str, *, tickets_root=None) -> str:
     path = Path(root) / f"{name}.json"
     if path.exists():
         return str(path)
+    hits = list(Path(root).glob(f"*-{name}.json"))
+    if len(hits) == 1:
+        return str(hits[0])
     return ("{unresolvable:" + str(path) + " — the owning ticket is not at this address; it "
             "has migrated beside its code as history, or the name drifted}")
 

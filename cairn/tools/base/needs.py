@@ -101,7 +101,7 @@ def declared_path(node: dict) -> tuple[str, ...]:
     parser. Needs are validated against THIS, not against a list kept here — so the stages a node
     can declare needs for are exactly the stages it actually has (Law 1: the class definition
     already answered 'what stages exist'; a second copy here would be the re-derivation)."""
-    wf = transitions.parse_workflow(node["state"])
+    wf = transitions.parse_workflow(node["workflow_and_state"])
     return wf.path
 
 
@@ -121,14 +121,14 @@ def validate_needs(node: dict, *, node_class_root=transitions._NODE_CLASSES) -> 
     # The class definition is loaded so an unknown class is refused here too, rather than letting a
     # need attach to a stage of a class that has no physics (Law 8).
     transitions.load_class_def(
-        transitions.parse_workflow(node["state"]).node_class, root=node_class_root
+        transitions.parse_workflow(node["workflow_and_state"]).node_class, root=node_class_root
     )
     for stage, needs in block.items():
         if stage not in path:
             raise NeedRefused(
                 f"stage {stage!r} is not in this node's workflow vocabulary {list(path)} — "
                 f"a need cannot attach to a stage the node does not have. "
-                f"(node {node.get('id')!r}, state {node['state'].split('(')[0].strip()!r})"
+                f"(node {node.get('id')!r}, state {node['workflow_and_state'].split('(')[0].strip()!r})"
                 + (_CHART_HINT if isinstance(needs, str) else "")
             )
         if not isinstance(needs, list) or not needs:

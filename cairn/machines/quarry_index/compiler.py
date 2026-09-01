@@ -78,7 +78,7 @@ def _read_json_ticket(path: Path) -> dict | None:
     return {
         "id": data.get("id", path.stem),
         "title": data.get("intention", data.get("title", path.stem))[:200],
-        "status": data.get("status", data.get("state", "unknown"))[:100],
+        "status": data.get("status", data.get("workflow_and_state", data.get("state", "unknown")))[:100],
         "content_hash": _hash(text),
         "path": str(path),
     }

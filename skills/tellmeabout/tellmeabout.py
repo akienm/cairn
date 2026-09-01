@@ -141,7 +141,7 @@ def _present(m: dict) -> dict:
                           "record": rec, "waiting_on": waiting}}
     record = _read_json(m["address"])
     if store == "tickets":
-        cursor = CURSOR.search(str(record.get("state", "")))
+        cursor = CURSOR.search(str(record.get("workflow_and_state", record.get("state", ""))))
         waiting = (f"the {cursor.group(1)} crossing — the bracketed summons on its own cursor"
                    if cursor else "no bracketed cursor readable in its state field — read the record")
     elif store == "troubles":

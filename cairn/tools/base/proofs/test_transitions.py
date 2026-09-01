@@ -187,7 +187,7 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     for t in sorted(tickets_dir.glob("*.json")):
         scanned += 1
         try:
-            state = json.loads(t.read_text()).get("state")
+            state = json.loads(t.read_text()).get("workflow_and_state")
             wf = transitions.parse_workflow(state) if isinstance(state, str) else None
         except (ValueError, OSError):
             rejected += 1

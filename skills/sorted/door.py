@@ -141,7 +141,7 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
         # exemption-under-summons case all live in that one implementation.
         err = None
         if wf is not None:
-            err = watchme_spec_error({"state": workflow, "watchme": watchme})
+            err = watchme_spec_error({"workflow_and_state": workflow, "watchme": watchme})
             if err:
                 lacks.append({"field": "watchme", "why": err})
         else:

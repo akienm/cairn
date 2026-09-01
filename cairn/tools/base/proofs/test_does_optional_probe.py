@@ -112,6 +112,19 @@ def test_the_floor_binds_both_predicates_and_neither_is_redundant():
 
 # --- the corpus itself, read against the live commons -----------------------------------
 
+def _find_ticket(slug: str) -> Path:
+    exact = SUT._TICKETS / (slug + ".json")
+    if exact.is_file():
+        return exact
+    hits = list(SUT._TICKETS.glob(f"*-{slug}.json"))
+    assert len(hits) == 1, f"expected exactly one ticket matching *-{slug}.json, got {len(hits)}"
+    return hits[0]
+
+
+def _is_owning_ticket(stem: str) -> bool:
+    return stem == SUT._OWNING_TICKET or stem.endswith("-" + SUT._OWNING_TICKET)
+
+
 def test_the_owning_ticket_is_not_in_its_own_corpus():
     """MEASURED AGAINST THE REAL COMMONS, as an invariant. The owning ticket must be on file
     AND must carry a watch (else this proves nothing — an absent ticket is excluded for the
@@ -119,7 +132,7 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
     live and legitimately moves, and pinning a moving value is the spurious-red defect."""
     from cairn.tools.base.watchme_spec import workflow_objects
 
-    filed = SUT._TICKETS / (SUT._OWNING_TICKET + ".json")
+    filed = _find_ticket(SUT._OWNING_TICKET)
     assert filed.is_file(), f"the owning ticket is not on file at {filed} — nothing is proved"
     ticket = json.loads(filed.read_text(encoding="utf-8"))
     assert "@v1:" not in ticket["workflow_and_state"], (
@@ -131,7 +144,7 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
 
     surveyed = SUT.survey_the_corpus()
     counted_here = sum(1 for p in sorted(SUT._TICKETS.glob("*.json"))
-                       if not p.name.startswith("_") and p.stem != SUT._OWNING_TICKET
+                       if not p.name.startswith("_") and not _is_owning_ticket(p.stem)
                        and _carries(p))
     assert surveyed["carried"] == counted_here, (
         f"survey counted {surveyed['carried']} carriers; excluding the owning ticket by hand "
@@ -139,13 +152,13 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
 
 
 def _carries(path: Path) -> bool:
-    """Mirrors survey_the_corpus's own tolerance deliberately. A ticket may carry a `state`
+    """Mirrors survey_the_corpus's own tolerance deliberately. A ticket may carry a `workflow_and_state`
     that is not a workflow string at all (`"building"` is on file today), so the parse is
     inside the guard — a corpus this cannot read is not a finding, and a hand-count that
     reds where the survey shrugs would be measuring the proof, not the probe."""
     from cairn.tools.base.watchme_spec import workflow_objects
     try:
-        state = json.loads(path.read_text(encoding="utf-8")).get("state")
+        state = json.loads(path.read_text(encoding="utf-8")).get("workflow_and_state")
         if not isinstance(state, str) or "@v1:" in state:
             return False
         return bool(workflow_objects(state))
@@ -168,7 +181,7 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it():
     proof could pass a probe the door refuses."""
     from cairn.tools.base import watchme_spec
 
-    ticket = json.loads((SUT._TICKETS / (SUT._OWNING_TICKET + ".json")).read_text("utf-8"))
+    ticket = json.loads(_find_ticket(SUT._OWNING_TICKET).read_text("utf-8"))
     assert watchme_spec.watchme_spec_error(ticket) is None
     spec = watchme_spec.spec_for(ticket, "does-optional-mean-never-carried")
     assert spec is not None, "no spec for the object the workflow string names"

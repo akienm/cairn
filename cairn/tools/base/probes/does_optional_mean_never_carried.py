@@ -68,7 +68,7 @@ def survey_the_corpus() -> dict:
 
     carried = declined = 0
     for p in sorted(_TICKETS.glob("*.json")):
-        if p.name.startswith("_") or p.stem == _OWNING_TICKET:
+        if p.name.startswith("_") or p.stem == _OWNING_TICKET or p.stem.endswith("-" + _OWNING_TICKET):
             continue
         try:
             t = json.loads(p.read_text(encoding="utf-8"))

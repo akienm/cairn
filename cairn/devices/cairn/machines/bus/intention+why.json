@@ -31,5 +31,10 @@
   "owner": "CC owns the bus code + its proofs and gates writes to them. The bus owns its transit table (owner `bus`) through db_domain; it is the sole writer of traffic, on behalf of attributed senders.",
   "proof": "proofs/test_bus.py — a message round-trips with its why + causality and in causal order; an unknown channel and a whyless message are refused; a record channel refuses to collapse while a diagnostic channel collapses to count + tail without altering the record; transit is owner-gated through db_domain; device-hood + Form v0 #2 order. Green bare (python3) and green under the tester: `python3 cairn/devices/cairn/machines/bus/proofs/test_bus.py`.",
   "provenance": "Born 2026-07-18 (evening), the first NEW component of the heartbeat+probe+bus rework — built after the design conversation with Akien converged the two-substrate model (the heartbeat and the bus). Built before the ground_loop strip-down and the shim's probe-firing because both fire ONTO the bus: the substrate comes first. Next in the rework: the heartbeat (ground_loop stripped to the pulse), the shim's per-pulse probe-firing, and the system device (system_rackmount) that advertises/serves threshold probes by poking the bus.",
-  "learns": "It does not; it is a message store — it holds and delivers messages without learning from them."
+  "learns": "It does not; it is a message store — it holds and delivers messages without learning from them.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
 }

@@ -67,8 +67,9 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
     d = root / name
     (d / "proofs").mkdir(parents=True)
     if charter:
-        (d / "intention+why.json").write_text(
-            '{"component": "%s", "learns": "fixture component — does not learn"}' % name)
+        (d / "intention+why.json").write_text(json.dumps(
+            {"component": name, "learns": "fixture component — does not learn",
+             "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}))
     if proof:
         (d / "proofs" / "test_x.py").write_text("assert True\n")
     body = "from base import BaseDevice\n\n\nclass D(BaseDevice):\n    def work(self):\n"
@@ -933,6 +934,30 @@ def main() -> None:
     f = inspect(root=root, component="no_learns")["findings"]
     assert [x["method"] for x in f] == ["learning_declared"], \
         f"a charter with no learns key must red exactly learning_declared: {f}"
+
+    # ── claim_provenance (a-claim-carries-its-provenance) ────────────────────
+    # A charter with missing or empty claim_provenance fires; a populated one passes.
+    bad_cp = _component(root, "bad_claim_prov")
+    charter = json.loads((bad_cp / "intention+why.json").read_text())
+    charter["claim_provenance"] = {}
+    (bad_cp / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(bad_cp)
+    f = inspect(root=root, component="bad_claim_prov")["findings"]
+    assert [x["method"] for x in f] == ["claim_provenance"], \
+        f"a charter with empty claim_provenance must red exactly claim_provenance: {f}"
+
+    assert inspect(root=root, component="healthy")["clean"], \
+        "a charter with a populated claim_provenance dict must pass"
+
+    # A charter with no claim_provenance key at all also fires.
+    no_cp = _component(root, "no_claim_prov")
+    charter = json.loads((no_cp / "intention+why.json").read_text())
+    del charter["claim_provenance"]
+    (no_cp / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(no_cp)
+    f = inspect(root=root, component="no_claim_prov")["findings"]
+    assert [x["method"] for x in f] == ["claim_provenance"], \
+        f"a charter with no claim_provenance key must red exactly claim_provenance: {f}"
 
     # ── working_tree_clean (nothing-rides-loose) ────────────────────────────
     # The main fixture is NOT a git repo, so working_tree_clean returns []

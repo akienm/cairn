@@ -488,8 +488,15 @@ def _format_artifact(doc: dict, path: Path) -> str:
     when = (doc.get("when", "") or "")[:19]
     exit_val = doc.get("exit", "?")
 
+    bullets = doc.get("bullets", [])
+    title = ""
+    if bullets and isinstance(bullets[0], dict):
+        title = bullets[0].get("text", "")[:72]
+
     lines.append("=" * width)
     lines.append(f"  ARTIFACT: [{skill}] {bid}")
+    if title:
+        lines.append(f"  {title}")
     lines.append(f"  when: {when}   exit: {exit_val}")
     lines.append(f"  path: {path}")
     lines.append("=" * width)

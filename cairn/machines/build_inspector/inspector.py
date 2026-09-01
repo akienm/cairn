@@ -2605,6 +2605,35 @@ def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
     return findings
 
 
+def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter declares durable_state outside db_domain.
+
+    Provenance: ticket relational-state-goes-through-the-one-door — the data-path
+    face of the sole-path rule. import_sieve catches the DRIVER (psycopg2, sqlite3);
+    this catches the DATA: a charter that says where its durable state lives, and that
+    answer is not db_domain. A charter with no durable_state field passes silently —
+    making the field required is a separate ticket (learning-as-a-pattern).
+    """
+    charter_path = comp_dir / "intention+why.json"
+    if not charter_path.is_file():
+        return []
+    try:
+        charter = json.loads(charter_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    decl = charter.get("durable_state")
+    if not isinstance(decl, str) or not decl.strip():
+        return []
+    if decl.strip().lower() == "db_domain":
+        return []
+    return [_finding(
+        "durable_state_declared", row["component"],
+        "durable state outside db_domain",
+        expected="db_domain", actual=decl,
+        charter=str(charter_path),
+    )]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2632,6 +2661,7 @@ SIEVES = {
     "constraint_enforcement_holds": constraint_enforcement_holds,
     "history_integrity": history_integrity,
     "component_color": component_color,
+    "durable_state_declared": durable_state_declared,
 }
 
 

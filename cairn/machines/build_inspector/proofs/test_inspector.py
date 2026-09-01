@@ -886,6 +886,29 @@ def main() -> None:
     assert inspect(root=root, component="inference_domain")["clean"], \
         "inference_domain IS the door — the mesh's 'only' must spare it"
 
+    # ── durable_state_declared (relational-state-goes-through-the-one-door) ──
+    # A charter declaring durable_state outside db_domain reds; one declaring
+    # db_domain passes; one with no declaration passes silently.
+    bad_ds = _component(root, "bad_durable")
+    charter = json.loads((bad_ds / "intention+why.json").read_text())
+    charter["durable_state"] = "local_file"
+    (bad_ds / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(bad_ds)
+    f = inspect(root=root, component="bad_durable")["findings"]
+    assert [x["method"] for x in f] == ["durable_state_declared"], \
+        f"a charter declaring durable_state: local_file must red exactly durable_state_declared: {f}"
+
+    good_ds = _component(root, "good_durable")
+    charter = json.loads((good_ds / "intention+why.json").read_text())
+    charter["durable_state"] = "db_domain"
+    (good_ds / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(good_ds)
+    assert inspect(root=root, component="good_durable")["clean"], \
+        "a charter declaring durable_state: db_domain must pass"
+
+    assert inspect(root=root, component="healthy")["clean"], \
+        "a charter with no durable_state field must pass silently"
+
     # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
     #
     # BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21). All current

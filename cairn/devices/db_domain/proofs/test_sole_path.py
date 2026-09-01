@@ -36,6 +36,13 @@ RULE = {"kind": "sole_path",
         "modules": DRIVERS,
         "only": "cairn/devices/db_domain/"}
 
+SQLITE_DRIVERS = ("sqlite3",)
+
+SQLITE_RULE = {"kind": "sole_path",
+               "capability": "local relational state outside db_domain",
+               "modules": SQLITE_DRIVERS,
+               "only": "cairn/devices/db_domain/"}
+
 
 def test_db_domain_is_the_only_module_that_can_reach_5432():
     caught = sieve.catches(sieve.import_graph(str(_REPO_ROOT)), RULE)
@@ -67,16 +74,35 @@ def test_a_docstring_about_the_database_is_not_a_door():
     assert sieve.catches(planted, RULE) == [], "prose about the driver was read as a door"
 
 
+def test_sqlite3_sole_path_is_clean_on_the_real_corpus():
+    caught = sieve.catches(sieve.import_graph(str(_REPO_ROOT)), SQLITE_RULE)
+    assert caught == [], (
+        "a module outside db_domain imports sqlite3 — local relational state that bypasses "
+        "the one door. If legitimate, it belongs inside cairn/devices/db_domain/ or this rule "
+        "WITH a reason:\n  " + "\n  ".join(caught))
+
+
+def test_sqlite3_sole_path_reds_on_a_planted_offender():
+    planted = {f"filler/m{i}.py": {"json"} for i in range(25)}
+    planted["cairn/devices/librarian/cache.py"] = sieve.imports_in("import sqlite3")
+    planted["cairn/devices/db_domain/local.py"] = sieve.imports_in("import sqlite3")
+    caught = sieve.catches(planted, SQLITE_RULE)
+    assert len(caught) == 1, f"exactly the rogue, db_domain itself spared: {caught}"
+    assert "cairn/devices/librarian/cache.py" in caught[0]
+
+
 def _main() -> int:
     checks = [
         test_db_domain_is_the_only_module_that_can_reach_5432,
         test_the_tooth_reds_on_a_planted_second_door,
         test_a_docstring_about_the_database_is_not_a_door,
+        test_sqlite3_sole_path_is_clean_on_the_real_corpus,
+        test_sqlite3_sole_path_reds_on_a_planted_offender,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — db_domain: the sole path to 5432 is measured, not assumed")
+    print("green — db_domain: the sole path to durable state (5432 + sqlite3) is measured, not assumed")
     return 0
 
 

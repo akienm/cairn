@@ -249,6 +249,7 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
     if charter:
         (d / "intention+why.json").write_text(json.dumps(
             {"component": name,
+             "runtime_role": "tool",
              "learns": "fixture component — does not learn",
              "claim_provenance": {"role": "test", "what": "test", "why": "test"}}))
         from cairn.machines.build_inspector.inspector import _source_fingerprint

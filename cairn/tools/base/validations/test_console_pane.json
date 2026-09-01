@@ -1,0 +1,46 @@
+[
+  {
+    "claim": "proof test_console_pane.py passes under python3",
+    "caller": "the-console-pane",
+    "date": "2026-09-01T00:42:31",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 10 items\n\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_in_floor_without_bus PASSED [ 10%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_in_floor_without_bus PASSED [ 20%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_shows_info_messages PASSED [ 30%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_shows_debug_messages PASSED [ 40%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_and_debug_do_not_cross PASSED [ 50%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_do_not_alter_channels PASSED [ 60%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_are_not_in_declared_panes PASSED [ 70%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_empty_channels_render_empty_entries PASSED [ 80%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_record_channels_not_in_diagnostic_panes PASSED [ 90%]\ncairn/tools/base/proofs/test_console_pane.py::test_roster_minimum PASSED [100%]\n\n============================== 10 passed in 0.53s ==============================\n\n\u001b[32m10 teeth green\u001b[0m",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "085774310e6a19844697210821a7bbce5ea39bdfb0e8ca6dab890ee1bd386c2d",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-bexsqmi1/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 14,
+          "paths": [
+            "logs/bus/0/20260901.064228.486113.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.499328.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.513352.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.573279.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.587354.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.646000.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.659323.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.672299.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.732252.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.795613.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.855253.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260901.064228.869328.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.883355.BusDevice.post.json",
+            "logs/bus/0/20260901.064228.897298.BusDevice.post.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

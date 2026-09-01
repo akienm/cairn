@@ -159,7 +159,8 @@ def _write_berth(skill: str, payload: dict, door_rec: dict, berth_id: str,
         "when": when.isoformat(),
         "exit": payload.get("exit"),
         "answers": {k: v for k, v in payload.items() if k != "bullets"},
-        "bullets": list(payload.get("bullets") or []),
+        "bullets": [{"text": b} if isinstance(b, str) else b
+                    for b in (payload.get("bullets") or [])],
         "trace_id": door_rec["id"],
         "finding_id": berth_id,
     }

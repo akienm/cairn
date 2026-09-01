@@ -376,8 +376,7 @@ def format_inbox(data: dict) -> str:
                 bullets = (f.get("data", {}) or {}).get("bullets", [])
             lines.append(f"    {bid}  [{skill}]  {when}")
             for b in bullets[:2]:
-                text = b.get("text", "") if isinstance(b, dict) else str(b)
-                lines.append(f"        {text[:90]}")
+                lines.append(f"        {b.get('text', '')[:90]}")
         lines.append(f"  review with: cairn review <id> \"your words\"")
         lines.append(f"  deep view:   cairn operator show artifact <id>")
         lines.append("")
@@ -501,9 +500,7 @@ def _format_artifact(doc: dict, path: Path) -> str:
     if bullets:
         lines.append("BULLETS:")
         for b in bullets:
-            stratum = b.get("stratum", "?") if isinstance(b, dict) else "?"
-            text = b.get("text", "") if isinstance(b, dict) else str(b)
-            lines.append(f"  [{stratum}] {text}")
+            lines.append(f"  [{b.get('stratum', '?')}] {b.get('text', '')}")
         lines.append("")
 
     # Answers — the substantive content

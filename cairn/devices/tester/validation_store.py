@@ -409,4 +409,17 @@ def persist_validation(
         except Exception:  # noqa: BLE001 — see the docstring: the new measurement outranks it
             pass
     _atomic_write(path, [record])
+    if change is not None and record.get("verdict") == "green":
+        identity = f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}"
+        try:
+            if trouble_device is None:
+                from cairn.devices.trouble.trouble import TroubleDevice
+                td = TroubleDevice()
+            else:
+                td = trouble_device
+            td.clear(identity, by="cc",
+                     what_changed=f"re-seal round-trip: {change['from']}→green by "
+                                  f"{record.get('caller', '?')} ({record.get('date', '?')})")
+        except Exception:
+            pass
     return path

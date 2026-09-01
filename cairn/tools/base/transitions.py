@@ -307,7 +307,8 @@ def inspect_emission(obj: str | None, ticket: object) -> list[dict]:
     from cairn.tools.base import watchme_spec
 
     code = "transitions.py::inspect_emission"
-    cast = isinstance(ticket, str) and (_TICKETS / (ticket + ".json")).exists()
+    ticket_file = _find_ticket(ticket) if isinstance(ticket, str) else None
+    cast = ticket_file is not None
     named = f"a cast ticket for the WATCHME({obj}) crossing"
     record = [_lane("the_crossing_names_a_cast_ticket",
                     expected=named,
@@ -315,11 +316,11 @@ def inspect_emission(obj: str | None, ticket: object) -> list[dict]:
                         "no ticket named on the crossing" if not isinstance(ticket, str)
                         else "named %r, and no ticket is cast at that address" % ticket),
                     code=code, ticket=ticket, watch_object=obj,
-                    looked_at=str(_TICKETS / (str(ticket) + ".json")))]
+                    looked_at=str(ticket_file or _TICKETS / (str(ticket) + ".json")))]
     if not cast:
         return record
 
-    data = json.loads((_TICKETS / (ticket + ".json")).read_text(encoding="utf-8"))
+    data = json.loads(ticket_file.read_text(encoding="utf-8"))
     spec = watchme_spec.spec_for(data, obj)
     carried = f"ticket {ticket!r} carries a watchme spec for {obj!r}"
     record.append(_lane("the_ticket_carries_a_spec_for_this_watch",
@@ -752,6 +753,21 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> list[d
 
 _TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
 
+
+def _find_ticket(name: str) -> Path | None:
+    """Resolve a ticket by slug or hex id to its file path, handling hex-slug filenames."""
+    exact = _TICKETS / f"{name}.json"
+    if exact.is_file():
+        return exact
+    hits = list(_TICKETS.glob(f"*-{name}.json"))
+    if len(hits) == 1:
+        return hits[0]
+    hits = list(_TICKETS.glob(f"{name}-*.json"))
+    if len(hits) == 1:
+        return hits[0]
+    return None
+
+
 # THE EXEMPT ROSTER (ticket a-voyage-names-its-ticket, 2026-07-29): call-site
 # component names allowed to cross forward into BUILDME/PROVED with NO ticket
 # named at all. Structure ahead of any real entry — a future exemption is a
@@ -813,13 +829,14 @@ def inspect_named_ticket(target: str, ticket: object, *, history_path: str) -> l
     if ticket is None:
         return record
 
-    cast = isinstance(ticket, str) and (_TICKETS / (ticket + ".json")).exists()
+    ticket_file = _find_ticket(ticket) if isinstance(ticket, str) else None
+    cast = ticket_file is not None
     named = f"named ticket {ticket!r} is cast"
     record.append(_lane("the_named_ticket_is_cast",
                         expected=named,
                         actual=named if cast else f"named ticket {ticket!r} is not cast",
                         code=code, target=target, ticket=ticket,
-                        looked_at=str(_TICKETS / (str(ticket) + ".json"))))
+                        looked_at=str(ticket_file or _TICKETS / (str(ticket) + ".json"))))
     return record
 
 
@@ -858,8 +875,8 @@ def _require_named_ticket(target: str, ticket: object, *,
                 "_EXEMPT_ROSTER explicitly, never silently.",
                 _findings_of(record))
         raise TicketRequiredRed(
-            f"{target} crossing refused: named ticket {ticket!r} is not cast — no file at "
-            f"{_TICKETS / (str(ticket) + '.json')}. A named-but-uncast ticket is an error to "
+            f"{target} crossing refused: named ticket {ticket!r} is not cast — no file matching "
+            f"{ticket!r} in {_TICKETS}. A named-but-uncast ticket is an error to "
             "fix, never an exemption (naming one is a claim to be judged, not waived by "
             "coincidence of address). Cast it via /sorted, or correct the name, then cross "
             "again. Nothing was journaled.",
@@ -969,14 +986,14 @@ def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[di
     import json as _json
 
     code = "transitions.py::_require_demo"
-    ticket_path = _TICKETS / f"{ticket}.json"
-    if not ticket_path.exists():
+    ticket_file = _find_ticket(ticket)
+    if ticket_file is None:
         return (None, [_lane("demo_gate_ticket_readable",
                              expected=f"ticket {ticket!r} exists on disk",
-                             actual=f"ticket file not found at {ticket_path}",
+                             actual=f"ticket file not found matching {ticket!r} in {_TICKETS}",
                              code=code, ticket=ticket)])
 
-    ticket_data = _json.loads(ticket_path.read_text())
+    ticket_data = _json.loads(ticket_file.read_text())
     if not ticket_data.get("demo"):
         return (None, [_lane("demo_gate_binding_check",
                              expected="ticket carries demo flag, or does not",

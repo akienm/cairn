@@ -88,5 +88,6 @@
     "measure": "A launch is a pid. Fires when >= 5 launches reported something AND some finding survived >= 3 separate launches. `preflight: bypassed` is the sharper signal and rides in the carried datum, not the predicate — one bypass is a legitimate rescue, which is what the hatch is for.",
     "proof": "launchers/proofs/test_reported_but_unfixed_probe.py",
     "what_its_first_live_fire_found": "THE TEST SUITE, NOT THE WORLD. The first pulse reported a floor unfixed through twelve launches; the finding was test_bootstrap.py's own fixture, written twelve times because the harness inherited the environment and bootstrap.sh writes to ${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}. The harness now owns its own namespace, and the containment tooth is STRUCTURAL — every child goes through _env() — because the first version grepped for one remembered fixture string and missed six records from the other fixture in the same file."
-  }
+  },
+  "learns": "It does not; launchers are systemd unit files — static configuration."
 }

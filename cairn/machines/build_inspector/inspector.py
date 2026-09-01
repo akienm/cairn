@@ -2634,6 +2634,32 @@ def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+def learning_declared(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter does not answer 'how does this component learn?'
+
+    Provenance: ticket learning-as-a-pattern — every component's charter answers
+    the question; 'it does not, because X' is valid; blank or missing is not.
+    Checks presence and non-emptiness of the 'learns' field only — content
+    quality is not this sieve's jurisdiction.
+    """
+    charter_path = comp_dir / "intention+why.json"
+    if not charter_path.is_file():
+        return []
+    try:
+        charter = json.loads(charter_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    learns = charter.get("learns")
+    if isinstance(learns, str) and learns.strip():
+        return []
+    return [_finding(
+        "learning_declared", row["component"],
+        "charter answers 'how does this component learn?'",
+        expected=True, actual=False,
+        charter=str(charter_path),
+    )]
+
+
 def working_tree_clean(row: dict, comp_dir: Path) -> list[dict]:
     """A component's subtree carries uncommitted changes at a crossing.
 
@@ -2699,6 +2725,7 @@ SIEVES = {
     "history_integrity": history_integrity,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
+    "learning_declared": learning_declared,
     "working_tree_clean": working_tree_clean,
 }
 

@@ -1,18 +1,22 @@
 {
-    "component": "operator_inbox",
-    "role": "charter",
-    "schema_version": "v0",
-    "what": "Deterministic Python script that reads live state and produces the operator inbox — every figure is a measurement taken at runtime, never stored. Sections ordered by expected-emptiness: totals, troubles, email, adjudications, questions, design, tickets, intentions, ideas. Runs as a cairn verb (cairn operator_inbox). Replaces the whatslefttodo LLM skill.",
-    "why": "Because the operator should be able to run one command and see everything that needs attention, with zero stale figures. The old LLM skill re-derived the inbox from scratch every time, could invent counts, and stored data it read — this script cannot report stale data because it stores none. Akien, 2026-08-27: 'this skill should just run a script. and that script should produce the same output... this isn't for CC to prepare in a skill every time from scratch. this is for deterministic python.'",
-    "how_it_learns": "It does not learn — it reads. Each reader calls the source's own API (TroubleDevice().live(), pending_findings(), filesystem globs) and the script assembles the results. A new data source is a new reader function added to the script, not a learned behavior.",
-    "laws": {
-        "law_1": "The script retires the re-derivation of the inbox — the resolver is spent on the novel, not on re-deriving the settled.",
-        "law_3": "Every figure in the output is a live measurement. An unmeasured claim would be a section reporting from stored data.",
-        "law_10": "The script's output IS the observation — every recorded observation is measurement."
-    },
-    "the_naming": "'Operator' not 'Akien' — multi-operator future. 'Adjudications' not 'findings' — findings has two meanings in the system (a finding is also a learning_block record). Section order is a ruling from the 2026-08-27 session: expected-emptiness puts troubles and email at the top.",
-    "filed_edges": [],
-    "gated_by": ["CC", "Akien"],
-    "ticket": "operator-inbox-is-deterministic-python",
-    "invoke": "cairn operator_inbox"
+  "component": "operator_inbox",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "Deterministic Python script that reads live state and produces the operator inbox — every figure is a measurement taken at runtime, never stored. Sections ordered by expected-emptiness: totals, troubles, email, adjudications, questions, design, tickets, intentions, ideas. Runs as a cairn verb (cairn operator_inbox). Replaces the whatslefttodo LLM skill.",
+  "why": "Because the operator should be able to run one command and see everything that needs attention, with zero stale figures. The old LLM skill re-derived the inbox from scratch every time, could invent counts, and stored data it read — this script cannot report stale data because it stores none. Akien, 2026-08-27: 'this skill should just run a script. and that script should produce the same output... this isn't for CC to prepare in a skill every time from scratch. this is for deterministic python.'",
+  "how_it_learns": "It does not learn — it reads. Each reader calls the source's own API (TroubleDevice().live(), pending_findings(), filesystem globs) and the script assembles the results. A new data source is a new reader function added to the script, not a learned behavior.",
+  "laws": {
+    "law_1": "The script retires the re-derivation of the inbox — the resolver is spent on the novel, not on re-deriving the settled.",
+    "law_3": "Every figure in the output is a live measurement. An unmeasured claim would be a section reporting from stored data.",
+    "law_10": "The script's output IS the observation — every recorded observation is measurement."
+  },
+  "the_naming": "'Operator' not 'Akien' — multi-operator future. 'Adjudications' not 'findings' — findings has two meanings in the system (a finding is also a learning_block record). Section order is a ruling from the 2026-08-27 session: expected-emptiness puts troubles and email at the top.",
+  "filed_edges": [],
+  "gated_by": [
+    "CC",
+    "Akien"
+  ],
+  "ticket": "operator-inbox-is-deterministic-python",
+  "invoke": "cairn operator_inbox",
+  "learns": "It does not; it is a message delivery tool with no feedback loop."
 }

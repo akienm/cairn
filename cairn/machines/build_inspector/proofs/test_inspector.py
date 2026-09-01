@@ -67,7 +67,8 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
     d = root / name
     (d / "proofs").mkdir(parents=True)
     if charter:
-        (d / "intention+why.json").write_text('{"component": "%s"}' % name)
+        (d / "intention+why.json").write_text(
+            '{"component": "%s", "learns": "fixture component — does not learn"}' % name)
     if proof:
         (d / "proofs" / "test_x.py").write_text("assert True\n")
     body = "from base import BaseDevice\n\n\nclass D(BaseDevice):\n    def work(self):\n"
@@ -908,6 +909,30 @@ def main() -> None:
 
     assert inspect(root=root, component="healthy")["clean"], \
         "a charter with no durable_state field must pass silently"
+
+    # ── learning_declared (learning-as-a-pattern) ────────────────────────────
+    # A charter with a blank learns field fires; a populated one passes.
+    bad_learn = _component(root, "bad_learns")
+    charter = json.loads((bad_learn / "intention+why.json").read_text())
+    charter["learns"] = ""
+    (bad_learn / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(bad_learn)
+    f = inspect(root=root, component="bad_learns")["findings"]
+    assert [x["method"] for x in f] == ["learning_declared"], \
+        f"a charter with learns: '' must red exactly learning_declared: {f}"
+
+    assert inspect(root=root, component="healthy")["clean"], \
+        "a charter with a populated learns field must pass"
+
+    # A charter with no learns key at all also fires.
+    no_learn = _component(root, "no_learns")
+    charter = json.loads((no_learn / "intention+why.json").read_text())
+    del charter["learns"]
+    (no_learn / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(no_learn)
+    f = inspect(root=root, component="no_learns")["findings"]
+    assert [x["method"] for x in f] == ["learning_declared"], \
+        f"a charter with no learns key must red exactly learning_declared: {f}"
 
     # ── working_tree_clean (nothing-rides-loose) ────────────────────────────
     # The main fixture is NOT a git repo, so working_tree_clean returns []

@@ -327,10 +327,12 @@ def build() -> tuple[str, str]:
         lines.append(f"⚖  ARTIFACTS AWAITING REVIEW — {len(pending)} artifact(s):")
         FULL_BULLETS = 8
         for f in pending[-FULL_BULLETS:]:
+            title = f.get("title", "")
             lines.append(f"   [{f.get('skill', '?')}] {f.get('berth_id', '?')}"
-                         f"  {str(f.get('when', ''))[:19]}")
-            for b in f.get("bullets", []):
-                lines.append(_render(f"· {b.get('text', '')}", "        "))
+                         f"  {title or str(f.get('when', ''))[:19]}")
+            if not title:
+                for b in f.get("bullets", []):
+                    lines.append(_render(f"· {b.get('text', '')}", "        "))
         lines.append(_wrap('review with: cairn review <id> "<your words>"', "   "))
         lines.append("")
 

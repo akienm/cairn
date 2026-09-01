@@ -142,10 +142,12 @@ def _review(args: list[str]) -> int:
             skill = p["skill"]
             when = p["when"][:19] if p["when"] else "?"
             bullets = p.get("bullets", [])
-            print(f"  [{skill}] {bid}  {when}")
-            for b in bullets[:3]:
-                text = b.get("text", "")
-                print(f"       · {text[:80]}")
+            title = p.get("title", "")
+            print(f"  [{skill}] {bid}  {title or when}")
+            if not title:
+                for b in bullets[:3]:
+                    text = b.get("text", "")
+                    print(f"       · {text[:80]}")
         print(f"\nreview with: cairn review <id> \"your words\"")
         return 0
 

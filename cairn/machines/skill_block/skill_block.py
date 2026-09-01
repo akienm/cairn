@@ -153,9 +153,14 @@ def _write_berth(skill: str, payload: dict, door_rec: dict, berth_id: str,
     base.mkdir(parents=True, exist_ok=True)
     stamp = when.strftime("%Y%m%dT%H%M%S")
     path = base / f"{skill}-{stamp}-{uuid.uuid4().hex[:12]}.json"
+    title = (payload.get("title")
+             or payload.get("slate_id")
+             or payload.get("what", "")[:120]
+             or "")
     doc = {
         "skill": skill,
         "block": block_name(skill),
+        "title": str(title).strip(),
         "when": when.isoformat(),
         "exit": payload.get("exit"),
         "answers": {k: v for k, v in payload.items() if k != "bullets"},
@@ -368,6 +373,7 @@ def pending_reviews(*, root: Path | None = None,
             pending.append({
                 "berth_id": doc.get("finding_id"),
                 "skill": doc.get("skill", skill_dir.name),
+                "title": doc.get("title", ""),
                 "when": doc.get("when", ""),
                 "exit": doc.get("exit"),
                 "bullets": doc.get("bullets", []),

@@ -374,9 +374,11 @@ def format_inbox(data: dict) -> str:
             bullets = f.get("bullets", [])
             if not isinstance(bullets, list):
                 bullets = (f.get("data", {}) or {}).get("bullets", [])
-            lines.append(f"    {bid}  [{skill}]  {when}")
-            for b in bullets[:2]:
-                lines.append(f"        {b.get('text', '')[:90]}")
+            title = f.get("title", "")
+            lines.append(f"    {bid}  [{skill}]  {title or when}")
+            if not title:
+                for b in bullets[:2]:
+                    lines.append(f"        {b.get('text', '')[:90]}")
         lines.append(f"  review with: cairn review <id> \"your words\"")
         lines.append(f"  deep view:   cairn operator show artifact <id>")
         lines.append("")
@@ -488,10 +490,7 @@ def _format_artifact(doc: dict, path: Path) -> str:
     when = (doc.get("when", "") or "")[:19]
     exit_val = doc.get("exit", "?")
 
-    bullets = doc.get("bullets", [])
-    title = ""
-    if bullets and isinstance(bullets[0], dict):
-        title = bullets[0].get("text", "")[:72]
+    title = doc.get("title", "")
 
     lines.append("=" * width)
     lines.append(f"  ARTIFACT: [{skill}] {bid}")

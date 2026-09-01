@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.inference_domain.shim import InferenceDomainShim
+shim = InferenceDomainShim()
+print(f'device: {shim.device_id}')
+print(f'class:  cairn/devices/inference_domain/')
+" "$@"

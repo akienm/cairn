@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cc.shim import CCShim
+shim = CCShim()
+print(f'device: {shim.device_id}')
+print(f'class:  cairn/devices/cc/')
+mail = shim.pending_mail()
+print(f'pending mail: {len(mail)}')
+for m in mail[:5]:
+    print(f'  - {m.get(\"subject\", m.get(\"path\", \"?\"))}')
+" "$@"

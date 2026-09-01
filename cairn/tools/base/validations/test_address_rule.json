@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_address_rule.py passes under python3",
-    "caller": "CC",
-    "date": "2026-08-17T21:05:35",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "state-machine-physics-reseal",
+    "date": "2026-08-31T21:50:53",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,17 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ac101a258ebaf5258360638989e344a4fb49d401bd1501a436e5ab0a44f9ebf5"
+      "source_fingerprint": "832ad9d018ed8db58fa4e773ea6881a9aa7a6b2884fd3e03b78d5a0d10930770",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-9v46xcf9/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_watchme_spec.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-19T16:20:45",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "state-machine-physics-reseal",
+    "date": "2026-08-31T22:01:09",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  ok   test_the_real_ticket_corpus_is_not_retro_redded\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n  ok   test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not\n\n14/14 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "d514d098ec27ed6de80e52fe7d1bca3b1862b56c247e9c612274723a2c6504ea",
+      "source_fingerprint": "d2c9d255882a38e9bb636d5e96450d02491836e6a5bfee3a8d3f9e52ac95fe7b",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-sw77cv36/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-7l2b1zw0/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

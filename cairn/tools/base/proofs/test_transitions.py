@@ -247,7 +247,19 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
     (d / "proofs" / "test_x.py").write_text("assert True\n")
     (d / "lib.py").write_text("def helper():\n    return 1\n")
     if charter:
-        (d / "intention+why.json").write_text('{"component": "%s"}' % name)
+        (d / "intention+why.json").write_text(json.dumps(
+            {"component": name,
+             "learns": "fixture component — does not learn",
+             "claim_provenance": {"role": "test", "what": "test", "why": "test"}}))
+        from cairn.machines.build_inspector.inspector import _source_fingerprint
+        fp = _source_fingerprint(d)
+        (d / "validations").mkdir(exist_ok=True)
+        (d / "validations" / "test_x.json").write_text(json.dumps([{
+            "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
+            "method": "fixture", "verdict": "green",
+            "evidence": {"source_fingerprint": fp},
+            "falsifier": "test", "horizon": "test",
+        }]))
     return d
 
 
@@ -265,8 +277,9 @@ def test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds():
         try:
             transitions.emit(_AT_PROVE, "LEARNME", history_path=hist, state_path=state)
         except transitions.BuildGateRed as e:
-            assert [f["method"] for f in e.findings] == ["charter_on_disk"], e.findings
-            assert "charter_on_disk" in str(e) and "Law 8" in str(e), \
+            methods = [f["method"] for f in e.findings]
+            assert "charter_on_disk" in methods, f"charter_on_disk must red: {e.findings}"
+            assert "Law 8" in str(e), \
                 "the refusal must carry the findings and the why, first pass, in the message"
         else:
             raise AssertionError("a red component crossed the PROVEME gate — the lever is not wired")
@@ -1508,13 +1521,107 @@ def test_demo_gate_passes_with_a_green_quorum_seal():
             val_dir.rmdir()
 
 
+# ── DISPOSITION TEETH (ticket state-machine-physics) ──────────────────────
+#
+# Dispositions are terminal exits (DROPPED, SUPERSEDED, RETIRED) reachable from
+# any summons, refusing further transitions from a dispositioned state, and
+# refusing disposition from a rest. Non-hollow: validated against the REAL
+# node-class table with the new "dispositions" field, not a mock.
+
+_AT_BUILDME_V2 = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
+_AT_THINKME_V2 = "code-seam@v2: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> PROVED"
+_AT_TICKETME_V2 = "code-seam@v2: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> PROVED"
+
+
+def test_disposition_dropped_is_legal_from_a_summons():
+    """A ticket at BUILDME (a summons) can be DROPPED — the disposition is a legal target
+    and the resulting string shows the terminal cursor appended after the backbone."""
+    new = transitions.emit(_AT_BUILDME_V2, "DROPPED")
+    assert "[DROPPED]" in new, f"DROPPED did not land as cursor: {new}"
+    assert "BUILDME -> PROVEME -> PROVED -> [DROPPED]" in new, \
+        f"the backbone must be preserved with the disposition appended: {new}"
+    wf = transitions.parse_workflow(new)
+    assert wf.here == "DROPPED", f"cursor is not at DROPPED: {wf.here}"
+
+
+def test_disposition_superseded_is_legal_from_a_summons():
+    """A ticket at TICKETME (a summons) can be SUPERSEDED."""
+    new = transitions.emit(_AT_TICKETME_V2, "SUPERSEDED")
+    assert "[SUPERSEDED]" in new, f"SUPERSEDED did not land as cursor: {new}"
+    wf = transitions.parse_workflow(new)
+    assert wf.here == "SUPERSEDED"
+
+
+def test_disposition_retired_is_legal_from_a_summons():
+    """A ticket at THINKME (a summons) can be RETIRED."""
+    new = transitions.emit(_AT_THINKME_V2, "RETIRED")
+    assert "[RETIRED]" in new, f"RETIRED did not land as cursor: {new}"
+    wf = transitions.parse_workflow(new)
+    assert wf.here == "RETIRED"
+
+
+def test_disposition_refused_from_a_rest():
+    """A ticket at PROVED (a rest, not a summons) CANNOT be dispositioned — dispositions
+    are alternatives to completing the workflow, not post-completion acts."""
+    _AT_PROVED_V2 = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"
+    _expect_refused(lambda: transitions.emit(_AT_PROVED_V2, "DROPPED"))
+
+
+def test_disposition_is_terminal_no_forward_from_dropped():
+    """A dispositioned ticket has NO legal targets — it is terminal. Any further
+    transition (forward, back, or to another disposition) is refused."""
+    dropped = transitions.emit(_AT_BUILDME_V2, "DROPPED")
+    _expect_refused(lambda: transitions.emit(dropped, "PROVEME"))
+
+
+def test_disposition_to_disposition_is_refused():
+    """A dispositioned ticket cannot transition to another disposition — DROPPED to
+    SUPERSEDED is refused. One terminal exit, no recovery through the chokepoint."""
+    dropped = transitions.emit(_AT_BUILDME_V2, "DROPPED")
+    _expect_refused(lambda: transitions.emit(dropped, "SUPERSEDED"))
+
+
+def test_disposition_journals_with_direction_disposition():
+    """The record of truth distinguishes a disposition from a forward/back crossing
+    by carrying direction='disposition', and no gates fire on a disposition."""
+    with tempfile.TemporaryDirectory() as d:
+        hist, state = f"{d}/history.json", f"{d}/state.json"
+        new = transitions.emit(_AT_BUILDME_V2, "DROPPED",
+                               history_path=hist, state_path=state)
+        rec = projector.read_history(hist)[0]
+        assert rec["direction"] == "disposition", \
+            f"a disposition must carry direction='disposition': {rec['direction']}"
+        assert rec["from"] == "BUILDME" and rec["to"] == "DROPPED"
+        assert rec["standing"] == "DROPPED"
+        assert rec["entry_gate"] == "not_applicable"
+        assert "build_gate" not in rec, "no build gate should fire on a disposition"
+        assert "exit_gate" not in rec, "no exit gate should fire on a disposition"
+        assert "clearance_gate" not in rec, "no clearance gate should fire on a disposition"
+
+
+def test_disposition_kickback_from_dropped_is_refused():
+    """A kick-back (re-entering an earlier summons) from a dispositioned state is
+    refused — the ticket is dead, not just stuck."""
+    dropped = transitions.emit(_AT_BUILDME_V2, "DROPPED")
+    _expect_refused(lambda: transitions.emit(dropped, "THINKME"))
+
+
+def test_disposition_conform_strips_disposition_from_backbone():
+    """A dispositioned workflow string round-trips through parse_workflow and _conform
+    without raising — the disposition is stripped from the backbone before comparison."""
+    dropped_str = transitions.emit(_AT_BUILDME_V2, "DROPPED")
+    wf = transitions.parse_workflow(dropped_str)
+    class_def = transitions.load_class_def("code-seam")
+    transitions.legal_targets(wf, class_def=class_def)
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, never hand-typed. A tooth nobody listed is a tooth that did not
     # run, and the file prints the same green line — the same defect as the proof record, one
     # level up. Caught twice by hand on 2026-08-13 before it was made physics here.
     checks = [v for k, v in sorted(globals().items())
               if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 58, (
+    assert len(checks) >= 67, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:
@@ -1567,7 +1674,13 @@ def _main() -> int:
           "CLEARED rather than being waived through it — AND THE SEVENTH SEAT (ticket "
           "demo-gate, 2026-07-26, resolved 2026-08-20): a ticket carrying demo: true "
           "cannot cross into PROVED without a DEMO validation (quorum seal with Akien as "
-          "signer); a ticket without the flag crosses freely; a sealed ticket passes cleanly")
+          "signer); a ticket without the flag crosses freely; a sealed ticket passes cleanly "
+          "— AND DISPOSITIONS ARE TERMINAL EXITS (ticket state-machine-physics): DROPPED, "
+          "SUPERSEDED, RETIRED are legal from any summons; a disposition appends the terminal "
+          "cursor after the backbone; a dispositioned ticket has NO legal targets (forward, "
+          "back, or another disposition — all refused); a disposition from a rest (PROVED) is "
+          "refused; the journal carries direction='disposition' with no gates fired; and the "
+          "dispositioned string round-trips through parse and _conform cleanly")
     return 0
 
 

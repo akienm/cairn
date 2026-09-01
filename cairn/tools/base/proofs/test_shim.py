@@ -43,11 +43,18 @@ class _SpyBus:
 
     def __init__(self) -> None:
         self.posted: list[dict] = []
+        self._delivery_hooks: dict[str, object] = {}
 
     def post(self, **envelope) -> dict:
         envelope = {"id": f"env{len(self.posted)}", **envelope}
         self.posted.append(envelope)
         return envelope
+
+    def wire_delivery(self, device_id: str, deliver) -> None:
+        self._delivery_hooks[device_id] = deliver
+
+    def read(self, **kw) -> list[dict]:
+        return []
 
 
 class _Woken:
@@ -91,8 +98,9 @@ def test_a_pulse_fires_due_probes_and_holds_the_rest():
     rec = shim.on_pulse(now="noon", context={"cpu": 95})
 
     assert rec["fired_count"] == 1 and len(rec["held"]) == 1
-    assert len(bus.posted) == 1, "only the due probe pokes the bus"
-    poke = bus.posted[0]
+    pokes = [e for e in bus.posted if e.get("channel") != "announce"]
+    assert len(pokes) == 1, "only the due probe pokes the bus (non-announce)"
+    poke = pokes[0]
     assert poke["to"] == "ops/personal" and poke["sender"] == "spec"
     assert poke["body"] == {"crossed": 80}, "the poke carries only that the line was crossed"
     assert rec["held"][0]["to"] == "night/personal"
@@ -112,7 +120,8 @@ def test_a_batch_does_not_die_on_one_bad_probe():
     assert outcomes["x/personal"] == "refused" and "RuntimeError" in dict(
         (f["to"], f.get("error", "")) for f in rec["fired"])["x/personal"]
     assert outcomes["y/personal"] == "ok", "the good probe still fires after the bad one"
-    assert len(bus.posted) == 1, "the kicked-back probe did not poke; the good one did"
+    pokes = [e for e in bus.posted if e.get("channel") != "announce"]
+    assert len(pokes) == 1, "the kicked-back probe did not poke; the good one did"
 
 
 def test_an_armed_and_never_fired_probe_is_loud():

@@ -467,6 +467,13 @@ def is_summons(state: str) -> bool:
     return state.endswith("ME")
 
 
+def is_disposition(state: str, class_def: dict) -> bool:
+    """A DISPOSITION is a terminal exit declared at the class level — DROPPED, SUPERSEDED,
+    RETIRED. Not grammar-derived (no suffix rule); class-declared because the vocabulary is
+    a fact about which exits a class offers, not a rule the token's shape can compute."""
+    return state in class_def.get("dispositions", [])
+
+
 @dataclass(frozen=True)
 class Workflow:
     node_class: str
@@ -601,7 +608,8 @@ def _conform(wf: Workflow, class_def: dict) -> dict:
                     f"{wf.node_class}@{wf.version} carries a bare {state!r} at position {i} — a "
                     f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); a watch "
                     f"without an object is inert, and a blank object cannot be checked")
-    backbone = [s for s in wf.path if s not in free]
+    dispositions = set(class_def.get("dispositions", []))
+    backbone = [s for s in wf.path if s not in free and s not in dispositions]
     if backbone != list(reg["path"]):
         raise MalformedWorkflow(
             f"{wf.node_class}@{wf.version} string path {list(wf.path)} does not conform to the "
@@ -627,7 +635,10 @@ def resolve_target(wf: Workflow, target: str) -> int:
     before = [i for i, s in enumerate(wf.path) if s == target and i < wf.cursor]
     if before:
         return before[-1]
-    return wf.path.index(target)
+    try:
+        return wf.path.index(target)
+    except ValueError:
+        return len(wf.path)
 
 
 def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
@@ -638,12 +649,18 @@ def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
     class's ``skippable_summons``; nothing here is stored that the grammar can compute.
     """
     reg = _conform(wf, class_def)
+    dispositions = set(class_def.get("dispositions", []))
+    if wf.here in dispositions:
+        return set()
     skippable = set(reg.get("skippable_summons", []))
     path, i = wf.path, wf.cursor
     targets: set[str] = set()
     # forward — advance, skipping only skippable summonses on the way
     j = i + 1
     while j < len(path):
+        if path[j] in dispositions:
+            j += 1
+            continue
         targets.add(path[j])
         if path[j] in skippable and is_summons(path[j]):
             j += 1
@@ -653,6 +670,9 @@ def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
     for k in range(i):
         if is_summons(path[k]):
             targets.add(path[k])
+    # dispositions — reachable from any summons as terminal exits
+    if is_summons(wf.here):
+        targets.update(dispositions)
     return targets
 
 
@@ -670,13 +690,15 @@ def inspect_rules(wf: Workflow, target: str, *, class_def: dict) -> list[dict]:
     failing entries in three vocabularies — the shape a proof record exists to prevent.
     """
     code = "transitions.py::inspect_rules"
-    known = target in wf.path
+    dispositions = set(class_def.get("dispositions", []))
+    known = target in wf.path or target in dispositions
     vocab = f"{target!r} in the {wf.node_class}@{wf.version} vocabulary"
     record = [_lane("the_target_is_in_the_vocabulary",
                     expected=vocab,
                     actual=vocab if known else
                     f"{target!r} is not in the {wf.node_class}@{wf.version} vocabulary",
-                    code=code, target=target, vocabulary=list(wf.path))]
+                    code=code, target=target, vocabulary=list(wf.path),
+                    dispositions=sorted(dispositions))]
     if not known:
         return record
 
@@ -1422,8 +1444,20 @@ def render(wf: Workflow, target: str) -> str:
     ARRIVAL STAMPS THE PHASE (ruled 2026-08-07): landing on a summons renders it
     ``[X:waiting]`` — the summons is out and nobody has picked it up, and the ticket shows
     that without anyone remembering to write it. Landing on a rest or terminal renders bare.
-    The departed state loses any phase it carried: only the cursor has a pickup in flight."""
+    The departed state loses any phase it carried: only the cursor has a pickup in flight.
+
+    A DISPOSITION TARGET is appended after the backbone — the ticket's full path is preserved
+    (readable) and the cursor at the terminal says 'done, by this exit'. No phase (a
+    disposition summons nobody)."""
     idx = resolve_target(wf, target)
+    if idx >= len(wf.path):
+        states = []
+        for k, s in enumerate(wf.path):
+            obj = wf.objects[k] if k < len(wf.objects) else None
+            tok = f"{s}({obj})" if obj else s
+            states.append(tok)
+        states.append(f"[{target}]")
+        return f"{wf.node_class}@{wf.version}: " + " -> ".join(states)
     return _render_at(wf, idx, "waiting" if is_summons(wf.path[idx]) else None)
 
 
@@ -1467,6 +1501,26 @@ def emit(
     new_str = render(wf, target)
     if history_path and state_path:
         target_idx = resolve_target(wf, target)
+        # DISPOSITION — terminal exit, no gates. A disposition is an ejection from the
+        # workflow, not a completion: it bypasses every gate (build, entry, exit, clearance,
+        # emission, demo) because the work is being abandoned/replaced/retired, not finished.
+        # The record carries direction='disposition' so a reader distinguishes it from
+        # forward/back without inspecting the target token.
+        if is_disposition(target, class_def):
+            record = {
+                "from": wf.here,
+                "to": target,
+                "standing": target,
+                "workflow": new_str,
+                "direction": "disposition",
+                "entry_gate": "not_applicable",
+                "proved": proved,
+                "checks_proved": len(proved),
+                **journal_extra,
+            }
+            record["fingerprint"] = _crossing_fingerprint(record)
+            projector.append_entry(history_path, state_path, record)
+            return new_str
         # THE BUILD GATE: crossing the PROVEME summons forward runs the build_inspector on
         # the component at this crossing's address; a red refuses BEFORE anything is written
         # (a refused move leaves no partial record). Back-edges retreat ungated.

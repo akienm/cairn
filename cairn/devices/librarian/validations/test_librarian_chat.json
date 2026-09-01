@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_librarian_chat.py passes under python3",
-    "caller": "revision-with-receipts voyage close",
-    "date": "2026-08-10T14:27:34",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "CC/loop-reseal",
+    "date": "2026-09-01T04:45:37",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,8 +13,26 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0f8ef2c1fbe6a8231501386e5176083f60a1426fd193185a3e6dfe4205ee79e7",
-      "trail_link": "1da242523dc7867b91159a195cad9a4a13e2c80691624cbcba5ffdaaaed76420"
+      "source_fingerprint": "e050c28347655d2a1a9be4bf1b7ce729a9991c2ac54ed7a83f5adde5cfe22d9e",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-k038ey5g/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 8,
+          "paths": [
+            "devices/librarian/0/last_known.json",
+            "logs/librarian/0/20260901.104533.936559.LibrarianDevice.chat.json",
+            "logs/librarian/0/20260901.104533.951547.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260901.104534.003114.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20260901.104534.003376.LibrarianDevice.chat.json",
+            "logs/librarian/0/20260901.104534.243595.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260901.104534.266450.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20260901.104534.266699.LibrarianDevice.chat.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

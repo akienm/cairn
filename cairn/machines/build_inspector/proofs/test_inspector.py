@@ -1015,6 +1015,115 @@ def main() -> None:
         assert findings == [], \
             f"clean subtree must not fire: {findings}"
 
+    # ── history_reach (history-reach-feeds-a-migration) ──────────────────────
+    # Law 5's new bound: history entries about PROVED tickets are stale.
+    from cairn.machines.build_inspector.inspector import history_reach, slate_reach
+
+    # Tooth 1 — a component with PROVED-ticket history entries fires
+    with scratch_dir("inspector-proof-hr-stale-") as hr_root:
+        comp = hr_root / "stale_history"
+        comp.mkdir(parents=True)
+        tickets_dir = hr_root.parent / "CairnCommons" / "tickets"
+        tickets_dir.mkdir(parents=True, exist_ok=True)
+        (tickets_dir / "proved-ticket.json").write_text(json.dumps({
+            "id": "proved-ticket",
+            "state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+        }))
+        (comp / "history.json").write_text(json.dumps([
+            {"standing": "BUILDME", "ticket": "proved-ticket", "seq": 0},
+            {"standing": "PROVEME", "ticket": "proved-ticket", "seq": 1},
+        ]))
+        saved_tr = _insp._TICKETS_ROOT
+        try:
+            _insp._TICKETS_ROOT = str(hr_root)
+            findings = history_reach(
+                {"component": "stale_history", "dir": "stale_history"}, comp)
+        finally:
+            _insp._TICKETS_ROOT = saved_tr
+        assert len(findings) == 1, \
+            f"a component with PROVED-ticket entries must fire exactly once: {findings}"
+        assert findings[0]["method"] == "history_reach"
+        assert findings[0]["values"]["stale"] == 2
+
+    # Tooth 2 — a component with only active-ticket entries stays quiet
+    with scratch_dir("inspector-proof-hr-active-") as hr_root:
+        comp = hr_root / "active_history"
+        comp.mkdir(parents=True)
+        tickets_dir = hr_root.parent / "CairnCommons" / "tickets"
+        tickets_dir.mkdir(parents=True, exist_ok=True)
+        (tickets_dir / "active-ticket.json").write_text(json.dumps({
+            "id": "active-ticket",
+            "state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
+        }))
+        (comp / "history.json").write_text(json.dumps([
+            {"standing": "BUILDME", "ticket": "active-ticket", "seq": 0},
+        ]))
+        saved_tr = _insp._TICKETS_ROOT
+        try:
+            _insp._TICKETS_ROOT = str(hr_root)
+            findings = history_reach(
+                {"component": "active_history", "dir": "active_history"}, comp)
+        finally:
+            _insp._TICKETS_ROOT = saved_tr
+        assert findings == [], \
+            f"a component with only active-ticket entries must not fire: {findings}"
+
+    # Tooth 3 — a component with no history.json stays quiet
+    with scratch_dir("inspector-proof-hr-none-") as hr_root:
+        comp = hr_root / "no_history"
+        comp.mkdir(parents=True)
+        findings = history_reach(
+            {"component": "no_history", "dir": "no_history"}, comp)
+        assert findings == [], \
+            f"a component with no history.json must not fire: {findings}"
+
+    # ── slate_reach (history-reach-feeds-a-migration) ──────────────────────
+    # Same shape as history at 142:1 — slates about PROVED tickets are stale.
+
+    # Tooth 4 — a slates store with PROVED-ticket slates fires
+    # root.parent.parent / "CairnCommons" must resolve, so: sr_root/repo/cairn
+    with scratch_dir("inspector-proof-sr-stale-") as sr_root:
+        cairn_root = sr_root / "repo" / "cairn"
+        cairn_root.mkdir(parents=True)
+        commons = sr_root / "CairnCommons"
+        sl_dir = commons / "slates"
+        tk_dir = commons / "tickets"
+        sl_dir.mkdir(parents=True)
+        tk_dir.mkdir(parents=True)
+        (tk_dir / "proved-ticket.json").write_text(json.dumps({
+            "id": "proved-ticket",
+            "state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+        }))
+        (sl_dir / "proved-ticket-boundary.json").write_text(json.dumps({
+            "slate_id": "proved-ticket-boundary",
+            "at_sea": "test slate about a proved ticket",
+        }))
+        findings = slate_reach(cairn_root)
+        assert len(findings) == 1, \
+            f"a slates store with PROVED-ticket slates must fire: {findings}"
+        assert findings[0]["values"]["stale"] == 1
+
+    # Tooth 5 — a slates store with only active-ticket slates stays quiet
+    with scratch_dir("inspector-proof-sr-active-") as sr_root:
+        cairn_root = sr_root / "repo" / "cairn"
+        cairn_root.mkdir(parents=True)
+        commons = sr_root / "CairnCommons"
+        sl_dir = commons / "slates"
+        tk_dir = commons / "tickets"
+        sl_dir.mkdir(parents=True)
+        tk_dir.mkdir(parents=True)
+        (tk_dir / "active-ticket.json").write_text(json.dumps({
+            "id": "active-ticket",
+            "state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
+        }))
+        (sl_dir / "active-ticket-boundary.json").write_text(json.dumps({
+            "slate_id": "active-ticket-boundary",
+            "at_sea": "test slate about an active ticket",
+        }))
+        findings = slate_reach(cairn_root)
+        assert findings == [], \
+            f"a slates store with only active-ticket slates must not fire: {findings}"
+
     # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
     #
     # BANDS ARE PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21). All current

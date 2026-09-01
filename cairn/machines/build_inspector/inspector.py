@@ -2483,6 +2483,63 @@ def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def history_reach(row: dict, comp_dir: Path) -> list[dict]:
+    """History entries about PROVED tickets — stale history at the working surface.
+
+    Provenance: ticket history-reach-feeds-a-migration — Law 5's new bound.
+    RULED 2026-08-21: the line is PROVED. A ticket at any active stage is under
+    way; only PROVED history has stopped being under way. The measurement IS the
+    detector: a finding for stale entries means history should have migrated.
+    """
+    h = comp_dir / "history.json"
+    if not h.exists():
+        return []
+    try:
+        entries = json.loads(h.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+    if not isinstance(entries, list) or not entries:
+        return []
+    tickets_dir = Path(_TICKETS_ROOT).parent / "CairnCommons" / "tickets"
+    stale = 0
+    active = 0
+    unclassifiable = 0
+    for e in entries:
+        if not isinstance(e, dict):
+            continue
+        tid = e.get("ticket")
+        if not isinstance(tid, str) or not tid:
+            unclassifiable += 1
+            continue
+        tfile = tickets_dir / (tid + ".json")
+        if not tfile.is_file():
+            unclassifiable += 1
+            continue
+        try:
+            tdata = json.loads(tfile.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            unclassifiable += 1
+            continue
+        state = tdata.get("state", "")
+        if isinstance(state, str) and "[PROVED]" in state:
+            stale += 1
+        else:
+            active += 1
+    if stale == 0:
+        return []
+    total = stale + active + unclassifiable
+    return [_finding(
+        "history_reach", row["component"],
+        "history entries about under-way work only (no stale PROVED-ticket entries)",
+        expected=True, actual=False,
+        stale=stale,
+        active=active,
+        unclassifiable=unclassifiable,
+        total=total,
+        stale_fraction=round(stale / total, 2) if total else 0,
+    )]
+
+
 def _source_fingerprint(comp_dir: Path) -> str:
     import hashlib
     digest = hashlib.sha256()
@@ -2603,6 +2660,70 @@ def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
                 reason="unbuilt lot — red by default (Law 9)",
             ))
     return findings
+
+
+def slate_reach(root: Path) -> list[dict]:
+    """Slates about PROVED tickets — stale continuity records at 142:1.
+
+    Provenance: ticket history-reach-feeds-a-migration — Law 5's new bound.
+    Same shape as history: the slates/ store holds every session's continuity
+    record, the reader loads 1, and the other 141 are invisible weight.
+
+    Not a row-level sieve: slates have no census row. Called by inspect() after
+    the sieve shake, alongside unbuilt_intentions.
+    """
+    commons = root.parent.parent / "CairnCommons"
+    slates_dir = commons / "slates"
+    tickets_dir = commons / "tickets"
+    if not slates_dir.is_dir() or not tickets_dir.is_dir():
+        return []
+    ticket_ids = {tf.stem for tf in tickets_dir.glob("*.json")}
+    stale = 0
+    active = 0
+    unclassifiable = 0
+    total = 0
+    for sf in sorted(slates_dir.glob("*.json")):
+        total += 1
+        name = sf.stem
+        try:
+            data = json.loads(sf.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            unclassifiable += 1
+            continue
+        sid = data.get("slate_id", data.get("id", name))
+        if not isinstance(sid, str):
+            sid = name
+        matched_ticket = None
+        for tid in ticket_ids:
+            if tid in sid or tid in name:
+                matched_ticket = tid
+                break
+        if not matched_ticket:
+            unclassifiable += 1
+            continue
+        tfile = tickets_dir / (matched_ticket + ".json")
+        try:
+            tdata = json.loads(tfile.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            unclassifiable += 1
+            continue
+        state = tdata.get("state", "")
+        if isinstance(state, str) and "[PROVED]" in state:
+            stale += 1
+        else:
+            active += 1
+    if stale == 0:
+        return []
+    return [_finding(
+        "slate_reach", "slates",
+        "slates store carries only active-ticket continuity records",
+        expected=True, actual=False,
+        stale=stale,
+        active=active,
+        unclassifiable=unclassifiable,
+        total=total,
+        stale_fraction=round(stale / total, 2) if total else 0,
+    )]
 
 
 def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
@@ -2804,6 +2925,7 @@ SIEVES = {
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
     "constraint_enforcement_holds": constraint_enforcement_holds,
     "history_integrity": history_integrity,
+    "history_reach": history_reach,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,
@@ -2887,8 +3009,10 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     # not a per-row sieve), so mixing it into findings would break the invariants
     # the proof record relies on.
     unbuilt = []
+    stale_slates = []
     if component is None:
         unbuilt = unbuilt_intentions(rows, root)
+        stale_slates = slate_reach(root)
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
     record = proof_record(shaken["gradation"], shaken["findings"])
@@ -2904,7 +3028,8 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "component_scores": shaken["roll_up"],
         "findings": shaken["findings"],
         "unbuilt_intentions": unbuilt,
-        "clean": not shaken["findings"] and not unbuilt,
+        "stale_slates": stale_slates,
+        "clean": not shaken["findings"] and not unbuilt and not stale_slates,
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

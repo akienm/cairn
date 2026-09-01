@@ -459,6 +459,42 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         ]
         return {"kind": "personal_feed", "label": "Chat", "data": {"turns": turns}}
 
+    def _info_pane(self) -> dict:
+        """Floor pane: the info channel projected as a diagnostic log."""
+        if self._bus is None:
+            return {"kind": "info", "label": "Info",
+                    "data": None, "absent": "no bus injected"}
+        try:
+            messages = self._bus.read(to=self.device_id, channel="info")
+        except Exception as exc:  # noqa: BLE001
+            return {"kind": "info", "label": "Info",
+                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
+        entries = [
+            {"sender": m.get("sender", "?"),
+             "date": m.get("date", "?"),
+             "body": m.get("body", {})}
+            for m in messages
+        ]
+        return {"kind": "info", "label": "Info", "data": {"entries": entries}}
+
+    def _debug_pane(self) -> dict:
+        """Floor pane: the debug channel projected as a diagnostic log."""
+        if self._bus is None:
+            return {"kind": "debug", "label": "Debug",
+                    "data": None, "absent": "no bus injected"}
+        try:
+            messages = self._bus.read(to=self.device_id, channel="debug")
+        except Exception as exc:  # noqa: BLE001
+            return {"kind": "debug", "label": "Debug",
+                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
+        entries = [
+            {"sender": m.get("sender", "?"),
+             "date": m.get("date", "?"),
+             "body": m.get("body", {})}
+            for m in messages
+        ]
+        return {"kind": "debug", "label": "Debug", "data": {"entries": entries}}
+
     def active_page(self) -> dict:
         """Assemble the device's ACTIVE page as structured DATA — the STANDARD
         machinery, here in the shim and not in each device (Law 6) and not in the web
@@ -486,6 +522,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
              "data": {"intention": surface["intention"], "state": surface["state"]}},
             {"kind": "settings", "label": "Settings", "data": surface["settings"]},
             self._personal_feed_pane(),
+            self._info_pane(),
+            self._debug_pane(),
         ]
         for desc in dev.declared_panes():
             kind = desc.get("kind")

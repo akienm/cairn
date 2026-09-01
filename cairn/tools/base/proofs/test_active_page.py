@@ -77,7 +77,7 @@ def test_the_floor_is_always_present_and_pulled_from_introspect():
 
     assert page["device"] == "spec"
     kinds = [p["kind"] for p in page["panes"]]
-    assert kinds == ["status", "settings", "personal_feed"], "a device with no extras gets exactly the floor"
+    assert kinds == ["status", "settings", "personal_feed", "info", "debug"], "a device with no extras gets exactly the floor"
     status = page["panes"][0]["data"]
     assert status["intention"] == dev.intention(), "STATUS carries the reported intention"
     assert status["state"] == dev.state(), "STATUS carries the reported state (drift's reported side)"
@@ -94,18 +94,18 @@ def test_declared_panes_append_in_order_and_multiples_of_a_kind_are_allowed():
 
     kinds = [p["kind"] for p in page["panes"]]
     labels = [p["label"] for p in page["panes"]]
-    assert kinds == ["status", "settings", "personal_feed", "interaction", "interaction", "logging"]
-    assert labels[3:] == ["Chat", "Tools", "Log"], "declared panes keep their order and labels"
-    assert page["panes"][3]["data"] == {"turns": []}, "the chat handler's DATA is carried through"
-    assert page["panes"][4]["data"] == {"tools": ["grep"]}, "two interaction panes, both rendered"
+    assert kinds == ["status", "settings", "personal_feed", "info", "debug", "interaction", "interaction", "logging"]
+    assert labels[5:] == ["Chat", "Tools", "Log"], "declared panes keep their order and labels"
+    assert page["panes"][5]["data"] == {"turns": []}, "the chat handler's DATA is carried through"
+    assert page["panes"][6]["data"] == {"tools": ["grep"]}, "two interaction panes, both rendered"
 
 
 def test_an_offered_pane_with_no_handler_renders_absent():
     dev = _Device(extra_panes=[{"kind": "interaction", "label": "Chat", "handler": None}])
     page = _Shim(dev).active_page()
 
-    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "personal_feed", "interaction"]
-    unwired = page["panes"][3]
+    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "personal_feed", "info", "debug", "interaction"]
+    unwired = page["panes"][5]
     assert unwired["data"] is None and "unwired" in unwired["absent"], "offered-but-unwired is honest empty"
 
 
@@ -118,9 +118,9 @@ def test_a_handler_that_raises_is_absent_with_reason_and_the_page_survives():
     ])
     page = _Shim(dev).active_page()
 
-    bad = page["panes"][3]
+    bad = page["panes"][5]
     assert bad["data"] is None and "RuntimeError" in bad["absent"], "a raising handler is loud + absent (CP2)"
-    good = page["panes"][4]
+    good = page["panes"][6]
     assert good["data"] == {"ok": True}, "the page still assembles the panes AFTER the bad one"
 
 

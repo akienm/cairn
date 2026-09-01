@@ -47,6 +47,7 @@ def _component(root: Path, rel: str) -> Path:
     (d / "proofs").mkdir(parents=True)
     rung = Path(rel).parts[0].rstrip("s") if Path(rel).parts[0] in ("tools", "machines", "devices") else "tool"
     charter = {"component": Path(rel).name, "runtime_role": rung,
+               "gated_by": ["CC"],
                "learns": "fixture component — does not learn",
                "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}
     (d / "intention+why.json").write_text(_json.dumps(charter))

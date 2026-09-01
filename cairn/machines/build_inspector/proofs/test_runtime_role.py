@@ -138,7 +138,70 @@ class TestCensusCarriesRole:
         assert not mismatched, f"census/charter runtime_role mismatches: {mismatched}"
 
 
-ROSTER_MIN = 9
+class TestGatedByDeclaredSieve:
+
+    def test_sieve_fires_on_missing_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool", "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert len(findings) == 1, "sieve should fire on missing gated_by"
+        assert findings[0]["method"] == "gated_by_declared"
+
+    def test_sieve_clean_on_present_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool",
+                    "gated_by": ["CC"], "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert findings == [], "sieve should not fire when gated_by is present"
+
+    def test_sieve_fires_on_empty_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool",
+                    "gated_by": [], "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert len(findings) == 1, "sieve should fire on empty gated_by list"
+
+    def test_sieve_fires_on_non_list_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool",
+                    "gated_by": "CC", "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert len(findings) == 1, "sieve should fire on non-list gated_by"
+
+    def test_sieve_fires_on_empty_string_in_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool",
+                    "gated_by": ["CC", ""], "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert len(findings) == 1, "sieve should fire on empty string in gated_by"
+
+    def test_sieve_clean_on_multi_hand_gated_by(self, tmp_path):
+        charter = {"component": "test_comp", "runtime_role": "tool",
+                    "gated_by": ["Akien", "CC"], "what": "test"}
+        (tmp_path / "intention+why.json").write_text(json.dumps(charter))
+        sys.path.insert(0, str(REPO_ROOT))
+        from cairn.machines.build_inspector.inspector import gated_by_declared
+        row = {"component": "test_comp", "dir": "test/test_comp"}
+        findings = gated_by_declared(row, tmp_path)
+        assert findings == [], "sieve should pass on multi-hand gated_by"
+
+
+ROSTER_MIN = 15
 
 
 def test_roster_minimum():

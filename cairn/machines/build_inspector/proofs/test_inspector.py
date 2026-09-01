@@ -69,6 +69,7 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
     if charter:
         (d / "intention+why.json").write_text(json.dumps(
             {"component": name, "runtime_role": "tool",
+             "gated_by": ["CC"],
              "learns": "fixture component — does not learn",
              "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}))
     if proof:

@@ -2752,6 +2752,32 @@ def runtime_role_declared(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+def gated_by_declared(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter does not declare its gated_by — the hands its owner-gate admits.
+
+    Provenance: ticket an-intention-declares-its-gated-hands — every charter
+    that owns crossings declares which hands the clearance gate admits, so
+    the Law 6 check is physics at every address rather than at the one that
+    needed it first.
+    """
+    charter_path = comp_dir / "intention+why.json"
+    if not charter_path.is_file():
+        return []
+    try:
+        charter = json.loads(charter_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    gb = charter.get("gated_by")
+    if isinstance(gb, list) and gb and all(isinstance(h, str) and h for h in gb):
+        return []
+    return [_finding(
+        "gated_by_declared", row["component"],
+        "charter declares gated_by (list of admitted hands)",
+        expected=True, actual=False,
+        charter=str(charter_path),
+    )]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2783,6 +2809,7 @@ SIEVES = {
     "learning_declared": learning_declared,
     "claim_provenance": claim_provenance,
     "runtime_role_declared": runtime_role_declared,
+    "gated_by_declared": gated_by_declared,
     "working_tree_clean": working_tree_clean,
 }
 

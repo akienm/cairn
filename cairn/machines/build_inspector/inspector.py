@@ -2905,6 +2905,48 @@ def gated_by_declared(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+_DEVICE_ISOLATION = {
+    "kind": "device_isolation",
+    "capability": "no device may import another device (db_domain is the sole exception)",
+    "device_prefix": "",
+    "module_prefix": "cairn.devices.",
+    "exempt": ("db_domain",),
+}
+
+
+def device_isolation_holds(row: dict, comp_dir: Path) -> list[dict]:
+    """A device imports another device. db_domain is the sole exception.
+
+    Provenance: ruling 2026-08-31-no-cross-device-imports, verbatim: 'no device
+    should ever import another device except the database. anybody may talk to our
+    database proxy directly. the only one. no device may import another.'
+
+    Only fires for top-level device rows (dir = devices/<name>). A device's nested
+    machines are under its tree, so their imports are caught here too — attributed to
+    the device they belong to, because the boundary the ruling draws is between devices.
+    """
+    if not row["dir"].startswith("devices/"):
+        return []
+    parts = row["dir"].split("/")
+    if len(parts) != 2:
+        return []
+    graph = import_sieve.import_graph(str(comp_dir.parent))
+    prefix = row["component"] + os.sep
+    findings = []
+    for caught in import_sieve.catches(graph, _DEVICE_ISOLATION, floor=1):
+        path = caught.split(" imports ", 1)[0]
+        if not path.startswith(prefix):
+            continue
+        findings.append(_finding(
+            "device_isolation_holds", row["component"],
+            caught,
+            expected=True, actual=False,
+            rule=dict(_DEVICE_ISOLATION),
+            file=str(comp_dir.parent / path),
+        ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2937,6 +2979,7 @@ SIEVES = {
     "claim_provenance": claim_provenance,
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
+    "device_isolation_holds": device_isolation_holds,
     "working_tree_clean": working_tree_clean,
 }
 

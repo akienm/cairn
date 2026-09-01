@@ -355,7 +355,7 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
             *, sources: dict[str, str] | None = None) -> list[str]:
     """Shake one sieve over the graph and return what its mesh caught.
 
-    Five rule kinds, because the corpus asks five questions and they are not the same
+    Six rule kinds, because the corpus asks six questions and they are not the same
     shape:
 
       sole_path — `modules` may be imported ONLY from inside `only`. This is the domain
@@ -388,10 +388,18 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
                   is flagged OPAQUE — it cannot be cleared or convicted from the AST
                   alone. Requires ``sources={path: source_text}``.
 
+      device_isolation — no file under one device directory may import from another
+                  device's module, except those in ``exempt``. The device set is DISCOVERED
+                  from the graph's own keys — every distinct first path segment under
+                  ``device_prefix`` is a device. ``module_prefix`` is the dotted name that
+                  begins every device's import (e.g. ``cairn.devices.``). Ruling
+                  2026-08-31-no-cross-device-imports: "no device should ever import another
+                  device except the database."
+
     Returns [] when nothing is caught. Raises HollowScan rather than returning [] when
     the graph is too small to have looked at anything — the difference between "clean"
     and "did not run" is the difference this raise exists to keep, and it guards ALL
-    FIVE kinds because it is asked before the kind is: a reachability walk over a
+    SIX kinds because it is asked before the kind is: a reachability walk over a
     half-read tree returns a short closure, and a short closure is clean for the wrong
     reason.
     """
@@ -480,8 +488,34 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
                                 f"{path}:{call['line']} calls {call['callable']} "
                                 f"with {target!r} (contains guarded fragment) — "
                                 f"a subprocess dial to {what}")
+    elif kind == "device_isolation":
+        device_prefix = rule.get("device_prefix", "")
+        module_prefix = rule["module_prefix"]
+        exempt = frozenset(rule.get("exempt", ()))
+        devices: set[str] = set()
+        for path in graph:
+            if device_prefix and not path.startswith(device_prefix):
+                continue
+            rest = path[len(device_prefix):]
+            seg = rest.split(os.sep, 1)[0]
+            if seg and not seg.endswith(".py"):
+                devices.add(seg)
+        for path, imported in sorted(graph.items()):
+            if device_prefix and not path.startswith(device_prefix):
+                continue
+            rest = path[len(device_prefix):]
+            own_device = rest.split(os.sep, 1)[0]
+            if own_device not in devices:
+                continue
+            for other in sorted(devices - {own_device} - exempt):
+                target = module_prefix + other
+                found = sorted(m for m in imported if _matches(m, target))
+                if found:
+                    caught.append(
+                        f"{path} imports {found} — {own_device} may not import "
+                        f"{other}; {what}")
     else:
         raise ValueError(
             f"unknown sieve kind {kind!r} — sole_path, forbidden, unreachable, "
-            f"dynamic_import or subprocess_dial")
+            f"dynamic_import, subprocess_dial or device_isolation")
     return caught

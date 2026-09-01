@@ -438,6 +438,44 @@ def test_subprocess_with_computed_argument_is_opaque():
     assert "OPAQUE" in caught[0], f"the finding must say OPAQUE: {caught[0]}"
 
 
+def test_device_isolation_catches_cross_device_import():
+    """web_server importing from librarian is a second device importing a first. The ruling
+    (2026-08-31) bans it: 'no device should ever import another device except the database.'"""
+    g = _planted(**{
+        "web_server/listener.py": "from cairn.devices.librarian.shim import LibrarianShim",
+        "librarian/shim.py": "SHIM = True",
+    })
+    rule = {"kind": "device_isolation", "capability": "cross-device import",
+            "device_prefix": "", "module_prefix": "cairn.devices.", "exempt": ("db_domain",)}
+    caught = sieve.catches(g, rule, floor=1)
+    assert len(caught) == 1, f"the cross-device import should be caught: {caught}"
+    assert "web_server" in caught[0] and "librarian" in caught[0]
+
+
+def test_device_isolation_spares_the_exempt_device():
+    """db_domain is the sole exception: any device may import it directly."""
+    g = _planted(**{
+        "web_server/store.py": "from cairn.devices.db_domain.domain import get_conn",
+        "db_domain/domain.py": "def get_conn(): pass",
+    })
+    rule = {"kind": "device_isolation", "capability": "cross-device import",
+            "device_prefix": "", "module_prefix": "cairn.devices.", "exempt": ("db_domain",)}
+    caught = sieve.catches(g, rule, floor=1)
+    assert caught == [], f"db_domain import should be spared: {caught}"
+
+
+def test_device_isolation_spares_self_import():
+    """A device importing its own modules is not cross-device."""
+    g = _planted(**{
+        "web_server/listener.py": "from cairn.devices.web_server.chat import handle",
+        "web_server/chat.py": "def handle(): pass",
+    })
+    rule = {"kind": "device_isolation", "capability": "cross-device import",
+            "device_prefix": "", "module_prefix": "cairn.devices.", "exempt": ("db_domain",)}
+    caught = sieve.catches(g, rule, floor=1)
+    assert caught == [], f"self-import should not be caught: {caught}"
+
+
 def _main() -> int:
     checks = [
         test_a_parse_is_not_a_dial,
@@ -472,12 +510,15 @@ def _main() -> int:
         test_subprocess_of_guarded_binary_reds,
         test_subprocess_of_unguarded_binary_passes,
         test_subprocess_with_computed_argument_is_opaque,
+        test_device_isolation_catches_cross_device_import,
+        test_device_isolation_spares_the_exempt_device,
+        test_device_isolation_spares_self_import,
     ]
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
     print(f"green — import_sieve: {len(checks)} teeth; the mesh tells a capability from a "
-          "mention, and a clean sieve from one that never ran")
+          "mention, a clean sieve from one that never ran, and a device from its neighbor")
     return 0
 
 

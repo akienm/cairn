@@ -111,6 +111,8 @@ CHARTER = "intention+why.json"
 # nobody will re-examine when it turns out to be wrong (I-force-the-why-structurally).
 FIELD = "feedback"
 REQUIRED_KEYS = ("to", "why")
+PROBE_REQUIRED_KEYS = ("to", "why")
+VALID_CONSUMERS = ("active", "passive")
 
 # The two ways this corpus constructs a finding. A component that calls either can produce
 # a failure, and that is the whole population that owes a route.
@@ -147,6 +149,64 @@ def declared(component: str, root: str = CAIRN_ROOT) -> dict | None:
     return block if isinstance(block, dict) else None
 
 
+def _normalize_probes(block: dict, component: str) -> list[dict]:
+    """Normalize a feedback block into a list of probe dicts.
+
+    Accepts either the shorthand ``{to, why}`` or the explicit ``{probes: [{to, why, consumer?}, ...]}``
+    shape. Every returned probe carries ``to``, ``why``, and ``consumer`` (defaulting to ``'active'``).
+    """
+    raw = block.get("probes")
+    if raw is not None:
+        if not isinstance(raw, list) or not raw:
+            raise NoRoute(
+                f"{component}'s {FIELD} block carries 'probes' but it is not a non-empty list")
+        entries = raw
+    else:
+        entries = [block]
+
+    normalized = []
+    for i, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise NoRoute(
+                f"{component}'s {FIELD} probe [{i}] is not a dict")
+        missing = [k for k in PROBE_REQUIRED_KEYS if not str(entry.get(k, "")).strip()]
+        if missing:
+            raise NoRoute(
+                f"{component}'s {FIELD} probe [{i}] is missing {missing} — 'to' is the address "
+                "and 'why' is why THAT address and not another")
+        consumer = entry.get("consumer", "active")
+        if consumer not in VALID_CONSUMERS:
+            raise NoRoute(
+                f"{component}'s {FIELD} probe [{i}] has consumer={consumer!r} — "
+                f"must be one of {VALID_CONSUMERS}")
+        normalized.append({"to": entry["to"], "why": entry["why"], "consumer": consumer})
+    return normalized
+
+
+def probes(component: str, root: str = CAIRN_ROOT) -> list[dict]:
+    """The component's declared probes, normalized. Raises NoRoute if it cannot say.
+
+    Every recipient has their own probe (Akien ruling 2026-09-01). A segment that reports
+    to multiple targets declares a probes array; the single-probe shorthand (feedback.to)
+    is sugar for a one-element probes array.
+    """
+    block = declared(component, root)
+    if block is None:
+        raise NoRoute(
+            f"{component} constructs findings but its charter declares no {FIELD!r} — an "
+            "inspector that can fail with nowhere to send it is the defect this tool "
+            "exists to make impossible. Declare "
+            f'{FIELD}: {{"to": "<address>", "why": "<why there>"}}')
+    result = _normalize_probes(block, component)
+    for probe in result:
+        if not resolves(probe["to"], root):
+            raise NoRoute(
+                f"{component} routes its findings to {probe['to']!r}, which does not resolve. "
+                "A destination that is not on disk is indistinguishable from no destination "
+                "the moment anyone tries to deliver to it")
+    return result
+
+
 def resolves(address: str, root: str = CAIRN_ROOT) -> bool:
     """Does this route point at something that EXISTS?
 
@@ -170,30 +230,13 @@ def resolves(address: str, root: str = CAIRN_ROOT) -> bool:
 
 
 def route(component: str, root: str = CAIRN_ROOT) -> str:
-    """Where this component's failing findings go. Raises NoRoute if it cannot say.
+    """Where this component's failing findings go — the FIRST probe's address.
 
-    This is the function every finding-constructor calls, so the charter is the single
-    mouth and no call site gets to spell the destination itself.
+    Backward-compatible: returns one address. For multi-probe components, use probes()
+    to see all targets. This function is the single mouth every finding-constructor calls;
+    the charter declares the destination, no call site gets to spell it.
     """
-    block = declared(component, root)
-    if block is None:
-        raise NoRoute(
-            f"{component} constructs findings but its charter declares no {FIELD!r} — an "
-            "inspector that can fail with nowhere to send it is the defect this tool "
-            "exists to make impossible. Declare "
-            f'{FIELD}: {{"to": "<address>", "why": "<why there>"}}')
-    missing = [k for k in REQUIRED_KEYS if not str(block.get(k, "")).strip()]
-    if missing:
-        raise NoRoute(
-            f"{component}'s {FIELD} block is missing {missing} — 'to' is the address and "
-            "'why' is why THAT address and not another; a route nobody justified is one "
-            "nobody will re-examine when it proves wrong")
-    if not resolves(block["to"], root):
-        raise NoRoute(
-            f"{component} routes its findings to {block['to']!r}, which does not resolve. "
-            "A destination that is not on disk is indistinguishable from no destination "
-            "the moment anyone tries to deliver to it")
-    return block["to"]
+    return probes(component, root)[0]["to"]
 
 
 def _constructs_findings(py: Path) -> bool:
@@ -262,19 +305,20 @@ def corpus_record(root: str = CAIRN_ROOT) -> list[dict]:
     record = []
     for component in producers(root):
         try:
-            where = route(component, root)
+            p = probes(component, root)
         except NoRoute as e:
             record.append(gate.proved(
                 identity="constructs_findings_and_declares_where_they_go",
-                location=component, code="feedback.py:route",
+                location=component, code="feedback.py:probes",
                 expected="a resolvable feedback route", actual="none",
                 source="feedback", lack=str(e)))
         else:
             record.append(gate.proved(
                 identity="constructs_findings_and_declares_where_they_go",
-                location=component, code="feedback.py:route",
+                location=component, code="feedback.py:probes",
                 expected="a resolvable feedback route", actual="a resolvable feedback route",
-                source="feedback", routes_to=where))
+                source="feedback", routes_to=p[0]["to"],
+                probes_to=[{"to": e["to"], "consumer": e["consumer"]} for e in p]))
     return record
 
 
@@ -301,7 +345,13 @@ def _main(argv=None) -> int:
           f"{v['passed']} routed, {v['failed']} with nowhere to send a failure\n")
     for e in record:
         if gate.passed(e):
-            print(f"  routed   {e['location']}  ->  {e['values']['routes_to']}")
+            probes_to = e["values"].get("probes_to", [])
+            if len(probes_to) <= 1:
+                print(f"  routed   {e['location']}  ->  {e['values']['routes_to']}")
+            else:
+                print(f"  routed   {e['location']}")
+                for p in probes_to:
+                    print(f"             -> {p['to']}  ({p['consumer']})")
     for e in record:
         if not gate.passed(e):
             print(f"  NO ROUTE {e['location']}")

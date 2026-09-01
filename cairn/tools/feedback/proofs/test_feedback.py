@@ -37,6 +37,7 @@ red the day anyone adds or converts a component.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -179,7 +180,98 @@ def main() -> int:
               feedback.corpus_record(root) == [],
               "the record must get SHORTER, never cleaner")
 
-    # ── 10. the live corpus — invariants, never today's count ────────────────
+    # ── 10. probes schema: shorthand normalizes to one-element probes list ────
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp)
+        p = feedback.probes("cairn/tools/widget", root)
+        check("probes() on shorthand returns a list",
+              isinstance(p, list) and len(p) == 1, f"got {p}")
+        check("the one probe carries to, why, and consumer=active",
+              p[0] == {"to": "cairn/tools/feedback", "why": "the tool that owns the edge",
+                       "consumer": "active"},
+              f"got {p[0]}")
+
+    # ── 11. probes schema: explicit probes array with consumer field ─────────
+    MULTI = {"probes": [
+        {"to": "cairn/tools/feedback", "why": "edge owner", "consumer": "active"},
+        {"to": "cairn/tools/widget", "why": "passive accumulator", "consumer": "passive"},
+    ]}
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=MULTI)
+        # Widget itself must also resolve for the second probe
+        (Path(root) / "cairn/tools/widget").mkdir(parents=True, exist_ok=True)
+        p = feedback.probes("cairn/tools/widget", root)
+        check("probes() on explicit array returns both probes",
+              len(p) == 2, f"got {len(p)}")
+        check("first probe is active",
+              p[0]["consumer"] == "active" and p[0]["to"] == "cairn/tools/feedback",
+              f"got {p[0]}")
+        check("second probe is passive",
+              p[1]["consumer"] == "passive" and p[1]["to"] == "cairn/tools/widget",
+              f"got {p[1]}")
+
+    # ── 12. consumer defaults to active when omitted ─────────────────────────
+    NO_CONSUMER = {"probes": [
+        {"to": "cairn/tools/feedback", "why": "defaults active"},
+    ]}
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=NO_CONSUMER)
+        p = feedback.probes("cairn/tools/widget", root)
+        check("consumer defaults to 'active' when omitted",
+              p[0]["consumer"] == "active", f"got {p[0]}")
+
+    # ── 13. invalid consumer is refused ──────────────────────────────────────
+    BAD_CONSUMER = {"probes": [
+        {"to": "cairn/tools/feedback", "why": "bad consumer", "consumer": "invalid"},
+    ]}
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=BAD_CONSUMER)
+        e = _expect_red(lambda: feedback.probes("cairn/tools/widget", root))
+        check("an invalid consumer value is refused",
+              e is not None and "invalid" in str(e), f"got {e}")
+
+    # ── 14. route() backward compat on multi-probe returns first address ─────
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=MULTI)
+        (Path(root) / "cairn/tools/widget").mkdir(parents=True, exist_ok=True)
+        check("route() returns the first probe's address for backward compat",
+              feedback.route("cairn/tools/widget", root) == "cairn/tools/feedback",
+              f"got {feedback.route('cairn/tools/widget', root)}")
+
+    # ── 15. corpus_record carries probes_to for multi-probe ──────────────────
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=MULTI)
+        (Path(root) / "cairn/tools/widget").mkdir(parents=True, exist_ok=True)
+        rec = feedback.corpus_record(root)
+        check("corpus_record for a multi-probe producer has probes_to",
+              rec and rec[0].get("values", {}).get("probes_to") is not None,
+              f"got {rec[0] if rec else None}")
+        pt = rec[0]["values"]["probes_to"] if rec else []
+        check("probes_to lists both targets with consumer types",
+              len(pt) == 2
+              and pt[0] == {"to": "cairn/tools/feedback", "consumer": "active"}
+              and pt[1] == {"to": "cairn/tools/widget", "consumer": "passive"},
+              f"got {pt}")
+        check("routes_to still carries the first address for backward compat",
+              rec[0]["values"]["routes_to"] == "cairn/tools/feedback",
+              f"got {rec[0]['values'].get('routes_to')}")
+
+    # ── 16. feedbackmap shows probe-level detail for multi-probe ─────────────
+    import subprocess
+    with tempfile.TemporaryDirectory() as tmp:
+        root = _world(tmp, block=MULTI)
+        (Path(root) / "cairn/tools/widget").mkdir(parents=True, exist_ok=True)
+        env = {**os.environ, "CAIRN_ROOT": root}
+        result = subprocess.run(
+            [sys.executable, "-m", "cairn.tools.feedback.feedback"],
+            capture_output=True, text=True, env=env, cwd=str(Path(feedback.CAIRN_ROOT)))
+        out = result.stdout
+        check("feedbackmap shows both probe targets",
+              "cairn/tools/feedback" in out and "cairn/tools/widget" in out
+              and "active" in out and "passive" in out,
+              f"output:\n{out}")
+
+    # ── 17. the live corpus — invariants, never today's count ────────────────
     live = feedback.producers()
     check("the live corpus has finding-producers (the rule is not vacuous)", bool(live))
     check("every producer names a directory that exists and carries a charter",

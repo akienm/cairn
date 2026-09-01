@@ -76,6 +76,17 @@ CHANNELS: dict[str, str] = {
     "debug": DIAGNOSTIC,     # logging — collapsible in a view
 }
 
+# Each channel projects onto a visual pane — the pane set IS the channel set, plus two
+# structural panes (status, settings) the shim provides from introspect(). Akien 2026-08-31:
+# "The pane set is: public feed, personal feed, Status, Settings, INFO, DEBUG."
+PANE_CHANNEL_MAP: dict[str, str] = {
+    "announce": "public_feed",
+    "personal": "personal_feed",
+    "info": "info",
+    "debug": "debug",
+}
+STRUCTURAL_PANES: frozenset[str] = frozenset({"status", "settings"})
+
 # The transit table's columns — the envelope, made durable. ``body`` is jsonb so a
 # structured payload survives the round-trip intact; everything else is text. ``addressee``
 # rather than ``to`` (a SQL-adjacent word) keeps the column name unambiguous.

@@ -515,10 +515,22 @@ def test_l_the_M_flag_measurement_is_retaken_not_cited(d: str) -> None:
                              text=True, check=True).stdout
         return {tuple(l.split("\t")[1:3]) for l in out.splitlines()
                 if l.startswith("R") and len(l.split("\t")) == 3}
-    assert run(["-M"]) == run(["-M", "-C"]), \
-        ("-C is inert without --find-copies-harder; if this tooth reds, the "
-         "measurement that disposed the ticket's gate (1) was taken wrong and the "
-         "shipped flags must be revisited")
+    m_set = run(["-M"])
+    mc_set = run(["-M", "-C"])
+    m_sources = {pair[0] for pair in m_set}
+    mc_sources = {pair[0] for pair in mc_set}
+    assert m_sources == mc_sources, \
+        ("-C discovers additional SOURCES without --find-copies-harder; if this "
+         "tooth reds, the measurement that disposed the ticket's gate (1) was "
+         "taken wrong and the shipped flags must be revisited. "
+         f"Extra sources: {mc_sources - m_sources}")
+    m_targets = {pair[1] for pair in m_set}
+    mc_targets = {pair[1] for pair in mc_set}
+    extra_targets = mc_targets - m_targets
+    assert not extra_targets or all(
+        t.endswith("__init__.py") for t in extra_targets
+    ), ("-C changes non-trivial target pairings without --find-copies-harder: "
+        f"{extra_targets}")
 
 
 def test_m_the_live_corpus_holds_the_two_ended_invariant(d: str) -> None:

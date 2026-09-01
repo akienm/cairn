@@ -11,13 +11,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cairn.tools.base.address import ROOTS
 from cairn.tools.base.probe import Probe
 
 _SIEVE = "claim_provenance"
-_CAUGHT_MARKER = (Path.home() / ".cairn" / "devices" / "build_inspector"
-                  / "0" / "claim_provenance_caught.json")
-_MISSED_MARKER = (Path.home() / ".cairn" / "devices" / "build_inspector"
-                  / "0" / "claim_provenance_missed.json")
+_BI_INSTANCE = ROOTS["instance"] / "devices" / "build_inspector" / "0"
+_CAUGHT_MARKER = _BI_INSTANCE / "claim_provenance_caught.json"
+_MISSED_MARKER = _BI_INSTANCE / "claim_provenance_missed.json"
 
 
 def _trigger(now, context: dict) -> bool:

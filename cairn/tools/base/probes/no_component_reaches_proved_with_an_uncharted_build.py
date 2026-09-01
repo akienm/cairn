@@ -36,7 +36,7 @@ def _proved_tickets() -> list[dict]:
             t = json.load(open(path))
         except (OSError, ValueError):
             continue
-        state = t.get("state", "")
+        state = t.get("workflow_and_state", "")
         if "[PROVED]" not in state:
             continue
         tid = t.get("id", name.removesuffix(".json"))

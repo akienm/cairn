@@ -64,7 +64,7 @@ def test_register_is_an_index_not_a_rival_record():
     # OPEN: the standing is read from the ticket's OWN state — the bracketed [STAGE], or raw prose.
     for b in reg["open"]:
         ticket = json.loads(_abs(b["source"]).read_text(encoding="utf-8"))
-        state = ticket["state"]
+        state = ticket["workflow_and_state"]
         assert f"[{b['standing']}]" in state or b["standing"] == state.strip(), (
             f"{b['id']}: register standing '{b['standing']}' is not drawn from the ticket's own "
             f"state string — an invented cursor (Law 7)")

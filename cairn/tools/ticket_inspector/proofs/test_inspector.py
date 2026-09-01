@@ -21,14 +21,16 @@ from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 
 CLEAN_TICKET = {
-    "id": "test-clean",
-    "schema_version": "ticket-v1",
-    "state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
+    "id": "a1b2c3d4e5f6",
+    "title": "test-clean",
+    "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
     "intention": "a test intention",
     "why": "a test reason",
-    "falsifier": "a test falsifier",
+    "falsifier": {
+        "proves_green": "the proof gate checks this",
+        "proves_red": "what would show this node wrong",
+    },
     "node_class": "code-seam",
-    "gates": {"proof_gate": "tester", "durability_gate": "git commit"},
     "traces_to": ["Law 3"],
     "how": "build the thing",
     "children": [],
@@ -43,7 +45,7 @@ def test_clean_ticket_is_clean():
 
 
 def test_required_fields():
-    for field in ("id", "state", "intention", "why", "falsifier"):
+    for field in ("id", "title", "workflow_and_state", "intention", "why"):
         t = dict(CLEAN_TICKET)
         t[field] = ""
         ff = inspect_ticket(t)
@@ -51,10 +53,18 @@ def test_required_fields():
         assert "required_fields" in checks, (field, ff)
 
 
-def test_parseable_state():
-    t = dict(CLEAN_TICKET, state="[BUILDME]")
+def test_required_falsifier():
+    t = dict(CLEAN_TICKET)
+    t["falsifier"] = None
     ff = inspect_ticket(t)
-    assert any(f["check"] == "parseable_state" for f in ff), ff
+    checks = [f["check"] for f in ff]
+    assert "required_fields" in checks, ff
+
+
+def test_parseable_workflow_and_state():
+    t = dict(CLEAN_TICKET, workflow_and_state="[BUILDME]")
+    ff = inspect_ticket(t)
+    assert any(f["check"] == "parseable_workflow_and_state" for f in ff), ff
 
 
 def test_sorted_berth_present():
@@ -92,18 +102,23 @@ def test_chart_claim_present():
 
 def test_chart_claim_not_required_at_thinkme():
     t = dict(CLEAN_TICKET,
-             state="code-seam@v2: [THINKME] -> TICKETME -> BUILDME -> PROVED")
+             workflow_and_state="code-seam@v2: [THINKME] -> TICKETME -> BUILDME -> PROVED")
     if "chart_claim" in t:
         del t["chart_claim"]
     ff = inspect_ticket(t)
     assert not any(f["check"] == "chart_claim_present" for f in ff), ff
 
 
-def test_gates_defined():
-    t = dict(CLEAN_TICKET)
-    del t["gates"]
+def test_falsifier_structure():
+    t = dict(CLEAN_TICKET, falsifier={"proves_green": "", "proves_red": "something"})
     ff = inspect_ticket(t)
-    assert any(f["check"] == "gates_defined" for f in ff), ff
+    assert any(f["check"] == "falsifier_structure" for f in ff), ff
+
+
+def test_falsifier_string_accepted():
+    t = dict(CLEAN_TICKET, falsifier="a plain string falsifier")
+    ff = inspect_ticket(t)
+    assert not any(f["check"] == "falsifier_structure" for f in ff), ff
 
 
 def test_node_class_resolves():
@@ -120,14 +135,14 @@ def test_traces_present():
 
 def test_watchme_present():
     t = dict(CLEAN_TICKET,
-             state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED")
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED")
     ff = inspect_ticket(t)
     assert any(f["check"] == "watchme_present" for f in ff), ff
 
 
 def test_watchme_with_spec_is_clean():
     t = dict(CLEAN_TICKET,
-             state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED",
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED",
              watchme={"object": "x", "trigger": "t", "enough": "e",
                       "carrier": "c", "nexus": "n", "consumer": "u",
                       "probe": "p"})
@@ -144,7 +159,7 @@ def test_buildme_has_how():
 
 def test_how_not_required_at_proveme():
     t = dict(CLEAN_TICKET,
-             state="code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED")
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED")
     if "how" in t:
         del t["how"]
     ff = inspect_ticket(t)
@@ -185,20 +200,20 @@ def test_owning_intention_resolves():
     assert any(f["check"] == "owning_intention_resolves" for f in ff), ff
 
 
-def test_state_matches_node_class():
+def test_workflow_matches_node_class():
     t = dict(CLEAN_TICKET,
              node_class="concept-piece",
-             state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVED")
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVED")
     ff = inspect_ticket(t)
-    assert any(f["check"] == "state_matches_node_class" for f in ff), ff
+    assert any(f["check"] == "workflow_matches_node_class" for f in ff), ff
 
 
-def test_state_matches_node_class_clean():
+def test_workflow_matches_node_class_clean():
     t = dict(CLEAN_TICKET,
              node_class="code-seam",
-             state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVED")
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVED")
     ff = inspect_ticket(t)
-    assert not any(f["check"] == "state_matches_node_class" for f in ff), ff
+    assert not any(f["check"] == "workflow_matches_node_class" for f in ff), ff
 
 
 def test_roster_coverage():
@@ -206,15 +221,15 @@ def test_roster_coverage():
     fired = set()
     fixtures = [
         dict(CLEAN_TICKET, id=""),
-        dict(CLEAN_TICKET, state="[BUILDME]"),
+        dict(CLEAN_TICKET, workflow_and_state="[BUILDME]"),
         {**{k: v for k, v in CLEAN_TICKET.items() if k != "sorted_berth"}},
         {**{k: v for k, v in CLEAN_TICKET.items() if k != "intent_berth"}},
         {**{k: v for k, v in CLEAN_TICKET.items() if k != "chart_claim"}},
-        {**{k: v for k, v in CLEAN_TICKET.items() if k != "gates"}},
+        dict(CLEAN_TICKET, falsifier={"proves_green": "", "proves_red": "x"}),
         dict(CLEAN_TICKET, node_class="nonexistent-xyz"),
         dict(CLEAN_TICKET, traces_to=[]),
         dict(CLEAN_TICKET,
-             state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED"),
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED"),
         {**{k: v for k, v in CLEAN_TICKET.items() if k != "how"}},
         dict(CLEAN_TICKET, children="prose children"),
         dict(CLEAN_TICKET, children=["no-such-child-ticket-xyz"]),

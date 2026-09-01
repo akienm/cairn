@@ -656,7 +656,7 @@ def riders_of(intention: str, *, tickets_dir: str = TICKETS_DIR,
         except (ValueError, OSError) as exc:
             unreadable.append((name, f"unreadable ticket: {exc}"))
             continue
-        boat_id, state = ticket.get("id"), ticket.get("state")
+        boat_id, state = ticket.get("id"), ticket.get("workflow_and_state")
         if not boat_id or not isinstance(state, str):
             continue                    # not a boat (the folder's own schema doc) — the
                                         # register's rule for what a boat IS, composed

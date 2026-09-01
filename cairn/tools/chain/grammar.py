@@ -84,6 +84,7 @@ def is_skeleton(value) -> bool:
     return False
 
 _TICKET_RE = re.compile(r"^[a-z][a-z0-9-]*$")
+_HEX_ID_RE = re.compile(r"^[0-9a-f]{12}$")
 
 _ROSTER_MEMO: dict[str, list[str]] = {}
 
@@ -245,12 +246,25 @@ def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
     which file that is (ticket watchme-emits-a-probe piece (d), which taught the
     verdict door to read a ticket's falsifier). Returns the path for a
     well-formed claim naming a filed ticket, else None — the None carries both
-    'malformed' and 'not on file', because the caller's refusal is the same."""
-    if not isinstance(claim, str) or not _TICKET_RE.match(claim):
+    'malformed' and 'not on file', because the caller's refusal is the same.
+
+    Accepts both slug claims (old: slug.json) and hex id claims (new:
+    hex-slug.json). A hex id is looked up by glob."""
+    if not isinstance(claim, str):
         return None
-    filed = os.path.join(os.path.dirname(root), "CairnCommons", "tickets",
-                         claim + ".json")
-    return filed if os.path.isfile(filed) else None
+    tickets_dir = os.path.join(os.path.dirname(root), "CairnCommons", "tickets")
+    if _HEX_ID_RE.match(claim):
+        import glob as _glob
+        matches = _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))
+        return matches[0] if matches else None
+    if not _TICKET_RE.match(claim):
+        return None
+    filed = os.path.join(tickets_dir, claim + ".json")
+    if os.path.isfile(filed):
+        return filed
+    import glob as _glob
+    matches = _glob.glob(os.path.join(tickets_dir, "*-" + claim + ".json"))
+    return matches[0] if matches else None
 
 
 def ticket_claim_error(packet: dict, root: str = CAIRN_ROOT) -> str | None:

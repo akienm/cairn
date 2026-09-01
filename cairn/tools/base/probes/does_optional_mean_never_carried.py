@@ -72,7 +72,7 @@ def survey_the_corpus() -> dict:
             continue
         try:
             t = json.loads(p.read_text(encoding="utf-8"))
-            state = t.get("state")
+            state = t.get("workflow_and_state")
             if not isinstance(state, str) or "@v1:" in state:
                 continue
             if workflow_objects(state):

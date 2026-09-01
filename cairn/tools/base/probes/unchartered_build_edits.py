@@ -47,7 +47,7 @@ def _proved_tickets_with_chains() -> list[dict]:
             t = json.load(open(path))
         except (OSError, ValueError):
             continue
-        state = t.get("state", "")
+        state = t.get("workflow_and_state", "")
         if "[PROVED]" not in state:
             continue
         chart_claim = t.get("chart_claim")

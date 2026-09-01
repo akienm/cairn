@@ -61,7 +61,7 @@ def _spec(obj, **over):
 
 
 def test_a_v1_ticket_is_exempt_by_the_version_rule():
-    assert ws.watchme_spec_error({"state": _V1}) is None, \
+    assert ws.watchme_spec_error({"workflow_and_state": _V1}) is None, \
         "v1's vocabulary has no WATCHME, so the obligation cannot attach — this is the rule " \
         "that keeps every open boat crossable"
 
@@ -69,29 +69,29 @@ def test_a_v1_ticket_is_exempt_by_the_version_rule():
 def test_a_pre_workflow_string_ticket_is_exempt_too():
     """The three that RED on the first real sweep. A bare word claims no version at all."""
     for state in ("building", "validated", ""):
-        assert ws.watchme_spec_error({"state": state}) is None, state
+        assert ws.watchme_spec_error({"workflow_and_state": state}) is None, state
     assert ws.watchme_spec_error({}) is None, "a ticket with no state field is not this " \
         "module's verdict to give either"
 
 
 def test_a_v2_ticket_that_carries_no_watch_must_say_none_because():
-    err = ws.watchme_spec_error({"state": _V2_BARE})
+    err = ws.watchme_spec_error({"workflow_and_state": _V2_BARE})
     assert err and "none, because" in err, err
     assert ws.watchme_spec_error(
-        {"state": _V2_BARE, "watchme": "none, because this seam has no efficacy question a "
+        {"workflow_and_state": _V2_BARE, "watchme": "none, because this seam has no efficacy question a "
                                        "probe could answer — its proof IS the measure"}) is None
-    assert ws.watchme_spec_error({"state": _V2_BARE, "watchme": "none"}), \
+    assert ws.watchme_spec_error({"workflow_and_state": _V2_BARE, "watchme": "none"}), \
         "'none' without a because is the silence the rule exists to refuse"
 
 
 def test_a_carried_watch_with_a_complete_spec_passes():
-    t = {"state": _V2_WATCH,
+    t = {"workflow_and_state": _V2_WATCH,
          "watchme": [_spec("does-the-emission-gate-fire-in-anger")]}
     assert ws.watchme_spec_error(t) is None, ws.watchme_spec_error(t)
 
 
 def test_a_carried_watch_with_no_spec_is_refused():
-    err = ws.watchme_spec_error({"state": _V2_WATCH})
+    err = ws.watchme_spec_error({"workflow_and_state": _V2_WATCH})
     assert "mandatory to satisfy once carried" in err, err
     assert "does-the-emission-gate-fire-in-anger" in err, \
         "the refusal names WHICH watch is unspecified — a refusal you must go looking for is " \
@@ -102,7 +102,7 @@ def test_a_missing_field_is_named_and_so_is_every_other_one():
     """Complete diagnostic on the FIRST pass — never re-run the check to find the next fault."""
     bad = _spec("does-the-emission-gate-fire-in-anger", nexus="", consumer=None)
     del bad["enough"]
-    err = ws.watchme_spec_error({"state": _V2_WATCH, "watchme": [bad]})
+    err = ws.watchme_spec_error({"workflow_and_state": _V2_WATCH, "watchme": [bad]})
     for field in ("enough", "nexus", "consumer"):
         assert field in err, f"{field} missing from {err!r}"
     assert "trigger" not in err.split("the five are")[0], \
@@ -112,22 +112,22 @@ def test_a_missing_field_is_named_and_so_is_every_other_one():
 def test_a_spec_with_no_berth_cannot_be_gated():
     bad = _spec("does-the-emission-gate-fire-in-anger")
     del bad["probe"]
-    err = ws.watchme_spec_error({"state": _V2_WATCH, "watchme": [bad]})
+    err = ws.watchme_spec_error({"workflow_and_state": _V2_WATCH, "watchme": [bad]})
     assert "probe" in err and "path" in err, err
 
 
 def test_two_watches_need_two_specs_joined_by_object():
-    one = {"state": _V2_TWO, "watchme": [_spec("does-the-gate-fire")]}
+    one = {"workflow_and_state": _V2_TWO, "watchme": [_spec("does-the-gate-fire")]}
     err = ws.watchme_spec_error(one)
     assert "does-anyone-read-the-verdict" in err and "does-the-gate-fire" not in err, err
-    both = {"state": _V2_TWO,
+    both = {"workflow_and_state": _V2_TWO,
             "watchme": [_spec("does-the-gate-fire"), _spec("does-anyone-read-the-verdict")]}
     assert ws.watchme_spec_error(both) is None, ws.watchme_spec_error(both)
 
 
 def test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry():
     """The other direction. Checking only one side lets the pair rot in the unchecked half."""
-    t = {"state": _V2_WATCH,
+    t = {"workflow_and_state": _V2_WATCH,
          "watchme": [_spec("does-the-emission-gate-fire-in-anger"),
                      _spec("something-nobody-is-watching")]}
     err = ws.watchme_spec_error(t)
@@ -137,16 +137,16 @@ def test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry():
 def test_a_spec_that_names_no_object_describes_nothing():
     nameless = _spec("x")
     del nameless["object"]
-    err = ws.watchme_spec_error({"state": _V2_WATCH, "watchme": [nameless]})
+    err = ws.watchme_spec_error({"workflow_and_state": _V2_WATCH, "watchme": [nameless]})
     assert "join key" in err, err
-    dupes = {"state": _V2_WATCH,
+    dupes = {"workflow_and_state": _V2_WATCH,
              "watchme": [_spec("does-the-emission-gate-fire-in-anger"),
                          _spec("does-the-emission-gate-fire-in-anger", nexus="triage")]}
     assert "exactly one spec" in ws.watchme_spec_error(dupes)
 
 
 def test_a_lone_dict_is_read_as_one_spec():
-    t = {"state": _V2_WATCH, "watchme": _spec("does-the-emission-gate-fire-in-anger")}
+    t = {"workflow_and_state": _V2_WATCH, "watchme": _spec("does-the-emission-gate-fire-in-anger")}
     assert ws.watchme_spec_error(t) is None, \
         "the single-watch case is the common one — it must not require list ceremony"
 
@@ -182,7 +182,7 @@ def test_the_clean_sweep_is_not_a_vacuous_check():
         if p.name.startswith("_"):
             continue
         t = json.loads(p.read_text(encoding="utf-8"))
-        state = t.get("state")
+        state = t.get("workflow_and_state")
         if not (isinstance(state, str) and "@v2:" in state) or "WATCHME" in state:
             exempt += 1
             continue
@@ -200,11 +200,11 @@ def test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not():
     a sweep (``migrated_from``) owes nothing: nobody asked its author. The SAME ticket without
     that field owes the answer. One field is the whole difference, which is what makes this a
     stated rule rather than a grandfather list."""
-    swept = {"state": _V2_BARE, "migrated_from": "code-seam@v1 — swept 2026-08-03"}
+    swept = {"workflow_and_state": _V2_BARE, "migrated_from": "code-seam@v1 — swept 2026-08-03"}
     assert ws.watchme_spec_error(swept) is None, \
         "a swept version claim retro-imposed a ticketing-time obligation on an absent author"
 
-    authored = {"state": _V2_BARE}
+    authored = {"workflow_and_state": _V2_BARE}
     err = ws.watchme_spec_error(authored)
     assert err and "none, because" in err, \
         f"an AUTHORED v2 claim with no answer must still be refused — the exemption widened " \

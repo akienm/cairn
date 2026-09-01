@@ -5,7 +5,7 @@ Two check families, one roster:
   CURSOR_GATED    — requirements that activate at specific cursors
 
 Every check returns a list of findings. A finding carries:
-  ticket   — the ticket id
+  ticket   — the ticket id (hex)
   check    — the check name (from the roster)
   finding  — what is wrong, human-readable
   evidence — the raw data
@@ -26,11 +26,11 @@ CURSOR_ORDER = ("THINKME", "TICKETME", "BUILDME", "PROVEME", "WATCHME", "PROVED"
 
 ROSTER = (
     "required_fields",
-    "parseable_state",
+    "parseable_workflow_and_state",
     "sorted_berth_present",
     "intent_berth_present",
     "chart_claim_present",
-    "gates_defined",
+    "falsifier_structure",
     "node_class_resolves",
     "traces_present",
     "watchme_present",
@@ -38,7 +38,7 @@ ROSTER = (
     "children_are_ticket_ids",
     "child_tickets_exist",
     "owning_intention_resolves",
-    "state_matches_node_class",
+    "workflow_matches_node_class",
 )
 
 
@@ -62,10 +62,15 @@ def _has_because(val) -> bool:
             and "because" in val.lower())
 
 
+def _find_ticket_by_hex(hex_id: str, tdir: Path) -> Path | None:
+    matches = list(tdir.glob(f"{hex_id}-*.json"))
+    return matches[0] if matches else None
+
+
 def inspect_ticket(t: dict) -> list[dict]:
     """Check one ticket dict. Returns findings list (empty = clean)."""
     tid = t.get("id", "?")
-    state = t.get("state", "")
+    state = t.get("workflow_and_state", "")
     cursor = _cursor(state)
     findings = []
 
@@ -78,17 +83,21 @@ def inspect_ticket(t: dict) -> list[dict]:
         })
 
     # --- REQUIRED FIELDS ---
-    for field in ("id", "state", "intention", "why", "falsifier"):
+    for field in ("id", "title", "workflow_and_state", "intention", "why"):
         val = t.get(field)
         if not val or (isinstance(val, str) and not val.strip()):
             finding("required_fields", f"{field} is empty or missing",
                     {"field": field})
+    falsifier = t.get("falsifier")
+    if not falsifier:
+        finding("required_fields", "falsifier is empty or missing",
+                {"field": "falsifier"})
 
-    # --- PARSEABLE STATE ---
+    # --- PARSEABLE WORKFLOW_AND_STATE ---
     if not re.search(r"\w+@v\d+:", state):
-        finding("parseable_state",
-                f"state does not match <class>@v<N>: pattern",
-                {"state": state[:120]})
+        finding("parseable_workflow_and_state",
+                f"workflow_and_state does not match <class>@v<N>: pattern",
+                {"workflow_and_state": state[:120]})
 
     # --- SORTED_BERTH (past THINKME) ---
     if _past(cursor, "TICKETME"):
@@ -122,9 +131,15 @@ def inspect_ticket(t: dict) -> list[dict]:
                     "past TICKETME but no chart_claim",
                     {"cursor": cursor})
 
-    # --- GATES ---
-    if not t.get("gates"):
-        finding("gates_defined", "no gates defined")
+    # --- FALSIFIER STRUCTURE ---
+    if isinstance(falsifier, dict):
+        for sub in ("proves_green", "proves_red"):
+            if not falsifier.get(sub):
+                finding("falsifier_structure",
+                        f"falsifier.{sub} is empty or missing",
+                        {"field": sub})
+    elif isinstance(falsifier, str):
+        pass
 
     # --- NODE_CLASS ---
     nc = t.get("node_class", "")
@@ -146,7 +161,7 @@ def inspect_ticket(t: dict) -> list[dict]:
         wm = t.get("watchme")
         if not wm:
             finding("watchme_present",
-                    "state string mentions WATCHME but no watchme field")
+                    "workflow_and_state mentions WATCHME but no watchme field")
         elif isinstance(wm, dict):
             for wf in ("object", "trigger", "enough", "carrier", "probe"):
                 if not wm.get(wf):
@@ -191,11 +206,17 @@ def inspect_ticket(t: dict) -> list[dict]:
     if isinstance(children, list):
         for c in children:
             if isinstance(c, str) and len(c) < 120 and " " not in c:
-                cpath = TICKETS_DIR / f"{c}.json"
-                if not cpath.exists():
-                    finding("child_tickets_exist",
-                            f"child ticket '{c}' has no file",
-                            {"child": c})
+                if len(c) == 12 and all(ch in "0123456789abcdef" for ch in c):
+                    if not _find_ticket_by_hex(c, TICKETS_DIR):
+                        finding("child_tickets_exist",
+                                f"child ticket '{c}' has no file (hex lookup)",
+                                {"child": c})
+                else:
+                    cpath = TICKETS_DIR / f"{c}.json"
+                    if not cpath.exists():
+                        finding("child_tickets_exist",
+                                f"child ticket '{c}' has no file",
+                                {"child": c})
 
     # --- OWNING INTENTION RESOLVES ---
     oi = t.get("owning_intention", "")
@@ -213,12 +234,12 @@ def inspect_ticket(t: dict) -> list[dict]:
                         f"owning intention path does not resolve: {oi}",
                         {"owning_intention": oi})
 
-    # --- STATE MATCHES NODE_CLASS ---
+    # --- WORKFLOW MATCHES NODE_CLASS ---
     if nc and isinstance(nc, str) and re.search(r"\w+@v\d+:", state):
         state_class = state.split("@")[0].strip() if "@" in state else ""
         if state_class and nc and state_class != nc:
-            finding("state_matches_node_class",
-                    f"state class '{state_class}' != node_class '{nc}'",
+            finding("workflow_matches_node_class",
+                    f"workflow class '{state_class}' != node_class '{nc}'",
                     {"state_class": state_class, "node_class": nc})
 
     return findings
@@ -233,13 +254,15 @@ def inspect_corpus(tickets_dir: Path | None = None) -> dict:
     clean = 0
 
     for f in sorted(tdir.glob("*.json")):
+        if f.name.startswith("_"):
+            continue
         try:
             t = json.loads(f.read_text())
         except (json.JSONDecodeError, OSError):
             continue
         if t.get("role") in ("store-charter", "charter"):
             continue
-        state = t.get("state", "")
+        state = t.get("workflow_and_state", "")
         cursor = _cursor(state)
         if cursor in ("PROVED", "SUPERSEDED"):
             continue

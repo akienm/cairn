@@ -145,7 +145,7 @@ def read_tickets(*, tickets_dir: Path | None = None) -> dict:
             continue
         if t.get("role") in ("store-charter", "charter"):
             continue
-        state = t.get("state", "")
+        state = t.get("workflow_and_state", "")
         cursor = _cursor(state)
         if cursor in TERMINAL_STATES:
             continue

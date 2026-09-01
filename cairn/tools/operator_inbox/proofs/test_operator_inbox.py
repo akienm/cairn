@@ -63,7 +63,7 @@ def test_tickets_match_independent_read():
                 continue
             if t.get("role") in ("store-charter", "charter"):
                 continue
-            cursor = _cursor(t.get("state", ""))
+            cursor = _cursor(t.get("workflow_and_state", ""))
             if cursor in TERMINAL_STATES:
                 continue
             independent_count += 1

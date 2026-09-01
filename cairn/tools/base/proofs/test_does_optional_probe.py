@@ -122,10 +122,10 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
     filed = SUT._TICKETS / (SUT._OWNING_TICKET + ".json")
     assert filed.is_file(), f"the owning ticket is not on file at {filed} — nothing is proved"
     ticket = json.loads(filed.read_text(encoding="utf-8"))
-    assert "@v1:" not in ticket["state"], (
+    assert "@v1:" not in ticket["workflow_and_state"], (
         "the owning ticket claims v1, whose vocabulary cannot carry a watch — it would be "
         "excluded from the corpus by version, not by the self-exclusion this proves")
-    assert workflow_objects(ticket["state"]), (
+    assert workflow_objects(ticket["workflow_and_state"]), (
         "the owning ticket carries no WATCHME, so excluding it proves nothing about "
         "self-counting")
 

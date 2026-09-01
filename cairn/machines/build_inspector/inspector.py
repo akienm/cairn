@@ -1950,6 +1950,9 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
                 return True
         if (commons / "tickets" / f"{token}.json").exists():
             return True
+        if list((commons / "tickets").glob(f"{token}-*.json")) or \
+           list((commons / "tickets").glob(f"*-{token}.json")):
+            return True
         if (repo / "bin" / "cmd" / token).exists():
             return True
     return False
@@ -2516,16 +2519,16 @@ def history_reach(root: Path) -> list[dict]:
             if not isinstance(tid, str) or not tid:
                 unclassifiable += 1
                 continue
-            tfile = tickets_dir / (tid + ".json")
-            if not tfile.is_file():
+            tpath = ticket_path(tid, root=str(root))
+            if tpath is None:
                 unclassifiable += 1
                 continue
             try:
-                tdata = json.loads(tfile.read_text(encoding="utf-8"))
+                tdata = json.loads(Path(tpath).read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 unclassifiable += 1
                 continue
-            state = tdata.get("state", "")
+            state = tdata.get("workflow_and_state", "")
             if isinstance(state, str) and "[PROVED]" in state:
                 stale += 1
             else:
@@ -2708,12 +2711,17 @@ def slate_reach(root: Path) -> list[dict]:
             unclassifiable += 1
             continue
         tfile = tickets_dir / (matched_ticket + ".json")
+        if not tfile.is_file():
+            hits = list(tickets_dir.glob(f"*-{matched_ticket}.json"))
+            if not hits:
+                hits = list(tickets_dir.glob(f"{matched_ticket}-*.json"))
+            tfile = hits[0] if hits else tfile
         try:
             tdata = json.loads(tfile.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             unclassifiable += 1
             continue
-        state = tdata.get("state", "")
+        state = tdata.get("workflow_and_state", "")
         if isinstance(state, str) and "[PROVED]" in state:
             stale += 1
         else:

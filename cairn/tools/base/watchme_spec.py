@@ -100,7 +100,7 @@ def watchme_spec_error(ticket: dict) -> str | None:
         an author who considered efficacy and one who skipped the question.
       - the string carries watches -> one complete spec per watch, joined by object.
     """
-    state = ticket.get("state")
+    state = ticket.get("workflow_and_state")
     if not isinstance(state, str) or not state.strip():
         return None                       # see below — no string, no claimed version, no obligation
     try:

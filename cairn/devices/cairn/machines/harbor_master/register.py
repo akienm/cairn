@@ -111,7 +111,7 @@ def _open_boats(tickets_dir: Path) -> list[dict]:
             d = json.loads(t.read_text(encoding="utf-8"))
         except (ValueError, OSError):
             continue                      # unreadable/garbled ticket is not a silent boat
-        state = d.get("state")
+        state = d.get("workflow_and_state")
         if not d.get("id") or not isinstance(state, str):
             continue                      # not a boat (e.g. the folder's _charter+why schema doc)
         m = _CURSOR_RE.search(state)

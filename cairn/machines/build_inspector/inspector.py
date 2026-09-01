@@ -2634,6 +2634,43 @@ def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+def working_tree_clean(row: dict, comp_dir: Path) -> list[dict]:
+    """A component's subtree carries uncommitted changes at a crossing.
+
+    Provenance: ticket nothing-rides-loose — the crossing half of durability
+    physics. A stone cannot be promoted out of PROVEME while the code it claims
+    exists only in a working tree. Uses git status --porcelain on the component's
+    relative path; any output means dirt.
+    """
+    import subprocess
+    repo_root = comp_dir
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    if not (repo_root / ".git").exists():
+        return []
+    try:
+        rel = comp_dir.relative_to(repo_root)
+    except ValueError:
+        return []
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo_root), "status", "--porcelain", str(rel)],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    dirty_lines = [l for l in proc.stdout.splitlines() if l.strip()]
+    if not dirty_lines:
+        return []
+    return [_finding(
+        "working_tree_clean", row["component"],
+        "component subtree is clean (no uncommitted changes)",
+        expected=True, actual=False,
+        dirty_count=len(dirty_lines),
+        dirty_sample=dirty_lines[:5],
+    )]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2662,6 +2699,7 @@ SIEVES = {
     "history_integrity": history_integrity,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
+    "working_tree_clean": working_tree_clean,
 }
 
 

@@ -175,11 +175,53 @@ def judge_packet(payload: dict, *, heads: dict | None = None,
     return lacks
 
 
+def _auto_commit_push(repo: Path, name: str) -> str | None:
+    """Commit and push a dirty repo. Returns the commit sha, or None if clean."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo), "status", "--porcelain"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if not proc.stdout.strip():
+        return None
+    subprocess.run(
+        ["git", "-C", str(repo), "add", "-A"],
+        check=True, capture_output=True, text=True, timeout=30,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m",
+         f"saveslate boundary: auto-commit {name}"],
+        check=True, capture_output=True, text=True, timeout=60,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "push"],
+        check=True, capture_output=True, text=True, timeout=120,
+    )
+    rev = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        capture_output=True, text=True, timeout=10,
+    )
+    return rev.stdout.strip() if rev.returncode == 0 else None
+
+
 def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = None,
          slates_dir: Path | str | None = None, session: str = "",
          skills_root=None, berths=None, trace_root=None) -> dict:
     """Gate the slate — flat AND semantic lacks in ONE refusal — then berth through
     the seam and WRITE the slate in the same act. A refusal writes nothing."""
+    committed = {}
+    for rname, rpath in (("cairn", _REPO), ("CairnCommons", _COMMONS)):
+        sha = _auto_commit_push(rpath, rname)
+        if sha:
+            committed[rname] = sha
+    if committed:
+        new_heads = live_git_heads()
+        inst = payload.get("instruments_read")
+        if isinstance(inst, dict):
+            inst["git_heads"] = new_heads
+
     result = sb.fire("saveslate", payload, now=now, skills_root=skills_root,
                      berths=berths, trace_root=trace_root,
                      judge_kwargs={"heads": heads, "slates_dir": slates_dir})

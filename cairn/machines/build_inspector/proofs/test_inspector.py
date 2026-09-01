@@ -17,7 +17,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.machines.build_inspector.inspector import SIEVES, inspect  # noqa: E402
+from cairn.machines.build_inspector.inspector import SIEVES, inspect, working_tree_clean  # noqa: E402
 from cairn.tools.charter import projector  # noqa: E402
 from cairn.tools.orient.orient import ScanRefused  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
@@ -908,6 +908,60 @@ def main() -> None:
 
     assert inspect(root=root, component="healthy")["clean"], \
         "a charter with no durable_state field must pass silently"
+
+    # ── working_tree_clean (nothing-rides-loose) ────────────────────────────
+    # The main fixture is NOT a git repo, so working_tree_clean returns []
+    # vacuously for every component above. These teeth use a purpose-built
+    # git repo (following test_history_integrity.py's pattern) and call the
+    # sieve directly.
+
+    import subprocess as _wt_sp
+
+    def _wt_git(repo, *args):
+        _wt_sp.run(["git", "-C", str(repo), *args],
+                    check=True, capture_output=True, text=True)
+
+    def _wt_row(name):
+        return {"component": name, "dir": name, "charter_on_disk": True}
+
+    # Tooth 1 — planted-graph: a dirty subtree fires working_tree_clean
+    with scratch_dir("inspector-proof-wt-dirty-") as wt_root:
+        _wt_git(wt_root, "init")
+        _wt_git(wt_root, "config", "user.email", "test@test")
+        _wt_git(wt_root, "config", "user.name", "test")
+        comp = wt_root / "dirty_comp"
+        comp.mkdir()
+        (comp / "intention+why.json").write_text(
+            json.dumps({"component": "dirty_comp"}))
+        (comp / "source.py").write_text("x = 1\n")
+        _wt_git(wt_root, "add", ".")
+        _wt_git(wt_root, "commit", "-m", "initial")
+        # now dirty it
+        (comp / "source.py").write_text("x = 2\n")
+        findings = working_tree_clean(_wt_row("dirty_comp"), comp)
+        assert len(findings) == 1, \
+            f"dirty subtree must fire exactly one finding: {findings}"
+        assert findings[0]["method"] == "working_tree_clean", \
+            f"finding method must be working_tree_clean: {findings[0]}"
+        assert findings[0]["values"]["dirty_count"] >= 1, \
+            f"dirty_count must be >= 1: {findings[0]}"
+
+    # Tooth 2 — real-corpus: a clean subtree stays quiet
+    with scratch_dir("inspector-proof-wt-clean-") as wt_root:
+        _wt_git(wt_root, "init")
+        _wt_git(wt_root, "config", "user.email", "test@test")
+        _wt_git(wt_root, "config", "user.name", "test")
+        comp = wt_root / "clean_comp"
+        comp.mkdir()
+        (comp / "intention+why.json").write_text(
+            json.dumps({"component": "clean_comp"}))
+        (comp / "source.py").write_text("x = 1\n")
+        _wt_git(wt_root, "add", ".")
+        _wt_git(wt_root, "commit", "-m", "initial")
+        # no modifications — tree is clean
+        findings = working_tree_clean(_wt_row("clean_comp"), comp)
+        assert findings == [], \
+            f"clean subtree must not fire: {findings}"
 
     # ── the nest (2026-08-06, ticket the-questions-are-the-sieve) ────────────
     #

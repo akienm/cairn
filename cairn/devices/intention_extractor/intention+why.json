@@ -1,5 +1,6 @@
 {
   "component": "intention_extractor",
+  "runtime_role": "device",
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
   "what": "The first cocoon stage as a device: raw design prose (a conversation excerpt, a note, a held-* record) in, a CANDIDATE intention out — {what, why, anchors, read}, exactly four fields. The DRAFT comes through the caller-injected resolve seam (inference_domain.resolve — the sole path to the host; metered, cached, so the same source is a genuine cache HIT on re-extraction). The JUDGMENT is deterministic: CHECKS (cairn/devices/intention_extractor/extractor.py) refuse a draft whose anchors are not verbatim in the source (anchors_verbatim) or whose field-set drifts / whose why is silent (record_shape); a refusal carries every finding first-pass. `extract()` is one crossing and breadcrumbs its verdict — PASS, REFUSED, and UNPARSEABLE alike. Live wiring: `python3 -m cairn.devices.intention_extractor.live <file> [model]` (live.py — the first composition of domain.resolve + host.ollama_resolver outside inference_domain's own proofs). THE CHECKS ARE HELD, NOT HOUSED: they berth as this device's own machine at machines/judge/ and are re-exported here as the published surface. The device drafts and dials; the judge grades and reaches nothing.",

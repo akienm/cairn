@@ -1,5 +1,6 @@
 {
   "role": "charter",
+  "runtime_role": "tool",
   "what": "Structural completeness checks for CairnCommons/tickets/ — the ticket-side counterpart of build_inspector.",
   "why": "MEASURED 2026-08-26: 305 findings across 79 of 86 not-done tickets, 16 defect classes. The build loop stalls re-discovering what is missing from each ticket. The sorted door checks at cast time; nothing checks at rest. This tool checks at rest.",
   "how_it_learns": "A new defect class adds a check to the roster, same as build_inspector gains a sieve when a new failure class is found. The roster is the enumeration; a check outside it is invisible.",

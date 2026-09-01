@@ -2723,6 +2723,35 @@ def working_tree_clean(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+_VALID_RUNTIME_ROLES = {"tool", "machine", "device"}
+
+
+def runtime_role_declared(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter does not declare its runtime_role on the complexity axis.
+
+    Provenance: ticket the-axis-is-named-and-ruled — every component declares
+    what it acts as at runtime (tool/machine/device). Checks presence and
+    membership in the valid set only — directory-rung consistency is not this
+    sieve's jurisdiction.
+    """
+    charter_path = comp_dir / "intention+why.json"
+    if not charter_path.is_file():
+        return []
+    try:
+        charter = json.loads(charter_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    role = charter.get("runtime_role")
+    if isinstance(role, str) and role in _VALID_RUNTIME_ROLES:
+        return []
+    return [_finding(
+        "runtime_role_declared", row["component"],
+        "charter declares runtime_role (tool/machine/device)",
+        expected=True, actual=False,
+        charter=str(charter_path),
+    )]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -2753,6 +2782,7 @@ SIEVES = {
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,
     "claim_provenance": claim_provenance,
+    "runtime_role_declared": runtime_role_declared,
     "working_tree_clean": working_tree_clean,
 }
 

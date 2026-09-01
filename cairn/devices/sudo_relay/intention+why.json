@@ -1,5 +1,6 @@
 {
   "component": "sudo_relay",
+  "runtime_role": "device",
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
   "what": "A Cairn-native device that is CC's self-serve path to root. A command goes in; it runs as root; a permanent JSON audit record comes out (the command line, the return code, stdout, stderr — the four Akien named — plus an id + date that make it a locatable, expiring record of truth). The audit folder self-cycles to a rolling one-month window (`retention_days`, default 31). Akien's whole ops role shrinks to TWO acts: (1) START the daemon (`python3 cairn/devices/sudo_relay/daemon.py`) — one `sudo -v` password prompt, which IS his consent — and (2) approve. `SudoRelayDevice` subclasses `BaseDevice` (carries CP1-CP6, reports the Form v0 #2 surface). Its capability is `request_root(command)`; the daemon (`daemon.py`) is the one privileged process, holding sudo warm and running each pending command via `root_executor` (`sudo -n bash -c`).",

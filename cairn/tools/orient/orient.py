@@ -211,6 +211,13 @@ def device_census(*, root: Path | None = None) -> dict:
                                  "records": len(recs) if isinstance(recs, list) else 1})
             except (json.JSONDecodeError, OSError) as e:
                 verdicts.append({"file": v.name, "verdict": f"UNREADABLE: {e}", "records": 0})
+        charter_path = d / "intention+why.json"
+        runtime_role = ""
+        if charter_path.is_file():
+            try:
+                runtime_role = json.loads(charter_path.read_text()).get("runtime_role", "")
+            except (json.JSONDecodeError, OSError):
+                pass
         rows.append({
             "component": d.name,
             # THE NAME IS NOT THE ADDRESS (base.address.AmbiguousComponent, 2026-08-13).
@@ -221,7 +228,8 @@ def device_census(*, root: Path | None = None) -> dict:
             # relative to the pkg root it was measured under, and a consumer that needs a
             # unique subject key uses this.
             "dir": str(d.relative_to(root)),
-            "charter_on_disk": (d / "intention+why.json").exists(),
+            "charter_on_disk": charter_path.exists(),
+            "runtime_role": runtime_role,
             "device_subclasses": subclasses,
             "proofs": len(list(d.glob("proofs/test_*.py"))),
             "validations": verdicts,

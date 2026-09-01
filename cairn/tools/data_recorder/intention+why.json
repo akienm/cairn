@@ -1,5 +1,6 @@
 {
   "component": "data_recorder",
+  "runtime_role": "tool",
   "role": "charter",
   "schema_version": "v0",
   "what": "A mailbox that holds structured feedback records until an LLM inspection pass reads them. Three operations: write(record) appends one JSON record to a JSONL file, read() returns all accumulated records, clear(ids) removes consumed records by id. The passive consumer's mailbox — probes deposit feedback here, and scheduled-llm-gate-inspection reads and acts on it.",

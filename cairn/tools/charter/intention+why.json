@@ -1,6 +1,7 @@
 {
   "schema_version": "v0",
   "component": "charter/projector",
+  "runtime_role": "tool",
   "role": "charter machinery — the projector (a tool, not a device)",
   "what": "Compile a charter's bounded `state` (a cursor + a window of recent history) from its append-only `history`, regenerated on every append. `state` is a PURE FUNCTION of `history`, so it cannot drift from the log — the window is derived, never a second copy anyone maintains.",
   "why": "The charter had become the ticket: `state` grew to the largest, most-mutable field (measured 17-24%, 2026-07-21), so the file every mind reads first bloated without bound. Splitting `state` from `history` and compiling the window makes the bound STRUCTURAL (Law 4), not a discipline anyone remembers. It is Law 1 at charter scale — the answered question 'what is the recent state' becomes structure, so no mind re-derives it by reading the whole journal (the compile-once move, one scale in from inference_domain). `history` append-only = Law 7.",

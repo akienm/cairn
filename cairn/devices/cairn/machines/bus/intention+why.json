@@ -1,5 +1,6 @@
 {
   "component": "bus",
+  "runtime_role": "machine",
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
   "what": "THE SECOND SUBSTRATE — the one common messaging substrate for everything, and the SOLE path for inter-device communication. Devices never hold references to each other or call each other directly; they `post` (the only way to send) and `read` (the record — inspecting a device is reading its feed). Each device has four channels: `announce` + `personal` (RECORDS of truth) and `info` + `debug` (DIAGNOSTIC). Every envelope carries its why (CP3) and its causality (`sender`, `reply_to`), so the bus is a replayable causal record. Durable transit rides `db_domain` (owner `bus`, Law 6) — the bus opens no connection of its own. `BusDevice` subclasses `BaseDevice` (CP1-CP6, Form v0 #2).",

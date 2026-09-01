@@ -1,5 +1,6 @@
 {
   "component": "plan_inspector",
+  "runtime_role": "machine",
   "role": "charter",
   "schema_version": "v0",
   "what": "The plan-against-itself gate: reads charters' filed_edges and finds work the component admits is unbuilt. Complements the build_inspector (code against code) — this one reads the PLAN's own admissions and surfaces them before a planning surface can read a component as done while it says otherwise. Two sieves: open_filed_edges (any open filed edge — the component's own record of what it does not yet do) and charter_asserts_unbuilt (edges that explicitly name unbuilt work — 'not yet wired', 'deferred', 'waits on'). CLI: `python3 -m cairn.machines.plan_inspector.inspector [component]`. Exit 0 = clean, 1 = findings. Inference-free by construction.",

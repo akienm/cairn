@@ -175,12 +175,38 @@ class BusDevice(BaseDevice):
         self._delivered = 0
         self._last_envelope: dict | None = None
         self._delivery_hooks: dict[str, "Callable"] = {}
+        self._channel_toggles: dict[str, dict[str, bool]] = {}
 
     def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
         self._delivery_hooks[device_id] = deliver
+        if device_id not in self._channel_toggles:
+            self._channel_toggles[device_id] = {ch: True for ch in CHANNELS}
 
     def unwire_delivery(self, device_id: str) -> None:
         self._delivery_hooks.pop(device_id, None)
+        self._channel_toggles.pop(device_id, None)
+
+    def list(self) -> dict:
+        """Enumerate registered devices and their per-channel toggle standing."""
+        result = {}
+        for device_id in self._delivery_hooks:
+            toggles = self._channel_toggles.get(device_id, {})
+            result[device_id] = {
+                "wired": True,
+                "channels": {ch: toggles.get(ch, True) for ch in CHANNELS},
+            }
+        return result
+
+    def toggle(self, device_id: str, channel: str, enabled: bool) -> dict:
+        """Enable or disable a device's subscription on one channel."""
+        _require_channel(channel)
+        if device_id not in self._delivery_hooks:
+            raise ValueError(
+                f"device {device_id!r} is not wired — toggle requires wire_delivery first"
+            )
+        self._channel_toggles.setdefault(device_id, {ch: True for ch in CHANNELS})
+        self._channel_toggles[device_id][channel] = enabled
+        return {"device": device_id, "channel": channel, "enabled": enabled}
 
     @property
     def device_id(self) -> str:
@@ -265,7 +291,8 @@ class BusDevice(BaseDevice):
         })
         if channel == "personal":
             hook = self._delivery_hooks.get(to)
-            if hook is not None:
+            toggles = self._channel_toggles.get(to, {})
+            if hook is not None and toggles.get(channel, True):
                 try:
                     hook(envelope)
                 except Exception as exc:  # noqa: BLE001

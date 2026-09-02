@@ -172,10 +172,55 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
         system-term (Law 6 — the device resolves its own method internally). The shim's
         ``deliver()`` resolves verb → handler through this; an unknown verb goes RED.
 
-        Default empty: a device that declares no verbs refuses all inbound mail, which
-        is honest — an empty menu and a missing menu are the same refusal.
+        Base provides ``show`` and ``get`` — the universal query verbs. Both resolve
+        through ``declared_views()`` using the same dict-lookup pattern: ``show`` renders
+        human-readable text, ``get`` returns JSON for machine consumption. A device that
+        declares views gets both for free; a device that declares none honestly refuses.
+        Subclasses extend with ``{**super().declared_verbs(), "crossing": ...}``.
+        """
+        return {"show": self._handle_show, "get": self._handle_get}
+
+    def declared_views(self) -> dict[str, "Callable"]:
+        """The data this device can produce — view name → callable returning a dict.
+
+        Same pattern as ``declared_verbs()``: a dict lookup, different table. The ``show``
+        and ``get`` verb handlers resolve through this. A caller knows a VIEW NAME; the
+        callable behind it is private. Default empty: a device that offers no views
+        honestly refuses ``show`` and ``get`` queries.
         """
         return {}
+
+    def _handle_get(self, envelope: dict) -> dict:
+        """Verb handler: return a view's data as a JSON-ready dict."""
+        what = envelope.get("body", {}).get("what", "")
+        views = self.declared_views()
+        view_fn = views.get(what)
+        if view_fn is None:
+            return {"accepted": False, "verb": "get", "device": self.device_id,
+                    "reason": f"no view {what!r}",
+                    "available": sorted(views)}
+        data = view_fn()
+        return {"accepted": True, "verb": "get", "view": what,
+                "device": self.device_id, "data": data}
+
+    def _handle_show(self, envelope: dict) -> dict:
+        """Verb handler: return a view's data rendered as human-readable text."""
+        what = envelope.get("body", {}).get("what", "")
+        views = self.declared_views()
+        view_fn = views.get(what)
+        if view_fn is None:
+            return {"accepted": False, "verb": "show", "device": self.device_id,
+                    "reason": f"no view {what!r}",
+                    "available": sorted(views)}
+        data = view_fn()
+        text = self._render_view(what, data)
+        return {"accepted": True, "verb": "show", "view": what,
+                "device": self.device_id, "text": text, "data": data}
+
+    def _render_view(self, name: str, data: dict) -> str:
+        """Render a view's data as human-readable text. Devices override for pretty output."""
+        import json
+        return json.dumps(data, indent=2, ensure_ascii=False, default=str)
 
     # --- feedback receiver: the default mail handler --------------------------
 

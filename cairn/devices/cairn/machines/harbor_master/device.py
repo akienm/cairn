@@ -36,7 +36,10 @@ class HarborMasterDevice(BaseDevice):
         return self._device_id
 
     def declared_verbs(self) -> dict:
-        return {"crossing": self._handle_crossing}
+        return {**super().declared_verbs(), "crossing": self._handle_crossing}
+
+    def declared_views(self) -> dict:
+        return {"map": self._fleet_map}
 
     def _handle_crossing(self, envelope: dict) -> dict:
         super().receive(envelope)
@@ -88,6 +91,35 @@ class HarborMasterDevice(BaseDevice):
             "cache_at": self._cache_at,
             "crossings_patched_since_last": patched,
         }
+
+    def _fleet_map(self) -> dict:
+        """The fleet register as data — the view behind ``get map`` and ``show map``."""
+        if self._fleet_cache is None:
+            self.reconcile()
+        return self._fleet_cache
+
+    def _render_view(self, name: str, data: dict) -> str:
+        if name == "map":
+            return self._render_fleet_map(data)
+        return super()._render_view(name, data)
+
+    def _render_fleet_map(self, fleet: dict) -> str:
+        counts = fleet.get("counts", {})
+        lines = [f"Fleet: {counts.get('fleet', 0)} boats "
+                 f"({counts.get('open', 0)} open, {counts.get('in_port', 0)} in port)"]
+        open_boats = fleet.get("open", [])
+        if open_boats:
+            lines.append("\nOpen:")
+            for b in open_boats:
+                lines.append(f"  {b['id']:<40s} {b.get('standing', '?')}")
+        in_port = fleet.get("in_port", [])
+        if in_port:
+            lines.append("\nIn port:")
+            for b in in_port:
+                lines.append(f"  {b['id']:<40s} {b.get('standing', '?')}")
+        if self._cache_at:
+            lines.append(f"\nCached at: {self._cache_at}")
+        return "\n".join(lines)
 
     @property
     def fleet_cache(self) -> dict | None:

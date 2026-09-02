@@ -146,8 +146,9 @@ def test_menu_matches_declared_verbs():
     assert sorted(verbs) == ["inspect", "reload"], verbs
 
 
-def test_empty_menu_is_published():
-    """A device with no verbs publishes an empty menu — honest, not silent."""
+def test_base_verbs_are_published():
+    """A device that declares no verbs of its own still publishes the base verbs
+    (show, get) — the universal query protocol every device inherits."""
     dev = EmptyDevice()
     bus = _fresh_bus()
     loop = _rig(bus, EmptyShim("menu_b", dev, bus=bus))
@@ -155,7 +156,7 @@ def test_empty_menu_is_published():
     feed = bus.read(to="menu_b", channel="announce")
     menu_posts = [e for e in feed if e.get("body", {}).get("verbs") is not None]
     assert len(menu_posts) >= 1, f"no menu on announce channel"
-    assert menu_posts[-1]["body"]["verbs"] == []
+    assert menu_posts[-1]["body"]["verbs"] == ["get", "show"]
 
 
 def test_menu_is_on_the_announce_channel():

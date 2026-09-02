@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# cairn harbor_master — the fleet register's CLI face.
+#
+#   cairn harbor_master             show fleet summary
+#   cairn harbor_master show map    human-readable fleet map
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../../../.. && pwd)"
+exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+dev = HarborMasterDevice()
+st = dev.state()
+print(f'harbor_master: {st.get(\"total_boats\", \"?\")} boats ({st.get(\"open\", \"?\")} open, {st.get(\"in_port\", \"?\")} in port)')
+" "$@"

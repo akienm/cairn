@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# cairn harbor_master show <view> — human-readable view of fleet data.
+#
+#   cairn harbor_master show map    the fleet register: open boats + in-port boats
+#
+# Resolves the view name through declared_views() — same dict-lookup pattern the bus uses.
+# Adding a view to the device makes it available here with no second edit.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../../../.. && pwd)"
+
+view="${1:-}"
+if [ -z "$view" ]; then
+  echo "usage: cairn harbor_master show <view>" >&2
+  python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+views = HarborMasterDevice().declared_views()
+print('available views:', ', '.join(sorted(views)) if views else '(none)')
+" >&2
+  exit 1
+fi
+
+shift
+exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+dev = HarborMasterDevice()
+envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',
+            'verb': 'show', 'body': {'what': sys.argv[1]}}
+result = dev._handle_show(envelope)
+if result.get('accepted'):
+    print(result['text'])
+else:
+    print(f\"harbor_master: {result.get('reason', 'unknown error')}\", file=sys.stderr)
+    avail = result.get('available', [])
+    if avail:
+        print(f'available views: {\", \".join(avail)}', file=sys.stderr)
+    sys.exit(1)
+" "$view" "$@"

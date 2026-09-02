@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# cairn harbor_master get <view> — machine-readable JSON of fleet data.
+#
+#   cairn harbor_master get map    the fleet register as JSON
+#
+# Same resolution as show, different rendering. This is the shape a bus query returns.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../../../.. && pwd)"
+
+view="${1:-}"
+if [ -z "$view" ]; then
+  echo '{"error": "usage: cairn harbor_master get <view>"}' >&2
+  exit 1
+fi
+
+shift
+exec python3 -c "
+import json, sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+dev = HarborMasterDevice()
+envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',
+            'verb': 'get', 'body': {'what': sys.argv[1]}}
+result = dev._handle_get(envelope)
+print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+" "$view" "$@"

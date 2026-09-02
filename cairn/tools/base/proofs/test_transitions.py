@@ -863,7 +863,7 @@ def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
     identically to live ones and THIS tooth is what says so."""
     src = Path(transitions.__file__).read_text(encoding="utf-8")
     for host_door in ("cairn.tools.tree.tree", "cairn.devices.librarian", "cairn.devices.db_domain",
-                      "cairn.devices.inference_domain", "embed_via_domain"):
+                      "cairn.devices.inference_domain", "embed_via_domain", "embed_via_bus"):
         assert host_door not in src, (
             f"transitions.py reaches {host_door} — the crossing side of the deposit "
             "writes a FILE and nothing else; a host on the fire path breaks netns "

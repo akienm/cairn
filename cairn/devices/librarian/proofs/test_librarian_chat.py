@@ -405,7 +405,8 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
 
     domain_module.resolve = capture
     try:
-        seam = live.dual_seam()
+        bus = live._wire_bus()
+        seam = live.dual_seam(bus)
         seam({"kind": "generate",
               "prompt": "please write a python function that reverses a linked list"})
         seam({"kind": "embed", "prompt": "what does the settled record say?"})

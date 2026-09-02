@@ -1,9 +1,14 @@
-"""live.py — the librarian's spine against the real embed seam, through the one door.
+"""live.py — the librarian's spine against the real embed seam, through the bus.
 
-The composition: ``domain.resolve`` (metered, cached) wrapping ``host.ollama_resolver``
-with ``kind: "embed"`` — vectors as a metered service — feeding ``LibrarianDevice``'s
-provenance-gated deposit door and proximity walk. trees.py stays import-pure; this thin
-edge is where the doors compose (the same shape as intention_extractor/live.py).
+The composition: ``bus.request(to="inference_domain", verb="resolve", ...)`` — vectors
+as a metered service — feeding ``LibrarianDevice``'s provenance-gated deposit door and
+proximity walk. trees.py stays import-pure; this thin edge is where the bus composes with
+the librarian's own machinery (the same shape as intention_extractor/live.py).
+
+The bus is the sole path for inter-device inference (ticket 87a7f1c7ae21). The librarian
+never imports inference_domain directly — it posts requests on the bus, and
+inference_domain's resolve verb handles them internally (building the resolver, running
+the domain workflow, posting the result back).
 
 The founding demo seeds the librarian's FIRST REAL NODES: Akien's own verbatim design
 lines, each carrying its provenance, deposited into the tree ``founding``. The query then
@@ -39,9 +44,13 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.devices.inference_domain import domain, host
+from cairn.devices.cairn.machines.bus.bus import BusDevice
+from cairn.devices.cairn.machines.bus.shim import BusShim
+from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.devices.inference_domain.shim import InferenceDomainShim
 from cairn.devices.librarian.library import learn as learn_verb
 from cairn.devices.librarian.library import shelve
 from cairn.devices.librarian.loop import resolve_query
@@ -51,6 +60,7 @@ from cairn.devices.librarian.trees import LibrarianDevice
 DEFAULT_MODEL = "nomic-embed-text"
 GENERATE_MODEL = "qwen2.5:7b"
 TREE = "founding"
+_SENDER = "librarian"
 
 # The librarian's first acquisitions: Akien verbatim, each line traceable to its record.
 _SEEDS = [
@@ -70,24 +80,53 @@ _SEEDS = [
 DEFAULT_QUERY = "what should the chat interface do when someone talks to the librarian?"
 
 
-def embed_via_domain(model: str = DEFAULT_MODEL):
-    """The embed seam, composed: text -> vector, metered and cached, host behind one door.
+def _wire_bus():
+    """Minimal bus for CLI scripts — one bus with inference_domain, one beat to start."""
+    bus = BusDevice()
+    loop = GroundLoopDevice(bus=bus)
+    bus_shim = BusShim(bus, loop)
+    inf_shim = InferenceDomainShim(bus=bus)
+    loop.subscribe(bus_shim)
+    loop.subscribe(inf_shim)
+    loop.beat(datetime.now(timezone.utc))
+    return bus
+
+
+def _bus_resolve(bus: BusDevice, request: dict) -> dict:
+    """Post a resolve request to inference_domain via the bus and return the result."""
+    reply = bus.request(
+        sender=_SENDER, to="inference_domain", verb="resolve",
+        why="librarian resolve", body=request,
+    )
+    return reply["body"]
+
+
+def _bus_yield(bus: BusDevice) -> dict:
+    """Get inference_domain's yield report via the bus get verb."""
+    reply = bus.request(
+        sender=_SENDER, to="inference_domain", verb="get",
+        why="yield report", body={"what": "yield"},
+    )
+    return reply.get("body", {}).get("data", {})
+
+
+def embed_via_bus(bus: BusDevice, model: str = DEFAULT_MODEL):
+    """The embed seam, composed: text -> vector, metered and cached, via the bus.
     Stamped ``domain='research'`` like every librarian seam — a declared fact about who is
     asking; an embed is never dressed (the vector must not move), so the stamp lands only
     in provenance and the canonical is untouched (warm cache rows still hit)."""
-    resolver = host.ollama_resolver(model=model)
     def embed(text: str) -> list[float]:
-        return domain.resolve({"kind": "embed", "prompt": text, "domain": "research"},
-                              resolver=resolver)["answer"]["vector"]
+        return _bus_resolve(bus, {"kind": "embed", "prompt": text,
+                                  "model": model, "domain": "research"})["answer"]["vector"]
     return embed
 
 
-def embed_metered_via_domain(model: str = DEFAULT_MODEL):
+def embed_metered_via_bus(bus: BusDevice, model: str = DEFAULT_MODEL):
     """The embed seam WITH ITS METER (2026-07-29, ticket a-node-holds-one-claim):
     text -> ``{"vector", "tokens"}``, where tokens is the host's own
     prompt_eval_count for that input.
 
-    Why this exists beside embed_via_domain rather than replacing it: the embed
+    Why this exists beside embed_via_bus rather than replacing it: the embed
     ceiling has been FOLKLORE. The host has always reported the real token count
     (/api/embed is the door precisely because /api/embeddings reports no counters,
     measured 2026-07-26), the domain has always recorded it — and the seam threw it
@@ -101,12 +140,11 @@ def embed_metered_via_domain(model: str = DEFAULT_MODEL):
     measurement's clothes. None means "not reported on this path" and says so;
     it is never a zero and never a guess.
 
-    embed_via_domain's vector-only contract is deliberately untouched, so nothing
+    embed_via_bus's vector-only contract is deliberately untouched, so nothing
     that depends on it moves."""
-    resolver = host.ollama_resolver(model=model)
     def embed(text: str) -> dict:
-        got = domain.resolve({"kind": "embed", "prompt": text, "domain": "research"},
-                             resolver=resolver)
+        got = _bus_resolve(bus, {"kind": "embed", "prompt": text,
+                                 "model": model, "domain": "research"})
         counters = (got.get("provenance") or {}).get("counters") or {}
         return {"vector": got["answer"]["vector"],
                 "tokens": counters.get("prompt_eval_count"),
@@ -114,24 +152,23 @@ def embed_metered_via_domain(model: str = DEFAULT_MODEL):
     return embed
 
 
-def dual_seam(embed_model: str = DEFAULT_MODEL, generate_model: str = GENERATE_MODEL):
-    """Both verbs, one door. The model is stamped ON THE REQUEST by kind — embed requests
-    ride the embedding model, generate requests the drafting model — so the model is part
-    of the canonical form and the two can never share a cache row. One resolver serves
-    both: ollama_resolver honors the request's own ``model`` over its default.
+def dual_seam(bus: BusDevice, embed_model: str = DEFAULT_MODEL,
+              generate_model: str = GENERATE_MODEL):
+    """Both verbs, one door — via the bus. The model is stamped ON THE REQUEST by kind —
+    embed requests ride the embedding model, generate requests the drafting model — so the
+    model is part of the canonical form and the two can never share a cache row.
 
     The librarian is the research vertical's first real consumer (ticket
     the-domain-carries-the-inference-side): every request through this seam is stamped
     ``domain='research'`` — a DECLARED fact about who is asking, set here by rule, never
     inferred from message content (chat tooth 15). The domains stack owns what the stamp
     means (prompts, walk-rule); this seam only names it."""
-    resolver = host.ollama_resolver(model=generate_model)
     def resolve(request: dict) -> dict:
         request = dict(request)
         request.setdefault(
             "model", embed_model if request.get("kind") == "embed" else generate_model)
         request.setdefault("domain", "research")
-        return domain.resolve(request, resolver=resolver)
+        return _bus_resolve(bus, request)
     return resolve
 
 
@@ -148,7 +185,8 @@ LOOP_QUERY = "what does cosine similarity measure between two embedding vectors?
 def _loop(argv: list[str]) -> int:
     """The core loop against the founding tree: always the graph first; on a miss the
     host supplies NODES and the ORIGINAL question resubmits through structure."""
-    resolve = dual_seam()
+    bus = _wire_bus()
+    resolve = dual_seam(bus)
     dev = LibrarianDevice()
     _seed(dev, lambda text: resolve({"kind": "embed", "prompt": text})["answer"]["vector"])
 
@@ -160,7 +198,7 @@ def _loop(argv: list[str]) -> int:
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],
                   "standing": n["standing"]} for n in verdict["nodes"]],
         "trail": str(dev.diagnostic_trail()),
-        "yield": domain.yield_report(),
+        "yield": _bus_yield(bus),
     }, indent=2, default=str))
     return 0
 
@@ -205,11 +243,12 @@ def _learn(argv: list[str]) -> int:
         print("usage: live learn <shelf-address> [tree]", file=sys.stderr)
         return 1
     address, tree = argv[0], (argv[1] if len(argv) > 1 else "library")
+    bus = _wire_bus()
     dev = LibrarianDevice()
-    resolve = dual_seam()
+    resolve = dual_seam(bus)
     got = learn_verb(address, resolve=resolve, tree=tree, dev=dev)
     print(json.dumps({"learn": got, "trail": str(dev.diagnostic_trail()),
-                      "yield": domain.yield_report()}, indent=2, default=str))
+                      "yield": _bus_yield(bus)}, indent=2, default=str))
     return 0
 
 
@@ -221,10 +260,11 @@ def _summarize(argv: list[str]) -> int:
         print("usage: live summarize <tree> \"question\"", file=sys.stderr)
         return 1
     tree, question = argv[0], argv[1]
+    bus = _wire_bus()
     dev = LibrarianDevice()
-    got = summarize(question, resolve=dual_seam(), tree=tree, dev=dev)
+    got = summarize(question, resolve=dual_seam(bus), tree=tree, dev=dev)
     print(json.dumps({"summarize": got, "trail": str(dev.diagnostic_trail()),
-                      "yield": domain.yield_report()}, indent=2, default=str))
+                      "yield": _bus_yield(bus)}, indent=2, default=str))
     return 0
 
 
@@ -237,7 +277,8 @@ def _main(argv: list[str]) -> int:
         return _learn(argv[1:])
     if argv and argv[0] == "summarize":
         return _summarize(argv[1:])
-    embed = embed_via_domain()
+    bus = _wire_bus()
+    embed = embed_via_bus(bus)
     dev = LibrarianDevice()
     _seed(dev, embed)
 
@@ -249,7 +290,7 @@ def _main(argv: list[str]) -> int:
                   "provenance": n["provenance"], "standing": n["standing"]}
                  for n in ranked],
         "trail": str(dev.diagnostic_trail()),
-        "yield": domain.yield_report(),
+        "yield": _bus_yield(bus),
     }, indent=2, default=str))
     return 0 if ranked else 1
 

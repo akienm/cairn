@@ -45,11 +45,9 @@ class LibrarianShim(BaseShim):
         device = LibrarianDevice()
         factory = self._session_factory
         if factory is None:
-            def factory(dev, _tree=self._tree):
-                # Live composition, deferred to the wake: both verbs through
-                # inference_domain's one door, the face over the ratified tree.
+            def factory(dev, _tree=self._tree, _bus=self._bus):
                 from cairn.devices.librarian.chat import ChatSession
                 from cairn.devices.librarian.live import dual_seam
-                return ChatSession(resolve=dual_seam(), tree=_tree, dev=dev)
+                return ChatSession(resolve=dual_seam(_bus), tree=_tree, dev=dev)
         device.attach_chat(factory(device))
         return device

@@ -154,12 +154,13 @@ class _Surface(types.ModuleType):
 
 
 def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = None,
-          models_stack=None, resolve=None, ticket: str = "") -> types.ModuleType:
+          models_stack=None, resolve=None, bus=None, ticket: str = "") -> types.ModuleType:
     """Build the surface module. Nothing is installed until :func:`install` is called.
 
     ``resolver`` and ``resolve`` are injected seams so a proof can drive the whole surface
-    without a host: ``resolve`` defaults to ``inference_domain.domain.resolve``, which is
-    the metered door and the only legal way to reach a model from here.
+    without a host: when absent and ``bus`` is provided, inference goes through the bus
+    (the sole path for inter-device inference, ticket 87a7f1c7ae21). When all three are
+    absent, the fallback is direct import of ``inference_domain`` (subprocess use only).
 
     ``ticket`` is stamped on every recorded ask. It is the ONLY thing that will ever say a
     ticket was built through this shim — a verdict artifact records that a ticket reached a
@@ -184,17 +185,22 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     for ex_name in names:
         setattr(mod, ex_name, type(ex_name, (Exception,), {"__module__": MODULE_NAME}))
 
-    def _resolve_door():
+    def _do_resolve(request):
         if resolve is not None:
-            return resolve
-        from cairn.devices.inference_domain import domain  # noqa: PLC0415 — sole path
-        return domain.resolve
-
-    def _resolver():
-        if resolver is not None:
-            return resolver
-        from cairn.devices.inference_domain import host  # noqa: PLC0415 — sole path
-        return host.ollama_resolver(model=fence.models[0])
+            r = resolver if resolver is not None else None
+            if r is None:
+                from cairn.devices.inference_domain import host  # noqa: PLC0415
+                r = host.ollama_resolver(model=fence.models[0])
+            return resolve(request, resolver=r)
+        if bus is not None:
+            reply = bus.request(
+                sender="aider_shim", to="inference_domain", verb="resolve",
+                why="aider completion", body=request,
+            )
+            return reply["body"]
+        from cairn.devices.inference_domain import domain as _domain  # noqa: PLC0415
+        from cairn.devices.inference_domain import host  # noqa: PLC0415
+        return _domain.resolve(request, resolver=host.ollama_resolver(model=fence.models[0]))
 
     def completion(*, model, messages, stream=False, **_kwargs):
         # BORDER CROSSING 1: ARRIVAL — what aider sent, BEFORE any fence or door.
@@ -292,10 +298,9 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         # cannot erase what is already on disk, and the fence's log stops depending on
         # anything downstream behaving well.
         try:
-            out = _resolve_door()(
+            out = _do_resolve(
                 {"kind": "chat", "model": model, "messages": wire,
                  "options": outbound_options},
-                resolver=_resolver(),
             )
         except BaseException as failed:
             log.record(model=model, verdict="failed", ticket=ticket, ask_chars=ask_chars,

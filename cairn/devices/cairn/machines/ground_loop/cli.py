@@ -142,28 +142,11 @@ def _restart() -> int:
     return _start()
 
 
-def _clear_trouble() -> int:
-    from cairn.devices.trouble.trouble import TroubleDevice
-    trouble = TroubleDevice()
-    identity = "ground-loop-is-older-than-the-code-it-judges"
-    live = trouble.live()
-    found = [t for t in live if t.get("id") == identity]
-    if not found:
-        print(f"ground_loop: no live trouble ticket '{identity}'")
-        return 0
-    trouble.clear(identity, by="cairn groundloop clear-trouble",
-                  what_changed="The loop was restarted via `cairn groundloop restart`. "
-                  "The new process holds current code.")
-    print(f"ground_loop: cleared trouble '{identity}'")
-    return 0
-
-
 COMMANDS = {
     "status": _status,
     "stop": _stop,
     "start": _start,
     "restart": _restart,
-    "clear-trouble": _clear_trouble,
 }
 
 USAGE = """\
@@ -174,7 +157,6 @@ commands:
   stop            signal the loop to exit on next beat
   start           spawn the ground loop daemon
   restart         stop + start
-  clear-trouble   clear the ground-loop-is-older trouble ticket
 """
 
 

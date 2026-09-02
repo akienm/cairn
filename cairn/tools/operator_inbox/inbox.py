@@ -368,7 +368,7 @@ def format_inbox(data: dict) -> str:
         lines.append(_section_line(f"ARTIFACTS AWAITING REVIEW ({adjudications['count']})"))
         lines.append("")
         for f in adjudications["findings"]:
-            bid = f.get("berth_id", f.get("id", "?"))[:12]
+            bid = (f.get("berth_id") or f.get("id") or "?")[:12]
             skill = f.get("skill", f.get("block", "?"))
             when = (f.get("when", "") or "")[:19]
             bullets = f.get("bullets", [])

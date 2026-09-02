@@ -44,8 +44,6 @@ from cairn.devices.cairn.machines.harbor_master.shim import HarborMasterShim
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
-from cairn.devices.trouble.trouble import TroubleDevice
-
 CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22; was 1.0s)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
 
@@ -107,7 +105,7 @@ def main(home=None, roots=None) -> int:
     # the-pulse-file-is-the-subscription): groundloop/pulse.py at class or instance level,
     # found each beat, activated on presence, unloaded on absence. Injected here, like
     # ``discover``, because this runner is where the loop meets the real disk.
-    device = GroundLoopDevice(liveness_home=home, discover=discover, trouble=TroubleDevice(),
+    device = GroundLoopDevice(liveness_home=home, discover=discover,
                               bus=bus, pulse_finder=pulse_sites)
     # THE BREADCRUMBS GET A WORLD — and no longer a NAME (ticket a-device-logs-without-being-wired,
     # 2026-08-18). These two lines used to read ``set_diagnostic_receiver(BreadcrumbLog("ground_loop",

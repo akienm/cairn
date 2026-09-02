@@ -165,30 +165,18 @@ class ProbeCache:
         return probes, failures
 
 
-def discover(root: Path | None = None, cache: ProbeCache | None = None,
-             skip: set | None = None) -> dict:
+def discover(root: Path | None = None, cache: ProbeCache | None = None) -> dict:
     """One pass: every device on disk, its probes, and its import failures.
 
     Returns ``{device_id: {"folder": str, "probes": [...], "failures": [...]}}``. Devices
     are merged by id when the same name appears at two addresses (a skill and a component
     could share one) — the probes concatenate, because both folders genuinely belong to
-    that device's watch.
-
-    ``skip`` is the BENCH: device ids whose folders are not even opened this pass. A device
-    benched for a bad import must not be re-imported every second — retrying a known-broken
-    thing on a cadence is how a fault becomes a firehose, and the ruling is that a failing
-    device waits for its trouble ticket to be cleared. Benched devices are still REPORTED
-    (with ``benched: True``) so the roster never silently loses a name.
+    that device's watch. Import failures are reported but the heartbeat does not judge
+    them — a failing probe is retried next pass (gated on mtime).
     """
     cache = cache if cache is not None else ProbeCache()
-    skip = skip or set()
     out: dict[str, dict] = {}
     for device_id, folder in device_folders(root):
-        if device_id in skip:
-            entry = out.setdefault(device_id, {"folder": str(folder), "probes": [],
-                                               "failures": [], "benched": True})
-            entry["benched"] = True
-            continue
         probes, failures = cache.probes_for(folder)
         entry = out.setdefault(device_id, {"folder": str(folder), "probes": [], "failures": []})
         entry["probes"].extend(probes)

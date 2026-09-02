@@ -22,7 +22,7 @@ daemon outlived a file move, so every probe it loaded bound a ``Probe`` class th
 own frame no longer held, ``isinstance`` compared two class objects wearing one name, and
 fifteen devices were benched under their own names for 29 hours. An unstaleable list read by
 a stale reader is a stale answer. The predicate that now tells those apart lives at
-``staleness.py``; the watch that would catch it recurring is at ``probes/loop_not_stale.py``.
+``staleness.py``; the loop now self-restarts on staleness rather than benching devices.
 
 The probe list is REPLACED each pass, not appended: a probe file deleted from disk leaves
 the roster on the next beat. The shim's own memories are keyed by ``Probe.identity`` and

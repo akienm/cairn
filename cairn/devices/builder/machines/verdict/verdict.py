@@ -174,7 +174,8 @@ def falsifier_criteria(ticket_id: str, root: str = CAIRN_ROOT) -> tuple[list, st
     except (OSError, json.JSONDecodeError) as e:
         return [], ("ticket %r cannot be read (%s: %s) — an unreadable obligation "
                     "refuses, it does not vanish" % (ticket_id, type(e).__name__, e))
-    text = ticket.get("falsifier")
+    raw = ticket.get("falsifier")
+    text = raw.get("proves_red", "") if isinstance(raw, dict) else raw
     if not isinstance(text, str) or not text.strip():
         return [], ("ticket %r carries no falsifier — there is nothing for a "
                     "falsifier-sourced verdict to answer, and an empty obligation "

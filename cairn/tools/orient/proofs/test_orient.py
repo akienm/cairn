@@ -153,7 +153,7 @@ def main() -> None:
         # them and inspects one twice while the other goes unexamined — measured, in
         # build_inspector, on the day the builder device landed.
         assert set(row) == {"component", "dir", "charter_on_disk", "device_subclasses",
-                            "proofs", "validations",
+                            "proofs", "validations", "runtime_role",
                             "self_emit_call_sites_outside_proofs"}, row
         assert (_REPO_ROOT / "cairn" / row["dir"]).is_dir(), \
             "a census row's dir must name a directory that exists under the scanned root"

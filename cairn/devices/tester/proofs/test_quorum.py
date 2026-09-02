@@ -152,7 +152,7 @@ def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
     persist_validation is 'is this a fixture address', and a temp artifact would test the
     guard instead of the announcement."""
     from cairn.devices.tester.validation_store import persist_validation
-    from cairn.devices.trouble.trouble import TroubleDevice
+    from cairn.tools.trouble import TroubleDevice
 
     with tempfile.TemporaryDirectory() as tmp:
         art = Path(tmp) / "I-thing.md"

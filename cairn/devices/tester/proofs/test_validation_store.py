@@ -54,7 +54,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.tester import validation_store as vs
 from cairn.devices.tester.device import VALIDATION_FIELDS, TesterDevice
-from cairn.devices.trouble.trouble import TroubleDevice
+from cairn.tools.trouble import TroubleDevice
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 

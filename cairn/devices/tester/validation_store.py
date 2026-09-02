@@ -291,7 +291,7 @@ def announce_verdict_change(path: str, change: dict, *, device=None) -> dict:
     defect.
     """
     if device is None:
-        from cairn.devices.trouble.trouble import TroubleDevice
+        from cairn.tools.trouble import TroubleDevice
         device = TroubleDevice()
     return device.raise_trouble(
         f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}",
@@ -413,7 +413,7 @@ def persist_validation(
         identity = f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}"
         try:
             if trouble_device is None:
-                from cairn.devices.trouble.trouble import TroubleDevice
+                from cairn.tools.trouble import TroubleDevice
                 td = TroubleDevice()
             else:
                 td = trouble_device

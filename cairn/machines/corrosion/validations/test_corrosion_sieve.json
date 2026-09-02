@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_corrosion_sieve.py passes under python3",
-    "caller": "bare-mkdtemp-cleanup",
-    "date": "2026-08-29T23:18:47",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T15:08:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "PASS: weakening without ruling fires a finding\nPASS: ruled weakening does NOT fire (beneficial drift)\nPASS: present constraint is untouched (no finding)\nPASS: constraint set excluding itself fires self-reference finding\nPASS: stale unrelated ruling does NOT satisfy the check\nPASS: all four constraint kinds caught by the same predicate\nPASS: non-corrosion component returns empty (no false positives)\nPASS: missing constraint set fires a finding\nPASS: empty constraint set fires a finding\n\n9 passed, 0 failed out of 9",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "dc34a92f220a36b9332b8f7b5d7932c5455b6304c8906d64f8a8437f10448196",
+      "source_fingerprint": "f38d8cee8926ecf4c91945f58dc0390006362436a62bcb381ea7c09e16ac2d85",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-kcqvu00i/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-yyu6ysoe/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

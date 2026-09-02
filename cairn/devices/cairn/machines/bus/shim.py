@@ -140,13 +140,19 @@ class BusShim(BaseShim):
                 "delivered": [r["envelope"] for r in delivered], "findings": fresh}
 
     def on_pulse(self, now, context: dict | None = None) -> dict:
-        """The heartbeat's pulse — probe firing (inherited) and the bus's own mail check
-        (inherited from BaseShim._check_mail).
+        """The heartbeat's pulse — inherited pulse, then flush the in-memory ring to DB.
 
-        THE POSTMAN IS DISSOLVED. Each device's shim now checks its own inbox on each
-        pulse (BaseShim._check_mail), so the bus no longer drains and dispatches on their
-        behalf. The drain() method is kept for callers that need it (operator inbox
-        backlog sweep), but it no longer runs every beat. What dissolved: the one-query-
-        for-all-devices sweep, the shim_for lookup, the crossing-memory set, the
-        no_receiver/no_shim outcomes — all replaced by each shim reading its own mail."""
-        return super().on_pulse(now, context)
+        Flush AFTER the pulse so that everything posted during the beat — including
+        receipts from mail delivery — lands in one batch transaction. The flush is the
+        durable half of the ring buffer; post() and request() run zero-DB on the hot
+        path."""
+        record = super().on_pulse(now, context)
+        try:
+            flush_result = self._device.flush()
+            if flush_result.get("flushed") or flush_result.get("receipts"):
+                record["flush"] = flush_result
+        except Exception as exc:  # noqa: BLE001 — a failed flush cannot stop the beat
+            self._device.emit("flush_failed", values={
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+        return record

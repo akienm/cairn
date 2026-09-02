@@ -223,6 +223,7 @@ def test_a_receipt_appends_and_never_rewrites_the_envelope():
     sent = _post(bus, "box_a", body={"deep": {"nested": [1, 2, 3]}})
     before = bus.read(to="box_a")[0]
     loop.beat(NOW)
+    bus.flush()
     after = bus.read(to="box_a")[0]
     assert after == before, (before, after)
     receipts = store.read(bus.delivery_table, where="envelope = %s", params=(sent["id"],))

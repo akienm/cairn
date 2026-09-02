@@ -171,22 +171,29 @@ class BusDevice(BaseDevice):
     and ``digest`` (a collapsible VIEW, for diagnostic channels only). Durable transit rides
     ``db_domain`` under owner ``"bus"``; the bus opens no connection of its own beyond that
     gate. ``table`` is injectable so a proof can run on an ephemeral, self-cleaning table.
+
+    IN-MEMORY RING (ticket 67d7a6783fb3). The hot path (post, request) writes to an in-memory
+    ring and fires delivery hooks with zero DB round-trips. The ground loop pulse calls
+    ``flush()`` once per beat, batch-writing the ring to Postgres in one transaction. The
+    record of truth is still Postgres (Law 7); the ring is the fast path, the flush is the
+    durable path. read() merges ring + DB so the full truth is always visible.
     """
 
     def __init__(self, table: str = "bus_traffic", device_id: str = "bus") -> None:
         super().__init__()
         self._table = table
-        # Derived from the transit table's name, never configured separately: the two are one
-        # store in two halves, and a proof that swaps in an ephemeral transit table gets an
-        # ephemeral receipt table in the same act, with no second argument to forget.
         self._delivery_table = f"{table}_delivery"
         self._device_id = device_id
         self._ensured = False
         self._posted = 0
         self._delivered = 0
+        self._flushed = 0
         self._last_envelope: dict | None = None
         self._delivery_hooks: dict[str, "Callable"] = {}
         self._channel_toggles: dict[str, dict[str, bool]] = {}
+        self._ring: list[dict] = []
+        self._ring_receipts: list[dict] = []
+        self._ring_delivered: set[str] = set()
 
     def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
         self._delivery_hooks[device_id] = deliver
@@ -267,9 +274,10 @@ class BusDevice(BaseDevice):
              verb: str = "", body: dict | None = None,
              reply_to: str | None = None) -> dict:
         """Send one message — the SOLE path for inter-device communication. Builds the envelope
-        (carrying why + causality, Law 5), writes it as an owned transit row through db_domain
-        (owner ``"bus"``, Law 6), and returns it. A missing ``why`` is refused (CP3 — a message
-        with no reason is a defect); an unknown channel is refused (CP1)."""
+        (carrying why + causality, Law 5), appends it to the in-memory ring, and fires the
+        delivery hook. Zero DB on the hot path — ``flush()`` batch-writes the ring to Postgres
+        on the ground loop pulse. A missing ``why`` is refused (CP3); an unknown channel is
+        refused (CP1)."""
         kind = _require_channel(channel)
         if not why:
             raise ValueError("a message carries a why (CP3) — the bus is a causal record, not raw traffic")
@@ -285,18 +293,9 @@ class BusDevice(BaseDevice):
             "reply_to": reply_to,
             "date": datetime.now().isoformat(timespec="seconds"),
         }
-        self._ensure()
-        store.write(self._table, _BUS_OWNER, envelope)
+        self._ring.append(envelope)
         self._posted += 1
         self._last_envelope = envelope
-        # GATE CONTACT (DiagnosticBase): a message CROSSED the boundary — the crossing the
-        # logging standard names first (MAP.md:434), emitted per crossing, never per pulse
-        # (the shim lesson). Emitted AFTER the write lands, so the breadcrumb describes a
-        # crossing that happened. Thin: pointer is the envelope id (the tie an inspector
-        # crawls on); values carry only the routing facts, so a held breadcrumb is readable
-        # without a DB join (complete on first pass) — the envelope itself, body and why,
-        # already rides the transit table as the record of truth. Reads emit nothing: a read
-        # crosses no boundary and changes no state.
         self.emit("post", pointer=envelope["id"], values={
             "sender": sender, "addressee": to, "channel": channel,
         })
@@ -314,12 +313,26 @@ class BusDevice(BaseDevice):
 
     # --- the record (full truth) and the view (collapsible) -----------------
 
+    def _ring_matches(self, *, to: str | None = None, channel: str | None = None,
+                       reply_to: str | None = None) -> list[dict]:
+        """Filter the in-memory ring by the same criteria ``read()`` uses on DB."""
+        result = []
+        for env in self._ring:
+            if to is not None and env.get("addressee") != to:
+                continue
+            if channel is not None and env.get("channel") != channel:
+                continue
+            if reply_to is not None and env.get("reply_to") != reply_to:
+                continue
+            result.append(env)
+        return result
+
     def read(self, *, to: str | None = None, channel: str | None = None,
              reply_to: str | None = None) -> list[dict]:
         """Read the feed — the RECORD, always the full truth (Law 7: the substrate never
-        collapses). Filter by addressee, channel, and/or reply_to. Reading a device's feed
-        IS inspecting it. Ordered by insertion (ctid) so causality reads in the order it
-        happened."""
+        collapses). Merges flushed rows from DB with the in-memory ring, so the full truth
+        is visible between flushes. DB rows (older, already flushed) come first; ring rows
+        (recent, not yet flushed) come after — insertion order preserved."""
         if channel is not None:
             _require_channel(channel)
         self._ensure()
@@ -334,7 +347,9 @@ class BusDevice(BaseDevice):
             clauses.append("reply_to = %s")
             params.append(reply_to)
         where = (" AND ".join(clauses) + " ORDER BY ctid") if clauses else "TRUE ORDER BY ctid"
-        return store.read(self._table, where=where, params=tuple(params))
+        db_rows = store.read(self._table, where=where, params=tuple(params))
+        ring_rows = self._ring_matches(to=to, channel=channel, reply_to=reply_to)
+        return db_rows + ring_rows
 
     def request(self, *, sender: str, to: str, channel: str = "personal", why: str,
                 verb: str = "", body: dict | None = None,
@@ -344,10 +359,14 @@ class BusDevice(BaseDevice):
 
         In the in-process model, the poke chain fires synchronously within post(): the
         target's verb handler posts a reply (with reply_to set to this envelope's id),
-        and the reply is in the transit table by the time post() returns. The timeout
-        fires only when the reply never comes — LOUD, not empty (CP1)."""
+        and the reply lands in the ring by the time post() returns. The ring check is
+        zero-DB; the timeout falls back to read() (ring + DB) for the multi-process
+        future. LOUD on timeout (CP1)."""
         envelope = self.post(sender=sender, to=to, channel=channel, why=why,
                              verb=verb, body=body)
+        ring_replies = self._ring_matches(reply_to=envelope["id"])
+        if ring_replies:
+            return ring_replies[0]
         replies = self.read(reply_to=envelope["id"])
         if replies:
             return replies[0]
@@ -368,16 +387,10 @@ class BusDevice(BaseDevice):
     def undelivered(self, *, to: str | None = None, limit: int = 200) -> list[dict]:
         """Mail that was POSTED to a personal channel and never ARRIVED.
 
-        Only personal-channel mail is deliverable — announce/info/debug are RECORD
-        or DIAGNOSTIC channels read by their audience, never pushed to the addressee.
-        The anti-join is against the receipt table, so "undelivered" is derived from
-        what is recorded, never from a flag someone has to remember to set.
-
-        ``limit`` bounds one drain, not the backlog: a device that was down for an hour gets
-        its mail over several beats instead of one enormous transaction. Ordered by ``ctid``,
-        so causality drains in the order it happened and the bound takes the OLDEST first —
-        a bound that took the newest would starve exactly the mail that has waited longest.
-        """
+        Merges two sources: DB rows whose receipt hasn't flushed yet (the anti-join), and
+        ring rows that haven't been delivered in-memory. DB rows come first (oldest);
+        ring rows append. ``_ring_delivered`` tracks in-memory receipts so a flushed
+        envelope whose receipt is still in the ring isn't reported as undelivered."""
         self._ensure()
         clauses = [sql_missing_receipt(self._table, self._delivery_table),
                    "channel = 'personal'"]
@@ -386,28 +399,69 @@ class BusDevice(BaseDevice):
             clauses.append("addressee = %s")
             params.append(to)
         where = " AND ".join(clauses) + f" ORDER BY ctid LIMIT {int(limit)}"
-        return store.read(self._table, where=where, params=tuple(params))
+        db_rows = store.read(self._table, where=where, params=tuple(params))
+        db_filtered = [env for env in db_rows
+                       if env.get("id") not in self._ring_delivered]
+        ring_undelivered = [
+            env for env in self._ring
+            if env.get("channel") == "personal"
+            and (to is None or env.get("addressee") == to)
+            and env.get("id") not in self._ring_delivered
+        ]
+        combined = db_filtered + ring_undelivered
+        return combined[:limit]
 
     def record_delivery(self, envelope_id: str, *, to: str, by: str) -> dict:
-        """Write the receipt: this envelope reached this device. APPEND, never a rewrite.
+        """Write the receipt to the in-memory ring. APPEND, never a rewrite.
 
         Called by the deliverer AFTER the device has actually taken the envelope — so a
         receiver that raises leaves no receipt and the mail is still there on the next beat.
-        Losing a message is worse than delivering it twice, and this is the ordering that
-        chooses correctly between the two."""
+        The receipt flushes to DB with the next ``flush()`` call."""
         if not envelope_id:
             raise ValueError("a receipt names the envelope it is for — a receipt for nothing "
                              "would silently mark the whole inbox delivered")
         receipt = {"envelope": envelope_id, "addressee": to, "by": by,
                    "date": datetime.now().isoformat(timespec="seconds")}
-        self._ensure()
-        store.write(self._delivery_table, _BUS_OWNER, receipt)
+        self._ring_receipts.append(receipt)
+        self._ring_delivered.add(envelope_id)
         self._delivered += 1
-        # GATE CONTACT (DiagnosticBase): the message ARRIVED — the crossing that closes the
-        # one ``post`` opened. Per delivery, never per drain attempt: an empty inbox crosses
-        # nothing and says nothing.
         self.emit("delivered", pointer=envelope_id, values={"addressee": to, "by": by})
         return receipt
+
+    def flush(self) -> dict:
+        """Batch-write the in-memory ring to Postgres in one transaction.
+
+        Called by the ground loop pulse — the heartbeat IS the flush cadence, no new timer.
+        One connection, autocommit off, one commit. A crash between beats loses at most one
+        beat's worth of RECORDS — the actions (delivery hooks) already happened."""
+        if not self._ring and not self._ring_receipts:
+            return {"flushed": 0, "receipts": 0}
+        self._ensure()
+        to_flush = list(self._ring)
+        to_receipt = list(self._ring_receipts)
+        self._ring.clear()
+        self._ring_receipts.clear()
+        self._ring_delivered.clear()
+        conn = store.connect()
+        conn.autocommit = False
+        try:
+            for env in to_flush:
+                store.write(self._table, _BUS_OWNER, env, conn=conn)
+            for rcpt in to_receipt:
+                store.write(self._delivery_table, _BUS_OWNER, rcpt, conn=conn)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        self._flushed += len(to_flush)
+        return {"flushed": len(to_flush), "receipts": len(to_receipt)}
+
+    @property
+    def ring_depth(self) -> int:
+        """How many envelopes are in the ring waiting for flush."""
+        return len(self._ring)
 
     def digest(self, *, to: str, channel: str, keep: int = 3) -> dict:
         """A collapsible VIEW of a channel (Law 7). For a DIAGNOSTIC channel (info/debug) it
@@ -447,6 +501,8 @@ class BusDevice(BaseDevice):
     def state(self) -> dict:
         return {
             "posted": self._posted,
+            "flushed": self._flushed,
+            "ring_depth": len(self._ring),
             "last_channel": (self._last_envelope or {}).get("channel"),
             "last_to": (self._last_envelope or {}).get("addressee"),
         }

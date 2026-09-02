@@ -519,6 +519,65 @@ def test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD():
     print(f"    ({seen} validations files; every one holds exactly one current record)")
 
 
+def test_CENSUS_INVARIANTS_over_the_real_corpus():
+    """THE CENSUS TOOTH — asserts invariants over every proof in class-space, not snapshot values.
+
+    The ticket's falsifier (proves_green clause i): the census asserts INVARIANTS rather than
+    the snapshot value 6, because the number legitimately moves. Two invariants:
+
+      (1) Every non-standing proof carries a non-empty ``why`` naming which of the four ways it
+          failed (never_sealed, fingerprint_stale, red_seal, other). A standing() that refuses
+          without saying why makes clearance.py's Unproven refusal uninvestigable.
+
+      (2) Every standing proof has a non-None seal — standing is a subset of sealed. This is by
+          design (standing() checks the seal's verdict and fingerprint), but the tooth asserts
+          the output rather than trusting the design, because the whole ticket is about trusting
+          outputs rather than designs.
+
+    VACUOUS GREEN GUARD: the population floor catches a broken glob that finds nothing to check.
+    An empty corpus passes both invariants trivially, which is why the floor is NOT vacuous."""
+    from cairn.devices.tester.probes.proven_space_stays_populated import survey_the_corpus
+
+    # (1) Run the census
+    s = survey_the_corpus()
+    total = s["total"]
+    assert total >= _CORPUS_FLOOR, (
+        f"only {total} proofs found in class-space — the census lost its population "
+        f"(floor is {_CORPUS_FLOOR}), and invariants over nothing are vacuously true")
+
+    # (2) Every non-standing proof carries a non-empty why
+    for entry in s["not_proven"]:
+        assert entry.get("why"), (
+            f"proof {entry['proof']} is not standing but carries no why — "
+            "standing() must explain every refusal")
+        assert entry.get("category") in ("never_sealed", "fingerprint_stale", "red_seal", "other"), (
+            f"proof {entry['proof']} has unrecognized category {entry.get('category')!r}")
+
+    # (3) Every standing proof has a seal (standing subset of sealed)
+    in_proven = s["in_proven"]
+    not_proven_count = len(s["not_proven"])
+    assert in_proven + not_proven_count == total, (
+        f"census arithmetic: {in_proven} standing + {not_proven_count} not standing != {total} total")
+    standing_proofs = total - not_proven_count
+    assert standing_proofs == in_proven, (
+        f"standing count mismatch: {standing_proofs} by subtraction vs {in_proven} by census")
+
+    # (4) Verify standing subset of sealed by spot-checking via standing() directly
+    all_proofs = sorted(_REPO_ROOT.glob("**/proofs/test_*.py"))
+    all_proofs = [p for p in all_proofs if "__pycache__" not in str(p)]
+    standing_with_no_seal = []
+    for p in all_proofs:
+        result = vs.standing(str(p))
+        if result["proven"] and result["seal"] is None:
+            standing_with_no_seal.append(os.path.relpath(p, _REPO_ROOT))
+    assert not standing_with_no_seal, (
+        "proofs standing without a seal — standing is not a subset of sealed:\n  "
+        + "\n  ".join(standing_with_no_seal))
+
+    print(f"    ({total} proofs censused; {in_proven} standing ({s['fraction']*100:.1f}%); "
+          f"every non-standing carries a why; standing is subset of sealed)")
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, NOT TYPED. It was a hand-maintained list, and the 2026-08-13
     # sweep walked straight into what that costs: two teeth were added and neither ran,
@@ -531,7 +590,7 @@ def _main() -> int:
     # declared teeth — off by one, from a hand's miscount rather than a rule — and a floor
     # one below the roster is a floor with room for exactly the disappearance it exists to
     # catch. Raised to 14 the moment the criterion's own instrument measured the gap.
-    assert len(checks) >= 14, (
+    assert len(checks) >= 15, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:

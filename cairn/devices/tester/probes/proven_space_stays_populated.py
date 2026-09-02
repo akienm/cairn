@@ -10,30 +10,22 @@ population — no sampling, no head/tail. Each not-proven proof carries its own 
 ``standing()`` itself writes: never sealed, fingerprint moved, no fingerprint recorded, or
 red seal.
 
-THREE TRIGGER CONDITIONS from the ticket spec, and only the first is measurable today:
+TWO TRIGGER CONDITIONS from the ticket spec:
 
   (a) A proof's seal TRAIL fails integrity — a Law 7 record-of-truth failure, reported
       separately, never folded into the staleness count. THIS ONE FIRES.
 
-  (b) The standing fraction falls below what the settled rule predicts. THE RULE HAS NOT
-      BEEN SETTLED YET — child (a) of the owning ticket (``what-proven-space-is-for``) is
-      the design question, and until it is answered there is no threshold to compare
-      against. When the rule IS written, the probe reads it from where it lives — never
-      from a constant hardcoded here (the ticket says so explicitly).
-
-  (c) A crossing was REFUSED for an unproven ``proven_by`` — the horizon condition, and the
+  (b) A crossing was REFUSED for an unproven ``proven_by`` — the horizon condition, and the
       only evidence that the state has an actual cost. No refusal record for this probe to
       read exists yet.
 
-WHAT ``enough`` CAN AND CANNOT MEASURE. The ticket says: "when at least one crossing has
-been refused for an unproven proven_by AND the standing fraction has held at or above the
-settled rule's prediction across that refusal." Both halves are gated on things that do not
-exist yet. This probe says False honestly, names what it lacks, and will clear when both
-arrive. This is not a failure — it is a probe armed before its ticket's design question was
-answered, measuring what CAN be measured (the census) while the answer arrives.
+THE RULE IS SETTLED (ticket child (a) answered 2026-09-02): proven-space is a per-component
+fresh state that decays, gated at crossing-time by clearance.py (lines 876-907). There is no
+population threshold because the gate is per-component — the fraction is a diagnostic
+measure, not a gate. The ``enough`` condition simplifies: the fraction half is vacuously
+satisfied, so only the refusal record is needed.
 
-AUTHORITY: none. This probe deposits and pokes; settling what proven-space IS for is
-Akien's ruling and the ticket's child (a) (Law 6).
+AUTHORITY: none. This probe deposits and pokes.
 
 FILES ONLY — no device, no bus, no network, so it stays cheap enough to sit on a pulse.
 """
@@ -142,12 +134,12 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    """CANNOT CLEAR YET — both halves of the enough clause are gated.
+    """Gated on one remaining half: a refusal record.
 
-    The ticket says: "when at least one crossing has been refused for an unproven proven_by
-    AND the standing fraction has held at or above the settled rule's prediction." The rule
-    does not exist (ticket child (a): what-proven-space-is-for) and no refusal record exists
-    for this probe to read. This probe clears when both arrive and the conditions are met.
+    The rule IS settled (child (a) answered): proven-space is per-component at crossing-time
+    (clearance.py line 876-907), not a population fraction — so there is no population
+    threshold and the fraction half is vacuously satisfied. The remaining gate: at least one
+    crossing refused for an unproven proven_by, which is the only evidence the state has cost.
     """
     return False
 
@@ -170,7 +162,7 @@ def _carry(context: dict) -> dict:
         "fraction": s["fraction"],
         "not_proven_by_category": s["not_proven_by_category"],
         "trail_integrity_failures": s["trail_integrity_failures"],
-        "rule_settled": False,
+        "rule_settled": True,
         "refusal_observed": False,
         "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": "clause (2): the number raised by weakening standing() — "
@@ -179,19 +171,18 @@ def _carry(context: dict) -> dict:
                              "a code change behind it; clause (3): broken trails re-sealed "
                              "rather than diagnosed — the trail-integrity section names them "
                              "separately so the consumer sees what would be overwritten",
-        "suggests": "settle what proven-space is for (ticket child (a)) — until the rule "
-                    "exists this probe measures the census but cannot compare it against a "
-                    "threshold and enough cannot clear; the trail-integrity failures "
-                    "(ticket child (b)) are the louder and independent defect",
+        "suggests": "rule settled: proven-space is per-component at crossing-time "
+                    "(clearance.py 876-907), no population threshold — enough is gated "
+                    "only on the first refusal record for an unproven proven_by",
     }
 
 
 _HORIZON = 1000
 
 PROBE = Probe(
-    why="the corpus has most of its proofs outside proven-space and no rule says what the "
-        "number should be — the census is measured but the question of what it means is "
-        "this ticket's own open design question (child (a): what-proven-space-is-for)",
+    why="proven-space is per-component at crossing-time (clearance.py 876-907) — the "
+        "census measures the fraction as a diagnostic, and enough clears when at least one "
+        "crossing is refused for an unproven proven_by (the horizon condition)",
     trigger=_trigger,
     to="tester",
     body={"nexus": "hypothesize", "kind": "efficacy"},

@@ -251,6 +251,7 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
             {"component": name,
              "runtime_role": "tool",
              "learns": "fixture component — does not learn",
+             "gated_by": ["CC"],
              "claim_provenance": {"role": "test", "what": "test", "why": "test"}}))
         from cairn.machines.build_inspector.inspector import _source_fingerprint
         fp = _source_fingerprint(d)
@@ -1387,7 +1388,7 @@ def test_the_entry_gate_names_all_three_sieves_so_a_dropped_one_shortens_the_rec
                   "the_ticket_names_its_sorted_door_firing"):
         assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
     assert rec["entry_gate"].endswith(
-        "the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, "
+        "the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, "
         "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing"), \
         f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
 

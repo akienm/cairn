@@ -17,7 +17,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.machines.build_inspector.inspector import SIEVES, inspect, working_tree_clean  # noqa: E402
+from cairn.machines.build_inspector.inspector import FINDING_SHAPE, SIEVES, inspect, working_tree_clean  # noqa: E402
 from cairn.tools.charter import projector  # noqa: E402
 from cairn.tools.orient.orient import ScanRefused  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
@@ -37,7 +37,7 @@ def _jfindings(attendance):
 # "component" stopped being enough to say which one was caught, and the gradation is now
 # keyed by address. "at" is what correlates a finding back to its own row; without it a
 # reader (and the tooth below at the gradation) can only guess between two subjects.
-_FINDING_SHAPE = {"method", "component", "about", "expected", "actual", "compare", "at"}
+_FINDING_SHAPE = FINDING_SHAPE
 
 
 def _refuses(fn, because):
@@ -1028,7 +1028,7 @@ def main() -> None:
         tickets_dir.mkdir(parents=True, exist_ok=True)
         (tickets_dir / "proved-ticket.json").write_text(json.dumps({
             "id": "proved-ticket",
-            "state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+            "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
         }))
         (comp / "history.json").write_text(json.dumps([
             {"standing": "BUILDME", "ticket": "proved-ticket", "seq": 0},
@@ -1053,7 +1053,7 @@ def main() -> None:
         tickets_dir.mkdir(parents=True, exist_ok=True)
         (tickets_dir / "active-ticket.json").write_text(json.dumps({
             "id": "active-ticket",
-            "state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
+            "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
         }))
         (comp / "history.json").write_text(json.dumps([
             {"standing": "BUILDME", "ticket": "active-ticket", "seq": 0},
@@ -1090,7 +1090,7 @@ def main() -> None:
         tk_dir.mkdir(parents=True)
         (tk_dir / "proved-ticket.json").write_text(json.dumps({
             "id": "proved-ticket",
-            "state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
+            "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
         }))
         (sl_dir / "proved-ticket-boundary.json").write_text(json.dumps({
             "slate_id": "proved-ticket-boundary",
@@ -1112,7 +1112,7 @@ def main() -> None:
         tk_dir.mkdir(parents=True)
         (tk_dir / "active-ticket.json").write_text(json.dumps({
             "id": "active-ticket",
-            "state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
+            "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED",
         }))
         (sl_dir / "active-ticket-boundary.json").write_text(json.dumps({
             "slate_id": "active-ticket-boundary",

@@ -120,6 +120,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from cairn.tools.base.gate_class import TransitionGate
 from cairn.tools.charter import projector
 from cairn.tools.gate import gate
 
@@ -374,20 +375,21 @@ def _emission_gate(obj: str | None, ticket: object) -> tuple[str, list[dict]]:
     whose verdict came back failed, and gating a retreat would trap the boat at the one state
     it is supposed to be able to return to."""
     record = inspect_emission(obj, ticket)
-    bad = _mismatches(record)
-    if bad:
-        raise WatchmeEmissionRed(
+    berth = (record[-1].get("values") or {}).get("berth")
+    note = "%s — WATCHME(%s) emitted the probe berthed at %s (ticket %r)" % (
+        EMISSION_GATE._default_note(record), obj, berth, ticket)
+
+    def _red(_record, bad):
+        return (
             f"WATCHME({obj}) crossing refused — {bad[0]['actual']}. Nothing was journaled. "
-            f"{len(record)} check(s) ran and are named on this first pass; berth and arm the "
+            f"{len(_record)} check(s) ran and are named on this first pass; berth and arm the "
             "probe, name the ticket on the crossing (ticket=<id>), or back-edge and drop the "
             "watch from the string through the owner's gate. A watch that cannot be checked "
             "is not a watch (Law 3).\n" + "\n".join(
                 f"  [{e['identity']}] expected {e['expected']!r}, actual {e['actual']!r}"
-                for e in bad),
-            _findings_of(record))
-    berth = (record[-1].get("values") or {}).get("berth")
-    return ("%s — WATCHME(%s) emitted the probe berthed at %s (ticket %r)" % (
-        _proved_note("the emission gate", record), obj, berth, ticket), record)
+                for e in bad))
+
+    return EMISSION_GATE.run(record, note=note, red_fn=_red)
 
 
 def migrate_to_v2(workflow_str: str, *, watch: str | None = None) -> str:
@@ -977,6 +979,19 @@ class DemoGateRed(IllegalTransition):
         self.findings = findings or []
 
 
+# ---------------------------------------------------------------------------
+# THE GATE REGISTRY — five named, instantiated gates at the block-general level.
+#
+# Each gate IS a TransitionGate: named, carrying its exception class, verdicting
+# a proof record. The inspect functions below produce the records; the gates
+# verdict them. build_inspector is the FIRST TENANT (ruling 2026-08-07).
+EMISSION_GATE = TransitionGate("emission_gate", exception_class=WatchmeEmissionRed)
+ENTRY_GATE = TransitionGate("entry_gate", exception_class=EntryGateRed)
+EXIT_GATE = TransitionGate("exit_gate", exception_class=ExitGateRed)
+BUILD_GATE = TransitionGate("build_gate", exception_class=BuildGateRed)
+CLEARANCE_GATE = TransitionGate("clearance_gate", exception_class=ClearanceRequiredRed)
+
+
 def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[dict]]:
     """The seventh gate: a ticket flagged ``"demo": true`` crossing forward into PROVED
     must carry a DEMO validation — a quorum seal with Akien's watched-and-approved
@@ -1003,7 +1018,7 @@ def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[di
     from cairn.devices.tester.validation_store import (
         read_validations, validations_path_for_artifact)
 
-    val_path = validations_path_for_artifact(str(ticket_path))
+    val_path = validations_path_for_artifact(str(ticket_file))
     vals = read_validations(path=val_path)
     demo_vals = [v for v in vals if "demo" in v.get("method", "").lower()
                  or "demo" in v.get("claim", "").lower()]
@@ -1073,20 +1088,19 @@ def _require_clearance(target: str, journal_extra: dict, *,
     no DB) and the boot-order law holds.
     """
     record = inspect_clearance(target, journal_extra, history_path=history_path)
-    bad = _mismatches(record)
-    if bad:
-        raise ClearanceRequiredRed(_clearance_refusal(target, record, bad[0]),
-                                   _findings_of(record))
-    note = _proved_note("the clearance gate", record)
+    base_note = CLEARANCE_GATE._default_note(record)
     v = record[0].get("values") or {}
     if not journal_extra.get("cleared_by"):
-        return (f"exempt — {v['component']!r} is on the explicit clearance roster "
-                f"(_CLEARANCE_EXEMPT_ROSTER); " + note, record)
-    via = " (delegated)" if journal_extra.get("delegated") else ""
-    sealed = (record[-1].get("values") or {}).get("seal")
-    return (f"cleared by {journal_extra['cleared_by']!r}{via} onto "
-            f"{journal_extra.get('proven_by')} (seal {sealed}, re-read at the door); "
-            + note, record)
+        note = (f"exempt — {v['component']!r} is on the explicit clearance roster "
+                f"(_CLEARANCE_EXEMPT_ROSTER); " + base_note)
+    else:
+        via = " (delegated)" if journal_extra.get("delegated") else ""
+        sealed = (record[-1].get("values") or {}).get("seal")
+        note = (f"cleared by {journal_extra['cleared_by']!r}{via} onto "
+                f"{journal_extra.get('proven_by')} (seal {sealed}, re-read at the door); "
+                + base_note)
+    return CLEARANCE_GATE.run(record, note=note,
+                              red_fn=lambda r, bad: _clearance_refusal(target, r, bad[0]))
 
 
 def inspect_clearance(target: str, journal_extra: dict, *, history_path: str) -> list[dict]:
@@ -1241,28 +1255,26 @@ def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
     # at a diagnostic surface). The third addend joined 2026-08-03 (ticket
     # sorted-becomes-a-learning-block).
     record = inspect_entry(ticket)
-    findings = _findings_of(record)
-    if not findings:
-        return (
-            "clean — a berthed chart chain claims ticket %r, and the ticket names its "
+    note = ("clean — a berthed chart chain claims ticket %r, and the ticket names its "
             "/intent firing and its /sorted door firing; %s"
-            % (ticket, _proved_note("the entry gate", record)), record
-        )
-    lines = [
-        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
-        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
-        for f in findings
-    ]
-    raise EntryGateRed(
-        f"BUILDME crossing refused for cast ticket {ticket!r} — {len(findings)} "
-        f"finding(s) across {len(record)} check(s), all named on this first pass. Skipping "
-        "/chart, /intent or the "
-        "/sorted door is a build error, the same physics that refuses skipping a stage "
-        "inside the chain. Nothing was journaled. Fix what is named below, then cross "
-        "again:\n"
-        + "\n".join(lines),
-        findings=findings,
-    )
+            % (ticket, ENTRY_GATE._default_note(record)))
+
+    def _red(_record, bad):
+        findings = TransitionGate._extract_findings(bad)
+        lines = [
+            f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+            f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
+            for f in findings
+        ]
+        return (
+            f"BUILDME crossing refused for cast ticket {ticket!r} — {len(findings)} "
+            f"finding(s) across {len(_record)} check(s), all named on this first pass. Skipping "
+            "/chart, /intent or the "
+            "/sorted door is a build error, the same physics that refuses skipping a stage "
+            "inside the chain. Nothing was journaled. Fix what is named below, then cross "
+            "again:\n" + "\n".join(lines))
+
+    return ENTRY_GATE.run(record, note=note, red_fn=_red)
 
 
 def inspect_exit(ticket: str) -> list[dict]:
@@ -1300,23 +1312,24 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
     identically to a live one.
     """
     record = inspect_exit(ticket)
-    findings = _findings_of(record)
-    if not findings:
-        return ("clean — no unanswered chart claim stands against ticket %r; %s"
-                % (ticket, _proved_note("the exit gate", record)), record)
-    lines = [
-        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
-        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
-        for f in findings
-    ]
-    raise ExitGateRed(
-        f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
-        "PROVED asserts done, and done is verified in the world by the instrument, "
-        "never the narration. Nothing was journaled. Run the claiming validate berth's "
-        "criteria, write the verdict artifact (cairn.devices.builder.machines.verdict.verdict.write_verdict), "
-        "deposit it, then cross again:\n" + "\n".join(lines),
-        findings=findings,
-    )
+    note = ("clean — no unanswered chart claim stands against ticket %r; %s"
+            % (ticket, EXIT_GATE._default_note(record)))
+
+    def _red(_record, bad):
+        findings = TransitionGate._extract_findings(bad)
+        lines = [
+            f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+            f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
+            for f in findings
+        ]
+        return (
+            f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
+            "PROVED asserts done, and done is verified in the world by the instrument, "
+            "never the narration. Nothing was journaled. Run the claiming validate berth's "
+            "criteria, write the verdict artifact (cairn.devices.builder.machines.verdict.verdict.write_verdict), "
+            "deposit it, then cross again:\n" + "\n".join(lines))
+
+    return EXIT_GATE.run(record, note=note, red_fn=_red)
 
 
 def _enqueue_verdict(ticket: str) -> str | None:
@@ -1347,6 +1360,43 @@ def _enqueue_verdict(ticket: str) -> str | None:
     from cairn.devices.builder.machines.verdict.verdict import enqueue_verdict as _enqueue
 
     return _enqueue(ticket)
+
+
+def _notify_harbor(history_path: str, record: dict) -> None:
+    """Post a crossing notification to harbor_master via the bus.
+
+    Fires AFTER the record is written — a notification that the crossing
+    happened, not a gate. Sending side only; the harbor's receive() accepts
+    it. Failures are loud (Law 7) but do not roll back the crossing.
+    """
+    try:
+        from cairn.devices.cairn.machines.bus.bus import BusDevice
+        component = str(history_path).replace("/history.json", "").replace("\\", "/")
+        gates_fired = [
+            k for k in ("build_gate", "entry_gate", "exit_gate",
+                        "clearance_gate", "emission_gate", "demo_gate")
+            if record.get(k) is not None and record[k] != "not_applicable"
+        ]
+        bus = BusDevice()
+        bus.post(
+            sender=component,
+            to="harbor_master",
+            channel="personal",
+            why="crossing notification — %s → %s" % (record["from"], record["to"]),
+            verb="crossing",
+            body={
+                "component": component,
+                "from": record["from"],
+                "to": record["to"],
+                "direction": record.get("direction", "forward"),
+                "gates_fired": gates_fired,
+                "ticket": record.get("ticket"),
+                "fingerprint": record.get("fingerprint"),
+            },
+        )
+    except Exception as exc:
+        import sys
+        print("harbor notification failed: %s" % exc, file=sys.stderr)
 
 
 def inspect_build(history_path: str) -> list[dict]:
@@ -1409,33 +1459,33 @@ def _build_gate(history_path: str) -> tuple[str, list[dict]]:
     """
     comp_dir = Path(history_path).resolve().parent
     record = inspect_build(history_path)
-    if not gate.passed(record[0]):
-        raise BuildGateRed(
-            f"PROVEME crossing refused: the census cannot measure component "
-            f"{comp_dir.name!r} at {comp_dir} — {record[0]['actual']} A gate that silently "
-            "inspects nothing passes everything (Law 8), so an uninspectable address is "
-            "refused, not waved through. Disposition: make the component census-visible "
-            "(grow the census — the learning device's move: new blindness, new scan), or "
-            "re-home its history beside measurable code.",
-            _findings_of(record))
-    findings = _findings_of(record)
-    if not findings:
-        sieves = (record[0].get("values") or {})["sieves_run"]
-        return (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
-                f"{len(record)} check(s) are proved on this crossing", record)
-    lines = [
-        f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
-        f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
-        for f in findings
-    ]
-    raise BuildGateRed(
-        f"PROVEME crossing refused: component {comp_dir.name!r} reds the build_inspector "
-        f"({len(findings)} finding(s) across {len(record)} check(s)) — nothing enters "
-        "proven-space past a red gate (Law 8). Nothing was journaled. Fix the findings or "
-        "kick back to BUILDME; every finding is complete here, no re-run needed:\n"
-        + "\n".join(lines),
-        findings=findings,
-    )
+    sieves = (record[0].get("values") or {}).get("sieves_run", [])
+    note = (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
+            f"{len(record)} check(s) are proved on this crossing")
+
+    def _red(_record, bad):
+        if not gate.passed(_record[0]):
+            return (
+                f"PROVEME crossing refused: the census cannot measure component "
+                f"{comp_dir.name!r} at {comp_dir} — {_record[0]['actual']} A gate that silently "
+                "inspects nothing passes everything (Law 8), so an uninspectable address is "
+                "refused, not waved through. Disposition: make the component census-visible "
+                "(grow the census — the learning device's move: new blindness, new scan), or "
+                "re-home its history beside measurable code.")
+        findings = TransitionGate._extract_findings(bad)
+        lines = [
+            f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+            f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
+            for f in findings
+        ]
+        return (
+            f"PROVEME crossing refused: component {comp_dir.name!r} reds the build_inspector "
+            f"({len(findings)} finding(s) across {len(_record)} check(s)) — nothing enters "
+            "proven-space past a red gate (Law 8). Nothing was journaled. Fix the findings or "
+            "kick back to BUILDME; every finding is complete here, no re-run needed:\n"
+            + "\n".join(lines))
+
+    return BUILD_GATE.run(record, note=note, red_fn=_red)
 
 
 def _render_at(wf: Workflow, idx: int, phase: str | None) -> str:
@@ -1710,6 +1760,7 @@ def emit(
         }
         record["fingerprint"] = _crossing_fingerprint(record)
         projector.append_entry(history_path, state_path, record)
+        _notify_harbor(history_path, record)
     return new_str
 
 

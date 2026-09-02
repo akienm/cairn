@@ -120,6 +120,9 @@ def _finding(method: str, component: str, about: str, expected, actual,
     return entry
 
 
+FINDING_SHAPE = frozenset({"method", "component", "about", "expected", "actual", "compare", "at"})
+
+
 # ── the founding sieves — one per failure that seeded it ────────────────────
 
 

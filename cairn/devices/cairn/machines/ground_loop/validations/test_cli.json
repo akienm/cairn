@@ -1,29 +1,26 @@
 [
   {
     "claim": "proof test_cli.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-30T22:56:06",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:32:30",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "PASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n  clear-trouble   clear the ground-loop-is-older trouble ticket\n\nPASS: help returns 0\nPASS: unknown command returns 1\nground_loop: no live trouble ticket 'ground-loop-is-older-than-the-code-it-judges'\nPASS: clear-trouble returns 0 when no trouble exists\nground_loop: cleared trouble 'ground-loop-is-older-than-the-code-it-judges'\nPASS: clear-trouble clears the ground-loop-is-older ticket\nPASS: bin/cmd/groundloop exists and is executable\n\n8 passed, 0 failed out of 8",
-      "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n  clear-trouble   clear the ground-loop-is-older trouble ticket\n",
+      "stdout_tail": "  last beat:   0.0s ago\n  subscribers: 1\nPASS: status returns 0 and reads liveness\nground_loop: stop signaled (flag copied to instance folder)\n  pid 3459306 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n6 passed, 0 failed out of 6",
+      "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "5fcb9f4b559f2104b8563bdb6f68ded670b8afc62044eeb8b1dbb4b1344c4861",
+      "source_fingerprint": "d0d66692fd813f4f310cf858129347a514a8f147de98fe51fd3a9bcc4582033a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-6sbiuvxh/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-_o0xmz47/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/trouble/0/20260831.045551.614077.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20260831.045551.614771.TroubleDevice.clear.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         }
       }

@@ -1,29 +1,26 @@
 [
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
-    "caller": "re-seal-stale-fp",
-    "date": "2026-08-31T17:54:05",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:34:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door\n  PASS  test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_line\n  PASS  test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal\n  PASS  test_the_refusal_names_the_line_and_never_the_reading\n  PASS  test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded\n  PASS  test_this_proof_never_wrote_to_the_live_queue\ngreen — the harbor's lines are names the real system device serves on its ask door, and the device's own predicates refuse a move in both directions without ever handing over a reading. The gate CAN ask the real host; nothing yet makes a crossing go through it (0 of 186 emit-shaped records carry cleared_by, re-measured 2026-08-10 — ticket emit-refuses-an-uncleared-crossing).",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py\", line 81, in <module>\n    _OWNER = boat_owner_of(_BOAT).hands[0]\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/clearance.py\", line 500, in boat_owner_of\n    raise OwnerUnresolvable(\ncairn.devices.cairn.machines.harbor_master.clearance.OwnerUnresolvable: boat 'clearance-leaves-a-trace' has no ticket at /home/akien/dev/src/CairnCommons/tickets/clearance-leaves-a-trace.json — nothing on disk says who owns this voyage, so the gate refuses rather than assuming. If the boat is real, /sorted casts it; if the id is wrong, the crossing is naming a boat that does not exist.",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "78863b4be8129dd78ffd94c7ac8eb0333bcaec171b38e38cc9dcf229978eb7ca",
+      "source_fingerprint": "5248ba2362404cb8a2d048a99765b4e8a0cd43edadaf8e16e3caf34ce9f447b3",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-im04u7rg/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-peya1n0q/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/charter/0/20260831.235402.203685.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20260831.235402.198654.TesterDevice.run_proof.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         }
       }

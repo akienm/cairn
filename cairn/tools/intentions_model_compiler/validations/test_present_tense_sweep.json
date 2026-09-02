@@ -1,20 +1,29 @@
 [
   {
     "claim": "proof test_present_tense_sweep.py passes under python3",
-    "caller": "CC (ticket the-present-tense-corpus-rewrites-once)",
-    "date": "2026-08-15T15:06:15",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:48:22",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)\ntooth (ii) green: 0 matches over 56 artifacts, 120 pairs (26 cites, every snippet standing)\nGREEN: the present-tense corpus carries no dated appends, and every judgment is on record",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 122, in <module>\n    tooth_ii_zero_live_and_every_cite_stands()\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 80, in tooth_ii_zero_live_and_every_cite_stands\n    assert r[\"matches\"] == [], (\n           ^^^^^^^^^^^^^^^^^^\nAssertionError: tooth (ii) RED: 2 dated-append shape(s) still standing: [{\"path\": \"/home/akien/dev/src/cairn/cairn/tools/base/intention+why.json\", \"line\": 6, \"shape\": \"\\\\bRETIRED\\\\b\", \"matched\": \"RETIRED) is a class-declared terminal exit reachable from any summons \\u2014 not gram\"}, {\"path\": \"/home/akien/dev/src/cairn/cairn/devices/codemonkey/intention+why.json\", \"line\": 7, \"shape\": \"\\\\(20\\\\d\\\\d-\\\\d\\\\d-\\\\d\\\\d\", \"matched\": \"(2026-08-29). Memory doesn't stick (corrected and repeated same day), flags are \"}]",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c174a62c0ee079b069b146c23fc8e35d2088a6cf8ac0c707403c6ff709cd47d2",
-      "trail_link": "0482f52a6230a04a3d90ac4ac0412fdd608c1d46c6cd409276bac46679d94d65"
+      "source_fingerprint": "c35c35333f1255437f2bfa5821eddab7c7c0b8dc682fd2d0f2d5741459dc0062",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2ccha0ju/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

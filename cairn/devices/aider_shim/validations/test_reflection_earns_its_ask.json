@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_reflection_earns_its_ask.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-30T04:40:29",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:26:40",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_second_ask_BIG_ENOUGH_is_consistent_and_is_NEVER_called_carried\n  ok   test_a_second_ask_TOO_SMALL_to_hold_the_failure_text_is_measured_as_no\n  ok   test_an_EMPTY_record_store_is_not_enough_and_is_not_an_error\n  ok   test_an_UNREFLECTED_drive_has_no_carriage_question\n  ok   test_an_UNREFLECTED_failing_drive_does_not_fire_the_ended_worse_falsifier\n  ok   test_enough_goes_TRUE_at_five_reflected_drives_and_FALSE_at_four\n  ok   test_running_the_probe_MOVES_NO_STATE\n  ok   test_the_carriage_falsifier_fires_and_is_NOT_marked_over_firing\n  ok   test_the_carriage_hole_is_NAMED_and_points_at_where_it_IS_measured\n  ok   test_the_carrier_reports_the_per_ask_counts_so_a_reader_can_check_the_split\n  ok   test_the_ended_worse_falsifier_ADMITS_it_over_fires\n  ok   test_the_falsifiers_speak_BEFORE_enough_is_satisfied\n  ok   test_the_probe_carries_BOTH_a_carry_and_an_enough\n  ok   test_the_probe_does_NOT_grade_the_yield\n  ok   test_the_probe_is_FROZEN\n  ok   test_the_probe_is_armed_at_the_path_the_TICKET_names\n  ok   test_the_trigger_fires_on_a_NEW_drive_and_not_on_a_STANDING_one\n  ok   test_the_yield_splits_reflected_from_baseline_over_ONE_population\n\nGREEN",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/aider_shim/proofs/test_reflection_earns_its_ask.py\", line 42, in <module>\n    from cairn.devices.aider_shim.probes import reflection_earns_its_ask as probe  # noqa: E402\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'cairn.devices.aider_shim.probes'",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "bf1285f5d8bb6c89f12efb29e68512156478905b1eeda577a4b9ea318a41c0c2",
+      "source_fingerprint": "afc6445ceeb84564fa9a7a31c2eec107634ffba0b7dcdbabdf1a1c3df55cd401",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-h2d7gdbp/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-xg05ok3l/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

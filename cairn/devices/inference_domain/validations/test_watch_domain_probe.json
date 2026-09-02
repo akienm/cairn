@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_watch_domain_probe.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-17T18:53:52",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:36:20",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_the_trigger_fires_on_one_unmarked_post_era_row\n  PASS  test_the_clear_needs_the_denominator_and_a_real_vertical\n  PASS  test_all_default_rows_cannot_buy_the_clear\n  PASS  test_a_young_berth_does_not_clear\n  PASS  test_the_carry_reports_complete_on_first_pass\n  PASS  test_dateless_or_naive_rows_never_count\ngreen — the watch fires on the first unmarked post-era row (any verb), clears only past the denominator floor AND a real non-default vertical (all-default cannot buy it), ignores the pre-domained era, and carries the complete report on first pass",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "3b653dc99b0f157925c8d01fdcf04f659ff90da8f0c0406c76f61d0640cff509"
+      "source_fingerprint": "1faae40558e6c79750152dc94551e175b427dba94c01cedb18292000045dbfff",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-41ty1_ix/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

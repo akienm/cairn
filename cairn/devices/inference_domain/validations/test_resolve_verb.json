@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_resolve_verb.py passes under python3",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:36:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_resolve_verb_is_declared\n  PASS  test_resolve_verb_includes_base_verbs\n  PASS  test_resolve_returns_real_result\n  PASS  test_reply_lands_in_ring\n  PASS  test_generate_kind\n  PASS  test_device_is_bus_unaware\n  PASS  test_yield_view_via_get_verb\ngreen — inference_domain answers on the bus, zero cross-device imports needed",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "1faae40558e6c79750152dc94551e175b427dba94c01cedb18292000045dbfff",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-q0zvh_vk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 45,
+          "paths": [
+            "devices/inference_domain/0/last_known.json",
+            "logs/bus/0/20260902.203603.911261.BusDevice.post.json",
+            "logs/bus/0/20260902.203603.954052.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.203603.968788.BusDevice.post.json",
+            "logs/bus/0/20260902.203603.989972.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.012698.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.018838.BusDevice.delivered.json",
+            "logs/bus/0/20260902.203604.121014.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.167207.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.203604.185563.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.202512.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.229554.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.236914.BusDevice.delivered.json",
+            "logs/bus/0/20260902.203604.331399.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.376132.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.203604.390481.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.402020.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.422367.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.428609.BusDevice.delivered.json",
+            "logs/bus/0/20260902.203604.541165.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.584953.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.203604.598887.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.610499.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.631873.BusDevice.post.json",
+            "logs/bus/0/20260902.203604.637793.BusDevice.delivered.json",
+            "logs/bus/0/20260902.203604.638079.BusDevice.post.json",
+            "logs/bus/0/20260902.203606.227403.BusDevice.post.json",
+            "logs/bus/0/20260902.203606.235083.BusDevice.delivered.json",
+            "logs/ground_loop/0/20260902.203603.844020.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203603.844287.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203603.844420.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.019073.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.019213.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.019315.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.237134.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.237277.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.237375.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.445407.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.445578.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.203604.445709.GroundLoopDevice.subscribe.json"
+          ],
+          "elided": 5
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

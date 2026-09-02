@@ -1,0 +1,39 @@
+[
+  {
+    "claim": "proof test_fleet_cache.py passes under python3",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:34:06",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_fresh_device_has_no_cache\n  PASS  test_reconcile_populates_the_cache_from_disk\n  PASS  test_a_crossing_patches_the_cached_standing\n  PASS  test_reconcile_replaces_the_cache\n  PASS  test_first_crossing_on_empty_cache_triggers_reconcile\n  PASS  test_state_reports_from_cache\n  PASS  test_crossings_since_reconcile_counts\n  PASS  test_in_port_boat_patched_by_component\ngreen — crossing notifications patch, reconciliation replaces, state reports from cache — the event-driven fleet cache",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "5248ba2362404cb8a2d048a99765b4e8a0cd43edadaf8e16e3caf34ce9f447b3",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-f_7ehp7n/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 7,
+          "paths": [
+            "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
+            "logs/harbor_master/0/20260902.203403.453932.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260902.203403.593208.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260902.203403.738557.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260902.203403.738780.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260902.203403.738934.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260902.203403.833160.HarborMasterDevice.received.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

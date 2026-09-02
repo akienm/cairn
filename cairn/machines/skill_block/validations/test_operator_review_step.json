@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_operator_review_step.py passes under python3",
-    "caller": "skills-update-for-operator-artifact-review-virtual-gate",
-    "date": "2026-08-28T10:41:02",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:39:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "a13dcc0f5620922a3edd20ac2ec38ea0242b0d2334bca912018b929d1d0d5445",
+      "source_fingerprint": "046d11be3b6115033fd91e3e7992022f6ddff8692655e4981e54246254be0686",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-zedj7ni7/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-hd9n_u5v/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

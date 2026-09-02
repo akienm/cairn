@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_bus.py passes under python3",
-    "caller": "the-pane-set-is-the-channel-set-reseal",
-    "date": "2026-09-01T00:10:38",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:30:17",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_message_round_trips_with_why_and_causality\n  PASS  test_an_unknown_channel_and_a_whyless_message_are_refused\n  PASS  test_record_channel_refuses_to_collapse_diagnostic_may\n  PASS  test_transit_is_owner_gated\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\ngreen — bus: one substrate for all comms; messages round-trip with why + causality, records refuse to collapse while diagnostics may, transit is owner-gated through db_domain",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "2ce27bc4c769f628feb45dca7394386ae4ef2cf335ad2424a044e82b5e3ff130",
+      "source_fingerprint": "19fd2475af4a12f642d088f8ea8b1d1a7e6e6d56926aacbb3e1a378a48fc59e7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-_g01rkgj/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-f8m2o6w0/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_orient.py passes under python3",
-    "caller": "sail:intent-becomes-a-learning-block — census widened to admit a charter-carrying, markdown-implemented component (skills/intent/)",
-    "date": "2026-08-01T14:46:35",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:48:57",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "orient proofs: all teeth green",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/orient/proofs/test_orient.py\", line 257, in <module>\n    main()\n  File \"/home/akien/dev/src/cairn/cairn/tools/orient/proofs/test_orient.py\", line 155, in main\n    assert set(row) == {\"component\", \"dir\", \"charter_on_disk\", \"device_subclasses\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'component': 'aider_shim', 'dir': 'devices/aider_shim', 'charter_on_disk': True, 'runtime_role': 'device', 'device_subclasses': [], 'proofs': 8, 'validations': [{'file': 'test_driver.json', 'verdict': 'red', 'records': 1}, {'file': 'test_edit_survival_probe.json', 'verdict': 'red', 'records': 1}, {'file': 'test_fence.json', 'verdict': 'red', 'records': 1}, {'file': 'test_interceptor.json', 'verdict': 'red', 'records': 1}, {'file': 'test_probe.json', 'verdict': 'red', 'records': 1}, {'file': 'test_reflection_earns_its_ask.json', 'verdict': 'red', 'records': 1}, {'file': 'test_translation.json', 'verdict': 'green', 'records': 1}, {'file': 'test_writes_to_probe.json', 'verdict': 'red', 'records': 1}], 'self_emit_call_sites_outside_proofs': 0}",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "trail_link": "9fa5112f48dbf725ff4f9ec08cb641b8f16796414f1e042fa58f715b76cc6e84"
+      "source_fingerprint": "da336178dc1476786b2185afe7a8d212fd65bb5b8ecf1903d06a5d7eeef5b690",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-mwqk30de/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,23 +1,31 @@
 [
   {
-    "claim": "proof test_skilldial.py passes under python3 — the usage roster reads each skill's firings where its charter says they live, and never turns 'could not look' into a zero",
-    "caller": "sail:counted-by-where-the-firings-already-live",
-    "date": "2026-08-04T16:35:57",
-    "method": "ran the proof as a subprocess under the network seal (seal=sealed); verdict = exit code (0 -> green, else red). Run twice beforehand, green both times.",
-    "verdict": "green",
+    "claim": "proof test_skilldial.py passes under python3",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:40:04",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok a bare absolute path is refused as an address\n  ok the live roster covers every real skill\n  ok the live render does not crash\n  ok every live skill is now either countable or says why not\n  ok LIVE: /sail is the only skill left with no store at all\nGREEN — 51 teeth",
+      "returncode": 1,
+      "stdout_tail": "  ok roster IS the directory listing — no registry\n  ok every skill on disk gets a row\n  ok a non-tenant is marked NOT countable\n  ok a non-tenant carries NO count fields at all\n  ok its why says so in words\n  ok a charterless skill is refused differently from an unwired one\n  ok THE RENDER TOOTH: the uncountable row prints no zero\n  ok the uncountable row says 'not countable' out loud\n  ok the summary refuses to add the two kinds together\n  ok a wired skill with no firings counts 0\n  ok never-fired is rendered as 'never', not blank\n  ok zero and uncountable render differently\n  ok firings counted\n  ok refusals counted separately\nRED  findings counted  ",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "teeth": 51,
-      "live_roster_at_seal_time": "5 judged at a door, 5 counted elsewhere, 1 not countable (sail) — 389 firings visible, up from 19",
-      "trail_link": "9e6f8dd11628b31fb84d8e1288fe033fcecf56d484f39fa57afabc4efc2aff38"
+      "source_fingerprint": "046d11be3b6115033fd91e3e7992022f6ddff8692655e4981e54246254be0686",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-131vb0za/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
-    "falsifier": "the same proof exits non-zero on re-run; or the roster renders a 0 under refused/findings/match for a skill counted outside the seam; or an unreachable tree store, a missing directory or a failing git reports 0 firings instead of unreadable; or a directory count passes for a template-conforming one",
-    "horizon": "valid until the proof file, counters.py, skilldial.py, or any charter's counted_by block changes (Law 3: a VALIDATION expires)"
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

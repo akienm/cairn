@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "superclaude-tmux-mode",
-    "date": "2026-08-28T22:33:39",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:35:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "267df903b27ca35d0a8276eabe1f8521277fd4844b93804ae824cecf67b32f09",
+      "source_fingerprint": "02942cc4f515bdf56dc397ce816396937cdf57796839dd1b7f96d3518faf8a99",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-l6sqm2_8/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-70rkdthw/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

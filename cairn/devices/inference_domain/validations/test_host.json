@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_host.py passes under python3",
-    "caller": "CC",
-    "date": "2026-08-18T01:01:54",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:35:42",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\n  PASS  test_the_sole_path_tooth_reds_on_a_planted_dialer\n  PASS  test_the_outbound_body_wears_the_named_domains_prompt_content\n  PASS  test_a_bare_requests_outbound_body_is_byte_for_byte_undressed\n  PASS  test_generals_walk_is_todays_walk_exactly\n  PASS  test_the_walk_obeys_the_domains_escalation_rule\n  PASS  test_a_chat_call_meters_the_hosts_own_counters\n  PASS  test_an_unmetered_chat_answer_is_refused_not_metered_as_zero\n  PASS  test_chat_opens_api_chat_and_nothing_else\n  PASS  test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed\n  PASS  test_a_malformed_messages_list_never_reaches_the_host\n  PASS  test_the_chat_walk_obeys_the_domains_escalation_rule\n  PASS  test_the_shipped_models_stack_declares_the_chat_verb\n  PASS  test_a_non_final_answer_is_refused_by_its_own_name\n  PASS  test_a_response_carrying_no_done_key_at_all_is_left_alone\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "86c7b5b41a30e41b5d931a98dd9feb24dfc7ac68e9402f5c75007ff4898c1089"
+      "source_fingerprint": "1faae40558e6c79750152dc94551e175b427dba94c01cedb18292000045dbfff",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-h1pwenmk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

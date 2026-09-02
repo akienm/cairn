@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_db_domain.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-26T07:57:12",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:35:16",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_connect_reaches_the_cairn_database\n  PASS  test_ownerless_table_is_impossible\n  PASS  test_owned_table_records_its_owner\n  PASS  test_the_owner_gates_every_write\n  PASS  test_write_to_an_unowned_table_is_refused\n  PASS  test_a_jsonb_row_round_trips_as_structure\n  PASS  test_the_owner_gates_every_update\n  PASS  test_add_owned_constraint_gates_and_holds\ngreen — db_domain: ownerless is impossible, the owner gates writes and constraints, jsonb round-trips as structure",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ed11acefe9fed8c29e9d5792accb40a60d7cd443e679e0066d33df57b196ea0f",
+      "source_fingerprint": "c6002ad940f8afea0f46708bd9690ca34f9e04b838bf4b55f68b968c4244deba",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-7z3cwdcf/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4jorukoq/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

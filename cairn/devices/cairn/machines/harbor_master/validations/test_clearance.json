@@ -1,40 +1,26 @@
 [
   {
     "claim": "proof test_clearance.py passes under python3",
-    "caller": "re-seal-stale-fp",
-    "date": "2026-08-31T17:53:52",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:33:55",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_that_names_two_voyages_is_refused_before_anything_is_written\n  PASS  test_an_unresolvable_hop_refuses_by_name_and_never_defaults\n  PASS  test_the_read_reaches_nothing_outward\n  PASS  test_a_refused_attempt_leaves_a_durable_record_carrying_its_reason\n  PASS  test_a_grant_and_a_refusal_are_one_field_apart_in_one_store\n  PASS  test_every_refusal_CLASS_reaches_the_queue_including_the_ones_raised_outside_the_gate\n  PASS  test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one\n  PASS  test_the_public_door_and_the_decision_it_wraps_have_one_signature\n  PASS  test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them\n  PASS  test_this_proof_never_wrote_to_the_live_queue\n  PASS  test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED\n  PASS  test_a_malformed_retirement_REFUSES_and_never_reads_as_not_retired\n  PASS  test_a_boat_riding_a_retired_intention_MAY_NOT_MOVE_FORWARD\n  PASS  test_but_it_may_still_RETREAT_because_a_wall_is_not_a_gate\n  PASS  test_a_retirement_with_NO_SUCCESSOR_still_refuses_and_says_so\n  PASS  test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register\n  PASS  test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED\n  PASS  test_the_read_face_prints_only_numbers_the_library_returned\n  PASS  test_this_build_added_no_tracing_of_its_own\ngreen — the clearance gate binds authority (Law 6), proven-space (Law 8), resources, and the wrapped rules (Law 4) before a cursor moves, and records the crossing (Law 7) — the harbor clears the move, it never sails it, and it never counts a fleet",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py\", line 106, in <module>\n    _OWNER = boat_owner_of(_BOAT).hands[0]\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/clearance.py\", line 500, in boat_owner_of\n    raise OwnerUnresolvable(\ncairn.devices.cairn.machines.harbor_master.clearance.OwnerUnresolvable: boat 'boat-owner-is-read-not-stated' has no ticket at /home/akien/dev/src/CairnCommons/tickets/boat-owner-is-read-not-stated.json — nothing on disk says who owns this voyage, so the gate refuses rather than assuming. If the boat is real, /sorted casts it; if the id is wrong, the crossing is naming a boat that does not exist.",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "78863b4be8129dd78ffd94c7ac8eb0333bcaec171b38e38cc9dcf229978eb7ca",
+      "source_fingerprint": "5248ba2362404cb8a2d048a99765b4e8a0cd43edadaf8e16e3caf34ce9f447b3",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ns5s5ajl/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-lsed6wqt/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
-          "paths": [
-            "logs/charter/0/20260831.235346.483620.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235346.486091.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235348.989876.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235348.993341.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235348.996060.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235348.998679.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235349.022863.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235349.044472.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235349.054024.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260831.235349.059361.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20260831.235343.881465.TesterDevice.run_proof.json",
-            "logs/tester/0/20260831.235346.481295.TesterDevice.run_proof.json",
-            "logs/tester/0/20260831.235348.988344.TesterDevice.run_proof.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         }
       }

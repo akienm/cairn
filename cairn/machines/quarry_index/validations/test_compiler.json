@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_compiler.py passes under python3",
-    "caller": "quarry-index",
-    "date": "2026-08-29T21:24:16",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:39:18",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS: index has 1275 entries (not hollow)\n  PASS: every entry carries UNPROVEN-PRIOR-SYSTEM\n  PASS: Channel pattern resolves to 9 document(s)\n  PASS: calving resolves to 2 document(s)\n  PASS: calving doc names threshold and protected nodes\n  PASS: node record / memory resolves to 5 document(s)\n  PASS: 1080 entries have 'also_at' (dedup recorded); all hashes unique\n  PASS: persisted index matches compiled (1275 entries)\n\nquarry_index proofs: 8 passed, 0 failed",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "e706bab8ed887a8cbd55d54dcb8764e742b5e01b6f8487b99601447d5e857159",
+      "source_fingerprint": "466018c8850477957be825d72501fbfe825d224804c70daa629b5da4e860eba9",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ivb7gwc_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-kc4uajn3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

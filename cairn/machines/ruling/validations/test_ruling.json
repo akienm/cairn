@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_ruling.py passes under python3",
-    "caller": "ruling-intake-ensures-packets-are-opened",
-    "date": "2026-08-29T18:36:29",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:39:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_supersede_refuses_with_every_reason\n  PASS  test_supersede_writes_only_to_the_superseding_record\n  PASS  test_a_superseded_ruling_leaves_the_hook_but_not_the_disk\n  PASS  test_one_successor_retires_many_without_erasing_the_first_act\n  PASS  test_the_single_slot_shape_still_retires\n  PASS  test_a_retired_ruling_answers_for_nothing\n  PASS  test_supersession_does_not_silence_an_unrelated_red\n  PASS  test_the_hook_goes_quiet_after_a_cli_supersession\n  PASS  test_the_hook_names_what_is_open_and_never_wedges_a_turn\n  PASS  test_a_file_the_corpus_still_imports_cannot_be_sentenced\n  PASS  test_a_file_nothing_imports_may_still_be_sentenced\n  PASS  test_verify_lists_every_check_it_ran_not_only_the_failures\n  PASS  test_a_check_that_could_not_run_is_absent_from_the_record\n  PASS  test_marker_scanner_finds_all_strong_markers\n  PASS  test_strong_only_skips_weak_markers\n  PASS  test_hook_fires_on_marker_without_packet\n  PASS  test_hook_silent_when_packet_opened\n  PASS  test_casual_that_holds_does_not_fire\n  PASS  test_hook_is_unconditional\ngreen — cairn/machines/ruling: a ruling is refused unless it carries HIS WORDS beside my one-line reading and names real paths; the recorder cannot author its own confirmation and is never asked twice; and a file ruled dead that comes back is RED (the 2026-07-31 regression, replayed).",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "584b21475d2cb46a5fd519410216dc3a43322462ad5a1053db64ed5ab353d3a0",
+      "source_fingerprint": "bf9d9a1e1f05494c621459f638e0bf8230650a82f8486a99908010e80c9032e5",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-gd3imt16/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-lz9vmiu4/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

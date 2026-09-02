@@ -1,31 +1,30 @@
 [
   {
     "claim": "proof test_verb.py passes under python3",
-    "caller": "the-pane-set-is-the-channel-set-reseal",
-    "date": "2026-09-01T00:11:55",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:32:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_post_carries_verb_in_envelope\n  PASS  test_deliver_resolves_verb_to_handler\n  PASS  test_unknown_verb_goes_red\n  PASS  test_no_verbs_no_receive_refuses\n  PASS  test_empty_verb_falls_back_to_receive\n  PASS  test_probe_carries_verb\n  PASS  test_verb_column_in_transit_table\n  PASS  test_probe_default_verb_is_empty\n8/8 green — the verb resolves, unknown goes RED, legacy falls back",
+      "stdout_tail": "  PASS  test_post_carries_verb_in_envelope\n  PASS  test_deliver_resolves_verb_to_handler\n  PASS  test_unknown_verb_goes_red\n  PASS  test_no_verbs_unknown_verb_refuses\n  PASS  test_empty_verb_falls_back_to_receive\n  PASS  test_probe_carries_verb\n  PASS  test_verb_column_in_transit_table\n  PASS  test_probe_default_verb_is_empty\n8/8 green — the verb resolves, unknown goes RED, legacy falls back",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "2ce27bc4c769f628feb45dca7394386ae4ef2cf335ad2424a044e82b5e3ff130",
+      "source_fingerprint": "19fd2475af4a12f642d088f8ea8b1d1a7e6e6d56926aacbb3e1a378a48fc59e7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-86cm5u4b/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3unt5mqw/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 4,
           "paths": [
-            "logs/bus/0/20260901.061152.084076.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260901.061152.102479.BusDevice.post.json",
-            "logs/bus/0/20260901.061152.153505.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260901.061152.173578.BusDevice.post.json",
-            "logs/bus/0/20260901.061152.228941.BusDevice.transit_table_ensured.json"
+            "devices/test_no_verb_device/0/tools/data_recorder/inbound/records.jsonl",
+            "logs/bus/0/20260902.203202.180921.BusDevice.post.json",
+            "logs/bus/0/20260902.203202.181847.BusDevice.post.json",
+            "logs/bus/0/20260902.203202.218687.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         }

@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_chart_hypothesize.py passes under python3",
-    "caller": "sail:the-claim-rides-every-link",
-    "date": "2026-08-03T15:47:29",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:28:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_request_identity_is_physics\n  PASS  test_refusal_is_one_pass_complete\n  PASS  test_the_chain_is_physics_at_depth_6\n  PASS  test_floor_hands_the_covering_vocabulary_verbatim\n  PASS  test_schema_gate_refuses_hollow_shapes\n  PASS  test_the_door_composes_the_installed_judges\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_deposit_back_is_gated\n  PASS  test_import_allowlist\ngreen — chart/hypothesize: stage 6 fills only through an unbroken five-link chain (triage's reader composed by identity), the floor hands the covering vocabulary verbatim, the schema gate refuses hollow shapes, the door composes the inspector's own judges (by identity), the berth round-trips, the deposit-back is gated, and the brick's doors are exactly the four composed ones",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "trail_link": "c330d03e53801a6fd2df510cdb9a1ec896c25c3216b3c624bce4c993c7d48c50"
+      "source_fingerprint": "ab82fd6254e439578dc571ced8d70fd67b5e94f40e58e3d7eed951cf30c72514",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-vh2ely9a/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

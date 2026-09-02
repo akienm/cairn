@@ -1,31 +1,29 @@
 [
   {
     "claim": "proof test_list_toggle.py passes under python3",
-    "caller": "the-pane-set-is-the-channel-set-reseal",
-    "date": "2026-09-01T00:11:44",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:31:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 9 items\n\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_empty_bus PASSED [ 11%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_shows_wired_device PASSED [ 22%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_unwire_removes_from_list PASSED [ 33%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_suppresses_delivery PASSED [ 44%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_restores_delivery PASSED [ 55%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_reflects_in_list PASSED [ 66%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_on_unwired_device_raises PASSED [ 77%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_unknown_channel_raises PASSED [ 88%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_roster_minimum PASSED [100%]\n\n============================== 9 passed in 0.19s ===============================\n\n\u001b[32m9 teeth green\u001b[0m",
+      "stdout_tail": "platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 9 items\n\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_empty_bus PASSED [ 11%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_shows_wired_device PASSED [ 22%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_unwire_removes_from_list PASSED [ 33%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_suppresses_delivery PASSED [ 44%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_restores_delivery PASSED [ 55%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_reflects_in_list PASSED [ 66%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_on_unwired_device_raises PASSED [ 77%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_unknown_channel_raises PASSED [ 88%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_roster_minimum PASSED [100%]\n\n============================== 9 passed in 0.04s ===============================\n\n\u001b[32m9 teeth green\u001b[0m",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "2ce27bc4c769f628feb45dca7394386ae4ef2cf335ad2424a044e82b5e3ff130",
+      "source_fingerprint": "19fd2475af4a12f642d088f8ea8b1d1a7e6e6d56926aacbb3e1a378a48fc59e7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-r3pzk_jy/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-pfa3sja4/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 3,
           "paths": [
-            "logs/bus/0/20260901.061141.247278.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260901.061141.260910.BusDevice.post.json",
-            "logs/bus/0/20260901.061141.276825.BusDevice.post.json",
-            "logs/bus/0/20260901.061141.321316.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260901.061141.334830.BusDevice.post.json"
+            "logs/bus/0/20260902.203127.914384.BusDevice.post.json",
+            "logs/bus/0/20260902.203127.914587.BusDevice.post.json",
+            "logs/bus/0/20260902.203127.915324.BusDevice.post.json"
           ],
           "elided": 0
         }

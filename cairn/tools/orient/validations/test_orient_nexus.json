@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_orient_nexus.py passes under python3",
-    "caller": "import-map-scan 2026-07-28 (the first brick-loop correction: capability-measured imports)",
-    "date": "2026-07-28T16:43:24",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:49:08",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_orient\n  PASS  test_an_undated_correction_may_not_take_residence\n  PASS  test_the_founding_corrections_carry_their_scars\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry\n  PASS  test_the_fire_path_never_reaches_the_tree\ngreen — orient/nexus: the corpus is born orient's, undated corrections are turned away, the founding scars trace to real scans, counsel keeps its labeled floor, a proposal cannot touch the registry, and the fire-path cannot reach the tree — the graft is additive, by construction",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "trail_link": "32892dc8ed1e15e7919b297fb9ba900241ef6b2494d2819be49fd7b15079fc36"
+      "source_fingerprint": "da336178dc1476786b2185afe7a8d212fd65bb5b8ecf1903d06a5d7eeef5b690",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-y6vlq99t/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

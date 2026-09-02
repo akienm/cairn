@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_questions.py passes under python3",
-    "caller": "CC",
-    "date": "2026-08-28T02:44:15",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:49:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_registry_holds_tuples_add_remove\n  PASS  test_no_dedup_same_question_different_owners\n  PASS  test_established_questions_are_importable_strings\n  PASS  test_misspelled_constant_raises\n  PASS  test_generator_single_question\n  PASS  test_generator_list_of_questions\n  PASS  test_generator_routes_through_embed\n  PASS  test_temporary_question_lifecycle\n  PASS  test_remove_absent_raises\n  PASS  test_meta_question_held_without_special_casing\n  PASS  test_meta_question_generator_same_shape\n  PASS  test_add_refuses_empty\n  PASS  test_generate_refuses_empty\ngreen — tree/questions: registry holds tuples with add/remove, no dedup, constants importable, generator routes through embed, temporary lifecycle, meta-questions same shape",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "9beaacfef041cea703c205a60e90de994fb6e5c32c524edbd41c0df0e103ebd9",
+      "source_fingerprint": "cf37e323e05c39907a1da9883eedb168cf26f6107aee6bf7ca39f0a23b46ecd1",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-6miq4jqp/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-__p6r7m5/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

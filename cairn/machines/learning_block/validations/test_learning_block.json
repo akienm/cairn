@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_learning_block.py passes under python3",
-    "caller": "sail:chart-doors-refuse-in-one-pass",
-    "date": "2026-08-03T11:29:06",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:39:04",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  test_engine_spec_door_refuses_every_lack_at_once\n  green  test_finding_round_trips_with_closed_strata\n  green  test_green_and_red_have_equal_durability\n  green  test_hex_only_via_the_seam\n  green  test_hollow_contract_is_refused\n  green  test_module_imports_no_inference_client\n  green  test_nothing_resident_in_the_module\n  green  test_pending_findings_rule\n  green  test_recordverdict_shell_door\n  green  test_refusal_and_pass_are_both_traced_and_input_untouched\n  green  test_shell_door_traces_and_refuses\n  green  test_traced_wire_green_and_red_and_reraise\n  green  test_two_lacks_one_refusal_all_named\n  green  test_typed_write_round_trips\n  green  test_typeless_write_is_refused_and_writes_nothing\n  green  test_untagged_and_invented_strata_are_refused_naming_the_bullet\n  green  test_verdict_conforms_to_the_stores_v0_shape\n  green  test_verdict_without_finding_or_words_is_refused\n\n32/32 teeth green",
+      "stdout_tail": "  green  test_finding_round_trips_with_closed_strata\n  green  test_green_and_red_have_equal_durability\n  green  test_hex_only_via_the_seam\n  green  test_hollow_contract_is_refused\n  green  test_module_imports_no_inference_client\n  green  test_nothing_resident_in_the_module\n  green  test_pending_findings_rule\n  green  test_recordverdict_shell_door\n  green  test_refusal_and_pass_are_both_traced_and_input_untouched\n  green  test_shell_door_traces_and_refuses\n  green  test_the_door_records_every_check_it_ran_not_only_the_lacks\n  green  test_traced_wire_green_and_red_and_reraise\n  green  test_two_lacks_one_refusal_all_named\n  green  test_typed_write_round_trips\n  green  test_typeless_write_is_refused_and_writes_nothing\n  green  test_untagged_and_invented_strata_are_refused_naming_the_bullet\n  green  test_verdict_conforms_to_the_stores_v0_shape\n  green  test_verdict_without_finding_or_words_is_refused\n\n40/40 teeth green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "trail_link": "92d48415fe17d1acf06b52a00ebb869d8f7c9168f1befc864be41ebce8302f70"
+      "source_fingerprint": "73555276042cf9207fcfcfeed465768975f7966586ad1456909427699172f286",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-qrky0yh9/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

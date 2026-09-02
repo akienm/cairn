@@ -1,19 +1,29 @@
 [
   {
     "claim": "proof test_chain_grammar.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-08-17T13:52:13",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none')); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:47:02",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "PASS test_component_of_reads_a_path_the_orient_floor_would_author\nPASS test_identity_lack_names_its_remediation\nPASS test_import_allowlist\nPASS test_ref_semantics_are_one_implementation\nPASS test_the_roster_is_measured_ONCE_per_process_and_forgetting_re_measures\nPASS test_ticket_path_answers_only_for_a_filed_ticket\ngreen: 6 teeth",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "PASS test_component_of_reads_a_path_the_orient_floor_would_author\nPASS test_identity_lack_names_its_remediation",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chain_grammar.py\", line 219, in <module>\n    main()\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chain_grammar.py\", line 211, in main\n    tooth(root)\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chain_grammar.py\", line 200, in test_import_allowlist\n    assert not stray, \"grammar.py imports outside its allowlist: %s\" % sorted(stray)\n           ^^^^^^^^^\nAssertionError: grammar.py imports outside its allowlist: ['glob']",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "3184bdd4e38d8291df42d2836503ea35002022c13d54c950d1e9690ea69e449d"
+      "source_fingerprint": "db72ad6c6e6514165db32480c7e8e99e566be7d29fb754e4dc2529541c27d039",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-4sjwwo1w/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

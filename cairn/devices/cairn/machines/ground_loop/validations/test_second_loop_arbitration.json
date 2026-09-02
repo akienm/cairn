@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_second_loop_arbitration.py passes under python3",
-    "caller": "re-seal-stale-fp",
-    "date": "2026-08-31T17:54:19",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:33:17",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok threshold is 120s\n  ok stale incumbent → takeover\n  ok stale decision names the pid\n  ok stale decision reports the age\n  ok healthy incumbent → exit\n  ok healthy decision names the pid\n  ok at-threshold incumbent → exit (<=)\n  ok past-threshold incumbent → takeover\n  ok absent record → exit\n  ok absent record has no pid\n  ok absent reason mentions the lack\nGREEN — 11 teeth",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "f0b351004ce9761cdcd48928b0070f60cac228bab78ef916c34c88c5ccf214c7",
+      "source_fingerprint": "d0d66692fd813f4f310cf858129347a514a8f147de98fe51fd3a9bcc4582033a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4dvqdcty/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-munnc7z7/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

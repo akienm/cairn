@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_pane_channel_identity.py passes under python3",
-    "caller": "the-pane-set-is-the-channel-set",
-    "date": "2026-09-01T00:10:09",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-inspector-sweep",
+    "date": "2026-09-02T14:31:42",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 7 items\n\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_channel_has_a_pane PASSED [ 14%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_map_entry_names_a_real_channel PASSED [ 28%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_pane_kinds_are_unique_per_channel PASSED [ 42%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_structural_panes_are_not_channel_derived PASSED [ 57%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_full_pane_set_is_six PASSED [ 71%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_map_keys_equal_channels_keys PASSED [ 85%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::test_roster_minimum PASSED [100%]\n\n============================== 7 passed in 0.05s ===============================\n\n\u001b[32m7 teeth green\u001b[0m",
+      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 7 items\n\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_channel_has_a_pane PASSED [ 14%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_map_entry_names_a_real_channel PASSED [ 28%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_pane_kinds_are_unique_per_channel PASSED [ 42%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_structural_panes_are_not_channel_derived PASSED [ 57%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_full_pane_set_is_six PASSED [ 71%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_map_keys_equal_channels_keys PASSED [ 85%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::test_roster_minimum PASSED [100%]\n\n============================== 7 passed in 0.05s ===============================\n\n\u001b[32m7 teeth green\u001b[0m",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "2ce27bc4c769f628feb45dca7394386ae4ef2cf335ad2424a044e82b5e3ff130",
+      "source_fingerprint": "19fd2475af4a12f642d088f8ea8b1d1a7e6e6d56926aacbb3e1a378a48fc59e7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3_0fvlfd/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1dle5q1o/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

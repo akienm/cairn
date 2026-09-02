@@ -120,7 +120,8 @@ class WebServerDevice(BaseDevice):
             else:
                 body = render.render_traffic_image(img)
         elif path.startswith("/device/"):
-            device = path[len("/device/"):].strip("/")
+            raw_device = path[len("/device/"):].strip("/")
+            device = raw_device.split("?")[0] if "?" in raw_device else raw_device
             selected = device
             shim = self._shim_for(device)
             if shim is None:
@@ -135,7 +136,11 @@ class WebServerDevice(BaseDevice):
                     trouble = self._deliver(shim, device, request_body)
                     if trouble:
                         status = 500
-                body = render.render_active_page(shim.active_page(), trouble=trouble)
+                cursor = self._parse_cursor(path)
+                page_data = shim.active_page(cursor=cursor) if cursor is not None else shim.active_page()
+                base_path = f"/device/{device}"
+                body = render.render_active_page(page_data, trouble=trouble,
+                                                 base_path=base_path)
         else:
             status = 404
             body = render.render_message("Not found", f"No page at {path!r}.")
@@ -187,6 +192,21 @@ class WebServerDevice(BaseDevice):
         except Exception as e:  # noqa: BLE001 — the surface collapses, the record stands
             return f"delivery to {device} failed: {e}"
         return None
+
+    @staticmethod
+    def _parse_cursor(path: str) -> int | None:
+        """Extract ?cursor=N from the path's query string. None if absent or non-integer."""
+        if "?" not in path:
+            return None
+        qs = path.split("?", 1)[1]
+        params = parse_qs(qs)
+        vals = params.get("cursor", [])
+        if not vals:
+            return None
+        try:
+            return int(vals[0])
+        except (ValueError, TypeError):
+            return None
 
     # --- Form v0 #2 surface -------------------------------------------------
 

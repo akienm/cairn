@@ -173,11 +173,123 @@ def _render_chat_pane(pane: dict) -> str:
             f'<div class="transcript">{transcript}</div>{form}</section>')
 
 
-def render_pane(pane: dict) -> str:
+def _render_record(data) -> str:
+    """A record — key-value pairs as a definition list. The data is a dict."""
+    if not isinstance(data, dict):
+        return f'<pre>{_esc(data)}</pre>'
+    items = "".join(f'<dt>{_esc(k)}</dt><dd>{_esc(v)}</dd>' for k, v in data.items())
+    return f'<dl class="record">{items}</dl>'
+
+
+def _render_table(data) -> str:
+    """A table — a list of dicts as an HTML table. Columns from the union of all keys."""
+    if not isinstance(data, list) or not data:
+        return f'<pre>{_esc(data)}</pre>'
+    cols = []
+    seen = set()
+    for row in data:
+        if isinstance(row, dict):
+            for k in row:
+                if k not in seen:
+                    cols.append(k)
+                    seen.add(k)
+    if not cols:
+        return f'<pre>{_esc(data)}</pre>'
+    header = "".join(f'<th>{_esc(c)}</th>' for c in cols)
+    rows = []
+    for row in data:
+        if isinstance(row, dict):
+            cells = "".join(f'<td>{_esc(row.get(c, ""))}</td>' for c in cols)
+        else:
+            cells = f'<td colspan="{len(cols)}">{_esc(row)}</td>'
+        rows.append(f'<tr>{cells}</tr>')
+    return f'<table><thead><tr>{header}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+
+def _render_sequence(data) -> str:
+    """A sequence — a list rendered as an ordered list."""
+    if not isinstance(data, list):
+        return f'<pre>{_esc(data)}</pre>'
+    items = "".join(f'<li>{_esc(item)}</li>' for item in data)
+    return f'<ol class="sequence">{items}</ol>'
+
+
+def _render_tree(data, *, _depth: int = 0) -> str:
+    """A tree — nested dicts/lists as collapsible details/summary elements."""
+    if isinstance(data, dict):
+        parts = []
+        for k, v in data.items():
+            inner = _render_tree(v, _depth=_depth + 1)
+            if isinstance(v, (dict, list)) and v:
+                parts.append(
+                    f'<details{"" if _depth > 0 else " open"}>'
+                    f'<summary>{_esc(k)}</summary>{inner}</details>')
+            else:
+                parts.append(f'<div class="leaf"><span class="key">{_esc(k)}</span>: '
+                             f'<span class="val">{_esc(v)}</span></div>')
+        return "".join(parts)
+    if isinstance(data, list):
+        items = "".join(f'<li>{_render_tree(item, _depth=_depth + 1)}</li>' for item in data)
+        return f'<ol class="tree-list">{items}</ol>'
+    return f'<span class="val">{_esc(data)}</span>'
+
+
+def _render_scalar(data) -> str:
+    """A scalar — a single value rendered inline."""
+    return f'<span class="scalar">{_esc(data)}</span>'
+
+
+_VIEW_DISPATCH: dict[str, object] = {
+    "record": _render_record,
+    "table": _render_table,
+    "sequence": _render_sequence,
+    "tree": _render_tree,
+    "scalar": _render_scalar,
+    "chat": None,
+}
+
+
+def _render_pager(pane: dict, base_path: str) -> str:
+    """Prev/next anchors when a pane is bounded (count > len(window))."""
+    count = pane.get("count")
+    window = pane.get("window")
+    cursor = pane.get("cursor")
+    if count is None or window is None:
+        return ""
+    window_len = len(window) if isinstance(window, list) else 0
+    if count <= window_len:
+        return ""
+    links = []
+    if cursor is not None and cursor > 0:
+        prev_cursor = max(0, cursor - window_len)
+        links.append(f'<a class="pager-prev" href="{_esc(base_path)}?cursor={prev_cursor}">&larr; prev</a>')
+    if cursor is not None and cursor + window_len < count:
+        next_cursor = cursor + window_len
+        links.append(f'<a class="pager-next" href="{_esc(base_path)}?cursor={next_cursor}">next &rarr;</a>')
+    elif cursor is None and window_len < count:
+        links.append(f'<a class="pager-next" href="{_esc(base_path)}?cursor={window_len}">next &rarr;</a>')
+    if not links:
+        return ""
+    return f'<nav class="pager">{" ".join(links)}</nav>'
+
+
+def _render_window_meta(pane: dict) -> str:
+    """'showing N of M' annotation when a pane carries bounded-read metadata."""
+    count = pane.get("count")
+    window = pane.get("window")
+    if count is None or window is None:
+        return ""
+    window_len = len(window) if isinstance(window, list) else 0
+    if count <= window_len:
+        return ""
+    return f'<p class="window-meta">showing {_esc(window_len)} of {_esc(count)}</p>'
+
+
+def render_pane(pane: dict, *, base_path: str = "") -> str:
     """One pane of a device's ACTIVE page: its label, then its DATA — or, if it could not be
-    built, its ABSENT reason (loud, never silent; child a produced the reason). A pane kind
-    with its own rich view (chat, the first) dispatches to it; every other kind renders its
-    DATA as pretty JSON — honest and complete for introspection."""
+    built, its ABSENT reason (loud, never silent; child a produced the reason). Dispatches on
+    the declared kind: record, table, sequence, tree, scalar each have a dedicated renderer;
+    chat has its own rich view; an unknown kind falls back to <pre> with pretty JSON."""
     label = _esc(pane.get("label", pane.get("kind", "pane")))
     kind = _esc(pane.get("kind", ""))
     if pane.get("absent"):
@@ -185,17 +297,26 @@ def render_pane(pane: dict) -> str:
                 f'<h2>{label}</h2><p class="reason">absent — {_esc(pane["absent"])}</p></section>')
     if pane.get("kind") == "chat":
         return _render_chat_pane(pane)
+    renderer = _VIEW_DISPATCH.get(pane.get("kind", ""))
+    data = pane.get("data")
+    window_meta = _render_window_meta(pane)
+    pager = _render_pager(pane, base_path)
+    if renderer is not None:
+        body = renderer(pane.get("window", data) if pane.get("window") is not None else data)
+    else:
+        body = f'<pre>{_esc(data)}</pre>'
     return (f'<section class="pane" data-kind="{kind}">'
-            f'<h2>{label}</h2><pre>{_esc(pane.get("data"))}</pre></section>')
+            f'<h2>{label}</h2>{window_meta}{body}{pager}</section>')
 
 
-def render_active_page(page: dict, *, trouble: str | None = None) -> str:
+def render_active_page(page: dict, *, trouble: str | None = None,
+                       base_path: str = "") -> str:
     """A device's ACTIVE page — the pane stack (child a's assembled DATA), in order. A
     ``trouble`` (a POSTed delivery that died) renders loudly ABOVE the still-intact page
     (Law 7: the surface collapses the error into a legible shape, never into silence)."""
     device = _esc(page.get("device", "?"))
     trouble_html = f'<p class="refused">{_esc(trouble)}</p>' if trouble else ""
-    panes = "".join(render_pane(p) for p in page.get("panes", []))
+    panes = "".join(render_pane(p, base_path=base_path) for p in page.get("panes", []))
     return f'<div class="active"><h1>{device}</h1>{trouble_html}{panes}</div>'
 
 
@@ -254,6 +375,22 @@ nav a.dev.harbor { border-color: #a86; }
                         font-family: ui-monospace, monospace; font-size: .85rem; }
 .pane.chat .depth { opacity: .6; font-size: .85rem; margin: .2rem 0; }
 .refused { color: #b55; margin: .3rem 0; }
+.pane dl.record { margin: .3rem 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem .8rem; }
+.pane dl.record dt { font-weight: 600; opacity: .8; }
+.pane dl.record dd { margin: 0; }
+.pane table { width: 100%; border-collapse: collapse; margin: .3rem 0; font-size: .9rem; }
+.pane table th, .pane table td { text-align: left; padding: .25rem .5rem; border: 1px solid #8884; }
+.pane table th { font-weight: 600; opacity: .8; }
+.pane ol.sequence { margin: .3rem 0; padding-left: 1.5rem; }
+.pane details { margin: .2rem 0; }
+.pane details summary { cursor: pointer; font-weight: 600; opacity: .9; }
+.pane .leaf { margin: .1rem 0 .1rem .8rem; }
+.pane .leaf .key { font-weight: 600; opacity: .8; }
+.pane .scalar { font-size: 1.1rem; }
+.window-meta { opacity: .7; font-size: .85rem; margin: .2rem 0; }
+.pager { display: flex; gap: 1rem; margin: .5rem 0 .2rem; }
+.pager a { text-decoration: none; padding: .2rem .6rem; border: 1px solid #8884;
+           border-radius: .4rem; color: inherit; }
 .pane.chat .ask { display: flex; gap: .5rem; margin-top: 1rem; }
 .pane.chat .ask input { flex: 1; padding: .45rem .7rem; border: 1px solid #8884;
                         border-radius: .4rem; font: inherit; background: Canvas; color: inherit; }

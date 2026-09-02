@@ -495,11 +495,12 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         ]
         return {"kind": "debug", "label": "Debug", "data": {"entries": entries}}
 
-    def active_page(self) -> dict:
+    def active_page(self, *, cursor: int | None = None) -> dict:
         """Assemble the device's ACTIVE page as structured DATA — the STANDARD
         machinery, here in the shim and not in each device (Law 6) and not in the web
         server (which only renders). Returns ``{"device", "panes": [...]}`` where each
-        pane is ``{kind, label, data}``.
+        pane is ``{kind, label, data}`` and may optionally carry ``cursor``, ``window``,
+        and ``count`` when the handler returns bounded-read metadata.
 
         The STATUS + SETTINGS FLOOR is projected from the device's ``introspect()``
         (Form v0 #2 — STATUS = intention + state, the reported side of the drift
@@ -534,12 +535,22 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                               "absent": "offered but unwired (no handler)"})
                 continue
             try:
-                data = handler()
+                import inspect as _inspect
+                sig = _inspect.signature(handler)
+                if "cursor" in sig.parameters:
+                    data = handler(cursor=cursor)
+                else:
+                    data = handler()
             except Exception as exc:  # noqa: BLE001 — a bad pane is loud + absent, never an aborted page
                 panes.append({"kind": kind, "label": label, "data": None,
                               "absent": f"handler refused: {type(exc).__name__}: {exc}"})
                 continue
-            panes.append({"kind": kind, "label": label, "data": data})
+            pane_entry = {"kind": kind, "label": label, "data": data}
+            if isinstance(data, dict):
+                for key in ("cursor", "window", "count"):
+                    if key in data:
+                        pane_entry[key] = data[key]
+            panes.append(pane_entry)
         return {"device": self.device_id, "panes": panes}
 
     # --- the diagnostic mailbox: receive gate-contact breadcrumbs (for now) --

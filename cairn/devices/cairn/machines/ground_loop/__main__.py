@@ -2,12 +2,11 @@
 
 THE ONE PART UNPROVABLE WITHOUT THE OS (loop.py filed it as an edge from birth;
 ticket ground-loop-writes-its-own-liveness builds it): construct the resident
-GroundLoopDevice with its instance home, beat it on the ruled once-per-second
-cadence (decisions/2026-07-30-the-ground-loop-scans-disk-and-posts-to-the-bus),
-exit cleanly on SIGINT/SIGTERM. Nothing else — no subscription seeding, no
-callback logic, no routing: the 584aa74 goof stays out (firing lives in the
-shims that subscribe, per the 2026-08-04 shim-routes-everything ruling), and
-everything provable lives under this wrapper, sudo_relay daemon.py's shape.
+GroundLoopDevice with its instance home, beat it on the ruled once-per-minute
+cadence, exit cleanly on SIGINT/SIGTERM. Nothing else — no subscription seeding,
+no callback logic, no routing. Discovery finds devices on disk; the ground loop
+provides heartbeat and a device list (CC-- x3, 2026-08-29). Everything provable
+lives under this wrapper.
 
 TWO KINDS OF SIDE EFFECT, and the difference is the whole of Law 7. Every beat
 REPLACES ``~/.cairn/devices/cairn/machines/ground_loop/0/liveness.json`` — a snapshot answering
@@ -38,12 +37,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.cairn.machines.bus.shim import BusShim
 from cairn.devices.cairn.machines.ground_loop.discovery import discover, pulse_sites
-from cairn.devices.cairn.machines.harbor_master.shim import HarborMasterShim
-from cairn.devices.cairn.shim import CairnShim
-from cairn.devices.inference_domain.shim import InferenceDomainShim
-from cairn.tools.charter.shim import CharterShim
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
@@ -98,11 +92,9 @@ def main(home=None, roots=None) -> int:
                   f"ground_loop: {detail}", file=sys.stderr)
             return EXIT_ALREADY_RUNNING
 
-    # THE RESIDENT LOOP IS THE WIRED ONE. The device stays provable without a filesystem or a
-    # trouble store (both injected, both defaulting to None — the pure-physics proofs build it
-    # bare); this runner is the one place that hands it the real world, the same way it is the
-    # one place that hands it a wall clock. A loop with no discoverer beats an empty roster,
-    # which is precisely the state that went unnoticed from 2026-08-09 to 2026-08-11.
+    # THE RESIDENT LOOP IS THE WIRED ONE. The device stays provable bare (both discover
+    # and pulse_finder are injected); this runner is the one place that hands it the real
+    # world. Discovery finds devices on disk — no hand-subscribed shims.
     bus = BusDevice()
     # ``pulse_finder`` wires the second registration surface (ticket
     # the-pulse-file-is-the-subscription): groundloop/pulse.py at class or instance level,
@@ -128,17 +120,6 @@ def main(home=None, roots=None) -> int:
     # be half a fixture, which is worse than none.
     device.set_diagnostic_roots(roots)
     bus.set_diagnostic_roots(roots)
-    # HAND-SUBSCRIBED SHIMS — devices that need a real shim beyond what disk discovery gives.
-    # Each shim checks its own inbox on each pulse (BaseShim._check_mail); the BusShim's old
-    # postman role (drain-and-dispatch) is dissolved. The bus still needs a shim for its probes.
-    # The harbor_master needs a real shim so it can wake and receive the 29 probes' findings
-    # that are addressed to it — as a DiscoveredShim it could only be pulsed, not paged.
-    device.subscribe(BusShim(bus, device))
-    device.subscribe(HarborMasterShim(bus=bus))
-    device.subscribe(CairnShim(bus=bus))
-    device.subscribe(InferenceDomainShim(bus=bus))
-    device.subscribe(CharterShim(bus=bus))
-
     # THE FLAGS MENU (permanent; ls flags/ shows what is available).
     flags_dir = Path(home) / "flags"
     flags_dir.mkdir(parents=True, exist_ok=True)

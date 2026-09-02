@@ -1,0 +1,39 @@
+[
+  {
+    "claim": "proof test_cli.py passes under python3",
+    "caller": "the-corpus-is-out-of-proven-space re-seal",
+    "date": "2026-09-02T01:19:44",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "proof: the `cairn test` verb — repo=/home/akien/dev/src/cairn\n  PASS  test_a_green_proof_reports_green_and_exits_zero\n  PASS  test_a_red_proof_reports_red_and_exits_nonzero\n  PASS  test_a_red_carries_its_evidence_in_the_first_run\n  PASS  test_the_run_seals_nothing\n  PASS  test_a_directory_expands_to_the_proofs_beneath_it\n  PASS  test_a_typod_path_is_loud_and_never_a_green_over_nothing\n  PASS  test_the_verb_is_registered_with_the_dispatcher\n  PASS  test_it_runs_from_a_cwd_that_is_not_the_repo\n\nall green",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "f5444f22f8b7f0f6ad9a47059f82375805cf326364330de9077ee7ded91984c4",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-yo1za8_n/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 7,
+          "paths": [
+            "logs/tester/0/20260902.071926.527298.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071928.864887.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071931.382450.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071933.891904.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071936.418403.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071938.883786.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.071941.539634.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

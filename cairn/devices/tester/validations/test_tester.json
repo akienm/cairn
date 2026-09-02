@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_tester.py passes under python3",
-    "caller": "a-validation-is-one-current-record-not-a-trail",
-    "date": "2026-08-16T14:05:42",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "the-corpus-is-out-of-proven-space re-seal",
+    "date": "2026-09-02T01:22:21",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -13,7 +13,26 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0b52fb5331e443a638beb701dc33f62002c2e9c457771c621b09af5e95bcc367"
+      "source_fingerprint": "f5444f22f8b7f0f6ad9a47059f82375805cf326364330de9077ee7ded91984c4",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-7vsp1eyn/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 8,
+          "paths": [
+            "logs/tester/0/20260902.072156.719749.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072159.203072.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072201.722280.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072204.233430.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072211.680793.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072214.130570.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072216.652944.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072219.141231.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

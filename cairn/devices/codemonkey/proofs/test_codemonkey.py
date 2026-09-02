@@ -7,16 +7,16 @@ query, and digest.
 
 import json
 import os
-import shutil
 import sys
-import tempfile
 from pathlib import Path
+
+from cairn.devices.tester.scratch import scratch_dir
 
 # ── helpers ──────────────────────────────────────────────────────────────
 
 def _tmp_project_root():
     """Create a temp directory that looks like a project root."""
-    d = tempfile.mkdtemp(prefix="codemonkey_test_")
+    d = str(scratch_dir("codemonkey_test_"))
     for sub in ("types", "constraints", "mining"):
         os.makedirs(os.path.join(d, sub), exist_ok=True)
     return d
@@ -122,7 +122,7 @@ def test_projects_are_isolated():
     import cairn.devices.codemonkey.project as proj_mod
 
     original_root = proj_mod._PROJECTS_ROOT
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_proj_"))
+    tmp = scratch_dir("codemonkey_proj_")
     try:
         proj_mod._PROJECTS_ROOT = tmp
 
@@ -140,7 +140,6 @@ def test_projects_are_isolated():
         print("PASS: projects are isolated — writing to alpha did not affect beta")
     finally:
         proj_mod._PROJECTS_ROOT = original_root
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -231,7 +230,7 @@ def test_compiler_deduplicates_by_why():
     import cairn.devices.codemonkey.project as proj_mod
 
     original_root = proj_mod._PROJECTS_ROOT
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_compiler_"))
+    tmp = scratch_dir("codemonkey_compiler_")
     try:
         proj_mod._PROJECTS_ROOT = tmp
         ensure_project("test-dedup")
@@ -251,7 +250,6 @@ def test_compiler_deduplicates_by_why():
         print(f"PASS: 3 incidents with same why compiled to 1 constraint with count=3")
     finally:
         proj_mod._PROJECTS_ROOT = original_root
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -262,7 +260,7 @@ def test_constraint_proof_lifecycle():
     from cairn.devices.codemonkey.constraint_proof import (
         ConstraintProof, save_proof, load_proof,
     )
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_proof_"))
+    tmp = scratch_dir("codemonkey_proof_")
     try:
         proof = ConstraintProof(
             constraint_name="test-constraint",
@@ -290,7 +288,7 @@ def test_constraint_proof_lifecycle():
 
         print("PASS: constraint proof lifecycle — create, catch x2, retire, save, load")
     finally:
-        shutil.rmtree(tmp, ignore_errors=True)
+        pass
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -304,7 +302,7 @@ def test_challenge_catches_known_violation():
     import cairn.devices.codemonkey.project as proj_mod
 
     original_root = proj_mod._PROJECTS_ROOT
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_challenge_"))
+    tmp = scratch_dir("codemonkey_challenge_")
     try:
         proj_mod._PROJECTS_ROOT = tmp
         ensure_project("test-challenge")
@@ -335,7 +333,6 @@ def test_challenge_catches_known_violation():
               f"{len(result.violations)} violation(s), clean={clean_result.clean}")
     finally:
         proj_mod._PROJECTS_ROOT = original_root
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -349,7 +346,7 @@ def test_query_returns_relevant_types():
     import cairn.devices.codemonkey.project as proj_mod
 
     original_root = proj_mod._PROJECTS_ROOT
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_query_"))
+    tmp = scratch_dir("codemonkey_query_")
     try:
         proj_mod._PROJECTS_ROOT = tmp
         ensure_project("test-query")
@@ -373,7 +370,6 @@ def test_query_returns_relevant_types():
               f"{len(result.negative_matches)} negative matches for ground_loop")
     finally:
         proj_mod._PROJECTS_ROOT = original_root
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -387,7 +383,7 @@ def test_digest_consolidates():
     import cairn.devices.codemonkey.project as proj_mod
 
     original_root = proj_mod._PROJECTS_ROOT
-    tmp = Path(tempfile.mkdtemp(prefix="codemonkey_digest_"))
+    tmp = scratch_dir("codemonkey_digest_")
     try:
         proj_mod._PROJECTS_ROOT = tmp
         ensure_project("test-digest")
@@ -407,7 +403,6 @@ def test_digest_consolidates():
         print(f"PASS: digest consolidated 3 -> 1, reduction={result['reduction']}")
     finally:
         proj_mod._PROJECTS_ROOT = original_root
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════

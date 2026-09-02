@@ -1,0 +1,36 @@
+[
+  {
+    "claim": "proof test_isolation.py passes under python3",
+    "caller": "the-corpus-is-out-of-proven-space re-seal",
+    "date": "2026-09-02T01:21:26",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "f5444f22f8b7f0f6ad9a47059f82375805cf326364330de9077ee7ded91984c4",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-szdsrvv4/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 4,
+          "paths": [
+            "logs/tester/0/20260902.072054.424274.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072104.265834.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072114.086401.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.072123.902273.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import hashlib
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain import store
@@ -74,6 +74,24 @@ _LINK_COLUMNS = {
     "traversals": "integer NOT NULL DEFAULT 0",
     "created": "timestamptz NOT NULL DEFAULT now()",
 }
+
+THREADS_TABLE = "cairn_threads"
+
+_THREAD_COLUMNS = {
+    "thread_id": "text PRIMARY KEY",
+    "summary": "text NOT NULL",
+    "lifecycle_state": "text NOT NULL DEFAULT 'awake'",
+    "node_ids": "jsonb NOT NULL DEFAULT '[]'",
+    "importance": "real NOT NULL DEFAULT 0.0",
+    "recurrence": "real NOT NULL DEFAULT 0.0",
+    "last_touched": "timestamptz NOT NULL DEFAULT now()",
+    "created": "timestamptz NOT NULL DEFAULT now()",
+}
+
+MAX_THREADS = 7
+CO_OCCURRENCE_THRESHOLD = 3
+WARM_BOOST = 0.1
+SLEEP_AFTER = 20
 
 CALVE_THRESHOLD = 5000
 
@@ -168,16 +186,31 @@ def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
     store.create_owned_table(table, owner, _LEAF_COLUMNS, conn=conn)
 
 
-def _leaf_rows(*, table: str, conn) -> list[dict]:
-    """All rows in a leaf table, joined through embedding->node."""
-    return store.query(
+def ensure_threads(*, conn=None) -> None:
+    """The threads table, owner-gated into existence."""
+    store.create_owned_table(THREADS_TABLE, OWNER, _THREAD_COLUMNS, conn=conn)
+
+
+def _leaf_rows(*, table: str, conn,
+               time_window: tuple[datetime, datetime] | None = None) -> list[dict]:
+    """All rows in a leaf table, joined through embedding->node.
+
+    When time_window is (start, end), restricts to nodes created in that window.
+    """
+    sql = (
         "SELECT l.leaf_id, n.node_id, n.content, e.vector, n.provenance, "
         "n.standing, n.created, e.embedding_id, e.render_method "
         "FROM {leaf} l "
         "JOIN {embed} e ON l.embedding_id = e.embedding_id "
-        "JOIN {node} n ON l.node_id = n.node_id",
+        "JOIN {node} n ON l.node_id = n.node_id"
+    )
+    params: tuple = ()
+    if time_window is not None:
+        sql += " WHERE n.created >= %s AND n.created <= %s"
+        params = (time_window[0], time_window[1])
+    return store.query(sql,
         tables={"leaf": table, "embed": EMBEDDINGS_TABLE, "node": NODES_TABLE},
-        conn=conn,
+        params=params, conn=conn,
     )
 
 
@@ -593,6 +626,225 @@ def consolidate(node_id: str, vector, *, resolve,
             own.close()
 
 
+# ── warm-set threads ────────────────────────────────────────────────────────
+
+
+_TEMPORAL_KEYWORDS = {
+    "yesterday": timedelta(hours=24),
+    "last week": timedelta(days=7),
+    "recently": timedelta(days=3),
+}
+
+
+def parse_temporal(question: str, *,
+                   now: datetime | None = None) -> tuple[datetime, datetime] | None:
+    """Extract a time window from temporal language in the question.
+
+    Returns (start, end) or None if no temporal signal is found.
+    """
+    ref = now or datetime.now(timezone.utc)
+    q = question.lower()
+    for keyword, delta in _TEMPORAL_KEYWORDS.items():
+        if keyword in q:
+            return (ref - delta, ref)
+    # ISO date: look for YYYY-MM-DD pattern
+    for i in range(len(q) - 9):
+        candidate = q[i:i + 10]
+        if (len(candidate) == 10 and candidate[4] == "-" and candidate[7] == "-"
+                and candidate[:4].isdigit() and candidate[5:7].isdigit()
+                and candidate[8:10].isdigit()):
+            try:
+                day = datetime.fromisoformat(candidate).replace(tzinfo=timezone.utc)
+                return (day, day + timedelta(days=1))
+            except ValueError:
+                continue
+    return None
+
+
+def _thread_id() -> str:
+    return hashlib.sha256(
+        datetime.now(timezone.utc).isoformat().encode()
+    ).hexdigest()[:12]
+
+
+def get_threads(*, conn=None) -> list[dict]:
+    """All threads, sorted by last_touched descending."""
+    own = conn or store.connect()
+    try:
+        ensure_threads(conn=own)
+        rows = store.read(THREADS_TABLE, conn=own)
+        return sorted(rows, key=lambda t: t.get("last_touched", ""), reverse=True)
+    finally:
+        if conn is None:
+            own.close()
+
+
+def awake_thread_node_ids(*, conn=None) -> set[str]:
+    """The union of node_ids from all awake threads."""
+    threads = get_threads(conn=conn)
+    result: set[str] = set()
+    for t in threads:
+        if t.get("lifecycle_state") == "awake":
+            for nid in (t.get("node_ids") or []):
+                result.add(nid)
+    return result
+
+
+def _retire_lowest(*, conn) -> bool:
+    """Retire the lowest-importance sleeping thread. Returns True if one was retired."""
+    threads = get_threads(conn=conn)
+    sleeping = [t for t in threads if t.get("lifecycle_state") == "sleeping"]
+    if not sleeping:
+        return False
+    lowest = min(sleeping, key=lambda t: t.get("importance", 0.0))
+    store.delete(THREADS_TABLE, OWNER,
+                 where="thread_id = %s", params=(lowest["thread_id"],), conn=conn)
+    return True
+
+
+def detect_threads(node_id: str, *, resolve, conn=None) -> dict | None:
+    """Detect co-occurring clusters and crystallize into a thread.
+
+    Scans the promoted node's links for traversals > CO_OCCURRENCE_THRESHOLD.
+    If a cluster is found, calls inference for a summary and creates a thread.
+    Enforces MAX_THREADS bound by retiring the lowest-importance sleeping thread.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_threads(conn=own)
+        _ensure_links(own)
+        links = linked(node_id, conn=own)
+        cluster = [node_id]
+        total_traversals = 0
+        for lnk in links:
+            if lnk.get("traversals", 0) >= CO_OCCURRENCE_THRESHOLD:
+                other = lnk["target_id"] if lnk["source_id"] == node_id else lnk["source_id"]
+                cluster.append(other)
+                total_traversals += lnk["traversals"]
+
+        if len(cluster) < 2:
+            return None
+
+        existing = get_threads(conn=own)
+        existing_node_sets = [set(t.get("node_ids", [])) for t in existing]
+        cluster_set = set(cluster)
+        for ens in existing_node_sets:
+            if cluster_set & ens:
+                return None
+
+        if len(existing) >= MAX_THREADS:
+            if not _retire_lowest(conn=own):
+                return None
+
+        contents = []
+        for nid in cluster:
+            rows = store.read(NODES_TABLE, where="node_id = %s", params=(nid,), conn=own)
+            if rows:
+                contents.append(rows[0]["content"])
+        if not contents:
+            return None
+
+        prompt = ("Summarize this cluster of related topics in one sentence:\n"
+                  + "\n".join(f"- {c}" for c in contents))
+        result = resolve({"kind": "generate", "prompt": prompt})
+        summary = result.get("answer", {}).get("text", "").strip()
+        if not summary:
+            summary = contents[0][:100]
+
+        tid = _thread_id()
+        importance = total_traversals / max(len(cluster) - 1, 1)
+        store.write(THREADS_TABLE, OWNER, {
+            "thread_id": tid,
+            "summary": summary,
+            "lifecycle_state": "awake",
+            "node_ids": cluster,
+            "importance": importance,
+            "recurrence": 0.0,
+        }, conn=own)
+        return {"thread_id": tid, "summary": summary, "node_ids": cluster}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def wake_threads(node_ids: list[str], *, conn=None) -> list[str]:
+    """Wake any sleeping threads whose nodes overlap with the given node_ids."""
+    own = conn or store.connect()
+    try:
+        ensure_threads(conn=own)
+        touched = set(node_ids)
+        threads = get_threads(conn=own)
+        woken = []
+        for t in threads:
+            if t.get("lifecycle_state") != "sleeping":
+                continue
+            thread_nodes = set(t.get("node_ids", []))
+            if thread_nodes & touched:
+                store.update(THREADS_TABLE, OWNER, {
+                    "lifecycle_state": "awake",
+                    "last_touched": datetime.now(timezone.utc),
+                }, where="thread_id = %s", params=(t["thread_id"],), conn=own)
+                woken.append(t["thread_id"])
+        return woken
+    finally:
+        if conn is None:
+            own.close()
+
+
+def attend_thread(node_ids: list[str], *, conn=None) -> list[str]:
+    """Attend awake threads whose nodes were involved in a resolution."""
+    own = conn or store.connect()
+    try:
+        ensure_threads(conn=own)
+        touched = set(node_ids)
+        threads = get_threads(conn=own)
+        attended = []
+        for t in threads:
+            if t.get("lifecycle_state") != "awake":
+                continue
+            thread_nodes = set(t.get("node_ids", []))
+            if thread_nodes & touched:
+                store.update(THREADS_TABLE, OWNER, {
+                    "recurrence": t.get("recurrence", 0.0) + 1.0,
+                    "last_touched": datetime.now(timezone.utc),
+                }, where="thread_id = %s", params=(t["thread_id"],), conn=own)
+                attended.append(t["thread_id"])
+        return attended
+    finally:
+        if conn is None:
+            own.close()
+
+
+def sleep_check(*, conn=None, _resolution_counter: dict | None = None) -> list[str]:
+    """Put awake threads to sleep after SLEEP_AFTER untouched resolutions.
+
+    The _resolution_counter is a mutable dict mapping thread_id -> count of
+    resolutions since last touch. Callers maintain it across resolution calls.
+    """
+    if _resolution_counter is None:
+        return []
+    own = conn or store.connect()
+    try:
+        ensure_threads(conn=own)
+        threads = get_threads(conn=own)
+        slept = []
+        for t in threads:
+            if t.get("lifecycle_state") != "awake":
+                continue
+            tid = t["thread_id"]
+            count = _resolution_counter.get(tid, 0)
+            if count >= SLEEP_AFTER:
+                store.update(THREADS_TABLE, OWNER, {
+                    "lifecycle_state": "sleeping",
+                }, where="thread_id = %s", params=(tid,), conn=own)
+                slept.append(tid)
+                _resolution_counter.pop(tid, None)
+        return slept
+    finally:
+        if conn is None:
+            own.close()
+
+
 def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) -> dict:
     """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
 
@@ -889,10 +1141,15 @@ def route(vector, *, tables: list[str], k: int = 3, conn=None) -> list[dict]:
 
 
 def nearest(vector, *, k: int = 5, tree: str = "commons",
-            table: str = NODES, owner: str = OWNER, conn=None) -> list[dict]:
+            table: str = NODES, owner: str = OWNER,
+            warm_node_ids: set[str] | None = None,
+            time_window: tuple[datetime, datetime] | None = None,
+            conn=None) -> list[dict]:
     """The walk: the k nodes nearest the query vector, by cosine.
 
     Reads the leaf table (three-table join) to get content + vector + provenance.
+    When warm_node_ids is provided, those nodes get an additive WARM_BOOST to similarity.
+    When time_window is provided, only nodes created in that window are considered.
     """
     if not isinstance(k, int) or k < 1:
         raise WalkRefused(f"nearest: k must be a positive int, got {k!r}")
@@ -900,7 +1157,7 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
-        rows = _leaf_rows(table=table, conn=own)
+        rows = _leaf_rows(table=table, conn=own, time_window=time_window)
         if not rows:
             return []
         tree_dim = len(rows[0]["vector"])
@@ -909,9 +1166,11 @@ def nearest(vector, *, k: int = 5, tree: str = "commons",
                 f"nearest: query dim {len(v)} vs tree {tree!r} dim {tree_dim} — "
                 "answering across dimensions would be a silent wrong answer; refused."
             )
+        warm = warm_node_ids or set()
         ranked = sorted(
             ({"node_id": r["node_id"], "content": r["content"],
-              "similarity": cosine(v, [float(x) for x in r["vector"]]),
+              "similarity": cosine(v, [float(x) for x in r["vector"]])
+                           + (WARM_BOOST if r["node_id"] in warm else 0.0),
               "provenance": r["provenance"], "standing": r["standing"],
               "created": r["created"]}
              for r in rows),
@@ -1000,8 +1259,13 @@ class LibrarianDevice(BaseDevice):
         return result
 
     def nearest(self, vector, *, k: int = 5, tree: str = "commons",
-                table: str = NODES, conn=None) -> list[dict]:
-        return nearest(vector, k=k, tree=tree, table=table, conn=conn)
+                table: str = NODES,
+                warm_node_ids: set[str] | None = None,
+                time_window: tuple[datetime, datetime] | None = None,
+                conn=None) -> list[dict]:
+        return nearest(vector, k=k, tree=tree, table=table,
+                        warm_node_ids=warm_node_ids, time_window=time_window,
+                        conn=conn)
 
     def neighbors(self, node_id: str, *, k: int = 5, tree: str = "commons",
                   table: str = NODES, conn=None) -> list[dict]:

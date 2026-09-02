@@ -44,6 +44,8 @@ from datetime import datetime, timedelta, timezone
 
 from cairn.devices.librarian.trees import (
     NODES, DepositRefused, LibrarianDevice, consolidate, corroborate, tree_state,
+    parse_temporal, awake_thread_node_ids, wake_threads, attend_thread,
+    sleep_check, detect_threads,
 )
 
 # The floor a walk must clear to count as resolved — a labeled guess, not a settled law
@@ -238,8 +240,12 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
 
     now = datetime.now(timezone.utc)
     backfills, deposited, refused = 0, [], []
+    time_window = parse_temporal(question, now=now)
+    warm_nids = awake_thread_node_ids(conn=conn)
     qv = embed(question)
-    walk = dev.nearest(qv, k=k, tree=tree, table=table, conn=conn)
+    walk = dev.nearest(qv, k=k, tree=tree, table=table,
+                       warm_node_ids=warm_nids if warm_nids else None,
+                       time_window=time_window, conn=conn)
     _label_evidence(walk, deposited, now)
     best = _evidence_best(walk)
 
@@ -285,11 +291,16 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
         # this crossing's own deposits, so validation COMPLETES at a LATER crossing, when
         # a different question (or this one, re-asked against standing structure) walks
         # here honestly. Same-crossing corroboration is the measured defect, not the proof.
-        walk = dev.nearest(qv, k=k, tree=tree, table=table, conn=conn)
+        walk = dev.nearest(qv, k=k, tree=tree, table=table,
+                           warm_node_ids=warm_nids if warm_nids else None,
+                           time_window=time_window, conn=conn)
         _label_evidence(walk, deposited, now)
         best = _evidence_best(walk)
 
     tenure = _tenure_on_resolution(question, walk, floor, tree=tree, table=table, conn=conn)
+
+    walk_node_ids = [n["node_id"] for n in walk if n.get("evidence")]
+    attend_thread(walk_node_ids, conn=conn)
 
     consolidated = []
     if tenure and tenure.get("promoted"):
@@ -305,6 +316,13 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
                     consolidated.append(result["node_id"])
             except Exception:
                 pass
+            try:
+                detect_threads(nid, resolve=resolve, conn=conn)
+            except Exception:
+                pass
+
+    if deposited:
+        wake_threads(deposited, conn=conn)
 
     return _verdict(dev, question, "RESOLVED", None, walk, best, floor,
                     backfills, deposited, refused, tree, tenure=tenure,

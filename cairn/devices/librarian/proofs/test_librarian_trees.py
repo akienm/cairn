@@ -50,6 +50,9 @@ from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import (
     DepositRefused, LibrarianDevice, WalkRefused, consolidate, deposit, linked,
     nearest, neighbors, contradiction_scan,
+    ensure_threads, get_threads, detect_threads, wake_threads, attend_thread,
+    sleep_check, parse_temporal, awake_thread_node_ids,
+    THREADS_TABLE, MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD,
 )
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
@@ -60,6 +63,7 @@ _TABLE_EMPTY = f"_empty_{_NONCE}"
 _TABLE_RETIRE = f"_retire_{_NONCE}"
 _TABLE_CONTRA = f"_contra_{_NONCE}"
 _TABLE_CONSOL = f"_consol_{_NONCE}"
+_TABLE_WARM = f"_warm_{_NONCE}"
 _CREATED_NODES: list[str] = []
 
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
@@ -304,7 +308,7 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA, _TABLE_CONSOL):
+            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA, _TABLE_CONSOL, _TABLE_WARM):
                 cur.execute(f'DROP TABLE IF EXISTS "{t}"')
                 cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
             for nid in _CREATED_NODES:
@@ -734,6 +738,231 @@ def test_consolidation_links_to_source_nodes():
             f"source node {sid} must have a link to the consolidated node"
 
 
+# ---------------------------------------------------------------------------
+# WARM-SET TEETH — 7 teeth pinning the falsifier clauses
+# ---------------------------------------------------------------------------
+
+_WARM_TREE = "warm"
+_WARM_CREATED_THREADS: list[str] = []
+
+
+def _warm_resolve(text):
+    def _resolve(req):
+        if req["kind"] == "generate":
+            return {"answer": {"text": text}}
+        if req["kind"] == "embed":
+            h = hashlib.sha256(req["prompt"].encode()).hexdigest()
+            return {"answer": {"vector": [float(int(h[i:i+2], 16)) / 255 for i in range(0, 6, 2)]}}
+        raise ValueError(f"unknown kind: {req['kind']}")
+    return _resolve
+
+
+def _warm_land(content, vector):
+    r = deposit(content + f" [{_NONCE}]", vector,
+                {"source": "proofs/warm-set", "ground": "fixture"},
+                tree=_WARM_TREE, table=_TABLE_WARM)
+    _CREATED_NODES.append(r["node_id"])
+    return r["node_id"]
+
+
+def _warm_cleanup_threads():
+    conn = store.connect()
+    try:
+        with conn.cursor() as cur:
+            for tid in _WARM_CREATED_THREADS:
+                cur.execute(f'DELETE FROM "{THREADS_TABLE}" WHERE thread_id = %s', (tid,))
+    finally:
+        conn.close()
+
+
+def test_co_occurrence_crystallizes_into_thread():
+    """Falsifier clause (1): a repeatedly co-occurring cluster crystallizes into a thread."""
+    conn = store.connect()
+    try:
+        n1 = _warm_land("the library has a reading room on the second floor", [0.8, 0.1, 0.1])
+        n2 = _warm_land("the reading room is open from nine to five", [0.75, 0.15, 0.1])
+        n3 = _warm_land("the reading room has comfortable chairs and good lighting", [0.7, 0.2, 0.1])
+        from cairn.devices.librarian.trees import link, traverse_link, link_neighbors
+        link(n1, n2, 0.9, conn=conn)
+        link(n1, n3, 0.85, conn=conn)
+        for _ in range(CO_OCCURRENCE_THRESHOLD + 1):
+            traverse_link(n1, n2, conn=conn)
+            traverse_link(n1, n3, conn=conn)
+
+        result = detect_threads(n1, resolve=_warm_resolve("The reading room is a quiet study space"), conn=conn)
+        assert result is not None, "detect_threads must find a cluster"
+        _WARM_CREATED_THREADS.append(result["thread_id"])
+        assert result["summary"], "thread must have a non-empty summary"
+        assert n1 in result["node_ids"], "promoted node must be in thread"
+
+        threads = get_threads(conn=conn)
+        found = [t for t in threads if t["thread_id"] == result["thread_id"]]
+        assert len(found) == 1, "thread must exist in cairn_threads"
+        assert found[0]["lifecycle_state"] == "awake", "new thread must be awake"
+    finally:
+        _warm_cleanup_threads()
+        conn.close()
+
+
+def test_awake_thread_boosts_walk():
+    """Falsifier clause (2): a query related to an awake thread boosts that thread's nodes."""
+    conn = store.connect()
+    try:
+        n1 = _warm_land("medical appointments are every Tuesday", [0.9, 0.05, 0.05])
+        n2 = _warm_land("the dentist is on the third floor", [0.1, 0.9, 0.0])
+        ensure_threads(conn=conn)
+
+        v = [0.5, 0.5, 0.0]
+        walk_plain = nearest(v, k=50, tree=_WARM_TREE, table=_TABLE_WARM, conn=conn)
+        walk_boosted = nearest(v, k=50, tree=_WARM_TREE, table=_TABLE_WARM,
+                               warm_node_ids={n1}, conn=conn)
+
+        plain_sim = {n["node_id"]: n["similarity"] for n in walk_plain}
+        boosted_sim = {n["node_id"]: n["similarity"] for n in walk_boosted}
+        assert n1 in plain_sim, "n1 must appear in walk"
+        assert n2 in plain_sim, "n2 must appear in walk"
+        assert abs(boosted_sim[n1] - plain_sim[n1] - WARM_BOOST) < 1e-9, \
+            f"boosted node must get exactly WARM_BOOST={WARM_BOOST} additive"
+        assert abs(boosted_sim[n2] - plain_sim[n2]) < 1e-9, \
+            "non-thread node must not be boosted"
+    finally:
+        conn.close()
+
+
+def test_sleeping_thread_wakes_on_deposit():
+    """Falsifier clause (3): a sleeping thread wakes when a new deposit touches its nodes."""
+    conn = store.connect()
+    try:
+        n1 = _warm_land("the furnace needs checking every autumn", [0.6, 0.3, 0.1])
+        ensure_threads(conn=conn)
+
+        tid = trees._thread_id()
+        store.write(THREADS_TABLE, trees.OWNER, {
+            "thread_id": tid,
+            "summary": "furnace maintenance",
+            "lifecycle_state": "sleeping",
+            "node_ids": [n1],
+            "importance": 1.0,
+            "recurrence": 2.0,
+        }, conn=conn)
+        _WARM_CREATED_THREADS.append(tid)
+
+        threads_before = get_threads(conn=conn)
+        sleeping = [t for t in threads_before if t["thread_id"] == tid]
+        assert sleeping[0]["lifecycle_state"] == "sleeping"
+
+        woken = wake_threads([n1], conn=conn)
+        assert tid in woken, "the thread must wake when its node is deposited"
+
+        threads_after = get_threads(conn=conn)
+        waked = [t for t in threads_after if t["thread_id"] == tid]
+        assert waked[0]["lifecycle_state"] == "awake", "thread must be awake after wake"
+    finally:
+        _warm_cleanup_threads()
+        conn.close()
+
+
+def test_important_recurring_thread_does_not_decay_to_zero():
+    """Falsifier clause (4): an important recurring thread does not decay to zero."""
+    conn = store.connect()
+    try:
+        n1 = _warm_land("annual dental checkup is in March", [0.3, 0.6, 0.1])
+        ensure_threads(conn=conn)
+
+        tid = trees._thread_id()
+        store.write(THREADS_TABLE, trees.OWNER, {
+            "thread_id": tid,
+            "summary": "dental appointments",
+            "lifecycle_state": "awake",
+            "node_ids": [n1],
+            "importance": 5.0,
+            "recurrence": 10.0,
+        }, conn=conn)
+        _WARM_CREATED_THREADS.append(tid)
+
+        counter: dict[str, int] = {}
+        for _ in range(SLEEP_AFTER):
+            counter[tid] = counter.get(tid, 0) + 1
+        sleep_check(conn=conn, _resolution_counter=counter)
+
+        threads = get_threads(conn=conn)
+        found = [t for t in threads if t["thread_id"] == tid]
+        assert len(found) == 1, "important thread must still exist"
+        # Thread may sleep but is never deleted — importance and recurrence are preserved
+        assert found[0]["importance"] == 5.0, "importance must not decay"
+        assert found[0]["recurrence"] == 10.0, "recurrence must not decay"
+    finally:
+        _warm_cleanup_threads()
+        conn.close()
+
+
+def test_yesterday_filters_to_last_24h():
+    """Falsifier clause (5): a query containing 'yesterday' filters to last 24 hours."""
+    now = datetime(2026, 9, 1, 12, 0, 0, tzinfo=timezone.utc)
+    result = parse_temporal("what happened yesterday?", now=now)
+    assert result is not None, "must parse 'yesterday'"
+    start, end = result
+    assert end == now
+    expected_start = now - timedelta(hours=24)
+    assert start == expected_start, f"start must be 24h before now, got {start}"
+
+    result2 = parse_temporal("tell me about the library", now=now)
+    assert result2 is None, "non-temporal query must return None"
+
+    result3 = parse_temporal("what happened last week?", now=now)
+    assert result3 is not None, "must parse 'last week'"
+    start3, end3 = result3
+    assert end3 == now
+    assert start3 == now - timedelta(days=7)
+
+
+def test_pure_topic_resolves_by_plain_cosine():
+    """Falsifier clause (6): a pure-topic query with no thread relevance resolves by plain cosine."""
+    conn = store.connect()
+    try:
+        n1 = _warm_land("python programming language is versatile", [0.9, 0.05, 0.05])
+        n2 = _warm_land("the weather forecast predicts rain", [0.05, 0.9, 0.05])
+
+        walk_plain = nearest([0.85, 0.1, 0.05], k=50, tree=_WARM_TREE,
+                             table=_TABLE_WARM, conn=conn)
+        walk_no_warm = nearest([0.85, 0.1, 0.05], k=50, tree=_WARM_TREE,
+                               table=_TABLE_WARM, warm_node_ids=None, conn=conn)
+
+        assert walk_plain[0]["node_id"] == walk_no_warm[0]["node_id"], \
+            "without warm_node_ids, ranking must be identical"
+        for p, nw in zip(walk_plain, walk_no_warm):
+            assert abs(p["similarity"] - nw["similarity"]) < 1e-9, \
+                "similarities must be identical with no warm set"
+    finally:
+        conn.close()
+
+
+def test_warm_set_is_event_driven_not_daemon():
+    """Falsifier clause (7): the warm set updates on events only, never by daemon or timer."""
+    src = Path(trees.__file__).read_text(encoding="utf-8")
+    tree_ast = ast.parse(src)
+    forbidden = {"threading", "sched", "schedule", "apscheduler", "celery", "crontab"}
+    imported = set()
+    for node in ast.walk(tree_ast):
+        if isinstance(node, ast.Import):
+            imported.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imported.add((node.module or "").split(".")[0])
+    offenders = imported & forbidden
+    assert not offenders, f"warm-set imports daemon/timer modules: {offenders}"
+
+    loop_src = Path(trees.__file__).parent.joinpath("loop.py").read_text(encoding="utf-8")
+    loop_ast = ast.parse(loop_src)
+    loop_imported = set()
+    for node in ast.walk(loop_ast):
+        if isinstance(node, ast.Import):
+            loop_imported.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            loop_imported.add((node.module or "").split(".")[0])
+    loop_offenders = loop_imported & forbidden
+    assert not loop_offenders, f"loop.py imports daemon/timer modules: {loop_offenders}"
+
+
 def test_the_borrow_is_cited_not_grafted():
     """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
     is the IMPORT, not the word — the module names cairn/machines/ruling in a comment on purpose,
@@ -781,6 +1010,13 @@ def _main() -> int:
         test_source_nodes_in_provenance,
         test_recursive_gate_blocks_unearned_consolidated_sources,
         test_consolidation_links_to_source_nodes,
+        test_co_occurrence_crystallizes_into_thread,
+        test_awake_thread_boosts_walk,
+        test_sleeping_thread_wakes_on_deposit,
+        test_important_recurring_thread_does_not_decay_to_zero,
+        test_yesterday_filters_to_last_24h,
+        test_pure_topic_resolves_by_plain_cosine,
+        test_warm_set_is_event_driven_not_daemon,
         test_the_borrow_is_cited_not_grafted,
     ]
     try:
@@ -788,6 +1024,7 @@ def _main() -> int:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
+        _warm_cleanup_threads()
         _cleanup()
     print("green — librarian/trees: the untraceable never lands, vectors are physics, "
           "nodes are born hypotheses, a duplicate grows nothing but its provenance lands "
@@ -800,7 +1037,11 @@ def _main() -> int:
           "through the scan, the contradicts provenance links both sides, "
           "consolidation deposits with source='consolidated' at hypothesis standing "
           "with source_nodes and links, and the recursive gate blocks un-earned "
-          "consolidated sources, and the module opens no door of its own")
+          "consolidated sources, warm-set threads crystallize from co-occurrence and "
+          "boost awake nodes, sleeping threads wake on deposit, important threads "
+          "preserve their importance, temporal parsing extracts time windows, "
+          "pure-topic queries resolve by plain cosine, and no daemon or timer, "
+          "and the module opens no door of its own")
     return 0
 
 

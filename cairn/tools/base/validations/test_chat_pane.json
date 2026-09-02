@@ -1,31 +1,31 @@
 [
   {
     "claim": "proof test_chat_pane.py passes under python3",
-    "caller": "build-cycle/a-gate-is-a-class",
-    "date": "2026-09-01T22:08:02",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "scheduled-llm-gate-inspection-reseal",
+    "date": "2026-09-01T23:21:50",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 6 items\n\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_in_floor_without_bus PASSED [ 16%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages PASSED [ 33%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_does_not_alter_channels PASSED [ 50%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_is_not_in_declared_panes PASSED [ 66%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_empty_personal_channel_renders_empty_turns PASSED [ 83%]\ncairn/tools/base/proofs/test_chat_pane.py::test_roster_minimum PASSED    [100%]\n\n============================== 6 passed in 0.25s ===============================\n\n\u001b[32m6 teeth green\u001b[0m",
+      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 6 items\n\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_in_floor_without_bus PASSED [ 16%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages PASSED [ 33%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_does_not_alter_channels PASSED [ 50%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_is_not_in_declared_panes PASSED [ 66%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_empty_personal_channel_renders_empty_turns PASSED [ 83%]\ncairn/tools/base/proofs/test_chat_pane.py::test_roster_minimum PASSED    [100%]\n\n============================== 6 passed in 0.26s ===============================\n\n\u001b[32m6 teeth green\u001b[0m",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "051afd8fb820180f31627bae8ab5be63b49b79c0a4d916c5754c0f8dda963dc7",
+      "source_fingerprint": "826d6a4d2a18a4a56f82f3011bf1fba5d69796889b371068ce465f43f6fc8807",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-8a7exwc9/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4_usgjwr/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20260902.040759.461127.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.040759.474300.BusDevice.post.json",
-            "logs/bus/0/20260902.040759.487416.BusDevice.post.json",
-            "logs/bus/0/20260902.040759.543963.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.040759.600911.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260902.052147.261921.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052147.275124.BusDevice.post.json",
+            "logs/bus/0/20260902.052147.287938.BusDevice.post.json",
+            "logs/bus/0/20260902.052147.345706.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052147.404504.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         }

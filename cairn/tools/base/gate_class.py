@@ -19,7 +19,9 @@ HERE.
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import time
 from pathlib import Path
 
 from cairn.tools.gate import gate
@@ -37,6 +39,7 @@ class TransitionGate:
         self.name = name
         self.exception_class = exception_class
         self.notifies = notifies
+        self._tree: Path | None = None
 
     def run(self, record: list[dict], *,
             note: str | None = None,
@@ -49,10 +52,43 @@ class TransitionGate:
                 renders from the mismatches.
         """
         bad = [e for e in record if not gate.passed(e)]
+        self._collect_feedback(record, bad)
         if bad:
             msg = red_fn(record, bad) if red_fn else self._default_red(bad, record)
             raise self.exception_class(msg, self._extract_findings(bad))
         return (note or self._default_note(record), record)
+
+    @property
+    def _feedback_dir(self) -> Path | None:
+        return self._tree / "feedback" if self._tree else None
+
+    def _collect_feedback(self, record: list[dict],
+                          bad: list[dict]) -> None:
+        """Write a structured feedback record after every gate firing."""
+        if self._feedback_dir is None:
+            return
+        self._feedback_dir.mkdir(parents=True, exist_ok=True)
+        stamp = "%.6f" % time.time()
+        fb = {
+            "gate": self.name,
+            "timestamp": stamp,
+            "verdict": "red" if bad else "green",
+            "checks_total": len(record),
+            "checks_passed": len(record) - len(bad),
+            "checks_failed": len(bad),
+            "record": record,
+        }
+        if bad:
+            fb["mismatches"] = [
+                {"identity": e["identity"],
+                 "expected": e["expected"],
+                 "actual": e["actual"]}
+                for e in bad
+            ]
+        path = self._feedback_dir / ("%s-%s-%s.json" % (
+            stamp, self.name, os.urandom(4).hex()))
+        path.write_text(json.dumps(fb, indent=2, ensure_ascii=False),
+                        encoding="utf-8")
 
     def _default_note(self, record: list[dict]) -> str:
         identities = ", ".join(e["identity"] for e in record)
@@ -87,7 +123,39 @@ class TransitionGate:
             dest = tree / seed.name
             if not dest.exists():
                 shutil.copy2(seed, dest)
+        self._tree = tree
         return tree
+
+    def adjust(self, sieve_name: str, dial: str, value) -> dict:
+        """Adjust a sieve dial in the instance-space tree. Returns the prior state.
+
+        Validates: tree must be constructed, sieve must exist in it,
+        dial must be a non-empty string, value must be JSON-serializable.
+        """
+        if self._tree is None:
+            raise ValueError(
+                "%s has no instance-space tree — call construct() first" % self.name)
+        if not isinstance(dial, str) or not dial.strip():
+            raise ValueError("dial must be a non-empty string, got %r" % (dial,))
+        try:
+            json.dumps(value)
+        except (TypeError, ValueError) as e:
+            raise ValueError("value must be JSON-serializable: %s" % e) from e
+
+        sieve_path = self._tree / ("%s.json" % sieve_name)
+        if not sieve_path.is_file():
+            raise ValueError(
+                "sieve %r not in the living tree at %s" % (sieve_name, self._tree))
+
+        data = json.loads(sieve_path.read_text(encoding="utf-8"))
+        prior = data.get("dials", {}).get(dial)
+        if "dials" not in data:
+            data["dials"] = {}
+        data["dials"][dial] = value
+        sieve_path.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+        return {"sieve": sieve_name, "dial": dial, "prior": prior, "new": value}
 
     @staticmethod
     def _extract_findings(bad: list[dict]) -> list[dict]:

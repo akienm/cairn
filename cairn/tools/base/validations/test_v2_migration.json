@@ -1,38 +1,38 @@
 [
   {
     "claim": "proof test_v2_migration.py passes under python3",
-    "caller": "build-cycle/a-gate-is-a-class",
-    "date": "2026-09-01T22:12:23",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "scheduled-llm-gate-inspection-reseal",
+    "date": "2026-09-01T23:26:32",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_cursor_behind_learnme_is_where_it_was\n  ok   test_a_boat_standing_at_learnme_lands_at_proveme\n  ok   test_a_boat_at_rest_stays_at_rest\n  ok   test_a_node_that_wants_to_keep_learning_carries_the_watch_instead\n  ok   test_carrying_a_watch_is_opt_in_and_that_is_the_whole_point\n  ok   test_an_immutable_version_is_not_re_migrated\n  ok   test_the_crossing_journals_the_old_string_verbatim\n  ok   test_an_already_v2_crossing_records_no_migration\n  ok   test_the_past_is_byte_identical_after_the_migration_crossing\n  ok   test_three_classes_register_no_workflow_at_all_and_that_is_named_here\n  ok   test_every_v1_boat_on_disk_reaches_a_conforming_v2\n  ok   test_the_dissolved_state_is_empty_and_nothing_may_enter_it\n\n12/12 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "051afd8fb820180f31627bae8ab5be63b49b79c0a4d916c5754c0f8dda963dc7",
+      "source_fingerprint": "826d6a4d2a18a4a56f82f3011bf1fba5d69796889b371068ce465f43f6fc8807",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-86rwnopd/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-swl_akfm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/bus/0/20260902.041220.627164.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.041220.642948.BusDevice.post.json",
-            "logs/bus/0/20260902.041220.668626.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.041220.681766.BusDevice.post.json",
-            "logs/bus/0/20260902.041220.702937.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.041220.716421.BusDevice.post.json",
-            "logs/bus/0/20260902.041220.738706.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260902.041220.751412.BusDevice.post.json",
-            "logs/charter/0/20260902.041220.582401.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260902.041220.644026.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260902.041220.682809.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260902.041220.717632.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260902.052629.934923.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052629.947936.BusDevice.post.json",
+            "logs/bus/0/20260902.052629.969114.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052629.981901.BusDevice.post.json",
+            "logs/bus/0/20260902.052630.002910.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052630.015837.BusDevice.post.json",
+            "logs/bus/0/20260902.052630.037394.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260902.052630.050955.BusDevice.post.json",
+            "logs/charter/0/20260902.052629.888293.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260902.052629.949041.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260902.052629.982934.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260902.052630.016986.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

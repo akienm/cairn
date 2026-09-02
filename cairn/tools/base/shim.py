@@ -608,7 +608,14 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                 reason = (f"{self.device_id} declares verb {verb!r} but its handler is "
                           "not callable")
                 return self._bounce_to_sender(envelope, reason)
-            return handler(envelope)
+            result = handler(envelope)
+            if isinstance(result, dict) and self._bus is not None:
+                self._bus.post(
+                    sender=self.device_id, to=envelope["sender"],
+                    channel="personal", why=f"{verb} reply",
+                    body=result, reply_to=envelope["id"],
+                )
+            return result
         receive = getattr(self._device, "receive", None)
         if not callable(receive):
             reason = (f"{self.device_id} was delivered mail but its device declares no "

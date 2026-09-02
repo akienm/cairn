@@ -20,4 +20,4 @@ class InferenceDomainShim(BaseShim):
 
     def _start_device(self):
         from cairn.devices.inference_domain.device import InferenceDomainDevice
-        return InferenceDomainDevice(bus=self._bus)
+        return InferenceDomainDevice()

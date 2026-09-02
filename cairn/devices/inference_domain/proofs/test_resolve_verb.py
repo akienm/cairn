@@ -159,9 +159,10 @@ def test_generate_kind():
     assert reply["body"]["answer"]["text"] == "hello from the fake host"
 
 
-def test_no_bus_still_resolves():
-    """A device without a bus (CLI usage) resolves but posts no reply."""
-    dev = InferenceDomainDevice(bus=None)
+def test_device_is_bus_unaware():
+    """The device returns the result; the shim posts it. No bus on the device."""
+    dev = InferenceDomainDevice()
+    assert not hasattr(dev, "_bus"), "device must not hold a bus reference"
     with patch("cairn.devices.inference_domain.host.ollama_resolver",
                return_value=_fake_resolver):
         result = dev._handle_resolve({
@@ -169,7 +170,8 @@ def test_no_bus_still_resolves():
             "verb": "resolve",
             "body": {"kind": "embed", "prompt": "test", "model": "nomic-embed-text"},
         })
-    assert result["accepted"] is True
+    assert "answer" in result, "handler returns the domain.resolve result directly"
+    assert "vector" in result["answer"], f"result must carry vector, got {sorted(result['answer'])}"
 
 
 def test_yield_view_via_get_verb():
@@ -200,7 +202,7 @@ if __name__ == "__main__":
         test_resolve_returns_real_result,
         test_reply_lands_in_ring,
         test_generate_kind,
-        test_no_bus_still_resolves,
+        test_device_is_bus_unaware,
         test_yield_view_via_get_verb,
     ]
     failures = 0

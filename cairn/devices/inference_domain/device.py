@@ -6,7 +6,8 @@ on the bus — the SOLE path for inter-device inference (ticket 87a7f1c7ae21).
 
 The ``resolve`` verb is the bus-addressable face of ``domain.resolve``: a caller posts
 a request (kind, prompt/messages, model), the handler builds the resolver, runs the
-domain workflow, and posts the result back. Zero cross-device imports needed.
+domain workflow, and returns the result. The shim posts the reply — the device never
+touches the bus.
 """
 
 from __future__ import annotations
@@ -16,10 +17,9 @@ from cairn.tools.base.device import BaseDevice
 
 class InferenceDomainDevice(BaseDevice):
 
-    def __init__(self, bus=None) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._device_id = "inference_domain"
-        self._bus = bus
 
     @property
     def device_id(self) -> str:
@@ -32,12 +32,6 @@ class InferenceDomainDevice(BaseDevice):
         return {"yield": self._yield_view}
 
     def _handle_resolve(self, envelope: dict) -> dict:
-        """The bus-addressable face of domain.resolve.
-
-        Body carries the inference request: kind (embed/generate/chat), prompt or
-        messages, model, and optional domain/options/temperature. The handler builds
-        the resolver internally (host.ollama_resolver is this device's own code) and
-        posts the result back to the sender."""
         from cairn.devices.inference_domain import domain, host
 
         body = envelope.get("body", {})
@@ -47,28 +41,7 @@ class InferenceDomainDevice(BaseDevice):
 
         request = {k: v for k, v in body.items()
                    if k in ("kind", "prompt", "messages", "model", "domain", "options")}
-        result = domain.resolve(request, resolver=resolver)
-
-        if self._bus is not None:
-            self._bus.post(
-                sender=self.device_id,
-                to=envelope["sender"],
-                channel="personal",
-                why="resolve reply",
-                body=result,
-                reply_to=envelope["id"],
-            )
-        return {"accepted": True, "verb": "resolve", "device": self.device_id}
-
-    def _handle_get(self, envelope: dict) -> dict:
-        result = super()._handle_get(envelope)
-        if self._bus is not None and result.get("accepted"):
-            self._bus.post(
-                sender=self.device_id, to=envelope["sender"],
-                channel="personal", why="get reply",
-                body=result, reply_to=envelope["id"],
-            )
-        return result
+        return domain.resolve(request, resolver=resolver)
 
     def _yield_view(self) -> dict:
         from cairn.devices.inference_domain import domain

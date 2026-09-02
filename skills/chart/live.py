@@ -37,13 +37,14 @@ from cairn.devices.builder.machines.validate.validate import deposit_validate, v
 from cairn.devices.builder.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
-from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus, _wire_bus
+from cairn.tools.base.bus_client import connect_bus
+from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus
 
 _BUS = None
 def _bus():
     global _BUS
     if _BUS is None:
-        _BUS = _wire_bus()
+        _BUS = connect_bus(devices=["inference_domain"])
     return _BUS
 
 

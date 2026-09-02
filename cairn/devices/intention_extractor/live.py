@@ -21,13 +21,9 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.cairn.machines.bus.shim import BusShim
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
-from cairn.devices.inference_domain.shim import InferenceDomainShim
+from cairn.tools.base.bus_client import connect_bus
 from cairn.devices.intention_extractor.extractor import IntentionExtractorDevice
 
 DEFAULT_MODEL = "qwen2.5:7b"
@@ -35,15 +31,8 @@ _SENDER = "intention_extractor"
 
 
 def _wire_bus():
-    """Minimal bus for CLI scripts — one bus with inference_domain, one beat to start."""
-    bus = BusDevice()
-    loop = GroundLoopDevice(bus=bus)
-    bus_shim = BusShim(bus, loop)
-    inf_shim = InferenceDomainShim(bus=bus)
-    loop.subscribe(bus_shim)
-    loop.subscribe(inf_shim)
-    loop.beat(datetime.now(timezone.utc))
-    return bus
+    """Minimal bus for CLI scripts — inference_domain registered for resolve verbs."""
+    return connect_bus(devices=["inference_domain"])
 
 
 def _bus_resolve(bus: BusDevice, request: dict) -> dict:

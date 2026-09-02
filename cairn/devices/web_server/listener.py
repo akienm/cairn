@@ -38,10 +38,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
-from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim
-from cairn.devices.cairn.machines.harbor_master import voyage
-from cairn.devices.librarian.shim import LibrarianShim
+from cairn.tools.base.bus_client import connect_system, harbor_source
 from cairn.devices.web_server.server import WebServerDevice
 
 _device: WebServerDevice | None = None
@@ -77,10 +74,8 @@ def main(argv=None) -> int:
                         help="address to bind (default: all interfaces — loopback + LAN)")
     args = parser.parse_args(argv)
 
-    heartbeat = GroundLoopDevice()
-    heartbeat.subscribe(GroundLoopShim(heartbeat))
-    heartbeat.subscribe(LibrarianShim())
-    _device = WebServerDevice(heartbeat, harbor_source=voyage.traffic_image, port=args.port)
+    _bus, heartbeat = connect_system(devices=["ground_loop", "librarian"])
+    _device = WebServerDevice(heartbeat, harbor_source=harbor_source(), port=args.port)
 
     app = _make_app()
     config = uvicorn.Config(

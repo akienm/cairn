@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_cli_reaches.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:40:51",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:33:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "    assert not missing, f\"shimmed devices missing instance-space bin/: {missing}\"\nE   AssertionError: shimmed devices missing instance-space bin/: ['cairn']\nE   assert not ['cairn']\n__ TestInstanceSpaceBinExists.test_each_instance_bin_has_self_named_launcher ___\ncairn/tools/base/proofs/test_cli_reaches.py:63: in test_each_instance_bin_has_self_named_launcher\n    assert not missing, f\"shimmed devices missing executable self-named launcher: {missing}\"\nE   AssertionError: shimmed devices missing executable self-named launcher: ['cairn']\nE   assert not ['cairn']\n__________ TestCairnDeviceResolves.test_each_shimmed_device_resolves ___________\ncairn/tools/base/proofs/test_cli_reaches.py:83: in test_each_shimmed_device_resolves\n    assert not failures, f\"cairn <device> failed for: {failures}\"\nE   AssertionError: cairn <device> failed for: [('cairn', 127, 'cairn: no such device or command: cairn\\ncairn: usage: cairn <device> [verb] [args...]\\n\\ndevices:\\n  cc\\n  codemonkey\\n  harbor_master\\n  inference_domain\\n  librarian\\n  superclaude\\n  tester\\n\\nlegacy verbs (t')]\nE   assert not [('cairn', 127, 'cairn: no such device or command: cairn\\ncairn: usage: cairn <device> [verb] [args...]\\n\\ndevices:\\n  cc\\n  codemonkey\\n  harbor_master\\n  inference_domain\\n  librarian\\n  superclaude\\n  tester\\n\\nlegacy verbs (t')]\n=========================== short test summary info ============================\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_shimmed_device_has_instance_bin\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_instance_bin_has_self_named_launcher\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestCairnDeviceResolves::test_each_shimmed_device_resolves\n========================= 3 failed, 5 passed in 0.76s ==========================\n\n\u001b[31m8 teeth RED\u001b[0m",
+      "stdout_tail": "    assert not missing, f\"shimmed devices missing instance-space bin/: {missing}\"\nE   AssertionError: shimmed devices missing instance-space bin/: ['cairn']\nE   assert not ['cairn']\n__ TestInstanceSpaceBinExists.test_each_instance_bin_has_self_named_launcher ___\ncairn/tools/base/proofs/test_cli_reaches.py:63: in test_each_instance_bin_has_self_named_launcher\n    assert not missing, f\"shimmed devices missing executable self-named launcher: {missing}\"\nE   AssertionError: shimmed devices missing executable self-named launcher: ['cairn']\nE   assert not ['cairn']\n__________ TestCairnDeviceResolves.test_each_shimmed_device_resolves ___________\ncairn/tools/base/proofs/test_cli_reaches.py:83: in test_each_shimmed_device_resolves\n    assert not failures, f\"cairn <device> failed for: {failures}\"\nE   AssertionError: cairn <device> failed for: [('cairn', 127, 'cairn: no such device or command: cairn\\ncairn: usage: cairn <device> [verb] [args...]\\n\\ndevices:\\n  cc\\n  codemonkey\\n  harbor_master\\n  inference_domain\\n  librarian\\n  superclaude\\n  tester\\n\\nlegacy verbs (t')]\nE   assert not [('cairn', 127, 'cairn: no such device or command: cairn\\ncairn: usage: cairn <device> [verb] [args...]\\n\\ndevices:\\n  cc\\n  codemonkey\\n  harbor_master\\n  inference_domain\\n  librarian\\n  superclaude\\n  tester\\n\\nlegacy verbs (t')]\n=========================== short test summary info ============================\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_shimmed_device_has_instance_bin\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_instance_bin_has_self_named_launcher\nFAILED cairn/tools/base/proofs/test_cli_reaches.py::TestCairnDeviceResolves::test_each_shimmed_device_resolves\n========================= 3 failed, 5 passed in 1.13s ==========================\n\n\u001b[31m8 teeth RED\u001b[0m",
       "stderr_tail": "",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "69c63c01c259b674bed148a0db742f45d3e60dbbdb83bc68974cf0d7b2368a03",
+      "source_fingerprint": "6cfdce7cb9823f5a0ab1b49460331c9aa66ce897741ef473e29458f4abfb1e18",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-qgnsc2_g/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-5v3m___m/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,

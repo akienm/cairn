@@ -734,8 +734,13 @@ def test_import_allowlist_tree_free(root, berths, val):
     # import_map reads ['__future__', 'json'] — stdlib, no db, no embed host, no
     # inference. Gate-ness is a DIRECT-import fact, which is how `cairn determinism`
     # and `cairnmap --gate` see this stage from outside without being told.
-    allow = ("__future__", "glob", "hashlib", "json", "os", "re", "time",
-             "cairn.tools.chain.grammar", "cairn.tools.gate.gate")
+    # cairn.tools.chain.chain joined 2026-09-02 (device isolation): chain
+    # resolution functions (claiming_packets, chain_for_ticket, verdict_error
+    # et al.) factored from verdict.py to the chain tool. Still tree-free:
+    # chain.py reads berth files, no db or embed host.
+    allow = ("__future__", "hashlib", "json", "os", "re", "time",
+             "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
+             "cairn.tools.gate.gate")
     assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \
         "the gate tool grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]

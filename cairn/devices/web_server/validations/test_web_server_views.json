@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_web_server_views.py passes under python3",
-    "caller": "CC",
-    "date": "2026-09-02T03:04:53",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:24:50",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_all_renderers_escape_device_strings\n  PASS  test_bounded_pane_renders_pager\n  PASS  test_bounded_pane_shows_window_meta\n  PASS  test_record_renders_as_dl\n  PASS  test_scalar_renders_as_span\n  PASS  test_sequence_renders_as_ol\n  PASS  test_table_renders_as_table\n  PASS  test_tree_renders_as_details\n  PASS  test_unknown_kind_falls_back_to_pre\ngreen — web_server/views: 9 teeth, all view kinds dispatch to their own renderer, unknown falls back to <pre>, bounded panes show metadata and pager, all device strings escaped",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fd47c5080aeb4b03ef4128437d5462b7501a3237a3876f0b65213a6b4fca7ae6",
+      "source_fingerprint": "24dcdffe5a3eb99c80df29e76f5959e69008eb6e5f59e2820b3de65c697a29c8",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2a03z0j1/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-rwc89fjd/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

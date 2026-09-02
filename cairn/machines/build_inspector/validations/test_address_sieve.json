@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_address_sieve.py passes under python3",
-    "caller": "build-cycle/a-gate-is-a-class",
-    "date": "2026-09-01T22:13:32",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:25:42",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "address sieve proofs: all teeth green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b3dfc92a88e322b5fef19c6a104217ebf19d04714ec451df1676ab8cd387590c",
+      "source_fingerprint": "796f60c63c7f534d4d6d7463dc240eead5622ba92c0ab45bb8e692d756241ef7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-5solqnqh/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-cjh8j1zq/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

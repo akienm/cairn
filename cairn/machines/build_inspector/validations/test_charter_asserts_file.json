@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_charter_asserts_file.py passes under python3",
-    "caller": "build-cycle/a-gate-is-a-class",
-    "date": "2026-09-01T22:13:42",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:25:55",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames\n  PASS  test_live_corpus_is_clean\ngreen — charter_asserts_file_present (5 teeth): a false assertion is caught, an honest qualification passes, present files pass, the check is not hardcoded to two filenames, and the live corpus is clean",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b3dfc92a88e322b5fef19c6a104217ebf19d04714ec451df1676ab8cd387590c",
+      "source_fingerprint": "796f60c63c7f534d4d6d7463dc240eead5622ba92c0ab45bb8e692d756241ef7",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-flclgrvq/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-arvg3fq6/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

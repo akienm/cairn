@@ -1,42 +1,42 @@
 [
   {
     "claim": "proof test_web_server.py passes under python3",
-    "caller": "CC",
-    "date": "2026-09-02T03:05:10",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:24:25",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_the_trace_wire_counts_a_pass_and_a_refusal\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fd47c5080aeb4b03ef4128437d5462b7501a3237a3876f0b65213a6b4fca7ae6",
+      "source_fingerprint": "24dcdffe5a3eb99c80df29e76f5959e69008eb6e5f59e2820b3de65c697a29c8",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-gh29hubd/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-ak726nne/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 16,
           "paths": [
-            "logs/ground_loop/0/20260902.090507.426321.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.426527.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.426868.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.427005.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.427420.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.427546.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.427868.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.427992.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.428411.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.428542.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.428965.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.429090.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.429408.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.429529.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.430044.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090507.430165.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260902.232422.498342.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.498544.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.498903.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.499040.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.499456.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.499583.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.499915.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.500039.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.500470.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.500603.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.501037.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.501163.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.501484.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.501606.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.502136.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232422.502259.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         }

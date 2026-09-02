@@ -778,12 +778,14 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
     this path reaches a db, an embed host, or the network, which is why a
     netns-sealed crossing enqueues identically (build_inspector edge (l))."""
     import cairn.machines.build_inspector.inspector as _insp
+    import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=_ANSWERED)
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        _chain.BERTHS_ROOT = str(berths)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             artifact = str(berths / "0" / "packets" / "verdict-20260729T000002-feed.json")
@@ -799,7 +801,7 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
                 f"the crossing must name the deposit it filed: {rec}"
         finally:
             (transitions._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
 
 
 def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
@@ -811,13 +813,15 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
     deposit for a file nobody wrote). A BACK-EDGE is never gated and never
     enqueues — retreating owes the tree nothing."""
     import cairn.machines.build_inspector.inspector as _insp
+    import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         # (1) refusal: claimed, unanswered
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=None)
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        _chain.BERTHS_ROOT = str(berths)
         try:
             hist, state = str(Path(d) / "h1.json"), str(Path(d) / "s1.json")
             _expect_refused(lambda: transitions.emit(
@@ -833,14 +837,15 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
             assert not ledger.exists(), "a back-edge must enqueue nothing"
         finally:
             (transitions._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
     with tempfile.TemporaryDirectory() as d:
         # (2) unclaimed: cast ticket, NO claiming chart — gated-and-clean, no artifact
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), claim=False)
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT)
+                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
+        _chain.BERTHS_ROOT = str(berths)
         try:
             hist, state = str(Path(d) / "h2.json"), str(Path(d) / "s2.json")
             transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
@@ -852,7 +857,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
             assert not ledger.exists(), "an unclaimed gated-and-clean crossing enqueues nothing"
         finally:
             (transitions._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT) = saved
+             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
 
 
 def test_the_enqueue_seam_stays_file_only_on_the_fire_path():

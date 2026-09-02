@@ -364,23 +364,11 @@ def test_import_allowlist(root, orient_berth):
              # gate-ness is a DIRECT-import fact — which is how `cairn determinism`
              # and `cairnmap --gate` see it from outside without being told.
              "cairn.tools.gate.gate",
-             # THE TESTER JOINED 2026-08-14, AND THIS TOOTH FIRED RED TO ADMIT IT —
-             # recorded because a widened allowlist with no note is the drift this
-             # tooth exists to catch. Akien's ruling on constrain's intention that
-             # day: the floor "discovers the instruments that will refuse this
-             # build ... runs them, and reports their state". Running an instrument
-             # IS reaching the tester; no spelling of the ruled design avoids it, so
-             # the tooth was wrong the moment the ruling landed rather than the code
-             # being wrong. What is admitted is deliberately narrow and each entry
-             # earns itself: `cli` for the proof-discovery convention (COMPOSED, so
-             # constrain and the tester cannot disagree about what a proof is),
-             # `device` to run one, `validation_store` for the source fingerprint
-             # that keys the run cache. The floor READS these and gates nothing —
-             # Law 6 is untouched, and `run_proof` persists nothing, measured in its
-             # own source before this import was added.
-             "cairn.devices.tester.cli",
-             "cairn.devices.tester.device",
-             "cairn.devices.tester.validation_store")
+             # THE TESTER'S READ SIDE (2026-09-02, device isolation): constrain
+             # reaches the tester's discover, source_fingerprint, and run_proof
+             # through cairn.tools.base.validation — the tool that surfaces these
+             # without crossing device boundaries.
+             "cairn.tools.base.validation")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

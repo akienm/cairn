@@ -1,33 +1,33 @@
 [
   {
     "claim": "proof test_cli.py passes under python3",
-    "caller": "the-corpus-is-out-of-proven-space re-seal",
-    "date": "2026-09-02T01:35:28",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:19:36",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "proof: the `cairn test` verb — repo=/home/akien/dev/src/cairn\n  PASS  test_a_green_proof_reports_green_and_exits_zero\n  PASS  test_a_red_proof_reports_red_and_exits_nonzero\n  PASS  test_a_red_carries_its_evidence_in_the_first_run\n  PASS  test_the_run_seals_nothing\n  PASS  test_a_directory_expands_to_the_proofs_beneath_it\n  PASS  test_a_typod_path_is_loud_and_never_a_green_over_nothing\n  PASS  test_the_verb_is_registered_with_the_dispatcher\n  PASS  test_it_runs_from_a_cwd_that_is_not_the_repo\n\nall green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "source_fingerprint": "041862affd448024e8d6487cb3c83e5e056f49f2e7672bdaaeee08237349a4e3",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-6d4dqmkc/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-vfji6fjm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
-            "logs/tester/0/20260902.073510.525731.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073513.101674.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073515.649009.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073518.222986.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073520.775720.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073523.301252.TesterDevice.run_proof.json",
-            "logs/tester/0/20260902.073525.914913.TesterDevice.run_proof.json"
+            "logs/tester/0/20260902.231823.981087.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231834.846286.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231845.627215.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231857.829912.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231909.741149.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231920.707634.TesterDevice.run_proof.json",
+            "logs/tester/0/20260902.231933.655109.TesterDevice.run_proof.json"
           ],
           "elided": 0
         }

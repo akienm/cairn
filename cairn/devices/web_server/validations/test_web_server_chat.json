@@ -1,33 +1,33 @@
 [
   {
     "claim": "proof test_web_server_chat.py passes under python3",
-    "caller": "CC",
-    "date": "2026-09-02T03:05:20",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-device-isolation-reseal",
+    "date": "2026-09-02T17:24:36",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_librarian_rides_the_roster_and_its_page_carries_the_chat_pane\n  PASS  test_a_post_delivers_through_the_shim_decoded\n  PASS  test_an_empty_utterance_takes_no_turn\n  PASS  test_everything_the_librarian_says_is_escaped\n  PASS  test_the_resolve_reply_renders_prose_first_and_collapses_the_verdict\n  PASS  test_a_dying_delivery_is_a_legible_500_and_the_record_stands\n  PASS  test_an_unwoken_face_is_an_absent_pane_and_there_is_no_second_door\ngreen — web_server/chat pane: the librarian rides the roster and its page carries the chat pane through the STANDARD shim machinery, a page query wakes the device, POST delivers decoded through shim.deliver, empty says nothing, every librarian string is escaped, a dying delivery is a legible 500 whose breadcrumb stands, an unwoken face is absent-with-reason, and there is no second door",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fd47c5080aeb4b03ef4128437d5462b7501a3237a3876f0b65213a6b4fca7ae6",
+      "source_fingerprint": "24dcdffe5a3eb99c80df29e76f5959e69008eb6e5f59e2820b3de65c697a29c8",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-cjysq49s/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-65jn0cmo/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/librarian/0/last_known.json",
-            "logs/ground_loop/0/20260902.090517.639623.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090517.640421.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090517.641913.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090517.642521.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090517.643154.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260902.090517.643771.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260902.232433.549819.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232433.550672.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232433.552396.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232433.553079.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232433.553928.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260902.232433.554612.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         }

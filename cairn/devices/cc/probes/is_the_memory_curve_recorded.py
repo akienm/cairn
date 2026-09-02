@@ -18,9 +18,10 @@ import json
 import os
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe, owning_ticket
 
-_SERIES_PATH = Path.home() / ".cairn" / "devices" / "cc" / "0" / "memory_series.jsonl"
+_SERIES_PATH = address.instance_path("cc", 0) / "memory_series.jsonl"
 _TICKET = "the-memory-curve-is-recorded-not-eyeballed"
 
 

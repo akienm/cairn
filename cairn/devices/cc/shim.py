@@ -20,9 +20,10 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.shim import BaseShim
 
-_INSTANCE_ROOT = Path.home() / ".cairn" / "devices" / "cc" / "0"
+_INSTANCE_ROOT = address.instance_path("cc", 0)
 _MAIL_DIR = _INSTANCE_ROOT / "mail"
 
 

@@ -11,9 +11,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe
 
-_ACTED_MARKER = Path.home() / ".cairn" / "devices" / "corrosion" / "0" / "genuine_catch.json"
+_ACTED_MARKER = address.instance_path("corrosion", 0) / "genuine_catch.json"
 
 
 def _trigger(now, context: dict) -> bool:

@@ -11,9 +11,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe
 
-_INSTANCE_ROOT = Path.home() / ".cairn" / "devices" / "build_inspector" / "0"
+_INSTANCE_ROOT = address.instance_path("build_inspector", 0)
 _RECORDS_DIR = _INSTANCE_ROOT / "run_records"
 _ACTED_MARKER = _INSTANCE_ROOT / "comparison_acted.json"
 

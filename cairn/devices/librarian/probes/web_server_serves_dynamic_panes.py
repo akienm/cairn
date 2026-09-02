@@ -26,12 +26,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe, owning_ticket
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "the-web-server-graduates-to-starlette"
 
-_LOG_PATH = Path.home() / ".cairn" / "devices" / "web_server" / "0" / "dynamic_pane_renders.json"
+_LOG_PATH = address.instance_path("web_server", 0) / "dynamic_pane_renders.json"
 
 
 def _read_renders() -> list[dict]:

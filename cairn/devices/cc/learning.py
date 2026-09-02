@@ -13,7 +13,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-_DEFAULT_ROOT = Path.home() / ".cairn" / "devices" / "cc" / "0" / "learning"
+from cairn.tools.base import address
+
+_DEFAULT_ROOT = address.instance_path("cc", 0) / "learning"
 
 SIGNALS = {
     "confirmation": ("confirmation", "+ slow (confirmed prediction; the denominator grows)"),

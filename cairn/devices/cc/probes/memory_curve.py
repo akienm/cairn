@@ -21,9 +21,10 @@ import os
 import time
 from pathlib import Path
 
+from cairn.tools.base import address
 from cairn.tools.base.probe import Probe
 
-_SERIES_PATH = Path.home() / ".cairn" / "devices" / "cc" / "0" / "memory_series.jsonl"
+_SERIES_PATH = address.instance_path("cc", 0) / "memory_series.jsonl"
 
 
 def _cgroup_path() -> str | None:

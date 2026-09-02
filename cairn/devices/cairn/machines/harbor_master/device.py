@@ -103,16 +103,39 @@ class HarborMasterDevice(BaseDevice):
             return self._render_fleet_map(data)
         return super()._render_view(name, data)
 
+    _WORKFLOW_ORDER = [
+        "IDEA", "THINKME", "TICKETME", "SORTEDME", "BUILDME",
+        "PROVEME", "WATCHME", "PROVED", "SUPERSEDED", "ABSORBED",
+    ]
+
+    @classmethod
+    def _standing_sort_key(cls, boat: dict) -> tuple:
+        """Extract the active stage from a standing string and return a sort key
+        in workflow order. Earlier stages sort first; PROVED and terminal states last."""
+        standing = boat.get("standing", "")
+        import re
+        bracketed = re.search(r"\[([A-Z_]+)", standing)
+        if bracketed:
+            active = bracketed.group(1)
+        else:
+            active = standing.split()[0].rstrip(":") if standing else ""
+        active_base = active.split(":")[0]
+        try:
+            rank = cls._WORKFLOW_ORDER.index(active_base)
+        except ValueError:
+            rank = len(cls._WORKFLOW_ORDER)
+        return (rank, boat.get("id", ""))
+
     def _render_fleet_map(self, fleet: dict) -> str:
         counts = fleet.get("counts", {})
         lines = [f"Fleet: {counts.get('fleet', 0)} boats "
                  f"({counts.get('open', 0)} open, {counts.get('in_port', 0)} in port)"]
-        open_boats = fleet.get("open", [])
+        open_boats = sorted(fleet.get("open", []), key=self._standing_sort_key)
         if open_boats:
             lines.append("\nOpen:")
             for b in open_boats:
                 lines.append(f"  {b['id']:<40s} {b.get('standing', '?')}")
-        in_port = fleet.get("in_port", [])
+        in_port = sorted(fleet.get("in_port", []), key=self._standing_sort_key)
         if in_port:
             lines.append("\nIn port:")
             for b in in_port:

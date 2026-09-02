@@ -176,3 +176,38 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
         is honest — an empty menu and a missing menu are the same refusal.
         """
         return {}
+
+    # --- feedback receiver: the default mail handler --------------------------
+
+    def _get_recorder(self):
+        """Lazy DataRecorder at the device's instance-space address.
+
+        Every device that receives mail records it for later evaluation
+        (scheduled-llm-gate-inspection reads these). The path follows the
+        ruling 2026-08-14-tools-and-machines-remember-under-their-holder.
+        """
+        if not hasattr(self, "_recorder") or self._recorder is None:
+            from cairn.tools.data_recorder.data_recorder import DataRecorder
+            from cairn.tools.base.address import instance_path
+            self._recorder = DataRecorder(
+                instance_path(self.device_id, 0) / "tools" / "data_recorder" / "inbound")
+        return self._recorder
+
+    def receive(self, envelope: dict) -> dict:
+        """Accept an incoming bus envelope and record it for later evaluation.
+
+        The default handler: every device that gets mail records it to a
+        DataRecorder. Devices that need to DO something with the mail
+        override this and call super() to keep the recording.
+        """
+        self._get_recorder().write({
+            "finding": envelope.get("why", "bus message received"),
+            "inspector_target": self.device_id,
+            "probe_source": envelope.get("sender", "unknown"),
+            "envelope_id": envelope.get("id"),
+            "verb": envelope.get("verb", ""),
+            "body": envelope.get("body", {}),
+        })
+        self.emit("received", pointer=envelope.get("sender", "unknown"),
+                  values={"why": (envelope.get("why") or "")[:120]})
+        return {"accepted": True, "device": self.device_id}

@@ -38,8 +38,13 @@ class VerbDevice(BaseDevice):
 
     def __init__(self):
         super().__init__()
+        self._device_id = "test_verb_device"
         self.pings: list[dict] = []
         self.status_calls: list[dict] = []
+
+    @property
+    def device_id(self):
+        return self._device_id
 
     def declared_verbs(self):
         return {
@@ -66,7 +71,15 @@ class VerbDevice(BaseDevice):
 
 
 class NoVerbDevice(BaseDevice):
-    """A device with no verbs and no receive — refuses everything."""
+    """A device with no declared verbs — uses BaseDevice.receive() default."""
+
+    def __init__(self):
+        super().__init__()
+        self._device_id = "test_no_verb_device"
+
+    @property
+    def device_id(self):
+        return self._device_id
 
     def intention(self):
         return {"what": "test device with nothing"}
@@ -149,22 +162,19 @@ def test_unknown_verb_goes_red():
         assert "ping" in str(e) or "status" in str(e), f"error must list declared verbs: {e}"
 
 
-def test_no_verbs_no_receive_refuses():
-    """(4) a device with no verbs and no receive() refuses all mail."""
+def test_no_verbs_unknown_verb_refuses():
+    """(4) a device with no declared verbs refuses verbed mail but accepts verbless."""
     device = NoVerbDevice()
     shim = _VerbShim(device)
-    # With verb
+    # With verb — still refuses (unknown verb, no declared verbs)
     try:
         shim.deliver({"verb": "anything", "body": {}})
         raise AssertionError("must refuse — no verbs declared")
     except NotImplementedError:
         pass
-    # Without verb
-    try:
-        shim.deliver({"body": {}})
-        raise AssertionError("must refuse — no receive()")
-    except NotImplementedError:
-        pass
+    # Without verb — accepts via BaseDevice.receive() default (records to DataRecorder)
+    result = shim.deliver({"body": {}, "sender": "test"})
+    assert result["accepted"], f"BaseDevice.receive() must accept: {result}"
 
 
 def test_empty_verb_falls_back_to_receive():
@@ -250,7 +260,7 @@ if __name__ == "__main__":
         test_post_carries_verb_in_envelope,
         test_deliver_resolves_verb_to_handler,
         test_unknown_verb_goes_red,
-        test_no_verbs_no_receive_refuses,
+        test_no_verbs_unknown_verb_refuses,
         test_empty_verb_falls_back_to_receive,
         test_probe_carries_verb,
         test_verb_column_in_transit_table,

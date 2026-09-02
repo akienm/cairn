@@ -165,7 +165,8 @@ def test_a_broken_probe_does_not_prevent_healthy_probes_from_firing():
         assert record["pulsed"] == ["mixed"], record["pulsed"]
         pulse = record["pulses"][0]
         assert pulse["fired_count"] == 1, pulse
-        assert [p["to"] for p in bus.posted] == ["harbor_master"], bus.posted
+        probe_posts = [p for p in bus.posted if p["channel"] == "personal"]
+        assert [p["to"] for p in probe_posts] == ["harbor_master"], probe_posts
 
 
 def test_staleness_sets_the_stale_flag():

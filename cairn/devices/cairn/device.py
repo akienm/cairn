@@ -1,10 +1,8 @@
 """cairn/device.py — the cairn system device.
 
 The top-level device. Its machines (ground_loop, harbor_master, bus) are the
-system's own infrastructure. Receives feedback from probes that target the
-system itself — operator_inbox accuracy, system-level efficacy findings.
-
-All inbound mail is recorded to a DataRecorder for later evaluation.
+system's own infrastructure. BaseDevice.receive() records inbound mail to a
+DataRecorder for later evaluation.
 """
 
 from __future__ import annotations
@@ -17,33 +15,10 @@ class CairnDevice(BaseDevice):
     def __init__(self) -> None:
         super().__init__()
         self._device_id = "cairn"
-        self._recorder = None
 
     @property
     def device_id(self) -> str:
         return self._device_id
-
-    def _get_recorder(self):
-        if self._recorder is None:
-            from cairn.tools.data_recorder.data_recorder import DataRecorder
-            from cairn.tools.base.address import instance_path
-            self._recorder = DataRecorder(
-                instance_path("cairn", 0) / "tools" / "data_recorder" / "inbound")
-        return self._recorder
-
-    def receive(self, envelope: dict) -> dict:
-        """Accept an incoming bus envelope — system-level feedback."""
-        self._get_recorder().write({
-            "finding": envelope.get("why", "bus message received"),
-            "inspector_target": "cairn",
-            "probe_source": envelope.get("sender", "unknown"),
-            "envelope_id": envelope.get("id"),
-            "verb": envelope.get("verb", ""),
-            "body": envelope.get("body", {}),
-        })
-        self.emit("received", pointer=envelope.get("sender", "unknown"),
-                  values={"why": (envelope.get("why") or "")[:120]})
-        return {"accepted": True, "device": self.device_id}
 
     def intention(self) -> dict:
         return {

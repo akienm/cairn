@@ -2,7 +2,8 @@
 
 The inference domain's machinery (domain.py, host.py, route.py) predates its device
 class. This wraps the module behind a BaseDevice face so the domain can be addressed
-on the bus — two probes send findings here.
+on the bus — two probes send findings here. BaseDevice.receive() records inbound
+mail to a DataRecorder for later evaluation.
 """
 
 from __future__ import annotations
@@ -15,33 +16,10 @@ class InferenceDomainDevice(BaseDevice):
     def __init__(self) -> None:
         super().__init__()
         self._device_id = "inference_domain"
-        self._recorder = None
 
     @property
     def device_id(self) -> str:
         return self._device_id
-
-    def _get_recorder(self):
-        if self._recorder is None:
-            from cairn.tools.data_recorder.data_recorder import DataRecorder
-            from cairn.tools.base.address import instance_path
-            self._recorder = DataRecorder(
-                instance_path("inference_domain", 0) / "tools" / "data_recorder" / "inbound")
-        return self._recorder
-
-    def receive(self, envelope: dict) -> dict:
-        """Accept an incoming bus envelope — probe findings about inference behavior."""
-        self._get_recorder().write({
-            "finding": envelope.get("why", "bus message received"),
-            "inspector_target": "inference_domain",
-            "probe_source": envelope.get("sender", "unknown"),
-            "envelope_id": envelope.get("id"),
-            "verb": envelope.get("verb", ""),
-            "body": envelope.get("body", {}),
-        })
-        self.emit("received", pointer=envelope.get("sender", "unknown"),
-                  values={"why": (envelope.get("why") or "")[:120]})
-        return {"accepted": True, "device": self.device_id}
 
     def intention(self) -> dict:
         return {

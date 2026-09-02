@@ -170,16 +170,16 @@ def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     assert bus.undelivered(to="box_bad") == []
 
 
-def test_a_discovered_shim_cannot_receive():
-    """A DiscoveredShim exists for probes only — it cannot wake a device. Mail addressed to
-    a discovered-only device stays in transit honestly (NotImplementedError, not a silent drop)."""
+def test_a_discovered_shim_receives_to_feedback():
+    """A DiscoveredShim starts a _FeedbackDevice — mail is accepted and recorded,
+    not bounced. The bus drains the envelope on delivery."""
     bus = _fresh_bus()
     loop = _rig(bus, DiscoveredShim("disk_only", "/nowhere", bus=bus))
     sent = _post(bus, "disk_only")
     loop.beat(NOW)
     mail = _mail_result(loop._last_beat, "disk_only") or {}
-    assert mail.get("outcome") == "no_receiver", mail
-    assert [e["id"] for e in bus.undelivered(to="disk_only")] == [sent["id"]]
+    assert mail.get("delivered"), f"DiscoveredShim must deliver: {mail}"
+    assert bus.undelivered(to="disk_only") == []
 
 
 def test_mail_for_a_device_not_on_the_roster_sits():

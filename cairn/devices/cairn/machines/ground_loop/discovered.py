@@ -70,11 +70,47 @@ class DiscoveredShim(BaseShim):
             self._folder = folder
 
     def _start_device(self):
-        """There is no heavier process to wake: a discovered device is reached through its
-        probes, whose triggers close over their own data at their own addresses (Law 6).
-        Loudly absent rather than quietly None — a caller asking this shim for a page is
-        asking the wrong shim, and should be told so."""
-        raise NotImplementedError(
-            f"{self._device_id} was discovered by its probes/ folder, not registered with a "
-            "device — it is on the roster to be PULSED, not to be paged. A page needs a "
-            "concrete shim holding a real device.")
+        """Start a minimal device for mail receipt.
+
+        A discovered device has no heavier process — its probes close over their own data.
+        But it DOES receive mail: BaseDevice.receive() records to a DataRecorder, and that
+        is the default handler every device gets. A page still needs a concrete shim holding
+        a real device (the web server reaches the page through the shim, and a minimal
+        feedback device has nothing to page)."""
+        return _FeedbackDevice(self._device_id)
+
+
+class _FeedbackDevice:
+    """Minimal device for mail receipt by discovered devices.
+
+    Not a BaseDevice subclass — it has no intention/state/settings to report and
+    does not compose CoreValuesMixin (it is not a device in the charter sense, it
+    is a mailbox). But it has receive() and device_id, which is all deliver() needs.
+    """
+
+    def __init__(self, device_id: str) -> None:
+        self._device_id = device_id
+        self._recorder = None
+
+    @property
+    def device_id(self) -> str:
+        return self._device_id
+
+    def _get_recorder(self):
+        if self._recorder is None:
+            from cairn.tools.data_recorder.data_recorder import DataRecorder
+            from cairn.tools.base.address import instance_path
+            self._recorder = DataRecorder(
+                instance_path(self._device_id, 0) / "tools" / "data_recorder" / "inbound")
+        return self._recorder
+
+    def receive(self, envelope: dict) -> dict:
+        self._get_recorder().write({
+            "finding": envelope.get("why", "bus message received"),
+            "inspector_target": self._device_id,
+            "probe_source": envelope.get("sender", "unknown"),
+            "envelope_id": envelope.get("id"),
+            "verb": envelope.get("verb", ""),
+            "body": envelope.get("body", {}),
+        })
+        return {"accepted": True, "device": self._device_id}

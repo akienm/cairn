@@ -49,6 +49,7 @@ from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import (
     DepositRefused, LibrarianDevice, WalkRefused, deposit, nearest, neighbors,
+    contradiction_scan,
 )
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
@@ -57,6 +58,7 @@ _TABLE2 = f"_trees2_{_NONCE}"
 _TABLE_TENANT = f"_tenant_{_NONCE}"
 _TABLE_EMPTY = f"_empty_{_NONCE}"
 _TABLE_RETIRE = f"_retire_{_NONCE}"
+_TABLE_CONTRA = f"_contra_{_NONCE}"
 _CREATED_NODES: list[str] = []
 
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
@@ -301,7 +303,7 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE):
+            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA):
                 cur.execute(f'DROP TABLE IF EXISTS "{t}"')
                 cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
             for nid in _CREATED_NODES:
@@ -454,6 +456,120 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
     assert out["was"] == "earned" and _row(earned_c)["standing"] == "refuted", out
 
 
+# ---------------------------------------------------------------------------
+# CONTRADICTION DETECTION (ticket librarian-contradiction-invalidation)
+# ---------------------------------------------------------------------------
+
+_CONTRA_TREE = "contra"
+
+
+def _fake_resolve(answers):
+    """A scripted resolve seam: pops from a list, so each call gets a known answer."""
+    idx = [0]
+    def _resolve(req):
+        if req["kind"] == "embed":
+            return {"answer": {"vector": [0.0, 0.0]}}
+        text = answers[idx[0]] if idx[0] < len(answers) else "NO"
+        idx[0] += 1
+        return {"answer": {"text": text}}
+    return _resolve
+
+
+def _contra_land(content, vector, source="llm-backfill", **extra):
+    prov = {"source": source, **extra}
+    r = deposit(content + f" [{_NONCE}]", vector, prov,
+                tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    _CREATED_NODES.append(r["node_id"])
+    return r["node_id"]
+
+
+def _contra_row(nid):
+    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))
+    return rows[0] if rows else None
+
+
+def test_contradiction_scan_refutes_a_contradicted_hypothesis():
+    existing = _contra_land("the library opens at nine every morning", [0.9, 0.1])
+    incoming = _contra_land("the library opens at noon, never nine", [0.85, 0.15])
+    resolve = _fake_resolve(["YES"])
+    refuted = contradiction_scan(incoming, [0.85, 0.15], resolve=resolve,
+                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    assert len(refuted) == 1, f"expected 1 refuted, got {len(refuted)}"
+    assert refuted[0]["refuted_node_id"] == existing
+    row = _contra_row(existing)
+    assert row["standing"] == "refuted", f"expected refuted, got {row['standing']}"
+    assert row["content"] is not None, "content must not be deleted"
+
+
+def test_contradiction_scan_leaves_non_contradictory_alone():
+    existing = _contra_land("the archive holds manuscripts from the sixteenth century", [0.3, 0.7])
+    incoming = _contra_land("the archive also holds maps from the seventeenth century", [0.35, 0.65])
+    resolve = _fake_resolve(["NO"])
+    refuted = contradiction_scan(incoming, [0.35, 0.65], resolve=resolve,
+                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    assert len(refuted) == 0, f"expected 0 refuted, got {len(refuted)}"
+    row = _contra_row(existing)
+    assert row["standing"] == "hypothesis", f"non-contradictory node must stay hypothesis"
+
+
+def test_correction_source_refutes_earned_node():
+    earned = _contra_land("the reading room seats forty readers", [0.5, 0.5])
+    _make_earned(earned)
+    corrector = _contra_land("the room was remodelled and now seats twenty-five", [0.55, 0.45],
+                             source="correction")
+    resolve = _fake_resolve(["YES"])
+    refuted = contradiction_scan(corrector, [0.55, 0.45], resolve=resolve,
+                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    assert len(refuted) == 1
+    row = _contra_row(earned)
+    assert row["standing"] == "refuted", f"correction must refute earned, got {row['standing']}"
+
+
+def test_hypothesis_cannot_refute_earned_via_scan():
+    earned = _contra_land("the catalogue uses the dewey system", [0.6, 0.4])
+    _make_earned(earned)
+    guess = _contra_land("the catalogue uses library of congress", [0.65, 0.35])
+    resolve = _fake_resolve(["YES"])
+    refuted = contradiction_scan(guess, [0.65, 0.35], resolve=resolve,
+                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    assert len(refuted) == 0, "a hypothesis must not retire an earned node"
+    row = _contra_row(earned)
+    assert row["standing"] == "earned", f"earned must stay earned, got {row['standing']}"
+
+
+def test_contradicts_provenance_field_is_set():
+    existing = _contra_land("the library is closed on sundays", [0.2, 0.8])
+    incoming = _contra_land("the library is open every day including sundays", [0.25, 0.75])
+    resolve = _fake_resolve(["YES"])
+    contradiction_scan(incoming, [0.25, 0.75], resolve=resolve,
+                       tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    row = _contra_row(incoming)
+    assert "contradicts" in row["provenance"], "refuter provenance must carry 'contradicts'"
+    assert existing in row["provenance"]["contradicts"], "contradicts must name the refuted node"
+
+
+def test_device_deposit_fires_contradiction_scan():
+    dev = _fresh_librarian()
+    existing = _contra_land("the returns desk is on the ground floor", [0.4, 0.6])
+    calls = []
+    def counting_resolve(req):
+        calls.append(req)
+        if req["kind"] == "generate":
+            return {"answer": {"text": "YES"}}
+        return {"answer": {"vector": [0.0, 0.0]}}
+    r = dev.deposit("the returns desk moved to the first floor" + f" [{_NONCE}]",
+                    [0.45, 0.55],
+                    {"source": "correction"},
+                    tree=_CONTRA_TREE, table=_TABLE_CONTRA,
+                    resolve=counting_resolve)
+    _CREATED_NODES.append(r["node_id"])
+    assert not r["duplicate"], "the deposit must land as new"
+    gen_calls = [c for c in calls if c["kind"] == "generate"]
+    assert len(gen_calls) >= 1, "contradiction_scan must call inference"
+    row = _contra_row(existing)
+    assert row["standing"] == "refuted", f"existing must be refuted, got {row['standing']}"
+
+
 def test_the_borrow_is_cited_not_grafted():
     """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
     is the IMPORT, not the word — the module names cairn/machines/ruling in a comment on purpose,
@@ -490,6 +606,12 @@ def _main() -> int:
         test_a_retirement_is_one_owner_gated_act_that_deletes_nothing,
         test_the_retirement_door_names_every_lack_in_one_pass,
         test_the_standing_gate_lets_the_signature_through_and_stops_the_guess,
+        test_contradiction_scan_refutes_a_contradicted_hypothesis,
+        test_contradiction_scan_leaves_non_contradictory_alone,
+        test_correction_source_refutes_earned_node,
+        test_hypothesis_cannot_refute_earned_via_scan,
+        test_contradicts_provenance_field_is_set,
+        test_device_deposit_fires_contradiction_scan,
         test_the_borrow_is_cited_not_grafted,
     ]
     try:
@@ -504,8 +626,10 @@ def _main() -> int:
           "(no unbounded edge table), trees do not cross, the owner-gate holds, "
           "crossings breadcrumb, a retirement invalidates in ONE owner-gated act "
           "and never deletes, the door names every lack in one pass, the standing gate "
-          "stops the guess and lets the signature through, and the module opens no door "
-          "of its own")
+          "stops the guess and lets the signature through, contradiction_scan refutes "
+          "via inference and leaves non-contradictory alone, the standing gate holds "
+          "through the scan, the contradicts provenance links both sides, and the "
+          "module opens no door of its own")
     return 0
 
 

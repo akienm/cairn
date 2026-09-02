@@ -410,6 +410,87 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
             own.close()
 
 
+CONTRADICTION_K = 5
+CONTRADICTION_THRESHOLD = 0.7
+
+_CONTRADICTION_PROMPT = (
+    "You are a factual consistency checker. Given two statements, determine if "
+    "Statement B directly contradicts Statement A — meaning they cannot both be true.\n\n"
+    "Statement A: {existing}\n"
+    "Statement B: {incoming}\n\n"
+    "Answer ONLY 'YES' if Statement B directly contradicts Statement A, or 'NO' if they "
+    "are compatible, related but not contradictory, or addressing different aspects.\n"
+    "Answer:"
+)
+
+
+def contradiction_scan(node_id: str, vector, *, resolve,
+                       tree: str = "commons", table: str = NODES,
+                       owner: str = OWNER, conn=None) -> list[dict]:
+    """Deposit-time contradiction detection — cosine filter, inference judge.
+
+    Walk the k nearest neighbors of the just-deposited node. For each that is not
+    already refuted and is above the cosine threshold, ask inference whether the new
+    statement contradicts the existing one. On YES, call refute() on the existing node.
+
+    Returns a list of {refuted_node_id, evidence} for each confirmed contradiction.
+    The 'contradicts' provenance field on the depositing node is set here.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, conn=own)
+        walk = nearest(vector, k=CONTRADICTION_K, tree=tree, table=table, conn=own)
+        candidates = [n for n in walk
+                      if n["node_id"] != node_id
+                      and n.get("standing") != "refuted"
+                      and n["similarity"] >= CONTRADICTION_THRESHOLD]
+        if not candidates:
+            return []
+
+        depositor = store.read(NODES_TABLE, where="node_id = %s",
+                               params=(node_id,), conn=own)
+        if not depositor:
+            return []
+        incoming_content = depositor[0]["content"]
+
+        refuted = []
+        for candidate in candidates:
+            prompt = _CONTRADICTION_PROMPT.format(
+                existing=candidate["content"],
+                incoming=incoming_content
+            )
+            try:
+                result = resolve({"kind": "generate", "prompt": prompt})
+                answer = result.get("answer", {}).get("text", "").strip().upper()
+            except Exception:
+                continue
+            if not answer.startswith("YES"):
+                continue
+            try:
+                refute(candidate["node_id"], node_id,
+                       f"Contradicted by deposit {node_id}: "
+                       f"{incoming_content[:200]}",
+                       tree=tree, table=table, owner=owner, conn=own)
+                refuted.append({"refuted_node_id": candidate["node_id"],
+                                "evidence": "inference-confirmed contradiction"})
+            except RefutationRefused:
+                continue
+
+        if refuted:
+            dep_row = store.read(NODES_TABLE, where="node_id = %s",
+                                 params=(node_id,), conn=own)
+            if dep_row:
+                prov = dict(dep_row[0]["provenance"] or {})
+                prov["contradicts"] = [r["refuted_node_id"] for r in refuted]
+                store.update(NODES_TABLE, OWNER, {"provenance": prov},
+                             where="node_id = %s", params=(node_id,), conn=own)
+
+        return refuted
+    finally:
+        if conn is None:
+            own.close()
+
+
 def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) -> dict:
     """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
 
@@ -786,19 +867,34 @@ class LibrarianDevice(BaseDevice):
 
     def deposit(self, content: str, vector, provenance: dict, *,
                 tree: str = "commons", table: str = NODES,
-                render_method: str = "embed:default", conn=None) -> dict:
-        """One deposit crossing — judged at the door, breadcrumbed after it lands."""
+                render_method: str = "embed:default",
+                resolve=None, conn=None) -> dict:
+        """One deposit crossing — judged at the door, breadcrumbed after it lands.
+
+        If ``resolve`` is provided and the deposit is not a duplicate, runs
+        contradiction_scan as a post-write side effect. The deposit always lands
+        regardless of the scan result. A missing or failing resolve seam means a
+        missed detection, not a data loss.
+        """
         result = deposit(content, vector, provenance, tree=tree, table=table,
                          render_method=render_method, conn=conn)
         verdict = "DUPLICATE" if result["duplicate"] else "DEPOSITED"
         self._deposits += 1
         self._verdicts[verdict] += 1
         self._last_node = result["node_id"]
-        # GATE CONTACT: a node crossed the deposit door (or was turned back as already
-        # standing — that verdict breadcrumbs too; a write avoided is the cache's shape
-        # and worth a trace). Thin: pointer is the node, values the verdict and where.
         self.emit("deposit", pointer=result["node_id"],
                   values={"verdict": verdict, "tree": tree, "dim": result["dim"]})
+        if resolve is not None and not result["duplicate"]:
+            try:
+                refuted = contradiction_scan(
+                    result["node_id"], vector, resolve=resolve,
+                    tree=tree, table=table, conn=conn)
+                if refuted:
+                    self.emit("contradiction", pointer=result["node_id"],
+                              values={"refuted": [r["refuted_node_id"]
+                                                  for r in refuted]})
+            except Exception:
+                pass
         return result
 
     def nearest(self, vector, *, k: int = 5, tree: str = "commons",

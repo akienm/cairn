@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "proof test_voyage_pane.py passes under python3",
+    "caller": "CC",
+    "date": "2026-09-02T02:20:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 144, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 134, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 97, in test_harbor_route_renders_the_emergent_gates\n    assert flagged, \"the live fleet has no flagged boat — this proof needs one to be meaningful\"\n           ^^^^^^^\nAssertionError: the live fleet has no flagged boat — this proof needs one to be meaningful",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "a6af950ff2ad2cfc69cb84248f24949cd6a3cfba0fd485b6439668e09913c8a7",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-d6hw51lf/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/ground_loop/0/20260902.082035.359771.GroundLoopDevice.subscribe.json",
+            "logs/web_server/0/20260902.082035.409433.WebServerDevice.serve.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

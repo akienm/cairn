@@ -1,28 +1,34 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(web-server-serves-dynamic-panes) -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket 'cc-chat-pane-via-hook-append', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "clean — a berthed chart chain claims ticket '72e8e3509287', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
             "BUILDME",
             "PROVEME",
+            "WATCHME",
             "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
           ]
         }
       },
@@ -30,61 +36,35 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
-            "THINKME"
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'web_server' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'web_server' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "cc-chat-pane-via-hook-append",
-          "component": "web_server",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'cc-chat-pane-via-hook-append' is cast",
-        "actual": "named ticket 'cc-chat-pane-via-hook-append' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "cc-chat-pane-via-hook-append",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/cc-chat-pane-via-hook-append.json"
         }
       },
       {
@@ -97,7 +77,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "cc-chat-pane-via-hook-append"
+          "ticket": "72e8e3509287"
         }
       },
       {
@@ -110,7 +90,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "cc-chat-pane-via-hook-append"
+          "ticket": "72e8e3509287"
         }
       },
       {
@@ -123,25 +103,18 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "cc-chat-pane-via-hook-append"
+          "ticket": "72e8e3509287"
         }
       }
     ],
-    "checks_proved": 8,
-    "actor": "CC",
-    "ticket": "cc-chat-pane-via-hook-append",
-    "at": "2026-08-26T10:20:28",
-    "seq": 5
+    "checks_proved": 6,
+    "ticket": "72e8e3509287",
+    "note": "Starlette/uvicorn listener built; 2 proofs green x2; test_voyage_pane pre-existing red (no flagged boat in live fleet)",
+    "fingerprint": "c40a23c9217e86d74042054b3e306a31d2408931bc6d8a4b2246d114c42592ba",
+    "at": "2026-09-02T02:09:45",
+    "seq": 6
   },
   "window": [
-    {
-      "at": "2026-07-22",
-      "standing": "PROVED for the route + render core, green under the tester with 6 teeth — the nav is the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404 that still renders the nav, every device-derived value is escaped, an absent pane renders its reason, and the web server owns no state.",
-      "gate": "proven",
-      "proof": "proofs/test_web_server.py",
-      "validation": "validations/test_web_server.json",
-      "seq": 1
-    },
     {
       "at": "2026-07-24",
       "standing": "child d PROVEN — the JOURNEY pane / ⚓ Harbor route: renders harbor_master child c's TRAFFIC IMAGE (the whole-fleet, state-right-now view) as a fleet-wide route, distinct from the per-device pages. 4 teeth (sealed under a real netns): the route renders the EMERGENT gates + the calm underway count + the flagged silently-stuck boats; the ⚓ link is reachable from every page; the surface OWNS NOTHING of the harbor (byte-equal to its own image, Law 7); a missing harbor source is a loud coherent 404. The harbor source is INJECTED (the data/render split holds). Because the traffic image is disk-computed, /harbor renders the REAL fleet from a bare daemon TODAY — the first live human-visible Cairn surface (Telos 2). Its graft (harbor_master child c) landed the same session.",
@@ -299,7 +272,122 @@
       "ticket": "cc-chat-pane-via-hook-append",
       "at": "2026-08-26T10:20:28",
       "seq": 5
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(web-server-serves-dynamic-panes) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '72e8e3509287', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "72e8e3509287"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "72e8e3509287"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "72e8e3509287"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "ticket": "72e8e3509287",
+      "note": "Starlette/uvicorn listener built; 2 proofs green x2; test_voyage_pane pre-existing red (no flagged boat in live fleet)",
+      "fingerprint": "c40a23c9217e86d74042054b3e306a31d2408931bc6d8a4b2246d114c42592ba",
+      "at": "2026-09-02T02:09:45",
+      "seq": 6
     }
   ],
-  "count": 6
+  "count": 7
 }

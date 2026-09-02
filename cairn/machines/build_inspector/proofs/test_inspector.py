@@ -367,8 +367,8 @@ def main() -> None:
         assert "outside the cairn repo" in _jfindings(judge_decompose(outside))[0]["finding"]
         a_dir = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=["cairn/tools"])])
-        assert "an existing directory" in _jfindings(judge_decompose(a_dir))[0]["finding"], \
-            judge_decompose(a_dir)
+        assert not _jfindings(judge_decompose(a_dir)), \
+            "a directory is a valid writes_to destination (multi-file output)"
         hollow = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=[])])
         assert "not a non-empty list" in _jfindings(judge_decompose(hollow))[0]["finding"]

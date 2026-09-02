@@ -492,12 +492,17 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
 
     ticket_path = os.path.join(tickets_dir, f"{boat_id}.json")
     if not os.path.isfile(ticket_path):
-        raise OwnerUnresolvable(
-            f"boat {boat_id!r} has no ticket at {ticket_path} — nothing on disk says who "
-            "owns this voyage, so the gate refuses rather than assuming. If the boat is "
-            "real, /sorted casts it; if the id is wrong, the crossing is naming a boat "
-            "that does not exist."
-        )
+        import glob as _glob
+        hits = _glob.glob(os.path.join(tickets_dir, f"{boat_id}-*.json"))
+        if len(hits) == 1:
+            ticket_path = hits[0]
+        else:
+            raise OwnerUnresolvable(
+                f"boat {boat_id!r} has no ticket at {ticket_path} — nothing on disk says who "
+                "owns this voyage, so the gate refuses rather than assuming. If the boat is "
+                "real, /sorted casts it; if the id is wrong, the crossing is naming a boat "
+                "that does not exist."
+            )
     try:
         ticket = json.loads(open(ticket_path, encoding="utf-8").read())
     except (ValueError, OSError) as exc:

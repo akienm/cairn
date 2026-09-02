@@ -83,7 +83,7 @@ from dataclasses import dataclass, field
 
 from cairn.tools.base.transitions import emit, parse_workflow, resolve_target
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
-from cairn.devices.tester.validation_store import standing
+from cairn.tools.base.validation import standing
 
 # THE TWO ROOTS THE OWNER-READ WALKS, derived from this file's own address rather than
 # taken from a caller. That is not fussiness: the whole point of ticket

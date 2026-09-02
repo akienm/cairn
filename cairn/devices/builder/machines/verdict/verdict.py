@@ -55,7 +55,6 @@ side pays the db cost at its own door, on its own next read.
 """
 from __future__ import annotations
 
-import glob
 import hashlib
 import json
 import os
@@ -64,12 +63,11 @@ import time
 
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, inspected, lacks_of, ticket_claim_error, ticket_path)
-
-OUTCOMES = ("pass", "fail")
-DISPOSITIONS = ("confirmed", "killed")
-
-_VERDICT_FIELDS = ("claim", "instrument", "outcome", "evidence")
-_DISPOSITION_FIELDS = ("piece", "expect", "disposition", "by")
+from cairn.tools.chain.chain import (
+    BERTHS_ROOT, CHAIN_STAGES, DISPOSITIONS, OUTCOMES,
+    _DISPOSITION_FIELDS, _VERDICT_FIELDS,
+    chain_for_ticket, claiming_packets, latest_claiming_artifact, verdict_error,
+)
 
 # THE SECOND PROVENANCE FORM (ticket watchme-emits-a-probe piece (d), 2026-07-30).
 # A verdict's obligations came from exactly one place until now: a berthed chart
@@ -98,39 +96,6 @@ _CLAUSE_RE = re.compile(r"\((\d+)\)\s*")
 
 class VerdictRefused(RuntimeError):
     """The loud refusal — an artifact this door cannot honestly berth."""
-
-
-def verdict_error(artifact) -> str | None:
-    """Shape only: is this a well-formed verdict artifact? Returns the refusal
-    text or None. Coverage against the chain is ``unanswered`` below — shape and
-    coverage are separate questions so the gate can name which one failed."""
-    if not isinstance(artifact, dict):
-        return "verdict artifact must be a dict, got %s" % type(artifact).__name__
-    for field in ("ticket", "validate_ref"):
-        if not isinstance(artifact.get(field), str) or not artifact[field].strip():
-            return "verdict artifact refused — %s must be a non-empty string" % field
-    for field, entry_fields, vocab, vocab_field in (
-            ("verdicts", _VERDICT_FIELDS, OUTCOMES, "outcome"),
-            ("dispositions", _DISPOSITION_FIELDS, DISPOSITIONS, "disposition")):
-        entries = artifact.get(field)
-        if not isinstance(entries, list):
-            return "verdict artifact refused — %s must be a list" % field
-        for i, entry in enumerate(entries):
-            if not isinstance(entry, dict):
-                return "verdict artifact refused — %s[%d] must be a dict" % (field, i)
-            for k in entry_fields:
-                if not isinstance(entry.get(k), str) or not entry[k].strip():
-                    return ("verdict artifact refused — %s[%d].%s must be a non-empty "
-                            "string (a verdict without its instrument and evidence is "
-                            "narration)" % (field, i, k))
-            if entry[vocab_field] not in vocab:
-                return ("verdict artifact refused — %s[%d].%s must be one of %s, got %r"
-                        % (field, i, vocab_field, "|".join(vocab), entry[vocab_field]))
-    if "nexus" in artifact and (not isinstance(artifact["nexus"], str)
-                                or not artifact["nexus"].strip()):
-        return ("verdict artifact refused — nexus, when named, must be a non-empty "
-                "string (omit it to take the default rather than naming nothing)")
-    return None
 
 
 def verdict_nexus(artifact: dict) -> str:
@@ -442,66 +407,10 @@ def verdict_node_content(artifact: dict) -> str:
 
 
 # ── WHICH BERTH CLAIMS THIS TICKET — THE ONE LATEST-CLAIMER RULE ─────────────
-# Factored here 2026-07-29 (ticket the-deposit-rides-the-read) out of the exit
-# gate, which owned the only copy: the gate globs berthed packets for a ticket
-# claim and takes the LAST as the answer that stands. The enqueue below needs
-# the identical rule — so it is composed by import, never mirrored. A gate and
-# an enqueue that disagreed about WHICH artifact answered would deposit one
-# verdict while the gate judged another (the two-mouths defect, in a place
-# nobody would look for it).
-#
-# ~/.cairn/devices/chart — the chart device's berths, one directory per instance
-# (INSTANCE_DIR is instance 0's packets/ child; a singleton is instance 0, not a
-# special case).
-BERTHS_ROOT = os.path.dirname(os.path.dirname(INSTANCE_DIR))
-
-
-def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:
-    """Every readable berthed ``<stage>-*.json`` packet whose ``ticket`` field names
-    ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
-    chronological and the LAST entry is the one that stands.
-
-    An unreadable berth names no claim and is skipped here (the berth owner's own
-    sweep carries that finding — a gate must not invent a claim it cannot read).
-    Returns ``[(path, packet), ...]`` with paths as strings."""
-    root = os.path.expanduser(str(berths_root if berths_root is not None else BERTHS_ROOT))
-    found = []
-    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "%s-*.json" % stage))):
-        try:
-            with open(path, encoding="utf-8") as fh:
-                packet = json.load(fh)
-        except (OSError, json.JSONDecodeError):
-            continue
-        if isinstance(packet, dict) and packet.get("ticket") == ticket:
-            found.append((path, packet))
-    return found
-
-
-def latest_claiming_artifact(ticket: str, *, berths_root=None):
-    """The verdict artifact that STANDS for ``ticket`` — ``(path, artifact)`` or
-    ``None`` when nothing claims it. The latest answer is the one that stands
-    (verdict multiplicity beyond latest-wins is the exit ticket's filed edge (b))."""
-    found = claiming_packets(ticket, "verdict", berths_root=berths_root)
-    return found[-1] if found else None
-
-
-CHAIN_STAGES = ("orient", "constrain", "survey", "decompose", "triage",
-                "hypothesize", "validate", "verdict")
-
-
-def chain_for_ticket(ticket: str, *, berths_root=None) -> dict:
-    """THE RESOLVER (ticket berths-carry-request-identity): the standing chain for a
-    ticket — per stage, the path of the LATEST berth claiming it, or None where
-    nothing claims. The post-compact recovery becomes a command instead of an
-    eyeballed directory listing: /sail step 0's 'deepest link first' is answered by
-    the deepest non-None entry here. Absence is an answer, never an error — a ticket
-    nothing claims returns an all-None chain, which is exactly the state 'run /chart
-    first' describes."""
-    chain = {}
-    for stage in CHAIN_STAGES:
-        found = claiming_packets(ticket, stage, berths_root=berths_root)
-        chain[stage] = found[-1][0] if found else None
-    return chain
+# Factored to cairn/tools/chain/chain.py (2026-09-02, device isolation): the
+# chain reader belongs at the chain level, not inside the builder device.
+# claiming_packets, latest_claiming_artifact, chain_for_ticket, CHAIN_STAGES,
+# and BERTHS_ROOT are now imported from cairn.tools.chain.chain above.
 
 
 # ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────

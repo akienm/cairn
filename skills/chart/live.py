@@ -315,7 +315,7 @@ def _chain(argv: list[str]) -> int:
     if not argv:
         print("usage: python3 -m skills.chart.live chain <ticket>", file=sys.stderr)
         return 1
-    from cairn.devices.builder.machines.verdict.verdict import chain_for_ticket
+    from cairn.tools.chain.chain import chain_for_ticket
     print(json.dumps({"ticket": argv[0], "chain": chain_for_ticket(argv[0])},
                      indent=2))
     return 0

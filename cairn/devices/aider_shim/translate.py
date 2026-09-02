@@ -40,7 +40,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from cairn.devices.builder.machines.verdict.verdict import chain_for_ticket
+from cairn.tools.chain.chain import chain_for_ticket
 
 #: Class-space root. Holdings addressed relative to it resolve here; holdings OUTSIDE it
 #: are read-only to aider, because constrain's `out` says so.

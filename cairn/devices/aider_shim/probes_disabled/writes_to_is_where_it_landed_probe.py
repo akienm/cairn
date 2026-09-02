@@ -91,8 +91,7 @@ def _declared(ticket: str, piece_index: int, *, berths_root=None):
     come to disagree about what a declaration means.
     """
     from cairn.devices.aider_shim import translate  # noqa: PLC0415
-    from cairn.devices.builder.machines.verdict.verdict import (  # noqa: PLC0415
-        chain_for_ticket)
+    from cairn.tools.chain.chain import chain_for_ticket  # noqa: PLC0415
 
     chain = chain_for_ticket(ticket, berths_root=berths_root)
     d, t = chain.get("decompose"), chain.get("triage")

@@ -109,9 +109,7 @@ def shimmed_tickets(*, ask_log: Path | None = None) -> list[str]:
 
 
 def _artifact_for(ticket: str, *, berths_root=None):
-    from cairn.devices.builder.machines.verdict.verdict import (  # noqa: PLC0415
-        latest_claiming_artifact,
-    )
+    from cairn.tools.chain.chain import latest_claiming_artifact  # noqa: PLC0415
     return latest_claiming_artifact(ticket, berths_root=berths_root)
 
 
@@ -128,9 +126,7 @@ def yields_so_far(*, ask_log: Path | None = None, berths_root=None) -> list[dict
     a malformed artifact yields `passed: None` and a `shape_refusal`, never a False that
     reads as a failed build.
     """
-    from cairn.devices.builder.machines.verdict.verdict import (  # noqa: PLC0415
-        OUTCOMES, verdict_error,
-    )
+    from cairn.tools.chain.chain import OUTCOMES, verdict_error  # noqa: PLC0415
     passing = OUTCOMES[0]
     rows = []
     for ticket in shimmed_tickets(ask_log=ask_log):

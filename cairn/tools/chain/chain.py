@@ -35,13 +35,95 @@ proven module and is a change with a ticket, not a drive-by.
 """
 from __future__ import annotations
 
+import glob
 import json
 import os
+
+from cairn.tools.chain.grammar import INSTANCE_DIR
 
 # THE SEVEN LEGS, IN ORDER. The chain the /chart skill fires; the chart device's charter is the
 # authority on what each one does. Order is meaningful — a note may be keyed to any leg, but the
 # legs run in this sequence and a reader is entitled to see them that way.
 STAGES = ("orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate")
+
+# The full chain INCLUDING the verdict stage — the eighth leg the builder's verdict machine
+# writes. Factored here from verdict.py (2026-09-02, device isolation): the chain reader
+# belongs at the chain level, not inside the builder device.
+CHAIN_STAGES = STAGES + ("verdict",)
+
+BERTHS_ROOT = os.path.dirname(os.path.dirname(INSTANCE_DIR))
+
+OUTCOMES = ("pass", "fail")
+DISPOSITIONS = ("confirmed", "killed")
+_VERDICT_FIELDS = ("claim", "instrument", "outcome", "evidence")
+_DISPOSITION_FIELDS = ("piece", "expect", "disposition", "by")
+
+
+def verdict_error(artifact) -> str | None:
+    """Shape only: is this a well-formed verdict artifact? Returns the refusal
+    text or None. Coverage against the chain is ``unanswered`` in verdict.py — shape and
+    coverage are separate questions so the gate can name which one failed."""
+    if not isinstance(artifact, dict):
+        return "verdict artifact must be a dict, got %s" % type(artifact).__name__
+    for field in ("ticket", "validate_ref"):
+        if not isinstance(artifact.get(field), str) or not artifact[field].strip():
+            return "verdict artifact refused — %s must be a non-empty string" % field
+    for field, entry_fields, vocab, vocab_field in (
+            ("verdicts", _VERDICT_FIELDS, OUTCOMES, "outcome"),
+            ("dispositions", _DISPOSITION_FIELDS, DISPOSITIONS, "disposition")):
+        entries = artifact.get(field)
+        if not isinstance(entries, list):
+            return "verdict artifact refused — %s must be a list" % field
+        for i, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                return "verdict artifact refused — %s[%d] must be a dict" % (field, i)
+            for k in entry_fields:
+                if not isinstance(entry.get(k), str) or not entry[k].strip():
+                    return ("verdict artifact refused — %s[%d].%s must be a non-empty "
+                            "string (a verdict without its instrument and evidence is "
+                            "narration)" % (field, i, k))
+            if entry[vocab_field] not in vocab:
+                return ("verdict artifact refused — %s[%d].%s must be one of %s, got %r"
+                        % (field, i, vocab_field, "|".join(vocab), entry[vocab_field]))
+    if "nexus" in artifact and (not isinstance(artifact["nexus"], str)
+                                or not artifact["nexus"].strip()):
+        return ("verdict artifact refused — nexus, when named, must be a non-empty "
+                "string (omit it to take the default rather than naming nothing)")
+    return None
+
+
+def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:
+    """Every readable berthed ``<stage>-*.json`` packet whose ``ticket`` field names
+    ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
+    chronological and the LAST entry is the one that stands."""
+    root = os.path.expanduser(str(berths_root if berths_root is not None else BERTHS_ROOT))
+    found = []
+    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "%s-*.json" % stage))):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                packet = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(packet, dict) and packet.get("ticket") == ticket:
+            found.append((path, packet))
+    return found
+
+
+def latest_claiming_artifact(ticket: str, *, berths_root=None):
+    """The verdict artifact that STANDS for ``ticket`` — ``(path, artifact)`` or
+    ``None`` when nothing claims it."""
+    found = claiming_packets(ticket, "verdict", berths_root=berths_root)
+    return found[-1] if found else None
+
+
+def chain_for_ticket(ticket: str, *, berths_root=None) -> dict:
+    """THE RESOLVER: the standing chain for a ticket — per stage, the path of the
+    LATEST berth claiming it, or None where nothing claims."""
+    chain = {}
+    for stage in CHAIN_STAGES:
+        found = claiming_packets(ticket, stage, berths_root=berths_root)
+        chain[stage] = found[-1][0] if found else None
+    return chain
 
 # A note that says nothing is a heading with no body. The floor is a LENGTH, not a grammar, for
 # the same reason needs._MIN_HOW_MEASURED is: no regex can decide "does this help the next

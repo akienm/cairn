@@ -272,7 +272,7 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
     Returns repo-relative paths, sorted, deduped — relative because that is the spelling
     ``constraint_traces`` resolves, and this build does not get to choose that.
     """
-    from cairn.devices.tester.cli import discover
+    from cairn.tools.base.validation import discover
 
     orient_packet = _read_orient_berth(intent_ref)
     comp_dirs, seen = [], set()
@@ -325,8 +325,7 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         return {"verdict": "unrunnable",
                 "how": "no file at %s — it was discovered and then was not there, so "
                        "nothing was run and no verdict was read" % rel_path}
-    from cairn.devices.tester.device import TesterDevice
-    from cairn.devices.tester.validation_store import source_fingerprint
+    from cairn.tools.base.validation import run_proof, source_fingerprint
     try:
         key = (rel_path, source_fingerprint(abs_path))
     except Exception as e:                                   # unreadable tree, not a green
@@ -343,7 +342,7 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         # component this voyage may not even touch. The tester requires the choice by name
         # (ticket standing-gates-the-newest-link-and-run-proof-names-its-sink), so the
         # not-sealing is now stated here rather than being the absence of a thought.
-        record = TesterDevice().run_proof(abs_path, sink="none", caller="constrain_floor")
+        record = run_proof(abs_path, sink="none", caller="constrain_floor")
         state = {"verdict": record.get("verdict"), "how": "run by the tester"}
     except Exception as e:
         state = {"verdict": "unrunnable",

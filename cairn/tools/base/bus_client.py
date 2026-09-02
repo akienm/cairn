@@ -75,6 +75,17 @@ def harbor_source():
     return traffic_image
 
 
+def inference_seam():
+    """The inference domain's resolve + resolver — for subprocess use without a bus.
+
+    Returns ``(resolve_fn, ollama_resolver_factory)`` so the caller can build a
+    resolver for its model and call resolve with it, without importing
+    inference_domain directly (device isolation).
+    """
+    from cairn.devices.inference_domain import domain, host
+    return domain.resolve, host.ollama_resolver
+
+
 def _load_device_shim(device_name: str, bus):
     """Discover a device's concrete shim from ``cairn/devices/<name>/shim.py``.
 

@@ -189,8 +189,9 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         if resolve is not None:
             r = resolver if resolver is not None else None
             if r is None:
-                from cairn.devices.inference_domain import host  # noqa: PLC0415
-                r = host.ollama_resolver(model=fence.models[0])
+                from cairn.tools.base.bus_client import inference_seam  # noqa: PLC0415
+                _, _ollama_resolver = inference_seam()
+                r = _ollama_resolver(model=fence.models[0])
             return resolve(request, resolver=r)
         if bus is not None:
             reply = bus.request(
@@ -198,9 +199,9 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
                 why="aider completion", body=request,
             )
             return reply["body"]
-        from cairn.devices.inference_domain import domain as _domain  # noqa: PLC0415
-        from cairn.devices.inference_domain import host  # noqa: PLC0415
-        return _domain.resolve(request, resolver=host.ollama_resolver(model=fence.models[0]))
+        from cairn.tools.base.bus_client import inference_seam  # noqa: PLC0415
+        _resolve, _ollama_resolver = inference_seam()
+        return _resolve(request, resolver=_ollama_resolver(model=fence.models[0]))
 
     def completion(*, model, messages, stream=False, **_kwargs):
         # BORDER CROSSING 1: ARRIVAL — what aider sent, BEFORE any fence or door.

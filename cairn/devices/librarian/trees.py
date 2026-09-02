@@ -491,6 +491,108 @@ def contradiction_scan(node_id: str, vector, *, resolve,
             own.close()
 
 
+CONSOLIDATION_K = 10
+CONSOLIDATION_THRESHOLD = 0.5
+CONSOLIDATION_MIN_SOURCES = 2
+
+_CONSOLIDATION_PROMPT = (
+    "You are a knowledge synthesizer. Given multiple related statements, produce ONE "
+    "higher-level statement that subsumes them — a concise summary that captures the "
+    "essential insight across all of them.\n\n"
+    "Statements:\n{statements}\n\n"
+    "Produce exactly ONE synthesized statement (no numbering, no preamble):\n"
+)
+
+
+class ConsolidationRefused(Exception):
+    pass
+
+
+def consolidate(node_id: str, vector, *, resolve,
+                tree: str = "commons", table: str = NODES,
+                owner: str = OWNER, conn=None) -> dict | None:
+    """Promotion-event consolidation: synthesize a cluster into a higher-level node.
+
+    Walks the promoted node's neighbors, filters to attestation-bearing nodes that
+    are not refuted, calls inference to synthesize a higher-level statement, deposits
+    it as a new node with provenance.source='consolidated', and links to each source.
+
+    The recursive gate: a source node with provenance.source='consolidated' is only
+    included if it has earned standing — ungated recursion is the rot path.
+
+    Returns the deposit result dict on success, None if the cluster is too small.
+    """
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, conn=own)
+
+        walk = nearest(vector, k=CONSOLIDATION_K, tree=tree, table=table, conn=own)
+        sources = []
+        for n in walk:
+            if n["node_id"] == node_id:
+                continue
+            if n.get("standing") == "refuted":
+                continue
+            if n["similarity"] < CONSOLIDATION_THRESHOLD:
+                continue
+            prov = n.get("provenance") or {}
+            if not prov.get("attestations"):
+                continue
+            # Recursive gate: consolidated sources must be earned
+            if str(prov.get("source", "")) == "consolidated":
+                if n.get("standing") != "earned":
+                    continue
+            sources.append(n)
+
+        # Include the promoted node itself
+        promoted_row = store.read(NODES_TABLE, where="node_id = %s",
+                                   params=(node_id,), conn=own)
+        if promoted_row:
+            sources.insert(0, {
+                "node_id": node_id,
+                "content": promoted_row[0]["content"],
+                "provenance": promoted_row[0]["provenance"],
+                "standing": promoted_row[0]["standing"],
+            })
+
+        if len(sources) < CONSOLIDATION_MIN_SOURCES:
+            return None
+
+        statements = "\n".join(
+            f"- {s['content']}" for s in sources
+        )
+        prompt = _CONSOLIDATION_PROMPT.format(statements=statements)
+        result = resolve({"kind": "generate", "prompt": prompt})
+        synthesis = result.get("answer", {}).get("text", "").strip()
+        if not synthesis:
+            return None
+
+        source_node_ids = [s["node_id"] for s in sources]
+        provenance = {
+            "source": "consolidated",
+            "source_nodes": source_node_ids,
+            "trigger": "promotion",
+        }
+
+        embed_result = resolve({"kind": "embed", "prompt": synthesis})
+        synth_vector = embed_result["answer"]["vector"]
+
+        dep_result = deposit(synthesis, synth_vector, provenance,
+                             tree=tree, table=table, owner=owner, conn=own)
+
+        if not dep_result["duplicate"]:
+            for sid in source_node_ids:
+                try:
+                    link(dep_result["node_id"], sid, 1.0, conn=own)
+                except Exception:
+                    pass
+
+        return dep_result
+    finally:
+        if conn is None:
+            own.close()
+
+
 def tree_state(tree: str, *, table: str = NODES, owner: str = OWNER, conn=None) -> dict:
     """The tree's fingerprint: ``{"digest", "nodes"}`` — same members, same digest.
 

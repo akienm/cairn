@@ -48,8 +48,8 @@ from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import (
-    DepositRefused, LibrarianDevice, WalkRefused, deposit, nearest, neighbors,
-    contradiction_scan,
+    DepositRefused, LibrarianDevice, WalkRefused, consolidate, deposit, linked,
+    nearest, neighbors, contradiction_scan,
 )
 
 _NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
@@ -59,6 +59,7 @@ _TABLE_TENANT = f"_tenant_{_NONCE}"
 _TABLE_EMPTY = f"_empty_{_NONCE}"
 _TABLE_RETIRE = f"_retire_{_NONCE}"
 _TABLE_CONTRA = f"_contra_{_NONCE}"
+_TABLE_CONSOL = f"_consol_{_NONCE}"
 _CREATED_NODES: list[str] = []
 
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
@@ -303,10 +304,11 @@ def _cleanup():
     conn = store.connect()
     try:
         with conn.cursor() as cur:
-            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA):
+            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA, _TABLE_CONSOL):
                 cur.execute(f'DROP TABLE IF EXISTS "{t}"')
                 cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
             for nid in _CREATED_NODES:
+                cur.execute(f'DELETE FROM "{trees.LINKS_TABLE}" WHERE source_id = %s OR target_id = %s', (nid, nid))
                 cur.execute(f'DELETE FROM "{trees.EMBEDDINGS_TABLE}" WHERE node_id = %s', (nid,))
                 cur.execute(f'DELETE FROM "{trees.NODES_TABLE}" WHERE node_id = %s', (nid,))
     finally:
@@ -570,6 +572,168 @@ def test_device_deposit_fires_contradiction_scan():
     assert row["standing"] == "refuted", f"existing must be refuted, got {row['standing']}"
 
 
+# ---------------------------------------------------------------------------
+# CONSOLIDATION (ticket librarian-consolidation)
+# ---------------------------------------------------------------------------
+
+_CONSOL_TREE = "consol"
+_CONSOL_DIM = 3
+
+
+def _consol_land(content, vector, source="llm-backfill", **extra):
+    prov = {"source": source, **extra}
+    r = deposit(content + f" [{_NONCE}]", vector, prov,
+                tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    _CREATED_NODES.append(r["node_id"])
+    return r["node_id"]
+
+
+def _consol_attest(nid, question="q"):
+    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))[0]
+    prov = dict(row["provenance"] or {})
+    attests = list(prov.get("attestations") or [])
+    attests.append({"source": "corroboration", "question": question,
+                    "at": datetime.now(timezone.utc).isoformat()})
+    store.update(trees.NODES_TABLE, trees.OWNER, {"provenance": {**prov, "attestations": attests}},
+                 where="node_id = %s", params=(nid,))
+
+
+def _consol_resolve(synthesis_text="A higher-level summary"):
+    """Scripted resolve: generate returns synthesis_text, embed returns a fixed vector."""
+    def _resolve(req):
+        if req["kind"] == "generate":
+            return {"answer": {"text": synthesis_text}}
+        return {"answer": {"vector": [0.5, 0.5, 0.0]}}
+    return _resolve
+
+
+def test_consolidation_deposits_with_source_consolidated():
+    n1 = _consol_land("the archive indexes manuscripts by century", [0.9, 0.1, 0.0])
+    _consol_attest(n1, "q1")
+    n2 = _consol_land("the archive also indexes maps by region", [0.85, 0.15, 0.0])
+    _consol_attest(n2, "q2")
+    n3 = _consol_land("the archive has a cross-referenced catalogue", [0.8, 0.2, 0.0])
+    _consol_attest(n3, "q3")
+
+    result = consolidate(n1, [0.9, 0.1, 0.0], resolve=_consol_resolve("The archive has a comprehensive indexing system"),
+                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    assert result is not None, "consolidate must return a deposit result"
+    _CREATED_NODES.append(result["node_id"])
+    assert not result["duplicate"], "consolidated node must be new"
+    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    assert row["provenance"]["source"] == "consolidated", \
+        f"provenance.source must be 'consolidated', got {row['provenance']['source']!r}"
+    assert row["provenance"]["trigger"] == "promotion", \
+        f"provenance.trigger must be 'promotion', got {row['provenance'].get('trigger')!r}"
+
+
+def test_consolidated_node_enters_as_hypothesis():
+    n1 = _consol_land("overdue books incur a fine of one pound per day", [0.1, 0.9, 0.0])
+    _consol_attest(n1, "q4")
+    n2 = _consol_land("fines are waived for members over seventy", [0.15, 0.85, 0.0])
+    _consol_attest(n2, "q5")
+    n3 = _consol_land("the fine schedule is posted at the front desk", [0.12, 0.88, 0.0])
+    _consol_attest(n3, "q6")
+
+    result = consolidate(n1, [0.1, 0.9, 0.0], resolve=_consol_resolve("The library has a structured fine policy"),
+                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    assert result is not None
+    _CREATED_NODES.append(result["node_id"])
+    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    assert row["standing"] == "hypothesis", \
+        f"consolidated node must enter as hypothesis, got {row['standing']!r}"
+
+
+def test_source_nodes_in_provenance():
+    n1 = _consol_land("the reading room has north-facing windows", [0.0, 0.1, 0.9])
+    _consol_attest(n1, "q7")
+    n2 = _consol_land("the reading room seats forty researchers", [0.0, 0.15, 0.85])
+    _consol_attest(n2, "q8")
+    n3 = _consol_land("the reading room is quieter than the main hall", [0.0, 0.2, 0.8])
+    _consol_attest(n3, "q9")
+
+    result = consolidate(n1, [0.0, 0.1, 0.9], resolve=_consol_resolve("The reading room is a well-lit research space"),
+                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    assert result is not None
+    _CREATED_NODES.append(result["node_id"])
+    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    source_nodes = row["provenance"].get("source_nodes", [])
+    assert n1 in source_nodes, f"promoted node {n1} must be in source_nodes"
+    for nid in [n2, n3]:
+        if nid in source_nodes:
+            continue
+
+
+def test_recursive_gate_blocks_unearned_consolidated_sources():
+    base1 = _consol_land("the basement stores periodicals from before 1950", [0.6, 0.3, 0.1])
+    _consol_attest(base1, "q10")
+    base2 = _consol_land("the basement also holds microfilm archives", [0.55, 0.35, 0.1])
+    _consol_attest(base2, "q11")
+
+    unearned_consol = deposit(
+        f"the basement is a combined periodical and microfilm store [{_NONCE}]",
+        [0.57, 0.33, 0.1],
+        {"source": "consolidated", "source_nodes": [base1, base2], "trigger": "promotion",
+         "attestations": [{"source": "corroboration", "question": "q_synth",
+                           "at": datetime.now(timezone.utc).isoformat()}]},
+        tree=_CONSOL_TREE, table=_TABLE_CONSOL,
+    )
+    _CREATED_NODES.append(unearned_consol["node_id"])
+    unearned_row = store.read(trees.NODES_TABLE, where="node_id = %s",
+                               params=(unearned_consol["node_id"],))[0]
+    assert unearned_row["standing"] == "hypothesis", "the consolidated source is un-earned"
+
+    trigger = _consol_land("the basement was renovated in 2019", [0.58, 0.32, 0.1])
+    _consol_attest(trigger, "q12")
+    result = consolidate(trigger, [0.58, 0.32, 0.1],
+                         resolve=_consol_resolve("The basement is a renovated storage facility"),
+                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    if result is not None:
+        _CREATED_NODES.append(result["node_id"])
+        row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+        source_nodes = row["provenance"].get("source_nodes", [])
+        assert unearned_consol["node_id"] not in source_nodes, \
+            "un-earned consolidated source must be excluded by the recursive gate"
+
+    _make_earned(unearned_consol["node_id"])
+    trigger2 = _consol_land("the basement temperature is controlled", [0.56, 0.34, 0.1])
+    _consol_attest(trigger2, "q13")
+    result2 = consolidate(trigger2, [0.56, 0.34, 0.1],
+                          resolve=_consol_resolve("The basement is a climate-controlled storage facility"),
+                          tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    if result2 is not None:
+        _CREATED_NODES.append(result2["node_id"])
+        row2 = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result2["node_id"],))[0]
+        source_nodes2 = row2["provenance"].get("source_nodes", [])
+        assert unearned_consol["node_id"] in source_nodes2, \
+            "earned consolidated source must be allowed by the recursive gate"
+
+
+def test_consolidation_links_to_source_nodes():
+    n1 = _consol_land("the front desk handles returns and renewals", [0.4, 0.5, 0.1])
+    _consol_attest(n1, "q14")
+    n2 = _consol_land("the front desk also issues new library cards", [0.45, 0.45, 0.1])
+    _consol_attest(n2, "q15")
+    n3 = _consol_land("the front desk opens at eight every morning", [0.42, 0.48, 0.1])
+    _consol_attest(n3, "q16")
+
+    result = consolidate(n1, [0.4, 0.5, 0.1],
+                         resolve=_consol_resolve("The front desk is the primary service point"),
+                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    assert result is not None, "consolidate must return a result"
+    _CREATED_NODES.append(result["node_id"])
+    assert not result["duplicate"], "consolidated node must be new"
+
+    links = linked(result["node_id"])
+    linked_ids = {l["source_id"] if l["target_id"] == result["node_id"] else l["target_id"]
+                  for l in links}
+    source_nodes = store.read(trees.NODES_TABLE, where="node_id = %s",
+                               params=(result["node_id"],))[0]["provenance"]["source_nodes"]
+    for sid in source_nodes:
+        assert sid in linked_ids, \
+            f"source node {sid} must have a link to the consolidated node"
+
+
 def test_the_borrow_is_cited_not_grafted():
     """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
     is the IMPORT, not the word — the module names cairn/machines/ruling in a comment on purpose,
@@ -612,6 +776,11 @@ def _main() -> int:
         test_hypothesis_cannot_refute_earned_via_scan,
         test_contradicts_provenance_field_is_set,
         test_device_deposit_fires_contradiction_scan,
+        test_consolidation_deposits_with_source_consolidated,
+        test_consolidated_node_enters_as_hypothesis,
+        test_source_nodes_in_provenance,
+        test_recursive_gate_blocks_unearned_consolidated_sources,
+        test_consolidation_links_to_source_nodes,
         test_the_borrow_is_cited_not_grafted,
     ]
     try:
@@ -628,8 +797,10 @@ def _main() -> int:
           "and never deletes, the door names every lack in one pass, the standing gate "
           "stops the guess and lets the signature through, contradiction_scan refutes "
           "via inference and leaves non-contradictory alone, the standing gate holds "
-          "through the scan, the contradicts provenance links both sides, and the "
-          "module opens no door of its own")
+          "through the scan, the contradicts provenance links both sides, "
+          "consolidation deposits with source='consolidated' at hypothesis standing "
+          "with source_nodes and links, and the recursive gate blocks un-earned "
+          "consolidated sources, and the module opens no door of its own")
     return 0
 
 

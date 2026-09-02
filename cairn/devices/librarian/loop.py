@@ -43,7 +43,7 @@ import json
 from datetime import datetime, timedelta, timezone
 
 from cairn.devices.librarian.trees import (
-    NODES, DepositRefused, LibrarianDevice, corroborate, tree_state,
+    NODES, DepositRefused, LibrarianDevice, consolidate, corroborate, tree_state,
 )
 
 # The floor a walk must clear to count as resolved — a labeled guess, not a settled law
@@ -290,8 +290,25 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
         best = _evidence_best(walk)
 
     tenure = _tenure_on_resolution(question, walk, floor, tree=tree, table=table, conn=conn)
+
+    consolidated = []
+    if tenure and tenure.get("promoted"):
+        for nid in tenure["promoted"]:
+            node_row = [n for n in walk if n["node_id"] == nid]
+            if not node_row:
+                continue
+            try:
+                vec = resolve({"kind": "embed", "prompt": node_row[0]["content"]})["answer"]["vector"]
+                result = consolidate(nid, vec, resolve=resolve,
+                                     tree=tree, table=table, conn=conn)
+                if result and not result["duplicate"]:
+                    consolidated.append(result["node_id"])
+            except Exception:
+                pass
+
     return _verdict(dev, question, "RESOLVED", None, walk, best, floor,
-                    backfills, deposited, refused, tree, tenure=tenure)
+                    backfills, deposited, refused, tree, tenure=tenure,
+                    consolidated=consolidated)
 
 
 def _promotion_callbacks(walk: list[dict], tenure: dict | None) -> list[dict]:
@@ -356,10 +373,8 @@ def _receipts(walk: list[dict], tenure: dict | None) -> list[dict]:
 
 
 def _verdict(dev, question, verdict, reason, walk, best, floor,
-             backfills, deposited, refused, tree, tenure=None) -> dict:
-    # GATE CONTACT: one crossing of the core loop, RESOLVED and UNRESOLVED alike — an
-    # unresolved question is the loop working, not an anomaly. Thin: the pointer is the
-    # question's digest; the values are what a reader wants without the full verdict.
+             backfills, deposited, refused, tree, tenure=None,
+             consolidated=None) -> dict:
     dev.emit("resolve", pointer=_question_digest(question),
              values={"verdict": verdict, "reason": reason, "tree": tree,
                      "best": best, "floor": floor, "backfills": backfills,
@@ -374,4 +389,6 @@ def _verdict(dev, question, verdict, reason, walk, best, floor,
     callbacks = _promotion_callbacks(walk, tenure)
     if callbacks:
         out["callbacks"] = callbacks
+    if consolidated:
+        out["consolidated"] = consolidated
     return out

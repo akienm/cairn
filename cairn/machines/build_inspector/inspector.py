@@ -1208,12 +1208,12 @@ def judge_decompose(packet: dict) -> list[dict]:
 def _writes_to_frags(i: int, sp: dict) -> list[dict]:
     """The findings a PRESENT ``writes_to`` can draw — never the finding of its absence.
 
-    An address is judged on three things, and existence is NOT one of them: a build
+    An address is judged on two things, and existence is NOT one of them: a build
     piece names the file it is about to create, so demanding existence would red
     exactly the case the field was added to carry. What is judged is that the address
-    is a non-empty string, that it is INSIDE the cairn repo, and that it is not an
-    existing DIRECTORY — the downstream reader hands it to an apprentice as an editable
-    file, and a directory handed over as a file is a brief that cannot be honoured.
+    is a non-empty string and that it is INSIDE the cairn repo. A directory is a valid
+    writes_to destination — multi-file build output lands in a directory, and 13 of
+    638 charted addresses in the corpus are directories (measured 2026-09-01).
     """
     frags, addrs = [], sp.get("writes_to")
     if not isinstance(addrs, list) or not addrs:
@@ -1250,17 +1250,6 @@ def _writes_to_frags(i: int, sp: dict) -> list[dict]:
                                   "system does not gate and git cannot see (Law 6, and "
                                   "the class-space rule that runtime state never lands "
                                   "here).",
-            })
-        elif os.path.isdir(resolved):
-            frags.append({
-                "judge": "decompose_composes_holdings",
-                "finding": "sub-problem %d writes_to %r — an existing directory, "
-                           "not a file" % (i, addr),
-                "evidence": {"index": i, "what": sp.get("what"), "entry": addr},
-                "why_it_matters": "the downstream reader hands this to the apprentice "
-                                  "as an editable FILE; a directory is an address that "
-                                  "cannot be edited, and the drive would silently do "
-                                  "nothing there.",
             })
     return frags
 

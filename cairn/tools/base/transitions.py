@@ -1370,14 +1370,15 @@ def _notify_harbor(history_path: str, record: dict) -> None:
     it. Failures are loud (Law 7) but do not roll back the crossing.
     """
     try:
-        from cairn.devices.cairn.machines.bus.bus import BusDevice
+        import importlib
+        bus_mod = importlib.import_module("cairn.devices.cairn.machines.bus.bus")
         component = str(history_path).replace("/history.json", "").replace("\\", "/")
         gates_fired = [
             k for k in ("build_gate", "entry_gate", "exit_gate",
                         "clearance_gate", "emission_gate", "demo_gate")
             if record.get(k) is not None and record[k] != "not_applicable"
         ]
-        bus = BusDevice()
+        bus = bus_mod.BusDevice()
         bus.post(
             sender=component,
             to="harbor_master",

@@ -40,6 +40,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+import psycopg2.errors
+
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.inference_domain import domain
@@ -524,6 +526,54 @@ def test_the_ticket_comes_back_whole():
         "a refused row (answer=None) must read UNKNOWABLE"
 
 
+def test_an_out_of_vocabulary_verdict_is_refused_at_the_database():
+    domain.ensure_cache(table=_TABLE)
+    conn = store.connect()
+    try:
+        with conn.cursor() as cur:
+            for good in domain.VERDICT_VOCABULARY:
+                cur.execute(
+                    f'INSERT INTO "{_TABLE}" (canonical, verdict, cost) '
+                    f"VALUES (%s, %s, 0)",
+                    (f"vocab_check_{good}_{_NONCE}", good),
+                )
+            conn.commit()
+            try:
+                cur.execute(
+                    f'INSERT INTO "{_TABLE}" (canonical, verdict, cost) '
+                    f"VALUES (%s, %s, 0)",
+                    (f"vocab_check_invalid_{_NONCE}", "invalid"),
+                )
+                conn.commit()
+                raise AssertionError(
+                    "an out-of-vocabulary verdict must be refused by the CHECK constraint"
+                )
+            except psycopg2.errors.CheckViolation:
+                conn.rollback()
+    finally:
+        conn.close()
+
+
+def test_the_verdict_constraint_exists_on_the_table():
+    domain.ensure_cache(table=_TABLE)
+    conn = store.connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT constraint_name FROM information_schema.table_constraints "
+                "WHERE table_name = %s AND constraint_type = 'CHECK' "
+                "AND constraint_name = 'verdict_vocabulary'",
+                (_TABLE,),
+            )
+            row = cur.fetchone()
+            assert row is not None, (
+                f"CHECK constraint 'verdict_vocabulary' must exist on {_TABLE} "
+                f"after ensure_cache()"
+            )
+    finally:
+        conn.close()
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -552,6 +602,8 @@ def _main() -> int:
         test_the_standing_readers_are_unmoved_by_a_refused_row,
         test_the_watch_reads_a_row_the_real_writer_made,
         test_the_ticket_comes_back_whole,
+        test_an_out_of_vocabulary_verdict_is_refused_at_the_database,
+        test_the_verdict_constraint_exists_on_the_table,
     ]
     try:
         for check in checks:
@@ -559,7 +611,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
-    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole")
+    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
     return 0
 
 

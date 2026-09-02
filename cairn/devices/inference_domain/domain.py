@@ -91,8 +91,8 @@ CACHE_OWNER = "inference_domain"
 _CACHE_COLUMNS = {
     "canonical": "text NOT NULL",
     # 'miss' (the host was touched) | 'hit' (a prior answer served) | 'refused' (the ask
-    # reached the seam and the seam RAISED). Three values, and no CHECK constraint holds them
-    # to it — the vocabulary is prose in three places and enforced in none. Ticket owed.
+    # reached the seam and the seam RAISED). Three values, held by CHECK constraint
+    # verdict_vocabulary (ticket 6890cf7e4053).
     "verdict": "text NOT NULL",
     "answer": "jsonb",           # structured, so it survives round-trip as structure (Law 7)
     "falsifier": "text",         # carried for T1.4 active invalidation (a filed edge)
@@ -231,9 +231,16 @@ def _domain_dressed(request: dict, *, stacks: dict | None = None) -> tuple[dict,
     return dressed, name
 
 
+VERDICT_VOCABULARY = ("hit", "miss", "refused")
+
 def ensure_cache(*, table: str = CACHE, conn=None) -> None:
     """The cache table, owned by inference_domain — created through the one door (db_domain)."""
     store.create_owned_table(table, CACHE_OWNER, _CACHE_COLUMNS, conn=conn)
+    store.add_owned_constraint(
+        table, CACHE_OWNER, "verdict_vocabulary",
+        "verdict IN ('hit', 'miss', 'refused')",
+        conn=conn,
+    )
 
 
 def _valid(row: dict, now: datetime) -> bool:

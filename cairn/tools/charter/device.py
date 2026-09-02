@@ -1,8 +1,8 @@
-"""inference_domain/device.py — the inference domain as a device.
+"""charter/device.py — the charter tool's bus presence.
 
-The inference domain's machinery (domain.py, host.py, route.py) predates its device
-class. This wraps the module behind a BaseDevice face so the domain can be addressed
-on the bus — two probes send findings here.
+Charter is a TOOL (Law 6: users, not an owner). Its probes post findings
+back to "charter" on the bus. This device is what receives those findings
+and records them for later evaluation.
 """
 
 from __future__ import annotations
@@ -10,11 +10,11 @@ from __future__ import annotations
 from cairn.tools.base.device import BaseDevice
 
 
-class InferenceDomainDevice(BaseDevice):
+class CharterDevice(BaseDevice):
 
     def __init__(self) -> None:
         super().__init__()
-        self._device_id = "inference_domain"
+        self._device_id = "charter"
         self._recorder = None
 
     @property
@@ -26,14 +26,14 @@ class InferenceDomainDevice(BaseDevice):
             from cairn.tools.data_recorder.data_recorder import DataRecorder
             from cairn.tools.base.address import instance_path
             self._recorder = DataRecorder(
-                instance_path("inference_domain", 0) / "tools" / "data_recorder" / "inbound")
+                instance_path("charter", 0) / "tools" / "data_recorder" / "inbound")
         return self._recorder
 
     def receive(self, envelope: dict) -> dict:
-        """Accept an incoming bus envelope — probe findings about inference behavior."""
+        """Accept an incoming bus envelope — charter probe findings."""
         self._get_recorder().write({
             "finding": envelope.get("why", "bus message received"),
-            "inspector_target": "inference_domain",
+            "inspector_target": "charter",
             "probe_source": envelope.get("sender", "unknown"),
             "envelope_id": envelope.get("id"),
             "verb": envelope.get("verb", ""),
@@ -45,10 +45,9 @@ class InferenceDomainDevice(BaseDevice):
 
     def intention(self) -> dict:
         return {
-            "what": "The one path to the inference host, and the compile-once gate.",
-            "why": "A resource with exactly one owner, reached only through the "
-                    "owner's gate (Law 6 + Law 4). The cache is the point: an answered "
-                    "question becomes structure (Law 1).",
+            "what": "Charter tool's bus presence — receives probe findings.",
+            "why": "Every device has a presence on the bus (Akien, 2026-08-11). "
+                    "Charter's probes self-address findings here.",
         }
 
     def state(self) -> dict:

@@ -41,6 +41,9 @@ from cairn.devices.cairn.machines.bus.bus import BusDevice
 from cairn.devices.cairn.machines.bus.shim import BusShim
 from cairn.devices.cairn.machines.ground_loop.discovery import discover, pulse_sites
 from cairn.devices.cairn.machines.harbor_master.shim import HarborMasterShim
+from cairn.devices.cairn.shim import CairnShim
+from cairn.devices.inference_domain.shim import InferenceDomainShim
+from cairn.tools.charter.shim import CharterShim
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
@@ -132,6 +135,9 @@ def main(home=None, roots=None) -> int:
     # that are addressed to it — as a DiscoveredShim it could only be pulsed, not paged.
     device.subscribe(BusShim(bus, device))
     device.subscribe(HarborMasterShim(bus=bus))
+    device.subscribe(CairnShim(bus=bus))
+    device.subscribe(InferenceDomainShim(bus=bus))
+    device.subscribe(CharterShim(bus=bus))
 
     # THE FLAGS MENU (permanent; ls flags/ shows what is available).
     flags_dir = Path(home) / "flags"

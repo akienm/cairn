@@ -1,8 +1,10 @@
-"""inference_domain/device.py — the inference domain as a device.
+"""cairn/device.py — the cairn system device.
 
-The inference domain's machinery (domain.py, host.py, route.py) predates its device
-class. This wraps the module behind a BaseDevice face so the domain can be addressed
-on the bus — two probes send findings here.
+The top-level device. Its machines (ground_loop, harbor_master, bus) are the
+system's own infrastructure. Receives feedback from probes that target the
+system itself — operator_inbox accuracy, system-level efficacy findings.
+
+All inbound mail is recorded to a DataRecorder for later evaluation.
 """
 
 from __future__ import annotations
@@ -10,11 +12,11 @@ from __future__ import annotations
 from cairn.tools.base.device import BaseDevice
 
 
-class InferenceDomainDevice(BaseDevice):
+class CairnDevice(BaseDevice):
 
     def __init__(self) -> None:
         super().__init__()
-        self._device_id = "inference_domain"
+        self._device_id = "cairn"
         self._recorder = None
 
     @property
@@ -26,14 +28,14 @@ class InferenceDomainDevice(BaseDevice):
             from cairn.tools.data_recorder.data_recorder import DataRecorder
             from cairn.tools.base.address import instance_path
             self._recorder = DataRecorder(
-                instance_path("inference_domain", 0) / "tools" / "data_recorder" / "inbound")
+                instance_path("cairn", 0) / "tools" / "data_recorder" / "inbound")
         return self._recorder
 
     def receive(self, envelope: dict) -> dict:
-        """Accept an incoming bus envelope — probe findings about inference behavior."""
+        """Accept an incoming bus envelope — system-level feedback."""
         self._get_recorder().write({
             "finding": envelope.get("why", "bus message received"),
-            "inspector_target": "inference_domain",
+            "inspector_target": "cairn",
             "probe_source": envelope.get("sender", "unknown"),
             "envelope_id": envelope.get("id"),
             "verb": envelope.get("verb", ""),
@@ -45,10 +47,10 @@ class InferenceDomainDevice(BaseDevice):
 
     def intention(self) -> dict:
         return {
-            "what": "The one path to the inference host, and the compile-once gate.",
-            "why": "A resource with exactly one owner, reached only through the "
-                    "owner's gate (Law 6 + Law 4). The cache is the point: an answered "
-                    "question becomes structure (Law 1).",
+            "what": "The cairn system device — top-level holder of ground_loop, "
+                    "harbor_master, and bus.",
+            "why": "Every device has a presence on the bus (Akien, 2026-08-11). "
+                    "The system itself is a device and answers its own mail.",
         }
 
     def state(self) -> dict:

@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_concept_piece_voyage.py passes under python3",
+    "caller": "eba8503cc18c-a-concept-piece-has-a-voyage",
+    "date": "2026-09-01T19:54:04",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_history_exists_and_is_valid\n  PASS  test_state_exists_and_projects_from_history\n  PASS  test_concept_piece_v1_crossing_journaled\n  PASS  test_backfill_tickets_exist_and_parse\n  PASS  test_backfill_ticket_schema_complete\n  PASS  test_class_def_loads\n\n6/6 passed",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "b831c960693b52f52fb1f9cf465283f29f6c7d52627f4fa8c0549c4579e3b369",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-jlf9m74g/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

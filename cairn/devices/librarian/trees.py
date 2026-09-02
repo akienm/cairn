@@ -457,7 +457,11 @@ def attractor(*, table: str = NODES, owner: str = OWNER, conn=None) -> list[floa
             own.close()
 
 
-# ── calving ──────────────────────────────────────────────────────────────────
+# ── calving and the shear ───────────────────────────────────────────────────
+# VERIFIED INVARIANT: links reference node_id (content-hash, stable across
+# calves), so calving cannot break them — the shear is a verification today.
+# When edges become leaf-to-leaf (second build), _verify_links_after_calve
+# becomes the fixup point where stale leaf addresses are renumbered.
 
 
 def _kmeans2(vectors: list[list[float]], max_iter: int = 20) -> tuple[list[int], list[list[float]]]:
@@ -489,6 +493,34 @@ def _kmeans2(vectors: list[list[float]], max_iter: int = 20) -> tuple[list[int],
     return assignments, centroids
 
 
+def _verify_links_after_calve(node_ids: set[str], conn) -> int:
+    """Verify all links referencing calved nodes still resolve.
+
+    Links reference node_id (content-hash, stable across calves), so calving
+    cannot break them — the shear for node-to-node links is this verification.
+    When edges become leaf-to-leaf (second build), this becomes the fixup point.
+    """
+    try:
+        _ensure_links(conn)
+    except Exception:
+        return 0
+    all_links = store.read(LINKS_TABLE, conn=conn)
+    verified = 0
+    for lnk in all_links:
+        src, tgt = lnk["source_id"], lnk["target_id"]
+        if src in node_ids or tgt in node_ids:
+            for nid in (src, tgt):
+                rows = store.read(NODES_TABLE, where="node_id = %s",
+                                  params=(nid,), conn=conn)
+                if not rows:
+                    raise RuntimeError(
+                        f"calve shear: link {lnk['link_id']!r} references "
+                        f"node {nid!r} which no longer exists — orphaned link"
+                    )
+            verified += 1
+    return verified
+
+
 def calve(*, table: str = NODES, owner: str = OWNER,
           threshold: int = CALVE_THRESHOLD, conn=None) -> dict | None:
     """Split a leaf table into two child tables by 2-means clustering.
@@ -497,6 +529,10 @@ def calve(*, table: str = NODES, owner: str = OWNER,
     On split: creates ``{table}_0`` and ``{table}_1``, moves every leaf into the
     nearer child, and empties the parent. The parent table stays (its name may be
     held by callers); the children are the new walk targets.
+
+    Link integrity: links reference node_id (stable across calves), so calving
+    cannot break them. The shear verifies this invariant after every split.
+    When edges become leaf-to-leaf, _verify_links_after_calve becomes the fixup.
     """
     own = conn or store.connect()
     try:
@@ -516,6 +552,7 @@ def calve(*, table: str = NODES, owner: str = OWNER,
         store.create_owned_table(child_a, owner, _LEAF_COLUMNS, conn=own)
         store.create_owned_table(child_b, owner, _LEAF_COLUMNS, conn=own)
 
+        node_ids = set()
         sizes = [0, 0]
         for i, r in enumerate(rows):
             target = child_a if assignments[i] == 0 else child_b
@@ -524,14 +561,18 @@ def calve(*, table: str = NODES, owner: str = OWNER,
                 "node_id": r["node_id"],
                 "embedding_id": r["embedding_id"],
             }, conn=own)
+            node_ids.add(r["node_id"])
             sizes[assignments[i]] += 1
 
         store.delete(table, owner, conn=own)
+
+        links_verified = _verify_links_after_calve(node_ids, own)
 
         return {
             "children": [child_a, child_b],
             "sizes": sizes,
             "attractors": centroids,
+            "links_verified": links_verified,
         }
     finally:
         if conn is None:

@@ -211,11 +211,36 @@ def test_tree_state_moves_with_the_tree_and_only_with_it():
     assert trees.tree_state("never-touched", table=_TABLE_EMPTY) == {"digest": "empty", "nodes": 0}
 
 
-def test_no_edge_table_exists():
-    # The derived-edges claim, pinned in the registry: nothing edge-named was ever
-    # registered by this build (a hollow store quietly persisting adjacency trips this).
+def test_links_are_bounded_and_weighted():
+    # The bounded-weighted-links invariant, replacing the retired no-edge-table tooth.
+    # What is banned is an UNBOUNDED edge table (the 2.5M wall), not stored weights
+    # within a bounded tree — the stored weights ARE the learning mechanism (Akien,
+    # 2026-08-21). cairn_links is bounded by link_neighbors' k parameter per node.
     for name in ("librarian_edges", f"{_TABLE}_edges"):
-        assert store.owner_of(name) is None, f"an edge table {name!r} must NOT exist — edges are derived"
+        assert store.owner_of(name) is None, (
+            f"an unbounded edge table {name!r} must NOT exist — "
+            "bounded weighted links live in cairn_links, not per-tree edge tables"
+        )
+    conn = store.connect()
+    try:
+        trees._ensure_links(conn)
+        assert store.owner_of(trees.LINKS_TABLE) == trees.OWNER, (
+            f"cairn_links must be owned by {trees.OWNER!r}"
+        )
+        all_links = store.read(trees.LINKS_TABLE, conn=conn)
+        degree: dict[str, int] = {}
+        for lnk in all_links:
+            for side in ("source_id", "target_id"):
+                nid = lnk[side]
+                degree[nid] = degree.get(nid, 0) + 1
+        max_degree = max(degree.values()) if degree else 0
+        bound = trees.CALVE_THRESHOLD
+        assert max_degree <= bound, (
+            f"link degree {max_degree} exceeds the bound {bound} — "
+            "an unbounded-degree link store is the 2.5M wall returning"
+        )
+    finally:
+        conn.close()
 
 
 def test_the_owner_gate_holds_through_the_stack():
@@ -457,7 +482,7 @@ def _main() -> int:
         test_trees_do_not_cross,
         test_neighbors_are_derived_and_exclude_self,
         test_tree_state_moves_with_the_tree_and_only_with_it,
-        test_no_edge_table_exists,
+        test_links_are_bounded_and_weighted,
         test_the_owner_gate_holds_through_the_stack,
         test_crossings_breadcrumb_and_reads_stay_silent,
         test_device_hood_and_the_ordered_surface,
@@ -475,8 +500,8 @@ def _main() -> int:
         _cleanup()
     print("green — librarian/trees: the untraceable never lands, vectors are physics, "
           "nodes are born hypotheses, a duplicate grows nothing but its provenance lands "
-          "as an attestation, the embedding is the path "
-          "(edges derived, never stored), trees do not cross, the owner-gate holds, "
+          "as an attestation, links are bounded and weighted "
+          "(no unbounded edge table), trees do not cross, the owner-gate holds, "
           "crossings breadcrumb, a retirement invalidates in ONE owner-gated act "
           "and never deletes, the door names every lack in one pass, the standing gate "
           "stops the guess and lets the signature through, and the module opens no door "

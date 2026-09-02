@@ -184,6 +184,43 @@ def test_calve_children_have_distinct_attractors():
     assert sim < 0.5
 
 
+def test_calve_links_survive_split():
+    t = _t("calve_links")
+    n_nodes = 20
+    for i in range(n_nodes // 2):
+        _deposit(f"calve link north {i} {_NONCE}", [1.0, 0.1 * i / n_nodes, 0.0], t)
+    for i in range(n_nodes // 2):
+        _deposit(f"calve link south {i} {_NONCE}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
+
+    nid_n0 = node_id_for(f"calve link north 0 {_NONCE}")
+    nid_n1 = node_id_for(f"calve link north 1 {_NONCE}")
+    nid_s0 = node_id_for(f"calve link south 0 {_NONCE}")
+
+    link(nid_n0, nid_n1, 0.9)
+    link(nid_n0, nid_s0, 0.3)
+    traverse_link(nid_n0, nid_n1)
+    traverse_link(nid_n0, nid_n1)
+
+    pre_links = linked(nid_n0)
+    pre_weights = {(l["source_id"], l["target_id"]): l["weight"] for l in pre_links}
+    pre_traversals = {l["link_id"]: l["traversals"] for l in pre_links}
+    assert len(pre_links) == 2
+
+    result = calve(table=t, threshold=n_nodes)
+    assert result is not None
+    assert result["links_verified"] >= 2
+
+    child_a, child_b = result["children"]
+    _TABLES.append(child_a)
+    _TABLES.append(child_b)
+
+    post_links = linked(nid_n0)
+    assert len(post_links) == 2
+    for lnk in post_links:
+        assert lnk["weight"] == pre_weights[(lnk["source_id"], lnk["target_id"])]
+        assert lnk["traversals"] == pre_traversals[lnk["link_id"]]
+
+
 # ── bidirectional links ──────────────────────────────────────────────────────
 
 

@@ -2,21 +2,21 @@
   {
     "claim": "proof test_chart_notes.py passes under python3",
     "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:47:13",
+    "date": "2026-09-02T15:12:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_note_on_a_leg_that_does_not_exist_is_refused\n  PASS  test_every_real_leg_is_admitted\n  PASS  test_a_misshapen_block_is_refused_but_absent_is_fine\n  PASS  test_a_note_must_be_prose_and_not_a_needs_entry_in_disguise\n  PASS  test_an_empty_note_is_refused_and_the_floor_is_load_bearing",
-      "stderr_tail": "  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chart_notes.py\", line 246, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chart_notes.py\", line 237, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chart_notes.py\", line 127, in test_the_refusal_names_the_other_field\n    msg = _message_of(\n          ^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chart_notes.py\", line 115, in _message_of\n    fn()\n  File \"/home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_chart_notes.py\", line 128, in <lambda>\n    lambda: needs.validate_needs(\n            ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/needs.py\", line 120, in validate_needs\n    path = declared_path(node)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/needs.py\", line 104, in declared_path\n    wf = transitions.parse_workflow(node[\"workflow_and_state\"])\n                                    ~~~~^^^^^^^^^^^^^^^^^^^^^^\nKeyError: 'workflow_and_state'",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_note_on_a_leg_that_does_not_exist_is_refused\n  PASS  test_every_real_leg_is_admitted\n  PASS  test_a_misshapen_block_is_refused_but_absent_is_fine\n  PASS  test_a_note_must_be_prose_and_not_a_needs_entry_in_disguise\n  PASS  test_an_empty_note_is_refused_and_the_floor_is_load_bearing\n  PASS  test_the_refusal_names_the_other_field\n  PASS  test_the_dial_registry_and_the_chain_are_the_same_seven_in_the_same_order\n  PASS  test_the_scan_reports_EVERY_offender_not_the_first\n  PASS  test_every_chart_notes_block_on_disk_conforms\n  PASS  test_a_real_case_carries_real_notes\n  PASS  test_no_ticket_still_keys_a_workflow_NEED_by_a_chart_leg\ngreen — chart_notes: a note attaches to a real leg, prose and needs cannot share a field, the leg list has one home, the scan reports every offender on its first pass, and the live fleet carries real notes with no needs block still holding chart prose",
+      "stderr_tail": "",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "db72ad6c6e6514165db32480c7e8e99e566be7d29fb754e4dc2529541c27d039",
+      "source_fingerprint": "dc4f19e8c7718d17673cd5a8829dd1fa8b6e00e4885436726d4f65cb67d82c92",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4nbee2v7/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-s6r0l867/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

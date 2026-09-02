@@ -1,7 +1,7 @@
 """chart/live.py — the tree stratum against the real embed seam, through the one door.
 
 The thin edge where the doors compose (the same shape as librarian/live.py, whose
-``embed_via_domain`` this reuses rather than re-derives): text → vector rides
+``embed_via_bus`` this reuses rather than re-derives): text → vector rides
 inference_domain, metered and cached; the vector then feeds chart/tree.py's pure verbs.
 One embed per /chart crossing (the request, cached on repeat), one per fresh
 deposit-back — the whole embed cost of the stratum, readable in the yield report.
@@ -37,7 +37,14 @@ from cairn.devices.builder.machines.validate.validate import deposit_validate, v
 from cairn.devices.builder.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
-from cairn.devices.librarian.live import embed_metered_via_domain, embed_via_domain
+from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus, _wire_bus
+
+_BUS = None
+def _bus():
+    global _BUS
+    if _BUS is None:
+        _BUS = _wire_bus()
+    return _BUS
 
 
 def deposit_verdict(artifact: dict, embed, *, berth_path: str,
@@ -164,7 +171,7 @@ def drain_pending(*, root: str = CAIRN_ROOT, nexus: str | None = None,
 
     Returns one entry per pending berth: ``{"berth", "deposited"|"failed", ...}``.
     """
-    embed = embed or embed_metered_via_domain()
+    embed = embed or embed_metered_via_bus(_bus())
     drained = []
     for entry in pending(ledger_path=ledger_path):
         berth = entry["berth"]
@@ -205,7 +212,7 @@ def _counsel(argv: list[str]) -> int:
     request, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
     kw = {"owner": argv[2]} if len(argv) > 2 else {}
     drained = _drain_before_serving()  # pending verdicts land before the walk reads
-    got = counsel(embed_via_domain()(request), nexus=nexus, **kw)
+    got = counsel(embed_via_bus(_bus())(request), nexus=nexus, **kw)
     print(json.dumps({
         "request": request,
         "drained": drained,
@@ -229,29 +236,29 @@ def _learn(argv: list[str]) -> int:
         # Stage 2's deposit-back: the vector embeds the SAME rendering the node
         # deposits (constrain_node_content — one rendering, no drift).
         nexus = "constrain"
-        got = deposit_constrain(packet, embed_via_domain()(constrain_node_content(packet)),
+        got = deposit_constrain(packet, embed_via_bus(_bus())(constrain_node_content(packet)),
                                 berth_path=berth)
     elif os.path.basename(berth).startswith("survey-"):
         nexus = "survey"
-        got = deposit_survey(packet, embed_via_domain()(survey_node_content(packet)),
+        got = deposit_survey(packet, embed_via_bus(_bus())(survey_node_content(packet)),
                              berth_path=berth)
     elif os.path.basename(berth).startswith("decompose-"):
         nexus = "decompose"
-        got = deposit_decompose(packet, embed_via_domain()(decompose_node_content(packet)),
+        got = deposit_decompose(packet, embed_via_bus(_bus())(decompose_node_content(packet)),
                                 berth_path=berth)
     elif os.path.basename(berth).startswith("triage-"):
         nexus = "triage"
-        got = deposit_triage(packet, embed_via_domain()(triage_node_content(packet)),
+        got = deposit_triage(packet, embed_via_bus(_bus())(triage_node_content(packet)),
                              berth_path=berth)
     elif os.path.basename(berth).startswith("hypothesize-"):
         nexus = "hypothesize"
         got = deposit_hypothesize(packet,
-                                  embed_via_domain()(hypothesize_node_content(packet)),
+                                  embed_via_bus(_bus())(hypothesize_node_content(packet)),
                                   berth_path=berth)
     elif os.path.basename(berth).startswith("validate-"):
         nexus = "validate"
         got = deposit_validate(packet,
-                               embed_via_domain()(validate_node_content(packet)),
+                               embed_via_bus(_bus())(validate_node_content(packet)),
                                berth_path=berth)
     elif os.path.basename(berth).startswith("verdict-"):
         # The exit gate's write-back: what killed which lands in the tree the
@@ -260,11 +267,11 @@ def _learn(argv: list[str]) -> int:
         # rather than a finished vector, and the berth's landing is the list of
         # ids it became. This branch is the only one that does not hardwire its
         # nexus, because it is the only one whose berth is not a chart stage.
-        got = deposit_verdict(packet, embed_metered_via_domain(), berth_path=berth)
+        got = deposit_verdict(packet, embed_metered_via_bus(_bus()), berth_path=berth)
         nexus = got["nexus"]
     else:
         nexus = argv[1] if len(argv) > 1 else "orient"
-        got = deposit_orient(packet, embed_via_domain()(packet["intent"]),
+        got = deposit_orient(packet, embed_via_bus(_bus())(packet["intent"]),
                              berth_path=berth, nexus=nexus)
     print(json.dumps({"learn": got, "berth": berth, "nexus": nexus,
                       "drained": drained,
@@ -288,7 +295,7 @@ def _moreabout(argv: list[str]) -> int:
             argv = argv[:idx]
     ask, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
     kw = {"owner": argv[2]} if len(argv) > 2 else {}
-    vector = embed_via_domain()(ask)
+    vector = embed_via_bus(_bus())(ask)
     got = expand(vector, nexus=nexus, **kw)
     top = got["expansions"][0] if got["expansions"] else None
     about = (top.get("provenance") or {}).get("source") if top else None

@@ -126,7 +126,7 @@ def test_the_refusal_names_the_other_field():
     from cairn.tools.base import needs
     msg = _message_of(
         lambda: needs.validate_needs(
-            {"id": "n", "state": "code-seam@v1: THINKME -> [BUILDME] -> PROVED",
+            {"id": "n", "workflow_and_state": "code-seam@v1: THINKME -> [BUILDME] -> PROVED",
              "stage_needs": {"survey": "prose addressed to a chart leg here"}}),
         needs.NeedRefused)
     assert "chart_notes" in msg, \

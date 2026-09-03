@@ -1,28 +1,36 @@
 [
   {
     "claim": "proof test_voyage_pane.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T15:28:37",
+    "caller": "cc-corpus-state-fix",
+    "date": "2026-09-02T20:06:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 144, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 134, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/web_server/proofs/test_voyage_pane.py\", line 97, in test_harbor_route_renders_the_emergent_gates\n    assert flagged, \"the live fleet has no flagged boat — this proof needs one to be meaningful\"\n           ^^^^^^^\nAssertionError: the live fleet has no flagged boat — this proof needs one to be meaningful",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_harbor_route_renders_the_emergent_gates\n  PASS  test_the_harbor_link_is_on_every_page\n  PASS  test_the_surface_owns_nothing_of_the_harbor\n  PASS  test_not_wired_is_said_loudly\ngreen — web_server child d: the /harbor route renders harbor_master's traffic image (emergent gates, the calm underway count, the flagged silently-stuck boats), the ⚓ link is reachable from every page, the surface owns nothing of the harbor (byte-equal to its own image), and a missing harbor source is a loud coherent 404",
+      "stderr_tail": "",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fd47c5080aeb4b03ef4128437d5462b7501a3237a3876f0b65213a6b4fca7ae6",
+      "source_fingerprint": "9bb5548a85f76a12ba46b06ece8dae955aa114b0429123124f2849c126541ca4",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-6yp0f7h9/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-ul0_p5cx/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
+          "count": 10,
           "paths": [
-            "logs/ground_loop/0/20260902.212834.221001.GroundLoopDevice.subscribe.json",
-            "logs/web_server/0/20260902.212834.274586.WebServerDevice.serve.json"
+            "logs/ground_loop/0/20260903.020609.356305.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260903.020609.453311.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260903.020609.454119.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260903.020609.546544.GroundLoopDevice.subscribe.json",
+            "logs/web_server/0/20260903.020609.406793.WebServerDevice.serve.json",
+            "logs/web_server/0/20260903.020609.453496.WebServerDevice.serve.json",
+            "logs/web_server/0/20260903.020609.453868.WebServerDevice.serve.json",
+            "logs/web_server/0/20260903.020609.500573.WebServerDevice.serve.json",
+            "logs/web_server/0/20260903.020609.546736.WebServerDevice.serve.json",
+            "logs/web_server/0/20260903.020609.547040.WebServerDevice.serve.json"
           ],
           "elided": 0
         }

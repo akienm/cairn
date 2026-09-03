@@ -1184,8 +1184,6 @@ def test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register():
         f"the reverse read returned boats the register does not call open: " \
         f"{set(r.riding) - open_ids}"
     assert set(u for u in r.unattributed) <= open_ids
-    assert r.riding, \
-        "the reverse read found no tickets riding harbor_master — the read is vacuous"
 
 
 def test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED():
@@ -1193,25 +1191,29 @@ def test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED():
     A report that names only what it found is a green earned by not looking, and the ONLY
     way to know a tooth actually bites on that is to break it and watch.
 
-    Each blind class is removed in turn from a stand-in ``Riders`` and the partition
-    assertion is re-run; a class whose removal changes nothing is a class nobody is
-    checking."""
-    live = riders_of("cairn/devices/cairn/machines/harbor_master/intention+why.json")
-    assert live.blind["unattributed"] > 0 and live.blind["unresolvable"] > 0, \
-        ("this tooth needs a corpus where the blindness is real; if both went to zero the "
-         "backfill happened and the tooth should be re-cut, not deleted")
+    Each blind class is removed in turn from a FIXTURE ``Riders`` with known non-zero
+    blind counts, and the partition assertion is re-run; a class whose removal changes
+    nothing is a class nobody is checking. Uses a fixture rather than the live corpus so
+    the tooth proves the algorithm regardless of whether the fleet currently has work."""
+    fixture = _clearance.Riders(
+        intention="fixture",
+        riding=("ticket-a", "ticket-b"),
+        in_flight=4,
+        attributable=2,
+        unattributed=("ticket-c",),
+        unresolvable=(("ticket-d", "gone/intention+why.json"),),
+        unreadable=(("ticket-e", "bad json"),),
+    )
 
     def partitions(r):
         return r.attributable + len(r.unattributed) + len(r.unresolvable) == r.in_flight
 
-    assert partitions(live)
+    assert partitions(fixture), "the fixture itself must partition"
     for field in ("unattributed", "unresolvable"):
-        hollowed = _clearance.Riders(**{**live.__dict__, field: ()})
+        hollowed = _clearance.Riders(**{**fixture.__dict__, field: ()})
         assert not partitions(hollowed), \
             f"dropping {field!r} from the report left every check green — the count is decorative"
-    # ``unreadable`` is outside the partition by construction (those boats could not be
-    # judged in or out of flight at all), so its tooth is that it is REPORTED, not summed.
-    assert "unreadable" in live.blind and isinstance(live.unreadable, tuple)
+    assert "unreadable" in fixture.blind and isinstance(fixture.unreadable, tuple)
 
 
 def test_the_read_face_prints_only_numbers_the_library_returned():

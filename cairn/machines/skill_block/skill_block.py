@@ -354,6 +354,9 @@ def mark_reviewed(berth_id: str, words: str, *,
     return rec
 
 
+AUTO_DRAIN_SKILLS = {"saveslate"}
+
+
 def pending_reviews(*, root: Path | None = None,
                     reviewed_path: Path | None = None) -> list[dict]:
     base = berth_root(root)
@@ -363,6 +366,8 @@ def pending_reviews(*, root: Path | None = None,
     pending: list[dict] = []
     for skill_dir in sorted(base.iterdir()):
         if not skill_dir.is_dir():
+            continue
+        if skill_dir.name in AUTO_DRAIN_SKILLS:
             continue
         for berth_file in sorted(skill_dir.glob("*.json")):
             doc = read_berth(berth_file)

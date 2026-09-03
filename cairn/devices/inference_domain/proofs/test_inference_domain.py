@@ -40,8 +40,6 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import psycopg2.errors
-
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.inference_domain import domain
@@ -548,7 +546,9 @@ def test_an_out_of_vocabulary_verdict_is_refused_at_the_database():
                 raise AssertionError(
                     "an out-of-vocabulary verdict must be refused by the CHECK constraint"
                 )
-            except psycopg2.errors.CheckViolation:
+            except Exception as _exc:
+                if getattr(_exc, "pgcode", None) != "23514":
+                    raise
                 conn.rollback()
     finally:
         conn.close()

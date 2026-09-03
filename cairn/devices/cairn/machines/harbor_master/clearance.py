@@ -493,7 +493,9 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
     ticket_path = os.path.join(tickets_dir, f"{boat_id}.json")
     if not os.path.isfile(ticket_path):
         import glob as _glob
-        hits = _glob.glob(os.path.join(tickets_dir, f"{boat_id}-*.json"))
+        hits = _glob.glob(os.path.join(tickets_dir, f"*-{boat_id}.json"))
+        if len(hits) != 1:
+            hits = _glob.glob(os.path.join(tickets_dir, f"{boat_id}-*.json"))
         if len(hits) == 1:
             ticket_path = hits[0]
         else:

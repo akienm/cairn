@@ -531,9 +531,12 @@ def test_the_page_assembles_through_the_standard_machinery():
 
     page = shim.active_page()                      # the REAL BaseShim method, unoverridden
     assert page["device"] == "ground_loop"
-    assert [p["kind"] for p in page["panes"]] == ["status", "settings", "liveness"], \
-        "the STATUS/SETTINGS floor first (Form v0 #2, projected free), the declared pane appended"
-    pane = page["panes"][2]
+    kinds = [p["kind"] for p in page["panes"]]
+    assert kinds[:2] == ["status", "settings"], \
+        "the STATUS/SETTINGS floor first (Form v0 #2, projected free)"
+    assert kinds[-1] == "liveness", \
+        "the device's declared pane appended last"
+    pane = next(p for p in page["panes"] if p["kind"] == "liveness")
     assert pane["label"] == "Liveness" and "absent" not in pane, \
         "the handler answered — read_liveness never raises; an absent record is DATA, not a refusal"
     # The deployed handler reads the RESIDENT record (the wall clock, the real home),

@@ -416,7 +416,7 @@ def _stack(models_stack):
         return models_stack
     import json  # noqa: PLC0415
     from pathlib import Path  # noqa: PLC0415
-    here = Path(__file__).resolve().parents[2] / "devices" / "inference_domain" / "stacks"
+    here = Path(__file__).resolve().parents[2] / "devices" / "inference_domain" / "machines" / "route" / "stacks"
     return json.loads((here / "models.json").read_text(encoding="utf-8"))
 
 

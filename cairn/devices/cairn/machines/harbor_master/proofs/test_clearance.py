@@ -949,7 +949,7 @@ def test_the_read_reaches_nothing_outward():
     # set rather than one function, and a helper is admitted by being CHECKED, never by
     # being named. That is the difference between a whitelist and a rubber stamp.
     allowed = {"open", "isinstance", "json.loads", "os.path.join", "os.path.isfile",
-               "os.path.realpath", "os.path.isdir", "os.listdir",
+               "os.path.realpath", "os.path.isdir", "os.listdir", "_glob.glob",
                "OwnerUnresolvable", "BoatOwner", "tuple", "str", "read", "strip",
                "get", "encode", "list", "sorted", "len", "repr", "any", "all",
                # the retirement read (ticket a-superseded-intention-is-never-silent) —

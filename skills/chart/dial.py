@@ -28,14 +28,14 @@ import json
 import os
 import re
 
-import cairn.devices.builder.machines.constrain.constrain as _constrain
-import cairn.devices.builder.machines.decompose.decompose as _decompose
-import cairn.devices.builder.machines.hypothesize.hypothesize as _hypothesize
-import cairn.devices.builder.machines.survey.survey as _survey
-import cairn.devices.builder.machines.triage.triage as _triage
-import cairn.devices.builder.machines.validate.validate as _validate
+import cairn.devices.codemonkey.machines.constrain.constrain as _constrain
+import cairn.devices.codemonkey.machines.decompose.decompose as _decompose
+import cairn.devices.codemonkey.machines.hypothesize.hypothesize as _hypothesize
+import cairn.devices.codemonkey.machines.survey.survey as _survey
+import cairn.devices.codemonkey.machines.triage.triage as _triage
+import cairn.devices.codemonkey.machines.validate.validate as _validate
 from cairn.tools.chain.grammar import (INSTANCE_DIR, STRATA)
-from cairn.devices.builder.machines.orient.orient import (AUTHORED_FIELDS)
+from cairn.devices.codemonkey.machines.orient.orient import (AUTHORED_FIELDS)
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
 _PACKET_RE = re.compile(r"^([a-z][a-z0-9_]*)-(\d{8}T\d{6})-([0-9a-f]+)\.json$")

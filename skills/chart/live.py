@@ -23,18 +23,18 @@ import os
 import sys
 from datetime import date
 
-from cairn.devices.builder.machines.constrain.constrain import constrain_node_content, deposit_constrain
+from cairn.devices.codemonkey.machines.constrain.constrain import constrain_node_content, deposit_constrain
 from skills.chart.dial import dial
 from skills.moreabout.moreabout import expand, signal
 from cairn.tools.chain.grammar import (CAIRN_ROOT)
-from cairn.devices.builder.machines.decompose.decompose import decompose_node_content, deposit_decompose
-from cairn.devices.builder.machines.hypothesize.hypothesize import deposit_hypothesize, hypothesize_node_content
-from cairn.devices.builder.machines.survey.survey import deposit_survey, survey_node_content
-from cairn.devices.builder.machines.orient.orient import deposit_orient
+from cairn.devices.codemonkey.machines.decompose.decompose import decompose_node_content, deposit_decompose
+from cairn.devices.codemonkey.machines.hypothesize.hypothesize import deposit_hypothesize, hypothesize_node_content
+from cairn.devices.codemonkey.machines.survey.survey import deposit_survey, survey_node_content
+from cairn.devices.codemonkey.machines.orient.orient import deposit_orient
 from cairn.tools.tree.tree import counsel, deposit_learning
-from cairn.devices.builder.machines.triage.triage import deposit_triage, triage_node_content
-from cairn.devices.builder.machines.validate.validate import deposit_validate, validate_node_content
-from cairn.devices.builder.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
+from cairn.devices.codemonkey.machines.triage.triage import deposit_triage, triage_node_content
+from cairn.devices.codemonkey.machines.validate.validate import deposit_validate, validate_node_content
+from cairn.devices.codemonkey.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
 from cairn.tools.base.bus_client import connect_bus

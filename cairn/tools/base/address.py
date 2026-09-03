@@ -97,6 +97,7 @@ ROOTS = {"repo": _REPO, "commons": _COMMONS, "instance": _INSTANCE}
 
 # The segment names, once. A reader looking for "where does tools/ come from" finds one answer.
 DEVICES = "devices"
+FOLDERS = "folders"
 TOOLS = "tools"
 MACHINES = "machines"
 LOGS = "logs"
@@ -131,6 +132,17 @@ def instance_path(device: str, instance: int = 0, roots: dict[str, Path] | None 
     said why in its own docstring: "instance 0 is the singleton, not a special case."
     """
     return resolve(f"instance/{DEVICES}", roots) / str(device) / str(instance)
+
+
+def folder_path(name: str, roots: dict[str, Path] | None = None) -> Path:
+    """``<instance root>/folders/<name>`` — instance-space for a non-device component.
+
+    A folder is a component that has runtime state (a DataRecorder, an instanceizer)
+    but is not a device — no process, no bus presence, no instance number. The address
+    is ``~/.cairn/folders/<name>/``, parallel to ``devices/<name>/<instance>/`` but one
+    rung lighter: no instance segment because a folder has no instances to distinguish.
+    """
+    return resolve(f"instance/{FOLDERS}", roots) / str(name)
 
 
 def log_path(device: str, instance: int = 0, roots: dict[str, Path] | None = None) -> Path:

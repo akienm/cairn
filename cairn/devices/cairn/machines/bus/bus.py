@@ -194,6 +194,7 @@ class BusDevice(BaseDevice):
         self._ring: list[dict] = []
         self._ring_receipts: list[dict] = []
         self._ring_delivered: set[str] = set()
+        self._folder_recorders: dict[str, Any] = {}
 
     def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
         self._delivery_hooks[device_id] = deliver
@@ -203,6 +204,45 @@ class BusDevice(BaseDevice):
     def unwire_delivery(self, device_id: str) -> None:
         self._delivery_hooks.pop(device_id, None)
         self._channel_toggles.pop(device_id, None)
+
+    def _try_folder_delivery(self, addressee: str, envelope: dict) -> bool:
+        """Fallback delivery for non-device addressees via folder instanceizer.
+
+        If ``~/.cairn/folders/<addressee>/`` has an instanceizer, load its DataRecorder
+        and write the envelope. Returns True if delivered, False if no folder exists."""
+        if addressee in self._folder_recorders:
+            recorder = self._folder_recorders[addressee]
+        else:
+            try:
+                from cairn.tools.base.address import folder_path
+                from cairn.tools.instanceizer.instanceizer import load
+                fp = folder_path(addressee)
+                recorder = load(fp)
+                self._folder_recorders[addressee] = recorder
+            except (FileNotFoundError, Exception):
+                self._folder_recorders[addressee] = None
+                return False
+        if recorder is None:
+            return False
+        try:
+            recorder.write({
+                "finding": envelope.get("why", "bus message received"),
+                "inspector_target": addressee,
+                "probe_source": envelope.get("sender", "unknown"),
+                "envelope_id": envelope.get("id"),
+                "verb": envelope.get("verb", ""),
+                "body": envelope.get("body", {}),
+            })
+            self._ring_delivered.add(envelope["id"])
+            self._delivered += 1
+            self.emit("delivered", pointer=envelope["id"],
+                      values={"addressee": addressee, "by": "folder_instanceizer"})
+            return True
+        except Exception as exc:  # noqa: BLE001
+            self.emit("delivery_failed", pointer=envelope["id"], values={
+                "addressee": addressee, "error": f"{type(exc).__name__}: {exc}",
+            })
+            return False
 
     def list(self) -> dict:
         """Enumerate registered devices and their per-channel toggle standing."""
@@ -309,6 +349,8 @@ class BusDevice(BaseDevice):
                     self.emit("delivery_failed", pointer=envelope["id"], values={
                         "addressee": to, "error": f"{type(exc).__name__}: {exc}",
                     })
+            elif self._try_folder_delivery(to, envelope):
+                pass
         return envelope
 
     # --- the record (full truth) and the view (collapsible) -----------------

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_fleet_map.py passes under python3",
-    "caller": "cc-reseal-stale-fp",
-    "date": "2026-09-02T20:11:20",
+    "caller": "cc-debug-sink-reseal",
+    "date": "2026-09-03T11:24:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,14 +13,19 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "db56eccab41d36a3cb30b3b58d1116bc4abece6f719d9a079a5c77670f71f01c",
+      "source_fingerprint": "1ec059004bc207e95528d2bd0e052899932bcb085e7c26eb5f5cb519dd982a82",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-czepbtow/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-59kczgp8/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 4,
+          "paths": [
+            "logs/harbor_master/0/20260903.172403.994792.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260903.172404.041179.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260903.172404.094379.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260903.172404.154379.HarborMasterDevice.reconciled.json"
+          ],
           "elided": 0
         }
       }

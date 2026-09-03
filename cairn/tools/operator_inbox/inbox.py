@@ -462,25 +462,41 @@ def format_inbox(data: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def show_artifact(id_prefix: str) -> str:
-    """Show the full content of a pending artifact by id prefix."""
+    """Show a pending artifact or ticket by id prefix."""
     from cairn.machines.skill_block.skill_block import pending_reviews, read_berth
     pending = pending_reviews()
     matches = [p for p in pending if p["berth_id"].startswith(id_prefix)]
 
-    if not matches:
-        return f"no pending artifact matches {id_prefix!r}"
-    if len(matches) > 1:
-        lines = [f"ambiguous — {len(matches)} match {id_prefix!r}:"]
-        for m in matches:
-            lines.append(f"  [{m['skill']}] {m['berth_id']}")
-        return "\n".join(lines)
+    if matches:
+        if len(matches) > 1:
+            lines = [f"ambiguous — {len(matches)} match {id_prefix!r}:"]
+            for m in matches:
+                lines.append(f"  [{m['skill']}] {m['berth_id']}")
+            return "\n".join(lines)
+        hit = matches[0]
+        berth_path = Path(hit["path"])
+        doc = read_berth(berth_path)
+        if doc is None:
+            return f"berth file unreadable: {berth_path}"
+        return _format_artifact(doc, berth_path)
 
-    hit = matches[0]
-    berth_path = Path(hit["path"])
-    doc = read_berth(berth_path)
-    if doc is None:
-        return f"berth file unreadable: {berth_path}"
-    return _format_artifact(doc, berth_path)
+    ticket_matches = [p for p in sorted(TICKETS_DIR.glob("*.json"))
+                      if not p.name.startswith("_")
+                      and p.name.startswith(id_prefix)]
+    if ticket_matches:
+        if len(ticket_matches) > 1:
+            lines = [f"ambiguous — {len(ticket_matches)} tickets match {id_prefix!r}:"]
+            for p in ticket_matches:
+                lines.append(f"  {p.stem}")
+            return "\n".join(lines)
+        path = ticket_matches[0]
+        try:
+            doc = json.loads(path.read_text())
+        except (json.JSONDecodeError, OSError):
+            return f"ticket file unreadable: {path}"
+        return _format_ticket(doc, path)
+
+    return f"no pending artifact or ticket matches {id_prefix!r}"
 
 
 def _format_artifact(doc: dict, path: Path) -> str:
@@ -540,6 +556,58 @@ def _format_artifact(doc: dict, path: Path) -> str:
     return "\n".join(lines)
 
 
+def _format_ticket(doc: dict, path: Path) -> str:
+    lines: list[str] = []
+    width = 76
+    tid = doc.get("id", "?")
+    title = doc.get("title", doc.get("slug", "?"))
+    node_class = doc.get("node_class", "?")
+    ws = doc.get("workflow_and_state", "")
+
+    lines.append("=" * width)
+    lines.append(f"  TICKET: {tid}")
+    lines.append(f"  {title}")
+    lines.append(f"  class: {node_class}   state: {ws[:60]}")
+    lines.append(f"  path: {path}")
+    lines.append("=" * width)
+    lines.append("")
+
+    for field in ("intention", "what", "why", "how"):
+        val = doc.get(field)
+        if val:
+            lines.append(f"{field.upper()}:")
+            lines.append(_wrap(str(val), "  ", width))
+            lines.append("")
+
+    falsifier = doc.get("falsifier")
+    if falsifier:
+        lines.append("FALSIFIER:")
+        if isinstance(falsifier, dict):
+            for k, v in falsifier.items():
+                if v:
+                    lines.append(f"  {k}: {v}")
+        else:
+            lines.append(_wrap(str(falsifier), "  ", width))
+        lines.append("")
+
+    deps = doc.get("dependencies", [])
+    if deps:
+        lines.append("DEPENDENCIES:")
+        for d in deps:
+            lines.append(_wrap(f"· {d}", "  ", width))
+        lines.append("")
+
+    ms = doc.get("measurements_since_cast", [])
+    if ms:
+        lines.append("MEASUREMENTS:")
+        for m in ms[-5:]:
+            lines.append(_wrap(f"· {m}", "  ", width))
+        lines.append("")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------------------
 # Entry points
 # ---------------------------------------------------------------------------
@@ -553,7 +621,7 @@ USAGE = """usage: cairn operator <command>
 commands:
   show inbox              full operator inbox
   show inbox --summary    one-line summary only
-  show artifact <id>      deep view of a pending artifact (id prefix match)
+  show artifact <id>      deep view of a pending artifact or ticket (id prefix match)
 """
 
 

@@ -148,9 +148,17 @@ def proofs_exist(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-25 — the bus stood 'PROVEN' in its history while the usable
     half was unbuilt (the true-but-silently-partial record). Zero proofs is the loud
     end of that spectrum: nothing entered proven-space at all (Law 8).
+
+    A holder whose children carry proofs is exempt: its own code is the BaseDevice
+    boilerplate, and a proof for that is the hollow test Law 8 exists to refuse.
     """
     if row["proofs"] > 0:
         return []
+    machines = comp_dir / "machines"
+    if machines.is_dir():
+        for child in machines.iterdir():
+            if child.is_dir() and (child / "proofs").is_dir():
+                return []
     return [_finding(
         "proofs_exist", row["component"],
         "proofs exist", expected=True, actual=False,

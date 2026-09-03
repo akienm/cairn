@@ -9,7 +9,7 @@ that lands (``nexus``), and who consumes it. Akien's rule, in one line:
     "none, because X" is the only other legal answer; silence is not.
 
 THE MEASURED VOID THIS FILLS. Before this module the ONLY ticket check in the system was
-``cairn.devices.codemonkey.machines.orient.orient.ticket_claim_error``, and it never opens the ticket — it asks whether a
+``cairn.devices.codemother.machines.orient.orient.ticket_claim_error``, and it never opens the ticket — it asks whether a
 file of that name exists. So no rule about a ticket's CONTENTS had anywhere to run. The
 five fields would have been prose on a ticket schema, which is exactly the shape the whole
 node is paying off: a falsifier field written on every ticket since the beginning, never

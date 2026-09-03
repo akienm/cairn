@@ -66,7 +66,7 @@ this tool makes the edge exist and makes a routeless finding impossible. What ha
 the far end grows against real findings, of which the corpus currently has none.
 
     from cairn.tools.feedback import feedback
-    feedback.route("cairn/devices/codemonkey/machines/orient")   # -> the declared address
+    feedback.route("cairn/devices/codemother/machines/orient")   # -> the declared address
     feedback.corpus_record()                                  # the proof record, all producers
 
 A TOOL HAS USERS, NOT AN OWNER (Law 6) — AND A TOOL MAY STILL REMEMBER. Ruling

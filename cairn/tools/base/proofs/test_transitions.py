@@ -761,9 +761,9 @@ def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
 
 def _ledger_world(d: Path, **kw):
     """The exit world plus a FIXTURE ledger path and berths root patched into
-    cairn.devices.codemonkey.machines.verdict.verdict — the enqueue's two module globals, so no tooth here can
+    cairn.devices.codemother.machines.verdict.verdict — the enqueue's two module globals, so no tooth here can
     touch the live instance-space ledger. Returns (tickets, berths, ledger)."""
-    import cairn.devices.codemonkey.machines.verdict.verdict as _verdict
+    import cairn.devices.codemother.machines.verdict.verdict as _verdict
     tickets, berths = _exit_world(d, **kw)
     ledger = d / "ledger" / "verdict-deposits.jsonl"
     return tickets, berths, ledger, _verdict
@@ -862,7 +862,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
 
 def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
     """The netns constraint as structure (build_inspector edge (l)): the enqueue's
-    only door is cairn.devices.codemonkey.machines.verdict.verdict — itself tree-free by its own allowlist tooth —
+    only door is cairn.devices.codemother.machines.verdict.verdict — itself tree-free by its own allowlist tooth —
     and the chokepoint's source names no tree, db, embed, or inference machinery at
     all. If a future edit reaches a host from here, sealed crossings stop enqueueing
     identically to live ones and THIS tooth is what says so."""
@@ -873,7 +873,7 @@ def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
             f"transitions.py reaches {host_door} — the crossing side of the deposit "
             "writes a FILE and nothing else; a host on the fire path breaks netns "
             "sealing, which is the whole reason the deposit is split in two")
-    assert "from cairn.devices.codemonkey.machines.verdict.verdict import enqueue_verdict" in src, \
+    assert "from cairn.devices.codemother.machines.verdict.verdict import enqueue_verdict" in src, \
         "the enqueue's one door is chart's tree-free ledger module, lazily imported"
 
 

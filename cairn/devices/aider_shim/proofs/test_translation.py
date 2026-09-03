@@ -71,7 +71,7 @@ def make_chain(root: Path) -> Path:
         "ticket": TICKET, "sought": ["everywhere"],
         "holdings": [
             {"what": "the verdict resolver",
-             "address": "cairn/devices/codemonkey/machines/verdict/verdict.py"},
+             "address": "cairn/devices/codemother/machines/verdict/verdict.py"},
             {"what": "aider's model layer",
              "address": str(Path.home() / "dev/src/aider/aider/models.py")},
             {"what": "a directory holding", "address": "cairn/tools/base"},
@@ -99,14 +99,14 @@ def make_chain(root: Path) -> Path:
         "sub_problems": [
             {"what": "alpha", "why": "because alpha", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"],
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"],
              "writes_to": ["cairn/devices/aider_shim/alpha_not_yet.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"],
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"],
              "writes_to": ["cairn/devices/aider_shim/translate.py"]},
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py",
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py",
                       str(Path.home() / "dev/src/aider/aider/models.py"),
                       "cairn/tools/base",
                       "cairn/does/not/exist.py"],
@@ -434,7 +434,7 @@ def test_a_piece_that_declares_NO_uses_REFUSES_rather_than_taking_everything():
              "fills": ["any translation"], "writes_to": ["cairn/devices/aider_shim/a.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
              "writes_to": ["cairn/devices/aider_shim/b.py"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"]}]},
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"]}]},
               stamp="20260817T235959")
         try:
             b = translate.brief(TICKET, 0, berths_root=root)
@@ -497,7 +497,7 @@ def test_the_file_list_does_not_depend_on_THE_CALLERS_CWD():
             os.chdir(here)
         assert str(REPO / "cairn/devices/aider_shim/translate.py") in b.files, \
             f"a repo-relative `writes_to` did not survive a foreign cwd: {b.files} {b.skipped}"
-        assert str(REPO / "cairn/devices/codemonkey/machines/verdict/verdict.py") in b.read_only, \
+        assert str(REPO / "cairn/devices/codemother/machines/verdict/verdict.py") in b.read_only, \
             f"a repo-relative `uses` did not survive a foreign cwd: {b.read_only} {b.skipped}"
 
 
@@ -572,12 +572,12 @@ def test_a_piece_that_declares_NO_writes_to_REFUSES_and_names_THE_RE_CHART():
         berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"]},
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"]},
             {"what": "alpha", "why": "because alpha", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"]},
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"]},
             {"what": "beta", "why": "because beta", "kind": "compose",
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"]}]},
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"]}]},
               stamp="20260817T235959")
         try:
             b = translate.brief(TICKET, 0, berths_root=root)
@@ -606,7 +606,7 @@ def test_a_writes_to_OUTSIDE_THE_REPO_or_A_DIRECTORY_is_skipped_never_editable()
         berth(root, "decompose", {"ticket": TICKET, "sub_problems": [
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
-             "uses": ["cairn/devices/codemonkey/machines/verdict/verdict.py"],
+             "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"],
              "writes_to": [str(Path.home() / "dev/src/aider/aider/models.py"),
                            "cairn/tools/base",
                            "cairn/devices/aider_shim/translate.py"]},

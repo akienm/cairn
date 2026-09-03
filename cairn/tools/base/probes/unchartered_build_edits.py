@@ -36,7 +36,7 @@ _MAX_COMMITS_PER_VOYAGE = 10
 
 def _proved_tickets_with_chains() -> list[dict]:
     """Find PROVED tickets that have chart chains."""
-    from cairn.devices.codemonkey.machines.verdict.verdict import chain_for_ticket
+    from cairn.devices.codemother.machines.verdict.verdict import chain_for_ticket
 
     results = []
     for name in sorted(os.listdir(_TICKETS_DIR)):

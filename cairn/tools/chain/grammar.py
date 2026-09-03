@@ -339,7 +339,7 @@ def inspected(identity, *, expected, actual, lack, stage="", **values) -> dict:
     mismatch case because that is the only case a reader ever meets it in.
     """
     return gate.proved(identity=identity, expected=expected, actual=actual,
-                       location=("cairn/devices/codemonkey/machines/%s" % stage) if stage else
+                       location=("cairn/devices/codemother/machines/%s" % stage) if stage else
                                 "cairn/tools/chain",
                        code="grammar.py:%s" % identity,
                        source=stage or "chain.grammar", lack=lack, **values)

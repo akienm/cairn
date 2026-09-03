@@ -16,7 +16,7 @@
   - A REPEAT ASK IS READABLE FREQUENCY: the identical signal again returns
     duplicate:true and writes nothing — dedup as data, not loss.
   - A WALK, NEVER A RE-RUN, BY IMPORT PHYSICS: AST allowlist on moreabout.py — its only
-    cairn door is cairn.tools.tree.tree; cairn.devices.codemonkey.machines.orient.orient (the floor/gate machinery),
+    cairn door is cairn.tools.tree.tree; cairn.devices.codemother.machines.orient.orient (the floor/gate machinery),
     the librarian, db_domain, and subprocess are structurally unreachable (the
     charter's falsifier 4 as physics, not prose).
 
@@ -168,7 +168,7 @@ def test_a_walk_never_a_rerun_import_physics():
     assert not offenders, (
         f"moreabout.py imports outside its allowlist: {offenders} — the walk's only "
         "cairn door is chart's tree verbs")
-    for forbidden in ("cairn.devices.codemonkey.machines.orient.orient", "cairn.devices.librarian", "cairn.devices.db_domain",
+    for forbidden in ("cairn.devices.codemother.machines.orient.orient", "cairn.devices.librarian", "cairn.devices.db_domain",
                       "subprocess"):
         assert not any(m == forbidden or m.startswith(forbidden + ".")
                        for m in seen), (

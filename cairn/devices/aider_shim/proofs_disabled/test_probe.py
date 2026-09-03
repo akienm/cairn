@@ -28,7 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim.probes import offload_yield_probe as probe  # noqa: E402
-from cairn.devices.codemonkey.machines.verdict.verdict import (  # noqa: E402
+from cairn.devices.codemother.machines.verdict.verdict import (  # noqa: E402
     OUTCOMES, verdict_error,
 )
 
@@ -315,7 +315,7 @@ def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
     vocabulary word on either side of the seam, this goes red AT the seam instead of
     going quiet in the carrier.
     """
-    from cairn.devices.codemonkey.machines.verdict.verdict import (
+    from cairn.devices.codemother.machines.verdict.verdict import (
         falsifier_criteria, write_verdict,
     )
     with tempfile.TemporaryDirectory() as d:

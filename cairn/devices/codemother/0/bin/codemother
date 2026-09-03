@@ -1,10 +1,48 @@
 #!/usr/bin/env bash
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
-exec python3 -c "
+
+subcmd="${1:-}"
+shift 2>/dev/null || true
+
+case "$subcmd" in
+  watch)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.watch import activate, on_question
+area = sys.argv[1] if len(sys.argv) > 1 else ''
+if not area:
+    print('usage: cairn codemother watch <area> [reason]')
+    sys.exit(1)
+reason = sys.argv[2] if len(sys.argv) > 2 else 'cli activation'
+result = activate(area, reason)
+print(json.dumps(result, indent=2))
+" "$@"
+    ;;
+  question)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.watch import on_question
+q = ' '.join(sys.argv[1:]) if len(sys.argv) > 1 else ''
+if not q:
+    print('usage: cairn codemother question <question>')
+    sys.exit(1)
+result = on_question(q)
+print(json.dumps(result, indent=2))
+" "$@"
+    ;;
+  *)
+    exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.codemother.shim import CodeMotherShim
 shim = CodeMotherShim()
 print(f'device: {shim.device_id}')
 print(f'class:  cairn/devices/codemother/')
+print(f'verbs:  {\" \".join(shim.declared_verbs)}')
+print()
+print('commands:')
+print('  cairn codemother watch <area> [reason]  — fire spreading activation')
+print('  cairn codemother question <question>     — ask about an area')
 " "$@"
+    ;;
+esac

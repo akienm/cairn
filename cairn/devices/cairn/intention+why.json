@@ -1,0 +1,11 @@
+{
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The cairn system device — top-level holder of ground_loop, harbor_master, and bus. Every device has a presence on the bus, and the system itself is a device.",
+  "why": "Every device has a presence on the bus (Akien, 2026-08-11). The system itself is a device and answers its own mail. Without it the system's own infrastructure machines (ground_loop, harbor_master, bus) hang off nothing — no introspection surface, no mail delivery, no bus address.",
+  "falsifier": "The cairn device stops fronting its machines on the bus, or a second top-level device absorbs one of its machines.",
+  "feedback": {},
+  "learns": "It does not learn — its machines learn. The device is a holder.",
+  "runtime_role": "device",
+  "gated_by": ["CC"],
+  "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}
+}

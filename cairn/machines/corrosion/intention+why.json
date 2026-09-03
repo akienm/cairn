@@ -1,0 +1,11 @@
+{
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The constraint corrosion detector — watches a declared set of constraints and catches narrowing without a ruling. A constraint that stopped constraining, and no ruling sits in the same act, is corrosion.",
+  "why": "CLAUDE.md 'a deterministic red is fixed, or it carries a ruling from Akien — never a paragraph.' Drift with a ruling behind it is the system learning; drift without one is decay. The enforcement is one predicate over both: a constraint stopped constraining, and no ruling sits in the same act. The constraint_set.json is the declared scope — the predicate is only as good as the set it watches, and narrowing the set fires the check on itself (self-reference).",
+  "falsifier": "A constraint is removed from constraint_set.json and no ruling covers the removal, or a constraint in the set is weakened and the corrosion sieve does not red.",
+  "feedback": {},
+  "learns": "It does not learn — the constraint set is authored. The citation detector reads CairnCommons/decisions/ for confirmed rulings.",
+  "runtime_role": "machine",
+  "gated_by": ["Akien", "CC"],
+  "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}
+}

@@ -139,6 +139,8 @@ def read_tickets(*, tickets_dir: Path | None = None) -> dict:
         return {"by_state": {}, "total_not_done": 0}
     by_state: dict[str, list[str]] = {}
     for p in sorted(d.glob("*.json")):
+        if p.name.startswith("_"):
+            continue
         try:
             t = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):

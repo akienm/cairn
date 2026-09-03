@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_feedback.py passes under python3",
-    "caller": "a-segments-outbound-edge-carries-one-address",
-    "date": "2026-09-01T10:10:43",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cc-migration-reseal",
+    "date": "2026-09-03T11:04:11",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   and the gate is CLOSED\n  ok   a component that stops constructing findings leaves NO entry, not a green one\n  ok   probes() on shorthand returns a list\n  ok   the one probe carries to, why, and consumer=active\n  ok   probes() on explicit array returns both probes\n  ok   first probe is active\n  ok   second probe is passive\n  ok   consumer defaults to 'active' when omitted\n  ok   an invalid consumer value is refused\n  ok   route() returns the first probe's address for backward compat\n  ok   corpus_record for a multi-probe producer has probes_to\n  ok   probes_to lists both targets with consumer types\n  ok   routes_to still carries the first address for backward compat\n  ok   feedbackmap shows both probe targets\n  ok   the live corpus has finding-producers (the rule is not vacuous)\n  ok   every producer names a directory that exists and carries a charter\n  ok   the live record has exactly one entry per producer\n  ok   and every entry carries the compare's preconditions\n\n34/34 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "f657ee349663d7dc3f51a2ab0f44679d287e849e369721b56d417ff601e2c306",
+      "source_fingerprint": "3bf6d658b42be7dd89188a0545e2289f23b33a76784bb7db1119c057f2547bb8",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-d23lcvpg/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2wmq9g9s/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

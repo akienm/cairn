@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_device_logs_unwired.py passes under python3",
-    "caller": "cc-device-isolation-reseal",
-    "date": "2026-09-02T17:55:51",
+    "caller": "cc-migration-reseal",
+    "date": "2026-09-03T10:58:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS    (population: 50 components, both derivations agreeing)\n  PASS  log_path resolves instance/logs/<device>/<instance>; got /nowhere-this-proof-never-touches-disk/logs/some_device/3\n  PASS  the instance segment is never optional — a singleton is 0, not an omission\n  PASS  BusDevice derives 'bus' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/bus\n  PASS  BusDevice must carry the emit surface structurally\n  PASS  GroundLoopDevice derives 'ground_loop' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop\n  PASS  GroundLoopDevice must carry the emit surface structurally\n  PASS  a silenced device holds; got held\n  PASS  and the record is retrievable, not dropped\n  PASS  the same class NOT silenced must write — else the sentinel proves nothing\n  PASS  and it lands under its own derived name\n  PASS  the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale\n  PASS  an overridden receiver receives\n  PASS  and the default trail is NOT also written — an override replaces, it does not tee\n  PASS  one emission, one file\n  PASS  two emissions, two files\n  PASS  an already-written emission file is never rewritten\n  PASS  THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []\n\nGREEN — 29 assertions",
+      "stdout_tail": "  PASS    (population: 49 components, both derivations agreeing)\n  PASS  log_path resolves instance/logs/<device>/<instance>; got /nowhere-this-proof-never-touches-disk/logs/some_device/3\n  PASS  the instance segment is never optional — a singleton is 0, not an omission\n  PASS  BusDevice derives 'bus' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/bus\n  PASS  BusDevice must carry the emit surface structurally\n  PASS  GroundLoopDevice derives 'ground_loop' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop\n  PASS  GroundLoopDevice must carry the emit surface structurally\n  PASS  a silenced device holds; got held\n  PASS  and the record is retrievable, not dropped\n  PASS  the same class NOT silenced must write — else the sentinel proves nothing\n  PASS  and it lands under its own derived name\n  PASS  the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale\n  PASS  an overridden receiver receives\n  PASS  and the default trail is NOT also written — an override replaces, it does not tee\n  PASS  one emission, one file\n  PASS  two emissions, two files\n  PASS  an already-written emission file is never rewritten\n  PASS  THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []\n\nGREEN — 29 assertions",
       "stderr_tail": "",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ddec7982272e60a3ac4427c1abbc01661a90f34ad5e1d61855a1333eabdcbe89",
+      "source_fingerprint": "af3d70ac1254683bac3bc91b5bd0829216ee3ff75282922dd30395524e6a4fa3",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-n8ksj9iv/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-d53nkd_8/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

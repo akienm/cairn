@@ -3165,6 +3165,14 @@ def check_baseline(findings: list[dict], *, baseline_path: Path | None = None) -
     return [f for f in findings if (f.get("method"), f.get("at")) not in known]
 
 
+def _finding_trouble_id(method: str, at: str) -> str:
+    raw = f"inspector-new-finding-{method}-{at}"
+    return _TROUBLE_SLUG.sub("-", raw.lower()).strip("-")
+
+
+_TROUBLE_SLUG = __import__("re").compile(r"[^a-z0-9-]+")
+
+
 def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
     """File a trouble for each finding not in the baseline. Returns count filed."""
     if not new_findings:
@@ -3177,7 +3185,7 @@ def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
         at = f.get("at", "unknown")
         about = f.get("about", "")
         td.raise_trouble(
-            f"inspector-new-finding-{method}-{at.replace('/', '-')}",
+            _finding_trouble_id(method, at),
             why=(f"build inspector finding appeared above baseline: "
                  f"{method} at {at} ({about}). This finding has no covering "
                  f"ticket in finding_baseline.json — it accumulated silently."),
@@ -3187,13 +3195,39 @@ def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
     return filed
 
 
+def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
+    """Clear troubles whose inspector condition no longer holds. Returns count cleared."""
+    from cairn.devices.trouble.trouble import TroubleDevice
+    td = TroubleDevice()
+    still_finding = {
+        _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
+        for f in current_findings
+    }
+    cleared = 0
+    for trouble in td.live():
+        tid = trouble.get("id", "")
+        if not tid.startswith("inspector-new-finding-"):
+            continue
+        if tid not in still_finding:
+            td.clear(tid, by="cc",
+                     what_changed="build inspector reconcile: the condition that "
+                                  "raised this trouble no longer appears in the "
+                                  "current findings")
+            cleared += 1
+    return cleared
+
+
 def _main(argv: list[str]) -> int:
     report = inspect(component=argv[0] if argv else None)
-    new = check_baseline(report.get("findings", []))
+    all_findings = report.get("findings", [])
+    new = check_baseline(all_findings)
     if new:
         count = _file_troubles_for_new_findings(new)
         report["unbaselined_findings"] = new
         print(f"!! {count} finding(s) above baseline — trouble(s) filed", file=sys.stderr)
+    reconciled = _reconcile_cleared_findings(all_findings)
+    if reconciled:
+        print(f"-- {reconciled} stale trouble(s) cleared by reconcile", file=sys.stderr)
     print(json.dumps(report, indent=2))
     return 0 if report["gate"]["opens"] else 1
 

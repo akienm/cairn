@@ -272,8 +272,23 @@ def _component_tickets(comp_dir: Path) -> set:
         return set()  # state_is_projection owns the unreadable-history finding
     if not isinstance(entries, list):
         return set()
-    return {e["ticket"] for e in entries
-            if isinstance(e, dict) and isinstance(e.get("ticket"), str)}
+    raw = {e["ticket"] for e in entries
+           if isinstance(e, dict) and isinstance(e.get("ticket"), str)}
+    active = set()
+    for tid in raw:
+        filed = ticket_path(tid, root=_TICKETS_ROOT)
+        if filed is None:
+            active.add(tid)
+            continue
+        try:
+            tdata = json.loads(Path(filed).read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            active.add(tid)
+            continue
+        state = tdata.get("workflow_and_state", "")
+        if not (isinstance(state, str) and "[PROVED]" in state):
+            active.add(tid)
+    return active
 
 
 def _charted_packets(comp_dir: Path, stage: str):

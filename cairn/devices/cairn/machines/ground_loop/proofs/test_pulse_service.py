@@ -289,8 +289,7 @@ def test_a_pulse_only_device_survives_the_probes_reconcile():
 
         from cairn.devices.cairn.machines.ground_loop.discovery import discover
         loop = GroundLoopDevice(
-            discover=lambda cache=None, skip=None: discover(root=root, cache=cache,
-                                                            skip=skip),
+            discover=lambda cache=None: discover(root=root, cache=cache),
             pulse_finder=lambda: pulse_sites(class_root=root, instance_home=home))
         loop.beat(NOW)
         loop.beat(NOW)

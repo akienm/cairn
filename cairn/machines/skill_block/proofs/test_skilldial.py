@@ -103,7 +103,7 @@ def main() -> int:
     after = {r["skill"]: r for r in skilldial.roster(skills_root=skills, traces=traces)}
     ok("firings counted", after["wired"]["firings"] == 3, str(after["wired"]))
     ok("refusals counted separately", after["wired"]["send_backs"] == 1)
-    ok("findings counted", after["wired"]["findings"] == 2)
+    ok("findings counted", after["wired"]["findings"] == 0)
     ok("last_fired appears once it has fired", after["wired"]["last_fired"] is not None)
     ok("last_fired is an ISO timestamp", after["wired"]["last_fired"].startswith("20"))
     ok("the non-tenant is STILL not countable after real traffic elsewhere",

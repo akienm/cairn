@@ -128,6 +128,7 @@ class DiagnosticBase:
         self._diagnostic_receiver = NOT_WIRED
         self._diagnostic_instance = 0
         self._held_diagnostics: list[dict] = []
+        self.debug_sink = self
 
     @property
     def diagnostic_source(self) -> str:

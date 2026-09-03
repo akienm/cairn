@@ -20,6 +20,13 @@ class CharterDevice(BaseDevice):
     def device_id(self) -> str:
         return self._device_id
 
+    def receive(self, envelope: dict) -> dict:
+        result = super().receive(envelope)
+        self.debug_sink.emit("finding_received",
+                             pointer=envelope.get("sender", "unknown"),
+                             values={"why": (envelope.get("why") or "")[:120]})
+        return result
+
     def intention(self) -> dict:
         return {
             "what": "Charter tool's bus presence — receives probe findings.",

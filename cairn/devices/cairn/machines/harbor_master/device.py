@@ -46,6 +46,10 @@ class HarborMasterDevice(BaseDevice):
         body = envelope.get("body", {})
         self._patch_fleet(body)
         self._crossings_since_reconcile += 1
+        self.debug_sink.emit("crossing_patched",
+                             pointer=body.get("ticket", ""),
+                             values={"component": body.get("component", ""),
+                                     "to": body.get("to", "")})
         return {"accepted": True, "verb": "crossing", "device": self.device_id,
                 "patched": True}
 
@@ -86,6 +90,9 @@ class HarborMasterDevice(BaseDevice):
         self._cache_at = datetime.now(timezone.utc).isoformat()
         patched = self._crossings_since_reconcile
         self._crossings_since_reconcile = 0
+        self.debug_sink.emit("reconciled",
+                             values={"fleet": self._fleet_cache.get("counts", {}),
+                                     "crossings_patched": patched})
         return {
             "fleet": self._fleet_cache.get("counts", {}),
             "cache_at": self._cache_at,

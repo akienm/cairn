@@ -279,7 +279,7 @@ def _latest_valid_answer(canonical: str, now: datetime, *, table: str, conn) -> 
 
 
 def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = CACHE,
-            conn=None, stacks: dict | None = None) -> dict:
+            conn=None, stacks: dict | None = None, sink=None) -> dict:
     """Run the inference-ticket workflow and return the answer.
 
     `resolver(request) -> {"answer": <jsonb-able>, "cost": <number>, "falsifier"?, "horizon"?,
@@ -289,6 +289,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
 
     Returns `{"answer", "hit": bool, "canonical"}`.
     """
+    sink = sink or _trail
     request, domain_name = _domain_dressed(request, stacks=stacks)
     canonical = canonicalize(request)
     own = conn or store.connect()
@@ -328,7 +329,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             # THE TRAIL: the crossing that did NOT happen. The gate is the verdict word the
             # row already uses, so the trail and the meter speak one vocabulary and can be
             # counted against each other without a translation table in between.
-            _trail.emit(
+            sink.emit(
                 "hit",
                 pointer=canonical_digest(canonical),
                 values={"domain": domain_name, "served_from": str(prior["created"])},
@@ -382,7 +383,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             # line too, and the trail's whole value is being the record that survives when
             # the store is the thing that broke.
             try:
-                _trail.emit(
+                sink.emit(
                     "refused",
                     pointer=canonical_digest(canonical),
                     values={"domain": domain_name, "refused": type(refusal).__name__,
@@ -417,7 +418,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
         # ABSENT from the record instead of present-and-null. An absent key says the resolver
         # did not report it; a null one says it reported nothing, and they are different
         # facts about the host.
-        _trail.emit(
+        sink.emit(
             "miss",
             pointer=canonical_digest(canonical),
             values={k: provenance[k] for k in _ENDPOINT_KEYS if k in provenance},

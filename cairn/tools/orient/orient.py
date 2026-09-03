@@ -192,10 +192,13 @@ def device_census(*, root: Path | None = None) -> dict:
                     isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Attribute)
                     and node.func.attr == "emit"
-                    and isinstance(node.func.value, ast.Name)
-                    and node.func.value.id == "self"
                 ):
-                    self_emit_sites += 1
+                    val = node.func.value
+                    if isinstance(val, ast.Name) and val.id == "self":
+                        self_emit_sites += 1
+                    elif (isinstance(val, ast.Attribute) and val.attr == "debug_sink"
+                          and isinstance(val.value, ast.Name) and val.value.id == "self"):
+                        self_emit_sites += 1
         verdicts = []
         for v in sorted(d.glob("validations/*.json")):
             # Measured shape (this scan's own census, 2026-07-27): every validation file in

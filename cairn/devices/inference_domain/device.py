@@ -20,6 +20,8 @@ class InferenceDomainDevice(BaseDevice):
     def __init__(self) -> None:
         super().__init__()
         self._device_id = "inference_domain"
+        from cairn.devices.inference_domain.domain import _trail
+        self.debug_sink = _trail
 
     @property
     def device_id(self) -> str:
@@ -41,7 +43,12 @@ class InferenceDomainDevice(BaseDevice):
 
         request = {k: v for k, v in body.items()
                    if k in ("kind", "prompt", "messages", "model", "domain", "options")}
-        return domain.resolve(request, resolver=resolver)
+        result = domain.resolve(request, resolver=resolver, sink=self.debug_sink)
+        self.debug_sink.emit("resolve",
+                             pointer=body.get("kind", ""),
+                             values={"hit": result.get("hit", False),
+                                     "model": model})
+        return result
 
     def _yield_view(self) -> dict:
         from cairn.devices.inference_domain import domain

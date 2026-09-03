@@ -3149,8 +3149,51 @@ def proof_record(gradation: dict, findings: list) -> list[dict]:
     return out
 
 
+_BASELINE_PATH = Path(__file__).parent / "finding_baseline.json"
+
+
+def check_baseline(findings: list[dict], *, baseline_path: Path | None = None) -> list[dict]:
+    """Compare findings against the known baseline. Returns findings NOT in the baseline."""
+    bp = baseline_path or _BASELINE_PATH
+    if not bp.exists():
+        return list(findings)
+    try:
+        baseline = json.loads(bp.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return list(findings)
+    known = {(k["method"], k["at"]) for k in baseline.get("known", [])}
+    return [f for f in findings if (f.get("method"), f.get("at")) not in known]
+
+
+def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
+    """File a trouble for each finding not in the baseline. Returns count filed."""
+    if not new_findings:
+        return 0
+    from cairn.devices.trouble.trouble import TroubleDevice
+    td = TroubleDevice()
+    filed = 0
+    for f in new_findings:
+        method = f.get("method", "unknown")
+        at = f.get("at", "unknown")
+        about = f.get("about", "")
+        td.raise_trouble(
+            f"inspector-new-finding-{method}-{at.replace('/', '-')}",
+            why=(f"build inspector finding appeared above baseline: "
+                 f"{method} at {at} ({about}). This finding has no covering "
+                 f"ticket in finding_baseline.json — it accumulated silently."),
+            detail=f,
+        )
+        filed += 1
+    return filed
+
+
 def _main(argv: list[str]) -> int:
     report = inspect(component=argv[0] if argv else None)
+    new = check_baseline(report.get("findings", []))
+    if new:
+        count = _file_troubles_for_new_findings(new)
+        report["unbaselined_findings"] = new
+        print(f"!! {count} finding(s) above baseline — trouble(s) filed", file=sys.stderr)
     print(json.dumps(report, indent=2))
     return 0 if report["gate"]["opens"] else 1
 

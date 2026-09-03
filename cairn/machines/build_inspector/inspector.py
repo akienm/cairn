@@ -55,7 +55,7 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (t
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
-from cairn.devices.builder.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
+from cairn.devices.codemonkey.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
 #   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
@@ -815,7 +815,7 @@ def charted_refs_resolve(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: 2026-07-24 — 'done' reported while the files stood unmoved (the
     sharpest claim-vs-world drift on record). The packet is the claim, the
     promotion is the moment, this sieve is the comparison — through the berth
-    gate's own ref semantics (cairn.devices.builder.machines.orient.orient.ref_exists), so the judge and
+    gate's own ref semantics (cairn.devices.codemonkey.machines.orient.orient.ref_exists), so the judge and
     the gate that admitted the refs cannot disagree.
     """
     packets, unreadable = _charted_packets(comp_dir, "orient")
@@ -2059,7 +2059,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.
 # A claimed cast ticket crossing forward into PROVED must show a verdict
-# artifact (cairn/devices/builder/machines/verdict/verdict.py — the ONE validator, shared with the deposit
+# artifact (cairn/devices/codemonkey/machines/verdict/verdict.py — the ONE validator, shared with the deposit
 # face) in which every criterion of the claiming validate berth carries a run
 # verdict with outcome pass, and every hypothesis of the chain is dispositioned
 # confirmed-or-killed with the deciding observation.
@@ -2087,7 +2087,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
     # THE ONE LATEST-CLAIMER RULE, composed (ticket the-deposit-rides-the-read):
-    # this gate's private glob loop retired into cairn.devices.builder.machines.verdict.verdict, where the
+    # this gate's private glob loop retired into cairn.devices.codemonkey.machines.verdict.verdict, where the
     # crossing's deposit-enqueue reads it too — one implementation, two mouths.
     claiming = claiming_packets(ticket, "validate", berths_root=root)
     artifacts = claiming_packets(ticket, "verdict", berths_root=root)

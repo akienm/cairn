@@ -45,7 +45,7 @@ def _proved_tickets() -> list[dict]:
 
 
 def _check_chart_chain(ticket_id: str) -> dict:
-    from cairn.devices.builder.machines.verdict.verdict import chain_for_ticket
+    from cairn.devices.codemonkey.machines.verdict.verdict import chain_for_ticket
     chain = chain_for_ticket(ticket_id)
     has_validate = False
     if chain:

@@ -1299,7 +1299,7 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
     """A cast ticket crossing forward into PROVED must have ANSWERED the chart that
     claims it — every criterion of the claiming validate berth a passing run verdict,
     every hypothesis dispositioned confirmed-or-killed, all in a durable verdict
-    artifact (cairn/devices/builder/machines/verdict/verdict.py). Returns ``(note, record)``
+    artifact (cairn/devices/codemonkey/machines/verdict/verdict.py). Returns ``(note, record)``
     — the journal's line beside the proof record it is RENDERED FROM;
     raises ``ExitGateRed`` — findings complete on the first pass — before
     anything is written.
@@ -1326,7 +1326,7 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
             f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
             "PROVED asserts done, and done is verified in the world by the instrument, "
             "never the narration. Nothing was journaled. Run the claiming validate berth's "
-            "criteria, write the verdict artifact (cairn.devices.builder.machines.verdict.verdict.write_verdict), "
+            "criteria, write the verdict artifact (cairn.devices.codemonkey.machines.verdict.verdict.write_verdict), "
             "deposit it, then cross again:\n" + "\n".join(lines))
 
     return EXIT_GATE.run(record, note=note, red_fn=_red)
@@ -1357,7 +1357,7 @@ def _enqueue_verdict(ticket: str) -> str | None:
     """
     # Lazy on purpose, same boot-order law as the gates: the cost lands only at a
     # journaled PROVED entry — an event, never a poll.
-    from cairn.devices.builder.machines.verdict.verdict import enqueue_verdict as _enqueue
+    from cairn.devices.codemonkey.machines.verdict.verdict import enqueue_verdict as _enqueue
 
     return _enqueue(ticket)
 

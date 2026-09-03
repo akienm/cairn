@@ -293,7 +293,7 @@ def import_map(path, *, root: Path | None = None) -> dict:
     Provenance: 2026-07-28 — the same red twice in one day: import-allowlist teeth
     recorded ``ast.ImportFrom.module`` verbatim, so ``from cairn.machines.chart import
     constrain`` recorded as the prefix ``cairn.machines.chart`` and was refused, though the
-    module entering is exactly ``cairn.devices.builder.machines.constrain.constrain`` — the identical module the
+    module entering is exactly ``cairn.devices.codemonkey.machines.constrain.constrain`` — the identical module the
     precise spelling admits. The teeth measured the SPELLING, not the capability;
     the fix applied twice was a respelling, treating the symptom. The corpus walk
     placed this beside the echo-label and emit-homonym scars: one family,
@@ -335,7 +335,7 @@ def import_map(path, *, root: Path | None = None) -> dict:
         "question": f"which modules actually enter {p.name}?",
         "measured": {"path": str(p), "imports": sorted(entering)},
         "provenance": "2026-07-28: allowlist teeth read the import's SPELLING, so the "
-                      "loose form 'from cairn.devices.builder.machines.constrain import constrain' recorded as its "
+                      "loose form 'from cairn.devices.codemonkey.machines.constrain import constrain' recorded as its "
                       "prefix and refused — twice in one day — though the module "
                       "entering is exactly the one the precise spelling admits. Third "
                       "member of the word-not-capability family (echo-label, "

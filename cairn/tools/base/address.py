@@ -215,7 +215,7 @@ def component_of_module(module: str) -> str | None:
     string — such a caller wants ``component_dir``, which walks.
 
     THE DEEPEST RUNG WINS, which is the same rule ``component_of`` states and for the same
-    reason: components nest, so ``cairn.devices.builder.machines.orient.orient`` sits under both
+    reason: components nest, so ``cairn.devices.codemonkey.machines.orient.orient`` sits under both
     the ``builder`` device and the ``orient`` machine. Both are true and only one is its address;
     answering with the holder would attribute a machine's records to the device that assembles it.
 
@@ -325,7 +325,7 @@ class AmbiguousComponent(LookupError):
     THE NAME IS NOT THE ADDRESS ANY MORE, and this is what says so out loud. The
     first live instance was born the day the rungs landed: ``orient`` is a TOOL
     (``cairn/tools/orient`` — the deterministic scanner) and, since the chart
-    decomposition of 2026-08-13, also a MACHINE (``cairn/devices/builder/machines/orient``
+    decomposition of 2026-08-13, also a MACHINE (``cairn/devices/codemonkey/machines/orient``
     — that scanner plus the chain glue, held by the device whose parts the pre-build
     stages are). Both are correct; the layering is the point, and the nesting makes it
     louder rather than quieter: the two homes are now three rungs apart, not one.
@@ -414,7 +414,7 @@ def component_of(path: Path | str, pkg_root: Path | str | None = None) -> Path |
 
     THE DEEPEST ANCESTOR WINS, and that is not a tie-break — it is the answer. Components
     nest (CLAUDE.md grants a device ``tools/<name>/`` and ``machines/<name>/`` at the same
-    shape), so ``cairn/devices/builder/machines/orient/orient.py`` sits under BOTH the
+    shape), so ``cairn/devices/codemonkey/machines/orient/orient.py`` sits under BOTH the
     ``builder`` device and the ``orient`` machine. Both are true statements about the file
     and only one of them is its address; the shallower one is the holder, and answering
     with the holder would attribute a machine's code to the device that assembles it.

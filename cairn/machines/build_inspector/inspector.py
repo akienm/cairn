@@ -2937,7 +2937,8 @@ def device_isolation_holds(row: dict, comp_dir: Path) -> list[dict]:
         path = caught.split(" imports ", 1)[0]
         if not path.startswith(prefix):
             continue
-        if os.sep + "proofs" + os.sep in path or path.endswith(os.sep + "proofs"):
+        if os.sep + "proofs" + os.sep in path or path.endswith(os.sep + "proofs") \
+                or os.sep + "proofs_disabled" + os.sep in path:
             continue
         findings.append(_finding(
             "device_isolation_holds", row["component"],

@@ -19,18 +19,26 @@ import sys
 from pathlib import Path
 
 from cairn.tools.tree.tree import deposit_learning
-from cairn.tools.base.bus_client import connect_bus
 
 
 QUESTIONS_FILE = Path(__file__).parent / "cognition_questions.json"
 OWNER = "codemother"
 NEXUS = "root"
 
+OLLAMA_URL = "http://hex.local:11434/api/embeddings"
+EMBED_MODEL = "nomic-embed-text"
+
 
 def _embed_fn():
-    bus = connect_bus(devices=["inference_domain"])
-    from cairn.devices.librarian.live import embed_via_bus
-    return embed_via_bus(bus)
+    import urllib.request
+    def embed(text: str):
+        data = json.dumps({"model": EMBED_MODEL, "prompt": text}).encode()
+        req = urllib.request.Request(OLLAMA_URL, data=data,
+                                    headers={"Content-Type": "application/json"})
+        resp = urllib.request.urlopen(req, timeout=30)
+        result = json.loads(resp.read())
+        return result["embedding"]
+    return embed
 
 
 def seed(*, dry_run: bool = False) -> dict:

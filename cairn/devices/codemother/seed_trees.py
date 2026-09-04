@@ -5,8 +5,8 @@ deposits it into codemother's graph tree via the librarian's deposit door.
 Idempotent: the deposit door deduplicates by content hash, so re-running
 after a corpus update deposits only the new questions.
 
-Requires the embed host (hex.local) to be running — this is a CLI command,
-not an import-time side effect.
+Requires inference_domain to be reachable via the bus (hex.local running).
+This is a CLI command, not an import-time side effect.
 
 Usage:
     PYTHONPATH=~/dev/src/cairn python3 -m cairn.devices.codemother.seed_trees
@@ -19,25 +19,25 @@ import sys
 from pathlib import Path
 
 from cairn.tools.tree.tree import deposit_learning
+from cairn.tools.base.bus_client import connect_bus
 
 
 QUESTIONS_FILE = Path(__file__).parent / "cognition_questions.json"
 OWNER = "codemother"
 NEXUS = "root"
 
-OLLAMA_URL = "http://hex.local:11434/api/embeddings"
 EMBED_MODEL = "nomic-embed-text"
+_SENDER = "codemother"
 
 
 def _embed_fn():
-    import urllib.request
+    bus = connect_bus(devices=["inference_domain"])
     def embed(text: str):
-        data = json.dumps({"model": EMBED_MODEL, "prompt": text}).encode()
-        req = urllib.request.Request(OLLAMA_URL, data=data,
-                                    headers={"Content-Type": "application/json"})
-        resp = urllib.request.urlopen(req, timeout=30)
-        result = json.loads(resp.read())
-        return result["embedding"]
+        reply = bus.request(
+            sender=_SENDER, to="inference_domain", verb="resolve",
+            why="seed_trees embed", body={"kind": "embed", "prompt": text, "model": EMBED_MODEL},
+        )
+        return reply["body"]["answer"]["vector"]
     return embed
 
 

@@ -42,8 +42,11 @@ def _bus():
 
 
 def _embed(text: str) -> list[float]:
-    from cairn.devices.librarian.live import embed_via_bus
-    return embed_via_bus(_bus())(text)
+    reply = _bus().request(
+        sender="codemother", to="inference_domain", verb="resolve",
+        why="watcher embed", body={"kind": "embed", "prompt": text, "model": "nomic-embed-text"},
+    )
+    return reply["body"]["answer"]["vector"]
 
 
 def activate(area: str, reason: str, *, context: dict | None = None) -> dict:

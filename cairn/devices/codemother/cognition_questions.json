@@ -1,0 +1,341 @@
+{
+  "role": "seed-corpus",
+  "what": "Root questions for CodeMother's trees. Three layers: Akien's cognition questions (the broad cross-domain links), the 6-Angle Novelty Matrix (graph-native operations), and coding-domain starters (depth seeds for code). Smarts come from two kinds of links: deep within a domain, and broad across domain boundaries. The cognition questions create the broad links. The coding questions seed the depth. The model handles the rest.",
+  "why": "Akien 2026-07-12: 'I have figured out novelty. I not only have the questions to ask in the face of novelty. but if those fail, I have the questions to ask to sort the questions to ask. and I can do that in a graph tree.' COGNITION QUESTIONS ARE THE COMPILER — open questions compile out, these find what the contract missed. Akien 2026-09-03: domain-specific starter questions cause the appropriate accretions of nodes.",
+  "provenance": {
+    "cognition_questions": "Recovered from UnseenUniversity era (TheIgorsProject/.claude.old/file-history). Akien verbatim 2026-07-12 (oldest batch) + 2026-07-02 cortical-columns log (pattern-selection sequence). CC.0's function/class taxonomy is PROPOSED, not Akien's.",
+    "novelty_matrix": "2026-07-14 (Novelty.txt) + 2026-07-23 (GeiniOnNovelty.md) — Akien's verbatim questions mapped to graph operations.",
+    "coding_domain": "CC-proposed 2026-09-03, directed by Akien. Boris Cherny's hat: make the illegal state unrepresentable. Approved as starting set."
+  },
+
+  "cognition_questions": [
+    {
+      "id": "Q-cog-001",
+      "question": "What does it mean to me?",
+      "function": "valence / personal stake",
+      "class": "comprehension",
+      "note": "Distinct from 'What does that mean?' — this asks for RELEVANCE and stake, not denotation."
+    },
+    {
+      "id": "Q-cog-002",
+      "question": "What does that mean?",
+      "function": "denotation / comprehension",
+      "class": "comprehension",
+      "note": "The plain semantic unpack. Pairs with, but is NOT, 'what does it mean to me'."
+    },
+    {
+      "id": "Q-cog-003",
+      "question": "How must that work? / how would that have to work?",
+      "function": "necessity / constraint derivation",
+      "class": "derivation",
+      "note": "NOT the same as 'how might that work?'. MUST reasons BACKWARD from a required outcome (constraint derivation). MIGHT reasons FORWARD into the possible (generation)."
+    },
+    {
+      "id": "Q-cog-004",
+      "question": "Which choice is most in alignment with who I'd most like to be?",
+      "function": "selection by VALUES, not utility",
+      "class": "selection",
+      "note": "The identity/telos selector. Sits INSIDE the novelty process, not outside as an ethics review — consonant with 'the core values ARE the architecture'."
+    },
+    {
+      "id": "Q-cog-005",
+      "question": "What's the first thing i say in repsonse to that?",
+      "function": "tacit-knowledge probe",
+      "class": "intuition",
+      "note": "VERBATIM including the typo. Captures the UNEDITED first response before reasoning launders it — a probe of the model you have but cannot yet articulate."
+    },
+    {
+      "id": "Q-cog-006",
+      "question": "What looks like it would fit there?",
+      "function": "analogical retrieval / pattern match",
+      "class": "retrieval",
+      "note": "This IS the graph-tree lookup, in meatware: what pattern activates for this shape?"
+    },
+    {
+      "id": "Q-cog-007",
+      "question": "How could we get around that?",
+      "function": "obstacle circumvention",
+      "class": "generation-under-constraint",
+      "note": "Generative, but bounded by a blocker — distinct from open generation."
+    },
+    {
+      "id": "Q-cog-008",
+      "question": "Where is the lever?",
+      "function": "leverage / minimum effort, maximum effect",
+      "class": "efficiency",
+      "note": "Already load-bearing vocabulary in this project."
+    },
+    {
+      "id": "Q-cog-009",
+      "question": "How will us monkeys screw that up such that i get support questions?",
+      "function": "failure anticipation / human factors",
+      "class": "failure-mode",
+      "note": "THE ONLY QUESTION FRAMED FROM AN EXTERNAL ACTOR'S VIEW. The IT-division bar in question form — maintainability/operability check at design time."
+    },
+    {
+      "id": "Q-cog-010",
+      "question": "which of these patterns would be best for this?",
+      "function": "selection among retrieved candidates",
+      "class": "selection",
+      "note": "Step 1 of a 4-step sequence from the 2026-07-02 cortical-columns log."
+    },
+    {
+      "id": "Q-cog-011",
+      "question": "does that leave any gaps?",
+      "function": "THE MISS DETECTOR",
+      "class": "gap-detection",
+      "note": "THE LOAD-BEARING ONE. CP1 ('I don't know') operationalized as a THINKING MOVE. Fires BEFORE committing to an answer. The organ the compiled-inference thesis requires — a teach-on-miss graph that cannot detect a miss compiles the lie in permanently."
+    },
+    {
+      "id": "Q-cog-012",
+      "question": "are there any patterns that could be trimmed to fit into that gap?",
+      "function": "adaptation / reshaping a near-match",
+      "class": "adaptation",
+      "note": "Fires ON a detected gap: don't invent from scratch, ADAPT the nearest pattern."
+    },
+    {
+      "id": "Q-cog-013",
+      "question": "how might that work?",
+      "function": "generation / possibility",
+      "class": "generation",
+      "note": "AKIEN'S NUMBER ONE (his words, 2026-07-12). Forward, generative, exploratory. The counterpart to 'how MUST that work?'."
+    }
+  ],
+
+  "novelty_matrix": {
+    "provenance": "Akien 2026-07-14 (verbatim) + 2026-07-23 (GeiniOnNovelty.md, 6-Angle formalization). Questions mapped to graph operations.",
+    "from_2026_07_14": [
+      {
+        "id": "Q-nov-001",
+        "question": "What need is that serving?",
+        "function": "functional analysis",
+        "note": "Paired with 'how might that work?' IN THE SAME BREATH (2026-07-14)."
+      },
+      {
+        "id": "Q-nov-002",
+        "question": "Can I get inside of it?",
+        "function": "internal model construction",
+        "note": "Forces simulation of internal dynamics."
+      },
+      {
+        "id": "Q-nov-003",
+        "question": "Can I see any experiments to perform to learn more?",
+        "function": "hypothesis generation",
+        "note": "Forces generation of tests and probes."
+      }
+    ],
+    "six_angle_additions": [
+      {
+        "id": "Q-nov-004",
+        "angle": 1,
+        "question": "How close is this to things I already know?",
+        "function": "proximity / isomorphic match",
+        "graph_op": "isomorphic subgraph search across domains"
+      },
+      {
+        "id": "Q-nov-005",
+        "angle": 1,
+        "question": "What properties are in common?",
+        "function": "shared-structure extraction",
+        "graph_op": "edge-relationship comparison"
+      },
+      {
+        "id": "Q-nov-006",
+        "angle": 3,
+        "question": "What questions could I ask that I don't have prepared that would increase my understanding?",
+        "function": "meta-question generation",
+        "graph_op": "dynamic edge testing — generate micro-experiments"
+      },
+      {
+        "id": "Q-nov-007",
+        "angle": 3,
+        "question": "How can I test for 'understandable closeness'?",
+        "function": "proximity probing",
+        "graph_op": "sandbox validation against CON/PRO gates"
+      },
+      {
+        "id": "Q-nov-008",
+        "angle": 4,
+        "question": "What is the exact opposite of this behavior, and do we know how to handle that?",
+        "function": "inversion / boundary testing",
+        "graph_op": "constraint vector inversion"
+      },
+      {
+        "id": "Q-nov-009",
+        "angle": 4,
+        "question": "What is the minimum condition required for this to fail completely?",
+        "function": "fragility detection",
+        "graph_op": "minimum-cut search on constraint graph"
+      },
+      {
+        "id": "Q-nov-010",
+        "angle": 4,
+        "question": "If we assume this novel behavior is a feature, what goal is it accomplishing?",
+        "function": "reframe as intent",
+        "graph_op": "re-evaluate error payloads as intent payloads"
+      },
+      {
+        "id": "Q-nov-011",
+        "angle": 5,
+        "question": "What changed immediately before this novel state appeared?",
+        "function": "temporal delta isolation",
+        "graph_op": "trace back along recent cycle history"
+      },
+      {
+        "id": "Q-nov-012",
+        "angle": 5,
+        "question": "Has this shape of novelty appeared during a similar deployment or state transition in the past?",
+        "function": "historical pattern match",
+        "graph_op": "search nodes_archive for state-shift patterns"
+      },
+      {
+        "id": "Q-nov-013",
+        "angle": 6,
+        "question": "How would a different specialized role view this?",
+        "function": "perspective shift / multi-role",
+        "graph_op": "re-parent under different execution branch"
+      },
+      {
+        "id": "Q-nov-014",
+        "angle": 6,
+        "question": "What is the simplest way to explain this to another Igor on the Discord bus?",
+        "function": "compression for peer communication",
+        "graph_op": "hash intention+constraints for peer graph patch"
+      }
+    ]
+  },
+
+  "coding_domain": {
+    "provenance": "CC-proposed 2026-09-03, directed by Akien. These seed depth within the coding domain. Boris Cherny's hat (14-16): make the illegal state unrepresentable.",
+    "questions": [
+      {
+        "id": "Q-code-001",
+        "question": "What is this code's single job, and does every line serve it?",
+        "function": "intention clarity / scope creep detection",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-002",
+        "question": "What would break if this disappeared?",
+        "function": "load-bearing vs ceremony",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-003",
+        "question": "What does this code assume is true that it doesn't check?",
+        "function": "hidden assumption / implicit contract",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-004",
+        "question": "What is the contract between this and its callers, and where is it written down?",
+        "function": "interface clarity / contract location",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-005",
+        "question": "What state does this carry between calls, and who else can see it?",
+        "function": "state visibility / encapsulation",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-006",
+        "question": "What happens to this when the thing it depends on changes shape?",
+        "function": "coupling / fragility under change",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-007",
+        "question": "What would a test that could actually fail look like?",
+        "function": "non-hollow proof (Law 8 turned on code)",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-008",
+        "question": "If this is wrong, how long before someone notices?",
+        "function": "feedback loop / blast radius",
+        "link_type": "broad",
+        "broad_link": "code → operations → monitoring"
+      },
+      {
+        "id": "Q-code-009",
+        "question": "What does this code do that the name doesn't tell you?",
+        "function": "naming honesty / surprise detection",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-010",
+        "question": "Where does the same decision get made twice?",
+        "function": "decision duplication (not line duplication)",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-011",
+        "question": "What measurement would tell us this is doing its job in production?",
+        "function": "observability / Law 3 turned on code",
+        "link_type": "broad",
+        "broad_link": "code → operations → observability"
+      },
+      {
+        "id": "Q-code-012",
+        "question": "What pattern from a completely different domain would solve this more simply?",
+        "function": "cross-domain lever",
+        "link_type": "broad",
+        "broad_link": "code → any other domain"
+      },
+      {
+        "id": "Q-code-013",
+        "question": "Who is the next person to touch this, and what will they misunderstand?",
+        "function": "human factors for code (parallel to Q-cog-009)",
+        "link_type": "broad",
+        "broad_link": "code → human factors → maintenance"
+      },
+      {
+        "id": "Q-code-014",
+        "question": "What illegal state does this code allow that the structure could prevent?",
+        "function": "structural enforcement (Boris Cherny: make the illegal state unrepresentable)",
+        "link_type": "depth",
+        "note": "Law 4 turned on code — if it matters, make it physics."
+      },
+      {
+        "id": "Q-code-015",
+        "question": "What runtime check here is doing a job the types or the schema should do?",
+        "function": "push enforcement earlier (Cherny: detect at compile, not at crash)",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-016",
+        "question": "What valid input to this function would produce nonsense?",
+        "function": "type hole — the shape permits what the intention forbids",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-017",
+        "question": "What happens when two of these run at the same time?",
+        "function": "concurrency / time",
+        "link_type": "broad",
+        "broad_link": "code → distributed systems → race conditions"
+      },
+      {
+        "id": "Q-code-018",
+        "question": "What does this code's error message actually tell the person who sees it?",
+        "function": "error path quality (Law 7: errors loud at diagnostic surfaces)",
+        "link_type": "broad",
+        "broad_link": "code → operations → diagnostics"
+      },
+      {
+        "id": "Q-code-019",
+        "question": "What resource does this code hold, and what happens if it's never released?",
+        "function": "resource lifecycle / leak detection",
+        "link_type": "depth"
+      },
+      {
+        "id": "Q-code-020",
+        "question": "What input to this code comes from outside the trust boundary?",
+        "function": "trust boundary / security surface",
+        "link_type": "broad",
+        "broad_link": "code → security → input validation"
+      }
+    ]
+  }
+}

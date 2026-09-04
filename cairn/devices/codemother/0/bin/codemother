@@ -42,6 +42,23 @@ if result['errors']:
     sys.exit(1)
 " "$@"
     ;;
+  show)
+    what="${1:-}"
+    shift 2>/dev/null || true
+    case "$what" in
+      dashboard)
+        exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.dashboard import format_dashboard
+print(format_dashboard())
+" "$@"
+        ;;
+      *)
+        echo "usage: cairn codemother show dashboard" >&2
+        exit 1
+        ;;
+    esac
+    ;;
   *)
     exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
@@ -55,6 +72,7 @@ print('commands:')
 print('  cairn codemother watch <area> [reason]  — fire spreading activation')
 print('  cairn codemother question <question>     — ask about an area')
 print('  cairn codemother seed [--dry-run]        — plant cognition questions into trees')
+print('  cairn codemother show dashboard          — full coding system view')
 " "$@"
     ;;
 esac

@@ -33,7 +33,7 @@ INTENTIONS_DIR = Path(os.environ.get(
 ADJUDICATIONS_DIR = Path(os.environ.get(
     "CAIRN_ADJUDICATIONS_DIR", COMMONS_ROOT / "adjudications"))
 
-TERMINAL_STATES = {"PROVED", "SUPERSEDED", "RETIRED", "KILLED", "ABSORBED"}
+from cairn.tools.base.transitions import TERMINAL_STATES
 
 SECTION_ORDER = [
     "troubles",
@@ -424,22 +424,33 @@ def format_inbox(data: dict) -> str:
             lines.append(f"    {t}")
         lines.append("")
 
-    # TICKETS (all CC work — summary by state)
+    # TICKETS (priority order: design → PROVEME → BUILDME; WATCHMEs omitted)
+    _TICKET_PRIORITY = [
+        "THINKME", "TICKETME", "TICKETME:waiting",
+        "PROVEME", "PROVEME:waiting",
+        "BUILDME", "BUILDME:waiting",
+    ]
     lines.append("")
     state_parts = []
-    for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
+    watchme_count = 0
+    shown_keys: set[str] = set()
+    for s in _TICKET_PRIORITY:
         bucket = by_state.get(s, [])
         if bucket:
             state_parts.append(f"{s} ({len(bucket)})")
-    waiting = {k: v for k, v in by_state.items()
-               if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME") and v}
-    for k, v in sorted(waiting.items()):
-        state_parts.append(f"{k} ({len(v)})")
+            shown_keys.add(s)
+    for k, v in sorted(by_state.items()):
+        if k in shown_keys:
+            continue
+        if k.startswith("WATCHME"):
+            watchme_count += len(v)
+            continue
+        if v:
+            state_parts.append(f"{k} ({len(v)})")
+    if watchme_count:
+        state_parts.append(f"WATCHME ({watchme_count})")
     lines.append(f"  TICKETS ({tickets['total_not_done']} not done): "
                  + " | ".join(state_parts))
-
-    # INTENTIONS
-    lines.append(f"  INTENTIONS: {intentions['count']} in intentions-not-beside-code (settled design documents)")
 
     # IDEAS
     lines.append("")

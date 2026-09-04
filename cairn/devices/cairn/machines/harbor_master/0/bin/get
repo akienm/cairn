@@ -18,8 +18,9 @@ exec python3 -c "
 import json, sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
 dev = HarborMasterDevice()
+args = sys.argv[2:] if len(sys.argv) > 2 else []
 envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',
-            'verb': 'get', 'body': {'what': sys.argv[1]}}
+            'verb': 'get', 'body': {'what': sys.argv[1], 'args': args}}
 result = dev._handle_get(envelope)
 print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
 " "$view" "$@"

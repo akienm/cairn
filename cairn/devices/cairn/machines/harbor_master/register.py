@@ -49,9 +49,10 @@ _SRC_ROOT = _REPO_ROOT.parent                        # ~/dev/src — the common 
 _DEFAULT_TICKETS = _SRC_ROOT / "CairnCommons" / "tickets"
 
 # The cursor marker in a ticket's ``state`` string is the bracketed [STAGE], e.g.
-# "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> ...". Prose states ("building")
-# carry no bracket and are taken verbatim — we report what the boat says, never invent one.
-_CURSOR_RE = re.compile(r"\[([A-Z_]+)\]")
+# "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> ...". Sub-states like
+# [TICKETME:waiting] and [WATCHME(probe-name):waiting] are valid cursors.
+# Prose states ("building") carry no bracket and are taken verbatim.
+_CURSOR_RE = re.compile(r"\[([^\]]+)\]")
 
 
 def _rel(path: Path) -> str:
@@ -121,6 +122,8 @@ def _open_boats(tickets_dir: Path) -> list[dict]:
             "berth": "open",
             "standing": cursor,
             "node_class": d.get("node_class"),
+            "title": d.get("title", ""),
+            "date": d.get("date", d.get("cast", "")),
             "source": _rel(t),
         })
     return boats

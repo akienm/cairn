@@ -465,6 +465,17 @@ def emit_migrated(workflow_str: str, target: str, *, watch: str | None = None, *
     return emit(migrated, target, migrated_from=workflow_str, **kw)
 
 
+TERMINAL_STATES: frozenset[str] = frozenset({
+    "PROVED", "SUPERSEDED", "RETIRED", "DROPPED", "KILLED", "ABSORBED",
+})
+
+
+def is_terminal(state: str) -> bool:
+    """A terminal state is one where no further work is expected — PROVED (the successful
+    rest) plus every disposition exit the corpus has used."""
+    return state in TERMINAL_STATES
+
+
 def is_summons(state: str) -> bool:
     """The grammar: a state that ends in ``-ME`` is a SUMMONS (demands a peer); else a rest."""
     return state.endswith("ME")

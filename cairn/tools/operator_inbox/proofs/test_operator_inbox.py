@@ -57,6 +57,8 @@ def test_tickets_match_independent_read():
     independent_count = 0
     if TICKETS_DIR.exists():
         for p in TICKETS_DIR.glob("*.json"):
+            if p.name.startswith("_"):
+                continue
             try:
                 t = json.loads(p.read_text())
             except (json.JSONDecodeError, OSError):

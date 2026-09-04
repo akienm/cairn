@@ -20,6 +20,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from cairn.tools.base.device import BaseDevice
+from cairn.tools.base.transitions import TERMINAL_STATES
 
 
 class HarborMasterDevice(BaseDevice):
@@ -105,48 +106,115 @@ class HarborMasterDevice(BaseDevice):
             self.reconcile()
         return self._fleet_cache
 
+    @classmethod
+    def _filter_fleet(cls, fleet: dict, filter_name: str | None) -> dict:
+        """Apply a named filter to fleet data. 'open' strips terminal-state boats."""
+        if filter_name != "open":
+            return fleet
+        keep = lambda b: cls._standing_base(b.get("standing", "")) not in TERMINAL_STATES
+        open_ = [b for b in fleet.get("open", []) if keep(b)]
+        in_port = [b for b in fleet.get("in_port", []) if keep(b)]
+        return {
+            "open": open_,
+            "in_port": in_port,
+            "fleet": open_ + in_port,
+            "counts": {"open": len(open_), "in_port": len(in_port),
+                       "fleet": len(open_) + len(in_port)},
+        }
+
+    def _handle_get(self, envelope: dict) -> dict:
+        result = super()._handle_get(envelope)
+        if result.get("accepted"):
+            filt = (envelope.get("body", {}).get("args") or [None])[0]
+            result["data"] = self._filter_fleet(result["data"], filt)
+        return result
+
+    def _handle_show(self, envelope: dict) -> dict:
+        what = envelope.get("body", {}).get("what", "")
+        views = self.declared_views()
+        view_fn = views.get(what)
+        if view_fn is None:
+            return {"accepted": False, "verb": "show", "device": self.device_id,
+                    "reason": f"no view {what!r}",
+                    "available": sorted(views)}
+        data = view_fn()
+        filt = (envelope.get("body", {}).get("args") or [None])[0]
+        data = self._filter_fleet(data, filt)
+        text = self._render_view(what, data)
+        return {"accepted": True, "verb": "show", "view": what,
+                "device": self.device_id, "text": text, "data": data}
+
     def _render_view(self, name: str, data: dict) -> str:
         if name == "map":
             return self._render_fleet_map(data)
         return super()._render_view(name, data)
 
-    _WORKFLOW_ORDER = [
-        "IDEA", "THINKME", "TICKETME", "SORTEDME", "BUILDME",
-        "PROVEME", "WATCHME", "PROVED", "SUPERSEDED", "ABSORBED",
+    _PRIORITY_ORDER = [
+        "THINKME", "TICKETME", "SORTEDME",
+        "PROVEME",
+        "BUILDME",
+        "WATCHME",
+        "PROVED", "SUPERSEDED", "RETIRED", "DROPPED", "KILLED", "ABSORBED",
     ]
 
     @classmethod
+    def _standing_short(cls, standing: str) -> str:
+        """A display-width standing: WATCHME(probe-name):waiting → WATCHME:waiting,
+        prose 'PROVED — long description' → PROVED."""
+        if not standing:
+            return "?"
+        token = standing.split()[0].rstrip(":")
+        base = token.split("(")[0].split(":")[0]
+        if ":waiting" in token:
+            return f"{base}:waiting"
+        return base
+
+    @classmethod
+    def _standing_base(cls, standing: str) -> str:
+        """The root stage only — WATCHME(foo):waiting → WATCHME."""
+        return cls._standing_short(standing).split(":")[0]
+
+    @classmethod
     def _standing_sort_key(cls, boat: dict) -> tuple:
-        """Extract the active stage from a standing string and return a sort key
-        in workflow order. Earlier stages sort first; PROVED and terminal states last."""
-        standing = boat.get("standing", "")
-        import re
-        bracketed = re.search(r"\[([A-Z_]+)", standing)
-        if bracketed:
-            active = bracketed.group(1)
-        else:
-            active = standing.split()[0].rstrip(":") if standing else ""
-        active_base = active.split(":")[0]
+        base = cls._standing_base(boat.get("standing", ""))
+        is_waiting = ":waiting" in (boat.get("standing") or "")
         try:
-            rank = cls._WORKFLOW_ORDER.index(active_base)
+            rank = cls._PRIORITY_ORDER.index(base)
         except ValueError:
-            rank = len(cls._WORKFLOW_ORDER)
-        return (rank, boat.get("id", ""))
+            rank = len(cls._PRIORITY_ORDER)
+        return (rank, is_waiting, boat.get("date", ""), boat.get("id", ""))
+
+    @staticmethod
+    def _format_boat(b: dict) -> str:
+        date = (b.get("date") or "")[:10]
+        standing = HarborMasterDevice._standing_short(b.get("standing", "?"))
+        hex_id = b.get("id", "?")[:12]
+        title = b.get("title", "")
+        return f"  {date:<12s}{standing:<20s}{hex_id:<14s}{title}"
 
     def _render_fleet_map(self, fleet: dict) -> str:
         counts = fleet.get("counts", {})
         lines = [f"Fleet: {counts.get('fleet', 0)} boats "
                  f"({counts.get('open', 0)} open, {counts.get('in_port', 0)} in port)"]
-        open_boats = sorted(fleet.get("open", []), key=self._standing_sort_key)
-        if open_boats:
-            lines.append("\nOpen:")
-            for b in open_boats:
-                lines.append(f"  {b['id']:<40s} {b.get('standing', '?')}")
-        in_port = sorted(fleet.get("in_port", []), key=self._standing_sort_key)
-        if in_port:
-            lines.append("\nIn port:")
-            for b in in_port:
-                lines.append(f"  {b['id']:<40s} {b.get('standing', '?')}")
+        all_boats = sorted(
+            fleet.get("open", []) + fleet.get("in_port", []),
+            key=self._standing_sort_key)
+        if not all_boats:
+            lines.append("\n  (no boats)")
+            return "\n".join(lines)
+        current_group = None
+        for b in all_boats:
+            standing = b.get("standing", "?")
+            base = self._standing_base(standing)
+            is_waiting = ":waiting" in standing
+            group = f"{base}:waiting" if is_waiting else base
+            if group != current_group:
+                current_group = group
+                group_boats = [x for x in all_boats
+                               if self._standing_base(x.get("standing", "")) == base
+                               and (":waiting" in (x.get("standing") or "")) == is_waiting]
+                lines.append(f"\n{group} ({len(group_boats)}):")
+            lines.append(self._format_boat(b))
         if self._cache_at:
             lines.append(f"\nCached at: {self._cache_at}")
         return "\n".join(lines)

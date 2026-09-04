@@ -25,8 +25,9 @@ exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
 dev = HarborMasterDevice()
+args = sys.argv[2:] if len(sys.argv) > 2 else []
 envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',
-            'verb': 'show', 'body': {'what': sys.argv[1]}}
+            'verb': 'show', 'body': {'what': sys.argv[1], 'args': args}}
 result = dev._handle_show(envelope)
 if result.get('accepted'):
     print(result['text'])

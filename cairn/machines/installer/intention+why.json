@@ -1,0 +1,17 @@
+{
+  "component": "installer",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "THE INSTALLER as a PROJECTION over host-seam intentions: walks CairnCommons/intentions-not-beside-code/ for node_class: host-seam nodes, reads their declared {apply, verify}, runs verify-first (idempotent — a seam whose verify already passes is skipped), offers each applicable one to the operator via Y/N gate, presents the apply steps, re-verifies after apply, and reports RED on failure (Law 7). The offered set is DERIVED from the corpus, so a seam added to a charter appears with no installer edit — hand-listing is the Law 1 breach this exists to kill. ask_user.sh is the dumb gate: it forks on Y/N and owns nothing it runs (Law 6). The CLI face is `cairn install` at bin/cmd/install.",
+  "why": "The other half of the bare-machine SEED CLAIM (CLAUDE.md roots table: carry intentions-congruency-lab/ to a bare machine and regrow the system). The intentions-model-compiler regrows the CODE; this readies the MACHINE — and the compiler supplies the source list (it embeds each host-seam's apply/verify into _model.json). Founding intention: get Akien out of running the system — the box sets itself up, nobody remembering which hooks to wire.",
+  "invoke": "`cairn install` (interactive — offers each applicable seam via Y/N), `cairn install --dry-run` (lists applicable seams without applying), `python3 -m cairn.machines.installer.installer --intentions-dir <path>` (override corpus). Import: `from cairn.machines.installer.installer import install, gather_host_seams, run_verify`.",
+  "node_class": "machine",
+  "learns": "Not yet — it reads the corpus fresh each time and has no memory of past runs. When install logs exist (which runs applied which seams, which verifications failed), the learning is 'which seams drift' — but that is the re-verify horizon's job (each host-seam declares its own), not a pattern the installer discovers.",
+  "gated_by": ["CC"],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-authored",
+    "why": "cc-read"
+  }
+}

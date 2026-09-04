@@ -1,0 +1,33 @@
+{
+  "component": "instanceizer",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The minimum bridge between class-space and instance-space for non-device components. A JSON declaration at ~/.cairn/folders/<name>/instanceizer.json names a tool class, its config, and its data path; load() imports and instantiates it; ensure() provisions the declaration if absent. The bus uses this as its fallback delivery path: a non-device addressee with an instanceizer gets mail delivered to its DataRecorder.",
+  "why": "A component that is not a device, machine, or tool — a 'folder' — may still need runtime state in instance-space. Without a bridge, the only options are hand-wiring each folder into the bus or giving it a device shim it does not need. The instanceizer dissolves both: a three-field JSON declaration is the entire wiring, and the bus's _try_folder_delivery reads it generically. First tenant: press_office, provisioned 2026-09-03.",
+  "invoke": "import: `from cairn.tools.instanceizer.instanceizer import load, ensure`. load(folder_path) reads the declaration and returns the instantiated tool. ensure(folder_path, tool_class=, data_path=, config=) writes the declaration if absent. No CLI verb — consumed by the bus.",
+  "node_class": "tool",
+  "entry": "FRESH build 2026-09-03, out of the bus fallback delivery need. Nothing grafted. Composed over DataRecorder (the tool class the declaration names) and address.folder_path (the instance-space root it reads from).",
+  "state_and_history": "A tool has no state of its own (Law 6). The declarations it reads and writes live in instance-space (~/.cairn/folders/<name>/), owned by the holder that assembled them.",
+  "how_it_learns": "It doesn't. It is a bridge — the shape of the declaration is fixed, and what sits on either end (the tool class, the data path) is the holder's choice. A new tool class is learned by the holder, not by the bridge.",
+  "filed_edges": [],
+  "gates": "proof gate — proofs/test_instanceizer.py, run by the tester. Durability gate: committed + pushed.",
+  "falsifier": "RED on any of: (1) load() with a missing declaration silently returns None instead of raising — the absence that routes mail into nothing; (2) load() with an unresolvable tool_class silently swallows the error — a declaration that names a class nobody can import; (3) ensure() overwrites an existing declaration — a second provision that silently replaces the holder's config; (4) ensure() with an empty tool_class writes a declaration that load() cannot resolve — a write door that accepts what the read door refuses.",
+  "proof": "proofs/test_instanceizer.py — load raises on missing declaration; load instantiates the declared class with its config; ensure provisions once and does not overwrite; _import_class refuses a bare name. Green: `python3 cairn/tools/instanceizer/proofs/test_instanceizer.py`.",
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). CC writes the code and proofs.",
+  "feedback": {
+    "to": "cairn/machines/build_inspector",
+    "why": "A build defect in the bridge — a declaration shape that load() cannot resolve — is an inspector finding, not a runtime error. The inspector is the gate that should have refused the crossing."
+  },
+  "learns": "No; it is a bridge — the shape of the declaration is fixed, and what sits on either end is the holder's choice.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  },
+  "gated_by": ["CC"],
+  "traces_to": [
+    "Law 6 (the holder gates writes to instance-space state — the instanceizer bridges to that space, the holder's data path is the holder's to own)",
+    "Law 1 (the bus delivery path is settled: a folder with an instanceizer gets mail without re-deriving how)"
+  ]
+}

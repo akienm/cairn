@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_instanceizer.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-04T10:15:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  load_missing_raises\n  PASS  load_instantiates_class\n  PASS  config_forwarded\n  PASS  data_path_sets_base_dir\n  PASS  ensure_creates\n  PASS  ensure_no_overwrite\n  PASS  bare_name_refused\n  PASS  unresolvable_class_raises\n\n8 checks · 8 green · 0 red",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "e4112b237db64497fe29eb4cec6dd5e0b48fc2a35c0c1876a1ed0b587748b9f0",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-nx_8ybze/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

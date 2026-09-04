@@ -28,10 +28,13 @@ import asyncio
 import sys
 from pathlib import Path
 
+import json
+
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.routing import Route
+from starlette.routing import Route, WebSocketRoute
+from starlette.websockets import WebSocket
 import uvicorn
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -57,8 +60,32 @@ async def _handle_post(request: Request) -> Response:
     return Response(body, status_code=status, media_type=content_type)
 
 
+_ws_clients: set[WebSocket] = set()
+
+
+async def _handle_ws_troubles(websocket: WebSocket) -> None:
+    await websocket.accept()
+    _ws_clients.add(websocket)
+    try:
+        from cairn.devices.trouble.trouble import TroubleDevice
+        td = TroubleDevice()
+        troubles = td.live()
+        await websocket.send_json([
+            {"id": t.get("id", "?"), "standing": t.get("standing", "?"),
+             "why": t.get("why", ""), "count": t.get("count", 0)}
+            for t in troubles
+        ])
+        while True:
+            await websocket.receive_text()
+    except Exception:
+        pass
+    finally:
+        _ws_clients.discard(websocket)
+
+
 def _make_app() -> Starlette:
     routes = [
+        WebSocketRoute("/ws/troubles", _handle_ws_troubles),
         Route("/{path:path}", _handle_get, methods=["GET"]),
         Route("/{path:path}", _handle_post, methods=["POST"]),
     ]

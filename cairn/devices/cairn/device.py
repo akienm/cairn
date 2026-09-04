@@ -8,6 +8,7 @@ DataRecorder for later evaluation.
 from __future__ import annotations
 
 from cairn.tools.base.device import BaseDevice
+from cairn.devices.trouble.trouble import TroubleDevice
 
 
 class CairnDevice(BaseDevice):
@@ -15,6 +16,7 @@ class CairnDevice(BaseDevice):
     def __init__(self) -> None:
         super().__init__()
         self._device_id = "cairn"
+        self._trouble = TroubleDevice()
 
     @property
     def device_id(self) -> str:
@@ -33,3 +35,25 @@ class CairnDevice(BaseDevice):
 
     def settings(self) -> dict:
         return {}
+
+    def declared_panes(self) -> list[dict]:
+        return [
+            {
+                "kind": "trouble",
+                "label": "troubles",
+                "handler": self._trouble_pane_data,
+            },
+        ]
+
+    def _trouble_pane_data(self) -> list[dict]:
+        return [
+            {
+                "id": t.get("id", "?"),
+                "standing": t.get("standing", "?"),
+                "why": t.get("why", ""),
+                "count": t.get("count", 0),
+                "first_seen": t.get("first_seen", ""),
+                "last_seen": t.get("last_seen", ""),
+            }
+            for t in self._trouble.live()
+        ]

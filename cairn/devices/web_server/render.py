@@ -239,12 +239,47 @@ def _render_scalar(data) -> str:
     return f'<span class="scalar">{_esc(data)}</span>'
 
 
+def _render_trouble(data) -> str:
+    """Two-sided trouble layout: list left, detail right, red light at top."""
+    if not isinstance(data, list):
+        return f'<pre>{_esc(data)}</pre>'
+    live = [t for t in data if isinstance(t, dict) and t.get("standing") != "CLEARED"]
+    light_color = "#d33" if live else "#998"
+    light = (f'<span class="red-light" style="display:inline-block;width:.8rem;height:.8rem;'
+             f'border-radius:50%;background:{light_color};vertical-align:middle;margin-right:.4rem;">'
+             f'</span>')
+    header = f'{light}<strong>{_esc(len(live))}</strong> live trouble{"" if len(live) == 1 else "s"}'
+    rows = ""
+    for t in data:
+        if not isinstance(t, dict):
+            continue
+        tid = _esc(t.get("id", "?"))
+        standing = _esc(t.get("standing", "?"))
+        why = _esc(t.get("why", ""))
+        count = _esc(t.get("count", ""))
+        first = _esc(t.get("first_seen", ""))
+        last = _esc(t.get("last_seen", ""))
+        rows += (f'<tr data-id="{tid}">'
+                 f'<td>{tid}</td><td>{standing}</td><td>{count}</td>'
+                 f'<td class="trouble-why">{why}</td>'
+                 f'<td>{first}</td><td>{last}</td></tr>')
+    table_html = (
+        '<table class="trouble-list"><thead><tr>'
+        '<th>id</th><th>standing</th><th>count</th><th>why</th>'
+        '<th>first seen</th><th>last seen</th>'
+        '</tr></thead><tbody>' + rows + '</tbody></table>')
+    detail_html = '<div class="trouble-detail"><p class="trouble-detail-hint">Select a trouble from the list.</p></div>'
+    return (f'<div class="trouble-panel"><p class="trouble-header">{header}</p>'
+            f'<div class="trouble-split">{table_html}{detail_html}</div></div>')
+
+
 _VIEW_DISPATCH: dict[str, object] = {
     "record": _render_record,
     "table": _render_table,
     "sequence": _render_sequence,
     "tree": _render_tree,
     "scalar": _render_scalar,
+    "trouble": _render_trouble,
     "chat": None,
 }
 
@@ -375,6 +410,13 @@ nav a.dev.harbor { border-color: #a86; }
                         font-family: ui-monospace, monospace; font-size: .85rem; }
 .pane.chat .depth { opacity: .6; font-size: .85rem; margin: .2rem 0; }
 .refused { color: #b55; margin: .3rem 0; }
+.trouble-panel .trouble-header { margin: .3rem 0 .8rem; }
+.trouble-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 50rem) { .trouble-split { grid-template-columns: 1fr; } }
+.trouble-list { font-size: .85rem; }
+.trouble-list .trouble-why { max-width: 20rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trouble-detail { border: 1px solid #8884; border-radius: .5rem; padding: .6rem .9rem; min-height: 8rem; }
+.trouble-detail-hint { opacity: .6; font-style: italic; }
 .pane dl.record { margin: .3rem 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem .8rem; }
 .pane dl.record dt { font-weight: 600; opacity: .8; }
 .pane dl.record dd { margin: 0; }

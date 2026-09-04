@@ -12,7 +12,20 @@ varies; a skill-step fires).
 
 The charter lives beside this file in `intention+why.json`.
 
-ARGUMENTS: the request being built.
+ARGUMENTS: the request being built. When the argument is a ticket id (hex),
+load the ticket first (step 0a below) — the ticket's fields are the request.
+
+## 0a. Load the ticket — through the one door
+
+When ARGUMENTS carries a ticket id (hex), **run this first, before charting**:
+
+```bash
+cairn operator show artifact <id>
+```
+
+This loads the ticket through the artifact surface — the one that already exists
+for this purpose. Do not search for the ticket file with grep/find; the command
+resolves it. The output is the briefing the chart and the build work from.
 
 ## 0. Chart it — /sail RUNS /chart; it no longer requires one
 

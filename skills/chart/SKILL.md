@@ -18,6 +18,22 @@ file. There is no separate device charter: the chart machine dissolved on 2026-0
 its charter moved here whole; the stages are machines held by the builder device.
 
 ARGUMENTS: the request to chart (the `<something>` of `/chart <something>`).
+When the argument is a ticket id (hex), load the ticket first (step 0 below) —
+the ticket's fields are the request.
+
+## Stage 0 — LOAD THE TICKET (when the argument is a hex id)
+
+When ARGUMENTS looks like a ticket id (hex string), **run this first, before
+orienting**:
+
+```bash
+cairn operator show artifact <id>
+```
+
+This loads the ticket through the artifact surface — the one that already exists
+for this purpose. Do not search for the ticket file with grep/find; the command
+resolves it. The output is the briefing the orient stage works from. If the
+argument is a natural-language request (not a hex id), skip this step.
 
 ## Stage 1 — ORIENT
 

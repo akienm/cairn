@@ -1,8 +1,8 @@
-"""Proofs for the watcher face — codemother/watch.py.
+"""Proofs for the watcher face — codemother/watch.py and groundloop/pulse.py.
 
-Tests the core activation logic, file-to-area mapping, and the
-escalation path. Does NOT test live inference (that would need the
-embed host up) — tests the shapes and plumbing.
+Tests the core activation logic, file-to-area mapping, the commit-detection
+pulse, and the liveness probe. Does NOT test live inference (that would need
+the embed host up) — tests the shapes and plumbing.
 """
 
 from __future__ import annotations
@@ -147,3 +147,93 @@ class TestOnQuestion:
             mock_activate.assert_called_once()
             call_args = mock_activate.call_args
             assert call_args[0][0] == "cairn/devices/cairn/machines/bus"
+
+
+class TestPulse:
+
+    def test_seeds_on_first_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            state_dir = Path(td)
+            state_file = state_dir / "last_seen_head.json"
+            with patch("cairn.devices.codemother.groundloop.pulse._STATE_DIR", state_dir), \
+                 patch("cairn.devices.codemother.groundloop.pulse._STATE_FILE", state_file), \
+                 patch("cairn.devices.codemother.groundloop.pulse._last_head", None), \
+                 patch("cairn.devices.codemother.groundloop.pulse._git", return_value="abc123def"):
+                from cairn.devices.codemother.groundloop.pulse import on_pulse
+                result = on_pulse(None, {})
+                assert result["outcome"] == "seeded"
+                assert state_file.exists()
+
+    def test_no_new_commits(self):
+        with tempfile.TemporaryDirectory() as td:
+            state_dir = Path(td)
+            state_file = state_dir / "last_seen_head.json"
+            state_file.write_text('{"head": "abc123def"}\n')
+            with patch("cairn.devices.codemother.groundloop.pulse._STATE_DIR", state_dir), \
+                 patch("cairn.devices.codemother.groundloop.pulse._STATE_FILE", state_file), \
+                 patch("cairn.devices.codemother.groundloop.pulse._last_head", None), \
+                 patch("cairn.devices.codemother.groundloop.pulse._git", return_value="abc123def"):
+                from cairn.devices.codemother.groundloop.pulse import on_pulse
+                result = on_pulse(None, {})
+                assert result["outcome"] == "no_new_commits"
+
+    def test_processes_new_commits(self):
+        with tempfile.TemporaryDirectory() as td:
+            state_dir = Path(td)
+            state_file = state_dir / "last_seen_head.json"
+            state_file.write_text('{"head": "old_head"}\n')
+
+            def mock_git(*args):
+                if args[0] == "rev-parse":
+                    return "new_head"
+                if args[0] == "log":
+                    return "new_head fix: something important"
+                if args[0] == "diff-tree":
+                    return "cairn/devices/codemother/watch.py"
+                return ""
+
+            with patch("cairn.devices.codemother.groundloop.pulse._STATE_DIR", state_dir), \
+                 patch("cairn.devices.codemother.groundloop.pulse._STATE_FILE", state_file), \
+                 patch("cairn.devices.codemother.groundloop.pulse._last_head", None), \
+                 patch("cairn.devices.codemother.groundloop.pulse._git", side_effect=mock_git), \
+                 patch("cairn.devices.codemother.watch.on_commit") as mock_on_commit:
+                mock_on_commit.return_value = {"commit": "new_head", "areas_checked": 1, "results": []}
+                from cairn.devices.codemother.groundloop.pulse import on_pulse
+                context = {}
+                result = on_pulse(None, context)
+                assert result["outcome"] == "commits_processed"
+                assert result["count"] == 1
+                mock_on_commit.assert_called_once()
+                assert "new_commits" in context
+
+
+class TestLivenessProbe:
+
+    def test_trigger_false_when_no_dir(self):
+        from cairn.devices.codemother.probes.commit_fires_activations import _trigger
+        with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
+                   Path("/nonexistent/path")):
+            assert _trigger(None, {}) is False
+
+    def test_trigger_true_when_activations_exist(self):
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            (td_path / "activation-test.json").write_text("{}")
+            from cairn.devices.codemother.probes.commit_fires_activations import _trigger
+            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
+                       td_path):
+                assert _trigger(None, {}) is True
+
+    def test_enough_requires_20_activations(self):
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            for i in range(19):
+                (td_path / f"activation-{i:04d}.json").write_text("{}")
+            from cairn.devices.codemother.probes.commit_fires_activations import _enough
+            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
+                       td_path):
+                assert _enough({}) is False
+            (td_path / "activation-0019.json").write_text("{}")
+            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
+                       td_path):
+                assert _enough({}) is True

@@ -31,6 +31,17 @@ result = on_question(q)
 print(json.dumps(result, indent=2))
 " "$@"
     ;;
+  seed)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.seed_trees import seed
+dry = '--dry-run' in sys.argv[1:]
+result = seed(dry_run=dry)
+print(json.dumps(result, indent=2))
+if result['errors']:
+    sys.exit(1)
+" "$@"
+    ;;
   *)
     exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
@@ -43,6 +54,7 @@ print()
 print('commands:')
 print('  cairn codemother watch <area> [reason]  — fire spreading activation')
 print('  cairn codemother question <question>     — ask about an area')
+print('  cairn codemother seed [--dry-run]        — plant cognition questions into trees')
 " "$@"
     ;;
 esac

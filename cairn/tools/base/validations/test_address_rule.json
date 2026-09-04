@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_address_rule.py passes under python3",
-    "caller": "c6017f156442-reseal2",
-    "date": "2026-09-03T22:04:39",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "tester",
+    "date": "2026-09-03T23:18:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_mention_is_not_a_catch\n  PASS  test_the_rules_own_module_mentions_both_shapes_and_is_not_exempt\n  PASS  test_a_real_spelling_is_a_catch_in_both_shapes\n  PASS  test_a_non_instance_home_path_is_left_alone\n  PASS  test_the_exemption_set_is_a_rule_and_it_is_closed_at_two\n  PASS  test_a_scan_that_read_no_files_raises\n  PASS  test_an_unparseable_file_rides_the_return\n  PASS  test_the_live_corpus_holds_the_invariants_whatever_the_count\ngreen — the address rule is an AST predicate over an expression: a mention is not a catch (proved on a fixture AND on the rule's own module, which is not exempt), both real dialects are caught, a legitimate non-instance home path is left alone, the exemption set is two rules rather than a list of names, an empty tree raises HollowScan, an unparseable file rides the return, and the live corpus is pinned by invariant rather than by today's count",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c23fe5586bcd96fb22831c043dfb833877e72d82f39c8505db0e072e84b495cd",
+      "source_fingerprint": "e9ae24251072988555afb6857a5be406d23819ee00ad95b7adf4f5dc94af5e4a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-lod52uza/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-tqym717s/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

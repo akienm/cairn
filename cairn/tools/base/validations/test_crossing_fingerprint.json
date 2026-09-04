@@ -1,40 +1,40 @@
 [
   {
     "claim": "proof test_crossing_fingerprint.py passes under python3",
-    "caller": "c6017f156442-reseal2",
-    "date": "2026-09-03T22:05:56",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "tester",
+    "date": "2026-09-03T23:19:25",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_emit_produces_fingerprinted_records\n  PASS  test_fingerprint_is_deterministic\n  PASS  test_inspector_sieve_passes_untampered\n  PASS  test_inspector_sieve_reds_tampered\n  PASS  test_inspector_sieve_skips_records_without_fingerprint\n  PASS  test_verify_returns_false_on_tampered\n  PASS  test_verify_returns_false_when_no_fingerprint\n  PASS  test_verify_returns_true_on_untampered\ngreen — crossing records carry a sha256 fingerprint computed from canonical JSON; verify_crossing_fingerprint returns True on untampered and False on tampered; the inspector sieve reds tampered entries and skips pre-existing records without fingerprints; fingerprints are deterministic",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c23fe5586bcd96fb22831c043dfb833877e72d82f39c8505db0e072e84b495cd",
+      "source_fingerprint": "e9ae24251072988555afb6857a5be406d23819ee00ad95b7adf4f5dc94af5e4a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-_nciccsp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-f9a4dls7/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/bus/0/20260904.040553.031148.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.036048.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.036961.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.045468.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.046584.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.048084.BusDevice.post.json",
-            "logs/bus/0/20260904.040553.049225.BusDevice.post.json",
-            "logs/charter/0/20260904.040553.006227.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.035886.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.036817.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.045321.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.046450.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.047946.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040553.049082.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260904.051922.278163.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.283018.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.283954.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.292525.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.293642.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.295284.BusDevice.post.json",
+            "logs/bus/0/20260904.051922.296799.BusDevice.post.json",
+            "logs/charter/0/20260904.051922.251724.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.282849.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.283807.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.292376.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.293505.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.295117.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.051922.296503.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

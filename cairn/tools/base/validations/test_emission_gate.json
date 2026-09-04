@@ -1,34 +1,34 @@
 [
   {
     "claim": "proof test_emission_gate.py passes under python3",
-    "caller": "c6017f156442-reseal2",
-    "date": "2026-09-03T22:07:56",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "tester",
+    "date": "2026-09-03T23:21:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_an_emitted_watch_crosses_and_the_journal_names_the_berth\n  ok   test_a_crossing_with_no_ticket_cannot_be_measured_so_it_is_refused\n  ok   test_a_carried_watch_with_no_spec_on_the_ticket_is_refused\n  ok   test_a_promised_probe_the_world_does_not_hold_is_refused\n  ok   test_a_berth_that_declares_no_probe_is_not_armed\n  ok   test_a_probe_that_cannot_gather_is_berthed_but_not_armed\n  ok   test_a_back_edge_into_watchme_is_ungated\n  ok   test_a_refusal_journals_absolutely_nothing\n  ok   test_it_is_a_sibling_not_a_subclass_of_the_other_four\n  ok   test_a_node_that_carries_no_watch_is_untouched\n  ok   test_the_gate_reads_the_watch_the_boat_STANDS_at\n  ok   test_the_real_berth_in_this_repo_is_armed\n\n12/12 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c23fe5586bcd96fb22831c043dfb833877e72d82f39c8505db0e072e84b495cd",
+      "source_fingerprint": "e9ae24251072988555afb6857a5be406d23819ee00ad95b7adf4f5dc94af5e4a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-5oxslakw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2bpfc8af/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/bus/0/20260904.040753.009136.BusDevice.post.json",
-            "logs/bus/0/20260904.040753.013487.BusDevice.post.json",
-            "logs/bus/0/20260904.040753.015136.BusDevice.post.json",
-            "logs/bus/0/20260904.040753.018556.BusDevice.post.json",
-            "logs/charter/0/20260904.040752.980542.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040753.013333.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040753.014950.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260904.040753.018365.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260904.052127.950797.BusDevice.post.json",
+            "logs/bus/0/20260904.052127.955011.BusDevice.post.json",
+            "logs/bus/0/20260904.052127.956549.BusDevice.post.json",
+            "logs/bus/0/20260904.052127.959063.BusDevice.post.json",
+            "logs/charter/0/20260904.052127.926953.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.052127.954863.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.052127.956412.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.052127.958905.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

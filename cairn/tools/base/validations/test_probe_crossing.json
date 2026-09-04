@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_probe_crossing.py passes under python3",
-    "caller": "c6017f156442-reseal2",
-    "date": "2026-09-03T22:09:47",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "tester",
+    "date": "2026-09-03T23:23:24",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_standing_true_pokes_once_not_every_pulse\n  ok   test_it_re_arms_when_the_line_is_recrossed\n  ok   test_while_true_opts_back_into_every_pulse\n  ok   test_a_held_poke_says_which_kind_of_held_it_is\n  ok   test_the_memory_is_the_shims_and_the_probe_stays_frozen\n  ok   test_a_rebuilt_probe_is_recognised_as_the_same_watch\n  ok   test_a_different_why_is_a_different_watch\n  ok   test_a_raising_trigger_does_not_swallow_the_next_poke\n  ok   test_a_vanished_probe_is_forgotten_and_pokes_when_it_returns\n\n9/9 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c23fe5586bcd96fb22831c043dfb833877e72d82f39c8505db0e072e84b495cd",
+      "source_fingerprint": "e9ae24251072988555afb6857a5be406d23819ee00ad95b7adf4f5dc94af5e4a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-p4vg0s2n/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-qt4zdtzz/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -1,28 +1,28 @@
 [
   {
     "claim": "proof test_probe_carry.py passes under python3",
-    "caller": "c6017f156442-reseal2",
-    "date": "2026-09-03T22:09:34",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "tester",
+    "date": "2026-09-03T23:23:11",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_no_carrier_says_only_that_the_line_was_crossed\n  ok   test_by_pointer_sends_the_address_and_nothing_else\n  ok   test_by_pointer_passes_a_bare_path_through\n  ok   test_an_ID_is_no_longer_a_pointer_and_the_hole_is_VISIBLE\n  ok   test_owning_ticket_renders_a_path_when_the_ticket_is_there\n  ok   test_a_MIGRATED_ticket_is_a_hole_that_names_where_it_looked\n  ok   test_every_live_probe_carries_its_ticket_as_a_PATH_not_an_id\n  ok   test_by_copy_sends_the_artifact_and_it_is_deep\n  ok   test_by_text_renders_the_artifact_in_motion\n  ok   test_a_template_hole_is_visible_not_fatal\n  ok   test_the_carrier_runs_at_fire_time_and_wins_over_the_static_body\n  ok   test_the_frozen_declaration_does_not_drift_across_firings\n  ok   test_any_callable_is_a_carrier_not_a_named_kind\n  ok   test_a_broken_carrier_still_lands_the_poke_and_says_so\n  ok   test_a_carrier_returning_a_non_dict_is_caught_the_same_way\n  ok   test_a_non_callable_carry_is_refused_at_construction\n  ok   test_the_shim_fires_the_carrier_against_the_pulse_context\n\n17/17 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c23fe5586bcd96fb22831c043dfb833877e72d82f39c8505db0e072e84b495cd",
+      "source_fingerprint": "e9ae24251072988555afb6857a5be406d23819ee00ad95b7adf4f5dc94af5e4a",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-bp7l_wdy/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-xhmb2sxw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/bus/0/20260904.040931.371053.BusDevice.post.json",
-            "logs/bus/0/20260904.040931.419962.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260904.052308.352917.BusDevice.post.json",
+            "logs/bus/0/20260904.052308.403280.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         }

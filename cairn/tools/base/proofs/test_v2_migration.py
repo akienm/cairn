@@ -211,7 +211,7 @@ def test_three_classes_register_no_workflow_at_all_and_that_is_named_here():
     Akien), so this row PINS the gap rather than papering it: if someone mints one, this row
     goes red and the migration row above must be widened in the same act."""
     with_v2, empty = _classes_by_registration()
-    assert sorted(empty) == ["concept-piece", "host-seam", "operational-driver"], empty
+    assert sorted(empty) == ["bug", "concept-piece", "host-seam", "operational-driver"], empty
     assert sorted(with_v2) == ["code-seam", "skill"], sorted(with_v2)
 
 

@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_route.py passes under python3",
-    "caller": "CC",
-    "date": "2026-08-28T08:03:30",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-04T10:05:39",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_hosts_own_refusal_is_carried_not_retried_elsewhere\n  PASS  test_a_preference_reorders_survivors_without_changing_the_set\n  PASS  test_a_protocol_without_a_transport_is_walked_past_loudly_never_dialed\n  PASS  test_a_request_for_an_unserved_kind_or_foreign_model_routes_nothing\n  PASS  test_an_empty_preference_leaves_the_order_untouched\n  PASS  test_an_exhausted_walk_raises_naming_every_rung_it_tried\n  PASS  test_hex_survives_the_shake_for_both_verbs_and_is_cheapest_first\n  PASS  test_loopback_and_unkeyed_rungs_are_cut_and_the_trace_says_by_what\n  PASS  test_loopback_never_survives_even_as_the_last_rung_standing\n  PASS  test_missing_rules_or_overlay_refuse_loudly_naming_the_path\n  PASS  test_the_domains_stack_carries_the_ruled_verticals_by_content\n  PASS  test_the_mesh_holds_no_seam_of_its_own\n  PASS  test_the_nest_is_the_general_nest_not_a_private_copy\n  PASS  test_the_overlay_berths_at_the_resolved_instance_address_never_a_hand_path\n  PASS  test_the_three_stacks_carry_the_ruled_rows_by_content\n  PASS  test_the_walk_dials_the_second_rung_when_the_first_is_unreachable\ngreen — the stacks carry the ruled rows by content, the mesh's import surface is pure (no oracle-reaching imports), the nest cuts loopback categorically, hex survives both verbs cheapest-first, and the walk fails over on unreachability only — never retrying a host's own refusal",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "source_fingerprint": "7bec08903d94c90ba362e4ed8855704c640640add6a6ead94cf9196928637ce8",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-q7o0p7gj/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-ry9lsrnz/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

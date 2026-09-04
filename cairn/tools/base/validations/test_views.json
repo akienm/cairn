@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_views.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:33:30",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T22:01:58",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_get_resolves_through_declared_views\n  PASS  test_show_resolves_through_declared_views\n  PASS  test_show_renders_text\n  PASS  test_unknown_view_refuses\n  PASS  test_show_and_get_share_the_same_table\n  PASS  test_device_with_no_views_refuses_honestly\n  PASS  test_base_verbs_include_show_and_get\ngreen — show and get resolve through declared_views(), same pattern, different table",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-hmsqhpkl/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2gq14dei/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_gate_feedback.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:30:44",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T21:59:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "test_gate_feedback — scheduled-llm-gate-inspection\n  [a] green path produces feedback record .......... OK\n  [b] red path produces feedback record ............ OK\n  [c] feedback record carries sieve input/output ... OK\n  [d] no feedback without construct ................. OK\n  [e] adjust() writes valid proposal to tree ....... OK\n  [f] adjust() returns prior for revert ............ OK\n  [g] adjust() rejects missing sieve .............. OK\n  [h] adjust() rejects empty dial .................. OK\n  [i] adjust() rejects call without construct ....... OK\n  [j] adjust() rejects unserializable value ........ OK\nall 10 teeth pass",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4b5s3jwf/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-gxpabhfu/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

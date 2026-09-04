@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_needs.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:31:26",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T21:59:53",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_mark_missing_when_or_how_measured_is_refused\n  PASS  test_a_token_how_measured_is_refused_but_a_rerunnable_one_passes\n  PASS  test_a_when_that_cannot_be_AGED_is_refused\n  PASS  test_never_looked_at_is_not_a_writable_status\n  PASS  test_a_need_on_a_stage_the_node_does_not_have_is_refused\n  PASS  test_a_misshapen_needs_block_is_refused_but_absent_is_fine\n  PASS  test_marks_are_append_only_and_prior_marks_are_never_touched\n  PASS  test_staleness_is_QUERYABLE_and_the_age_comes_from_an_injected_today\n  PASS  test_the_latest_observation_wins_and_the_earlier_one_survives\n  PASS  test_the_door_refuses_an_undeclared_stage_or_need_and_writes_nothing\n  PASS  test_every_needs_block_on_disk_conforms\n  PASS  test_a_real_case_carries_a_real_measurement\n  PASS  test_the_render_shows_all_three_conditions_it_can_show\ngreen — a stage declares what it needs, and an UNMEASURED mark cannot be written: the door refuses a bare [DONE], a token how_measured, an unageable when, a status for 'never looked', and a need on a stage the node does not have; marks are append-only; the current view is a pure projection carrying each mark's AGE (staleness is queryable, Law 3); and the live fleet carries a real case measured end to end (Law 8)",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-m2k208cr/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1ysrbmn0/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

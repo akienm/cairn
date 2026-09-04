@@ -1,32 +1,32 @@
 [
   {
     "claim": "proof test_entry_gate_jurisdiction.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:30:32",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T21:59:04",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  green  test_leg_a_complete_ticket_passes_at_leaving_buildme\n  green  test_leg_b_chartless_ticket_refused_at_leaving_buildme\n  green  test_leg_c_unticketed_crossing_records_not_checked\n  green  test_entry_gate_field_always_present\n  green  test_into_buildme_still_refuses_chartless",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ivzjj4yy/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-64bynj7_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/bus/0/20260903.173028.111690.BusDevice.post.json",
-            "logs/bus/0/20260903.173028.116058.BusDevice.post.json",
-            "logs/bus/0/20260903.173028.117926.BusDevice.post.json",
-            "logs/charter/0/20260903.173028.082933.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260903.173028.115785.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260903.173028.117751.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260904.035900.888196.BusDevice.post.json",
+            "logs/bus/0/20260904.035900.891529.BusDevice.post.json",
+            "logs/bus/0/20260904.035900.893045.BusDevice.post.json",
+            "logs/charter/0/20260904.035900.866755.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.035900.891381.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.035900.892902.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

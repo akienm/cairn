@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_shim.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:32:39",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T22:01:07",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_pulse_fires_due_probes_and_holds_the_rest\n  PASS  test_a_batch_does_not_die_on_one_bad_probe\n  PASS  test_an_armed_and_never_fired_probe_is_loud\n  PASS  test_a_horizon_is_declared_not_inferred\n  PASS  test_the_device_is_started_on_demand\n  PASS  test_a_shim_with_no_start_hook_refuses_loudly\n  PASS  test_it_is_a_shim\n  PASS  test_bounce_fires_on_unknown_verb\n  PASS  test_handle_bounce_default_emits_diagnostic\n  PASS  test_handle_bounce_override_fires\n  PASS  test_is_bounce_guard_prevents_infinite_loop\n  PASS  test_last_known_is_none_before_boot\n  PASS  test_contract_default_is_empty\n  PASS  test_contract_readable_without_waking\n  PASS  test_contract_override_declares_capabilities\ngreen — BaseShim: probes fire, device wakes on demand, bounce returns to sender, last-known captured, contract declared",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-c6lvfxfv/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-jhchy1ql/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

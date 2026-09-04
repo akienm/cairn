@@ -1,34 +1,34 @@
 [
   {
     "claim": "proof test_v2_migration.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:33:17",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "c6017f156442-reseal",
+    "date": "2026-09-03T22:01:45",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_cursor_behind_learnme_is_where_it_was\n  ok   test_a_boat_standing_at_learnme_lands_at_proveme\n  ok   test_a_boat_at_rest_stays_at_rest\n  ok   test_a_node_that_wants_to_keep_learning_carries_the_watch_instead\n  ok   test_carrying_a_watch_is_opt_in_and_that_is_the_whole_point\n  ok   test_an_immutable_version_is_not_re_migrated\n  ok   test_the_crossing_journals_the_old_string_verbatim\n  ok   test_an_already_v2_crossing_records_no_migration\n  ok   test_the_past_is_byte_identical_after_the_migration_crossing\n  ok   test_three_classes_register_no_workflow_at_all_and_that_is_named_here\n  ok   test_every_v1_boat_on_disk_reaches_a_conforming_v2\n  ok   test_the_dissolved_state_is_empty_and_nothing_may_enter_it\n\n12/12 green",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_cursor_behind_learnme_is_where_it_was\n  ok   test_a_boat_standing_at_learnme_lands_at_proveme\n  ok   test_a_boat_at_rest_stays_at_rest\n  ok   test_a_node_that_wants_to_keep_learning_carries_the_watch_instead\n  ok   test_carrying_a_watch_is_opt_in_and_that_is_the_whole_point\n  ok   test_an_immutable_version_is_not_re_migrated\n  ok   test_the_crossing_journals_the_old_string_verbatim\n  ok   test_an_already_v2_crossing_records_no_migration\n  ok   test_the_past_is_byte_identical_after_the_migration_crossing\n  FAIL test_three_classes_register_no_workflow_at_all_and_that_is_named_here: AssertionError: ['bug', 'concept-piece', 'host-seam', 'operational-driver']\n  ok   test_every_v1_boat_on_disk_reaches_a_conforming_v2\n  ok   test_the_dissolved_state_is_empty_and_nothing_may_enter_it\n\n11/12 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-q6d1c21v/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-_ukkaspr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/bus/0/20260903.173314.644118.BusDevice.post.json",
-            "logs/bus/0/20260903.173314.645257.BusDevice.post.json",
-            "logs/bus/0/20260903.173314.646196.BusDevice.post.json",
-            "logs/bus/0/20260903.173314.647267.BusDevice.post.json",
-            "logs/charter/0/20260903.173314.620770.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260903.173314.645119.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260903.173314.646070.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260903.173314.647137.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260904.040142.401105.BusDevice.post.json",
+            "logs/bus/0/20260904.040142.405504.BusDevice.post.json",
+            "logs/bus/0/20260904.040142.406503.BusDevice.post.json",
+            "logs/bus/0/20260904.040142.407637.BusDevice.post.json",
+            "logs/charter/0/20260904.040142.377320.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.040142.405362.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.040142.406373.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260904.040142.407507.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

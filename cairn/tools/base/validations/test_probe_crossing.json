@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_probe_crossing.py passes under python3",
-    "caller": "cc-debug-sink-reseal",
-    "date": "2026-09-03T11:32:02",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "c6017f156442",
+    "date": "2026-09-03T21:49:52",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_standing_true_pokes_once_not_every_pulse\n  ok   test_it_re_arms_when_the_line_is_recrossed\n  ok   test_while_true_opts_back_into_every_pulse\n  ok   test_a_held_poke_says_which_kind_of_held_it_is\n  ok   test_the_memory_is_the_shims_and_the_probe_stays_frozen\n  ok   test_a_rebuilt_probe_is_recognised_as_the_same_watch\n  ok   test_a_different_why_is_a_different_watch\n  ok   test_a_raising_trigger_does_not_swallow_the_next_poke\n  ok   test_a_vanished_probe_is_forgotten_and_pokes_when_it_returns\n\n9/9 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3736e0b665c36de2da3741bc934e933585235dd9b2cd2e18a64c33949381f225",
+      "source_fingerprint": "c6d768b83d299811adbb34ef3901bd0aec7a0e2f1b8635a864937dd965f76649",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-pj1vl01j/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-61_0rt8c/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

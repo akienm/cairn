@@ -405,7 +405,11 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
 
     domain_module.resolve = capture
     try:
-        bus = live._wire_bus()
+        from cairn.devices.cairn.machines.bus.bus import BusDevice
+        from cairn.tools.base.bus_client import _load_device_shim
+        bus = BusDevice()
+        shim = _load_device_shim("inference_domain", bus)
+        shim._wire_delivery()
         seam = live.dual_seam(bus)
         seam({"kind": "generate",
               "prompt": "please write a python function that reverses a linked list"})

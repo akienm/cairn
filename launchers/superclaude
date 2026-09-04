@@ -488,6 +488,9 @@ if [[ "$dry_run" -eq 1 ]]; then
   exit 0
 fi
 
+# ── clean slate: clear the terminal so the session opens without debris ─────
+clear 2>/dev/null || true
+
 # ── TMUX MODE: headless CC in a tmux session ────────────────────────────────
 # When --tmux is set (or CAIRN_SUPERCLAUDE_TMUX=1), CC runs inside a tmux session
 # instead of foreground. The session name is cairn_cc_<instance>. The shim can then

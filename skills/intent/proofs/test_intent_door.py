@@ -71,6 +71,7 @@ def main() -> int:
     live_before = live_trace.read_text() if live_trace.exists() else None
 
     good = {"from_idea": "2026-08-04-a-real-idea",
+            "task_or_ticket": "ticket",
             "what": "unify ticket, probe and task", "how": "one root, per-level additions",
             "traces_to": "Law 1", "shape": "new track", "falsifier": "one root ships",
             "challenge": {k: "considered, and here is what I found" for k in FIVE},
@@ -82,9 +83,10 @@ def main() -> int:
         door.fire({}, **kw)
         ok("empty packet refused", False)
     except DoorRefused as exc:
-        ok("entry gate: all nine lacks in one raise",
+        ok("entry gate: all ten lacks in one raise",
            fields_of(exc) == ["bullets", "challenge", "exit", "falsifier", "from_idea",
-                              "how", "shape", "traces_to", "what"], str(fields_of(exc)))
+                              "how", "shape", "task_or_ticket", "traces_to", "what"],
+           str(fields_of(exc)))
 
     # ── from_idea: the fan-out edge ───────────────────────────────────────────
     try:

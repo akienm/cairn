@@ -66,6 +66,7 @@ def main() -> int:
     # ── fixtures: real berths, made through the real seam ─────────────────────
     intent_packet = {
         "from_idea": "none, because ideas/_charter+why.json records the split",
+        "task_or_ticket": "ticket",
         "what": "x", "how": "y", "traces_to": "Law 1", "shape": "new track",
         "falsifier": "z", "exit": "routed_forward",
         "challenge": {k: "considered" for k in
@@ -85,6 +86,9 @@ def main() -> int:
         "missing_check": "the points are wrapped — this berth exists only to feed the gate below",
         "falsifier_check": "RED if /design accepts a berth the /sorted door would refuse",
         "collision_check": "no collision — a proof fixture, not a cast",
+        "builder_check": "a Haiku builder needs nothing beyond the fixture fields — this is a proof packet",
+        "task_or_ticket": "ticket",
+        "title": "design-proof-sorted-fixture",
         "node_class": "code-seam",
         "workflow": "code-seam@v1: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> PROVED",
         "gates_bound": "prove_gate: this proof, beside the code",

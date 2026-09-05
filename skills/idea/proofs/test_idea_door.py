@@ -66,25 +66,26 @@ def main() -> int:
         door.fire({}, **kw)
         ok("empty packet refused", False, "the door passed an empty capture")
     except DoorRefused as exc:
-        ok("entry gate: all three lacks in one raise",
-           fields_of(exc) == ["author", "bullets", "prose"], str(fields_of(exc)))
+        ok("entry gate: all four lacks in one raise",
+           fields_of(exc) == ["author", "bullets", "prose", "title"], str(fields_of(exc)))
         ok("refusal carries the WHY, not just the name",
            all(len(l["why"]) > 40 for l in exc.lacks))
 
     try:
-        door.fire({"prose": "   ", "author": "Akien", "bullets": BULLET}, **kw)
+        door.fire({"prose": "   ", "author": "Akien", "title": "t", "bullets": BULLET}, **kw)
         ok("whitespace prose refused", False, "blank prose passed as captured text")
     except DoorRefused as exc:
         ok("whitespace prose refused", fields_of(exc) == ["prose"])
 
     try:
-        door.fire({"prose": "x", "author": "Akien", "bullets": []}, **kw)
+        door.fire({"prose": "x", "author": "Akien", "title": "t", "bullets": []}, **kw)
         ok("empty bullets refused", False, "an empty list passed as a bullet list")
     except DoorRefused as exc:
         ok("empty bullets refused", fields_of(exc) == ["bullets"])
 
     # ── the capture itself ────────────────────────────────────────────────────
-    res = door.fire({"prose": PROSE, "author": "Akien", "bullets": BULLET}, **kw)
+    res = door.fire({"prose": PROSE, "author": "Akien", "title": "ticket-probe-task-unity",
+                     "bullets": BULLET}, **kw)
     rec = json.loads(Path(res["idea"]).read_text())
 
     ok("THE VERBATIM TOOTH: prose stored byte-identical", rec["prose"] == PROSE,
@@ -109,7 +110,8 @@ def main() -> int:
        str(res["berth"]).startswith(str(berths)))
 
     # ── collision: same day, same opening words ───────────────────────────────
-    second = door.fire({"prose": PROSE, "author": "CC", "bullets": BULLET}, **kw)
+    second = door.fire({"prose": PROSE, "author": "CC", "title": "ticket-probe-task-unity",
+                        "bullets": BULLET}, **kw)
     ok("collision does not overwrite", second["idea"] != res["idea"])
     ok("both records survive", json.loads(Path(res["idea"]).read_text())["author"] == "Akien")
     ok("collision suffix keeps the readable stem",
@@ -130,7 +132,7 @@ def main() -> int:
     env = {**os.environ, "PYTHONPATH": str(_REPO),
            "CAIRN_LB_TRACE_ROOT": str(traces), "CAIRN_SKILL_BERTHS": str(berths)}
     bad = tmp / "bad.json"
-    bad.write_text(json.dumps({"prose": "x"}))
+    bad.write_text(json.dumps({"prose": "x", "title": "t"}))
     p = subprocess.run([sys.executable, str(_REPO / "skills/idea/door.py"), str(bad)],
                        capture_output=True, text=True, env=env)
     ok("CLI refusal: exit 2", p.returncode == 2, p.stderr[:200])

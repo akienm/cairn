@@ -135,11 +135,14 @@ class TestStepOrder:
         steps = self._steps()
         assert _step_index(steps, "3") < _step_index(steps, "4")
 
-    def test_chart_before_everything(self):
-        """Step 0 (chart it) must be the first step."""
+    def test_ticket_load_then_chart(self):
+        """Step 0a (load ticket) precedes step 0 (chart) — both before everything else."""
         steps = self._steps()
-        assert steps[0][0] == "0", (
-            f"first step is {steps[0][0]!r}, not '0' — the chart is no longer step 0"
+        assert steps[0][0] == "0a", (
+            f"first step is {steps[0][0]!r}, not '0a' — ticket load is no longer first"
+        )
+        assert steps[1][0] == "0", (
+            f"second step is {steps[1][0]!r}, not '0' — the chart is no longer step 0"
         )
 
     def test_step_numbers_are_monotonic(self):

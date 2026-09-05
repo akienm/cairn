@@ -49,6 +49,16 @@ cost is spent on it: re-deriving a settled intention is the defect this gate sto
    them able to point at the prose that bore them. Never captured? `/idea` first —
    it costs one command.
 1. **WHAT** — In one sentence, what is the intent? (Not the approach — the aim.)
+1b. **TICKET or TASK** — The seed test (ticket `6a657e22db6f`): does replaying
+   this intention on a bare machine contribute to regrowing the system?
+   **TICKET** if yes (the intention joins the fabric — the set of records that
+   say what the system IS). **TASK** if no (work the system needs done that does
+   not define it — yank debris, rename files, run a one-shot migration). TICKET
+   is the default; TASK is the branch that must justify itself. Answerable from
+   the WHAT alone. Examples: "install the usage-widget hook" → TICKET (essential
+   on a fresh box). "Remove all files ending in .dontneed from ~" → TASK (a
+   no-op on a fresh box). A recurring task is the signal to write a development
+   ticket that automates it — the task prototypes the ticket.
 2. **HOW** — What's the approach, roughly? (First-cut only; `/sorted` deconstructs.)
 3. **Trace** — What does this trace up to — which Telos aim, which Law?
    - If it traces: name the link, carry it on the node.
@@ -113,6 +123,8 @@ The packet is a JSON object carrying, exactly:
   that bore them. If the idea was never captured, capture it first with **`/idea`**;
   it costs one command.
 - **what** — question 1, one sentence, the aim.
+- **task_or_ticket** — question 1b, `"ticket"` or `"task"`. The seed test: would
+  replaying this on a bare machine contribute to regrowing the system?
 - **how** — question 2, first-cut.
 - **traces_to** — question 3. Name the Telos aim or Law. If *nothing* traces, say
   so **in this field** ("nothing — <why>") and set `exit` to `routed_out`. The

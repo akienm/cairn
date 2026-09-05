@@ -56,8 +56,11 @@ CONTRACT = CHARTER["input_contract"]
 # answers" keeps meaning what it says. It is here rather than in the exempt set because
 # the executor must go and ANSWER it — the exempt three are routing (`exit`), the finding
 # (`bullets`) and a separate step (`challenge`), none of which is a question at all.
+# `TICKET or TASK` is question 1b — a sub-question like Origin, answered from the WHAT
+# alone. It belongs here because the executor must go and ANSWER it.
 QUESTIONS = {"Origin": "from_idea",
-             "WHAT": "what", "HOW": "how", "Trace": "traces_to",
+             "WHAT": "what", "TICKET or TASK": "task_or_ticket",
+             "HOW": "how", "Trace": "traces_to",
              "Shape": "shape", "Falsifier": "falsifier"}
 
 GOOD = {
@@ -65,6 +68,7 @@ GOOD = {
     # referent the judge can open — a proof packet is born of no captured idea.
     "from_idea": "none, because this packet is a proof fixture exercising the /intent wire, "
                  "not an intention — see skills/intent/proofs/test_intent_skill.py",
+    "task_or_ticket": "ticket",
     "what": "prove the wire",
     "how": "fire the real contract from a proof",
     "traces_to": "Law 8 — nothing enters proven-space without a proof",

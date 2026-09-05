@@ -110,6 +110,11 @@ nobody.
   UNSPECIFIABLE is a RED (route back — the falsifier is unwritable); specifiable
   but-not-yet **drops a ticket and cites it in the reason**. The probe berths
   **with what it watches**, and carries **no authority** (Law 6).
+- **task_or_ticket** — carry through from /intent: `"ticket"` or `"task"`. This
+  determines the disposition at resolve: a TICKET's voyage freezes beside the code
+  as provenance (the fabric changed, Law 5); a TASK's voyage depots-and-forgets
+  (it defined no component, so there is nothing to be provenance OF). One flag,
+  two dispositions, no judgment at resolve time.
 - **children** — the deconstruction, if any (`/sorted` fires again per child;
   children prove before parents), or `"none, because <X>"`.
 - **exit / disposition** — `routed_forward` + `"cast"`; or `routed_out` +

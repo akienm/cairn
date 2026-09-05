@@ -1963,13 +1963,14 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
                 return True
             if (repo / token).exists() or (commons / token).exists():
                 return True
-        if (commons / "tickets" / f"{token}.json").exists():
-            return True
-        if list((commons / "tickets").glob(f"{token}-*.json")) or \
-           list((commons / "tickets").glob(f"*-{token}.json")):
-            return True
-        if (repo / "bin" / "cmd" / token).exists():
-            return True
+        if "/" not in token:
+            if (commons / "tickets" / f"{token}.json").exists():
+                return True
+            if list((commons / "tickets").glob(f"{token}-*.json")) or \
+               list((commons / "tickets").glob(f"*-{token}.json")):
+                return True
+            if (repo / "bin" / "cmd" / token).exists():
+                return True
     return False
 
 

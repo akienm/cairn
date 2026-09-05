@@ -115,6 +115,14 @@ def judge_packet(payload: dict, *, repo: Path | None = None,
                       "why": f"carries a {type(origin).__name__} — the legal values are an "
                              "idea id, a path to one, or 'none, because <X>'"})
 
+    tot = payload.get("task_or_ticket")
+    if isinstance(tot, str) and tot.strip():
+        if tot.strip().lower() not in ("ticket", "task"):
+            lacks.append({"field": "task_or_ticket",
+                          "why": f"{tot!r} is not 'ticket' or 'task' — the seed test has "
+                                 "exactly two answers: does replaying this on a bare machine "
+                                 "contribute to regrowing the system? ticket if yes, task if no"})
+
     challenge = payload.get("challenge")
     if isinstance(challenge, dict) and challenge:
         missing = [f for f in _CHALLENGE_FIELDS if not str(challenge.get(f) or "").strip()]

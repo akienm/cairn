@@ -66,6 +66,8 @@ def main() -> int:
             "builder_check": "a Haiku-level builder needs the fixture class definition and the injected roots layout — both are in the test preamble, nothing implicit",
             "falsifier_check": "RED if the door passes a hollow watchme; horizon: next roster migration",
             "collision_check": "no collision — pays the charter's own tracked debt (casting has no chokepoint)",
+            "task_or_ticket": "ticket",
+            "title": "sorted-door-proof-fixture",
             "node_class": "boxling",
             "workflow": WF,
             "gates_bound": {"prove_gate": "proof beside the code, sealed under the tester"},

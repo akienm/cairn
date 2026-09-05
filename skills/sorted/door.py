@@ -183,6 +183,13 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
                                          "reader cannot go verify is the hollow pass this "
                                          "door was built against"})
 
+    tot = payload.get("task_or_ticket")
+    if isinstance(tot, str) and tot.strip():
+        if tot.strip().lower() not in ("ticket", "task"):
+            lacks.append({"field": "task_or_ticket",
+                          "why": f"{tot!r} is not 'ticket' or 'task' — carried through from "
+                                 "/intent; the seed test has exactly two answers"})
+
     exit_value = payload.get("exit")
     disposition = payload.get("disposition")
     # EXIT MEMBERSHIP IS THE SEAM'S LACK, NOT THIS DOOR'S — since 2026-08-05 skill_block

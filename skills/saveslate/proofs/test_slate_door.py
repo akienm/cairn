@@ -218,6 +218,7 @@ def main() -> int:
         intent_path = tmp / "intent_packet.json"
         intent_path.write_text(json.dumps({
             "from_idea": "none, because proof fixture — see skills/saveslate/proofs/test_slate_door.py",
+            "task_or_ticket": "task",
             "what": "proof fixture", "how": "fixture",
             "traces_to": "nothing — fixture",
             "shape": "aside", "falsifier": "fixture",

@@ -3,17 +3,26 @@
   "runtime_role": "device",
   "role": "charter",
   "schema_version": "v0",
-  "what": "The CodeMother device — the mother that watches over the codebase. Two faces: BUILDER (pattern library + 8 chart machines, proving what CC needs to know before a build begins) and WATCHER (graph-tree reasoning via inference_proxy + hex.local, monitoring the codebase between and during builds). Driven by inference_proxy, NOT by Claude — Claude is the builder; CodeMother has her own reasoning.",
+  "what": "The CodeMother device — the mother that looks after the codebase. She is NOT a builder: Claude and aider build; she owns the care of the code — the inspectors, gates, processes and workflows the builders pass through are hers to own and, eventually, to optimize (Akien, 2026-09-06). Two faces: PREBUILD (pattern library + 8 chart machines, proving what a builder needs to know before a build begins) and WATCHER (graph-tree reasoning via inference_proxy + hex.local, monitoring the codebase between and during builds). Driven by inference_proxy, NOT by Claude — Claude is the builder; CodeMother has her own reasoning.",
   "why": "CC violated the ground loop boundary 3x in one day, 2026-08-29. Memory doesn't stick (corrected and repeated same day), flags are policy (comment in __init__.py), prebuild steps are task-specific (they answer what's asked, they don't manage ongoing context). Akien: 'I do not fear you papering over something, you've done it over and over. And I watch for it. CodeMother is a response to that. It is the mother that must watch over its codebase.' This device IS the physics (Law 4) that replaces the policy of 'remember not to do that.'",
-  "how": "BUILDER FACE (built, proven): Two labs — intentions lab (compiled positive body) and constraints lab (compiled negative body). Five capabilities: (1) mine — cold-start pattern lattice from codebase scan; (2) training ingestion — parse transcripts, memory files, learning records, rulings, git history into negative types; (3) challenge — adversarial type-check of proposed changes; (4) query — what matters about X while working on Y, area-scoped; (5) digest — nighttime batch on Hex, consolidate corrections. Constraint proofs are three-sided: founding incident (measurement), live catch (ongoing proof), retirement (cause gone). WATCHER FACE (designed, not yet built): Reasoning path is graph trees first, then hex.local (qwen coding model) for nodes the trees can't resolve, then re-query graph trees — all inside inference_proxy. Triggers: commits (spreading activations), probes watching specific files, questions about an area triggering double-checking. NOT 'update everything to new standard' — targeted updates carried out as we go. CodeMother's trees have root questions part of her own root tree. Curriculum: CC failure modes (14+), the Cairn codebase, programming patterns, past project code, chat logs, computer books — absorbed via the reader + librarian. Role: prebuild packets with transparency and parsimony, model-level selection for tickets, pre-ticket question finding from intentions, spec the builder for cheaper tickets.",
-  "held_machines": ["orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate", "verdict"],
+  "how": "PREBUILD FACE (built, proven; called BUILDER FACE until 2026-09-06 — she is not a builder, she readies builders): Two labs — intentions lab (compiled positive body) and constraints lab (compiled negative body). Five capabilities: (1) mine — cold-start pattern lattice from codebase scan; (2) training ingestion — parse transcripts, memory files, learning records, rulings, git history into negative types; (3) challenge — adversarial type-check of proposed changes; (4) query — what matters about X while working on Y, area-scoped; (5) digest — nighttime batch on Hex, consolidate corrections. Constraint proofs are three-sided: founding incident (measurement), live catch (ongoing proof), retirement (cause gone). WATCHER FACE (designed, not yet built): Reasoning path is graph trees first, then hex.local (qwen coding model) for nodes the trees can't resolve, then re-query graph trees — all inside inference_proxy. Triggers: commits (spreading activations), probes watching specific files, questions about an area triggering double-checking. NOT 'update everything to new standard' — targeted updates carried out as we go. CodeMother's trees have root questions part of her own root tree. Curriculum: CC failure modes (14+), the Cairn codebase, programming patterns, past project code, chat logs, computer books — absorbed via the reader + librarian. Role: prebuild packets with transparency and parsimony, model-level selection for tickets, pre-ticket question finding from intentions, spec the builder for cheaper tickets. REVIEW (Akien, 2026-09-06): once built, reviews done by codemother are adversarial, biased toward 'taking care of the code' — her authority over the code is a mother's: 'I'm their mom!'.",
+  "held_machines": [
+    "orient",
+    "constrain",
+    "survey",
+    "decompose",
+    "triage",
+    "hypothesize",
+    "validate",
+    "verdict"
+  ],
   "held_machines_why": "The 8 pre-build chart stages — the preamble that grounds, bounds, sweeps, splits, ranks, predicts, and validates before a build begins. Migrated from builder device 2026-09-03 (ticket 484178f0cd8a). These are tools codemother uses to protect the codebase before code lands.",
   "falsifier": "RED on any of: (1) a pattern violation that would previously have reached code review is NOT caught at challenge time; (2) the device becomes a linter — deterministic checks belong in sieves, this is for learned/judgment-based patterns; (3) it becomes project-specific — portability to any codebase is load-bearing; (4) it fails to learn from corrections — a static constraint list is not what was designed; (5) the watcher face routes through Claude instead of inference_proxy — the whole point is independent reasoning. WRONG INTENT if: the device blocks CC from acting (it surfaces information as a peer, does not gate writes it doesn't own).",
   "gates": {
     "proof_gate": "tester runs proofs exercising the five capabilities against real code — a hollow proof that the device passes without catching a real violation is the specific Law 8 risk",
     "durability_gate": "git commit + push"
   },
-  "owner": "CC gates writes to the codemother device class; Akien gates the design.",
+  "owner": "CC gates writes to the codemother device class; Akien gates the design. Codemother is the owner of all code things (Akien, 2026-09-06, ruling 2026-09-06-codemother-owns-the-care-of-the-code): inspectors, gates, processes, workflows — hers to own and eventually to optimize. A code-seam ticket whose natural charter cannot own a crossing (no gated_by, e.g. skills/sail) homes under her.",
   "gated_by": [
     "CC"
   ],
@@ -22,12 +31,13 @@
     "Law 4 — a rule that matters is enforced by physics, not policy. This device IS the physics.",
     "I-the-system-is-a-learning-block — the system learns its gates from evidence.",
     "CP1 — epistemic honesty: the device measures what it claims.",
-    "Telos — the system learns to constrain itself from its own operational history."
+    "Telos — the system learns to constrain itself from its own operational history.",
+    "Law 6 via ruling 2026-09-06-codemother-owns-the-care-of-the-code — codemother is the one owner of the care of the code: inspectors, gates, processes, workflows."
   ],
   "learns": "Yes — this device IS a learning system. Builder: mines positive types, ingests negative types, consolidates, retires. Watcher: graph-tree spreading activations absorb curriculum and monitor the codebase.",
   "claim_provenance": {
     "role": "cc-read",
-    "what": "cc-authored-from-akien-design-2026-09-03",
+    "what": "cc-authored-from-akien-design-2026-09-03; what+owner+review restated from Akien 2026-09-06",
     "why": "cc-read"
   }
 }

@@ -1,33 +1,123 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(engine-trace-corpus) -> [PROVED]",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'engine-runs-one-block'",
-    "emission_gate": "clean — WATCHME(engine-trace-corpus) emitted the probe berthed at cairn/machines/learning_block/probes/engine_trace_corpus.py (ticket 'engine-runs-one-block')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260802T170933-cd533608696a.json",
-    "ticket": "engine-runs-one-block",
-    "note": "the Learning Block has its inner engine, and the first block reasons on the record: one branchless loop (engine.py) instantiated from a data-only spec berthed beside its tenant (intentions_model_compiler/block_spec.json), every run landing input/candidates/killers/winner-why/escalation in a training trace the compile step can read. Chart answered whole (verdict-20260802T170933-cd533608696a: 6 criteria pass, 7 hypotheses confirmed). What a year-later reader should know: the tenant was chosen by MEASUREMENT (16 traces, no tie); the non-vacuity rejections came from real domain truth (an incremental copier cannot see a vanished source), not a rigged fixture; and the corpus watch (engine-trace-corpus, enough >= 5 answering all five questions) is what casts infer-compile-reads-the-traces — the staircase continues at the probe, not in anyone memory.",
-    "at": "2026-08-02T17:09:48",
-    "seq": 9
+    "entry_gate": "clean — a berthed chart chain claims ticket 'd6cacb63868b', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d6cacb63868b"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d6cacb63868b"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d6cacb63868b"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "/home/akien/dev/src/cairn/cairn/machines/learning_block/proofs/test_learning_block.py",
+    "proven_seal_date": "2026-09-02T14:39:04",
+    "delegated": false,
+    "ticket": "d6cacb63868b",
+    "fingerprint": "f3f96451e9d32662b0ecc2e0630ea162d5c1ffb23a0bc0c321e88891f3be6cbe",
+    "at": "2026-09-06T10:22:33",
+    "seq": 10
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 18 filters over learning_block",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'recordverdict-cli-door'",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260801T130403-053d9bced1e9.json",
-      "ticket": "recordverdict-cli-door",
-      "note": "his gate act has its own door and the gate comes to him: cairn recordverdict (bare=list, words=judge, ambiguity refused listing candidates, gate derived from the block) + the AT-YOUR-GATE session-open lane. Verdict artifact 4/4 criteria by instrument, 5/5 hypotheses confirmed. Finding debd4c6b93c8 stands at his gate ON PURPOSE — answering it with the new command is the door's first live fire by the hand it was built for",
-      "at": "2026-08-01T13:04:17",
-      "seq": 5
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -76,7 +166,125 @@
       "note": "the Learning Block has its inner engine, and the first block reasons on the record: one branchless loop (engine.py) instantiated from a data-only spec berthed beside its tenant (intentions_model_compiler/block_spec.json), every run landing input/candidates/killers/winner-why/escalation in a training trace the compile step can read. Chart answered whole (verdict-20260802T170933-cd533608696a: 6 criteria pass, 7 hypotheses confirmed). What a year-later reader should know: the tenant was chosen by MEASUREMENT (16 traces, no tie); the non-vacuity rejections came from real domain truth (an incremental copier cannot see a vanished source), not a rigged fixture; and the corpus watch (engine-trace-corpus, enough >= 5 answering all five questions) is what casts infer-compile-reads-the-traces — the staircase continues at the probe, not in anyone memory.",
       "at": "2026-08-02T17:09:48",
       "seq": 9
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'd6cacb63868b', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d6cacb63868b"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d6cacb63868b"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d6cacb63868b"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "/home/akien/dev/src/cairn/cairn/machines/learning_block/proofs/test_learning_block.py",
+      "proven_seal_date": "2026-09-02T14:39:04",
+      "delegated": false,
+      "ticket": "d6cacb63868b",
+      "fingerprint": "f3f96451e9d32662b0ecc2e0630ea162d5c1ffb23a0bc0c321e88891f3be6cbe",
+      "at": "2026-09-06T10:22:33",
+      "seq": 10
     }
   ],
-  "count": 10
+  "count": 11
 }

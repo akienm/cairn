@@ -1,32 +1,33 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(reflection_earns_its_ask) -> [PROVED]",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'the-apprentice-learns-its-test-failed'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/aider_shim/validations/test_driver.json (seal 2026-08-18T00:26:46, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(reflection_earns_its_ask) emitted the probe berthed at cairn/devices/aider_shim/probes/reflection_earns_its_ask.py (ticket 'the-apprentice-learns-its-test-failed')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260818T002616-4c9488d30d09.json",
+    "entry_gate": "clean — a berthed chart chain claims ticket '50ad391f4e95', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVED' in the code-seam@v2 vocabulary",
-        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
           ]
         }
       },
@@ -34,30 +35,31 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED moves the cursor off position 4",
-        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
-          "cursor": 4,
-          "resolved": 5
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED",
-        "actual": "WATCHME -> PROVED",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
-            "PROVED",
+            "DROPPED",
             "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
             "THINKME",
             "TICKETME"
           ],
@@ -65,529 +67,57 @@
         }
       },
       {
-        "identity": "the_crossing_names_a_cast_ticket",
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "a cast ticket for the WATCHME(reflection_earns_its_ask) crossing",
-        "actual": "a cast ticket for the WATCHME(reflection_earns_its_ask) crossing",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-apprentice-learns-its-test-failed",
-          "watch_object": "reflection_earns_its_ask",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/e9b0a8d4fb99-the-apprentice-learns-its-test-failed.json"
-        }
-      },
-      {
-        "identity": "the_ticket_carries_a_spec_for_this_watch",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "ticket 'the-apprentice-learns-its-test-failed' carries a watchme spec for 'reflection_earns_its_ask'",
-        "actual": "ticket 'the-apprentice-learns-its-test-failed' carries a watchme spec for 'reflection_earns_its_ask'",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-apprentice-learns-its-test-failed",
-          "watch_object": "reflection_earns_its_ask",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_promised_probe_is_berthed_and_armed",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "the probe the spec promised is berthed and armed",
-        "actual": "the probe the spec promised is berthed and armed",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "the-apprentice-learns-its-test-failed",
-          "watch_object": "reflection_earns_its_ask",
-          "berth": "cairn/devices/aider_shim/probes/reflection_earns_its_ask.py",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "PROVED",
-          "ticket": "the-apprentice-learns-its-test-failed",
-          "component": "aider_shim",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'the-apprentice-learns-its-test-failed' is cast",
-        "actual": "named ticket 'the-apprentice-learns-its-test-failed' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "PROVED",
-          "ticket": "the-apprentice-learns-its-test-failed",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/e9b0a8d4fb99-the-apprentice-learns-its-test-failed.json"
-        }
-      },
-      {
-        "identity": "the_claiming_chart_is_answered",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_exit",
+        "code": "transitions.py::inspect_entry",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_exit",
+        "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "the-apprentice-learns-its-test-failed"
+          "ticket": "50ad391f4e95"
         }
       },
       {
-        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "identity": "the_ticket_names_its_intent_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
-        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "component": "aider_shim",
-          "cleared_by": "CC",
-          "exempt": false,
-          "roster": []
+          "findings": [],
+          "ticket": "50ad391f4e95"
         }
       },
       {
-        "identity": "the_witness_is_whole",
+        "identity": "the_ticket_names_its_sorted_door_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness carries every field the harbor's gate stamps",
-        "actual": "the witness carries every field the harbor's gate stamps",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "cleared_by": "CC",
-          "missing": [],
-          "demanded": [
-            "proven_by",
-            "proven_seal_date"
-          ]
-        }
-      },
-      {
-        "identity": "the_named_proof_stands_in_proven_space",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/aider_shim/validations/test_driver.json stands in proven-space",
-        "actual": "cairn/devices/aider_shim/validations/test_driver.json stands in proven-space",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/aider_shim/validations/test_driver.json",
-          "why": "sealed green 2026-08-18T00:26:46 by sail:the-apprentice-learns-its-test-failed, and the component's source fingerprint still matches what was proved (64c9bc02254d…)"
-        }
-      },
-      {
-        "identity": "the_witness_agrees_with_the_seal_it_names",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/aider_shim/validations/test_driver.json's seal at '2026-08-18T00:26:46'",
-        "actual": "the witness dates cairn/devices/aider_shim/validations/test_driver.json's seal at '2026-08-18T00:26:46'",
-        "fatality": "none",
-        "source": "transitions.inspect_clearance",
-        "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/aider_shim/validations/test_driver.json",
-          "seal": "2026-08-18T00:26:46",
-          "claimed": "2026-08-18T00:26:46"
+          "findings": [],
+          "ticket": "50ad391f4e95"
         }
       }
     ],
-    "checks_proved": 13,
+    "checks_proved": 6,
     "cleared_by": "CC",
     "actor": "CC",
-    "proven_by": "cairn/devices/aider_shim/validations/test_driver.json",
-    "proven_seal_date": "2026-08-18T00:26:46",
+    "proven_by": "/home/akien/dev/src/cairn/cairn/devices/aider_shim/proofs/test_driver.py",
+    "proven_seal_date": "2026-09-04T09:56:56",
     "delegated": false,
-    "ticket": "the-apprentice-learns-its-test-failed",
-    "note": "THE APPRENTICE CONVERGED. Live against qwen3-coder:30b on hex, 2026-08-18T06:23:52Z: a scratch repo whose check.py demands the literal token SENTINEL-4417 inside add.__doc__ — a requirement deliberately ABSENT from the 255-char brief and absent from calc.py's pre-drive bytes. Attempt 1 wrote `return a + b` and failed. aider ran the test itself, the failure text set reflected_message, and the apprentice's second reply opens `I need to add a docstring to the add function that contains the exact token \"SENTINEL-4417\"`. That token existed in exactly one place the model could have read it: the assertion message, reachable only through aider's own in-process run. The parent's run_test then returned 0. This is the first drive in the device's life where the apprentice was WRONG, was TOLD, and FIXED IT — the whole point of the ticket, and it is a live measurement, not a fixture. Five criteria answered by their instruments, all pass; five hypotheses dispositioned, four confirmed and ONE KILLED. The kill is criterion 5's: the charter hypothesis claimed this device's charter was the only artifact describing how the driver constructs the Coder, and the corpus grep found a second one still standing in class-space after the charter moved — test_driver.py's own MISMATCH_REPLY docstring, saying auto_test is OFF by bound. Words-kept-meanings-replaced, caught at n=1 where the prior instance cost eight sites, and fixed inside this voyage. TWO MEASUREMENTS THE VOYAGE OWES FORWARD. (1) THE HOST TIMEOUT IS SHORTER THAN A COLD LOAD: the first live fire died `HostUnmetered ... response carried ['created_at','done','message','model']`, and the cause is not the shape it names. hex needs ~131s to bring qwen3-coder:30b up at the fence's num_ctx 81920 (measured: total_duration 131.5s of which prompt_eval 0.5s and eval 0.3s — the rest is KV allocation), while host.DEFAULT_TIMEOUT is 120.0s. Warm, the same two asks take 4-6s each. ollama omits zero-valued counters, so a request that never evaluated returns exactly those four keys and the meter's refusal names the wrong cause. Ticket owed: the diagnostic must say `the host had not loaded the model` rather than `the host reports no counters`. (2) THE SECOND TEST RUN'S WALL CLOCK IS STILL UNMEASURED, named in the charter and owed a ticket. max_reflections stays 0 by default: this voyage made the feedback REACHABLE, not automatic, and raising it is a bounds question for Akien.",
-    "at": "2026-08-18T00:29:30",
-    "seq": 11
+    "ticket": "50ad391f4e95",
+    "fingerprint": "e3e88affea778cd192765515707d6b7b823194d89c5b7da1a99a00730ff6eef8",
+    "at": "2026-09-06T11:23:06",
+    "seq": 13
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(aider_shim_edit_survival) -> [PROVED]",
-      "direction": "forward",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'aider-builds-a-piece'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-      "clearance_gate": "cleared by 'CC' onto cairn/devices/aider_shim/proofs/test_driver.py (seal 2026-08-17T14:40:23, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(aider_shim_edit_survival) emitted the probe berthed at cairn/devices/aider_shim/probes/edit_survival_probe.py (ticket 'aider-builds-a-piece')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260817T143716-f9f004b526ae.json",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVED' in the code-seam@v2 vocabulary",
-          "actual": "'PROVED' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED moves the cursor off position 4",
-          "actual": "WATCHME -> PROVED moves the cursor off position 4",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "cursor": 4,
-            "resolved": 5
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED",
-          "actual": "WATCHME -> PROVED",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "legal_from_here": [
-              "BUILDME",
-              "PROVED",
-              "PROVEME",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_names_a_cast_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "a cast ticket for the WATCHME(aider_shim_edit_survival) crossing",
-          "actual": "a cast ticket for the WATCHME(aider_shim_edit_survival) crossing",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "aider-builds-a-piece",
-            "watch_object": "aider_shim_edit_survival",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/6d3e689b0bf8-aider-builds-a-piece.json"
-          }
-        },
-        {
-          "identity": "the_ticket_carries_a_spec_for_this_watch",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "ticket 'aider-builds-a-piece' carries a watchme spec for 'aider_shim_edit_survival'",
-          "actual": "ticket 'aider-builds-a-piece' carries a watchme spec for 'aider_shim_edit_survival'",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "aider-builds-a-piece",
-            "watch_object": "aider_shim_edit_survival",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_promised_probe_is_berthed_and_armed",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "the probe the spec promised is berthed and armed",
-          "actual": "the probe the spec promised is berthed and armed",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "aider-builds-a-piece",
-            "watch_object": "aider_shim_edit_survival",
-            "berth": "cairn/devices/aider_shim/probes/edit_survival_probe.py",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "aider-builds-a-piece",
-            "component": "aider_shim",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'aider-builds-a-piece' is cast",
-          "actual": "named ticket 'aider-builds-a-piece' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "aider-builds-a-piece",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/6d3e689b0bf8-aider-builds-a-piece.json"
-          }
-        },
-        {
-          "identity": "the_claiming_chart_is_answered",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_exit",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_exit",
-          "values": {
-            "findings": [],
-            "ticket": "aider-builds-a-piece"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_clearance_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
-          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "component": "aider_shim",
-            "cleared_by": "CC",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_witness_is_whole",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness carries every field the harbor's gate stamps",
-          "actual": "the witness carries every field the harbor's gate stamps",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "cleared_by": "CC",
-            "missing": [],
-            "demanded": [
-              "proven_by",
-              "proven_seal_date"
-            ]
-          }
-        },
-        {
-          "identity": "the_named_proof_stands_in_proven_space",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "cairn/devices/aider_shim/proofs/test_driver.py stands in proven-space",
-          "actual": "cairn/devices/aider_shim/proofs/test_driver.py stands in proven-space",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/aider_shim/proofs/test_driver.py",
-            "why": "sealed green 2026-08-17T14:40:23 by cairn test, and the component's source fingerprint still matches what was proved (82a575c43781…)"
-          }
-        },
-        {
-          "identity": "the_witness_agrees_with_the_seal_it_names",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness dates cairn/devices/aider_shim/proofs/test_driver.py's seal at '2026-08-17T14:40:23'",
-          "actual": "the witness dates cairn/devices/aider_shim/proofs/test_driver.py's seal at '2026-08-17T14:40:23'",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/aider_shim/proofs/test_driver.py",
-            "seal": "2026-08-17T14:40:23",
-            "claimed": "2026-08-17T14:40:23"
-          }
-        }
-      ],
-      "checks_proved": 13,
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": "cairn/devices/aider_shim/proofs/test_driver.py",
-      "proven_seal_date": "2026-08-17T14:40:23",
-      "delegated": false,
-      "ticket": "aider-builds-a-piece",
-      "note": "The shim stops being inert: a Brief now drives the real aider Coder inside the venv and comes back as a record a later reader can answer survival from. Eight criteria answered by their instruments, all pass; eight hypotheses dispositioned, six confirmed and TWO KILLED — both by the same shape of error, an expectation that named the arrangement and not the code that uses it. (1) 'constructs without touching the network' was false: aider's Model construction dials raw.githubusercontent.com whenever its 24h model-info cache is cold, and ours was 19h old, which is exactly why the first look said no network. (2) 'the driver's contribution is ONE kwarg' was false: the stamp was correct and the log it reached was in-memory, so every ask died with the venv process while all 24 teeth passed — every one of them supplies a log path, so the default was the one arrangement no fixture could exercise. Found by the first live fire, which is the only thing that could have found it. Four mutants, four bites; six proofs green twice bare and sealed under netns. And the thing this device was built for is now readable: the offload probe's population moved off zero for the first time in its life — one shimmed ticket, eight verdicts, all pass. What it does NOT yet show is a surviving edit: two live fires against qwen3-coder:30b both came back as fenced code blocks rather than SEARCH/REPLACE, so aider applied nothing and the survival watch's first reading is 'not-applied'. Recorded, not routed around — widening the cap to buy retries is a bounds question for Akien.",
-      "at": "2026-08-17T14:40:35",
-      "seq": 7
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(reflection_earns_its_ask) -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'the-apprentice-learns-its-test-failed', and the ticket names its /intent firing and its /sorted door firing; clean — the entry gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "THINKME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "the-apprentice-learns-its-test-failed",
-            "component": "aider_shim",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'the-apprentice-learns-its-test-failed' is cast",
-          "actual": "named ticket 'the-apprentice-learns-its-test-failed' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "the-apprentice-learns-its-test-failed",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/e9b0a8d4fb99-the-apprentice-learns-its-test-failed.json"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "the-apprentice-learns-its-test-failed"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "the-apprentice-learns-its-test-failed"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "the-apprentice-learns-its-test-failed"
-          }
-        }
-      ],
-      "checks_proved": 8,
-      "ticket": "the-apprentice-learns-its-test-failed",
-      "actor": "CC",
-      "note": "Building under a complete seven-stage chart chain (validate berth validate-20260817T235254-80770ca3a0d6.json). The voyage switches ON aider's own reflection loop rather than building a second one beside it: brief.test_cmd rides the venv payload as a STRING (a callable is impossible — measured: base_coder.py:1169 concatenates test_cmd into the system prompt unguarded, so a function raises TypeError on every format), and Coder.create takes auto_test=True. The parent's run_test stays exactly where it is as the record's authority; what is added is a SECOND, differently-purposed run inside aider's process whose only job is to be the apprentice's feedback signal. Triage put the one-line driver change THIRD of five, behind the two-reply fixture and behind teeth written to go RED against the unchanged driver — because survey measured that the existing bounds tooth would stay green through this entire change, and a green that cannot fail is the defect this voyage is most at risk of shipping. Crossing cost one refusal first: the ticket named its /sorted berth by BASENAME, which read_berth cannot resolve; the census found four tickets cast today carrying the same truncation and all four are fixed.",
-      "at": "2026-08-17T23:54:19",
-      "seq": 8
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -1235,7 +765,272 @@
       "note": "THE APPRENTICE CONVERGED. Live against qwen3-coder:30b on hex, 2026-08-18T06:23:52Z: a scratch repo whose check.py demands the literal token SENTINEL-4417 inside add.__doc__ — a requirement deliberately ABSENT from the 255-char brief and absent from calc.py's pre-drive bytes. Attempt 1 wrote `return a + b` and failed. aider ran the test itself, the failure text set reflected_message, and the apprentice's second reply opens `I need to add a docstring to the add function that contains the exact token \"SENTINEL-4417\"`. That token existed in exactly one place the model could have read it: the assertion message, reachable only through aider's own in-process run. The parent's run_test then returned 0. This is the first drive in the device's life where the apprentice was WRONG, was TOLD, and FIXED IT — the whole point of the ticket, and it is a live measurement, not a fixture. Five criteria answered by their instruments, all pass; five hypotheses dispositioned, four confirmed and ONE KILLED. The kill is criterion 5's: the charter hypothesis claimed this device's charter was the only artifact describing how the driver constructs the Coder, and the corpus grep found a second one still standing in class-space after the charter moved — test_driver.py's own MISMATCH_REPLY docstring, saying auto_test is OFF by bound. Words-kept-meanings-replaced, caught at n=1 where the prior instance cost eight sites, and fixed inside this voyage. TWO MEASUREMENTS THE VOYAGE OWES FORWARD. (1) THE HOST TIMEOUT IS SHORTER THAN A COLD LOAD: the first live fire died `HostUnmetered ... response carried ['created_at','done','message','model']`, and the cause is not the shape it names. hex needs ~131s to bring qwen3-coder:30b up at the fence's num_ctx 81920 (measured: total_duration 131.5s of which prompt_eval 0.5s and eval 0.3s — the rest is KV allocation), while host.DEFAULT_TIMEOUT is 120.0s. Warm, the same two asks take 4-6s each. ollama omits zero-valued counters, so a request that never evaluated returns exactly those four keys and the meter's refusal names the wrong cause. Ticket owed: the diagnostic must say `the host had not loaded the model` rather than `the host reports no counters`. (2) THE SECOND TEST RUN'S WALL CLOCK IS STILL UNMEASURED, named in the charter and owed a ticket. max_reflections stays 0 by default: this voyage made the feedback REACHABLE, not automatic, and raising it is a bounds question for Akien.",
       "at": "2026-08-18T00:29:30",
       "seq": 11
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '50ad391f4e95', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "50ad391f4e95",
+            "component": "aider_shim",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '50ad391f4e95' is cast",
+          "actual": "named ticket '50ad391f4e95' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "50ad391f4e95",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/50ad391f4e95-aider-shim-reaches-into-inference-domain.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "/home/akien/dev/src/cairn/cairn/devices/aider_shim/proofs/test_driver.py",
+      "proven_seal_date": "2026-09-04T09:56:56",
+      "delegated": false,
+      "ticket": "50ad391f4e95",
+      "fingerprint": "76145faced59090eb8b5bea7486adb9ebe8a3572d19d7d9379400b975712c5b5",
+      "at": "2026-09-06T11:23:06",
+      "seq": 12
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '50ad391f4e95', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "50ad391f4e95"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "/home/akien/dev/src/cairn/cairn/devices/aider_shim/proofs/test_driver.py",
+      "proven_seal_date": "2026-09-04T09:56:56",
+      "delegated": false,
+      "ticket": "50ad391f4e95",
+      "fingerprint": "e3e88affea778cd192765515707d6b7b823194d89c5b7da1a99a00730ff6eef8",
+      "at": "2026-09-06T11:23:06",
+      "seq": 13
     }
   ],
-  "count": 12
+  "count": 14
 }

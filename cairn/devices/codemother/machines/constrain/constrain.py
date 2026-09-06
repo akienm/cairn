@@ -325,7 +325,7 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         return {"verdict": "unrunnable",
                 "how": "no file at %s — it was discovered and then was not there, so "
                        "nothing was run and no verdict was read" % rel_path}
-    from cairn.tools.base.validation import run_proof, source_fingerprint
+    from cairn.tools.base.validation import run_proof, source_fingerprint, standing
     try:
         key = (rel_path, source_fingerprint(abs_path))
     except Exception as e:                                   # unreadable tree, not a green
@@ -333,6 +333,28 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
                 % (rel_path, type(e).__name__, e)}
     if key in _RUN_CACHE:
         return _RUN_CACHE[key]
+    # A STANDING SEAL IS THE TESTER'S VERDICT ALREADY READ — Law 8's return on its price:
+    # "composing proven code without re-checking it is the whole return." The seal stands
+    # only while the component's source_fingerprint matches the working tree, so a re-run
+    # would measure the same bytes the seal already measured. Re-running anyway cost the
+    # chain its liveness: measured 2026-09-05/06, every chart whose refs touched the bus
+    # hung here (eleven bus proofs, each a full beat), and no in-scope ticket could be
+    # charted. Anything WITHOUT a standing seal — a red seal, an expired one, a proof never
+    # sealed — is run as before, because there the tester has not spoken about this code.
+    seal = standing(abs_path)
+    if seal.get("proven"):
+        state = {"verdict": "green",
+                 "how": "read from the standing seal (%s) — the source fingerprint matches "
+                        "the working tree, so the tester's recorded verdict IS the state "
+                        "right now (Law 8: proven, then trusted)"
+                        % os.path.relpath(seal["seal"].get("path", "validations/"), root)
+                        if isinstance(seal.get("seal"), dict) else
+                        "read from the standing seal — the source fingerprint matches the "
+                        "working tree, so the tester's recorded verdict IS the state right "
+                        "now (Law 8: proven, then trusted)",
+                 "_seconds": 0.0}
+        _RUN_CACHE[key] = state
+        return state
     os.environ[_REENTRY] = "1"
     started = time.monotonic()
     try:

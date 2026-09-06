@@ -1,18 +1,28 @@
 [
   {
     "claim": "proof test_trouble_panel.py passes under python3",
-    "caller": "7a1265439f54-the-cairn-device-owns-the-trouble-panel",
-    "date": "2026-09-04T00:26:46",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-06T10:45:14",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
       "seal": {
-        "verdict": "sealed"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "02581032c3e2cfdbcccad79cbe51fd28e984ded08e7f7b04800a1472f6bfe81e",
+      "source_fingerprint": "d2dd3e488039629722f7536ccd7d23d21d9986de5a30364ff579d4ab3e898526",
       "instance_seal": {
-        "verdict": "sealed"
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1383647-83oqj247/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

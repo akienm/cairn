@@ -1,0 +1,31 @@
+[
+  {
+    "claim": "proof test_sail_door.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-06T10:30:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok entry gate: all five lacks in one raise\n  ok refusal carries the WHY, not just the name\n  ok conforming forward berths\n  ok berth carries the request\n  ok berth carries disposition\n  ok routed_out berths too\n  ok kicked-back disposition passes\n  ok task_or_ticket='task' refused\n  ok task why says sail only builds tickets\n  ok incoherent disposition (forward + not-ready) refused\n  ok incoherent disposition (out + built) refused\n  ok flat+semantic lacks in ONE refusal\n  ok bad exit refused\n  ok both edges traced\n  ok refusal trace names the judge\n  ok generic CLI exits 0 for sail\n  ok generic CLI berths sail\n  ok generic CLI refuses incomplete sail\n  ok live trace untouched by this proof\nGREEN — 19 teeth",
+      "stderr_tail": "",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "b60dbd1a23750af1cb22239ba46d706a4b4f02041f60bf3fd0ea8a0c3838005f",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1361100-uo3bychj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

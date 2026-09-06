@@ -1452,6 +1452,80 @@ def inspect_build(history_path: str) -> list[dict]:
                   sieves_run=report["sieves_run"])] + list(report["proof_record"])
 
 
+def _is_human_proved(class_def: dict) -> bool:
+    """A class whose prove gate is a QUORUM SIGNATURE GATE is proved by readers, not by a
+    tester run (node_classes/concept-piece.json). Read off the class definition, never off
+    the class name — a second human-proved class inherits the seat without a roster edit."""
+    return str(class_def.get("prove_gate", "")).lstrip().lower().startswith(
+        "quorum signature gate")
+
+
+def _quorum_gate(validation_path: object, class_def: dict) -> tuple[str, list[dict]]:
+    """THE BUILD GATE'S SEAT FOR A HUMAN-PROVED NODE. Born 2026-09-05, the day four
+    concept-pieces stood at PROVEME:waiting and the first one to try the crossing was
+    refused because the census cannot measure prose ('no component directories under
+    CairnCommons — wrong root?'). The refusal was honest — a gate that inspects nothing
+    passes everything — but it was the WRONG INSTRUMENT: a concept-piece's build is its
+    quorum VALIDATION (the class's prove_gate), and the record that proves it is the one
+    ``quorum.seal`` appended, read off disk. So this seat asks the census's question in the
+    class's own currency: is there a green quorum seal, is it a quorum seal, and where.
+
+    The caller names the validation (``emit(..., validation=<path>)``) the same way it
+    names its ticket; the gate reads the file and trusts nothing about it it did not read.
+    A hand that types a path to a red seal, a code seal, or no file at all is refused with
+    the lane naming which."""
+    from cairn.devices.tester.validation_store import read_validations
+
+    code = "transitions.py::inspect_quorum"
+    expected = "a green VALIDATION sealed through the quorum signature gate names this crossing"
+    want = str(class_def.get("prove_gate", "")).split("—")[0].strip().lower()
+
+    def _lane_for(actual: str, **values) -> list[dict]:
+        return [_lane("the_quorum_sealed_the_piece", expected=expected, actual=actual,
+                      code=code, **values)]
+
+    if not validation_path or not isinstance(validation_path, str):
+        record = _lane_for("the crossing names no validation (emit(..., validation=<path>))")
+    elif not Path(validation_path).is_file():
+        record = _lane_for(f"no VALIDATION on disk at {validation_path}", path=validation_path)
+    else:
+        try:
+            last = read_validations(path=validation_path)[-1]
+        except Exception as e:  # noqa: BLE001 — an unreadable seal is a red, not a crash
+            last = None
+            record = _lane_for(f"{validation_path} is not a readable VALIDATION: {e}",
+                               path=validation_path)
+        if last is not None:
+            method = str(last.get("method", "")).lower()
+            verdict = last.get("verdict")
+            if not method.startswith(want):
+                record = _lane_for(
+                    f"the seal at {validation_path} is not a {want} (method: "
+                    f"{last.get('method')!r})", path=validation_path, verdict=verdict)
+            elif verdict != "green":
+                record = _lane_for(
+                    f"the quorum seal at {validation_path} is {verdict!r}, rejected by "
+                    f"{(last.get('evidence') or {}).get('rejected_by')}",
+                    path=validation_path, verdict=verdict)
+            else:
+                record = _lane_for(expected, path=validation_path, verdict=verdict,
+                                   caller=last.get("caller"), notary=(last.get("evidence")
+                                                                       or {}).get("notary"),
+                                   delegation=(last.get("evidence") or {}).get("delegation"))
+    note = (f"clean — quorum seal read at {validation_path}: "
+            f"{(record[0].get('values') or {}).get('caller')!r} signed, "
+            f"{(record[0].get('values') or {}).get('notary')!r} recorded")
+
+    def _red(_record, bad):
+        return (
+            f"PROVEME crossing refused: this node is human-proved ({want}) and the seal "
+            f"the crossing names does not prove it — {_record[0]['actual']}. Nothing was "
+            "journaled. Seal the piece through cairn.devices.tester.quorum.seal and name the "
+            "validation on the crossing (emit(..., validation=<path>)).")
+
+    return BUILD_GATE.run(record, note=note, red_fn=_red)
+
+
 def _build_gate(history_path: str) -> tuple[str, list[dict]]:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
@@ -1605,7 +1679,10 @@ def emit(
         # (a refused move leaves no partial record). Back-edges retreat ungated.
         gate_note = None
         if wf.here == "PROVEME" and target_idx > wf.cursor:
-            gate_note, _rec = _build_gate(history_path)
+            if _is_human_proved(class_def):
+                gate_note, _rec = _quorum_gate(journal_extra.get("validation"), class_def)
+            else:
+                gate_note, _rec = _build_gate(history_path)
             proved += _rec
         # THE ENTRY GATE: crossing forward INTO the BUILDME summons requires a named,
         # CAST ticket — or the crossing's own component on the explicit exempt

@@ -234,14 +234,59 @@ def venvs_under_instance_space() -> list[str]:
     return [str(cfg.parent) for cfg in sorted(root.rglob("pyvenv.cfg"))]
 
 
+_SEAL_PREFIX = "cairn-instance-seal-"
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # someone else's live process
+    return True
+
+
+def _sweep_orphaned_snapshots(tmp: str | None = None) -> list[str]:
+    """Remove every ``cairn-instance-seal-<pid>-*`` under the temp root whose pid is dead,
+    and every legacy one that carries no pid at all (nothing alive can own those — the
+    naming that would have said so did not exist when they were made). Returns what it
+    removed. Never raises: a sweep that fails is a leak that lives one snapshot longer,
+    which is the state before this function existed, not a reason to refuse a proof."""
+    root = Path(tmp or tempfile.gettempdir())
+    removed: list[str] = []
+    try:
+        candidates = list(root.glob(f"{_SEAL_PREFIX}*"))
+    except OSError:
+        return removed
+    for d in candidates:
+        tail = d.name[len(_SEAL_PREFIX):]
+        head = tail.split("-", 1)[0]
+        if head.isdigit() and _pid_alive(int(head)):
+            continue
+        shutil.rmtree(d, ignore_errors=True)
+        removed.append(str(d))
+    return removed
+
+
 def snapshot_instance_space() -> str:
     """Copy the live instance root to a fresh temp world and return its path.
 
     The caller owns the directory and must remove it. Returns the SWAP ROOT — what gets bound
     over ``~/.cairn`` — so the address inside the sandbox is byte-identical to the real one
     and nothing a subject computes can tell the difference except by writing.
+
+    THE OWNER'S PID IS IN THE NAME, AND THE DEAD ARE SWEPT ON THE NEXT SNAPSHOT. Measured
+    2026-09-05: 57 of these at ~270M each had filled /tmp to 7.7G. Every caller removes its
+    own in a ``finally`` — and a ``finally`` never runs for a process that is SIGKILLed or
+    SIGTERMed mid-copy, which is what a caller's ``timeout`` does to a slow proof. So the
+    copy names its owner, and the next snapshot (the one event that is guaranteed to happen
+    before the disk matters again — no clock, no daemon) removes every sibling whose owner
+    is no longer a live process. A live owner's copy is never touched: two testers may run
+    at once.
     """
-    swap = Path(tempfile.mkdtemp(prefix="cairn-instance-seal-")) / "cairn"
+    _sweep_orphaned_snapshots()
+    swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-")) / "cairn"
     shutil.copytree(_INSTANCE_ROOT, swap, ignore=_skip_venv_contents,
                     symlinks=True, ignore_dangling_symlinks=True)
     return str(swap)

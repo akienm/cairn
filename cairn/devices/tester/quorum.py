@@ -36,11 +36,19 @@ persists it. The trail must show the rejection, or the kick-back has no evidence
 
 from __future__ import annotations
 
+import json
+import os
 from datetime import datetime
+from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, RED
-from cairn.devices.tester.validation_store import (persist_validation, read_validations,
-                                           validations_path_for_artifact)
+from cairn.devices.tester.validation_store import (artifact_fingerprint, persist_validation,
+                                           read_validations, validations_path_for_artifact)
+
+# Where a ruling lives when it is a ruling: the intake door (`cairn ruling open`) writes
+# nothing anywhere else. Derived from this file's own address, the way the proofs derive
+# the commons — not chosen, and not an environment variable someone forgets to set.
+_DECISIONS = Path(__file__).resolve().parents[4] / "CairnCommons" / "decisions"
 
 
 class QuorumRefused(ValueError):
@@ -49,6 +57,34 @@ class QuorumRefused(ValueError):
     Refused BEFORE the record is written: a VALIDATION trail is append-only, so a seal that
     should not have been recorded cannot be taken back out (Law 7).
     """
+
+
+def _ruling_on_file(ruling_id: str, decisions: Path | None = None) -> dict:
+    """A ruling that can stand behind a same-hand seal: on disk, through the intake door,
+    and confirmed by his marker. Anything less is a sentence, and the different-hands rule
+    is not lifted by a sentence.
+
+    Read from the decisions store, never accepted from the caller: the caller names the
+    id, the door reads the packet. The two facts checked are the two the ruling door
+    itself stamps — that the file exists under the id (intake wrote it) and that
+    ``confirmed`` is true (his RULED marker, or its equivalent, was in the verbatim)."""
+    decisions = _DECISIONS if decisions is None else decisions  # read at call, not at def
+    ruling_id = (ruling_id or "").strip()
+    if not ruling_id:
+        raise QuorumRefused("under_ruling is empty — a same-hand seal needs a ruling id, not "
+                            "a flag")
+    path = decisions / f"{ruling_id}.json"
+    if not path.is_file():
+        raise QuorumRefused(
+            f"no ruling {ruling_id!r} on file at {path} — the different-hands rule is lifted "
+            "by a ruling that went through `cairn ruling open`, not by naming one")
+    with open(path, encoding="utf-8") as fh:
+        packet = json.load(fh)
+    if not packet.get("confirmed"):
+        raise QuorumRefused(
+            f"ruling {ruling_id!r} is on file but not confirmed — an unconfirmed packet is "
+            "CC's reading of his words, and CC's reading cannot lift a rule about CC")
+    return packet
 
 
 def _check_signature(sig: dict, i: int) -> tuple[str, str]:
@@ -82,6 +118,7 @@ def seal(
     falsifier: str,
     horizon: str,
     now: str | None = None,
+    under_ruling: str | None = None,
 ) -> dict:
     """Run the quorum signature gate over ``artifact_path`` and APPEND the VALIDATION.
 
@@ -91,6 +128,18 @@ def seal(
 
     Refuses, loudly and before writing: an unsigned or unrestated signature, a verdict that is
     neither green nor red, fewer distinct signers than ``quorum``, and a notary who reviewed.
+
+    THE ONE ESCAPE FROM DIFFERENT-HANDS, AND IT IS A RULING, NOT A FLAG. A deterministic
+    refusal is fixed or carries a ruling from Akien — never a paragraph (CLAUDE.md, rules
+    awaiting physics). ``under_ruling`` names a ruling on file in the decisions store,
+    confirmed by his marker, that delegates the reviewer's seat to the recording hand; with
+    it the notary MAY be a signer, and the record says so in its method and carries the
+    ruling id in its evidence, so a reader sees the lifted rule and who lifted it without
+    opening anything. Without it the refusal stands exactly as before. The corrosion
+    predicate is satisfied by construction: the constraint stopped constraining, and the
+    ruling sits in the same act, in the same record. Born 2026-09-05 from Akien's words
+    "you're hereby so delegated for the remainder of this session" — a delegation the door
+    could not take, because the only way to spell it was two names for one hand.
     """
     if quorum < 1:
         raise QuorumRefused(f"quorum={quorum} would seal with nobody having read it")
@@ -109,15 +158,27 @@ def seal(
     notary = (notary or "").strip()
     if not notary:
         raise QuorumRefused("a seal with no notary has no accountable hand (Law 6)")
+    delegation = None
     if notary in signers:
-        raise QuorumRefused(
-            f"notary {notary!r} is also a reviewer. For a human-proved node the verdict and the "
-            "seal are DIFFERENT HANDS (node_classes/concept-piece.json) — one hand doing both is "
-            "a self-seal, which is exactly the hollow build Law 8 forbids.")
+        if under_ruling is None:
+            raise QuorumRefused(
+                f"notary {notary!r} is also a reviewer. For a human-proved node the verdict and "
+                "the seal are DIFFERENT HANDS (node_classes/concept-piece.json) — one hand doing "
+                "both is a self-seal, which is exactly the hollow build Law 8 forbids. A ruling "
+                "that delegates the reviewer's seat lifts this: name it in `under_ruling`.")
+        ruling = _ruling_on_file(under_ruling)
+        delegation = {
+            "ruling": under_ruling,
+            "ruled_by": ruling.get("ruled_by"),
+            "date": ruling.get("date"),
+            "now_the_spec_says": ruling.get("now_the_spec_says"),
+        }
 
     rejected = [s for s, v in checked if v == RED]
     verdict = RED if rejected else GREEN
 
+    hands = (f"same hand, under ruling {under_ruling!r}" if delegation
+             else "different hands")
     validation = {
         "claim": claim,
         # caller = THE REVIEWERS, per the class def — the seal is theirs, not the notary's.
@@ -125,7 +186,7 @@ def seal(
         "date": now or datetime.now().isoformat(timespec="seconds"),
         "method": (
             f"quorum signature gate — review by {len(signers)} reader(s), quorum {quorum}; "
-            f"verdict = the reviewers', seal recorded by notary {notary!r} (different hands)"
+            f"verdict = the reviewers', seal recorded by notary {notary!r} ({hands})"
         ),
         "verdict": verdict,
         "evidence": {
@@ -133,7 +194,14 @@ def seal(
             "notary": notary,
             "quorum_required": quorum,
             "distinct_signers": len(signers),
+            # THE HORIZON, MADE CHECKABLE — the same field a tester seal carries, over the
+            # prose instead of the code: `standing()` expires this seal the moment the piece
+            # the readers signed is not the piece on disk. Without it a quorum seal was
+            # "green, but UNKNOWABLE" to the clearance gate, so no concept-piece had ever
+            # crossed into PROVED through the harbor (2026-09-05).
+            "source_fingerprint": artifact_fingerprint(artifact_path),
             **({"rejected_by": sorted(rejected)} if rejected else {}),
+            **({"delegation": delegation} if delegation else {}),
         },
         "falsifier": falsifier,
         "horizon": horizon,

@@ -150,6 +150,18 @@ def component_root_for(proof_path: str) -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(proof_path)))
 
 
+def artifact_fingerprint(artifact_path: str) -> str:
+    """One sha256 over a human-proved artifact's bytes — ``source_fingerprint``'s twin for
+    prose. A quorum seal carries it so ``standing`` can expire the seal when the piece the
+    readers signed is no longer the piece on disk (Law 3: a VALIDATION expires). Over the
+    one file only: a concept-piece has no component tree, the artifact IS the thing proved."""
+    digest = hashlib.sha256()
+    with open(artifact_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 16), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def source_fingerprint(proof_path: str) -> str:
     """One sha256 over every ``*.py`` under the proof's component root — the horizon, made checkable.
 
@@ -212,7 +224,14 @@ def standing(proof_path: str) -> dict:
     mode bit (the accident cannot land at all) and git (every trail is a committed file, so a
     hand-edit is a diff — and unlike the chain, that is not a number the editor can recompute).
     """
-    trail = read_validations(proof_path)
+    # TWO KINDS OF PROVEN THING, ONE QUESTION. A proof file lives under proofs/ and its
+    # seal is the tester's; anything else handed here is a human-proved ARTIFACT (a
+    # concept-piece) whose seal is the quorum's, addressed by the artifact rule and
+    # fingerprinted over the artifact itself. Decided by the path's shape, not by a flag,
+    # so a caller cannot ask the code question about prose or the prose question about code.
+    human_proved = os.path.basename(os.path.dirname(os.path.abspath(proof_path))) != "proofs"
+    trail = (read_validations(path=validations_path_for_artifact(proof_path))
+             if human_proved else read_validations(proof_path))
     if not trail:
         return {"proven": False, "seal": None, "why": (
             f"no VALIDATION has ever sealed {proof_path} — the trail at "
@@ -230,7 +249,8 @@ def standing(proof_path: str) -> dict:
             f"no source_fingerprint — so whether the code still matches what was proved is "
             f"UNKNOWABLE from the trail. Unknown is not green (Law 9). Re-run the proof to "
             f"seal a fingerprint")}
-    current = source_fingerprint(proof_path)
+    current = (artifact_fingerprint(proof_path) if human_proved
+               else source_fingerprint(proof_path))
     if current != recorded:
         return {"proven": False, "seal": seal, "why": (
             f"the seal on {proof_path} is green, dated {seal.get('date')} — and its "

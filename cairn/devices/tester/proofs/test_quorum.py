@@ -99,6 +99,69 @@ def test_a_notary_who_reviewed_cannot_seal_their_own_verdict():
             "REFUSED BEFORE THE WRITE — an append-only trail cannot un-record a bad seal"
 
 
+def test_a_same_hand_seal_stands_only_under_a_confirmed_ruling_on_file():
+    """The one escape from different-hands is a RULING, not a flag (2026-09-05, Akien:
+    "you're hereby so delegated for the remainder of this session"). Four teeth: no ruling
+    named → refused as before; a ruling named that is not on file → refused; a ruling on
+    file but unconfirmed → refused (CC's reading cannot lift a rule about CC); a confirmed
+    ruling → the seal lands, and the record SAYS same-hand and CARRIES the ruling id."""
+    with tempfile.TemporaryDirectory() as tmp:
+        decisions = Path(tmp) / "decisions"
+        decisions.mkdir()
+        original = quorum._DECISIONS
+        quorum._DECISIONS = decisions
+        try:
+            # a same-hand seal with no ruling is still the self-seal it always was
+            _expect_refused(lambda: _seal(tmp, signatures=[dict(CC)], notary="cc"), "self-seal")
+            # naming a ruling that is not on file lifts nothing
+            _expect_refused(lambda: _seal(tmp, signatures=[dict(CC)], notary="cc",
+                                          under_ruling="2026-09-05-nobody-wrote-this"),
+                            "not by naming one")
+            # on file but unconfirmed — the recorder's own reading — lifts nothing
+            (decisions / "2026-09-05-unconfirmed.json").write_text(
+                json.dumps({"id": "2026-09-05-unconfirmed", "confirmed": False}))
+            _expect_refused(lambda: _seal(tmp, signatures=[dict(CC)], notary="cc",
+                                          under_ruling="2026-09-05-unconfirmed"),
+                            "not confirmed")
+            assert not (Path(tmp) / "validations").exists(), \
+                "every refusal above must land BEFORE the write"
+            # a confirmed ruling on file lifts it, and the record shows the lift
+            (decisions / "2026-09-05-delegated.json").write_text(json.dumps({
+                "id": "2026-09-05-delegated", "ruled_by": "Akien", "date": "2026-09-05",
+                "now_the_spec_says": "CC may sign concept-pieces this session",
+                "confirmed": True}))
+            _, v = _seal(tmp, signatures=[dict(CC)], notary="cc",
+                         under_ruling="2026-09-05-delegated")
+        finally:
+            quorum._DECISIONS = original
+    assert v["verdict"] == GREEN and v["caller"] == "cc"
+    assert "same hand, under ruling '2026-09-05-delegated'" in v["method"], v["method"]
+    assert "different hands" not in v["method"], "a lifted rule may not be reported as held"
+    assert v["evidence"]["delegation"]["ruling"] == "2026-09-05-delegated"
+    assert v["evidence"]["delegation"]["ruled_by"] == "Akien"
+    assert set(v) == set(VALIDATION_FIELDS), "still the same eight fields"
+
+
+def test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes():
+    """2026-09-05: the clearance gate re-reads ``standing()`` on the crossing into PROVED, and
+    a quorum seal used to answer 'green but UNKNOWABLE' there (no source_fingerprint), so no
+    concept-piece had ever crossed through the harbor. Now the seal carries a fingerprint
+    over the artifact, ``standing`` reads a human-proved artifact by the artifact rule, and
+    the seal EXPIRES when the prose moves — the same physics a code seal has (Law 3)."""
+    from cairn.devices.tester.validation_store import standing
+    with tempfile.TemporaryDirectory() as tmp:
+        art, v = _seal(tmp)
+        assert v["evidence"]["source_fingerprint"], "a quorum seal carries its horizon"
+        s = standing(art)
+        assert s["proven"], s["why"]
+        assert "fingerprint still matches" in s["why"], s["why"]
+        Path(art).write_text("# a concept-piece, edited after signing\n", encoding="utf-8")
+        s = standing(art)
+        assert not s["proven"] and "HORIZON HAS CLOSED" in s["why"], s["why"]
+        # a code-shaped question about prose is not asked: no proofs/ dir was consulted
+        assert not (Path(tmp) / "proofs").exists()
+
+
 def test_a_rubber_stamp_is_refused():
     with tempfile.TemporaryDirectory() as tmp:
         _expect_refused(
@@ -206,6 +269,8 @@ TESTS = [
     test_a_concept_piece_can_finally_be_sealed,
     test_it_is_the_same_ratified_record_not_a_new_type,
     test_a_notary_who_reviewed_cannot_seal_their_own_verdict,
+    test_a_same_hand_seal_stands_only_under_a_confirmed_ruling_on_file,
+    test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes,
     test_a_rubber_stamp_is_refused,
     test_a_quorum_means_distinct_hands,
     test_a_rejection_is_a_verdict_and_is_recorded,

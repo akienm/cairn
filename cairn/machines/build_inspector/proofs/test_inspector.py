@@ -785,6 +785,15 @@ def main() -> None:
         (ep / "validate-20260729T000003-dddd.json").write_text(
             json.dumps({"ticket": "lonely"}))
         assert buildme_rides_the_chart("lonely", berths_root=eroot) == []
+        # a chain berthed under the ticket's SLUG claims the same voyage as its hex id
+        # (2026-09-06: five pre-convention chains were invisible to the gate) — live
+        # commons, committed ticket 6a657e22db6f-ticket-and-task
+        (ep / "validate-20260729T000004-eeee.json").write_text(
+            json.dumps({"ticket": "ticket-and-task"}))
+        assert buildme_rides_the_chart("6a657e22db6f", berths_root=eroot) == [], \
+            "a slug-claimed validate berth must satisfy a hex-id lookup of the same ticket"
+        assert buildme_rides_the_chart("no-such-ticket", berths_root=eroot), \
+            "widening to the filed ticket's spellings must not admit a stranger"
         # a nonexistent root reds, never crashes; and the check stays OUT of SIEVES
         assert buildme_rides_the_chart("lonely", berths_root=eroot / "nope")
         assert "buildme_rides_the_chart" not in _SIEVES, \

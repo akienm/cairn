@@ -49,7 +49,7 @@ from cairn.tools.gate import gate  # noqa: E402
 #   gate-ness a MEASURABLE fact: `cairn determinism` derives "this is a gate" from this
 #   import and reds any gate whose closure reaches the LLM.
 from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (tree-free
-                                ticket_path, is_skeleton)  #   module — the verdict
+                                ticket_path, ticket_spellings, is_skeleton)  #   module — the verdict
 #   path stays structurally unable to reach tree machinery; the packet jurisdiction
 #   composes the berth gate's OWN ref semantics so the two mouths cannot disagree.
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
@@ -295,7 +295,8 @@ def _component_tickets(comp_dir: Path) -> set:
             continue
         state = tdata.get("workflow_and_state", "")
         if not (isinstance(state, str) and "[PROVED]" in state):
-            active.add(tid)
+            # the history names the ticket one way; a packet may name it another
+            active |= ticket_spellings(tid, root=_TICKETS_ROOT)
     return active
 
 
@@ -1810,13 +1811,16 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
     disposition — complete on the first pass, nothing to re-run.
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
+    # every spelling the filed ticket answers to — a chain berthed under the slug before
+    # the hex-id convention claims the same voyage (grammar.ticket_spellings, 2026-09-06)
+    names = ticket_spellings(ticket, root=_TICKETS_ROOT)
     if root.is_dir():
         for path in sorted(root.glob("*/packets/validate-*.json")):
             try:
                 packet = json.loads(path.read_text())
             except (OSError, json.JSONDecodeError):
                 continue  # an unreadable berth names no claim; the berth owner's sweep carries that finding
-            if isinstance(packet, dict) and packet.get("ticket") == ticket:
+            if isinstance(packet, dict) and packet.get("ticket") in names:
                 return []
     return [_finding(
         "buildme_rides_the_chart", ticket,

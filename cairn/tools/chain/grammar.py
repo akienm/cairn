@@ -267,6 +267,36 @@ def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
     return matches[0] if matches else None
 
 
+def ticket_spellings(claim, root: str = CAIRN_ROOT) -> frozenset:
+    """EVERY NAME ONE FILED TICKET ANSWERS TO — the hex id, the slug, and the ``hex-slug``
+    file stem — so a reader that MATCHES a claim can never disagree with the door that
+    ADMITTED it. ``ticket_path`` above accepts a slug or a hex id and finds the same file;
+    the readers that compared ``packet["ticket"] == ticket`` by string did not, and the
+    two spellings drifted apart at the gate.
+
+    THE DEFECT THIS CLOSES (measured 2026-09-06): 2,288 chart packets on disk, and the
+    ones berthed before the hex-id convention name their ticket by slug —
+    ``"ticket": "learning-block-engine-track"``. Five BUILDME tickets carried complete
+    seven-stage chains under their slug, and ``chain_for_ticket(<hex>)`` reported every
+    stage None; the entry gate then refused the crossing for want of a chart that was
+    sitting in the berths. The packets are records of truth and are not rewritten
+    (Law 7); the reader learns the spelling instead.
+
+    Always contains ``claim`` itself, so a claim on an unfiled ticket still matches its
+    own packets exactly as before — this widens, it never narrows."""
+    if not isinstance(claim, str) or not claim:
+        return frozenset()
+    names = {claim}
+    filed = ticket_path(claim, root)
+    if filed:
+        stem = os.path.basename(filed)[:-len(".json")]
+        names.add(stem)
+        if _HEX_ID_RE.match(stem[:12]) and stem[12:13] == "-":
+            names.add(stem[:12])
+            names.add(stem[13:])
+    return frozenset(names)
+
+
 def ticket_claim_error(packet: dict, root: str = CAIRN_ROOT) -> str | None:
     """The ticket-claim rule, shared by every packet gate: an optional 'ticket'
     field must name a ticket ON FILE in CairnCommons/tickets/ — a packet claiming

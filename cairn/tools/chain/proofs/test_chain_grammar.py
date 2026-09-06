@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
 
 from cairn.tools.chain.grammar import (component_of, identity_lack,  # noqa: E402
-                                       ref_exists, ticket_path)
+                                       ref_exists, ticket_path, ticket_spellings)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "grammar.py"))
@@ -133,6 +133,22 @@ def test_ticket_path_answers_only_for_a_filed_ticket(root):
         "moreabout.json is committed — a filed ticket must resolve"
     assert ticket_path("", root) is None and ticket_path(None, root) is None, \
         "an empty or absent claim is silence, not a claim on a ticket named ''"
+
+
+def test_a_filed_ticket_answers_to_every_spelling_the_door_admits(root):
+    """``ticket_path`` admits a slug or a hex id for the same file; a reader that then
+    matched the packet's claim by string equality split one ticket into two (measured
+    2026-09-06: five complete chains berthed under their slug, invisible to a hex-id
+    lookup). ``ticket_spellings`` is the one set both sides read. Live-root pass against
+    a committed hex-slug ticket; synthetic root has no commons, so an unfiled claim
+    answers only itself — widening, never narrowing."""
+    both = ticket_spellings("6a657e22db6f")
+    assert {"6a657e22db6f", "ticket-and-task", "6a657e22db6f-ticket-and-task"} <= both, both
+    assert ticket_spellings("ticket-and-task") == both, \
+        "the slug and the hex id must resolve to the SAME set, or the gate has two mouths"
+    assert ticket_spellings("no-such-ticket", root) == frozenset({"no-such-ticket"}), \
+        "an unfiled claim still matches its own packets exactly as before"
+    assert ticket_spellings("", root) == frozenset() and ticket_spellings(None, root) == frozenset()
 
 
 def test_identity_lack_names_its_remediation(root):

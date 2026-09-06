@@ -39,7 +39,7 @@ import glob
 import json
 import os
 
-from cairn.tools.chain.grammar import INSTANCE_DIR
+from cairn.tools.chain.grammar import INSTANCE_DIR, ticket_spellings
 
 # THE SEVEN LEGS, IN ORDER. The chain the /chart skill fires; the chart device's charter is the
 # authority on what each one does. Order is meaningful — a note may be keyed to any leg, but the
@@ -97,6 +97,9 @@ def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple
     ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
     chronological and the LAST entry is the one that stands."""
     root = os.path.expanduser(str(berths_root if berths_root is not None else BERTHS_ROOT))
+    # A packet names its ticket by whichever spelling the door admitted — slug before the
+    # hex-id convention, hex id after. One ticket, every spelling (grammar.ticket_spellings).
+    names = ticket_spellings(ticket)
     found = []
     for path in sorted(glob.glob(os.path.join(root, "*", "packets", "%s-*.json" % stage))):
         try:
@@ -104,7 +107,7 @@ def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple
                 packet = json.load(fh)
         except (OSError, json.JSONDecodeError):
             continue
-        if isinstance(packet, dict) and packet.get("ticket") == ticket:
+        if isinstance(packet, dict) and packet.get("ticket") in names:
             found.append((path, packet))
     return found
 

@@ -5,7 +5,7 @@
     "standing": "BUILDME",
     "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket '1c4ae8f053fe', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'd0f2b03952e3', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
@@ -75,7 +75,7 @@
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "BUILDME",
-          "ticket": "1c4ae8f053fe",
+          "ticket": "d0f2b03952e3",
           "component": "tester",
           "exempt": false,
           "roster": []
@@ -85,14 +85,14 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket '1c4ae8f053fe' is cast",
-        "actual": "named ticket '1c4ae8f053fe' is cast",
+        "expected": "named ticket 'd0f2b03952e3' is cast",
+        "actual": "named ticket 'd0f2b03952e3' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "BUILDME",
-          "ticket": "1c4ae8f053fe",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/1c4ae8f053fe-a-seal-snapshots-cairn-once-per-batch-and-binds-what-it-only-reads.json"
+          "ticket": "d0f2b03952e3",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d0f2b03952e3-hollow-is-measured-a-proof-must-red-when-its-build-is-reverted.json"
         }
       },
       {
@@ -105,7 +105,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "1c4ae8f053fe"
+          "ticket": "d0f2b03952e3"
         }
       },
       {
@@ -118,7 +118,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "1c4ae8f053fe"
+          "ticket": "d0f2b03952e3"
         }
       },
       {
@@ -131,545 +131,23 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "1c4ae8f053fe"
+          "ticket": "d0f2b03952e3"
         }
       }
     ],
     "checks_proved": 8,
     "cleared_by": "CC",
     "actor": "CC",
-    "proven_by": "cairn/devices/tester/proofs/test_isolation.py",
-    "proven_seal_date": "2026-09-07T09:16:56",
+    "proven_by": "cairn/devices/tester/proofs/test_validation_store.py",
+    "proven_seal_date": "2026-09-07T09:23:58",
     "delegated": false,
-    "ticket": "1c4ae8f053fe",
-    "validation": "/home/akien/dev/src/cairn/cairn/devices/tester/proofs/validations/test_isolation.json",
-    "fingerprint": "c1aa8c771d0c7c4fe2f9d6546ab344c288d8ed312463d15e74c837cf63d52a7c",
-    "at": "2026-09-07T16:02:29",
-    "seq": 19
+    "ticket": "d0f2b03952e3",
+    "validation": "/home/akien/dev/src/cairn/cairn/devices/tester/validations/test_validation_store.json",
+    "fingerprint": "733da07aeac8b4dbeb8286cbc72250f3972c9aa48f034c224e570538ba45b59a",
+    "at": "2026-09-07T17:25:21",
+    "seq": 20
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "WATCHME",
-      "standing": "WATCHME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(proven-space-stays-populated):waiting] -> PROVED",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 33 sieves over tester, and 34 check(s) are proved on this crossing",
-      "entry_gate": "not_applicable",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'WATCHME' in the code-seam@v2 vocabulary",
-          "actual": "'WATCHME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "WATCHME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "PROVEME -> WATCHME moves the cursor off position 3",
-          "actual": "PROVEME -> WATCHME moves the cursor off position 3",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "WATCHME",
-            "cursor": 3,
-            "resolved": 4
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "PROVEME -> WATCHME",
-          "actual": "PROVEME -> WATCHME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "WATCHME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME",
-              "WATCHME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_census_can_measure_the_component",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_build",
-          "expected": "the census can measure component 'tester' at /home/akien/dev/src/cairn/cairn/devices/tester",
-          "actual": "the census can measure component 'tester' at /home/akien/dev/src/cairn/cairn/devices/tester",
-          "fatality": "none",
-          "source": "transitions.inspect_build",
-          "values": {
-            "component": "tester",
-            "address": "/home/akien/dev/src/cairn/cairn/devices/tester",
-            "sieves_run": [
-              "address_is_resolved_never_spelled",
-              "charted_refs_resolve",
-              "charter_asserts_file_present",
-              "charter_on_disk",
-              "claim_provenance",
-              "component_color",
-              "constraint_bounds_complete",
-              "constraint_enforcement_holds",
-              "constraint_traces",
-              "crossing_fingerprints_verified",
-              "decompose_builds_absences",
-              "decompose_composes_holdings",
-              "device_isolation_holds",
-              "durable_state_declared",
-              "fire_path_unreachable",
-              "forwarding_order_resolves",
-              "gated_by_declared",
-              "history_integrity",
-              "hypothesize_covers_the_ranked",
-              "hypothesize_falsifiable_measured",
-              "learning_declared",
-              "proofs_exist",
-              "runtime_role_declared",
-              "silent_device",
-              "sole_path_holds",
-              "state_is_projection",
-              "survey_coverage_complete",
-              "survey_holdings_resolve",
-              "triage_covers_the_split",
-              "triage_reasons_the_order",
-              "validate_covers_the_build",
-              "validate_measures_done",
-              "working_tree_clean"
-            ]
-          }
-        },
-        {
-          "identity": "address_is_resolved_never_spelled",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:address_is_resolved_never_spelled",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "charted_refs_resolve",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:charted_refs_resolve",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "charter_asserts_file_present",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:charter_asserts_file_present",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "charter_on_disk",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:charter_on_disk",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "claim_provenance",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:claim_provenance",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "component_color",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:component_color",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "constraint_bounds_complete",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:constraint_bounds_complete",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "constraint_enforcement_holds",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:constraint_enforcement_holds",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "constraint_traces",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:constraint_traces",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "crossing_fingerprints_verified",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:crossing_fingerprints_verified",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "decompose_builds_absences",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:decompose_builds_absences",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "decompose_composes_holdings",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:decompose_composes_holdings",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "device_isolation_holds",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:device_isolation_holds",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "durable_state_declared",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:durable_state_declared",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "fire_path_unreachable",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:fire_path_unreachable",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "forwarding_order_resolves",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:forwarding_order_resolves",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "gated_by_declared",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:gated_by_declared",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "history_integrity",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:history_integrity",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "hypothesize_covers_the_ranked",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_covers_the_ranked",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "hypothesize_falsifiable_measured",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:hypothesize_falsifiable_measured",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "learning_declared",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:learning_declared",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "proofs_exist",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:proofs_exist",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "runtime_role_declared",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:runtime_role_declared",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "silent_device",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:silent_device",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "sole_path_holds",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:sole_path_holds",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "state_is_projection",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:state_is_projection",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "survey_coverage_complete",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:survey_coverage_complete",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "survey_holdings_resolve",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:survey_holdings_resolve",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "triage_covers_the_split",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:triage_covers_the_split",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "triage_reasons_the_order",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:triage_reasons_the_order",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "validate_covers_the_build",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:validate_covers_the_build",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "validate_measures_done",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:validate_measures_done",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        },
-        {
-          "identity": "working_tree_clean",
-          "location": "tester",
-          "code": "cairn/machines/build_inspector/inspector.py:working_tree_clean",
-          "expected": 1.0,
-          "actual": 1.0,
-          "fatality": "none",
-          "source": "build_inspector",
-          "values": {
-            "findings": []
-          }
-        }
-      ],
-      "checks_proved": 37,
-      "ticket": "652965bec418",
-      "note": "the-corpus-is-out-of-proven-space: probe armed at cairn/devices/tester/probes/proven_space_stays_populated.py — fires on trail integrity, clears when refusal record exists",
-      "fingerprint": "173f77e8dfbe54dc63d547ef9e10921721212d8b0811aae84c16d2b17219c62a",
-      "at": "2026-09-02T01:39:27",
-      "seq": 15
-    },
     {
       "from": "WATCHME",
       "to": "PROVED",
@@ -1361,7 +839,155 @@
       "fingerprint": "c1aa8c771d0c7c4fe2f9d6546ab344c288d8ed312463d15e74c837cf63d52a7c",
       "at": "2026-09-07T16:02:29",
       "seq": 19
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'd0f2b03952e3', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "d0f2b03952e3",
+            "component": "tester",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'd0f2b03952e3' is cast",
+          "actual": "named ticket 'd0f2b03952e3' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "d0f2b03952e3",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d0f2b03952e3-hollow-is-measured-a-proof-must-red-when-its-build-is-reverted.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d0f2b03952e3"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d0f2b03952e3"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d0f2b03952e3"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/devices/tester/proofs/test_validation_store.py",
+      "proven_seal_date": "2026-09-07T09:23:58",
+      "delegated": false,
+      "ticket": "d0f2b03952e3",
+      "validation": "/home/akien/dev/src/cairn/cairn/devices/tester/validations/test_validation_store.json",
+      "fingerprint": "733da07aeac8b4dbeb8286cbc72250f3972c9aa48f034c224e570538ba45b59a",
+      "at": "2026-09-07T17:25:21",
+      "seq": 20
     }
   ],
-  "count": 20
+  "count": 21
 }

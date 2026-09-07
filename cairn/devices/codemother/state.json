@@ -1,22 +1,22 @@
 {
   "cursor": {
-    "from": "BUILDME",
-    "to": "PROVEME",
-    "standing": "PROVEME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket '68f563403c8f', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "clean — a berthed chart chain claims ticket '8754ae677af6', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -35,35 +35,64 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
-          "cursor": 2,
-          "resolved": 3
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME",
-        "actual": "BUILDME -> PROVEME",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "BUILDME",
           "legal_from_here": [
+            "BUILDME",
             "DROPPED",
-            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
           "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "8754ae677af6",
+          "component": "codemother",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '8754ae677af6' is cast",
+        "actual": "named ticket '8754ae677af6' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "8754ae677af6",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8754ae677af6-codemother-crosses-a-boat-through-the-harbor-door-as-herself.json"
         }
       },
       {
@@ -76,7 +105,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "68f563403c8f"
+          "ticket": "8754ae677af6"
         }
       },
       {
@@ -89,7 +118,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "68f563403c8f"
+          "ticket": "8754ae677af6"
         }
       },
       {
@@ -102,262 +131,23 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "68f563403c8f"
+          "ticket": "8754ae677af6"
         }
       }
     ],
-    "checks_proved": 6,
+    "checks_proved": 8,
     "cleared_by": "CC",
     "actor": "CC",
-    "proven_by": "/home/akien/dev/src/cairn/cairn/devices/codemother/proofs/test_codemother.py",
-    "proven_seal_date": "2026-09-06T10:37:54",
+    "proven_by": "cairn/devices/codemother/proofs/test_codemother.py",
+    "proven_seal_date": "2026-09-07T14:47:50",
     "delegated": false,
-    "ticket": "68f563403c8f",
-    "fingerprint": "89a260be27c410d97c6af17cbf7560a5cf060ff0687261da95ca5dc7220e5682",
-    "at": "2026-09-06T11:23:06",
-    "seq": 7
+    "ticket": "8754ae677af6",
+    "validation": "/home/akien/dev/src/cairn/cairn/devices/codemother/proofs/validations/test_codemother.json",
+    "fingerprint": "a46ff996c8c618de4ca8aff88043eb2b08abfd1d4c59e7c305b6f44858c04c49",
+    "at": "2026-09-07T16:02:29",
+    "seq": 8
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(known-pattern-violation-caught-before-code) -> [PROVED]",
-      "direction": "forward",
-      "entry_gate": "not_applicable",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-device-that-surfaces-what-cc-needs-to-know'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-      "clearance_gate": "cleared by 'cc' onto cairn/devices/codemonkey/validations/test_codemonkey.json (seal 2026-08-31T11:31:14, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-      "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(known-pattern-violation-caught-before-code) emitted the probe berthed at cairn/devices/codemonkey/probes/known_pattern_missed.py (ticket 'a-device-that-surfaces-what-cc-needs-to-know')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260831T112926-f871d1926af2.json",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVED' in the code-seam@v2 vocabulary",
-          "actual": "'PROVED' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED moves the cursor off position 4",
-          "actual": "WATCHME -> PROVED moves the cursor off position 4",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "cursor": 4,
-            "resolved": 5
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED",
-          "actual": "WATCHME -> PROVED",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "legal_from_here": [
-              "BUILDME",
-              "PROVED",
-              "PROVEME",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_names_a_cast_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "a cast ticket for the WATCHME(known-pattern-violation-caught-before-code) crossing",
-          "actual": "a cast ticket for the WATCHME(known-pattern-violation-caught-before-code) crossing",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-            "watch_object": "known-pattern-violation-caught-before-code",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-device-that-surfaces-what-cc-needs-to-know.json"
-          }
-        },
-        {
-          "identity": "the_ticket_carries_a_spec_for_this_watch",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "ticket 'a-device-that-surfaces-what-cc-needs-to-know' carries a watchme spec for 'known-pattern-violation-caught-before-code'",
-          "actual": "ticket 'a-device-that-surfaces-what-cc-needs-to-know' carries a watchme spec for 'known-pattern-violation-caught-before-code'",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-            "watch_object": "known-pattern-violation-caught-before-code",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_promised_probe_is_berthed_and_armed",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "the probe the spec promised is berthed and armed",
-          "actual": "the probe the spec promised is berthed and armed",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-            "watch_object": "known-pattern-violation-caught-before-code",
-            "berth": "cairn/devices/codemonkey/probes/known_pattern_missed.py",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the PROVED crossing, or 'codemonkey' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the PROVED crossing, or 'codemonkey' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-            "component": "codemonkey",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'a-device-that-surfaces-what-cc-needs-to-know' is cast",
-          "actual": "named ticket 'a-device-that-surfaces-what-cc-needs-to-know' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a-device-that-surfaces-what-cc-needs-to-know.json"
-          }
-        },
-        {
-          "identity": "the_claiming_chart_is_answered",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_exit",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_exit",
-          "values": {
-            "findings": [],
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_clearance_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemonkey' is on _CLEARANCE_EXEMPT_ROSTER",
-          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemonkey' is on _CLEARANCE_EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "component": "codemonkey",
-            "cleared_by": "cc",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_witness_is_whole",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness carries every field the harbor's gate stamps",
-          "actual": "the witness carries every field the harbor's gate stamps",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "cleared_by": "cc",
-            "missing": [],
-            "demanded": [
-              "proven_by",
-              "proven_seal_date"
-            ]
-          }
-        },
-        {
-          "identity": "the_named_proof_stands_in_proven_space",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "cairn/devices/codemonkey/validations/test_codemonkey.json stands in proven-space",
-          "actual": "cairn/devices/codemonkey/validations/test_codemonkey.json stands in proven-space",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/codemonkey/validations/test_codemonkey.json",
-            "why": "sealed green 2026-08-31T11:31:14 by a-device-that-surfaces-what-cc-needs-to-know, and the component's source fingerprint still matches what was proved (4e9581273208…)"
-          }
-        },
-        {
-          "identity": "the_witness_agrees_with_the_seal_it_names",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness dates cairn/devices/codemonkey/validations/test_codemonkey.json's seal at '2026-08-31T11:31:14'",
-          "actual": "the witness dates cairn/devices/codemonkey/validations/test_codemonkey.json's seal at '2026-08-31T11:31:14'",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/devices/codemonkey/validations/test_codemonkey.json",
-            "seal": "2026-08-31T11:31:14",
-            "claimed": "2026-08-31T11:31:14"
-          }
-        },
-        {
-          "identity": "demo_gate_binding_check",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::_require_demo",
-          "expected": "ticket carries demo flag, or does not",
-          "actual": "ticket 'a-device-that-surfaces-what-cc-needs-to-know' has no demo flag — gate does not fire",
-          "fatality": "closes the gate",
-          "source": "transitions._require_demo",
-          "values": {
-            "ticket": "a-device-that-surfaces-what-cc-needs-to-know"
-          }
-        }
-      ],
-      "checks_proved": 14,
-      "cleared_by": "cc",
-      "actor": "cc",
-      "proven_by": "cairn/devices/codemonkey/validations/test_codemonkey.json",
-      "proven_seal_date": "2026-08-31T11:31:14",
-      "delegated": false,
-      "ticket": "a-device-that-surfaces-what-cc-needs-to-know",
-      "note": "PROVED: CodeMonkey device — adversarial-by-default pattern library. 11 pieces built, 18/18 proofs green x2, sealed under netns+instance isolation, live fire caught real violation (ground_loop CC-- x3), verdict berthed with all 5 criteria passing and all 11 hypotheses confirmed. Probe armed for known-pattern-violation-caught-before-code.",
-      "fingerprint": "4899b7ef3f600f2a7bbff6a0900292c496d036b385f5fe21d1b3337ef33d6062",
-      "at": "2026-08-31T11:32:10",
-      "seq": 3
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -860,7 +650,155 @@
       "fingerprint": "89a260be27c410d97c6af17cbf7560a5cf060ff0687261da95ca5dc7220e5682",
       "at": "2026-09-06T11:23:06",
       "seq": 7
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '8754ae677af6', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "8754ae677af6",
+            "component": "codemother",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '8754ae677af6' is cast",
+          "actual": "named ticket '8754ae677af6' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "8754ae677af6",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8754ae677af6-codemother-crosses-a-boat-through-the-harbor-door-as-herself.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8754ae677af6"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8754ae677af6"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8754ae677af6"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/devices/codemother/proofs/test_codemother.py",
+      "proven_seal_date": "2026-09-07T14:47:50",
+      "delegated": false,
+      "ticket": "8754ae677af6",
+      "validation": "/home/akien/dev/src/cairn/cairn/devices/codemother/proofs/validations/test_codemother.json",
+      "fingerprint": "a46ff996c8c618de4ca8aff88043eb2b08abfd1d4c59e7c305b6f44858c04c49",
+      "at": "2026-09-07T16:02:29",
+      "seq": 8
     }
   ],
-  "count": 8
+  "count": 9
 }

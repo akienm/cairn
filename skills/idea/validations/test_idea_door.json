@@ -1,21 +1,31 @@
 [
   {
-    "claim": "proof test_idea_door.py passes under python3 — /idea captures prose byte-identical and writes a commons record citing its trace and finding",
-    "caller": "sail:the-two-end-doors-and-the-usage-dial",
-    "date": "2026-08-04T14:45:15",
-    "method": "ran the proof as a subprocess under the network seal (seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_idea_door.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-07T16:05:53",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok record cites its trace and its finding\n  ok record id is the file stem\n  ok id is date-prefixed and readable\n  ok slug is derived from the prose, not random\n  ok slug is deterministic\n  ok record landed in the INJECTED commons\n  ok berth exists and names the skill\n  ok berth carries the finding id\n  ok berth is instance-space, not the commons\n  ok collision does not overwrite\n  ok both records survive\n  ok collision suffix keeps the readable stem\n  ok every refusal traced\n  ok every capture traced\n  ok a finding rides each capture\n  ok CLI refusal: exit 2\n  ok CLI refusal names both lacks on stderr\n  ok live commons/ideas untouched by this proof\n  ok live trace untouched by this proof\nGREEN — 26 teeth",
+      "stdout_tail": "  ok record id is the file stem\n  ok id is date-prefixed and readable\n  ok slug is derived from the prose, not random\n  ok slug is deterministic\n  ok record landed in the INJECTED commons\n  ok berth exists and names the skill\n  ok berth carries the finding id\n  ok berth is instance-space, not the commons\n  ok collision does not overwrite\n  ok both records survive\n  ok collision suffix keeps the readable stem\n  ok every refusal traced\n  ok every capture traced\n  ok CLI refusal: exit 2\n  ok CLI refusal names both lacks on stderr\n  ok skill_block fire idea delegates to this door: exit 2\n  ok skill_block fire idea prints this door's own refusal\n  ok live commons/ideas untouched by this proof\n  ok live trace untouched by this proof\nGREEN — 27 teeth",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "trail_link": "16dea9f9df4381bbac53d1afd751b3fa57a1322ba5270165632d621435daf893"
+      "source_fingerprint": "190c550b2815d1fc0d323ac1603bb441206ed07aea6e4f09916ac9dd198711a5",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1881620-yt0c62fh/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
-    "falsifier": "the same proof exits non-zero on re-run; or a capture succeeds with prose that is not byte-identical, or with no record under CairnCommons/ideas/",
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

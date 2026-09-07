@@ -44,6 +44,14 @@ from cairn.machines.learning_block.learning_block import DoorRefused   # noqa: E
 from cairn.machines.skill_block import skill_block as sb               # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
+
+# THIS DOOR COMPOSES THE BLOCK — it writes a record the generic fire does not (the commons
+# idea file). ``python3 -m cairn.machines.skill_block fire idea <packet>`` consults this
+# flag and delegates to ``main`` below; without it that spelling berthed the firing and
+# wrote NO commons record (measured 2026-09-07: berth idea-20260907T151134-98353e782433
+# exists, ideas/ has nothing for it — an idea captured nowhere /intent could reach).
+# saveslate/door.py set the precedent; this is the second composing door.
+COMPOSING_DOOR = True
 _SLUG_WORDS = 7
 _SLUG_MAX = 48
 

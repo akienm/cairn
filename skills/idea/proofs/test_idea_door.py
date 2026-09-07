@@ -139,6 +139,18 @@ def main() -> int:
     ok("CLI refusal names both lacks on stderr",
        "author" in p.stderr and "bullets" in p.stderr, p.stderr[:200])
 
+    # ── the skill_block spelling reaches THIS door, not the generic fire ──────
+    # Measured 2026-09-07: `-m cairn.machines.skill_block fire idea <packet>` berthed a
+    # firing and wrote no commons record, because only a door flagged COMPOSING_DOOR is
+    # delegated to. The refusal wording below is printed by main() alone — the generic
+    # path cannot produce it — so this tooth reads the delegation as behaviour, and the
+    # bad packet keeps the live commons untouched.
+    q = subprocess.run([sys.executable, "-m", "cairn.machines.skill_block", "fire", "idea", str(bad)],
+                       capture_output=True, text=True, env=env, cwd=str(_REPO))
+    ok("skill_block fire idea delegates to this door: exit 2", q.returncode == 2, q.stderr[:200])
+    ok("skill_block fire idea prints this door's own refusal",
+       "/idea capture refused" in q.stderr, (q.stderr or q.stdout)[:200])
+
     # ── nothing live was touched ──────────────────────────────────────────────
     live_after = sorted(p.name for p in live_ideas.glob("*.json")) if live_ideas.is_dir() else []
     ok("live commons/ideas untouched by this proof", live_after == live_before)

@@ -295,13 +295,21 @@ def main() -> int:
     # reader gap and not a store gap. The invariant tooth above already covers
     # everyone else ("countable or says why not"), so the "only" was a frozen
     # roster carrying no claim the neighbours don't already make.
-    ok("LIVE: /sail is still uncountable — and 'cannot count' is the whole claim; "
-       "its verdict berths exist and are mandatory",
-       "sail" in [r["skill"] for r in live if not r["countable"]],
-       str([r["skill"] for r in live if not r["countable"]]))
-    sail_why = next(r for r in live if r["skill"] == "sail")["why_not_countable"]
-    ok("LIVE: and the roster does not tell Akien /sail leaves no record anywhere",
-       "leaves no" not in sail_why and "anywhere" not in sail_why, sail_why)
+    # 2026-09-07: the condition this tooth waited on was SATISFIED — /sail's charter
+    # declares an input_contract and a counted_by (commit 1666171, skills-migrate-one-blow),
+    # so the roster counts it through the seam. The tooth had frozen the reader gap as if
+    # it were the invariant ("still uncountable") and went red the day the gap closed —
+    # the same defect the comment above records for `== ["sail"]`. The claim that
+    # survives: /sail is COUNTED, through a declared reader, never a minted absence.
+    sail_row = next(r for r in live if r["skill"] == "sail")
+    ok("LIVE: /sail is countable through the seam — its records exist and are mandatory, "
+       "and the roster now reads them instead of explaining why it cannot",
+       sail_row["countable"] and sail_row.get("via") == "skill-seam", str(sail_row))
+    for r in live:
+        if not r["countable"]:
+            ok(f"LIVE: the roster does not tell Akien /{r['skill']} leaves no record anywhere",
+               "leaves no" not in r["why_not_countable"] and "anywhere" not in r["why_not_countable"],
+               r["why_not_countable"])
 
     print(f"GREEN — {PASSES} teeth")
     return 0

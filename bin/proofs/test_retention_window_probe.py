@@ -197,8 +197,11 @@ def test_the_window_under_test_is_read_from_the_environment() -> None:
 def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
     from cairn.tools.base import watchme_spec
 
-    ticket_path = watchme_spec._TICKETS / "logger-for-bash.json"
+    # 2026-09-07: tickets carry a hex id prefix since 8a5ede1 (<hex>-<name>.json); resolve
+    # through the same reader the probe itself uses, never a hard-coded filename.
+    ticket_path = Path(SUT._OWNING_TICKET)
     assert ticket_path.is_file(), f"the owning ticket is not on file at {ticket_path}"
+    assert ticket_path.parent == watchme_spec._TICKETS, f"the owning ticket is outside the commons: {ticket_path}"
     ticket = json.loads(ticket_path.read_text(encoding="utf-8"))
     assert watchme_spec.watchme_spec_error(ticket) is None, watchme_spec.watchme_spec_error(ticket)
     spec = watchme_spec.spec_for(ticket, "retention-window")

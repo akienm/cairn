@@ -6,7 +6,10 @@ The harbor master maintains a cached fleet register that is updated from two pat
 
 What a hollow build cannot pass (Law 8):
   - One that stored the cache but never patched it passes "cache exists" and fails
-    test_a_crossing_patches_the_cached_standing, which reads the PATCHED value.
+    test_a_crossing_patches_the_cached_standing, which poisons the cached standing
+    and reads it back after the crossing. One that wrote the notification's bare
+    target (the pre-3feb201c84ea contract) fails the same tooth: the boat must wear
+    the label its OWN ticket file carries, re-read through the one reader.
   - One that patched but never reconciled passes every patching test and fails
     test_reconcile_replaces_the_cache, which changes the disk and checks the cache
     picks up what the notifications never carried.
@@ -21,15 +24,18 @@ use fixture envelopes against the live cache.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
+_SRC_ROOT = _REPO_ROOT.parent   # ~/dev/src — the root a register source is relative to
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
 from cairn.devices.cairn.machines.harbor_master import register  # noqa: E402
+from cairn.tools.operator_inbox.inbox import cursor_of, status_label  # noqa: E402
 
 
 def _crossing_envelope(component: str, from_: str, to: str, ticket: str = "") -> dict:
@@ -72,27 +78,48 @@ def test_reconcile_populates_the_cache_from_disk():
 
 
 def test_a_crossing_patches_the_cached_standing():
-    """The event-driven path: a crossing notification updates the matching boat's
-    standing IN the cache without a full disk scan."""
+    """The event-driven path: a crossing notification RELOADS the named boat from
+    its own ticket file, in the cache, without a full disk scan (ticket 3feb201c84ea,
+    Akien 2026-09-06: one ticket has ONE status — the label is the ticket's, never
+    the notification's bare target).
+
+    Three builds, three different values, one poisoned cache: the cache's standing
+    is first overwritten with a poison string. A build that ignores the crossing
+    leaves the poison. A build that writes the bare target (the pre-3feb201c84ea
+    contract) leaves ``FAKE_STANDING_FOR_TEST``. Only a build that re-reads the
+    ticket file through the one reader leaves the ticket's real label — and it
+    must do so without replacing the cache object (that would be a reconcile)."""
     dev = HarborMasterDevice()
     dev.reconcile()
     reg = dev.fleet_cache
     assert reg["open"], "need at least one open boat to test patching"
     boat = reg["open"][0]
-    original = boat["standing"]
+    original = dict(boat)
+    src = Path(boat["source"])
+    if not src.is_absolute():
+        src = _SRC_ROOT / src
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    true_label = status_label(cursor_of(doc.get("workflow_and_state", "")))
+    poison = "POISONED_CACHE_STANDING"
     fake_target = "FAKE_STANDING_FOR_TEST"
+    assert true_label not in (poison, fake_target)
+    boat["standing"] = boat["label"] = poison
+    before = dev._crossings_since_reconcile
     envelope = _crossing_envelope(
         component="test/component",
-        from_=original,
+        from_=poison,
         to=fake_target,
         ticket=boat["id"],
     )
     dev._handle_crossing(envelope)
+    assert dev.fleet_cache is reg, "the crossing replaced the cache — that is a reconcile, not a patch"
     patched_boat = next(b for b in reg["open"] if b["id"] == boat["id"])
-    assert patched_boat["standing"] == fake_target, (
-        f"crossing did not patch the boat's standing — "
-        f"expected {fake_target!r}, got {patched_boat['standing']!r}")
-    boat["standing"] = original
+    assert patched_boat["standing"] == true_label, (
+        f"crossing did not reload the boat from its ticket — "
+        f"expected the ticket's own label {true_label!r}, got {patched_boat['standing']!r}")
+    assert patched_boat["label"] == true_label
+    assert dev._crossings_since_reconcile == before + 1
+    boat.update(original)
 
 
 def test_reconcile_replaces_the_cache():

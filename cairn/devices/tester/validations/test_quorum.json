@@ -1,27 +1,27 @@
 [
   {
     "claim": "proof test_quorum.py passes under python3",
-    "caller": "the-corpus-is-out-of-proven-space re-seal",
-    "date": "2026-09-02T01:37:21",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-07T09:17:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_concept_piece_can_finally_be_sealed\n  ok   test_it_is_the_same_ratified_record_not_a_new_type\n  ok   test_a_notary_who_reviewed_cannot_seal_their_own_verdict\n  ok   test_a_rubber_stamp_is_refused\n  ok   test_a_quorum_means_distinct_hands\n  ok   test_a_rejection_is_a_verdict_and_is_recorded\n  ok   test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP\n  ok   test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals\n  ok   test_the_real_intention_is_a_real_file_the_gate_can_address\n\n9/9 green",
+      "stdout_tail": "  ok   test_a_concept_piece_can_finally_be_sealed\n  ok   test_it_is_the_same_ratified_record_not_a_new_type\n  ok   test_a_notary_who_reviewed_cannot_seal_their_own_verdict\n  ok   test_a_same_hand_seal_stands_only_under_a_confirmed_ruling_on_file\n  ok   test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes\n  ok   test_a_rubber_stamp_is_refused\n  ok   test_a_quorum_means_distinct_hands\n  ok   test_a_rejection_is_a_verdict_and_is_recorded\n  ok   test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP\n  ok   test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals\n  ok   test_the_real_intention_is_a_real_file_the_gate_can_address\n\n11/11 green",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "041862affd448024e8d6487cb3c83e5e056f49f2e7672bdaaeee08237349a4e3",
+      "source_fingerprint": "ac694c3e2bce9e2cec87318a0f8178995d42852e9dafa073f3ef3f29d9b3191f",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-n4ngsnrw/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-714179-fgjhmpzu/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/trouble/0/20260902.073718.531101.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20260907.151706.192529.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         }

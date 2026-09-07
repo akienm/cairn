@@ -145,8 +145,11 @@ def test_the_fire_path_never_reaches_the_tree():
         # component roster a two-level walk, and the rung names have one owner. The leaf
         # imports nothing but pathlib and base/__init__.py is empty by the boot-order law,
         # so the fire path still never reaches the tree — which is what this tooth guards.
+        # cairn.tools.system_word admitted 2026-09-07 (ticket e3cf75c6dc8f): the verb Akien
+        # types folds case through the one compare. The module imports nothing but
+        # `typing` — no I/O, no tree, no bus — so the fire path still reaches nowhere.
         orient.__file__: ("__future__", "ast", "json", "subprocess", "sys", "pathlib",
-                          "cairn.tools.base.address"),
+                          "cairn.tools.base.address", "cairn.tools.system_word"),
         nexus.__file__: ("__future__", "cairn.tools.tree.tree"),
     }
     for path, allow in allowed.items():

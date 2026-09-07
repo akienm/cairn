@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_sudo_relay.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-30T02:21:29",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-07T09:12:14",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_protocol_runs_the_command_and_returns_the_truth\n  PASS  test_idle_when_nothing_pending\n  PASS  test_record_is_permanent_and_complete\n  PASS  test_folder_cycles_after_a_month_but_not_before\n  PASS  test_retention_never_touches_a_foreign_file\n  PASS  test_temporary_is_physics\n  PASS  test_the_window_is_visible_and_honest\n  PASS  test_the_crossing_is_no_longer_silent\n  PASS  test_device_is_a_device_and_reports_the_window\ngreen — sudo_relay: command in, root-run + permanent audit out; window visible, temporary by physics",
       "stderr_tail": "",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "a23b9372c59bb4e272679ffede1588dfcb5a44e6c4cda4506ef76cdde4c385b6",
+      "source_fingerprint": "b94badc9f5f3555c7c5beafe3491a8e9e8441f9b1cd3df0d738231b363f02cca",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-14c7aetk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-714179-k23b73a9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

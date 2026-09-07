@@ -286,6 +286,26 @@ def test_read_berth_returns_none_rather_than_raising():
         "a gate turns this into a finding WITH THE ADDRESS; an exception says nothing")
 
 
+def test_read_berth_follows_a_reviewed_berth():
+    """The address a ticket carries survives the operator's review moving the berth.
+    Measured 2026-09-06: a BUILDME crossing was refused 'intent berth readable: False'
+    by the review that approved it."""
+    w = world()
+    berths = w / "berths"
+    (berths / "intent").mkdir(parents=True)
+    berth = berths / "intent" / "intent-20260906T000000-abc123.json"
+    berth.write_text(json.dumps({"skill": "intent", "finding_id": "abc123", "answers": {}}))
+    log = w / "reviewed.jsonl"
+    sb.mark_reviewed("abc123", "approved", path=log)
+    moved = sb.sweep_reviewed(root=berths, reviewed_path=log)
+    assert moved == [w / "logs" / "reviewed" / "intent" / berth.name] and not berth.exists()
+    doc = sb.read_berth(berth)
+    assert doc is not None and doc["skill"] == "intent", (
+        "the ticket's berth address must still read after the review moved the berth")
+    assert sb.read_berth(berths / "intent" / "never-berthed.json") is None, (
+        "a berth that never existed is still missing — the reviewed home is not a wildcard")
+
+
 # ── the shell reach — the door and the finding, from where a skill lives ─────
 
 def _cli(*args, cwd=REPO):
@@ -311,6 +331,10 @@ LIVE_GOOD = {
     "from_idea": "none, because this packet is a proof fixture exercising the wire, not an "
                  "intention — see cairn/machines/skill_block/proofs/test_skill_block.py",
     "what": "a test firing against the real contract",
+    # task_or_ticket joined the LIVE contract (ticket 6a657e22db6f); the seal stayed green
+    # past that change because the skill's charter is outside this proof's fingerprint —
+    # measured 2026-09-06 when the reseal went red on two teeth nobody had touched.
+    "task_or_ticket": "ticket",
     "how": "run the CLI",
     "traces_to": "Law 8 — the proof is the entry",
     "shape": "aside",

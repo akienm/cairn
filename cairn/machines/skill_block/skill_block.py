@@ -280,15 +280,36 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
     }
 
 
+def reviewed_address(path: Path | str) -> Path | None:
+    """Where ``sweep_reviewed`` puts a berth once the operator has reviewed it:
+    ``<berths>/<skill>/<name>`` moves to ``<berths>/../logs/reviewed/<skill>/<name>``.
+    ``None`` when the path is not shaped like a berth address."""
+    p = Path(path)
+    if p.parent.parent.name != "berths":
+        return None
+    return p.parent.parent.parent / "logs" / "reviewed" / p.parent.name / p.name
+
+
 def read_berth(path: Path | str) -> dict | None:
     """Read a berthed firing. ``None`` when it is missing or unreadable — the caller
     (a gate) turns that into a finding with the address in it, rather than an exception
-    that says nothing about which berth failed."""
-    try:
-        doc = json.loads(Path(path).read_text())
-    except (OSError, json.JSONDecodeError):
-        return None
-    return doc if isinstance(doc, dict) else None
+    that says nothing about which berth failed.
+
+    A ticket carries the berth address it was cast with; a review then MOVES the berth
+    (``sweep_reviewed``). The address on the ticket stays the address: a berth missing
+    from ``berths/<skill>/`` is read from its reviewed home before it is called missing.
+    Measured 2026-09-06: the first BUILDME crossing attempted after an operator review
+    (ticket 3feb201c84ea) was refused as 'intent berth readable: False' by the very
+    review that approved it."""
+    for candidate in (Path(path), reviewed_address(path)):
+        if candidate is None:
+            continue
+        try:
+            doc = json.loads(candidate.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        return doc if isinstance(doc, dict) else None
+    return None
 
 
 _PAIR_WINDOW_SECONDS = 300

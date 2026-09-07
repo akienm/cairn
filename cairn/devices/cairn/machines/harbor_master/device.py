@@ -17,10 +17,20 @@ Receives mail through two paths:
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.transitions import TERMINAL_STATES
+from cairn.tools.operator_inbox.inbox import (
+    cursor_of,
+    format_ticket_row,
+    label_sort_key,
+    status_label,
+)
+
+_SRC_ROOT = Path(__file__).resolve().parents[6]   # ~/dev/src — the root a register source is relative to
 
 
 class HarborMasterDevice(BaseDevice):
@@ -57,10 +67,15 @@ class HarborMasterDevice(BaseDevice):
     def _patch_fleet(self, crossing: dict) -> None:
         """Patch the cached register from a single crossing notification.
 
-        The body carries component, from, to, direction, ticket. Patching updates
-        the standing of the matching boat(s). A boat not yet in the cache (filed
-        between reconciliations) is missed here and caught by the next reconcile —
-        honest, not silent."""
+        The body carries component, from, to, direction, ticket. The ticket's boat
+        is RELOADED from its own file through the one reader (cursor_of +
+        status_label), never set to the bare target: a crossing to BUILDME leaves
+        the ticket at ``[BUILDME:waiting]``, and the label is the ticket's, not the
+        notification's (ticket 3feb201c84ea — before, the cache wore the bare
+        target while the inbox wore the phase). A boat not in the cache, or a ticket
+        that cannot be re-read, triggers a full reconcile — honest, not silent.
+        The component's own history standing (its last crossing) is patched to the
+        target as before; the map prints it only as a finding when it is prose."""
         if self._fleet_cache is None:
             self.reconcile()
             return
@@ -70,16 +85,36 @@ class HarborMasterDevice(BaseDevice):
         ticket = crossing.get("ticket")
         component = crossing.get("component", "")
         if ticket:
-            for boat in self._fleet_cache.get("open", []):
-                if boat["id"] == ticket:
-                    boat["standing"] = target
-                    break
+            boat = next((b for b in self._fleet_cache.get("open", [])
+                         if b["id"] == ticket), None)
+            reloaded = self._reload_boat(boat) if boat is not None else False
+            if not reloaded:
+                self.reconcile()
+                return
         comp_name = component.rstrip("/").rsplit("/", 1)[-1] if component else ""
         if comp_name:
-            for boat in self._fleet_cache.get("in_port", []):
-                if boat["id"] == comp_name:
-                    boat["standing"] = target
+            for entry in self._fleet_cache.get("in_port", []):
+                if entry["id"] == comp_name:
+                    entry["standing"] = target
                     break
+
+    @staticmethod
+    def _reload_boat(boat: dict) -> bool:
+        """Re-read one open boat's ticket file and refresh cursor/label/standing in
+        place (the in-port ``boats`` lists hold the same dict). False when the file
+        cannot be read — the caller reconciles."""
+        src = Path(boat.get("source") or "")
+        if not src.is_absolute():
+            src = _SRC_ROOT / src
+        try:
+            doc = json.loads(src.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False
+        cursor = cursor_of(doc.get("workflow_and_state", ""))
+        boat["cursor"] = cursor
+        boat["label"] = status_label(cursor)
+        boat["standing"] = boat["label"]
+        return True
 
     def reconcile(self) -> dict:
         """Full fleet scan — replaces the cache from disk.
@@ -108,18 +143,22 @@ class HarborMasterDevice(BaseDevice):
 
     @classmethod
     def _filter_fleet(cls, fleet: dict, filter_name: str | None) -> dict:
-        """Apply a named filter to fleet data. 'open' strips terminal-state boats."""
+        """Apply a named filter to fleet data. 'open' strips terminal-state boats —
+        from the open lane and from every component's berthed list alike."""
         if filter_name != "open":
             return fleet
-        keep = lambda b: cls._standing_base(b.get("standing", "")) not in TERMINAL_STATES
+        keep = lambda b: (b.get("label") or b.get("standing") or "").split(":")[0] not in TERMINAL_STATES
         open_ = [b for b in fleet.get("open", []) if keep(b)]
-        in_port = [b for b in fleet.get("in_port", []) if keep(b)]
+        in_port = [{**e, "boats": [b for b in e.get("boats", []) if keep(b)]}
+                   for e in fleet.get("in_port", [])]
+        findings = list(fleet.get("findings", []))
         return {
             "open": open_,
             "in_port": in_port,
+            "findings": findings,
             "fleet": open_ + in_port,
             "counts": {"open": len(open_), "in_port": len(in_port),
-                       "fleet": len(open_) + len(in_port)},
+                       "fleet": len(open_) + len(in_port), "findings": len(findings)},
         }
 
     def _handle_get(self, envelope: dict) -> dict:
@@ -149,72 +188,45 @@ class HarborMasterDevice(BaseDevice):
             return self._render_fleet_map(data)
         return super()._render_view(name, data)
 
-    _PRIORITY_ORDER = [
-        "THINKME", "TICKETME", "SORTEDME",
-        "PROVEME",
-        "BUILDME",
-        "WATCHME",
-        "PROVED", "SUPERSEDED", "RETIRED", "DROPPED", "KILLED", "ABSORBED",
-    ]
-
-    @classmethod
-    def _standing_short(cls, standing: str) -> str:
-        """A display-width standing: WATCHME(probe-name):waiting → WATCHME:waiting,
-        prose 'PROVED — long description' → PROVED."""
-        if not standing:
-            return "?"
-        token = standing.split()[0].rstrip(":")
-        base = token.split("(")[0].split(":")[0]
-        if ":waiting" in token:
-            return f"{base}:waiting"
-        return base
-
-    @classmethod
-    def _standing_base(cls, standing: str) -> str:
-        """The root stage only — WATCHME(foo):waiting → WATCHME."""
-        return cls._standing_short(standing).split(":")[0]
-
-    @classmethod
-    def _standing_sort_key(cls, boat: dict) -> tuple:
-        base = cls._standing_base(boat.get("standing", ""))
-        is_waiting = ":waiting" in (boat.get("standing") or "")
-        try:
-            rank = cls._PRIORITY_ORDER.index(base)
-        except ValueError:
-            rank = len(cls._PRIORITY_ORDER)
-        return (rank, is_waiting, boat.get("date", ""), boat.get("id", ""))
-
-    @staticmethod
-    def _format_boat(b: dict) -> str:
-        date = (b.get("date") or "")[:10]
-        standing = HarborMasterDevice._standing_short(b.get("standing", "?"))
-        hex_id = b.get("id", "?")[:12]
-        title = b.get("title", "")
-        return f"  {date:<12s}{standing:<20s}{hex_id:<14s}{title}"
-
     def _render_fleet_map(self, fleet: dict) -> str:
+        """Two lanes over ONE population. OPEN groups the tickets by their status
+        label in priority order; IN PORT groups the same tickets by the component
+        they are berthed at. Every row is the standard atom (date, label, id, title)
+        from operator_inbox — the same token the inbox and the dashboard print. A
+        component whose history's last standing is prose is one FINDING line."""
         counts = fleet.get("counts", {})
-        lines = [f"Fleet: {counts.get('fleet', 0)} boats "
-                 f"({counts.get('open', 0)} open, {counts.get('in_port', 0)} in port)"]
-        all_boats = sorted(
-            fleet.get("open", []) + fleet.get("in_port", []),
-            key=self._standing_sort_key)
-        if not all_boats:
+        open_ = fleet.get("open", [])
+        in_port = fleet.get("in_port", [])
+        findings = fleet.get("findings", [])
+        lines = [f"Fleet: {counts.get('open', 0)} open boat(s) berthed at "
+                 f"{sum(1 for e in in_port if e.get('boats'))} component(s), "
+                 f"{counts.get('in_port', 0)} in port"]
+        if not open_ and not in_port:
             lines.append("\n  (no boats)")
             return "\n".join(lines)
-        current_group = None
-        for b in all_boats:
-            standing = b.get("standing", "?")
-            base = self._standing_base(standing)
-            is_waiting = ":waiting" in standing
-            group = f"{base}:waiting" if is_waiting else base
-            if group != current_group:
-                current_group = group
-                group_boats = [x for x in all_boats
-                               if self._standing_base(x.get("standing", "")) == base
-                               and (":waiting" in (x.get("standing") or "")) == is_waiting]
-                lines.append(f"\n{group} ({len(group_boats)}):")
-            lines.append(self._format_boat(b))
+
+        lines.append("\nOPEN — by status:")
+        by_label: dict[str, list[dict]] = {}
+        for b in open_:
+            by_label.setdefault(b.get("label") or b.get("standing") or "?", []).append(b)
+        for label in sorted(by_label, key=label_sort_key):
+            boats = sorted(by_label[label], key=lambda b: (b.get("date", ""), b.get("id", "")))
+            lines.append(f"\n{label} ({len(boats)}):")
+            for b in boats:
+                lines.append(format_ticket_row(b, indent="  "))
+
+        lines.append("\nIN PORT — by component:")
+        for entry in in_port:
+            boats = entry.get("boats") or []
+            if not boats:
+                continue
+            lines.append(f"\n{entry.get('component', entry.get('id', '?'))} ({len(boats)}):")
+            for b in sorted(boats, key=lambda b: (label_sort_key(b.get("label") or ""),
+                                                  b.get("date", ""), b.get("id", ""))):
+                lines.append(format_ticket_row(b, indent="  "))
+        for f in findings:
+            lines.append(f"\nFINDING: {f.get('component', '?')} history standing is prose: "
+                         f"{str(f.get('standing', ''))[:60]}")
         if self._cache_at:
             lines.append(f"\nCached at: {self._cache_at}")
         return "\n".join(lines)

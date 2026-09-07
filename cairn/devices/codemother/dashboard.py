@@ -1,99 +1,25 @@
 """codemother/dashboard.py — the whole coding system at a glance.
 
 The consumer is the operator scanning the full picture. Shows every category
-in priority order (unexpected → troubles → email → adjudication → design →
-PROVEME → BUILDME → WATCHME → done), each ticket as the standard atom:
-date, state, hex, title.
+in priority order (troubles → email → review → design → the tickets by status
+→ done), each ticket as the standard atom: date, label, id, title.
 
 Reads are from operator_inbox readers — the SINGLE SOURCE of live-state reads
-(Law 1). This module formats; it reads nothing of its own.
+(Law 1). This module formats; it reads nothing of its own and derives no label
+of its own: a ticket's status token here is the one ``read_tickets`` gave it,
+byte-identical to the inbox and the harbor map (ticket 3feb201c84ea — before
+it, this file re-walked tickets/ and re-parsed the cursor a second way).
 """
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
-from cairn.tools.base.transitions import TERMINAL_STATES
 from cairn.tools.operator_inbox.inbox import (
     gather_all,
-    read_tickets,
-    _cursor,
-    TICKETS_DIR,
+    read_done_tickets,
+    format_ticket_row,
 )
 
-_TICKET_PRIORITY = [
-    "THINKME", "THINKME:waiting",
-    "TICKETME", "TICKETME:waiting",
-    "PROVEME", "PROVEME:waiting",
-    "BUILDME", "BUILDME:waiting",
-    "WATCHME",
-]
-
 _LINE = "=" * 76
-
-
-def _count_done(*, tickets_dir: Path | None = None) -> dict:
-    d = tickets_dir or TICKETS_DIR
-    if not d.exists():
-        return {"total": 0, "by_state": {}}
-    by_state: dict[str, int] = {}
-    for p in sorted(d.glob("*.json")):
-        if p.name.startswith("_"):
-            continue
-        try:
-            t = json.loads(p.read_text())
-        except (json.JSONDecodeError, OSError):
-            continue
-        if t.get("role") in ("store-charter", "charter"):
-            continue
-        cursor = _cursor(t.get("workflow_and_state", ""))
-        if cursor in TERMINAL_STATES:
-            by_state[cursor] = by_state.get(cursor, 0) + 1
-    return {"total": sum(by_state.values()), "by_state": by_state}
-
-
-def _read_tickets_with_detail(*, tickets_dir: Path | None = None) -> dict:
-    """Read non-terminal tickets with date/title for the atom display."""
-    d = tickets_dir or TICKETS_DIR
-    if not d.exists():
-        return {"by_state": {}, "total": 0}
-    by_state: dict[str, list[dict]] = {}
-    for p in sorted(d.glob("*.json")):
-        if p.name.startswith("_"):
-            continue
-        try:
-            t = json.loads(p.read_text())
-        except (json.JSONDecodeError, OSError):
-            continue
-        if t.get("role") in ("store-charter", "charter"):
-            continue
-        cursor = _cursor(t.get("workflow_and_state", ""))
-        if cursor in TERMINAL_STATES:
-            continue
-        base = (cursor or "UNKNOWN").split("(")[0].split(":")[0]
-        is_waiting = ":waiting" in (cursor or "")
-        group = f"{base}:waiting" if is_waiting else base
-        if group.startswith("WATCHME"):
-            group = "WATCHME:waiting" if is_waiting else "WATCHME"
-        by_state.setdefault(group, []).append({
-            "date": t.get("date", t.get("cast", "")) or "",
-            "state": cursor or "UNKNOWN",
-            "hex": t.get("id", "")[:12],
-            "title": t.get("title", ""),
-        })
-    total = sum(len(v) for v in by_state.values())
-    return {"by_state": by_state, "total": total}
-
-
-def _format_atom(ticket: dict) -> str:
-    date = (ticket.get("date") or "")[:10]
-    state = ticket.get("state", "?")
-    base = state.split("(")[0].split(":")[0]
-    short_state = f"{base}:waiting" if ":waiting" in state else base
-    hex_id = ticket.get("hex", "?")
-    title = ticket.get("title", "")
-    return f"    {date:<12s}{short_state:<20s}{hex_id:<14s}{title}"
 
 
 def format_dashboard(data: dict | None = None, **kw) -> str:
@@ -102,14 +28,14 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
     troubles = data["troubles"]
     email = data["email"]
     adjudications = data["adjudications"]
-    lap = data.get("lap", {"items": [], "count": 0})
     questions = data["questions"]
     intentions = data["intentions"]
     ideas = data["ideas"]
+    tickets = data["tickets"]
+    done = read_done_tickets(tickets_dir=kw.get("tickets_dir"))
 
-    tickets = _read_tickets_with_detail(tickets_dir=kw.get("tickets_dir"))
-    done = _count_done(tickets_dir=kw.get("tickets_dir"))
-    by_state = tickets["by_state"]
+    records = tickets["records"]
+    by_label = tickets["by_label"]
 
     lines: list[str] = []
     lines.append("")
@@ -123,16 +49,14 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
         f"{troubles['live_count']} live trouble(s)",
         f"{email.get('count', 0)} lost email",
         f"{adjudications['count']} awaiting review",
-        f"{lap['count']} adjudication(s)",
         f"{questions['count']} open question(s)",
-        f"{tickets['total']} active ticket(s)",
+        f"{tickets['total_not_done']} active ticket(s)",
         f"{done['total']} done",
         f"{ideas['count']} idea(s)",
     ]
     lines.append("  " + " | ".join(parts))
     lines.append("")
 
-    # 0. Unexpected — IOUs from CLAUDE.md (counted only, not read here)
     # 1. Troubles
     if troubles["live_count"]:
         lines.append(f"  TROUBLES ({troubles['live_count']} live):")
@@ -141,42 +65,30 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
     else:
         lines.append(f"  TROUBLES: 0 live ({troubles['total_count']} exist, all CLEARED)")
 
-    # 2. Email
-    if email.get("count", 0):
-        lines.append(f"  EMAIL: {email['count']} undelivered")
-    else:
-        lines.append(f"  EMAIL: 0 unresolved")
+    # 2. Email — one line
+    lines.append(f"  EMAIL: {email.get('count', 0)} undelivered")
 
-    # 3. Awaiting review / adjudication
+    # 3. Awaiting review — one line, one name
     lines.append(f"  ARTIFACT REVIEWS: {adjudications['count']} awaiting review")
-    if lap["count"]:
-        lines.append(f"  ADJUDICATION: {lap['count']} pending")
 
     # 4. Design queue
     lines.append(f"  QUESTIONS: {questions['count']} open")
-    thinkme = by_state.get("THINKME", [])
+    thinkme = [r for r in records if r["label"].split(":")[0] == "THINKME"]
     lines.append(f"  DESIGN: {len(thinkme)} tickets at THINKME")
 
-    # 5–7. Tickets by priority with atom format
+    # 5. Tickets by label, priority order (by_label arrives ordered), the standard atom
     lines.append("")
-    for group in _TICKET_PRIORITY:
-        bucket = by_state.get(group, [])
-        if not bucket:
+    by_id = {r["id"]: r for r in records}
+    for label, ids in by_label.items():
+        if not ids:
             continue
-        sorted_bucket = sorted(bucket, key=lambda t: t.get("date", ""))
-        lines.append(f"  {group} ({len(bucket)}):")
-        for t in sorted_bucket:
-            lines.append(_format_atom(t))
-    remaining = {k: v for k, v in by_state.items()
-                 if k not in _TICKET_PRIORITY and k != "THINKME" and v}
-    for k in sorted(remaining):
-        lines.append(f"  {k} ({len(remaining[k])}):")
-        for t in sorted(remaining[k], key=lambda t: t.get("date", "")):
-            lines.append(_format_atom(t))
+        lines.append(f"  {label} ({len(ids)}):")
+        for tid in ids:
+            lines.append(format_ticket_row(by_id[tid]))
 
-    # 8. Done (counts only)
+    # 6. Done (counts only)
     lines.append("")
-    done_parts = [f"{s} ({c})" for s, c in sorted(done["by_state"].items())]
+    done_parts = [f"{label} ({len(ids)})" for label, ids in done["by_label"].items()]
     lines.append(f"  DONE ({done['total']}): " + " | ".join(done_parts))
 
     # INTENTIONS + IDEAS
@@ -190,7 +102,6 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    import sys
     print(format_dashboard())
     return 0
 

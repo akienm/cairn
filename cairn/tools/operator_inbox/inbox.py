@@ -33,7 +33,27 @@ INTENTIONS_DIR = Path(os.environ.get(
 ADJUDICATIONS_DIR = Path(os.environ.get(
     "CAIRN_ADJUDICATIONS_DIR", COMMONS_ROOT / "adjudications"))
 
-from cairn.tools.base.transitions import TERMINAL_STATES
+from cairn.tools.base.transitions import (
+    TERMINAL_STATES,
+    MalformedWorkflow,
+    parse_workflow,
+)
+
+# THE ONE DISPLAY ORDER for a ticket's status label (ticket 3feb201c84ea, 2026-09-06):
+# what needs a hand first. Every report that lists tickets by status walks this list
+# through ``label_sort_key`` — the inbox, the codemother dashboard, the harbor map.
+# A label the list does not know sorts after all of these, never silently first.
+LABEL_ORDER = [
+    "THINKME", "TICKETME", "SORTEDME",
+    "PROVEME",
+    "BUILDME",
+    "WATCHME",
+    "PROVED", "SUPERSEDED", "RETIRED", "DROPPED", "KILLED", "ABSORBED",
+]
+
+# A ticket whose workflow_and_state does not parse still has ONE status, and it is this
+# word — loud on every surface (Law 7), never a quiet "UNKNOWN" bucket.
+UNPARSED = "UNPARSED"
 
 SECTION_ORDER = [
     "troubles",
@@ -55,17 +75,127 @@ def _slugify(text: str, max_len: int = 60) -> str:
     return s[:max_len].rstrip('-')
 
 
-def _cursor(state: str) -> str | None:
-    if not state:
+# ---------------------------------------------------------------------------
+# A ticket has ONE status (ticket 3feb201c84ea; Akien 2026-09-06: "for a given
+# ticket that appers in all the places, i should see the same status. it has one
+# status."). The cursor is read ONCE, here, through transitions.parse_workflow —
+# the grammar's own parser, not a regex of this file's — and the label every
+# report prints is derived ONCE, here. Measured before this: three readers globbed
+# tickets/ and derived the label three ways, and the same ticket wore four statuses
+# across the inbox, the dashboard and the harbor map.
+# ---------------------------------------------------------------------------
+
+def cursor_of(workflow_and_state: str) -> str | None:
+    """The ticket's cursor TOKEN — ``WATCHME(one-status-everywhere):waiting``,
+    ``PROVEME:waiting``, ``PROVED`` — read through the grammar. None when the
+    string does not parse (prose, no bracket, unknown phase): the caller labels
+    that UNPARSED rather than guessing."""
+    if not isinstance(workflow_and_state, str) or not workflow_and_state.strip():
         return None
-    for part in state.split():
-        if part.startswith("[") and part.endswith("]"):
-            return part.strip("[]")
-        if ":" in part:
-            base = part.split(":")[0]
-            if base.startswith("["):
-                return base.strip("[]")
-    return None
+    try:
+        wf = parse_workflow(workflow_and_state)
+    except MalformedWorkflow:
+        return None
+    token = wf.here
+    if wf.here_object:
+        token += f"({wf.here_object})"
+    if wf.phase:
+        token += f":{wf.phase}"
+    return token
+
+
+def status_label(cursor: str | None) -> str:
+    """The ONE display label for a cursor token: the base stage, plus ``:waiting``
+    when the pickup phase is waiting, the WATCHME object stripped.
+    ``WATCHME(x):waiting`` -> ``WATCHME:waiting``; ``PROVEME:in-process`` -> ``PROVEME``;
+    None -> ``UNPARSED``."""
+    if not cursor:
+        return UNPARSED
+    base = cursor.split("(")[0].split(":")[0]
+    if cursor.endswith(":waiting"):
+        return f"{base}:waiting"
+    return base
+
+
+def is_stage_token(text: str | None) -> bool:
+    """Whether a standing string is a stage token of the grammar (``BUILDME``,
+    ``WATCHME(x):waiting``, ``PROVED``) rather than prose. Vocabulary-based, no
+    regex: a summons ends in ME, a rest is in TERMINAL_STATES."""
+    if not isinstance(text, str) or not text.strip() or " " in text.strip():
+        return False
+    base = text.strip().split("(")[0].split(":")[0]
+    return base.isupper() and base.isidentifier() and (
+        base.endswith("ME") or base in TERMINAL_STATES)
+
+
+def label_sort_key(label: str) -> tuple:
+    """Priority rank of a label — LABEL_ORDER by base, waiting after its bare stage."""
+    base = label.split(":")[0]
+    try:
+        rank = LABEL_ORDER.index(base)
+    except ValueError:
+        rank = len(LABEL_ORDER)
+    return (rank, label.endswith(":waiting"), label)
+
+
+def owning_component(owning_intention) -> str:
+    """The component a ticket is berthed at, from its owning_intention address:
+    ``cairn/tools/operator_inbox/intention+why.json`` -> ``tools/operator_inbox``;
+    ``bin/intention+why.json`` -> ``bin``. No address -> ``unassigned``."""
+    if not isinstance(owning_intention, str) or not owning_intention.strip():
+        return "unassigned"
+    addr = owning_intention.strip()
+    if addr.startswith("cairn/"):
+        addr = addr[len("cairn/"):]
+    for suffix in ("/intention+why.json", "/_charter+why.json"):
+        if addr.endswith(suffix):
+            addr = addr[:-len(suffix)]
+            break
+    return addr or "unassigned"
+
+
+def _ticket_record(path: Path, ticket: dict) -> dict:
+    cursor = cursor_of(ticket.get("workflow_and_state", ""))
+    return {
+        "id": ticket.get("id") or path.stem[:12],
+        "title": ticket.get("title", "") or "",
+        "date": (ticket.get("date") or ticket.get("cast") or "")[:10],
+        "cursor": cursor,
+        "label": status_label(cursor),
+        "owning_component": owning_component(ticket.get("owning_intention")),
+        "node_class": ticket.get("node_class"),
+        "source": str(path),
+    }
+
+
+def _scan_tickets(tickets_dir: Path | None) -> list[dict]:
+    """THE ONE WALK of tickets/ — every record every report consumes comes from here.
+    Sorted by (label priority, date, id), so every surface lists in the same order."""
+    d = tickets_dir or TICKETS_DIR
+    if not d.exists():
+        return []
+    records: list[dict] = []
+    for p in sorted(d.glob("*.json")):
+        if p.name.startswith("_"):
+            continue
+        try:
+            t = json.loads(p.read_text())
+        except (json.JSONDecodeError, OSError):
+            continue
+        if not isinstance(t, dict) or t.get("role") in ("store-charter", "charter"):
+            continue
+        if not isinstance(t.get("workflow_and_state"), str):
+            continue          # not a boat (the folder's schema doc, a note)
+        records.append(_ticket_record(p, t))
+    records.sort(key=lambda r: (label_sort_key(r["label"]), r["date"], r["id"]))
+    return records
+
+
+def _by_label(records: list[dict]) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for r in records:            # records arrive in priority order, so the dict does too
+        out.setdefault(r["label"], []).append(r["id"])
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -134,27 +264,22 @@ def read_questions(*, questions_dir: Path | None = None) -> dict:
 
 
 def read_tickets(*, tickets_dir: Path | None = None) -> dict:
-    d = tickets_dir or TICKETS_DIR
-    if not d.exists():
-        return {"by_state": {}, "total_not_done": 0}
-    by_state: dict[str, list[str]] = {}
-    for p in sorted(d.glob("*.json")):
-        if p.name.startswith("_"):
-            continue
-        try:
-            t = json.loads(p.read_text())
-        except (json.JSONDecodeError, OSError):
-            continue
-        if t.get("role") in ("store-charter", "charter"):
-            continue
-        state = t.get("workflow_and_state", "")
-        cursor = _cursor(state)
-        if cursor in TERMINAL_STATES:
-            continue
-        bucket = cursor or "UNKNOWN"
-        by_state.setdefault(bucket, []).append(p.stem)
-    total = sum(len(v) for v in by_state.values())
-    return {"by_state": by_state, "total_not_done": total}
+    """THE ONE READER of open tickets. Returns
+    ``{'records': [ {id, title, date, cursor, label, owning_component, node_class, source} ],
+       'by_label': {label: [ids]}, 'total_not_done': n}``
+    — non-terminal tickets only, in priority order. The inbox, the codemother
+    dashboard and the harbor map all consume these records; none re-derives a label."""
+    records = [r for r in _scan_tickets(tickets_dir)
+               if r["label"].split(":")[0] not in TERMINAL_STATES]
+    return {"records": records, "by_label": _by_label(records),
+            "total_not_done": len(records)}
+
+
+def read_done_tickets(*, tickets_dir: Path | None = None) -> dict:
+    """The terminal tickets still living in tickets/ — same records, same labels."""
+    records = [r for r in _scan_tickets(tickets_dir)
+               if r["label"].split(":")[0] in TERMINAL_STATES]
+    return {"records": records, "by_label": _by_label(records), "total": len(records)}
 
 
 def read_intentions(*, intentions_dir: Path | None = None) -> dict:
@@ -275,6 +400,13 @@ def _wrap(text: str, indent: str = "  ", width: int = 76) -> str:
     return "\n".join(out)
 
 
+def format_ticket_row(record: dict, indent: str = "    ") -> str:
+    """THE TICKET ATOM every report prints: date, label, id, title — one shape, one
+    label. The dashboard and the harbor map call this; they do not compose their own."""
+    return (f"{indent}{record.get('date', ''):<12s}{record.get('label', UNPARSED):<20s}"
+            f"{(record.get('id') or '?')[:12]:<14s}{record.get('title', '')}")
+
+
 def format_summary(data: dict) -> str:
     """One-line summary of live state — the shape the receipt carries."""
     troubles = data["troubles"]
@@ -292,16 +424,9 @@ def format_summary(data: dict) -> str:
     parts.append(f"{adjudications['count']} artifact(s) awaiting review")
     parts.append(f"{questions['count']} open question(s)")
 
-    by_state = tickets["by_state"]
-    state_parts = []
-    for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
-        count = len(by_state.get(s, []))
-        if count:
-            state_parts.append(f"{s} {count}")
-    waiting = sum(len(v) for k, v in by_state.items()
-                  if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME"))
-    if waiting:
-        state_parts.append(f"other {waiting}")
+    # Every label, in priority order, summing to the total — no 'other' bucket.
+    # (Measured 2026-09-06: the header said 'other 39' against its own listing.)
+    state_parts = [f"{label} {len(ids)}" for label, ids in tickets["by_label"].items() if ids]
     if state_parts:
         parts.append(f"{tickets['total_not_done']} tickets ({', '.join(state_parts)})")
     else:
@@ -322,8 +447,8 @@ def format_inbox(data: dict) -> str:
     email = data["email"]
     lap = data.get("lap", {"items": [], "count": 0, "error": None})
 
-    by_state = tickets["by_state"]
-    thinkme = by_state.get("THINKME", [])
+    by_label = tickets["by_label"]
+    thinkme = [r for r in tickets["records"] if r["label"].split(":")[0] == "THINKME"]
 
     lines.append("")
     lines.append(_line())
@@ -420,35 +545,14 @@ def format_inbox(data: dict) -> str:
         lines.append("")
         lines.append(_section_line(f"DESIGN NEEDING OPERATOR ATTENTION ({len(thinkme)})"))
         lines.append("")
-        for t in thinkme:
-            lines.append(f"    {t}")
+        for r in thinkme:
+            lines.append(format_ticket_row(r))
         lines.append("")
 
-    # TICKETS (priority order: design → PROVEME → BUILDME; WATCHMEs omitted)
-    _TICKET_PRIORITY = [
-        "THINKME", "TICKETME", "TICKETME:waiting",
-        "PROVEME", "PROVEME:waiting",
-        "BUILDME", "BUILDME:waiting",
-    ]
+    # TICKETS — every label in priority order (by_label arrives ordered), same
+    # tokens the dashboard and the harbor map print for the same tickets.
     lines.append("")
-    state_parts = []
-    watchme_count = 0
-    shown_keys: set[str] = set()
-    for s in _TICKET_PRIORITY:
-        bucket = by_state.get(s, [])
-        if bucket:
-            state_parts.append(f"{s} ({len(bucket)})")
-            shown_keys.add(s)
-    for k, v in sorted(by_state.items()):
-        if k in shown_keys:
-            continue
-        if k.startswith("WATCHME"):
-            watchme_count += len(v)
-            continue
-        if v:
-            state_parts.append(f"{k} ({len(v)})")
-    if watchme_count:
-        state_parts.append(f"WATCHME ({watchme_count})")
+    state_parts = [f"{label} ({len(ids)})" for label, ids in by_label.items() if ids]
     lines.append(f"  TICKETS ({tickets['total_not_done']} not done): "
                  + " | ".join(state_parts))
 

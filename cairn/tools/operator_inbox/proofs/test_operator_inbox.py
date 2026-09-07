@@ -21,7 +21,8 @@ from cairn.tools.operator_inbox.inbox import (
     QUESTIONS_DIR,
     INTENTIONS_DIR,
     TERMINAL_STATES,
-    _cursor,
+    cursor_of,
+    status_label,
 )
 
 
@@ -63,13 +64,19 @@ def test_tickets_match_independent_read():
                 t = json.loads(p.read_text())
             except (json.JSONDecodeError, OSError):
                 continue
-            if t.get("role") in ("store-charter", "charter"):
+            if not isinstance(t, dict) or t.get("role") in ("store-charter", "charter"):
                 continue
-            cursor = _cursor(t.get("workflow_and_state", ""))
-            if cursor in TERMINAL_STATES:
+            if not isinstance(t.get("workflow_and_state"), str):
+                continue
+            label = status_label(cursor_of(t["workflow_and_state"]))
+            if label.split(":")[0] in TERMINAL_STATES:
                 continue
             independent_count += 1
     assert result["total_not_done"] == independent_count
+    # one status: every record's label IS status_label(cursor_of(its own state string))
+    for r in result["records"]:
+        own = json.loads(Path(r["source"]).read_text())["workflow_and_state"]
+        assert r["label"] == status_label(cursor_of(own)), (r["id"], r["label"], own[:80])
 
 
 def test_ideas_match_independent_read():

@@ -254,16 +254,11 @@ def _ticket_summary() -> str | None:
         data = read_tickets()
         if not data["total_not_done"]:
             return None
-        by_state = data["by_state"]
-        parts = []
-        for s in ["BUILDME", "PROVEME", "TICKETME", "THINKME"]:
-            count = len(by_state.get(s, []))
-            if count:
-                parts.append(f"{s} {count}")
-        waiting = sum(len(v) for k, v in by_state.items()
-                      if k not in ("BUILDME", "PROVEME", "TICKETME", "THINKME"))
-        if waiting:
-            parts.append(f"other {waiting}")
+        # Every label in the reader's priority order, summing to the total — the
+        # same tokens the inbox header prints (ticket 3feb201c84ea: one status,
+        # one reader; the old 'other N' bucket contradicted the inbox's own listing).
+        parts = [f"{label} {len(ids)}"
+                 for label, ids in data["by_label"].items() if ids]
         return f"{data['total_not_done']} tickets ({', '.join(parts)})"
     except Exception:
         return None

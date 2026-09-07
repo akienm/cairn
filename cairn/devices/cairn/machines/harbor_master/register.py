@@ -6,17 +6,24 @@ view of what is in port and what is still at sea. (The AUTHORITY rung — cleara
 transition — is child b, and waits on the base-class emit-chokepoint; the VOYAGE view is
 child c, deferred to meet the web_server. This file is child a alone.)
 
-Two vantages, both already git-JSON on disk, mirroring the lifecycle CLAUDE.md names —
-"a ticket stages in CairnCommons/tickets/, then migrates beside the code to become that
-component's history":
-  - OPEN boats  = tickets still voyaging in ``CairnCommons/tickets/`` (not yet berthed).
-  - IN-PORT boats = components with a ``history.json`` beside their code (+ ``bin/``) —
-    proven voyages, berthed. Their standing is exactly ``project(history).cursor``.
+Two vantages, both already git-JSON on disk:
+  - OPEN boats  = the tickets in ``CairnCommons/tickets/``, each wearing the ONE status
+    label operator_inbox's ``read_tickets`` derives for it (ticket 3feb201c84ea,
+    2026-09-06 — this file used to parse the cursor with a regex of its own, and the
+    same ticket wore a different status here than in the inbox).
+  - IN-PORT = the open tickets berthed at each COMPONENT, grouped by the ticket's
+    ``owning_component``. A component's ``history.json`` is still walked, for two
+    reasons only: the harbor sees every component that has a history even when no
+    ticket is berthed there, and a history whose last standing is PROSE rather than a
+    stage token surfaces as a ``finding`` — one line, never a status group.
+    (Before 3feb201c84ea an in-port entry's standing was ``project(history).cursor``, and
+    the map printed a component's last crossing as though it were a ticket's status —
+    which is how the bus appeared twice with two statuses.)
 
 The register is an INDEX, not a rival record (Law 7). Every entry's standing is read from
-the boat's OWN record and carries a ``source`` pointing back to it; the register invents
-no truth a boat does not already hold. ``berth`` (open|in_port) is not an invented field —
-it is a pure function of WHERE the boat lives, which is what the lifecycle already means.
+the boat's OWN record — through the one reader — and carries a ``source`` pointing back to
+it; the register invents no truth a boat does not already hold. ``berth`` (open|in_port) is
+not an invented field — it is a pure function of WHERE the boat lives.
 
 Computed on read, never stored — so it cannot drift from the boats (Law 7), and child a's
 filed "db-vs-git placement edge" DISSOLVES: there is nothing to place because there is no
@@ -36,23 +43,20 @@ Deliberately dependency-light: pure file reads + the projector's pure core. Runs
 
 from __future__ import annotations
 
-import json
-import re
 from pathlib import Path
 
 from cairn.tools.base import address
 from cairn.tools.charter import projector
+from cairn.tools.operator_inbox.inbox import (
+    is_stage_token,
+    read_done_tickets,
+    read_tickets,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]   # cairn/devices/cairn/machines/harbor_master/register.py -> repo root
 _CAIRN = _REPO_ROOT / "cairn"
 _SRC_ROOT = _REPO_ROOT.parent                        # ~/dev/src — the common parent of the two repos
 _DEFAULT_TICKETS = _SRC_ROOT / "CairnCommons" / "tickets"
-
-# The cursor marker in a ticket's ``state`` string is the bracketed [STAGE], e.g.
-# "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> ...". Sub-states like
-# [TICKETME:waiting] and [WATCHME(probe-name):waiting] are valid cursors.
-# Prose states ("building") carry no bracket and are taken verbatim.
-_CURSOR_RE = re.compile(r"\[([^\]]+)\]")
 
 
 def _rel(path: Path) -> str:
@@ -63,18 +67,51 @@ def _rel(path: Path) -> str:
         return str(path)
 
 
-def _berthed_boats(cairn_root: Path) -> list[dict]:
-    """In-port boats: every component carrying a ``history.json`` beside its code (+ bin/).
+def _open_boats(tickets_dir: Path) -> list[dict]:
+    """Open boats: every ticket in the commons tickets folder — the not-done ones first,
+    in priority order, then the done-but-not-berthed (a PROVED ticket still in tickets/
+    is migration debt the harbor keeps visible; the map's ``open`` filter drops it).
 
-    The standing is the boat's OWN cursor — ``project(history).cursor`` — read here, not
-    re-derived into something new (Law 1: the projector already answers 'where does this
-    boat stand'; the register only gathers those answers).
+    Every field comes from operator_inbox's ``read_tickets`` — the ONE reader. ``standing``
+    IS the record's ``label``, so the harbor map prints the same token the inbox does.
+    """
+    records = (read_tickets(tickets_dir=tickets_dir)["records"]
+               + read_done_tickets(tickets_dir=tickets_dir)["records"])
+    boats = []
+    for r in records:
+        boat = dict(r)
+        boat["berth"] = "open"
+        boat["standing"] = r["label"]
+        boat["source"] = _rel(Path(r["source"]))
+        boats.append(boat)
+    return boats
+
+
+def _component_key(d: Path, cairn_root: Path) -> str:
+    """The component address the way a ticket's ``owning_component`` spells it:
+    ``devices/cairn/machines/harbor_master``, ``bin``."""
+    try:
+        return str(d.relative_to(cairn_root))
+    except ValueError:
+        return d.name
+
+
+def _berthed_boats(cairn_root: Path, open_boats: list[dict]) -> tuple[list[dict], list[dict]]:
+    """In-port: the open boats berthed at each component, grouped by ``owning_component``.
+
+    Returns ``(in_port, findings)``. Every component with a ``history.json`` beside its
+    code (+ bin/) is an in-port entry even with no boats berthed (the harbor sees the
+    whole port); every ``owning_component`` an open boat names is an entry even with no
+    history yet (no ticket hides). A history whose last standing is prose rather than a
+    stage token is a FINDING — ``{component, standing, source}`` — not a status.
+
+    The ``boats`` list holds the SAME record dicts ``open`` holds, so a crossing patch on
+    the open boat is visible from its berth too (one status, one object).
     """
     # The walk asks the component roster where the components ARE (address.component_dirs,
     # 2026-08-13) rather than spelling their depth. It used to be glob("*/history.json"),
     # and the rung reorganisation is exactly the event that shape cannot survive: after the
-    # move it matched nothing and the harbor reported an EMPTY in-port lane — a fleet with
-    # no berthed boats reads identical to a harbor whose boats all sailed. Caught by this
+    # move it matched nothing and the harbor reported an EMPTY in-port lane. Caught by this
     # device's own proof ("the harbor does not see its own berthed history"), which is why
     # the tooth asserts non-empty rather than a count.
     dirs = [d for d in address.component_dirs(cairn_root)[0]
@@ -82,70 +119,62 @@ def _berthed_boats(cairn_root: Path) -> list[dict]:
     bin_hist = cairn_root.parent / "bin" / "history.json"
     if bin_hist.exists():
         dirs.append(bin_hist.parent)
-    boats = []
+
+    by_component: dict[str, list[dict]] = {}
+    for b in open_boats:
+        by_component.setdefault(b.get("owning_component") or "unassigned", []).append(b)
+
+    entries: dict[str, dict] = {}
+    findings: list[dict] = []
     for d in sorted(dirs):
+        key = _component_key(d, cairn_root)
         history = projector.read_history(str(d / "history.json"))
         cursor = projector.project(history)["cursor"] or {}
-        boats.append({
+        standing = cursor.get("standing")
+        source = _rel(d / "history.json")
+        entries[key] = {
             "id": d.name,
             "berth": "in_port",
-            "standing": cursor.get("standing"),
+            "component": key,
+            "standing": standing,
             "gate": cursor.get("gate"),
             "seq": cursor.get("seq"),
-            "source": _rel(d / "history.json"),
-        })
-    return boats
-
-
-def _open_boats(tickets_dir: Path) -> list[dict]:
-    """Open boats: every ticket still voyaging in the commons tickets folder.
-
-    A boat is a ticket with an ``id`` and a string ``state`` cursor. The folder's own
-    schema doc (no state) is not a boat and is skipped — the register carries workflows,
-    not the form they are written on.
-    """
-    boats = []
-    if not tickets_dir.exists():
-        return boats
-    for t in sorted(tickets_dir.glob("*.json")):
-        try:
-            d = json.loads(t.read_text(encoding="utf-8"))
-        except (ValueError, OSError):
-            continue                      # unreadable/garbled ticket is not a silent boat
-        state = d.get("workflow_and_state")
-        if not d.get("id") or not isinstance(state, str):
-            continue                      # not a boat (e.g. the folder's _charter+why schema doc)
-        m = _CURSOR_RE.search(state)
-        cursor = m.group(1) if m else state.strip()   # the [STAGE] marker, or the raw prose state
-        boats.append({
-            "id": d["id"],
-            "berth": "open",
-            "standing": cursor,
-            "node_class": d.get("node_class"),
-            "title": d.get("title", ""),
-            "date": d.get("date", d.get("cast", "")),
-            "source": _rel(t),
-        })
-    return boats
+            "source": source,
+            "boats": by_component.get(key, []),
+        }
+        if standing is not None and not is_stage_token(standing):
+            findings.append({"component": key, "standing": standing, "source": source})
+    for key, boats in by_component.items():
+        if key not in entries:
+            entries[key] = {
+                "id": key.rsplit("/", 1)[-1],
+                "berth": "in_port",
+                "component": key,
+                "standing": None,
+                "gate": None,
+                "seq": None,
+                "source": boats[0]["source"],
+                "boats": boats,
+            }
+    return [entries[k] for k in sorted(entries)], findings
 
 
 def register(*, cairn_root: Path | str = _CAIRN, tickets_dir: Path | str = _DEFAULT_TICKETS) -> dict:
     """Compile the fleet register — a pure INDEX over the boats' own records.
 
-    Returns ``{open, in_port, fleet, counts}``. Not stored: recomputed from the boats
-    each call, so it can never be a rival record that drifts (Law 7). ``fleet`` is the
-    union of both vantages; a boat mid-voyage (an open ticket AND an early berthed
-    history under one name) legitimately appears in BOTH — stitching those into one
-    voyage is child c's job, not this rung's, so the register shows each source
-    faithfully rather than silently collapsing them.
+    Returns ``{open, in_port, findings, fleet, counts}``. Not stored: recomputed from the
+    boats each call, so it can never be a rival record that drifts (Law 7). ``fleet`` is
+    the union of both vantages: the open tickets, and the components they are berthed at.
     """
-    in_port = _berthed_boats(Path(cairn_root))
     open_ = _open_boats(Path(tickets_dir))
+    in_port, findings = _berthed_boats(Path(cairn_root), open_)
     return {
         "open": open_,
         "in_port": in_port,
+        "findings": findings,
         "fleet": open_ + in_port,
-        "counts": {"open": len(open_), "in_port": len(in_port), "fleet": len(open_) + len(in_port)},
+        "counts": {"open": len(open_), "in_port": len(in_port), "fleet": len(open_) + len(in_port),
+                   "findings": len(findings)},
     }
 
 
@@ -229,10 +258,12 @@ def _main(argv: list[str] | None = None) -> int:
     print("OPEN (still at sea — CairnCommons/tickets/):")
     for b in reg["open"]:
         print(f"  {b['id']:32} @ {b['standing']}")
-    print("\nIN PORT (berthed beside code):")
+    print("\nIN PORT (open tickets berthed at each component):")
     for b in reg["in_port"]:
-        gate = f" [{b['gate']}]" if b.get("gate") else ""
-        print(f"  {b['id']:32} @ seq {b.get('seq')}{gate}")
+        if b["boats"]:
+            print(f"  {b['component']:48} {len(b['boats'])} boat(s)")
+    for f in reg["findings"]:
+        print(f"  FINDING: {f['component']} history standing is prose: {f['standing'][:60]}")
     return 0
 
 

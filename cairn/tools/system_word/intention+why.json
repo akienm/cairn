@@ -1,0 +1,44 @@
+{
+  "component": "system_word",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The case-fold for a SYSTEM WORD, living in exactly one place. A system word is a token the system owns — a device name, a verb, a view name, a status word, a signal, a stage token, a marker, a flag. `fold(token)` is its canonical form (stripped, casefolded); `is_word(token, *words)` and `pick(token, table)` are the compare and the folded lookup; `canon(token, table)` returns the TABLE's own spelling so a seam stores the system's word, never his; `fold_head(argv, n)` folds exactly the n leading system words of a CLI's argv and passes the rest through byte-identical; `fold_flags(argv)` folds only tokens that lead with `-`. Folding is a COMPARE, never a rewrite: a status token stored on disk keeps its case. FREE TEXT IS NEVER FOLDED — his review words, a ruling's verbatim, a learn query, a codemother question, everything after a CLI's leading verbs — and no function here walks a sentence. It holds no state and consults nothing.",
+  "why": "Akien, 2026-09-07: 'i suspect all KEYWORDS in cairn should be case insensitive. cairn itself must be lowercase as a command, but everywhere we're talking a status word, or a command word, or any similar \"system word\" it should be case insensitive if there's any chance of it coming from me.' THE LIVED SYMPTOM: he typed `ruled` and the ruling machine's marker (`\\bRULED\\b`, uppercase by a 2026-08-13 design that guarded against MY prose confirming MY packets) did not confirm his ruling — the guard aimed at me caught him. Nineteen seams compared his token by bytes (`verb == \"list\"`, `views.get(what)`, `cmd not in COMMANDS`, `${1}` in bash), each a re-derivation of 'these bytes are the word' (Law 1), and any one of them could bite the same way the day his shift key landed. One module makes the rule a thing the census can grep for and a seam cannot drift from.",
+  "invoke": "`from cairn.tools.system_word import fold, is_word, canon, pick, fold_head, fold_flags`. No CLI door: it is composed by the seam doing the compare, never run at a person. Bash seams cannot import it and use bash's own `${var,,}` — bin/cairn folds the two tokens it resolves (device, verb) and passes the rest verbatim. Prove: `python3 cairn/tools/system_word/proofs/test_system_word.py`.",
+  "node_class": "tool",
+  "entry": "FRESH build, 2026-09-07, ticket e3cf75c6dc8f. Nothing grafted. The bash fold `${var,,}` is bash's own primitive, cited not copied. The dispatcher proof's `_stub`/`_run` harness (bin/proofs/test_cairn_command.py) is composed by the subprocess teeth here rather than re-derived.",
+  "state_and_history": "state.json + history.json beside this charter, born at the ticket's BUILDME crossing on 2026-09-07 through harbor_master.clearance.clear.",
+  "how_it_learns": "IT DOESN'T, BECAUSE THE RULE IS RULED: a fold that adjusted itself would be a compare with an opinion. What learns is the CENSUS of seams that call it — the probe beside it (probes/his_case_never_bites.py) replays mixed-case drives against the live entry points and a bite names a seam this census missed, which is a new call site, not a change to what folding means.",
+  "filed_edges": [
+    "(a) THE CENSUS IS HAND-TAKEN. Nineteen seams were found by grep on 2026-09-07; a seam added tomorrow that compares by bytes is not refused by anything — the probe's replay is the only thing that would find it, and only for the entry points the probe drives.",
+    "(b) BASH SEAMS FOLD WITH BASH. `bin/cairn` and the codemother launcher use `${var,,}`, which is `lower`, not `casefold` — identical for ASCII, which is every system word today. A non-ASCII system word is the day this edge matters.",
+    "(c) argparse DOORS FOLD FLAGS ONLY. `fold_flags` folds `--SEAL` but a subcommand parsed by argparse's `choices=` is not folded unless the door calls `fold_head` first. The tester CLI has no subcommand; a future one must remember, which is the prose IOU this module was built to retire.",
+    "(d) IDS ARE FOLDED AS SYSTEM WORDS. A berth or ticket id prefix he types (`cairn review ABC`) is folded before the prefix match: ids are system-minted lowercase hex, so folding is safe and helpful. A system that mints mixed-case ids would need this reconsidered."
+  ],
+  "gates": "proof gate — proofs/test_system_word.py: unit teeth over the six functions, subprocess teeth through the real bin/cairn on both the device path and the legacy path, CLI-main teeth driving every python entry point in the census with its verbs uppercased, the lowercase-ruled tooth, and two wrong-intent teeth that free text lands byte-identical. Durability gate: committed + pushed.",
+  "falsifier": "RED on any of: (1) `fold`, `is_word`, `canon`, `pick`, `fold_head` or `fold_flags` returns a value other than the one its docstring states, or raises on a non-string; (2) `fold_head` changes any token beyond `n`, or `fold_flags` changes a token not leading with `-`; (3) any entry point in the census refuses the uppercase form of a word its lowercase form accepts — the real bin/cairn on `ECHOER` (legacy) or `FX_DEV Show` (device), the codemother launcher on `WATCH`, the ruling CLI on `LIST`, ground_loop on `HELP`, the operator inbox on `SHOW ARTIFACT`, skill_block on `CONTRACT`, learning_block on `RECORDVERDICT`/`DIAL`, orient on `GIT`, chart on `CHAIN`, librarian on `LOOP`, sudo_relay on `--STATUS`, the tester on `--SEAL`/`-Q`, base `_handle_show` on `MAP`, the shim on verb `SHOW`, harbor_master's filter on `OPEN`, `render` on a lowercase stage target; (4) a ruling verbatim carrying lowercase `ruled` does not confirm, or `RULEDX` does; (5) free text after a folded verb reaches its consumer changed — any byte. WRONG-SHAPE SIGNAL: a function here that takes a sentence, or a fold applied to a value read FROM disk rather than typed AT a door.",
+  "proof": "proofs/test_system_word.py — the unit teeth pin the six functions; the behavioural teeth drive the entry points themselves (subprocess for bash, imported mains for python) rather than reading the code for a call to this module, because a call that is present and wrong is exactly what a proxy would miss. Two wrong-intent teeth assert free text byte-identical through the dispatcher and through fold_head.",
+  "feedback": {
+    "to": "cairn/devices/codemother",
+    "why": "A bite — an entry point refusing a word its lowercase form accepts — is a care-of-the-code finding: the case rule is a constraint in the corrosion sense and a bite is it corroding at a seam the census missed. codemother owns the care of the code; the probe beside this module carries the bite there, and the operator inbox names the entry point."
+  },
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Akien owns the definition — the rule that system words fold and free text never does, ruled 2026-09-07. CC writes the code and the proofs.",
+  "traces_to": [
+    "Law 1 (the compare lives once; nineteen seams each re-derived 'these bytes are the word')",
+    "Law 4 (a rule that matters is enforced by physics — a fold at the seam, not a note asking him to use the shift key)",
+    "Law 8 (nothing enters proven-space without a proof a hollow build couldn't pass — the behavioural teeth drive the real entry points)",
+    "Law 6 (it has users and not an owner; it carries no state of its own)",
+    "CP4 (design to the tool — the tool here is Akien's hands, and a word that bites on case is a law serving itself)"
+  ],
+  "provenance": "Born 2026-09-07 from Akien's /idea in the same breath as his ruling: 'RULED ruled APPROVED approved Go go GO!' — the marker typed in both cases, which is the ruling demonstrating itself. Decision: CairnCommons/decisions/2026-09-07-system-words-are-case-insensitive-when-akien-types-them.json. Ticket: e3cf75c6dc8f.",
+  "learns": "It does not; it is a pure fold — the census of its callers is what grows.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-verbatim"
+  },
+  "gated_by": [
+    "CC"
+  ]
+}

@@ -75,6 +75,7 @@ from pathlib import Path
 from cairn.tools.base.probe import Probe
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.system_word import canon
 from cairn.tools.base.address import instance_path
 
 
@@ -598,6 +599,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             verbs = {}
             if hasattr(self._device, "declared_verbs") and callable(self._device.declared_verbs):
                 verbs = self._device.declared_verbs()
+            verb = canon(verb, verbs) or verb      # a verb is a system word (ruled 2026-09-07)
             if verb not in verbs:
                 declared = list(verbs) if verbs else "none"
                 reason = (f"{self.device_id} has no verb {verb!r} — declared verbs: "

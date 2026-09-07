@@ -45,7 +45,7 @@ Not how to do it, not what the answer is — that's later stages' work.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.orient.orient import floor_packet
+from cairn.devices.codemother.machines.orient.orient import floor_packet
 print(json.dumps(floor_packet(sys.argv[1]), indent=2, ensure_ascii=False))
 " '<the request, verbatim>'
 ```
@@ -153,7 +153,7 @@ emitted packet is narrow.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.orient.orient import write_packet
+from cairn.devices.codemother.machines.orient.orient import write_packet
 print(write_packet(json.load(open(sys.argv[1]))))
 " <scratchpad>/orient_packet.json
 ```
@@ -189,7 +189,7 @@ existed): a packet the door passes is a packet the promotion gate passes.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.constrain.constrain import constrain_floor
+from cairn.devices.codemother.machines.constrain.constrain import constrain_floor
 print(json.dumps(constrain_floor(sys.argv[1]), indent=2))
 " <the orient berth path>
 ```
@@ -224,7 +224,7 @@ Prior bounds for this class of request, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.constrain.constrain import write_constrain
+from cairn.devices.codemother.machines.constrain.constrain import write_constrain
 print(write_constrain(json.load(open(sys.argv[1]))))
 " <scratchpad>/constrain_packet.json
 ```
@@ -257,7 +257,7 @@ built UNDER pre-installed judges (`survey_holdings_resolve` +
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.survey.survey import survey_floor
+from cairn.devices.codemother.machines.survey.survey import survey_floor
 print(json.dumps(survey_floor(sys.argv[1]), indent=2))
 " <the constrain berth path>
 ```
@@ -299,7 +299,7 @@ Sweep as wide as the request needs — parsimony must NOT squeeze the survey
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.survey.survey import write_survey
+from cairn.devices.codemother.machines.survey.survey import write_survey
 print(write_survey(json.load(open(sys.argv[1]))))
 " <scratchpad>/survey_packet.json
 ```
@@ -329,7 +329,7 @@ is a claim the survey berth can check.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.decompose.decompose import decompose_floor
+from cairn.devices.codemother.machines.decompose.decompose import decompose_floor
 print(json.dumps(decompose_floor(sys.argv[1]), indent=2))
 " <the survey berth path>
 ```
@@ -368,7 +368,7 @@ How past requests of this class divided, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.decompose.decompose import write_decompose
+from cairn.devices.codemother.machines.decompose.decompose import write_decompose
 print(write_decompose(json.load(open(sys.argv[1]))))
 " <scratchpad>/decompose_packet.json
 ```
@@ -399,7 +399,7 @@ to drift against the list.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.triage.triage import triage_floor
+from cairn.devices.codemother.machines.triage.triage import triage_floor
 print(json.dumps(triage_floor(sys.argv[1]), indent=2))
 " <the decompose berth path>
 ```
@@ -436,7 +436,7 @@ How past requests of this class ranked, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.triage.triage import write_triage
+from cairn.devices.codemother.machines.triage.triage import write_triage
 print(write_triage(json.load(open(sys.argv[1]))))
 " <scratchpad>/triage_packet.json
 ```
@@ -468,7 +468,7 @@ the label has fields the gate refuses without.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.hypothesize.hypothesize import hypothesize_floor
+from cairn.devices.codemother.machines.hypothesize.hypothesize import hypothesize_floor
 print(json.dumps(hypothesize_floor(sys.argv[1]), indent=2))
 " <the triage berth path>
 ```
@@ -508,7 +508,7 @@ killed which), floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.hypothesize.hypothesize import write_hypothesize
+from cairn.devices.codemother.machines.hypothesize.hypothesize import write_hypothesize
 print(write_hypothesize(json.load(open(sys.argv[1]))))
 " <scratchpad>/hypothesize_packet.json
 ```
@@ -539,7 +539,7 @@ world by the instrument, never the narration.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.validate.validate import validate_floor
+from cairn.devices.codemother.machines.validate.validate import validate_floor
 print(json.dumps(validate_floor(sys.argv[1]), indent=2))
 " <the hypothesize berth path>
 ```
@@ -574,7 +574,7 @@ What done meant for past requests of this class, floor labeled as always.
 ```bash
 PYTHONPATH=$HOME/dev/src/cairn python3 -c "
 import json, sys
-from cairn.devices.builder.machines.validate.validate import write_validate
+from cairn.devices.codemother.machines.validate.validate import write_validate
 print(write_validate(json.load(open(sys.argv[1]))))
 " <scratchpad>/validate_packet.json
 ```

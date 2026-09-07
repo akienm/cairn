@@ -123,6 +123,7 @@ from pathlib import Path
 from cairn.tools.base.gate_class import TransitionGate
 from cairn.tools.charter import projector
 from cairn.tools.gate import gate
+from cairn.tools.system_word import canon
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _NODE_CLASSES = _REPO_ROOT.parent / "CairnCommons" / "node_classes"
@@ -633,6 +634,18 @@ def _conform(wf: Workflow, class_def: dict) -> dict:
     return reg
 
 
+def canon_target(wf: Workflow, target: str, class_def: dict | None = None) -> str:
+    """The SYSTEM's spelling of a stage target he may have typed in any case (ruled
+    2026-09-07: a stage token is a system word). Resolved against the workflow's own path
+    first, then the class's dispositions; a token naming neither rides through unchanged so
+    the refusal downstream names what he typed. This is a COMPARE, not a rewrite: the string
+    on disk always carries the path's spelling, never his."""
+    hit = canon(target, wf.path)
+    if hit is None and class_def is not None:
+        hit = canon(target, class_def.get("dispositions", []))
+    return target if hit is None else hit
+
+
 def resolve_target(wf: Workflow, target: str) -> int:
     """Which POSITION does naming ``target`` mean? For a state occurring once — every state
     before free summonses existed — this is just ``path.index``. A free summons may repeat,
@@ -643,6 +656,7 @@ def resolve_target(wf: Workflow, target: str) -> int:
     so an occurrence after the cursor wins over one before it; among several on the same side,
     the closest wins. Deliberately not "refuse the ambiguous": a node carrying two watches
     would then be un-crossable, which is worse than a stated, provable rule."""
+    target = canon_target(wf, target)
     after = [i for i, s in enumerate(wf.path) if s == target and i > wf.cursor]
     if after:
         return after[0]
@@ -750,6 +764,7 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> list[d
     is additive: this raised on refusal and returned ``None`` before, and callers that ignore
     it are unchanged.
     """
+    target = canon_target(wf, target, class_def)   # a stage token is a system word
     record = inspect_rules(wf, target, class_def=class_def)
     bad = _mismatches(record)
     if bad:
@@ -1602,6 +1617,7 @@ def render(wf: Workflow, target: str) -> str:
     A DISPOSITION TARGET is appended after the backbone — the ticket's full path is preserved
     (readable) and the cursor at the terminal says 'done, by this exit'. No phase (a
     disposition summons nobody)."""
+    target = canon_target(wf, target)
     idx = resolve_target(wf, target)
     if idx >= len(wf.path):
         states = []
@@ -1646,6 +1662,7 @@ def emit(
     """
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)
+    target = canon_target(wf, target, class_def)   # a stage token is a system word
     # THE RULES RUNG ALWAYS RUNS, so every journaled crossing carries at least its three
     # lanes: NO EMPTY ANYWHERE (Akien, 2026-08-13). `proved` accumulates every lane every
     # seat below ran, and `checks_proved` is its length — so a gate that stops running makes

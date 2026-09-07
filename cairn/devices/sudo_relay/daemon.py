@@ -36,6 +36,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.sudo_relay import relay
+from cairn.tools.system_word import is_word
 
 _POLL_S = 2.0
 _KEEPALIVE_EVERY_S = 60.0
@@ -143,7 +144,7 @@ def run() -> int:
 
 def main(argv: list | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    if argv and argv[0] == "--status":
+    if argv and is_word(argv[0], "--status"):  # system words fold (ruled 2026-09-07)
         return _print_status()
     return run()
 

@@ -18,6 +18,8 @@ import re
 import sys
 from pathlib import Path
 
+from cairn.tools.system_word import fold, is_word
+
 CAIRN_ROOT = Path(os.environ.get(
     "CAIRN_ROOT", Path.home() / "dev" / "src" / "cairn"))
 COMMONS_ROOT = Path(os.environ.get(
@@ -580,6 +582,7 @@ def show_artifact(id_prefix: str) -> str:
     """Show a pending artifact or ticket by id prefix."""
     from cairn.machines.skill_block.skill_block import pending_reviews, read_berth
     pending = pending_reviews()
+    id_prefix = fold(id_prefix)   # ids are system-minted lowercase hex; his prefix folds
     matches = [p for p in pending if p["berth_id"].startswith(id_prefix)]
 
     if matches:
@@ -747,14 +750,14 @@ def main(argv: list[str] | None = None) -> int:
         print(build_inbox())
         return 0
 
-    if args[0] == "show":
+    if is_word(args[0], "show"):  # system words fold (ruled 2026-09-07)
         if len(args) < 2:
             print(USAGE)
             return 2
-        target = args[1]
+        target = fold(args[1])
 
         if target == "inbox":
-            if "--summary" in args:
+            if any(is_word(a, "--summary") for a in args):
                 data = gather_all()
                 print(format_summary(data))
             else:
@@ -774,7 +777,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     # Bare invocation with no subcommand — show the inbox
-    if args == ["inbox"]:
+    if len(args) == 1 and is_word(args[0], "inbox"):
         print(build_inbox())
         return 0
 

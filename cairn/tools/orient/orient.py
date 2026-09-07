@@ -40,6 +40,7 @@ from pathlib import Path
 # leaf imports nothing but pathlib, and cairn/tools/base/__init__.py is empty by the
 # boot-order law written into it, so this pulls in no component.
 from cairn.tools.base import address
+from cairn.tools.system_word import fold_head
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _COMMONS = _REPO_ROOT.parent / "CairnCommons"
@@ -384,6 +385,7 @@ def deepen(question: str, *, resolve) -> dict:
 
 
 def _main(argv: list[str]) -> int:
+    argv = fold_head(argv, 1)  # system words fold (ruled 2026-09-07); the rest is verbatim
     if not argv or argv[0] not in {"census", "calls", "git", "imports"}:
         print(__doc__)
         return 2

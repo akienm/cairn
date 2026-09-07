@@ -47,6 +47,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.library import learn as learn_verb
 from cairn.devices.librarian.library import shelve
 from cairn.devices.librarian.loop import resolve_query
@@ -258,6 +259,7 @@ def _summarize(argv: list[str]) -> int:
 
 
 def _main(argv: list[str]) -> int:
+    argv = fold_head(argv, 1)  # system words fold (ruled 2026-09-07); the rest is verbatim
     if argv and argv[0] == "loop":
         return _loop(argv[1:])
     if argv and argv[0] == "shelve":

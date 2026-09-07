@@ -287,9 +287,13 @@ def test_his_ruled_marker_confirms_and_nothing_else_does():
     """HIS MARKER, AND ONLY HIS (Akien, 2026-08-13: "I will start saying RULED after every
     goddamned one" / "if i don't use that word, it'd not confimed").
 
-    The marker has to be his deliberate uppercase token, because the alternative failure is
-    silent and self-serving: matching lowercase "ruled" would confirm a packet on ordinary
-    English ABOUT a ruling — my own prose signing off my own reading."""
+    ANY CASE since 2026-09-07 (decision 2026-09-07-system-words-are-case-insensitive-when-
+    akien-types-them: "RULED ruled APPROVED approved Go go GO!"). Until then this tooth pinned
+    the marker to his deliberate uppercase token, reasoning that lowercase "ruled" would
+    confirm a packet on my own prose ABOUT a ruling. The guard caught him instead. What keeps
+    my prose out is WHERE the marker is read — `the_ruling_verbatim` carries his words by
+    contract — so lowercase in that field is his, and confirms. `RULEDX` is still not the
+    word, and prose with no marker still does not confirm."""
     with tempfile.TemporaryDirectory() as d:
         _world(d)
         marked = ruling.open_ruling(_packet(
@@ -301,14 +305,22 @@ def test_his_ruled_marker_confirms_and_nothing_else_does():
             "the confirmation points at the line he actually marked, not the whole "
             f"verbatim — an unpointable confirmation is this gate's own defect; got {record}")
 
-        for unmarked in (["he ruled that the file dies"],      # lowercase English
-                         ["RULEDX is not the marker"],         # no word boundary
+        # LOWERCASE IN HIS VERBATIM IS HIS (2026-09-07): it confirms, and the confirmation
+        # points at the line as he typed it — the record never rewrites his case.
+        path = ruling.open_ruling(_packet(id="2026-09-07-lowercase-marked", date="2026-09-07",
+                                          the_ruling_verbatim=["he ruled that the file dies"]), d)
+        with open(path, encoding="utf-8") as fh:
+            low = json.load(fh)
+        assert low["confirmed"] is True, low
+        assert low["confirmation_verbatim"] == ["he ruled that the file dies"], low
+
+        for unmarked in (["RULEDX is not the marker"],         # no word boundary
                          ["I am considering this"]):
             path = ruling.open_ruling(_packet(id="2026-08-02-unmarked", date="2026-08-02",
                                               the_ruling_verbatim=unmarked), d)
             with open(path, encoding="utf-8") as fh:
                 assert json.load(fh)["confirmed"] is False, (
-                    f"{unmarked!r} confirmed a packet — only his deliberate RULED does")
+                    f"{unmarked!r} confirmed a packet — only his RULED, in any case, does")
 
 
 def test_an_unmarked_packet_is_not_red_and_never_stops_the_work():
@@ -876,8 +888,11 @@ def test_marker_scanner_finds_all_strong_markers():
     assert not hits[0]["strong"], "'that holds' should be weak"
     no_hits = ruling.scan_for_ruling_markers("this is just normal conversation about something")
     assert no_hits == [], f"false positive on clean text: {no_hits}"
-    no_hits = ruling.scan_for_ruling_markers("he ruled that it was fine")
-    assert no_hits == [], f"lowercase 'ruled' should not match: {no_hits}"
+    # ANY CASE since 2026-09-07 (system words are case-insensitive when he types them):
+    # lowercase 'ruled' is a strong hit; the pairing detector reads USER messages only.
+    hits = ruling.scan_for_ruling_markers("he ruled that it was fine")
+    assert len(hits) == 1 and hits[0]["strong"], f"lowercase 'ruled' must match: {hits}"
+    assert ruling.scan_for_ruling_markers("RULEDX is not the marker") == []
 
 
 def test_strong_only_skips_weak_markers():

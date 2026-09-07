@@ -85,6 +85,7 @@ from abc import ABC, abstractmethod
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.system_word import canon
 
 
 class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
@@ -192,10 +193,11 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
 
     def _handle_get(self, envelope: dict) -> dict:
         """Verb handler: return a view's data as a JSON-ready dict."""
-        what = envelope.get("body", {}).get("what", "")
         views = self.declared_views()
-        view_fn = views.get(what)
+        what = canon(envelope.get("body", {}).get("what", ""), views)
+        view_fn = None if what is None else views[what]
         if view_fn is None:
+            what = envelope.get("body", {}).get("what", "")
             return {"accepted": False, "verb": "get", "device": self.device_id,
                     "reason": f"no view {what!r}",
                     "available": sorted(views)}
@@ -205,10 +207,11 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
 
     def _handle_show(self, envelope: dict) -> dict:
         """Verb handler: return a view's data rendered as human-readable text."""
-        what = envelope.get("body", {}).get("what", "")
         views = self.declared_views()
-        view_fn = views.get(what)
+        what = canon(envelope.get("body", {}).get("what", ""), views)
+        view_fn = None if what is None else views[what]
         if view_fn is None:
+            what = envelope.get("body", {}).get("what", "")
             return {"accepted": False, "verb": "show", "device": self.device_id,
                     "reason": f"no view {what!r}",
                     "available": sorted(views)}

@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 from cairn.machines.learning_block.learning_block import DoorRefused, FindingRefused
+from cairn.tools.system_word import fold, is_word
 from cairn.machines.skill_block.skill_block import (
     SkillBlockRefused, fire, load_contract,
     pending_reviews, mark_reviewed, sweep_reviewed,
@@ -45,17 +46,17 @@ def _refuse(msg: str) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
-    if not args or args[0] in ("-h", "--help"):
+    if not args or is_word(args[0], "-h", "--help"):
         print(USAGE)
         return 0 if args else 2
 
-    verb, rest = args[0], args[1:]
+    verb, rest = fold(args[0]), args[1:]  # system words fold (ruled 2026-09-07); the rest is his
 
     if verb == "contract":
         if len(rest) != 1:
             return _refuse(USAGE)
         try:
-            contract = load_contract(rest[0])
+            contract = load_contract(fold(rest[0]))   # a skill name is a system word
         except SkillBlockRefused as exc:
             return _refuse(str(exc))
         print(json.dumps(contract, indent=2, sort_keys=True))
@@ -64,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     if verb == "fire":
         if len(rest) != 2:
             return _refuse(USAGE)
-        skill, packet_path = rest
+        skill, packet_path = fold(rest[0]), rest[1]   # the skill folds; the path is verbatim
         try:
             payload = json.loads(Path(packet_path).read_text())
         except (OSError, json.JSONDecodeError) as exc:
@@ -154,7 +155,7 @@ def _review(args: list[str]) -> int:
     if len(args) < 2:
         return _refuse("usage: cairn review <id-prefix> \"your words\"")
 
-    prefix, words = args[0], " ".join(args[1:])
+    prefix, words = fold(args[0]), " ".join(args[1:])   # the id folds; his words never
     pending = pending_reviews()
     matches = [p for p in pending if p["berth_id"].startswith(prefix)]
 

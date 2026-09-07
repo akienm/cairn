@@ -25,6 +25,7 @@ import os
 import sys
 
 from cairn.machines.ruling import ruling
+from cairn.tools.system_word import fold
 
 _USAGE = """cairn ruling — the ruling intake gate (CairnCommons/decisions/)
 
@@ -259,7 +260,7 @@ def main(argv: list[str]) -> int:
         print(_USAGE, file=sys.stderr)
         return 2
 
-    verb, rest = argv[0], argv[1:]
+    verb, rest = fold(argv[0]), argv[1:]  # system words fold (ruled 2026-09-07); the rest is his
     if verb == "open" and rest:
         return _cmd_open(rest[0])
     if verb == "list":

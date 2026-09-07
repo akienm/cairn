@@ -2,7 +2,7 @@
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
 
-subcmd="${1:-}"
+subcmd="${1:-}"; subcmd="${subcmd,,}"   # a subcommand is a system word (ruled 2026-09-07)
 shift 2>/dev/null || true
 
 case "$subcmd" in
@@ -43,7 +43,7 @@ if result['errors']:
 " "$@"
     ;;
   show)
-    what="${1:-}"
+    what="${1:-}"; what="${what,,}"
     shift 2>/dev/null || true
     case "$what" in
       dashboard)

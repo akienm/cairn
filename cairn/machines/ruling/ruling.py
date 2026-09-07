@@ -135,14 +135,21 @@ SPEC_MAX = 280
 # **I** decided something was a ruling and he never said so. He named the mechanism that
 # separates those without asking him twice — he marks the ones he means.
 #
-# UPPERCASE, WORD-BOUNDED, DELIBERATE. Lowercase "ruled" is ordinary English and appears in
-# sentences ABOUT rulings ("he ruled that…"); matching it would confirm packets on my own
-# prose. The marker is a thing he TYPES, and its absence is not a defect in the packet —
-# see `verify`, where unmarked is a separate fact from red and never stops the work.
-RULED = re.compile(r"\bRULED\b")
+# WORD-BOUNDED, ANY CASE (decision 2026-09-07-system-words-are-case-insensitive-when-akien-
+# types-them). It was UPPERCASE from 2026-08-13 to 2026-09-07, on the reasoning that lowercase
+# "ruled" is ordinary English in sentences ABOUT rulings ("he ruled that…") and matching it
+# would confirm packets on my own prose. The guard aimed at me caught HIM: he typed "ruled" and
+# the packet landed unconfirmed. His ruling — "everywhere we're talking a status word, or a
+# command word, or any similar 'system word' it should be case insensitive if there's any
+# chance of it coming from me. RULED ruled" — and the marker typed in both cases is the ruling
+# demonstrating itself. What still guards against my prose is where the marker is READ: only
+# `the_ruling_verbatim`, which carries HIS words by contract, never mine. The marker is a
+# thing he TYPES, and its absence is not a defect in the packet — see `verify`, where
+# unmarked is a separate fact from red and never stops the work.
+RULED = re.compile(r"\bRULED\b", re.IGNORECASE)
 
 RULING_MARKERS_STRONG = [
-    re.compile(r"\bRULED\b"),
+    re.compile(r"\bRULED\b", re.IGNORECASE),
     re.compile(r"\bi rule\b", re.IGNORECASE),
     re.compile(r"\bmy ruling\b", re.IGNORECASE),
     re.compile(r"\bthe ruling is\b", re.IGNORECASE),

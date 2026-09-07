@@ -73,7 +73,10 @@ if [ $# -eq 0 ]; then
   exit 2
 fi
 
-device="$1"; shift
+# THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim
+# (ruled 2026-09-07: system words are case-insensitive when Akien types them; his free
+# text is never touched — cairn/tools/system_word is the rule's one address).
+device="${1,,}"; shift
 
 # --- device dispatch: ~/.cairn/devices/<device>/0/bin/<verb> ---
 device_bin="$INSTANCE_ROOT/$device/0/bin"
@@ -82,9 +85,9 @@ if [ -d "$device_bin" ]; then
   if [ $# -eq 0 ]; then
     # no verb: self-named launcher
     verb="$device"
-  elif [ -x "$device_bin/$1" ]; then
-    # $1 names a real verb in this device's bin
-    verb="$1"; shift
+  elif [ -x "$device_bin/${1,,}" ]; then
+    # $1 names a real verb in this device's bin (folded: a verb is a system word)
+    verb="${1,,}"; shift
   else
     # $1 is not a verb — pass everything to the self-named launcher
     verb="$device"

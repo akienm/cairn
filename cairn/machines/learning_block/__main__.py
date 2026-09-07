@@ -43,6 +43,7 @@ import platform
 import sys
 
 from cairn.machines.learning_block import learning_block as lb
+from cairn.tools.system_word import canon, is_word
 from cairn.machines.skill_block.skill_block import find_paired_sorted
 
 _USAGE = (
@@ -94,12 +95,12 @@ def _recordverdict(args: list[str]) -> int:
     signal: str | None = None
     if len(args) == 1:
         words = args[0]
-    elif len(args) == 2 and args[0] in lb.SIGNALS:
-        signal, words = args
+    elif len(args) == 2 and canon(args[0], lb.SIGNALS) is not None:
+        signal, words = canon(args[0], lb.SIGNALS), args[1]   # the signal folds; his words never
     elif len(args) == 2:
         target, words = args
-    elif len(args) == 3 and args[1] in lb.SIGNALS:
-        target, signal, words = args
+    elif len(args) == 3 and canon(args[1], lb.SIGNALS) is not None:
+        target, signal, words = args[0], canon(args[1], lb.SIGNALS), args[2]
     else:
         print(_USAGE, file=sys.stderr)
         return 2
@@ -190,17 +191,18 @@ def _recordverdict(args: list[str]) -> int:
 
 
 def main(argv: list[str]) -> int:
-    if argv and argv[0] == "recordverdict":
+    if argv and is_word(argv[0], "recordverdict"):  # system words fold (ruled 2026-09-07)
         return _recordverdict(argv[1:])
-    if len(argv) == 2 and argv[0] == "dial":
+    if len(argv) == 2 and is_word(argv[0], "dial"):
         print(json.dumps(lb.dial(argv[1])))
         return 0
-    if len(argv) < 3 or argv[0] != "trace":
+    if len(argv) < 3 or not is_word(argv[0], "trace"):
         print("usage: python3 -m cairn.machines.learning_block trace <block> "
               "<door_pass|send_back> <op> [lack ...]   |   dial <block>   |\n"
               + _USAGE, file=sys.stderr)
         return 2
     _, block, event, *rest = argv
+    event = canon(event, ("door_pass", "send_back")) or event
     if event not in ("door_pass", "send_back"):
         print(f"trace refused — event {event!r} is not a firing "
               "(door_pass|send_back); findings go through python",

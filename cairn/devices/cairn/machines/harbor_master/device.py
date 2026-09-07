@@ -23,6 +23,7 @@ from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.transitions import TERMINAL_STATES
+from cairn.tools.system_word import canon, is_word
 from cairn.tools.operator_inbox.inbox import (
     cursor_of,
     format_ticket_row,
@@ -145,7 +146,7 @@ class HarborMasterDevice(BaseDevice):
     def _filter_fleet(cls, fleet: dict, filter_name: str | None) -> dict:
         """Apply a named filter to fleet data. 'open' strips terminal-state boats —
         from the open lane and from every component's berthed list alike."""
-        if filter_name != "open":
+        if not is_word(filter_name, "open"):
             return fleet
         keep = lambda b: (b.get("label") or b.get("standing") or "").split(":")[0] not in TERMINAL_STATES
         open_ = [b for b in fleet.get("open", []) if keep(b)]
@@ -169,10 +170,11 @@ class HarborMasterDevice(BaseDevice):
         return result
 
     def _handle_show(self, envelope: dict) -> dict:
-        what = envelope.get("body", {}).get("what", "")
         views = self.declared_views()
-        view_fn = views.get(what)
+        what = canon(envelope.get("body", {}).get("what", ""), views)
+        view_fn = None if what is None else views[what]
         if view_fn is None:
+            what = envelope.get("body", {}).get("what", "")
             return {"accepted": False, "verb": "show", "device": self.device_id,
                     "reason": f"no view {what!r}",
                     "available": sorted(views)}

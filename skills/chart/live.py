@@ -38,6 +38,7 @@ from cairn.devices.codemother.machines.verdict.verdict import (VerdictRefused, m
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
 from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus
 
 _BUS = None
@@ -322,6 +323,7 @@ def _chain(argv: list[str]) -> int:
 
 
 def _main(argv: list[str]) -> int:
+    argv = fold_head(argv, 1)  # system words fold (ruled 2026-09-07); the rest is verbatim
     if argv and argv[0] == "chain":
         return _chain(argv[1:])
     if argv and argv[0] == "counsel":

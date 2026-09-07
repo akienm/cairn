@@ -26,6 +26,7 @@ from pathlib import Path
 from shutil import copy2
 
 from cairn.tools.base.address import instance_path
+from cairn.tools.system_word import canon, fold, is_word
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
 
 INSTANCE = 0
@@ -162,10 +163,10 @@ commands:
 
 def main(args: list[str] | None = None) -> int:
     args = args if args is not None else sys.argv[1:]
-    if not args or args[0] in ("-h", "--help", "help"):
+    if not args or is_word(args[0], "-h", "--help", "help"):
         print(USAGE)
         return 0
-    cmd = args[0]
+    cmd = canon(args[0], COMMANDS) or fold(args[0])  # system words fold (ruled 2026-09-07)
     if cmd not in COMMANDS:
         print(f"ground_loop: unknown command '{cmd}'", file=sys.stderr)
         print(USAGE, file=sys.stderr)

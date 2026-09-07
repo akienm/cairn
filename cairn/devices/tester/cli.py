@@ -52,6 +52,7 @@ import sys
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.tools.system_word import fold_flags
 
 # The repo root: cairn/devices/tester/cli.py -> cairn/devices/tester -> cairn -> root
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -106,7 +107,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds (default 120)")
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
-    args = ap.parse_args(argv)
+    # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07)
+    args = ap.parse_args(fold_flags(sys.argv[1:] if argv is None else argv))
 
     proofs = discover(args.targets)
     if not proofs:

@@ -52,7 +52,7 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
         f"{questions['count']} open question(s)",
         f"{tickets['total_not_done']} active ticket(s)",
         f"{done['total']} done",
-        f"{ideas['count']} idea(s)",
+        f"{ideas['count']} open idea(s)",
     ]
     lines.append("  " + " | ".join(parts))
     lines.append("")
@@ -92,8 +92,12 @@ def format_dashboard(data: dict | None = None, **kw) -> str:
     lines.append(f"  DONE ({done['total']}): " + " | ".join(done_parts))
 
     # INTENTIONS + IDEAS
-    lines.append(f"  INTENTIONS: {intentions['count']} in intentions-not-beside-code")
-    lines.append(f"  IDEAS: {ideas['count']}")
+    # OPEN counts, not the folder census (ticket 3ed960cc402e, Akien 2026-09-07): an
+    # artifact that moved to the next stage stops being reported at the earlier one.
+    lines.append(f"  INTENTIONS: {intentions['count']} open (no ticket yet; "
+                 f"{intentions.get('moved_on', 0)} moved on)")
+    lines.append(f"  IDEAS: {ideas['count']} open (not yet at intent; "
+                 f"{ideas.get('moved_on', 0)} moved on)")
 
     lines.append("")
     lines.append(_LINE)

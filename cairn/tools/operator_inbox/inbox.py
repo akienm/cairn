@@ -284,64 +284,142 @@ def read_done_tickets(*, tickets_dir: Path | None = None) -> dict:
     return {"records": records, "by_label": _by_label(records), "total": len(records)}
 
 
-def read_intentions(*, intentions_dir: Path | None = None) -> dict:
-    d = intentions_dir or INTENTIONS_DIR
-    if not d.exists():
-        return {"count": 0, "items": []}
-    items = sorted(p.stem for p in d.glob("I-*.md"))
-    return {"count": len(items), "items": items}
+# ---------------------------------------------------------------------------
+# MOVED ON — the one reader that answers "has this artifact left its stage?"
+# (ticket 3ed960cc402e, Akien 2026-09-07: "once an idea has moved to intention it's
+# no long open as an idea. once it's a ticket we don't disply it as an intention
+# anymore either. for the operator inbox, it's about things i need to take action on.")
+#
+# Each stage's door writes its own record and none writes back to the record it
+# displaced, so the displacement is DERIVED here from the downstream records, once:
+#   - an /intent firing names the idea in answers.from_idea (every firing berths under
+#     skill_block's instance — berths/intent, logs/adjudicated/intent,
+#     logs/reviewed/intent — one glob covers all three lanes);
+#   - a ticket's serialized text carries the stem (linked_ideas, traces_to,
+#     intent.from_idea, owning_intention, links, prose — the FIELD NAMES are what
+#     drifted last time, so the reader stops caring which field);
+#   - the idea record's own acted_on flag (hand-set beside an acted_on_note).
+# This reader stores nothing and never writes the idea or intention records — they are
+# Akien's verbatim capture and authored text. The inventory of everything on disk is a
+# different surface with different display constraints (Akien 2026-09-07); this is
+# status reporting.
+# ---------------------------------------------------------------------------
+
+_NONE_PREFIX = "none"
 
 
-def _acted_on_idea_ids(*, tickets_dir: Path | None = None,
-                       ideas_dir: Path | None = None) -> set[str]:
-    td = tickets_dir or TICKETS_DIR
-    id_ = ideas_dir or IDEAS_DIR
-    acted: set[str] = set()
-    if not td.exists():
-        return acted
-    all_idea_ids: set[str] = set()
-    if id_.exists():
-        for p in id_.glob("*.json"):
-            if not p.stem.startswith("_"):
-                all_idea_ids.add(p.stem)
-    for p in td.glob("*.json"):
+def _firings_root(firings_root: Path | None = None) -> Path:
+    """Where every /intent firing lands: skill_block's instance root (the parent of its
+    berth root, so the swept lanes under logs/ are covered by the same glob)."""
+    if firings_root is not None:
+        return Path(firings_root)
+    from cairn.machines.skill_block.skill_block import berth_root
+    return berth_root().parent
+
+
+def _idea_stem(value: str) -> str:
+    return value[:-5] if value.endswith(".json") else value
+
+
+def ideas_named_by_intent_firings(*, firings_root: Path | None = None) -> set[str]:
+    """The idea stems some /intent firing took up (answers.from_idea), across every lane."""
+    root = _firings_root(firings_root)
+    named: set[str] = set()
+    if not root.exists():
+        return named
+    for p in root.glob("**/intent/*.json"):
         try:
-            d = json.loads(p.read_text())
+            d = json.loads(p.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue
-        fi = d.get("from_idea", "")
-        if isinstance(fi, str) and fi and not fi.startswith("none"):
-            acted.add(fi)
-        prov = d.get("provenance", "")
-        if isinstance(prov, str):
-            for idea_id in all_idea_ids:
-                if idea_id in prov:
-                    acted.add(idea_id)
-    return acted
+        fi = (d.get("answers") or {}).get("from_idea") if isinstance(d, dict) else None
+        if isinstance(fi, str) and fi and not fold(fi).startswith(_NONE_PREFIX):
+            named.add(_idea_stem(fi.strip()))
+    return named
+
+
+def _ticket_texts(tickets_dir: Path | None = None) -> list[str]:
+    td = tickets_dir or TICKETS_DIR
+    if not td.exists():
+        return []
+    out: list[str] = []
+    for p in td.glob("*.json"):
+        if p.name.startswith("_"):
+            continue
+        try:
+            out.append(p.read_text(encoding="utf-8"))
+        except OSError:
+            continue
+    return out
+
+
+def stems_cited_by_tickets(stems, *, tickets_dir: Path | None = None) -> set[str]:
+    """Which of ``stems`` appear anywhere in some ticket's serialized text."""
+    texts = _ticket_texts(tickets_dir)
+    return {s for s in stems if any(s in t for t in texts)}
+
+
+def moved_on(stems, *, tickets_dir: Path | None = None,
+             firings_root: Path | None = None,
+             acted_on: set[str] | None = None) -> dict[str, list[str]]:
+    """{stem: [reasons]} for every stem that has moved on; a stem with no reason is
+    absent from the result, which is what 'open' means. The three voices are OR'd."""
+    named = ideas_named_by_intent_firings(firings_root=firings_root)
+    cited = stems_cited_by_tickets(stems, tickets_dir=tickets_dir)
+    out: dict[str, list[str]] = {}
+    for s in stems:
+        reasons = []
+        if s in named:
+            reasons.append("an /intent firing names it")
+        if s in cited:
+            reasons.append("a ticket cites it")
+        if acted_on and s in acted_on:
+            reasons.append("its record carries acted_on")
+        if reasons:
+            out[s] = reasons
+    return out
+
+
+def read_intentions(*, intentions_dir: Path | None = None,
+                    tickets_dir: Path | None = None) -> dict:
+    """The OPEN intentions: I-*.md that no ticket cites. An intention with a ticket has
+    moved on and is not reported here (Akien 2026-09-07)."""
+    d = intentions_dir or INTENTIONS_DIR
+    if not d.exists():
+        return {"count": 0, "items": [], "moved_on": 0}
+    stems = sorted(p.stem for p in d.glob("I-*.md"))
+    gone = stems_cited_by_tickets(stems, tickets_dir=tickets_dir)
+    items = [s for s in stems if s not in gone]
+    return {"count": len(items), "items": items, "moved_on": len(gone)}
 
 
 def read_ideas(*, ideas_dir: Path | None = None,
-               tickets_dir: Path | None = None) -> dict:
+               tickets_dir: Path | None = None,
+               firings_root: Path | None = None) -> dict:
+    """The OPEN ideas: records that no /intent firing names, no ticket cites, and that
+    carry no acted_on. Everything else has moved on and is not reported here."""
     d = ideas_dir or IDEAS_DIR
     if not d.exists():
-        return {"count": 0, "items": []}
-    acted = _acted_on_idea_ids(tickets_dir=tickets_dir, ideas_dir=d)
-    items = []
+        return {"count": 0, "items": [], "moved_on": 0}
+    records: dict[str, dict] = {}
     for p in sorted(d.glob("*.json")):
         if p.stem.startswith("_"):
             continue
         try:
-            data = json.loads(p.read_text())
+            data = json.loads(p.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue
-        if p.stem in acted:
-            continue
-        items.append({
-            "id": p.stem,
-            "author": data.get("author", "?"),
-            "prose_prefix": (data.get("prose", "") or "")[:80],
-        })
-    return {"count": len(items), "items": items}
+        if isinstance(data, dict):
+            records[p.stem] = data
+    acted = {s for s, r in records.items() if r.get("acted_on") is True}
+    gone = moved_on(list(records), tickets_dir=tickets_dir,
+                    firings_root=firings_root, acted_on=acted)
+    items = [{
+        "id": stem,
+        "author": data.get("author", "?"),
+        "prose_prefix": (data.get("prose", "") or "")[:80],
+    } for stem, data in records.items() if stem not in gone]
+    return {"count": len(items), "items": items, "moved_on": len(gone)}
 
 
 def read_email() -> dict:
@@ -370,9 +448,11 @@ def gather_all(**kw) -> dict:
         "questions": read_questions(questions_dir=kw.get("questions_dir")),
         "design": {},
         "tickets": read_tickets(tickets_dir=kw.get("tickets_dir")),
-        "intentions": read_intentions(intentions_dir=kw.get("intentions_dir")),
+        "intentions": read_intentions(intentions_dir=kw.get("intentions_dir"),
+                                      tickets_dir=kw.get("tickets_dir")),
         "ideas": read_ideas(ideas_dir=kw.get("ideas_dir"),
-                            tickets_dir=kw.get("tickets_dir")),
+                            tickets_dir=kw.get("tickets_dir"),
+                            firings_root=kw.get("firings_root")),
     }
 
 
@@ -434,7 +514,7 @@ def format_summary(data: dict) -> str:
     else:
         parts.append(f"{tickets['total_not_done']} tickets")
 
-    parts.append(f"{ideas['count']} idea(s)")
+    parts.append(f"{ideas['count']} open idea(s)")
     return " | ".join(parts)
 
 
@@ -560,7 +640,9 @@ def format_inbox(data: dict) -> str:
 
     # IDEAS
     lines.append("")
-    lines.append(_section_line(f"IDEAS ({ideas['count']})"))
+    lines.append(_section_line(
+        f"IDEAS ({ideas['count']} open, not yet at intent; "
+        f"{ideas.get('moved_on', 0)} moved on)"))
     lines.append("")
     for item in ideas["items"]:
         iid = item["id"]

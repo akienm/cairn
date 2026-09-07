@@ -79,25 +79,140 @@ def test_tickets_match_independent_read():
         assert r["label"] == status_label(cursor_of(own)), (r["id"], r["label"], own[:80])
 
 
+# --- moved on (ticket 3ed960cc402e): an artifact past its stage is not reported at it ---
+
+def _fixture_stages(root: Path) -> dict:
+    """Four ideas and two intentions with a KNOWN answer: exactly one of each is open.
+    A hollow read_ideas (folder census) answers 4; a hollow read_intentions answers 2."""
+    ideas = root / "ideas"
+    intentions = root / "intentions"
+    tickets = root / "tickets"
+    firings = root / "skill_block_instance"
+    for d in (ideas, intentions, tickets, firings / "berths" / "intent",
+              firings / "logs" / "reviewed" / "intent"):
+        d.mkdir(parents=True)
+    for stem in ("2026-01-01-cited-by-a-ticket", "2026-01-02-named-by-a-firing",
+                 "2026-01-03-acted-on", "2026-01-04-still-open"):
+        (ideas / f"{stem}.json").write_text(json.dumps({
+            "prose": f"idea {stem}", "author": "Akien",
+            **({"acted_on": True, "acted_on_note": "hand-set"} if stem.endswith("acted-on") else {}),
+        }))
+    (ideas / "_store.json").write_text("{}")                    # underscore files are not ideas
+    (intentions / "I-with-a-ticket.md").write_text("# with a ticket\n")
+    (intentions / "I-no-ticket-yet.md").write_text("# no ticket yet\n")
+    (tickets / "aaaaaaaaaaaa-fixture.json").write_text(json.dumps({
+        "id": "aaaaaaaaaaaa", "title": "fixture",
+        "owning_intention": "intentions-not-beside-code/I-with-a-ticket.md",
+        "linked_ideas": ["2026-01-01-cited-by-a-ticket"],
+        "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME] -> BUILDME -> PROVED",
+    }))
+    # one firing per lane shape: a swept (reviewed) one names an idea WITH the .json
+    # suffix the way the 2026-08-09 firing did; a fresh berth says "none, because…"
+    (firings / "logs" / "reviewed" / "intent" / "intent-1.json").write_text(json.dumps({
+        "skill": "intent", "answers": {"from_idea": "2026-01-02-named-by-a-firing.json"}}))
+    (firings / "berths" / "intent" / "intent-2.json").write_text(json.dumps({
+        "skill": "intent", "answers": {"from_idea": "None, because it came from a chat"}}))
+    return {"ideas_dir": ideas, "intentions_dir": intentions,
+            "tickets_dir": tickets, "firings_root": firings}
+
+
+def test_read_ideas_reports_only_the_open_one():
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        f = _fixture_stages(Path(td))
+        result = read_ideas(ideas_dir=f["ideas_dir"], tickets_dir=f["tickets_dir"],
+                            firings_root=f["firings_root"])
+        assert result["count"] == 1, result
+        assert [i["id"] for i in result["items"]] == ["2026-01-04-still-open"]
+        assert result["moved_on"] == 3
+
+
+def test_moved_on_names_each_voice():
+    import tempfile
+    from cairn.tools.operator_inbox.inbox import moved_on
+    with tempfile.TemporaryDirectory() as td:
+        f = _fixture_stages(Path(td))
+        gone = moved_on(["2026-01-01-cited-by-a-ticket", "2026-01-02-named-by-a-firing",
+                         "2026-01-03-acted-on", "2026-01-04-still-open"],
+                        tickets_dir=f["tickets_dir"], firings_root=f["firings_root"],
+                        acted_on={"2026-01-03-acted-on"})
+        assert gone == {
+            "2026-01-01-cited-by-a-ticket": ["a ticket cites it"],
+            "2026-01-02-named-by-a-firing": ["an /intent firing names it"],
+            "2026-01-03-acted-on": ["its record carries acted_on"],
+        }, gone
+
+
+def test_read_intentions_reports_only_the_one_without_a_ticket():
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        f = _fixture_stages(Path(td))
+        result = read_intentions(intentions_dir=f["intentions_dir"],
+                                 tickets_dir=f["tickets_dir"])
+        assert result["count"] == 1, result
+        assert result["items"] == ["I-no-ticket-yet"]
+        assert result["moved_on"] == 1
+
+
+def test_gather_all_threads_the_fixture_roots():
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        f = _fixture_stages(Path(td))
+        data = gather_all(**f)
+        assert data["ideas"]["count"] == 1
+        assert data["intentions"]["count"] == 1
+        text = format_inbox(data)
+        assert "IDEAS (1 open, not yet at intent; 3 moved on)" in text, text
+
+
 def test_ideas_match_independent_read():
+    """Live commons: the count equals an INDEPENDENT second read that shares no code
+    with the reader — a fresh glob of firings, a fresh scan of ticket text."""
+    from cairn.machines.skill_block.skill_block import berth_root
     result = read_ideas()
-    if IDEAS_DIR.exists():
-        from cairn.tools.operator_inbox.inbox import _acted_on_idea_ids
-        acted = _acted_on_idea_ids()
-        independent = [p for p in IDEAS_DIR.glob("*.json")
-                       if not p.stem.startswith("_") and p.stem not in acted]
-        assert result["count"] == len(independent)
-    else:
+    if not IDEAS_DIR.exists():
         assert result["count"] == 0
+        return
+    firings_named = set()
+    for p in berth_root().parent.glob("**/intent/*.json"):
+        try:
+            fi = json.loads(p.read_text()).get("answers", {}).get("from_idea")
+        except Exception:
+            continue
+        if isinstance(fi, str) and fi and not fi.lower().startswith("none"):
+            firings_named.add(fi.strip().removesuffix(".json"))
+    ticket_text = "\n".join(p.read_text() for p in TICKETS_DIR.glob("*.json")
+                            if not p.name.startswith("_"))
+    open_stems = []
+    for p in IDEAS_DIR.glob("*.json"):
+        if p.stem.startswith("_"):
+            continue
+        rec = json.loads(p.read_text())
+        if p.stem in firings_named or p.stem in ticket_text or rec.get("acted_on") is True:
+            continue
+        open_stems.append(p.stem)
+    assert result["count"] == len(open_stems), (result["count"], sorted(open_stems))
+    assert sorted(i["id"] for i in result["items"]) == sorted(open_stems)
 
 
 def test_intentions_match_independent_read():
     result = read_intentions()
-    if INTENTIONS_DIR.exists():
-        independent = list(INTENTIONS_DIR.glob("I-*.md"))
-        assert result["count"] == len(independent)
-    else:
+    if not INTENTIONS_DIR.exists():
         assert result["count"] == 0
+        return
+    ticket_text = "\n".join(p.read_text() for p in TICKETS_DIR.glob("*.json")
+                            if not p.name.startswith("_"))
+    open_stems = sorted(p.stem for p in INTENTIONS_DIR.glob("I-*.md")
+                        if p.stem not in ticket_text)
+    assert result["items"] == open_stems
+
+
+def test_the_dead_from_idea_rule_is_gone():
+    """The rule that read 65 ideas as open matched ticket fields no ticket carries.
+    It must not survive beside the new reader (Law 1: one reader)."""
+    src = (Path(__file__).resolve().parents[1] / "inbox.py").read_text()
+    assert "_acted_on_idea_ids" not in src
+    assert 'get("provenance"' not in src
 
 
 def test_format_produces_output():

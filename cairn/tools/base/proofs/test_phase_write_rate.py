@@ -36,9 +36,38 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.base import settled as S  # noqa: E402
+from cairn.tools.base import transitions as T  # noqa: E402
 from cairn.tools.base.probes import the_vocabulary_is_written_not_just_legal as W  # noqa: E402
 
-_LIVE_TICKET = "6ec9b384b451"   # this ticket, which is not terminal while this proof exists
+
+def _a_non_terminal_ticket_id() -> str:
+    """A ticket id read OUT of the live corpus whose cursor has not reached a terminal.
+
+    THIS CONSTANT USED TO BE THE STRING ``6ec9b384b451`` — this proof's own ticket — carrying
+    the comment "not terminal while this proof exists". It stopped being true SIX HOURS after
+    it was written, on 2026-09-08, when that ticket reached PROVED and every ``queued`` fixture
+    naming it went correctly STALE. The proof went red for the one reason that is not a defect:
+    the door's self-clearing clause firing exactly as designed.
+
+    The file's own docstring had already named the rule it then broke four lines later — "that
+    is a snapshot, and tomorrow's corpus would red it". A snapshot does not become an invariant
+    by sitting in a constant instead of an assertion. Which ticket is unfinished is the world's
+    business; that SOME ticket is unfinished is what these teeth actually need, and if the day
+    ever comes when none is, that is a real finding and this raises rather than guesses."""
+    for path in sorted(T._TICKETS.glob("*.json")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            here = T.parse_workflow(doc["workflow_and_state"]).here
+        except Exception:
+            continue
+        if doc.get("id") and not T.is_terminal(here):
+            return doc["id"]
+    raise AssertionError("no non-terminal ticket in the live corpus — the tooth measured nothing")
+
+
+_LIVE_TICKET = _a_non_terminal_ticket_id()   # DERIVED, never pinned — see above
 _RESOLVING = "CLAUDE.md"        # a path the world actually holds
 
 

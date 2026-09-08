@@ -1,28 +1,37 @@
 [
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T10:09:25",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:6ec9b384b451:reseal-after-phase-vocabulary",
+    "date": "2026-09-08T12:44:53",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n    (live: 42 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 41 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n    (live: 53 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 53 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_fixture_one_label_per_id_across_all_three",
+        "test_fixture_headers_sum_with_no_other",
+        "test_fixture_prose_standing_is_a_finding_not_a_status",
+        "test_crossing_patch_reloads_the_ticket_not_the_target",
+        "test_live_one_label_per_id_across_the_three_reports",
+        "test_live_akienupdate_reports_agree"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ab8380c90c1c6387bdc627aaf2d9d0e82169131d230b65a4eebd88b4d9f39d90",
+      "source_fingerprint": "59d6a68e86dc02141291becf71f8f07b282e8790cca8b47d4a413a575b80f0b4",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-939401-ek6wuma6/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-512666-yd3v9n11/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/bus/0/20260907.160901.930617.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20260907.160902.748221.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20260908.184445.489648.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20260908.184445.814587.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         }

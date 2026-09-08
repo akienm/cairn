@@ -1,0 +1,42 @@
+[
+  {
+    "claim": "proof test_phase_write_rate.py passes under python3",
+    "caller": "sail:6ec9b384b451:reseal-after-quadratic-fix",
+    "date": "2026-09-08T12:57:09",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_queued_goes_STALE_at_rest_when_its_dependency_reaches_a_terminal\n  ok   test_an_all_waiting_corpus_never_clears_however_large\n  ok   test_each_clause_of_the_clear_is_load_bearing\n  ok   test_in_process_is_absent_from_the_counted_words_because_it_cannot_be_written\n  ok   test_the_clear_goes_up_AND_BACK_DOWN\n  ok   test_the_probe_is_a_frozen_shape_carrying_both_a_carry_and_a_clear\n  ok   test_the_trigger_and_the_clear_can_never_both_be_true\n  ok   test_the_walk_is_settled_and_re_reads_nothing_over_an_unmoved_corpus\n\n8/8 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_queued_goes_STALE_at_rest_when_its_dependency_reaches_a_terminal",
+        "test_an_all_waiting_corpus_never_clears_however_large",
+        "test_each_clause_of_the_clear_is_load_bearing",
+        "test_in_process_is_absent_from_the_counted_words_because_it_cannot_be_written",
+        "test_the_clear_goes_up_AND_BACK_DOWN",
+        "test_the_probe_is_a_frozen_shape_carrying_both_a_carry_and_a_clear",
+        "test_the_trigger_and_the_clear_can_never_both_be_true",
+        "test_the_walk_is_settled_and_re_reads_nothing_over_an_unmoved_corpus"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "c77f1514c7103c0233832c1bb7075f2d863df6cded6f383f61c4266fa58f3bc1",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-560901-o39gvcze/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

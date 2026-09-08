@@ -116,6 +116,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -135,11 +136,27 @@ _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
 # legal vocabulary so "[BUILDME:Waiting]" is refused loudly instead of silently truncating
 # the walk. Prose after the token is ignored (see the walk in parse_workflow).
 _STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)(?:\(([^)]*)\))?(?::([A-Za-z-]+))?\]?")
-# The pickup lifecycle every summons inherits, stated once: a summons ARRIVES waiting (no
-# pickup yet) and a journaled pickup advances it to in-process. Terminals and rests take no
+# The pickup lifecycle every summons inherits, stated once. Terminals and rests take no
 # phase — a state that summons nobody has no pickup to show. A bare cursor (no colon) is the
 # whole legacy corpus and parses as phase=None forever; there is no v3.
-_PHASES = ("waiting", "in-process")
+#
+# NARROWED 2026-09-08 (ruling 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase). The axis
+# was WHO HOLDS IT, which assumed a fleet of many; the fleet is one, so "nobody has picked it
+# up" and "CC has not got to it yet" were the same sentence and the slot said nothing. The
+# axis is now WHY IT IS NOT MOVING — and with it, who acts next.
+_PHASES = ("waiting", "in-process", "queued", "hold", "blocked")
+# Which of the five a hand may WRITE onto a cursor. in-process is the one exclusion and it is
+# the point of the narrowing: it is runtime state, true only while a process runs, and the
+# ticket is git-tracked and SHARED — a committed ":in-process" claims a hand that is gone the
+# moment the session ends and is false on every machine that pulls it. It is DERIVED instead
+# (see cairn/tools/base/sail_record.py). Parsing it stays legal so a derived read can render
+# it and so no legacy string breaks; writing it is refused.
+_WRITABLE_PHASES = ("waiting", "queued", "hold", "blocked")
+# Which written phases must name what would RELEASE them. Akien, 2026-09-08: "nothing passes
+# a gate with prose. an inspector will not allow it. not only has to have a field, but valid
+# data to the limits of detection of deterministic code." waiting is the default and needs no
+# release; in-process is derived and has nothing to release.
+_RELEASE_PHASES = ("queued", "hold", "blocked")
 
 
 class MalformedWorkflow(ValueError):
@@ -1867,7 +1884,35 @@ def emit(
         record["fingerprint"] = _crossing_fingerprint(record)
         projector.append_entry(history_path, state_path, record)
         _notify_harbor(history_path, record)
+    _stamp_sail(journal_extra.get("ticket"), new_str)
     return new_str
+
+
+def _stamp_sail(ticket: object, new_str: str) -> None:
+    """THE CALLER BY CONSTRUCTION for the derived ``in-process`` phase (2026-09-08).
+
+    A ticket-carrying crossing IS the evidence that a hand is on that ticket, so the sail
+    record is refreshed here rather than at a door someone must remember to call. That
+    choice was made against a measurement, not a preference: ``pickup()`` — the door built
+    for exactly this in August 2026 — has thirteen journaled records, all from a four-day
+    window, and NO caller anywhere in the live system. Hanging the record on a second
+    discipline would have reproduced that shape exactly. Every voyage already rides emit.
+
+    A crossing INTO a terminal clears the record: the voyage is over, and the phase must not
+    survive it.
+
+    NEVER RAISES AND NEVER GATES. Deriving a phase is a convenience; a crossing is a record
+    of truth (Law 7). If instance-space is unreachable the crossing still stands."""
+    if not isinstance(ticket, str) or not ticket.strip():
+        return
+    try:
+        from cairn.tools.base import sail_record
+        if is_terminal(parse_workflow(new_str).here):
+            sail_record.clear_sail()
+        else:
+            sail_record.write_sail(ticket.strip())
+    except Exception:
+        return
 
 
 _FINGERPRINT_EXCLUDE = frozenset({"fingerprint", "at", "seq"})
@@ -1896,15 +1941,31 @@ def pickup(
 ) -> str:
     """The pickup door — ``emit``'s sibling for the act that is NOT a crossing (ruled
     2026-08-07, the-ticket-is-the-source-period). A summons goes out ``[X:waiting]``; the
-    peer who takes it up comes through HERE, and the ticket advances to ``[X:in-process]``
-    with the pickup journaled (who, when — the append door stamps ``at``). The ticket is the
-    source, period: nobody derives "is anyone on this?" from a side channel.
+    peer who takes it up comes through HERE, and the act is journaled (who, when — the
+    append door stamps ``at``).
+
+    THE ORIGINAL CLAUSE, KEPT BECAUSE IT WAS LOAD-BEARING AND IS NOW SUPERSEDED:
+    *"The ticket is the source, period: nobody derives 'is anyone on this?' from a side
+    channel."* Superseded 2026-09-08 by ruling
+    ``2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase`` — narrowed, not overturned, and
+    Akien's word on it was "exactly so". The clause was written for a fleet of MANY, where
+    "is anyone on this?" is a question about somebody else and a side channel would mean one
+    actor holding private knowledge of another. The fleet is one. With one hand the live
+    session IS the same hand, so reading the session is not a side channel about a peer —
+    it is the hand reading itself. What replaces it is stronger than what it asked for:
+    ``in-process`` is now DERIVED (``cairn.tools.base.sail_record``) rather than stored,
+    because a stored one is a claim on a git-tracked file that outlives the process it
+    describes. The rest of the ruling stands untouched — the ticket is still the source for
+    every phase a hand writes.
+
+    SO THIS DOOR NO LONGER STAMPS THE STRING. It journals the act and returns the workflow
+    unchanged; the phase a reader sees comes from the live record. A pickup that leaves no
+    record did not happen (Law 3), and now the record is the whole act.
 
     Refusals, before anything is written: a rest or terminal (nothing summoned, nothing to
-    pick up) and a doubled pickup (already in-process — the second hand sees the first on
-    the ticket, which is the encapsulation the ruling bought). A bare summons cursor (the
-    legacy corpus, arrived before phases existed) IS picked up — the act records what
-    arrival never stamped.
+    pick up) and a doubled pickup on a string that already reads in-process (a derived
+    render handed back in). A bare summons cursor — the legacy corpus, arrived before phases
+    existed — IS picked up.
 
     ``actor`` is a recorded claim, not an authenticated identity — authenticating it is the
     clearance gate's rung (a named open edge in the definition), not this door's.
@@ -1921,13 +1982,185 @@ def pickup(
         raise IllegalTransition(
             f"pickup refused: {wf.here!r} is already in-process — a doubled pickup would "
             "overwrite the hand already on the ticket. Nothing was journaled.")
-    new_str = _render_at(wf, wf.cursor, "in-process")
+    # NOT _render_at(..., "in-process") any more — see the supersession above. The string
+    # is returned as it stands, so a pickup can never write a claim that outlives its hand.
+    new_str = workflow_str
     if history_path and state_path:
         record = {
             "act": "pickup",
             "actor": actor,
             # Not a crossing — the boat stands where it stood; ``standing`` is required by
             # the append door's shape gate and stays the same state.
+            "standing": wf.here,
+            "workflow": new_str,
+            **journal_extra,
+        }
+        projector.append_entry(history_path, state_path, record)
+    return new_str
+
+
+# ── THE RELEASE CONTRACT (2026-09-08) ────────────────────────────────────────────────────
+# Ruling 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase. A phase that says WHY a ticket
+# is not moving is only worth the slot if the why is CHECKABLE, and Akien set the bar at the
+# cast: "nothing passes a gate with prose. an inspector will not allow it. not only has to
+# have a field, but valid data to the limits of detection of deterministic code." So each of
+# queued/hold/blocked names a referent this module RESOLVES against the world, and the lacks
+# are named APART — "invalid" tells a caller nothing about which of three things is wrong,
+# and a refusal a caller cannot act on is a refusal that gets plastered over (Law 7).
+
+_QUESTIONS = _REPO_ROOT.parent / "CairnCommons" / "questions"
+_TROUBLES = _REPO_ROOT.parent / "CairnCommons" / "troubles"
+
+
+def _find_in(folder: Path, name: str) -> Path | None:
+    """Resolve a bare id or slug inside a commons folder, matching _find_ticket's shapes."""
+    if not folder.is_dir():
+        return None
+    for pattern in (f"{name}.json", f"{name}.md", f"*-{name}.json", f"{name}-*.json",
+                    f"*-{name}.md", f"{name}-*.md"):
+        hits = [p for p in folder.glob(pattern) if p.is_file()]
+        if len(hits) == 1:
+            return hits[0]
+    return None
+
+
+def _find_path(ref: str) -> Path | None:
+    """A release may name a plain address. Absolute or ~ is taken as given; a relative one is
+    tried against the code root and then the commons — the same two roots ``_ref_exists`` in
+    the chain grammar tries, so a release and a chart ref resolve the same way."""
+    cand = Path(os.path.expanduser(ref))
+    if cand.is_absolute():
+        return cand if cand.exists() else None
+    for base in (_REPO_ROOT, _REPO_ROOT.parent / "CairnCommons"):
+        if (base / ref).exists():
+            return base / ref
+    return None
+
+
+def resolve_release(ref: str, *, as_ticket: bool = False) -> tuple[str | None, str | None]:
+    """Resolve a release referent to ``(kind, address)``, or ``(None, None)`` if the world
+    does not hold it. ``as_ticket`` narrows to the ticket corpus — what ``queued`` needs,
+    because self-clearing is only computable against something with a workflow cursor."""
+    if not isinstance(ref, str) or not ref.strip():
+        return (None, None)
+    ref = ref.strip()
+    hit = _find_ticket(ref)
+    if hit is not None:
+        return ("ticket", str(hit))
+    if as_ticket:
+        return (None, None)
+    for kind, folder in (("question", _QUESTIONS), ("trouble", _TROUBLES)):
+        hit = _find_in(folder, ref)
+        if hit is not None:
+            return (kind, str(hit))
+    hit = _find_path(ref)
+    if hit is not None:
+        return ("path", str(hit))
+    return (None, None)
+
+
+def _ticket_standing(path: str) -> str | None:
+    """The state a ticket's own cursor stands at, or None if it cannot be read. Unreadable is
+    NOT terminal: a ticket we cannot parse must never silently red a queue that may be sound
+    (Law 7 — a lack is reported as a lack, never collapsed into a verdict)."""
+    try:
+        with open(path) as fh:
+            doc = json.load(fh)
+        return parse_workflow(doc["workflow_and_state"]).here
+    except Exception:
+        return None
+
+
+def release_lack(phase: str | None, release: object) -> str | None:
+    """The deterministic predicate behind the release contract: ``None`` when the pair is
+    sound, else THE NAME OF THE ONE LACK. Three lacks, kept apart on purpose:
+
+    1. **absent** — the phase claims a reason and names nothing.
+    2. **unresolvable** — it names something the world does not hold.
+    3. **stale queued** — it names a ticket that already reached a terminal, so the
+       dependency it waits on is DONE. This is what makes ``queued`` self-clearing: the
+       label cannot outlive its reason without the grammar saying so.
+
+    ``waiting`` needs no release (it is the default), ``in-process`` has none to give (it is
+    derived), and a bare cursor is the legacy corpus and is sound by construction."""
+    if phase not in _RELEASE_PHASES:
+        return None
+    if not isinstance(release, str) or not release.strip():
+        return (f"phase {phase!r} carries no release — a phase that says why a ticket is not "
+                f"moving must NAME what would move it (queued: the ticket it waits on; "
+                f"blocked: the question or trouble; hold: the condition that ends it), as a "
+                f"field deterministic code can resolve, never as prose")
+    ref = release.strip()
+    if phase == "queued":
+        kind, addr = resolve_release(ref, as_ticket=True)
+        if kind is None:
+            return (f"phase 'queued' names release {ref!r}, which does not resolve to a "
+                    f"ticket in {_TICKETS} — queued means another TICKET must finish first, "
+                    f"and self-clearing is only computable against something that has a "
+                    f"workflow cursor to reach a terminal")
+        standing = _ticket_standing(addr)
+        if standing is not None and is_terminal(standing):
+            return (f"phase 'queued' is STALE: the ticket it names ({ref}) already reached "
+                    f"{standing!r}, so the dependency it waits on is done. Clear the queue — "
+                    f"the label cannot outlive its reason")
+        return None
+    kind, addr = resolve_release(ref)
+    if kind is None:
+        return (f"phase {phase!r} names release {ref!r}, which the world does not hold — it "
+                f"resolves as no ticket, question, trouble or path. A plausible sentence "
+                f"pointing at nothing checkable is the hollow pass this contract exists to "
+                f"refuse (done is verified in the world, never in the record)")
+    return None
+
+
+def set_phase(
+    workflow_str: str,
+    phase: str,
+    *,
+    release: str | None = None,
+    actor: str,
+    history_path: str | None = None,
+    state_path: str | None = None,
+    **journal_extra,
+) -> str:
+    """The WRITE door for the pickup phase — the one place a phase is stamped onto a cursor
+    by hand. Refuses, before anything is written:
+
+    - a rest or terminal (it summons nobody, so it has no pickup to phase);
+    - a word outside the vocabulary;
+    - ``in-process``, which is DERIVED and never written (see sail_record.py) — refused here
+      rather than at parse, because a legacy string and a derived render must both stay
+      readable;
+    - a release the contract above names a lack in.
+
+    The act is journaled like ``pickup``: a phase written with no record did not happen."""
+    wf = parse_workflow(workflow_str)
+    if not is_summons(wf.here):
+        raise IllegalTransition(
+            f"set_phase refused: {wf.here!r} is a rest or terminal — it summons nobody, so "
+            "there is no pickup to phase. Nothing was journaled.")
+    if phase not in _PHASES:
+        raise IllegalTransition(
+            f"set_phase refused: {phase!r} is not a pickup phase — the vocabulary is "
+            f"{_PHASES}. Nothing was journaled.")
+    if phase not in _WRITABLE_PHASES:
+        raise IllegalTransition(
+            f"set_phase refused: {phase!r} is DERIVED, never written (ruling 2026-09-08). It "
+            "is runtime state, true only while a process runs, and this string is git-tracked "
+            "and shared — a committed ':in-process' claims a hand that is gone once the "
+            "session ends. Read it from the sail record instead "
+            "(cairn.tools.base.sail_record.derived_phase). Nothing was journaled.")
+    lack = release_lack(phase, release)
+    if lack is not None:
+        raise IllegalTransition(f"set_phase refused: {lack}. Nothing was journaled.")
+    new_str = _render_at(wf, wf.cursor, phase)
+    if history_path and state_path:
+        record = {
+            "act": "set_phase",
+            "actor": actor,
+            "phase": phase,
+            "release": release,
+            # Not a crossing — the boat stands where it stood.
             "standing": wf.here,
             "workflow": new_str,
             **journal_extra,

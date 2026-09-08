@@ -1172,27 +1172,31 @@ def test_a_forward_crossing_from_waiting_stays_legal():
     assert "[PROVEME:waiting]" in new, new
 
 
-def test_pickup_advances_waiting_to_in_process_and_journals_the_actor():
+def test_pickup_journals_the_actor_and_writes_no_phase():
+    """NARROWED 2026-09-08: the pickup used to stamp ``:in-process`` onto the string. It
+    journals and returns the string unchanged now, because a stamp on a git-tracked file
+    outlives the process it claims. The journal is the whole act."""
+    original = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
     with tempfile.TemporaryDirectory() as d:
         hist, state = f"{d}/history.json", f"{d}/state.json"
-        new = transitions.pickup(
-            "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-            actor="igor-3", history_path=hist, state_path=state)
-        assert "[BUILDME:in-process]" in new and ":waiting" not in new, new
+        new = transitions.pickup(original, actor="igor-3", history_path=hist, state_path=state)
+        assert new == original, new
+        assert ":in-process" not in new, new
         log = projector.read_history(hist)
         assert len(log) == 1, "the pickup was not journaled exactly once"
         rec = log[0]
         assert rec["act"] == "pickup" and rec["actor"] == "igor-3", rec
         assert rec["standing"] == "BUILDME", "a pickup is not a crossing — the boat stands still"
-        assert rec["workflow"] == new, "the journal must record the in-process string"
+        assert rec["workflow"] == new, "the journal must record the string as it stands"
         assert rec.get("at"), "the append door stamps WHEN — actor + time is the whole point"
 
 
 def test_a_bare_summons_cursor_is_picked_up():
-    # the legacy corpus arrived before phases existed; the pickup records what arrival
-    # never stamped, rather than refusing the entire standing fleet
+    # the legacy corpus arrived before phases existed; the pickup records the act rather
+    # than refusing the entire standing fleet — and, since 2026-09-08, records ONLY the act
     new = transitions.pickup(_CODE_SEAM, actor="igor-3")
-    assert "[BUILDME:in-process]" in new, new
+    assert new == _CODE_SEAM, new
+    assert ":in-process" not in new, new
 
 
 def test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing():
@@ -1216,7 +1220,9 @@ def test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons():
     — true for exactly as long as no post-ruling voyage had journaled, then red the
     moment the first :waiting record landed, which is a pinned-snapshot defect, not a
     catch. The INVARIANT is the grammar's, not the corpus's age: a phase, where present,
-    is one of the ruled two, and it sits on a SUMMONS — a rest or terminal cursor
+    is one of the vocabulary's words (two on 2026-08-07, five since 2026-09-08 — the tooth
+    reads the tuple rather than pinning a count, so growing the vocabulary is not a red and
+    inventing a word outside it still is), and it sits on a SUMMONS — a rest or terminal cursor
     claiming a pickup phase is the corruption this row actually guards against."""
     seen = 0
     for hist in _REPO_ROOT.rglob("history.json"):
@@ -1233,8 +1239,8 @@ def test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons():
             if not w:
                 continue
             wf = transitions.parse_workflow(w)
-            assert wf.phase in (None, "waiting", "in-process"), \
-                f"a phase outside the ruled two: {hist}: {w}"
+            assert wf.phase in (None,) + transitions._PHASES, \
+                f"a phase outside the vocabulary: {hist}: {w}"
             if wf.phase is not None:
                 assert transitions.is_summons(wf.here), \
                     f"a phase on a rest/terminal cursor: {hist}: {w}"
@@ -1622,13 +1628,180 @@ def test_disposition_conform_strips_disposition_from_backbone():
     transitions.legal_targets(wf, class_def=class_def)
 
 
+# ── THE PICKUP PHASE'S SECOND AXIS (ticket 6ec9b384b451, ruling 2026-09-08) ───────────────
+# The teeth below are shaped by what a HOLLOW build of this ticket would look like, because
+# that shape is specific and easy: grow the tuple to five words, ship, and let the corpus go
+# on wearing two. Every deterministic check would stay green. So these teeth measure the
+# WRITE side — that the door refuses what must not be written and names its lacks apart —
+# and the WATCHME probe beside the code measures whether anyone writes them.
+
+def test_phase_vocabulary_carries_five_and_splits_by_writability() -> None:
+    assert transitions._PHASES == ("waiting", "in-process", "queued", "hold", "blocked")
+    # in-process is the ONE exclusion, and it is the point of the narrowing, not an oversight.
+    assert set(transitions._WRITABLE_PHASES) == set(transitions._PHASES) - {"in-process"}
+    assert set(transitions._RELEASE_PHASES) == {"queued", "hold", "blocked"}
+
+
+def test_every_writable_phase_round_trips_on_a_cursor() -> None:
+    for ph in transitions._PHASES:
+        s = f"code-seam@v2: THINKME -> TICKETME -> [BUILDME:{ph}] -> PROVEME -> PROVED"
+        assert transitions.parse_workflow(s).phase == ph, ph
+
+
+def test_legacy_in_process_string_still_parses() -> None:
+    """PARSE-legal, WRITE-refused. A string already on disk, and a derived render, must both
+    read back — refusing at parse would break the corpus to make a point."""
+    s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:in-process] -> PROVEME -> PROVED"
+    assert transitions.parse_workflow(s).phase == "in-process"
+
+
+def test_write_door_refuses_the_derived_phase() -> None:
+    s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+    try:
+        transitions.set_phase(s, "in-process", actor="proof")
+    except transitions.IllegalTransition as exc:
+        assert "DERIVED" in str(exc) and "sail_record" in str(exc), str(exc)
+    else:
+        raise AssertionError("set_phase accepted in-process — a stored claim outlives its hand")
+
+
+def test_a_word_outside_the_five_is_still_refused_loudly() -> None:
+    s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:Waiting] -> PROVEME -> PROVED"
+    try:
+        transitions.parse_workflow(s)
+    except transitions.MalformedWorkflow as exc:
+        assert "unknown phase" in str(exc)
+    else:
+        raise AssertionError("a capitalised phase parsed — the wider capture stopped being loud")
+
+
+def test_state_re_was_not_widened() -> None:
+    """_STATE_RE captures wider than the vocabulary ON PURPOSE, so an illegal phase fails at
+    the validator instead of silently failing to match and truncating the walk. Growing the
+    vocabulary must not touch it. Measured against git, not read by eye."""
+    import subprocess
+    out = subprocess.run(
+        ["git", "diff", "HEAD", "-U0", "--", "cairn/tools/base/transitions.py"],
+        cwd=str(_REPO_ROOT), capture_output=True, text=True).stdout
+    touched = [ln for ln in out.splitlines()
+               if ln[:1] in "+-" and ln[1:2] not in "+-" and "_STATE_RE = " in ln]
+    assert not touched, f"_STATE_RE was edited: {touched}"
+
+
+def test_release_lack_names_its_three_lacks_apart() -> None:
+    """'invalid' tells a caller nothing about which of three things is wrong, and a refusal a
+    caller cannot act on is one that gets plastered over (Law 7)."""
+    absent = transitions.release_lack("queued", None)
+    unresolvable = transitions.release_lack("queued", "deadbeefcafe0")
+    hold_unres = transitions.release_lack("hold", "no-such-referent-anywhere-at-all")
+    for lack in (absent, unresolvable, hold_unres):
+        assert isinstance(lack, str) and lack.strip(), lack
+    assert len({absent, unresolvable, hold_unres}) == 3, "two lacks read the same"
+    assert "carries no release" in absent
+    assert "does not resolve to a ticket" in unresolvable
+    assert "the world does not hold" in hold_unres
+
+
+def test_a_resolving_release_is_no_lack() -> None:
+    assert transitions.release_lack("hold", "CLAUDE.md") is None      # a path
+    assert transitions.release_lack("queued", "6ec9b384b451") is None  # a live ticket
+    # waiting is the default and in-process is derived — neither has a release to give.
+    assert transitions.release_lack("waiting", None) is None
+    assert transitions.release_lack("in-process", None) is None
+    assert transitions.release_lack(None, None) is None                # the legacy corpus
+
+
+def test_queued_self_clears_against_the_LIVE_corpus() -> None:
+    """Driven against a real terminal ticket read out of CairnCommons/tickets, never a
+    fixture: the self-clearing claim is about the world, so the world is what answers it."""
+    terminal = None
+    for path in sorted(transitions._TICKETS.glob("*.json")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            here = transitions.parse_workflow(doc["workflow_and_state"]).here
+        except Exception:
+            continue
+        if transitions.is_terminal(here) and doc.get("id"):
+            terminal = doc["id"]
+            break
+    assert terminal, "no terminal ticket in the live corpus — the tooth measured nothing"
+    lack = transitions.release_lack("queued", terminal)
+    assert lack and "STALE" in lack, (terminal, lack)
+
+
+def test_set_phase_refuses_a_rest_and_journals_what_it_writes() -> None:
+    rest = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"
+    try:
+        transitions.set_phase(rest, "hold", release="CLAUDE.md", actor="proof")
+    except transitions.IllegalTransition as exc:
+        assert "summons nobody" in str(exc)
+    else:
+        raise AssertionError("a terminal took a phase")
+    with tempfile.TemporaryDirectory() as d:
+        h, st = Path(d) / "history.json", Path(d) / "state.json"
+        s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+        out = transitions.set_phase(s, "hold", release="CLAUDE.md", actor="proof",
+                                    history_path=str(h), state_path=str(st))
+        assert "[BUILDME:hold]" in out, out
+        recs = json.loads(h.read_text())
+        assert recs[-1]["act"] == "set_phase" and recs[-1]["phase"] == "hold"
+        assert recs[-1]["release"] == "CLAUDE.md"
+
+
+def test_pickup_no_longer_stamps_the_derived_phase() -> None:
+    s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+    out = transitions.pickup(s, actor="proof")
+    assert ":in-process" not in out, out
+    assert out == s, "pickup rewrote the string it was handed"
+
+
+def test_pickup_records_the_supersession_rather_than_erasing_it() -> None:
+    """Law 5: the clause was load-bearing guidance inside code. Deleting it must fail as
+    loudly as leaving it uncorrected — so the tooth demands BOTH the original words and the
+    date that superseded them.
+
+    TIGHTENED 2026-09-08 BY MUTATION. The first cut asserted ``"2026-09-08" in doc``, and a
+    mutation that deleted the date from the supersession sentence still passed: the ruling's
+    own FILENAME carries the same date further down the docstring, so the token was satisfied
+    by a different sentence entirely. A date that can be supplied from anywhere in the string
+    dates nothing. So the SENTENCE is pinned, not the token — the supersession has to say
+    when it happened, in the place it happened."""
+    doc = transitions.pickup.__doc__ or ""
+    assert "nobody derives" in doc, "the original clause was deleted, not superseded"
+    assert "Superseded 2026-09-08 by ruling" in doc, (
+        "the supersession does not date itself in its own sentence — a date elsewhere in the "
+        "docstring (the ruling filename carries one) is not a record of WHEN this clause fell")
+    assert "SUPERSEDED" in doc
+
+
+def test_the_document_and_the_grammar_agree_on_who_may_write() -> None:
+    """press_office/WorkflowDefinition.md is the living definition. A document that drifts
+    from the code it defines is a reader's trap, so the table is PARSED, not read by eye."""
+    md = (_REPO_ROOT / "press_office" / "WorkflowDefinition.md").read_text(encoding="utf-8")
+    rows = [ln for ln in md.splitlines()
+            if ln.startswith("| **") and "`[BUILDME:" in ln]
+    stated = {}
+    for ln in rows:
+        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        stated[cells[0].strip("* ")] = cells[-1]
+    assert set(stated) == set(transitions._PHASES), (set(stated), transitions._PHASES)
+    writable = {ph for ph, how in stated.items() if how.lower().startswith("written")}
+    assert writable == set(transitions._WRITABLE_PHASES), (writable, transitions._WRITABLE_PHASES)
+    # and the ruling core it narrows survives the edit, word for word
+    for sentence in ("the ticket is THE SOURCE PERIOD", "Terminals and rests take no phase",
+                     "Only the cursor carries a phase", "A bare cursor"):
+        assert sentence in md, sentence
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, never hand-typed. A tooth nobody listed is a tooth that did not
     # run, and the file prints the same green line — the same defect as the proof record, one
     # level up. Caught twice by hand on 2026-08-13 before it was made physics here.
     checks = [v for k, v in sorted(globals().items())
               if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 67, (
+    assert len(checks) >= 80, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:
@@ -1663,11 +1836,19 @@ def _main() -> int:
           "refuses, charted crosses gated-and-clean) — the registry is the door, proven "
           "on a second tenant — and A SUMMONS SHOWS ITS PICKUP (ruled 2026-08-07, "
           "the-ticket-is-the-source-period): the cursor carries its phase in the grammar "
-          "([X:waiting] on arrival, [X:in-process] through the pickup door beside emit, "
-          "journaled with actor + time through the projector), a phase off-cursor / on a "
+          "([X:waiting] on arrival, journaled with actor + time through the projector "
+          "at a pickup door beside emit), a phase off-cursor / on a "
           "rest / off-vocabulary refuses at parse, a doubled pickup and a pickup at a rest "
           "refuse writing nothing, and the whole standing corpus parses phase=None — the "
-          "legacy grammar is a strict subset, measured, not assumed — AND THE SIXTH SEAT "
+          "legacy grammar is a strict subset, measured, not assumed — AND THAT PHASE NOW "
+          "ANSWERS *WHY* A TICKET IS NOT MOVING RATHER THAN *WHO* HOLDS IT (ticket "
+          "6ec9b384b451, ruling 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase): the "
+          "vocabulary is five (waiting, in-process, queued, hold, blocked), in-process is "
+          "DERIVED from the live sail record and the write door refuses it, every written "
+          "phase off the default carries a RELEASE that resolves in the world (three lacks, "
+          "named apart, queued self-clearing against a terminal ticket), _STATE_RE is "
+          "measured untouched against git, and the markdown definition's own table is "
+          "parsed and required to agree with the grammar — AND THE SIXTH SEAT "
           "NOW STANDS (ticket emit-refuses-an-uncleared-crossing, draining the live trouble "
           "every-crossing-goes-around-the-clearance-gate, under which ZERO of 146 emit-shaped "
           "records on disk had ever carried cleared_by): a forward crossing into a REST "

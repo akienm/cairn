@@ -155,7 +155,7 @@ For every step but one, *emits* and *completes* are the same question. The excep
 is `learn`, and the exception is a fact about learning rather than a hole in the
 rule — see §4.
 
-### A summons shows its pickup — ruled 2026-08-07
+### A summons shows its pickup — ruled 2026-08-07, narrowed 2026-09-08
 
 A `-ME` state is a **summons**: it demands somebody's work. Between the summons
 being raised and the work being done there is a lifecycle, and until this ruling it
@@ -172,15 +172,28 @@ So the lifecycle lives on the ticket's own cursor, and it is defined **once, at 
 grammar level, as a property of summonses as a kind** — not as new rows in any
 class's backbone:
 
-| phase | cursor reads | means |
-|---|---|---|
-| **waiting** | `[BUILDME:waiting]` | summoned; nobody has picked it up |
-| **in-process** | `[BUILDME:in-process]` | picked up; the pickup is journaled (actor + time) |
-| *(crossed)* | cursor has moved on | the work is done; the crossing is the record |
+**The axis moved on 2026-09-08, and only the axis.** The original two words asked
+WHO HOLDS IT, because the fleet was assumed to be many. It is one: CodeMother is
+not a builder, aider did not become one, and CC is the sole builder (Akien,
+2026-09-08 — ruling `2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase`). With one
+hand, "nobody has picked it up" and "CC has not got to it yet" are the same
+sentence, and the slot was spending itself saying nothing. So the phase now answers
+**WHY IT IS NOT MOVING**, which is the question a surface actually has — and, with
+it, **who acts next**. Everything the 2026-08-07 ruling settled stands untouched
+below; its two-actor premise is the one clause that narrows.
+
+| phase | cursor reads | means | who acts next | written or derived |
+|---|---|---|---|---|
+| **waiting** | `[BUILDME:waiting]` | summoned; CC has not got to it yet | CC | written — the default on arrival |
+| **in-process** | `[BUILDME:in-process]` | a hand is on it right now | CC | **DERIVED, never written** |
+| **queued** | `[BUILDME:queued]` | another ticket must finish first | nobody — it self-clears | written, with a release |
+| **hold** | `[BUILDME:hold]` | deliberately parked until other work lands | Akien — awareness | written, with a release |
+| **blocked** | `[BUILDME:blocked]` | a problem CC cannot sort alone | Akien — escalation | written, with a release |
+| *(crossed)* | cursor has moved on | the work is done; the crossing is the record | — | — |
 
 The rules, all enforced at the grammar (`cairn/tools/base/transitions.py`):
 
-- **Every summons in every class inherits the two phases** — `BUILDME`, `PROVEME`,
+- **Every summons in every class inherits the phases** — `BUILDME`, `PROVEME`,
   `THINKME`, a free summons like `WATCHME(obj)`, and any summons a future class
   mints (`DESIGNME` gets `DESIGNME:waiting` before `DESIGNME` exists anywhere).
   That is the "and so on" in the ruling, and it is why the phases are annotation
@@ -193,9 +206,38 @@ The rules, all enforced at the grammar (`cairn/tools/base/transitions.py`):
 - **Arrival stamps `waiting`.** A crossing that lands on a summons renders the
   cursor `[X:waiting]` — the summons opens unclaimed by construction.
 - **The pickup is a journaled act.** `pickup()` — a door beside `emit`, riding the
-  same projector tail — advances `waiting → in-process` and appends the actor and
-  the time to the component's history. It refuses a rest, a terminal, and a doubled
-  pickup. A pickup that leaves no record did not happen (Law 3).
+  same projector tail — appends the actor and the time to the component's history.
+  It refuses a rest and a terminal. A pickup that leaves no record did not happen
+  (Law 3). Since 2026-09-08 it no longer *stamps* `in-process` on the string: that
+  phase is derived (next rule), so the journal entry is the whole act.
+- **`in-process` is DERIVED, never written.** It is runtime state — true only while
+  a process runs — and the ticket is git-tracked and shared, so a committed
+  `:in-process` claims a hand that is gone the moment the session ends, and is
+  false on every machine that pulls it. The read is stateless: a sail record in
+  instance-space (`~/.cairn/`, never git) names the live session's pid and that
+  pid's `/proc` start time, and the phase reads true only while that pid is alive
+  AND its start time still matches — so a recycled pid cannot impersonate a build.
+  Nothing writes the phase and nothing has to clear it; a session that dies takes
+  its claim with it. The word stays legal to PARSE so a derived read can render it
+  and no legacy string breaks; the write doors refuse it.
+- **Every written phase carries a release, as a field and never as prose.** Akien,
+  2026-09-08: *"nothing passes a gate with prose. an inspector will not allow it.
+  not only has to have a field, but valid data to the limits of detection of
+  deterministic code."* So `queued` names the ticket it waits on, `blocked` names
+  the question or trouble that would free it, `hold` names the condition that ends
+  it — each a referent deterministic code RESOLVES. The grammar names three lacks
+  apart, never as one "invalid": the field is absent, the referent does not
+  resolve, or a `queued` names a ticket that already reached a terminal. That last
+  one is what makes `queued` **self-clearing**: the dependency finishing is what
+  reds the label, so the state cannot quietly outlive its reason. `waiting` and
+  `in-process` need no release — the first is the default and the second is derived.
+- **The phase is the operator inbox's sieve, and the sort is WHO ACTS NEXT.**
+  `hold` and `blocked` are IN — `hold` for awareness (which is how its graveyard
+  risk is paid for rather than avoided) and `blocked` as an escalation. `waiting`
+  and `queued` are reference, not inbox: one is CC's queue and the other clears
+  itself. This is the whole point of moving the axis — 51 identical `:waiting`
+  labels were hiding "this needs Akien" among "CC has not got to it", which is
+  Law 7 failing at a diagnostic surface.
 - **A bare cursor (`[BUILDME]`) stays legal forever** and means the phase is
   unrecorded — every history written before this ruling parses unchanged; nothing
   rewrites the past to conform to it (Law 7).
@@ -212,6 +254,14 @@ per-class *pickup-enforcement* (refusing a crossing that never showed a pickup) 
 a dial for the day a class has two actors; and the pickup's `actor` is a recorded
 claim, not an authenticated one — authentication is the clearance gate's rung, not
 the grammar's.
+
+Two more, added 2026-09-08. Whether `queued` may advance straight to `in-process`
+or must pass back through `waiting` is **unruled**; it is built as through-waiting,
+so "the dependency cleared" and "a hand is on it" stay two recorded acts, and the
+choice is reversible. And the derived read rests on an assumption stated at birth
+rather than discovered later: **the fleet stays one.** If a second builder ever
+builds, `waiting` reverts to meaning "nobody has taken it up" and an `in-process`
+derived from CC's own session becomes a wrong answer rather than a stale one.
 
 ---
 

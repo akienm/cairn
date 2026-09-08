@@ -1,0 +1,45 @@
+[
+  {
+    "claim": "proof test_sail_record.py passes under python3",
+    "caller": "sail:6ec9b384b451:reseal-after-quadratic-fix",
+    "date": "2026-09-08T12:59:22",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_RECYCLED_pid_reads_DEAD_against_a_really_running_process\n  ok   test_a_reaped_pid_reads_DEAD\n  ok   test_a_running_process_reads_LIVE_and_derives_the_phase\n  ok   test_a_ticket_carrying_crossing_stamps_and_a_terminal_clears_it\n  ok   test_a_ticketless_crossing_stamps_nothing_and_an_unwritable_home_still_crosses\n  ok   test_absent_and_unreadable_records_are_DEAD_with_the_lack_NAMED\n  ok   test_no_face_raises_when_instance_space_is_unwritable\n  ok   test_no_ticket_in_the_live_corpus_carries_a_stored_in_process\n  ok   test_the_session_pid_is_read_from_the_environment_not_from_this_process\n  ok   test_the_starttime_field_is_pinned_to_WALL_CLOCK_not_merely_self_consistent\n  ok   test_the_write_is_atomic_and_leaves_no_temp_behind\n\n11/11 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_RECYCLED_pid_reads_DEAD_against_a_really_running_process",
+        "test_a_reaped_pid_reads_DEAD",
+        "test_a_running_process_reads_LIVE_and_derives_the_phase",
+        "test_a_ticket_carrying_crossing_stamps_and_a_terminal_clears_it",
+        "test_a_ticketless_crossing_stamps_nothing_and_an_unwritable_home_still_crosses",
+        "test_absent_and_unreadable_records_are_DEAD_with_the_lack_NAMED",
+        "test_no_face_raises_when_instance_space_is_unwritable",
+        "test_no_ticket_in_the_live_corpus_carries_a_stored_in_process",
+        "test_the_session_pid_is_read_from_the_environment_not_from_this_process",
+        "test_the_starttime_field_is_pinned_to_WALL_CLOCK_not_merely_self_consistent",
+        "test_the_write_is_atomic_and_leaves_no_temp_behind"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "c77f1514c7103c0233832c1bb7075f2d863df6cded6f383f61c4266fa58f3bc1",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-560901-vc_icupj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

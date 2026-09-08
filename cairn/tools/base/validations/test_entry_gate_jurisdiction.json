@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_entry_gate_jurisdiction.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T22:55:20",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:6ec9b384b451:reseal-after-quadratic-fix",
+    "date": "2026-09-08T12:55:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -18,23 +18,24 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "50160010ae9f584a7bc417266bd6bd8cab7a9df3a17a84d463cb7db6b44216a4",
+      "source_fingerprint": "c77f1514c7103c0233832c1bb7075f2d863df6cded6f383f61c4266fa58f3bc1",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2962833-0_51saqc/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-560901-27hdchrm/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 6,
+          "count": 7,
           "paths": [
-            "logs/bus/0/20260908.045516.121510.BusDevice.post.json",
-            "logs/bus/0/20260908.045516.125856.BusDevice.post.json",
-            "logs/bus/0/20260908.045516.128578.BusDevice.post.json",
-            "logs/charter/0/20260908.045516.095896.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.045516.125329.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.045516.128335.charter_projector_append_entry.append_entry.json"
+            "devices/cairn/0/machines/sail/sail.json",
+            "logs/bus/0/20260908.185511.673553.BusDevice.post.json",
+            "logs/bus/0/20260908.185511.677564.BusDevice.post.json",
+            "logs/bus/0/20260908.185511.679034.BusDevice.post.json",
+            "logs/charter/0/20260908.185511.652547.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.185511.677417.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.185511.678894.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

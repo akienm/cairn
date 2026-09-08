@@ -93,14 +93,30 @@ def _trigger(now, context: dict) -> bool:
     return s["phased_arrivals"] >= _ENOUGH and s["pickups"] == 0
 
 
+# THE CLEAR'S FLOOR, added 2026-09-08 when the original clause was measured rotting. It was
+# ``pickups >= 1``: an EXISTENCE claim, cleared by the first record and unable ever to
+# un-clear. It took its 1 in August 2026 and read green for a month while the door it
+# watches sat with no caller anywhere in the live system — the watch stopped watching at the
+# moment it succeeded. A rate can go back down; an existence claim cannot, and a clause that
+# cannot fall is not a measurement, it is a memory.
+_ENOUGH_RATE = 1 / 12
+_ENOUGH_PICKUPS = 3
+
+
 def _enough(context: dict) -> bool:
-    """CLEARED by ONE witnessed pickup — an existence claim, settled by the first record.
-    Mutually exclusive with the trigger BY CONSTRUCTION (``pickups >= 1`` vs
-    ``pickups == 0``), with no floor asymmetry to rot in the quiet direction: the sibling
-    probe's live fire proved a clear that can fire before the trigger can is the failure,
-    so this pair shares the one variable and cannot both be true."""
+    """CLEARED when pickups stand at a real RATE against arrivals — at least three of them,
+    and at least one per twelve phased arrivals. Both clauses can regress: arrivals keep
+    accumulating for free (emit stamps them), so a corpus that stops journaling pickups
+    un-clears this watch instead of coasting on an August record.
+
+    Still mutually exclusive with the trigger by construction — that fires only at
+    ``pickups == 0`` and this requires ``pickups >= 3`` — so the pair shares the one variable
+    and cannot both be true, which is the property the sibling probe's live fire established
+    as load-bearing (2026-07-30)."""
     s = once(context, "corpus", survey_the_corpus)
-    return s["pickups"] >= 1
+    if s["pickups"] < _ENOUGH_PICKUPS:
+        return False
+    return s["pickups"] >= s["phased_arrivals"] * _ENOUGH_RATE
 
 
 def _carry(context: dict) -> dict:

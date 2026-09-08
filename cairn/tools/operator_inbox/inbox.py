@@ -106,17 +106,47 @@ def cursor_of(workflow_and_state: str) -> str | None:
     return token
 
 
+# THE PHASE AXIS — WHO ACTS NEXT (2026-09-08, ruling
+# 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase). The phase used to say WHO HOLDS IT,
+# which with a fleet of one said nothing, and this file's own measurement is why it moved:
+# 51 of 258 tickets wore an identical ``:waiting``, so "this needs Akien" was sitting
+# indistinguishable from "CC has not got to it" on the operator's own surface. That is Law 7
+# failing at a diagnostic surface — the place it is least allowed to fail.
+#
+# The order below IS the sort, and it is the actor's urgency, not the ticket's age:
+PHASE_RANK = {
+    None: 0,             # a bare cursor — the legacy corpus, no claim either way
+    "blocked": 1,        # Akien, as an ESCALATION: CC cannot sort it alone
+    "hold": 2,           # Akien, for AWARENESS: "you have a hold on these"
+    "in-process": 3,     # CC, right now — derived, never stored
+    "waiting": 4,        # CC, eventually — the default, and the largest pile
+    "queued": 5,         # nobody: another ticket must finish, and it self-clears
+}
+# Which phases put a ticket in front of the OPERATOR. hold is in for awareness — that is how
+# its graveyard risk is paid for rather than avoided (Akien, 2026-09-08: "it should show up
+# in the operator inbox specifically so the operator is kept aware"). waiting and queued are
+# reference, not inbox: one is CC's queue and the other clears itself.
+PHASE_INBOX = ("blocked", "hold")
+
+
+def phase_of(label: str) -> str | None:
+    """The pickup phase carried by a display label, or None for a bare one."""
+    return label.split(":", 1)[1] if ":" in label else None
+
+
 def status_label(cursor: str | None) -> str:
-    """The ONE display label for a cursor token: the base stage, plus ``:waiting``
-    when the pickup phase is waiting, the WATCHME object stripped.
-    ``WATCHME(x):waiting`` -> ``WATCHME:waiting``; ``PROVEME:in-process`` -> ``PROVEME``;
-    None -> ``UNPARSED``."""
+    """The ONE display label for a cursor token: the base stage plus WHATEVER PICKUP PHASE
+    it carries, the WATCHME object stripped. ``WATCHME(x):waiting`` -> ``WATCHME:waiting``;
+    ``PROVEME:blocked`` -> ``PROVEME:blocked``; None -> ``UNPARSED``.
+
+    Before 2026-09-08 this recognised ``:waiting`` and dropped every other phase on the
+    floor, which was sound when there were two words and one of them was the default. With
+    five, dropping four of them would hide exactly the ones that need a human."""
     if not cursor:
         return UNPARSED
     base = cursor.split("(")[0].split(":")[0]
-    if cursor.endswith(":waiting"):
-        return f"{base}:waiting"
-    return base
+    phase = cursor.split(":", 1)[1] if ":" in cursor else None
+    return f"{base}:{phase}" if phase else base
 
 
 def is_stage_token(text: str | None) -> bool:
@@ -131,13 +161,18 @@ def is_stage_token(text: str | None) -> bool:
 
 
 def label_sort_key(label: str) -> tuple:
-    """Priority rank of a label — LABEL_ORDER by base, waiting after its bare stage."""
+    """Priority rank of a label — LABEL_ORDER by base, then the phase by WHO ACTS NEXT.
+
+    The stage stays the primary key because every surface in the system lists by it and that
+    contract is not this ticket's to change. What changed on 2026-09-08 is the secondary key:
+    it was a single ``endswith(':waiting')`` boolean, and it is now ``PHASE_RANK``, so within
+    a stage the tickets needing Akien sort above the ones needing only time."""
     base = label.split(":")[0]
     try:
         rank = LABEL_ORDER.index(base)
     except ValueError:
         rank = len(LABEL_ORDER)
-    return (rank, label.endswith(":waiting"), label)
+    return (rank, PHASE_RANK.get(phase_of(label), len(PHASE_RANK)), label)
 
 
 def owning_component(owning_intention) -> str:
@@ -158,6 +193,7 @@ def owning_component(owning_intention) -> str:
 
 def _ticket_record(path: Path, ticket: dict) -> dict:
     cursor = cursor_of(ticket.get("workflow_and_state", ""))
+    cursor = _with_derived_phase(cursor, ticket.get("id") or path.stem[:12])
     return {
         "id": ticket.get("id") or path.stem[:12],
         "title": ticket.get("title", "") or "",
@@ -168,6 +204,28 @@ def _ticket_record(path: Path, ticket: dict) -> dict:
         "node_class": ticket.get("node_class"),
         "source": str(path),
     }
+
+
+def _with_derived_phase(cursor: str | None, ticket_id: str) -> str | None:
+    """Overlay the DERIVED ``in-process`` phase (2026-09-08). ``in-process`` is never stored
+    on the ticket — it is runtime state and the ticket is git-tracked and shared — so the one
+    place it can be true is a live sail record in instance-space, read here at display time.
+
+    STATELESS BY CONSTRUCTION, which is the property that makes it safe: nothing writes it
+    and nothing has to remember to clear it, so a session that dies takes its claim with it.
+    A lack reads as "no live sail", never as an exception (Law 7)."""
+    if not cursor:
+        return cursor
+    base = cursor.split(":", 1)[0]
+    if base.split("(")[0] in TERMINAL_STATES:
+        return cursor
+    try:
+        from cairn.tools.base.sail_record import derived_phase
+        if derived_phase(ticket_id) == "in-process":
+            return f"{base}:in-process"
+    except Exception:
+        pass
+    return cursor
 
 
 def _scan_tickets(tickets_dir: Path | None) -> list[dict]:
@@ -275,6 +333,22 @@ def read_tickets(*, tickets_dir: Path | None = None) -> dict:
                if r["label"].split(":")[0] not in TERMINAL_STATES]
     return {"records": records, "by_label": _by_label(records),
             "total_not_done": len(records)}
+
+
+def read_operator_tickets(*, tickets_dir: Path | None = None) -> dict:
+    """THE ONE READER of tickets that are the OPERATOR'S to act on — the phase sieve.
+
+    ``hold`` and ``blocked`` are IN; ``waiting`` and ``queued`` are reference, not inbox, and
+    a bare cursor makes no claim either way so it is not inbox either. This is the whole
+    return on moving the phase axis: before it, the inbox could not compute this at all, and
+    51 identical ``:waiting`` labels hid the handful that actually needed Akien.
+
+    ``in-process`` is deliberately NOT here even though CC acts on it — the operator inbox is
+    what Akien must look at, and work already in flight is the opposite of that."""
+    records = [r for r in _scan_tickets(tickets_dir)
+               if r["label"].split(":")[0] not in TERMINAL_STATES
+               and phase_of(r["label"]) in PHASE_INBOX]
+    return {"records": records, "by_label": _by_label(records), "count": len(records)}
 
 
 def read_done_tickets(*, tickets_dir: Path | None = None) -> dict:

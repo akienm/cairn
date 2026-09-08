@@ -1702,9 +1702,31 @@ def test_release_lack_names_its_three_lacks_apart() -> None:
     assert "the world does not hold" in hold_unres
 
 
+def _a_non_terminal_ticket_id() -> str:
+    """A ticket id read OUT of the live corpus whose cursor has not reached a terminal.
+
+    Never a hard-coded id. This tooth carried `6ec9b384b451` as "a live ticket" until
+    2026-09-08, when that very ticket reached PROVED and the tooth went red for the one
+    reason that is not a defect: `queued` self-cleared, exactly as designed. A proof over
+    live data asserts INVARIANTS, never snapshots — the invariant is 'a queued release
+    naming an unfinished ticket is no lack', and which ticket is unfinished is the world's
+    business, not the proof's."""
+    for path in sorted(transitions._TICKETS.glob("*.json")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            here = transitions.parse_workflow(doc["workflow_and_state"]).here
+        except Exception:
+            continue
+        if doc.get("id") and not transitions.is_terminal(here):
+            return doc["id"]
+    raise AssertionError("no non-terminal ticket in the live corpus — the tooth measured nothing")
+
+
 def test_a_resolving_release_is_no_lack() -> None:
     assert transitions.release_lack("hold", "CLAUDE.md") is None      # a path
-    assert transitions.release_lack("queued", "6ec9b384b451") is None  # a live ticket
+    assert transitions.release_lack("queued", _a_non_terminal_ticket_id()) is None
     # waiting is the default and in-process is derived — neither has a release to give.
     assert transitions.release_lack("waiting", None) is None
     assert transitions.release_lack("in-process", None) is None
@@ -1793,6 +1815,305 @@ def test_the_document_and_the_grammar_agree_on_who_may_write() -> None:
     for sentence in ("the ticket is THE SOURCE PERIOD", "Terminals and rests take no phase",
                      "Only the cursor carries a phase", "A bare cursor"):
         assert sentence in md, sentence
+
+
+# ---------------------------------------------------------------------------
+# THE TICKET WRITE DOOR (ticket 9e7867aa1056, 2026-09-08). set_phase gained a ``ticket=``
+# parameter so a phase write records at the TICKET's own address instead of at some
+# component's history.json. These teeth are shaped by the two ways that door could be hollow:
+# it could write the ticket in a shape that reformats the whole file, and it could half-write
+# and then raise. Neither is caught by a proof that only checks the exception.
+import hashlib as _hashlib
+import shutil as _shutil
+
+
+def _live_tickets() -> list[Path]:
+    d = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+    return sorted(p for p in d.glob("*.json"))
+
+
+def _one_ticket_per_live_shape() -> dict[tuple[bool, bool], Path]:
+    """One REAL cursor-bearing ticket per serialisation shape the corpus actually uses.
+
+    MEASURED 2026-09-08 over the 258 cursor-bearing tickets: 207 are ASCII-escaped with a
+    trailing newline, 43 are non-escaped with one, 8 are non-escaped WITHOUT one. Picking
+    'the first ticket' would draw from the 207 every time — and the first cut of these teeth
+    did exactly that, which is how a mutant that hard-coded ``json.dumps(doc, indent=2)``
+    (ASCII-escaped, always a newline) stayed GREEN under the whole file. The tooth was
+    measuring the majority shape and calling it the writer. So the sandbox is keyed by shape,
+    and the door is fired once per shape: the mutant now writes 51 files wrong out of 258 and
+    the proof says so."""
+    seen: dict[tuple[bool, bool], Path] = {}
+    for path in _live_tickets():
+        if path.name.startswith("_"):
+            continue
+        raw = path.read_bytes()
+        try:
+            doc = json.loads(raw.decode("utf-8"))
+        except Exception:
+            continue
+        if not isinstance(doc, dict) or "workflow_and_state" not in doc:
+            continue
+        try:
+            shape = transitions._ticket_shape(raw, doc)
+        except transitions.IllegalTransition:
+            continue
+        seen.setdefault(shape, path)
+    assert len(seen) >= 3, (
+        f"the corpus offers only {len(seen)} serialisation shape(s) — this tooth pins the "
+        f"writer against the shapes that EXIST, so fewer than three means either the corpus "
+        f"was normalised (in which case say so and re-measure) or the shape detector "
+        f"collapsed. Shapes found: {sorted(seen)}")
+    return seen
+
+
+def _sandbox_ticket(tmp: Path, shape: tuple[bool, bool] | None = None) -> Path:
+    """A REAL ticket, copied byte-for-byte into a sandbox tickets root. Not a fixture: the
+    shapes this door has to survive are the ones the live corpus actually uses, and a
+    hand-built two-key dict would round-trip under any writer at all."""
+    shapes = _one_ticket_per_live_shape()
+    src_t = shapes[shape] if shape is not None else next(iter(shapes.values()))
+    dst = tmp / src_t.name
+    _shutil.copyfile(src_t, dst)
+    return dst
+
+
+def test_ticket_shape_reproduces_every_live_ticket_byte_for_byte() -> None:
+    """THE ROUND-TRIP TOOTH, over the WHOLE live corpus rather than a sample.
+
+    This started as a falsified hypothesis and that is why it is worth a tooth. The chart's
+    constrain packet asserted the corpus was written ``ensure_ascii=False`` with a trailing
+    newline; the first full-corpus run found that shape on 44 of 260 files. 208 are
+    ASCII-escaped, 8 have no trailing newline. Any writer that imposes ONE shape silently
+    reformats up to 252 files to add a three-line record — and the whole point of writing at
+    the ticket's own address is that a human can read the change in a git diff."""
+    files = [p for p in _live_tickets()]
+    assert len(files) >= 100, f"the corpus vanished — this tooth measured nothing: {len(files)}"
+    unreproducible = []
+    for path in files:
+        raw = path.read_bytes()
+        try:
+            doc = json.loads(raw.decode("utf-8"))
+        except Exception as exc:  # a ticket that is not JSON is a different defect
+            unreproducible.append((path.name, f"unparseable: {exc}"))
+            continue
+        try:
+            ensure_ascii, newline = transitions._ticket_shape(raw, doc)
+        except transitions.IllegalTransition as exc:
+            unreproducible.append((path.name, str(exc)[:80]))
+            continue
+        body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
+        blob = (body + "\n" if newline else body).encode("utf-8")
+        if blob != raw:
+            unreproducible.append((path.name, "shape detected but did not reproduce"))
+    assert not unreproducible, (
+        f"{len(unreproducible)} of {len(files)} live tickets cannot be written back in their "
+        f"own shape: {unreproducible[:5]}")
+
+
+def test_ticket_write_door_records_at_the_tickets_own_address() -> None:
+    """The act and the record of the act at ONE address — and the two halves agreeing.
+
+    The strong assertion is the LAST one: the file's bytes are compared against the original
+    bytes with ONLY the two intended changes applied. A writer that also reordered keys, or
+    re-escaped a character, or dropped the trailing newline, fails here even though every
+    field assertion above it would still pass."""
+    for shape in _one_ticket_per_live_shape():
+        _one_shape_writes_back_unreformatted(shape)
+
+
+def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        ticket_file = _sandbox_ticket(tmp, shape)
+        before_raw = ticket_file.read_bytes()
+        before = json.loads(before_raw.decode("utf-8"))
+        real_root = transitions._TICKETS
+        transitions._TICKETS = tmp
+        try:
+            s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+            out = transitions.set_phase(
+                s, "hold", release="CLAUDE.md", actor="proof",
+                ticket=ticket_file.stem)
+        finally:
+            transitions._TICKETS = real_root
+        after_raw = ticket_file.read_bytes()
+        after = json.loads(after_raw.decode("utf-8"))
+
+        assert "[BUILDME:hold]" in out, out
+        writes = after["phase_writes"]
+        assert isinstance(writes, list) and len(writes) == len(before.get("phase_writes", [])) + 1
+        rec = writes[-1]
+        assert rec["act"] == "set_phase" and rec["phase"] == "hold"
+        assert rec["release"] == "CLAUDE.md" and rec["actor"] == "proof"
+        assert rec["standing"] == "BUILDME", rec
+        # THE ONE ACT: the record's workflow and the ticket's cursor are the same string.
+        assert rec["workflow"] == after["workflow_and_state"] == out, (rec, after["workflow_and_state"])
+
+        # NOTHING ELSE MOVED — reconstructed from the ORIGINAL bytes, not from the new ones.
+        expected = json.loads(before_raw.decode("utf-8"))
+        expected["phase_writes"] = [*before.get("phase_writes", []), rec]
+        expected["workflow_and_state"] = out
+        expected["release"] = "CLAUDE.md"  # the pair the watching probe reads (see below)
+        ensure_ascii, newline = transitions._ticket_shape(before_raw, before)
+        body = json.dumps(expected, indent=2, ensure_ascii=ensure_ascii)
+        assert ((body + "\n" if newline else body).encode("utf-8")) == after_raw, (
+            f"the door changed more than the phase write — a ticket in shape "
+            f"(ensure_ascii={shape[0]}, trailing_newline={shape[1]}) was REFORMATTED to add "
+            f"one record, burying it in whole-file churn")
+
+
+def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
+    """THE DOOR AND ITS WATCHER READ THE SAME TICKET AND MUST AGREE.
+
+    `cairn/tools/base/probes/the_vocabulary_is_written_not_just_legal.py` scores the corpus by
+    ``release_lack(parse_workflow(doc["workflow_and_state"]).phase, doc.get("release"))`` —
+    two fields at two levels of the same file. This tooth fires the door and then judges its
+    output with the PROBE's predicate rather than with an expectation written here, so the two
+    cannot drift apart while each stays green on its own terms.
+
+    The second half catches the plausible bug: dropping to a release-less phase must CLEAR the
+    release, or the ticket keeps a reason that no longer applies — the same defect ``queued``
+    self-clearing exists to make impossible, wearing a different hat."""
+    live = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        ticket_file = _sandbox_ticket(tmp)
+        real_root = transitions._TICKETS
+        transitions._TICKETS = tmp
+        try:
+            out = transitions.set_phase(live, "hold", release="CLAUDE.md", actor="proof",
+                                        ticket=ticket_file.stem)
+            doc = json.loads(ticket_file.read_text(encoding="utf-8"))
+            assert doc["release"] == "CLAUDE.md", "the top level carries no release to read"
+            phase = transitions.parse_workflow(doc["workflow_and_state"]).phase
+            assert phase == "hold", phase
+            assert transitions.release_lack(phase, doc.get("release")) is None, (
+                "the door wrote a ticket its own watching probe scores as a lack")
+
+            # ...and back down to a phase that has no release to give.
+            transitions.set_phase(out, "waiting", actor="proof", ticket=ticket_file.stem)
+            doc = json.loads(ticket_file.read_text(encoding="utf-8"))
+            assert "release" not in doc, (
+                f"a release outlived its phase: {doc.get('release')!r} still stands under "
+                f"{doc['workflow_and_state']!r}")
+            phase = transitions.parse_workflow(doc["workflow_and_state"]).phase
+            assert transitions.release_lack(phase, doc.get("release")) is None
+        finally:
+            transitions._TICKETS = real_root
+
+
+def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> None:
+    """FIVE REFUSAL PATHS, AND THE ASSERTION IS THE HASH, NOT THE EXCEPTION.
+
+    A door that appended the record and then raised would satisfy a proof that only checked
+    ``IllegalTransition`` was raised. That is precisely the hollow shape Law 8 says is worse
+    than a red, because every phase write after it leans on the promise these messages make
+    in words: 'Nothing was journaled.'"""
+    rest = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"
+    live = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        ticket_file = _sandbox_ticket(tmp)
+        digest = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
+        tid = ticket_file.stem
+        real_root = transitions._TICKETS
+        transitions._TICKETS = tmp
+        try:
+            cases = [
+                ("a terminal cursor", lambda: transitions.set_phase(
+                    rest, "hold", release="CLAUDE.md", actor="p", ticket=tid), "summons nobody"),
+                ("an off-vocabulary word", lambda: transitions.set_phase(
+                    live, "parked", release="CLAUDE.md", actor="p", ticket=tid),
+                 "not a pickup phase"),
+                ("the derived phase", lambda: transitions.set_phase(
+                    live, "in-process", actor="p", ticket=tid), "DERIVED, never written"),
+                ("a lacking release", lambda: transitions.set_phase(
+                    live, "queued", actor="p", ticket=tid), "set_phase refused"),
+                ("an unresolvable ticket", lambda: transitions.set_phase(
+                    live, "hold", release="CLAUDE.md", actor="p",
+                    ticket="no-such-ticket-anywhere-0000"), "resolves to no file"),
+            ]
+            for name, call, fragment in cases:
+                try:
+                    call()
+                except transitions.IllegalTransition as exc:
+                    assert fragment in str(exc), (name, str(exc))
+                else:
+                    raise AssertionError(f"{name} was accepted")
+                now = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
+                assert now == digest, f"{name} refused but the ticket changed on disk"
+        finally:
+            transitions._TICKETS = real_root
+
+
+def test_ticket_and_projector_records_are_one_body() -> None:
+    """Both addresses in one call, and the two records compared TO EACH OTHER.
+
+    Passing both is legal and is not a conflict — a component-level phase write on a
+    ticket-bearing seam is legitimately two facts at two addresses. What must never happen is
+    the two records saying the same thing two ways, so the tooth diffs the key sets and every
+    shared value rather than checking each against a hand-written expectation."""
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        ticket_file = _sandbox_ticket(tmp)
+        h, st = tmp / "history.json", tmp / "state.json"
+        real_root = transitions._TICKETS
+        transitions._TICKETS = tmp
+        try:
+            s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+            transitions.set_phase(s, "hold", release="CLAUDE.md", actor="proof",
+                                  ticket=ticket_file.stem,
+                                  history_path=str(h), state_path=str(st))
+        finally:
+            transitions._TICKETS = real_root
+        at_ticket = json.loads(ticket_file.read_text(encoding="utf-8"))["phase_writes"][-1]
+        at_component = json.loads(h.read_text())[-1]
+        # `seq` is the HISTORY's envelope, not the record's body: it numbers a position in
+        # one append-only file, and the ticket's phase_writes list has its own positions. It
+        # is the one key allowed to differ, and it is NAMED here rather than filtered by a
+        # rule, so a THIRD key appearing on one side is a red instead of a quiet pass.
+        assert set(at_component) - set(at_ticket) == {"seq"}, (
+            "the component record grew a key the ticket did not: "
+            f"{set(at_component) - set(at_ticket) - {'seq'}}")
+        assert not set(at_ticket) - set(at_component), (
+            "the ticket record carries keys the component's does not: "
+            f"{set(at_ticket) - set(at_component)}")
+        for k in at_ticket:
+            assert at_ticket[k] == at_component[k], (k, at_ticket[k], at_component[k])
+        # ONE CLOCK: the same act stamped twice would read as two events seconds apart.
+        assert at_ticket["at"] == at_component["at"], "two timestamps for one act"
+
+
+def test_ticket_write_door_refuses_a_shape_it_cannot_reproduce() -> None:
+    """A ticket written at indent=4 cannot be written back at indent=2 without reformatting
+    it whole, so the door refuses instead — and refuses BEFORE touching the file.
+
+    This is Law 7 at a record of truth: the alternative is a silent whole-file rewrite that
+    buries the phase write in 400 lines of churn. All 260 live tickets fit the four shapes as
+    measured 2026-09-08, so this fires only on a file genuinely outside the corpus."""
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        odd = tmp / "0000deadbeef-a-ticket-in-an-unreproducible-shape.json"
+        odd.write_text(json.dumps(
+            {"id": "0000deadbeef",
+             "workflow_and_state":
+                 "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"},
+            indent=4) + "\n", encoding="utf-8")
+        digest = _hashlib.sha256(odd.read_bytes()).hexdigest()
+        real_root = transitions._TICKETS
+        transitions._TICKETS = tmp
+        try:
+            transitions.set_phase(
+                "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+                "hold", release="CLAUDE.md", actor="proof", ticket="0000deadbeef")
+        except transitions.IllegalTransition as exc:
+            assert "cannot be reproduced" in str(exc), str(exc)
+        else:
+            raise AssertionError("a ticket in an unreproducible shape was rewritten")
+        finally:
+            transitions._TICKETS = real_root
+        assert _hashlib.sha256(odd.read_bytes()).hexdigest() == digest
 
 
 def _main() -> int:

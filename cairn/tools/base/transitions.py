@@ -119,6 +119,7 @@ import json
 import os
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.gate_class import TransitionGate
@@ -2113,12 +2114,77 @@ def release_lack(phase: str | None, release: object) -> str | None:
     return None
 
 
+# ---------------------------------------------------------------------------
+# THE TICKET WRITE DOOR (ticket 9e7867aa1056, 2026-09-08)
+#
+# WHY THIS EXISTS AT ALL. ``set_phase`` below journals the act it performs through
+# ``projector.append_entry`` into a COMPONENT's history/state pair — but a ticket is not a
+# component, and no component owns a ticket's phase. Measured 2026-09-08: nothing in the
+# live system wrote a ticket file at all (grep for ``write_text``/``open(...,'w')``/
+# ``json.dump`` against the tickets root across ``cairn/``, ``skills/`` and ``bin/`` — zero
+# hits), so every crossing, cursor and phase across 259 tickets was a hand-edit. That is why
+# ticket ``6bc43453ca64``'s ``:queued`` landed in ``cairn/tools/base/history.json``: not a
+# wrong address among several, the only address that existed. Law 5 wants the act and the
+# record of the act at ONE address, and for a ticket that address is the ticket.
+#
+# WHY THE SHAPE IS DETECTED RATHER THAN IMPOSED, AND IT IS A MEASUREMENT. The chart's
+# constrain packet asserted the corpus was written ``indent=2, ensure_ascii=False`` with a
+# trailing newline; a full-corpus round-trip falsified that on the first run. Over all 260
+# files: 208 are ``indent=2`` ASCII-escaped with a trailing newline, 44 are ``indent=2``
+# non-escaped with one, and 8 are ``indent=2`` non-escaped WITHOUT one. Zero fit nothing.
+# A writer that picked any single shape would silently reformat between 52 and 252 files —
+# turning a three-line phase write into a whole-file diff on a corpus whose entire value at
+# the working surface is that a human can read the change. So the door reproduces the file's
+# OWN bytes first and reuses whatever settings did it.
+_TICKET_SHAPES: tuple[tuple[bool, bool], ...] = (
+    (True, True), (False, True), (True, False), (False, False),
+)
+
+
+def _ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
+    """The ``(ensure_ascii, trailing_newline)`` pair that reproduces ``raw`` from ``doc``.
+
+    RAISES when no pair does. That is deliberate and it is Law 7 at a record of truth: the
+    alternative is writing the file in a shape it was not in, which is a whole-file diff
+    nobody asked for and a working surface a reader can no longer skim. All 260 live tickets
+    fit one of the four pairs as measured on 2026-09-08, so this raise fires only on a file
+    genuinely outside the corpus's shape — and a lack is reported as a lack."""
+    for ensure_ascii, newline in _TICKET_SHAPES:
+        body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
+        if (body + "\n" if newline else body).encode("utf-8") == raw:
+            return ensure_ascii, newline
+    raise IllegalTransition(
+        "the ticket's serialisation cannot be reproduced: no combination of ensure_ascii and "
+        "trailing-newline round-trips its current bytes at indent=2, so writing it would "
+        "REFORMAT the whole file to add one record. Refusing — a phase write must show in a "
+        "git diff as the lines it changed. Nothing was written.")
+
+
+def _write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool) -> None:
+    """Write ``doc`` back to ``path`` in the shape ``_ticket_shape`` measured, atomically.
+
+    Atomic because the file is git-tracked: a partial write here is not a lost convenience
+    (as it would be for the instance-space sail record) but a corrupted record of truth
+    sitting in ``git status``. Temp-then-replace in the same directory keeps the rename on
+    one filesystem, so it is a real atomic swap."""
+    body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
+    blob = (body + "\n" if newline else body).encode("utf-8")
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        tmp.write_bytes(blob)
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
 def set_phase(
     workflow_str: str,
     phase: str,
     *,
     release: str | None = None,
     actor: str,
+    ticket: str | None = None,
     history_path: str | None = None,
     state_path: str | None = None,
     **journal_extra,
@@ -2131,9 +2197,34 @@ def set_phase(
     - ``in-process``, which is DERIVED and never written (see sail_record.py) — refused here
       rather than at parse, because a legacy string and a derived render must both stay
       readable;
-    - a release the contract above names a lack in.
+    - a release the contract above names a lack in;
+    - a ``ticket=`` the world does not hold, or holds in a shape that cannot be written back
+      without reformatting it.
 
-    The act is journaled like ``pickup``: a phase written with no record did not happen."""
+    The act is journaled like ``pickup``: a phase written with no record did not happen.
+
+    WHERE THE RECORD LANDS, AND WHY THERE ARE TWO ADDRESSES. ``history_path``/``state_path``
+    journal the act at a COMPONENT's address through the projector, unchanged since this door
+    was written. ``ticket=`` journals it at the TICKET's own address — appending to a
+    ``phase_writes`` list and writing the rendered cursor back into ``workflow_and_state`` in
+    the same act, so the cursor and the record of the cursor's change cannot disagree. Passing
+    both is legal and is not a conflict: a component-level phase write on a ticket-bearing
+    seam is legitimately two facts at two addresses, and the record BODY is identical at each,
+    so a reader moving between them meets one vocabulary rather than two.
+
+    THIS IS NOT A CROSSING and it must not become one. A crossing moves the boat and journals
+    append-only through the projector door (base charter falsifier clause 6); a phase write
+    leaves the boat where it stood — which is why the record body below carries
+    ``"standing": wf.here`` rather than a from/to pair.
+
+    THE FAILURE DISPOSITION IS THE OPPOSITE OF ``_stamp_sail``'s, DELIBERATELY. That sibling,
+    one screen up in this same module, swallows every I/O failure and returns ``None``,
+    because the derived ``in-process`` phase is a convenience that must never cost a crossing
+    (Law 7: the crossing is the record of truth). Here the record IS the act — there is no
+    crossing it could be subordinate to — so an unresolvable or unwritable ticket RAISES, and
+    raises before anything is rendered or written. Two writers in one module with opposite
+    dispositions is a genuine trap for the next reader, so it is named here rather than left
+    to be inferred."""
     wf = parse_workflow(workflow_str)
     if not is_summons(wf.here):
         raise IllegalTransition(
@@ -2153,17 +2244,78 @@ def set_phase(
     lack = release_lack(phase, release)
     if lack is not None:
         raise IllegalTransition(f"set_phase refused: {lack}. Nothing was journaled.")
+
+    # EVERY REFUSAL GETS ITS CHANCE BEFORE ANYTHING IS RENDERED OR WRITTEN. The ticket is
+    # resolved, read and shape-checked HERE, above the render, so that the promise every
+    # refusal message in this door already makes — "Nothing was journaled." — is true of the
+    # ticket file too and not only of the journal. A door that half-writes and then raises
+    # would pass any proof that merely catches the exception.
+    ticket_file: Path | None = None
+    ticket_doc: dict | None = None
+    ticket_shape: tuple[bool, bool] | None = None
+    if ticket is not None:
+        ticket_file = _find_ticket(ticket)
+        if ticket_file is None:
+            raise IllegalTransition(
+                f"set_phase refused: ticket {ticket!r} resolves to no file under {_TICKETS} — "
+                "not as a bare id, not as a slug, not as a hex-slug filename, or it matches "
+                "more than one and the resolver will not guess. Nothing was journaled.")
+        raw = ticket_file.read_bytes()
+        ticket_doc = json.loads(raw.decode("utf-8"))
+        if not isinstance(ticket_doc, dict):
+            raise IllegalTransition(
+                f"set_phase refused: {ticket_file} does not hold a JSON object, so it has no "
+                "fields to record a phase write in. Nothing was journaled.")
+        ticket_shape = _ticket_shape(raw, ticket_doc)
+
     new_str = _render_at(wf, wf.cursor, phase)
+
+    # ONE BODY, WRITTEN AT WHICHEVER ADDRESSES WERE ASKED FOR. Built once so the two records
+    # cannot drift into saying the same thing two ways.
+    record = {
+        "act": "set_phase",
+        "actor": actor,
+        "phase": phase,
+        "release": release,
+        # Not a crossing — the boat stands where it stood.
+        "standing": wf.here,
+        "workflow": new_str,
+        # ONE CLOCK, TWO ADDRESSES. The projector setdefaults `at` when it is absent, so
+        # letting it stamp would give the ticket's record and the component's record two
+        # timestamps for one act — and a phase write in a git-tracked file with no time on
+        # it is barely a record at all. Stamping here means both addresses carry the same
+        # value, and the projector's setdefault becomes a no-op rather than a second clock.
+        "at": datetime.now().isoformat(timespec="seconds"),
+        **journal_extra,
+    }
+
+    if ticket_file is not None:
+        assert ticket_doc is not None and ticket_shape is not None
+        writes = ticket_doc.get("phase_writes")
+        if not isinstance(writes, list):
+            writes = []
+        ticket_doc["phase_writes"] = [*writes, dict(record)]
+        # THE SAME ACT, not a second one: the cursor the record describes and the cursor the
+        # ticket carries are written together, so a reader can never find a phase_writes entry
+        # whose ``workflow`` disagrees with the ``workflow_and_state`` beside it.
+        ticket_doc["workflow_and_state"] = new_str
+        # THE PAIR THE WATCHER READS. `the_vocabulary_is_written_not_just_legal` judges a
+        # ticket by ``release_lack(cursor.phase, doc.get("release"))`` — the phase off the
+        # cursor, the release off the ticket's TOP LEVEL. So a door that wrote the cursor and
+        # left the top level alone would hand that probe a phase with no release, and be
+        # scored a lack by the one instrument watching this vocabulary get used. Writing the
+        # cursor and not the release is not a smaller act; it is a wrong one.
+        #
+        # And the CLEAR is that same obligation seen from the other side: ``waiting`` and
+        # ``in-process`` have no release to give, so a release left standing from a previous
+        # phase would outlive its reason — the exact defect ``queued``'s self-clearing exists
+        # to make impossible. It is popped in the act that drops the phase, never later.
+        if release is None:
+            ticket_doc.pop("release", None)
+        else:
+            ticket_doc["release"] = release
+        _write_ticket(ticket_file, ticket_doc, *ticket_shape)
+
     if history_path and state_path:
-        record = {
-            "act": "set_phase",
-            "actor": actor,
-            "phase": phase,
-            "release": release,
-            # Not a crossing — the boat stands where it stood.
-            "standing": wf.here,
-            "workflow": new_str,
-            **journal_extra,
-        }
-        projector.append_entry(history_path, state_path, record)
+        projector.append_entry(history_path, state_path, dict(record))
     return new_str

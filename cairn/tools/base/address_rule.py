@@ -61,6 +61,7 @@ import ast
 from pathlib import Path
 
 from cairn.tools.base import address
+from cairn.tools.base.settled import settled
 from cairn.tools.import_sieve import HollowScan, walk_py
 
 # The instance root, named once. Not imported from address.py: what lives there is a resolved
@@ -182,8 +183,19 @@ def scan(root: Path | str | None = None) -> dict:
     An unreadable or unparseable file RIDES THE RETURN rather than vanishing from it: a scan
     that silently skipped what it could not read would report a cleaner corpus the worse its
     own condition got.
-    """
+
+    SETTLED UNTIL THE TREE MOVES (2026-09-07, ticket 9579a6f9cec6). One shake AST-parses 459
+    files and costs 1,108ms; the stat sweep that answers "has anything moved" costs 5.9ms,
+    and the ground loop was paying the former twice a beat for a corpus that changes on a
+    commit. This is the probe Akien actually named — ``hand_spelled_instance_paths``, which
+    calls this — and it was 2% of the beat rather than the cause; the instinct behind the red
+    was right about every scan here, including the ones he did not name."""
     base = Path(root) if root is not None else address.package_root()
+    return settled("address_rule.scan", base, lambda: _shake(base))
+
+
+def _shake(base: Path) -> dict:
+    """The shake itself, over an already-resolved ``base``. Guarded by ``scan`` above."""
     sites: list[dict] = []
     exempted: list[dict] = []
     unreadable: list[dict] = []

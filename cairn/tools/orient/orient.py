@@ -40,6 +40,7 @@ from pathlib import Path
 # leaf imports nothing but pathlib, and cairn/tools/base/__init__.py is empty by the
 # boot-order law written into it, so this pulls in no component.
 from cairn.tools.base import address
+from cairn.tools.base.settled import settled
 from cairn.tools.system_word import fold_head
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -114,6 +115,24 @@ def call_sites(name: str, *, root: Path | None = None) -> dict:
 
 
 def device_census(*, root: Path | None = None) -> dict:
+    """Every component directory, measured — see ``_census_of`` for what a row holds.
+
+    SETTLED UNTIL CLASS-SPACE MOVES (2026-09-07, ticket 9579a6f9cec6). Measured over one
+    ground-loop beat: this scan ran **14 times for 9.3s**, an AST walk of the whole package
+    re-derived against a corpus that had not changed between the first call and the
+    fourteenth. One census costs 664ms; the stat sweep that answers "has anything moved"
+    costs 5.9ms. Akien's red was "i can't imagine why we should need to parse all class space
+    every 60 seconds", and this is the half of it that is not about probes.
+
+    THE MEMO IS HERE AND NOT AT THE CALLERS deliberately: a census is a question about a
+    tree, the tree is the only input, and fourteen callers each holding their own copy is
+    fourteen places for one to go stale. ``settled`` is the one door; ``settled.forget()``
+    is how a caller that changed the world behind the filesystem's back drops it."""
+    root = root or (_REPO_ROOT / "cairn")
+    return settled("orient.device_census", root, lambda: _census_of(root))
+
+
+def _census_of(root: Path) -> dict:
     """Every component directory, measured: does it subclass BaseDevice, does its
     charter exist ON DISK, how many proofs, what do its validations' verdicts SAY,
     and how many non-proof ``self.emit(...)`` call sites — the DiagnosticBase
@@ -126,7 +145,6 @@ def device_census(*, root: Path | None = None) -> dict:
     (an audit function, the workflow chokepoint) — the emission measure now checks
     the receiver is ``self``, not just the word.
     """
-    root = root or (_REPO_ROOT / "cairn")
     if not root.is_dir():
         raise ScanRefused(
             f"device_census: {root} is not a directory — a census of nowhere must refuse, "

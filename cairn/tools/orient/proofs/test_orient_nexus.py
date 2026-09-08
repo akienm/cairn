@@ -148,8 +148,24 @@ def test_the_fire_path_never_reaches_the_tree():
         # cairn.tools.system_word admitted 2026-09-07 (ticket e3cf75c6dc8f): the verb Akien
         # types folds case through the one compare. The module imports nothing but
         # `typing` — no I/O, no tree, no bus — so the fire path still reaches nowhere.
+        # cairn.tools.base.settled admitted 2026-09-07 (ticket 9579a6f9cec6): device_census
+        # ran 14 times for 9.3s in ONE ground-loop beat, an AST walk of class-space
+        # re-derived against a corpus that had not moved. The module imports `os` and
+        # `collections.abc` — no tree, no bus, no db — so the fire path still reaches
+        # nowhere, which is the letter of this tooth.
+        #
+        # AND THE SPIRIT NEEDED ANSWERING SEPARATELY, because this tooth's why is "a
+        # measurement is replayable" and a memo is the obvious way to break that. It does
+        # not break here, and the reason is structural rather than careful: the memo is
+        # keyed on a stat fingerprint of THE VERY TREE THE CENSUS MEASURES, so a replay
+        # over an unchanged corpus returns the same answer BECAUSE the corpus is
+        # unchanged — which is what replayable means — and any change to a file the census
+        # reads expires it. `settled.forget()` forces a cold derivation for a caller that
+        # moved the world behind the filesystem's back. A memo keyed on a clock, or on
+        # nothing, would have been the real violation and is refused by construction.
         orient.__file__: ("__future__", "ast", "json", "subprocess", "sys", "pathlib",
-                          "cairn.tools.base.address", "cairn.tools.system_word"),
+                          "cairn.tools.base.address", "cairn.tools.system_word",
+                          "cairn.tools.base.settled"),
         nexus.__file__: ("__future__", "cairn.tools.tree.tree"),
     }
     for path, allow in allowed.items():

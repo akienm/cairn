@@ -296,11 +296,22 @@ def main() -> int:
         if name.startswith("test_") and callable(fn):
             fn()
     after = _live_logs_witness()
+    # THE DIFF IS COMPUTED ONLY WHEN THE WITNESS DISAGREES, AND WITH SET ARITHMETIC.
+    # MEASURED 2026-09-08 (voyage 6ec9b384b451): the diff used to be an f-string ARGUMENT to
+    # ok(), so `[x for x in after if x not in before]` ran on the PASSING path too — 66,739
+    # live log files against a 66,739-entry list is 4.5e9 tuple comparisons, and the proof
+    # stopped finishing inside the tester's 120s window. It sealed green on 2026-09-07 and
+    # red on 2026-09-08 with nothing about the code changed: the live tree simply grew past
+    # where the quadratic fit. A tooth whose FAILURE MESSAGE cannot be rendered is a red that
+    # cannot report itself (Law 7 — a diagnostic surface must be loud, and a hang is silence),
+    # and one that pays the cost while GREEN is worse still. The assertion is untouched; only
+    # the rendering of its complaint moved behind the branch that needs it.
+    seeded = sorted(set(after) - set(before))
     ok(before == after,
        "THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device "
        "writes without being asked', so a proof that forgets a temp roots table seeds the "
        "instrument it is about to read. Diff: "
-       f"{[x for x in after if x not in before]}")
+       f"{seeded[:20]}{f' (+{len(seeded) - 20} more)' if len(seeded) > 20 else ''}")
     print("\n".join(f"  PASS  {p}" for p in _PASSES))
     print(f"\nGREEN — {len(_PASSES)} assertions")
     return 0

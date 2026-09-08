@@ -25,6 +25,7 @@ WHAT THIS PROVES:
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -386,6 +387,86 @@ def test_an_amendment_emits_a_breadcrumb():
         assert len(amend_crumbs) == 1
         assert amend_crumbs[0]["values"]["outcome"] == "amended"
         assert amend_crumbs[0]["pointer"] == IDENT
+
+
+# ── the drain: raises from processes that never held this device ────────────────────────
+
+def _raise_in_a_separate_process(world: Path, component: str, identity: str, why: str) -> None:
+    """Fire one raise from a process that has never imported ``cairn.devices``.
+
+    A SEPARATE PROCESS IS THE POINT, not test hygiene. The whole claim of ticket
+    9579a6f9cec6 is that a raiser needs no running lane and no shared object — so a fold
+    proved by two calls on one in-memory device would be proving the wrong thing entirely.
+    Two processes that exit before the drain ever starts is the real shape: nothing is
+    passed between them but files on disk."""
+    script = f'''
+import sys; sys.path.insert(0, {str(Path(__file__).resolve().parents[4])!r})
+from pathlib import Path
+from cairn.tools.base.diagnostic import ModuleRaiser
+ModuleRaiser({component!r}, roots={{k: Path({str(world)!r}) for k in ("repo","commons","instance")}}
+             ).raise_trouble({identity!r}, why={why!r})
+'''
+    out = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True,
+                         timeout=120)
+    assert out.returncode == 0, out.stderr
+
+
+def test_two_processes_raising_ONE_identity_fold_to_ONE_ticket():
+    """THE END-TO-END TOOTH (ticket 9579a6f9cec6, falsifier 4). Two components, two
+    processes, neither holding this device — and what the operator meets is ONE ticket
+    counting two, not two tickets of one.
+
+    This is the damping proved across the seam rather than inside it. The in-process
+    version above (``test_fifty_occurrences_are_one_demand_for_attention``) proves the
+    device folds what it is handed; this proves the DRAIN hands it the right thing —
+    that a breadcrumb written by a stranger arrives at ``raise_trouble`` with its identity
+    intact. An identity mangled anywhere along that path turns fifty flaps into fifty
+    tickets, which is the failure the whole lane exists to prevent, and it would be
+    invisible to every tooth on either side of the drain alone."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world = Path(tmp) / "world"
+        store = Path(tmp) / "store"
+        _raise_in_a_separate_process(world, "build_inspector", IDENT, WHY)
+        _raise_in_a_separate_process(world, "tester", IDENT, WHY)
+
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        drained = TroubleShim(roots=roots, root=str(store)).drain()
+        assert drained["outcome"] == "ok", drained
+        assert drained.get("refused", []) == [], drained
+        assert len(drained["folded"]) == 2, drained
+
+        live = _dev_at(store).live()
+        assert len(live) == 1, [t["id"] for t in live]
+        assert live[0]["id"] == IDENT
+        assert live[0]["count"] == 2, live[0]
+
+
+def test_a_SECOND_drain_does_not_re_fold_what_it_already_folded():
+    """The watermark, from the operator's side. Without it every beat would re-read every
+    breadcrumb a device ever wrote and the count would climb forever with nothing wrong —
+    a number that grows on its own is worse than no number, because it looks like evidence."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world = Path(tmp) / "world"
+        store = Path(tmp) / "store"
+        _raise_in_a_separate_process(world, "build_inspector", IDENT, WHY)
+
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+        shim.drain()
+        second = shim.drain()
+
+        assert _dev_at(store).live()[0]["count"] == 1, "the drain re-folded a breadcrumb"
+        assert second["folded"] == [], second
+
+
+def _dev_at(store) -> TroubleDevice:
+    dev = TroubleDevice(root=str(store))
+    dev.set_diagnostic_receiver(None)
+    return dev
 
 
 # DERIVED, NOT TYPED OUT (2026-08-12). This was a hand-written roster of sixteen names, and

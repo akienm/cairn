@@ -210,12 +210,18 @@ def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
     the green lands, carrying both verdicts, both dates and both callers. Under the old shape
     it sat at index 0 of a file whose every reader took [-1].
 
-    The trouble device is INJECTED with a temp root so proving this never writes into the
-    commons — but the ARTIFACT is deliberately not under the temp root, because the guard in
-    persist_validation is 'is this a fixture address', and a temp artifact would test the
-    guard instead of the announcement."""
+    The announcement door is INJECTED with a temp WORLD so proving this never writes into
+    the real lane — but the ARTIFACT is deliberately not under the temp root, because the
+    guard in persist_validation is 'is this a fixture address', and a temp artifact would
+    test the guard instead of the announcement.
+
+    THE DOOR IS AN EMISSION SINCE 2026-09-07 (ticket 9579a6f9cec6): the tester raises a
+    breadcrumb under its own log home and the trouble device folds it, so what is read back
+    here is the raise, not a folded ticket. The assertion is unchanged in substance — both
+    verdicts must be carried out of the door before the green lands."""
     from cairn.devices.tester.validation_store import persist_validation
-    from cairn.tools.trouble import TroubleDevice
+    from cairn.tools.base.address import log_path
+    from cairn.tools.base.diagnostic import ModuleRaiser
 
     with tempfile.TemporaryDirectory() as tmp:
         art = Path(tmp) / "I-thing.md"
@@ -231,15 +237,20 @@ def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
 
         # And the flip is announced. Replayed through the door directly, with a non-fixture
         # address, so the announcement path is the one under test rather than the guard.
-        device = TroubleDevice(root=os.path.join(tmp, "troubles"))
+        world = {k: Path(tmp) for k in ("repo", "commons", "instance")}
+        device = ModuleRaiser("tester", roots=world)
         outside = Path.home() / "dev" / "src" / "cairn" / "cairn" / "devices" / "tester" \
             / "proofs" / "fixtures" / "green_proof.py"
         record = dict(trail[0])
         change = vs_verdict_change([dict(record, verdict=RED, caller="akien")], record)
         assert change is not None and change["from"] == RED and change["to"] == GREEN
         vs_announce(str(outside), change, device=device)
-        live = device.live()
-        assert len(live) == 1 and RED in live[0]["why"] and GREEN in live[0]["why"], live
+        raised = [json.loads(p.read_text(encoding="utf-8"))
+                  for p in sorted(Path(log_path("tester", 0, world))
+                                  .glob("*.raise_trouble.json"))]
+        assert len(raised) == 1, raised
+        why = raised[0]["values"]["why"]
+        assert RED in why and GREEN in why, why
 
 
 def test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals():

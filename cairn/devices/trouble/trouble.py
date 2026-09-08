@@ -126,6 +126,41 @@ class TroubleDevice(BaseDevice):
     def settings(self) -> dict:
         return {"recipients": list(DEFAULT_RECIPIENTS), "occurrence_tail": OCCURRENCE_TAIL}
 
+    # --- the verbs: how everyone else reaches this lane ---------------------
+
+    def declared_verbs(self) -> dict:
+        """``live`` and ``clear`` — the lane's public surface on the bus (ticket 9579a6f9cec6).
+
+        There is deliberately NO ``raise`` verb, and the absence is the design. Raising is
+        inherited from ``DiagnosticBase`` and needs no addressee, no bus and no running
+        recipient: it is one file in the raiser's own log home, which is what lets a
+        fault be reported by a process that cannot reach anybody. Putting a raise verb
+        here would give the same act a second path — one that fails exactly when the
+        system is unhealthy enough to be worth reporting."""
+        return {**super().declared_verbs(),
+                "live": self._handle_live,
+                "clear": self._handle_clear}
+
+    def _handle_live(self, envelope: dict) -> dict:
+        """The tickets still demanding attention, as JSON. EMPTY is the normal operating state."""
+        return {"troubles": self.live()}
+
+    def _handle_clear(self, envelope: dict) -> dict:
+        """A recipient says the change was made. Still the recipient's alone — the bus moves
+        the request, it does not become a second authority (Law 6).
+
+        A refusal comes back as a VALUE, not an exception: the shim would record a raised
+        handler as a delivery failure and the asker would be told nothing about why the
+        clear did not take. ``what_changed`` missing is the commonest such refusal, and it
+        is precisely the one the caller has to see."""
+        body = envelope.get("body") or {}
+        try:
+            return self.clear(body.get("identity") or body.get("id") or "",
+                              by=body.get("by") or envelope.get("sender") or "",
+                              what_changed=body.get("what_changed") or "")
+        except TroubleError as exc:
+            return {"outcome": "refused", "reason": str(exc)}
+
     # --- the door -----------------------------------------------------------
 
     def raise_trouble(self, identity: str, *, why: str, detail: dict | None = None,

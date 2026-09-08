@@ -45,6 +45,9 @@ from cairn.tools.base.bus_client import connect_system, harbor_source
 from cairn.devices.web_server.server import WebServerDevice
 
 _device: WebServerDevice | None = None
+# The bus, held at module scope so the WebSocket handler can reach the trouble lane
+# without importing it (ticket 9579a6f9cec6 — no device imports another device).
+_bus = None
 
 
 async def _handle_get(request: Request) -> Response:
@@ -67,9 +70,14 @@ async def _handle_ws_troubles(websocket: WebSocket) -> None:
     await websocket.accept()
     _ws_clients.add(websocket)
     try:
-        from cairn.devices.trouble.trouble import TroubleDevice
-        td = TroubleDevice()
-        troubles = td.live()
+        # ASKED, NOT IMPORTED (ticket 9579a6f9cec6). web_server held a TroubleDevice()
+        # here and the isolation sieve was red about it every run. A failure to reach the
+        # lane falls to the handler below and CLOSES the socket — deliberately, because
+        # sending an empty list would render as the normal operating state (zero live
+        # troubles) when the truth is that we could not ask (Law 7).
+        reply = _bus.request(sender="web_server", to="trouble", verb="live",
+                             why="trouble panel websocket open")
+        troubles = reply["body"]["troubles"]
         await websocket.send_json([
             {"id": t.get("id", "?"), "standing": t.get("standing", "?"),
              "why": t.get("why", ""), "count": t.get("count", 0)}
@@ -93,7 +101,7 @@ def _make_app() -> Starlette:
 
 
 def main(argv=None) -> int:
-    global _device
+    global _device, _bus
 
     parser = argparse.ArgumentParser(description="the Cairn web presentation surface")
     parser.add_argument("--port", type=int, default=80)
@@ -101,7 +109,8 @@ def main(argv=None) -> int:
                         help="address to bind (default: all interfaces — loopback + LAN)")
     args = parser.parse_args(argv)
 
-    _bus, heartbeat = connect_system(devices=["ground_loop", "librarian"])
+    _bus, heartbeat = connect_system(
+        devices=["ground_loop", "librarian", "trouble"])
     _device = WebServerDevice(heartbeat, harbor_source=harbor_source(), port=args.port)
 
     app = _make_app()

@@ -54,7 +54,44 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.tester import validation_store as vs
 from cairn.devices.tester.device import VALIDATION_FIELDS, TesterDevice
-from cairn.tools.trouble import TroubleDevice
+from cairn.tools.base.address import log_path
+from cairn.tools.base.diagnostic import ModuleRaiser
+
+
+def _roots(tmp: str) -> dict:
+    """A whole temp WORLD, not a chosen address — ``set_diagnostic_roots``'s vocabulary.
+
+    ``Path``, not ``str``: ``address.resolve`` joins with ``/``, so a string root fails at
+    the operator rather than at the door, several frames from the caller that wrote it."""
+    return {k: Path(tmp) for k in ("repo", "commons", "instance")}
+
+
+def _raiser(tmp: str) -> ModuleRaiser:
+    """The tester's announcement door, pointed at a temp world.
+
+    WHY THIS IS NOT A ``TroubleDevice`` ANY MORE (ticket 9579a6f9cec6, 2026-09-07): the
+    tester does not hold the trouble store. It raises a breadcrumb under its own log home
+    and the trouble device folds it, in the one process that owns the store. That moved
+    a line through this file, and the line is an OWNERSHIP line rather than a convenience:
+    what the tester is answerable for is the half it controls — that a change is announced
+    at all, before the replace, carrying both verdicts, under a STABLE IDENTITY so fifty
+    flaps present as one defect. Whether the fold then counts to fifty is trouble's
+    property, is proved at trouble's address
+    (``cairn/devices/trouble/proofs/test_trouble.py``), and asserting it from here was the
+    tester re-proving somebody else's device through a handle it should not have had."""
+    return ModuleRaiser("tester", roots=_roots(tmp))
+
+
+def _raised(tmp: str) -> list[dict]:
+    """Every raise emission the tester made into this temp world, write-order.
+
+    Filename order IS write order — the stamp leading each name is UTC to the microsecond —
+    so this needs no sort key of its own beyond the name."""
+    home = Path(log_path("tester", 0, _roots(tmp)))
+    if not home.exists():
+        return []
+    return [json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted(home.glob("*.raise_trouble.json"))]
 
 _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures" / "green_proof.py"
 
@@ -292,8 +329,7 @@ def test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands():
     stop existing in the working tree. Announcing afterwards would mean a crash between the two
     acts loses the change and the record together."""
     with tempfile.TemporaryDirectory() as tmp:
-        troubles = os.path.join(tmp, "troubles")
-        device = TroubleDevice(root=troubles)
+        device = _raiser(tmp)
         proof = _fake_proof(tmp)
         v = _sealable(proof)
 
@@ -306,18 +342,24 @@ def test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands():
         assert change["was_caller"] == "the-past" and change["now_caller"] == "the-present"
 
         vs.announce_verdict_change(vs.validations_path_for(proof), change, device=device)
-        live = device.live()
-        assert len(live) == 1, live
-        why = live[0]["why"]
+        raised = _raised(tmp)
+        assert len(raised) == 1, raised
+        why = raised[0]["values"]["why"]
         for needed in ("'green'", "'red'", "2026-08-01T00:00:00", "the-past", "git"):
             assert needed in why, f"the announcement must carry {needed!r}: {why}"
-        # THE DAMPING IS THE REASON THIS IS TroubleDevice AND NOT A NEW DOOR: a proof that
-        # flaps for a week is ONE trouble whose count climbs, never a week of tickets.
+        # A STABLE IDENTITY IS THE TESTER'S HALF OF THE DAMPING, and it is the half this
+        # file can honestly assert. A proof that flaps for a week must reach the lane as ONE
+        # defect named the same way every time — three raises, three emissions, one
+        # identity. That the fold then counts to three is trouble's property and is proved
+        # at trouble's address; asserting it here meant holding trouble's store to say so
+        # (ticket 9579a6f9cec6).
         vs.announce_verdict_change(vs.validations_path_for(proof), change, device=device)
         vs.announce_verdict_change(vs.validations_path_for(proof), change, device=device)
-        live = device.live()
-        assert len(live) == 1 and live[0]["count"] == 3, (
-            f"three flaps must be one trouble counted three times: {live}")
+        raised = _raised(tmp)
+        assert len(raised) == 3, raised
+        assert len({r["pointer"] for r in raised}) == 1, (
+            f"three flaps must carry ONE identity for the lane to fold them: "
+            f"{[r['pointer'] for r in raised]}")
 
 
 def test_an_AGREEING_rerun_announces_NOTHING():
@@ -395,26 +437,55 @@ def test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING():
 
     It is the reason every other tooth in this file can seal freely: it asserts that the
     default (uninjected) path is never taken for a temp address. Proved against the REAL
-    TroubleDevice's real root, read before and after — an injected device here would be
-    proving the injection, not the guard."""
-    real_root = TroubleDevice()._root
-    before = sorted(p.name for p in Path(real_root).glob("*.json")) if Path(real_root).exists() else []
-    # NOT VACUOUS, ASSERTED RATHER THAN ASSUMED: `before == after` passes trivially against an
-    # empty root, which is the coin-toss green this file exists to refuse. The root is
-    # CairnCommons/troubles — a git-tracked commons directory, so a non-empty population is
-    # guaranteed by the clone rather than by this machine's history.
-    assert before, (
-        f"the trouble root {real_root} holds no tickets — this tooth would pass by finding "
-        "nothing on both sides, which proves nothing about the guard")
+    default destination, read before and after — an injected device here would be proving
+    the injection, not the guard.
+
+    THE WITNESS MOVED WITH THE DOOR (ticket 9579a6f9cec6, 2026-09-07). The uninjected path
+    used to write ``CairnCommons/troubles/``; it now emits into ``~/.cairn/logs/tester/0/``,
+    so that is where a leak would land and that is what is read here.
+
+    AND THE NON-VACUITY ARGUMENT HAD TO CHANGE WITH IT, which is the part worth reading.
+    ``before == after`` passes trivially against an empty directory — the coin-toss green
+    this file exists to refuse — and the old tooth bought its way out of that by leaning on
+    the commons being git-tracked, so a clone guaranteed a population. A log home carries no
+    such guarantee: it is instance-space, absent on a fresh machine, and the same assertion
+    there would have been the leak-scan failure wearing the old tooth's clothes. So the
+    control is now POSITIVE and self-establishing: the same change, announced through an
+    injected temp world, must actually produce an emission. That proves the instrument can
+    see a write at all, on this machine, this run — which is the thing a pre-populated
+    directory was only ever standing in for."""
+    real_home = Path(log_path("tester", 0, None))
+
+    def _population() -> list[str]:
+        if not real_home.exists():
+            return []
+        return sorted(p.name for p in real_home.glob("*.raise_trouble.json"))
+
+    before = _population()
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         v = _sealable(proof)
         vs.persist_validation(dict(v, verdict="green"), proof_path=proof)
         vs.persist_validation(dict(v, verdict="red"), proof_path=proof)   # a real change
         assert vs.read_validations(proof)[-1]["verdict"] == "red"
-    after = sorted(p.name for p in Path(real_root).glob("*.json")) if Path(real_root).exists() else []
+    after = _population()
     assert before == after, (
-        f"a tmpdir seal wrote into the real trouble store: {sorted(set(after) - set(before))}")
+        f"a tmpdir seal wrote into the real trouble lane: {sorted(set(after) - set(before))}")
+
+    # THE POSITIVE CONTROL — see the docstring. Without it the assertion above is satisfied
+    # by an instrument that cannot see anything.
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        v = _sealable(proof)
+        change = vs.verdict_change(
+            [dict(v, verdict="green", date="2026-08-01T00:00:00", caller="the-past")],
+            dict(v, verdict="red"))
+        assert change is not None
+        vs.announce_verdict_change(vs.validations_path_for(proof), change,
+                                   device=_raiser(tmp))
+        assert len(_raised(tmp)) == 1, (
+            "the witness reads nothing even when a change IS announced — the guard tooth "
+            "above would pass by blindness")
 
 
 def test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS():

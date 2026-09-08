@@ -114,6 +114,16 @@ class _NotWired:
 NOT_WIRED = _NotWired()
 
 
+class TroubleRaiseRefused(Exception):
+    """A raise that carries no identity or no why — refused HERE, at the floor, rather
+    than draining into a ticket nobody can act on.
+
+    Named locally and deliberately: the trouble device has its own ``TroubleError``, and
+    importing it would be a tool at the base floor reaching into a device — the exact
+    cross-device import this whole ticket exists to remove. Two exception types is the
+    cost of the two sides being genuinely separate (Law 6)."""
+
+
 class DiagnosticBase:
     """The send-home mechanism composed onto every device.
 
@@ -270,6 +280,75 @@ class DiagnosticBase:
         receiver.receive_diagnostic(record)
         return record
 
+    # --- the trouble lane: SENDING IS A TOOL, HOLDING IS OWNED ---------------
+
+    def set_trouble_notifier(self, notifier) -> None:
+        """Inject the thing to poke when a trouble is raised — never an import.
+
+        Same shape and same reason as ``set_diagnostic_receiver``: which process is
+        listening for raises is a deployment fact an emitting class cannot know, and a
+        tool at this floor may not import a device (Law 6, and the isolation sieve).
+        ``notifier(record)`` is the whole contract; the trouble shim's drain is what
+        answers it in the running system.
+
+        UNWIRED IS THE ORDINARY CASE AND IT STILL WORKS. The raise has already landed on
+        disk by the time this is consulted, so a missing notifier costs LATENCY, not the
+        record: the shim's next beat drains it. That is why this is not a required wiring
+        step and why nothing here raises when it is absent."""
+        self._trouble_notifier = notifier
+
+    def raise_trouble(self, identity: str, *, why: str, detail: dict | None = None,
+                      now=None) -> dict:
+        """Report a fault. ``emit`` with the lane fixed — and that IS the whole mechanism.
+
+        Akien 2026-09-07: *"anybody can send a trouble ticket. but a trouble ticket should
+        not be an import. in fact, i'd say a trouble ticket is in a similar class with
+        logging. so perhaps in the basemost class everybody inherits?"* So raising sits
+        here, beside ``emit``, inherited by every device — and no caller imports the
+        trouble device to report a fault.
+
+        SENDING IS A TOOL, HOLDING IS OWNED (Law 6's own test: *"anything called a tool
+        that must gate writes at its own address is a machine"*). This gates nothing: it
+        writes one emission file into the RAISER'S OWN log home and returns. The count
+        fold — read the ticket, increment, write it back — is a read-modify-write on a
+        shared store and must have exactly one writer, so it belongs to the trouble
+        device and happens in the trouble device's process, at the drain. Two raisers of
+        the same fault cannot race a JSON file they never open.
+
+        ``identity`` names the DEFECT, not the occurrence — it is what makes the second
+        flap the same trouble as the first, and what the drain folds on. ``why`` is
+        required (CP3): a fault with no reason is not a report. ``detail`` is this
+        occurrence's own data and rides on the ticket's tail; carry everything a resolver
+        needs in one pass (I-complete-diagnostic-on-first-pass).
+
+        Returns the emission record with a ``poke`` key saying how the lane was reached —
+        ``sent`` (the notifier took it, so the ticket exists now), ``held for the beat``
+        (nobody wired, the drain will find it), or a named refusal. A refused poke is
+        NEVER an exception out of here: the record is already on disk, and a raise that
+        blew up its caller because the listener was down would make reporting a fault more
+        dangerous than staying quiet (Law 7 — loud, but at the diagnostic surface)."""
+        if not (identity or "").strip():
+            raise TroubleRaiseRefused(
+                "a trouble carries an identity — the name of the DEFECT, which is what "
+                "makes a second occurrence the same trouble as the first")
+        if not (why or "").strip():
+            raise TroubleRaiseRefused(
+                "a trouble carries a why (CP3) — a fault with no reason is not a report, "
+                "it is a shrug")
+        record = self.emit("raise_trouble", pointer=identity,
+                           values={"why": why, "detail": detail or {}}, now=now)
+        notifier = getattr(self, "_trouble_notifier", None)
+        if notifier is None:
+            record["poke"] = "held for the beat — no notifier wired"
+            return record
+        try:
+            notifier(record)
+        except Exception as exc:  # noqa: BLE001 — see the docstring: the record already landed
+            record["poke"] = f"refused: {type(exc).__name__}: {exc}"
+        else:
+            record["poke"] = "sent"
+        return record
+
     def held_diagnostics(self) -> list[dict]:
         """Records emitted with no home to send to — HELD, not lost (Law 7). A non-empty list
         here is itself a finding, and a SHARPER one since 2026-08-18: it used to mean only that
@@ -278,3 +357,51 @@ class DiagnosticBase:
         a device silenced with ``set_diagnostic_receiver(None)``, or a class under no rung
         emitting where no trail can be addressed."""
         return list(getattr(self, "_held_diagnostics", []))
+
+
+class ModuleRaiser(DiagnosticBase):
+    """The base's surface for a MODULE — a component that is functions, not an object.
+
+    WHAT THIS REPLACED, and it is worth naming because the replaced thing looked helpful.
+    ``cairn/tools/trouble.py`` was a tool whose whole body re-exported ``TroubleDevice``,
+    written so *"devices other than db_domain can file troubles without a cross-device
+    import"*. It moved the import one hop; the importing device still held the trouble
+    device in its own process and still wrote the store directly. The isolation ruling was
+    satisfied by grep and not by physics — a laundering module (Law 4: a rule that matters
+    is enforced by the schema or the kernel, and until then it is a tracked debt, not a
+    resting state). Ticket ``9579a6f9cec6`` removed it, and this is what the two callers
+    that needed it reach for instead.
+
+    The one thing it adds to ``DiagnosticBase`` is a component name that is GIVEN rather
+    than derived. Every other user of this mixin is a class whose module address already
+    names its component (``component_of_module``), but a function in
+    ``build_inspector/inspector.py`` has no object to ask, and a throwaway subclass would
+    derive whatever module happened to define it — a real failure mode, since a class
+    under no rung gets no trail at all and its records HOLD in a process about to exit
+    (the exact 2026-08-12 finding ``BreadcrumbLog`` was built against).
+
+    Carries no authority and gates nothing: it can emit and it can raise, which is the
+    whole tool surface (Law 6 — a tool has users, not owners)."""
+
+    def __init__(self, component: str, instance: int = 0, *, roots=None) -> None:
+        super().__init__()
+        if not (component or "").strip():
+            raise ValueError(
+                "a ModuleRaiser carries the component it speaks for — an unnamed raiser "
+                "would file its records under no rung, which means HOLD in a process "
+                "that is about to exit")
+        self._component = component
+        self._diagnostic_instance = instance
+        if roots is not None:
+            self.set_diagnostic_roots(roots)
+
+    @property
+    def diagnostic_device(self) -> str:
+        """GIVEN, not derived — see the class docstring."""
+        return self._component
+
+    @property
+    def diagnostic_source(self) -> str:
+        """The component's own name. A class name would say ``ModuleRaiser`` on every
+        record, which names this helper rather than whoever spoke."""
+        return self._component

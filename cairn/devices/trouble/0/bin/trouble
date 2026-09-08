@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# The trouble lane's operator surface — and it reaches the lane the same way every other
+# client does (ticket 9579a6f9cec6): over the bus, through `reach`, never by importing
+# TroubleDevice. A CLI that imported the device would hold the store in its own process,
+# which is the exact shape this ticket removed from cairn/device.py and the web_server.
+#
+# TEXT HERE, JSON FOR MACHINES (memory: inter-device-queries-via-bus-verbs). A person at a
+# terminal reads sentences; `--json` hands back the verb's own reply body untouched, so a
+# script never has to parse prose.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+subcmd="${1:-}"; subcmd="${subcmd,,}"   # a subcommand is a system word (ruled 2026-09-07)
+shift 2>/dev/null || true
+
+case "$subcmd" in
+  live)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.tools.base.bus_client import reach
+
+as_json = '--json' in sys.argv[1:]
+bus = reach('trouble')
+reply = bus.request(sender='cli', to='trouble', verb='live',
+                    why='an operator asked what is still demanding attention')
+body = reply.get('body') or {}
+if 'troubles' not in body:
+    # NOT an empty list. 'the lane did not answer' and 'nothing is wrong' are the two
+    # readings a silent green confuses, and they are opposites (Law 7).
+    print(f'trouble did not answer live: {body!r}', file=sys.stderr)
+    sys.exit(1)
+troubles = body['troubles']
+if as_json:
+    print(json.dumps(troubles, indent=2))
+    sys.exit(0)
+if not troubles:
+    print('no live troubles.')
+    sys.exit(0)
+print(f'{len(troubles)} live trouble(s):')
+for t in troubles:
+    print()
+    print(f\"  [{t.get('count', '?')}x] {t.get('id', '?')}   ({t.get('standing', '?')})\")
+    print(f\"        {t.get('why', '')}\")
+    print(f\"        first {t.get('first_seen', '?')}  last {t.get('last_seen', '?')}\")
+    told = [r for r in t.get('notified', []) if r not in t.get('cleared_by', [])]
+    if told:
+        print(f\"        awaiting clear from: {', '.join(told)}\")
+" "$@"
+    ;;
+  clear)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.tools.base.bus_client import reach
+
+args = sys.argv[1:]
+identity = args[0] if args and not args[0].startswith('--') else ''
+
+def opt(name):
+    return args[args.index(name) + 1] if name in args and args.index(name) + 1 < len(args) else ''
+
+by = opt('--by') or 'cc'
+what_changed = opt('--what-changed')
+if not identity or not what_changed:
+    print('usage: cairn trouble clear <identity> [--by <who>] --what-changed <what>',
+          file=sys.stderr)
+    # WHAT-CHANGED IS NOT OPTIONAL, here or at the door. A clear with no change behind it is
+    # the silent failure this lane exists to remove; refusing it at the CLI costs the
+    # operator one retry instead of costing the record its meaning.
+    sys.exit(1)
+
+bus = reach('trouble')
+reply = bus.request(sender='cli', to='trouble', verb='clear',
+                    why='an operator says the change was made',
+                    body={'identity': identity, 'by': by, 'what_changed': what_changed})
+body = reply.get('body') or {}
+if '--json' in args:
+    print(json.dumps(body, indent=2))
+elif body.get('outcome') == 'refused':
+    print(f\"refused: {body.get('reason', '')}\", file=sys.stderr)
+    sys.exit(1)
+else:
+    standing = body.get('standing', '?')
+    print(f\"{identity}: {body.get('outcome', 'cleared')} by {by} — now {standing}\")
+    still = body.get('awaiting') or [r for r in body.get('notified', [])
+                                     if r not in body.get('cleared_by', [])]
+    if still:
+        print(f\"still awaiting clear from: {', '.join(still)}\")
+" "$@"
+    ;;
+  drain)
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.tools.base.bus_client import reach
+# reach() pulses the shim, and the shim drains on pulse — so this has already happened by
+# the time the bus comes back. The subcommand exists so an operator can MAKE it happen
+# without waiting for a beat, and see what the fold did.
+from cairn.devices.trouble.shim import TroubleShim
+reach('trouble')
+print(json.dumps(TroubleShim().drain(), indent=2))
+" "$@"
+    ;;
+  *)
+    exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.trouble.shim import TroubleShim
+shim = TroubleShim()
+print(f'device: {shim.device_id}')
+print(f'class:  cairn/devices/trouble/')
+print()
+print('commands:')
+print('  cairn trouble live [--json]                    — what is still demanding attention')
+print('  cairn trouble clear <id> --what-changed <what> [--by <who>]')
+print('                                                 — the recipient says it was fixed')
+print('  cairn trouble drain                            — fold pending raises now, dont wait')
+print()
+print('there is no raise subcommand, and the absence is the design: raising needs no')
+print('addressee and no running lane, so any component does it directly through')
+print('DiagnosticBase.raise_trouble. Holding is what needs an owner.')
+" "$@"
+    ;;
+esac

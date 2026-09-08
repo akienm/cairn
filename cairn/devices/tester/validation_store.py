@@ -305,14 +305,23 @@ def announce_verdict_change(path: str, change: dict, *, device=None) -> dict:
     (its own proof's words). A verdict change is precisely the flapping-prone signal that would
     otherwise re-notify forever.
 
-    ``device`` is injectable so a proof can announce into a temporary store. It is not a
+    THE DOOR IS NOW AN EMISSION, NOT A HELD DEVICE (ticket 9579a6f9cec6, 2026-09-07). The
+    damping above is unchanged and still the reason this is the right door — it just happens
+    in the hand that OWNS the store instead of in ours. The tester raises a breadcrumb under
+    its own log home; the trouble device folds it by identity. What the tester is responsible
+    for is the half it can be responsible for: a STABLE IDENTITY, so fifty flaps present as
+    one defect to fold. Whether the fold then counts correctly is trouble's property and is
+    proved at trouble's address (Law 6 — the store's owner gates writes to it, and until this
+    ticket the tester was writing that store from inside a seal).
+
+    ``device`` is injectable so a proof can announce into a temporary log root. It is not a
     convenience: without it, proving this door would write real troubles into the commons from
     a fixture, and a proof that dirties a record of truth to demonstrate itself is its own
     defect.
     """
     if device is None:
-        from cairn.tools.trouble import TroubleDevice
-        device = TroubleDevice()
+        from cairn.tools.base.diagnostic import ModuleRaiser
+        device = ModuleRaiser("tester")
     return device.raise_trouble(
         f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}",
         why=(f"the verdict standing at {path} changed from {change['from']!r} (sealed "
@@ -422,24 +431,40 @@ def persist_validation(
     # Proofs seal into tmpdirs by the dozen and flip verdicts on purpose; announcing those
     # would fill the trouble store with the noise of its own tests — the failure mode a damped
     # door exists to avoid, arriving by a different route.
-    if change is not None and not os.path.abspath(path).startswith(
-            os.path.realpath(tempfile.gettempdir()) + os.sep):
+    #
+    # ONE PREDICATE, BOTH HALVES (2026-09-07, ticket 9579a6f9cec6). The guard used to cover
+    # only the announce, and the clear below ran for every fixture re-seal in the corpus. That
+    # was invisible while clearing meant constructing a device and finding no such trouble —
+    # a cheap no-op nobody paid for. It stopped being invisible the moment clearing became a
+    # bus request: the same fixture traffic that was a no-op now dials a lane, per seal. The
+    # cost exposed the defect, but the defect was always there — the reasoning in the
+    # paragraph above never distinguished the two halves, and the code did.
+    fixture_address = os.path.abspath(path).startswith(
+        os.path.realpath(tempfile.gettempdir()) + os.sep)
+    if change is not None and not fixture_address:
         try:
             announce_verdict_change(path, change, device=trouble_device)
         except Exception:  # noqa: BLE001 — see the docstring: the new measurement outranks it
             pass
     _atomic_write(path, [record])
-    if change is not None and record.get("verdict") == "green":
+    if change is not None and record.get("verdict") == "green" and not fixture_address:
         identity = f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}"
+        what_changed = (f"re-seal round-trip: {change['from']}→green by "
+                        f"{record.get('caller', '?')} ({record.get('date', '?')})")
         try:
-            if trouble_device is None:
-                from cairn.tools.trouble import TroubleDevice
-                td = TroubleDevice()
+            if trouble_device is not None:
+                trouble_device.clear(identity, by="cc", what_changed=what_changed)
             else:
-                td = trouble_device
-            td.clear(identity, by="cc",
-                     what_changed=f"re-seal round-trip: {change['from']}→green by "
-                                  f"{record.get('caller', '?')} ({record.get('date', '?')})")
+                # OVER THE BUS, unlike the raise above (ticket 9579a6f9cec6). Clearing reads
+                # the store, decides, and writes it back, so it belongs to the one hand that
+                # owns it; raising is append-only and needs no addressee. The asymmetry IS
+                # the ownership line (Law 6), not an inconsistency.
+                from cairn.tools.base.bus_client import reach
+                reach("trouble").request(
+                    sender="tester", to="trouble", verb="clear",
+                    why="the changed verdict came back green on a re-seal",
+                    body={"identity": identity, "by": "cc",
+                          "what_changed": what_changed})
         except Exception:
             pass
     return path

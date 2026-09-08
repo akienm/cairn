@@ -3178,22 +3178,63 @@ def _finding_trouble_id(method: str, at: str) -> str:
 _TROUBLE_SLUG = __import__("re").compile(r"[^a-z0-9-]+")
 
 
+def _finding_why(f: dict) -> str:
+    """The sentence a human meets in the SessionStart banner — carrying the MEASUREMENT.
+
+    THE FIX IS `expected`/`actual` (idea fc075d9df7da), and it is small on the page and
+    large at the surface. A finding is a stamped condition — ``{about, expected, actual}``
+    (Akien, 2026-08-12) — and until now the raise rendered ``about`` alone. ``about`` names
+    the CHECK; the two fields the check actually produced are the reading. A banner line
+    saying only "history_integrity at devices/tester" tells a reader which sieve fired and
+    nothing about what it saw, so the reader opens the report to learn the one thing the
+    trouble existed to carry — which is Law 1 charging a re-derivation for a settled
+    answer, once per glance, forever."""
+    about = f.get("about", "")
+    head = (f"build inspector finding appeared above baseline: "
+            f"{f.get('method', 'unknown')} at {f.get('at', 'unknown')}")
+    if about:
+        head += f" — {about}"
+    # THE READING IS IN ``values``, NOT IN ``expected``/``actual`` — measured 2026-09-07 by
+    # rendering the two against real findings. Nearly every sieve compares a bool, so those
+    # two fields say "expected True; actual: False" on line after line, which is a shape,
+    # not a measurement. What the sieve actually SAW is ``values``: ``dirty_count: 4`` with a
+    # sample of the paths, or ``reason: "code changed since seal"`` with both fingerprints.
+    # So the rendering carries values and keeps ``about`` as the expectation it fell short
+    # of, which is what idea fc075d9df7da asked for in the first place.
+    values = f.get("values") or {}
+    if values:
+        head += ". actual: " + ", ".join(f"{k}={v!r}" for k, v in values.items())
+    return (f"{head}. This finding has no covering ticket in finding_baseline.json "
+            f"— it accumulated silently.")
+
+
+def _raiser():
+    """The inspector's own surface on the trouble lane — an emission, not a device.
+
+    ASKED, NOT HELD (ticket 9579a6f9cec6). This machine used to instantiate a
+    ``TroubleDevice`` and write the commons store from inside an inspection run. Two
+    inspections racing meant two hands on one JSON file, and the isolation sieve — this
+    file's OWN sieve — was red about the same shape everywhere else. Now the raise is a
+    breadcrumb under ``logs/build_inspector/0/`` and the trouble device folds it, in the
+    one process that owns the store.
+
+    NO BUS IS NEEDED HERE, and that is the property worth keeping: the inspector runs as a
+    bare ``python3 -m`` with nothing else up, and a raise that required a live recipient
+    would fail exactly when the system is unhealthy enough to be worth reporting."""
+    from cairn.tools.base.diagnostic import ModuleRaiser
+    return ModuleRaiser("build_inspector")
+
+
 def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
     """File a trouble for each finding not in the baseline. Returns count filed."""
     if not new_findings:
         return 0
-    from cairn.devices.trouble.trouble import TroubleDevice
-    td = TroubleDevice()
+    raiser = _raiser()
     filed = 0
     for f in new_findings:
-        method = f.get("method", "unknown")
-        at = f.get("at", "unknown")
-        about = f.get("about", "")
-        td.raise_trouble(
-            _finding_trouble_id(method, at),
-            why=(f"build inspector finding appeared above baseline: "
-                 f"{method} at {at} ({about}). This finding has no covering "
-                 f"ticket in finding_baseline.json — it accumulated silently."),
+        raiser.raise_trouble(
+            _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown")),
+            why=_finding_why(f),
             detail=f,
         )
         filed += 1
@@ -3201,23 +3242,43 @@ def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
 
 
 def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
-    """Clear troubles whose inspector condition no longer holds. Returns count cleared."""
-    from cairn.devices.trouble.trouble import TroubleDevice
-    td = TroubleDevice()
+    """Clear troubles whose inspector condition no longer holds. Returns count cleared.
+
+    OVER THE BUS, because clearing is the OWNER'S act (Law 6) in a way raising is not. A
+    raise is append-only and needs no addressee; a clear reads the store, decides, and
+    writes it back — which is exactly the read-modify-write that has to happen in one
+    hand. So this half pays for a bus and the raise half does not, and the asymmetry is
+    the ownership line, not an inconsistency.
+
+    A lane we cannot reach leaves the stale troubles standing. That is the safe
+    direction: an uncleared trouble is loud and wrong, a silently-cleared one is quiet
+    and wrong (Law 7)."""
     still_finding = {
         _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
         for f in current_findings
     }
+    from cairn.tools.base.bus_client import reach
+    bus = reach("trouble")
+    reply = bus.request(sender="build_inspector", to="trouble", verb="live",
+                        why="reconcile findings against standing troubles")
+    body = reply.get("body") or {}
+    if "troubles" not in body:
+        raise RuntimeError(
+            f"trouble answered `live` without a troubles list: {body!r} — reconcile "
+            f"cannot tell 'no troubles' from 'could not ask'")
     cleared = 0
-    for trouble in td.live():
+    for trouble in body["troubles"]:
         tid = trouble.get("id", "")
         if not tid.startswith("inspector-new-finding-"):
             continue
         if tid not in still_finding:
-            td.clear(tid, by="cc",
-                     what_changed="build inspector reconcile: the condition that "
-                                  "raised this trouble no longer appears in the "
-                                  "current findings")
+            bus.request(
+                sender="build_inspector", to="trouble", verb="clear",
+                why="the raising condition is gone from the current findings",
+                body={"identity": tid, "by": "cc",
+                      "what_changed": "build inspector reconcile: the condition that "
+                                      "raised this trouble no longer appears in the "
+                                      "current findings"})
             cleared += 1
     return cleared
 

@@ -55,6 +55,43 @@ def connect_bus(*, devices: list[str] | None = None, beat: bool = True):
     return bus
 
 
+def reach(*devices: str):
+    """A bus that can ASK the named devices — one exchange, no heartbeat.
+
+    THE MEASUREMENT THAT BORE IT (2026-09-07, ticket 9579a6f9cec6): a ground-loop beat on
+    this machine takes **over nine minutes**. Not the bus, not the DB — ``bus.read`` is 80ms
+    and discovery is 0.3s. It is the pulse: subscribing NO devices at all still costs it,
+    because ``cairn/tools/base/probes/hand_spelled_instance_paths.py`` AST-parses the whole
+    of class-space on every beat. That is a real defect and it is not this ticket's; what
+    matters here is that ``connect_bus`` pays it, and a caller that wants one question
+    answered should not.
+
+    WHAT THE BEAT WAS ACTUALLY FOR, from the caller's side, is one line:
+    ``BaseShim._wire_delivery`` hands the bus a poke channel for its device, and until some
+    pulse does that, ``request`` posts into silence and times out. So this pulses exactly the
+    shims being addressed — which wires their delivery, fires their own probes, and touches
+    nothing else. That is not a shortcut around the heartbeat; it is the difference between
+    RUNNING the system and USING it. A build inspector reconciling its troubles is a client,
+    and a client that had to start everything in order to ask one question would make the
+    ask cost more than the work.
+
+    Use ``connect_bus``/``connect_system`` when you mean to run the system (the web server's
+    listener does, and wants the roster a real beat produces). Use this when you mean to ask.
+    """
+    from datetime import datetime, timezone
+
+    bus, loop = _wire(devices=list(devices), beat=False)
+    now = datetime.now(timezone.utc)
+    for name in devices:
+        shim = loop.shim_for(name)
+        if shim is None:
+            raise LookupError(
+                f"no shim answers to {name!r} — a device's bus presence IS "
+                f"cairn/devices/{name}/shim.py on disk, and nothing was discovered there")
+        shim.on_pulse(now)
+    return bus
+
+
 def connect_system(*, devices: list[str] | None = None, beat: bool = True):
     """Return ``(bus, loop)`` — for callers that need the ground loop itself.
 

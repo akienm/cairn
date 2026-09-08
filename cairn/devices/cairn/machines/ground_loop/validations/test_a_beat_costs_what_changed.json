@@ -1,0 +1,81 @@
+[
+  {
+    "claim": "proof test_a_beat_costs_what_changed.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-08T09:15:49",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_dead_loop_is_not_read_as_a_beat_cost\n  ok   test_a_file_touched_between_beats_is_seen_by_the_second\n  ok   test_a_warm_beat_costs_less_than_the_ruled_cadence\n  ok   test_every_standing_probe_is_evaluated_on_every_beat\n  ok   test_the_bound_is_the_runners_and_cannot_be_widened_here\n  ok   test_the_watch_fires_when_the_beat_overruns_its_budget\n\n  cold beat 32.8s · warm beat 23.8s · 79 probes evaluated cold, 73 warm (6 retired on the cold beat)\n\n6/6 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_dead_loop_is_not_read_as_a_beat_cost",
+        "test_a_file_touched_between_beats_is_seen_by_the_second",
+        "test_a_warm_beat_costs_less_than_the_ruled_cadence",
+        "test_every_standing_probe_is_evaluated_on_every_beat",
+        "test_the_bound_is_the_runners_and_cannot_be_widened_here",
+        "test_the_watch_fires_when_the_beat_overruns_its_budget"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "811c10f43d4fc2ac53975dc669379dc6851ed147831e9295ade30800577efb11",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-413425-yi9gcqcp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 147,
+          "paths": [
+            "devices/cairn/0/machines/ground_loop/probes/device_column_history.jsonl",
+            "devices/cairn/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/cc/0/memory_series.jsonl",
+            "devices/charter/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/codemother/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/inference_domain/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/press_office/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/tester/0/tools/data_recorder/inbound/records.jsonl",
+            "folders/press_office/data/records.jsonl",
+            "logs/bus/0/20260908.151448.661397.BusDevice.post.json",
+            "logs/bus/0/20260908.151448.683562.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260908.151454.276218.BusDevice.post.json",
+            "logs/bus/0/20260908.151455.942910.BusDevice.post.json",
+            "logs/bus/0/20260908.151457.754351.BusDevice.post.json",
+            "logs/bus/0/20260908.151500.806230.BusDevice.post.json",
+            "logs/bus/0/20260908.151500.806461.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.592587.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.594370.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.601747.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.601949.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.879880.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.880076.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.890780.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.893914.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.894069.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.919371.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.919601.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.927898.BusDevice.delivered.json",
+            "logs/bus/0/20260908.151501.928984.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.930934.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.938430.BusDevice.delivered.json",
+            "logs/bus/0/20260908.151501.955458.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.981584.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.981778.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.989447.BusDevice.post.json",
+            "logs/bus/0/20260908.151501.989946.BusDevice.post.json",
+            "logs/bus/0/20260908.151503.271819.BusDevice.post.json",
+            "logs/bus/0/20260908.151503.272019.BusDevice.post.json",
+            "logs/bus/0/20260908.151503.280069.BusDevice.post.json"
+          ],
+          "elided": 107
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

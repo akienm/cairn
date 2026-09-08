@@ -1,14 +1,24 @@
-"""PROBE — does the beat stay inside its ruled 1.0s cadence?
+"""PROBE — does the beat stay inside its ruled cadence?
 
 Berth for the WATCHME that ticket ``the-beat-spends-2500ms-on-triggers-against-a-1s-cadence``
 carries. Berthed beside ``cairn/devices/cairn/machines/ground_loop`` because that is WHAT IT WATCHES: the
 loop's beat cycle — pulse all shims, write liveness — and whether it fits inside the ruled
-once-per-second cadence.
+cadence.
+
+THE CADENCE IS 60.0s, AND THE PROSE HERE ONCE SAID 1.0s. The ticket that cast this probe was
+written against a once-per-second cadence; Akien ruled it to once per minute on 2026-08-22
+(landed in ``6ae83e7``, which he authored, and the constant below has read 60.0 ever since).
+The docstring did not follow, so for two weeks this file's code and its account of itself
+named different bounds — the drift Law 5 forbids between a thing and the story of the thing.
+Corrected 2026-09-08 under the ruling
+``2026-09-08-the-60s-cadence-is-the-bound-a-beat-is-measured-against``, which names this file
+in ``what_conforms``. Ticket ``ffc775a09d54``'s own falsifier still spells 1.0s and is stale
+in the same way; that is its ticket's to fix, not this file's.
 
 THE MEASUREMENT. The probe fires DURING the beat, before the liveness record is written. So
 the liveness record on disk is from the PREVIOUS beat, and ``age_s`` = time since that write
-= the inter-beat interval for the current beat. A reading over 1.0s (the ruled cadence) is a
-beat that did not fit.
+= the inter-beat interval for the current beat. A reading over ``CADENCE_S`` is a beat that
+did not fit.
 
 WHAT ``enough`` CAN AND CANNOT MEASURE. The ticket asks for 5,000 consecutive beats under
 cadence including a probe arming. A probe is stateless (frozen dataclass) and sees one
@@ -123,9 +133,9 @@ def _carry(context: dict) -> dict:
 _HORIZON = 1000
 
 PROBE = Probe(
-    why="does the beat stay inside its ruled 1.0s cadence? — the measured beat "
-        "period was 2.5s at cast, three devices imported on every beat, and the "
-        "defect is a cost that grows with the watch set",
+    why="does the beat stay inside its ruled 60s cadence? — the measured beat "
+        "period was 2.5s against a 1s cadence at cast, three devices imported on "
+        "every beat, and the defect is a cost that grows with the watch set",
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "ground_loop", "kind": "efficacy"},

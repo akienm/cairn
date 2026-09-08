@@ -72,7 +72,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, _pulse
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import canon
@@ -230,8 +230,17 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         dissolved it — what a pulse yields is EVIDENCE, which was always the claim here.)
         A batch drainer must not die on one bad
         probe: a trigger that raises or a poke that is refused becomes a permanent, loud
-        entry and the rest keep firing (CP2, Law 7)."""
-        context = context or {}
+        entry and the rest keep firing (CP2, Law 7).
+
+        THE BEAT'S CONTEXT REACHES EVERY SHIM, and until 2026-09-07 (ticket 9579a6f9cec6)
+        it did not: this line read ``context or {}``, and ``beat`` hands every shim the SAME
+        empty dict, which is falsy — so each shim swapped it for a fresh one and the pulse
+        memo was per-shim rather than per-beat. MEASURED, by watching the memo counter climb
+        and reset once per shim across a whole beat. Two probes in different shims therefore
+        re-derived identical surveys, which is exactly the re-derivation Law 1 calls a
+        defect. Same defect, same fix and same reason as ``probe._pulse`` — read its
+        docstring for the account; the short form is Law 6, the context has one owner."""
+        context = _pulse(context)
         fired: list[dict] = []
         held: list[dict] = []
         still_true: set = set()

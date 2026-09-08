@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
+from cairn.tools.base.probe import _pulse
 from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
 from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache, PulseCache
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness
@@ -236,8 +237,16 @@ class GroundLoopDevice(BaseDevice):
     def beat(self, now, context: dict | None = None) -> dict:
         """One beat: pulse every subscribed shim once, in order, and return a
         BEAT-RECORD. A shim that raises does NOT stop the beat reaching the
-        others."""
-        context = context or {}
+        others.
+
+        THE CONTEXT IS THE CALLER'S IF THERE IS ONE. This line read ``context or {}``
+        until 2026-09-07 (ticket 9579a6f9cec6), which is right for ``None`` and wrong for
+        an empty dict — ``{}`` is falsy, so a caller passing a real-but-empty context had
+        it silently swapped for a different one. Invisible while nothing wrote to the
+        context; the same defect and the same fix as ``probe._pulse``, whose docstring
+        carries the full account. Law 6: the pulse's context has one owner, and a peer
+        does not substitute what it was handed."""
+        context = _pulse(context)
         self._reconcile(now)
         pulses: list[dict] = []
         for shim in list(self._shims):

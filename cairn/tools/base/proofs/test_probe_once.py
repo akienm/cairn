@@ -140,6 +140,59 @@ def test_the_memo_does_not_shadow_a_probes_own_context_keys():
         f"the memo scattered keys a probe could mistake for its own: {sorted(ctx)}")
 
 
+def test_the_pulse_context_survives_the_shim_that_was_handed_it():
+    """TWO PROBES IN DIFFERENT SHIMS SEE ONE WORLD — the claim that was silently false.
+
+    ``beat`` builds ONE context and hands the same object to every shim, so a survey
+    derived under shim A must be visible to a probe under shim B. Until 2026-09-07 it was
+    not: ``on_pulse`` spelled ``context or {}``, the shared dict is empty and therefore
+    falsy, and every shim quietly swapped in its own. Nothing could see it, because the
+    convention only ever READ the context — the memo counter climbing and resetting once
+    per shim across a live beat is what exposed it.
+
+    This asserts the OWNERSHIP (Law 6), not the saving: the dict a caller passes is the
+    dict the probes get. The saving follows from it and is measured elsewhere."""
+    from cairn.tools.base.shim import BaseShim
+
+    s = _Counted()
+    seen = {}
+
+    class _Shim(BaseShim):
+        """A shim with one probe that memoizes into whatever context it is handed. Fired
+        through the REAL ``on_pulse`` — calling ``Probe.fires`` directly would only re-prove
+        ``_pulse``, which is the tooth above, and would leave the line under test untouched."""
+
+        def __init__(self, tag):
+            super().__init__(bus=None)
+            self._tag = tag
+
+        @property
+        def device_id(self):
+            return self._tag
+
+        def probes(self):
+            tag = self._tag
+
+            def trigger(now, context):
+                seen[tag] = once(context, "survey", s)
+                return False        # never fires, so no bus poke is attempted
+
+            return [Probe(why=f"probe under {tag}", trigger=trigger, to="nobody", body={})]
+
+    shared = {}                     # EMPTY AND REAL — the exact shape that used to be lost
+    for tag in ("shim-a", "shim-b"):
+        _Shim(tag).on_pulse(None, shared)
+
+    assert seen.keys() == {"shim-a", "shim-b"}, f"a probe never ran: {sorted(seen)}"
+    assert seen["shim-a"] is seen["shim-b"], (
+        "two shims in one beat derived the survey separately — the beat's context did not "
+        "survive being handed to the shim")
+    assert s.calls == 1, f"the survey was derived {s.calls} times across two shims"
+    assert "_once" in shared, (
+        "on_pulse wrote the memo into a dict the caller never sees — the context was "
+        "substituted, which is the defect this tooth exists for")
+
+
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
 
 if __name__ == "__main__":

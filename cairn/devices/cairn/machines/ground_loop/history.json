@@ -5385,5 +5385,253 @@
     "fingerprint": "55c0356c77d0863e7ad3dee6b29a976fb24a8914eccd280626aca42a6206a4b4",
     "at": "2026-09-08T09:19:25",
     "seq": 43
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a_beat_costs_what_changed) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '2f0a6ea8c966'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py (seal 2026-09-08T09:15:49, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a_beat_costs_what_changed) emitted the probe berthed at cairn/devices/cairn/machines/ground_loop/probes/does_a_beat_cost_what_changed.py (ticket '2f0a6ea8c966')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260908T092242-eed2fa667fe9.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(a_beat_costs_what_changed) crossing",
+        "actual": "a cast ticket for the WATCHME(a_beat_costs_what_changed) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "2f0a6ea8c966",
+          "watch_object": "a_beat_costs_what_changed",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/2f0a6ea8c966-a-beat-costs-what-changed.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '2f0a6ea8c966' carries a watchme spec for 'a_beat_costs_what_changed'",
+        "actual": "ticket '2f0a6ea8c966' carries a watchme spec for 'a_beat_costs_what_changed'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "2f0a6ea8c966",
+          "watch_object": "a_beat_costs_what_changed",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "2f0a6ea8c966",
+          "watch_object": "a_beat_costs_what_changed",
+          "berth": "cairn/devices/cairn/machines/ground_loop/probes/does_a_beat_cost_what_changed.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'ground_loop' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "2f0a6ea8c966",
+          "component": "ground_loop",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '2f0a6ea8c966' is cast",
+        "actual": "named ticket '2f0a6ea8c966' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "2f0a6ea8c966",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/2f0a6ea8c966-a-beat-costs-what-changed.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "2f0a6ea8c966"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'ground_loop' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "ground_loop",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py stands in proven-space",
+        "actual": "cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py",
+          "why": "sealed green 2026-09-08T09:15:49 by cairn test, and the component's source fingerprint still matches what was proved (811c10f43d4f…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py's seal at '2026-09-08T09:15:49'",
+        "actual": "the witness dates cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py's seal at '2026-09-08T09:15:49'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py",
+          "seal": "2026-09-08T09:15:49",
+          "claimed": "2026-09-08T09:15:49"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '2f0a6ea8c966' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "2f0a6ea8c966"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/cairn/machines/ground_loop/proofs/test_a_beat_costs_what_changed.py",
+    "proven_seal_date": "2026-09-08T09:15:49",
+    "delegated": false,
+    "ticket": "2f0a6ea8c966",
+    "note": "Measured, not asserted: the beat was 104.8s on 2026-09-07 against a 60s cadence and is 23.7-25.0s steady state after four fixes - 42c9e15 (the chart-chain packet index, 1,568 store sweeps a beat down to one), 11d2ec0 (once() and _pulse for a pulse context nothing had ever populated), e53a973 (settled(), keyed on a (path, mtime_ns, size) tree fingerprint), af50ab8 (the 'context or {}' that had every shim swapping out the beat's own dict). A/B: 78 probes compared, 0 answered differently. The cadence bound is Akien's ruling of 2026-09-08, not CC's re-read.",
+    "fingerprint": "a27824eb9ce3150d60d9df122b226f66fb6cd666c054375bf84097c9f769fd9e",
+    "at": "2026-09-08T09:22:45",
+    "seq": 44
   }
 ]

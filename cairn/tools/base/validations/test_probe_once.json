@@ -1,0 +1,42 @@
+[
+  {
+    "claim": "proof test_probe_once.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-07T22:58:01",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_fresh_context_recomputes\n  ok   test_a_raise_is_not_memoized\n  ok   test_an_injected_value_still_wins\n  ok   test_computes_once_per_context\n  ok   test_one_firing_probe_sees_ONE_world_across_all_three_predicates\n  ok   test_the_memo_does_not_shadow_a_probes_own_context_keys\n  ok   test_the_pulse_context_survives_the_shim_that_was_handed_it\n  ok   test_two_computes_sharing_a_key_do_not_collide\n\n8/8 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_fresh_context_recomputes",
+        "test_a_raise_is_not_memoized",
+        "test_an_injected_value_still_wins",
+        "test_computes_once_per_context",
+        "test_one_firing_probe_sees_ONE_world_across_all_three_predicates",
+        "test_the_memo_does_not_shadow_a_probes_own_context_keys",
+        "test_the_pulse_context_survives_the_shim_that_was_handed_it",
+        "test_two_computes_sharing_a_key_do_not_collide"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "50160010ae9f584a7bc417266bd6bd8cab7a9df3a17a84d463cb7db6b44216a4",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2962833-sh3od2da/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

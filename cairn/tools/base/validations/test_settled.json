@@ -1,0 +1,43 @@
+[
+  {
+    "claim": "proof test_settled.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-07T22:58:34",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_raise_is_not_remembered\n  ok   test_an_unwalkable_tree_fingerprints_empty_rather_than_raising\n  ok   test_every_shape_of_change_expires_it\n  ok   test_forget_drops_by_key_and_wholesale\n  ok   test_generated_directories_are_not_fingerprinted\n  ok   test_it_remembers_over_an_unchanged_tree\n  ok   test_the_live_scans_answer_identically_warm_and_cold\n  ok   test_two_questions_over_one_tree_keep_two_answers\n  ok   test_two_trees_keep_two_answers\n\n9/9 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_raise_is_not_remembered",
+        "test_an_unwalkable_tree_fingerprints_empty_rather_than_raising",
+        "test_every_shape_of_change_expires_it",
+        "test_forget_drops_by_key_and_wholesale",
+        "test_generated_directories_are_not_fingerprinted",
+        "test_it_remembers_over_an_unchanged_tree",
+        "test_the_live_scans_answer_identically_warm_and_cold",
+        "test_two_questions_over_one_tree_keep_two_answers",
+        "test_two_trees_keep_two_answers"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "50160010ae9f584a7bc417266bd6bd8cab7a9df3a17a84d463cb7db6b44216a4",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2962833-e7qiko1k/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

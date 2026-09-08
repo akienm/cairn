@@ -1,0 +1,41 @@
+[
+  {
+    "claim": "proof test_packet_index.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-07T23:01:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.13s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_index_answers_exactly_what_a_full_scan_answers",
+        "test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call",
+        "test_a_deleted_berth_leaves_the_answer",
+        "test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index",
+        "test_the_index_is_built_ONCE_over_an_unchanged_store",
+        "test_an_unreadable_packet_is_absent_from_the_answer_not_fatal",
+        "test_a_packet_naming_NO_ticket_indexes_under_nothing"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "aaebebde96997e67b8526aff1c10fd1809b6eecb2d86782d6611a13e253de9eb",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2962833-krfn4ddr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

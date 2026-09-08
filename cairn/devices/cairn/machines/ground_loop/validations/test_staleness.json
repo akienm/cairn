@@ -2,21 +2,38 @@
   {
     "claim": "proof test_staleness.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T09:01:04",
+    "date": "2026-09-07T22:49:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_genuinely_drifted_module_goes_red\n  PASS  test_a_module_it_cannot_judge_reads_undecidable_not_green\n  PASS  test_a_module_loaded_late_from_a_newly_written_file_stays_green\n  PASS  test_a_module_that_never_came_from_a_file_is_not_drift\n  PASS  test_a_module_whose_file_moved_away_goes_red\n  PASS  test_a_second_interpreter_cannot_repair_the_evidence_for_this_one\n  PASS  test_an_edit_to_a_file_this_process_never_imported_stays_green\n  PASS  test_stripping_the_payload_changes_no_verdict\n  PASS  test_the_coverage_tally_separates_nothing_drifted_from_i_could_not_look\n  PASS  test_the_diagnostic_payload_carries_the_falsified_comparison_labelled\n  PASS  test_the_payload_says_when_the_predicate_is_blind\n  PASS  test_the_predicate_names_no_symbol_and_reads_no_clock\n  PASS  test_the_real_outage_is_caught_by_this_predicate\n  PASS  test_this_healthy_process_reads_not_stale_over_the_real_tree\ngreen — the loop knows its own age, and an ordinary edit is not staleness",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_genuinely_drifted_module_goes_red",
+        "test_a_module_it_cannot_judge_reads_undecidable_not_green",
+        "test_a_module_loaded_late_from_a_newly_written_file_stays_green",
+        "test_a_module_that_never_came_from_a_file_is_not_drift",
+        "test_a_module_whose_file_moved_away_goes_red",
+        "test_a_second_interpreter_cannot_repair_the_evidence_for_this_one",
+        "test_an_edit_to_a_file_this_process_never_imported_stays_green",
+        "test_stripping_the_payload_changes_no_verdict",
+        "test_the_coverage_tally_separates_nothing_drifted_from_i_could_not_look",
+        "test_the_diagnostic_payload_carries_the_falsified_comparison_labelled",
+        "test_the_payload_says_when_the_predicate_is_blind",
+        "test_the_predicate_names_no_symbol_and_reads_no_clock",
+        "test_the_real_outage_is_caught_by_this_predicate",
+        "test_this_healthy_process_reads_not_stale_over_the_real_tree"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "440ffdf669bc28dc0535e61974559ad427eb8631094f6888b1e7ecf7036d1c47",
+      "source_fingerprint": "be5fde75933e88b47e8fb3ab11a518d7d9eeab43f0d8288ff9ed5e2e3d06ceec",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-0p4iipfg/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2962833-ir2rzltp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

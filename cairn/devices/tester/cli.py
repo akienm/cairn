@@ -76,7 +76,17 @@ def discover(targets: list[str]) -> list[Path]:
         if p.is_file():
             found.append(p)
         elif p.is_dir():
+            # BOTH SHAPES, because the obvious thing to type is a ``proofs/`` directory and
+            # the pattern below cannot match it: ``**/proofs/test_*.py`` requires a
+            # ``proofs`` segment BENEATH the directory given, so pointing this command at
+            # ``cairn/tools/base/proofs/`` found ZERO files and the run reported success on
+            # whatever else was named alongside it. Measured 2026-09-07 while sealing a
+            # six-target run: 3 proofs found where 14 were asked for. That is exactly the
+            # hollow green the docstring above forbids, wearing the one disguise it did not
+            # check for — a correct-looking count.
             found.extend(p.glob("**/proofs/test_*.py"))
+            if p.name == "proofs":
+                found.extend(p.glob("test_*.py"))
         else:
             # Loud, and it exits non-zero below. A typo'd path that silently ran zero
             # proofs and reported success is a hollow green (Law 8) — the worst outcome

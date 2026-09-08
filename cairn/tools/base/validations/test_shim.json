@@ -2,21 +2,39 @@
   {
     "claim": "proof test_shim.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T19:37:42",
+    "date": "2026-09-07T20:24:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_pulse_fires_due_probes_and_holds_the_rest\n  PASS  test_a_batch_does_not_die_on_one_bad_probe\n  PASS  test_an_armed_and_never_fired_probe_is_loud\n  PASS  test_a_horizon_is_declared_not_inferred\n  PASS  test_the_device_is_started_on_demand\n  PASS  test_a_shim_with_no_start_hook_refuses_loudly\n  PASS  test_it_is_a_shim\n  PASS  test_bounce_fires_on_unknown_verb\n  PASS  test_handle_bounce_default_emits_diagnostic\n  PASS  test_handle_bounce_override_fires\n  PASS  test_is_bounce_guard_prevents_infinite_loop\n  PASS  test_last_known_is_none_before_boot\n  PASS  test_contract_default_is_empty\n  PASS  test_contract_readable_without_waking\n  PASS  test_contract_override_declares_capabilities\ngreen — BaseShim: probes fire, device wakes on demand, bounce returns to sender, last-known captured, contract declared",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_pulse_fires_due_probes_and_holds_the_rest",
+        "test_a_batch_does_not_die_on_one_bad_probe",
+        "test_an_armed_and_never_fired_probe_is_loud",
+        "test_a_horizon_is_declared_not_inferred",
+        "test_the_device_is_started_on_demand",
+        "test_a_shim_with_no_start_hook_refuses_loudly",
+        "test_it_is_a_shim",
+        "test_bounce_fires_on_unknown_verb",
+        "test_handle_bounce_default_emits_diagnostic",
+        "test_handle_bounce_override_fires",
+        "test_is_bounce_guard_prevents_infinite_loop",
+        "test_last_known_is_none_before_boot",
+        "test_contract_default_is_empty",
+        "test_contract_readable_without_waking",
+        "test_contract_override_declares_capabilities"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "a29c2cd924d813413938c2505ff2ee2c58b8baaa6f4c1673be8f2472a787b4e2",
+      "source_fingerprint": "2eec7dc52b9bebfcf76b86a6c9b73e12415822c6b3672843af1312e00eb77d85",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2361506-_rjdxv0m/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2507305-b20j2zop/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

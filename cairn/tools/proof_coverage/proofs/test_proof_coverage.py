@@ -490,6 +490,76 @@ def test_the_latest_crossing_wins_when_a_ticket_was_kicked_back():
     assert found == [], found
 
 
+# ── the printer and the reader are one component ─────────────────────────────────────
+
+def test_the_printer_writes_names_THIS_MODULE_can_read_back():
+    """``print_teeth_main`` exists because a pytest-shaped proof prints dots, and a seal
+    over dots records ``teeth_green: []`` — every clause declared against it reds, for a
+    proof that actually ran everything. So the printer and the reader ship in one
+    component, and this is the tooth that makes that mean something: run the printer for
+    real, feed its stdout to ``teeth_printed``, and check the three verdicts land where
+    they belong.
+
+    THE FAILURE THIS CAUGHT ON THE DAY IT WAS WRITTEN, and the reason the printer emits a
+    leading newline: pytest writes its progress dot to the same line with no newline, so
+    the first draft produced ``.  ok   test_x``. Both marker patterns are anchored, so
+    every tooth was invisible to the reader while looking perfectly correct to a human —
+    a hollow green wearing the output of a real run.
+
+    Run as a SUBPROCESS, not by calling ``print_teeth_main`` in this process: pytest
+    inside pytest shares a terminal reporter, and the point of the tooth is the bytes a
+    proof actually writes when the tester runs it as ``python3 <proof>``."""
+    import subprocess
+
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp) / "test_fixture_teeth.py"
+        target.write_text(
+            "import pytest\n"
+            "def test_one_that_passes(): assert True\n"
+            "def test_one_that_fails(): assert False, 'on purpose'\n"
+            "@pytest.mark.skip(reason='on purpose')\n"
+            "def test_one_that_skips(): pass\n"
+            "if __name__ == '__main__':\n"
+            "    import sys; sys.path.insert(0, %r)\n" % str(REPO_ROOT) +
+            "    from cairn.tools.proof_coverage import print_teeth_main\n"
+            "    raise SystemExit(print_teeth_main(__file__))\n",
+            encoding="utf-8")
+        out = subprocess.run([sys.executable, str(target)], capture_output=True,
+                             text=True, timeout=120)
+
+    printed = pc.teeth_printed(out.stdout)
+    assert printed["green"] == ["test_one_that_passes"], (printed, out.stdout)
+    assert printed["red"] == ["test_one_that_fails"], (printed, out.stdout)
+    assert "test_one_that_skips" not in printed["green"], (
+        "a SKIPPED tooth was counted green — it did not prove and it did not fail, and "
+        "counting it either way is the direction a hollow build wants")
+    assert "test_one_that_skips" not in printed["red"], printed
+    assert out.returncode != 0, "a proof with a failing tooth exited 0"
+
+
+def test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth():
+    """THE DEFECT ``print_teeth_main`` WAS BUILT FOR, stated as a tooth so it cannot come
+    back quietly. The tester runs a proof as ``python3 <proof>`` and reads the exit code,
+    so a proof file with no ``__main__`` block defines its functions, runs none of them,
+    and exits 0 — a green seal over nothing at all, inside the machinery Law 8 exists to
+    be. Measured 2026-09-07: ten of the corpus's 158 proofs were in exactly this state.
+
+    Asserted against a fixture rather than against the live corpus, because the live
+    count is a number that will change and this is a claim about the SHAPE: a run that
+    named no teeth is not evidence, whatever its exit code says."""
+    import subprocess
+
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp) / "test_no_main.py"
+        target.write_text("def test_that_would_have_failed(): assert False\n",
+                          encoding="utf-8")
+        out = subprocess.run([sys.executable, str(target)], capture_output=True,
+                             text=True, timeout=120)
+
+    assert out.returncode == 0, "the fixture no longer demonstrates the defect"
+    assert pc.teeth_printed(out.stdout) == {"green": [], "red": []}, out.stdout
+
+
 TESTS = [fn for name, fn in sorted(globals().items())
          if name.startswith("test_") and callable(fn)]
 

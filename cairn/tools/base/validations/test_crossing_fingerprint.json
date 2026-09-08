@@ -2,39 +2,50 @@
   {
     "claim": "proof test_crossing_fingerprint.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T19:23:16",
+    "date": "2026-09-07T20:14:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_emit_produces_fingerprinted_records\n  PASS  test_fingerprint_is_deterministic\n  PASS  test_inspector_sieve_passes_untampered\n  PASS  test_inspector_sieve_reds_tampered\n  PASS  test_inspector_sieve_skips_records_without_fingerprint\n  PASS  test_verify_returns_false_on_tampered\n  PASS  test_verify_returns_false_when_no_fingerprint\n  PASS  test_verify_returns_true_on_untampered\ngreen — crossing records carry a sha256 fingerprint computed from canonical JSON; verify_crossing_fingerprint returns True on untampered and False on tampered; the inspector sieve reds tampered entries and skips pre-existing records without fingerprints; fingerprints are deterministic",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_emit_produces_fingerprinted_records",
+        "test_fingerprint_is_deterministic",
+        "test_inspector_sieve_passes_untampered",
+        "test_inspector_sieve_reds_tampered",
+        "test_inspector_sieve_skips_records_without_fingerprint",
+        "test_verify_returns_false_on_tampered",
+        "test_verify_returns_false_when_no_fingerprint",
+        "test_verify_returns_true_on_untampered"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "a29c2cd924d813413938c2505ff2ee2c58b8baaa6f4c1673be8f2472a787b4e2",
+      "source_fingerprint": "2eec7dc52b9bebfcf76b86a6c9b73e12415822c6b3672843af1312e00eb77d85",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2361506-5hkjgvtt/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2507305-yxgv9v3y/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/bus/0/20260908.012306.915569.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.919345.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.921493.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.943502.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.945893.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.949746.BusDevice.post.json",
-            "logs/bus/0/20260908.012306.953156.BusDevice.post.json",
-            "logs/charter/0/20260908.012306.862668.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.918956.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.921147.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.943081.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.945517.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.949372.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.012306.952639.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260908.021403.709807.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.714279.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.717074.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.747291.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.750554.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.755242.BusDevice.post.json",
+            "logs/bus/0/20260908.021403.758366.BusDevice.post.json",
+            "logs/charter/0/20260908.021403.625332.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.713798.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.716623.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.746768.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.750078.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.754822.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260908.021403.757967.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         }

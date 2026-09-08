@@ -34,6 +34,16 @@ from pathlib import Path
 
 import pytest
 
+# WHICH TICKET CLAUSES THESE TEETH COVER (read by cairn/tools/proof_coverage, ticket
+# feeb4c786b14). Clause (3) of 9579a6f9cec6 asks for exactly what this file is: a tools/base
+# proof that raises from a fixture device holding nothing of cairn.devices, and watches the
+# emission land in the raiser's OWN log home. The ticket's other clauses are served in
+# trouble's own proof — a seam has ends in more than one component, and the crossing names
+# every proof it is proved by.
+PROVES = {
+    "9579a6f9cec6": {"3": "test_the_emission_lands_in_the_RAISERS_OWN_log_home"},
+}
+
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -255,4 +265,9 @@ def test_an_UNNAMED_module_raiser_is_refused():
 
 
 if __name__ == "__main__":
-    raise SystemExit(pytest.main([__file__, "-q"]))
+    # NAMED, not counted. ``pytest.main([__file__, "-q"])`` — what stood here until
+    # 2026-09-07 — runs every tooth honestly and prints dots, so the seal records
+    # ``teeth_green: []`` and no ticket clause can ever be declared against this file.
+    # Clause (3) of 9579a6f9cec6 is declared against it above.
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

@@ -389,3 +389,54 @@ def load_tickets(commons: Path) -> list[dict]:
             data.setdefault("id", f.stem.split("-")[0])
             out.append(data)
     return out
+
+
+def print_teeth_main(module_file: str, *extra_argv: str) -> int:
+    """Run a pytest-shaped proof and print every tooth BY NAME, in the shape this module reads.
+
+    THE DEFECT THIS EXISTS TO END, measured 2026-09-07: the tester runs a proof as
+    ``python3 <proof>``, and its verdict is the exit code. Ten of the corpus's 158 proofs
+    carry no ``__main__`` block at all, so running them as a script defines some functions
+    and exits 0 — a GREEN SEAL over zero teeth executed, which is the hollow build Law 8
+    names, sitting inside the machinery that exists to refuse it. Verified by running two
+    of them: exit 0, zero bytes of output, zero tests.
+
+    The near miss is worse than the plain gap: ``pytest.main([f, "-q"])`` DOES run the
+    teeth, but prints dots, so the seal records ``teeth_green: []`` and no clause can ever
+    be declared against it. A proof that ran everything and named nothing is unusable as
+    coverage evidence even though its verdict is honest.
+
+    So the printer lives HERE, beside ``teeth_printed``, and not in each proof: the reader
+    of the names and the writer of the names are then one component by construction, and a
+    change to the shape cannot leave half the corpus behind. A SKIPPED tooth prints under
+    a marker that is neither green nor red — it did not prove and it did not fail, and
+    quietly counting it either way is the direction a hollow build wants.
+
+        if __name__ == "__main__":
+            from cairn.tools.proof_coverage import print_teeth_main
+            raise SystemExit(print_teeth_main(__file__))
+    """
+    import pytest
+
+    class _Names:
+        def pytest_runtest_logreport(self, report):
+            if report.when == "call":
+                marker = "ok  " if report.passed else ("skip" if report.skipped else "FAIL")
+            elif report.failed:            # a setup/teardown error never reaches "call"
+                marker = "FAIL"
+            else:
+                return
+            # A NEWLINE ON BOTH SIDES, and neither is cosmetic. pytest's terminal
+            # reporter writes its one-character progress mark (``.``, ``F``, ``s``) to
+            # the current line with no newline of its own, so an unfenced print lands the
+            # tooth in the middle of it. Without the leading newline the stream carries
+            # ``.  ok   test_x`` — and both marker patterns are anchored, so every tooth
+            # goes invisible to ``teeth_printed`` while looking perfectly readable to a
+            # human. Without the trailing one it carries ``  FAIL test_xF``: the mark is
+            # a name character, so the tooth is read back under a name no ticket can
+            # ever declare. Both failures were seen, in that order, on 2026-09-07; the
+            # round-trip is a tooth in this tool's own proof so neither can return.
+            print(f"\n  {marker} {report.nodeid.split('::')[-1]}")
+
+    return int(pytest.main([module_file, "-q", "-p", "no:cacheprovider", *extra_argv],
+                           plugins=[_Names()]))

@@ -2,21 +2,23 @@
   {
     "claim": "proof test_llm_inspection_probe.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T19:32:30",
+    "date": "2026-09-07T20:22:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "test_llm_inspection_probe — scheduled-llm-gate-inspection\n  [a] probe declares trigger/carry/enough/horizon ... OK\n  [b] prompt carries feedback + current dials ....... OK\n  [c] parse_proposals extracts valid proposals ...... OK\n  [d] parse_proposals handles empty/bad responses ... OK\n  [e] inspect() calls resolver and routes adjust .. OK\n  [f] inspect() reports bad proposals as errors .... OK\n  [g] trigger fires at threshold ................... OK\n  [h] carry without resolver reports the lack ..... OK\nall 8 teeth pass",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "a29c2cd924d813413938c2505ff2ee2c58b8baaa6f4c1673be8f2472a787b4e2",
+      "source_fingerprint": "2eec7dc52b9bebfcf76b86a6c9b73e12415822c6b3672843af1312e00eb77d85",
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2361506-i0d84b0g/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2507305-xsk_if4u/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

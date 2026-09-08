@@ -34,6 +34,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.trouble.trouble import CLEARED, LIVE, OCCURRENCE_TAIL, TroubleDevice, TroubleError
 
+# WHICH TICKET CLAUSES THESE TEETH COVER (read by cairn/tools/proof_coverage, ticket
+# feeb4c786b14). A pointer INTO the falsifier, never a second copy of it: the clause text
+# lives on the ticket, and duplicating it here would give a reader two versions to reconcile.
+# Clauses (3) and (5) are served in other proofs — see the ticket's crossing, which names
+# all of them, because this ticket's subject is a SEAM and a seam has ends in more than one
+# component.
+PROVES = {
+    "9579a6f9cec6": {
+        "1": "test_the_isolation_sieve_reports_nothing_over_the_live_tree",
+        "2": "test_no_device_reaches_this_one_by_import",
+        "4": "test_two_processes_raising_ONE_identity_fold_to_ONE_ticket",
+        "6": "test_the_inspector_troubles_were_cleared_through_the_door",
+    }
+}
+
 IDENT = "append-door-has-no-schema-gate"
 WHY = "the single write-door accepts a record no reader can read"
 
@@ -461,6 +476,88 @@ def test_a_SECOND_drain_does_not_re_fold_what_it_already_folded():
 
         assert _dev_at(store).live()[0]["count"] == 1, "the drain re-folded a breadcrumb"
         assert second["folded"] == [], second
+
+
+def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
+    """CLAUSE (1) OF 9579a6f9cec6, and it is a live-corpus tooth on purpose. The claim is
+    not that the sieve works — the inspector's own proofs own that — it is that the tree it
+    reads over is CLEAN, which is a fact about this repo today and can only be measured
+    here. The tooth is the invariant, not a count: zero findings, whatever the census size."""
+    from cairn.machines.build_inspector.inspector import inspect
+
+    findings = [f for f in (inspect().get("findings") or [])
+                if "isolation" in str(f.get("method", ""))]
+    assert findings == [], (
+        "a device imports another device — the seam this ticket closed has re-opened: "
+        + "; ".join(f"{f.get('component')}: {f.get('about')}" for f in findings[:5]))
+
+
+def test_no_device_reaches_this_one_by_import():
+    """CLAUSE (2). The sieve above is the physics; this is the same question asked of the
+    text, because the two can disagree — a sieve with an allowlist reports clean about
+    exactly the imports its allowlist forgives, and reading the tree independently is what
+    makes that forgiveness visible instead of invisible.
+
+    THE ALLOWED HOMES ARE THREE SHAPES, and each is a different reason:
+      - under cairn/devices/trouble/ — the device itself;
+      - a TOOL (cairn/tools/...) — operator_inbox reads the store; tools may import devices,
+        devices may not import each other, and that asymmetry is the isolation rule;
+      - a PROOF or PROBE — an instrument reads what it measures, and an instrument that
+        had to go through the bus to observe the bus would be measuring its own transport.
+    Any other importer is the defect, and it is named rather than counted."""
+    root = Path(__file__).resolve().parents[4] / "cairn"
+    offenders = []
+    for path in root.rglob("*.py"):
+        rel = path.relative_to(root.parent).as_posix()
+        if rel.startswith("cairn/devices/trouble/"):
+            continue
+        if "cairn.devices.trouble" not in path.read_text(encoding="utf-8", errors="replace"):
+            continue
+        if rel.startswith("cairn/tools/") or "/proofs/" in rel or "/probes/" in rel:
+            continue
+        offenders.append(rel)
+    assert offenders == [], (
+        "these reach the trouble device by import instead of over the bus: " + str(offenders))
+
+
+def test_the_inspector_troubles_were_cleared_through_the_door():
+    """CLAUSE (6): cleared by reconcile through ``clear``, NOT BY HAND — and the difference
+    is readable on disk, which is the only reason this is a tooth rather than a promise. A
+    hand edit sets standing to CLEARED and stops there. The door cannot: it writes a
+    ``cleared_by`` entry carrying who, when, WHAT CHANGED — a clear that names no change is
+    refused, which is a tooth of its own above — and ``at_count``, the occurrence count at
+    the moment of clearing. ``at_count`` is the tell that cannot be faked casually: it is a
+    number only the door is holding when it writes, and a hand editor setting a field would
+    have to go read the count and copy it deliberately. And ``what_changed`` names RECONCILE
+    specifically, which is the clause's other half."""
+    troubles = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "troubles"
+    seen = sorted(troubles.glob("*device-isolation*.json"))
+    assert seen, f"the inspector isolation troubles are gone from {troubles} — the record " \
+                 f"of the clearing is the evidence, and it may not be deleted (Law 7)"
+    for path in seen:
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        assert rec.get("standing") == CLEARED, f"{path.name} still stands {rec.get('standing')}"
+        marks = rec.get("cleared_by") or []
+        assert marks, (f"{path.name} reads CLEARED with no cleared_by — the mark of a hand "
+                       f"edit, because the door writes the clearer in the same act")
+        last = marks[-1]
+        assert last.get("by") and last.get("at"), f"{path.name}: {last}"
+        assert isinstance(last.get("at_count"), int), (
+            f"{path.name} was cleared with no at_count — the door records the occurrence "
+            f"count it was holding; its absence is the shape of a hand-set field: {last}")
+    # THE TWO THE CLAUSE NAMES, and only those two. A third isolation trouble
+    # (devices/codemother) was cleared later by an actual fix, its what_changed naming the
+    # import that went away — a clear through the same door by a different route, and
+    # demanding "reconcile" of it would red a correct act. The door's signature above is
+    # what proves "not by hand" for all of them; reconcile is what proves it for these two.
+    by_name = {p.name: json.loads(p.read_text(encoding="utf-8")) for p in seen}
+    for want in ("inspector-new-finding-device-isolation-holds-devices-cairn.json",
+                 "inspector-new-finding-device-isolation-holds-devices-web-server.json"):
+        rec = by_name.get(want)
+        assert rec, f"{want} is missing — it is one of the two the ticket cleared"
+        said = str((rec["cleared_by"][-1]).get("what_changed", "")).lower()
+        assert "reconcile" in said, (
+            f"{want} was cleared, but not BY RECONCILE — what_changed says {said!r}")
 
 
 def _dev_at(store) -> TroubleDevice:

@@ -9,8 +9,26 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 
 import pytest
+
+# WHICH TICKET CLAUSES THESE TEETH COVER (read by cairn/tools/proof_coverage, ticket
+# feeb4c786b14). Clause (5) of 9579a6f9cec6 asks for a raised fixture trouble visible in
+# the rendered pane within 1s of the raise, over the poke path. It asks it OF THE PROBE,
+# and that is the one place it cannot be honoured: the probe deliberately stopped
+# importing the renderer on 2026-09-07 (see the probe's own docstring — a cross-device
+# import from a watch is the very defect this ticket closes, and re-asserting a pure
+# function once per heartbeat is reciting, not measuring). So the clause is served HERE,
+# where a raise, a real drain, a real ``live`` verb and a real render can be run end to
+# end in one process and TIMED — which is what the clause was actually after. What a
+# proof cannot put in the loop is the socket itself; the budget measured is the poke
+# path the socket pushes, and the tooth says so at its assertion.
+PROVES = {
+    "9579a6f9cec6": {
+        "5": "test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path",
+    },
+}
 
 
 class _FakeBus:
@@ -166,6 +184,130 @@ def test_render_trouble_escapes_values():
     assert "&amp;" in html
 
 
+# ── end to end: raise → poke → drain → live → render ────────────────────────────
+
+class _RoutingBus:
+    """A bus that actually ROUTES, to the real trouble shim, instead of answering for it.
+
+    Every other tooth in this file uses ``_FakeBus`` and is right to: they are measuring
+    the pane, and a stand-in keeps the trouble device out of the measurement. This one is
+    measuring the ROUTE, so the reply has to come from the lane that would really answer
+    it — through ``deliver``, which is the same door the real bus knocks on, verb
+    canonicalisation and all."""
+
+    def __init__(self, shim):
+        self._shim = shim
+        self.asked = []
+
+    def request(self, *, to, verb, why=None, body=None, **kw):
+        self.asked.append({"to": to, "verb": verb, "why": why})
+        assert to == "trouble", f"the pane asked {to!r}, not the trouble lane"
+        return {"body": self._shim.deliver(
+            {"id": "proof-envelope", "sender": "cairn", "addressee": to, "verb": verb,
+             "body": body or {}})}
+
+
+def test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path():
+    """THE WHOLE LANE IN ONE PROCESS, and the only tooth here that runs it end to end.
+
+    Ticket 9579a6f9cec6 clause (5). A component that holds nothing of ``cairn.devices``
+    raises; the poke drains it into the held store; the cairn device's pane asks ``live``
+    over the bus; the answer renders. Each half of that is already proved separately —
+    the raise in ``cairn/tools/base/proofs/test_raise_trouble.py``, the fold in trouble's
+    own proof, the projection and the render above — and a lane can be green in every
+    half and dark end to end, because the seams are where the verb name, the reply shape
+    and the drain's watermark all live. That is what this tooth is for.
+
+    THE BUDGET, AND WHAT IT HONESTLY COVERS. The clause asks for the trouble VISIBLE
+    within 1s of the raise. The socket is not in this loop — a proof cannot hold a
+    browser — so what is timed is the path the socket pushes: raise → poke → drain →
+    ``live`` → HTML. If that path is inside the budget the push is a transport question;
+    if it were not, no transport could rescue it. Asserted as an invariant (a bound), not
+    a snapshot, because a recorded duration is a number that reds on a loaded laptop and
+    teaches nobody."""
+    from cairn.devices.cairn.device import CairnDevice
+    from cairn.devices.trouble.shim import TroubleShim
+    from cairn.devices.web_server.render import render_pane
+    from cairn.tools.base.diagnostic import DiagnosticBase
+
+    class _Raiser(DiagnosticBase):
+        @property
+        def diagnostic_device(self) -> str:
+            return "a_fixture_component"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        from pathlib import Path
+        roots = {k: Path(tmp) for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=Path(tmp) / "troubles")
+
+        raiser = _Raiser()
+        raiser.set_diagnostic_roots(roots)
+        raiser.set_trouble_notifier(shim.receive_raise)
+
+        started = time.monotonic()
+        rec = raiser.raise_trouble(
+            "a-fixture-trouble-for-the-pane",
+            why="the pane must show a trouble nobody put in the store by hand")
+        assert rec["poke"] == "sent", (
+            f"the notifier was not reached: {rec['poke']} — without the poke this tooth "
+            f"would be measuring the beat, which is a different budget")
+
+        bus = _RoutingBus(shim)
+        data = _pane(CairnDevice(bus=bus))["handler"]()
+        html = render_pane({"kind": "trouble", "label": "troubles", "data": data})
+        elapsed = time.monotonic() - started
+
+        assert bus.asked and bus.asked[0]["verb"] == "live", bus.asked
+        assert [r["id"] for r in data] == ["a-fixture-trouble-for-the-pane"], data
+        assert data[0]["standing"] == "OPEN" and data[0]["count"] == 1, data[0]
+        assert "a-fixture-trouble-for-the-pane" in html, (
+            "the raised trouble reached the pane's DATA but not its HTML — the render "
+            "dropped it, which is the panel dark while the page still loads")
+        assert "#d33" in html, "live troubles held, and the red light rendered dull"
+        assert elapsed < 1.0, (
+            f"raise → rendered pane took {elapsed:.3f}s, over the 1s budget the clause "
+            f"names; the socket is not in this loop, so no transport can recover it")
+
+        # ...and the emission is the raiser's own breadcrumb, not something the pane
+        # invented: the drain is a real read of a real file, so deleting the log home
+        # would empty the panel.
+        home = Path(tmp) / "logs" / "a_fixture_component" / "0"
+        assert len(list(home.glob("*.raise_trouble.json"))) == 1, sorted(home.iterdir())
+
+
+def test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW():
+    """The pane projects what the lane holds, and what the lane holds folds. Beside the
+    tooth above because the panel is where a broken fold would actually be SEEN — fifty
+    rows of one flapping defect is the shape the damping exists to prevent, and it is
+    the pane, not the store, that a human reads."""
+    from cairn.devices.cairn.device import CairnDevice
+    from cairn.devices.trouble.shim import TroubleShim
+    from cairn.tools.base.diagnostic import DiagnosticBase
+
+    class _Raiser(DiagnosticBase):
+        @property
+        def diagnostic_device(self) -> str:
+            return "a_fixture_component"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        from pathlib import Path
+        roots = {k: Path(tmp) for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=Path(tmp) / "troubles")
+        raiser = _Raiser()
+        raiser.set_diagnostic_roots(roots)
+        raiser.set_trouble_notifier(shim.receive_raise)
+
+        raiser.raise_trouble("one-defect", why="a why")
+        raiser.raise_trouble("one-defect", why="a why")
+
+        data = _pane(CairnDevice(bus=_RoutingBus(shim)))["handler"]()
+        assert [r["id"] for r in data] == ["one-defect"], data
+        assert data[0]["count"] == 2, (
+            f"the pane shows count {data[0]['count']} for two raises of one identity — "
+            f"either the fold or the watermark is broken, and the panel is where a human "
+            f"would meet it")
+
+
 # ── WebSocket route ─────────────────────────────────────────────────────────────
 
 def test_websocket_route_exists():
@@ -200,3 +342,13 @@ def test_probe_enough_returns_bool():
     ctx = {}
     e = PROBE.enough(ctx)
     assert isinstance(e, bool)
+
+
+if __name__ == "__main__":
+    # THIS FILE HAD NO ``__main__`` BLOCK AT ALL until 2026-09-07, and the tester runs a
+    # proof as ``python3 <proof>``. So every seal it ever carried was an exit code from a
+    # process that defined fourteen functions and ran none of them — a green over zero
+    # teeth, which is the hollow build Law 8 exists to refuse. Measured, not guessed: nine
+    # more proofs in the corpus are in the same state on the day this line was written.
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

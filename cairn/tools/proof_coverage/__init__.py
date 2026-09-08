@@ -10,5 +10,6 @@ from cairn.tools.proof_coverage.proof_coverage import (  # noqa: F401
     declared,
     lacks,
     load_tickets,
+    print_teeth_main,
     teeth_printed,
 )

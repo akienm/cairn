@@ -1,0 +1,44 @@
+[
+  {
+    "claim": "proof test_ticket_write_door_callers.py passes under python3",
+    "caller": "sail:9e7867aa1056:the-ticket-write-door",
+    "date": "2026-09-08T14:37:35",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_batch_only_corpus_never_clears_however_large\n  PASS  test_a_record_naming_an_OLDER_cursor_does_not_back_the_phase\n  PASS  test_a_record_without_a_readable_time_is_not_counted_rather_than_guessed\n  PASS  test_both_halves_of_the_clear_are_load_bearing\n  PASS  test_terminal_tickets_leave_the_live_corpus\n  PASS  test_the_batch_day_is_DERIVED_so_shifting_the_corpus_in_time_changes_nothing\n  PASS  test_the_clear_goes_up_AND_BACK_DOWN\n  PASS  test_the_probe_is_a_frozen_shape_carrying_both_a_carry_and_a_clear\n  PASS  test_the_trigger_stays_silent_before_the_batch_has_landed\n  PASS  test_the_walk_is_settled_and_re_reads_nothing_over_an_unmoved_corpus\n\ngreen — 10 checks: the ticket write door's watch is false on a batch-only corpus at any size, false when a hand-edit stands beside the door, false when the door was used and then edited past, derives its batch day rather than carrying a date somebody can re-point, stays silent before the batch lands, counts no record whose time it cannot read, drops terminal tickets so the clear can go back DOWN, and walks once per corpus move rather than once per beat",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_batch_only_corpus_never_clears_however_large",
+        "test_a_record_naming_an_OLDER_cursor_does_not_back_the_phase",
+        "test_a_record_without_a_readable_time_is_not_counted_rather_than_guessed",
+        "test_both_halves_of_the_clear_are_load_bearing",
+        "test_terminal_tickets_leave_the_live_corpus",
+        "test_the_batch_day_is_DERIVED_so_shifting_the_corpus_in_time_changes_nothing",
+        "test_the_clear_goes_up_AND_BACK_DOWN",
+        "test_the_probe_is_a_frozen_shape_carrying_both_a_carry_and_a_clear",
+        "test_the_trigger_stays_silent_before_the_batch_has_landed",
+        "test_the_walk_is_settled_and_re_reads_nothing_over_an_unmoved_corpus"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "233610ed47dd078c0d3e85cdaca6ce034a35d56ef1993d3b0c90179d86f12911",
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-860749-lyvpqv3k/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -132,3 +132,13 @@ def test_missing_berth_is_graceful(chain_dir):
     }
     paths = charted_paths(chain)
     assert paths == set()
+
+
+if __name__ == "__main__":
+    # WITHOUT THIS, RUNNING THIS FILE DEFINED FOUR FUNCTIONS AND EXITED 0. The tester runs a
+    # proof as ``python3 <proof_path>`` and its verdict IS the exit code, so this file sealed
+    # green over zero teeth executed — the hollow build Law 8 refuses, inside the machinery
+    # built to refuse it. One of the ten named in trouble
+    # ``proofs-with-no-main-block-seal-green-over-zero-teeth``.
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

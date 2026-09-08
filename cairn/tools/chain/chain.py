@@ -92,16 +92,115 @@ def verdict_error(artifact) -> str | None:
     return None
 
 
-def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:
-    """Every readable berthed ``<stage>-*.json`` packet whose ``ticket`` field names
-    ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
-    chronological and the LAST entry is the one that stands."""
+# ── the packet index, and the measurement that made it necessary ─────────────
+#
+# ``claiming_packets`` used to open and parse EVERY berthed packet on every call, and
+# ``chain_for_ticket`` calls it once per leg. Measured 2026-09-07 on the live store: 2,552
+# packets, 8 legs, and the probe ``no_component_reaches_proved_with_an_uncharted_build``
+# asks the chain of all 196 PROVED tickets on EVERY HEARTBEAT — 1,568 full sweeps of the
+# store per beat, 55.6s of a 104.8s beat, for an answer that cannot change unless somebody
+# berths a packet.
+#
+# THE INDEX IS THE PATH MAP AND NOTHING ELSE. It holds ``(ticket-as-named, stage) -> [paths]``
+# and never the packet bodies: a cache of 2,552 parsed dicts would trade a re-read for a
+# resident copy of the store, and a copy is a thing that can disagree with disk. So the read
+# still opens the packets a caller actually asked for — a handful — and what the index removes
+# is the 2,544 it did not.
+#
+# THE TOKEN IS THE STALENESS ANSWER, and it is deliberately about the DIRECTORY rather than
+# the files. A berth is write-once — the /chart door mints a new stamped filename per firing
+# and never edits one in place — so a packets/ directory's mtime moves exactly when the set of
+# berths moves, and one stat answers "is the index still true".
+#
+# IT WAS THE ENTRY COUNT TOO, FOR ABOUT TEN MINUTES, AND THE MEASUREMENT KILLED IT. Belt and
+# braces reads like free insurance and was not: a listdir of the 2,552-entry berth costs ~1.3ms,
+# the token is checked once per leg per ticket, and the "cheap" half of the check was itself
+# 2.1s of the beat it was written to save. What the count bought over mtime alone is a
+# same-NANOSECOND add-and-delete; measured on this filesystem (ext4, 2026-09-07), five
+# back-to-back creates moved the directory mtime five distinct times, so the case it covers is
+# one this host does not produce. A CHECK THAT COSTS MORE THAN THE WORK IT GUARDS IS THE
+# DEFECT THIS WHOLE EDIT IS ABOUT, and it does not stop being one because it is mine.
+#
+# WHAT THE TOKEN DOES NOT SEE, declared rather than discovered later: a packet edited IN PLACE,
+# which is not a thing the door does. If that ever becomes a thing, this token is what has to
+# change — named here so the next reader does not have to find it by being wrong.
+_INDEX_CACHE: dict[str, tuple] = {}
+
+#: How many times the index has been BUILT (not read). A proof asserts this does not move on
+#: a second call over an unchanged store — the only way to tell a cache that works from one
+#: that quietly rebuilds every time, which reads identically from the answers alone.
+_INDEX_BUILDS = 0
+
+
+def _berths_token(root: str) -> tuple:
+    """A cheap fingerprint of the berth store: per packets/ directory, its mtime in
+    nanoseconds. One stat per berth — the thing that replaces 2,552 opens."""
+    stamps = []
+    for folder in sorted(glob.glob(os.path.join(root, "*", "packets"))):
+        try:
+            stamps.append((folder, os.stat(folder).st_mtime_ns))
+        except OSError:
+            continue
+    return tuple(stamps)
+
+
+def _packet_index(root: str) -> dict:
+    """``(ticket-as-named, stage) -> [paths, oldest first]`` for one berth store.
+
+    Rebuilt only when ``_berths_token`` moves. A packet that names no ticket, or that cannot
+    be read or parsed, is simply absent from the index — the same disposition the scan it
+    replaces had, and for the same reason: a berth store is written by a door, and a caller
+    asking "what claims this ticket" is not the surface at which to be loud about a corrupt
+    file (Law 7 puts that at the door and at build_inspector, both of which read the store
+    themselves)."""
+    global _INDEX_BUILDS
+    token = _berths_token(root)
+    cached = _INDEX_CACHE.get(root)
+    if cached is not None and cached[0] == token:
+        return cached[1]
+    index: dict[tuple, list] = {}
+    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "*.json"))):
+        stage = os.path.basename(path).split("-", 1)[0]
+        try:
+            with open(path, encoding="utf-8") as fh:
+                packet = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(packet, dict) and isinstance(packet.get("ticket"), str):
+            index.setdefault((packet["ticket"], stage), []).append(path)
+    _INDEX_CACHE[root] = (token, index)
+    _INDEX_BUILDS += 1
+    return index
+
+
+def claiming_packet_paths(ticket: str, stage: str, *, berths_root=None) -> list[str]:
+    """The ADDRESSES of the berths claiming ``ticket`` at ``stage``, oldest first — and
+    nothing is opened.
+
+    Split out from ``claiming_packets`` because the two callers want different things and
+    only one of them wants the bytes: ``chain_for_ticket`` returns paths, so making it read
+    2,552-packet bodies to hand back eight strings was 1,568 opens per heartbeat for data
+    thrown away. A caller that needs the packet still gets it, and still gets it re-read
+    from disk (see ``claiming_packets``)."""
     root = os.path.expanduser(str(berths_root if berths_root is not None else BERTHS_ROOT))
     # A packet names its ticket by whichever spelling the door admitted — slug before the
     # hex-id convention, hex id after. One ticket, every spelling (grammar.ticket_spellings).
+    index = _packet_index(root)
+    return sorted(p for name in ticket_spellings(ticket) for p in index.get((name, stage), []))
+
+
+def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:
+    """Every readable berthed ``<stage>-*.json`` packet whose ``ticket`` field names
+    ``ticket``, OLDEST FIRST — the stamp rides the filename, so sorted order is
+    chronological and the LAST entry is the one that stands.
+
+    THE PACKET IS READ FROM DISK EVERY CALL, deliberately: the index holds addresses, so a
+    caller reading a body never reads a cached copy of it, and the re-check of the ``ticket``
+    field below is what makes a stale index show up as a MISS rather than as a wrong packet."""
     names = ticket_spellings(ticket)
+    paths = claiming_packet_paths(ticket, stage, berths_root=berths_root)
     found = []
-    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "%s-*.json" % stage))):
+    for path in paths:
         try:
             with open(path, encoding="utf-8") as fh:
                 packet = json.load(fh)
@@ -124,8 +223,8 @@ def chain_for_ticket(ticket: str, *, berths_root=None) -> dict:
     LATEST berth claiming it, or None where nothing claims."""
     chain = {}
     for stage in CHAIN_STAGES:
-        found = claiming_packets(ticket, stage, berths_root=berths_root)
-        chain[stage] = found[-1][0] if found else None
+        paths = claiming_packet_paths(ticket, stage, berths_root=berths_root)
+        chain[stage] = paths[-1] if paths else None
     return chain
 
 # A note that says nothing is a heading with no body. The floor is a LENGTH, not a grammar, for

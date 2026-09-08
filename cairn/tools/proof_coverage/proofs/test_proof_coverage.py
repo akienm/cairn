@@ -246,6 +246,56 @@ def test_a_fully_covered_ticket_produces_no_finding():
     assert found == [], found
 
 
+def test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof():
+    """A SEAM HAS ENDS IN MORE THAN ONE COMPONENT. Measured on 9579a6f9cec6 (a device
+    reaches trouble over the bus, never by import): its six clauses are served by teeth in
+    three proofs — trouble's own, tools/base's fixture-device raise, and the panel probe —
+    because that is where the seam's ends are. If a crossing could name only one proof, the
+    honest options would be a crossing that lies about two thirds of the evidence, or
+    inlining other components' teeth into trouble's proof, which is the tighter coupling
+    that ticket exists to remove. So `proven_by` reads as one-or-many, and a clause is
+    covered if ANY named proof declares a green tooth for it."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        near = _component(tmp, name="near", proof_body=(
+            'PROVES = {"fixture01": {"1": "test_this_end"}}\nprint("  ok   test_this_end")\n'))
+        far = _component(tmp, name="far", proof_body=(
+            'PROVES = {"fixture01": {"2": "test_that_end"}}\nprint("  ok   test_that_end")\n'))
+        _seal(near, teeth_green=["test_this_end"])
+        _seal(far, teeth_green=["test_that_end"])
+        ticket = _ticket("DONE when (1) this end holds and (2) that end holds.",
+                         proven_by=None, crossings=[{"date": "2026-09-07", "to": "PROVEME",
+                                                     "by": "CC",
+                                                     "proven_by": [str(near), str(far)]}])
+
+        found = pc.lacks(ticket, repo_root=tmp)
+
+    assert found == [], found
+
+
+def test_each_proof_in_a_list_is_still_checked_on_its_own_terms():
+    """One-or-many relaxes WHERE a tooth may live, nothing else. A second named proof that
+    declares this ticket nothing is still named — otherwise 'name more proofs' would be the
+    way to dilute the check, and a list would be a loophole rather than a shape."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        near = _component(tmp, name="near", proof_body=(
+            'PROVES = {"fixture01": {"1": "test_this_end", "2": "test_that_end"}}\n'
+            'print("  ok   test_this_end")\nprint("  ok   test_that_end")\n'))
+        bystander = _component(tmp, name="bystander", proof_body='print("  ok   test_x")\n')
+        _seal(near, teeth_green=["test_this_end", "test_that_end"])
+        _seal(bystander, teeth_green=["test_x"])
+        ticket = _ticket("DONE when (1) this end holds and (2) that end holds.",
+                         proven_by=None,
+                         crossings=[{"date": "2026-09-07", "to": "PROVEME", "by": "CC",
+                                     "proven_by": [str(near), str(bystander)]}])
+
+        found = pc.lacks(ticket, repo_root=tmp)
+
+    assert [f["kind"] for f in found] == ["proof_declares_the_ticket"], found
+    assert found[0]["values"]["proof"].endswith("bystander/proofs/test_widget.py"), found[0]
+
+
 def test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered():
     """Coverage expires with the seal. The declaration and the teeth can both be perfect
     and still describe code that no longer exists (Law 3 — a VALIDATION has a horizon)."""

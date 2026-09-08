@@ -196,8 +196,8 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
                       "the falsifier is empty or unreadable, so there is nothing a proof "
                       "could be checked against")]
 
-    proven_by = _proven_by(ticket)
-    if not proven_by:
+    named = _proven_by(ticket)
+    if not named:
         # TWO LACKS, NOT ONE, and the split is a measurement rather than a courtesy.
         # Measured 2026-09-07 over the live corpus: of 230 tickets at PROVEME or beyond,
         # 215 name no proof — but 196 of those carry NO crossings array at all, because
@@ -217,50 +217,75 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
                       "proven-space with no proof named at all")]
 
     if fold(str(ticket.get("node_class") or "")) == "concept-piece":
-        return _concept_lacks(ticket, tid, proven_by, repo_root, seal_reader)
-
-    proof_path = (repo_root / proven_by) if not Path(proven_by).is_absolute() else Path(proven_by)
-    if not proof_path.exists():
-        return [_lack(tid, "proof_on_disk", f"{proven_by} exists",
-                      "the named proof is not on disk — the seal it claims cannot be about "
-                      "anything", proof=proven_by)]
+        return _concept_lacks(ticket, tid, named[0], repo_root, seal_reader)
 
     found = []
-    declaration = declared(proof_path).get(tid, {})
-    if not declaration:
-        found.append(_lack(tid, "proof_declares_the_ticket",
-                           f"{proof_path.name} carries a PROVES entry for this ticket",
-                           "the proof declares nothing for this ticket, so a green seal on it "
-                           "says nothing about whether THIS ticket is proven — the exact shape "
-                           "measured on four of twelve tickets, 2026-09-07",
-                           proof=proven_by))
+    # A CLAUSE MAY BE PROVED SOMEWHERE ELSE, and the crossing may say so. Measured on
+    # 9579a6f9cec6 (2026-09-07): its six clauses are served by teeth in THREE proofs —
+    # trouble's own, tools/base's fixture-device raise, and the panel probe — because the
+    # ticket's subject is a seam between components and a seam has ends in more than one
+    # place. Reading only one proof would have forced a choice between naming a proof that
+    # covers a third of the ticket and inlining other components' teeth into trouble's
+    # proof, which is the tighter coupling the ticket exists to remove. So `proven_by` is
+    # read as one-or-many, every named proof is checked on its own terms (its own
+    # declaration, its own seal, its own fingerprint), and a clause is covered if ANY of
+    # them declares a green tooth for it. Nothing is relaxed: each proof still has to
+    # exist, declare this ticket, be sealed, and be current.
+    declaration, per_proof = {}, {}
+    for one in named:
+        proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
+        if not proof_path.exists():
+            found.append(_lack(tid, "proof_on_disk", f"{one} exists",
+                               "the named proof is not on disk — the seal it claims cannot be "
+                               "about anything", proof=one))
+            continue
+        mine = declared(proof_path).get(tid, {})
+        if not mine:
+            found.append(_lack(tid, "proof_declares_the_ticket",
+                               f"{proof_path.name} carries a PROVES entry for this ticket",
+                               "the proof declares nothing for this ticket, so a green seal on "
+                               "it says nothing about whether THIS ticket is proven — the exact "
+                               "shape measured on four of twelve tickets, 2026-09-07",
+                               proof=one))
+        seal = seal_reader(proof_path, artifact=False)
+        if seal is None:
+            found.append(_lack(tid, "seal_exists", f"{proof_path.name} carries a validation seal",
+                               "the named proof has never been sealed", proof=one))
+        else:
+            stale = _fingerprint_stale(proof_path, seal)
+            if stale:
+                found.append(_lack(tid, "seal_fingerprint_current",
+                                   f"the seal for {proof_path.name} matches the working tree",
+                                   stale, proof=one))
+        green = set((((seal or {}).get("evidence") or {}).get("teeth_green")) or [])
+        per_proof[one] = (proof_path, mine, green)
+        for clause, tooth in mine.items():
+            # FIRST DECLARER WINS, and a second one is not a conflict to adjudicate: two
+            # proofs both claiming a clause is two teeth for it, which is more evidence,
+            # not less. What matters is that at least one is green — checked below.
+            declaration.setdefault(clause, []).append(one)
 
-    seal = seal_reader(proof_path, artifact=False)
-    teeth_green = set((((seal or {}).get("evidence") or {}).get("teeth_green")) or [])
+    where = ", ".join(Path(p).name for p in named)
     for clause in want:
-        tooth = declaration.get(clause)
-        if not tooth:
+        holders = declaration.get(clause) or []
+        if not holders:
             found.append(_lack(tid, "clause_declared",
-                               f"clause ({clause}) has a declared tooth in {proof_path.name}",
-                               f"clause ({clause}) is undeclared — no tooth in the named proof "
-                               f"claims to cover it", clause=clause, proof=proven_by))
-        elif tooth not in teeth_green:
+                               f"clause ({clause}) has a declared tooth in {where}",
+                               f"clause ({clause}) is undeclared — no tooth in the named "
+                               f"proof{'s' if len(named) > 1 else ''} claims to cover it",
+                               clause=clause, proof=named[0], proofs=named))
+            continue
+        greens = [(p, per_proof[p][1][clause]) for p in holders
+                  if per_proof[p][1][clause] in per_proof[p][2]]
+        if not greens:
+            reds = [(p, per_proof[p][1][clause]) for p in holders]
             found.append(_lack(tid, "declared_tooth_green",
-                               f"tooth {tooth} printed green in the seal for {proof_path.name}",
-                               f"clause ({clause}) declares tooth {tooth}, which is not among the "
-                               f"teeth the seal recorded green" if seal else
-                               f"clause ({clause}) declares tooth {tooth}, and the named proof "
-                               f"has no seal to record it green",
-                               clause=clause, tooth=tooth, proof=proven_by))
-    if seal is None:
-        found.append(_lack(tid, "seal_exists", f"{proof_path.name} carries a validation seal",
-                           "the named proof has never been sealed", proof=proven_by))
-    else:
-        stale = _fingerprint_stale(proof_path, seal)
-        if stale:
-            found.append(_lack(tid, "seal_fingerprint_current",
-                               f"the seal for {proof_path.name} matches the working tree",
-                               stale, proof=proven_by))
+                               f"a tooth declared for clause ({clause}) printed green in its "
+                               f"own seal",
+                               f"clause ({clause}) declares "
+                               + "; ".join(f"{tooth} in {Path(p).name}" for p, tooth in reds)
+                               + " — none is among the teeth its seal recorded green",
+                               clause=clause, tooth=reds[0][1], proof=reds[0][0]))
     return found
 
 
@@ -300,16 +325,30 @@ def _lack(ticket_id: str, kind: str, about: str, why: str, **values) -> dict:
     return {"ticket": ticket_id, "kind": kind, "about": about, "why": why, "values": values}
 
 
-def _proven_by(ticket: dict) -> str | None:
-    """The proof named by the LATEST crossing that names one.
+def _proven_by(ticket: dict) -> list[str]:
+    """The proof or proofs named by the LATEST crossing that names any — always a list.
 
     Latest, not first: a ticket kicked back to BUILDME and re-crossed names a new proof,
     and reading the first crossing would check the abandoned one forever.
+
+    ``proven_by`` may be one path or a list of them. A ticket whose subject is a SEAM has
+    ends in more than one component, and its clauses are proved by teeth in each — writing
+    one path there would force the crossing to lie about two thirds of the evidence.
+    Duplicates are dropped and order is kept, so the first named proof stays the one a
+    single-proof lack points at.
     """
     for entry in reversed(ticket.get("crossings") or []):
-        if isinstance(entry, dict) and entry.get("proven_by"):
-            return str(entry["proven_by"])
-    return None
+        if not isinstance(entry, dict) or not entry.get("proven_by"):
+            continue
+        raw = entry["proven_by"]
+        one = [raw] if isinstance(raw, str) else [str(p) for p in raw if p]
+        seen, out = set(), []
+        for p in one:
+            if p not in seen:
+                seen.add(p)
+                out.append(p)
+        return out
+    return []
 
 
 def _latest_seal(path: Path, *, artifact: bool = False):

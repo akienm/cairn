@@ -32,6 +32,21 @@ def source_fingerprint(path):
     return _fp(path)
 
 
+def latest_seal(path, *, artifact=False):
+    """The most recent VALIDATION sealed for ``path``, or None if it has never been sealed.
+
+    ``artifact=True`` addresses a thing with no ``proofs/`` directory — a concept-piece
+    proved by people reading it — whose seal berths at ``<dir>/validations/<stem>.json``.
+    Either way the address is DERIVED from the sealed thing, never chosen by the caller,
+    which is what keeps intent and proof at one address (Law 5).
+    """
+    from cairn.devices.tester.validation_store import (
+        read_validations, validations_path_for, validations_path_for_artifact)
+    where = validations_path_for_artifact(str(path)) if artifact else validations_path_for(str(path))
+    records = read_validations(path=where)
+    return records[-1] if records else None
+
+
 def run_proof(path, *, sink="none", caller="unknown"):
     """Run ONE proof and return its record. Persists nothing — the caller decides."""
     from cairn.devices.tester.device import TesterDevice

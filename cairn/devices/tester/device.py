@@ -86,6 +86,22 @@ def _tail(text: str, n: int = 20) -> str:
     return "\n".join((text or "").splitlines()[-n:])
 
 
+def _teeth(stdout: str) -> dict:
+    """``{"teeth_green": [...], "teeth_red": [...]}`` from a proof's full stdout.
+
+    The extraction lives in cairn/tools/proof_coverage (a tool has users, not an owner) so
+    the sieve that JUDGES coverage and the notary that RECORDS it read the same names by
+    the same rule — two implementations of "which teeth printed green" would diverge in the
+    one direction nobody would notice, toward more green.
+
+    A proof whose output names no teeth records empty lists rather than nothing: absent and
+    empty are different claims, and only one of them is measurable.
+    """
+    from cairn.tools.proof_coverage import teeth_printed
+    printed = teeth_printed(stdout)
+    return {"teeth_green": printed["green"], "teeth_red": printed["red"]}
+
+
 # How many written paths ride in the record before it is summarised. A proof that writes
 # thousands of files has said what it needs to say in the first few dozen, and a VALIDATION
 # is read by a mind — but the COUNT is never capped, so the cap can never hide the scale.
@@ -305,10 +321,23 @@ class TesterDevice(BaseDevice):
             try:
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
                 verdict = GREEN if proc.returncode == 0 else RED
+                # WHICH TEETH RAN GREEN — read from the FULL stdout, here, before it is
+                # tailed. Ticket feeb4c786b14: a green seal used to say only "exit 0", so a
+                # ticket could name any passing proof and nothing could tell whether that
+                # proof contained a tooth about this ticket at all — measured 2026-09-07 on
+                # four of twelve PROVEME tickets naming proofs that never mention their
+                # subject. The tooth names are what a coverage claim joins on.
+                #
+                # IT MUST READ proc.stdout AND NOT stdout_tail. The tail is twenty lines by
+                # design (a diagnostic surface, Law 7); a forty-tooth proof would report
+                # twenty and the missing twenty would read as "not proved" — a red for the
+                # wrong reason, which is worse than no reading at all. Inside `evidence`,
+                # never a ninth field: the eight are ratified.
                 evidence = {
                     "returncode": proc.returncode,
                     "stdout_tail": _tail(proc.stdout),
                     "stderr_tail": _tail(proc.stderr),
+                    **_teeth(proc.stdout),
                     **base_evidence,
                 }
             except subprocess.TimeoutExpired:
@@ -319,6 +348,11 @@ class TesterDevice(BaseDevice):
                     "returncode": None,
                     "stdout_tail": "",
                     "stderr_tail": f"timed out after {timeout}s",
+                    # EMPTY, NOT ABSENT. A timed-out proof proved no teeth, and saying so
+                    # is a measurement; leaving the keys out would make "we did not look"
+                    # and "we looked and found none" the same reading downstream.
+                    "teeth_green": [],
+                    "teeth_red": [],
                     **base_evidence,
                 }
             # WHAT THE PROOF WROTE, kept as a measurement rather than thrown away with the

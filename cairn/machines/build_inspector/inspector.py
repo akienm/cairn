@@ -2691,6 +2691,69 @@ def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
     return findings
 
 
+def proof_covers_the_ticket(root: Path) -> list[dict]:
+    """Tickets at PROVEME or beyond whose named proof does not cover every falsifier clause.
+
+    Provenance: ticket feeb4c786b14, measured 2026-09-07. Nineteen tickets sat at
+    PROVEME:waiting; twelve named a proof with a green seal. Three of the twelve named
+    ``cairn/devices/cairn/proofs/test_trouble_panel.py`` for sleep-cycle, idle-detection and
+    token-rotation work — a file mentioning none of those words — and a fourth named
+    ``test_codemother.py`` for post-build reflection, which it never mentions. A green seal
+    on a named proof said nothing about whether the TICKET was proven, and nothing on disk
+    could see it: four of twelve were Law 8's hollow green wearing a real seal.
+
+    THE RESIDUE THIS CLOSES is component_color's (ticket green-is-earned-not-assumed):
+    that sieve derives colour per COMPONENT, from whether its seals are current. This
+    derives it per TICKET, from whether the proof named actually contains a tooth for each
+    clause. A component can be entirely green while every ticket claiming it is hollow —
+    the two are different questions and neither answers the other.
+
+    Not a row-level sieve: a ticket has no census row (it lives in CairnCommons, not in
+    class-space), so it runs after the shake alongside unbuilt_intentions and slate_reach.
+    It names the missing CLAUSE, never just the ticket — "not covered" tells a builder
+    nothing he can act on, and a report he cannot act on is a report he learns to skip.
+    """
+    from cairn.tools import proof_coverage
+
+    commons = root.parent.parent / "CairnCommons"
+    # THE REPO ROOT, NOT THE PACKAGE ROOT. ``root`` here is ``<repo>/cairn`` — the package
+    # dir the census walks — while a ticket's ``proven_by`` is spelled from the REPO root
+    # ("cairn/tools/base/proofs/test_x.py"). Joining them gave <repo>/cairn/cairn/... and
+    # every named proof read as missing from disk: a red for the wrong reason, which is the
+    # one kind of red that teaches a reader to stop believing the report. Caught 2026-09-07
+    # by running the scan and reading the counts instead of the exit code.
+    repo_root = root.parent if root.name == "cairn" else root
+    findings = []
+    for ticket in proof_coverage.load_tickets(commons):
+        cursor = _workflow_cursor(ticket.get("workflow_and_state"))
+        if cursor not in _PROVEN_SPACE:
+            continue
+        for lack in proof_coverage.lacks(ticket, repo_root=repo_root):
+            findings.append(_finding(
+                "proof_covers_the_ticket", ticket.get("id") or "?",
+                lack["about"], expected=True, actual=False,
+                cursor=cursor, reason=lack["why"], lack=lack["kind"],
+                **lack["values"],
+            ))
+    return findings
+
+
+# Everything from PROVEME on is a claim that the work is proved — which is exactly the
+# claim this sieve checks. WATCHME and PROVED are included deliberately: a ticket that
+# already crossed does not stop needing to be covered, and excluding them would mean the
+# only way to escape the check is to finish crossing.
+_PROVEN_SPACE = frozenset({"PROVEME", "WATCHME", "PROVED"})
+_CURSOR_MARK = re.compile(r"\[([A-Z]+)(?:\([^)]*\))?(?::[a-z]+)?\]")
+
+
+def _workflow_cursor(workflow) -> str | None:
+    """The stage inside the cursor brackets of a workflow string, or None."""
+    if not isinstance(workflow, str):
+        return None
+    m = _CURSOR_MARK.search(workflow)
+    return m.group(1) if m else None
+
+
 def slate_reach(root: Path) -> list[dict]:
     """Slates about PROVED tickets — stale continuity records at 142:1.
 
@@ -3090,10 +3153,12 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     unbuilt = []
     stale_slates = []
     stale_histories = []
+    uncovered_tickets = []
     if component is None:
         unbuilt = unbuilt_intentions(rows, root)
         stale_slates = slate_reach(root)
         stale_histories = history_reach(root)
+        uncovered_tickets = proof_covers_the_ticket(root)
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
     record = proof_record(shaken["gradation"], shaken["findings"])
@@ -3111,7 +3176,9 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "unbuilt_intentions": unbuilt,
         "stale_slates": stale_slates,
         "stale_histories": stale_histories,
-        "clean": not shaken["findings"] and not unbuilt and not stale_slates and not stale_histories,
+        "uncovered_tickets": uncovered_tickets,
+        "clean": (not shaken["findings"] and not unbuilt and not stale_slates
+                  and not stale_histories and not uncovered_tickets),
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

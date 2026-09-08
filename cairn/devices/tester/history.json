@@ -3062,5 +3062,124 @@
     "fingerprint": "733da07aeac8b4dbeb8286cbc72250f3972c9aa48f034c224e570538ba45b59a",
     "at": "2026-09-07T17:25:21",
     "seq": 20
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '675ab0daa171', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "675ab0daa171"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "675ab0daa171"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "675ab0daa171"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/tester/proofs/test_validation_store.py",
+    "proven_seal_date": "2026-09-08T15:32:38",
+    "delegated": false,
+    "ticket": "675ab0daa171",
+    "note": "a seal fingerprints the IMPORT CLOSURE, not the directory. run_proof captures sys.modules at proof exit via atexit+runpy, keeps the repo-relative subset, and hashes exactly that set; sealed_fingerprint_now picks the recipe by what the seal carries, so pre-closure seals are still re-checked the way they were TAKEN. Measured on cairn/tools/base (36 sealed proofs): a touch to transitions.py expired 36 of 36 under the directory recipe and expires 15 of 36 under the closure recipe -- 21 seals survive. Capture cost on an idle machine: -0.029s per run (-1.7%), below run-to-run variance, against >=35.7s of re-seals saved per transitions.py edit on that one component. test_validation_store.py 21/21 twice (6 new closure teeth, roster floor 15->21); test_component_color.py 7/7; test_proof_coverage.py 24/24.",
+    "fingerprint": "62aa42f6bb3a48f7efe29d183ce5aa2cac2b03f922f48fcd5d908ce4d03a16fa",
+    "at": "2026-09-08T15:34:14",
+    "seq": 21
   }
 ]

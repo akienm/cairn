@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_device_logs_unwired.py passes under python3",
-    "caller": "sail:9e7867aa1056:reseal-after-the-snapshot-fix",
-    "date": "2026-09-08T14:49:38",
+    "caller": "CC",
+    "date": "2026-09-08T15:51:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,10 +15,38 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "94cf08369caa9e15c1c7090f2e770adeaab60e99c7246b0ef0c7b696681fb689",
+      "source_fingerprint": "7468fec7442cb040b6ab6e148f417de35a0acea2867de7479871719007ba7777",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovered.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/machines/ground_loop/loop.py",
+        "cairn/devices/cairn/machines/ground_loop/staleness.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_device_logs_unwired.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-890341-wy2yq4vv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1048166-7ad2ty0z/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

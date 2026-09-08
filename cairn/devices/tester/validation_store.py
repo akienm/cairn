@@ -162,21 +162,23 @@ def artifact_fingerprint(artifact_path: str) -> str:
     return digest.hexdigest()
 
 
-def source_fingerprint(proof_path: str) -> str:
-    """One sha256 over every ``*.py`` under the proof's component root — the horizon, made checkable.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))))
 
-    SCOPE IS THE HORIZON'S OWN WORDING: "valid until the proof file OR THE CODE IT PROVES
-    changes." Hashing only the proof would miss the likelier drift by far (code edited, proof
-    untouched), so the walk covers the whole component — proof included, since it lives there.
+
+def directory_fingerprint(root: str) -> str:
+    """One sha256 over every ``*.py`` under ``root`` — the older of the two recipes.
+
+    Takes an explicit root rather than deriving one, because it has two kinds of caller: the
+    seal recipe below, which derives the component from a proof path, and the readers that
+    need to hash a directory they were handed (build_inspector's fixtures, most of all). It
+    was copied into build_inspector once for exactly that reason, and the copy is what made
+    the two disagree the day the recipe changed. One recipe, one address, an explicit root.
 
     Path AND content go into the digest, so a rename or a deletion moves the number as surely
     as an edit does; a file that vanished cannot be an unnoticed change. Sorted by relative
     path, so the digest is deterministic across filesystems.
-
-    Deliberately NOT git: a seal must expire the moment the working tree diverges, not when
-    someone commits. An uncommitted edit is exactly the state where a stale green does harm.
     """
-    root = component_root_for(proof_path)
     digest = hashlib.sha256()
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
@@ -190,6 +192,129 @@ def source_fingerprint(proof_path: str) -> str:
                 digest.update(f.read())
             digest.update(b"\0")
     return digest.hexdigest()
+
+
+def closure_of(seal: dict) -> list[str] | None:
+    """The import closure a seal recorded, or ``None`` for a seal taken before closures existed.
+
+    ``None`` is not "empty" and the difference decides which recipe re-takes the fingerprint.
+    A pre-2026-09-08 seal was taken over the whole component directory and must be re-taken
+    that way or it reads stale for a reason no one can explain; a seal WITH a closure is
+    re-taken over exactly the files the proof loaded. Kept as a named reader so the three
+    call sites cannot each invent their own way of asking (Law 1)."""
+    if not isinstance(seal, dict):
+        return None
+    closure = (seal.get("evidence") or {}).get("fingerprint_closure")
+    return closure if isinstance(closure, list) else None
+
+
+def sealed_fingerprint_now(proof_path: str, seal: dict) -> str:
+    """Re-take ``proof_path``'s fingerprint UNDER THE RECIPE THIS SEAL WAS TAKEN WITH.
+
+    THE ONE DOOR FOR "has the code moved under this seal?", and it exists because that
+    question had three independent answers. ``standing`` here, ``component_color`` in
+    build_inspector, and ``_fingerprint_stale`` in proof_coverage each re-derived the
+    recipe; the day the recipe gained a second form was the day they would have disagreed,
+    and a seal reading green in one surface and expired in another is worse than either
+    answer alone (Law 7 — a record of truth may not collapse, and two records of truth may
+    not contradict). Both remaining call sites now come here.
+    """
+    closure = closure_of(seal)
+    if closure is not None:
+        # IS THIS CLOSURE EVEN ABOUT THIS PROOF? ``repo_relative_closure`` unions the proof
+        # into every closure it builds, so a real closure ALWAYS names the proof it was taken
+        # for. One that does not was copied from somewhere else — and the copy is not
+        # hypothetical: it is what a fixture does when it re-points an existing seal's
+        # ``source_fingerprint`` at a different component and leaves the closure behind, which
+        # is exactly how this check came to be written (the tester's own proofs did it, and
+        # the seal silently compared the wrong files). The two halves of the pair must move
+        # together; when they have not, the closure is discarded and the directory recipe
+        # answers — conservative, and never a comparison against files the proof never loaded.
+        mine = repo_relative_closure([], proof_path)
+        if not mine or mine[0] not in closure:
+            closure = None
+    return source_fingerprint(proof_path, closure=closure)
+
+
+def source_fingerprint(proof_path: str, *, closure: list[str] | None = None) -> str:
+    """One sha256 over what the proof actually PROVED — its import closure, or its directory.
+
+    SCOPE IS THE HORIZON'S OWN WORDING: "valid until the proof file OR THE CODE IT PROVES
+    changes." The question has always been which files are "the code it proves", and until
+    2026-09-08 the answer was every ``*.py`` under the component root — a stand-in for the
+    real answer, chosen because nothing could compute the real one.
+
+    WHAT THE STAND-IN COST, MEASURED: 2026-09-05, one edit to ``transitions.py`` expired 60
+    of 154 seals at once. 2026-09-07, clearing the inbox meant re-sealing 18 proofs whose
+    code had not changed — only a neighbour in the same directory had. 2026-09-08, the seals
+    under ``tools/base`` were taken TWICE in one voyage, ~22 minutes each, because a one-line
+    edit to ONE proof file expired all 35 — including the 34 that could not load it. The
+    lived symptom is a wall of red that says nothing about what broke.
+
+    ``closure`` is the real answer when the runner could capture it: the repo-relative files
+    the proof's subprocess actually imported, plus the proof itself. Hashed sorted, path and
+    content both, so a rename or a deletion moves the number as surely as an edit does. A
+    file in the closure that has since VANISHED digests a sentinel rather than raising — a
+    file that is gone is the loudest kind of change, and the seal must expire, not crash.
+
+    ``closure=None`` keeps the directory walk, and that is not a deprecated branch: it is
+    what a seal taken before this existed must be re-checked with, and what the runner falls
+    back to when the closure could not be captured (a timed-out proof reports nothing). The
+    two recipes are never mixed — ``sealed_fingerprint_now`` picks by what the seal carries.
+
+    THE HOLE, STATED RATHER THAN HIDDEN: a closure is what the proof IMPORTED at runtime. A
+    file it ``open()``s without importing is invisible to it, and so is a lazy import inside
+    a branch that did not run. Both were invisible to the directory walk in a different
+    way — it caught them by covering everything, at the price of catching everything else
+    too. Narrowing the net is what makes the misses possible; saying so in the record is
+    what keeps them findable.
+
+    Deliberately NOT git, in either form: a seal must expire the moment the working tree
+    diverges, not when someone commits. An uncommitted edit is exactly the state where a
+    stale green does harm.
+    """
+    if closure is None:
+        return directory_fingerprint(component_root_for(proof_path))
+    digest = hashlib.sha256()
+    for rel in sorted(set(closure)):
+        digest.update(rel.encode("utf-8"))
+        digest.update(b"\0")
+        full = os.path.join(_REPO_ROOT, rel)
+        try:
+            with open(full, "rb") as f:
+                digest.update(f.read())
+        except OSError:
+            # GONE. Digest a sentinel the file's own bytes could never produce, so the seal
+            # expires loudly instead of the read raising inside three different callers.
+            digest.update(b"\0<absent>\0")
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def repo_relative_closure(files, proof_path: str) -> list[str]:
+    """Filter a runner's raw ``__file__`` list down to the seal's closure — repo files, sorted.
+
+    Everything outside this repo is dropped: the standard library and site-packages move
+    when the interpreter is upgraded, not when this system changes, and a seal that expired
+    on a python patch release would teach a reader to ignore expiry. The proof itself is
+    unioned in unconditionally — ``runpy`` restores ``sys.modules['__main__']`` before
+    ``atexit`` runs, so the one file every closure must contain is the one the raw list is
+    most likely to be missing.
+    """
+    out = set()
+    for f in list(files or []) + [proof_path]:
+        try:
+            full = os.path.realpath(str(f))
+        except OSError:
+            continue
+        if full.endswith(".pyc"):
+            full = full[:-1]
+        rel = os.path.relpath(full, _REPO_ROOT)
+        if rel.startswith(os.pardir) or os.path.isabs(rel):
+            continue
+        if rel.endswith(".py"):
+            out.add(rel)
+    return sorted(out)
 
 
 def standing(proof_path: str) -> dict:
@@ -249,17 +374,31 @@ def standing(proof_path: str) -> dict:
             f"no source_fingerprint — so whether the code still matches what was proved is "
             f"UNKNOWABLE from the trail. Unknown is not green (Law 9). Re-run the proof to "
             f"seal a fingerprint")}
+    # RE-TAKEN UNDER THE SEAL'S OWN RECIPE, never under today's. A seal that recorded an
+    # import closure is re-checked over exactly those files; one that predates closures is
+    # re-checked over the component directory it was taken across. Asking the new question
+    # of an old seal would expire every seal in the corpus at once and call it drift.
+    closure = closure_of(seal)
     current = (artifact_fingerprint(proof_path) if human_proved
-               else source_fingerprint(proof_path))
+               else sealed_fingerprint_now(proof_path, seal))
+    # WHAT WAS HASHED, NAMED IN THE SENTENCE. Three recipes reach this line and until
+    # 2026-09-08 the sentence named none of them, so "the fingerprint moved" left the reader
+    # to guess whether it was the artifact, the closure, or a neighbour in the same directory
+    # that moved — the difference between a real expiry and a directory-recipe false alarm
+    # (Law 7: a diagnostic surface is loud). A human-proved artifact is hashed over ITSELF and
+    # must say so; naming it "the component's directory" was both wrong and unfalsifiable.
+    scope = ("the artifact" if human_proved else
+             f"the {len(closure)} file(s) the proof imports" if closure is not None else
+             "the component's directory")
     if current != recorded:
         return {"proven": False, "seal": seal, "why": (
             f"the seal on {proof_path} is green, dated {seal.get('date')} — and its "
-            f"HORIZON HAS CLOSED: the component's source fingerprint was "
+            f"HORIZON HAS CLOSED: the fingerprint over {scope} was "
             f"{recorded[:12]}… when it was sealed and is {current[:12]}… now, so the code moved "
             f"under the proof. Re-run the proof (Law 3: a VALIDATION expires)")}
     return {"proven": True, "seal": seal, "why": (
-        f"sealed green {seal.get('date')} by {seal.get('caller')}, and the component's source "
-        f"fingerprint still matches what was proved ({recorded[:12]}…)")}
+        f"sealed green {seal.get('date')} by {seal.get('caller')}, and the fingerprint over "
+        f"{scope} still matches what was proved ({recorded[:12]}…)")}
 
 
 def verdict_change(standing_trail: list, incoming: dict) -> dict | None:

@@ -26,10 +26,28 @@ def standing(proof_path):
     return _standing(proof_path)
 
 
-def source_fingerprint(path):
-    """One sha256 over every ``*.py`` under the component root."""
+def source_fingerprint(path, *, closure=None):
+    """One sha256 over what a proof proves — its import closure, or its component directory."""
     from cairn.devices.tester.validation_store import source_fingerprint as _fp
-    return _fp(path)
+    return _fp(path, closure=closure)
+
+
+def directory_fingerprint(root):
+    """One sha256 over every ``*.py`` under ``root`` — the pre-closure recipe, explicit root."""
+    from cairn.devices.tester.validation_store import directory_fingerprint as _dir
+    return _dir(str(root))
+
+
+def sealed_fingerprint_now(path, seal):
+    """Re-take ``path``'s fingerprint under the recipe THIS seal was taken with.
+
+    The one door for "has the code moved under this seal?". Every reader outside the tester
+    comes through here rather than re-deriving the recipe, because the recipe now has two
+    forms (closure and directory) and a reader that picks the wrong one reports drift that
+    is not there. Which form applies is a property of the SEAL, not of the caller.
+    """
+    from cairn.devices.tester.validation_store import sealed_fingerprint_now as _now
+    return _now(path, seal)
 
 
 def latest_seal(path, *, artifact=False):

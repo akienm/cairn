@@ -1,22 +1,55 @@
 [
   {
     "claim": "proof test_quorum.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T19:08:37",
+    "caller": "CC",
+    "date": "2026-09-08T16:19:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_concept_piece_can_finally_be_sealed\n  ok   test_it_is_the_same_ratified_record_not_a_new_type\n  ok   test_a_notary_who_reviewed_cannot_seal_their_own_verdict\n  ok   test_a_same_hand_seal_stands_only_under_a_confirmed_ruling_on_file\n  ok   test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes\n  ok   test_a_rubber_stamp_is_refused\n  ok   test_a_quorum_means_distinct_hands\n  ok   test_a_rejection_is_a_verdict_and_is_recorded\n  ok   test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP\n  ok   test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals\n  ok   test_the_real_intention_is_a_real_file_the_gate_can_address\n\n11/11 green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_concept_piece_can_finally_be_sealed",
+        "test_it_is_the_same_ratified_record_not_a_new_type",
+        "test_a_notary_who_reviewed_cannot_seal_their_own_verdict",
+        "test_a_same_hand_seal_stands_only_under_a_confirmed_ruling_on_file",
+        "test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes",
+        "test_a_rubber_stamp_is_refused",
+        "test_a_quorum_means_distinct_hands",
+        "test_a_rejection_is_a_verdict_and_is_recorded",
+        "test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP",
+        "test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals",
+        "test_the_real_intention_is_a_real_file_the_gate_can_address"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "635be9c4f0f1e1ec29cda847d37590da52d95ccc48ba3337cee1c82b44775047",
+      "source_fingerprint": "b3dcae111a1cc8187e9d1a062fe720f3c0a30a626019b02a61e069b3e415c16d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_quorum.py",
+        "cairn/devices/tester/quorum.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2361506-vaoh70qn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1140984-0_j9varn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

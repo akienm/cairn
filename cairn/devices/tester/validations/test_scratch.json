@@ -1,22 +1,32 @@
 [
   {
     "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:17:28",
+    "caller": "CC",
+    "date": "2026-09-08T16:19:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_scratch_is_gone_once_the_process_is",
+        "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
+        "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
+        "test_no_proof_in_this_repo_calls_mkdtemp_bare"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ac694c3e2bce9e2cec87318a0f8178995d42852e9dafa073f3ef3f29d9b3191f",
+      "source_fingerprint": "a66df6ac5943814501c5a829af977bc3667219cd1999c56fd748f2391ccbc2f4",
+      "fingerprint_closure": [
+        "cairn/devices/tester/proofs/test_scratch.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-b8a39zk9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1140984-_3p2q4vl/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

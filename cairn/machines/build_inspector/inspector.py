@@ -2570,21 +2570,42 @@ def history_reach(root: Path) -> list[dict]:
 
 
 def _source_fingerprint(comp_dir: Path) -> str:
-    import hashlib
-    digest = hashlib.sha256()
-    for dirpath, dirnames, filenames in os.walk(comp_dir):
-        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
-        for name in sorted(filenames):
-            if not name.endswith(".py"):
-                continue
-            full = os.path.join(dirpath, name)
-            rel = os.path.relpath(full, comp_dir)
-            digest.update(rel.encode("utf-8"))
-            digest.update(b"\0")
-            with open(full, "rb") as f:
-                digest.update(f.read())
-            digest.update(b"\0")
-    return digest.hexdigest()
+    """One sha256 over every ``*.py`` under ``comp_dir`` — ASKED OF THE OWNER, not re-derived.
+
+    The body of this function used to be a byte-for-byte copy of the tester's directory walk.
+    The two agreed only for as long as nobody changed either, and on 2026-09-08 the recipe
+    grew a second form; a copy cannot follow that. It is now one line through the tool front,
+    which is what it should have been — a machine may not import a device, and
+    ``cairn.tools.base.validation`` exists precisely so the tester's read side is reachable
+    without one. Kept as a name because the inspector's own proofs build fixture seals with
+    it, and a fixture that hashes the directory a different way than the sieve does is a
+    fixture that proves nothing.
+    """
+    from cairn.tools.base.validation import directory_fingerprint
+    return directory_fingerprint(comp_dir)
+
+
+def _sealed_fingerprint_now(proof: Path, seal: dict) -> str | None:
+    """What ``proof``'s fingerprint is NOW, under the recipe ``seal`` was taken with.
+
+    THIS FUNCTION USED TO BE A SECOND COPY OF THE RECIPE — a private ``_source_fingerprint``
+    that re-implemented the tester's directory walk byte for byte, so that the two agreed by
+    coincidence of maintenance rather than by construction. It agreed right up until the
+    recipe grew a second form (ticket 675ab0daa171, 2026-09-08): a seal that records the
+    import closure the proof actually loaded is re-checked over those files, and a directory
+    walk asked of it reports drift that is not there. Every closure seal in the corpus would
+    have read red here while reading green in the tester.
+
+    Now it asks the owner. ``cairn.tools.base.validation`` is the legal front — a machine may
+    not import a device, and the tool exists precisely so the read side of the tester is
+    reachable without that. Returns ``None`` if the seal cannot be re-checked at all (the
+    files it names are unreadable), which the caller reports rather than swallowing.
+    """
+    from cairn.tools.base.validation import sealed_fingerprint_now
+    try:
+        return sealed_fingerprint_now(str(proof), seal)
+    except OSError:
+        return None
 
 
 def component_color(row: dict, comp_dir: Path) -> list[dict]:
@@ -2602,7 +2623,6 @@ def component_color(row: dict, comp_dir: Path) -> list[dict]:
     proof_files = sorted(proofs_dir.glob("test_*.py")) if proofs_dir.is_dir() else []
     if not proof_files:
         return []
-    current_fp = _source_fingerprint(comp_dir)
     findings = []
     for proof in proof_files:
         val_file = vals_dir / (proof.stem + ".json")
@@ -2638,16 +2658,25 @@ def component_color(row: dict, comp_dir: Path) -> list[dict]:
                 verdict=verdict,
             ))
             continue
+        # PER SEAL, NOT PER COMPONENT (ticket 675ab0daa171, 2026-09-08). One directory hash
+        # for the whole component was the old shape, and it could only ever answer "did any
+        # file here move?" — which reds every proof in a component when one file changes.
+        # Each seal now carries the recipe it was taken with, so each is re-checked its own
+        # way, and the finding says which scope it was judged against (Law 7).
         recorded_fp = (seal.get("evidence") or {}).get("source_fingerprint")
-        if recorded_fp is None or recorded_fp != current_fp:
+        current_fp = _sealed_fingerprint_now(proof, seal)
+        if recorded_fp is None or current_fp is None or recorded_fp != current_fp:
+            closure = (seal.get("evidence") or {}).get("fingerprint_closure")
             findings.append(_finding(
                 "component_color", row["component"],
                 f"proof {proof.name} fingerprint matches working tree",
                 expected=True, actual=False,
                 proof=proof.name,
                 reason="code changed since seal — horizon closed (Law 3)",
+                scope=(f"{len(closure)} imported file(s)" if isinstance(closure, list)
+                       else "the component directory (seal predates import closures)"),
                 recorded=recorded_fp[:12] + "…" if recorded_fp else None,
-                current=current_fp[:12] + "…",
+                current=current_fp[:12] + "…" if current_fp else None,
             ))
     return findings
 

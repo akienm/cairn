@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_address_rule.py passes under python3",
-    "caller": "sail:9e7867aa1056:reseal-after-the-snapshot-fix",
-    "date": "2026-09-08T14:47:08",
+    "caller": "CC",
+    "date": "2026-09-08T15:49:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,10 +24,24 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "94cf08369caa9e15c1c7090f2e770adeaab60e99c7246b0ef0c7b696681fb689",
+      "source_fingerprint": "3fb5931c7a188f5fffc53472a3d68fcd091959178612e6e1b139168c5eccc83f",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/proofs/test_address_rule.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-890341-vw_bh8l5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1048166-kr292dqu/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

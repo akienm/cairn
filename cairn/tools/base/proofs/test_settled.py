@@ -35,11 +35,11 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 from cairn.tools.base import settled as S
 from cairn.tools.base.settled import forget, settled, tree_fingerprint
+from cairn.devices.tester.scratch import scratch_dir
 
 
 class _Counted:
@@ -54,7 +54,13 @@ class _Counted:
 
 
 def _tree(*names) -> str:
-    root = tempfile.mkdtemp(prefix="cairn-settled-proof-")
+    # scratch_dir, NOT a bare mkdtemp. The tester's corpus scan
+    # (test_scratch.py::test_no_proof_in_this_repo_calls_mkdtemp_bare) reds any proof that
+    # reaches the system temp directory directly, because what it makes there outlives the
+    # run — that is how 3581 stale directories accumulated. Every call site here already
+    # rmtree's in a ``finally``; the swept directory is the belt to that pair of braces, and
+    # it is what the scan can actually see.
+    root = str(scratch_dir("cairn-settled-proof-"))
     for n in names:
         p = Path(root) / n
         p.parent.mkdir(parents=True, exist_ok=True)

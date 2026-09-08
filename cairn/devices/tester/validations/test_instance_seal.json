@@ -1,30 +1,62 @@
 [
   {
     "claim": "proof test_instance_seal.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:15:41",
+    "caller": "CC",
+    "date": "2026-09-08T16:17:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_proof_that_writes_to_instance_space_seeds_nothing_live\n  PASS  test_the_writes_are_MEASURED_not_merely_discarded\n  PASS  test_a_proof_still_READS_the_live_world\n  PASS  test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list\n  PASS  test_a_seal_that_does_not_hold_is_reported_BREACHED\n  PASS  test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED\n  PASS  test_every_venv_in_instance_space_is_found_and_bound_back\n  PASS  test_the_subject_can_still_execute_and_import_inside_the_seal\n  PASS  the live instance root is unleaked (59935 files witnessed; 2 declared subject-write(s), none on the host; 0 append(s) and 0 status rewrite(s) by the tester and the running daemons, read and clean)\ngreen — a proof writes nowhere in the live instance root and reads it exactly as the host does; the detector produces a real BREACHED and a real INDETERMINATE, so its SEALED means something",
+      "stdout_tail": "  PASS  test_a_proof_that_writes_to_instance_space_seeds_nothing_live\n  PASS  test_the_writes_are_MEASURED_not_merely_discarded\n  PASS  test_a_proof_still_READS_the_live_world\n  PASS  test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list\n  PASS  test_a_seal_that_does_not_hold_is_reported_BREACHED\n  PASS  test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED\n  PASS  test_every_venv_in_instance_space_is_found_and_bound_back\n  PASS  test_the_subject_can_still_execute_and_import_inside_the_seal\n  PASS  the live instance root is unleaked (77292 files witnessed; 2 declared subject-write(s), none on the host; 0 append(s) and 0 status rewrite(s) by the tester and the running daemons, read and clean)\ngreen — a proof writes nowhere in the live instance root and reads it exactly as the host does; the detector produces a real BREACHED and a real INDETERMINATE, so its SEALED means something",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_proof_that_writes_to_instance_space_seeds_nothing_live",
+        "test_the_writes_are_MEASURED_not_merely_discarded",
+        "test_a_proof_still_READS_the_live_world",
+        "test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list",
+        "test_a_seal_that_does_not_hold_is_reported_BREACHED",
+        "test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED",
+        "test_every_venv_in_instance_space_is_found_and_bound_back",
+        "test_the_subject_can_still_execute_and_import_inside_the_seal"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ac694c3e2bce9e2cec87318a0f8178995d42852e9dafa073f3ef3f29d9b3191f",
+      "source_fingerprint": "1a489f01da4c04647fb38a20d246a9ae02ffd0448543ea319b83034a45d23e19",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_instance_seal.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-7xecf6f9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1140984-fuxz7cax/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/tester/0/20260907.151447.474855.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151504.449428.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151517.952497.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151534.054550.TesterDevice.run_proof.json"
+            "logs/tester/0/20260908.221551.363929.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221609.801617.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221631.167711.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221654.710105.TesterDevice.run_proof.json"
           ],
           "elided": 0
         }

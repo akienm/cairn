@@ -1,33 +1,47 @@
 [
   {
     "claim": "proof test_cli.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:14:20",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "CC",
+    "date": "2026-09-08T15:39:34",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "proof: the `cairn test` verb — repo=/home/akien/dev/src/cairn\n  PASS  test_a_green_proof_reports_green_and_exits_zero\n  PASS  test_a_red_proof_reports_red_and_exits_nonzero\n  PASS  test_a_red_carries_its_evidence_in_the_first_run\n  PASS  test_the_run_seals_nothing\n  PASS  test_a_directory_expands_to_the_proofs_beneath_it\n  PASS  test_a_typod_path_is_loud_and_never_a_green_over_nothing\n  PASS  test_the_verb_is_registered_with_the_dispatcher\n  PASS  test_it_runs_from_a_cwd_that_is_not_the_repo\n\nall green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_green_proof_reports_green_and_exits_zero",
+        "test_a_red_proof_reports_red_and_exits_nonzero",
+        "test_a_red_carries_its_evidence_in_the_first_run",
+        "test_the_run_seals_nothing",
+        "test_a_directory_expands_to_the_proofs_beneath_it",
+        "test_a_typod_path_is_loud_and_never_a_green_over_nothing",
+        "test_the_verb_is_registered_with_the_dispatcher",
+        "test_it_runs_from_a_cwd_that_is_not_the_repo"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ac694c3e2bce9e2cec87318a0f8178995d42852e9dafa073f3ef3f29d9b3191f",
+      "source_fingerprint": "6e6e12079b67f3d0ff561747238b90d8318044cfbf080aeb7bca766e3308e86d",
+      "fingerprint_closure": [
+        "cairn/devices/tester/proofs/test_cli.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-c8wkvcm9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1040390-asefslkt/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
-            "logs/tester/0/20260907.151244.695546.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151257.822381.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151313.736669.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151330.779538.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151344.880107.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151400.549357.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151416.990045.TesterDevice.run_proof.json"
+            "logs/tester/0/20260908.213900.441641.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213905.186984.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213909.952107.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213914.745675.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213919.661435.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213924.393390.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.213929.302933.TesterDevice.run_proof.json"
           ],
           "elided": 0
         }

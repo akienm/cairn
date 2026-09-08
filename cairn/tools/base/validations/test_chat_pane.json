@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_chat_pane.py passes under python3",
-    "caller": "sail:9e7867aa1056:reseal-after-the-snapshot-fix",
-    "date": "2026-09-08T14:47:27",
+    "caller": "CC",
+    "date": "2026-09-08T15:49:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 6 items\n\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_in_floor_without_bus PASSED [ 16%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages PASSED [ 33%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_does_not_alter_channels PASSED [ 50%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_is_not_in_declared_panes PASSED [ 66%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_empty_personal_channel_renders_empty_turns PASSED [ 83%]\ncairn/tools/base/proofs/test_chat_pane.py::test_roster_minimum PASSED    [100%]\n\n============================== 6 passed in 0.26s ===============================\n\n\u001b[32m6 teeth green\u001b[0m",
+      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 6 items\n\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_in_floor_without_bus PASSED [ 16%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages PASSED [ 33%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_does_not_alter_channels PASSED [ 50%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_is_not_in_declared_panes PASSED [ 66%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_empty_personal_channel_renders_empty_turns PASSED [ 83%]\ncairn/tools/base/proofs/test_chat_pane.py::test_roster_minimum PASSED    [100%]\n\n============================== 6 passed in 0.23s ===============================\n\n\u001b[32m6 teeth green\u001b[0m",
       "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [],
@@ -15,19 +15,41 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "94cf08369caa9e15c1c7090f2e770adeaab60e99c7246b0ef0c7b696681fb689",
+      "source_fingerprint": "161b797a48cb255883c078855598bb6419224d8ec12247831fb42fa01297a406",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_chat_pane.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-890341-qvxf5r92/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1048166-54anf839/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20260908.204721.769389.BusDevice.post.json",
-            "logs/bus/0/20260908.204721.770019.BusDevice.post.json",
-            "logs/bus/0/20260908.204721.815624.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260908.204721.873657.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260908.204721.955001.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260908.214915.475841.BusDevice.post.json",
+            "logs/bus/0/20260908.214915.476421.BusDevice.post.json",
+            "logs/bus/0/20260908.214915.521796.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260908.214915.582227.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260908.214915.643198.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         }

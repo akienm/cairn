@@ -5,7 +5,7 @@
     "standing": "PROVEME",
     "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket 'feeb4c786b14', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "clean — a berthed chart chain claims ticket '675ab0daa171', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
@@ -76,7 +76,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "feeb4c786b14"
+          "ticket": "675ab0daa171"
         }
       },
       {
@@ -89,7 +89,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "feeb4c786b14"
+          "ticket": "675ab0daa171"
         }
       },
       {
@@ -102,7 +102,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "feeb4c786b14"
+          "ticket": "675ab0daa171"
         }
       }
     ],
@@ -110,13 +110,13 @@
     "cleared_by": "CC",
     "actor": "CC",
     "proven_by": "cairn/tools/proof_coverage/proofs/test_proof_coverage.py",
-    "proven_seal_date": "2026-09-07T19:35:41",
+    "proven_seal_date": "2026-09-08T15:33:22",
     "delegated": false,
-    "ticket": "feeb4c786b14",
-    "validation": "/home/akien/dev/src/cairn/cairn/tools/proof_coverage/validations/test_proof_coverage.json",
-    "fingerprint": "1f5c4887b4b755870e744871a3b83d59d407301b680e485e4586a17ef4670549",
-    "at": "2026-09-07T19:37:20",
-    "seq": 0
+    "ticket": "675ab0daa171",
+    "note": "_fingerprint_stale now asks sealed_fingerprint_now(proof, seal) instead of re-deriving the directory hash, so a pre-closure seal is re-checked the way it was TAKEN and a closure seal is compared against exactly what it imported. 24/24.",
+    "fingerprint": "58fb4956d2ff65b3d7e6e4659facc11ce9c12d6580c7f57cfba5f966a762fed0",
+    "at": "2026-09-08T15:35:05",
+    "seq": 1
   },
   "window": [
     {
@@ -237,7 +237,126 @@
       "fingerprint": "1f5c4887b4b755870e744871a3b83d59d407301b680e485e4586a17ef4670549",
       "at": "2026-09-07T19:37:20",
       "seq": 0
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '675ab0daa171', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "675ab0daa171"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "675ab0daa171"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "675ab0daa171"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": "cairn/tools/proof_coverage/proofs/test_proof_coverage.py",
+      "proven_seal_date": "2026-09-08T15:33:22",
+      "delegated": false,
+      "ticket": "675ab0daa171",
+      "note": "_fingerprint_stale now asks sealed_fingerprint_now(proof, seal) instead of re-deriving the directory hash, so a pre-closure seal is re-checked the way it was TAKEN and a closure seal is compared against exactly what it imported. 24/24.",
+      "fingerprint": "58fb4956d2ff65b3d7e6e4659facc11ce9c12d6580c7f57cfba5f966a762fed0",
+      "at": "2026-09-08T15:35:05",
+      "seq": 1
     }
   ],
-  "count": 1
+  "count": 2
 }

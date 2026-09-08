@@ -46,9 +46,12 @@ OPEN EDGES (filed, not faked — children of this stone):
 
 from __future__ import annotations
 
+import json
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -79,6 +82,86 @@ VALIDATION_FIELDS = (
     "falsifier",
     "horizon",
 )
+
+
+_CLOSURE_RUNNER = """
+import atexit, json, os, runpy, sys
+_out = sys.argv[1]
+_proof = sys.argv[2]
+sys.argv = [_proof]
+
+
+def _dump():
+    files = []
+    for mod in list(sys.modules.values()):
+        f = getattr(mod, "__file__", None)
+        if f:
+            files.append(f)
+    try:
+        with open(_out, "w") as fh:
+            json.dump(files, fh)
+    except OSError:
+        pass
+
+
+atexit.register(_dump)
+runpy.run_path(_proof, run_name="__main__")
+"""
+"""The subject, run so that it says what it loaded.
+
+WHY A WRAPPER AND NOT ``python <proof>``: the closure is ``sys.modules`` at exit, and only
+the subject's own interpreter can read that. ``runpy.run_path(..., run_name="__main__")``
+is what ``python <proof>`` does — same ``__file__``, same ``__name__``, same
+``if __name__ == "__main__":`` — so a proof cannot tell the difference, which is the whole
+requirement: the instrument may not change the reading. ``sys.argv`` is rewritten to what
+the proof would have seen, so the two channel arguments are invisible to it.
+
+``atexit`` rather than a line after the call, because a proof that fails is still a proof
+that imported things: an exception or ``sys.exit(1)`` propagates out of ``run_path`` and the
+dump still fires. A proof KILLED — the timeout — reports nothing at all, and that absence is
+handled where the seal is taken, by falling back to the directory recipe rather than guessing.
+
+The channel is a file, not stdout: stdout is parsed for tooth names and tailed to twenty
+lines (Law 7, a diagnostic surface), and a two-hundred-module closure written there would
+push the teeth out of the reading it shares.
+"""
+
+
+def _read_closure(path: str, proof_path: str) -> list[str] | None:
+    """The runner's report, filtered to the repo — or ``None`` when it reported nothing.
+
+    ``None`` and ``[]`` are different answers and the seal treats them differently: nothing
+    reported means fall back to the directory recipe (we do not know what was loaded), while
+    an empty repo closure would mean the proof loaded no repo file at all.
+
+    AND THE SECOND IS NOT IMPOSSIBLE — it was called impossible here for one afternoon, on
+    the reasoning that ``repo_relative_closure`` unions the proof in unconditionally. It
+    unions it in and then DROPS it, because the filter keeps only files under this repo and
+    a proof run from a fixture directory is not one. Measured 2026-09-08 by
+    ``test_tester.py``: a stand-in proof under ``/tmp`` sealed a 0-file closure digesting to
+    the sha256 of no input, and ``sealed_fingerprint_now`` — which discards a closure that
+    does not name its own proof — then re-checked it under the DIRECTORY recipe and read a
+    mismatch the code had never moved to earn. The two halves disagreed about the recipe, and
+    a seal whose taking and whose re-checking disagree is a false red for a reason no reader
+    can find.
+
+    So the guard is the same predicate at both ends: a closure that does not name the proof
+    it was taken for is not about this proof, and the honest report is ``None`` — fall back
+    to the directory, which is what the re-check would have done anyway.
+    """
+    from cairn.devices.tester.validation_store import repo_relative_closure
+    try:
+        with open(path, encoding="utf-8") as fh:
+            raw = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(raw, list):
+        return None
+    closure = repo_relative_closure(raw, proof_path)
+    mine = repo_relative_closure([], proof_path)
+    if not mine or mine[0] not in closure:
+        return None
+    return closure
 
 
 def _tail(text: str, n: int = 20) -> str:
@@ -269,15 +352,25 @@ class TesterDevice(BaseDevice):
         else:
             seal = iso.check_seal(str(proof_path.parent))
 
-        # WHAT WAS PROVED, pinned. The record already PROMISES a horizon — "valid until the
-        # proof file or the code it proves changes" — and for three weeks nothing could check
-        # it, because the record carried no description of the code it was about. This is that
-        # description: one sha256 over the component's *.py, taken BEFORE the run so it
-        # describes the tree the subject actually executed. It rides inside `evidence`, never
-        # as a ninth field (the eight are ratified). Lazy import: validation_store imports this
-        # module for VALIDATION_FIELDS, so the dependency only runs one way at import time.
+        # THE BEFORE HALF OF THE HORIZON. The record PROMISES "valid until the proof file or
+        # the code it proves changes", and this is the description that makes the promise
+        # checkable. Taken here, before the run, it is no longer the number that gets sealed —
+        # it is the WITNESS that the tree held still while the subject ran, read again after
+        # the run and compared. The number that gets sealed is taken below, over the import
+        # closure the subject reports, because "the code it proves" was always the files the
+        # proof loads and never every file that shares its directory.
+        #
+        # It rides inside `evidence`, never as a ninth field (the eight are ratified). Lazy
+        # import: validation_store imports this module for VALIDATION_FIELDS, so the
+        # dependency only runs one way at import time.
         from cairn.devices.tester.validation_store import source_fingerprint
-        fingerprint = source_fingerprint(str(proof_path))
+        dir_fp_before = source_fingerprint(str(proof_path))
+        # The runner's channel back. A host temp file, deliberately not instance-space: the
+        # instance seal swaps that root out from under the subject, so a closure written there
+        # would be discarded with the swap AND would show up in `wrote_to_instance` as
+        # something the proof did — an instrument contaminating its own reading.
+        _closure_fd, closure_out = tempfile.mkstemp(prefix="cairn-tester-closure-", suffix=".json")
+        os.close(_closure_fd)
 
         # THE INSTANCE SEAL — ALWAYS ON, AND DELIBERATELY NOT A PARAMETER (ticket
         # a-proof-cannot-seed-the-tree-it-reads). Every other knob on this method is named at
@@ -312,11 +405,10 @@ class TesterDevice(BaseDevice):
                     swap = snapshot_instance_space()
                     before = _manifest(swap)
 
-            argv = iso.wrap([sys.executable, str(proof_path)],
+            argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
                             cwd=str(proof_path.parent), instance_swap=swap)
             base_evidence = {
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
-                "source_fingerprint": fingerprint,
             }
             try:
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
@@ -355,6 +447,37 @@ class TesterDevice(BaseDevice):
                     "teeth_red": [],
                     **base_evidence,
                 }
+            # WHAT WAS PROVED, PINNED — and now pinned to the files the proof LOADED rather
+            # than to every neighbour that happens to share its directory. The fingerprint
+            # moved from before the run to after it because the closure cannot be known until
+            # the subject has run; the property the old placement bought — that the number
+            # describes the tree the subject actually executed — is bought back here by
+            # re-walking the directory and comparing. If the tree moved UNDER the run, the
+            # closure is not trustworthy (the proof read one version and the seal would
+            # record another), so the seal falls back to the PRE-run directory hash, which
+            # cannot match the tree now and therefore reads expired the instant anyone asks.
+            # A run raced by an edit seals nothing green; that is the conservative direction,
+            # and it is a real case — this session's own 22-minute re-seal batch overlapped
+            # edits to the very files it was sealing.
+            closure = _read_closure(closure_out, str(proof_path))
+            tree_moved = source_fingerprint(str(proof_path)) != dir_fp_before
+            if closure is not None and not tree_moved:
+                evidence["source_fingerprint"] = source_fingerprint(
+                    str(proof_path), closure=closure)
+                evidence["fingerprint_closure"] = closure
+            else:
+                # STATED, NEVER SILENT. A seal with no closure is re-checked against the whole
+                # directory, and a reader asking why this one expires more eagerly than its
+                # neighbours gets the answer out of the record instead of out of the source.
+                evidence["source_fingerprint"] = dir_fp_before
+                evidence["fingerprint_closure_absent"] = (
+                    "the tree moved under the run — sealed against the pre-run directory hash, "
+                    "so this seal reads expired until the proof is re-run" if tree_moved else
+                    "the runner reported no closure it could attribute to this proof (a "
+                    "killed or timed-out proof imports nothing it can report, and a proof "
+                    "outside the repo cannot appear in a repo-relative closure) — sealed "
+                    "against the component directory")
+
             # WHAT THE PROOF WROTE, kept as a measurement rather than thrown away with the
             # swap. Before this, "does this proof write to instance-space?" was a question
             # nobody could answer without instrumenting by hand; now every run answers it for
@@ -368,6 +491,10 @@ class TesterDevice(BaseDevice):
             for tmp in (swap, probe_swap):
                 if tmp:
                     shutil.rmtree(Path(tmp).parent, ignore_errors=True)
+            try:
+                os.unlink(closure_out)
+            except OSError:
+                pass
 
         # The method names HOW the verdict was reached AND how trustworthy the seal
         # under it is — so a reader sees seal-backing without opening the evidence.

@@ -1,30 +1,61 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:16:56",
+    "caller": "CC",
+    "date": "2026-09-08T16:18:48",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_no_isolation_is_honestly_open",
+        "test_the_four_seal_verdicts_are_measured_not_assumed",
+        "test_only_sealed_and_open_are_trustworthy",
+        "test_unknown_isolation_is_refused",
+        "test_netns_really_seals_on_this_host",
+        "test_run_proof_records_the_seal_without_schema_drift",
+        "test_run_proof_under_netns_when_available",
+        "test_the_seal_does_not_depend_on_how_the_path_is_spelled"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ac694c3e2bce9e2cec87318a0f8178995d42852e9dafa073f3ef3f29d9b3191f",
+      "source_fingerprint": "b66737b2630052fc58a72f66fa58c7e1248784c25e39aa82e369dfcfad7b77cf",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_isolation.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-cn1532od/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1140984-2fuzqa96/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/tester/0/20260907.151607.374838.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151620.961197.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151637.674578.TesterDevice.run_proof.json",
-            "logs/tester/0/20260907.151652.485299.TesterDevice.run_proof.json"
+            "logs/tester/0/20260908.221739.886483.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221759.299715.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221818.952380.TesterDevice.run_proof.json",
+            "logs/tester/0/20260908.221841.873052.TesterDevice.run_proof.json"
           ],
           "elided": 0
         }

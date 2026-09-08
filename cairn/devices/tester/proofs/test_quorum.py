@@ -154,7 +154,12 @@ def test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes():
         assert v["evidence"]["source_fingerprint"], "a quorum seal carries its horizon"
         s = standing(art)
         assert s["proven"], s["why"]
-        assert "fingerprint still matches" in s["why"], s["why"]
+        # NAMES THE ARTIFACT, not "the component's directory". The sentence gained its scope
+        # on 2026-09-08 when a second recipe (the import closure) arrived, and this tooth
+        # tightened with it: the docstring's claim is that prose is read BY THE ARTIFACT RULE,
+        # and until now nothing here could tell that apart from the directory walk answering
+        # by luck. Asserting the scope is asserting the claim.
+        assert "fingerprint over the artifact still matches" in s["why"], s["why"]
         Path(art).write_text("# a concept-piece, edited after signing\n", encoding="utf-8")
         s = standing(art)
         assert not s["proven"] and "HORIZON HAS CLOSED" in s["why"], s["why"]

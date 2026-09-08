@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_raise_trouble.py passes under python3",
-    "caller": "sail:9e7867aa1056:reseal-after-the-snapshot-fix",
-    "date": "2026-09-08T14:55:27",
+    "caller": "CC",
+    "date": "2026-09-08T15:56:57",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.07s",
+      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_raising_does_not_pull_the_trouble_DEVICE_into_the_process",
@@ -26,10 +26,23 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "94cf08369caa9e15c1c7090f2e770adeaab60e99c7246b0ef0c7b696681fb689",
+      "source_fingerprint": "c654f70e73fb972e189df8f2e739520e5fb28acacad86a9bbbdd6947ce63d8e5",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/proofs/test_raise_trouble.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-890341-yazg4x92/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1048166-u20mirr4/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -649,6 +649,230 @@ def test_CENSUS_INVARIANTS_over_the_real_corpus():
           f"every non-standing carries a why; standing is subset of sealed)")
 
 
+# ---------------------------------------------------------------------------------------
+# THE IMPORT CLOSURE (ticket 675ab0daa171, 2026-09-08). Six teeth about the seal's SCOPE.
+#
+# WHAT THEY MEASURE, AND WHY THE CONTRAST IS INSIDE THE TOOTH RATHER THAN BESIDE IT: the
+# claim is not "the closure recipe produces a hash" — any recipe does that, and a tooth
+# asserting it would be green on a build that hashed the empty string. The claim is that
+# the closure recipe DISCRIMINATES where the directory recipe could not: an edit to a file
+# the proof never loads must leave one number still and move the other. So both numbers are
+# taken across the same edit, in the same tooth, and both are asserted. A hollow build that
+# quietly kept the directory walk fails on the first assertion; one that quietly hashed
+# nothing at all fails on the second.
+# ---------------------------------------------------------------------------------------
+
+import contextlib  # noqa: E402
+
+
+@contextlib.contextmanager
+def _repo_root_is(root):
+    """Point the store's notion of "the repo" at a fixture tree, for the length of a tooth.
+
+    Closure entries are repo-relative BY DESIGN — a seal must survive the repo being checked
+    out at a different path — so a closure tooth cannot run on files outside the repo without
+    either writing into the real tree (which a proof may not do) or moving the root. Moving
+    the root is the honest one: it is the module's own constant, and pointing it at a
+    throwaway tree is what makes the files editable without touching anything real.
+    """
+    was = vs._REPO_ROOT
+    vs._REPO_ROOT = str(root)
+    try:
+        yield
+    finally:
+        vs._REPO_ROOT = was
+
+
+def _closure_fixture(tmp):
+    """A component with a file the proof imports and one it does not — the whole question."""
+    root = Path(tmp)
+    comp = root / "comp"
+    (comp / "proofs").mkdir(parents=True)
+    (comp / "used.py").write_text("X = 1\n", encoding="utf-8")
+    (comp / "unused.py").write_text("Y = 1\n", encoding="utf-8")
+    proof = comp / "proofs" / "test_thing.py"
+    proof.write_text("import comp.used\n", encoding="utf-8")
+    return root, comp, proof, ["comp/proofs/test_thing.py", "comp/used.py"]
+
+
+def test_an_edit_to_a_file_the_proof_never_IMPORTS_leaves_the_fingerprint_STILL():
+    """THE HEART OF THE TICKET, and the contrast is asserted, not described.
+
+    Measured 2026-09-05: one edit to ``transitions.py`` expired 60 of 154 seals. Measured
+    2026-09-08, inside the voyage that built this: the 35 seals under ``tools/base`` were
+    taken twice, ~22 minutes each, because a one-line edit to ONE PROOF FILE expired all 35
+    — including the 34 proofs that cannot load it. The recipe was hashing every ``*.py``
+    that shared a directory, which is a stand-in for "the code it proves" and not the thing.
+
+    Both recipes are run across the same two edits. The unused edit must move the directory
+    number and NOT the closure number — that is the fix. The used edit must move the closure
+    number — that is the fix not having thrown the baby out: a seal that stops expiring when
+    its own code changes is a false green, which Law 8 rates worse than a red.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, closure = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            closure_before = vs.source_fingerprint(str(proof), closure=closure)
+            dir_before = vs.directory_fingerprint(str(comp))
+
+            (comp / "unused.py").write_text("Y = 2\n", encoding="utf-8")
+            assert vs.source_fingerprint(str(proof), closure=closure) == closure_before, (
+                "an edit to a file the proof never imports MOVED the closure fingerprint — "
+                "the seal is still coupled to its neighbours and the ticket bought nothing")
+            assert vs.directory_fingerprint(str(comp)) != dir_before, (
+                "the directory recipe did NOT move on that same edit — the contrast this "
+                "tooth rests on is not there, so it is measuring nothing")
+
+            (comp / "used.py").write_text("X = 2\n", encoding="utf-8")
+            assert vs.source_fingerprint(str(proof), closure=closure) != closure_before, (
+                "an edit to a file the proof DOES import left the closure fingerprint still "
+                "— the seal would stand green over code it never measured (Law 8)")
+
+
+def test_the_CLOSURE_names_only_repo_files_and_always_names_its_own_proof():
+    """Falsifier from the chart's hypothesize berth, asserted directly.
+
+    site-packages and ``~/.cairn`` move when the interpreter is upgraded or a log is written,
+    not when this system changes; a seal that expired on a python patch release would teach a
+    reader to ignore expiry. And the proof itself must always be in — ``runpy`` restores
+    ``sys.modules['__main__']`` before ``atexit`` fires, so the one file the raw report is
+    most likely to be missing is the one file the closure certainly must name.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, _ = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            raw = [str(comp / "used.py"), "/usr/lib/python3.11/json/__init__.py",
+                   str(Path.home() / ".cairn" / "devices" / "x.py"),
+                   "/usr/lib/python3/dist-packages/yaml/__init__.py"]
+            got = vs.repo_relative_closure(raw, str(proof))
+        assert got == ["comp/proofs/test_thing.py", "comp/used.py"], got
+        assert not [g for g in got if g.startswith("..") or os.path.isabs(g)], (
+            f"a path outside the repo survived the filter: {got}")
+
+
+def test_a_file_that_VANISHED_from_the_closure_MOVES_the_digest_rather_than_raising():
+    """A deletion is the loudest kind of change, and it must not arrive as an exception.
+
+    Three callers re-take this fingerprint — ``standing`` here, ``component_color`` in the
+    build inspector, ``_fingerprint_stale`` in proof_coverage — and a raise inside any of
+    them turns "this seal expired" into "the inspector crashed". The seal must expire; the
+    reader must keep reading.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, closure = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            before = vs.source_fingerprint(str(proof), closure=closure)
+            (comp / "used.py").unlink()
+            after = vs.source_fingerprint(str(proof), closure=closure)
+        assert after != before, "a deleted file left the fingerprint still — it is unnoticed"
+
+
+def test_a_closure_that_does_not_name_THIS_proof_is_DISCARDED_not_compared():
+    """The pair must move together, and when it has not, the directory recipe answers.
+
+    ``source_fingerprint`` and ``fingerprint_closure`` are two halves of one statement. A
+    hand — or a fixture — that re-points one at a different component and leaves the other
+    behind produces a seal that compares this proof against somebody else's files, silently.
+    THIS IS NOT HYPOTHETICAL: this file's own ``_sealable`` did exactly that, and the seal
+    it built read expired for a reason no one could have explained from the record. Since
+    every real closure names its own proof, one that does not is provably not this proof's,
+    and the answer is the conservative recipe rather than a comparison against the wrong tree.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, _ = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            foreign = {"evidence": {"fingerprint_closure": ["comp/used.py"]}}
+            assert vs.sealed_fingerprint_now(str(proof), foreign) == \
+                vs.directory_fingerprint(str(comp)), (
+                    "a closure that never names this proof was used to judge it — the seal "
+                    "is being compared against files it has no relationship to")
+
+
+def test_a_proof_OUTSIDE_the_repo_SEALS_no_closure_rather_than_an_EMPTY_one():
+    """THE TWO ENDS MUST AGREE ABOUT THE RECIPE, and for one afternoon they did not.
+
+    The re-check discards a closure that does not name its own proof (the tooth above). The
+    seal-taking end had no such guard, on the reasoning that ``repo_relative_closure`` unions
+    the proof in unconditionally — it does, and then drops it again, because the filter keeps
+    only files under this repo and a proof run from a fixture directory is not one. So a
+    stand-in proof under ``/tmp`` sealed a closure of ZERO files, whose sha256 is the sha256
+    of no input at all, and the re-check then answered under the DIRECTORY recipe and read a
+    mismatch. Measured 2026-09-08 by ``test_tester.py``'s sink tooth: a green proof that had
+    just been sealed read expired, against code that had not moved.
+
+    A false red is the same defect as a false green pointed the other way — worse here,
+    because it is unattributable: nothing in the record says which recipe produced which
+    number. The guard is the same predicate at both ends, which is the only way two ends
+    cannot drift apart (Law 1).
+    """
+    from cairn.devices.tester.device import _read_closure
+    with tempfile.TemporaryDirectory() as tmp:
+        outside = Path(tmp) / "somecomp" / "proofs" / "test_thing.py"
+        outside.parent.mkdir(parents=True)
+        outside.write_text("# a proof the repo has never heard of\n", encoding="utf-8")
+        report = Path(tmp) / "closure.json"
+        report.write_text(json.dumps([str(outside)]), encoding="utf-8")
+
+        assert _read_closure(str(report), str(outside)) is None, (
+            "a proof outside the repo sealed a closure — and an empty closure digests to the "
+            "hash of nothing, which no re-check can ever reproduce")
+
+    # ...and the inside case is unharmed: a real proof still reports a real closure naming
+    # itself. Asserting only the None would pass on a guard that returned None for everything.
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, _ = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            report = Path(tmp) / "closure.json"
+            report.write_text(json.dumps([str(proof), str(comp / "used.py")]),
+                              encoding="utf-8")
+            got = _read_closure(str(report), str(proof))
+            assert got and vs.repo_relative_closure([], str(proof))[0] in got, (
+                f"a real closure must survive the guard and name its own proof: {got}")
+
+
+def test_a_PRE_CLOSURE_seal_is_still_re_checked_the_way_it_was_TAKEN():
+    """The two recipes are never mixed, and the older one is not deprecated.
+
+    Every seal in the corpus on the day this shipped was taken over a component directory.
+    Asking the new question of an old seal would expire all of them at once and call it
+    drift — a corpus-wide false red, which is the same defect as a false green pointed the
+    other way. Which recipe applies is a property of the SEAL, never of the reader.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root, comp, proof, _ = _closure_fixture(tmp)
+        with _repo_root_is(root):
+            old_seal = {"evidence": {"source_fingerprint": "irrelevant"}}
+            assert vs.closure_of(old_seal) is None, "a seal with no closure must read None"
+            assert vs.sealed_fingerprint_now(str(proof), old_seal) == \
+                vs.directory_fingerprint(str(comp)), (
+                    "a pre-closure seal was re-checked under the closure recipe — every seal "
+                    "in the corpus would read stale at once")
+
+
+def test_the_RUNNER_actually_REPORTS_a_closure_end_to_end():
+    """The instrument, fired for real — the half no unit tooth can reach.
+
+    Everything above measures the recipe over a closure handed to it. This measures that a
+    closure ARRIVES at all: the wrapper runs the subject the way ``python <proof>`` does,
+    reads ``sys.modules`` at exit, and the seal carries the result. The named risk is that
+    the wrapper changes the reading — so the fixture's verdict is asserted too, because an
+    instrument that turns a green proof red has not measured the proof.
+    """
+    record = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
+    assert record["verdict"] == "green", (
+        f"the closure wrapper changed a green fixture's verdict: {record['evidence']}")
+    closure = record["evidence"].get("fingerprint_closure")
+    assert isinstance(closure, list) and closure, (
+        f"no closure came back from a real run: {record['evidence'].get('fingerprint_closure_absent')}")
+    mine = os.path.relpath(str(_GREEN_FIXTURE), str(_REPO_ROOT))
+    assert mine in closure, f"the closure does not name the proof it is about: {closure}"
+    assert all(not c.startswith("..") and c.endswith(".py") for c in closure), closure
+    assert record["evidence"]["source_fingerprint"] == vs.source_fingerprint(
+        str(_GREEN_FIXTURE), closure=closure), (
+        "the sealed fingerprint is not the hash of the closure the seal records — the two "
+        "halves of the pair disagree at the moment they are written")
+
+
 def _main() -> int:
     # THE ROSTER IS DERIVED, NOT TYPED. It was a hand-maintained list, and the 2026-08-13
     # sweep walked straight into what that costs: two teeth were added and neither ran,
@@ -661,7 +885,7 @@ def _main() -> int:
     # declared teeth — off by one, from a hand's miscount rather than a rule — and a floor
     # one below the roster is a floor with room for exactly the disappearance it exists to
     # catch. Raised to 14 the moment the criterion's own instrument measured the gap.
-    assert len(checks) >= 15, (
+    assert len(checks) >= 22, (
         "the derived roster collapsed — teeth are being counted by a broken rule, and a "
         f"roster that shrinks silently is the defect it replaced: {len(checks)}")
     for check in checks:

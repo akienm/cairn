@@ -357,13 +357,18 @@ def _latest_seal(path: Path, *, artifact: bool = False):
 
 
 def _fingerprint_stale(proof_path: Path, seal: dict) -> str | None:
-    from cairn.tools.base.validation import source_fingerprint
+    from cairn.tools.base.validation import sealed_fingerprint_now
     recorded = (seal.get("evidence") or {}).get("source_fingerprint")
     if not recorded:
         return ("the seal records no source_fingerprint, so nothing can say whether the code "
                 "it sealed is the code on disk now")
     try:
-        current = source_fingerprint(str(proof_path))
+        # THROUGH THE ONE DOOR, under the seal's OWN recipe. This used to re-take the
+        # fingerprint the only way there was — over the component directory — which became
+        # wrong the moment a seal could record an import closure instead: every closure seal
+        # in the corpus would have read stale here while reading green in the tester, and two
+        # records of truth may not contradict each other (Law 7).
+        current = sealed_fingerprint_now(str(proof_path), seal)
     except OSError:
         return None
     if recorded != current:

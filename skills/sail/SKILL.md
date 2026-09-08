@@ -83,6 +83,22 @@ component's own address, carrying the ticket — the ticket on the crossing is
 what the entry gate reads, so an unnamed ticket is an ungated (and unclaimed)
 build. The record of truth moves before the code does.
 
+**This crossing is also what puts the ticket `:in-process` — and you do nothing
+to make that happen.** Since 2026-09-08 (ruling
+`2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase`) `in-process` is the one
+pickup phase that is **DERIVED, never written**: it is runtime state, and the
+ticket file is git-tracked and shared, so a committed `:in-process` would claim a
+hand that is gone the moment the session ends. So the phase is not on the string.
+A ticket-carrying crossing stamps a record in instance-space
+(`~/.cairn/devices/cairn/0/machines/sail/sail.json`, never git) naming the session
+pid and that pid's `/proc` start time, and anyone who asks reads the phase back
+statelessly — LIVE only while that exact process is (`sail_record.derived_phase`).
+The stamp rides `emit` itself (`transitions.py:_stamp_sail`) rather than a door a
+builder must remember, because the door built for exactly this in August 2026 took
+thirteen records in four days and then had no caller at all. **Do not hand-write
+`:in-process` onto a cursor — the write door refuses it**, and a session that dies
+takes its claim with it, which is the property a stored phase could never have.
+
 ## 2. Build inside the berths
 
 - **constrain's bounds are hard edges** — `out` is out; wanting something out
@@ -161,6 +177,15 @@ re-opens a node whose intention did not work is the **owner's** act (Law 6).
 - Ticket cursor → `[PROVED]` with the story-bearing distinctions.
 - Charter delta ONLY if the design shifted — and any charter write pokes
   `cairn/tools/intentions_model_compiler/recompile_gate.sh` in the same act.
+- **The `in-process` claim clears itself here, automatically.** PROVED is a
+  terminal, and a crossing INTO a terminal drops the sail record
+  (`transitions.py:_stamp_sail` → `sail_record.clear_sail`), so the ticket stops
+  reading `:in-process` the instant the voyage ends. This is Akien's *"in process
+  should be AUTOMATICALLY cleared in post build part of the sail skill"*
+  (2026-09-08), satisfied by physics rather than by a step: there is nothing here
+  for you to run, and nothing to forget. Clearing never gates — if instance-space
+  is unreachable the crossing still stands (Law 7: the crossing is the record of
+  truth; the derived phase is a convenience).
 
 ## 9. Deposit the learnings
 

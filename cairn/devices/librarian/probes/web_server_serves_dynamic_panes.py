@@ -27,7 +27,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "the-web-server-graduates-to-starlette"
@@ -47,17 +47,17 @@ def _read_renders() -> list[dict]:
 
 
 def _trigger(now, context: dict) -> bool:
-    renders = context.get("renders") or _read_renders()
+    renders = once(context, "renders", _read_renders)
     return len(renders) > 0
 
 
 def _enough(context: dict) -> bool:
-    renders = context.get("renders") or _read_renders()
+    renders = once(context, "renders", _read_renders)
     return len(renders) >= 3
 
 
 def _carry(context: dict) -> dict:
-    renders = context.get("renders") or _read_renders()
+    renders = once(context, "renders", _read_renders)
     return {
         "finding": f"{len(renders)} dynamic pane render(s) observed",
         "render_count": len(renders),

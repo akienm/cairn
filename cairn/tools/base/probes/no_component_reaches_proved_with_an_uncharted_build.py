@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import os
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "the-buildme-gates-guard-a-crossing-not-a-state"
 _TICKETS_DIR = os.path.expanduser("~/dev/src/CairnCommons/tickets")
@@ -99,7 +99,7 @@ def survey() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["proved_without_chart"] > 0:
         return True
     if s["proved_total"] == 0:
@@ -108,7 +108,7 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["proved_with_chart"] < _ENOUGH_PROVED:
         return False
     if s["entry_gate_refusals_seen"] < _ENOUGH_REFUSALS:
@@ -117,7 +117,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["proved_total"] == 0:
         finding = "VACUITY — zero PROVED tickets found. The probe has nothing to examine."
     elif s["proved_without_chart"] > 0:

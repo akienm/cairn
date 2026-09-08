@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "yield-report-names-its-refusals"
 
@@ -92,7 +92,7 @@ def survey_the_corpus() -> dict:
 
 
 def _corpus(context: dict) -> dict:
-    return context.get("corpus") or survey_the_corpus()
+    return once(context, "corpus", survey_the_corpus)
 
 
 def _trigger(now, context: dict) -> bool:

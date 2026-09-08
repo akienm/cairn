@@ -36,7 +36,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
 
@@ -118,7 +118,7 @@ def survey_the_corpus() -> dict:
 
 
 def _corpus(context: dict) -> dict:
-    return context.get("corpus") or survey_the_corpus()
+    return once(context, "corpus", survey_the_corpus)
 
 
 def _trigger(now, context: dict) -> bool:

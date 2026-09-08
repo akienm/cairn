@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.tools.base.transitions import BUILD_GATE, verify_crossing_fingerprint
 from cairn.tools.charter import projector
 
@@ -55,17 +55,17 @@ def _count_fingerprinted_crossings() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    c = context.get("counts") or _count_fingerprinted_crossings()
+    c = once(context, "counts", _count_fingerprinted_crossings)
     return c["fingerprinted"] >= _ENOUGH_CROSSINGS and c["failed"] > 0
 
 
 def _enough(context: dict) -> bool:
-    c = context.get("counts") or _count_fingerprinted_crossings()
+    c = once(context, "counts", _count_fingerprinted_crossings)
     return (c["fingerprinted"] >= _ENOUGH_VERIFIED and c["failed"] == 0) or c["verified"] > 0
 
 
 def _carry(context: dict) -> dict:
-    c = context.get("counts") or _count_fingerprinted_crossings()
+    c = once(context, "counts", _count_fingerprinted_crossings)
     return {"finding": "crossing fingerprint verification failure detected",
             "counts": c,
             "ticket": owning_ticket(_OWNING_TICKET),

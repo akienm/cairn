@@ -34,7 +34,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _CLASS_SPACE = _REPO_ROOT / "cairn"
@@ -110,13 +110,13 @@ def _newly_authored_since_floor() -> int:
 
 def _trigger(now, context: dict) -> bool:
     """Fire when the fleet carries unresolvable node_class values — the problem to watch."""
-    census = context.get("census") or _charter_census()
+    census = once(context, "census", _charter_census)
     return census["unresolvable_count"] > 0 or census["missing_count"] > 0
 
 
 def _enough(context: dict) -> bool:
     """Zero unresolvable AND at least one newly authored charter since the era floor."""
-    census = context.get("census") or _charter_census()
+    census = once(context, "census", _charter_census)
     if census["unresolvable_count"] > 0 or census["missing_count"] > 0:
         return False
     return _newly_authored_since_floor() >= 1
@@ -124,7 +124,7 @@ def _enough(context: dict) -> bool:
 
 def _carry(context: dict) -> dict:
     """Census of the fleet's node_class vocabulary at fire time."""
-    census = context.get("census") or _charter_census()
+    census = once(context, "census", _charter_census)
     return {
         "finding": (
             "charter fleet node_class census: %d resolvable, %d unresolvable, %d missing "

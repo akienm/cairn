@@ -47,7 +47,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.codemother.machines.orient.orient import (FLOOR_AUTHORED,
                                                           measured_provenance)
 
@@ -126,7 +126,7 @@ def _trigger(now, context: dict) -> bool:
     has earned ``floor`` for any field. Both clauses are load-bearing: firing on a small
     corpus pokes the owner about noise, and firing while fields ARE earning the label
     pokes about a build that is working."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return s["post_build_berths"] >= _ENOUGH and s["earned_floor"] == 0
 
 
@@ -139,7 +139,7 @@ def _enough(context: dict) -> bool:
     about a population and n=1 cannot support it. Clearing on the first earned label with
     no floor would retire the watch before it could bite, which is the sibling probe's
     measured bug and not one to repeat."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return s["post_build_berths"] >= _ENOUGH and s["earned_floor"] >= 1
 
 
@@ -147,7 +147,7 @@ def _carry(context: dict) -> dict:
     """The datum that rides back — the full counts in ONE report (a failure report
     delivers everything needed to resolve it on the first pass), and a POINTER to the
     ticket rather than a copy of it (Law 6 — the ticket is the commons')."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return {"finding": "no orient packet has earned the 'floor' provenance label since "
                        "the door started measuring it",
             "counts": s,

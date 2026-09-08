@@ -44,7 +44,7 @@ import ast
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -131,7 +131,7 @@ def _trigger(now, context: dict) -> bool:
     firing early would poke the owner about a berth nobody has had time to reach;
     firing while any carrier stands would poke about generality that demonstrably
     earns its keep."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["inspections_run"] >= _ENOUGH and not s["carriers"]
 
 
@@ -140,12 +140,12 @@ def _enough(context: dict) -> bool:
     consumer reading the gradation (the sieve-learning nexus is the named candidate).
     Mutually exclusive with the trigger BY CONSTRUCTION: the pair shares the one
     variable (``carriers`` empty vs non-empty), no floor asymmetry to rot quiet."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return bool(s["carriers"])
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"finding": "the gradation is emitted at the general level on every "
                        "inspection and nothing has ever read it — generality "
                        "standing decorative",

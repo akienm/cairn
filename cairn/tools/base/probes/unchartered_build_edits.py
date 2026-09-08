@@ -23,7 +23,7 @@ import json
 import os
 import subprocess
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.tools.chain.chain import charted_paths, uncharted_modifications
 
 _OWNING_TICKET = "a-build-discovery-re-enters-the-chain"
@@ -35,7 +35,24 @@ _MAX_COMMITS_PER_VOYAGE = 10
 
 
 def _proved_tickets_with_chains() -> list[dict]:
-    """Find PROVED tickets that have chart chains."""
+    """PROVED tickets whose chart chain actually stands in the berth store.
+
+    THE CHAIN IS THE MEASUREMENT; ``chart_claim`` IS THE TICKET'S CLAIM ABOUT ITSELF, and
+    this function used to gate on the claim with ``os.path.isfile(chart_claim)``. Measured
+    2026-09-07 over the 196 PROVED tickets, that field has three shapes and the gate handled
+    none of them: 183 hold PROSE naming a bare filename (``"chart chain complete:
+    verdict-20260828T062348-43017cace664.json"``) — never a path, so ``isfile`` was False
+    and the ticket was skipped; 12 hold a DICT of berth paths, and ``os.path.isfile(dict)``
+    RAISES TypeError; 1 holds null. The raise landed in the shim's per-probe isolation, so
+    this watch has read as healthy while being dead since 2026-08-28 — which is the shape
+    "armed by hand is not the same as wired" keeps taking.
+
+    So the claim is no longer consulted at all. ``chain_for_ticket`` reads the berth store
+    directly and answers the question the filter was reaching for, authoritatively (Law 3:
+    the measurement outranks the assertion about it). A ticket that claims a chart it does
+    not have is a real defect and it belongs to
+    ``no_component_reaches_proved_with_an_uncharted_build``, which measures exactly that;
+    checking it a second time HERE, badly, bought nothing and cost the watch."""
     from cairn.devices.codemother.machines.verdict.verdict import chain_for_ticket
 
     results = []
@@ -49,9 +66,6 @@ def _proved_tickets_with_chains() -> list[dict]:
             continue
         state = t.get("workflow_and_state", "")
         if "[PROVED]" not in state:
-            continue
-        chart_claim = t.get("chart_claim")
-        if not chart_claim or not os.path.isfile(chart_claim):
             continue
         tid = t.get("id", name.removesuffix(".json"))
         chain = chain_for_ticket(tid)
@@ -157,7 +171,7 @@ def survey() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["total_uncharted_files"] > 0:
         return True
     if s["voyages_examined"] == 0:
@@ -166,7 +180,7 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["voyages_examined"] < _ENOUGH_VOYAGES:
         return False
     if s["total_uncharted_files"] < _ENOUGH_FILES:
@@ -175,7 +189,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["voyages_examined"] == 0:
         finding = (
             "VACUITY — zero voyages resolved. The probe examined "

@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import tool_path
-from cairn.tools.base.probe import Probe, by_copy, owning_ticket
+from cairn.tools.base.probe import Probe, by_copy, owning_ticket, once
 from cairn.tools.base.transitions import BUILD_GATE
 
 _SEEDS_DIR = Path(__file__).resolve().parents[3] / "machines" / "build_inspector" / "sieves"
@@ -50,12 +50,12 @@ def _compute_delta() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    d = context.get("delta") or _compute_delta()
+    d = once(context, "delta", _compute_delta)
     return d["status"] == "DELTA"
 
 
 def _enough(context: dict) -> bool:
-    d = context.get("delta") or _compute_delta()
+    d = once(context, "delta", _compute_delta)
     if d["status"] == "DELTA":
         return any(
             v.get("status") == "diverged"
@@ -65,7 +65,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    d = context.get("delta") or _compute_delta()
+    d = once(context, "delta", _compute_delta)
     return {
         "finding": "seed-versus-living delta detected",
         "delta": d,

@@ -57,7 +57,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.cairn.machines.harbor_master.clearance import (
     CAIRN_ROOT, COMMONS_ROOT, REFUSED, RetirementUnreadable,
     read_attempts, retirement_of, riders_of,
@@ -239,7 +239,7 @@ def _blindness_was_proved_real(s: dict) -> bool:
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     return bool(s["escapes_total"]
                 or s["unreadable_retirements"]
                 or _blindness_was_proved_real(s))
@@ -258,7 +258,7 @@ def _enough(context: dict) -> bool:
     clause except the early stop appears here negated, and the early stop appears in both
     deliberately: it FIRES (so the finding is delivered) and it CLEARS (so the watch stops),
     in that order, because ``enough`` is asked only after a fire."""
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if _blindness_was_proved_real(s):
         return True
     return (s["retirements_seen"] >= _ENOUGH_RETIREMENTS
@@ -267,7 +267,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     which = []
     if s["escapes_total"]:
         which.append("(a) %d forward crossing(s) landed at or after the retirement of an "

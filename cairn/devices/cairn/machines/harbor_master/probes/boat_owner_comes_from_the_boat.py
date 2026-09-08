@@ -50,7 +50,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.cairn.machines.harbor_master.clearance import OwnerUnresolvable, boat_owner_of
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -167,7 +167,7 @@ def _vacuous_by_a_longer_route(s: dict) -> bool:
 def _trigger(now, context: dict) -> bool:
     """TRUE on either condition. (a) is the sharp one and has no floor; (b) needs the
     sample and carries it."""
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     return _the_read_did_not_bind(s) or _vacuous_by_a_longer_route(s)
 
 
@@ -186,14 +186,14 @@ def _enough(context: dict) -> bool:
 
     MUTUALLY EXCLUSIVE WITH THE TRIGGER BY CONSTRUCTION: (b) requires one distinct actor,
     this requires two; (a) requires an unbound crossing, this requires none."""
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     return (len(s["distinct_actors"]) >= 2
             and s["resolved_total"] >= _ENOUGH_CROSSINGS
             and not s["not_admitted"])
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     which = []
     if _the_read_did_not_bind(s):
         which.append("(a) a cleared crossing's actor is NOT admitted by the boat it names, "

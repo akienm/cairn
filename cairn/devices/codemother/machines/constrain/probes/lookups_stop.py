@@ -51,7 +51,7 @@ import os
 from pathlib import Path
 from statistics import median
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 # Instance-space, resolved per call and never captured at import — a probe that froze the
 # path would keep reading a root the system had already left.
@@ -169,7 +169,7 @@ def _trigger(now, context: dict) -> bool:
     of checks they carry is below the bar. Both clauses carry weight: firing on a small
     corpus pokes the owner about noise, and firing while packets are carrying checks pokes
     about a build that is working."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     if s["post_door_berths"] < _ENOUGH:
         return False
     return (s["checks_per_packet_median"] or 0) < _BAR
@@ -180,7 +180,7 @@ def _enough(context: dict) -> bool:
     AND at least one check has been reported RED. The third clause is the existence claim —
     without it a floor hard-wired to say green would clear this watch by never disagreeing
     with anything."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return (s["post_door_berths"] >= _ENOUGH
             and (s["checks_per_packet_median"] or 0) >= _BAR
             and s["reds_ever"] >= 1)
@@ -189,7 +189,7 @@ def _enough(context: dict) -> bool:
 def _carry(context: dict) -> dict:
     """The datum that rides back — every count needed to resolve it on the first pass, and a
     POINTER to the ticket rather than a copy of it (Law 6 — the ticket is the commons')."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return {
         "finding": "the floor that discovers and runs the instruments is berthing packets "
                    "that carry almost no checks — which is either a discovery convention "

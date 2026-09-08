@@ -41,7 +41,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "every-device-has-a-presence"
 
@@ -163,7 +163,7 @@ def survey_bounce_blame(*, root: Path | None = None) -> dict:
 
 
 def _survey(context: dict) -> dict:
-    return context.get("survey") or survey_bounce_blame()
+    return once(context, "survey", survey_bounce_blame)
 
 
 def _trigger(now, context: dict) -> bool:

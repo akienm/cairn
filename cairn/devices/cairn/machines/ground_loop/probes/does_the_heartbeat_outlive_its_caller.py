@@ -67,7 +67,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import resolve
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "the-heartbeat-outlives-its-caller"
 
@@ -291,7 +291,7 @@ def judge(survey: dict) -> dict:
 
 
 def _seen(context: dict) -> dict:
-    return context.get("judged") or judge(context.get("survey") or survey_the_record())
+    return context.get("judged") or judge(once(context, "survey", survey_the_record))
 
 
 def _trigger(now, context: dict) -> bool:

@@ -39,7 +39,7 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _CAIRN = Path(__file__).resolve().parents[4]
 _TICKETS = _CAIRN.parent / "CairnCommons" / "tickets"
@@ -126,7 +126,7 @@ def _trigger(now, context: dict) -> bool:
     """TRUE when the corpus was swept clean AND a dated-append shape stands anyway. Both
     clauses load-bearing: before the sweep, matches are the cleanup child's owned debt;
     after it, any match is a regression of the house style this piece killed."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["cleanup_landed"] and bool(s["matches"])
 
 
@@ -148,7 +148,7 @@ def _enough(context: dict) -> bool:
 def _carry(context: dict) -> dict:
     """What rides back: the offending paths and matched shapes verbatim, against the
     ticket's falsifier, with a pointer to the ticket (Law 6 — the ticket is the commons')."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"finding": "a dated-append shape stands in a present-tense artifact after the "
                        "corpus was swept clean",
             "matches": s["matches"],

@@ -31,7 +31,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.db_domain import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.trees import NODES, NODES_TABLE
@@ -141,7 +141,7 @@ def _trigger(now, context: dict) -> bool:
     store-evidenced crossings since landing with ZERO earned nodes — or earned nodes exist
     but every one spans fewer distinct questions than PROMOTION_THRESHOLD (promotion gone
     hollow: standing moved without the cross-crossing reach that is its whole meaning)."""
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     if "unreadable" in s:
         return False
     if s["crossings_since_landing"] < _ENOUGH_CROSSINGS:
@@ -158,7 +158,7 @@ def _enough(context: dict) -> bool:
     Existence claims both — one instance each settles them. Mutually exclusive with the
     trigger by construction: a genuinely-corroborated earned node is exactly what both
     trigger clauses assert the absence of."""
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     if "unreadable" in s:
         return False
     promoted = any(e["corroborating_questions"] >= PROMOTION_THRESHOLD for e in s["earned"])
@@ -166,7 +166,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     return {"finding": "the tree is being crossed and standing does not move — the tenure "
                        "loop stands decorative under live use",
             "survey": s,

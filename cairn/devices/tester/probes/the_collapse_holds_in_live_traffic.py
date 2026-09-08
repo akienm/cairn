@@ -67,7 +67,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 # Class-space root: this file is cairn/devices/tester/probes/<name>.py.
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
@@ -136,7 +136,7 @@ def _trigger(now, context: dict) -> bool:
     """TRUE when enough has landed since the collapse to judge AND at least one file holds
     more than one record. Both clauses carry weight: firing on a thin corpus pokes the owner
     about noise, and firing on zero offenders pokes about a mechanism that is working."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["post_collapse"] >= _ENOUGH and s["multi_count"] > 0
 
 
@@ -151,7 +151,7 @@ def _enough(context: dict) -> bool:
     asymmetry that made ``does_optional_mean_never_carried`` clear at n=1 against a corpus of
     one ticket, which was itself. A watch that can clear before it can fire is not a watch.
     """
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["post_collapse"] >= _ENOUGH and s["multi_count"] == 0
 
 
@@ -159,7 +159,7 @@ def _carry(context: dict) -> dict:
     """The datum that rides back: the counts, the offending addresses WITH every caller that
     wrote into each, and a pointer to the ticket the finding is against (Law 6 — the ticket is
     the commons', not ours)."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"finding": f"{s['multi_count']} validations file"
                        f"{'' if s['multi_count'] == 1 else 's'} hold more than one record "
                        f"after the collapse — a shape persist_validation cannot write",

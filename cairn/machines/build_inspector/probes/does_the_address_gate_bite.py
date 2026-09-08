@@ -47,7 +47,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "the-instance-address-is-resolved-never-spelled"
 
@@ -118,7 +118,7 @@ def judge(survey: dict) -> dict:
 
 
 def _seen(context: dict) -> dict:
-    return context.get("judged") or judge(context.get("survey") or survey_the_gate())
+    return context.get("judged") or judge(once(context, "survey", survey_the_gate))
 
 
 def _trigger(now, context: dict) -> bool:

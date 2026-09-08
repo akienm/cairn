@@ -33,7 +33,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -89,7 +89,7 @@ def _trigger(now, context: dict) -> bool:
     """TRUE when arrivals are many and pickups are ZERO. Both clauses load-bearing: firing
     early would poke the owner about a mechanism nobody has had reason to use yet; firing
     while any pickup stands journaled would poke about a door that demonstrably works."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["phased_arrivals"] >= _ENOUGH and s["pickups"] == 0
 
 
@@ -99,12 +99,12 @@ def _enough(context: dict) -> bool:
     ``pickups == 0``), with no floor asymmetry to rot in the quiet direction: the sibling
     probe's live fire proved a clear that can fire before the trigger can is the failure,
     so this pair shares the one variable and cannot both be true."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["pickups"] >= 1
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"finding": "summonses arrive :waiting and nobody has ever come through the "
                        "pickup door",
             "counts": s,

@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.cairn.machines.harbor_master.clearance import OwnerUnresolvable, boat_owner_of
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -76,18 +76,18 @@ _ENOUGH_CROSSINGS = 20
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("crossings") or _survey_cleared_crossings()
+    s = once(context, "crossings", _survey_cleared_crossings)
     return (s["cleared_since_floor"] >= _ENOUGH_CROSSINGS
             and len(s["distinct_actors"]) <= 1)
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("crossings") or _survey_cleared_crossings()
+    s = once(context, "crossings", _survey_cleared_crossings)
     return len(s["distinct_actors"]) >= 2 and s["cleared_since_floor"] >= _ENOUGH_CROSSINGS
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("crossings") or _survey_cleared_crossings()
+    s = once(context, "crossings", _survey_cleared_crossings)
     return {
         "finding": "per-intention gated_by is declared fleet-wide; whether the gate "
                    "discriminates requires a second hand — "

@@ -55,7 +55,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 # Class-space root: this file is cairn/devices/tester/probes/<name>.py.
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
@@ -158,7 +158,7 @@ def _trigger(now, context: dict) -> bool:
     swap and are counted. Firing on them would poke the owner about a mechanism doing its job,
     which is the shape of an alarm nobody keeps reading. The roster rides the carry instead.
     """
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["population"] >= _ENOUGH and (s["unsealed_count"] or s["unwatched_count"])
 
 
@@ -173,7 +173,7 @@ def _enough(context: dict) -> bool:
     against a corpus of one ticket, which was itself. A watch that can clear before it can fire
     is not a watch.
     """
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return (s["population"] >= _ENOUGH
             and not s["unsealed_count"] and not s["unwatched_count"])
 
@@ -182,7 +182,7 @@ def _carry(context: dict) -> dict:
     """The datum that rides back: what failed, who ran it, and the writer roster — which is
     the answer to "which trail records were a device and which were the tester", and is the
     reason the parent logging ticket can be measured at all."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     parts = []
     if s["breached_count"]:
         parts.append(f"{s['breached_count']} BREACHED (a proof's writes reached the live "

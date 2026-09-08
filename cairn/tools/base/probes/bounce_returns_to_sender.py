@@ -35,7 +35,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import resolve
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "undeliverable-mail-returns-to-sender"
 
@@ -85,7 +85,7 @@ def _survey_bounce_trail(*, roots: dict[str, Path] | None = None) -> dict:
 
 
 def _corpus(context: dict) -> dict:
-    return context.get("corpus") or _survey_bounce_trail()
+    return once(context, "corpus", _survey_bounce_trail)
 
 
 def _trigger(now, context: dict) -> bool:

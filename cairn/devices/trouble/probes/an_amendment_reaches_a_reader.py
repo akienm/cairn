@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "a-false-statement-in-a-trouble-record-can-be-corrected-in-place"
 
@@ -102,7 +102,7 @@ def survey_the_corpus() -> dict:
 
 
 def _corpus(context: dict) -> dict:
-    return context.get("corpus") or survey_the_corpus()
+    return once(context, "corpus", survey_the_corpus)
 
 
 def _trigger(now, context: dict) -> bool:

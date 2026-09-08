@@ -47,7 +47,7 @@ import os
 from pathlib import Path
 from statistics import median
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.codemother.machines.constrain.constrain import FLOOR_AUTHORED, FLOOR_KINDS
 
 # Instance-space, resolved per call and never captured at import — a probe that froze the
@@ -167,7 +167,7 @@ def _trigger(now, context: dict) -> bool:
     wrote. Both clauses carry weight: firing on a small corpus pokes the owner about
     noise, and firing while the ceiling is still writing its own constraints pokes about
     a build that is working."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     if s["post_build_berths"] < _ENOUGH:
         return False
     return (s["post_build_other_median"] or 0) < _floor(s)
@@ -180,7 +180,7 @@ def _enough(context: dict) -> bool:
     NOT cleared on 'the floor earned its label', which is the tempting clause and the
     wrong one: the label going up is what crowding-out LOOKS like, so clearing on it
     would retire the watch precisely when it should bite."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return (s["post_build_berths"] >= _ENOUGH
             and (s["post_build_other_median"] or 0) >= _floor(s))
 
@@ -189,7 +189,7 @@ def _carry(context: dict) -> dict:
     """The datum that rides back — every count needed to resolve it on the first pass,
     and a POINTER to the ticket rather than a copy of it (Law 6 — the ticket is the
     commons')."""
-    s = context.get("berths") or survey_the_berths()
+    s = once(context, "berths", survey_the_berths)
     return {
         "finding": "since the floor started authoring constraints, the ceiling's own "
                    "constraints have thinned below anything the pre-build corpus shows",

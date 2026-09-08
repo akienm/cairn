@@ -55,7 +55,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "a-bulk-move-forwards-itself-from-gits-own-rename-record"
 
@@ -171,7 +171,7 @@ def judge(survey: dict) -> dict:
 
 
 def _seen(context: dict) -> dict:
-    return context.get("judged") or judge(context.get("survey") or survey_the_derivation())
+    return context.get("judged") or judge(once(context, "survey", survey_the_derivation))
 
 
 def _trigger(now, context: dict) -> bool:

@@ -57,7 +57,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.db_domain import store
 from cairn.devices.librarian.trees import NODES
 
@@ -212,7 +212,7 @@ def _reasons(s: dict) -> list[str]:
 
 def _trigger(now, context: dict) -> bool:
     """TRUE on any of the ticket's three conditions — see ``_reasons``."""
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     if "unreadable" in s:
         return False
     return bool(_reasons(s))
@@ -225,7 +225,7 @@ def _enough(context: dict) -> bool:
     that Akien has actually judged. The second half is the one no code here can settle,
     and it is deliberately the gate: a probe that retired itself on mechanism alone would
     be declaring the design worked on the evidence that it ran."""
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     if "unreadable" in s:
         return False
     adjudicated = [r for r in s["refutations"] if r["adjudicated"]]
@@ -233,7 +233,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey_the_tree()
+    s = once(context, "survey", survey_the_tree)
     return {"finding": "; ".join(_reasons(s)) or "revisions census",
             "survey": s,
             "ticket": owning_ticket(_OWNING_TICKET),

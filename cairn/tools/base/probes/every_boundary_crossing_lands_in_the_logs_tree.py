@@ -42,7 +42,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import component_dirs, resolve
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "every-boundary-crossing-lands-in-the-logs-tree"
 
@@ -134,7 +134,7 @@ def survey_coverage(*, pkg_root: Path | None = None,
 
 
 def _coverage(context: dict) -> dict:
-    return context.get("coverage") or survey_coverage()
+    return once(context, "coverage", survey_coverage)
 
 
 def _trigger(now, context: dict) -> bool:

@@ -24,7 +24,7 @@ import glob
 import json
 import re
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "an-instrument-that-cannot-bite-is-refused-at-the-verdict"
 _PACKETS = "/home/akien/.cairn/devices/chart/0/packets"
@@ -89,12 +89,12 @@ def survey() -> dict:
 
 def _trigger(now, context: dict) -> bool:
     """TRUE when new verdicts with the field exist — any new data is worth reporting."""
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     return s["total"] > 0
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["past_deadline"]:
         return True
     if s["total"] >= _ENOUGH_COUNT:
@@ -105,7 +105,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["total"] >= 4 and s["fraction_naming_tree"] < 0.5:
         finding = (
             f"EARLY STOP — {s['names_second_tree']}/{s['total']} observations name a "

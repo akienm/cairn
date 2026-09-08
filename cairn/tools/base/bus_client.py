@@ -58,13 +58,25 @@ def connect_bus(*, devices: list[str] | None = None, beat: bool = True):
 def reach(*devices: str):
     """A bus that can ASK the named devices — one exchange, no heartbeat.
 
-    THE MEASUREMENT THAT BORE IT (2026-09-07, ticket 9579a6f9cec6): a ground-loop beat on
-    this machine takes **over nine minutes**. Not the bus, not the DB — ``bus.read`` is 80ms
-    and discovery is 0.3s. It is the pulse: subscribing NO devices at all still costs it,
-    because ``cairn/tools/base/probes/hand_spelled_instance_paths.py`` AST-parses the whole
-    of class-space on every beat. That is a real defect and it is not this ticket's; what
-    matters here is that ``connect_bus`` pays it, and a caller that wants one question
-    answered should not.
+    THE MEASUREMENT THAT BORE IT (2026-09-07, ticket 9579a6f9cec6): a ground-loop beat on this
+    machine costs **104.8s** — trigger 57.5s, carry 24.0s, enough 22.6s, and 0.7s for
+    everything the loop itself does (poke, reconcile, shim bookkeeping). Not the bus and not
+    the DB: ``bus.read`` is 80ms and discovery is 0.3s. It is the pulse, and subscribing NO
+    devices at all still pays all of it, because 78 probes re-derive their whole survey on
+    every beat and a probe that fires pays for its survey three times over (trigger, carry,
+    enough). That is a real defect and it is not this ticket's; what matters here is that
+    ``connect_bus`` pays it, and a caller that wants one question answered should not.
+
+    A FIRST WRITING OF THIS PARAGRAPH SAID "over nine minutes" AND BLAMED
+    ``probes/hand_spelled_instance_paths.py`` for AST-parsing class-space every beat. Both
+    halves were wrong and the correction is left standing here rather than quietly swapped:
+    that scan is 1.17s over 457 files, 2% of the beat. The real cost was
+    ``no_component_reaches_proved_with_an_uncharted_build`` at 55.6s, asking the chart chain
+    of all 196 PROVED tickets while ``claiming_packets`` re-parsed all 2,552 berthed packets
+    per call — 1,568 sweeps of the store per beat. Indexed 2026-09-07
+    (``tools/chain/chain.py``, proof ``test_packet_index.py``); that probe now costs ~1.4s.
+    THE LESSON IS THE ONE LAW 3 KEEPS TEACHING: the first plausible culprit was named from
+    reading, and the census that measured it named a different one.
 
     WHAT THE BEAT WAS ACTUALLY FOR, from the caller's side, is one line:
     ``BaseShim._wire_delivery`` hands the bus a poke channel for its device, and until some

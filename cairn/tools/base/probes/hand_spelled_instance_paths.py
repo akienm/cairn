@@ -58,7 +58,7 @@ that re-opens this node is the owner's act at the register (Law 6).
 from __future__ import annotations
 
 from cairn.tools.base import address_rule
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.tools.import_sieve import HollowScan
 
 _OWNING_TICKET = "one-owner-for-the-instance-address"
@@ -108,7 +108,7 @@ def _trigger(now, context: dict) -> bool:
     is indistinguishable from a perfectly clean corpus at exactly the moment the probe has
     stopped working. So an empty scan fires the probe rather than clearing it.
     """
-    s = context.get("corpus") or survey_class_space()
+    s = once(context, "corpus", survey_class_space)
     if s["hollow"]:
         return True
     return sorted(set(_site_files(s))) != sorted(_FLOOR_SITES)
@@ -136,7 +136,7 @@ def _enough(context: dict) -> bool:
     is enforced here is the half that IS measurable: a non-vacuous scan whose sites are
     exactly the named floor. The consecutive-pulse half is a declared debt, not a silent one.
     """
-    s = context.get("corpus") or survey_class_space()
+    s = once(context, "corpus", survey_class_space)
     return not s["hollow"] and sorted(set(_site_files(s))) == sorted(_FLOOR_SITES)
 
 
@@ -150,7 +150,7 @@ def _carry(context: dict) -> dict:
     something. A member that stopped appearing is one the rule no longer needs, and this is
     where a reader would see that.
     """
-    s = context.get("corpus") or survey_class_space()
+    s = once(context, "corpus", survey_class_space)
     return {
         "finding": (f"the scan is HOLLOW — {s['hollow']}" if s["hollow"] else
                     f"{s['count']} hand-spelled instance-space path(s) outside the resolver, "

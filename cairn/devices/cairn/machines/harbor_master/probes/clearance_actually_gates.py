@@ -77,7 +77,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.cairn.machines.harbor_master.clearance import GRANTED, read_attempts
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -242,7 +242,7 @@ def _trigger(now, context: dict) -> bool:
     floor — one bypassed crossing after the era floor is the gate having been walked
     around, and waiting for a sample would be waiting to confirm what one record already
     proves. (b) and (c) need the sample, and carry it."""
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     return bool(s["bypassed"]) or _roster_covers_the_fleet(s) or _never_said_no(s)
 
 
@@ -260,7 +260,7 @@ def _enough(context: dict) -> bool:
 
     The refusal half cannot be satisfied today; see the header. That is the watch's
     standing pressure toward ``clearance-leaves-a-trace``, not an oversight."""
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     return (s["demanded_total"] >= _ENOUGH
             and not s["bypassed"]
             and not _roster_covers_the_fleet(s)
@@ -268,7 +268,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("crossings") or survey_the_crossings()
+    s = once(context, "crossings", survey_the_crossings)
     which = []
     if s["bypassed"]:
         which.append("(a) a crossing into a rest landed carrying NEITHER cleared_by NOR a "

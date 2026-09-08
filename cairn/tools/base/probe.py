@@ -170,6 +170,23 @@ from pathlib import Path, PurePath
 _TICKETS = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "tickets"
 
 
+def _pulse(context) -> dict:
+    """THE CALLER'S CONTEXT, and a fresh one only when there genuinely is none.
+
+    ``fires``, ``payload`` and ``gathered_enough`` each spelled this ``context or {}``, which
+    is correct for ``None`` and WRONG FOR AN EMPTY DICT: ``{}`` is falsy, so a shim handing the
+    same empty context to all three predicates of one firing probe had each of them silently
+    given a DIFFERENT dict. Nothing downstream could tell — the old convention only ever READ
+    the context, so three empty dicts and one empty dict answer identically. It surfaced the
+    moment ``once`` started writing into it (2026-09-07): the memo went into a dict the next
+    predicate never saw, and one firing probe derived its survey three times exactly as before.
+
+    THE POINT IS OWNERSHIP, not thrift. The context belongs to whoever is running the pulse;
+    a probe substituting its own is a peer quietly refusing the one that was passed (Law 6),
+    and here that made a shared-per-pulse memo unimplementable from the outside."""
+    return context if isinstance(context, dict) else {}
+
+
 # ── the carriers: HOW the thing that crossed rides along ─────────────────────
 #
 # Each takes the fire-time ``context`` and returns a payload fragment merged over ``body``.
@@ -380,7 +397,7 @@ class Probe:
         """Evaluate the trigger against the moment and the observed context. Pure — no side
         effect; the firing (the poke) is the shim's, so the decision stays testable as a table.
         Coerced to bool so a truthy predicate is honest about being a trigger."""
-        return bool(self.trigger(now, context or {}))
+        return bool(self.trigger(now, _pulse(context)))
 
     def gathered_enough(self, context: dict | None = None) -> bool:
         """Has this probe gathered enough to retire? Pure — no side effect; the CLEARING is the
@@ -393,7 +410,7 @@ class Probe:
         it (Law 7 — the failure that hides is a watcher that quietly stopped watching)."""
         if self.enough is None:
             return False
-        return bool(self.enough(context or {}))
+        return bool(self.enough(_pulse(context)))
 
     def payload(self, context: dict | None = None) -> dict:
         """What this poke actually sends: the static ``body``, with the carrier's fire-time
@@ -408,10 +425,54 @@ class Probe:
         if self.carry is None:
             return out
         try:
-            fragment = self.carry(context or {})
+            fragment = self.carry(_pulse(context))
         except Exception as exc:  # noqa: BLE001 — a broken carrier must not swallow the poke
             return {**out, "carry_failed": f"{type(exc).__name__}: {exc}"}
         if not isinstance(fragment, dict):
             return {**out, "carry_failed": f"carrier returned {type(fragment).__name__}, not a dict"}
         out.update(fragment)
         return out
+
+
+# ── ONE SURVEY PER PULSE ─────────────────────────────────────────────────────
+
+def once(context: dict | None, key: str, compute: Callable[[], object]):
+    """The probe's survey, computed ONCE for the pulse that is asking.
+
+    THE MEASUREMENT THAT BORE IT (2026-09-07, ticket 9579a6f9cec6). Every probe in the corpus
+    is written ``s = context.get("survey") or survey()`` — a convention that reads as though
+    the pulse hands the survey down. NOTHING HAS EVER POPULATED THAT CONTEXT: ``beat`` does
+    ``context = context or {}`` and ``__main__`` passes none, so all 164 call sites take the
+    ``or`` branch on every beat. That alone is Law 1's defect on a 60-second clock, and it is
+    tripled by the shim's own shape: a probe that FIRES is asked three times — ``fires``, then
+    ``payload`` -> carry, then ``gathered_enough`` -> enough — and each one re-derives the
+    whole survey from scratch. 27 of 78 probes fired. Measured beat: 104.8s, of which trigger
+    57.5s, carry 24.0s, enough 22.6s, and 0.7s for everything the loop itself does.
+
+    THE WIRING WAS ALREADY THERE, which is why this is a helper and not a rework. ``on_pulse``
+    passes ONE context object to ``fires``, ``_fire``/``payload`` and ``gathered_enough`` for
+    the same probe, and ``beat`` passes one to every shim — so a memo written into it is
+    exactly a per-beat memo, and it dies when the beat does. The gap was never the plumbing;
+    it was that the convention only ever READ.
+
+    THE EXPLICIT KEY, AND WHY IT IS NOT DERIVED FROM ``compute``. Hand-injection is a live
+    seam — proofs and ``__main__`` blocks pass ``{"survey": <a synthetic one>}`` to drive a
+    branch without building the world — so ``key`` names the slot a caller can still fill, and
+    an injected value WINS. That makes this a strict superset of the line it replaces: the
+    same answers, the same seam, computed once instead of three times. The memo itself berths
+    under ``_once`` and is keyed by ``compute``'s module and qualname on top of ``key``, so two
+    probes both spelling their slot ``"survey"`` — and there are 24 of them — cannot be served
+    each other's world.
+
+    A RAISE IS NOT MEMOIZED, deliberately: a survey that blew up is not an answer, and caching
+    one would turn a transient read failure into a pulse-long lie. It propagates to the caller,
+    where the shim's per-probe isolation already records it loudly (Law 7)."""
+    context = context if isinstance(context, dict) else {}
+    injected = context.get(key)
+    if injected:
+        return injected
+    memo = context.setdefault("_once", {})
+    slot = (getattr(compute, "__module__", "?"), getattr(compute, "__qualname__", repr(compute)), key)
+    if slot not in memo:
+        memo[slot] = compute()
+    return memo[slot]

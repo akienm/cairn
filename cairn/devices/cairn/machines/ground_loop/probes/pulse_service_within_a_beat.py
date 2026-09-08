@@ -41,7 +41,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "the-pulse-file-is-the-subscription"
 
@@ -125,7 +125,7 @@ def judge(survey: dict) -> dict:
 
 
 def _seen(context: dict) -> dict:
-    return context.get("judged") or judge(context.get("survey") or survey_the_record())
+    return context.get("judged") or judge(once(context, "survey", survey_the_record))
 
 
 def _trigger(now, context: dict) -> bool:

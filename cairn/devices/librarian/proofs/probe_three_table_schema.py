@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "node-embedding-leaf-separation"
@@ -64,19 +64,19 @@ def _trigger(now, context: dict) -> bool:
     """TRUE when the schema has been proved (PROVEME crossed) but zero resolution
     cycles have completed after the build — the intention is built but has not yet
     worked under real load."""
-    s = context.get("counts") or _count_resolution_cycles()
+    s = once(context, "counts", _count_resolution_cycles)
     return s["cycles"] == 0
 
 
 def _enough(context: dict) -> bool:
     """CLEARED by one real resolution cycle completing without error — the schema
     works under real load, the watch has gathered what it exists to gather."""
-    s = context.get("counts") or _count_resolution_cycles()
+    s = once(context, "counts", _count_resolution_cycles)
     return s["cycles"] > 0 and s["errors"] == 0
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("counts") or _count_resolution_cycles()
+    s = once(context, "counts", _count_resolution_cycles)
     return {"finding": "the three-table schema (cairn_nodes, cairn_embeddings, "
                        "per-tree leaf tables) has not yet completed a real "
                        "resolution cycle after PROVED",

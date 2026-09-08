@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _TICKETS = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "tickets"
 
@@ -88,7 +88,7 @@ def _trigger(now, context: dict) -> bool:
     """TRUE when the corpus is big enough to judge AND not one node has carried a watch. The
     two clauses are both load-bearing: firing on a small corpus would poke the owner about
     noise, and firing on "some carried" would poke about a working mechanism."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["eligible"] >= _ENOUGH and s["carried"] == 0
 
 
@@ -111,14 +111,14 @@ def _enough(context: dict) -> bool:
     wearing this node's own clothes — a summons crossed by everybody and satisfied by
     nobody — which is precisely what this probe exists to detect.
     """
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return s["eligible"] >= _ENOUGH and s["carried"] > 0
 
 
 def _carry(context: dict) -> dict:
     """The datum that rides back: the counts, and the ticket the finding is against. A pointer
     to the ticket rather than a copy of it (Law 6 — the ticket is the commons', not ours)."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"finding": "no v2 node has carried a WATCHME",
             "counts": s,
             "ticket": owning_ticket(_OWNING_TICKET),

@@ -20,7 +20,7 @@ import glob
 import json
 import os
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.tools.base.address import instance_path
 from cairn.tools.chain.grammar import ticket_path
 
@@ -92,7 +92,7 @@ def survey() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["packets_examined"] == 0:
         return True
     if s["time_judge_firings"] > 0:
@@ -101,7 +101,7 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["packets_examined"] < _ENOUGH_PACKETS:
         return False
     if s["real_refusals"] < 1:
@@ -110,7 +110,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["packets_examined"] == 0:
         finding = "VACUITY — zero validate packets examined"
     elif s["real_refusals"] > 0:

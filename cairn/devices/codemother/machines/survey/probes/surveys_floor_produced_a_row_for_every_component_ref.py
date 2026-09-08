@@ -27,7 +27,7 @@ import json
 import os
 
 from cairn.tools.chain.grammar import component_of, CAIRN_ROOT
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.tools.base.address import instance_path
 
 _OWNING_TICKET = "surveys-floor-keys-on-names-while-orient-hands-it-paths"
@@ -122,7 +122,7 @@ def survey() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["berths_examined"] == 0:
         return True
     if s["missed"] > 0:
@@ -131,7 +131,7 @@ def _trigger(now, context: dict) -> bool:
 
 
 def _enough(context: dict) -> bool:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["berths_examined"] < _ENOUGH_BERTHS:
         return False
     if s["component_refs_total"] == 0:
@@ -142,7 +142,7 @@ def _enough(context: dict) -> bool:
 
 
 def _carry(context: dict) -> dict:
-    s = context.get("survey") or survey()
+    s = once(context, "survey", survey)
     if s["berths_examined"] == 0:
         finding = "VACUITY — zero survey berths examined"
     elif s["missed"] > 0:

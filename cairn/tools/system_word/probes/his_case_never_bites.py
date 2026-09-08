@@ -41,7 +41,7 @@ import tempfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
@@ -146,7 +146,7 @@ def survey() -> dict:
 
 
 def _survey(context: dict) -> dict:
-    return context.get("survey") or survey()
+    return once(context, "survey", survey)
 
 
 def _trigger(now, context: dict) -> bool:

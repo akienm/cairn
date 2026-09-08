@@ -34,7 +34,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.machines.learning_block.engine import RUN_EVENT, answers_five_questions, rejected_count
 
 # Env-first, default second, resolved PER CALL — a probe that froze the path at import
@@ -86,7 +86,7 @@ def survey_the_corpus() -> dict:
 def _trigger(now, context: dict) -> bool:
     """TRUE once any block's engine corpus exists at all — the watch reports growth from
     the first real run; an empty store is silence, not a zero worth poking about."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return bool(s["blocks"])
 
 
@@ -94,7 +94,7 @@ def _enough(context: dict) -> bool:
     """CLEARED when one block holds >= 5 training-typed engine runs that ALL answer the
     five questions — the parent's casting condition for child 2, with the wire-thin
     loophole closed: five records the compile step cannot read clear nothing."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return any(b["runs"] >= _ENOUGH and b["answer_all_five"] >= _ENOUGH
                for b in s["blocks"].values())
 
@@ -102,7 +102,7 @@ def _enough(context: dict) -> bool:
 def _carry(context: dict) -> dict:
     """The verdict artifact's raw material, against THIS ticket's falsifier: per-block
     run counts, five-question answerability, and the non-vacuity denominator."""
-    s = context.get("corpus") or survey_the_corpus()
+    s = once(context, "corpus", survey_the_corpus)
     return {"ticket": _TICKET,
             "corpus": s,
             "against_falsifier": "the state log answers input / candidates / "

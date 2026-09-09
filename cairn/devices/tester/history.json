@@ -6279,5 +6279,121 @@
     "fingerprint": "2bb9601bdb73aa7fde3091ea1fcf2f81b838fdfcdf0c047933d886a5e27afbbe",
     "at": "2026-09-09T07:13:15",
     "seq": 29
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'd0f2b03952e3', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d0f2b03952e3"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d0f2b03952e3"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d0f2b03952e3"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "ticket": "d0f2b03952e3",
+    "by": "CC",
+    "proven_by": "cairn/devices/tester/proofs/test_hollow.py",
+    "note": "`cairn test --hollow <ticket>` built across three pieces: scratch.scratch_worktree (a worktree deregistered at exit, because the .git/worktrees half of the leak is the invisible one), hollow.py + the verb, and validation_store.record_hollow landing the reading as evidence.hollow[ticket] on the standing seal through the store's one door. 10 teeth green 4 runs back to back, 0 worktree registrations left. FOUR states not two: covered, hollow, `unreadable` (the proof died on import, which reds every tooth and would otherwise read as perfect coverage) and `unwritten` (the revert changed nothing, a finding against the chart's writes_to). A run in which every file was skipped is a RED. FIXED IN FLIGHT under ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage: same-size same-second rewrites reused stale __pycache__, so the verb read a tree that did not exist and credited the wrong file for a red — 3 wrong answers in 14 runs, now purged before every run and held by a tooth that FORCES the collision rather than waiting for it.",
+    "fingerprint": "719630bade57bdf343d26f82e6d177c2031541b69d204a030f2d35cedc0f10a9",
+    "at": "2026-09-09T08:06:52",
+    "seq": 30
   }
 ]

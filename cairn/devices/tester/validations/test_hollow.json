@@ -1,0 +1,109 @@
+[
+  {
+    "claim": "proof test_hollow.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-09T08:09:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "cairn/devices/tester/proofs/test_hollow.py::test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_hollow.py::test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n10 passed, 10 warnings in 33.61s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow",
+        "test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero",
+        "test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway",
+        "test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand",
+        "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
+        "test_a_run_that_could_not_be_measured_says_so_instead_of_passing",
+        "test_an_unchanged_file_is_reported_unwritten_not_hollow",
+        "test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree",
+        "test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied",
+        "test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "9cab3bf3a3049d3b7b4065a3f7a86276e11debbbe93f72f5d1f526fc8156f017",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/hollow.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_hollow.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3825533-3x11hjal/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 34,
+          "paths": [
+            "logs/tester/0/20260909.140912.498024.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140913.214682.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140913.936219.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140914.662925.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140915.392756.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140916.082558.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140917.099047.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140917.802134.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140918.574202.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140920.413130.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140921.519939.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140922.674306.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140923.843343.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140924.993886.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140926.074524.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140927.184597.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140928.299890.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140929.430946.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140930.687700.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140931.786575.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140932.966235.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140934.141898.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140935.289051.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140936.385676.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140937.524188.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140938.687213.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140939.777615.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140940.546380.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140941.271939.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140941.964755.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140942.844428.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140943.598383.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140944.325112.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.140945.016258.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 114127753,
+          "disk_bytes": 122998784,
+          "entries": 3681,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

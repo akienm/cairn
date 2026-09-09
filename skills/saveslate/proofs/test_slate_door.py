@@ -215,24 +215,31 @@ def main() -> int:
         }))
 
         # 14. the generic CLI for saveslate produces both a berth AND a slate
+        # THE FIXTURE STEERS THE STORE, AND THAT IS WHAT KEEPS IT A FIXTURE. This tooth
+        # used to let the CLI write into the real CairnCommons/slates and unlink after —
+        # which meant it also reached door.fire's LIVE boundary and auto-committed both
+        # real repos (b5423c2, pushed). The env var is the same live/fixture seam
+        # `door.fire` already discriminates on, reachable from a subprocess.
+        cli_slates = tmp / "slates"
+        cli_slates.mkdir()
         r = _sp.run([sys.executable, "-m", "cairn.machines.skill_block",
                      "fire", "saveslate", str(packet_path)],
                     capture_output=True, text=True, timeout=30,
-                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO)})
-        try:
-            ok("generic CLI exits 0 for saveslate", r.returncode == 0, r.stderr)
-            result = json.loads(r.stdout)
-            ok("generic CLI berths saveslate", bool(result.get("berth")))
-            ok("generic CLI writes the slate file",
-               bool(result.get("slate")) and Path(result["slate"]).exists())
-            slate_data = json.loads(Path(result["slate"]).read_text())
-            ok("the slate carries the template keys",
-               set(slate_data.keys()) == {"id", "date", "written_at", "session", "author",
-                                          "at_sea", "next_direction", "open_threads"})
-        finally:
-            slate_file = _REPO.parent / "CairnCommons" / "slates" / f"{slate_id}.json"
-            if slate_file.exists():
-                slate_file.unlink()
+                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO),
+                         "CAIRN_SAVESLATE_SLATES_DIR": str(cli_slates)})
+        ok("generic CLI exits 0 for saveslate", r.returncode == 0, r.stderr)
+        result = json.loads(r.stdout)
+        ok("generic CLI berths saveslate", bool(result.get("berth")))
+        ok("generic CLI writes the slate file",
+           bool(result.get("slate")) and Path(result["slate"]).exists())
+        ok("the fixture's slate landed in the FIXTURE store",
+           Path(result["slate"]).parent == cli_slates, result["slate"])
+        ok("the real slates store never saw the fixture id",
+           not (_REPO.parent / "CairnCommons" / "slates" / f"{slate_id}.json").exists())
+        slate_data = json.loads(Path(result["slate"]).read_text())
+        ok("the slate carries the template keys",
+           set(slate_data.keys()) == {"id", "date", "written_at", "session", "author",
+                                      "at_sea", "next_direction", "open_threads"})
 
         # 15. a non-composing-door skill still fires through the generic path
         intent_path = tmp / "intent_packet.json"

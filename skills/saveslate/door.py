@@ -37,6 +37,7 @@ exit 0 recorded (berth + slate path printed), 2 refused (every lack named, one p
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -286,8 +287,20 @@ def main(argv: list[str] | None = None) -> int:
     if not isinstance(payload, dict):
         print(f"packet {args[0]!r} must be a JSON object", file=sys.stderr)
         return 2
+    # THE FIXTURE'S REACH INTO THE CLI — and it is the SAME seam `fire` already uses.
+    # `fire` tells a live boundary from a fixture by `slates_dir`, and main() had no way
+    # to be handed one. So the generic CLI path — `python3 -m cairn.machines.skill_block
+    # fire saveslate <packet>`, which routes HERE because this door sets COMPOSING_DOOR —
+    # reached the live boundary from inside a proof and auto-committed both real repos.
+    # Measured 2026-09-08: commit b5423c2 over 14 files of another voyage's in-flight
+    # work, under the message "saveslate boundary: auto-commit cairn", pushed to
+    # origin/main. Guarding `fire` alone was not enough; the CLI is a second live path.
+    # The env var follows the project convention (CAIRN_<COMPONENT>_<REDUCTIVE_NAME>) so
+    # a fixture steers the store the way every other component is steered, and one
+    # `export` makes the command source-and-rerunnable by hand.
+    slates_dir = os.environ.get("CAIRN_SAVESLATE_SLATES_DIR") or None
     try:
-        result = fire(payload, session=session)
+        result = fire(payload, session=session, slates_dir=slates_dir)
     except OSError as exc:
         print(f"/saveslate: the firing could not be RECORDED — {exc}\n"
               "  no berth and NO SLATE exist for this close; the next session will "

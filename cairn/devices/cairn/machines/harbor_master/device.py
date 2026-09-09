@@ -10,8 +10,12 @@ patches the cached fleet register in place. A periodic reconciliation scan
 (every _RECONCILE_EVERY heartbeat beats, fired by the shim) replaces the cache
 from disk — the backstop that catches anything the notifications missed.
 
-Receives mail through two paths:
+Receives mail through three paths:
   - verb "crossing" — patches the cached register from the crossing body
+  - verb "clear" — fires the clearance gate for a peer, with the ENVELOPE'S SENDER as
+    the actor. This is the harbor door's bus face: a device that may not import
+    harbor_master (device isolation, 2026-08-31) can still ask it to move a boat, and
+    the answer is the door's, not the asker's.
   - verbless receive() — BaseDevice default records to DataRecorder
 """
 
@@ -48,7 +52,9 @@ class HarborMasterDevice(BaseDevice):
         return self._device_id
 
     def declared_verbs(self) -> dict:
-        return {**super().declared_verbs(), "crossing": self._handle_crossing}
+        return {**super().declared_verbs(),
+                "crossing": self._handle_crossing,
+                "clear": self._handle_clear}
 
     def declared_views(self) -> dict:
         return {"map": self._fleet_map}
@@ -64,6 +70,81 @@ class HarborMasterDevice(BaseDevice):
                                      "to": body.get("to", "")})
         return {"accepted": True, "verb": "crossing", "device": self.device_id,
                 "patched": True}
+
+    def _handle_clear(self, envelope: dict) -> dict:
+        """Verb handler: fire the clearance gate for a peer that asked over the bus.
+
+        THE ACTOR IS THE ENVELOPE'S SENDER, AND THE BODY MAY NOT NAME A DIFFERENT ONE.
+        This is the one line of this handler that is load-bearing. ``clearance._decide``
+        reads the boat's owner off the boat and asks whether ``actor`` is a hand that
+        owner's gate admits — so an actor the CALLER supplies in the body would let any
+        device on the bus claim to be any other, and the authority check (Law 6) would be
+        deciding about a name the asker chose. The bus already stamps ``sender`` on every
+        envelope at ``post()``, which makes identity a property of the transport rather
+        than of the request, and this handler simply refuses to look anywhere else.
+
+        A body that names an actor MATCHING the sender is allowed through — it is
+        redundant, not dishonest. One that disagrees is refused by name with the fix,
+        the same shape ``_decide`` uses when ``boat_id`` and ``ticket`` name two voyages:
+        a caller stating both sides of an identity check can always make them equal.
+
+        REFUSALS COME BACK AS DATA, NOT AS SILENCE. An exception cannot cross a bus
+        envelope, so every refusal the door raises is returned as ``accepted: False``
+        carrying the exception's CLASS NAME and its full message. The door has already
+        written the attempt to its own queue (``clear`` traces GRANTED and REFUSED alike),
+        so this reply is a second, weaker record — a reader that wants truth reads the
+        queue. What this reply may never do is collapse a refusal into a shrug (Law 7).
+        """
+        from cairn.devices.cairn.machines.harbor_master import clearance
+
+        body = envelope.get("body", {}) or {}
+        actor = envelope.get("sender") or ""
+        if not actor:
+            return {"accepted": False, "verb": "clear", "device": self.device_id,
+                    "reason": "this envelope names no sender, and the sender IS the actor "
+                              "— the clearance gate cannot be fired by nobody (Law 6)"}
+        stated = body.get("actor")
+        if stated is not None and stated != actor:
+            return {"accepted": False, "verb": "clear", "device": self.device_id,
+                    "reason": f"this request names two different hands: the envelope was "
+                              f"sent by {actor!r} but the body says actor={stated!r}. The "
+                              f"actor is the sender — the bus stamps it, the asker does not "
+                              f"choose it (Law 6). Drop the field, or send as {stated!r}."}
+
+        missing = [k for k in ("workflow", "target", "boat_id", "proven_by")
+                   if not body.get(k)]
+        if missing:
+            return {"accepted": False, "verb": "clear", "device": self.device_id,
+                    "reason": f"clear needs {missing} — the gate decides about a named "
+                              f"boat crossing to a named target on a named proof, and a "
+                              f"missing field is a question it cannot answer (CP1)"}
+
+        extra = {k: v for k, v in (body.get("journal_extra") or {}).items()}
+        try:
+            new_workflow = clearance.clear(
+                body["workflow"], body["target"],
+                actor=actor,
+                boat_id=body["boat_id"],
+                proven_by=body["proven_by"],
+                history_path=body.get("history_path"),
+                state_path=body.get("state_path"),
+                **extra,
+            )
+        except BaseException as exc:            # noqa: BLE001 — the refusal IS the answer
+            self.debug_sink.emit("clearance_refused",
+                                 pointer=body.get("boat_id", ""),
+                                 values={"actor": actor, "target": body.get("target", ""),
+                                         "refusal": type(exc).__name__})
+            return {"accepted": False, "verb": "clear", "device": self.device_id,
+                    "actor": actor, "boat_id": body.get("boat_id"),
+                    "target": body.get("target"),
+                    "refusal": type(exc).__name__, "reason": str(exc)}
+        self.debug_sink.emit("clearance_granted",
+                             pointer=body["boat_id"],
+                             values={"actor": actor, "target": body["target"]})
+        return {"accepted": True, "verb": "clear", "device": self.device_id,
+                "actor": actor, "boat_id": body["boat_id"], "target": body["target"],
+                "workflow": new_workflow}
 
     def _patch_fleet(self, crossing: dict) -> None:
         """Patch the cached register from a single crossing notification.

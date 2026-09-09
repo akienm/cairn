@@ -97,6 +97,18 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         super().__init__()
         self._bus = bus
         self._delivery_wired = False
+        # ENVELOPES WHOSE deliver() IS STILL ON THE STACK. The receipt is written only AFTER
+        # deliver() returns (at-least-once, below), so while a handler runs its envelope is
+        # still ``undelivered`` — and a handler that POSTS pokes its own mailbox, which drains
+        # and hands it the same envelope again. MEASURED 2026-09-09, ticket 8754ae677af6:
+        # codemother's ``cross`` handler is the first verb handler that posts, and the harbor's
+        # reply (addressed back to codemother) poked codemother mid-delivery. faulthandler
+        # dumped the cycle repeating without bound —
+        # post -> _receive_poke -> _check_mail -> deliver -> _handle_cross -> request -> post.
+        # This set is the cycle-breaker, and it is narrow ON PURPOSE: it suppresses ONLY the
+        # envelope already in flight, so genuinely new mail arriving during a handler is still
+        # delivered on the same poke.
+        self._in_flight: set = set()
         self._device = None      # the heavier process, instantiated on demand
         self._presence = NEVER_BOOTED
         self._pulses = 0
@@ -407,27 +419,36 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         can land, so it returns early and the mail waits honestly.
 
         The receipt is written AFTER deliver() returns — same at-least-once guarantee the
-        postman had, same reason: a raising receiver leaves the mail in the inbox."""
+        postman had, same reason: a raising receiver leaves the mail in the inbox. That is also
+        why this drain is RE-ENTRANT and must guard itself: an envelope being handled is still
+        unreceipted, so a handler that posts (and every request does) pokes this mailbox and is
+        handed its own envelope back. ``_in_flight`` breaks that cycle; see its comment for the
+        measurement."""
         if self._bus is None:
             return None
         try:
             waiting = self._bus.undelivered(to=self.device_id, limit=self._MAIL_LIMIT)
         except Exception:  # noqa: BLE001 — an unreachable store cannot stop the pulse
             return None
+        waiting = [e for e in waiting if e.get("id") not in self._in_flight]
         if not waiting:
             return None
         delivered = []
         refused = []
         for envelope in waiting:
+            eid = envelope.get("id")
+            self._in_flight.add(eid)
             try:
                 self.deliver(envelope)
             except NotImplementedError:
                 return {"waiting": len(waiting), "outcome": "no_receiver",
                         "lack": f"{self.device_id} cannot wake a device to receive mail"}
             except Exception as exc:  # noqa: BLE001 — one bad envelope cannot stop the batch
-                refused.append({"envelope": envelope.get("id"),
+                refused.append({"envelope": eid,
                                 "error": f"{type(exc).__name__}: {exc}"})
                 continue
+            finally:
+                self._in_flight.discard(eid)
             try:
                 self._bus.record_delivery(
                     envelope["id"], to=self.device_id, by=self.device_id)

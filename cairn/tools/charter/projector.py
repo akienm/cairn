@@ -162,11 +162,26 @@ def project(history: list[dict], *, window: dict = DEFAULT_WINDOW) -> dict:
 
 
 def read_history(path: str) -> list[dict]:
-    """Load the append-only history, or an empty log if it does not exist yet."""
+    """Load the append-only history, or an empty log if it does not exist yet.
+
+    A history that is not a LIST is refused BY NAME. Measured 2026-09-09 (ticket
+    8754ae677af6): a history.json written as ``{"records": []}`` loaded fine here and then
+    died four frames up as ``KeyError: -1`` inside ``project`` — a diagnostic surface saying
+    nothing about which file was wrong or what shape it should have had (Law 7). The shape is
+    load-bearing everywhere below (``append`` splats it, ``_window`` slices it, ``project``
+    indexes ``[-1]``), so the read is where it gets asserted.
+    """
     if not os.path.exists(path):
         return []
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        loaded = json.load(f)
+    if not isinstance(loaded, list):
+        raise ValueError(
+            f"{path} is not an append-only history: the file holds a "
+            f"{type(loaded).__name__}, and a history is a JSON LIST of records "
+            "(oldest first). Nothing was read."
+        )
+    return loaded
 
 
 def _atomic_write(path: str, data) -> None:

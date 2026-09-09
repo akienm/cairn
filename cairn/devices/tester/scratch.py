@@ -47,6 +47,7 @@ from __future__ import annotations
 
 import atexit
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -75,3 +76,63 @@ def _sweep(d: Path) -> None:
         pass                      # the proof cleaned up after itself — nothing to report
     except OSError as e:
         print(f"scratch: could not remove {d}: {type(e).__name__}: {e}", file=sys.stderr)
+
+
+def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn-hollow-") -> Path:
+    """A git worktree at ``commit``, removed AND DEREGISTERED when this process exits.
+
+    The hollow verb (ticket d0f2b03952e3) needs a second copy of the repo it can revert files
+    inside, because the alternative — reverting in the live tree and putting it back — leaves
+    the operator's copy in a state he did not make the first time the run crashes between the
+    two acts (Law 6: his tree is his).
+
+    WHY THIS IS A DOOR HERE AND NOT A ``subprocess.run`` AT THE CALL SITE, and it is the same
+    reason as ``scratch_dir`` above: a worktree leaks in TWO places, and the second one is
+    invisible. ``shutil.rmtree`` removes the directory and leaves the registration behind in
+    ``.git/worktrees``, so ``git worktree list`` goes on naming a path that is not there —
+    the leak with a clean-looking tree. A caller who remembers the directory is exactly the
+    caller who forgets the registration, which is what makes this physics rather than advice.
+
+    THE SWEEP IS ``git worktree remove --force`` FIRST, because that is the one act that does
+    both halves; ``prune`` afterwards is the belt for the case where the directory went away
+    by some other hand and ``remove`` therefore refuses. Neither raises: an exception escaping
+    an atexit hook buries the proof's verdict under a teardown traceback (see ``_sweep``).
+    """
+    repo_root = Path(repo_root).resolve()
+    parent = Path(tempfile.mkdtemp(prefix=prefix))
+    wt = parent / "worktree"
+    proc = subprocess.run(
+        ["git", "-C", str(repo_root), "worktree", "add", "--detach", "--quiet", str(wt), commit],
+        capture_output=True, text=True)
+    if proc.returncode != 0:
+        shutil.rmtree(parent, ignore_errors=True)
+        raise WorktreeUnavailable(
+            f"scratch_worktree: git worktree add failed for commit {commit!r} in {repo_root}: "
+            f"{(proc.stderr or proc.stdout).strip()}")
+    atexit.register(_sweep_worktree, repo_root, wt, parent)
+    return wt
+
+
+class WorktreeUnavailable(RuntimeError):
+    """git could not make the worktree — said out loud, never worked around silently."""
+
+
+def _sweep_worktree(repo_root: Path, wt: Path, parent: Path) -> None:
+    """Remove the worktree AND its registration, and SAY SO if either half cannot be done."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo_root), "worktree", "remove", "--force", str(wt)],
+            capture_output=True, text=True)
+        if proc.returncode != 0:
+            # The directory may already be gone by another hand; prune is what clears the
+            # registration in that case, and it is a no-op when there is nothing stale.
+            subprocess.run(["git", "-C", str(repo_root), "worktree", "prune"],
+                           capture_output=True, text=True)
+    except OSError as e:
+        print(f"scratch: could not remove worktree {wt}: {type(e).__name__}: {e}", file=sys.stderr)
+    try:
+        shutil.rmtree(parent)
+    except FileNotFoundError:
+        pass
+    except OSError as e:
+        print(f"scratch: could not remove {parent}: {type(e).__name__}: {e}", file=sys.stderr)

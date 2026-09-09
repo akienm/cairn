@@ -723,3 +723,40 @@ def persist_validation(
         except Exception:
             pass
     return path
+
+
+def record_hollow(proof_path: str, ticket: str, measured: dict, *, trouble_device=None) -> bool:
+    """Land a hollow reading on this proof's STANDING validation as ``evidence.hollow[ticket]``.
+
+    Returns True when a record was rewritten, False when there is no standing validation to
+    write on — which is not an error: `--hollow` may name a ticket whose proof has run but was
+    never sealed, and inventing a seal to hang the reading off would mint a measurement of the
+    proof's OUTCOME that nobody took.
+
+    WHY IT RIDES `evidence` AND NOT A NINTH FIELD. The eight are ratified (Akien's half of this
+    device's ownership) and `evidence` is exactly where a run's self-measurements already live —
+    the seal, the fingerprint closure, the teeth. A hollow reading is one more thing measured
+    about this proof, so it belongs beside them; a ninth field would be this ticket quietly
+    renegotiating the record's shape to hold its own output.
+
+    KEYED BY TICKET, DELIBERATELY, because one proof holds teeth for several tickets and a bare
+    `evidence.hollow` would let the next ticket's reading silently overwrite this one's — the
+    same replace-without-noticing shape that 4431cf2bc625 was cast to close, one level in.
+
+    THE SEAL AND THE VERDICT COME THROUGH UNTOUCHED: this reads the standing record, adds one
+    key inside evidence, and hands the same eight fields back to the door. A hollow run's
+    proofs execute against reverted code, so nothing it observed about pass-or-fail may be
+    sealed as standing — and nothing here is.
+    """
+    trail = read_validations(proof_path)
+    if not trail:
+        return False
+    record = json.loads(json.dumps(trail[-1]))  # a copy: the door replaces, and the standing
+    evidence = record.get("evidence")           # record must not be mutated before it lands
+    if not isinstance(evidence, dict):
+        return False
+    hollow = evidence.get("hollow")
+    evidence["hollow"] = {**(hollow if isinstance(hollow, dict) else {}),
+                          str(ticket): {str(f): list(t) for f, t in measured.items()}}
+    persist_validation(record, proof_path=proof_path, trouble_device=trouble_device)
+    return True

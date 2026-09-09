@@ -1,0 +1,400 @@
+"""Is this ticket's build LOAD-BEARING, or does its proof pass over it?
+
+Law 8 says nothing enters proven-space without a proof a hollow build could not pass, and
+until now that was a sentence a builder read and then judged themselves against. This module
+is the measurement: it takes the build the ticket claims (its decompose berth's ``writes_to``),
+puts each of those files back the way it was BEFORE the build, re-runs the proof the crossing
+names, and reads which of the proof's DECLARED teeth went red. A file whose reversion reds no
+declared tooth is a file the proof does not actually check — the ticket's green would survive
+its absence, which is precisely what "hollow" means.
+
+WHY THE REVERSION AND NOT A MUTATION. A mutation operator (flip a comparison, drop a return)
+measures whether the proof is sensitive to a *plausible defect*; this measures whether it is
+sensitive to *the change the ticket was cast to make*. Those are different questions and only
+the second one answers "did this voyage earn its crossing". Mutation testing is explicitly out
+of the ticket's bounds for that reason, not because it is harder.
+
+TWO THINGS THIS DELIBERATELY REFUSES TO MEASURE, and both refusals are named on the record
+rather than silently skipped, because a skip list is the natural home of a hollow green:
+
+  1. **A file under ``proofs/``.** Reverting the instrument makes the reading meaningless — the
+     reverted proof either errors out or simply no longer contains the teeth, so every declared
+     tooth reads "red" and the check passes trivially. That is a hollow check inside the hollow
+     checker, which is the one defect this module has no standing to ship. So proofs are
+     skipped, LISTED, and — the part that keeps the list from becoming the escape hatch — a run
+     in which EVERY file was skipped is a RED, not a pass over an empty set.
+  2. **A file outside this repo** (a ``writes_to`` under CairnCommons). There is no worktree of
+     it to revert in and no proof that imports it; it is out of the ticket's bounds.
+
+AND ONE THING IT CANNOT MEASURE, MEASURED RATHER THAN GUESSED AT: a proof that is not
+WORKTREE-PORTABLE. A worktree is a checkout of this repo at another path, so a proof that
+reaches outside the repo by a RELATIVE path resolves somewhere that does not exist there.
+Measured 2026-09-09 on ``cairn/devices/trouble/proofs/test_trouble.py``, one of the proofs
+ticket 9579a6f9cec6's crossings name: 37/37 green in the live tree, 36/37 in a worktree, the
+one red being ``test_the_inspector_troubles_were_cleared_through_the_door`` — which looks for
+``CairnCommons/troubles`` beside the repo root and finds nothing beside a /tmp worktree. This
+surfaces HONESTLY and not as a wrong number: the declared tooth is not green at HEAD, so the
+baseline refuses with ``HollowUnmeasurable`` and no reading is attributed to any file (Law 3 —
+"the measurement could not be taken" may not travel through the same return as "clean"). It is
+a real bound on the verb's reach, not a bug in it, and the fix belongs to the PROOF.
+    -> ticket a-proof-that-reaches-a-sibling-repo-by-relative-path-cannot-be-reproven-elsewhere
+
+THE LIVE TREE IS NEVER TOUCHED. Every revert happens inside a scratch git worktree
+(``scratch.scratch_worktree``) that removes itself and its registration at exit. The obvious
+cheaper shape — revert in place, run, restore — leaves the operator's own tree in a state he
+did not make the first time a run dies between the two acts, and his tree is his (Law 6).
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+from pathlib import Path
+
+from cairn.devices.tester.scratch import scratch_worktree
+from cairn.tools.proof_coverage.proof_coverage import declared
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
+
+SKIP_INSTRUMENT = "under proofs/ — reverting the instrument makes the reading meaningless"
+SKIP_OUTSIDE = "not a path in this repo — nothing to revert in a worktree of it"
+
+
+class HollowUnmeasurable(RuntimeError):
+    """The measurement could not be TAKEN — said out loud, never reported as a pass.
+
+    Law 3's distinction, held as a type: "we have not measured this" and "this measured clean"
+    are different answers, and the only way to keep them different is for the first one to be
+    unable to travel through the same return value as the second.
+    """
+
+
+def _ticket_path(ticket_id: str, commons: Path = COMMONS) -> Path:
+    hits = sorted((Path(commons) / "tickets").glob(f"{ticket_id}*.json"))
+    if not hits:
+        raise HollowUnmeasurable(f"hollow: no ticket file matches {ticket_id!r} in {commons}/tickets")
+    return hits[0]
+
+
+def _buildme_crossing(ticket: dict) -> dict:
+    """The LATEST forward crossing into BUILDME — latest, because a kicked-back ticket
+    re-crosses, and the pre-build state that matters is the one before the build that stands."""
+    for entry in reversed(ticket.get("crossings") or []):
+        if isinstance(entry, dict) and entry.get("to") == "BUILDME":
+            return entry
+    raise HollowUnmeasurable(
+        "hollow: the ticket names no BUILDME crossing, so there is no 'before the build' to "
+        "revert to. A ticket that never crossed BUILDME has no build to call hollow.")
+
+
+def _buildme_at(ticket: dict, crossing: dict, repo_root: Path = REPO_ROOT) -> str:
+    """When the build began, to the second when the journal knows and to the day when it does not.
+
+    The crossing record on the ticket carries only a ``date``; the component's own history.json
+    carries an ``at`` with a time. Preferring the journal is not fussiness — ``git rev-list -1
+    --before=2026-09-07`` resolves to the last commit before that day STARTED, which on a ticket
+    built and committed the same day silently reverts to a whole day earlier than the build.
+    """
+    journal = crossing.get("journal")
+    if journal:
+        jpath = Path(repo_root) / journal
+        if jpath.is_file():
+            try:
+                entries = json.loads(jpath.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                entries = []
+            for e in reversed(entries if isinstance(entries, list) else []):
+                if (isinstance(e, dict) and e.get("to") == "BUILDME"
+                        and e.get("direction") == "forward"
+                        and e.get("ticket") == ticket.get("id") and e.get("at")):
+                    return str(e["at"])
+    if crossing.get("date"):
+        return str(crossing["date"])
+    raise HollowUnmeasurable(
+        "hollow: the BUILDME crossing carries neither a journal entry with an 'at' nor a date, "
+        "so the pre-build commit cannot be resolved.")
+
+
+def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
+    proc = subprocess.run(["git", "-C", str(repo_root), "rev-list", "-1", f"--before={at}", "HEAD"],
+                          capture_output=True, text=True)
+    commit = proc.stdout.strip()
+    if proc.returncode != 0 or not commit:
+        raise HollowUnmeasurable(
+            f"hollow: no commit precedes the BUILDME crossing at {at!r} — "
+            f"{(proc.stderr or 'rev-list named nothing').strip()}")
+    return commit
+
+
+def writes_to(ticket: dict) -> list[str]:
+    """Every file the ticket's decompose berth says this build writes, in berth order, deduped.
+
+    THE CHART IS THE CLAIM AND THIS IS WHAT CHECKS IT. The list is not re-derived from the
+    diff: a diff says what changed, and the question here is whether what the ticket SAID it
+    would build is load-bearing. A build that quietly wrote elsewhere is a different finding
+    (against the chart leg), and reading the diff instead would hide it by construction.
+    """
+    berth = (ticket.get("chart_chain") or {}).get("decompose")
+    if not berth:
+        raise HollowUnmeasurable(
+            f"hollow: ticket {ticket.get('id')} names no decompose berth, so nothing declares "
+            f"which files the build writes. There is no list to check the proof against.")
+    try:
+        packet = json.loads(Path(berth).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise HollowUnmeasurable(f"hollow: decompose berth {berth} is unreadable: {e}") from e
+    out: list[str] = []
+    for piece in packet.get("sub_problems") or []:
+        for f in piece.get("writes_to") or []:
+            if f not in out:
+                out.append(str(f))
+    if not out:
+        raise HollowUnmeasurable(
+            f"hollow: the decompose berth {berth} lists no writes_to on any sub_problem — the "
+            f"chart never said what this build writes, so there is nothing to revert.")
+    return out
+
+
+def proven_by(ticket: dict) -> list[str]:
+    """The proof(s) the latest crossing names — the SAME reader the coverage sieve uses."""
+    from cairn.tools.proof_coverage.proof_coverage import _proven_by
+    proofs = _proven_by(ticket)
+    if not proofs:
+        raise HollowUnmeasurable(
+            f"hollow: no crossing on ticket {ticket.get('id')} names a proof, so there is no "
+            f"instrument to run against the reverted build.")
+    return proofs
+
+
+def _classify(rel: str) -> str | None:
+    """Why this file is not measured, or None when it is. One place, so the run and the
+    report cannot disagree about which files were skipped and for what."""
+    p = Path(rel)
+    if p.is_absolute() or rel.startswith("..") or "CairnCommons" in p.parts:
+        return SKIP_OUTSIDE
+    if "proofs" in p.parts:
+        return SKIP_INSTRUMENT
+    return None
+
+
+def _purge_bytecode(worktree: Path) -> None:
+    """Delete every ``__pycache__`` in the worktree — MEASURED NECESSARY, not hygiene.
+
+    THE DEFECT THIS EXISTS TO STOP, and it made this instrument report the OPPOSITE of the
+    truth. CPython invalidates a cached ``.pyc`` on the source's (mtime, size), and the mtime
+    it stores is whole SECONDS. This verb reverts a file, runs the proof, restores the file and
+    runs again — three writes that routinely land inside one second. When the reverted and the
+    standing version are the same LENGTH, both fields match and Python reuses bytecode compiled
+    from the version that is no longer on disk. The proof then reads a tree that does not exist.
+
+    Measured 2026-09-09, and it is not a corner: a scratch module written ``VALUE = 2`` ->
+    ``VALUE = 1`` -> ``VALUE = 2`` within one second reported ``2`` on all three runs, including
+    the run where the file said ``1``. Inside this verb that surfaced as a fixture whose
+    uncovered file read as COVERED — the reversion of the PREVIOUS file was still in the cache,
+    so the proof redded and the wrong file was credited for it. It reproduced 3 times in 14 runs,
+    which is exactly what a same-second collision should look like.
+
+    WHY A PURGE AND NOT ``PYTHONDONTWRITEBYTECODE``. The env var is the smaller act, but it
+    reaches only the children that inherit it — a proof that re-execs, or spawns under a cleaned
+    environment, silently opts out and the wrong answer comes back with nothing said. Removing
+    the caches is a fact about the tree, and every reader of that tree is covered by it whatever
+    environment it runs under. This is a measuring instrument; it may not have an opt-out it
+    cannot see. The cost is a walk of a worktree that is one checkout old.
+    """
+    for cache in worktree.rglob("__pycache__"):
+        shutil.rmtree(cache, ignore_errors=True)
+
+
+def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
+    """Put ``rel`` back the way it was at ``commit``, inside the worktree only.
+
+    A file that did not EXIST at that commit is removed, not emptied. An emptied file still
+    imports (as nothing) and still satisfies a path check, so emptying would measure a weaker
+    counterfactual than "the build had not happened" while looking like the same act.
+    """
+    target = worktree / rel
+    probe = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e", f"{commit}:{rel}"],
+                           capture_output=True, text=True)
+    if probe.returncode != 0:
+        if target.exists():
+            target.unlink()
+        return "removed (absent before the build)"
+    blob = subprocess.run(["git", "-C", str(repo_root), "show", f"{commit}:{rel}"],
+                          capture_output=True)
+    if blob.returncode != 0:
+        raise HollowUnmeasurable(f"hollow: could not read {rel} at {commit}: {blob.stderr.decode()!r}")
+    if target.is_file() and target.read_bytes() == blob.stdout:
+        # A NO-OP REVERSION IS NOT A HOLLOW READING, and telling them apart is not optional.
+        # If the file is byte-identical to its pre-build self, nothing was reverted, so of
+        # course no tooth reds — and reporting that as "the proof does not check this file"
+        # would be a red arrived at for entirely the wrong reason. It is a different finding
+        # and a real one: the chart's writes_to named a file this build did not write.
+        return "unchanged"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(blob.stdout)
+    return "reverted"
+
+
+def _restore(worktree: Path, rel: str) -> None:
+    """Back to the worktree's own HEAD — checkout restores a removed file as well as a changed one."""
+    subprocess.run(["git", "-C", str(worktree), "checkout", "--", rel], capture_output=True, text=True)
+
+
+def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
+            timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
+    """Revert this ticket's build file by file and report which declared teeth each one reds.
+
+    Returns the finding as data — ``verdict`` green|red, ``measured`` {file: [teeth]},
+    ``hollow`` the files that redded nothing, ``skipped`` with a reason each. The caller
+    decides what to print and what to seal; nothing is written here.
+    """
+    from cairn.devices.tester.device import TesterDevice
+    tester = tester or TesterDevice()
+
+    ticket = json.loads(_ticket_path(ticket_id, commons).read_text(encoding="utf-8"))
+    tid = str(ticket.get("id") or ticket_id)
+    crossing = _buildme_crossing(ticket)
+    at = _buildme_at(ticket, crossing, repo_root)
+    commit = prebuild_commit(at, repo_root=repo_root)
+    files = writes_to(ticket)
+    proofs = proven_by(ticket)
+
+    # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
+    # PROVES map for THIS ticket. A proof holding teeth for three tickets would otherwise let a
+    # reversion "red something" by reddening a neighbour ticket's tooth, which says nothing
+    # about whether this build is load-bearing.
+    declared_teeth: dict[str, list[str]] = {}
+    for rel in proofs:
+        by_ticket = declared(repo_root / rel)
+        declared_teeth[rel] = sorted(set((by_ticket.get(tid) or {}).values()))
+    if not any(declared_teeth.values()):
+        raise HollowUnmeasurable(
+            f"hollow: none of the proofs {proofs} declares a PROVES entry for ticket {tid}, so "
+            f"there are no declared teeth to watch. Undeclared coverage cannot be measured — "
+            f"that is the proof_coverage lack, not a hollow build.")
+
+    # THE WORKTREE IS AT HEAD, NOT AT THE PRE-BUILD COMMIT, and the difference is the whole
+    # design. Checking the whole tree out to before the build would revert every file at once
+    # and answer a question nobody asked ("does the proof notice the last month of work?").
+    # What is wanted is one counterfactual at a time: everything as it stands, except this one
+    # file as it was. So HEAD is the ground and each revert is a single edit on top of it,
+    # undone before the next.
+    head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+                          capture_output=True, text=True).stdout.strip()
+    wt = scratch_worktree(head, repo_root=repo_root)
+    log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} (BUILDME at {at})")
+
+    def run_all() -> tuple[dict[str, set[str]], dict[str, int]]:
+        """Each named proof's green teeth AND how many teeth it printed at all, run in the worktree.
+
+        THE SECOND NUMBER IS NOT BOOKKEEPING — it is what keeps this instrument from reading
+        green for the wrong reason. A reverted file can red a tooth two ways: the tooth ran and
+        its assertion failed (the file is load-bearing, which is the finding), or the proof died
+        on import and printed nothing at all (the file is merely IMPORTED somewhere upstream,
+        which says nothing about coverage). Both look identical in `teeth_green` — the tooth is
+        simply absent — so without a count of what ran, every reversion that breaks an import
+        reads as perfect coverage. That is the coin-toss green: the right answer arrived, and
+        not for the reason claimed.
+
+        Sink is 'none': a measurement run must not land a VALIDATION — the code under it is
+        deliberately wrong, and a seal is a claim about code that stands.
+        """
+        green: dict[str, set[str]] = {}
+        ran: dict[str, int] = {}
+        for rel in proofs:
+            path = wt / rel
+            if not path.is_file():
+                green[rel], ran[rel] = set(), 0
+                continue
+            _purge_bytecode(wt)
+            record = tester.run_proof(path, sink="none", caller="cairn test --hollow",
+                                      timeout=timeout, isolation="none")
+            ev = record["evidence"]
+            green[rel] = set(ev.get("teeth_green") or [])
+            ran[rel] = len(green[rel]) + len(ev.get("teeth_red") or [])
+        return green, ran
+
+    baseline, baseline_ran = run_all()
+    missing = {rel: sorted(set(declared_teeth[rel]) - baseline[rel]) for rel in proofs}
+    missing = {k: v for k, v in missing.items() if v}
+    if missing:
+        # A DECLARED TOOTH THAT IS NOT GREEN AT HEAD makes every later reading unreadable: it
+        # would show up red under every reversion and name every file load-bearing. Loud, and
+        # the run stops — this is a red about the proof, not a finding about a file.
+        raise HollowUnmeasurable(
+            f"hollow: these declared teeth are not green at HEAD, so no reversion reading can "
+            f"be attributed to a file: {json.dumps(missing)}")
+
+    measured: dict[str, list[str]] = {}
+    unran: dict[str, list[str]] = {}
+    unchanged: list[str] = []
+    skipped: list[dict] = []
+    for rel in files:
+        why = _classify(rel)
+        if why is None and not (wt / rel).is_file():
+            why = "not present at HEAD — the build is not committed, so there is nothing to revert from"
+        if why is not None:
+            skipped.append({"file": rel, "why": why})
+            log(f"  skip   {rel}  ({why})")
+            continue
+        how = _revert(wt, commit, rel, repo_root=repo_root)
+        if how == "unchanged":
+            unchanged.append(rel)
+            _restore(wt, rel)
+            log(f"  UNWRIT {rel}  (identical at the pre-build commit — the build did not write it)")
+            continue
+        try:
+            after, after_ran = run_all()
+        finally:
+            _restore(wt, rel)
+        # DECLARED TEETH ONLY, and the filter is the ticket's bound rather than a nicety.
+        # Without it, the reading counts any tooth in the file that went red — including the
+        # 55 teeth these three proofs hold for OTHER tickets. A neighbour's tooth reddening
+        # says the file is load-bearing for SOMETHING; it says nothing about whether THIS
+        # ticket's build earned THIS ticket's crossing, which is the only question here.
+        redded = sorted({t for p in proofs for t in (baseline[p] - after[p])
+                         if t in declared_teeth[p]})
+        # Which proofs stopped RUNNING under this reversion, rather than running and failing.
+        broke = sorted(p for p in proofs if baseline_ran[p] and after_ran[p] == 0)
+        measured[rel] = redded
+        if broke:
+            unran[rel] = broke
+        mark = "HOLLOW" if not redded else ("UNRAN " if broke else "ok    ")
+        log(f"  {mark} {rel}  ({how}) → " +
+            (", ".join(redded) if redded else "no declared tooth redded")
+            + (f"  [{len(broke)} proof(s) printed no teeth at all: the import broke]" if broke else ""))
+
+    hollow_files = [f for f, teeth in measured.items() if not teeth]
+    reasons: list[str] = []
+    for f in hollow_files:
+        reasons.append(f"hollow: {f} reverted, no declared tooth redded")
+    for f in unchanged:
+        reasons.append(
+            f"unwritten: {f} is byte-identical at the pre-build commit — the decompose berth "
+            f"names it as written by this build and the build did not write it (a finding "
+            f"against the chart's writes_to, not against the proof)")
+    for f, broke in unran.items():
+        # NOT COUNTED AS HOLLOW, AND NOT COUNTED AS COVERED. The reading is unreadable: the
+        # teeth went absent because the proof never ran, so this file is neither shown
+        # load-bearing nor shown unchecked. Reporting it as a pass would be the hollow green
+        # this whole module exists to catch, so it reds and says exactly what it saw.
+        reasons.append(
+            f"unreadable: {f} reverted and {', '.join(broke)} printed no teeth at all — the "
+            f"reversion broke the proof rather than failing a tooth, so nothing here says "
+            f"whether a tooth checks this file")
+    if not measured:
+        # THE SKIP LIST IS NOT AN ESCAPE HATCH. Every file skipped and none measured is a run
+        # that proved nothing, and reporting it green would make "add it to the skip list" the
+        # cheapest way past this check forever.
+        reasons.append(
+            f"hollow: every writes_to file was skipped ({len(skipped)} of {len(files)}), so this "
+            f"run measured nothing. A measurement of the empty set is not a pass.")
+
+    return {"ticket": tid, "commit": commit, "buildme_at": at, "worktree": str(wt),
+            "proofs": proofs, "declared": declared_teeth,
+            "baseline_green": {k: sorted(v) for k, v in baseline.items()},
+            "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
+            "unchanged": unchanged,
+            "verdict": "red" if reasons else "green", "reasons": reasons}

@@ -56,6 +56,7 @@ from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.validation_store import (
     SealDowngradeRefused,
     isolation_for_seal,
+    record_hollow,
     standing_seal,
 )
 from cairn.tools.system_word import fold_flags
@@ -103,6 +104,53 @@ def discover(targets: list[str]) -> list[Path]:
     return sorted(set(found))
 
 
+def _hollow_run(args) -> int:
+    """`cairn test --hollow <ticket>` — print the reversion reading and land it on the seals.
+
+    A SEPARATE RETURN PATH, NOT A FLAG THREADED THROUGH THE BATCH LOOP. The batch runs the
+    proofs a caller named; this runs the proofs a TICKET names, each of them several times,
+    against a tree that is deliberately wrong. Folding the two would mean the ordinary
+    `cairn test` loop carried a branch for a mode it never takes — and, worse, that a plain
+    run and a hollow run could quietly share the seal-writing path, where the code under
+    measurement is reverted and nothing said about it may be sealed as standing.
+
+    WITH --seal the finding lands as `evidence.hollow[ticket]` on each named proof's own
+    standing validation, through the store's one door. Without it nothing is written, and the
+    closing line says so in the same words the batch uses, because a hollow reading that is
+    reported and not recorded is the same non-event as a green that was never sealed.
+    """
+    from cairn.devices.tester.hollow import measure, HollowUnmeasurable
+
+    try:
+        finding = measure(args.hollow, repo_root=REPO_ROOT, timeout=args.timeout,
+                          log=(lambda m: None) if args.quiet else print)
+    except HollowUnmeasurable as why:
+        # LAW 3'S DISTINCTION AT THE SURFACE: "the measurement could not be taken" exits 2,
+        # the same code discover() uses for "nothing to run", and never 0. A run that could
+        # not measure has not found the build sound.
+        print(f"cairn test --hollow: {why}", file=sys.stderr)
+        return 2
+
+    for line in finding["reasons"]:
+        print(f"  {line}")
+    n_meas, n_skip = len(finding["measured"]), len(finding["skipped"])
+    print(f"\n{finding['ticket']}: {n_meas} file(s) measured · {len(finding['hollow'])} hollow "
+          f"· {n_skip} skipped · reverted to {finding['commit'][:12]}")
+
+    if args.seal:
+        persisted = 0
+        for rel in finding["proofs"]:
+            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"],
+                                   {f: t for f, t in finding["measured"].items()})
+            persisted += 1 if landed else 0
+        print(f"SEALED — hollow evidence landed on {persisted} of {len(finding['proofs'])} "
+              f"standing validation(s) through the store's door.")
+    else:
+        print("NOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the "
+              "reading as evidence.hollow on the proofs' standing validations.")
+    return 1 if finding["verdict"] == "red" else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="cairn test",
@@ -122,9 +170,19 @@ def main(argv: list[str] | None = None) -> int:
              "(default: run and report only, sealing nothing)",
     )
     ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds (default 120)")
+    ap.add_argument(
+        "--hollow",
+        metavar="TICKET",
+        help="measure whether this ticket's build is load-bearing: revert each file its "
+             "decompose berth names, in a scratch worktree, and report which declared teeth "
+             "go red. A file that reds none is named and the run exits non-zero.",
+    )
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
     # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07)
     args = ap.parse_args(fold_flags(sys.argv[1:] if argv is None else argv))
+
+    if args.hollow:
+        return _hollow_run(args)
 
     proofs = discover(args.targets)
     if not proofs:

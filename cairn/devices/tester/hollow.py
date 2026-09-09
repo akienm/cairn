@@ -31,13 +31,26 @@ WORKTREE-PORTABLE. A worktree is a checkout of this repo at another path, so a p
 reaches outside the repo by a RELATIVE path resolves somewhere that does not exist there.
 Measured 2026-09-09 on ``cairn/devices/trouble/proofs/test_trouble.py``, one of the proofs
 ticket 9579a6f9cec6's crossings name: 37/37 green in the live tree, 36/37 in a worktree, the
-one red being ``test_the_inspector_troubles_were_cleared_through_the_door`` — which looks for
-``CairnCommons/troubles`` beside the repo root and finds nothing beside a /tmp worktree. This
-surfaces HONESTLY and not as a wrong number: the declared tooth is not green at HEAD, so the
+one red being ``test_the_inspector_troubles_were_cleared_through_the_door`` — which looked for
+``CairnCommons/troubles`` beside the repo root and found nothing beside a /tmp worktree. THAT
+ONE IS FIXED (the proof now resolves the commons through ``git rev-parse --git-common-dir``,
+37/37 both ways), but the CLASS is not, and the bound is what this paragraph is about. It
+surfaces HONESTLY and never as a wrong number: the declared tooth is not green at HEAD, so the
 baseline refuses with ``HollowUnmeasurable`` and no reading is attributed to any file (Law 3 —
 "the measurement could not be taken" may not travel through the same return as "clean"). It is
-a real bound on the verb's reach, not a bug in it, and the fix belongs to the PROOF.
+a real bound on the verb's reach, not a bug in it, and the fix belongs to the PROOF each time.
     -> ticket a-proof-that-reaches-a-sibling-repo-by-relative-path-cannot-be-reproven-elsewhere
+
+AND THE VERB'S COST IS THE CORPUS'S COST, NOT THE VERB'S — measured 2026-09-09 on 9579a6f9cec6
+because the ticket's own WRONG INTENT clause fired. Ten writes_to files, two skipped, so nine
+passes (one baseline plus one per measured file) over the three proofs that declare a tooth
+for it. Those three, timed standalone in the live tree: 41.9s + 0.3s + 0.4s = 42.6s, so the
+floor the verb cannot go below is 9 x 42.6 = 383.4s. The whole run took 364.0s. The verb's own
+overhead is therefore ZERO within noise (-19.4s: a worktree run is marginally cheaper than a
+live-tree one), and ``test_trouble.py`` alone is the entire budget. This is worth stating in
+the code because the obvious reading of a slow run is that the loop is wasteful, and here the
+loop is free: the only levers are fewer proof runs (the silent filter above, which took this
+from 501.7s) or a cheaper proof, and the second one belongs to whoever owns that proof.
 
 THE LIVE TREE IS NEVER TOUCHED. Every revert happens inside a scratch git worktree
 (``scratch.scratch_worktree``) that removes itself and its registration at exit. The obvious
@@ -158,14 +171,50 @@ def writes_to(ticket: dict) -> list[str]:
 
 
 def proven_by(ticket: dict) -> list[str]:
-    """The proof(s) the latest crossing names — the SAME reader the coverage sieve uses."""
-    from cairn.tools.proof_coverage.proof_coverage import _proven_by
-    proofs = _proven_by(ticket)
-    if not proofs:
+    """EVERY proof this ticket's crossings name, unioned — deliberately NOT ``_proven_by``.
+
+    THE SHARED READER ANSWERS A DIFFERENT QUESTION, and reusing it here produced WRONG
+    ANSWERS, not merely thin ones. ``proof_coverage._proven_by`` returns the proofs named by
+    the LATEST crossing that names any, and its docstring's reason is sound for the question
+    IT is asked — the clearance gate wants "which proof stands behind the crossing being made
+    now?", and a ticket kicked back to BUILDME and re-crossed must not be checked against the
+    proof it abandoned. This verb asks a different question: "what is the TOTAL declared
+    coverage this ticket claims?" A ticket's build is one build; its evidence may be spread
+    across every crossing that ever named a proof, and evidence is not superseded by being
+    older.
+
+    MEASURED 2026-09-09 on ticket 9579a6f9cec6, this verb's first live fire. That ticket has
+    FIVE PROVED crossings each naming a different proof, and its five declared teeth are
+    spread across two of them. Read latest-only, the verb reported FIVE of its eight
+    ``writes_to`` files hollow. Read as the union, it reports NONE — every file reds at least
+    one declared tooth. Those five were not an incomplete reading; they were a false accusation
+    against a build that is in fact load-bearing, produced by an instrument whose whole purpose
+    is to catch false greens. A hollow-checker that manufactures hollow findings is worse than
+    none, for exactly the reason Law 8 gives about a false green: it gets leaned on.
+
+    Corpus census the same day: 11 ticket/terminal pairs name a proof on more than one
+    crossing — 2 at PROVED (9579a6f9cec6 x5, 675ab0daa171 x4) and 8 at BUILDME. Every one of
+    them would have been misread.
+
+    NOTHING IS CHANGED IN THE SHARED TOOL, and that is the point rather than caution: its
+    latest-only rule is CORRECT for the gate, this verb needed the other rule, and the honest
+    act is two readers with their reasons written down — not one reader bent to serve two
+    questions.
+        -> ticket proven-by-answers-two-questions-and-one-reader-serves-both
+    """
+    seen: list[str] = []
+    for entry in ticket.get("crossings") or []:
+        if not isinstance(entry, dict) or not entry.get("proven_by"):
+            continue
+        raw = entry["proven_by"]
+        for one in ([raw] if isinstance(raw, str) else [str(x) for x in raw if x]):
+            if one not in seen:
+                seen.append(one)
+    if not seen:
         raise HollowUnmeasurable(
             f"hollow: no crossing on ticket {ticket.get('id')} names a proof, so there is no "
             f"instrument to run against the reverted build.")
-    return proofs
+    return seen
 
 
 def _classify(rel: str) -> str | None:
@@ -274,6 +323,22 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             f"hollow: none of the proofs {proofs} declares a PROVES entry for ticket {tid}, so "
             f"there are no declared teeth to watch. Undeclared coverage cannot be measured — "
             f"that is the proof_coverage lack, not a hollow build.")
+
+    # A PROOF DECLARING NO TOOTH FOR THIS TICKET IS DROPPED, AND SAYS SO. Only declared teeth
+    # are counted (the filter below), so a proof holding none for this ticket cannot contribute
+    # a red no matter what its reversion does — running it is a cost with no possible effect on
+    # the answer. This is not a tidy-up: it is what keeps the verb inside its own bound.
+    # MEASURED 2026-09-09 on 9579a6f9cec6 — 5 named proofs, of which THREE declare zero teeth
+    # for it, over 8 files: 5 x (1 baseline + 8) = 45 proof runs, 501.7s wall-clock against the
+    # ticket's stated WRONG INTENT threshold of 5 minutes. Dropping the three that cannot speak
+    # leaves 2 x 9 = 18 runs of the same 18 that carry every tooth the answer is made of, so the
+    # reading is IDENTICAL and the cost is 40%. The dropped names ride the finding rather than
+    # vanishing, because "we did not run it" and "it had nothing to say" must stay legible apart.
+    silent = [rel for rel in proofs if not declared_teeth[rel]]
+    if silent:
+        proofs = [rel for rel in proofs if declared_teeth[rel]]
+        declared_teeth = {rel: declared_teeth[rel] for rel in proofs}
+        log(f"  dropped {len(silent)} proof(s) declaring no tooth for {tid}: {', '.join(silent)}")
 
     # THE WORKTREE IS AT HEAD, NOT AT THE PRE-BUILD COMMIT, and the difference is the whole
     # design. Checking the whole tree out to before the build would revert every file at once
@@ -393,7 +458,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             f"run measured nothing. A measurement of the empty set is not a pass.")
 
     return {"ticket": tid, "commit": commit, "buildme_at": at, "worktree": str(wt),
-            "proofs": proofs, "declared": declared_teeth,
+            "proofs": proofs, "declared": declared_teeth, "silent_proofs": silent,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
             "unchanged": unchanged,

@@ -38,6 +38,8 @@ PROVES = {
         "3": "test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway",
         "4": "test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand",
         "5": "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
+        "6": "test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow",
+        "7": "test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run",
     }
 }
 
@@ -399,9 +401,6 @@ def test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied():
     return True
 
 
-if __name__ == "__main__":
-    raise SystemExit(print_teeth_main(__file__))
-
 
 def test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode():
     """THE DEFECT THAT MADE THIS INSTRUMENT REPORT THE OPPOSITE OF THE TRUTH, held deterministic.
@@ -446,3 +445,165 @@ def test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_byteco
     assert not list(tmp.rglob("__pycache__")), "the purge left a cache behind"
     assert read() == "1", "after the purge the reader STILL did not see the file that is on disk"
     return True
+
+
+_SPREAD_PROOF_SRC = '''\
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import %(mod)s
+
+def %(tooth)s():
+    return %(mod)s.%(const)s == 2
+
+if __name__ == "__main__":
+    ok = False
+    try:
+        ok = %(tooth)s()
+    except Exception:
+        ok = False
+    print(("ok" if ok else "FAIL") + " %(tooth)s")
+    raise SystemExit(0 if ok else 1)
+'''
+
+# Declares a tooth for a DIFFERENT ticket and none for this one. It runs clean and prints a
+# green tooth, so nothing about its own health explains why it must not be run here.
+_SILENT_PROOF_SRC = '''\
+PROVES = {"0000nother00": {"1": "test_unrelated_to_this_ticket"}}
+
+
+def test_unrelated_to_this_ticket():
+    return True
+
+if __name__ == "__main__":
+    print("ok test_unrelated_to_this_ticket")
+    raise SystemExit(0)
+'''
+
+
+def _fixture_spread(tmp: Path, *, with_silent: bool = False) -> tuple[Path, Path]:
+    """A ticket whose coverage is SPREAD ACROSS TWO CROSSINGS — the shape a seam actually has.
+
+    `subject.py` is checked only by the proof named on the BUILDME crossing; `second.py` only by
+    the proof named on the LATER crossing; `unchecked.py` by neither. A reader that takes the
+    latest crossing alone therefore loses subject.py's tooth and calls a load-bearing file
+    hollow — which is not hypothetical: it is what the shipped verb did to five of ticket
+    9579a6f9cec6's eight files on 2026-09-09. With `with_silent`, a third proof rides the later
+    crossing declaring teeth for a different ticket entirely.
+    """
+    repo, commons = tmp / "repo", tmp / "commons"
+    (repo / "proofs").mkdir(parents=True)
+    (commons / "tickets").mkdir(parents=True)
+    env = {**os.environ, "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+           "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
+    _git(repo, "init", "-q", "-b", "main", env=env)
+
+    def _proof(name: str, mod: str, const: str, tooth: str) -> None:
+        (repo / "proofs" / name).write_text(
+            'PROVES = {"%s": {"1": "%s"}}\n\n' % (FIXTURE, tooth)
+            + _SPREAD_PROOF_SRC % {"mod": mod, "const": const, "tooth": tooth})
+
+    for value in (1, 2):
+        (repo / "subject.py").write_text(f"VALUE = {value}\n")
+        (repo / "second.py").write_text(f"OTHER = {value}\n")
+        (repo / "unchecked.py").write_text(f"MARK = {value}\n")
+        if value == 1:
+            _proof("test_fixture.py", "subject", "VALUE", "test_value_is_two")
+            _proof("test_second.py", "second", "OTHER", "test_other_is_two")
+            if with_silent:
+                (repo / "proofs" / "test_silent.py").write_text(_SILENT_PROOF_SRC)
+        _git(repo, "add", "-A", env=env)
+        date = "2020-01-01T00:00:00" if value == 1 else "2020-01-03T00:00:00"
+        _git(repo, "commit", "-qm", f"commit {value}",
+             env={**env, "GIT_AUTHOR_DATE": date, "GIT_COMMITTER_DATE": date})
+
+    later = ["proofs/test_second.py"] + (["proofs/test_silent.py"] if with_silent else [])
+    berth = tmp / "decompose.json"
+    berth.write_text(json.dumps({"sub_problems": [
+        {"what": "the build", "kind": "build",
+         "writes_to": ["subject.py", "second.py", "unchecked.py"]}]}))
+    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({
+        "id": FIXTURE,
+        "chart_chain": {"decompose": str(berth)},
+        "crossings": [
+            {"to": "BUILDME", "date": "2020-01-02T00:00:00",
+             "proven_by": "proofs/test_fixture.py"},
+            {"to": "PROVEME", "date": "2020-01-04T00:00:00", "proven_by": later},
+        ]}))
+    return repo, commons
+
+
+def test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow():
+    """THE FALSE-HOLLOW GENERATOR, HELD SHUT — a verb that reads one crossing accuses a live build.
+
+    `proven_by` here is deliberately NOT `proof_coverage._proven_by`, which answers the LATEST
+    crossing only. That rule is right for the clearance gate ("which proof stands behind the
+    crossing being made now?") and wrong for this verb ("what is the total declared coverage
+    this ticket claims?"), and the difference is not cosmetic: read latest-only, the verb called
+    five of ticket 9579a6f9cec6's eight files hollow — files a tooth on the earlier crossing's
+    proof does in fact red. A hollow finding is an accusation that a build is load-bearing for
+    nothing, so manufacturing them is the exact failure this module exists to prevent, aimed
+    inward.
+
+    The two halves are asserted from ONE run because either alone passes on a broken reader:
+    subject.py (earlier crossing) reds its tooth, second.py (later crossing) reds its tooth, and
+    unchecked.py still comes back hollow — so the union widened coverage without softening the
+    finding into "nothing is ever hollow".
+    """
+    tmp = scratch_dir("cairn-hollowspread-")
+    repo, commons = _fixture_spread(tmp)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    assert f["proofs"] == ["proofs/test_fixture.py", "proofs/test_second.py"], f["proofs"]
+    assert f["measured"]["subject.py"] == ["test_value_is_two"], f["measured"]
+    assert f["measured"]["second.py"] == ["test_other_is_two"], f["measured"]
+    assert f["hollow"] == ["unchecked.py"], f["hollow"]
+    return True
+
+
+def test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run():
+    """RUNNING A PROOF THAT CANNOT SPEAK IS PURE COST — and the cost broke the ticket's bound.
+
+    Only declared teeth are counted, so a proof holding none for this ticket cannot contribute a
+    red however its reversion goes. MEASURED 2026-09-09 on 9579a6f9cec6: five named proofs, three
+    declaring zero teeth for it, over eight files — 45 proof runs and 501.7s against the ticket's
+    stated five-minute WRONG INTENT threshold. Dropping the mute three leaves the reading byte-for-
+    byte identical at 40% of the runs.
+
+    So the tooth measures the RUNS, not the wall clock: a timing assertion would pass or fail on
+    the machine's mood, while "test_silent.py was never handed to the tester" is the same answer
+    on every box. And the drop is NAMED in the finding — "we did not run it" and "it had nothing
+    to say" are different facts, and Law 7 says a record of truth may not collapse them.
+    """
+    class Counting:
+        def __init__(self):
+            from cairn.devices.tester.device import TesterDevice
+            self.inner = TesterDevice()
+            self.ran: list[str] = []
+
+        def run_proof(self, path, **kw):
+            self.ran.append(Path(path).name)
+            return self.inner.run_proof(path, **kw)
+
+    tmp = scratch_dir("cairn-hollowsilent-")
+    repo, commons = _fixture_spread(tmp, with_silent=True)
+    counter = Counting()
+    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60, tester=counter)
+
+    assert f["silent_proofs"] == ["proofs/test_silent.py"], f["silent_proofs"]
+    assert "proofs/test_silent.py" not in f["proofs"], f["proofs"]
+    assert "test_silent.py" not in counter.ran, counter.ran
+    # One baseline plus one pass per measured file, two proofs each — and the mute proof would
+    # have added a third column to every one of those passes.
+    assert len(counter.ran) == 2 * (1 + len(f["measured"])), (len(counter.ran), f["measured"])
+    # THE SAVING CHANGED THE COST AND NOT THE ANSWER, and that is measured rather than argued:
+    # the same fixture without the mute proof is read again and the two findings are compared.
+    # A filter that also moved the verdict would be an optimisation that edits the truth.
+    plain_repo, plain_commons = _fixture_spread(scratch_dir("cairn-hollowsilent-"))
+    plain = measure(FIXTURE, repo_root=plain_repo, commons=plain_commons, timeout=60)
+    assert (f["measured"], f["hollow"], f["verdict"]) == \
+        (plain["measured"], plain["hollow"], plain["verdict"]), (f, plain)
+    assert f["hollow"] == ["unchecked.py"], f["hollow"]
+    return True
+
+if __name__ == "__main__":
+    raise SystemExit(print_teeth_main(__file__))

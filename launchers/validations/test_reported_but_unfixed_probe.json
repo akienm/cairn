@@ -1,27 +1,77 @@
 [
   {
     "claim": "proof test_reported_but_unfixed_probe.py passes under python3",
-    "caller": "reported-but-unfixed-probe",
-    "date": "2026-08-29T22:02:07",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:49:56",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "proof: the reported-but-unfixed-floor probe — berth=launchers/probes/reported_but_unfixed_floor.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_the_floor_is_at_least_the_patience\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch\n  PASS  test_an_unparseable_line_is_skipped_not_guessed_at\n  PASS  test_an_absent_record_is_not_a_finding\n  PASS  test_the_bypass_is_counted_but_does_not_fire\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_berth_is_where_the_ticket_says_it_is\n  PASS  test_the_datum_points_at_the_ticket_and_does_not_copy_it\n  PASS  test_it_reaches_nowhere\n\nall green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_watch_can_never_clear_before_it_could_fire",
+        "test_the_floor_is_at_least_the_patience",
+        "test_fire_and_clear_are_mutually_exclusive",
+        "test_every_clause_is_load_bearing",
+        "test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch",
+        "test_an_unparseable_line_is_skipped_not_guessed_at",
+        "test_an_absent_record_is_not_a_finding",
+        "test_the_bypass_is_counted_but_does_not_fire",
+        "test_the_probe_is_armed_the_way_the_emission_gate_means_it",
+        "test_the_berth_is_where_the_ticket_says_it_is",
+        "test_the_datum_points_at_the_ticket_and_does_not_copy_it",
+        "test_it_reaches_nowhere"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "06d95949b41919379444796359a11c9ae17e1110e33d156c6b6caa9537e4dce6",
+      "source_fingerprint": "7ce02614ee7f4441c9752516b0f2d2403abef1bd82b2aabd61ac1c182553fb36",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "launchers/proofs/test_reported_but_unfixed_probe.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-nxhjort8/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-288381-h3_9oufl/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 117631042,
+          "disk_bytes": 126451712,
+          "entries": 3665,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

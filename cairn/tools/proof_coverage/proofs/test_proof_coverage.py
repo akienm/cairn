@@ -352,12 +352,30 @@ def test_the_live_corpus_reds_every_ticket_at_proveme():
         assert f["values"]["reason"], f
         assert f["expected"] is True and f["actual"] is False, f
 
-    proveme = {t["id"] for t in in_space
-               if _workflow_cursor(t["workflow_and_state"]) == "PROVEME"}
-    uncovered_proveme = proveme - named
-    assert not uncovered_proveme, (
-        "these PROVEME tickets claim coverage the sieve did not check: "
-        f"{sorted(uncovered_proveme)}")
+    # A PROVEME TICKET IS EITHER NAMED WITH A LACK, OR DEMONSTRABLY COVERED — and the second
+    # half is the correction. This assertion used to be "every PROVEME ticket is named by a
+    # finding", full stop, and it read as an invariant because on 2026-09-07 all 19 tickets at
+    # PROVEME happened to be uncovered. It is not an invariant. A ticket that is fully covered
+    # is exactly what a ticket looks like in the moment BEFORE it crosses to PROVED — the state
+    # this whole ticket was built to make reachable — so the old form redded the corpus for
+    # doing the thing the build succeeded at. Measured 2026-09-09: one ticket at PROVEME
+    # (feeb4c786b14, this one), unnamed because the sieve checked it and found every clause
+    # declared, every declared tooth green in the standing seal, fingerprint matching.
+    #
+    # WHAT ACTUALLY MUST HOLD is that no PROVEME ticket is SKIPPED: silence about a ticket must
+    # mean "checked and clean", never "never looked at". So an unnamed one is re-asked
+    # DIRECTLY, through the per-ticket evaluator the sieve itself composes — if lacks() returns
+    # empty the sieve did evaluate it, and if the ticket were vacuous (no proven_by, nothing
+    # declared for it) lacks() would name that as its own lack rather than come back empty.
+    proveme = [t for t in in_space
+               if _workflow_cursor(t["workflow_and_state"]) == "PROVEME"]
+    for t in proveme:
+        if t["id"] in named:
+            continue
+        residual = pc.lacks(t, repo_root=REPO_ROOT)
+        assert residual == [], (
+            f"PROVEME ticket {t['id']} was not named by the sweep, but asking the evaluator "
+            f"directly returns lacks — the sweep skipped it: {residual}")
 
 
 def test_this_very_proof_declares_the_ticket_that_built_it():
@@ -558,6 +576,84 @@ def test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth():
 
     assert out.returncode == 0, "the fixture no longer demonstrates the defect"
     assert pc.teeth_printed(out.stdout) == {"green": [], "red": []}, out.stdout
+
+
+def test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier():
+    """HALF THE CORPUS'S TEETH WERE INVISIBLE, AND THE TICKET HAD ALREADY SAID SO.
+
+    feeb4c786b14's HOW: "a tooth name is the ok() label for ok-style proofs (18 in the
+    corpus) or the test_ function name for pytest-style proofs (152)". The test_ half was
+    built; the ok() half was not, because both marker patterns anchored on a ``test_``
+    name. The anchor's REASON was sound — a marker word in prose must not mint a tooth —
+    it was simply spent on one of the two shapes that occur.
+
+    MEASURED 2026-09-09: 31 of 131 green seals recorded ZERO teeth, and SEVENTEEN of those
+    print their teeth in plain sight (``  ok the backdate refusal wrote no slate``,
+    ``PASS: status returns 0 and reads liveness``). This matters beyond tidiness because
+    the sieve reds when a DECLARED tooth is absent from teeth_green, and every declared
+    tooth is absent from an empty list — so those seventeen proofs were structurally
+    unable to serve as coverage evidence for any ticket, while reading green.
+    """
+    printed = pc.teeth_printed(
+        "  ok the backdate refusal wrote no slate\n"
+        "PASS: status returns 0 and reads liveness\n"
+        "  PASS  a unified line is the answer\n"
+        "  FAIL the door committed the real repo\n")
+    assert printed["green"] == ["the backdate refusal wrote no slate",
+                                "status returns 0 and reads liveness",
+                                "a unified line is the answer"], printed
+    assert printed["red"] == ["the door committed the real repo"], printed
+
+
+def test_a_marker_word_at_the_LEFT_MARGIN_mints_no_tooth():
+    """THE ANCHOR THAT REPLACES ``test_`` FOR THE PROSE CASE, and the tooth that keeps it.
+
+    Widening the parser to prose labels gives up the ``test_`` anchor, so it needs another
+    one or a proof narrating "ok so the next thing" would mint a tooth named after its own
+    aside — and a fabricated GREEN tooth is the one direction a hollow build wants (Law 8).
+    The replacement anchor is punctuation, not vocabulary: the marker must OPEN the line
+    AND the line must be INDENTED or the marker followed by a COLON, which is what every
+    per-tooth report line in the corpus does and what a sentence does not.
+
+    Measured against every stored proof output in the corpus (192 seals): zero green seals
+    parse to a red tooth under the widened rule. The summary lines proofs actually print at
+    the left margin — ``GREEN - 35 teeth``, ``green - validation_store: one record`` — mint
+    nothing, and they are in the fixture below because they are the real near-misses.
+    """
+    printed = pc.teeth_printed(
+        "ok so the next thing we do is check the door\n"
+        "GREEN - 35 teeth\n"
+        "green - validation_store: one current record beside its proof\n"
+        "error occurred while reading the tree\n")
+    assert printed["green"] == [], printed
+    assert printed["red"] == [], printed
+
+
+def test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH():
+    """The invariant that guards the widening, over the real corpus rather than a fixture.
+
+    An INVARIANT, never a snapshot count: seal contents change every time a proof re-seals,
+    so asserting "17 seals gain teeth" would red on the next reseal for the right reason and
+    teach nothing. What must hold forever is the DIRECTION — a proof that ran green must not
+    have its own output read back as a failing tooth, because that red would be manufactured
+    by the reader rather than measured by the proof.
+    """
+    import json as _json
+    bad = []
+    for v in sorted(REPO_ROOT.rglob("validations/*.json")):
+        try:
+            d = _json.loads(v.read_text())
+        except Exception:
+            continue
+        rec = d[0] if isinstance(d, list) else d
+        if not isinstance(rec, dict) or rec.get("verdict") != "green":
+            continue
+        tail = (rec.get("evidence") or {}).get("stdout_tail") or ""
+        if tail and pc.teeth_printed(tail)["red"]:
+            bad.append((str(v.relative_to(REPO_ROOT)), pc.teeth_printed(tail)["red"][:3]))
+    assert not bad, (
+        "a GREEN seal's own output parses to a red tooth — the parser is minting a red the "
+        f"proof never reported: {bad[:5]}")
 
 
 TESTS = [fn for name, fn in sorted(globals().items())

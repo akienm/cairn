@@ -66,6 +66,32 @@ RED_MARKERS = frozenset({"fail", "failed", "red", "error", "errored", "broken"})
 _MARKER_FIRST = re.compile(r"^\s*([A-Za-z]+)[\s:]+(test_[A-Za-z0-9_]+)")
 _MARKER_LAST = re.compile(r"(test_[A-Za-z0-9_]+)\s+([A-Za-z]+)\s*$")
 
+# AND THE THIRD SHAPE, WHICH IS HALF THE CORPUS'S TEETH: a marker beside a PROSE LABEL.
+# The two patterns above anchor on a ``test_`` name, and the comment above says why — a
+# marker word in prose must not mint a tooth. That reasoning is right and it was applied
+# to only half the problem. This ticket's own HOW says so in as many words: "a tooth name
+# is the ok() label for ok-style proofs (18 in the corpus) or the test_ function name for
+# pytest-style proofs (152)". The ok()-style half was specified and never built.
+#
+# MEASURED 2026-09-09, which is how it surfaced: of 131 green seals in the corpus, 31
+# recorded ZERO teeth. Seventeen of those PRINT their teeth in plain sight and the parser
+# could not see them — ``  ok the backdate refusal wrote no slate``, ``PASS: status returns
+# 0 and reads liveness``, ``  PASS  a unified line is the answer``. A seal that records no
+# teeth cannot serve as coverage evidence for anything, because the sieve reds when a
+# DECLARED tooth is absent from teeth_green and every declared tooth is absent from an
+# empty list. So seventeen proofs were structurally unable to prove any ticket, while
+# reading green. (The other fourteen print no per-tooth line at all — a different gap,
+# recorded on the ticket, not fixed by this regex: there is nothing there to parse.)
+#
+# THE ANCHOR THAT REPLACES ``test_``, because the prose case cannot have that one: the
+# marker must open the line AND be punctuated as a report rather than a sentence — either
+# the line is INDENTED (every ok()-style helper in the corpus indents its per-tooth lines)
+# or the marker is followed by a COLON (``PASS: ...``). A narrative line a proof prints at
+# the left margin — ``ok so the next thing`` — matches neither and mints nothing. This is
+# the same instinct as the ``test_`` anchor, spent on the shape that actually occurs.
+_MARKER_LABEL = re.compile(
+    r"^(?:[ \t]+([A-Za-z]+)[ \t]+|([A-Za-z]+)[ \t]*:[ \t]+)(\S.*?)[ \t]*$")
+
 # A clause key is the number inside a ``(N)`` marker in the DONE-when text.
 _CLAUSE_MARK = re.compile(r"\((\d{1,2})\)")
 # Everything from WRONG INTENT onward describes what would make the ticket the WRONG THING
@@ -93,11 +119,18 @@ def teeth_printed(stdout: str) -> dict:
     green: list[str] = []
     red: list[str] = []
     for line in (stdout or "").splitlines():
-        for pattern, marker_group, name_group in ((_MARKER_FIRST, 1, 2), (_MARKER_LAST, 2, 1)):
+        # ORDER MATTERS AND IT IS NOT ARBITRARY: the two test_-anchored patterns run first,
+        # so ``  ok   test_x`` records the IDENTIFIER and never the sentence that follows it.
+        # The label pattern is the fallback for lines that name no test_ function at all.
+        for pattern, marker_group, name_group in ((_MARKER_FIRST, 1, 2), (_MARKER_LAST, 2, 1),
+                                                  (_MARKER_LABEL, None, 3)):
             m = pattern.search(line)
             if not m:
                 continue
-            marker = fold(m.group(marker_group))
+            # _MARKER_LABEL carries its marker in whichever of its two alternatives fired —
+            # indented form or colon form — so the group is resolved rather than fixed.
+            marker = fold(m.group(marker_group) if marker_group is not None
+                          else (m.group(1) or m.group(2)))
             name = m.group(name_group)
             if marker in RED_MARKERS:
                 red.append(name)

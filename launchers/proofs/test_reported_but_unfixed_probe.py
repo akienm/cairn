@@ -171,14 +171,33 @@ def test_the_bypass_is_counted_but_does_not_fire() -> None:
 
 # --- the declaration ---------------------------------------------------------------------
 
+_OWNING_TICKET = "835af7f398ce"   # superclaude-starts-itself — the id, which is not editable
+
+
+def _owning_ticket() -> Path:
+    """The ticket this probe answers to, resolved through the corpus's one resolver."""
+    from cairn.tools.chain.grammar import ticket_path
+
+    found = ticket_path(_OWNING_TICKET)
+    assert found, f"the owning ticket {_OWNING_TICKET} is not on file"
+    return Path(found)
+
+
 def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
     """Read ARMED through the gate's own instrument, never a parallel notion of it — else this
     proof could pass a probe the door refuses."""
     from cairn.tools.base import watchme_spec
 
-    ticket_path = watchme_spec._TICKETS / "superclaude-starts-itself.json"
-    assert ticket_path.is_file(), f"the owning ticket is not on file at {ticket_path}"
-    ticket = json.loads(ticket_path.read_text(encoding="utf-8"))
+    # THROUGH THE ONE DOOR, BY ID — never by assembling a filename here. A ticket's file is
+    # named <hex id>-<slug>.json and the slug is editable prose; this proof hardcoded the bare
+    # "superclaude-starts-itself.json" and went RED on 2026-09-09 with a FileNotFoundError when
+    # the corpus finished moving to id-prefixed names. The seal had been green since before the
+    # rename, so nothing said the proof had stopped resolving — a stale green over a dead path.
+    # cairn.tools.chain.grammar.ticket_path IS the one implementation of "where a ticket lives"
+    # (its own docstring: so a reader that opens a ticket and a gate that checks it is on file
+    # can never disagree), and it globs a hex id. The id cannot be edited; the slug can.
+    ticket_file = _owning_ticket()
+    ticket = json.loads(ticket_file.read_text(encoding="utf-8"))
     assert watchme_spec.watchme_spec_error(ticket) is None, watchme_spec.watchme_spec_error(ticket)
     spec = watchme_spec.spec_for(ticket, "reported-but-unfixed-floor")
     assert spec is not None, "no spec for the object the workflow string names"
@@ -191,8 +210,7 @@ def test_the_berth_is_where_the_ticket_says_it_is() -> None:
     file, resolved from the repo root the gate resolves from."""
     from cairn.tools.base import watchme_spec
 
-    ticket = json.loads((watchme_spec._TICKETS / "superclaude-starts-itself.json")
-                        .read_text(encoding="utf-8"))
+    ticket = json.loads(_owning_ticket().read_text(encoding="utf-8"))
     spec = watchme_spec.spec_for(ticket, "reported-but-unfixed-floor")
     assert (REPO / spec["probe"]).resolve() == BERTH.resolve(), (
         f"the ticket berths the probe at {spec['probe']!r}, this proof is proving {BERTH}")

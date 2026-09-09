@@ -68,7 +68,12 @@ SUPERCLAUDE = REPO / "launchers" / "superclaude"
 # test_reported_but_unfixed_probe.py loads its own floor. The cgroup parse exists once, in
 # the instrument that ships with the thing it watches; a second spelling here would be the
 # corpus growing two readers of /proc/*/cgroup, which criterion 7 of the chart forbids.
-BERTH = REPO / "cairn" / "devices" / "ground_loop" / "probes" / "does_the_heartbeat_outlive_its_caller.py"
+# The berth moved with the thing it watches: 6ae83e7 absorbed ground_loop into the cairn
+# device as one of its machines, and a probe berths WITH what it watches. Line 137 below
+# already reads the new module path; this one did not, and the seal that would have caught
+# it was directory-scoped over launchers/, which the move never touched.
+BERTH = (REPO / "cairn" / "devices" / "cairn" / "machines" / "ground_loop" / "probes"
+         / "does_the_heartbeat_outlive_its_caller.py")
 _spec = importlib.util.spec_from_file_location("_probe_heartbeat_residency", BERTH)
 probe_mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(probe_mod)

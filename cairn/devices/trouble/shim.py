@@ -231,23 +231,51 @@ class TroubleShim(BaseShim):
                         "raised_by": record.get("source"),
                         "raised_at": record.get("ts"),
                         "emission": name})
+        # EVERY COMPARISON AGAINST THE LIVE SET GOES THROUGH THE STORE'S OWN ADDRESSING RULE.
+        # The doors slug what they are handed, so what is on disk is always the slug — and
+        # both lanes below compare a SENDER'S identity against those stored ids before
+        # deciding anything. Comparing the raw pointer was wrong in both, with opposite and
+        # both-bad failures, measured live on 2026-09-08 (the day the two lanes shipped):
+        #
+        #   clear     — 5 of 5 tester clears folded to "declined — not live". The tester
+        #               names a trouble after its proof file (test_inspector_nexus); the
+        #               store holds test-inspector-nexus. Nothing it ever fixed could clear,
+        #               and validation-verdict-changed-test-inspector-nexus sat in the
+        #               operator inbox with its proof standing green.
+        #   reconcile — the DANGEROUS direction. `still` is the sender's complete current
+        #               picture, so an unslugged entry does not match the trouble it names
+        #               and that trouble reads as stale — CLEARED while it is still standing.
+        #               A loud wrong trouble is safe; a quiet cleared one is not (Law 7).
+        #
+        # The scope prefix is slugged for the same reason, and slugging is idempotent, so a
+        # sender that already speaks in slugs (the build inspector does) is unaffected.
+        ident_of = self._device.identity_of
         if gate == CLEAR_GATE:
-            if pointer not in {t.get("id") for t in self._device.live()}:
-                return {"outcome": "declined", "id": pointer,
+            wanted = ident_of(pointer)
+            if wanted not in {t.get("id") for t in self._device.live()}:
+                return {"outcome": "declined", "id": wanted,
                         "why": "not live — nothing standing under that identity to clear"}
-            return self._device.clear(pointer, by=values.get("by") or "cc",
+            return self._device.clear(wanted, by=values.get("by") or "cc",
                                       what_changed=values.get("what_changed") or "")
         if gate == RECONCILE_GATE:
-            still = set(values.get("still") or [])
+            still = {ident_of(s) for s in (values.get("still") or [])}
+            # THE TRAILING SEPARATOR IS PART OF THE SCOPE AND `identity_of` STRIPS IT.
+            # Slugging is right for an identity and half-right for a PREFIX: the store's
+            # rule folds "_" to "-" and lowercases (both wanted here), and it also trims
+            # the ends (not wanted here). Dropping the trailing "-" would silently widen
+            # "inspector-new-finding-" to match "inspector-new-findings-…" as well — a
+            # reconcile reaching outside its scope, which is the one thing this lane's own
+            # proof calls its real tooth. So slug the body, put the separator back.
+            scope = ident_of(pointer) + ("-" if pointer.rstrip().endswith(("-", "_")) else "")
             stale = sorted(t.get("id") for t in self._device.live()
-                           if str(t.get("id", "")).startswith(pointer)
+                           if str(t.get("id", "")).startswith(scope)
                            and t.get("id") not in still)
             cleared = []
             for ident in stale:
                 cleared.append(self._device.clear(
                     ident, by=values.get("by") or "cc",
                     what_changed=values.get("what_changed") or ""))
-            return {"outcome": "reconciled", "scope": pointer,
+            return {"outcome": "reconciled", "scope": scope,
                     "still": len(still), "cleared": cleared}
         raise ValueError(f"no fold for gate {gate!r} — the drain scanned a lane it "
                          f"cannot apply, which would silently drop the emission")

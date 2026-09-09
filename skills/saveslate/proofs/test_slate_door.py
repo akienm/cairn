@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sys
+import subprocess as _sp
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -54,6 +55,24 @@ def main() -> int:
 
         live_trace = Path.home() / ".cairn/devices/learning_block/0/traces/skill:saveslate.jsonl"
         live_before = live_trace.read_bytes() if live_trace.exists() else None
+
+        # 0. THE FIXTURE MUST NOT MOVE THE REAL REPOS. This is the first tooth because it
+        # guards every tooth after it: the door's first act used to be an unconditional
+        # commit-and-push of ~/dev/src/cairn and ~/dev/src/CairnCommons, fired BEFORE any
+        # judging, so every `door.fire(..., **roots)` below was a live write. Measured
+        # 2026-09-08: this proof landed commit 8386c43 over 14 files of another voyage's
+        # uncommitted work, then died on `git push` exit 128 inside the tester's netns.
+        #
+        # A HOLLOW BUILD PASSES THE OTHER TOOTH SHAPE, NOT THIS ONE. Asserting "no exception"
+        # would go green the moment the network came back, and asserting "the repo is clean"
+        # would go green on a clean tree — which is precisely how the August seal was taken.
+        # The falsifiable claim is that the two HEADs are the SAME SHA before and after a
+        # full fixture fire, on a tree in whatever state the operator left it.
+        def _head(repo):
+            r = _sp.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                        capture_output=True, text=True, timeout=10)
+            return r.stdout.strip() if r.returncode == 0 else None
+        heads_before = {r: _head(r) for r in (_REPO, door._COMMONS)}
 
         # 1. stale heads refuse, naming live vs packet, and write NO slate — twice, same set
         stale = dict(GOOD, instruments_read={"git_heads": {"cairn": "old", "CairnCommons": "bbb222"}})
@@ -176,7 +195,8 @@ def main() -> int:
         ok("live trace untouched by the proof", live_before == live_after)
 
     # --- teeth below test the GENERIC CLI path (the side-path ticket) ---
-    import subprocess as _sp
+    # _sp is imported at module scope (tooth 0 needs it before this point); a local
+    # re-import here made it a LOCAL name and unbound it for the whole function.
     live = door.live_git_heads()
     slate_id = f"proof-fixture-generic-cli-{datetime.now().strftime('%Y%m%dT%H%M%S')}"
 
@@ -236,6 +256,15 @@ def main() -> int:
         result = json.loads(r.stdout)
         ok("non-composing skill berths normally", bool(result.get("berth")))
         ok("non-composing skill has no slate key", "slate" not in result)
+
+        # 0b. THE READ-BACK for tooth 0. Every fire above ran with injected roots; if any
+        # one of them reached the live boundary, a HEAD moved. Checked at the END rather
+        # than after each fire so the claim covers the whole fixture run, refusals included
+        # — a refusal wrote no slate, and it must not have written a commit either.
+        for repo, before in heads_before.items():
+            ok(f"fixture fires left {repo.name} HEAD unmoved", _head(repo) == before,
+               f"{before} -> {_head(repo)} — the door committed the real repo from a "
+               f"fixture caller; the live-boundary guard in fire() is gone")
 
     print(f"GREEN — {PASSES} teeth")
     return 0

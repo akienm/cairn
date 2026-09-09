@@ -212,10 +212,27 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
     """Gate the slate — flat AND semantic lacks in ONE refusal — then berth through
     the seam and WRITE the slate in the same act. A refusal writes nothing."""
     committed = {}
-    for rname, rpath in (("cairn", _REPO), ("CairnCommons", _COMMONS)):
-        sha = _auto_commit_push(rpath, rname)
-        if sha:
-            committed[rname] = sha
+    # THE AUTO-COMMIT IS A LIVE-BOUNDARY ACT, AND ONLY THE LIVE BOUNDARY MAY FIRE IT.
+    # It used to fire unconditionally, first thing, before any judging — so a caller that
+    # injected fixture roots still got the real repos committed and pushed. That is not a
+    # netns inconvenience; it is a proof mutating the world. Measured 2026-09-08: running
+    # test_slate_door.py landed commit 8386c43 ("saveslate boundary: auto-commit cairn")
+    # over 14 files of another voyage's in-flight work, with no author's message and no
+    # session attribution, and then died on `git push` exit 128 under the tester's netns.
+    # The same proof had sealed green in August for the one reason that hides this shape:
+    # `_auto_commit_push` returns early on a clean repo, so the seal was green-when-clean
+    # and red-when-dirty — a coin toss on the operator's working tree, which is exactly the
+    # class of check that goes green for the wrong reason.
+    #
+    # `slates_dir` is the discriminator because it is already the live/fixture seam: main()
+    # never passes it (the door resolves _SLATES), and every fixture caller must pass one or
+    # its slate lands in the real store. So "writing somewhere other than the live store" is
+    # the same claim as "this is not a real boundary" — one flag, no new vocabulary.
+    if slates_dir is None:
+        for rname, rpath in (("cairn", _REPO), ("CairnCommons", _COMMONS)):
+            sha = _auto_commit_push(rpath, rname)
+            if sha:
+                committed[rname] = sha
     if committed:
         new_heads = live_git_heads()
         inst = payload.get("instruments_read")

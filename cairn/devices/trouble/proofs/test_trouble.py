@@ -703,6 +703,118 @@ def test_a_reconcile_clears_the_stale_spares_the_standing_and_CANNOT_REACH_OUTSI
             f"trouble: {live}")
 
 
+def test_BOTH_CLEARING_LANES_COMPARE_THROUGH_THE_STORES_OWN_ADDRESSING_RULE():
+    """A SENDER NAMES A DEFECT; THE STORE HOLDS A SLUG. The drain has to bridge the two.
+
+    Every door on ``TroubleDevice`` slugs what it is handed — lowercase, non-alphanumerics
+    folded to "-" — so what is on disk is always the slug. Both clearing lanes, though,
+    COMPARE a sender's identity against those stored ids before they decide anything, and
+    until 2026-09-08 both compared the raw pointer. The two failures are opposite and both
+    bad, which is why one test covers both lanes:
+
+      clear     — declines forever. Measured live the day the lane shipped: 5 of 5 tester
+                  clears folded to "declined — not live", because the tester names a trouble
+                  after its proof file (``test_inspector_nexus``) and the store holds
+                  ``test-inspector-nexus``. The trouble stayed in the operator inbox with
+                  its proof standing green.
+      reconcile — clears what is STILL STANDING. ``still`` is the complete current picture;
+                  an unslugged entry matches nothing, so the trouble it names reads as stale
+                  and is cleared. That is the quiet-and-wrong direction Law 7 forbids, and
+                  no assertion in the lane's other tests can see it, because they all speak
+                  in slugs already.
+
+    THE FIXTURE SPEAKS IN UNDERSCORES ON PURPOSE. A hollow implementation that slugs one
+    lane and not the other fails exactly one half of this test."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    # What the tester actually sends: an identity built from a proof FILENAME.
+    unslugged_kept = "validation-verdict-changed-test_still_red"
+    unslugged_gone = "validation-verdict-changed-test_went_green"
+    slug_kept = "validation-verdict-changed-test-still-red"
+    slug_gone = "validation-verdict-changed-test-went-green"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        # --- the CLEAR lane: an unslugged clear must reach the trouble it names
+        _raise_in_a_separate_process(world, "tester", unslugged_gone, WHY)
+        shim.drain()
+        assert [t["id"] for t in _dev_at(store).live()] == [slug_gone], (
+            "the raise did not land under the slug — the fixture's premise is wrong")
+
+        _emit_in_a_separate_process(
+            world, "tester",
+            f"clear_trouble({unslugged_gone!r}, by='cc', "
+            f"what_changed='re-seal round-trip: red -> green')")
+        drained = shim.drain()
+        folds = [f for f in drained.get("folded", []) if "clear_trouble" in f["emission"]]
+        assert folds and folds[0].get("outcome") != "declined", (
+            "an unslugged clear was declined as 'not live' while the trouble it names is "
+            f"standing — the lane compares the raw pointer against slugged ids: {folds}")
+        assert _dev_at(store).live() == [], (
+            f"the clear folded but the trouble is still standing: {_dev_at(store).live()}")
+
+        # --- the RECONCILE lane: an unslugged `still` entry must SPARE its trouble
+        for ident in (unslugged_kept, unslugged_gone):
+            _raise_in_a_separate_process(world, "tester", ident, WHY)
+        shim.drain()
+        assert sorted(t["id"] for t in _dev_at(store).live()) == sorted((slug_kept, slug_gone))
+
+        _emit_in_a_separate_process(
+            world, "tester",
+            f"reconcile_troubles('validation-verdict-changed-', [{unslugged_kept!r}], "
+            f"by='cc', what_changed='the current picture after the sweep')")
+        drained = shim.drain()
+        assert drained.get("refused", []) == [], drained
+        live = sorted(t["id"] for t in _dev_at(store).live())
+        assert slug_kept in live, (
+            "a trouble the reporter said is STILL STANDING was cleared — its `still` entry "
+            f"was unslugged and matched nothing: {live}")
+        assert slug_gone not in live, f"a stale trouble was not cleared: {live}"
+
+
+def test_a_RECONCILE_SCOPE_KEEPS_ITS_TRAILING_SEPARATOR():
+    """SLUGGING A PREFIX IS HALF-RIGHT: the fold is wanted, the end-trim is not.
+
+    ``identity_of`` strips leading and trailing separators, which is correct for an identity
+    and wrong for a scope: it turns the prefix ``"inspector-new-finding-"`` into
+    ``"inspector-new-finding"``, which still matches everything it should AND everything
+    under any longer word starting the same way. A reconcile is the most powerful act in
+    this lane, so widening its reach by one character is a real defect even though every
+    id in today's corpus survives it. Proved with a neighbour that only the un-trimmed
+    prefix excludes."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    inside = "inspector-new-finding-alpha"
+    neighbour = "inspector-new-findings-rollup"   # differs only after the separator
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        for ident in (inside, neighbour):
+            _raise_in_a_separate_process(world, "build_inspector", ident, WHY)
+        shim.drain()
+        assert len(_dev_at(store).live()) == 2
+
+        # An EMPTY current picture under the scope: everything in scope is stale.
+        _emit_in_a_separate_process(
+            world, "build_inspector",
+            "reconcile_troubles('inspector-new-finding-', [], by='cc', "
+            "what_changed='no findings at all in the current run')")
+        drained = shim.drain()
+        assert drained.get("refused", []) == [], drained
+
+        live = [t["id"] for t in _dev_at(store).live()]
+        assert inside not in live, f"the in-scope stale trouble was not cleared: {live}"
+        assert neighbour in live, (
+            "the reconcile cleared a trouble OUTSIDE its scope — the trailing separator was "
+            f"trimmed off the prefix, widening the reach: {live}")
+
+
 def test_the_THREE_LANES_keep_INDEPENDENT_watermarks():
     """A SHARED WATERMARK SILENTLY DROPS EMISSIONS, and the drop is invisible in the result.
 

@@ -351,6 +351,25 @@ class TroubleDevice(BaseDevice):
 
     # --- the file layer (thin, and the only writer) -------------------------
 
+    def identity_of(self, identity: str) -> str:
+        """The stored form of an identity — PUBLIC because the drain has to ask.
+
+        Every door here (``raise_trouble``, ``clear``, ``amend``) slugs what it is handed,
+        so what is ON DISK is always the slug. Anything that wants to COMPARE a caller's
+        identity against the live set has to slug it first, and the drain does exactly that
+        before it decides whether a clear names a standing trouble. It used to compare the
+        raw pointer, and the measured cost was total: on 2026-09-08 five of five tester
+        clears folded to ``declined — not live`` because the tester names its troubles after
+        a proof file (``test_inspector_nexus``) and the store holds the slug
+        (``test-inspector-nexus``). The trouble whose proof had gone green sat in the
+        operator inbox anyway.
+
+        Reaching through ``_slug`` from the shim would have worked and would have been a
+        lie about the contract: the normalization is not an implementation detail of this
+        class, it is the store's addressing rule, and a caller that must obey a rule needs
+        a public way to ask what it is."""
+        return self._slug(identity)
+
     def _slug(self, identity: str) -> str:
         s = _SLUG.sub("-", (identity or "").strip().lower()).strip("-")
         if not s:

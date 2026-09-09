@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T16:13:05",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T17:56:06",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -12,10 +12,10 @@
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "364f52fa3b65707dd9fe6307fabad9c572ca54b03af12713be76c3c98556ff04",
+      "source_fingerprint": "45631289de38b1c430d29c8957798262a7a94cff062ef8189d875c94a3eac5ed",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -65,25 +65,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1059211-54d1ytbr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1389383-68qim2b5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/charter/0/20260909.221127.790242.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.221128.109456.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.221217.588408.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.221217.886956.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20260909.235436.376282.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.235436.706612.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.235521.380691.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.235521.702688.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119907372,
-          "disk_bytes": 128970752,
-          "entries": 3761,
+          "bytes": 121065971,
+          "disk_bytes": 131383296,
+          "entries": 4223,
           "builds": 1,
-          "reuses": 14
+          "reuses": 3
         }
       }
     },

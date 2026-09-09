@@ -240,7 +240,7 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
     return os.path.exists(os.path.join(commons, ref))
 
 
-def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
+def ticket_path(claim, root: str = CAIRN_ROOT, tickets_dir: str | None = None) -> str | None:
     """WHERE A TICKET LIVES — the one implementation, so a reader that OPENS a
     ticket and the gate that merely checks it is on file can never disagree about
     which file that is (ticket watchme-emits-a-probe piece (d), which taught the
@@ -249,10 +249,36 @@ def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
     'malformed' and 'not on file', because the caller's refusal is the same.
 
     Accepts both slug claims (old: slug.json) and hex id claims (new:
-    hex-slug.json). A hex id is looked up by glob."""
+    hex-slug.json). A hex id is looked up by glob.
+
+    A SLUG CLAIM MUST BE THE WHOLE SLUG, NOT A TAIL OF ONE (narrowed 2026-09-09,
+    voyage 8754ae677af6). The lookup for a slug is a glob, ``*-<claim>.json``, and
+    the ``*`` was swallowing however much of a real slug it had to: ``ticket_path("it")``
+    returned ``336a781018ba-a-probes-enough-threshold-declares-what-set-it.json``, and
+    so did ``"one"``, ``"door"``, ``"cast"``, ``"ruling"`` and ``"ticket"`` for five
+    other files. ``_TICKET_RE`` is ``^[a-z][a-z0-9-]*$`` — it admits any lowercase
+    word, because a slug IS a lowercase word list, so it could never be the guard that
+    stopped this.
+
+    A stem is ``<12-hex id>-<slug>``, so the claim is the whole slug exactly when the
+    text before ``-<claim>`` is the id and nothing else. Checking that is the narrowing;
+    full-slug lookup is untouched (``learning-block-engine-track`` still resolves), and
+    tail matching is gone.
+
+    WHERE IT WAS COSTING: ``reason_has_referent`` splits an exemption's PROSE into words
+    and asks this function about each one, so every reason containing "it" or "one" or
+    "ticket" was certified as pointing at something checkable. Measured over the corpus
+    at the fix: of 326 ``none, because <X>`` reasons on filed tickets, 321 passed and
+    132 pass honestly — the floor built to refuse "one plausible sentence" was accepting
+    them at 58%.
+
+    ``tickets_dir`` overrides where to look, for a caller holding an injected commons
+    (the skill doors judge fixtures under a tmp root). Default derivation is unchanged.
+    """
     if not isinstance(claim, str):
         return None
-    tickets_dir = os.path.join(os.path.dirname(root), "CairnCommons", "tickets")
+    if tickets_dir is None:
+        tickets_dir = os.path.join(os.path.dirname(root), "CairnCommons", "tickets")
     if _HEX_ID_RE.match(claim):
         import glob as _glob
         matches = _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))
@@ -263,8 +289,11 @@ def ticket_path(claim, root: str = CAIRN_ROOT) -> str | None:
     if os.path.isfile(filed):
         return filed
     import glob as _glob
-    matches = _glob.glob(os.path.join(tickets_dir, "*-" + claim + ".json"))
-    return matches[0] if matches else None
+    for match in sorted(_glob.glob(os.path.join(tickets_dir, "*-" + claim + ".json"))):
+        stem = os.path.basename(match)[: -len(".json")]
+        if _HEX_ID_RE.match(stem[: -(len(claim) + 1)]):
+            return match
+    return None
 
 
 def ticket_spellings(claim, root: str = CAIRN_ROOT) -> frozenset:

@@ -12,6 +12,7 @@ at is measuring something else by accident.
 Hermetic (a fabricated temp root — no live snapshot values are pinned); the
 live-root assertions are MEMBERSHIP invariants only. Exit 0 = green.
 """
+import pathlib
 import os
 import pytest
 import shutil
@@ -149,6 +150,43 @@ def test_a_filed_ticket_answers_to_every_spelling_the_door_admits(root):
     assert ticket_spellings("no-such-ticket", root) == frozenset({"no-such-ticket"}), \
         "an unfiled claim still matches its own packets exactly as before"
     assert ticket_spellings("", root) == frozenset() and ticket_spellings(None, root) == frozenset()
+
+
+def test_a_slug_claim_must_be_the_WHOLE_slug_and_never_a_TAIL_of_one(root):
+    """THE GLOB WAS SWALLOWING WHATEVER IT HAD TO. A slug claim resolves through
+    ``*-<claim>.json``, and nothing checked that the part the ``*`` ate was only the hex
+    id — so ``ticket_path("it")`` answered with a real ticket whose slug merely ENDS in
+    "it", and so did "one", "door", "cast", "ruling" and "ticket". ``_TICKET_RE`` could
+    never have caught it: a slug IS a lowercase word list, so the pattern that admits a
+    slug admits any word.
+
+    THE COST WAS PAID BY ``reason_has_referent``, which splits an exemption's PROSE into
+    words and asks this function about each one. "none, because we talked about it" was
+    therefore a reason pointing at something checkable. Measured over the ticket corpus
+    the day this was fixed (2026-09-09, voyage 8754ae677af6): 326 ``none, because <X>``
+    reasons, 321 passing the floor, 95 passing it honestly.
+
+    Synthetic tickets dir, so the tooth asserts the RULE and not the accident that some
+    live slug ends in a common English word — that accident is exactly what could be
+    tidied away tomorrow, taking the coverage with it."""
+    tickets = pathlib.Path(root) / "synthetic-commons" / "tickets"
+    tickets.mkdir(parents=True, exist_ok=True)
+    (tickets / "abcdef012345-a-thing-that-ends-in-it.json").write_text("{}")
+    (tickets / "abcdef012346-moreabout.json").write_text("{}")
+    kw = {"tickets_dir": str(tickets)}
+
+    assert ticket_path("it", **kw) is None, \
+        "a TAIL of a slug still resolves — the glob is still swallowing the slug body"
+    assert ticket_path("ends-in-it", **kw) is None, \
+        "a multi-word tail resolves — the check must compare against the WHOLE slug"
+    assert ticket_path("a-thing-that-ends-in-it", **kw) is not None, \
+        "the whole slug stopped resolving — the narrowing broke the lookup it was guarding"
+    assert ticket_path("abcdef012345", **kw) is not None, \
+        "a hex id stopped resolving"
+    assert ticket_path("moreabout", **kw) is not None, \
+        "a one-word slug is still a WHOLE slug and must resolve"
+    assert ticket_path("about", **kw) is None, \
+        "a tail of a one-word slug must not resolve"
 
 
 def test_identity_lack_names_its_remediation(root):

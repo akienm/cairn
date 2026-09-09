@@ -1207,6 +1207,70 @@ def main() -> None:
     finally:
         _insp.SIEVES, _insp._NEST_CACHE = saved_sieves, saved_cache
 
+
+    # THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors
+    # (sorted, design) and one gate (buildme_rides_the_sorted) leaned on
+    # reason_has_referent, and each proved only that ITS door passed a good reason and
+    # refused a bad one; the floor itself had no teeth of its own, so the two channels
+    # closed below were open for as long as the function existed and every proof in the
+    # corpus read green over them. The channels were not exotic: an ordinary English word
+    # tail-matching a ticket slug, and a bare roster-command word. Measured at the fix,
+    # 326 exemption reasons stood on filed tickets and 321 passed — 71% of them on
+    # nothing checkable at all.
+    from cairn.machines.build_inspector.inspector import reason_has_referent as _rhr
+
+    fr = tmp / "referent"
+    (fr / "commons" / "tickets").mkdir(parents=True)
+    (fr / "repo" / "bin" / "cmd").mkdir(parents=True)
+    (fr / "repo" / "cairn" / "tools").mkdir(parents=True)
+    (fr / "repo" / "cairn" / "tools" / "thing.py").write_text("x = 1\n")
+    (fr / "repo" / "bin" / "cmd" / "ruling").write_text("#!/bin/sh\n")
+    (fr / "commons" / "tickets" / "abcdef012345-a-thing-we-talked-about-it.json").write_text("{}")
+    _rr, _cc = fr / "repo", fr / "commons"
+
+    def _floor(reason):
+        return _rhr(reason, repo=_rr, commons=_cc)
+
+    # positive — the three forms the docstring names, each pointing at something the
+    # world actually holds. A floor that refuses these is a floor nobody can satisfy.
+    assert _floor("none, because cairn/tools/thing.py already does it"), \
+        "a resolving repo path is the plainest referent there is and the floor missed it"
+    assert _floor("none, because abcdef012345 covers it"), \
+        "a cast ticket's 12-hex id is a referent — the floor must resolve it by id"
+    assert _floor("none, because a-thing-we-talked-about-it covers it"), \
+        "a WHOLE ticket slug is a referent; only a TAIL of one is not"
+    assert _floor("none, because bin/cmd/ruling reports it"), \
+        "a roster command written as bin/cmd/<name> is the form the docstring specifies"
+
+    # negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real
+    # ticket's slug. The glob was '*-<claim>.json' with nothing anchoring the left side,
+    # so any word ending a slug certified the sentence that contained it. Measured over
+    # 270 filed tickets: ZERO carry their id as a suffix, so the tail match never once
+    # served a real lookup — it only ever manufactured passes.
+    for tail in ("it", "about", "about-it", "thing-we-talked-about-it"):
+        assert not _floor(f"none, because we talked {tail}"), (
+            f"THE TAIL CHANNEL IS OPEN AGAIN: {tail!r} certified a prose reason because "
+            "it ends a real ticket slug — the lookup must match the WHOLE slug")
+
+    # negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the
+    # fixture wrote bin/cmd/ruling), and the old code accepted the bare word, so 32
+    # reasons in the live corpus passed on the English word 'ruling' alone. The path
+    # form above still resolves, so closing this costs a real referent nothing.
+    assert not _floor("none, because Akien gave a ruling"), \
+        "THE BARE-COMMAND CHANNEL IS OPEN AGAIN: the word 'ruling' certified prose"
+
+    # negative 3 — the shape the floor was built against in the first place: one
+    # plausible sentence, pointing at nothing.
+    for hollow in ("none, because this is obvious",
+                   "none, because every crossing already records the actor",
+                   "none, because we agreed on this earlier"):
+        assert not _floor(hollow), f"a plausible sentence opened the floor: {hollow!r}"
+
+    # AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries
+    # commas and full stops, and the floor strips them before it looks.
+    assert _floor("none, because (cairn/tools/thing.py), which already does it."), \
+        "a real referent wrapped in punctuation stopped resolving"
+
     print("build_inspector proofs: all teeth green")
 
 

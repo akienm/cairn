@@ -24,6 +24,7 @@ WHAT THIS PROVES:
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 import sys
@@ -997,6 +998,69 @@ def test_the_THREE_LANES_keep_INDEPENDENT_watermarks():
             f"sharing a watermark. live={live}, drained={drained}")
 
 
+# THE PREDICATE, LIFTED OUT OF THE TOOTH SO IT CAN BE FALSIFIED ON A FIXTURE.
+# A corpus scan that only ever runs over the real corpus is a scan nobody has shown
+# capable of failing; the companion tooth below fires this on hand-written sources
+# whose answer is known, which is what keeps a narrowing from quietly going hollow.
+_TROUBLE_LANE = "trouble"
+_SEND_VERBS = ("clear", "reconcile")
+
+
+def _module_string_constants(tree: "ast.Module") -> dict:
+    """Module-scope ``NAME = "literal"`` bindings, so a destination held in a constant
+    resolves. ``to=_HARBOR`` is the shape that motivated this: a reader can see at a
+    glance that it is not the trouble lane, and the scan must be able to see it too."""
+    consts = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Constant):
+            continue
+        if not isinstance(node.value.value, str):
+            continue
+        for tgt in node.targets:
+            if isinstance(tgt, ast.Name):
+                consts[tgt.id] = node.value.value
+    return consts
+
+
+def _trouble_lane_sends(source: str, rel: str) -> tuple[list, list]:
+    """Return ``(offenders, unresolved)`` for one module's source.
+
+    An offender is a bus call carrying BOTH a send verb AND a destination that resolves
+    to the trouble device. Unresolved is a send verb whose destination cannot be read
+    statically — that one is reported too, loudly and separately, because a scan that
+    silently passes what it could not read is the hollow green (Law 7)."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return [], []
+    consts = _module_string_constants(tree)
+
+    def _resolve(node):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return node.value
+        if isinstance(node, ast.Name) and node.id in consts:
+            return consts[node.id]
+        return None
+
+    offenders, unresolved = [], []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        kw = {k.arg: k.value for k in node.keywords if k.arg}
+        verb = _resolve(kw.get("verb"))
+        if verb not in _SEND_VERBS:
+            continue
+        if "to" not in kw:
+            continue                      # not a bus send at all
+        dest = _resolve(kw["to"])
+        if dest == _TROUBLE_LANE:
+            offenders.append(f"{rel}:{node.lineno} (verb={verb}, to={dest})")
+        elif dest is None:
+            unresolved.append(
+                f"{rel}:{node.lineno} (verb={verb}, to={ast.unparse(kw['to'])})")
+    return offenders, unresolved
+
+
 def test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS():
     """CLAUSE (2)'S OTHER FACE, and the one the original build got wrong.
 
@@ -1015,23 +1079,63 @@ def test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS():
     is what a reader is supposed to do). A tooth that reds the design it was written to
     protect is measuring the wrong property.
 
-    So: reading ``live`` over the bus stays legal for anyone. SENDING — clear, and now
-    reconcile — may not ride the bus from anywhere, because a sender is often a component
-    with a fire-path rule and the send has an emission lane that costs it nothing."""
+    AND IT DREW THE LINE WRONG A SECOND TIME, in the other direction, which is why this
+    tooth now reads the DESTINATION (narrowed 2026-09-09, voyage 8754ae677af6). The draft
+    above grepped the text for ``verb="clear"`` and asked nothing about where the call was
+    addressed. ``clear`` is not a word the trouble lane owns: codemother's ``cross`` verb
+    fires the HARBOR door with ``to=_HARBOR, verb="clear"``, a different lane, a different
+    device, no trouble store anywhere near it — and the grep reported it as reaching a
+    database. Measured at the narrowing: the whole corpus held exactly ONE call site
+    matching the old grep, and it was that false positive, so the strict-looking version
+    was catching nothing real and would have forced a rename to satisfy a name collision.
+    A verb name is not an address. The address is the address."""
     root = Path(__file__).resolve().parents[4] / "cairn"
-    offenders = []
+    offenders, unresolved = [], []
     for path in root.rglob("*.py"):
         rel = path.relative_to(root.parent).as_posix()
         if rel.startswith("cairn/devices/trouble/") or "/proofs/" in rel or "/probes/" in rel:
             continue
-        text = path.read_text(encoding="utf-8", errors="replace")
-        for verb in ("clear", "reconcile"):
-            if f'verb="{verb}"' in text or f"verb='{verb}'" in text:
-                offenders.append(f"{rel} (verb={verb})")
+        o, u = _trouble_lane_sends(path.read_text(encoding="utf-8", errors="replace"), rel)
+        offenders += o
+        unresolved += u
     assert offenders == [], (
         "these SEND to the trouble lane over the bus — which imports inference_domain and "
         "db_domain, so every one of them statically reaches a database. The send lanes are "
         f"emissions (DiagnosticBase.clear_trouble / reconcile_troubles): {offenders}")
+    assert unresolved == [], (
+        "these carry a trouble send verb to a destination this scan could not read "
+        "statically, so it cannot say whether they reach the lane. Bind the destination to "
+        "a module-level string constant (or a literal) so the answer is legible, or say "
+        f"here why it cannot be: {unresolved}")
+
+
+def test_the_narrowed_lane_scan_still_bites():
+    """THE NARROWING'S OWN FALSIFIER. Reading the destination made the scan quieter, and a
+    quieter scan is worth exactly what it can still be shown to catch — so the three cases
+    that decide it are run here on sources whose answer is known by construction. Without
+    this, 'zero offenders over the corpus' and 'the predicate never fires' read identically."""
+    send_to_trouble = 'bus.request(sender="x", to="trouble", verb="clear", why="w")'
+    o, u = _trouble_lane_sends(send_to_trouble, "fixture.py")
+    assert len(o) == 1 and u == [], (
+        f"the scan no longer catches a literal send to the trouble lane: {o} {u}")
+
+    via_constant = ('LANE = "trouble"\n'
+                    'bus.request(sender="x", to=LANE, verb="reconcile", why="w")')
+    o, u = _trouble_lane_sends(via_constant, "fixture.py")
+    assert len(o) == 1 and u == [], (
+        f"a destination held in a module constant slipped past the scan: {o} {u}")
+
+    other_lane = ('_HARBOR = "harbor_master"\n'
+                  'bus.request(sender="x", to=_HARBOR, verb="clear", why="w")')
+    o, u = _trouble_lane_sends(other_lane, "fixture.py")
+    assert o == [] and u == [], (
+        f"the scan still reds a send to a DIFFERENT lane that merely shares a verb "
+        f"name — that is the false positive the narrowing exists to remove: {o} {u}")
+
+    opaque = 'bus.request(sender="x", to=pick_lane(), verb="clear", why="w")'
+    o, u = _trouble_lane_sends(opaque, "fixture.py")
+    assert o == [] and len(u) == 1, (
+        f"a destination the scan cannot read must be reported, never silently passed: {o} {u}")
 
 
 def _dev_at(store) -> TroubleDevice:

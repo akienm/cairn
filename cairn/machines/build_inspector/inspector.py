@@ -1951,7 +1951,28 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
     Provenance: ticket sorted-becomes-a-learning-block (opus-pass rank 3, ruled
     2026-08-03) — the measured hollow pass was 'none, because <one plausible
     sentence>'.
+
+    THE TICKET LOOKUP IS ``ticket_path``'S, NOT A SECOND COPY OF IT (2026-09-09, voyage
+    8754ae677af6). This function used to run its own three globs, so when ``ticket_path``
+    was narrowed to stop matching a slug's TAIL, the narrowing did not reach the floor that
+    needed it most — a reason is PROSE, split into words, and every word was being offered
+    as a ticket id. "none, because we talked about it" passed, because ``it`` tail-matched
+    ``336a781018ba-...-what-set-it.json``. Two mouths, one implementation, or the drift is
+    only a matter of time; that is the same rule the docstring above states, and this
+    function was the counter-example to it.
+
+    AND A ROSTER COMMAND IS WRITTEN ``bin/cmd/<name>``, WHICH IS WHAT THIS SAYS ABOVE.
+    The old code ALSO accepted a bare ``<name>``, so the ordinary English words that
+    happen to be commands — ``ruling`` (32 reasons), ``ruled`` (8), ``review`` (4),
+    ``test`` (2) — certified a reason on their own. The path form already resolves through
+    the branch above, so requiring it costs a real referent nothing and closes the channel.
+
+    Measured over the corpus at the fix: 326 ``none, because <X>`` reasons on filed
+    tickets, 321 passing, 95 passing honestly. The floor built against "one plausible
+    sentence" was accepting them at 71%.
     """
+    from cairn.tools.chain.grammar import ticket_path
+
     repo = Path(repo) if repo is not None else _REPO_ROOT
     # CAIRN_ROOT is the cairn REPO root (chart.orient's, string, os.path lineage);
     # the commons sits beside it — same derivation ticket_path uses.
@@ -1967,14 +1988,10 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
                 return True
             if (repo / token).exists() or (commons / token).exists():
                 return True
-        if "/" not in token:
-            if (commons / "tickets" / f"{token}.json").exists():
-                return True
-            if list((commons / "tickets").glob(f"{token}-*.json")) or \
-               list((commons / "tickets").glob(f"*-{token}.json")):
-                return True
-            if (repo / "bin" / "cmd" / token).exists():
-                return True
+            continue
+        if ticket_path(token, root=str(repo),
+                       tickets_dir=str(commons / "tickets")) is not None:
+            return True
     return False
 
 

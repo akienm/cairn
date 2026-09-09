@@ -33,6 +33,23 @@ from cairn.tools.base.probes.a_client_reaches_and_never_beats import (
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
+# WHICH CLAUSE OF THE TICKET'S FALSIFIER EACH TOOTH PROVES — read by proof_coverage and by
+# the hollow check, which reverts the build file by file and asks which of THESE go red.
+PROVES = {
+    "fc93d8cd5961": {
+        # (1) counsel under 1s: the mechanism is that no client beats — stub the beat, call
+        #     every client; and the docstring that taught the beat as the client face is gone.
+        "1": "test_i_every_client_helper_reaches_without_beating",
+        "1b": "test_v_connect_bus_no_longer_calls_beat_false_a_test_fixture_case",
+        # (2) the tooth reds on a reintroduced caller — the fixture tree, and the probe that
+        #     carries the walk into the beat.
+        "2": "test_ii_the_walk_names_a_planted_client_and_nothing_else",
+        "2b": "test_iv_the_probe_is_armed_and_enough_is_false_while_a_caller_stands",
+        # (3) the walk finds zero client callers over live class-space.
+        "3": "test_iii_the_live_walk_over_class_space_is_empty",
+    }
+}
+
 
 class _BeatRaised(RuntimeError):
     pass

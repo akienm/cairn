@@ -394,26 +394,37 @@ def test_an_unchanged_file_is_reported_unwritten_not_hollow():
 
 
 def test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree():
-    """THE ASSUMPTION THE WHOLE DESIGN RESTS ON, MEASURED RATHER THAN REASONED.
+    """THE ASSUMPTION THE WHOLE DESIGN RESTS ON, MEASURED THE WAY A REAL PROOF RUNS.
 
-    `cairn` is installed editable, so a path hook in site-packages points `import cairn` at
-    the LIVE tree. If that hook won the resolution, every proof run in a worktree would import
-    the code the revert was supposed to remove and nothing would ever red — the detector would
-    report a clean corpus forever. What actually wins is each proof's own
-    `sys.path.insert(0, _REPO_ROOT)` off `__file__`, and this asserts that, in a subprocess,
-    the way a real proof runs.
+    `cairn` is installed editable and every launcher exports PYTHONPATH at the LIVE tree, so
+    a proof run in a worktree can import the code the revert was supposed to remove — then
+    nothing ever reds and the detector reports a clean corpus forever. UNTIL 2026-09-09 THIS
+    TOOTH MEASURED A PROBE THAT PINNED ITS OWN `sys.path` — the convention 175 of 204 proofs
+    follow — and so read green while the other 29 imported the live tree (ticket fc93d8cd5961's
+    proof was one: 5/5 green over a reverted worktree under the live path, 4/5 under its own).
+    Now the probe pins NOTHING, the environment is the launcher's, and the run goes through
+    `run_proof` — the one address the instrument (`_env_pinned_to`) lives at.
     """
+    from cairn.devices.tester.device import TesterDevice
     head = _git(_REPO_ROOT, "rev-parse", "HEAD").stdout.strip()
     wt = scratch_worktree(head, repo_root=_REPO_ROOT)
     probe = wt / "cairn" / "devices" / "tester" / "proofs" / "_where_did_cairn_come_from.py"
     probe.write_text(
-        "import sys\nfrom pathlib import Path\n"
-        "sys.path.insert(0, str(Path(__file__).resolve().parents[4]))\n"
-        "import cairn.devices.tester.scratch as m\nprint(m.__file__)\n")
-    out = subprocess.run([sys.executable, str(probe)], cwd=str(wt),
-                         capture_output=True, text=True).stdout.strip()
-    assert out.startswith(str(wt)), f"the proof imported {out}, not the worktree at {wt}"
-    assert not out.startswith(str(_REPO_ROOT) + "/cairn"), out
+        "import cairn.devices.tester.scratch as m\nprint('  ok   ' + m.__file__)\n")
+    prior = os.environ.get("PYTHONPATH")
+    os.environ["PYTHONPATH"] = str(_REPO_ROOT)          # what every launcher hands us
+    try:
+        record = TesterDevice().run_proof(probe, sink="none", caller="test_hollow",
+                                          isolation="none")
+    finally:
+        if prior is None:
+            os.environ.pop("PYTHONPATH", None)
+        else:
+            os.environ["PYTHONPATH"] = prior
+    tail = record["evidence"].get("stdout_tail", "")
+    assert record["verdict"] == "green", record["evidence"]
+    assert str(wt) in tail, f"the proof imported outside the worktree at {wt}: {tail!r}"
+    assert str(_REPO_ROOT) + "/cairn" not in tail, tail
     return True
 
 

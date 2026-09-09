@@ -26,10 +26,17 @@ import tempfile
 from pathlib import Path
 
 from cairn.tools.base import bus_client
-from cairn.tools.base.probes import a_client_reaches_and_never_beats as probe_mod
-from cairn.tools.base.probes.a_client_reaches_and_never_beats import (
-    PROBE, RUNNER_ROSTER, walk_client_callers,
-)
+
+# THE PROBE IS IMPORTED INSIDE THE TEETH THAT CHECK IT, NEVER AT MODULE LEVEL. The hollow
+# check reverts the build file by file and asks which teeth red; a module-level import of the
+# probe would make its removal break the whole proof (no teeth printed — "unreadable") instead
+# of redding (ii), (iii), (iv). Measured 2026-09-09 on this very file, first hollow run.
+_PROBE_MOD = "cairn.tools.base.probes.a_client_reaches_and_never_beats"
+
+
+def _probe():
+    import importlib
+    return importlib.import_module(_PROBE_MOD)
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -102,6 +109,7 @@ def test_i_every_client_helper_reaches_without_beating():
 
 
 def test_ii_the_walk_names_a_planted_client_and_nothing_else():
+    _m = _probe(); RUNNER_ROSTER, walk_client_callers = _m.RUNNER_ROSTER, _m.walk_client_callers
     with tempfile.TemporaryDirectory(prefix="a-client-reaches-fixture-") as d:
         root = Path(d)
         (root / "pkg").mkdir()
@@ -136,6 +144,7 @@ def test_ii_the_walk_names_a_planted_client_and_nothing_else():
 
 
 def test_iii_the_live_walk_over_class_space_is_empty():
+    _m = _probe(); RUNNER_ROSTER, walk_client_callers = _m.RUNNER_ROSTER, _m.walk_client_callers
     found = walk_client_callers(_REPO_ROOT)
     assert found == [], f"a client in class-space beats: {found}"
     for rel in RUNNER_ROSTER:
@@ -143,6 +152,7 @@ def test_iii_the_live_walk_over_class_space_is_empty():
 
 
 def test_iv_the_probe_is_armed_and_enough_is_false_while_a_caller_stands():
+    _m = _probe(); PROBE = _m.PROBE
     assert PROBE.carry is not None and PROBE.enough is not None
     try:
         PROBE.why = "x"

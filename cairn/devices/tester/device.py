@@ -169,6 +169,43 @@ def _tail(text: str, n: int = 20) -> str:
     return "\n".join((text or "").splitlines()[-n:])
 
 
+def _tree_root(proof_path) -> Path | None:
+    """The checkout the proof lives in — the nearest ancestor that is a git checkout (``.git``
+    is a directory in the live tree and a FILE in a worktree) AND holds the ``cairn`` package.
+
+    Both marks, because ``cairn/__init__.py`` alone matched ``cairn/devices/`` first: the
+    ``cairn`` DEVICE is a package named ``cairn`` inside ``devices/``, and pinning that put a
+    second, hollow ``cairn`` ahead of the real one (measured 2026-09-09, first cut of this).
+    ``None`` for a proof outside any checkout (a fixture repo under /tmp with its own
+    packages), which then runs with the environment it was given.
+    """
+    for parent in Path(proof_path).resolve().parents:
+        if (parent / ".git").exists() and (parent / "cairn" / "__init__.py").is_file():
+            return parent
+    return None
+
+
+def _env_pinned_to(proof_path) -> dict:
+    """The subject's environment, with ITS OWN checkout first on ``PYTHONPATH``.
+
+    MEASURED 2026-09-09 (ticket fc93d8cd5961, the first hollow run over a proof that does
+    not ``sys.path.insert`` its root): the subject inherits this process's ``PYTHONPATH``,
+    which every launcher points at the LIVE tree — so a proof run in a scratch worktree
+    imported the live ``cairn`` and the worktree's reverts were invisible to it. The same
+    reverted tree read 5/5 green under the live path and 4/5 under the worktree's. 29 of 204
+    proofs pin nothing themselves, and ``test_hollow.py``'s guard tooth measured a probe
+    that DID pin — the convention, not the instrument. This is the instrument: whatever the
+    caller's environment, ``import cairn`` inside a subject resolves to the tree the subject
+    sits in. A proof's own ``sys.path.insert(0, root)`` still agrees with it.
+    """
+    env = dict(os.environ)
+    root = _tree_root(proof_path)
+    if root is not None:
+        prior = env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = str(root) + (os.pathsep + prior if prior else "")
+    return env
+
+
 def _teeth(stdout: str) -> dict:
     """``{"teeth_green": [...], "teeth_red": [...]}`` from a proof's full stdout.
 
@@ -452,7 +489,8 @@ class TesterDevice(BaseDevice):
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
             }
             try:
-                proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
+                proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                                      env=_env_pinned_to(proof_path))
                 verdict = GREEN if proc.returncode == 0 else RED
                 # WHICH TEETH RAN GREEN — read from the FULL stdout, here, before it is
                 # tailed. Ticket feeb4c786b14: a green seal used to say only "exit 0", so a

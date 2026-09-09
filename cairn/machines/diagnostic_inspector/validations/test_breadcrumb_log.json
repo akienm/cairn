@@ -1,27 +1,59 @@
 [
   {
     "claim": "proof test_breadcrumb_log.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-30T02:45:00",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:46:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  a_file_that_will_not_parse_is_loud\n  PASS  a_record_emitted_in_one_process_is_read_back_in_another\n  PASS  an_unserializable_payload_degrades_but_the_crossing_is_still_recorded\n  PASS  construction_touches_no_disk\n  PASS  each_emission_is_its_own_file\n  PASS  running_this_proof_writes_nothing_into_the_live_tree\n  PASS  the_address_comes_from_the_one_owner\n  PASS  the_disk_log_drops_into_the_inspector_unchanged\n  PASS  two_devices_get_two_trails\ngreen — breadcrumb log: 38 assertions over 9 teeth. A record emitted by a device in one process is read back from disk in another (the tooth the trouble demanded); the trail appends and never rewrites; its address comes from the one owner and lands in the owning device instance's own space; it drops into the Inspector with inspector.py untouched; and the two failure modes stay different — a payload degrades, a corrupt trail is loud.",
       "stderr_tail": "",
+      "teeth_green": [
+        "a_file_that_will_not_parse_is_loud",
+        "a_record_emitted_in_one_process_is_read_back_in_another",
+        "an_unserializable_payload_degrades_but_the_crossing_is_still_recorded",
+        "construction_touches_no_disk",
+        "each_emission_is_its_own_file",
+        "running_this_proof_writes_nothing_into_the_live_tree",
+        "the_address_comes_from_the_one_owner",
+        "the_disk_log_drops_into_the_inspector_unchanged",
+        "two_devices_get_two_trails"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "4cdc0c17d9faa5c499f32ba5e725f0a939bdfbcd7ac758ee1ccb8d2d63584f79",
+      "source_fingerprint": "74c44db982aef305c588d0efb122b2b7edab2b23989ed8932a2a98a487d85a1e",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/diagnostic_inspector/__init__.py",
+        "cairn/machines/diagnostic_inspector/inspector.py",
+        "cairn/machines/diagnostic_inspector/proofs/test_breadcrumb_log.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-p19jonjp/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-sdabhcvv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 30
         }
       }
     },

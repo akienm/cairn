@@ -1,27 +1,63 @@
 [
   {
     "claim": "proof test_diagnostic_emit.py passes under python3",
-    "caller": "re-seal-stale-fingerprint",
-    "date": "2026-08-30T02:58:26",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:45:52",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_real_device_emits_at_the_subscribe_gate_and_the_inspector_crawls_it\n  PASS  test_law6_isolation_another_subscription_does_not_bleed_in\n  PASS  test_law6_the_breadcrumb_is_thin_no_owned_reading_leaks\n  PASS  test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk\ngreen — system_rackmount is the diagnostic chain's first REAL producer: it emits a thin breadcrumb at the subscribe gate (Law 6, held-never-dropped Law 7) and the inspector crawls it into a coherent, isolated findings slice — the method measured in situ (Law 3)",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_real_device_emits_at_the_subscribe_gate_and_the_inspector_crawls_it",
+        "test_law6_isolation_another_subscription_does_not_bleed_in",
+        "test_law6_the_breadcrumb_is_thin_no_owned_reading_leaks",
+        "test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ff1730457446533f8a791f38bac2cb6db07617002ee850738c265da65d004bf6",
+      "source_fingerprint": "8e12675d64009a62d48365f3f48aeecbb2bf053b6cdfdf099a4ff34cb949499e",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/system_rackmount/__init__.py",
+        "cairn/devices/system_rackmount/proofs/test_diagnostic_emit.py",
+        "cairn/devices/system_rackmount/rackmount.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/diagnostic_inspector/__init__.py",
+        "cairn/machines/diagnostic_inspector/inspector.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-75zm8od1/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-kjudxhza/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 23
         }
       }
     },

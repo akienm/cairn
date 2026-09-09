@@ -1,27 +1,68 @@
 [
   {
     "claim": "proof test_data_recorder.py passes under python3",
-    "caller": "feedback-data-recorder",
-    "date": "2026-08-28T23:58:02",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:46:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  pass  two writes produce different ids\n  pass  read returns 2 records after 2 writes\n  pass  clear returns count of removed\n  pass  after clear, only second record remains\n  pass  remaining record is the second one\n  pass  clear last record\n  pass  after clearing all, read returns []\n  pass  clear nonexistent id returns 0\n  pass  JSONL: 2 writes produce 2 lines\n  pass  JSONL: line 0 is valid JSON\n  pass  JSONL: line 1 is valid JSON\n  pass  missing finding refused\n  pass  missing inspector_target refused\n  pass  missing probe_source refused\n  pass  non-dict refused\n  pass  timestamp auto-populated\n  pass  separate inspectors get separate records\n  pass  clear([]) is no-op\n\n23 teeth: 23 pass, 0 fail",
       "stderr_tail": "",
+      "teeth_green": [
+        "empty read returns []",
+        "write returns a string id",
+        "read after write returns 1 record",
+        "record has the assigned id",
+        "record carries the finding",
+        "two writes produce different ids",
+        "read returns 2 records after 2 writes",
+        "clear returns count of removed",
+        "after clear, only second record remains",
+        "remaining record is the second one",
+        "clear last record",
+        "after clearing all, read returns []",
+        "clear nonexistent id returns 0",
+        "JSONL: 2 writes produce 2 lines",
+        "JSONL: line 0 is valid JSON",
+        "JSONL: line 1 is valid JSON",
+        "missing finding refused",
+        "missing inspector_target refused",
+        "missing probe_source refused",
+        "non-dict refused",
+        "timestamp auto-populated",
+        "separate inspectors get separate records",
+        "clear([]) is no-op"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "1128850a883ac89098b14dfbef115ad2d3feddf6b9d47c011446e6f78eb5417a",
+      "source_fingerprint": "297aede68da927c1e350d62b8d41b48c069891166c037c46610ac92fe04c58ac",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/data_recorder/__init__.py",
+        "cairn/tools/data_recorder/data_recorder.py",
+        "cairn/tools/data_recorder/proofs/test_data_recorder.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-pfjhudv3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-v3uyeey5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 36
         }
       }
     },

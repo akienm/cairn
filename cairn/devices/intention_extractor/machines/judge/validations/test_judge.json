@@ -1,27 +1,55 @@
 [
   {
     "claim": "proof test_judge.py passes under python3",
-    "caller": "intention-extractor-judge",
-    "date": "2026-08-29T21:30:42",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:45:49",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_every_check_is_taught_and_pinned\n  PASS  test_a_pass_lists_the_lanes_it_ran_not_only_that_nothing_objected\n  PASS  test_the_attribution_lane_is_absent_when_there_are_no_anchors_to_walk\n  PASS  test_a_lane_that_refuses_and_names_nothing_is_louder_than_a_silent_drop\n  PASS  test_the_judge_holds_no_seam_of_its_own\ngreen — judge: the checks report what they proved, and reach nothing",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_every_check_is_taught_and_pinned",
+        "test_a_pass_lists_the_lanes_it_ran_not_only_that_nothing_objected",
+        "test_the_attribution_lane_is_absent_when_there_are_no_anchors_to_walk",
+        "test_a_lane_that_refuses_and_names_nothing_is_louder_than_a_silent_drop",
+        "test_the_judge_holds_no_seam_of_its_own"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "e4f90a0daa545f3a71b88b07536ade5beaf19568e4f5d2bbe681ad54c233a991",
+      "source_fingerprint": "b3b9f2d8b7c996498ab1f4a2faa952df3741d2078813c5c439f4a8e37f94e493",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/intention_extractor/__init__.py",
+        "cairn/devices/intention_extractor/machines/__init__.py",
+        "cairn/devices/intention_extractor/machines/judge/__init__.py",
+        "cairn/devices/intention_extractor/machines/judge/judge.py",
+        "cairn/devices/intention_extractor/machines/judge/proofs/test_judge.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-fm38vr97/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-2a_dcl79/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 20
         }
       }
     },

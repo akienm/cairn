@@ -2,28 +2,72 @@
   {
     "claim": "proof test_second_loop_arbitration.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-08T09:17:37",
+    "date": "2026-09-09T11:39:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok threshold is 120s\n  ok stale incumbent → takeover\n  ok stale decision names the pid\n  ok stale decision reports the age\n  ok healthy incumbent → exit\n  ok healthy decision names the pid\n  ok at-threshold incumbent → exit (<=)\n  ok past-threshold incumbent → takeover\n  ok absent record → exit\n  ok absent record has no pid\n  ok absent reason mentions the lack\nGREEN — 11 teeth",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "threshold is 120s",
+        "stale incumbent → takeover",
+        "stale decision names the pid",
+        "stale decision reports the age",
+        "healthy incumbent → exit",
+        "healthy decision names the pid",
+        "at-threshold incumbent → exit (<=)",
+        "past-threshold incumbent → takeover",
+        "absent record → exit",
+        "absent record has no pid",
+        "absent reason mentions the lack"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "811c10f43d4fc2ac53975dc669379dc6851ed147831e9295ade30800577efb11",
+      "source_fingerprint": "0cc9e778d061482e43c1d53c2f6fb87c24ec9ccd6c16368efaa9514506c6234f",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovered.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/machines/ground_loop/loop.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_second_loop_arbitration.py",
+        "cairn/devices/cairn/machines/ground_loop/staleness.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-413425-yt4te1ti/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-248031-2g3p5t0b/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 115596717,
+          "disk_bytes": 124407808,
+          "entries": 3661,
+          "builds": 1,
+          "reuses": 4
         }
       }
     },

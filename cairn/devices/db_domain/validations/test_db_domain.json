@@ -1,27 +1,53 @@
 [
   {
     "claim": "proof test_db_domain.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:35:16",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:45:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_connect_reaches_the_cairn_database\n  PASS  test_ownerless_table_is_impossible\n  PASS  test_owned_table_records_its_owner\n  PASS  test_the_owner_gates_every_write\n  PASS  test_write_to_an_unowned_table_is_refused\n  PASS  test_a_jsonb_row_round_trips_as_structure\n  PASS  test_the_owner_gates_every_update\n  PASS  test_add_owned_constraint_gates_and_holds\ngreen — db_domain: ownerless is impossible, the owner gates writes and constraints, jsonb round-trips as structure",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_connect_reaches_the_cairn_database",
+        "test_ownerless_table_is_impossible",
+        "test_owned_table_records_its_owner",
+        "test_the_owner_gates_every_write",
+        "test_write_to_an_unowned_table_is_refused",
+        "test_a_jsonb_row_round_trips_as_structure",
+        "test_the_owner_gates_every_update",
+        "test_add_owned_constraint_gates_and_holds"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c6002ad940f8afea0f46708bd9690ca34f9e04b838bf4b55f68b968c4244deba",
+      "source_fingerprint": "d1997e92026045edd1e84b6a48fae3929d495a7666b52a313b40947039c25663",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/proofs/test_db_domain.py",
+        "cairn/devices/db_domain/store.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4jorukoq/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-w2fkkr8j/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 18
         }
       }
     },

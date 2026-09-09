@@ -2,26 +2,57 @@
   {
     "claim": "proof test_questions.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-04T10:04:54",
+    "date": "2026-09-09T11:47:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_registry_holds_tuples_add_remove\n  PASS  test_no_dedup_same_question_different_owners\n  PASS  test_established_questions_are_importable_strings\n  PASS  test_misspelled_constant_raises\n  PASS  test_generator_single_question\n  PASS  test_generator_list_of_questions\n  PASS  test_generator_routes_through_embed\n  PASS  test_temporary_question_lifecycle\n  PASS  test_remove_absent_raises\n  PASS  test_meta_question_held_without_special_casing\n  PASS  test_meta_question_generator_same_shape\n  PASS  test_add_refuses_empty\n  PASS  test_generate_refuses_empty\ngreen — tree/questions: registry holds tuples with add/remove, no dedup, constants importable, generator routes through embed, temporary lifecycle, meta-questions same shape",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_registry_holds_tuples_add_remove",
+        "test_no_dedup_same_question_different_owners",
+        "test_established_questions_are_importable_strings",
+        "test_misspelled_constant_raises",
+        "test_generator_single_question",
+        "test_generator_list_of_questions",
+        "test_generator_routes_through_embed",
+        "test_temporary_question_lifecycle",
+        "test_remove_absent_raises",
+        "test_meta_question_held_without_special_casing",
+        "test_meta_question_generator_same_shape",
+        "test_add_refuses_empty",
+        "test_generate_refuses_empty"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "9410c54ebfb4a4831f38bd77b581cb1c6bb8ebf9d0e7f37f8ce365a329ba6ea2",
+      "source_fingerprint": "7c2582359079e12bd4090f5651a935f3c86ac3b73789db04e0583c11c0d51511",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/tree/__init__.py",
+        "cairn/tools/tree/proofs/test_questions.py",
+        "cairn/tools/tree/questions.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3i56w7sj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-twdti22u/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 45
         }
       }
     },

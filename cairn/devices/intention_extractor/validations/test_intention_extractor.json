@@ -1,27 +1,71 @@
 [
   {
     "claim": "proof test_intention_extractor.py passes under python3",
-    "caller": "cc-device-isolation-reseal",
-    "date": "2026-09-02T17:21:11",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:45:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_grounded_draft_passes\n  PASS  test_a_fabricated_anchor_is_caught\n  PASS  test_a_missing_why_and_field_drift_are_refused\n  PASS  test_an_unparseable_draft_is_loud_and_still_breadcrumbs\n  PASS  test_a_fenced_draft_parses\n  PASS  test_a_quote_wrapped_anchor_is_not_a_fabrication\n  PASS  test_an_empty_source_never_touches_the_host\n  PASS  test_no_seam_no_extraction\n  PASS  test_the_judge_is_HELD_not_housed\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_device_hood_and_owned_state\n  PASS  test_the_extractor_opens_no_door_of_its_own\ngreen — intention_extractor: anchored, labeled, refused first-pass",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_grounded_draft_passes",
+        "test_a_fabricated_anchor_is_caught",
+        "test_a_missing_why_and_field_drift_are_refused",
+        "test_an_unparseable_draft_is_loud_and_still_breadcrumbs",
+        "test_a_fenced_draft_parses",
+        "test_a_quote_wrapped_anchor_is_not_a_fabrication",
+        "test_an_empty_source_never_touches_the_host",
+        "test_no_seam_no_extraction",
+        "test_the_judge_is_HELD_not_housed",
+        "test_the_crossings_are_no_longer_silent",
+        "test_device_hood_and_owned_state",
+        "test_the_extractor_opens_no_door_of_its_own"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "8f65f0da8745bf86c64dc9eb0c3690036ea92bc153df980035682d505ba7f9f0",
+      "source_fingerprint": "31a112982d8c84ae1117175226296ee6fd5e44db5d36339e193823ef6016dae3",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/intention_extractor/__init__.py",
+        "cairn/devices/intention_extractor/extractor.py",
+        "cairn/devices/intention_extractor/machines/__init__.py",
+        "cairn/devices/intention_extractor/machines/judge/__init__.py",
+        "cairn/devices/intention_extractor/machines/judge/judge.py",
+        "cairn/devices/intention_extractor/proofs/test_intention_extractor.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-wj9chov3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-mrv4d8mn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 21
         }
       }
     },

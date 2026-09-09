@@ -1,27 +1,50 @@
 [
   {
     "claim": "proof test_sole_path.py passes under python3",
-    "caller": "relational-state-goes-through-the-one-door",
-    "date": "2026-08-31T18:30:39",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:45:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_db_domain_is_the_only_module_that_can_reach_5432\n  PASS  test_the_tooth_reds_on_a_planted_second_door\n  PASS  test_a_docstring_about_the_database_is_not_a_door\n  PASS  test_sqlite3_sole_path_is_clean_on_the_real_corpus\n  PASS  test_sqlite3_sole_path_reds_on_a_planted_offender\ngreen — db_domain: the sole path to durable state (5432 + sqlite3) is measured, not assumed",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_db_domain_is_the_only_module_that_can_reach_5432",
+        "test_the_tooth_reds_on_a_planted_second_door",
+        "test_a_docstring_about_the_database_is_not_a_door",
+        "test_sqlite3_sole_path_is_clean_on_the_real_corpus",
+        "test_sqlite3_sole_path_reds_on_a_planted_offender"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "c6002ad940f8afea0f46708bd9690ca34f9e04b838bf4b55f68b968c4244deba",
+      "source_fingerprint": "c5d9e4134e656fe9570cb1f3e671ea6fd79ff818996ba56cf12737b6f956c8bf",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/db_domain/proofs/test_sole_path.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-eqjc8s6z/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-u3eqijom/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 19
         }
       }
     },

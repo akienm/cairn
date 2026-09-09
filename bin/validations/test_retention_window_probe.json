@@ -2,26 +2,72 @@
   {
     "claim": "proof test_retention_window_probe.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T09:42:15",
+    "date": "2026-09-09T11:45:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "proof: the retention-window probe — berth=bin/probes/retention_window.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_namespace_is_identified_by_grammar_not_by_name\n  PASS  test_a_kept_copy_is_not_a_second_namespace\n  PASS  test_a_full_window_holding_one_process_is_a_peephole\n  PASS  test_a_window_that_has_not_filled_is_not_judged\n  PASS  test_a_surviving_trim_mark_counts_as_turnover_on_its_own\n  PASS  test_an_absent_log_directory_is_not_a_finding\n  PASS  test_the_window_under_test_is_read_from_the_environment\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_datum_points_at_the_ticket_and_carries_the_rows\n  PASS  test_it_reaches_nowhere\n\nall green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_watch_can_never_clear_before_it_could_fire",
+        "test_fire_and_clear_are_mutually_exclusive",
+        "test_every_clause_is_load_bearing",
+        "test_a_namespace_is_identified_by_grammar_not_by_name",
+        "test_a_kept_copy_is_not_a_second_namespace",
+        "test_a_full_window_holding_one_process_is_a_peephole",
+        "test_a_window_that_has_not_filled_is_not_judged",
+        "test_a_surviving_trim_mark_counts_as_turnover_on_its_own",
+        "test_an_absent_log_directory_is_not_a_finding",
+        "test_the_window_under_test_is_read_from_the_environment",
+        "test_the_probe_is_armed_the_way_the_emission_gate_means_it",
+        "test_the_datum_points_at_the_ticket_and_carries_the_rows",
+        "test_it_reaches_nowhere"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "422b02c23c87c4e82e1333c09df8b66939b8a1ef532137bc3086298677035f8e",
+      "source_fingerprint": "e8850fef0c19408218de207b72b1ecdc25582fa3ef85e84c5fcebfa0ce5f90d9",
+      "fingerprint_closure": [
+        "bin/proofs/test_retention_window_probe.py",
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-861390-8gryh0kq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-de8i1hla/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

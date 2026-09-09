@@ -2,26 +2,64 @@
   {
     "claim": "proof test_sudo_relay.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T09:12:14",
+    "date": "2026-09-09T11:45:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_protocol_runs_the_command_and_returns_the_truth\n  PASS  test_idle_when_nothing_pending\n  PASS  test_record_is_permanent_and_complete\n  PASS  test_folder_cycles_after_a_month_but_not_before\n  PASS  test_retention_never_touches_a_foreign_file\n  PASS  test_temporary_is_physics\n  PASS  test_the_window_is_visible_and_honest\n  PASS  test_the_crossing_is_no_longer_silent\n  PASS  test_device_is_a_device_and_reports_the_window\ngreen — sudo_relay: command in, root-run + permanent audit out; window visible, temporary by physics",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_protocol_runs_the_command_and_returns_the_truth",
+        "test_idle_when_nothing_pending",
+        "test_record_is_permanent_and_complete",
+        "test_folder_cycles_after_a_month_but_not_before",
+        "test_retention_never_touches_a_foreign_file",
+        "test_temporary_is_physics",
+        "test_the_window_is_visible_and_honest",
+        "test_the_crossing_is_no_longer_silent",
+        "test_device_is_a_device_and_reports_the_window"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b94badc9f5f3555c7c5beafe3491a8e9e8441f9b1cd3df0d738231b363f02cca",
+      "source_fingerprint": "0347a5b5f598f6a0c50881da25d6b8410a7f5bdbb3cf679824176fd6701c414a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/sudo_relay/__init__.py",
+        "cairn/devices/sudo_relay/proofs/test_sudo_relay.py",
+        "cairn/devices/sudo_relay/relay.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-k23b73a9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-7ur1misn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 22
         }
       }
     },

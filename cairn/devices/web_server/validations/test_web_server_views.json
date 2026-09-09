@@ -2,26 +2,53 @@
   {
     "claim": "proof test_web_server_views.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-07T19:18:58",
+    "date": "2026-09-09T11:45:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_all_renderers_escape_device_strings\n  PASS  test_bounded_pane_renders_pager\n  PASS  test_bounded_pane_shows_window_meta\n  PASS  test_record_renders_as_dl\n  PASS  test_scalar_renders_as_span\n  PASS  test_sequence_renders_as_ol\n  PASS  test_table_renders_as_table\n  PASS  test_tree_renders_as_details\n  PASS  test_unknown_kind_falls_back_to_pre\ngreen — web_server/views: 9 teeth, all view kinds dispatch to their own renderer, unknown falls back to <pre>, bounded panes show metadata and pager, all device strings escaped",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_all_renderers_escape_device_strings",
+        "test_bounded_pane_renders_pager",
+        "test_bounded_pane_shows_window_meta",
+        "test_record_renders_as_dl",
+        "test_scalar_renders_as_span",
+        "test_sequence_renders_as_ol",
+        "test_table_renders_as_table",
+        "test_tree_renders_as_details",
+        "test_unknown_kind_falls_back_to_pre"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "30b1593f6552e60ca773bdbaecbb6fcb29596e0cf345cde6112d5094b1aff3f7",
+      "source_fingerprint": "89d457c96135c1e4a3da050513a3963c854d98685a2d87ae5c9fbcb1c0994f1d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/web_server/__init__.py",
+        "cairn/devices/web_server/proofs/test_web_server_views.py",
+        "cairn/devices/web_server/render.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2361506-tkvy36ka/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-5kwt608r/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 28
         }
       }
     },

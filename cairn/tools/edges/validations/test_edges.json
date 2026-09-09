@@ -1,27 +1,60 @@
 [
   {
     "claim": "proof test_edges.py passes under python3",
-    "caller": "edges-tool",
-    "date": "2026-08-29T21:25:00",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:47:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  pass  test_non_vacuity\n  pass  test_edges_from_charters\n  pass  test_non_string_edge_is_red\n  pass  test_open_vs_resolved_questions\n  pass  test_lanes_never_mixed\n  pass  test_render_mutates_nothing\n  pass  test_summary_line\n  pass  test_unreadable_question_is_red\n  pass  test_live_corpus_renders\n\nGREEN — 9/9 passed",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_non_vacuity",
+        "test_edges_from_charters",
+        "test_non_string_edge_is_red",
+        "test_open_vs_resolved_questions",
+        "test_lanes_never_mixed",
+        "test_render_mutates_nothing",
+        "test_summary_line",
+        "test_unreadable_question_is_red",
+        "test_live_corpus_renders"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "d45fc1825309cc711d5ee7c48988d2184f69f4993daeb781141f6a090a3ae778",
+      "source_fingerprint": "58b11d0cb30f649e94cecfc4d31721665e86edecd07f53a8535f4ef154bbe4c2",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/cairnmap/__init__.py",
+        "cairn/tools/cairnmap/cairnmap.py",
+        "cairn/tools/edges/__init__.py",
+        "cairn/tools/edges/edges.py",
+        "cairn/tools/edges/proofs/test_edges.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-_elhsqfl/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-s47s22pp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 38
         }
       }
     },

@@ -1,15 +1,29 @@
 [
   {
     "claim": "proof test_cgroup.py passes under python3",
-    "caller": "red-disposal:the-cgroup-parse-exists-once",
-    "date": "2026-09-08T19:36:30",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:41:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "THE PARSE — over text, so the verdict does not depend on where the runner lives\n  PASS  a unified line is the answer\n  PASS  a v1-only file has no answer, and that is None rather than a raise\n  PASS  the unified line is found among v1 lines, not just at the top\n  PASS  an empty file is None\n  PASS  the kernel's ' (deleted)' marker is not part of the identity\n  PASS  a path that merely ends in similar bytes is left whole\n  PASS  the root cgroup survives the parse as '/'\n\nTHE LIVE READ — against the kernel's own file for this very process\n  PASS  cgroup_of() reports what /proc/self/cgroup says  — '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-75160.scope'\n  PASS  and on this v2 host that is a real path, not the None branch  — '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-75160.scope'\n  PASS  a pid given explicitly reads the same as 'self'\n  PASS  a pid that does not exist is None, not an exception\n\nTHE CENSUS — the claim 'one reader' is measured, not asserted\n  PASS  exactly one NON-PROOF file reads /proc/<pid>/cgroup, and it is this tool  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']\n  PASS  and the census is not vacuous — it found this tool\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "a unified line is the answer",
+        "a v1-only file has no answer, and that is None rather than a raise",
+        "the unified line is found among v1 lines, not just at the top",
+        "an empty file is None",
+        "the kernel's ' (deleted)' marker is not part of the identity",
+        "a path that merely ends in similar bytes is left whole",
+        "the root cgroup survives the parse as '/'",
+        "cgroup_of() reports what /proc/self/cgroup says  — '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-75160.scope'",
+        "and on this v2 host that is a real path, not the None branch  — '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-75160.scope'",
+        "a pid given explicitly reads the same as 'self'",
+        "a pid that does not exist is None, not an exception",
+        "exactly one NON-PROOF file reads /proc/<pid>/cgroup, and it is this tool  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']",
+        "and the census is not vacuous — it found this tool"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
@@ -25,12 +39,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1750745-5unepdib/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-248031-htvdsuef/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 115596717,
+          "disk_bytes": 124407808,
+          "entries": 3661,
+          "builds": 1,
+          "reuses": 9
         }
       }
     },

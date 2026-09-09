@@ -2,26 +2,63 @@
   {
     "claim": "proof test_interceptor.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-04T09:57:22",
+    "date": "2026-09-09T11:45:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "aider_shim :: interceptor\n  ok   test_completion_goes_through_the_resolve_door\n  ok   test_every_exception_name_is_a_catchable_class\n  ok   test_fallback_exception_list_matches_the_foreign_programs_own\n  ok   test_install_puts_us_at_the_import_name\n  ok   test_installed_is_FALSE_when_the_module_there_is_not_OURS\n  ok   test_model_cost_is_a_mapping_aider_can_walk\n  ok   test_model_info_answers_from_the_stack_and_refuses_otherwise\n  ok   test_no_stray_Error_attribute\n  ok   test_streaming_is_refused_not_silently_downgraded\n  ok   test_surface_is_complete\n  ok   test_the_refusal_is_outside_aiders_retry_tuple\n  ok   test_touched_is_not_empty\n  ok   test_touched_stays_inside_the_declared_surface\n  ok   test_usage_is_none_when_the_door_reports_no_counters\n  ok   test_usage_is_the_hosts_real_counters_when_reported\n\nGREEN",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_completion_goes_through_the_resolve_door",
+        "test_every_exception_name_is_a_catchable_class",
+        "test_fallback_exception_list_matches_the_foreign_programs_own",
+        "test_install_puts_us_at_the_import_name",
+        "test_installed_is_FALSE_when_the_module_there_is_not_OURS",
+        "test_model_cost_is_a_mapping_aider_can_walk",
+        "test_model_info_answers_from_the_stack_and_refuses_otherwise",
+        "test_no_stray_Error_attribute",
+        "test_streaming_is_refused_not_silently_downgraded",
+        "test_surface_is_complete",
+        "test_the_refusal_is_outside_aiders_retry_tuple",
+        "test_touched_is_not_empty",
+        "test_touched_stays_inside_the_declared_surface",
+        "test_usage_is_none_when_the_door_reports_no_counters",
+        "test_usage_is_the_hosts_real_counters_when_reported"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "ba34bb0a18084a456fc1915e45e71973bc95853ce7a661a785fac19ddd7a4a4e",
+      "source_fingerprint": "6701caac4183a0aafe08ea3ff7a9e9e85a78a6f2f045d389e742005b0c7ee62e",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/aider_shim/__init__.py",
+        "cairn/devices/aider_shim/fence.py",
+        "cairn/devices/aider_shim/interceptor.py",
+        "cairn/devices/aider_shim/proofs/test_interceptor.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ib9ezbhb/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-1ldtsbm_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 4
         }
       }
     },

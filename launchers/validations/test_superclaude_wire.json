@@ -1,22 +1,35 @@
 [
   {
     "claim": "proof test_superclaude_wire.py passes under python3",
-    "caller": "superclaude-wire",
-    "date": "2026-08-29T22:04:54",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:47:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  green  test_a_bypassed_preflight_is_a_named_send_back\n  green  test_a_real_launch_fires_exactly_once_with_an_honest_event\n  green  test_a_dry_run_is_not_a_launch_and_traces_nothing\n\n3/3 teeth green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_bypassed_preflight_is_a_named_send_back",
+        "test_a_real_launch_fires_exactly_once_with_an_honest_event",
+        "test_a_dry_run_is_not_a_launch_and_traces_nothing"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "06d95949b41919379444796359a11c9ae17e1110e33d156c6b6caa9537e4dce6",
+      "source_fingerprint": "fa1ec8d0b1a60fb5867510a459206563dcfb4d6612b677fbf6b2afdaaf66e4c8",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "launchers/proofs/test_superclaude_wire.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-mawhbicg/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-ehy5vtyv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
@@ -25,6 +38,14 @@
             "logs/preflight.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116730300,
+          "disk_bytes": 125546496,
+          "entries": 3665,
+          "builds": 1,
+          "reuses": 47
         }
       }
     },

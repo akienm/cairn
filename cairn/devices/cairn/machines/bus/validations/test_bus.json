@@ -2,26 +2,65 @@
   {
     "claim": "proof test_bus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-06T10:38:38",
+    "date": "2026-09-09T11:45:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_message_round_trips_with_why_and_causality\n  PASS  test_an_unknown_channel_and_a_whyless_message_are_refused\n  PASS  test_record_channel_refuses_to_collapse_diagnostic_may\n  PASS  test_transit_is_owner_gated\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\ngreen — bus: one substrate for all comms; messages round-trip with why + causality, records refuse to collapse while diagnostics may, transit is owner-gated through db_domain",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_message_round_trips_with_why_and_causality",
+        "test_an_unknown_channel_and_a_whyless_message_are_refused",
+        "test_record_channel_refuses_to_collapse_diagnostic_may",
+        "test_transit_is_owner_gated",
+        "test_the_crossings_are_no_longer_silent",
+        "test_it_is_a_device"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "3c64b9e830ca13eefc94d4b6dea87cebf331afe5fa5bd7bbc94689e038188909",
+      "source_fingerprint": "09a5293c0d7ef80ef2d7623dcd31e5d33e0924de00c5f494cc136f6fecacbdba",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_bus.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1383647-4y0l1udv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-53umx5bu/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 7
         }
       }
     },

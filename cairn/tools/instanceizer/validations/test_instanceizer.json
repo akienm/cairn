@@ -2,26 +2,52 @@
   {
     "claim": "proof test_instanceizer.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-04T10:15:41",
+    "date": "2026-09-09T11:47:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  load_missing_raises\n  PASS  load_instantiates_class\n  PASS  config_forwarded\n  PASS  data_path_sets_base_dir\n  PASS  ensure_creates\n  PASS  ensure_no_overwrite\n  PASS  bare_name_refused\n  PASS  unresolvable_class_raises\n\n8 checks · 8 green · 0 red",
       "stderr_tail": "",
+      "teeth_green": [
+        "load_missing_raises",
+        "load_instantiates_class",
+        "config_forwarded",
+        "data_path_sets_base_dir",
+        "ensure_creates",
+        "ensure_no_overwrite",
+        "bare_name_refused",
+        "unresolvable_class_raises"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "e4112b237db64497fe29eb4cec6dd5e0b48fc2a35c0c1876a1ed0b587748b9f0",
+      "source_fingerprint": "aeb31efe434593ae63fa674d6e37026b04322a592051227c8c850f8d82b82f7d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/instanceizer/proofs/test_instanceizer.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-nx_8ybze/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-vb0so1ua/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 42
         }
       }
     },

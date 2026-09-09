@@ -1,15 +1,48 @@
 [
   {
     "claim": "proof test_turnscan.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T17:41:45",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:39:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "7. against the real transcript corpus: invariants only\n  ok   corpus mode exits 0\n  ok   reports transcripts and turns scanned\n  ok   reports a red RATE\n  ok   the red rate is under the 10% ceiling\n\n8. tool_positions classify a concern as mid-build or retrospective\n  ok   mid-build concern emits a receipt\n  ok   retrospective caveat suppresses the receipt\n  ok   retrospective caveat still exits 0\n  ok   no tool_use blocks in transcript still receipts\n  ok   absent transcript_path still receipts (backward compat)\n\n9. a bad transcript_path never wedges a turn\n  ok   nonexistent transcript: exit 0\n  ok   nonexistent transcript: still receipts (falls back to unclassified)\n  ok   empty transcript: exit 0\n  ok   empty transcript: still receipts\n\n32/32 green",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "exit 0",
+        "a receipt is emitted",
+        "a quoted concern-marker does not red",
+        "a fenced code block does not red",
+        "a blockquote does not red",
+        "forward BEFORE concern is not a red",
+        "a concern with no proposal is silent",
+        "a proposal with no concern is silent",
+        "no decision key on a red",
+        "no continue:false on a red",
+        "the receipt names BOTH dispositions, choosing neither",
+        "names the concern marker it matched",
+        "names the forward marker it matched",
+        "cites the rule's home",
+        "malformed input: exit 0",
+        "malformed input: nothing on stdout",
+        "empty stdin: exit 0",
+        "absent message field: exit 0 and silent",
+        "stop_hook_active suppresses a re-fire",
+        "corpus mode exits 0",
+        "reports transcripts and turns scanned",
+        "reports a red RATE",
+        "the red rate is under the 10% ceiling",
+        "mid-build concern emits a receipt",
+        "retrospective caveat suppresses the receipt",
+        "retrospective caveat still exits 0",
+        "no tool_use blocks in transcript still receipts",
+        "absent transcript_path still receipts (backward compat)",
+        "nonexistent transcript: exit 0",
+        "nonexistent transcript: still receipts (falls back to unclassified)",
+        "empty transcript: exit 0",
+        "empty transcript: still receipts"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
@@ -21,12 +54,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1371696-q6dgxluj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-248031-0pjxkscu/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 115596717,
+          "disk_bytes": 124407808,
+          "entries": 3661,
+          "builds": 1,
+          "reuses": 2
         }
       }
     },

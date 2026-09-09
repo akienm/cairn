@@ -1,27 +1,61 @@
 [
   {
     "claim": "proof test_concept_piece_voyage.py passes under python3",
-    "caller": "eba8503cc18c-a-concept-piece-has-a-voyage",
-    "date": "2026-09-01T20:01:23",
+    "caller": "cairn test",
+    "date": "2026-09-09T11:47:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_history_exists_and_is_valid\n  PASS  test_state_exists_and_projects_from_history\n  PASS  test_concept_piece_v1_crossing_journaled\n  PASS  test_backfill_tickets_exist_and_parse\n  PASS  test_backfill_ticket_schema_complete\n  PASS  test_class_def_loads\n\n6/6 passed",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_history_exists_and_is_valid",
+        "test_state_exists_and_projects_from_history",
+        "test_concept_piece_v1_crossing_journaled",
+        "test_backfill_tickets_exist_and_parse",
+        "test_backfill_ticket_schema_complete",
+        "test_class_def_loads"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "14e8bc55236c8f3ec31b84b43cb1355ba6206824aa9e25abe81beef07fc331eb",
+      "source_fingerprint": "035c88542a7e205d872afde7bd6a7e186586bcd1dfb106e669694a17848b8c67",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "press_office/proofs/test_concept_piece_voyage.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-rdzac3np/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-271987-q9wqz3no/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116728438,
+          "disk_bytes": 125538304,
+          "entries": 3663,
+          "builds": 1,
+          "reuses": 48
         }
       }
     },

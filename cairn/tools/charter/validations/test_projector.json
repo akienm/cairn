@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_projector.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T18:29:34",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-08T21:03:01",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -18,10 +18,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "2576e1f9eb811baeca2d90bf75815eef2e42cbee4e7611714c1ab61091809bdf",
+      "source_fingerprint": "7143cddae6151ee785c17ef168bbc79c832346900007c1ef807dbf60544ccbc7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -35,33 +35,41 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1371696-gfrvfm5z/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1991680-1sr6sv3a/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 20,
           "paths": [
-            "logs/charter/0/20260909.002927.795458.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.795920.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.796332.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.796880.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.797508.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.797881.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.798261.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.798634.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.799011.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.799403.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.799792.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.800237.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.800689.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.801111.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.801539.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.802025.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.802469.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.802822.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.803190.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260909.002927.803560.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20260909.030300.597887.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.598477.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.598959.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.599635.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.600386.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.600826.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.601277.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.601719.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.602176.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.602641.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.603111.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.603604.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.604094.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.604594.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.605197.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.605671.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.606199.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.606625.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.607063.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.030300.607522.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110215404,
+          "disk_bytes": 118984704,
+          "entries": 3643,
+          "builds": 1,
+          "reuses": 39
         }
       }
     },

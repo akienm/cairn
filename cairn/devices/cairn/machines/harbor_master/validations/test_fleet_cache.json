@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_fleet_cache.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T17:58:58",
+    "caller": "cairn test",
+    "date": "2026-09-08T20:57:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "22028b150408e699ce89e222e9886e119be1955b06374feedf0986eb37bd4ec7",
+      "source_fingerprint": "c83ebe9a13463f118c03306fda2903429c76f4d81b019e1e8badac6ef29aa80a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -57,35 +57,43 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1346793-vjkxvh8m/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1991680-yxl061t2/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 22,
           "paths": [
             "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
-            "logs/harbor_master/0/20260908.235850.254858.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235850.544839.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235850.547524.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235850.547831.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20260908.235850.690487.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235850.837597.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235850.984197.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235851.134170.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235851.134369.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20260908.235851.288934.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235851.439918.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235851.440366.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235851.440662.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20260908.235851.440944.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235851.441341.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20260908.235851.441651.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235851.441926.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20260908.235851.596559.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235851.752817.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260908.235851.753348.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20260908.235851.753506.HarborMasterDevice.crossing_patched.json"
+            "logs/harbor_master/0/20260909.025730.785529.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025730.989007.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025730.990787.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025730.990991.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20260909.025731.105197.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.231140.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.338601.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025731.445817.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.445958.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20260909.025731.545472.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.646625.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.646907.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025731.647091.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20260909.025731.647259.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025731.647500.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20260909.025731.647708.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025731.647951.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20260909.025731.749957.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.853653.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.025731.853959.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20260909.025731.854056.HarborMasterDevice.crossing_patched.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110215000,
+          "disk_bytes": 118992896,
+          "entries": 3644,
+          "builds": 1,
+          "reuses": 3
         }
       }
     },

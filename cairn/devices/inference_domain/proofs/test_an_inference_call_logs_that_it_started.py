@@ -418,8 +418,13 @@ def test_the_probe_reads_the_address_the_device_declares():
         s = p.survey_the_corpus()
         assert s["trail_exists"] is True, (
             f"the probe must have found the trail at the device's CURRENT berth ({tmp}): {s}")
-        assert s["trail_misses"] >= 1, (
-            f"and read the line the device just wrote there: {s}")
+        assert s["trail_misses"] == 1, (
+            f"and read the line the device just wrote there, and ONLY that line: {s}. "
+            f"EXACTLY one, never >= 1: the fixture trail holds the single line this test just "
+            f"wrote, and the live trail holds hundreds. A >= 1 bound is met by either, which is "
+            f"how this tooth passed for two months while the probe read the live trail — the "
+            f"bound that admits the accident is the bound the accident meets (ruling "
+            f"2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage).")
 
 
 def _cleanup():

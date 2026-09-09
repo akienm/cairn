@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_probe_enough.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T18:24:57",
+    "caller": "cairn test",
+    "date": "2026-09-08T20:54:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "c7693009d3913e3b2fbf42af867b6fe520e2276a3d644727cfefd8a5888c8407",
+      "source_fingerprint": "ae5f1bde2c1c63c3e6439144c77c0587c49c2afe2d9cec6d4a1a48debada8882",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -41,12 +41,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1371696-8tc4ilnp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1985615-8lsgy412/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110206783,
+          "disk_bytes": 118902784,
+          "entries": 3621,
+          "builds": 1,
+          "reuses": 31
         }
       }
     },

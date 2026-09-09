@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_intent_skill.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T18:33:42",
+    "caller": "cairn test",
+    "date": "2026-09-08T21:05:14",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "          RED: skill missing from the roster: /sail carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /saveslate carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /sorted carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /tellmeabout carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /whatslefttodo carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n  pass  every_roster_entry_carries_a_charter\n  FAIL  every_chartered_skill_is_installed\n          RED: skill not installed: /ruled carries a charter but has no entry in /home/akien/.claude/skills\n  pass  every_installed_skill_points_at_its_charter\n  FAIL  every_command_is_named_by_a_charter\n          RED: command without a charter: bin/cmd/groundloop — no charter's invoke mentions `cairn groundloop`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/mailcheck — no charter's invoke mentions `cairn mailcheck`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/operator — no charter's invoke mentions `cairn operator`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/review — no charter's invoke mentions `cairn review`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/ruled — no charter's invoke mentions `cairn ruled`, so it cannot render (an undocumented command is impossible, by design)\nderivation gate: RED — 21 finding(s) (8 checks proved · 72 charters)\n\n  green  test_the_two_entrances_cannot_differ_in_strictness\n\n8/9 teeth green",
+      "stdout_tail": "          RED: skill missing from the roster: /sail carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /saveslate carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /sorted carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /tellmeabout carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /whatslefttodo carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n  pass  every_roster_entry_carries_a_charter\n  FAIL  every_chartered_skill_is_installed\n          RED: skill not installed: /ruled carries a charter but has no entry in /home/akien/.claude/skills\n  pass  every_installed_skill_points_at_its_charter\n  FAIL  every_command_is_named_by_a_charter\n          RED: command without a charter: bin/cmd/groundloop — no charter's invoke mentions `cairn groundloop`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/mailcheck — no charter's invoke mentions `cairn mailcheck`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/operator — no charter's invoke mentions `cairn operator`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/review — no charter's invoke mentions `cairn review`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/ruled — no charter's invoke mentions `cairn ruled`, so it cannot render (an undocumented command is impossible, by design)\nderivation gate: RED — 21 finding(s) (8 checks proved · 73 charters)\n\n  green  test_the_two_entrances_cannot_differ_in_strictness\n\n8/9 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_real_firing_against_the_REAL_charter_traces_and_finds",
@@ -26,7 +26,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "bc9e5a4dee46062b0f5c7d9aa3de08656e0cf7ecdb150a237a5347e2a4d933e8",
+      "source_fingerprint": "55bf92ff2a6a1f74daf8e1bfea119cdf2fa0e5b2475fb27c45d68508eacaeecf",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -68,12 +68,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1371696-7gszp2z5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1991680-od2n9tf0/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110206783,
+          "disk_bytes": 118902784,
+          "entries": 3621,
+          "builds": 1,
+          "reuses": 45
         }
       }
     },

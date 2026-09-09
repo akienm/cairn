@@ -130,23 +130,29 @@ def survey_the_corpus() -> dict:
     """The live read: the store through its one door, and the trail at the address the DEVICE
     declares rather than one spelled here.
 
-    Asking ``domain.diagnostic_trail()`` rather than rebuilding the path is the point — if the
-    device's berth ever moves, a probe carrying its own copy of the address goes on reading an
-    empty directory and reports a catastrophe that is really a stale constant. A DB this probe
-    cannot reach raises rather than reporting a clean zero, because a silent 0/0 reads as both
-    "no finding" and "not yet enough".
+    Asking the DEVICE — for the address AND for the lines — rather than rebuilding either is
+    the point: if the device's berth ever moves, a probe carrying its own copy of the address
+    goes on reading an empty directory and reports a catastrophe that is really a stale
+    constant. That is not hypothetical here; it is what this function DID until 2026-09-09.
+    ``trail_exists`` came from ``diagnostic_trail()``, which follows the device, and the records
+    came from a hand-built ``BreadcrumbLog("inference_domain", 0)``, which does not — so the two
+    halves of one survey described two different trails, and the tooth that exists to catch it
+    passed on the live trail's borrowed lines instead of on the line it wrote. Both halves now
+    go through the same door (ruling
+    2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage). A DB this probe cannot reach
+    raises rather than reporting a clean zero, because a silent 0/0 reads as both "no finding"
+    and "not yet enough".
     """
     from cairn.devices.db_domain import store            # late: imports clean without a DB
     from cairn.devices.inference_domain import domain
-    from cairn.tools.base.breadcrumb_log import BreadcrumbLog, LogUnreadable
+    from cairn.tools.base.breadcrumb_log import LogUnreadable
 
     trail = domain.diagnostic_trail()
     exists = trail is not None and trail.exists()
     records: list[dict] = []
     if exists:
         try:
-            log = BreadcrumbLog("inference_domain", 0)
-            records = log.records()
+            records = domain.diagnostic_records()
         except LogUnreadable:
             records.append({"ts": None, "gate": "(unparseable)", "pointer": None})
     return judge(records, store.read("inference_calls"), trail_exists=exists)

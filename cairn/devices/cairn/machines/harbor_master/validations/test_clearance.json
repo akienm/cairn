@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_clearance.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T17:58:28",
+    "caller": "cairn test",
+    "date": "2026-09-08T20:57:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -53,7 +53,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "c4da6aeb0afa5633de10565dda48f1817165cc9f9a7d29276fa4992516bbcc26",
+      "source_fingerprint": "fd7bc65214f716ce40b4eb4669af358a13b9672205450043d8947900ef47c821",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -120,38 +120,46 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1346793-wyz2x2o7/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1991680-v3mlker5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 25,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
             "devices/chart/0/verdict-deposits.jsonl",
-            "logs/bus/0/20260908.235811.701432.BusDevice.post.json",
-            "logs/bus/0/20260908.235811.705407.BusDevice.post.json",
-            "logs/bus/0/20260908.235818.922967.BusDevice.post.json",
-            "logs/bus/0/20260908.235818.928754.BusDevice.post.json",
-            "logs/bus/0/20260908.235818.936909.BusDevice.post.json",
-            "logs/bus/0/20260908.235818.942246.BusDevice.post.json",
-            "logs/bus/0/20260908.235819.098478.BusDevice.post.json",
-            "logs/bus/0/20260908.235819.139928.BusDevice.post.json",
-            "logs/bus/0/20260908.235819.160731.BusDevice.post.json",
-            "logs/bus/0/20260908.235819.169212.BusDevice.post.json",
-            "logs/charter/0/20260908.235811.678028.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235811.705251.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235818.922736.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235818.928122.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235818.936646.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235818.941996.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235819.098227.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235819.139681.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235819.160479.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260908.235819.168952.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20260908.235806.610783.TesterDevice.run_proof.json",
-            "logs/tester/0/20260908.235811.675834.TesterDevice.run_proof.json",
-            "logs/tester/0/20260908.235818.919818.TesterDevice.run_proof.json"
+            "logs/bus/0/20260909.025728.977871.BusDevice.post.json",
+            "logs/bus/0/20260909.025728.982155.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.211745.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.215326.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.220309.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.223633.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.320687.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.345765.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.357142.BusDevice.post.json",
+            "logs/bus/0/20260909.025729.361776.BusDevice.post.json",
+            "logs/charter/0/20260909.025728.953361.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025728.981987.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.211598.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.215089.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.219981.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.223492.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.320502.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.345626.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.357004.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260909.025729.361647.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20260909.025728.739030.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.025728.951114.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.025729.209581.TesterDevice.run_proof.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110215370,
+          "disk_bytes": 118996992,
+          "entries": 3650,
+          "builds": 1,
+          "reuses": 2
         }
       }
     },

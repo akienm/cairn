@@ -280,6 +280,102 @@ def test_computing_an_address_creates_nothing() -> None:
            "neither the device nor the log may create anything before the first write")
 
 
+# ── 4b. WHERE AND WHAT ARE ONE ANSWER ────────────────────────────────────────
+#
+# MEASURED 2026-09-09 (ruling a-bug-the-voyage-uncovers-is-fixed-by-that-voyage). ``DiagnosticBase``
+# answered WHERE a device's records are (``diagnostic_trail``) and nothing answered WHAT they are,
+# so the one caller that wanted the lines built its own ``BreadcrumbLog(device, 0)`` — with no
+# roots. Its two halves then described two different trails: ``trail_exists`` followed the device
+# into a proof's isolated world and the records came from the LIVE berth. The tooth that existed to
+# catch exactly that passed for two months, on the live trail's borrowed lines rather than on the
+# line it had just written. These teeth are why that shape cannot come back to the base class.
+
+
+def test_the_records_come_back_from_the_address_the_trail_names() -> None:
+    """WHERE and WHAT are ONE answer — asserted as an invariant between the two doors, never as a
+    count this file typed twice. Both follow ``set_diagnostic_roots``, so a caller can no longer
+    half-follow the device."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        class Named(DiagnosticBase):
+            pass
+        Named.__module__ = "cairn.devices.cairn.machines.bus.bus"
+        dev = Named()
+        dev.set_diagnostic_roots(_roots(tmp))
+        for i in range(3):
+            dev.emit("gate", pointer=f"p{i}")
+
+        trail = dev.diagnostic_trail()
+        records = dev.diagnostic_records()
+        # one file per emission (``BreadcrumbLog``'s shape since 2026-08-19), so the independent
+        # read is over the DIRECTORY the trail door names — deliberately not through ``records()``,
+        # which is the thing under test.
+        on_disk = [json.loads(q.read_text()) for q in sorted(trail.glob("*.json"))]
+        ok(records == on_disk,
+           f"the records door must return what the directory the trail door NAMES holds — "
+           f"{len(records)} records against {len(on_disk)} files at {trail}. Any difference means "
+           f"the two doors are describing two trails, which is the whole defect")
+        ok([r["gate"] for r in records] == ["gate"] * 3 and
+           [r["pointer"] for r in records] == ["p0", "p1", "p2"],
+           f"and they are the records this device just emitted, in order: {records}")
+
+
+def test_the_records_door_follows_the_device_rather_than_the_live_berth() -> None:
+    """THE DISCRIMINATING TOOTH. A door that re-derived the address would read the LIVE trail —
+    which on this laptop is a fat file this device never wrote to. So the fixture is built to make
+    the two answers different: an isolated world holding exactly one line. Reading the live berth
+    cannot produce that, no matter what the live berth happens to hold today."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        class Named(DiagnosticBase):
+            pass
+        Named.__module__ = "cairn.devices.cairn.machines.bus.bus"
+        dev = Named()
+        dev.set_diagnostic_roots(_roots(tmp))
+        dev.emit("the_only_line_in_this_world", pointer="x")
+
+        records = dev.diagnostic_records()
+        ok(len(records) == 1,
+           f"EXACTLY one, never 'at least one': this world holds the single line just written, and "
+           f"the live berth holds however many. A >= bound is met by BOTH, which is precisely how "
+           f"the inference_domain probe's tooth passed while reading the wrong trail. Got "
+           f"{len(records)}: {records[:3]}")
+        ok(records[0]["gate"] == "the_only_line_in_this_world",
+           f"and it is THIS world's line, not one borrowed from the live berth: {records[0]}")
+        ok(str(dev.diagnostic_trail()).startswith(str(tmp)),
+           f"the address itself must sit inside the moved world: {dev.diagnostic_trail()}")
+
+
+def test_a_device_under_no_rung_has_no_records_rather_than_a_wrong_answer() -> None:
+    """The honest-absence case, matching ``diagnostic_trail``'s ``None``. A class under no rung has
+    no address, so it has no records — and ``[]`` is the answer that cannot be mistaken for a
+    trail that exists and is empty, because such a device has no trail to be empty."""
+    with tempfile.TemporaryDirectory() as td:
+        dev = _Rungless()
+        dev.set_diagnostic_roots(_roots(Path(td)))
+        ok(dev.diagnostic_trail() is None, "no rung, no address")
+        ok(dev.diagnostic_records() == [],
+           f"and no records — never a guess at somebody else's trail: {dev.diagnostic_records()}")
+
+
+def test_an_unwritten_trail_reads_empty_without_creating_itself() -> None:
+    """``address``'s bound (Law 6) holds through the new door too: asking what a device logged must
+    not provision the place it would log to. A device that never emitted reads ``[]`` and leaves
+    nothing behind — otherwise the logs tree becomes a census of what exists rather than a record
+    of what happened, which is the same failure ``test_computing_an_address_creates_nothing``
+    guards on the address side."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        class Named(DiagnosticBase):
+            pass
+        Named.__module__ = "cairn.devices.librarian.library"
+        dev = Named()
+        dev.set_diagnostic_roots(_roots(tmp))
+        ok(dev.diagnostic_records() == [], "a device that never emitted has no records")
+        ok(not (tmp / "logs").exists(),
+           f"and reading them created nothing: {sorted(q.name for q in tmp.iterdir())}")
+
+
 # ── 5. THIS PROOF DOES NOT SEED THE INSTRUMENT ───────────────────────────────
 
 def _live_logs_witness() -> list[tuple[str, int]]:

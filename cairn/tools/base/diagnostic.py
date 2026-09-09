@@ -211,6 +211,27 @@ class DiagnosticBase:
         return BreadcrumbLog(device, self.diagnostic_instance,
                              roots=getattr(self, "_diagnostic_roots", None)).path
 
+    def diagnostic_records(self) -> list[dict]:
+        """WHAT this device's own trail holds — the records, at the address ``diagnostic_trail``
+        points to. ``[]`` for a class under no rung, and for a trail that does not exist yet.
+
+        The sibling exists because its absence had a caller. ``diagnostic_trail`` answered WHERE
+        and nothing answered WHAT, so a probe that wanted the lines re-derived the address by
+        hand — ``BreadcrumbLog(device, 0)`` with no roots — and read the LIVE berth while
+        ``diagnostic_trail`` followed the device into a proof's isolated world. The two answers
+        then described two different trails, and the tooth that was supposed to catch exactly
+        that passed for two months on the live trail's borrowed lines (ruling
+        2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage). One door, one address:
+        a caller can no longer half-follow the device.
+
+        Raises ``LogUnreadable`` like the log itself does — a corrupt trail is a finding, and
+        swallowing it here would hand every caller a clean, wrong ``[]`` (Law 7)."""
+        device = self.diagnostic_device
+        if device is None:
+            return []
+        return BreadcrumbLog(device, self.diagnostic_instance,
+                             roots=getattr(self, "_diagnostic_roots", None)).records()
+
     def set_diagnostic_receiver(self, receiver) -> None:
         """OVERRIDE home — divert this device's stream somewhere other than its own trail.
 

@@ -178,6 +178,12 @@ def diagnostic_trail():
     return _trail.diagnostic_trail()
 
 
+def diagnostic_records() -> list[dict]:
+    """What this door's crossings ARE — read from wherever ``diagnostic_trail`` points, so a
+    caller under ``set_diagnostic_roots`` reads the world it moved the device into."""
+    return _trail.diagnostic_records()
+
+
 def canonicalize(request: dict) -> str:
     """Reduce a request to its canonical form (state 2). FIRST CUT: structural only.
 

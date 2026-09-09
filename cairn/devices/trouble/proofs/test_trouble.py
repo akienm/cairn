@@ -44,6 +44,11 @@ PROVES = {
     "9579a6f9cec6": {
         "1": "test_the_isolation_sieve_reports_nothing_over_the_live_tree",
         "2": "test_no_device_reaches_this_one_by_import",
+        # CLAUSE (2) HAS TWO TEETH because the clause has two halves the same string-grep
+        # cannot hold: the direct path, and the one-hop re-export the ticket DELETED and
+        # nothing guarded. The suffixed key is how one clause names both — the reader maps
+        # key -> ONE tooth, and collapsing them would drop whichever came second.
+        "2b": "test_the_holding_class_is_not_re_exported_from_anywhere_outside_this_device",
         "4": "test_two_processes_raising_ONE_identity_fold_to_ONE_ticket",
         "6": "test_the_inspector_troubles_were_cleared_through_the_door",
     }
@@ -555,6 +560,66 @@ def test_no_device_reaches_this_one_by_import():
         offenders.append(rel)
     assert offenders == [], (
         "these reach the trouble device by import instead of over the bus: " + str(offenders))
+
+
+def test_the_holding_class_is_not_re_exported_from_anywhere_outside_this_device():
+    """CLAUSE (2) AGAIN, ONE HOP OUT — and the tooth exists because the hollow verb found the
+    hole on 2026-09-09, not because anyone reasoned their way to it.
+
+    THE SIBLING TOOTH ABOVE READS FOR THE STRING ``cairn.devices.trouble``, so it goes quiet
+    the moment somebody reaches the same class by a DIFFERENT name. That is not hypothetical:
+    ``cairn/tools/trouble.py`` was exactly that module, its whole body re-exported
+    ``TroubleDevice``, and 9579a6f9cec6 DELETED it for the stated reason that it "moved the
+    import one hop and satisfied grep rather than physics (Law 4)". The deletion shipped; the
+    tooth guarding it did not. So the seam was one re-export away from re-opening with every
+    check in the system still green — which is Law 8's hollow shape, in the ticket that was
+    supposed to close it.
+
+    HOW IT SURFACED, and it is the point worth keeping: ``cairn test --hollow 9579a6f9cec6``
+    reverted ``cairn/devices/tester/validation_store.py`` — whose change under that ticket was
+    precisely swapping ``from cairn.tools.trouble import TroubleDevice`` for a ``ModuleRaiser``
+    and a bus request — and NO declared tooth redded. HOLLOW, measured, on an instrument built
+    to ask that question. The file's contribution to that ticket was unproven for two days.
+
+    IT READS IMPORTS, NOT TEXT. ``TroubleDevice`` appears in a dozen comments and docstrings
+    across the corpus (this device's history is written down beside the code that changed), and
+    a grep tooth would either drown in those or be tuned until it stopped biting. The AST sees
+    only what actually BINDS the name, which is the only thing that can reach the store.
+
+    THE ALLOWED HOMES ARE THE SAME THREE SHAPES as the sibling tooth, for the same three
+    reasons — the device itself, a TOOL, or an instrument (proof/probe). Any other binder is
+    the defect, by whatever path it spelled it.
+    """
+    import ast
+
+    root = Path(__file__).resolve().parents[4] / "cairn"
+    offenders = []
+    for path in root.rglob("*.py"):
+        rel = path.relative_to(root.parent).as_posix()
+        if rel.startswith("cairn/devices/trouble/"):
+            continue
+        if rel.startswith("cairn/tools/") or "/proofs/" in rel or "/probes/" in rel:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if "TroubleDevice" not in text and "trouble" not in text:
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                names = [a.name for a in node.names]
+                if "TroubleDevice" in names or (node.module or "").endswith(".trouble"):
+                    offenders.append(f"{rel}:{node.lineno} from {node.module} import "
+                                     f"{', '.join(names)}")
+            elif isinstance(node, ast.Import):
+                for a in node.names:
+                    if a.name.endswith(".trouble") or a.name.split(".")[-1] == "trouble":
+                        offenders.append(f"{rel}:{node.lineno} import {a.name}")
+    assert offenders == [], (
+        "these BIND the trouble-holding class outside the device that owns it — by whatever "
+        "name they spelled it, which is the hole a string-grep leaves open: " + str(offenders))
 
 
 def _live_commons() -> Path:

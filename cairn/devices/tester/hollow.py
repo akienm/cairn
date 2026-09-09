@@ -42,15 +42,37 @@ a real bound on the verb's reach, not a bug in it, and the fix belongs to the PR
     -> ticket a-proof-that-reaches-a-sibling-repo-by-relative-path-cannot-be-reproven-elsewhere
 
 AND THE VERB'S COST IS THE CORPUS'S COST, NOT THE VERB'S — measured 2026-09-09 on 9579a6f9cec6
-because the ticket's own WRONG INTENT clause fired. Ten writes_to files, two skipped, so nine
-passes (one baseline plus one per measured file) over the three proofs that declare a tooth
-for it. Those three, timed standalone in the live tree: 41.9s + 0.3s + 0.4s = 42.6s, so the
-floor the verb cannot go below is 9 x 42.6 = 383.4s. The whole run took 364.0s. The verb's own
-overhead is therefore ZERO within noise (-19.4s: a worktree run is marginally cheaper than a
-live-tree one), and ``test_trouble.py`` alone is the entire budget. This is worth stating in
-the code because the obvious reading of a slow run is that the loop is wasteful, and here the
-loop is free: the only levers are fewer proof runs (the silent filter above, which took this
-from 501.7s) or a cheaper proof, and the second one belongs to whoever owns that proof.
+because the ticket's own WRONG INTENT clause fired at 364s against a 300s bound. Ten writes_to
+files, two skipped, so nine passes (one baseline plus one per measured file) over the three
+proofs that declare a tooth for it. The arithmetic is the whole finding, and it survived the
+fix that followed: floor = passes x (cost of the declaring proofs), and the verb's own share is
+the remainder.
+
+  measured 2026-09-09, BEFORE     41.9 + 0.3 + 0.4 = 42.6s  ->  floor 9 x 42.6 = 383.4s
+                                  whole run 364.0s           ->  verb's share -19.4s
+  measured 2026-09-09, AFTER      10.8 + 0.3 + 0.4 = 11.5s  ->  floor 9 x 11.5 = 103.1s
+                                  whole run 114.0s           ->  verb's share +10.9s
+
+THE RED WAS NEVER THE LOOP, AND THE TICKET'S OWN REMEDY CLAUSE GUESSED THAT IT WAS. The clause
+prescribed "the per-file loop shares one worktree and one instance swap" — both of which this
+verb already did on the day the clause fired, so the named fix was already in place while the
+threshold it named was right. What actually cost 35 of those 42.6 seconds was ONE TOOTH in
+``cairn/devices/trouble/proofs/test_trouble.py`` calling the whole build_inspector nest to read
+a single sieve: ~20 settled answers re-derived to obtain one (Law 1 at its plainest), paid nine
+times over by a loop that was innocent. Asking the sieve directly took that proof from 45.4s to
+10.5s with the same 0 findings over the same 54 rows, and the run from 364.0s to 114.0s.
+
+So the verb's overhead is ~10% of a run and rises as the corpus shrinks around it: what looked
+like ZERO before was the corpus drowning it. The levers, in order of size, are still not in
+this file — fewer proof runs (the silent filter above, which took this from 501.7s), then a
+cheaper proof, and that second one belongs to whoever owns the proof. What IS worth stating
+here is the reflex to distrust: the obvious reading of a slow run is that the loop is wasteful,
+and twice now the loop has been the cheapest thing in the measurement.
+
+AND THE HEADROOM IS THIN AND SHRINKS BY GROWTH, NOT BY DEFECT. 114.0s against the ticket's 300s
+bound is 2.6x, but the dominant term is a walk over ``device_census``'s 54 component rows, nine
+times — so the bound is re-crossed by adding components, with nothing about this verb having
+got worse. That is a measurement to re-take, not a margin to bank.
 
 THE LIVE TREE IS NEVER TOUCHED. Every revert happens inside a scratch git worktree
 (``scratch.scratch_worktree``) that removes itself and its registration at exit. The obvious
@@ -334,6 +356,13 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     # leaves 2 x 9 = 18 runs of the same 18 that carry every tooth the answer is made of, so the
     # reading is IDENTICAL and the cost is 40%. The dropped names ride the finding rather than
     # vanishing, because "we did not run it" and "it had nothing to say" must stay legible apart.
+    #
+    # RE-READ THE SAME DAY, AFTER THE TICKET GAINED A SIXTH NAMED PROOF: 6 named, 3 declaring,
+    # 3 silent — so 27 of 54 runs, and the filter's saving is 50% rather than 40%. The counts
+    # move with the corpus and this comment will go stale again; what does not move is the
+    # shape, which is why it is stated as an equation above and not as a headline number.
+    # (The proof of the filter itself does not read these figures — it reverts a fixture whose
+    # silent proof would have changed the answer, and watches it not be run.)
     silent = [rel for rel in proofs if not declared_teeth[rel]]
     if silent:
         proofs = [rel for rel in proofs if declared_teeth[rel]]

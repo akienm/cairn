@@ -6031,5 +6031,253 @@
     "fingerprint": "cd50f463035db1f756b848fb3027d324e406a3dd4a4e6f18fdcfb9441b45bea1",
     "at": "2026-09-09T07:04:01",
     "seq": 28
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(seal_measurements_are_not_dropped) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '4431cf2bc625'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py (seal 2026-09-09T06:52:57, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(seal_measurements_are_not_dropped) emitted the probe berthed at cairn/devices/tester/probes/seal_measurements_are_not_dropped.py (ticket '4431cf2bc625')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260909T070416-0e8f47ec041d.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(seal_measurements_are_not_dropped) crossing",
+        "actual": "a cast ticket for the WATCHME(seal_measurements_are_not_dropped) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4431cf2bc625",
+          "watch_object": "seal_measurements_are_not_dropped",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4431cf2bc625-a-measured-seal-is-never-replaced-by-an-unrequested-one.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '4431cf2bc625' carries a watchme spec for 'seal_measurements_are_not_dropped'",
+        "actual": "ticket '4431cf2bc625' carries a watchme spec for 'seal_measurements_are_not_dropped'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4431cf2bc625",
+          "watch_object": "seal_measurements_are_not_dropped",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4431cf2bc625",
+          "watch_object": "seal_measurements_are_not_dropped",
+          "berth": "cairn/devices/tester/probes/seal_measurements_are_not_dropped.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "4431cf2bc625",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '4431cf2bc625' is cast",
+        "actual": "named ticket '4431cf2bc625' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "4431cf2bc625",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4431cf2bc625-a-measured-seal-is-never-replaced-by-an-unrequested-one.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "4431cf2bc625"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "tester",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py stands in proven-space",
+        "actual": "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py",
+          "why": "sealed green 2026-09-09T06:52:57 by cairn test, and the fingerprint over the 19 file(s) the proof imports still matches what was proved (b56010e250f3…)"
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py's seal at '2026-09-09T06:52:57'",
+        "actual": "the witness dates cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py's seal at '2026-09-09T06:52:57'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py",
+          "seal": "2026-09-09T06:52:57",
+          "claimed": "2026-09-09T06:52:57"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '4431cf2bc625' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "4431cf2bc625"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py",
+    "proven_seal_date": "2026-09-09T06:52:57",
+    "delegated": false,
+    "ticket": "4431cf2bc625",
+    "note": "THE SEAL VOCABULARY'S AXIS IS WHETHER THE SEAL WAS ASKED FOR, which is why three of its four words are measurements and only `open` is the absence of one — and why `sealed -> open` is the single transition that retires a measurement rather than recording a newer one. On 2026-09-08 a blanket re-seal made that transition 44 times and nothing refused it; it was caught by diffing one file by hand. Two acts close it, because a guard alone would have punished a caller who meant the right thing: persist_validation now refuses sealed|indeterminate|breached -> open unless the caller states `unsealing_because`, which then rides permanently inside the record's evidence (the escape is on the record, never ambient) and fires BEFORE the announce and the write, so a refused write leaves the standing record untouched; and `cairn test --seal` asks each proof what isolation its standing seal was taken at and reproduces THAT, so the ordinary re-seal never meets the guard at all. sealed->breached, sealed->indeterminate and open->sealed all pass unrefused: a guard blocking a newer RED would be Law 7 inverted at the door Law 7 exists for. THE PER-PROOF READ IS VISIBLE AS A DISTRIBUTION rather than a word: the tester's own eight re-sealed at netns=4 none=4, the twelve out-of-component proofs fingerprinting a file this voyage changed at netns=11 none=1, and every one of the nineteen carrying a seal at HEAD reproduced it with zero guard refusals — including the three the blanket sweep had reddened and build_inspector's test_inspector, which carries seal:open because it times out at 120s inside a netns. One typed flag would have had to be wrong for one of those groups. A SECOND DEFECT IN THE SAME FUNCTION was fixed here under ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage: the --seal summary printed `total - n_red` persisted while its own next clause said 'a red seals its red' (49 proofs, 6 red, printed 43, 49 on disk) — a Law 7 lie misreporting the very count this ticket is about. Five teeth, green twice, both mutations bite. And two deviations from the chart are in the verdict rather than smoothed over: hypothesis 1's falsifier fixed a corpus SNAPSHOT where it meant an invariant, and the probe's `enough` holds a floor on the sealed COUNT where the spec named a RATIO — a ratio falls when someone honestly adds an unsealed proof, so it would poke the owner about the system working.",
+    "fingerprint": "2bb9601bdb73aa7fde3091ea1fcf2f81b838fdfcdf0c047933d886a5e27afbbe",
+    "at": "2026-09-09T07:13:15",
+    "seq": 29
   }
 ]

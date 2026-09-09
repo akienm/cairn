@@ -2,33 +2,35 @@
   {
     "claim": "proof test_hollow.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-09T10:22:43",
+    "date": "2026-09-09T10:32:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "cairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_hollow.py::test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_hollow.py::test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n12 passed, 12 warnings in 269.56s (0:04:29)",
+      "returncode": 1,
+      "stdout_tail": "    warnings.warn(\n\ncairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode\n  /home/akien/.cairn/venv/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_hollow.py::test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED test_hollow.py::test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow\nFAILED test_hollow.py::test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero\nFAILED test_hollow.py::test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway\nFAILED test_hollow.py::test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason\nFAILED test_hollow.py::test_an_unchanged_file_is_reported_unwritten_not_hollow\nFAILED test_hollow.py::test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree\nFAILED test_hollow.py::test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied\nFAILED test_hollow.py::test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow\nFAILED test_hollow.py::test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run\n9 failed, 3 passed, 3 warnings in 0.75s",
       "stderr_tail": "",
       "teeth_green": [
+        "test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand",
+        "test_a_run_that_could_not_be_measured_says_so_instead_of_passing",
+        "test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode"
+      ],
+      "teeth_red": [
         "test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow",
         "test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero",
         "test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway",
-        "test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand",
         "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
-        "test_a_run_that_could_not_be_measured_says_so_instead_of_passing",
         "test_an_unchanged_file_is_reported_unwritten_not_hollow",
         "test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree",
         "test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied",
-        "test_a_same_size_rewrite_inside_one_second_is_read_fresh_and_not_from_bytecode",
         "test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow",
-        "test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run"
+        "test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run",
+        "test_hollow"
       ],
-      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "185a81b07a2956abe57d5893bd8b3b2be054e865cee18e489c70a8396353a944",
+      "source_fingerprint": "ffb51fa0ec3308dc7f01905d5cfcfb9bc2dcd3e51c4c743eddd514fbad9d3fb1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -53,74 +55,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-15320-xe1qvvph/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-55916-t26arfal/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 94,
-          "paths": [
-            "logs/tester/0/20260909.161814.685368.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161815.402445.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161816.082308.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161816.831372.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161817.549150.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161818.266260.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161819.319597.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161820.001818.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161820.716400.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161832.243800.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161833.295840.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161834.427378.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161844.814996.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161845.670254.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161846.782837.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161847.620111.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161848.755357.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161849.846234.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161903.651878.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161905.064278.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161906.489442.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161920.347940.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161921.621361.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161923.015015.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161935.783204.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161936.814799.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161937.890427.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161949.738686.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161951.005581.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.161952.320344.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162004.983231.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162006.004078.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162007.069868.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162018.478309.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162019.790477.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162021.074007.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162033.417621.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162034.442703.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162035.591860.TesterDevice.run_proof.json",
-            "logs/tester/0/20260909.162046.401859.TesterDevice.run_proof.json"
-          ],
-          "elided": 54
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 114670476,
-          "disk_bytes": 123817984,
-          "entries": 3753,
+          "bytes": 114644436,
+          "disk_bytes": 123432960,
+          "entries": 3657,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_closed": {
+      "reseal_ladder": {
         "proof_sha256": "7f7184089519305a72999314abb3dd54c3fa9f4b255ae8367e47094633ae0905",
-        "opened": "2026-09-09T09:47:26",
-        "last_red": "2026-09-09T09:47:26",
+        "opened": "2026-09-09T10:32:51",
+        "last_red": "2026-09-09T10:32:51",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null,
-        "closed_at": "2026-09-09T10:22:43",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "7f7184089519305a72999314abb3dd54c3fa9f4b255ae8367e47094633ae0905"
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

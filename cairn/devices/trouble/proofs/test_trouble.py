@@ -1040,24 +1040,25 @@ def _dev_at(store) -> TroubleDevice:
     return dev
 
 
-# DERIVED, NOT TYPED OUT (2026-08-12). This was a hand-written roster of sixteen names, and
-# it caught its author the same hour: two new teeth were added above, the file printed
-# "16/16 green", and NEITHER NEW TOOTH HAD RUN. A hand roster beside the thing it lists is a
-# proxy for "every test in this module" that goes stale silently and in the safe-looking
-# direction — the proof gets greener, never redder. Same shape as the inspector's import
-# allowlist one directory over: a property typed out longhand. Ten other proof files in the
-# corpus still carry one; that is a corpus-wide finding, not ten quiet edits, and it is owed.
-TESTS = [fn for name, fn in sorted(globals().items())
-         if name.startswith("test_") and callable(fn)]
-
+# THE PRINTER MOVED TO ITS OWNER (2026-09-09), AND SO DID THE ROSTER.
+#
+# What stood here was a hand-derived ``TESTS`` list plus a loop that caught ``AssertionError``
+# and nothing else. Both halves were defects, and the second one was found by measurement, not
+# by reading: ``cairn test --hollow 9579a6f9cec6`` removes ``shim.py`` (absent before the
+# build) and asks which declared tooth reds. ``TroubleShim`` is imported INSIDE the teeth that
+# use it, so its absence raises ``ImportError`` — not an assertion — which escaped the loop,
+# killed the run mid-file, and printed ZERO teeth. The verb correctly reported UNREADABLE: the
+# reversion broke the instrument rather than failing a tooth. A tooth that dies for any reason
+# is a tooth that redded, and a runner that only understands one exception type says nothing
+# about the rest of the file when it meets another.
+#
+# The first half was already argued against one directory over, in ``print_teeth_main``'s own
+# docstring: the printer lives beside ``teeth_printed`` so the reader of the names and the
+# writer of the names are ONE component by construction. This file kept its own copy and drew
+# the predictable dividend — it was a copy that had drifted. Deleting it also retires the
+# hand roster the old comment here was apologising for (it caught its author in August 2026
+# when two new teeth were added and neither ran): pytest collects, so there is no roster to
+# go stale, in the safe-looking direction, ever again.
 if __name__ == "__main__":
-    failures = 0
-    for t in TESTS:
-        try:
-            t()
-            print(f"  ok   {t.__name__}")
-        except AssertionError as e:
-            failures += 1
-            print(f"  FAIL {t.__name__}: {e}")
-    print(f"\n{len(TESTS) - failures}/{len(TESTS)} green")
-    sys.exit(1 if failures else 0)
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

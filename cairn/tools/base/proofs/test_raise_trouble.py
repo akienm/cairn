@@ -49,7 +49,22 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base.address import log_path
-from cairn.tools.base.diagnostic import DiagnosticBase, ModuleRaiser, TroubleRaiseRefused
+from cairn.tools.base.diagnostic import DiagnosticBase
+
+# THE TWO NAMES THIS TICKET ADDED ARE IMPORTED INSIDE THE TEETH THAT USE THEM, AND THE REASON
+# IS A MEASUREMENT, not a style. ``cairn test --hollow 9579a6f9cec6`` reverts each writes_to
+# file and asks which declared tooth reds. When it reverted ``diagnostic.py`` this file was
+# unimportable — ``ModuleRaiser`` and ``TroubleRaiseRefused`` are what the build ADDED — so
+# every tooth died at module scope, the run printed no teeth at all, and the verb reported
+# UNREADABLE: the reversion broke the instrument instead of failing a tooth, so nothing said
+# whether a tooth checks that file. That is Law 10's distinction sitting in one import line —
+# "we have not built the measurement yet" wearing the clothes of "this cannot be measured."
+#
+# ``DiagnosticBase`` stays at module scope because it PRE-DATES the build (verified: the
+# pre-build class defines ``set_diagnostic_roots`` and ``emit`` and NOT ``raise_trouble``) and
+# ``_FixtureDevice`` below subclasses it at import time. So under the reversion the module
+# imports, the fixture builds, and clause (3)'s declared tooth reds on the missing METHOD —
+# which is the honest reading, and the one the verb was built to take.
 
 
 def _roots(tmp) -> dict:
@@ -191,6 +206,8 @@ def test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE(identity, why):
     not a report, it is a shrug. Both were already refused by ``TroubleDevice``; refusing
     them again here is not duplication, because the raiser and the holder are now different
     hands and a raise refused only at the far end is a raise that already landed on disk."""
+    from cairn.tools.base.diagnostic import TroubleRaiseRefused
+
     with tempfile.TemporaryDirectory() as tmp:
         d = _FixtureDevice()
         d.set_diagnostic_roots(_roots(tmp))
@@ -249,6 +266,8 @@ def test_a_MODULE_raiser_files_under_the_component_it_NAMES():
     objects, so they carry no class whose module address names them. A throwaway subclass
     would derive whatever module happened to define it — and a class under no rung gets no
     trail at all, which means the record HOLDS in a process about to exit."""
+    from cairn.tools.base.diagnostic import ModuleRaiser
+
     with tempfile.TemporaryDirectory() as tmp:
         ModuleRaiser("build_inspector", roots=_roots(tmp)).raise_trouble(
             "a-finding", why="a why")
@@ -260,6 +279,8 @@ def test_a_MODULE_raiser_files_under_the_component_it_NAMES():
 
 
 def test_an_UNNAMED_module_raiser_is_refused():
+    from cairn.tools.base.diagnostic import ModuleRaiser
+
     with pytest.raises(ValueError):
         ModuleRaiser("")
 

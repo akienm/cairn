@@ -23,9 +23,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.tester.hollow import (  # noqa: E402
-    HollowUnmeasurable, SKIP_INSTRUMENT, measure,
+    HollowUnmeasurable, SKIP_INSTRUMENT, _restore, measure,
 )
-from cairn.devices.tester.scratch import scratch_dir, scratch_worktree  # noqa: E402
+from cairn.devices.tester.scratch import git_env, scratch_dir, scratch_worktree  # noqa: E402
 from cairn.devices.tester.validation_store import (  # noqa: E402
     VALIDATION_FIELDS, read_validations, persist_validation, record_hollow,
 )
@@ -66,6 +66,14 @@ if __name__ == "__main__":
 
 
 def _git(repo, *args, **kw):
+    """Git against the FIXTURE repo — through the door's own env scrub, on purpose.
+
+    These fixtures build scratch repos, and a scratch repo is exactly what an inherited
+    ``GIT_INDEX_FILE`` steals: run under a git hook (which is how the reseal door runs proofs)
+    every ``git -C <fixture>`` here would resolve its index against the caller's tree instead.
+    Importing ``git_env`` rather than re-deriving the tuple keeps ONE answer to "which variables
+    lie about which repo" — and means these teeth exercise the door they depend on."""
+    kw.setdefault("env", git_env())
     return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, **kw)
 
 
@@ -79,7 +87,9 @@ def _fixture(tmp: Path, *, with_added: bool = False) -> tuple[Path, Path]:
     repo, commons = tmp / "repo", tmp / "commons"
     (repo / "proofs").mkdir(parents=True)
     (commons / "tickets").mkdir(parents=True)
-    env = {**os.environ, "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+    # git_env(), NOT os.environ: the identity fields are what this dict is FOR, and inheriting
+    # the rest is how a hook's GIT_INDEX_FILE reached the fixture repo (see _git above).
+    env = {**git_env(), "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
            "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
     _git(repo, "init", "-q", "-b", "main", env=env)
 
@@ -332,6 +342,41 @@ def test_a_run_that_could_not_be_measured_says_so_instead_of_passing():
     raise AssertionError("a ticket with no BUILDME crossing was measured instead of refused")
 
 
+def test_a_reversion_that_cannot_be_UNDONE_stops_the_run_instead_of_measuring_past_it():
+    """AN UNPERFORMED UNDO DOES NOT FAIL ITS OWN FILE — IT CORRUPTS EVERY FILE AFTER IT.
+
+    The run reverts one file at a time on top of HEAD and restores it before the next, so the
+    counterfactual is always \"everything as it stands, except this one file\". If the restore
+    silently does nothing, file N stays reverted while N+1 is measured: N+1's teeth red for a
+    reason that has nothing to do with N+1, that red is read as \"a declared tooth checks this
+    file\", and a file that really is hollow is reported ok. **A hollow read as green, produced
+    inside the verb whose entire job is catching one** — worse than a red, because a peer leans
+    on it (Law 8).
+
+    NOT HYPOTHETICAL, measured 2026-09-09: under a git hook's environment
+    (``GIT_INDEX_FILE=.git/index``, a RELATIVE path) this checkout resolved against the
+    caller's index instead of the worktree's and did exactly that — the tooth below this one in
+    the file asserted one hollow file and got none. ``git_env`` is the fix for that cause; this
+    tooth is the fix for the CLASS, because the next thing that stops a checkout will not be an
+    env var, and Law 3 says the un-taken measurement may not ride home in the clean return.
+
+    A directory that is no repository at all is the cheapest way to make the checkout fail for
+    a reason that is not the one already fixed — which is the point: the guard must not be
+    coupled to the env var that revealed it.
+    """
+    tmp = scratch_dir("cairn-hollowrestore-")
+    (tmp / "not_a_repo").mkdir()
+    (tmp / "not_a_repo" / "subject.py").write_text("VALUE = 1\n")
+    try:
+        _restore(tmp / "not_a_repo", "subject.py")
+    except HollowUnmeasurable as why:
+        assert "restore" in str(why) and "subject.py" in str(why), why
+        return True
+    raise AssertionError(
+        "a checkout that could not restore the reverted file returned quietly — every file "
+        "measured after it would be read against a tree still carrying the last reversion")
+
+
 def test_an_unchanged_file_is_reported_unwritten_not_hollow():
     """A no-op reversion reds nothing BY CONSTRUCTION — calling that hollow would be the
     right verdict reached for entirely the wrong reason, which is the coin-toss green."""
@@ -494,7 +539,9 @@ def _fixture_spread(tmp: Path, *, with_silent: bool = False) -> tuple[Path, Path
     repo, commons = tmp / "repo", tmp / "commons"
     (repo / "proofs").mkdir(parents=True)
     (commons / "tickets").mkdir(parents=True)
-    env = {**os.environ, "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+    # git_env(), NOT os.environ: the identity fields are what this dict is FOR, and inheriting
+    # the rest is how a hook's GIT_INDEX_FILE reached the fixture repo (see _git above).
+    env = {**git_env(), "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
            "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
     _git(repo, "init", "-q", "-b", "main", env=env)
 

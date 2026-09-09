@@ -116,12 +116,65 @@ def test_no_proof_in_this_repo_calls_mkdtemp_bare():
         "cairn.devices.tester.scratch.scratch_dir:\n  " + "\n  ".join(offenders))
 
 
+def test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook():
+    """THE TOOTH THAT WOULD HAVE CAUGHT IT, and it is written from a measurement rather than
+    from foresight: on 2026-09-09 ``test_hollow.py``'s STANDING SEAL was found red — nine
+    teeth failed in 0.75s, every one of them a tooth that makes a worktree — and the record's
+    caller was ``cairn test --reseal``, which the pre-commit hook fires on every commit.
+
+    Git exports ``GIT_DIR`` and ``GIT_INDEX_FILE`` into every hook it runs. The hook runs the
+    reseal door, the door runs each proof as a subprocess, and the subprocess inherits them —
+    so ``git worktree add`` was asked to work in the repository the COMMIT meant, not the one
+    the argument named. ``git -C <root>`` is no defence: GIT_DIR outranks it.
+
+    WHY A RED SEAL IS WORSE THAN A FAILED RUN, which is the reason this tooth exists at all:
+    the reseal door does four things with a red — replaces the standing record, bounds a
+    repair to the proof's current bytes, opens a ladder, files a trouble. So a commit that
+    staged the right file replaced a GREEN seal with a RED one and demanded repair of a proof
+    that was never broken. The machinery built to protect the record wrote the contradiction
+    into it (Law 7).
+
+    ASSERTED THROUGH THE ENVIRONMENT, not through ``_git_env`` directly, because the thing
+    that must hold is that a worktree HAPPENS under a hook's environment — reading the
+    scrubber's return value would pass just as happily if nothing ever called it."""
+    import os
+    import subprocess as sp
+    from cairn.devices.tester.scratch import scratch_worktree
+
+    head = sp.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
+                  capture_output=True, text=True).stdout.strip()
+    # EXACTLY WHAT GIT EXPORTS, measured rather than assumed — and the first version of this
+    # tooth got it wrong in the direction that passes. It set an ABSOLUTE ``GIT_DIR``, which
+    # git honours happily, so the tooth went green against the unfixed door. Running a real
+    # commit against a scratch repo whose hook dumps ``env | grep ^GIT_`` shows git sets
+    # ``GIT_INDEX_FILE=.git/index`` — RELATIVE — and ``GIT_PREFIX=``, and does not set
+    # ``GIT_DIR`` at all. The relative path is the whole defect: it resolves against whatever
+    # directory the child happens to be in, which is not the one the hook was standing in.
+    hooked = dict(os.environ, GIT_INDEX_FILE=".git/index", GIT_PREFIX="")
+    body = (f"import os\nos.environ.update({hooked!r})\n"
+            "from cairn.devices.tester.scratch import scratch_worktree\n"
+            f"wt = scratch_worktree({head!r}, repo_root={str(REPO)!r})\n"
+            "assert (wt / 'cairn' / 'devices' / 'tester' / 'scratch.py').is_file(), wt\n"
+            "print(wt)\n")
+    path, stderr = _in_a_dead_process(body)
+    assert path, stderr
+
+    # AND THE REGISTRATION WENT WITH IT. A hook environment that produced a worktree the
+    # sweep could not deregister would trade a loud failure for a quiet leak.
+    listed = sp.run(["git", "-C", str(REPO), "worktree", "list"],
+                    capture_output=True, text=True).stdout
+    assert path not in listed, (
+        f"the worktree made under a hook environment is still registered: {path}")
+    return True
+
+
 def _main() -> int:
     checks = [
         test_the_scratch_is_gone_once_the_process_is,
         test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something,
         test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal,
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
+        test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,
     ]
     for check in checks:
         check()

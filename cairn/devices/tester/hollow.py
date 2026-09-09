@@ -87,7 +87,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from cairn.devices.tester.scratch import scratch_worktree
+from cairn.devices.tester.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -154,7 +154,7 @@ def _buildme_at(ticket: dict, crossing: dict, repo_root: Path = REPO_ROOT) -> st
 
 def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
     proc = subprocess.run(["git", "-C", str(repo_root), "rev-list", "-1", f"--before={at}", "HEAD"],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, env=git_env())
     commit = proc.stdout.strip()
     if proc.returncode != 0 or not commit:
         raise HollowUnmeasurable(
@@ -287,13 +287,13 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
     """
     target = worktree / rel
     probe = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e", f"{commit}:{rel}"],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, env=git_env())
     if probe.returncode != 0:
         if target.exists():
             target.unlink()
         return "removed (absent before the build)"
     blob = subprocess.run(["git", "-C", str(repo_root), "show", f"{commit}:{rel}"],
-                          capture_output=True)
+                          capture_output=True, env=git_env())
     if blob.returncode != 0:
         raise HollowUnmeasurable(f"hollow: could not read {rel} at {commit}: {blob.stderr.decode()!r}")
     if target.is_file() and target.read_bytes() == blob.stdout:
@@ -309,8 +309,32 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
 
 
 def _restore(worktree: Path, rel: str) -> None:
-    """Back to the worktree's own HEAD — checkout restores a removed file as well as a changed one."""
-    subprocess.run(["git", "-C", str(worktree), "checkout", "--", rel], capture_output=True, text=True)
+    """Back to the worktree's own HEAD — checkout restores a removed file as well as a changed one.
+
+    AND IT RAISES WHEN IT CANNOT, because a silent failure here does not fail this file — it
+    CORRUPTS EVERY FILE AFTER IT. The run reverts one file at a time on top of HEAD and undoes
+    each before the next, so an unperformed undo leaves file N reverted while file N+1 is being
+    measured; N+1's teeth then red for a reason that has nothing to do with N+1, that red is
+    read as "a declared tooth checks this file", and a file that really is hollow is reported
+    ``ok``. **That is a hollow read as green, inside the verb whose whole job is catching one**
+    — the failure Law 8 calls worse than a red, because a peer leans on it.
+
+    MEASURED 2026-09-09 and that is why it raises now: under a git hook's environment
+    (``GIT_INDEX_FILE=.git/index``, relative) this checkout resolved against the CALLER's index
+    instead of the worktree's, did nothing, said nothing, returned nothing to look at — and
+    ``test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run`` asserted one
+    hollow file and got none. The env scrub below is the fix for that cause; this raise is the
+    fix for the CLASS, because the next thing that stops a checkout will not be an env var and
+    the verb must not go on measuring past it (Law 3: a measurement that could not be taken may
+    not travel home through the same return as a clean one).
+    """
+    proc = subprocess.run(["git", "-C", str(worktree), "checkout", "--", rel],
+                          capture_output=True, text=True, env=git_env())
+    if proc.returncode != 0:
+        raise HollowUnmeasurable(
+            f"hollow: could not restore {rel} in {worktree} after reverting it "
+            f"({proc.stderr.strip()!r}). Every file measured after this one would be read "
+            f"against a tree still carrying the last reversion, so the run stops here.")
 
 
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
@@ -376,7 +400,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     # file as it was. So HEAD is the ground and each revert is a single edit on top of it,
     # undone before the next.
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
-                          capture_output=True, text=True).stdout.strip()
+                          capture_output=True, text=True, env=git_env()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
     log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} (BUILDME at {at})")
 

@@ -1,22 +1,27 @@
 [
   {
     "claim": "proof test_slate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T08:55:48",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:41:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   picks the later WRITTEN_AT\n  ok   does NOT pick the alphabetically-last filename\n  ok   no ambiguity warning when the winner is stamped\n  ok   exit 0\n\n    ...and an unstamped record of the same day ranks below a stamped one\n  ok   stamped still wins\n  ok   unstamped does not win\n\n    ...and a day of only-unstamped slates is named as a guess, not an answer\n  ok   says the ranking fell back to filename order\n  ok   names how many slates share the date\n  ok   still restores a slate\n  ok   still exit 0\n\n    ...and a lone unstamped slate does not cry ambiguity\n  ok   no warning for a lone unstamped slate\n  ok   restores it\n\n92/92 green",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "source_fingerprint": "2684adc5be8261d83c224c3e12d433dd1adec4a85c57fb08684080e7d37da26a",
+      "fingerprint_closure": [
+        "bin/proofs/test_slate.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-gorrpg_5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-zqwtyi6x/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

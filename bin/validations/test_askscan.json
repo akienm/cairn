@@ -1,22 +1,31 @@
 [
   {
     "claim": "proof test_askscan.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T08:52:08",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:39:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   the fragment 'by line?' is below the floor and is silent\n  ok   the fragment 'Which?' is below the floor and is silent\n  ok   a retraction names how many rows it actually retracted\n  ok   and it APPENDS — the retracted row is still on disk, byte for byte\n  ok   the reader applies it: 0 standing, 1 retracted, 1 correction\n  ok   a correction row is never itself counted as a gap\n  ok   the door refuses a retraction matching no standing row\n  ok   a correction without a question is refused\n  ok   a correction without a reason is refused\n  ok   a correction without a authority is refused\n  ok   a correction never reaches forward over rows not yet written\n  ok   --corpus runs green over the real transcripts\n  ok   it reports attendance, not only objections — turns, era, packets on disk\n  ok   it reports the SUBTRACTION by name, so the calibration is arguable\n  ok   it reports a red COUNT\n  ok   the red rate is under the 5% ceiling\n  ok   and it is not vacuously silent — the rule fired on real history\n  ok   the proof wrote NOTHING to the production ledger it proves\n\n40/40 green",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "source_fingerprint": "f96d9432a07b89ce3a80e6ef66fb89058c0a6d907718cb6fe527a77b773a5fd0",
+      "fingerprint_closure": [
+        "bin/proofs/test_askscan.py",
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-b6qd2noh/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-y4jpq8__/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

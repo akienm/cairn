@@ -1,19 +1,66 @@
 [
   {
     "claim": "proof test_chart_moreabout.py passes under python3",
-    "caller": "import-map-scan 2026-07-28 (the first brick-loop correction: capability-measured imports)",
-    "date": "2026-07-28T16:43:26",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:34:09",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_walk_sees_deposited_state_floor_labeled\n  PASS  test_under_floor_is_honest_never_empty\n  PASS  test_berthed_state_attaches_only_what_exists\n  PASS  test_the_signal_lands_dated\n  PASS  test_refusals_leave_the_tree_where_it_stood\n  PASS  test_a_repeat_ask_is_readable_frequency\n  PASS  test_a_walk_never_a_rerun_import_physics\ngreen — chart/moreabout: the walk sees deposited state under a labeled floor, under-floor is honest never empty, berths attach only what exists, the signal lands dated and dedups readably, refusals leave the tree standing, and a re-run is impossible by import physics",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_walk_sees_deposited_state_floor_labeled",
+        "test_under_floor_is_honest_never_empty",
+        "test_berthed_state_attaches_only_what_exists",
+        "test_the_signal_lands_dated",
+        "test_refusals_leave_the_tree_where_it_stood",
+        "test_a_repeat_ask_is_readable_frequency",
+        "test_a_walk_never_a_rerun_import_physics"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "25cf43b20337bd434aafc8b6018a4891f688910257085789f4aaf795e5b8a4f5"
+      "source_fingerprint": "a7ea1bec70e4df857b80ccd8f324ff9db84636103f19669cdc03c9cd6f1253d9",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/loop.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/tree/__init__.py",
+        "cairn/tools/tree/tree.py",
+        "skills/__init__.py",
+        "skills/moreabout/__init__.py",
+        "skills/moreabout/moreabout.py",
+        "skills/moreabout/proofs/test_chart_moreabout.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-r7ztui7l/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

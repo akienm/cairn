@@ -1,22 +1,57 @@
 [
   {
     "claim": "proof test_compiler.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:59:02",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:29:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\n  PASS  test_verify_catches_a_drifted_copy\n  PASS  test_verify_catches_a_missing_copy\n  PASS  test_verify_catches_an_extra_file\n  PASS  test_verify_ignores_underscore_prefixed_files\n  PASS  test_verify_does_not_write\n  PASS  test_verify_reports_green_over_a_clean_lab\n  PASS  test_verify_on_the_real_repo\ngreen — intentions_model_compiler (15 teeth): the copier (byte-identical, reaches both trees, removes stale, overwrites drift, collision raises, store charter untouched, deterministic) + verify_lab (catches drift/missing/extra, ignores _-prefixed, never writes, green on clean lab, green on the real repo)",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_copy_is_byte_identical_to_its_source",
+        "test_every_charter_in_the_repo_is_copied_not_just_the_package",
+        "test_a_removed_source_removes_its_copy",
+        "test_a_hand_edited_copy_is_overwritten",
+        "test_the_store_charter_is_never_touched",
+        "test_a_name_collision_is_loud_never_last_write_wins",
+        "test_the_plan_is_deterministic",
+        "test_the_real_repo_reaches_both_trees_and_every_charter",
+        "test_verify_catches_a_drifted_copy",
+        "test_verify_catches_a_missing_copy",
+        "test_verify_catches_an_extra_file",
+        "test_verify_ignores_underscore_prefixed_files",
+        "test_verify_does_not_write",
+        "test_verify_reports_green_over_a_clean_lab",
+        "test_verify_on_the_real_repo"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c35c35333f1255437f2bfa5821eddab7c7c0b8dc682fd2d0f2d5741459dc0062",
+      "source_fingerprint": "6dcbb3f6936a9d4249f7e3ab10cfa7c0f77a6b9367cb2cddf6fc1005b6d31bed",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/intentions_model_compiler/__init__.py",
+        "cairn/tools/intentions_model_compiler/compiler.py",
+        "cairn/tools/intentions_model_compiler/proofs/test_compiler.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-62j6w_y7/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-wycjfzpv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

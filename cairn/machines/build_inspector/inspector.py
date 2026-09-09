@@ -3338,45 +3338,41 @@ def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
 
 
 def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
-    """Clear troubles whose inspector condition no longer holds. Returns count cleared.
+    """Hand trouble the complete current finding set; it clears what no longer stands.
 
-    OVER THE BUS, because clearing is the OWNER'S act (Law 6) in a way raising is not. A
-    raise is append-only and needs no addressee; a clear reads the store, decides, and
-    writes it back — which is exactly the read-modify-write that has to happen in one
-    hand. So this half pays for a bus and the raise half does not, and the asymmetry is
-    the ownership line, not an inconsistency.
+    Returns the number of identities reported still-standing — NOT a count of clears, which
+    this side no longer knows and no longer should. That is the whole change (2026-09-08,
+    completing ticket 9579a6f9cec6).
 
-    A lane we cannot reach leaves the stale troubles standing. That is the safe
-    direction: an uncleared trouble is loud and wrong, a silently-cleared one is quiet
-    and wrong (Law 7)."""
-    still_finding = {
+    WHAT THIS REPLACED AND WHY THE OLD SHAPE'S REASONING SURVIVES INTACT. Until today this
+    asked trouble for its live list over the bus, computed the difference here, and sent a
+    `clear` per stale one — on the reasoning that clearing is a read-modify-write and so
+    belongs to the one hand that owns the store. That reasoning was correct. The conclusion
+    was not: it put the READ and the DIFFERENCE on this side and only the WRITE on trouble's,
+    and it made this module a bus client. ``cairn.tools.base.bus_client`` imports
+    ``inference_domain`` and, through the bus device, ``db_domain`` — so the build inspector,
+    the one machine that must be able to reach no graph tree, no database and no host, could
+    statically reach all three. Its OWN sieve caught it: ``fire_path_unreachable``, 4 findings,
+    tracing ``inspector -> bus_client -> {bus.bus, inference_domain.domain, inference_domain.host}``.
+    The gate refused a PROVED crossing on it, which is the gate doing exactly its job.
+
+    So the ask became an emission and the whole read-modify-write moved to the owner. The
+    asymmetry the old docstring defended is not gone — it MOVED to where it was always true:
+    sending is a tool (this side, one file under our own log home, no dial), holding is owned
+    (trouble's shim reads its store, computes the difference, and writes).
+
+    A lane we cannot reach leaves the stale troubles standing. That is still the safe
+    direction: an uncleared trouble is loud and wrong, a silently-cleared one is quiet and
+    wrong (Law 7). The emission is on disk either way, and the beat drains it."""
+    still = sorted({
         _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
         for f in current_findings
-    }
-    from cairn.tools.base.bus_client import reach
-    bus = reach("trouble")
-    reply = bus.request(sender="build_inspector", to="trouble", verb="live",
-                        why="reconcile findings against standing troubles")
-    body = reply.get("body") or {}
-    if "troubles" not in body:
-        raise RuntimeError(
-            f"trouble answered `live` without a troubles list: {body!r} — reconcile "
-            f"cannot tell 'no troubles' from 'could not ask'")
-    cleared = 0
-    for trouble in body["troubles"]:
-        tid = trouble.get("id", "")
-        if not tid.startswith("inspector-new-finding-"):
-            continue
-        if tid not in still_finding:
-            bus.request(
-                sender="build_inspector", to="trouble", verb="clear",
-                why="the raising condition is gone from the current findings",
-                body={"identity": tid, "by": "cc",
-                      "what_changed": "build inspector reconcile: the condition that "
-                                      "raised this trouble no longer appears in the "
-                                      "current findings"})
-            cleared += 1
-    return cleared
+    })
+    _raiser().reconcile_troubles(
+        "inspector-new-finding-", still, by="cc",
+        what_changed=("build inspector reconcile: the condition that raised this trouble no "
+                      "longer appears in the current findings"))
+    return len(still)
 
 
 def _main(argv: list[str]) -> int:
@@ -3387,9 +3383,9 @@ def _main(argv: list[str]) -> int:
         count = _file_troubles_for_new_findings(new)
         report["unbaselined_findings"] = new
         print(f"!! {count} finding(s) above baseline — trouble(s) filed", file=sys.stderr)
-    reconciled = _reconcile_cleared_findings(all_findings)
-    if reconciled:
-        print(f"-- {reconciled} stale trouble(s) cleared by reconcile", file=sys.stderr)
+    standing = _reconcile_cleared_findings(all_findings)
+    print(f"-- reconcile emitted: {standing} finding identit(ies) still standing; trouble "
+          f"clears the rest at its drain", file=sys.stderr)
     print(json.dumps(report, indent=2))
     return 0 if report["gate"]["opens"] else 1
 

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_trouble_panel.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T20:04:18",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:01:25",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_render_trouble_red_light_live\n.\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_probe_enough_returns_bool\n                                                           [100%]\n14 passed in 0.21s",
+      "stdout_tail": ".\n  ok   test_render_trouble_red_light_live\n.\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_probe_enough_returns_bool\n                                                           [100%]\n14 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_declared_panes_has_trouble",
@@ -27,21 +27,55 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "85d35fc6835565295cf0fe970c57177655ba904a10b90000f34f6e5822dc5845",
+      "source_fingerprint": "ca880b267e936b20dfb6c40959ac49bd16d505168835e3ab110a51fede763d89",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/device.py",
+        "cairn/devices/cairn/probes/trouble_panel_surfaces_live_troubles.py",
+        "cairn/devices/cairn/proofs/test_trouble_panel.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/shim.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/devices/web_server/__init__.py",
+        "cairn/devices/web_server/listener.py",
+        "cairn/devices/web_server/render.py",
+        "cairn/devices/web_server/server.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/bus_client.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2507305-crd9zkkw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-h6vw5oq9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20260908.020405.512449.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20260908.020405.519092.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20260908.020405.520969.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20260909.000119.075137.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20260909.000119.078064.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20260909.000119.078988.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         }

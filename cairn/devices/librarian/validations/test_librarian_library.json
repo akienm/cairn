@@ -1,35 +1,71 @@
 [
   {
     "claim": "proof test_librarian_library.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:10:19",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:10:32",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_shelve_freezes_a_copy_and_registers_its_digest\n  PASS  test_reshelve_same_content_writes_nothing\n  PASS  test_a_standing_address_never_changes_meaning\n  PASS  test_room_addresses_are_disciplined\n  PASS  test_passages_cite_raw_positions_forever\n  PASS  test_learn_deposits_every_passage_anchored_to_the_shelf\n  PASS  test_relearn_writes_nothing\n  PASS  test_learn_refuses_the_unshelved_the_missing_and_the_rotted\n  PASS  test_binary_shelves_but_refuses_to_learn\n  PASS  test_learned_nodes_resolve_with_their_citation_intact\n  PASS  test_the_learn_crossing_breadcrumbs\n  PASS  test_library_opens_no_door_of_its_own\ngreen — librarian/library: shelved is frozen, rot is loud, citations are positions in the frozen file, learn is deposit-only and anchored, learned nodes resolve as structure with their citations intact, and the library opens no door of its own",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_shelve_freezes_a_copy_and_registers_its_digest",
+        "test_reshelve_same_content_writes_nothing",
+        "test_a_standing_address_never_changes_meaning",
+        "test_room_addresses_are_disciplined",
+        "test_passages_cite_raw_positions_forever",
+        "test_learn_deposits_every_passage_anchored_to_the_shelf",
+        "test_relearn_writes_nothing",
+        "test_learn_refuses_the_unshelved_the_missing_and_the_rotted",
+        "test_binary_shelves_but_refuses_to_learn",
+        "test_learned_nodes_resolve_with_their_citation_intact",
+        "test_the_learn_crossing_breadcrumbs",
+        "test_library_opens_no_door_of_its_own"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "402184ccffef7438d32227c6dee13a5eb28852ae5b1520660063a1da126a697d",
+      "source_fingerprint": "a4976b1a2bab406c6805f51cf5382946ba30e45f2ffc0f903dd82c9afadea12c",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/library.py",
+        "cairn/devices/librarian/proofs/test_librarian_library.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-iequivje/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-ds3k71lq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/librarian/0/20260907.151014.437775.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.458884.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.459149.LibrarianDevice.learn.json",
-            "logs/librarian/0/20260907.151014.516976.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.540437.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.540770.LibrarianDevice.learn.json",
-            "logs/librarian/0/20260907.151014.591877.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.627864.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20260907.151014.628092.LibrarianDevice.learn.json"
+            "logs/librarian/0/20260909.001026.210453.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.229390.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.229581.LibrarianDevice.learn.json",
+            "logs/librarian/0/20260909.001026.267210.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.280049.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.280244.LibrarianDevice.learn.json",
+            "logs/librarian/0/20260909.001026.316478.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.343481.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20260909.001026.343666.LibrarianDevice.learn.json"
           ],
           "elided": 0
         }

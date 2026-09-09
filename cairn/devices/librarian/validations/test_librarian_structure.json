@@ -1,22 +1,42 @@
 [
   {
     "claim": "proof test_librarian_structure.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:10:55",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:11:35",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "collecting ... collected 16 items\n\ntest_librarian_structure.py::test_attractor_of_an_empty_tree_is_none PASSED [  6%]\ntest_librarian_structure.py::test_attractor_is_the_centroid PASSED       [ 12%]\ntest_librarian_structure.py::test_attractor_of_one_node_is_that_node PASSED [ 18%]\ntest_librarian_structure.py::test_calve_below_threshold_returns_none PASSED [ 25%]\ntest_librarian_structure.py::test_calve_splits_into_two_children PASSED  [ 31%]\ntest_librarian_structure.py::test_calve_children_have_distinct_attractors PASSED [ 37%]\ntest_librarian_structure.py::test_calve_links_survive_split PASSED       [ 43%]\ntest_librarian_structure.py::test_link_id_is_direction_independent PASSED [ 50%]\ntest_librarian_structure.py::test_link_creates_and_updates PASSED        [ 56%]\ntest_librarian_structure.py::test_linked_returns_both_directions PASSED  [ 62%]\ntest_librarian_structure.py::test_traverse_increments_count PASSED       [ 68%]\ntest_librarian_structure.py::test_traverse_nonexistent_returns_none PASSED [ 75%]\ntest_librarian_structure.py::test_link_neighbors_creates_links PASSED    [ 81%]\ntest_librarian_structure.py::test_route_ranks_by_attractor_proximity PASSED [ 87%]\ntest_librarian_structure.py::test_route_skips_empty_trees PASSED         [ 93%]\ntest_librarian_structure.py::test_route_respects_k PASSED                [100%]\n\n============================== 16 passed in 4.23s ==============================",
+      "stdout_tail": "collecting ... collected 16 items\n\ntest_librarian_structure.py::test_attractor_of_an_empty_tree_is_none PASSED [  6%]\ntest_librarian_structure.py::test_attractor_is_the_centroid PASSED       [ 12%]\ntest_librarian_structure.py::test_attractor_of_one_node_is_that_node PASSED [ 18%]\ntest_librarian_structure.py::test_calve_below_threshold_returns_none PASSED [ 25%]\ntest_librarian_structure.py::test_calve_splits_into_two_children PASSED  [ 31%]\ntest_librarian_structure.py::test_calve_children_have_distinct_attractors PASSED [ 37%]\ntest_librarian_structure.py::test_calve_links_survive_split PASSED       [ 43%]\ntest_librarian_structure.py::test_link_id_is_direction_independent PASSED [ 50%]\ntest_librarian_structure.py::test_link_creates_and_updates PASSED        [ 56%]\ntest_librarian_structure.py::test_linked_returns_both_directions PASSED  [ 62%]\ntest_librarian_structure.py::test_traverse_increments_count PASSED       [ 68%]\ntest_librarian_structure.py::test_traverse_nonexistent_returns_none PASSED [ 75%]\ntest_librarian_structure.py::test_link_neighbors_creates_links PASSED    [ 81%]\ntest_librarian_structure.py::test_route_ranks_by_attractor_proximity PASSED [ 87%]\ntest_librarian_structure.py::test_route_skips_empty_trees PASSED         [ 93%]\ntest_librarian_structure.py::test_route_respects_k PASSED                [100%]\n\n============================== 16 passed in 4.14s ==============================",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "402184ccffef7438d32227c6dee13a5eb28852ae5b1520660063a1da126a697d",
+      "source_fingerprint": "421d57936ab904bdb04270769ec2403306d31929ba4915a067506e7e3d9c5fd6",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/proofs/test_librarian_structure.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-7x6hzb51/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-lryhauwd/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

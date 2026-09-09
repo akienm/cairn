@@ -337,17 +337,97 @@ class DiagnosticBase:
                 "it is a shrug")
         record = self.emit("raise_trouble", pointer=identity,
                            values={"why": why, "detail": detail or {}}, now=now)
+        return self._poke_trouble_lane(record)
+
+    def _poke_trouble_lane(self, record: dict) -> dict:
+        """Tell the holder an emission landed, and say on the record how that went.
+
+        Shared by all three trouble emissions because the latency argument is the same for
+        each: the record is already on disk, so the beat WILL find it; the poke only buys
+        "now" instead of "next pulse". A refused poke is never an exception out of here —
+        a send that blew up its caller because the listener was down would make reporting
+        more dangerous than staying quiet (Law 7 — loud, but at the diagnostic surface).
+        """
         notifier = getattr(self, "_trouble_notifier", None)
         if notifier is None:
             record["poke"] = "held for the beat — no notifier wired"
             return record
         try:
             notifier(record)
-        except Exception as exc:  # noqa: BLE001 — see the docstring: the record already landed
+        except Exception as exc:  # noqa: BLE001 — see above: the record already landed
             record["poke"] = f"refused: {type(exc).__name__}: {exc}"
         else:
             record["poke"] = "sent"
         return record
+
+    def clear_trouble(self, identity: str, *, by: str, what_changed: str,
+                      now=None) -> dict:
+        """Say a fault is fixed. The SEND half of a clear — the holder still decides.
+
+        SENDING IS A TOOL, HOLDING IS OWNED, and this is the sentence's other half arriving
+        (ticket 9579a6f9cec6, completed 2026-09-08). ``raise_trouble`` shipped as an
+        emission; clearing shipped as a BUS REQUEST, on the reasoning that a clear is a
+        read-modify-write and so must happen in the one hand that owns the store. That
+        reasoning was right and the conclusion did not follow: what must happen in the
+        owner's hand is the DECIDING and the WRITING, not the ASKING. A bus request made
+        the asker dial the bus — and ``cairn.tools.base.bus_client`` reaches
+        ``inference_domain`` and, through the bus device, ``db_domain``, so every clearer
+        statically reached a database and a host. The build inspector's own
+        ``fire_path_unreachable`` sieve measured it and reds the machine that must reach
+        neither. So the ask becomes an emission like the raise, and the read-modify-write
+        stays exactly where 433cdc9 put it: in the trouble device's process, at the drain.
+
+        THE HOLDER MAY DECLINE, AND THAT IS THE POINT. A clear for a trouble that is not
+        live is dropped by the drain, not refused back at the sender: the sender is
+        reporting what it observed, and whether that observation clears a standing ticket
+        is the owner's judgment (Law 6). ``what_changed`` is required for the same reason
+        it is required at the owner's door — "it stopped happening" is not a fix.
+        """
+        if not (identity or "").strip():
+            raise TroubleRaiseRefused(
+                "a clear names the identity it clears — an unnamed all-clear cannot be "
+                "matched to the defect it claims to have fixed")
+        if not (what_changed or "").strip():
+            raise TroubleRaiseRefused(
+                "a clear carries what_changed — 'it stopped happening' is not a fix, and "
+                "recording it as one is how a fault comes back unexplained")
+        record = self.emit("clear_trouble", pointer=identity,
+                           values={"by": by, "what_changed": what_changed}, now=now)
+        return self._poke_trouble_lane(record)
+
+    def reconcile_troubles(self, scope: str, still: list[str], *, by: str,
+                           what_changed: str, now=None) -> dict:
+        """Hand the holder a COMPLETE current picture under ``scope``; it clears the rest.
+
+        WHY THIS EXISTS BESIDE ``clear_trouble``, WHICH LOOKS LIKE IT WOULD DO. A reconciler
+        does not know which troubles are stale without READING the store, and reading it is
+        the holder's business — over the bus (which is the fire path this whole change
+        closes) or by importing the trouble device (which is the isolation red the ticket
+        was cast against). Both routes are shut, so the shape that survives is the one that
+        needs no read at all: the reporter states everything it currently observes, and the
+        owner — who already holds the store — computes the difference. That is a strictly
+        better division than "clear this one" anyway: it moves both halves of the
+        read-modify-write into the one hand, instead of only the write.
+
+        ``scope`` is an identity PREFIX, so a reporter reconciles its own troubles and can
+        say nothing about anyone else's. ``still`` is the complete set of identities under
+        that scope observed right now — an EMPTY list is a real and meaningful value
+        ("everything under my scope is gone"), which is why a reconcile is a distinct act
+        from a clear and not a clear with an empty argument.
+        """
+        if not (scope or "").strip():
+            raise TroubleRaiseRefused(
+                "a reconcile names the scope it speaks for — a scopeless reconcile claims "
+                "authority over every trouble in the store, including troubles it has no "
+                "way to observe")
+        if not (what_changed or "").strip():
+            raise TroubleRaiseRefused(
+                "a reconcile carries what_changed — the sentence that will stand as the "
+                "resolution on every ticket it clears")
+        record = self.emit("reconcile_troubles", pointer=scope,
+                           values={"by": by, "what_changed": what_changed,
+                                   "still": sorted(set(still or []))}, now=now)
+        return self._poke_trouble_lane(record)
 
     def held_diagnostics(self) -> list[dict]:
         """Records emitted with no home to send to — HELD, not lost (Law 7). A non-empty list

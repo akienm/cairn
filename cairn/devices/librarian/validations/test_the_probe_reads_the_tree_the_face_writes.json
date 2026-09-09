@@ -1,22 +1,53 @@
 [
   {
     "claim": "proof test_the_probe_reads_the_tree_the_face_writes.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:12:01",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:13:33",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_census_sees_a_node_the_faces_tree_holds\n  PASS  test_the_census_is_not_a_pass_through\n  PASS  test_the_predicates_are_fed_by_the_census\n  PASS  test_a_severed_census_stands_down_silently\n  PASS  test_the_probe_declares_a_probe_and_stays_a_reader\ngreen — the probe's census reads tree='library', the same tree LibrarianShim's own signature declares the live face writes: a node the face's tree holds is seen, a neighbour's is not, both halves of the tenure loop reach the predicates, and a severed census is proved to stand down in silence rather than go loud",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_census_sees_a_node_the_faces_tree_holds",
+        "test_the_census_is_not_a_pass_through",
+        "test_the_predicates_are_fed_by_the_census",
+        "test_a_severed_census_stands_down_silently",
+        "test_the_probe_declares_a_probe_and_stays_a_reader"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "402184ccffef7438d32227c6dee13a5eb28852ae5b1520660063a1da126a697d",
+      "source_fingerprint": "e481f335da9e730149bf7dc15f15c4fa66a66ffb59e4ea4f06f1a25b263c371b",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/loop.py",
+        "cairn/devices/librarian/probes/standing_moves_under_live_use.py",
+        "cairn/devices/librarian/proofs/test_the_probe_reads_the_tree_the_face_writes.py",
+        "cairn/devices/librarian/shim.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-ab4qdzts/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-sqek9tg1/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

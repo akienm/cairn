@@ -592,18 +592,23 @@ def persist_validation(
                         f"{record.get('caller', '?')} ({record.get('date', '?')})")
         try:
             if trouble_device is not None:
+                # THE OWNER ITSELF, injected by a proof that holds the store under a temp
+                # root. It can write directly because it IS the one hand; nobody else can.
                 trouble_device.clear(identity, by="cc", what_changed=what_changed)
             else:
-                # OVER THE BUS, unlike the raise above (ticket 9579a6f9cec6). Clearing reads
-                # the store, decides, and writes it back, so it belongs to the one hand that
-                # owns it; raising is append-only and needs no addressee. The asymmetry IS
-                # the ownership line (Law 6), not an inconsistency.
-                from cairn.tools.base.bus_client import reach
-                reach("trouble").request(
-                    sender="tester", to="trouble", verb="clear",
-                    why="the changed verdict came back green on a re-seal",
-                    body={"identity": identity, "by": "cc",
-                          "what_changed": what_changed})
+                # AN EMISSION, LIKE THE RAISE ABOVE (ticket 9579a6f9cec6, completed
+                # 2026-09-08). This was a bus request, on the reasoning that a clear is a
+                # read-modify-write and so belongs to the hand that owns the store. The
+                # reasoning holds; the bus was the wrong way to reach that hand. Dialing it
+                # pulls in ``bus_client``, which imports ``inference_domain`` and reaches
+                # ``db_domain`` through the bus device — and this module sits on the build
+                # inspector's own import path (``transitions -> validation_store``), so the
+                # tester's clear was half of why the inspector could statically reach a
+                # database. Now the ask is a breadcrumb and the fold is trouble's, which is
+                # where the read-modify-write was always supposed to happen.
+                from cairn.tools.base.diagnostic import ModuleRaiser
+                ModuleRaiser("tester").clear_trouble(
+                    identity, by="cc", what_changed=what_changed)
         except Exception:
             pass
     return path

@@ -41,7 +41,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.device import BaseDevice
-from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.base.diagnostic import DiagnosticBase, TroubleRaiseRefused
 from cairn.tools.base.shim import BaseShim
 
 
@@ -145,20 +145,127 @@ def test_the_breadcrumb_is_data_the_interpreter_can_crawl():
     assert json.loads(json.dumps(box)) == box, "the mailbox round-trips — pure data, crawlable"
 
 
+
+# ---------------------------------------------------------------------------
+# THE SEND DOORS THAT ARE NOT ``raise`` — clear_trouble and reconcile_troubles.
+#
+# Both cross the SAME seam as ``raise_trouble``: they emit, and the holder decides. Which
+# means the sender's only real power is what it PUTS ON THE RECORD, and these teeth are
+# over the one thing a sender can get wrong on its own — sending a resolution nobody can
+# read a year later. A refusal here costs one fix; an emission here is a fold in the
+# owner's store, and the store is a record of truth (Law 7).
+#
+# ``_Device`` sits under no rung (``__module__`` is ``"__main__"``), so its emissions HOLD
+# in memory and reach no disk — which is what lets these teeth assert "nothing was sent"
+# without a temp-root world.
+
+def test_a_clear_WITHOUT_AN_IDENTITY_is_REFUSED_before_anything_is_sent():
+    dev = _Device()
+    try:
+        dev.clear_trouble("   ", by="cc", what_changed="the sieve is green now")
+    except TroubleRaiseRefused as exc:
+        assert "identity" in str(exc), "the refusal names WHICH field is missing, not just that one is"
+    else:
+        raise AssertionError("an unnamed all-clear was sent — it cannot be matched to any defect")
+    assert dev.held_diagnostics() == [], "the refusal fired BEFORE the emission — nothing crossed"
+
+
+def test_a_clear_WITHOUT_WHAT_CHANGED_is_REFUSED_because_it_stopped_happening_is_not_a_fix():
+    dev = _Device()
+    try:
+        dev.clear_trouble("inspector-new-finding-alpha", by="cc", what_changed="")
+    except TroubleRaiseRefused as exc:
+        assert "what_changed" in str(exc), "the refusal names the field"
+    else:
+        raise AssertionError("a clear landed with no account of the fix — the fault comes back unexplained")
+    assert dev.held_diagnostics() == [], "nothing crossed the seam"
+
+
+def test_a_reconcile_WITHOUT_A_SCOPE_is_REFUSED_because_scopeless_claims_the_whole_store():
+    dev = _Device()
+    try:
+        dev.reconcile_troubles("", ["a"], by="cc", what_changed="the findings moved")
+    except TroubleRaiseRefused as exc:
+        assert "scope" in str(exc), "the refusal names the field"
+    else:
+        raise AssertionError("a scopeless reconcile was sent — it would clear troubles it "
+                             "has no way to observe, including other reporters'")
+    assert dev.held_diagnostics() == [], "nothing crossed the seam"
+
+
+def test_a_reconcile_WITHOUT_WHAT_CHANGED_is_REFUSED():
+    dev = _Device()
+    try:
+        dev.reconcile_troubles("inspector-new-finding-", [], by="cc", what_changed="  ")
+    except TroubleRaiseRefused as exc:
+        assert "what_changed" in str(exc), "the refusal names the field"
+    else:
+        raise AssertionError("a reconcile landed with no resolution sentence — and that "
+                             "sentence stands on EVERY ticket it clears, not just one")
+    assert dev.held_diagnostics() == [], "nothing crossed the seam"
+
+
+def test_a_WELL_FORMED_clear_and_reconcile_EMIT_ON_THEIR_OWN_GATES_and_say_they_were_HELD():
+    # The other half of the refusals above: the doors are strict, not shut. Each rides its own
+    # gate name, because the drain scans one lane per gate and keeps a watermark per lane.
+    dev = _Device()
+    cleared = dev.clear_trouble("inspector-new-finding-alpha", by="cc",
+                                what_changed="the sieve no longer reports it", now=_at(1))
+    recon = dev.reconcile_troubles("inspector-new-finding-", ["inspector-new-finding-beta"],
+                                   by="cc", what_changed="reconciled against the current findings",
+                                   now=_at(2))
+    assert cleared["gate"] == "clear_trouble" and recon["gate"] == "reconcile_troubles", \
+        "each door emits on its OWN gate — a shared gate would share a watermark"
+    assert cleared["pointer"] == "inspector-new-finding-alpha", "the clear points at what it clears"
+    assert recon["pointer"] == "inspector-new-finding-", "the reconcile points at its SCOPE"
+    assert recon["values"]["still"] == ["inspector-new-finding-beta"], \
+        "the complete current picture rides the record — the holder clears the rest"
+    assert cleared["home"] == "held" and recon["home"] == "held", \
+        "unwired, both are HELD and loud — never silently dropped (Law 7)"
+    assert cleared["poke"].startswith("held for the beat"), \
+        "with no notifier wired the record SAYS so, rather than claiming it was sent"
+
+
+def test_EVERY_TEST_IN_THIS_FILE_IS_IN_THE_ROSTER():
+    # THE TOOTH OVER THE ROSTER ITSELF. This file's checks are a hand-written tuple, and a
+    # hand-written roster has exactly one failure mode: a tooth is added, the file prints
+    # "N/N green", and the new tooth never ran. It has happened in this corpus before. So the
+    # roster is now a module-level name, and this compares it against the module.
+    defined = {name for name in globals() if name.startswith("test_")}
+    listed = {c.__name__ for c in _CHECKS}
+    missing = sorted(defined - listed)
+    assert not missing, (f"defined but NEVER RUN — add to _CHECKS: {missing}. A green from a "
+                         f"roster that skipped them is a false green, worse than a red (Law 8)")
+    assert listed <= defined, f"the roster names checks this module does not define: {sorted(listed - defined)}"
+
+
+_CHECKS = (
+    test_the_stamp_is_the_sixth_place_after_the_decimal,
+    test_the_gate_issues_a_thin_breadcrumb_pointing_to_the_ticket,
+    test_it_sends_home_to_the_wired_receiver_in_order,
+    test_entries_for_one_ticket_share_the_pointer_and_order_by_stamp,
+    test_unwired_emit_is_held_not_lost,
+    test_a_value_snapshot_rides_only_when_watching_values,
+    test_every_device_inherits_emit_structurally,
+    test_the_breadcrumb_is_data_the_interpreter_can_crawl,
+    test_a_clear_WITHOUT_AN_IDENTITY_is_REFUSED_before_anything_is_sent,
+    test_a_clear_WITHOUT_WHAT_CHANGED_is_REFUSED_because_it_stopped_happening_is_not_a_fix,
+    test_a_reconcile_WITHOUT_A_SCOPE_is_REFUSED_because_scopeless_claims_the_whole_store,
+    test_a_reconcile_WITHOUT_WHAT_CHANGED_is_REFUSED,
+    test_a_WELL_FORMED_clear_and_reconcile_EMIT_ON_THEIR_OWN_GATES_and_say_they_were_HELD,
+    test_EVERY_TEST_IN_THIS_FILE_IS_IN_THE_ROSTER,
+)
+
+
 def _main() -> int:
-    for check in (test_the_stamp_is_the_sixth_place_after_the_decimal,
-                  test_the_gate_issues_a_thin_breadcrumb_pointing_to_the_ticket,
-                  test_it_sends_home_to_the_wired_receiver_in_order,
-                  test_entries_for_one_ticket_share_the_pointer_and_order_by_stamp,
-                  test_unwired_emit_is_held_not_lost,
-                  test_a_value_snapshot_rides_only_when_watching_values,
-                  test_every_device_inherits_emit_structurally,
-                  test_the_breadcrumb_is_data_the_interpreter_can_crawl):
+    for check in _CHECKS:
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — the gate issues a thin breadcrumb (pointer to the ticket, µs-stamped), sends it "
-          "home to CC's mailbox, holds it loud when homeless, and the whole mailbox is DATA the "
-          "interpreter crawls — every device inherits emit structurally (Law 2)")
+    print(f"green ({len(_CHECKS)}) — the gate issues a thin breadcrumb (pointer to the ticket, "
+          "µs-stamped), sends it home to CC's mailbox, holds it loud when homeless, and the whole "
+          "mailbox is DATA the interpreter crawls — every device inherits emit structurally "
+          "(Law 2). The clear and reconcile doors cross the same seam and refuse a resolution "
+          "nobody could read a year later.")
     return 0
 
 

@@ -68,6 +68,16 @@ WATERMARK_NAME = "drained.json"
 # means the drain reads only raises — never every breadcrumb every device ever wrote.
 RAISE_GATE = "raise_trouble"
 
+# The other two lanes, added 2026-09-08 when the SEND half of a clear stopped being a bus
+# request (ticket 9579a6f9cec6). Same physics as the raise: one file per emission under the
+# sender's own log home, folded here, in the one process that owns the store. The ORDER
+# below is the drain order and it is deliberate — raises fold before reconciles, so a run
+# that reports a new finding and its complete current picture in the same breath lands the
+# raise first and then measures the picture against a store that already holds it.
+CLEAR_GATE = "clear_trouble"
+RECONCILE_GATE = "reconcile_troubles"
+GATES = (RAISE_GATE, CLEAR_GATE, RECONCILE_GATE)
+
 
 class TroubleShim(BaseShim):
     """The trouble device's always-on front: drains raises, answers the bus."""
@@ -171,28 +181,27 @@ class TroubleShim(BaseShim):
         refused: list[dict] = []
         for source in self._source_dirs():
             key = f"{source.parent.name}/{source.name}"
-            high = marks.get(key, "")
-            names = sorted(p.name for p in source.glob(f"*.{RAISE_GATE}.json"))
-            for name in names:
-                if name <= high:
-                    continue
-                try:
-                    record = json.loads((source / name).read_text(encoding="utf-8"))
-                    identity = record.get("pointer") or ""
-                    values = record.get("values") or {}
-                    outcome = self._device.raise_trouble(
-                        identity,
-                        why=values.get("why") or "",
-                        detail={**(values.get("detail") or {}),
-                                "raised_by": record.get("source"),
-                                "raised_at": record.get("ts"),
-                                "emission": name})
-                except Exception as exc:  # noqa: BLE001 — one bad raise cannot stop the batch
-                    refused.append({"emission": f"{key}/{name}",
-                                    "error": f"{type(exc).__name__}: {exc}"})
-                    break  # the watermark stops HERE; this fault is not skipped past
-                folded.append({"emission": f"{key}/{name}", **outcome})
-                marks[key] = name
+            for gate in GATES:
+                # ONE WATERMARK PER GATE. The raise lane keeps the bare key it has always
+                # used, so watermarks written before the other two lanes existed still mean
+                # what they meant. A shared watermark would be wrong rather than merely
+                # untidy: the names are timestamps, and three gates interleaving under one
+                # high-water mark would let a late raise skip an early clear for good.
+                mark_key = key if gate == RAISE_GATE else f"{key}::{gate}"
+                high = marks.get(mark_key, "")
+                names = sorted(p.name for p in source.glob(f"*.{gate}.json"))
+                for name in names:
+                    if name <= high:
+                        continue
+                    try:
+                        record = json.loads((source / name).read_text(encoding="utf-8"))
+                        outcome = self._fold(gate, record, name)
+                    except Exception as exc:  # noqa: BLE001 — one bad emission cannot stop the batch
+                        refused.append({"emission": f"{key}/{name}",
+                                        "error": f"{type(exc).__name__}: {exc}"})
+                        break  # the watermark stops HERE; this fault is not skipped past
+                    folded.append({"emission": f"{key}/{name}", **outcome})
+                    marks[mark_key] = name
         self._watermarks = marks
         if folded:
             self._save_watermarks()
@@ -200,6 +209,48 @@ class TroubleShim(BaseShim):
         if refused:
             result["refused"] = refused
         return result
+
+    def _fold(self, gate: str, record: dict, name: str) -> dict:
+        """Apply one drained emission to the held store. The OWNER'S half of every lane.
+
+        THE HOLDER DECIDES, AND DECLINING IS AN OUTCOME, NOT AN ERROR. A clear naming a
+        trouble that is not live, or a reconcile whose scope matches nothing, folds to
+        ``declined``/``nothing to clear`` and lets the watermark advance. Raising instead
+        would be the wrong shape twice over: the sender only reported what it observed
+        (Law 6 — the judgment is the owner's), and a permanent refusal in this lane wedges
+        the watermark forever, so one already-cleared trouble would stop every later
+        emission from every device behind it.
+        """
+        pointer = record.get("pointer") or ""
+        values = record.get("values") or {}
+        if gate == RAISE_GATE:
+            return self._device.raise_trouble(
+                pointer,
+                why=values.get("why") or "",
+                detail={**(values.get("detail") or {}),
+                        "raised_by": record.get("source"),
+                        "raised_at": record.get("ts"),
+                        "emission": name})
+        if gate == CLEAR_GATE:
+            if pointer not in {t.get("id") for t in self._device.live()}:
+                return {"outcome": "declined", "id": pointer,
+                        "why": "not live — nothing standing under that identity to clear"}
+            return self._device.clear(pointer, by=values.get("by") or "cc",
+                                      what_changed=values.get("what_changed") or "")
+        if gate == RECONCILE_GATE:
+            still = set(values.get("still") or [])
+            stale = sorted(t.get("id") for t in self._device.live()
+                           if str(t.get("id", "")).startswith(pointer)
+                           and t.get("id") not in still)
+            cleared = []
+            for ident in stale:
+                cleared.append(self._device.clear(
+                    ident, by=values.get("by") or "cc",
+                    what_changed=values.get("what_changed") or ""))
+            return {"outcome": "reconciled", "scope": pointer,
+                    "still": len(still), "cleared": cleared}
+        raise ValueError(f"no fold for gate {gate!r} — the drain scanned a lane it "
+                         f"cannot apply, which would silently drop the emission")
 
     def receive_raise(self, _record: dict | None = None) -> dict:
         """The injected notifier's contract — poked by a raiser at raise time.

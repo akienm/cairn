@@ -1,22 +1,57 @@
 [
   {
     "claim": "proof test_librarian_summarize.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:11:11",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:12:05",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_transducer_renders_a_cited_summary\n  PASS  test_the_summary_deposits_back_and_a_walk_finds_it\n  PASS  test_the_transducer_never_eats_its_own_output_and_rewrites_nothing\n  PASS  test_an_empty_region_refuses\n  PASS  test_an_unanchored_draft_refuses_loudly\n  PASS  test_a_minted_citation_refuses_loudly\n  PASS  test_depth_travels_with_the_artifact\n  PASS  test_a_fence_is_wrapping_not_content\n  PASS  test_comma_grouped_marks_are_citations_not_invention\n  PASS  test_the_summarize_crossing_breadcrumbs\n  PASS  test_no_seam_and_no_question_refuse\n  PASS  test_the_render_prompt_carries_the_region_whole\n  PASS  test_summarize_opens_no_door_of_its_own\ngreen — librarian/summarize: citations are code-built and traceable, the summary lands back in the graph and a walk finds it, the transducer never eats its own output and rewrites nothing, unanchored and minted drafts refuse loudly, depth travels with the artifact, and summarize opens no door of its own",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_transducer_renders_a_cited_summary",
+        "test_the_summary_deposits_back_and_a_walk_finds_it",
+        "test_the_transducer_never_eats_its_own_output_and_rewrites_nothing",
+        "test_an_empty_region_refuses",
+        "test_an_unanchored_draft_refuses_loudly",
+        "test_a_minted_citation_refuses_loudly",
+        "test_depth_travels_with_the_artifact",
+        "test_a_fence_is_wrapping_not_content",
+        "test_comma_grouped_marks_are_citations_not_invention",
+        "test_the_summarize_crossing_breadcrumbs",
+        "test_no_seam_and_no_question_refuse",
+        "test_the_render_prompt_carries_the_region_whole",
+        "test_summarize_opens_no_door_of_its_own"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "402184ccffef7438d32227c6dee13a5eb28852ae5b1520660063a1da126a697d",
+      "source_fingerprint": "5f3400dd010b35ef1fecdea8d7070bbccfd504cb314148cd64435490c0106532",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/proofs/test_librarian_summarize.py",
+        "cairn/devices/librarian/summarize.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-5_wmv0d1/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-o3tz9i6h/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -1,22 +1,54 @@
 [
   {
     "claim": "proof test_proactive_callback.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T09:11:46",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:13:06",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_chat_turn_threads_session_id\n  PASS  test_deposit_records_origin_session\n  PASS  test_deposit_without_session_has_no_origin\n  PASS  test_device_stores_and_surfaces_notifications\n  PASS  test_mark_notifications_seen\n  PASS  test_notifications_pane_surfaces\n  PASS  test_promotion_produces_callback_with_origin\n  PASS  test_promotion_without_origin_produces_no_callback\ngreen — proactive resolution callback: deposits carry origin_session, promotions produce callbacks, notifications surface on the pane",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_chat_turn_threads_session_id",
+        "test_deposit_records_origin_session",
+        "test_deposit_without_session_has_no_origin",
+        "test_device_stores_and_surfaces_notifications",
+        "test_mark_notifications_seen",
+        "test_notifications_pane_surfaces",
+        "test_promotion_produces_callback_with_origin",
+        "test_promotion_without_origin_produces_no_callback"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "402184ccffef7438d32227c6dee13a5eb28852ae5b1520660063a1da126a697d",
+      "source_fingerprint": "78a439da6f43c846be37be9cbd722c443b263c0fe7fcca8ae32be0751db94275",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/chat.py",
+        "cairn/devices/librarian/loop.py",
+        "cairn/devices/librarian/proofs/test_proactive_callback.py",
+        "cairn/devices/librarian/summarize.py",
+        "cairn/devices/librarian/trees.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-zshpks3_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-_v5cuagn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

@@ -1,32 +1,35 @@
 [
   {
     "claim": "proof test_inspector_nexus.py passes under python3",
-    "caller": "CC",
-    "date": "2026-09-08T16:51:26",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:40:47",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 265, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 251, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 179, in test_the_fire_path_never_reaches_the_tree\n    assert caught == [], (\n           ^^^^^^^^^^^^\nAssertionError: the verdict path can reach a door it may not: [\"cairn/devices/cairn/machines/bus/bus.py imports ['cairn.devices.db_domain', 'cairn.devices.db_domain.store'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.bus_client -> cairn.devices.cairn.machines.bus.bus; nothing on that path may reach it\", \"cairn/devices/inference_domain/domain.py imports ['cairn.devices.db_domain', 'cairn.devices.db_domain.store', 'cairn.devices.inference_domain.machines.route', 'cairn.devices.inference_domain.machines.route.route'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.bus_client -> cairn.devices.inference_domain.domain; nothing on that path may reach it\", \"cairn/devices/inference_domain/host.py imports ['cairn.devices.inference_domain.machines.route', 'cairn.devices.inference_domain.machines.route.route', 'urllib.error', 'urllib.request'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.bus_client -> cairn.devices.inference_domain.host; nothing on that path may reach it\", \"cairn/tools/base/bus_client.py imports ['cairn.devices.inference_domain', 'cairn.devices.inference_domain.domain', 'cairn.devices.inference_domain.host'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.bus_client; nothing on that path may reach it\"] — a verdict that can consult a tree, a database or a host returns an opinion wearing a measurement's clothes",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry\n  PASS  test_the_fire_path_never_reaches_the_tree\ngreen — build_inspector/nexus: the corpus is born the inspector's, undated failures are turned away, the founding questions are seeded-but-unbuilt, counsel keeps its labeled floor, a proposal cannot touch the registry, and the verdict path cannot reach the tree — the graft is additive, by construction",
+      "stderr_tail": "",
       "teeth_green": [
         "test_the_corpus_table_is_born_owned_by_the_inspector",
         "test_an_undated_failure_may_not_take_residence",
         "test_the_founding_questions_are_seeded_but_unbuilt",
         "test_counsel_walks_with_its_floor_visible",
-        "test_a_proposal_never_touches_the_registry"
+        "test_a_proposal_never_touches_the_registry",
+        "test_the_fire_path_never_reaches_the_tree"
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "36bf3f09f444c2ef7df9f173d6da68977f9675513e399e2d2d73f3a3cbbfefa2",
+      "source_fingerprint": "c53f5c670e113f48ba90397c44ae1dc1cd5fa07b6d44a79dedccb18fea86af69",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/machines/__init__.py",
+        "cairn/devices/codemother/machines/orient/__init__.py",
+        "cairn/devices/codemother/machines/orient/orient.py",
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/verdict.py",
         "cairn/devices/db_domain/__init__.py",
@@ -39,6 +42,10 @@
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/nexus.py",
         "cairn/machines/build_inspector/proofs/test_inspector_nexus.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -67,7 +74,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1227029-c5wjpm5u/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-k4q9p5bw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

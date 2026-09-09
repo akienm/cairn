@@ -1,19 +1,81 @@
 [
   {
     "claim": "proof test_intent_skill.py passes under python3",
-    "caller": "sail:challenge-fires-at-intent",
-    "date": "2026-08-03T16:38:43",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:33:42",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green  test_a_real_firing_against_the_REAL_charter_traces_and_finds\n  green  test_an_incomplete_firing_is_refused_by_the_REAL_contract\n  green  test_both_exits_are_instructed_including_the_kill\n  green  test_every_contract_field_carries_its_why\n  green  test_the_anatomy_is_a_CALL_not_a_paragraph_about_one\n  green  test_the_kill_exit_fires_the_same_door\n  green  test_the_markdown_and_the_charter_cannot_drift\n  green  test_the_skill_class_derivation_gate_is_green\n\n8/8 teeth green\nskill:/intent is WIRED — the anatomy is a call the markdown fires, the charter's contract and the executed question set cannot drift apart, a firing traces its green and emits a finding at either exit, and the real contract refuses an incomplete packet naming every lack at once",
+      "returncode": 1,
+      "stdout_tail": "          RED: skill missing from the roster: /sail carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /saveslate carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /sorted carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /tellmeabout carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /whatslefttodo carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n  pass  every_roster_entry_carries_a_charter\n  FAIL  every_chartered_skill_is_installed\n          RED: skill not installed: /ruled carries a charter but has no entry in /home/akien/.claude/skills\n  pass  every_installed_skill_points_at_its_charter\n  FAIL  every_command_is_named_by_a_charter\n          RED: command without a charter: bin/cmd/groundloop — no charter's invoke mentions `cairn groundloop`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/mailcheck — no charter's invoke mentions `cairn mailcheck`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/operator — no charter's invoke mentions `cairn operator`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/review — no charter's invoke mentions `cairn review`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/ruled — no charter's invoke mentions `cairn ruled`, so it cannot render (an undocumented command is impossible, by design)\nderivation gate: RED — 21 finding(s) (8 checks proved · 72 charters)\n\n  green  test_the_two_entrances_cannot_differ_in_strictness\n\n8/9 teeth green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_a_real_firing_against_the_REAL_charter_traces_and_finds",
+        "test_an_incomplete_firing_is_refused_by_the_REAL_contract",
+        "test_both_exits_are_instructed_including_the_kill",
+        "test_every_contract_field_carries_its_why",
+        "test_the_anatomy_is_a_CALL_not_a_paragraph_about_one",
+        "test_the_kill_exit_fires_the_same_door",
+        "test_the_markdown_and_the_charter_cannot_drift",
+        "test_the_two_entrances_cannot_differ_in_strictness"
+      ],
+      "teeth_red": [
+        "test_the_skill_class_derivation_gate_is_green"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "cbb91b8af61b72a8755014d7c03c9e82ee1a36699e14677ad9e0c9122b3e270d"
+      "source_fingerprint": "bc9e5a4dee46062b0f5c7d9aa3de08656e0cf7ecdb150a237a5347e2a4d933e8",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/machines/__init__.py",
+        "cairn/devices/codemother/machines/verdict/__init__.py",
+        "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "skills/intent/proofs/test_intent_skill.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-7gszp2z5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

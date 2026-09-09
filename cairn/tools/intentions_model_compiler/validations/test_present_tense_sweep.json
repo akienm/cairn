@@ -1,22 +1,33 @@
 [
   {
     "claim": "proof test_present_tense_sweep.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T19:08:28",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:30:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)\ntooth (ii) green: 0 matches over 71 artifacts, 124 pairs (28 cites, every snippet standing)\nGREEN: the present-tense corpus carries no dated appends, and every judgment is on record",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 122, in <module>\n    tooth_ii_zero_live_and_every_cite_stands()\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 102, in tooth_ii_zero_live_and_every_cite_stands\n    artifact = (_REPO_ROOT / p[\"path\"]).read_text()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/pathlib.py\", line 1029, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/pathlib.py\", line 1015, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/devices/builder/machines/constrain/intention+why.json'",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c35c35333f1255437f2bfa5821eddab7c7c0b8dc682fd2d0f2d5741459dc0062",
+      "source_fingerprint": "3c9e61647f2a2fd1e5d994dffa9dbf628b700912e1d8099c58381dcacc1df4bd",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/intentions_model_compiler/__init__.py",
+        "cairn/tools/intentions_model_compiler/probes/present_tense_artifacts_carry_no_dated_appends.py",
+        "cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ejkejsdg/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-aoyi2ncp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

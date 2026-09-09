@@ -1,19 +1,50 @@
 [
   {
     "claim": "proof test_challenge_wiring.py passes under python3",
-    "caller": "sail:challenge-fires-at-intent",
-    "date": "2026-08-03T16:38:43",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:32:35",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  green  test_no_live_clock_is_claimed\n  green  test_the_door_this_skill_rides_actually_requires_it\n  green  test_the_two_skills_question_sets_cannot_drift\n  green  test_this_skill_names_its_own_firing_event\n\n4/4 teeth green",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_no_live_clock_is_claimed",
+        "test_the_door_this_skill_rides_actually_requires_it",
+        "test_the_two_skills_question_sets_cannot_drift",
+        "test_this_skill_names_its_own_firing_event"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "trail_link": "8edf3d74a1ab1101481f8bb4c40ea8b5b9c5ef43e858d327ead973fb2db2f09d"
+      "source_fingerprint": "9bd9feeb9618dfcbee80bdf410616f414fc5fdc0c474c36676fd79349a72c7a1",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "skills/challenge/proofs/test_challenge_wiring.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-_6esebi7/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,22 +1,54 @@
 [
   {
     "claim": "proof test_logger_for_bash.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T08:53:53",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:40:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_record_keeps_argument_boundaries\n  PASS  test_the_functions_survive_export_to_a_child\n  PASS  test_sourcing_never_truncates_the_record\n  PASS  test_trim_keeps_the_newest_lines\n  PASS  test_the_line_cap_actually_bounds_the_file\n  PASS  test_an_attached_shell_records_what_it_ran_with_real_exit_codes\n  PASS  test_the_first_prompt_does_not_record_the_history_it_inherited\n  PASS  test_a_shell_with_no_history_still_records_its_first_command\n  PASS  test_sourcing_leaks_no_errexit_or_nounset\n  PASS  test_sourcing_is_silent\n  PASS  test_an_unwritable_target_warns_once_and_does_not_kill_the_caller\n  PASS  test_an_unwritable_target_still_says_so\n  PASS  test_every_line_carries_its_pid_so_concurrent_shells_stay_separable\n  PASS  test_a_multiline_message_is_still_one_record\n  PASS  test_a_trim_leaves_evidence_that_it_trimmed\n  PASS  test_two_shells_writing_at_once_keep_both_records\n  PASS  test_a_child_process_renames_the_namespace_without_touching_the_parents\n  PASS  test_the_install_is_idempotent_and_reversible\n  PASS  test_the_trace_wire_fires_once_per_shell_green_and_red\ngreen — logger_for_bash: the recorded exit code is the command's (not the pipe's), stderr reaches the file, the record keeps argument boundaries, sourcing neither truncates nor leaks a `set`, trim keeps the newest N, every line carries its pid so concurrent shells stay separable, and the four defects it was grafted to fix are measured still present in the original",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_original_defects_are_real",
+        "test_the_recorded_code_is_the_commands_not_the_pipes",
+        "test_stderr_lands_in_the_file",
+        "test_the_record_keeps_argument_boundaries",
+        "test_the_functions_survive_export_to_a_child",
+        "test_sourcing_never_truncates_the_record",
+        "test_trim_keeps_the_newest_lines",
+        "test_the_line_cap_actually_bounds_the_file",
+        "test_an_attached_shell_records_what_it_ran_with_real_exit_codes",
+        "test_the_first_prompt_does_not_record_the_history_it_inherited",
+        "test_a_shell_with_no_history_still_records_its_first_command",
+        "test_sourcing_leaks_no_errexit_or_nounset",
+        "test_sourcing_is_silent",
+        "test_an_unwritable_target_warns_once_and_does_not_kill_the_caller",
+        "test_an_unwritable_target_still_says_so",
+        "test_every_line_carries_its_pid_so_concurrent_shells_stay_separable",
+        "test_a_multiline_message_is_still_one_record",
+        "test_a_trim_leaves_evidence_that_it_trimmed",
+        "test_two_shells_writing_at_once_keep_both_records",
+        "test_a_child_process_renames_the_namespace_without_touching_the_parents",
+        "test_the_install_is_idempotent_and_reversible",
+        "test_the_trace_wire_fires_once_per_shell_green_and_red"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "6f55de555900c82f37f973700ef1f96c29eda4799a25ae335be046115e985dbc",
+      "source_fingerprint": "25a2426ff2d68f2ea589dbecb89dd31fbb278888894f7ca9650f4c9895c5361b",
+      "fingerprint_closure": [
+        "bin/proofs/test_logger_for_bash.py",
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-714179-dlq__8_2/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-bpwsthzp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,

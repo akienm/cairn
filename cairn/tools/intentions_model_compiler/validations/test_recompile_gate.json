@@ -1,22 +1,35 @@
 [
   {
     "claim": "proof test_recompile_gate.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:48:35",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:30:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_gate_pokes_the_door\n  PASS  test_the_gate_reverts_a_hand_edited_copy\n  PASS  test_non_blocking_but_loud_in_the_record\ngreen — recompile_gate: the write gate pokes the copy door (the lab fills and reverts drift), never blocks a save, and records a failed run rather than swallowing it (Law 7). Host-noticing, not owner-emitting — the IOU is in the charter.",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_the_gate_pokes_the_door",
+        "test_the_gate_reverts_a_hand_edited_copy",
+        "test_non_blocking_but_loud_in_the_record"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c35c35333f1255437f2bfa5821eddab7c7c0b8dc682fd2d0f2d5741459dc0062",
+      "source_fingerprint": "2fc19f696ecb22343660dcd6de10aea75357c237fdce4ff2144f1a39f4d8ded5",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/intentions_model_compiler/proofs/test_recompile_gate.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1szhd3_w/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-l93nstn1/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

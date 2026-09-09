@@ -1,29 +1,83 @@
 [
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T14:58:43",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:59:57",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door\n  PASS  test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_line\n  PASS  test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal\n  PASS  test_the_refusal_names_the_line_and_never_the_reading\n  PASS  test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded\n  PASS  test_this_proof_never_wrote_to_the_live_queue\ngreen — the harbor's lines are names the real system device serves on its ask door, and the device's own predicates refuse a move in both directions without ever handing over a reading. The gate CAN ask the real host; nothing yet makes a crossing go through it (0 of 186 emit-shaped records carry cleared_by, re-measured 2026-08-10 — ticket emit-refuses-an-uncleared-crossing).",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_every_harbor_line_is_a_probe_the_device_advertises_on_the_ask_door",
+        "test_the_real_device_refuses_a_move_when_cpu_pressure_crosses_the_harbors_line",
+        "test_the_memory_floor_crosses_the_other_way_and_is_its_own_refusal",
+        "test_the_refusal_names_the_line_and_never_the_reading",
+        "test_a_quiet_box_clears_the_move_and_the_crossing_is_recorded",
+        "test_this_proof_never_wrote_to_the_live_queue"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "156cff0e4b36927420b987493e6310601e82a4a43179843f51e08dae7a694dfd",
+      "source_fingerprint": "1f7fc4387e28bcfe73cc5cbd6753c91f916a87fefc0f3d520cf5421b51e842d7",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/harbor_master/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/clearance.py",
+        "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/system_rackmount/__init__.py",
+        "cairn/devices/system_rackmount/rackmount.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/validation.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1702205-5vmz98vp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-utrena50/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20260907.205839.215909.BusDevice.post.json",
-            "logs/charter/0/20260907.205839.193459.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20260907.205839.183545.TesterDevice.run_proof.json"
+            "logs/bus/0/20260908.235951.330985.BusDevice.post.json",
+            "logs/charter/0/20260908.235951.308901.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20260908.235951.303037.TesterDevice.run_proof.json"
           ],
           "elided": 0
         }

@@ -1,30 +1,68 @@
 [
   {
     "claim": "proof test_fleet_map.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-07T14:58:13",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T17:59:26",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_harbor_master_declares_map_view\n  PASS  test_harbor_master_verbs_include_base_and_crossing\n  PASS  test_get_map_returns_the_live_fleet\n  PASS  test_show_map_renders_human_readable\n  PASS  test_show_map_includes_data\n  PASS  test_get_map_populates_cache_on_first_call\n  PASS  test_unknown_view_refuses\ngreen — get map returns JSON, show map renders text, same data, different face",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_harbor_master_declares_map_view",
+        "test_harbor_master_verbs_include_base_and_crossing",
+        "test_get_map_returns_the_live_fleet",
+        "test_show_map_renders_human_readable",
+        "test_show_map_includes_data",
+        "test_get_map_populates_cache_on_first_call",
+        "test_unknown_view_refuses"
+      ],
+      "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "156cff0e4b36927420b987493e6310601e82a4a43179843f51e08dae7a694dfd",
+      "source_fingerprint": "2142d5ae2643259176cd166630b062374bfd648d63581dbf3e3a38ff72f7036d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/device.py",
+        "cairn/devices/cairn/machines/harbor_master/proofs/test_fleet_map.py",
+        "cairn/devices/cairn/machines/harbor_master/register.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1701501-zct4nwt9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1346793-6gqm6_vj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/harbor_master/0/20260907.205808.773954.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260907.205808.853559.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260907.205808.933190.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260907.205809.010212.HarborMasterDevice.reconciled.json"
+            "logs/harbor_master/0/20260908.235919.874589.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260908.235919.995044.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260908.235920.129327.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260908.235920.258016.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         }

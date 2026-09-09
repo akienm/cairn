@@ -560,6 +560,227 @@ def test_the_inspector_troubles_were_cleared_through_the_door():
             f"{want} was cleared, but not BY RECONCILE — what_changed says {said!r}")
 
 
+def _emit_in_a_separate_process(world: Path, component: str, call: str) -> None:
+    """Fire one trouble emission from a process that holds nothing and then exits.
+
+    Same reasoning as ``_raise_in_a_separate_process`` above and the same shape, widened to
+    the other two lanes: what crosses between the sender and the holder is a file on disk
+    and nothing else. A helper that ran the call in THIS process would prove the fold and
+    silently assume the transport."""
+    root = str(Path(__file__).resolve().parents[4])
+    script = (
+        f"import sys; sys.path.insert(0, {root!r})\n"
+        f"from pathlib import Path\n"
+        f"from cairn.tools.base.diagnostic import ModuleRaiser\n"
+        f"r = ModuleRaiser({component!r}, roots={{k: Path({str(world)!r}) "
+        f'for k in ("repo","commons","instance")}})\n'
+        f"r.{call}\n")
+    out = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True,
+                         timeout=120)
+    assert out.returncode == 0, out.stderr
+
+
+def test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution():
+    """THE SEND HALF OF A CLEAR IS AN EMISSION (ticket 9579a6f9cec6, completed 2026-09-08).
+
+    Two processes again, neither holding this device: one raises, one says the fault is
+    fixed, and what lands on disk is a ticket cleared THROUGH THE DOOR — carrying who,
+    what changed, and the count at the moment of clearing. The sender wrote none of that
+    and could not have: it never opened the store.
+
+    THIS IS THE TOOTH THAT WOULD HAVE CAUGHT THE ORIGINAL SHAPE, which passed every test it
+    had. Clearing shipped as a bus request on correct reasoning — a clear is a
+    read-modify-write, so it belongs to the one hand that owns the store — with the wrong
+    conclusion drawn from it: the ASKING moved to the bus along with the writing, and
+    dialing the bus statically reaches ``inference_domain`` and ``db_domain``. The build
+    inspector, which must reach neither, was a clearer. Its own ``fire_path_unreachable``
+    sieve measured 4 findings and its gate refused a PROVED crossing on them."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        _raise_in_a_separate_process(world, "build_inspector", IDENT, WHY)
+        shim.drain()
+        assert [t["id"] for t in _dev_at(store).live()] == [IDENT]
+
+        _emit_in_a_separate_process(
+            world, "tester",
+            f"clear_trouble({IDENT!r}, by='cc', what_changed='the door grew a schema gate')")
+        drained = shim.drain()
+        assert drained.get("refused", []) == [], drained
+        assert len(drained["folded"]) == 1, drained
+
+        assert _dev_at(store).live() == [], "the clear crossed the seam but nothing cleared"
+        ticket = json.loads(next((store).glob("*.json")).read_text(encoding="utf-8"))
+        mark = ticket["cleared_by"][-1]
+        assert mark["what_changed"] == "the door grew a schema gate", mark
+        assert mark["at_count"] == 1, mark
+        assert "at" in mark and mark["by"] == "cc", mark
+
+
+def test_a_clear_for_a_trouble_that_is_NOT_LIVE_is_DECLINED_and_does_not_WEDGE_the_lane():
+    """DECLINING IS THE HOLDER'S RIGHT, AND THE WATERMARK MUST STILL ADVANCE.
+
+    ``TroubleDevice.clear`` REFUSES an unknown or already-cleared identity, and it is right
+    to: at that door a clear is an assertion, and manufacturing an all-clear for a ticket
+    nobody raised is the silent failure the lane exists to end. But an EMISSION is not an
+    assertion, it is a report — the sender says what it observed and the owner judges
+    (Law 6). So the drain declines it instead of propagating the refusal.
+
+    THE SECOND HALF IS THE ONE WITH TEETH. The drain holds its watermark on a refusal, on
+    purpose: a fault that cannot be folded must not be skipped past. Let a decline take that
+    path and one stale clear wedges the lane FOREVER — every later emission from that
+    component, raises included, sits behind it unread. This proves the wedge does not
+    happen: a real raise arriving after the declined clear still lands."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        _emit_in_a_separate_process(
+            world, "tester",
+            "clear_trouble('never-was-raised', by='cc', what_changed='wishful thinking')")
+        first = shim.drain()
+        assert first.get("refused", []) == [], (
+            "a clear the holder declines came back as a REFUSAL — the watermark is now "
+            f"stuck behind it: {first}")
+        assert first["folded"][0]["outcome"] == "declined", first
+
+        _raise_in_a_separate_process(world, "tester", IDENT, WHY)
+        second = shim.drain()
+        assert [t["id"] for t in _dev_at(store).live()] == [IDENT], (
+            "the raise behind the declined clear never folded — the lane is wedged: "
+            f"{second}")
+
+
+def test_a_reconcile_clears_the_stale_spares_the_standing_and_CANNOT_REACH_OUTSIDE_ITS_SCOPE():
+    """THE RECONCILE LANE: the reporter states what it still observes, the owner clears the rest.
+
+    Why this exists beside ``clear_trouble``: a reconciler cannot know what is stale without
+    READING the store, and both routes to that read are shut — over the bus (the fire path
+    this change closes) or by importing the trouble device (the isolation red the ticket was
+    cast against). So it reads nothing and reports everything, and the difference is computed
+    in the hand that already holds the store.
+
+    THE THIRD ASSERTION IS THE REAL TOOTH. A reconcile is the most powerful thing in this
+    lane — it can clear tickets it never names — so its authority has to STOP at its scope.
+    A trouble outside the scope prefix is not in ``still`` either, and an implementation that
+    diffed against the whole live list instead of the scoped subset would clear it while
+    passing both of the first two assertions."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    mine_kept = "inspector-new-finding-alpha"
+    mine_gone = "inspector-new-finding-beta"
+    not_mine = "validation-verdict-changed-test-thing"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        for ident in (mine_kept, mine_gone, not_mine):
+            _raise_in_a_separate_process(world, "build_inspector", ident, WHY)
+        shim.drain()
+        assert len(_dev_at(store).live()) == 3
+
+        _emit_in_a_separate_process(
+            world, "build_inspector",
+            f"reconcile_troubles('inspector-new-finding-', [{mine_kept!r}], by='cc', "
+            f"what_changed='the raising condition is gone from the current findings')")
+        drained = shim.drain()
+        assert drained.get("refused", []) == [], drained
+
+        live = sorted(t["id"] for t in _dev_at(store).live())
+        assert mine_kept in live, f"a finding still standing was cleared: {live}"
+        assert mine_gone not in live, f"a stale finding was not cleared: {live}"
+        assert not_mine in live, (
+            "the reconcile reached OUTSIDE its scope and cleared another reporter's "
+            f"trouble: {live}")
+
+
+def test_the_THREE_LANES_keep_INDEPENDENT_watermarks():
+    """A SHARED WATERMARK SILENTLY DROPS EMISSIONS, and the drop is invisible in the result.
+
+    The watermark is a filename high-water mark and filenames are timestamps, so three gates
+    sharing one mark looks fine right up until two emissions carry the SAME stamp. Then the
+    lexical order of the gate suffix decides: ``.clear_trouble.json`` sorts before
+    ``.raise_trouble.json``, the raise folds first and advances the mark past the clear, and
+    the clear is skipped forever — reported as neither folded nor refused.
+
+    Same stamp is exactly what a caller that raises and clears in one breath produces, which
+    is why this is a tooth and not a hypothetical. Both lanes must fold."""
+    from cairn.devices.trouble.shim import TroubleShim
+
+    other = "some-other-defect"
+    with tempfile.TemporaryDirectory() as tmp:
+        world, store = Path(tmp) / "world", Path(tmp) / "store"
+        roots = {k: world for k in ("repo", "commons", "instance")}
+        shim = TroubleShim(roots=roots, root=str(store))
+
+        _raise_in_a_separate_process(world, "tester", other, WHY)
+        shim.drain()
+        assert [t["id"] for t in _dev_at(store).live()] == [other]
+
+        import datetime as _dt
+        stamp = ("__import__('datetime').datetime(2031, 1, 1, 12, 0, 0, "
+                 "tzinfo=__import__('datetime').timezone.utc)")
+        _emit_in_a_separate_process(
+            world, "tester",
+            f"clear_trouble({other!r}, by='cc', what_changed='fixed', now={stamp})")
+        _emit_in_a_separate_process(
+            world, "tester",
+            f"raise_trouble({IDENT!r}, why={WHY!r}, now={stamp})")
+
+        drained = shim.drain()
+        assert drained.get("refused", []) == [], drained
+        live = sorted(t["id"] for t in _dev_at(store).live())
+        assert live == [IDENT], (
+            "one of two same-stamped emissions was silently skipped — the lanes are "
+            f"sharing a watermark. live={live}, drained={drained}")
+
+
+def test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS():
+    """CLAUSE (2)'S OTHER FACE, and the one the original build got wrong.
+
+    ``test_no_device_reaches_this_one_by_import`` asks whether anyone reaches trouble by
+    IMPORT. Nobody did — and the lane was still reached by dialing the bus, which pulls in
+    ``bus_client`` and through it ``inference_domain`` and ``db_domain``. So a component
+    could satisfy every isolation tooth in this file and still statically reach a database,
+    which is what the build inspector's ``fire_path_unreachable`` sieve caught after the
+    fact.
+
+    THE LINE IS SEND VS READ, NOT BUS VS NOT-BUS, and drawing it anywhere else makes this
+    tooth wrong rather than strict. Its first draft banned every trouble bus verb and
+    promptly reported ``cairn/device.py`` and ``web_server/listener.py`` — the two
+    presentation surfaces that ask ``live`` for the operator's panel, which is exactly the
+    shape this ticket CHARTED for them (they are the panel; asking the owner for its list
+    is what a reader is supposed to do). A tooth that reds the design it was written to
+    protect is measuring the wrong property.
+
+    So: reading ``live`` over the bus stays legal for anyone. SENDING — clear, and now
+    reconcile — may not ride the bus from anywhere, because a sender is often a component
+    with a fire-path rule and the send has an emission lane that costs it nothing."""
+    root = Path(__file__).resolve().parents[4] / "cairn"
+    offenders = []
+    for path in root.rglob("*.py"):
+        rel = path.relative_to(root.parent).as_posix()
+        if rel.startswith("cairn/devices/trouble/") or "/proofs/" in rel or "/probes/" in rel:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for verb in ("clear", "reconcile"):
+            if f'verb="{verb}"' in text or f"verb='{verb}'" in text:
+                offenders.append(f"{rel} (verb={verb})")
+    assert offenders == [], (
+        "these SEND to the trouble lane over the bus — which imports inference_domain and "
+        "db_domain, so every one of them statically reaches a database. The send lanes are "
+        f"emissions (DiagnosticBase.clear_trouble / reconcile_troubles): {offenders}")
+
+
 def _dev_at(store) -> TroubleDevice:
     dev = TroubleDevice(root=str(store))
     dev.set_diagnostic_receiver(None)

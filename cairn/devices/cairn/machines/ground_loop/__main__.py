@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import signal
 import sys
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -126,21 +127,34 @@ def main(home=None, roots=None) -> int:
     for flag in (COMMAND_EXIT, COMMAND_DO_NOT_RESTART):
         (flags_dir / flag).touch(exist_ok=True)
 
-    stopping = {"now": False}
+    # THE STOP FLAG IS AN EVENT, NOT A BOOL, AND THE REASON IS time.sleep's CONTRACT.
+    # A handler that only flipped a bool left the loop asleep for the REST of the beat:
+    # PEP 475 makes `time.sleep` RETRY after a signal handler returns, with the timeout
+    # recomputed from the original deadline, so SIGTERM one second into a 60s sleep still
+    # slept 59 more seconds before the `while` was re-tested. Measured 2026-09-08 twice,
+    # from both ends: `systemctl --user restart cairn-ground-loop` logged
+    # "State 'stop-sigterm' timed out. Killing." after 90s — the unit SIGKILLed, so a beat
+    # in flight was torn down mid-write rather than finished — and the liveness proof's own
+    # cleanup died on `systemctl --user stop` at a 20s timeout, taking every tooth's output
+    # with it. `Event.wait` is the same sleep with the one property the bool could not have:
+    # `set()` from the handler wakes it NOW. The beat itself is still allowed to finish
+    # (~23.7s, bounded work whose whole point is leaving records consistent) — what is gone
+    # is waiting out a cadence nobody is waiting for.
+    stop = threading.Event()
 
     def _stop(signum, frame):  # noqa: ARG001 — the signal API's shape
-        stopping["now"] = True
+        stop.set()
 
     signal.signal(signal.SIGTERM, _stop)
     signal.signal(signal.SIGINT, _stop)
-    while not stopping["now"]:
+    while not stop.is_set():
         device.beat(datetime.now(timezone.utc).astimezone())
         # TWO STAT CALLS PER BEAT — the flag check IS the poll (no inotify, no daemon).
         if (Path(home) / COMMAND_EXIT).exists():
             break
         if device.stale and not (Path(home) / COMMAND_DO_NOT_RESTART).exists():
             break
-        time.sleep(CADENCE_S)
+        stop.wait(CADENCE_S)
     return 0
 
 

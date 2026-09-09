@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_stop_is_prompt.py passes under python3",
+    "caller": "red-disposal:the-cgroup-parse-exists-once",
+    "date": "2026-09-08T19:42:44",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.06s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d2407d2ba0b9e88f47ac08141c88b5d0be6eb812136db9b7ff8bf1110d0b2abb",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__main__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovered.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/machines/ground_loop/loop.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_stop_is_prompt.py",
+        "cairn/devices/cairn/machines/ground_loop/staleness.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1768746-l4w89gob/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 19,
+          "paths": [
+            "devices/cairn/0/machines/ground_loop/probes/device_column_history.jsonl",
+            "devices/cairn/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/cc/0/memory_series.jsonl",
+            "devices/charter/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/codemother/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/inference_domain/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/press_office/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/tester/0/tools/data_recorder/inbound/records.jsonl",
+            "folders/press_office/data/records.jsonl",
+            "logs/bus/0/20260909.014232.271790.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260909.014232.425131.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop/0/20260909.014214.339337.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260909.014214.349687.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260909.014215.982798.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260909.014231.842413.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260909.014235.265373.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260909.014237.021817.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/harbor_master/0/20260909.014232.226129.HarborMasterDevice.reconciled.json"
+          ],
+          "elided": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

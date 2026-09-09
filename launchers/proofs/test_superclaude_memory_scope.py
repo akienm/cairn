@@ -47,6 +47,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
 
+from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
@@ -151,8 +152,22 @@ def _launch(extra_env: dict[str, str]) -> str:
     return out.stdout
 
 
+# A PTY CARRIES TERMINAL CONTROL, AND THE FIRST REPORTED LINE IS WHERE IT LANDS.
+# The launcher clears the screen before exec'ing, so the reporter's first line arrives as
+# `\x1b[H\x1b[2J\x1b[3JCGROUP=/user.slice/...` — the escapes sit on the SAME line, ahead of
+# the key, and a `^KEY=` anchor cannot see past them. Measured 2026-09-08: CGROUP was the
+# only key ever dropped, because it is the only one that is ever first, and the two teeth
+# reading it red'd `<none>` while the kernel was reporting a perfectly good
+# `superclaude-1704838.scope`. That is a check going RED for the wrong reason, which is the
+# same defect as a check going green for one. Strip CSI/OSC before parsing: the pty is a
+# terminal, the launcher is right to paint it, and the parser is what has to cope.
+_ANSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)")
+
+
 def _limits(report: str) -> dict[str, str]:
-    return dict(re.findall(r"^(CGROUP|MAX|HIGH|SWAP|ARGV)=(.*)$", report, re.M))
+    clean = _ANSI.sub("", report)
+    return {k: v.rstrip("\r") for k, v in
+            re.findall(r"^(CGROUP|MAX|HIGH|SWAP|ARGV)=(.*)$", clean, re.M)}
 
 
 def half_two_in_situ() -> None:
@@ -226,12 +241,23 @@ def half_three_the_directive_outranks_the_cap() -> None:
     # Record OUR cgroup first: when this proof itself runs inside a superclaude scope,
     # the NO_SCOPE child inherits it rather than getting a new one — checking "not in ANY
     # superclaude scope" was the pre-existing red (n=1, pid 1156415).
-    our_cg = Path("/proc/self/cgroup").read_text().strip().split(":")[-1]
+    # THE READ IS BORROWED, NOT RE-SPELLED (2026-09-08). This line was the third copy of
+    # the parse in the corpus, and it was the WORST of the three: splitting on ":" and
+    # taking the last field keeps the kernel's " (deleted)" suffix and mis-reads any v1
+    # line that happens to sort last, so the comparison below could fail against a scope
+    # that was in fact the same one.
+    our_cg = cgroup_of()
+    # Law 7 — a lack is named at the diagnostic surface, never defaulted. The tool returns
+    # None on a host with no unified hierarchy, and that would make the comparison below
+    # meaningless rather than false; the old spelling raised OSError here instead, which
+    # took the whole arm down with a traceback rather than one legible red.
+    check("this process's own cgroup is readable (the comparison below needs it)",
+          isinstance(our_cg, str), f"cgroup_of() -> {our_cg!r}")
     got = _limits(_launch({"SUPERCLAUDE_NO_SCOPE": "1"}))
     check("SUPERCLAUDE_NO_SCOPE still reaches the binary", "ARGV" in got, repr(got))
     child_cg = got.get("CGROUP", "")
     child_scope = child_cg.rstrip("/").split("/")[-1]
-    our_scope = our_cg.rstrip("/").split("/")[-1]
+    our_scope = (our_cg or "").rstrip("/").split("/")[-1]
     check(
         "NO_SCOPE does not create a NEW superclaude scope for this launch",
         child_scope == our_scope or not child_scope.startswith("superclaude-"),

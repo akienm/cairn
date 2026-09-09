@@ -1,39 +1,64 @@
 [
   {
     "claim": "proof test_ground_loop_survives_its_caller.py passes under python3",
-    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
-    "date": "2026-09-08T18:43:48",
+    "caller": "red-disposal:the-cgroup-parse-exists-once",
+    "date": "2026-09-08T19:46:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "the heartbeat outlives its caller — scratch at /tmp/cairn-proof-heartbeat-7wmrmsg4\n\nRESIDENCY AND SURVIVAL — the real launcher, a disposable caller, and the kernel\n  PASS  the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  FAIL  a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-7wmrmsg4/home-1/.cairn/devices/ground_loop/0/liveness.json: None",
-      "stderr_tail": "    raise SystemExit(main())\n                     ^^^^^^\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 587, in main\n    _cleanup_units()\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 111, in _cleanup_units\n    _run(\"systemctl\", \"--user\", \"stop\", f\"{name}.service\", timeout=20)\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 100, in _run\n    return subprocess.run(list(argv), capture_output=True, text=True, timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 550, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 1209, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 2116, in _communicate\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\n  File \"/usr/lib/python3.12/subprocess.py\", line 1253, in _check_timeout\n    raise TimeoutExpired(\nsubprocess.TimeoutExpired: Command '['systemctl', '--user', 'stop', 'cairn-proof-loop-1564376-1.service']' timed out after 20 seconds",
+      "returncode": 0,
+      "stdout_tail": "  PASS  systemd-run unreachable: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  and the boot log carries the exec line  — boot log: ' web_server: systemd-run unavailable — spawned with setsid\\n20260908.194554.812764.1781850: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'\n  PASS  and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20260908.194554.797775.1781850: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)\n  PASS  unit name already taken: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  --dry-run still exits 0, prints its exec line and starts nothing  — rc=0\n\nONE READER — the cgroup parse exists once, and both consumers import it\n  PASS  the tool's own proof still reads the kernel directly (it must not go hollow)  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']\n  PASS  exactly one file READS /proc/<pid>/cgroup from python  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']\n  PASS  and every other mention of the path is declared with its reason  — undeclared: []\n  PASS  no declared exemption has gone stale (it would be a licence nothing uses)  — stale: []\n    declared, not a python read: cairn/devices/cairn/machines/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py\n      because prose only, in two places, and both are the record of the read LEAVING: the module docstring says what the probe carries home each beat, and the header where `cgroup_of` used to live quotes its own retired claim to be the sole reader. It imports the tool now; a read here again would be the extraction undone\n    declared, not a python read: launchers/proofs/test_ground_loop_survives_its_caller.py\n      because this file: prose in the docstring and the census pattern itself; the read it uses is the tool's, imported at the top and asserted by the next check\n    declared, not a python read: launchers/proofs/test_superclaude_memory_scope.py\n      because a bash one-liner (`cut -d: -f3 /proc/self/cgroup`) inside the stand-in that REPLACES the claude binary — it runs as the launched process, reporting its own cgroup from inside a scope this proof cannot enter, and it cannot import a python probe\n  PASS  and this proof reaches BOTH by importing, not by re-spelling either\n\nGREEN — the heartbeat is the manager's, and it kept beating over its caller's grave.",
+      "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "71fa53b292ebd8980a56279bbba2d9751ff1e9c625131d999917541f89455628",
+      "source_fingerprint": "bee9ed47bd82f3c3619cdbb26ba19219ae50a670a5d27c66a7ebe157b1009823",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__main__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovered.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/machines/ground_loop/loop.py",
+        "cairn/devices/cairn/machines/ground_loop/staleness.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
         "launchers/proofs/test_ground_loop_survives_its_caller.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1560667-kolx4_7x/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1768746-rzyozsjw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl"
+          ],
           "elided": 0
         }
       }

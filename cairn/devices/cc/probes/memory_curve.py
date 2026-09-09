@@ -23,19 +23,14 @@ from pathlib import Path
 
 from cairn.tools.base import address
 from cairn.tools.base.probe import Probe
+# THE CGROUP READ IS A TOOL, NOT A COPY. This file held its own byte-identical
+# spelling of the parse until 2026-09-08, when the census in arm 6 of
+# launchers/proofs/test_ground_loop_survives_its_caller.py counted three of them.
+# The ground_loop probe holds the other one; devices do not import each other, so
+# the shared primitive berths at the tool rung where both may reach it (Law 6).
+from cairn.tools.cgroup.cgroup import cgroup_of as _cgroup_path
 
 _SERIES_PATH = address.instance_path("cc", 0) / "memory_series.jsonl"
-
-
-def _cgroup_path() -> str | None:
-    try:
-        raw = Path("/proc/self/cgroup").read_text()
-    except OSError:
-        return None
-    for line in raw.splitlines():
-        if line.startswith("0::"):
-            return line[3:].removesuffix(" (deleted)")
-    return None
 
 
 def _read_cgroup_memory(cgroup: str) -> int | None:

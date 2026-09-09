@@ -55,6 +55,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
 
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
+from cairn.devices.cairn.machines.ground_loop import liveness as _gl_liveness  # noqa: E402
+from cairn.devices.cairn.machines.ground_loop.__main__ import CADENCE_S as _CADENCE_S  # noqa: E402
 
 # Resolved ONCE, before any arm hands a child a pruned PATH. The prime-directive arm makes
 # systemd-run unreachable to the LAUNCHER, and an early version of that arm made it
@@ -64,21 +67,27 @@ SYSTEMD_RUN = shutil.which("systemd-run") or "systemd-run"
 REPO = Path(__file__).resolve().parents[2]
 SUPERCLAUDE = REPO / "launchers" / "superclaude"
 
-# THE PROBE IS THE READER, AND THE PROOF BORROWS IT — loaded by path exactly as
-# test_reported_but_unfixed_probe.py loads its own floor. The cgroup parse exists once, in
-# the instrument that ships with the thing it watches; a second spelling here would be the
-# corpus growing two readers of /proc/*/cgroup, which criterion 7 of the chart forbids.
+# THE JUDGEMENTS ARE THE PROBE'S AND THE READ IS A TOOL'S, AND THE PROOF BORROWS BOTH.
+# The probe is loaded by path exactly as test_reported_but_unfixed_probe.py loads its own
+# floor; a second spelling of either here would be the corpus growing a second reader of
+# /proc/*/cgroup, which criterion 7 of the chart forbids.
 # The berth moved with the thing it watches: 6ae83e7 absorbed ground_loop into the cairn
 # device as one of its machines, and a probe berths WITH what it watches. Line 137 below
 # already reads the new module path; this one did not, and the seal that would have caught
 # it was directory-scoped over launchers/, which the move never touched.
+# THE READ MOVED OUT ON 2026-09-08 for the same reason the census exists: when this arm
+# was finally re-run it counted THREE readers, because cc's memory_curve probe and the
+# superclaude memory-scope proof had each grown their own copy. Two devices needing one
+# primitive is a TOOL (Law 6), so the parse now berths at cairn/tools/cgroup and the probe
+# imports it; SOLE_READER below is that tool, and BERTH keeps only what it always was —
+# the instrument that decides what a cgroup MEANS for the heartbeat's lifetime.
 BERTH = (REPO / "cairn" / "devices" / "cairn" / "machines" / "ground_loop" / "probes"
          / "does_the_heartbeat_outlive_its_caller.py")
+SOLE_READER = REPO / "cairn" / "tools" / "cgroup" / "cgroup.py"
 _spec = importlib.util.spec_from_file_location("_probe_heartbeat_residency", BERTH)
 probe_mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(probe_mod)
 
-cgroup_of = probe_mod.cgroup_of
 is_descendant = probe_mod.is_descendant
 residency = probe_mod.residency
 alive = probe_mod.alive
@@ -86,6 +95,12 @@ alive = probe_mod.alive
 _SCRATCH = scratch_dir("cairn-proof-heartbeat-")
 _UNITS: list[str] = []          # every transient unit this run created, cleaned at the end
 _TAG = f"{os.getpid()}"
+
+# The liveness record's address, taken from its OWNER (ground_loop.liveness) and expressed
+# relative to $HOME so it can be re-rooted onto a fixture home. `instance_home()` resolves
+# against the live tree; only the tail below it is used.
+_LIVENESS_TAIL = (_gl_liveness.instance_home().relative_to(Path.home())
+                  / _gl_liveness.RECORD_NAME)
 
 FAILURES: list[str] = []
 
@@ -106,12 +121,34 @@ def _unit(kind: str, n: int) -> str:
     return name
 
 
+# systemd's own TimeoutStopSec is 90s: `systemctl stop` waits that long, SIGKILLs, and only
+# THEN returns. So any cleanup timeout under ~95s is a proof that can fail on its own
+# housekeeping instead of on the thing under test — which is what happened on 2026-09-08,
+# when 20s here raised TimeoutExpired out of the `finally:` and replaced every tooth's
+# verdict with a traceback. The stop itself is now sub-second (test_stop_is_prompt.py), and
+# this number is not the fix for that; it is the number that stops the cleanup from ever
+# being the reporter of a defect that isn't its own.
+_CLEANUP_TIMEOUT_S = 120
+
+
 def _cleanup_units() -> None:
+    """Best-effort, and LOUD about what it could not do — never fatal.
+
+    CLEANUP MUST NOT BE ABLE TO EAT THE VERDICT (Law 7: loud at a diagnostic surface, and a
+    proof's stdout is the most diagnostic surface it has). This runs in a `finally:`, so an
+    exception raised here outranks every PASS and FAIL already computed and hands the caller
+    a traceback where a verdict belongs. A stop that times out is a real finding — it is
+    recorded as one, in FAILURES, where it will be read — and the run still reports.
+    """
     for name in _UNITS:
-        _run("systemctl", "--user", "stop", f"{name}.service", timeout=20)
-        _run("systemctl", "--user", "reset-failed", f"{name}.service", timeout=20)
-        _run("systemctl", "--user", "stop", f"{name}.scope", timeout=20)
-        _run("systemctl", "--user", "reset-failed", f"{name}.scope", timeout=20)
+        for kind in ("service", "scope"):
+            for verb in ("stop", "reset-failed"):
+                try:
+                    _run("systemctl", "--user", verb, f"{name}.{kind}",
+                         timeout=_CLEANUP_TIMEOUT_S)
+                except (subprocess.TimeoutExpired, OSError) as exc:
+                    check(f"cleanup: `systemctl --user {verb} {name}.{kind}` completed",
+                          False, f"{type(exc).__name__}: {exc}")
 
 
 def _cleanup_strays() -> int:
@@ -242,7 +279,15 @@ class Drive:
 
     @property
     def liveness(self) -> Path:
-        return self.home / ".cairn" / "devices" / "ground_loop" / "0" / "liveness.json"
+        # DERIVED FROM THE OWNER'S OWN READ FACE, never re-spelled here. This property held
+        # `.cairn/devices/ground_loop/0/liveness.json` — the address from before the loop
+        # became a MACHINE of the cairn device — so on 2026-09-08 it reported `None` at a
+        # path nothing writes while the record sat, correct and current, two segments away
+        # at `.cairn/devices/cairn/0/machines/ground_loop/liveness.json`. Two teeth red'd on
+        # a working heartbeat. `instance_home()` is where that shape is decided; taking the
+        # tail from it and re-rooting on the fixture's HOME means the next move of the
+        # address moves this with it.
+        return self.home / _LIVENESS_TAIL
 
     @property
     def nohup(self) -> Path:
@@ -351,8 +396,20 @@ def arms_one_and_two() -> None:
               alive(loop_pid), f"pid {loop_pid}")
 
         # The trail, not the process table: a live pid could be a wedged one.
+        # THE WINDOW IS A CADENCE PLUS A WHOLE BEAT, AND THE 60 IT REPLACES WAS NEITHER.
+        # This tooth's claim is CONTINUATION — the loop keeps beating over its caller's
+        # grave — and a hardcoded 60 quietly turned it into a LATENCY claim against a
+        # number that was true when the beat was cheap and stopped being true when it was
+        # not. Measured 2026-09-08 on the live loop: beat 1 at 19:21:19, beat 7 at
+        # 19:30:03 — 87.3s per cycle, because a cycle is CADENCE_S of sleep PLUS the beat
+        # itself (23.7s at the time of commit 38483e7). A 60s window therefore could not
+        # see a second beat no matter how healthy the loop was, and it red'd a working
+        # heartbeat. Cadence is imported rather than re-spelled so the bound moves when
+        # the ruled cadence does; the multiplier is the beat's own room. Timing proper is
+        # measured where it belongs — the_beat_stays_inside_its_cadence probe — and this
+        # tooth is not the place to re-derive it.
         advanced, seen = False, None
-        end = time.time() + 60
+        end = time.time() + 3 * _CADENCE_S
         while time.time() < end and not advanced:
             try:
                 now = json.loads(d.liveness.read_text())
@@ -527,7 +584,12 @@ _DECLARED_MENTIONS = {
         "inside a scope this proof cannot enter, and it cannot import a python probe",
     "launchers/proofs/test_ground_loop_survives_its_caller.py":
         "this file: prose in the docstring and the census pattern itself; the read it uses "
-        "is the probe's, imported at the top and asserted by the next check",
+        "is the tool's, imported at the top and asserted by the next check",
+    "cairn/devices/cairn/machines/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py":
+        "prose only, in two places, and both are the record of the read LEAVING: the "
+        "module docstring says what the probe carries home each beat, and the header where "
+        "`cgroup_of` used to live quotes its own retired claim to be the sole reader. It "
+        "imports the tool now; a read here again would be the extraction undone",
 }
 
 
@@ -544,9 +606,16 @@ def arm_six_one_reader() -> None:
         (reads if re.search(r"read_text\(|open\(|readlines\(", text) else mentions).add(rel)
     mentions -= reads
 
-    berth_rel = str(BERTH.resolve().relative_to(REPO))
+    # THE TOOL'S OWN PROOF IS THE ONE SANCTIONED SECOND READER, and it is sanctioned by
+    # NAME rather than by a pattern: it opens the file with its own eyes to check the tool
+    # against the kernel, and a proof that took the module's word for it would be the
+    # hollow floor Law 8 exists to refuse. Anything else that reads is a finding.
+    sole_rel = str(SOLE_READER.resolve().relative_to(REPO))
+    tool_proof = "cairn/tools/cgroup/proofs/test_cgroup.py"
+    check("the tool's own proof still reads the kernel directly (it must not go hollow)",
+          tool_proof in reads, f"readers: {sorted(reads)}")
     check("exactly one file READS /proc/<pid>/cgroup from python",
-          reads == {berth_rel}, f"readers: {sorted(reads)}")
+          reads - {tool_proof} == {sole_rel}, f"readers: {sorted(reads)}")
 
     undeclared = sorted(m for m in mentions if m not in _DECLARED_MENTIONS)
     check("and every other mention of the path is declared with its reason",
@@ -559,8 +628,9 @@ def arm_six_one_reader() -> None:
         print(f"      because {_DECLARED_MENTIONS.get(m, '<UNDECLARED>')}")
 
     proof_src = Path(__file__).read_text()
-    check("and this proof reaches it by importing the probe, not by re-spelling it",
-          "spec_from_file_location" in proof_src and "cgroup_of = probe_mod" in proof_src)
+    check("and this proof reaches BOTH by importing, not by re-spelling either",
+          "spec_from_file_location" in proof_src
+          and "from cairn.tools.cgroup.cgroup import cgroup_of" in proof_src)
 
 
 def main() -> int:

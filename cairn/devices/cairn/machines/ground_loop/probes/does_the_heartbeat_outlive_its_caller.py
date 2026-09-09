@@ -68,6 +68,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import resolve
 from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.cgroup.cgroup import cgroup_of
 
 _OWNING_TICKET = "the-heartbeat-outlives-its-caller"
 
@@ -84,32 +85,18 @@ _SPAWNER_WINDOW_S = 10.0
 _STAMP = re.compile(r"^(\d{8})\.(\d{6})\.(\d{1,6})\.(\d+):\s(.*)$")
 
 
-# ── the cgroup reading, written once ─────────────────────────────────────────
-# THE ONE READER OF /proc/*/cgroup IN THIS CORPUS. The proof loads this module by path and
-# uses these three functions rather than re-spelling the parse, which is the whole reason
-# they are module-level and take a pid instead of closing over ``self``.
-
-def cgroup_of(pid: int | str = "self") -> str | None:
-    """The cgroup v2 path of ``pid``, or ``None`` when there is no unified line to read.
-
-    ``None`` is a real answer and not an error: a v1-only host, a pid that exited between
-    the listing and the read, and a container with no unified hierarchy all land here, and
-    each is a fact about the world rather than a broken probe (Law 7 — the lack is named
-    by the caller that reports it, not swallowed here into a plausible default)."""
-    try:
-        raw = Path(f"/proc/{pid}/cgroup").read_text()
-    except OSError:
-        return None
-    for line in raw.splitlines():
-        if line.startswith("0::"):
-            # The kernel appends " (deleted)" when the cgroup has been removed out from
-            # under a still-living process — which is exactly what a killed caller's scope
-            # looks like for the moment between the kill and the last exit. The path is
-            # still the identity; the marker is not part of it, and swallowing it here
-            # keeps every downstream comparison from silently missing.
-            return line[3:].removesuffix(" (deleted)")
-    return None
-
+# ── the cgroup reading, composed not re-spelled ──────────────────────────────
+# THE READ MOVED OUT ON 2026-09-08, and this header is what it left behind. It used to say
+# "THE ONE READER OF /proc/*/cgroup IN THIS CORPUS", and that claim stopped being true
+# without anyone editing this file: two later voyages grew their own copies of the same
+# eight-line parse (cc's memory_curve probe, the superclaude memory-scope proof), and the
+# census that guards the claim sits in a proof under a directory-scoped seal that neither
+# voyage touched. Two devices needing the same primitive is the definition of a TOOL
+# (Law 6 — a tool has users, not an owner), so `cgroup_of` now berths at
+# cairn/tools/cgroup and is imported above. What stays here is what is actually this
+# probe's: the JUDGEMENTS. `is_descendant`, `residency` and `alive` decide what a cgroup
+# MEANS for the heartbeat's lifetime, and that reasoning belongs with the thing it
+# watches. They remain module-level and pid-taking so the proof can borrow them by path.
 
 def is_descendant(inner: str | None, outer: str | None) -> bool:
     """Is ``inner`` the same cgroup as ``outer``, or beneath it? Path containment on the

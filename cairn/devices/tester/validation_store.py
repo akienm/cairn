@@ -89,6 +89,16 @@ import os
 import tempfile
 
 from cairn.devices.tester.device import GREEN, VALIDATION_FIELDS
+from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
+
+# THE AXIS IS WHETHER ANYONE LOOKED, NOT HOW STRONG THE SEAL IS. isolation.py's own comments
+# draw it: `open` is "not asked for; the route is open by construction, said so" — the ONE
+# verdict of the four that is the ABSENCE of a measurement. The other three are measurements:
+# sealed (confirmed from inside), indeterminate (asked, could not confirm — CP1), breached
+# (asked, the route is still there — a measured RED). So the set below is not a strength
+# ordering and must never be read as one: it is the answer to "did somebody take a reading
+# here?", which is the only question a replace can silently destroy the answer to (Law 3).
+_MEASURED_SEALS = frozenset({SEALED, INDETERMINATE, BREACHED})
 
 # THE FIXTURE WORLD, named so persist_validation can stay silent inside it. The predicate is
 # "is this under the temp root" rather than "is this under class-space", and the difference is
@@ -401,6 +411,70 @@ def standing(proof_path: str) -> dict:
         f"{scope} still matches what was proved ({recorded[:12]}…)")}
 
 
+class SealDowngradeRefused(ValueError):
+    """A measurement was about to be replaced by the absence of one, and the door said no."""
+
+
+def _seal_verdict_of(record: dict) -> str | None:
+    """The seal verdict recorded INSIDE one VALIDATION's evidence, or ``None`` if it carries none.
+
+    ``None`` is not a fourth verdict — it is "this record says nothing about a seal", which is
+    what every pre-seal record in the corpus says (measured 2026-09-09: exactly one of 201).
+    Kept separate from the four because collapsing "nobody recorded" into ``open`` ("nobody
+    asked") is the same category error this whole module is about, one level down.
+    """
+    evidence = record.get("evidence")
+    if not isinstance(evidence, dict):
+        return None
+    seal = evidence.get("seal")
+    if not isinstance(seal, dict):
+        return None
+    verdict = seal.get("verdict")
+    return verdict if isinstance(verdict, str) else None
+
+
+def standing_seal(proof_path: str | None = None, *, path: str | None = None) -> str | None:
+    """What seal is STANDING for this proof right now — one of the four verdicts, or ``None``.
+
+    THE READER THAT DID NOT EXIST. Measured 2026-09-09 with a grep for every ``["seal"]`` and
+    ``.get("seal"`` across ``cairn/``, ``bin/`` and ``skills/``: sixteen hits, and not one of
+    them opens a standing on-disk validation to ask what seal it carries. Every hit is either a
+    proof asserting on a record it just produced, a read of the seal's DATE rather than its
+    verdict, or a path being formatted. The seal was written by the door and read by nobody —
+    which is exactly how 121 sealed records could be overwritten by an unsealed re-run without
+    anything in the system noticing (Law 1: the answer nobody can look up gets re-derived, or
+    in this case, thrown away).
+
+    ``None`` means "nothing is standing": no validations file, an empty one, or a record that
+    carries no seal at all. It is deliberately NOT ``open``. A file that does not exist and a
+    record saying "no seal was requested" are different facts, and the second one is a
+    measurement — treating absence as ``open`` would let the guard below wave through the very
+    first replace of a record it never read.
+    """
+    trail = read_validations(proof_path, path=path)
+    if not trail:
+        return None
+    return _seal_verdict_of(trail[-1])
+
+
+def isolation_for_seal(verdict: str | None) -> str | None:
+    """The isolation that would REPRODUCE a standing seal verdict — ``None`` if it says nothing.
+
+    Three of the four verdicts mean the seal was ASKED FOR (sealed, indeterminate, breached),
+    so reproducing them means asking again: ``netns``. ``open`` means nobody asked, so
+    reproducing it means not asking: ``none``. ``None`` in means ``None`` out — there is no
+    standing record to reproduce, and the caller's own default is the honest answer, not a
+    guess dressed as one.
+
+    This lives here rather than in the runner because it is the seal vocabulary's own
+    knowledge, and a provider does not know its consumers: the CLI, a re-seal sweep and the
+    probe all ask the same question and must not each spell the mapping their own way.
+    """
+    if verdict is None:
+        return None
+    return "none" if verdict == OPEN else "netns"
+
+
 def verdict_change(standing_trail: list, incoming: dict) -> dict | None:
     """Does this incoming record CHANGE the verdict standing on the trail? ``None`` if not.
 
@@ -509,7 +583,7 @@ def _atomic_write(path: str, data) -> None:
 
 def persist_validation(
     validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None,
-    trouble_device=None,
+    trouble_device=None, unsealing_because: str | None = None,
 ) -> str:
     """The single write-door: SEAL one VALIDATION as the current record beside what it seals.
 
@@ -538,6 +612,24 @@ def persist_validation(
     that is the honest residue: this door cannot report its own silence. It is why the
     announcement is a trouble (durable, damped, human-facing) rather than a log line.
 
+    AND A MEASUREMENT IS NEVER REPLACED BY THE ABSENCE OF ONE (2026-09-09, ticket
+    4431cf2bc625). Because the door REPLACES, a re-run that did not ask for the network seal
+    used to overwrite a record that HAD measured it — 44 validations went that way in one
+    afternoon and nothing refused, which was caught by diffing a file by hand. The guard below
+    refuses a record carrying seal ``open`` over a standing ``sealed``/``indeterminate``/
+    ``breached``, because those three are readings and ``open`` is the absence of one. It
+    deliberately does NOT refuse the other directions: ``sealed -> breached`` is a measured
+    failure and Law 7 says it must land loudly, and ``sealed -> indeterminate`` is CP1 saying
+    "I could not confirm" — both are readings, and a guard that blocked them would be
+    protecting an old green from a new red, which is the opposite of the job.
+
+    ``unsealing_because`` is the escape, and the escape is what keeps this a gate rather than a
+    wall: a caller who genuinely means to drop the seal says why, and the reason lands
+    PERMANENTLY inside the new record's evidence. Inside, not beside — the eight fields are
+    ratified (Akien's half of this device's ownership) and everything a run measured about
+    itself already rides in evidence. A ruling id is a legal thing to write there; the field
+    takes prose so that the cheaper case does not have to mint a ruling to get past a bug.
+
     ``trouble_device`` is injectable for proofs; see ``announce_verdict_change``.
     """
     if (proof_path is None) == (artifact_path is None):
@@ -565,6 +657,25 @@ def persist_validation(
     )
     record = dict(validation)
     standing_trail = read_validations(path=path)
+
+    # THE GUARD, AND IT FIRES BEFORE ANYTHING ELSE HAPPENS — before the announce, before the
+    # write. A refusal that had already announced would have reported a change that never
+    # landed; a refusal after the write would not be a refusal at all.
+    was = _seal_verdict_of(standing_trail[-1]) if standing_trail else None
+    now = _seal_verdict_of(record)
+    if was in _MEASURED_SEALS and now == OPEN:
+        if not (isinstance(unsealing_because, str) and unsealing_because.strip()):
+            raise SealDowngradeRefused(
+                f"{os.path.relpath(path)} carries a seal that was ASKED FOR ({was!r}) and this "
+                f"record carries {OPEN!r} — which is not a weaker reading, it is the ABSENCE of "
+                "one. Because this door REPLACES, landing it would retire the measurement with "
+                "nothing left on disk to say a measurement was ever taken (Law 3). Two ways "
+                "forward: re-run at the isolation the standing seal was taken at (`cairn test "
+                "--seal` now does this per proof, so the ordinary path never reaches here), or "
+                "pass unsealing_because='<why>' and the reason rides permanently in the "
+                "record's evidence.")
+        record["evidence"] = {**evidence, "unsealing_because": unsealing_because}
+
     change = verdict_change(standing_trail, record)
     # A FIXTURE'S VERDICT CHANGE IS THE FIXTURE DOING ITS JOB, not a defect in the world.
     # Proofs seal into tmpdirs by the dozen and flip verdicts on purpose; announcing those

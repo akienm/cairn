@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_seal_is_never_silently_dropped.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-09T06:52:57",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_measured_seal_cannot_be_replaced_by_the_absence_of_one\n  PASS  test_the_escape_is_recorded_permanently_not_ambient\n  PASS  test_the_guard_does_not_block_a_NEW_measurement\n  PASS  test_the_standing_seal_is_readable_and_its_isolation_reproducible\n  PASS  test_the_seal_summary_counts_what_LANDED_not_what_passed\ngreen — a measured seal is never replaced by an unrequested one, the escape is on the record, and the summary counts what landed",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_measured_seal_cannot_be_replaced_by_the_absence_of_one",
+        "test_the_escape_is_recorded_permanently_not_ambient",
+        "test_the_guard_does_not_block_a_NEW_measurement",
+        "test_the_standing_seal_is_readable_and_its_isolation_reproducible",
+        "test_the_seal_summary_counts_what_LANDED_not_what_passed"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "source_fingerprint": "b56010e250f397e12575d6e4506c06a6e7e74470baafcc83dff2027c2d45ca4d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3594651-c8pzoe91/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 17,
+          "paths": [
+            "logs/tester/0/20260909.125246.223750.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125246.922787.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125247.639275.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125248.409901.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125249.081932.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125249.767763.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125250.475734.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125251.181811.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125251.880814.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125252.598321.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125253.329474.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125254.025680.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125254.728187.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125255.436202.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125256.150244.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125256.850205.TesterDevice.run_proof.json",
+            "logs/tester/0/20260909.125257.566322.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 113146677,
+          "disk_bytes": 121933824,
+          "entries": 3654,
+          "builds": 1,
+          "reuses": 5
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

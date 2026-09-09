@@ -49,9 +49,15 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.devices.tester.validation_store import (
+    SealDowngradeRefused,
+    isolation_for_seal,
+    standing_seal,
+)
 from cairn.tools.system_word import fold_flags
 
 # The repo root: cairn/devices/tester/cli.py -> cairn/devices/tester -> cairn -> root
@@ -126,23 +132,66 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     tester = TesterDevice()
-    isolation = "netns" if args.netns else "none"
     sink = "validations" if args.seal else "none"
     reds: list[tuple[Path, dict]] = []
+    refused: list[tuple[Path, str]] = []
+    persisted = 0
+    isolations: Counter[str] = Counter()
+
+    def isolation_for(proof: Path) -> str:
+        """WHICH SEAL THIS PROOF RE-RUNS UNDER — asked per proof, not hoisted out of the loop.
+
+        The old line was ``isolation = "netns" if args.netns else "none"``, ONCE, above the
+        loop, and it is what made 2026-09-08's blanket re-seal reddening three proofs possible:
+        one flag decided for every proof in the corpus, so a sweep that meant "re-seal these"
+        also silently meant "and change how they are sealed". Three of them could not honestly
+        run inside a netns at all, and the seal measurement that said so was overwritten by one
+        that said nobody had asked.
+
+        So a sealing run asks each proof's standing validation what isolation its seal was
+        taken at and reproduces THAT. ``--netns`` still wins outright — an explicit ask
+        outranks a standing record, because that is the only way to seal something the first
+        time. A proof that has never been sealed has nothing to reproduce and runs bare, which
+        is this command's documented default.
+
+        A DIAGNOSTIC RUN IS UNCHANGED, deliberately. Without ``--seal`` nothing lands in a
+        record of truth, so there is nothing to preserve; widening the per-proof read to every
+        run would be a change to what a plain ``cairn test`` COSTS, and that is outside this
+        ticket's bounds.
+        """
+        if args.netns:
+            return "netns"
+        if args.seal:
+            return isolation_for_seal(standing_seal(str(proof))) or "none"
+        return "none"
 
     for proof in proofs:
+        rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
         if not proof.is_file():
             print(f"  UNRUNNABLE  {proof}")
             reds.append((proof, {}))
             continue
-        record = tester.run_proof(proof, sink=sink, caller="cairn test",
-                                  timeout=args.timeout, isolation=isolation)
+        isolation = isolation_for(proof)
+        isolations[isolation] += 1
+        try:
+            record = tester.run_proof(proof, sink=sink, caller="cairn test",
+                                      timeout=args.timeout, isolation=isolation)
+        except SealDowngradeRefused as refusal:
+            # THE DOOR REFUSED THE SEAL, NOT THE PROOF, and the difference has to survive to
+            # the screen. The batch continues: one proof whose seal cannot land is not a
+            # reason to lose the verdicts of the fifty after it, and swallowing the refusal
+            # into a stack trace would end the run at the first one (Law 7 — loud here,
+            # and the run still finishes).
+            print(f"  REFUSED {rel}  (ran, but the seal was refused)")
+            refused.append((proof, str(refusal)))
+            continue
+        if sink == "validations":
+            persisted += 1
         verdict = record["verdict"]
-        rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
         if verdict == GREEN:
             if not args.quiet:
                 seal = record["evidence"]["seal"]["verdict"]
-                print(f"  green  {rel}" + (f"  [seal={seal}]" if args.netns else ""))
+                print(f"  green  {rel}" + (f"  [seal={seal}]" if args.netns or args.seal else ""))
         else:
             print(f"  RED    {rel}")
             reds.append((proof, record))
@@ -163,21 +212,40 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"    {line}")
 
     total, n_red = len(proofs), len(reds)
-    print(f"\n{total} proof{'s' if total != 1 else ''} · {total - n_red} green · {n_red} red"
-          + (f" · isolation={isolation}" if args.netns else ""))
+    n_green = total - n_red - len(refused)
+    # THE ISOLATION IS A DISTRIBUTION NOW, NOT A WORD. It used to print the one hoisted value,
+    # which was true only because every proof got the same one. A batch that reproduces each
+    # proof's own seal genuinely runs several, so the line reports what actually happened —
+    # collapsing them back to one word would be a diagnostic surface stating a convenient
+    # shape instead of the measurement (Law 7).
+    spread = " ".join(f"{k}={v}" for k, v in sorted(isolations.items()))
+    print(f"\n{total} proof{'s' if total != 1 else ''} · {n_green} green · {n_red} red"
+          + (f" · {len(refused)} seal-refused" if refused else "")
+          + (f" · isolation {spread}" if (args.netns or args.seal) and spread else ""))
     # THE NOT-SEALING SAYS ITSELF. This line is the half of --seal that the ticket is
     # actually about: without it, a run that printed green and persisted nothing looked
     # exactly like a run that sealed, so nobody could see the affordance was missing —
     # they could only feel it, and route around it. Printed on every run, both ways, and
     # printed LAST so it is the line still on screen when the next decision is made.
     if args.seal:
-        print(f"SEALED — {total - n_red} VALIDATION(s) persisted through the store's door "
+        # THE COUNT IS WHAT LANDED, NOT WHAT PASSED. Until 2026-09-09 this line printed
+        # `total - n_red` in the same breath as "a red seals its red" — measured that day over
+        # the corpus: 49 proofs, 6 red, the line said 43, and all 49 files were on disk. A
+        # record-of-truth command miscounting the records it just wrote is a Law 7 defect in
+        # one line, and it was misreporting exactly the thing this ticket is about. `persisted`
+        # is now incremented once per record that actually went through the door.
+        print(f"SEALED — {persisted} VALIDATION(s) persisted through the store's door "
               f"beside the proofs they seal (a red seals its red; Law 7).")
+        for proof, why in refused:
+            rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
+            print(f"\n─── SEAL REFUSED: {rel} " + "─" * 20)
+            for line in why.splitlines():
+                print(f"    {line}")
     else:
         print("NOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, "
               "so nothing here has changed what `standing()` says about any of this code. "
               "Re-run with --seal to land the verdicts.")
-    return 1 if reds else 0
+    return 1 if (reds or refused) else 0
 
 
 if __name__ == "__main__":

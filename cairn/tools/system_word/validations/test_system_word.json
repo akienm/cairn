@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_word.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-08T21:03:07",
+    "date": "2026-09-09T06:58:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -41,7 +41,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3940244e546d3df8a699d1eb240b4b28739ed1c955fb8569beb45db2ae057693",
+      "source_fingerprint": "2b2b9f1af4dbbfc705c71da44c6b6d23a3172d9313073d48e593405041b3c26f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -87,6 +87,7 @@
         "cairn/devices/tester/cli.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/validation_store.py",
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/trouble.py",
         "cairn/machines/__init__.py",
@@ -144,25 +145,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1991680-oqk7c4_5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602816-ne0asghb/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/bus/0/20260909.030305.285211.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260909.030305.489759.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20260909.030306.145686.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260909.030306.403275.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20260909.125834.371541.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260909.125834.540609.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20260909.125835.091437.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260909.125835.315375.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 110207945,
-          "disk_bytes": 118919168,
-          "entries": 3629,
+          "bytes": 113142979,
+          "disk_bytes": 121880576,
+          "entries": 3643,
           "builds": 1,
-          "reuses": 41
+          "reuses": 11
         }
       }
     },

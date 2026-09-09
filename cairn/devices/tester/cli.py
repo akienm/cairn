@@ -43,6 +43,9 @@ invisible while it was being worked around.
     cairn test cairn/tools/base                       every proof under a subtree
     cairn test --netns <path>                   under the measured network seal
     cairn test --seal <path>                    land each verdict through the store's door
+    cairn test --reseal                         the four-rung ladder over what git has staged
+    cairn test --reseal --ruling <id> <path>    rung 4: reseal over a proof whose bytes moved
+    cairn test --reseal-install                 install the pre-commit hook that fires it
 """
 
 from __future__ import annotations
@@ -151,6 +154,92 @@ def _hollow_run(args) -> int:
     return 1 if finding["verdict"] == "red" else 0
 
 
+def _reseal_run(args) -> int:
+    """``cairn test --reseal`` — the four-rung ladder over the proofs a change touched.
+
+    NO TARGETS MEANS THE STAGED SET, and that is the verb's real shape: the hook calls it
+    with nothing, because git already knows what changed. Named targets are the direct call
+    the ticket's falsifier (5) admits beside the hook — the two reachable entrances, and
+    there is no third.
+    """
+    from cairn.devices.tester import reseal as door
+
+    if args.targets:
+        proofs = [p.resolve() for p in discover(args.targets)]
+        scope = f"{len(proofs)} named proof(s)"
+    else:
+        staged = door.staged_files()
+        proofs = door.proofs_touching(staged)
+        scope = f"{len(proofs)} proof(s) sealed over {len(staged)} staged file(s)"
+    if not proofs:
+        print(f"reseal: nothing to reprove ({scope}).")
+        return 0
+
+    print(f"reseal: {scope} — running each and disposing of what it measures.")
+    # NAMED TARGETS ALWAYS RUN. No targets is the hook, and the hook is the automatic
+    # caller Law 1 is about; a hand that types a proof name is asking for that proof.
+    outcome = door.reseal_all(proofs, ruling_id=args.ruling, timeout=args.timeout,
+                              skip_settled=not args.targets)
+    for r in outcome["results"]:
+        if r["outcome"] == "unchanged":
+            if not args.quiet:
+                print(f"  ok      {r['proof']}  (seal still reproduces)")
+        elif r["outcome"] == "red":
+            print(f"  RED     {r['proof']}  (rung 3 — trouble {r['trouble']})")
+        elif r["outcome"] == "settled-red":
+            # STILL RED, and printed in the red column — the door skipped the RUN, not the
+            # VERDICT. Printing this as "ok" would be the surface laundering a standing red
+            # into a pass because nothing happened to change it (Law 7).
+            print(f"  RED     {r['proof']}  (rung 1 — settled; {r['why']})")
+        elif r["outcome"] == "timeout":
+            # NEITHER GREEN NOR RED, and printed as neither. The door could not reprove it
+            # inside the budget, so nothing was written; collapsing that into either column
+            # would be a diagnostic surface reporting a verdict nobody measured (Law 7).
+            print(f"  TIMEOUT {r['proof']}  ({r['why']})")
+        else:
+            print(f"  RESEAL  {r['proof']}  (rung {r['rung']})")
+    for red in outcome["red"]:
+        print(f"\n─── RUNG 3: {red['proof']} " + "─" * 20)
+        for line in (red.get("stderr_tail") or "").splitlines():
+            print(f"    {line}")
+    for refusal in outcome["refusals"]:
+        print(f"\n─── RUNG 4 REFUSED: {refusal['proof']} " + "─" * 20)
+        for line in refusal["refusal"].splitlines():
+            print(f"    {line}")
+    counts = " · ".join(f"{v} {k}" for k, v in sorted(outcome["counts"].items()))
+    print(f"\nreseal: {counts or 'nothing measured'}"
+          + (f" · {len(outcome['refusals'])} refused at rung 4" if outcome["refusals"] else ""))
+    settled = [r for r in outcome["results"] if r["outcome"] == "settled-red"]
+    timeouts = [r for r in outcome["results"] if r["outcome"] == "timeout"]
+    if timeouts:
+        print(f"reseal: {len(timeouts)} proof(s) could not be reproven inside "
+              f"{args.timeout}s — re-run those with a bigger --timeout.")
+    if settled:
+        print(f"reseal: {len(settled)} proof(s) are sealed RED over an unmoved closure — the "
+              f"door did not re-run them because the answer is already taken (Law 1); they "
+              f"run again when a repair moves the fingerprint.")
+    # A SETTLED RED EXITS 1. The component is red; that the door saved itself a run does not
+    # make it green, and an exit code that said otherwise would be the cheapest possible
+    # place to lose a standing red.
+    return 1 if (outcome["red"] or outcome["refusals"] or timeouts or settled) else 0
+
+
+def _reseal_hook_admin(args) -> int:
+    """Install or verify the pre-commit hook — the host-seam's apply and its re-runnable
+    verify, at the same address as the door they fire (Law 5)."""
+    from cairn.devices.tester import reseal as door
+
+    if args.reseal_install:
+        got = door.install_hook()
+        print(("installed " if got["installed"] else "not installed ") + got["path"])
+        print(f"  {got['why']}")
+        return 0 if got["installed"] or "already installed" in got["why"] else 1
+    got = door.verify_hook()
+    print(("green  " if got["green"] else "RED    ") + got.get("path", ""))
+    print(f"  {got['why']}")
+    return 0 if got["green"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="cairn test",
@@ -177,9 +266,35 @@ def main(argv: list[str] | None = None) -> int:
              "decompose berth names, in a scratch worktree, and report which declared teeth "
              "go red. A file that reds none is named and the run exits non-zero.",
     )
+    ap.add_argument(
+        "--reseal",
+        action="store_true",
+        help="run the four-rung ladder over the proofs a staged change touched (or over "
+             "the named targets): rerun, reseal a green, bound the repair to the proof "
+             "file's hash, file one trouble per component, refuse a moved proof without a ruling",
+    )
+    ap.add_argument(
+        "--ruling",
+        metavar="ID",
+        help="rung 4: the CONFIRMED ruling id that lets a reseal land over a proof file "
+             "whose bytes have moved. Akien's alone — 'the proof's claim no longer matches "
+             "the spec' is a ruling, never a declaration",
+    )
+    ap.add_argument("--reseal-install", action="store_true",
+                    help="install the reseal door's git pre-commit hook (idempotent; "
+                         "refuses to overwrite a hook that is not this one)")
+    ap.add_argument("--reseal-verify", action="store_true",
+                    help="re-read the host: is the pre-commit hook installed, executable, "
+                         "and identical to the tracked source?")
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
     # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07)
     args = ap.parse_args(fold_flags(sys.argv[1:] if argv is None else argv))
+
+    if args.reseal_install or args.reseal_verify:
+        return _reseal_hook_admin(args)
+
+    if args.reseal:
+        return _reseal_run(args)
 
     if args.hollow:
         return _hollow_run(args)

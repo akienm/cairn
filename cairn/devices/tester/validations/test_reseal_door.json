@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_reseal_door.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-09T09:54:50",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_component_whose_source_moved_reads_red_with_no_human_act\n.\n  ok   test_a_repair_leaving_the_proof_hash_alone_reseals_green_and_closes_the_ladder\n.\n  ok   test_a_moved_proof_is_refused_without_a_ruling_and_accepted_with_a_confirmed_one\n.\n  ok   test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the_green\n.\n  ok   test_no_pulse_path_reaches_the_door\n.\n  ok   test_no_rung_writes_a_seal_without_a_run_in_the_same_act\n.\n  ok   test_a_timeout_writes_no_seal_and_bounds_no_repair\n.\n  ok   test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing\n                                                                 [100%]\n8 passed in 0.08s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_component_whose_source_moved_reads_red_with_no_human_act",
+        "test_a_repair_leaving_the_proof_hash_alone_reseals_green_and_closes_the_ladder",
+        "test_a_moved_proof_is_refused_without_a_ruling_and_accepted_with_a_confirmed_one",
+        "test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the_green",
+        "test_no_pulse_path_reaches_the_door",
+        "test_no_rung_writes_a_seal_without_a_run_in_the_same_act",
+        "test_a_timeout_writes_no_seal_and_bounds_no_repair",
+        "test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "8708a562dcb082aab4dd21b9f7a1c264ed27fb30f7ee6480f255ac1c8a94d51a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_reseal_door.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/ruling/__init__.py",
+        "cairn/machines/ruling/ruling.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-4141312-jqq588y6/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 114636184,
+          "disk_bytes": 123420672,
+          "entries": 3656,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

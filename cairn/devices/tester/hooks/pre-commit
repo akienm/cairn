@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# cairn-reseal-door — the firing event for the tester's reseal ladder.
+#
+# Ticket: CairnCommons/tickets/4d9115eb04cd-a-seal-that-cannot-be-reproven-rides-the-ruled-ladder.json
+# Source: cairn/devices/tester/hooks/pre-commit  (tracked; this copy is installed by
+#         `cairn test --reseal-install` and verified by `cairn test --reseal-verify`)
+#
+# WHY PRE-COMMIT AND NOT THE BEAT. The ticket's third constraint: "Fired from pre-commit
+# over staged files; never from any on_pulse path." A seal expires when the working tree
+# moves, and the moment a moved tree becomes the machine's state is the commit — so the
+# commit is the event, and a clock would be re-asking a question nothing had changed the
+# answer to (Law 1), 1440 times a day.
+#
+# WHY IT NEVER BLOCKS. What stops a false green is the seal not going green: component_color
+# reds the component on every inspector pass until it reproves. A hook that refused the
+# commit would put "commit often" and "a red is fixed or ruled" in a fight, and the loser
+# would be this hook, uninstalled. So it reports and gets out of the way — always exit 0.
+set -uo pipefail
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -n "$REPO" ] || exit 0
+[ -f "$REPO/cairn/devices/tester/reseal.py" ] || exit 0
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO" || exit 0
+"$PY" -m cairn.devices.tester.cli --reseal || true
+exit 0

@@ -520,6 +520,45 @@ def test_no_device_reaches_this_one_by_import():
         "these reach the trouble device by import instead of over the bus: " + str(offenders))
 
 
+def _live_commons() -> Path:
+    """The operator's CairnCommons — resolved so this proof is WORKTREE-PORTABLE.
+
+    MEASURED 2026-09-09 (ticket d0f2b03952e3, the hollow verb's first live fire): this proof
+    read 37/37 green in the live tree and 36/37 inside a scratch worktree, the one red being
+    ``test_the_inspector_troubles_were_cleared_through_the_door``. The cause was
+    ``parents[4].parent / "CairnCommons"`` — the repo root's SIBLING. A worktree is a checkout
+    of this repo at another path, so from ``/tmp/cairn-hollow-xxx/worktree`` that expression
+    names ``/tmp/cairn-hollow-xxx/CairnCommons``, which does not exist. The tooth then read
+    "the inspector isolation troubles are gone" and failed, and because a declared tooth that
+    is not green at HEAD makes every reversion reading unattributable, the whole hollow
+    measurement of ticket 9579a6f9cec6 refused with ``HollowUnmeasurable``. FOUR of that
+    ticket's FIVE declared teeth live in this file, so one unportable path was hiding 80% of
+    the only coverage evidence 9579 has.
+
+    WHY GIT'S COMMON DIR AND NOT AN ENV VAR OR ``cairnmap.commons_root()``. What this tooth
+    reads is a HISTORICAL RECORD in the operator's real commons — the evidence that two
+    troubles were cleared through the door, which is not a function of which checkout is
+    running. So the resolution must name the MAIN working tree from wherever it stands, and
+    git already knows: ``--git-common-dir`` is the shared ``.git`` of the repo and every
+    worktree of it, so its parent is the real repo root from both. Measured: identical
+    absolute answer from the live tree and from a detached worktree.
+    ``cairnmap.commons_root()`` would NOT have fixed this — it derives from ``__file__`` the
+    same way and carries the same bug; that is a shared tool with its own proofs and its own
+    ticket, and widening it from here is the shape Law 8 refuses.
+        -> ticket the-canonical-roots-resolver-is-not-worktree-portable
+    """
+    common = subprocess.run(
+        ["git", "-C", str(Path(__file__).resolve().parent),
+         "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        capture_output=True, text=True)
+    if common.returncode == 0 and common.stdout.strip():
+        return Path(common.stdout.strip()).parent.parent / "CairnCommons"
+    # NOT A SILENT FALLBACK: outside a git checkout there is no main tree to name, and the
+    # sibling guess is the honest best effort — the assertion below then fails LOUDLY naming
+    # the path it looked in, which is the behaviour that surfaced this bug in the first place.
+    return Path(__file__).resolve().parents[4].parent / "CairnCommons"
+
+
 def test_the_inspector_troubles_were_cleared_through_the_door():
     """CLAUSE (6): cleared by reconcile through ``clear``, NOT BY HAND — and the difference
     is readable on disk, which is the only reason this is a tooth rather than a promise. A
@@ -530,7 +569,7 @@ def test_the_inspector_troubles_were_cleared_through_the_door():
     number only the door is holding when it writes, and a hand editor setting a field would
     have to go read the count and copy it deliberately. And ``what_changed`` names RECONCILE
     specifically, which is the clause's other half."""
-    troubles = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "troubles"
+    troubles = _live_commons() / "troubles"
     seen = sorted(troubles.glob("*device-isolation*.json"))
     assert seen, f"the inspector isolation troubles are gone from {troubles} — the record " \
                  f"of the clearing is the evidence, and it may not be deleted (Law 7)"

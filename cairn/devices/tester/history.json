@@ -4475,5 +4475,124 @@
     "fingerprint": "3c3966251d081f3cb2763efb39e173d8d98edbe414c461d9362a592550410dbe",
     "at": "2026-09-08T18:36:35",
     "seq": 23
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '1c4ae8f053fe', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "1c4ae8f053fe"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "1c4ae8f053fe"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "1c4ae8f053fe"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/tester/proofs/test_isolation.py",
+    "proven_seal_date": "2026-09-08T20:05:53",
+    "delegated": false,
+    "ticket": "1c4ae8f053fe",
+    "note": "a seal snapshots the instance root ONCE per batch and leaves the trail tree empty. MEASURED BEFORE: 2 full copies per proof, 424M and 4.6s apiece = ~848M and ~9.2s of tmpfs (i.e. RAM) before a single tooth ran; a 93-proof re-seal sweep moved ~79G. MEASURED AFTER: 118.0MB disk / 3,619 entries / 0.09s per proof, and the live root read ONCE per process (= per --seal batch). Three changes. (1) The snapshot's ignore hook skips the instance root's own logs/ CONTENTS while keeping the DIRECTORY — 311M of the 424M and ~78,000 of the 81,599 entries, and the two proofs that walk that tree (test_device_logs_unwired, test_instance_seal) were measured correct over an empty one; the test is an ADDRESS match, not a name match, so a deeper logs/ still copies. (2) One pristine snapshot per process, keyed on the live root's top-level name set (the one movement a stale pristine cannot survive, because check_instance_seal refuses a swap missing a live top-level name); each proof's private world is cp -a --reflink=auto from it. (3) ONE copy per proof instead of two: the seal's probe now unlinks its own marker, which buys the same no-contamination guarantee the second 424M copy was buying. Every seal's evidence now carries scratch{measured,bytes,disk_bytes,entries,builds,reuses} — the ticket's watch is that figure and nothing else. 14 teeth in test_isolation.py (6 new), green twice; all 4 new claims falsified in-memory and every tooth BIT. Whole tester component 7/7 green in 42s. TWO FINDINGS AGAINST THE CHART: the survey's '91MB the aider shim's data' is FALSE — it is 91MB of venv the snapshot already skipped by pyvenv.cfg, non-venv data is 84K, so the ro-bind in constrain's bounds saves ~0 bytes and the real saving was the trail tree; and collapsing two swaps to one is in neither constrain's `in` nor its `out`, yet is REQUIRED to reach the falsifier (2 x 118MB = 236MB fails 'under 150MB'). HONEST LIMITS: reflink is a no-op on this box (/ is ext4, /tmp is tmpfs) and is written for the day it is not; and test_isolation still cannot seal under --netns (a nested run_proof inside an outer netns reds), which is unchanged by this build — the committed seal before it was isolation='none' too.",
+    "fingerprint": "7e11fa5e15516a5b91ed3a5b1175c6f40d9239fbbe57c4af828b1f1101d0d2dd",
+    "at": "2026-09-08T20:06:20",
+    "seq": 24
   }
 ]

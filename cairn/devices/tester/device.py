@@ -58,7 +58,7 @@ from pathlib import Path
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.tester.isolation import (
     INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal, get_isolation,
-    snapshot_instance_space,
+    pristine_stats, snapshot_instance_space,
 )
 
 GREEN = "green"
@@ -210,6 +210,42 @@ def _manifest(root: str) -> dict:
             continue  # vanished between walk and stat — nothing to compare, and not a write
         out[str(p.relative_to(base))] = (st.st_size, st.st_mtime_ns)
     return out
+
+
+def _scratch_cost(root: str | None) -> dict:
+    """What this proof's private instance world cost — apparent bytes, DISK bytes, entries.
+
+    DISK, NOT APPARENT, IS THE HEADLINE, and the gap between them is the whole reason both
+    are recorded. Measured 2026-09-08: the old full snapshot was 136MB of file content
+    sitting in 424MB of 4KB blocks across 81,599 entries — so a report of apparent size
+    would understate the real cost 3x, and a report of disk size alone would hide that the
+    cost is entry COUNT rather than payload. The temp root is a tmpfs on this box, which
+    makes these bytes RAM; a 93-proof sweep at the old figure moved ~79G of it.
+
+    ``st_blocks`` is in 512-byte units by POSIX, whatever the filesystem's block size.
+    Never raises: a cost we could not measure is reported as unmeasured (CP1), because a
+    seal must not fail over its own odometer.
+    """
+    if root is None:
+        return {"measured": False, "why": "no instance swap was built for this run"}
+    apparent = disk = entries = 0
+    try:
+        for p in Path(root).rglob("*"):
+            entries += 1
+            try:
+                st = p.lstat()
+            except OSError:
+                continue
+            apparent += st.st_size
+            disk += st.st_blocks * 512
+    except OSError as exc:
+        return {"measured": False, "why": f"{type(exc).__name__}: {exc}"}
+    return {"measured": True, "bytes": apparent, "disk_bytes": disk, "entries": entries,
+            # The batch's own counter: `builds` is how many times THIS PROCESS has read the
+            # live instance root. A sweep of N proofs that reads it once reports 1 here on
+            # every one of the N records — which is the falsifier "one snapshot per batch",
+            # read off the record instead of off a docstring.
+            **pristine_stats()}
 
 
 def _instance_writes(swap: str | None, before: dict | None) -> dict:
@@ -384,7 +420,14 @@ class TesterDevice(BaseDevice):
         # The swap is a full copy of the live instance root, so READS answer exactly as they
         # would on the host and only WRITES are discarded — see isolation.py for why an empty
         # room was the wrong shape and which seven proofs measured that.
-        swap = probe_swap = None
+        # ONE copy per proof, not two. `made` is what this run built and must sweep; `swap`
+        # is what the subject gets, and it is None unless the seal was actually confirmed —
+        # they are separate names because an unconfirmed seal still leaves a directory to
+        # sweep. Until 2026-09-08 these were two full copies of the instance root (424M, 4.6s
+        # each), the second one taken purely so the seal's probe had somewhere disposable to
+        # write its marker; the probe now removes that marker itself, which buys the same
+        # no-contamination guarantee for one unlink (see isolation.check_instance_seal).
+        made = swap = None
         before = None
         try:
             available, why = bwrap_available()
@@ -394,15 +437,13 @@ class TesterDevice(BaseDevice):
                     f"cannot build the instance seal: {why} — this run MAY have written to the "
                     f"live instance root, and the record says so rather than implying it did not")
             else:
-                # Two swaps, not one: the probe writes a marker to prove the seal holds, and a
-                # marker sitting in the subject's world would show up in `wrote_to_instance`
-                # as something the proof did. An instrument that contaminates its own reading
-                # is the defect this whole seal exists to remove — at n=1 it would be a
-                # footnote, and a footnote is how it survives to n=100.
-                probe_swap = snapshot_instance_space()
-                instance_seal = check_instance_seal(iso, probe_swap, str(proof_path.parent))
+                made = snapshot_instance_space()
+                instance_seal = check_instance_seal(iso, made, str(proof_path.parent))
                 if instance_seal.sealed:
-                    swap = snapshot_instance_space()
+                    swap = made
+                    # AFTER the probe, so its marker (already unlinked by the probe) is on
+                    # neither side of the comparison — and if that unlink failed, it is on
+                    # BOTH sides and still reads as nothing the proof did.
                     before = _manifest(swap)
 
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
@@ -486,11 +527,16 @@ class TesterDevice(BaseDevice):
                 "verdict": instance_seal.verdict,
                 "detail": instance_seal.detail,
                 "wrote_to_instance": _instance_writes(swap, before),
+                # WHAT THE SEAL COST, ON EVERY SEAL. The watch on ticket 1c4ae8f053fe is this
+                # figure and nothing else: without it "the sandbox got cheaper" is a story
+                # somebody told once, and the next thing that quietly doubles it is invisible
+                # again. Taken BEFORE teardown because after teardown there is nothing to
+                # measure — and it is the number the ticket's falsifier is read against.
+                "scratch": _scratch_cost(made),
             }
         finally:
-            for tmp in (swap, probe_swap):
-                if tmp:
-                    shutil.rmtree(Path(tmp).parent, ignore_errors=True)
+            if made:
+                shutil.rmtree(Path(made).parent, ignore_errors=True)
             try:
                 os.unlink(closure_out)
             except OSError:

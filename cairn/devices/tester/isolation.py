@@ -46,6 +46,7 @@ pulls FIXTURE/REFUSE. This module claims only the seal it can measure today.
 
 from __future__ import annotations
 
+import atexit
 import errno
 import itertools
 import os
@@ -211,6 +212,20 @@ def bwrap_available() -> tuple[bool, str]:
     return True, "bwrap present, unprivileged user namespaces permitted"
 
 
+# The one directory a snapshot deliberately arrives EMPTY, and it is 73% of the copy.
+# Measured 2026-09-08: the live instance root is 424M on disk across 81,599 entries, and
+# ~/.cairn/logs is 311M of it — the trail tree, which is append-only exhaust that every
+# device writes and no proof reads the CONTENTS of. Two proofs walk it and both want it
+# empty: test_device_logs_unwired takes a before/after witness (66,739 files, and the
+# quadratic diff over them is what pushed that proof past the tester's 120s window on
+# 2026-09-08), and test_instance_seal excludes the logs tree from its "no file was added"
+# tooth by hand. An empty writable directory answers both honestly and costs nothing to
+# copy. The DIRECTORY still exists in the swap, because check_instance_seal requires the
+# subject to see every live top-level name — blinding a read is the failure mode this
+# whole seal already learned once (see the seven reds above).
+_LOGS = "logs"
+
+
 def _skip_venv_contents(directory: str, names: list[str]) -> set:
     """copytree's ignore hook: skip a venv's CONTENTS, keep the empty directory.
 
@@ -219,6 +234,20 @@ def _skip_venv_contents(directory: str, names: list[str]) -> set:
     itself, not a name match, because "venv" is a convention and ``pyvenv.cfg`` is the spec.
     """
     return set(names) if "pyvenv.cfg" in names else set()
+
+
+def _snapshot_ignore(directory: str, names: list[str]) -> set:
+    """The snapshot's ignore hook: venv contents (above) AND the logs tree's contents.
+
+    Two skips, one hook, because copytree takes exactly one. The logs test is an ADDRESS
+    match, not a name match: only the instance root's own ``logs/`` is emptied, so a device
+    that happens to keep a directory called ``logs`` deeper in the tree still gets copied.
+    """
+    if "pyvenv.cfg" in names:
+        return set(names)
+    if Path(directory) == Path(_INSTANCE_ROOT) / _LOGS:
+        return set(names)
+    return set()
 
 
 def venvs_under_instance_space() -> list[str]:
@@ -248,29 +277,125 @@ def _pid_alive(pid: int) -> bool:
 
 
 def _sweep_orphaned_snapshots(tmp: str | None = None) -> list[str]:
-    """Remove every ``cairn-instance-seal-<pid>-*`` under the temp root whose pid is dead,
-    and every legacy one that carries no pid at all (nothing alive can own those — the
-    naming that would have said so did not exist when they were made). Returns what it
+    """Remove every ``cairn-instance-{seal,pristine}-<pid>-*`` under the temp root whose pid
+    is dead, and every legacy one that carries no pid at all (nothing alive can own those —
+    the naming that would have said so did not exist when they were made). Returns what it
     removed. Never raises: a sweep that fails is a leak that lives one snapshot longer,
-    which is the state before this function existed, not a reason to refuse a proof."""
+    which is the state before this function existed, not a reason to refuse a proof.
+
+    BOTH PREFIXES, because there are now two lifetimes here and only one sweeper. A seal
+    copy dies with its proof; a pristine copy dies with the batch. A sweeper that knew only
+    the first would leave the larger, longer-lived one to accumulate — which is the exact
+    shape of the leak this function was written for (57 copies, 7.7G, 2026-09-05).
+    """
     root = Path(tmp or tempfile.gettempdir())
     removed: list[str] = []
-    try:
-        candidates = list(root.glob(f"{_SEAL_PREFIX}*"))
-    except OSError:
-        return removed
-    for d in candidates:
-        tail = d.name[len(_SEAL_PREFIX):]
-        head = tail.split("-", 1)[0]
-        if head.isdigit() and _pid_alive(int(head)):
+    for prefix in (_SEAL_PREFIX, _PRISTINE_PREFIX):
+        try:
+            candidates = list(root.glob(f"{prefix}*"))
+        except OSError:
             continue
-        shutil.rmtree(d, ignore_errors=True)
-        removed.append(str(d))
+        for d in candidates:
+            tail = d.name[len(prefix):]
+            head = tail.split("-", 1)[0]
+            if head.isdigit() and _pid_alive(int(head)):
+                continue
+            shutil.rmtree(d, ignore_errors=True)
+            removed.append(str(d))
     return removed
 
 
+# ── the batch snapshot: the live root is read ONCE, not once per proof ───────
+#
+# MEASURED 2026-09-06 and again 2026-09-08: every sealed run copied the live instance root
+# TWICE (one swap for the seal's own probe, one for the subject) — 424M and 4.6s apiece, so
+# ~850M and ~9s of pure copying per proof, before the proof ran a single tooth. A 93-proof
+# re-seal sweep moved ~79G to prove code that had not changed, and /tmp is a tmpfs on this
+# box, so those bytes are RAM.
+#
+# THE SHAPE OF THE FIX IS A CACHE WITH AN HONEST INVALIDATION. One PRISTINE copy is taken
+# per process — a ``--seal`` batch is one process, which is why "per batch" needs no flag,
+# no context manager and no caller who remembers (Law 4: the guarantee is physics, not a
+# convention). Each proof's private world is then copied from the pristine rather than from
+# the live tree: same bytes, but the 81,599-entry walk of the real ~/.cairn happens once.
+#
+# WHAT THE CACHE MAY NOT DO IS GO STALE WITHOUT SAYING SO. The live root moves while a batch
+# runs (the ground loop and sudo_relay are daemons; the tester itself logs). Almost all of
+# that movement is INSIDE the tree and harmless to a snapshot — but a NEW TOP-LEVEL ENTRY is
+# not: ``check_instance_seal`` refuses a swap that cannot show every live top-level name, so
+# a stale pristine would turn every later proof in the batch INDETERMINATE. So the top-level
+# set is the invalidation key, re-read on every call (one ``iterdir`` of six entries), and a
+# change rebuilds the pristine. It fails toward a fresh copy, never toward a wrong one.
+#
+# REFLINK IS ASKED FOR AND IS NOT AVAILABLE HERE, and saying so is the point (Law 3).
+# ``cp -a --reflink=auto`` shares blocks where the filesystem can and falls back to a real
+# copy where it cannot. Measured on this host 2026-09-08: ``/`` is ext4 and ``/tmp`` is
+# tmpfs, and neither supports reflinks — so today the flag buys nothing and the per-proof
+# copy is a true copy. It is written this way because the flag costs nothing, the fallback
+# is exactly what we would have done by hand, and the day this box gets btrfs or XFS the
+# per-proof cost goes to near zero with no code change. A copy-on-write MOUNT (bubblewrap
+# overlay) is the other answer and is out of this ticket's bounds: bwrap 0.9.0 here has no
+# ``--overlay``.
+_PRISTINE_PREFIX = "cairn-instance-pristine-"
+_pristine: dict = {"dir": None, "top": None, "builds": 0, "reuses": 0}
+_pristine_atexit_armed = False
+
+
+def _live_top_level() -> list[str]:
+    """The live instance root's top-level names — the pristine cache's invalidation key."""
+    root = Path(_INSTANCE_ROOT)
+    try:
+        return sorted(p.name for p in root.iterdir())
+    except OSError:
+        return []
+
+
+def _drop_pristine() -> None:
+    """Remove this process's pristine copy. Registered with atexit ONCE, and never raises."""
+    d = _pristine.get("dir")
+    if d:
+        shutil.rmtree(Path(d).parent, ignore_errors=True)
+        _pristine["dir"] = _pristine["top"] = None
+
+
+def pristine_snapshot() -> str:
+    """The batch's ONE copy of the live instance root, built on first use and reused after.
+
+    Rebuilt only if the live root's top-level set has moved under it (see above) or if the
+    copy has vanished. The caller does NOT own it and must not remove it — it is swept at
+    process exit, and by the next process's ``_sweep_orphaned_snapshots``.
+    """
+    global _pristine_atexit_armed
+    top = _live_top_level()
+    d = _pristine.get("dir")
+    if d and Path(d).is_dir() and _pristine.get("top") == top:
+        _pristine["reuses"] += 1
+        return str(d)
+    if d:
+        shutil.rmtree(Path(d).parent, ignore_errors=True)
+    dst = Path(tempfile.mkdtemp(prefix=f"{_PRISTINE_PREFIX}{os.getpid()}-")) / "cairn"
+    shutil.copytree(_INSTANCE_ROOT, dst, ignore=_snapshot_ignore,
+                    symlinks=True, ignore_dangling_symlinks=True)
+    _pristine["dir"], _pristine["top"] = str(dst), top
+    _pristine["builds"] += 1
+    if not _pristine_atexit_armed:
+        atexit.register(_drop_pristine)
+        _pristine_atexit_armed = True
+    return str(dst)
+
+
+def pristine_stats() -> dict:
+    """How many times this process has READ the live root, and how many times it reused it.
+
+    This is the falsifier's own instrument for "a batch of N proofs copies ~/.cairn once":
+    it rides into every seal's evidence, so the claim is read off the record rather than
+    off this docstring.
+    """
+    return {"builds": _pristine["builds"], "reuses": _pristine["reuses"]}
+
+
 def snapshot_instance_space() -> str:
-    """Copy the live instance root to a fresh temp world and return its path.
+    """A proof's private copy of the instance root, made from the batch's pristine snapshot.
 
     The caller owns the directory and must remove it. Returns the SWAP ROOT — what gets bound
     over ``~/.cairn`` — so the address inside the sandbox is byte-identical to the real one
@@ -286,9 +411,17 @@ def snapshot_instance_space() -> str:
     at once.
     """
     _sweep_orphaned_snapshots()
+    src = pristine_snapshot()
     swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-")) / "cairn"
-    shutil.copytree(_INSTANCE_ROOT, swap, ignore=_skip_venv_contents,
-                    symlinks=True, ignore_dangling_symlinks=True)
+    r = subprocess.run(["cp", "-a", "--reflink=auto", src, str(swap)],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        # LOUD, and it takes the run down. A half-copied swap is worse than no swap: the
+        # subject would read a world with holes in it and the seal would call the missing
+        # reads a blinding. Law 7 — the notary's own failure is not a thing to paper over.
+        shutil.rmtree(swap.parent, ignore_errors=True)
+        raise OSError(f"could not copy the pristine snapshot {src} -> {swap}: "
+                      f"cp exited {r.returncode}: {r.stderr.strip()}")
     return str(swap)
 
 
@@ -340,7 +473,24 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     seen = next((ln[5:].split(",") for ln in out.splitlines() if ln.startswith("SEES:")), None)
     wrote = "WROTE" in out.splitlines()
 
-    if (live / marker).exists():
+    # WHERE THE MARKER LANDED IS READ ONCE, HERE, AND THEN THE PROBE REMOVES ITS OWN EXHAUST
+    # FROM THE SWAP. Until 2026-09-08 the exhaust was avoided by taking a SECOND full copy of
+    # the instance root purely for the probe to dirty — 424M and 4.6s so that one 20-byte
+    # marker would not show up in the subject's `wrote_to_instance` reading. That is the right
+    # instinct (an instrument must not contaminate its own reading) paying an absurd price for
+    # it. The marker's name is ours, known exactly, and unlinking it is the same guarantee for
+    # nothing: the caller takes its before-manifest after this call returns, so a removed
+    # marker is in neither side of the comparison, and a removal that FAILED leaves the marker
+    # in the before-manifest too — where it also cannot read as a write. Both ways are safe,
+    # which is why the failure is swallowed rather than raised.
+    in_swap = (Path(swap_root) / marker).exists()
+    in_live = (live / marker).exists()
+    try:
+        (Path(swap_root) / marker).unlink()
+    except OSError:
+        pass
+
+    if in_live:
         return Seal(BREACHED, f"the probe's marker {marker!r} landed in the LIVE instance root "
                               f"{live} — the seal did NOT hold, and a proof can seed the tree "
                               f"it reads (RED)")
@@ -351,7 +501,7 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
         return Seal(INDETERMINATE, f"the probe could not write inside the seal ({fail}) — a "
                                    f"write that never happened says nothing about where it "
                                    f"would have landed; CP1")
-    if not (Path(swap_root) / marker).exists():
+    if not in_swap:
         return Seal(INDETERMINATE, f"the probe reported WROTE but {marker!r} is in neither the "
                                    f"live root nor the swap {swap_root} — the write went "
                                    f"somewhere unaccounted for, so nothing is confirmed")

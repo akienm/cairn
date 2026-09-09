@@ -203,9 +203,6 @@ An IOU without a real ticket is itself the defect this section is made of.
   intention it changed. A **hand**-edit is the defect, and it is not one-writer.
   → regeneration makes a hand-edit transient, not impossible, and nothing announces
   one while it lives. · *ticket the-lab-is-derived-never-authored*
-- Every component's charter answers "how does this component learn?" — "it doesn't,
-  because X" is a valid answer; silence is not.
-  → charter-schema field + tester non-hollow check (Law 8) · *ticket learning-as-a-pattern*
 - **A deterministic red is fixed, or it carries a ruling from Akien — never a paragraph.**
   CC may not weaken, suppress, exempt or explain away a deterministic result. Two
   dispositions, no third. The ruling requirement is an **escape route**, not a lock
@@ -266,6 +263,15 @@ charter, never from this file.
   the predicate cannot discover constraints not listed; a constraint silently
   dropped from the set is corrosion the check cannot see (though narrowing fires
   the self-reference tooth). · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
+- learning declared (`learning_declared` sieve in `build_inspector`, registered at
+  `inspector.py:3101`) → **PHYSICS SHIPPED 2026-08-31** under *ticket learning-as-a-pattern*;
+  moved here 2026-09-09, nine days stale in the section above. The residue is what satisfying
+  it created: the sieve checks a field is **present and non-empty**, never that the charter
+  answers **once**. The backfill wrote a new answer beside the existing `how_it_learns` in 67
+  charters without reading it, so **70 of 70 now disagree with themselves and 36 contradict
+  flatly** — `bin` says both "It does not; ... no state to learn from" and "Yes — narrowly."
+  The sieve reads green over every one, and returns `[]` on an unparseable charter besides.
+  · *ticket one-mouth-answers-the-learning-question*
 - component color (`component_color` sieve + `unbuilt_intentions` in `build_inspector`)
   → yellow (dependency-change-only) is not yet derived — all changes read as red;
   self-cleaning via operational logs is not yet instrumented; `unbuilt_intentions`

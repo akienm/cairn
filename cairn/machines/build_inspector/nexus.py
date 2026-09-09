@@ -76,8 +76,12 @@ FOUNDING_QUESTIONS = [
                    "shape reds a charter whose how_it_learns is absent or empty?",
         "candidate_sieve": "charter_answers_learning",
         "provenance": {"source": "cairn/machines/build_inspector/intention+why.json filed edge "
-                                 "(c) — the learning-as-a-pattern IOU (CLAUDE.md rules "
-                                 "awaiting physics)",
+                                 "(c). SHIPPED 2026-08-31 as the learning_declared sieve "
+                                 "(ticket learning-as-a-pattern) — no longer an IOU; "
+                                 "scrubbed 2026-09-09. NOTE FOR THE RECORD: this entry "
+                                 "named `how_it_learns` in 2026-07-27 and the build read "
+                                 "`learns` instead, creating the two-mouth defect now "
+                                 "cast as one-mouth-answers-the-learning-question.",
                        "date": "2026-07-27"},
     },
     {

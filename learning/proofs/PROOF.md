@@ -1,8 +1,12 @@
 # Proof — gate_view (learning store, rung 1)
 
-Interim proof by inspection. The tester is not built (IOU, tracked on
-`cc-learning-store` + CLAUDE.md rules-awaiting-physics); a code-seam is not *done*
-until tested AND committed. What follows is the honest interim gate: a real record
+Interim proof by inspection. SCRUBBED 2026-09-09: this said "the tester is not built";
+the tester IS built — `cairn/devices/tester/`, and it seals validations beside proofs
+across the corpus. The blocker named here is gone, and the charter beside this file was
+corrected in the same sweep. The REAL debt is narrower and worse: `learning/proofs/`
+holds only this file and no `test_*.py` at all, so there is nothing for the tester to
+run. A code-seam is not *done* until tested AND committed, and this one has never been
+tested — not because the instrument was missing, but because no proof was ever written. What follows is the honest interim gate: a real record
 round-trips (written to `CairnCommons/learning/records/` → recalled here by gate),
 and the projection's output is verifiably the fold of the records by inspection.
 
@@ -79,4 +83,4 @@ gate: proceed-on-light-ack  [1 record]
 
 **PASS (interim).** The guardrail is now physics: a gate is ceilinged iff a record
 asserts `ceiling: true`, ORed across the gate's records (one never-auto-open sticks).
-The fold can no longer miss a ceiling to a wording choice. Tester IOU still stands.
+The fold can no longer miss a ceiling to a wording choice. (Still by inspection: no `test_*.py` exists here — see the scrub note above.)

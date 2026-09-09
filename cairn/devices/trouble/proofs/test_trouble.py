@@ -482,11 +482,48 @@ def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
     """CLAUSE (1) OF 9579a6f9cec6, and it is a live-corpus tooth on purpose. The claim is
     not that the sieve works — the inspector's own proofs own that — it is that the tree it
     reads over is CLEAN, which is a fact about this repo today and can only be measured
-    here. The tooth is the invariant, not a count: zero findings, whatever the census size."""
-    from cairn.machines.build_inspector.inspector import inspect
+    here. The tooth is the invariant, not a count: zero findings, whatever the census size.
 
-    findings = [f for f in (inspect().get("findings") or [])
-                if "isolation" in str(f.get("method", ""))]
+    IT ASKS THE SIEVE, NOT THE WHOLE NEST — and the difference was 35 SECONDS, measured
+    2026-09-09. This tooth used to call ``inspect()``, which shakes EVERY sieve over EVERY
+    census row, and then threw away everything whose method did not contain "isolation".
+    That is Law 1 at its plainest: ~20 settled answers re-derived to read one. Timed over
+    the live tree on this box: the full shake 44.40s, the census plus this one sieve 9.45s
+    (0.71s + 8.69s), 54 rows and 0 findings BOTH ways. 44.40s of a 45.41s proof file — the
+    other 36 teeth cost 1.0s between them — so this single call WAS test_trouble.py's cost.
+    It was also, transitively, the cost of ``cairn test --hollow``: that verb re-runs each
+    named proof once per reverted file, and on ticket 9579a6f9cec6 nine passes over this
+    file put the run at 364-417s against d0f2b03952e3's own five-minute WRONG INTENT bound.
+    Its falsifier guessed the loop was to blame and prescribed one shared worktree and one
+    shared instance swap; the verb already did both, and the measurement named this line
+    instead. So the bound fired correctly and pointed somewhere its author did not expect.
+
+    THE ANSWER IS THE SAME ANSWER, not a cheaper approximation, and that is checkable
+    rather than asserted: ``inspect()`` reaches the sieve through ``SIEVES[name](row,
+    root / row["dir"])`` over exactly ``device_census(root=root)["measured"]["components"]``,
+    which is what the loop below is. ``device_isolation_holds`` is the only member of the
+    nest whose name carries "isolation", so the old filter selected precisely this sieve's
+    findings and nothing else. The one behavioural difference is in the honest direction: a
+    sieve that RAISES is wrapped by the nest into an "unreadable" finding, and here it
+    propagates — a measurement that could not be taken stops being reported as clean (Law 7).
+
+    NOT FIXED BY GIVING ``inspect()`` A ``sieves=`` ARGUMENT, though that is the shape the
+    beat's own tail wants (trouble beat-tail-re-walks-corpora-no-sieve-counts). A partial
+    shake returns a partial GRADATION, and what a score of "min() over the sieves we felt
+    like running" means is a real question about the nest's contract, owned by
+    build_inspector and not settleable from inside a consumer's proof. A caller that wants
+    one sieve's findings can compose the sieve; that needs no new contract.
+        -> trouble beat-tail-re-walks-corpora-no-sieve-counts
+    """
+    from cairn.machines.build_inspector.inspector import (
+        device_census, device_isolation_holds, _REPO_ROOT)
+
+    root = _REPO_ROOT / "cairn"
+    findings = []
+    for row in device_census(root=root)["measured"]["components"]:
+        for f in device_isolation_holds(row, root / row["dir"]):
+            f["at"] = row["dir"]
+            findings.append(f)
     assert findings == [], (
         "a device imports another device — the seam this ticket closed has re-opened: "
         + "; ".join(f"{f.get('component')}: {f.get('about')}" for f in findings[:5]))

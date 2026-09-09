@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_beater_holds_claim.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-08T09:16:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-09T12:17:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,15 +21,38 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "811c10f43d4fc2ac53975dc669379dc6851ed147831e9295ade30800577efb11",
+      "source_fingerprint": "b51f35880a1f5c86a0baf94d7fb6e13cd0ea441a5e8ff040651df427288a6c44",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/machines/ground_loop/probes/does_the_beater_hold_the_claim.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_beater_holds_claim.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-413425-g7ritwnq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-367737-9clt0s0d/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 118037774,
+          "disk_bytes": 126861312,
+          "entries": 3667,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

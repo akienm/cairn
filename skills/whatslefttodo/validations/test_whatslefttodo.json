@@ -1,20 +1,63 @@
 [
   {
     "claim": "proof test_whatslefttodo.py passes under python3",
-    "caller": "whatslefttodo-build",
-    "date": "2026-08-12T15:34:07",
-    "method": "ran the proof as a subprocess (seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:35:39",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok a slate that is not the newest is refused\n  ok a missing probescan figure is refused — the un-re-run half still has to be there\n  ok an instrument the judge cannot reach is a REFUSAL, not a quiet pass\n  ok and it says so in the judge's own voice\n  ok a current, complete packet draws no semantic lack\n  ok a current firing berths\n  ok the berth carries the gathers it was fired on\n  ok the berth carries the exit\n  ok a finding rides the firing to Akien's gate\n  ok every refusal above was traced, not swallowed\n  ok the passing firing is traced\n  ok one finding per passing firing\n  ok the live readers answer, or say why they could not\n  ok the live gate count is an int (invariant, not a number this tooth remembers)\n  ok the live trouble set is a sorted list of ids\n  ok the newest slate is composed from bin/cmd/slate's own ranking\n  ok a packet built from the LIVE readers draws no lack\n  ok and moving ONE figure in that same packet refuses it — the check bites\n  ok live trace untouched by this proof\nGREEN — 33 teeth",
+      "stdout_tail": "  ok and the refusal says the lane is HALF the corpus by construction\n  ok a slate that is not the newest is refused\n  ok a missing probescan figure is refused — the un-re-run half still has to be there\n  ok an instrument the judge cannot reach is a REFUSAL, not a quiet pass\n  ok and it says so in the judge's own voice\n  ok a current, complete packet draws no semantic lack\n  ok a current firing berths\n  ok the berth carries the gathers it was fired on\n  ok the berth carries the exit\n  ok a berth id rides the firing\n  ok every refusal above was traced, not swallowed\n  ok the passing firing is traced\n  ok the live readers answer, or say why they could not\n  ok the live gate count is an int (invariant, not a number this tooth remembers)\n  ok the live trouble set is a sorted list of ids\n  ok the newest slate is composed from bin/cmd/slate's own ranking\n  ok a packet built from the LIVE readers draws no lack\n  ok and moving ONE figure in that same packet refuses it — the check bites\n  ok live trace untouched by this proof\nGREEN — 32 teeth",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "febfc65a4b65a55a7948a01a5c7068e1d4f3466c57123ae96d8a752e4b2be5bf",
-      "trail_link": "06d83d01ef32126620c1729dcc2ddbf42dd78a836d7909b72626da06bb443637"
+      "source_fingerprint": "9cb4a8154ee06b84734e8132d4fc38b25a8b2e7bbb15fbfca1207d63ead9c459",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "skills/whatslefttodo/door.py",
+        "skills/whatslefttodo/proofs/test_whatslefttodo.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-wvzmzslr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

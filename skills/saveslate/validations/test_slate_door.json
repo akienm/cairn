@@ -1,31 +1,43 @@
 [
   {
     "claim": "proof test_slate_door.py passes under python3",
-    "caller": "the-slate-door-has-a-side-path",
-    "date": "2026-08-28T09:49:21",
+    "caller": "sail:9579a6f9cec6:reseal-after-the-emission-lane",
+    "date": "2026-09-08T18:34:34",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok same-day writes share a date\n  ok written_at still tells them apart\n  ok written_at orders in write order\n  ok written_at is the door's own instant, not a re-derived day\n  ok author-supplied written_at refused\n  ok ...with the true why, not 'a key nothing reads'\n  ok the backdate refusal wrote no slate\n  ok id collision refused\n  ok both edges traced\n  ok the coined convention is written down\n  ok live heads provider reads the world\n  ok live trace untouched by the proof\n  ok generic CLI exits 0 for saveslate\n  ok generic CLI berths saveslate\n  ok generic CLI writes the slate file\n  ok the slate carries the template keys\n  ok non-composing skill fires through generic path\n  ok non-composing skill berths normally\n  ok non-composing skill has no slate key\nGREEN — 29 teeth",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/skills/saveslate/proofs/test_slate_door.py\", line 245, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/home/akien/dev/src/cairn/skills/saveslate/proofs/test_slate_door.py\", line 62, in main\n    door.fire(stale, **roots)\n  File \"/home/akien/dev/src/cairn/skills/saveslate/door.py\", line 216, in fire\n    sha = _auto_commit_push(rpath, rname)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/skills/saveslate/door.py\", line 198, in _auto_commit_push\n    subprocess.run(\n  File \"/usr/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['git', '-C', '/home/akien/dev/src/cairn', 'push']' returned non-zero exit status 128.",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "aa0fd743759a3e77993817b64f16c04475dcf7e6ef9316f2b440b4cdedd55e56",
+      "source_fingerprint": "60d09fb824128c178601e168b1602bdef4a253b5e8a1bcc3b1f50383de682f5a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "skills/saveslate/door.py",
+        "skills/saveslate/proofs/test_slate_door.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-kztv7qqn/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1371696-m2z2j1mf/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
-          "paths": [
-            "devices/learning_block/0/traces/skill:intent.jsonl",
-            "devices/learning_block/0/traces/skill:saveslate.jsonl",
-            "devices/skill_block/0/berths/intent/intent-20260828T094919-676817d0b770.json",
-            "devices/skill_block/0/berths/saveslate/saveslate-20260828T094918-3968ea4a03ca.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         }
       }

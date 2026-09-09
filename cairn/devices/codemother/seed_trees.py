@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.tree.tree import deposit_learning
-from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.base.bus_client import reach
 
 
 QUESTIONS_FILE = Path(__file__).parent / "cognition_questions.json"
@@ -31,7 +31,7 @@ _SENDER = "codemother"
 
 
 def _embed_fn():
-    bus = connect_bus(devices=["inference_domain"])
+    bus = reach("inference_domain")
     def embed(text: str):
         reply = bus.request(
             sender=_SENDER, to="inference_domain", verb="resolve",

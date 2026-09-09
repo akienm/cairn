@@ -48,8 +48,15 @@ def connect_bus(*, devices: list[str] | None = None, beat: bool = True):
              Each is discovered from ``cairn/devices/<name>/shim.py`` —
              a file that declares a BaseShim subclass is its own registration.
     beat:    fire one ground-loop beat to initialize (wires delivery, runs
-             discovery). Almost always True; False only for test fixtures
-             that want to inspect the wiring before the first pulse.
+             discovery). True when you mean to RUN the system — the beat is
+             the heartbeat, and on this machine it costs ~23.5s (measured
+             2026-09-09). A CLIENT that wants to ASK a device one question
+             does not call this at all: it calls ``reach(<device>)`` below,
+             which wires and pulses only the shims addressed (~0.23s). Five
+             clients paid the beat before that was enforced; the probe at
+             ``probes/a_client_reaches_and_never_beats.py`` now reds any Call
+             of this face outside the runner roster. False is for a fixture
+             that inspects the wiring before the first pulse.
     """
     bus, _loop = _wire(devices=devices, beat=beat)
     return bus

@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.base.bus_client import reach
 
 _INSTANCE_ROOT = instance_path("codemother", 0)
 _WATCH_LOG = _INSTANCE_ROOT / "watch"
@@ -37,7 +37,7 @@ _BUS = None
 def _bus():
     global _BUS
     if _BUS is None:
-        _BUS = connect_bus(devices=["inference_domain"])
+        _BUS = reach("inference_domain")
     return _BUS
 
 

@@ -37,7 +37,7 @@ from cairn.devices.codemother.machines.validate.validate import deposit_validate
 from cairn.devices.codemother.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
-from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.base.bus_client import reach
 from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus
 
@@ -45,7 +45,7 @@ _BUS = None
 def _bus():
     global _BUS
     if _BUS is None:
-        _BUS = connect_bus(devices=["inference_domain"])
+        _BUS = reach("inference_domain")
     return _BUS
 
 

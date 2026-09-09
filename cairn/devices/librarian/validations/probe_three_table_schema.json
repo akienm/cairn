@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_watch.py passes under python3",
+    "claim": "proof probe_three_table_schema.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-09T15:43:04",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-09-09T15:43:06",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -12,24 +12,20 @@
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "5fb9764d54e9bbe02b531601ffb74ab4a7cdac3945e34f5ad6c8e71521b09b3a",
+      "source_fingerprint": "d7d91b8faf7111ad2ff4b64ddba0b4caa9f49fb98f51da551406478963aa539b",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/proofs/test_watch.py",
-        "cairn/devices/codemother/watch.py",
+        "cairn/devices/librarian/proofs/probe_three_table_schema.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/bus_client.py"
+        "cairn/tools/base/probe.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-992462-urbn43lr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-992462-nko4c0bs/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -42,7 +38,7 @@
           "disk_bytes": 128954368,
           "entries": 3755,
           "builds": 1,
-          "reuses": 1
+          "reuses": 3
         }
       }
     },

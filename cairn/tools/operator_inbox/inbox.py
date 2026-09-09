@@ -837,6 +837,11 @@ def _format_ticket(doc: dict, path: Path) -> str:
     title = doc.get("title", doc.get("slug", "?"))
     node_class = doc.get("node_class", "?")
     ws = doc.get("workflow_and_state", "")
+    if not isinstance(ws, str):
+        # Law 7: a diagnostic surface is loud about a malformed record, never silent
+        # and never a crash — the cursor is a STRING by corpus convention (260 of 268
+        # tickets on 2026-09-09); a dict here is a writer that drifted.
+        ws = f"MALFORMED workflow_and_state ({type(ws).__name__}, expected str)"
 
     lines.append("=" * width)
     lines.append(f"  TICKET: {tid}")

@@ -46,7 +46,7 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.tools.base.bus_client import connect_bus
+from cairn.tools.base.bus_client import reach
 from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.library import learn as learn_verb
 from cairn.devices.librarian.library import shelve
@@ -79,7 +79,7 @@ DEFAULT_QUERY = "what should the chat interface do when someone talks to the lib
 
 def _wire_bus():
     """Minimal bus for CLI scripts — inference_domain registered for resolve verbs."""
-    return connect_bus(devices=["inference_domain"])
+    return reach("inference_domain")
 
 
 def _bus_resolve(bus: BusDevice, request: dict) -> dict:

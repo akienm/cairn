@@ -255,14 +255,33 @@ def main() -> int:
             "exit": "routed_out",
             "bullets": [{"text": "fixture", "stratum": "code"}],
         }))
+        # CAIRN_SKILL_BERTHS, and it is the SAME GUARD as the slates dir two teeth up.
+        # Without it this fire lands a LIVE berth: the door's root is read from that var
+        # at import (skill_block.py:_BERTHS), the fire is a subprocess, and nothing else
+        # in the environment redirects it. Measured 2026-09-09 — Akien found FOUR berths
+        # titled "proof fixture" sitting in his operator review queue, one per run of this
+        # proof, each one asking a human to adjudicate a packet that exists to exercise a
+        # wire. The naming discipline held (every field says "fixture", and from_idea names
+        # this file), which is the only reason they were closeable on sight rather than
+        # investigated. The guard below is what stops them being written at all.
+        cli_berths = tmp / "berths"
         r = _sp.run([sys.executable, "-m", "cairn.machines.skill_block",
                      "fire", "intent", str(intent_path)],
                     capture_output=True, text=True, timeout=30,
-                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO)})
+                    env={**__import__("os").environ, "PYTHONPATH": str(_REPO),
+                         "CAIRN_SKILL_BERTHS": str(cli_berths)})
         ok("non-composing skill fires through generic path", r.returncode == 0, r.stderr)
         result = json.loads(r.stdout)
         ok("non-composing skill berths normally", bool(result.get("berth")))
         ok("non-composing skill has no slate key", "slate" not in result)
+        ok("the fixture's berth landed in the FIXTURE berth root",
+           Path(result["berth"]).is_relative_to(cli_berths), result["berth"])
+        ok("the LIVE berth root never saw the fixture firing",
+           not any(p.name == Path(result["berth"]).name
+                   for p in (Path.home() / ".cairn" / "devices" / "skill_block" / "0"
+                             / "berths").rglob("*.json")),
+           "a fixture packet reached the operator's review queue — the queue asks a human "
+           "to adjudicate a wire test, and the human pays that cost once per run")
 
         # 0b. THE READ-BACK for tooth 0. Every fire above ran with injected roots; if any
         # one of them reached the live boundary, a HEAD moved. Checked at the END rather

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_operator_inbox.py passes under python3",
-    "caller": "sail:6ec9b384b451:reseal-after-phase-vocabulary",
-    "date": "2026-09-08T12:45:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-09T15:46:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,15 +15,42 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "59d6a68e86dc02141291becf71f8f07b282e8790cca8b47d4a413a575b80f0b4",
+      "source_fingerprint": "7da0d2357fdd57886db78d003312facca7263f7e92a6c5c5cb4101cc61100834",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-512666-1xh1hco1/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000557-j4o_tiqy/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119905368,
+          "disk_bytes": 128954368,
+          "entries": 3755,
+          "builds": 1,
+          "reuses": 6
         }
       }
     },

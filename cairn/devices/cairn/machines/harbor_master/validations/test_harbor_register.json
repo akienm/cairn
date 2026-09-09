@@ -2,22 +2,26 @@
   {
     "claim": "proof test_harbor_register.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-08T20:57:36",
+    "date": "2026-09-09T15:36:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "    (fleet: 258 open, 57 in port, 5 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py\", line 151, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py\", line 141, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py\", line 64, in test_register_is_an_index_not_a_rival_record\n    assert b[\"standing\"] == b[\"label\"] == own, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1c4ae8f053fe: register standing 'BUILDME:in-process' is not the ticket's own label 'BUILDME:waiting' — a second reader (Law 7, ticket 3feb201c84ea)",
+      "returncode": 0,
+      "stdout_tail": "    (fleet: 268 open, 57 in port, 5 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stderr_tail": "",
       "teeth_green": [
-        "test_fleet_queries_both_berths_nonempty"
+        "test_fleet_queries_both_berths_nonempty",
+        "test_register_is_an_index_not_a_rival_record",
+        "test_every_boat_points_back_to_an_existing_source",
+        "test_open_and_in_port_are_exhaustive_and_berth_disjoint",
+        "test_the_scan_reaches_both_roots"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ad8f012b1fdc695df00852ae6de7b9af40496e0ea25dfd335cb3ff7b657e76c3",
+      "source_fingerprint": "49603a3f7da74128e0867d4401ed0aa2f7459367e774e8e0a617f14dac1c6127",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -45,7 +49,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1991680-gvs9ezr5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-970997-w8z0p42j/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -54,11 +58,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110206783,
-          "disk_bytes": 118902784,
-          "entries": 3621,
+          "bytes": 119885477,
+          "disk_bytes": 128917504,
+          "entries": 3749,
           "builds": 1,
-          "reuses": 6
+          "reuses": 4
         }
       }
     },

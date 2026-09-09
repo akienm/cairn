@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
-    "caller": "sail:6ec9b384b451:reseal-after-phase-vocabulary",
-    "date": "2026-09-08T12:44:53",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-09T15:46:17",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n    (live: 53 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 53 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n    (live: 55 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 47 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
       "teeth_green": [
         "test_fixture_one_label_per_id_across_all_three",
@@ -22,18 +22,67 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "59d6a68e86dc02141291becf71f8f07b282e8790cca8b47d4a413a575b80f0b4",
+      "source_fingerprint": "bd840cd3e55813ebf98a9ff33ad6c9ef26197a7fa1b8dd780840345a0adbe147",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/harbor_master/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/device.py",
+        "cairn/devices/cairn/machines/harbor_master/register.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/dashboard.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-512666-yd3v9n11/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000557-d7j8_y3x/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/bus/0/20260908.184445.489648.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20260908.184445.814587.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20260909.214616.561974.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20260909.214616.805703.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119906069,
+          "disk_bytes": 128962560,
+          "entries": 3761,
+          "builds": 1,
+          "reuses": 5
         }
       }
     },

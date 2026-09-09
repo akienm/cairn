@@ -1,21 +1,21 @@
 [
   {
     "claim": "proof test_slate_door.py passes under python3",
-    "caller": "sail:9579a6f9cec6:the-fixture-must-not-move-the-real-repos",
-    "date": "2026-09-08T18:59:17",
+    "caller": "sail:9579a6f9cec6:the-generic-cli-is-a-second-live-path",
+    "date": "2026-09-08T19:04:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/skills/saveslate/proofs/test_slate_door.py\", line 273, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/home/akien/dev/src/cairn/skills/saveslate/proofs/test_slate_door.py\", line 75, in main\n    heads_before = {r: _head(r) for r in (_REPO, door._COMMONS)}\n                       ^^^^^^^^\n  File \"/home/akien/dev/src/cairn/skills/saveslate/proofs/test_slate_door.py\", line 72, in _head\n    r = _sp.run([\"git\", \"-C\", str(repo), \"rev-parse\", \"HEAD\"],\n        ^^^\nNameError: cannot access free variable '_sp' where it is not associated with a value in enclosing scope",
+      "returncode": 0,
+      "stdout_tail": "  ok author-supplied written_at refused\n  ok ...with the true why, not 'a key nothing reads'\n  ok the backdate refusal wrote no slate\n  ok id collision refused\n  ok both edges traced\n  ok the coined convention is written down\n  ok live heads provider reads the world\n  ok live trace untouched by the proof\n  ok generic CLI exits 0 for saveslate\n  ok generic CLI berths saveslate\n  ok generic CLI writes the slate file\n  ok the fixture's slate landed in the FIXTURE store\n  ok the real slates store never saw the fixture id\n  ok the slate carries the template keys\n  ok non-composing skill fires through generic path\n  ok non-composing skill berths normally\n  ok non-composing skill has no slate key\n  ok fixture fires left cairn HEAD unmoved\n  ok fixture fires left CairnCommons HEAD unmoved\nGREEN — 33 teeth",
+      "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "d2ad4877888c39b152b61287f7fc714f104a6c8ba4627d822c85166bbc6082d9",
+      "source_fingerprint": "9df91a0816d5e4b928c906eb5267580b66b2acb5538ad8e8513654bc6f0f6b86",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -33,11 +33,16 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1630512-a43rizp4/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1648040-us3b77dd/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 4,
+          "paths": [
+            "devices/learning_block/0/traces/skill:intent.jsonl",
+            "devices/learning_block/0/traces/skill:saveslate.jsonl",
+            "devices/skill_block/0/berths/intent/intent-20260908T190354-c3acd714529b.json",
+            "devices/skill_block/0/berths/saveslate/saveslate-20260908T190354-9dfe094aca8e.json"
+          ],
           "elided": 0
         }
       }

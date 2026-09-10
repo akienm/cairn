@@ -1188,26 +1188,53 @@ def inspect_clearance(target: str, journal_extra: dict, *, history_path: str) ->
         return record
 
     from cairn.devices.tester.validation_store import standing  # lazy: keep import dependency-light
-    proof = journal_extra["proven_by"]
-    proven = standing(proof)
-    stands = f"{proof} stands in proven-space"
+    # ONE-OR-MANY, THE SAME WAY THE HARBOR'S OWN RUNG READS IT (2026-09-09, trouble
+    # clearance-gate-checks-one-proof-while-the-record-names-many). ``proven_by`` on a
+    # crossing has read as one path OR a list since 2026-09-07, because A SEAM HAS ENDS IN
+    # MORE THAN ONE COMPONENT and its clauses are proved by teeth in each. clearance.py's
+    # proven-space rung was taught this on 2026-09-09; THIS LANE WAS NOT, and it is the
+    # second half of the same trouble — the harbor cleared a two-ended seam and then handed
+    # the list to ``standing()`` here, where it is a ``TypeError`` at the chokepoint. Measured
+    # by ticket 1accdc1781aa, whose five clauses live in three files: its own first live
+    # crossing raised ``expected str, bytes or os.PathLike object, not list``.
+    #
+    # EVERY NAMED END MUST STAND, and the first failure is the one the refusal names: a seam
+    # is not proven because one of its ends is, and reading only ``[0]`` would make the
+    # record's claim longer than what this lane checked — which is the exact shape of the
+    # trouble, not a smaller version of it.
+    _named = journal_extra["proven_by"]
+    named = ([_named] if isinstance(_named, str)
+             else [str(one) for one in (_named or []) if one])
+    readings = [(one, standing(one)) for one in named]
+    failed = [(one, read) for one, read in readings if not read["proven"]]
+    # THE FIRST END IS THE ONE THE SEAL DATE IS ABOUT, because that is what the harbor
+    # stamps (clearance.py keeps the first standing reading as ``proven``). The lane below
+    # weighs the witness against the seal it names, so it has to name the same one.
+    first = named[0]
+    shown = first if len(named) == 1 else f"every one of {len(named)} proofs ({', '.join(named)})"
+    stands = f"{shown} stands in proven-space"
     record.append(_lane("the_named_proof_stands_in_proven_space",
                         expected=stands,
-                        actual=stands if proven["proven"] else
-                        f"{proof} is NOT in proven-space: {proven['why']}",
-                        code=code, target=target, proof=proof, why=proven["why"]))
-    if not proven["proven"]:
+                        actual=stands if not failed else
+                        f"{failed[0][0]} is NOT in proven-space: {failed[0][1]['why']}"
+                        + (f" — and this crossing names {len(named)} proofs; a seam is not "
+                           "proven because one of its ends is."
+                           if len(named) > 1 else ""),
+                        code=code, target=target,
+                        proof=failed[0][0] if failed else shown, named=named,
+                        why=failed[0][1]["why"] if failed else ""))
+    if failed:
         return record
 
-    actual_seal = proven["seal"]["date"]
-    dated = f"the witness dates {proof}'s seal at {actual_seal!r}"
+    actual_seal = readings[0][1]["seal"]["date"]
+    dated = f"the witness dates {first}'s seal at {actual_seal!r}"
     record.append(_lane("the_witness_agrees_with_the_seal_it_names",
                         expected=dated,
                         actual=dated if journal_extra["proven_seal_date"] == actual_seal else
-                        f"the witness dates {proof}'s seal at "
+                        f"the witness dates {first}'s seal at "
                         f"{journal_extra['proven_seal_date']!r}",
-                        code=code, target=target, proof=proof, seal=actual_seal,
-                        claimed=journal_extra["proven_seal_date"]))
+                        code=code, target=target, proof=first, named=named,
+                        seal=actual_seal, claimed=journal_extra["proven_seal_date"]))
     return record
 
 
@@ -1223,10 +1250,17 @@ def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
                 "record carrying only some of them did not come through it. Nothing was "
                 "journaled.")
     if ident == "the_named_proof_stands_in_proven_space":
+        # ONE-OR-MANY IN THE REFUSAL TOO. When the witness names a seam, the caller needs to
+        # know WHICH end is the one that does not stand — a message naming "the proof" would
+        # send them to re-seal a file that is already fine (complete diagnostic, first pass).
+        _named = v.get("named") or []
+        _seam = (f" This crossing names {len(_named)} proofs and a seam is not proven "
+                 "because one of its ends is; the other ends were not re-checked past this "
+                 "one." if len(_named) > 1 else "")
         return (f"{target} crossing refused: the record claims clearance onto {v['proof']}, "
-                f"but that proof is NOT in proven-space: {v['why']} A witness naming a proof "
-                "the world does not hold proven is not evidence that the authority rung ran "
-                "— it is the shape of one. Nothing was journaled. Re-seal the proof, then "
+                f"but that proof is NOT in proven-space: {v['why']}{_seam} A witness naming a "
+                "proof the world does not hold proven is not evidence that the authority rung "
+                "ran — it is the shape of one. Nothing was journaled. Re-seal the proof, then "
                 "clear the crossing through harbor_master's gate.")
     if ident == "the_witness_agrees_with_the_seal_it_names":
         return (f"{target} crossing refused: the record dates the seal on {v['proof']} at "

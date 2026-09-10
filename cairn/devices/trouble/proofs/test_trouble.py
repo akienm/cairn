@@ -288,6 +288,41 @@ def test_two_recipients_hold_it_live_until_both_clear():
         assert d.live() == []
 
 
+def test_the_recipient_name_is_a_SYSTEM_WORD_so_CC_clears_what_cc_was_told():
+    """A CLEARED TROUBLE THAT NEVER LEAVES THE LIVE LIST — measured 2026-09-09.
+
+    ``--by`` arrives from ``cairn trouble clear --by <who>``: a token a hand types. The
+    notified set is written by code (``DEFAULT_RECIPIENTS``, lower-case). The two spellings
+    meet in exactly one line — the ``outstanding`` comparison — and it was a byte compare,
+    so ``--by CC`` against a notified ``cc`` returned ``partially_cleared ... now OPEN``: the
+    fault fixed, the clear on the record, and the ticket sitting in the inbox forever with
+    nothing left to do about it. That is the failure the system-word ruling
+    (2026-09-07-system-words-are-case-insensitive-when-akien-types-them) is made of, landing
+    in the one store whose whole job is saying what still demands attention (Law 7).
+
+    THE SECOND ROW IS WHAT MAKES THE FIRST NON-HOLLOW: a fold that swallowed everything
+    would also clear a trouble on behalf of a recipient who never spoke. ``akien`` is still
+    outstanding after ``CC`` clears — the fold is a COMPARE, never a widening.
+
+    And what is STORED keeps the case it was given: ``cleared_by[].by`` reads ``"CC"``,
+    because folding is not rewriting (the module's own wrong-intent edge)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _dev(tmp)
+        d.raise_trouble(IDENT, why=WHY, recipients=["cc", "akien"])
+        out = d.clear(IDENT, by="CC", what_changed="fixed it, typing my own name my own way")
+        assert out["outstanding"] == ["akien"], (
+            f"'CC' must clear what 'cc' was told, and nothing else: {out['outstanding']}")
+        assert out["outcome"] == "partially_cleared", out
+        raw = json.loads((Path(tmp) / f"{IDENT}.json").read_text())
+        assert raw["cleared_by"][-1]["by"] == "CC", (
+            "the stored word keeps the case it was given — folding is a compare, not a "
+            f"rewrite: {raw['cleared_by'][-1]['by']!r}")
+        assert d.clear(IDENT, by=" AKIEN ",
+                       what_changed="reviewed")["standing"] == CLEARED, (
+            "and a stray space plus upper case is the other thing fingers produce")
+        assert d.live() == []
+
+
 def test_the_ticket_on_disk_is_plain_readable_json():
     with tempfile.TemporaryDirectory() as tmp:
         _dev(tmp).raise_trouble(IDENT, why=WHY, detail={"location": "projector.py:112"})

@@ -358,6 +358,34 @@ def test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the
 
 # ── tooth 5 ───────────────────────────────────────────────────────────────────────────
 
+def _code_without_prose(path: Path) -> str:
+    """The file's code with its comments and docstrings taken off.
+
+    A mention of a door is not a reach for it. Comments vanish because ``ast.parse``
+    never keeps them; docstrings are popped by hand because they are ordinary string
+    expressions and would survive the round trip. Everything else survives — including
+    string literals in live positions, which is where a dynamic import would hide."""
+    import ast
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return text  # unparseable: measure it whole rather than measure nothing
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if not isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                                 ast.AsyncFunctionDef)) or not body:
+            continue
+        first = body[0]
+        if (isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant)
+                and isinstance(first.value.value, str)):
+            body.pop(0)
+            if not body:
+                body.append(ast.Pass())
+    return ast.unparse(tree)
+
+
 def test_no_pulse_path_reaches_the_door():
     """The ticket's third constraint, as a grep: *fired from pre-commit over staged files;
     never from any on_pulse path.* The door runs proofs — minutes of subprocess — and the
@@ -366,7 +394,18 @@ def test_no_pulse_path_reaches_the_door():
     one pulse before the next.
 
     Measured over shims, probes and the ground loop rather than over a list of files a
-    future caller could sidestep: those three ARE the pulse surface."""
+    future caller could sidestep: those three ARE the pulse surface.
+
+    AND IT IS MEASURED OVER THE CODE, NOT OVER THE PROSE (2026-09-09, ticket
+    1accdc1781aa). Until today the tooth grepped the raw file text, so the first shim to
+    merely *explain* the door in a docstring redded it — measured when codemother's new
+    ``sealed`` handler wrote the word "resealed" in a sentence about why it reads only the
+    LATEST crossing. A tooth that reds a comment is not measuring its own claim: the claim
+    is that a pulse path REACHES the door, and a paragraph reaches nothing. So comments and
+    docstrings come off first and the grep runs over what is left, which still catches a
+    dynamic reach — ``ast.unparse`` keeps every string literal that is not a docstring, so
+    ``import_module("...reseal...")`` is as visible as an ``import``. The narrowing is not a
+    weakening in the direction that matters: an unparseable file is measured WHOLE."""
     surfaces = []
     surfaces += sorted((_REPO_ROOT / "cairn").rglob("shim.py"))
     surfaces += [p for p in sorted((_REPO_ROOT / "cairn").rglob("probes/*.py"))]
@@ -376,7 +415,7 @@ def test_no_pulse_path_reaches_the_door():
 
     offenders = []
     for path in surfaces:
-        if "reseal" in path.read_text(encoding="utf-8", errors="replace"):
+        if "reseal" in _code_without_prose(path):
             offenders.append(str(path.relative_to(_REPO_ROOT)))
     assert not offenders, (
         f"the reseal door is named on a pulse path: {offenders}. It runs proofs; the beat "

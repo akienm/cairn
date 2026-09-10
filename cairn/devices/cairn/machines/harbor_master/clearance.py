@@ -80,10 +80,14 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
-from cairn.tools.base.transitions import emit, parse_workflow, resolve_target
+from cairn.tools.base.transitions import (
+    canon_target, emit, parse_workflow, resolve_target)
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.tools.base.validation import standing
+from cairn.tools.system_word import fold
+from cairn.tools.proof_coverage import lacks as coverage_lacks
 
 # THE TWO ROOTS THE OWNER-READ WALKS, derived from this file's own address rather than
 # taken from a caller. That is not fussiness: the whole point of ticket
@@ -293,6 +297,38 @@ class Unproven(Exception):
     with the horizon closed because the code moved underneath it."""
 
 
+class Uncovered(Exception):
+    """The proof this move leans on does not COVER the boat it is crossing (Law 8).
+
+    Deliberately not folded into ``Unproven``, and the distinction is the whole reason this
+    rung exists. ``Unproven`` answers *is the named code in proven-space?* — a question about
+    the PROOF: was it sealed, is the seal green, has the code moved underneath it.
+    ``Uncovered`` answers *does that proof say anything about THIS ticket?* — a question about
+    the JOIN between the two. A proof can be perfectly, currently, greenly sealed and declare
+    not one tooth for the clause the boat is crossing on, which is the shape measured on four
+    of twelve tickets on 2026-09-07: a green seal standing in for a proof nobody wrote.
+
+    THREE WAYS TO EARN IT, and the refusal names every one in a single pass because
+    ``proof_coverage.lacks`` returns every lack rather than the first:
+
+      - the coverage sieve finds a lack — no PROVES entry for this ticket, an undeclared
+        clause, a declared tooth that never printed green, a proof not on disk;
+      - the seal's ``source_fingerprint`` no longer matches the proof (also a coverage lack —
+        one instrument, not two, because "is the seal current" is exactly the question the
+        sieve was already asking of every named proof);
+      - for a code-seam, the standing seal carries no ``evidence.hollow`` reading for this
+        ticket, or carries one naming a hollow file. An absent hollow reading is a red the
+        same as an absent seal: a hollow build passes every tooth a real build passes, so a
+        green with no hollow reading beside it is a green that was never distinguished from
+        the green a hollow build would also have earned (Law 8 — a proof a hollow build
+        couldn't pass).
+
+    NO ADVISORY MODE, and there is no switch to add one (ruling 2026-08-10,
+    clearance-is-mandatory; Akien 2026-09-07: "Gates are supposed to be hard, deterministic,
+    state changes"). A refusal also RAISES A TROUBLE, so a hollow green becomes a live thing
+    somebody has to clear rather than a boat quietly parked at PROVEME."""
+
+
 class Unresourced(Exception):
     """The host has no room for what this move would summon — the fourth refusal.
 
@@ -460,6 +496,16 @@ class BoatOwner:
     # keeps working unchanged; a boat whose owner was built without this simply reads as
     # riding a living intention, which is what it was already asserting.
     retired: "Retirement | None" = None
+    # THE FOURTH READ FACT, on the same terms as the third and for the same reason: the
+    # ticket dict was already opened and parsed to reach ``owning_intention``, so carrying it
+    # is one reference rather than a second read of the same file. The PROVED coverage rung
+    # needs the whole ticket — its falsifier clauses, its crossings, its node_class — and
+    # re-opening it there would mean the gate reading the boat twice per crossing and, worse,
+    # possibly reading two different versions of it. Defaulted to ``None`` so that every
+    # existing constructor call — the proofs above all — keeps working unchanged; a
+    # ``BoatOwner`` built without it simply cannot answer the coverage question, and the rung
+    # says so rather than guessing.
+    ticket: dict | None = None
 
 
 def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
@@ -559,7 +605,90 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
     # ``RetirementUnreadable``, not ``OwnerUnresolvable``, because the owner IS resolvable
     # and telling a caller otherwise would send them to fix the wrong line.
     return BoatOwner(intention=addr, hands=tuple(hands),
-                     retired=retirement_of(charter, at=charter_path))
+                     retired=retirement_of(charter, at=charter_path),
+                     ticket=ticket)
+
+
+def _lack(ticket_id: str, kind: str, about: str, why: str, **values) -> dict:
+    """One lack, in ``proof_coverage``'s own shape — because the two lists are ONE list.
+
+    ``_coverage_lacks`` concatenates the sieve's findings with this module's hollow findings
+    and hands the caller a single sequence. A reader that had to know which half a dict came
+    from in order to read its keys would be reading two reports wearing one name. The shape
+    is four strings and a bag: ``ticket``, ``kind``, ``about`` (what would have to be true),
+    ``why`` (what was measured instead), ``values`` (this finding's own data).
+
+    Deliberately re-declared rather than reaching for the sieve's private ``_lack``: that
+    would be a device machine leaning on a tool's underscore, and the shape is the contract
+    here, not the function.
+    """
+    return {"ticket": ticket_id, "kind": kind, "about": about, "why": why, "values": values}
+
+
+def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> list[dict]:
+    """The third PROVED rule, on its own so a proof can fire it without a whole crossing.
+
+    A CODE-SEAM AND NOTHING ELSE. A concept-piece is proved by people reading it — there is
+    no build to hollow out and no file to revert, so demanding a hollow reading of one would
+    be demanding evidence that cannot exist. ``proof_coverage`` already routes concept-pieces
+    to their own coverage question for exactly this reason; this rung takes the same fork.
+
+    WHAT IT ASKS, and it is one question in two halves. ``cairn test --hollow`` reverts the
+    files a ticket's build touched, re-runs the ticket's declared teeth, and records
+    ``{file: [teeth that redded]}`` on each named proof's standing seal as
+    ``evidence.hollow[<ticket>]``. A file whose list is EMPTY is a hollow one: reverting it
+    changed nothing any tooth could see, so the green the proof prints is a green the build
+    did not earn.
+
+      - the key is ABSENT  -> red, the same as an absent seal. Not "unknown, pass": a hollow
+        build passes every tooth a real build passes, so a green with no hollow reading
+        beside it has never been distinguished from the green a hollow build would earn
+        (Law 8 — a proof a hollow build couldn't pass; Law 9 — green is EARNED).
+      - the key is present and names a hollow FILE -> red, and the refusal names the file,
+        because that is the one thing the builder has to go and fix.
+      - the key is present and every measured file redded a tooth -> covered.
+
+    AND THE READING EXPIRES WITH THE CODE. It rides ``evidence`` beside the
+    ``source_fingerprint`` that dates the whole record, and ``persist_validation`` carries it
+    across a re-seal ONLY while that fingerprint holds — so a hollow reading can never be
+    older than the tree it was taken on (Law 3). Before that carry existed (landed the same
+    day as this rung) the key had a lifetime of one commit and this rule would have refused
+    every code-seam in the corpus.
+    """
+    if seal_reader is None:
+        from cairn.tools.base.validation import latest_seal
+        seal_reader = latest_seal
+    if repo_root is None:
+        repo_root = Path(CAIRN_ROOT)
+    tid = str(ticket.get("id") or "")
+    if fold(str(ticket.get("node_class") or "")) == "concept-piece":
+        return []
+    out = []
+    for one in named:
+        path = Path(one) if Path(one).is_absolute() else (repo_root / one)
+        seal = seal_reader(str(path), artifact=False)
+        if seal is None:
+            continue            # rule 2 and the coverage sieve both already red an unsealed
+                                # proof; saying it a third time teaches nothing new
+        reading = ((seal.get("evidence") or {}).get("hollow") or {}).get(tid)
+        if not isinstance(reading, dict):
+            out.append(_lack(
+                tid, "hollow_evidence_absent",
+                f"{path.name}'s standing seal carries evidence.hollow[{tid}]",
+                "no hollow reading — the green on this proof has never been distinguished "
+                "from the green a build with the work reverted would also print. FIX, one "
+                f"command: `cairn test --hollow {tid} --seal`",
+                proof=str(one)))
+            continue
+        empty = sorted(f for f, teeth in reading.items() if not teeth)
+        if empty:
+            out.append(_lack(
+                tid, "hollow_file",
+                f"every file the build of {tid} touched reds a declared tooth when reverted",
+                f"reverting {', '.join(empty)} redded NO declared tooth — the proof is green "
+                "whether that code is there or not, so it is not evidence about it",
+                proof=str(one), files=empty))
+    return out
 
 
 @dataclass(frozen=True)
@@ -793,6 +922,73 @@ def mint_grant(*, minted_by: str, boat_id: str, to_actor: str, target: str,
     )
 
 
+def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
+    """Every reason the proof(s) this crossing leans on do not COVER this boat — one pass.
+
+    Two instruments, one list. ``proof_coverage.lacks`` is the sieve ticket feeb4c786b14
+    built and this rung COMPOSES it rather than re-asking its questions: the ticket declares
+    a proof, the proof exists, it declares a PROVES entry for this ticket, every falsifier
+    clause has a tooth, every declared tooth printed green in the seal, and the seal's
+    fingerprint still matches the tree. ``hollow_lacks`` adds the one question that sieve does
+    not ask — whether the green means anything.
+
+    NO ROOT INJECTION, and that is the same refusal ``boat_owner_of`` makes for the same
+    reason (ticket boat-owner-is-read-not-stated): a ``tickets_dir=`` or ``seal_reader=``
+    parameter would hand the caller back the choice of what evidence the gate reads, which is
+    the falsifier wearing a coat. A proof drives this the way the retirement teeth do —
+    substitute the READ (``boat_owner_of``) and name proofs by ABSOLUTE path, which both
+    instruments already resolve, so a fixture needs no door into the gate at all.
+    """
+    ticket = owner.ticket
+    if not isinstance(ticket, dict):
+        return [_lack(
+            boat_id, "ticket_unreadable",
+            f"the gate can read boat {boat_id}'s ticket",
+            "the owner was resolved without the ticket dict, so there are no falsifier "
+            "clauses to check a proof against — the gate refuses rather than passing a "
+            "coverage question it could not ask (CP1)")]
+    # The id is what every lack is keyed by, and a ticket that does not carry one would key
+    # them all to the empty string. ``boat_id`` IS the id (a boat is its ticket, ruled
+    # 2026-08-10) and rule 0c has already refused a crossing where the two disagree.
+    ticket = {**ticket, "id": ticket.get("id") or boat_id}
+    return (list(coverage_lacks(ticket, repo_root=Path(CAIRN_ROOT)))
+            + hollow_lacks(ticket, named))
+
+
+def _raise_uncovered_trouble(boat_id: str, lacks: list[dict], *, device=None) -> None:
+    """A hollow green becomes a LIVE TROUBLE, not a boat parked quietly at PROVEME.
+
+    This is the half of the ticket's rule that is not the refusal. A gate that only refuses
+    teaches the one caller standing at it; the boat then sits at PROVEME looking exactly like
+    a boat nobody has got to yet, and the corpus grows a class of stuck voyages whose reason
+    lives in an exception string that scrolled past. The trouble is what makes the reason
+    outlive the call.
+
+    ``identity`` names the DEFECT and not the occurrence, so a boat refused five times folds
+    to one trouble with a count of five — which is also what makes "how often is this gate
+    biting?" a question the store can answer.
+
+    NEVER RAISES OUT. The refusal is the record of truth (Law 7) and it is already on its way
+    up; a trouble store that is down must not turn a clean refusal into a stack trace at the
+    caller, because that would make the gate MORE dangerous the moment diagnostics fail.
+    """
+    try:
+        if device is None:
+            from cairn.tools.base.diagnostic import ModuleRaiser
+            device = ModuleRaiser("harbor_master")
+        device.raise_trouble(
+            f"boat-crossed-to-proved-uncovered-{boat_id}",
+            why=(f"boat {boat_id} was crossed toward PROVED on evidence that does not cover "
+                 f"it: {len(lacks)} lack(s) — "
+                 + "; ".join(sorted({one["kind"] for one in lacks}))
+                 + ". The gate refused; the boat stays at its current state until the "
+                   "evidence is real (Law 8 — nothing enters proven-space without a proof a "
+                   "hollow build couldn't pass)."),
+            detail={"boat": boat_id, "lacks": lacks})
+    except Exception:  # noqa: BLE001 — see the docstring: the refusal outranks its announcement
+        pass
+
+
 def _decide(
     workflow_str: str,
     target: str,
@@ -807,6 +1003,7 @@ def _decide(
     resources=None,
     lines: dict | None = None,
     now: float | None = None,
+    trouble_device=None,
     **journal_extra,
 ) -> str:
     """Clear a transition, or refuse it — the authority rung wrapping the rules+truth chokepoint.
@@ -1036,12 +1233,65 @@ def _decide(
 
     # 2. PROVEN-SPACE (Law 8) — the code the move summons must be proven, and still be the code
     #    that was proven. One file read at a derived address; no registry, nothing to populate.
-    proven = standing(proven_by)
-    if not proven["proven"]:
+    #
+    #    ONE-OR-MANY, LIKE THE RECORD (2026-09-09, trouble
+    #    clearance-gate-checks-one-proof-while-the-record-names-many). ``proven_by`` on a
+    #    crossing record has read as one path OR a list since 2026-09-07, because a SEAM has
+    #    ends in more than one component and its clauses are proved by teeth in each. This
+    #    rung kept calling ``standing()`` on the value whole, so a list was a ``TypeError`` at
+    #    the door — and where it did not throw, the gate was verifying ONE of the proofs the
+    #    record names while the coverage sieve below judges all of them. EVERY named proof
+    #    must stand: a seam is not proven because one of its ends is, and taking the first
+    #    entry would make the crossing's own record longer than what the gate checked.
+    _named = ([proven_by] if isinstance(proven_by, str)
+              else [str(one) for one in (proven_by or []) if one])
+    if not _named:
         raise Unproven(
-            f"{actor!r} may not move boat {boat_id!r} to {target!r} onto code that is not in "
-            f"proven-space: {proven['why']}. The harbor clears only onto proven code (Law 8)"
+            f"{actor!r} may not move boat {boat_id!r} to {target!r}: the crossing names no "
+            "proof at all. The harbor clears only onto proven code (Law 8), and a crossing "
+            "with nothing in proven_by is a claim about evidence that was never pointed at."
         )
+    proven = None
+    for _one in _named:
+        _read = standing(_one)
+        if not _read["proven"]:
+            raise Unproven(
+                f"{actor!r} may not move boat {boat_id!r} to {target!r} onto code that is not "
+                f"in proven-space: {_read['why']}. The harbor clears only onto proven code "
+                f"(Law 8)"
+                + (f" — and this crossing names {len(_named)} proofs, of which {_one} is the "
+                   "one that does not stand; a seam is not proven because one of its ends is."
+                   if len(_named) > 1 else "")
+            )
+        if proven is None:
+            proven = _read
+
+    # 2b. THE PROOF MUST COVER THE BOAT (Law 8) — and this rung fires ONLY on the crossing
+    #     into PROVED. Rule 2 asked whether the named code is in proven-space; this asks the
+    #     join question, which is a different question with a different answer: a green,
+    #     current seal on a proof that declares not one tooth for this ticket's clauses is
+    #     exactly the shape measured on four of twelve tickets, 2026-09-07.
+    #
+    #     WHY ONLY AT PROVED. Every earlier crossing is a boat still under construction, and
+    #     demanding full coverage at BUILDME would refuse the very act that goes and gets it.
+    #     PROVED is the terminal where the claim becomes "this is done and leanable" — the
+    #     moment a peer starts composing it without re-checking, which is the whole return
+    #     Law 8's prove-then-trust order is paid for. The target is read through the
+    #     chokepoint's own spelling rules (``canon_target``), never a bare string compare, so
+    #     a lower-case ``proved`` cannot walk past the gate (ruled 2026-09-07: a stage token
+    #     is a system word).
+    if fold(canon_target(parse_workflow(workflow_str), target)) == "proved":
+        _lacks = _coverage_lacks(owner, boat_id, _named)
+        if _lacks:
+            _why = "; ".join(f"[{one['kind']}] {one['why']}" for one in _lacks)
+            _raise_uncovered_trouble(boat_id, _lacks, device=trouble_device)
+            raise Uncovered(
+                f"{actor!r} may not cross boat {boat_id!r} to PROVED: the proof it leans on "
+                f"does not cover it. {len(_lacks)} lack(s), every one named in this pass "
+                f"because a caller who fixes what he is told and hits a second refusal learns "
+                f"to distrust the report — {_why}. This gate has no advisory mode (ruling "
+                "2026-08-10 clearance-is-mandatory); the boat crosses when the lacks are gone."
+            )
 
     # 3. RESOURCES — the fourth refusal. The harbor asks the resource owner about ITS OWN lines
     #    and receives a verdict, never a reading. Nothing here counts anything: a line is about
@@ -1115,6 +1365,7 @@ def clear(
     resources=None,
     lines: dict | None = None,
     now: float | None = None,
+    trouble_device=None,
     **journal_extra,
 ) -> str:
     """The clearance gate — decide, and REMEMBER BEING ASKED. This is the public door.
@@ -1161,6 +1412,7 @@ def clear(
             actor=actor, boat_id=boat_id, proven_by=proven_by, grant=grant,
             history_path=history_path, state_path=state_path,
             node_class_root=node_class_root, resources=resources, lines=lines, now=now,
+            trouble_device=trouble_device,
             **journal_extra,
         )
     except BaseException as exc:

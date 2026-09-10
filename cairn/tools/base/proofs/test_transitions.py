@@ -1011,6 +1011,105 @@ def test_a_witness_the_world_does_not_back_is_refused_three_ways():
             "three refusals must have written no record of truth at all — not even an empty one"
 
 
+def _two_ended(d: Path, *, second_green: bool = True) -> dict:
+    """Journal-extra for a crossing cleared onto TWO proofs — a seam's shape, in a fixture.
+
+    BOTH FILES ARE WRITTEN BEFORE EITHER IS SEALED, and that ordering is the measurement,
+    not a style choice: ``source_fingerprint`` is taken over the component root, so minting
+    the second proof after sealing the first moves the tree under that first seal and the
+    horizon rung correctly refuses it. Measured 2026-09-09 on ticket 1accdc1781aa, where a
+    fixture that sealed-then-wrote read "the code moved under the proof" and was right.
+    """
+    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    first = d / "proofs" / "sealed_fixture.py"
+    second = d / "proofs" / "the_other_end.py"
+    first.parent.mkdir(parents=True, exist_ok=True)
+    first.write_text("# one end of the seam\n")
+    second.write_text("# the other end of the seam\n")
+    for one, verdict in ((first, "green"), (second, "green" if second_green else "red")):
+        persist_validation({
+            "claim": f"{one.name} is proven",
+            "caller": "cairn/tools/base/proofs/test_transitions.py",
+            "date": _FIXTURE_SEAL_DATE,
+            "method": "fixture seal — the trail is real, the code it seals is a stub",
+            "verdict": verdict,
+            "evidence": {"source_fingerprint": source_fingerprint(str(one))},
+            "falsifier": "the component's source fingerprint moves",
+            "horizon": "until any .py under the component root changes",
+        }, proof_path=str(one))
+    return {"cleared_by": "fixture-owner", "proven_by": [str(first), str(second)],
+            "proven_seal_date": _FIXTURE_SEAL_DATE}
+
+
+def test_the_clearance_lane_reads_proven_by_AS_ONE_OR_MANY_and_every_end_must_stand():
+    """BASE'S HALF of the trouble clearance-gate-checks-one-proof-while-the-record-names-many.
+
+    ``proof_coverage`` has read a crossing's ``proven_by`` as one-or-many since 2026-09-07,
+    because A SEAM HAS ENDS IN MORE THAN ONE COMPONENT and its clauses are proved by teeth in
+    each. harbor_master's proven-space rung was taught this on 2026-09-09 and its retirement
+    tooth crosses to PROVEME — which ``is_summons``, so THIS lane never fired in it and base's
+    identical rung kept calling ``standing()`` on the value whole. Measured the same day by
+    ticket 1accdc1781aa (five clauses, three files): the first crossing of a two-ended seam
+    into PROVED raised ``expected str, bytes or os.PathLike object, not list`` at the
+    chokepoint, AFTER the harbor had cleared it.
+
+    Two rows, and the second is what makes the first non-hollow — a lane that merely stopped
+    throwing would pass row one while checking only ``[0]``:
+      - a two-ended witness, both ends standing, CROSSES, and the record names both;
+      - one end red — the whole seam is unproven, and the refusal names the failing END,
+        not the first one in the list.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        witness = _two_ended(comp)
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"widgetry"})   # isolate the sixth seat
+        try:
+            new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist,
+                                   state_path=state, **witness)
+        finally:
+            transitions._EXEMPT_ROSTER = saved
+        assert "[PROVED]" in new, new
+        rec = projector.read_history(hist)[0]
+        assert rec["proven_by"] == witness["proven_by"], (
+            f"the record must name EVERY end the gate verified, got {rec.get('proven_by')!r}")
+        note = rec["clearance_gate"]
+        assert "sealed_fixture.py" in note and "the_other_end.py" in note, (
+            f"the note renders the witness, so it must name both ends: {note}")
+        # AND THE LANE ITSELF SAYS IT WEIGHED BOTH — the note is rendered from the record,
+        # but the record is where the claim lives, and "stands in proven-space" over a list
+        # is exactly the sentence that was true-about-one before this fix.
+        lane = [one for one in transitions.inspect_clearance(
+            "PROVED", witness, history_path=hist)
+            if one["identity"] == "the_named_proof_stands_in_proven_space"][0]
+        assert "every one of 2 proofs" in lane["actual"], (
+            f"the lane must claim it weighed both ends, not one: {lane['actual']!r}")
+
+    with tempfile.TemporaryDirectory() as d:
+        comp = Path(d) / "widgetry"
+        comp.mkdir()
+        hist, state = str(comp / "history.json"), str(comp / "state.json")
+        witness = _two_ended(comp, second_green=False)
+        saved = transitions._EXEMPT_ROSTER
+        transitions._EXEMPT_ROSTER = frozenset({"widgetry"})
+        try:
+            transitions.emit(_AT_LEARN, "PROVED", history_path=hist,
+                             state_path=state, **witness)
+        except transitions.ClearanceRequiredRed as exc:
+            msg = str(exc)
+            assert "the_other_end.py" in msg, (
+                f"the refusal must name the END that does not stand, not the first in the "
+                f"list: {msg}")
+            assert "one of its ends" in msg, msg
+        else:
+            raise AssertionError("a seam with a red end crossed into PROVED")
+        finally:
+            transitions._EXEMPT_ROSTER = saved
+        assert not Path(hist).exists(), "and nothing was journaled"
+
+
 def test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat():
     """The two silences, and both are design rather than omission.
 

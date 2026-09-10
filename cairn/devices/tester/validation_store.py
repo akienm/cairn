@@ -676,6 +676,34 @@ def persist_validation(
                 "record's evidence.")
         record["evidence"] = {**evidence, "unsealing_because": unsealing_because}
 
+    # AND A HOLLOW READING SURVIVES A RE-SEAL OF THE SAME CODE (2026-09-09, uncovered by the
+    # 1accdc1781aa voyage). Same shape as the guard above, one level in: because the door
+    # REPLACES, ``evidence.hollow`` — the reading ``record_hollow`` lands, and the one thing a
+    # PROVED gate can ask to tell a real green from a green a hollow build could also earn —
+    # had a lifetime of ONE COMMIT. Measured before the fix: the fc93d8cd5961 run reported
+    # "hollow evidence landed on 1 of 1 standing validation(s)", and a corpus-wide read found
+    # ZERO records anywhere carrying the key, because the pre-commit reseal ladder runs on
+    # every commit and each reseal dropped it.
+    #
+    # THE CARRY IS FINGERPRINT-BOUND, WHICH IS THE WHOLE POINT. A hollow reading is a
+    # measurement about a specific tree: revert THESE files, and no declared tooth reds. Change
+    # the code and that reading is about a tree that no longer exists, so it must expire (Law
+    # 3) — and it does, because the fingerprints stop matching and the key is not carried. An
+    # unchanged re-seal is the case this fixes: the same code, measured again, and a reading
+    # nobody re-took is not a reading nobody ever took.
+    #
+    # A NEW RECORD THAT CARRIES ITS OWN ``hollow`` WINS, always: ``record_hollow`` writes
+    # through this same door, so the carry must never overwrite the act that is landing.
+    _prior_ev = (standing_trail[-1].get("evidence") or {}) if standing_trail else {}
+    if isinstance(_prior_ev, dict):
+        _prior_hollow = _prior_ev.get("hollow")
+        _new_ev = record.get("evidence") or {}
+        _fp = _prior_ev.get("source_fingerprint")
+        if (isinstance(_prior_hollow, dict) and _prior_hollow
+                and "hollow" not in _new_ev
+                and _fp and _fp == _new_ev.get("source_fingerprint")):
+            record["evidence"] = {**_new_ev, "hollow": _prior_hollow}
+
     change = verdict_change(standing_trail, record)
     # A FIXTURE'S VERDICT CHANGE IS THE FIXTURE DOING ITS JOB, not a defect in the world.
     # Proofs seal into tmpdirs by the dozen and flip verdicts on purpose; announcing those

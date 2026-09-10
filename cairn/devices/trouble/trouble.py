@@ -67,6 +67,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
+from cairn.tools.system_word import fold
 
 # The stopgap, written down as one: today CC is told about everything. A second recipient is
 # an entry in this list, not a redesign — the notified/cleared sets are already per-recipient.
@@ -252,8 +253,18 @@ class TroubleDevice(BaseDevice):
         ticket.setdefault("cleared_by", []).append(
             {"by": by, "at": _now(), "what_changed": what_changed,
              "at_count": ticket.get("count")})
+        # THE RECIPIENT NAME IS A SYSTEM WORD (ruling 2026-09-07,
+        # 2026-09-07-system-words-are-case-insensitive-when-akien-types-them). It arrives from
+        # ``cairn trouble clear --by <who>`` — a token his fingers produce — and the notified
+        # set is written by code, so the two spellings meet here and NOWHERE else. A byte
+        # compare made ``--by CC`` against a notified ``cc`` read "partially_cleared, now
+        # OPEN": the trouble is fixed, the clear is on the record, and it never leaves the
+        # live list — the exact failure the ruling was made of, in the one place where a
+        # cleared fault would sit in the inbox forever. Measured 2026-09-09 on
+        # clearance-gate-checks-one-proof-while-the-record-names-many.
+        _cleared = {fold(c["by"]) for c in ticket["cleared_by"]}
         outstanding = [r for r in ticket.get("notified", [])
-                       if r not in {c["by"] for c in ticket["cleared_by"]}]
+                       if fold(r) not in _cleared]
         if not outstanding:
             ticket["standing"] = CLEARED
             ticket["resolution"] = ticket["cleared_by"][-1]

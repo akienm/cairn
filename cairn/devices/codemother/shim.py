@@ -51,6 +51,22 @@ _MAIL_DIR = _INSTANCE_ROOT / "mail"
 # it, and this is the only thing codemother needs to know about the harbor.
 _HARBOR = "harbor_master"
 
+# The commons root, resolved the same way ``_resolve_component_dir`` resolves it below —
+# stated once here because the sealed handler reads the ticket corpus to find its boats.
+_COMMONS = Path(__file__).resolve().parents[3].parent / "CairnCommons"
+
+
+def _resolved(path: str) -> str:
+    """One spelling for one file. A relative path is read against class-space, which is
+    where a repo-relative proof path in a ticket means."""
+    p = Path(path)
+    if not p.is_absolute():
+        p = Path(__file__).resolve().parents[3] / p
+    try:
+        return str(p.resolve())
+    except OSError:
+        return str(p)
+
 
 class CodeMotherDevice(BaseDevice):
     """CodeMother's verb face. Woken by the shim when there is mail with a verb on it."""
@@ -68,6 +84,7 @@ class CodeMotherDevice(BaseDevice):
         return {
             **super().declared_verbs(),
             "cross": self._handle_cross,
+            "sealed": self._handle_sealed,
             "activate": self._handle_activate,
             "commit": self._handle_commit,
             "question": self._handle_question,
@@ -200,6 +217,129 @@ class CodeMotherDevice(BaseDevice):
             state_path = state_path or str(comp / "state.json")
         return {"workflow": workflow, "history_path": history_path,
                 "state_path": state_path, "proven_by": proven_by}
+
+    # --- the seal that crosses its own boat ---------------------------------
+
+    def _handle_sealed(self, envelope: dict) -> dict:
+        """A proof sealed. Cross every boat that proof was named on, and no others.
+
+        THE MEASURED DEFECT (2026-09-07, ticket 1accdc1781aa): twelve tickets sat at
+        ``PROVEME:waiting`` with a green seal already standing on the proof they named,
+        some for three days. Nobody fired the crossing because firing one meant a mind
+        remembering to run ``clearance.clear`` after a seal, and minds forget — that pile
+        IS the forgetting, written down. A decision with no judgment left in it should
+        not wait for a person.
+
+        THIS HANDLER MAKES NO DECISION EITHER, and that is the design rather than a
+        limitation. It answers one question — *which boats named this proof?* — by
+        reading the ticket corpus, and hands each answer to the door. Whether a boat may
+        cross is the harbor's to say, and since this voyage the door's PROVED rung asks
+        for full coverage on a matching fingerprint (``clearance.Uncovered``). So a
+        hollow green does not become a crossing here; it becomes a refusal there, with a
+        trouble raised beside it. The automation can only ever fire a door that was
+        already hard — which is why the ticket's build order put the gate first.
+
+        A RED SEAL CROSSES NOTHING. The tester announces every seal, green or red (Law 7
+        — a red seals its red), and reading the verdict is this handler's job, not the
+        sender's: a tool that only announced its greens would be a tool deciding what the
+        owner gets to know.
+
+        CONCEPT-PIECES NEVER ARRIVE HERE, and the reason is worth stating rather than
+        assuming: a concept-piece is proved by REVIEW, and a review verdict is not a
+        tester seal, so no ``sealed`` message is ever sent about one. Nothing filters
+        them out below because nothing needs to — but a reader who finds one in a body
+        has found a real defect upstream, not a missing branch here.
+        """
+        body = envelope.get("body", {}) or {}
+        proof = str(body.get("proof") or body.get("proof_path") or "")
+        if not proof:
+            return {"accepted": False, "verb": "sealed", "device": self.device_id,
+                    "reason": "sealed needs the proof it sealed — the boats to cross are "
+                              "the ones that named it, and an unnamed proof names none"}
+        verdict = str(body.get("verdict") or "")
+        if verdict != "green":
+            self.emit("sealed_heard", pointer=proof,
+                      values={"verdict": verdict, "crossed": 0,
+                              "why": "a red seal crosses nothing"})
+            return {"accepted": True, "verb": "sealed", "device": self.device_id,
+                    "proof": proof, "verdict": verdict, "crossed": [], "refused": [],
+                    "reason": "a red seal crosses nothing — the boat stays where it is "
+                              "and the red stands beside it (Law 7)"}
+
+        boats = self._boats_named_on(proof)
+        self.emit("sealed_heard", pointer=proof,
+                  values={"verdict": verdict, "boats": len(boats),
+                          "fingerprint": body.get("source_fingerprint", "")})
+        crossed, refused = [], []
+        for boat in boats:
+            # THE CROSSING NAMES WHAT THE BOAT NAMED, NOT WHAT WAS JUST SEALED (2026-09-09).
+            # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, which is why ``proven_by`` is read
+            # as one-or-many everywhere else in this path — and passing the single sealed
+            # proof here would have thrown that away at the last step: the PROVED rung asks
+            # whether every clause of the falsifier is DECLARED by some proof the crossing
+            # names, so a three-ended seam would be refused for the two ends it forgot to
+            # mention. Measured on this very ticket, whose five clauses live in three files.
+            # The boat's own PROVEME crossing is the record of what proves it; the seal is
+            # only the event that says now. Every named end must still stand — the harbor
+            # checks that, and refusing a seam because one end went stale is correct.
+            answer = self._handle_cross({
+                "sender": self.device_id,
+                "body": {"ticket": boat["ticket"], "target": "PROVED",
+                         "proven_by": boat["proven_by"]},
+            })
+            if answer.get("accepted"):
+                crossed.append(boat["ticket"])
+            else:
+                refused.append({"ticket": boat["ticket"],
+                                "reason": answer.get("reason") or answer.get("refusal", "")})
+        return {"accepted": True, "verb": "sealed", "device": self.device_id,
+                "proof": proof, "verdict": verdict,
+                "crossed": crossed, "refused": refused}
+
+    @staticmethod
+    def _boats_named_on(proof: str) -> list[dict]:
+        """Every cast ticket standing AT PROVEME whose latest crossing names ``proof``.
+
+        Each answer is ``{"ticket": <id>, "proven_by": [<every proof that crossing named>]}``
+        — the id alone would not be enough, because what the boat declared as its proof is
+        exactly what the crossing forward has to carry (see the caller's note).
+
+        Two conditions and both are necessary. The cursor, because a proof is named on a
+        boat's PROVEME crossing and stays named after it moves on — matching on the name
+        alone would re-cross a boat every time its proof was resealed. And the LATEST
+        crossing (``proof_coverage._proven_by``'s rule), because a boat kicked back to
+        BUILDME and re-crossed names a new proof, and the abandoned one must stop
+        pulling it forward.
+
+        The paths are compared RESOLVED. The tester announces an absolute path; a ticket
+        may have recorded a repo-relative one; the same file under two spellings is one
+        file, and a boat left behind by a string compare is exactly the parked boat this
+        ticket exists to stop.
+        """
+        from cairn.tools.base.transitions import parse_workflow
+        from cairn.tools.proof_coverage import load_tickets
+
+        want = _resolved(proof)
+        out = []
+        for ticket in load_tickets(_COMMONS):
+            wf = ticket.get("workflow_and_state") or ""
+            if not wf:
+                continue
+            try:
+                if parse_workflow(wf).here != "PROVEME":
+                    continue
+            except Exception:      # noqa: BLE001 — a malformed cursor is the ticket
+                continue           # inspector's finding, not this handler's
+            for entry in reversed(ticket.get("crossings") or []):
+                if not isinstance(entry, dict) or not entry.get("proven_by"):
+                    continue
+                raw = entry["proven_by"]
+                named = [raw] if isinstance(raw, str) else [str(one) for one in raw if one]
+                if want in {_resolved(one) for one in named}:
+                    out.append({"ticket": str(ticket.get("id") or ""),
+                                "proven_by": named})
+                break              # the LATEST crossing that names any, and only it
+        return [one for one in out if one["ticket"]]
 
     # --- the watcher face, now actually reachable ---------------------------
 

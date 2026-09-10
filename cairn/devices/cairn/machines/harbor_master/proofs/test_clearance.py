@@ -53,6 +53,27 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+# THE HARBOR'S END OF ``1accdc1781aa`` — clause (3), and only clause (3). The seam runs
+# through three components and ``proven_by`` is read as one-or-many so the crossing can
+# name all of them: the tester's end (clauses 1 and 4) is
+# cairn/devices/tester/proofs/test_the_seal_announces_itself.py; codemother's end
+# (clauses 2 and 5) is cairn/devices/codemother/proofs/test_codemother.py.
+#
+# ONE TOOTH IS NAMED, NOT SIX, because the coverage rung reads one tooth per clause and
+# the clause has one load-bearing demand: that every lack is named IN ONE PASS. The tooth
+# below is the one that measures that. Its five siblings measure the individual refusals
+# the clause enumerates and stand beside it:
+#   test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED
+#   test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal
+#   test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE
+#   test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading
+#   test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding
+PROVES = {
+    "1accdc1781aa": {
+        "3": "test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass",
+    },
+}
+
 from cairn.tools.base.transitions import IllegalTransition
 from cairn.tools.charter import projector
 from cairn.devices.cairn.machines.harbor_master.clearance import (
@@ -77,12 +98,16 @@ from cairn.devices.cairn.machines.harbor_master.clearance import (
     retirement_of,
     riders_of,
 )
+from cairn.devices.cairn.machines.harbor_master.clearance import (  # noqa: E402
+    Uncovered,
+    hollow_lacks,
+)
 from cairn.devices.cairn.machines.harbor_master import clearance as _clearance
 from cairn.devices.cairn.machines.harbor_master import register as _register
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.scratch import scratch_dir
-from cairn.devices.tester.validation_store import persist_validation
+from cairn.devices.tester.validation_store import persist_validation, record_hollow
 
 # The real code-seam@v1 string, cursor at BUILDME. Legal forward from here: PROVEME (the next
 # summons). Illegal: LEARNME (a skip PAST the PROVEME gate). Validated against the REAL
@@ -684,21 +709,35 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         # claim every BUILDME ticket in live instance-space, so the exit gate would see a
         # chart claim with no verdict. The test is about the clearance mechanism, not the
         # chart gate — an empty berths root lets it pass without fabricating a verdict.
+        #
+        # AND THE COVERAGE RUNG IS SATISFIED RATHER THAN ROUTED AROUND (2026-09-09, ticket
+        # 1accdc1781aa). This crossing goes into PROVED, so it now also meets the rung that
+        # asks whether the named proof COVERS this boat — and `_PROVEN` is a bare green
+        # fixture that declares nothing about anything. The honest fix is to give this
+        # crossing real coverage, not to point the tooth at a lesser target: the claim here
+        # is that a gated crossing can ACTUALLY be cleared, and a crossing that dodges one
+        # of the gates is not the thing being claimed. The owner read is substituted the
+        # same way the retirement teeth substitute it, because the gate takes no root
+        # injection and the boat's real ticket carries no crossings.
+        _covering = _covering_proof("gated-crossing-rides", _OTHER_BOAT)
+        _seal(_covering)
+        assert record_hollow(_covering, _OTHER_BOAT, {"thing.py": [_COVERED_TOOTH]}) is True
         import cairn.machines.build_inspector.inspector as _insp
         _saved = _insp._CHART_BERTHS
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
         try:
-            new = clear(
-                at_learn, "PROVED",
-                actor=_OWNER, boat_id=_OTHER_BOAT,
-                proven_by=_PROVEN, history_path=hp, state_path=sp,
-                ticket=_OTHER_BOAT,
-            )
+            with _owner_is(_covered_owner(_OTHER_BOAT, _covering)):
+                new = clear(
+                    at_learn, "PROVED",
+                    actor=_OWNER, boat_id=_OTHER_BOAT,
+                    proven_by=_covering, history_path=hp, state_path=sp,
+                    ticket=_OTHER_BOAT,
+                )
             assert "[PROVED]" in new, new
             rec = projector.read_history(hp)[0]
             assert rec["ticket"] == _OTHER_BOAT, \
                 f"the ticket must ride through to the record the gates read: {rec}"
-            assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _PROVEN, rec
+            assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _covering, rec
             assert "re-read at the door" in rec.get("clearance_gate", ""), (
                 "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
                 f"through this gate satisfies that gate rather than being waived past it: {rec}")
@@ -1266,6 +1305,398 @@ def test_this_build_added_no_tracing_of_its_own():
          "wrote none.")
 
 
+# ── THE PROOF MUST COVER THE BOAT (ticket 1accdc1781aa) ─────────────────────────────────
+#
+# THE SIXTH REFUSAL, and it is a different question from the fifth. Rule 2 asks *is the
+# named code in proven-space?* — about the PROOF. This asks *does that proof say anything
+# about THIS boat?* — about the JOIN. A green, current seal on a proof that declares not one
+# tooth for this ticket's clauses is the shape measured on four of twelve tickets on
+# 2026-09-07: a green standing in for a proof nobody wrote.
+#
+# THE FIXTURES ARE REAL ALL THE WAY DOWN and nothing here hand-writes a seal. The proof is a
+# real file, run by the REAL tester, sealed through the REAL single write-door, and its
+# hollow reading is landed by the REAL ``record_hollow``. A build that faked any of the three
+# dies here. What IS substituted is the boat's owner — the same ``_owner_is`` precedent the
+# retirement teeth use, and for the same stated reason: the gate takes no root injection,
+# because a ``tickets_dir=`` parameter would hand the caller back the choice of what the gate
+# reads. Naming the proof by ABSOLUTE path is what lets a fixture ticket point at scratch
+# without any door into the gate at all.
+
+_COVERED_TOOTH = "test_the_thing_the_build_added"
+
+
+def _covering_proof(name: str, tid: str, *, declares: bool = True) -> str:
+    """A real proof that PRINTS a green tooth and DECLARES it for ``tid``. Sealed by caller."""
+    proofs = Path(_SCRATCH) / name / "proofs"
+    proofs.mkdir(parents=True, exist_ok=True)
+    proof = proofs / f"test_{name}.py"
+    body = f'''"""A covering proof fixture for the clearance coverage rung."""
+'''
+    if declares:
+        body += f'PROVES = {{{tid!r}: {{"1": {_COVERED_TOOTH!r}}}}}\n'
+    body += f'print("  ok   {_COVERED_TOOTH}")\nraise SystemExit(0)\n'
+    proof.write_text(body, encoding="utf-8")
+    return str(proof)
+
+
+def _fixture_ticket(tid: str, proof: str, *, node_class: str = "code-seam") -> dict:
+    """A boat whose falsifier names exactly one clause and whose latest crossing names ``proof``."""
+    return {
+        "id": tid,
+        "node_class": node_class,
+        "falsifier": "DONE when (1) the thing the build added is actually there.",
+        "crossings": [{"target": "PROVEME", "proven_by": proof}],
+    }
+
+
+def _covered_owner(tid: str, proof: str, **kw) -> "_clearance.BoatOwner":
+    return _clearance.BoatOwner(intention="thing/intention+why.json", hands=(_OWNER,),
+                                ticket=_fixture_ticket(tid, proof, **kw))
+
+
+# THE FIXTURE TICKETS DIR IS BACK, and the comment two hundred lines up that says it is gone
+# is still right about WHY it went: it was safe only while nothing read the ticket's CONTENTS.
+# What changed on 2026-09-09 is where the contents come from. The coverage rung reads them off
+# ``BoatOwner.ticket`` — the owner read, which these teeth substitute through the established
+# ``_owner_is`` precedent — and the chokepoint's own named-ticket gate reads the DIRECTORY for
+# EXISTENCE ONLY (``_require_named_ticket`` -> ``_find_ticket``, a glob that returns a path or
+# None and never opens it). Two different questions, two different sources, and only the
+# existence half needs a file on disk. So the fixture dir is a cast-registry stub, not a
+# ticket store: it holds the emptiest legal file that makes ``_find_ticket`` say yes.
+#
+# WHY NOT USE A REAL CAST TICKET, as ``test_a_gated_crossing_can_actually_be_cleared`` does?
+# Because these teeth cross the SAME boat with coverage deliberately broken in six different
+# ways, and a real ticket would put six fabricated states onto a live voyage's name. The
+# reachability tooth there is about the crossing; these are about the rung, and the rung's
+# input is the ticket dict, which is substituted either way.
+_FIXTURE_TICKETS = Path(_SCRATCH) / "cast-registry"
+
+
+def _cast(tid: str) -> None:
+    """Make ``tid`` resolve for the chokepoint's existence-only named-ticket gate."""
+    _FIXTURE_TICKETS.mkdir(parents=True, exist_ok=True)
+    (_FIXTURE_TICKETS / f"{tid}.json").write_text(
+        json.dumps({"id": tid, "cursor": "code-seam@v1: ... [PROVEME]"}), encoding="utf-8")
+
+
+def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
+    """Ask the gate for the PROVED crossing this rung guards. Returns the refusal, or None."""
+    import cairn.machines.build_inspector.inspector as _insp
+    import cairn.tools.base.transitions as _t
+    hp, sp = _paths(tmp)
+    at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
+                "[LEARNME] -> PROVED")
+    _cast(boat)
+    _saved = _insp._CHART_BERTHS
+    _saved_tickets = _t._TICKETS
+    _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+    _t._TICKETS = _FIXTURE_TICKETS
+    try:
+        with _owner_is(owner):
+            clear(at_learn, "PROVED", actor=_OWNER, boat_id=boat, proven_by=proven_by,
+                  history_path=hp, state_path=sp, ticket=boat, **kw)
+    except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
+        return exc
+    finally:
+        _insp._CHART_BERTHS = _saved
+        _t._TICKETS = _saved_tickets
+    return None
+
+
+# Built once: the covered boat every admission tooth below leans on.
+_COVERED_TID = "cover000000a"
+_COVERED_PROOF = _covering_proof("covered", _COVERED_TID)
+_seal(_COVERED_PROOF)
+assert record_hollow(_COVERED_PROOF, _COVERED_TID,
+                     {"thing.py": [_COVERED_TOOTH]}) is True, \
+    "the hollow reading must land through the real door, or the admission tooth is hollow itself"
+
+
+class _Raises:
+    """A trouble device that only remembers — the injection ``persist_validation`` established."""
+
+    def __init__(self):
+        self.raised = []
+
+    def raise_trouble(self, identity, *, why, detail=None, now=None):
+        self.raised.append({"identity": identity, "why": why, "detail": detail or {}})
+        return {"poke": "held for the beat — fixture"}
+
+
+def test_a_COVERED_boat_crosses_to_PROVED_and_the_rung_is_reachable():
+    """THE ADMISSION. Before asserting the rung refuses anything, prove it can be SATISFIED —
+    a gate nothing can pass is a wall, and a refusal tooth beside a wall goes green for the
+    wrong reason. Every ingredient is real: the tester ran the proof, the store sealed it,
+    ``record_hollow`` landed the reading, and the ticket's one clause has a declared tooth
+    that printed green."""
+    with tempfile.TemporaryDirectory() as tmp:
+        owner = _covered_owner(_COVERED_TID, _COVERED_PROOF)
+        exc = _cross_to_proved(owner, tmp, boat=_COVERED_TID, proven_by=_COVERED_PROOF)
+        assert exc is None, f"a fully covered boat must cross: {type(exc).__name__}: {exc}"
+        hp, _ = _paths(tmp)
+        rec = projector.read_history(hp)[0]
+        assert rec["proven_by"] == _COVERED_PROOF, rec
+
+
+def test_the_rung_fires_ONLY_at_PROVED_so_a_boat_under_construction_still_moves():
+    """THE SCOPE, and it is load-bearing. Demanding full coverage at BUILDME would refuse the
+    very act that goes and gets it. The SAME boat that crosses to PROVED above, stripped of
+    every scrap of coverage, still crosses to PROVEME — so the rung is bounded by the target
+    and not by luck."""
+    # NO ``ticket=`` ON THE CROSSING, and that is the file's standing precedent rather than a
+    # dodge: ``_WF``'s cursor sits AT BUILDME, so a forward crossing off it meets the
+    # chokepoint's ENTRY gate whenever a ticket is named — a gate about the chart chain, not
+    # about coverage. Every PROVEME tooth above crosses the same way for the same reason. The
+    # COVERAGE state is what this tooth varies, and the rung reads that off the substituted
+    # owner: no crossings, no proof, no seal, no hollow reading. Utterly uncovered, and it moves.
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        owner = _clearance.BoatOwner(intention="thing/intention+why.json", hands=(_OWNER,),
+                                     ticket={"id": "nocover0000a", "node_class": "code-seam",
+                                             "falsifier": "DONE when (1) x.", "crossings": []})
+        with _owner_is(owner):
+            out = clear(_WF, "PROVEME", actor=_OWNER, boat_id="nocover0000a",
+                        proven_by=_PROVEN, history_path=hp, state_path=sp)
+        assert "[PROVEME" in out, out
+
+
+def test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass():
+    """Clause (3), first third: the coverage finding is non-empty and the door refuses. EVERY
+    lack in one pass — a caller who fixes what he is told and hits a second refusal learns to
+    distrust the report, which is the reasoning ``proof_coverage.lacks`` was built on and the
+    reason this rung composes it instead of asking its own first-failure question."""
+    tid = "uncover0000a"
+    proof = _covering_proof("uncovered", tid, declares=False)
+    _seal(proof)
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
+        assert isinstance(exc, Uncovered), f"an uncovered boat crossed to PROVED: {exc!r}"
+        msg = str(exc)
+        for want in ("proof_declares_the_ticket", "clause_declared", "hollow_evidence_absent"):
+            assert want in msg, f"the refusal must name the {want} lack in the same pass: {msg}"
+        hp, _ = _paths(tmp)
+        assert not Path(hp).exists(), \
+            "a refused crossing leaves no partial record — like the five refusals beside it"
+
+
+def test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED():
+    """Clause (3), second third. Not a second instrument: "is this seal still about this
+    code?" is exactly what ``lacks`` already asks of every named proof, so the rung asks it
+    once rather than adding a fingerprint check beside the sieve that has one.
+
+    AND THE TWO SETS OF PROOFS ARE NOT THE SAME SET — which is the whole reason this rung
+    still earns its keep after rule 2. Rule 2 asks whether the proofs THIS CROSSING NAMES
+    stand; the rung asks whether the proofs THE TICKET'S RECORD NAMES cover the ticket. At a
+    PROVED crossing the ticket's latest recorded crossing is the PROVEME one, so the second
+    set is the older set, and a fresh ``proven_by=`` walks a stale record straight past rule
+    2. Measured while writing this: pointing both at one stale proof never reaches the rung
+    at all — rule 2 refuses first with ``Unproven`` — so a tooth built that way would have
+    gone green on a gate that is not the one under test. The fixture below splits them."""
+    tid = "moved00000a"
+    stale = _covering_proof("fingerprint-moved", tid)
+    _seal(stale)
+    assert record_hollow(stale, tid, {"thing.py": [_COVERED_TOOTH]}) is True
+    Path(stale).write_text(Path(stale).read_text(encoding="utf-8")
+                           + "\n# the code moved under the seal\n", encoding="utf-8")
+    fresh = _covering_proof("fingerprint-fresh", tid)
+    _seal(fresh)
+    assert record_hollow(fresh, tid, {"thing.py": [_COVERED_TOOTH]}) is True
+    with tempfile.TemporaryDirectory() as tmp:
+        # The owner's ticket records the STALE proof; the crossing names the FRESH one.
+        exc = _cross_to_proved(_covered_owner(tid, stale), tmp, boat=tid, proven_by=fresh)
+        assert isinstance(exc, Uncovered), f"a stale-fingerprint seal cleared PROVED: {exc!r}"
+        assert "seal_fingerprint_current" in str(exc), str(exc)
+
+
+def test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal():
+    """Clause (3), final third, and it is the rung's whole point. This proof is perfectly
+    sealed, perfectly current, and declares a green tooth for the ticket's one clause — the
+    coverage sieve alone reads it CLEAN. It is refused anyway, because nothing has ever
+    distinguished its green from the green a build with the work reverted would also print
+    (Law 8: a proof a hollow build couldn't pass)."""
+    tid = "nohollow000a"
+    proof = _covering_proof("no-hollow", tid)
+    _seal(proof)
+    ticket = _fixture_ticket(tid, proof)
+    assert _clearance.coverage_lacks(ticket, repo_root=Path(_REPO_ROOT)) == [], \
+        "the setup must be CLEAN to the coverage sieve, or this tooth proves nothing new"
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
+        assert isinstance(exc, Uncovered), f"a code-seam with no hollow reading crossed: {exc!r}"
+        assert "hollow_evidence_absent" in str(exc), str(exc)
+
+
+def test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE():
+    """A reading that was taken and came back bad. ``{file: []}`` means reverting that file
+    redded no declared tooth — the proof is green whether that code is there or not. The file
+    name rides the refusal because it is the one thing the builder has to go and fix."""
+    tid = "hollowf0000a"
+    proof = _covering_proof("hollow-file", tid)
+    _seal(proof)
+    assert record_hollow(proof, tid, {"real.py": [_COVERED_TOOTH], "decorative.py": []}) is True
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
+        assert isinstance(exc, Uncovered), f"a hollow file crossed to PROVED: {exc!r}"
+        assert "hollow_file" in str(exc) and "decorative.py" in str(exc), str(exc)
+        assert "real.py" not in str(exc), \
+            "only the HOLLOW files are named — listing the sound ones buries the finding"
+
+
+def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
+    """The fork that keeps this rung honest rather than merely strict. A concept-piece is
+    proved by PEOPLE READING IT — there is no build to hollow out and no file to revert, so
+    demanding the reading would be demanding evidence that cannot exist. ``proof_coverage``
+    already forks concept-pieces to their own coverage question; this takes the same fork."""
+    tid = "concept0000a"
+    proof = _covering_proof("concept", tid)
+    _seal(proof)
+    ticket = _fixture_ticket(tid, proof, node_class="concept-piece")
+    assert hollow_lacks(ticket, [proof], repo_root=Path(_REPO_ROOT)) == [], \
+        "a concept-piece was asked for a hollow reading it cannot have"
+    # And the fold is the system's, not a string compare: he may type it in any case.
+    assert hollow_lacks({**ticket, "node_class": "Concept-Piece"}, [proof],
+                        repo_root=Path(_REPO_ROOT)) == [], \
+        "the node class is a system word and folds case (ruled 2026-09-07)"
+    assert hollow_lacks(_fixture_ticket(tid, proof), [proof],
+                        repo_root=Path(_REPO_ROOT)) != [], \
+        "and the fork must be the CLASS — a code-seam with the same seal is still asked"
+
+
+def test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding():
+    """The half of the rule that is not the refusal. A gate that only refuses teaches the one
+    caller standing at it; the boat then sits at PROVEME looking exactly like a boat nobody
+    has got to yet. The trouble is what makes the reason outlive the call — one identity per
+    BOAT, so five refusals fold to one trouble with a count of five."""
+    tid = "trouble0000a"
+    proof = _covering_proof("trouble", tid, declares=False)
+    _seal(proof)
+    dev = _Raises()
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
+                               trouble_device=dev)
+    assert isinstance(exc, Uncovered)
+    assert len(dev.raised) == 1, f"exactly one trouble per refusal: {dev.raised}"
+    one = dev.raised[0]
+    assert tid in one["identity"], one["identity"]
+    assert one["detail"]["boat"] == tid and one["detail"]["lacks"], one["detail"]
+    assert {l["kind"] for l in one["detail"]["lacks"]} <= set(one["why"] .split()) | \
+        {k for k in ("proof_declares_the_ticket", "clause_declared", "hollow_evidence_absent")}, \
+        "the why must name the kinds a reader would grep for"
+
+
+def test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace():
+    """Law 7 at a diagnostic surface, pointed the safe way. The refusal is the record of
+    truth and it is already on its way up; a diagnostics failure must not make the gate MORE
+    dangerous. Measured by handing it a device that throws."""
+    class _Broken:
+        def raise_trouble(self, *a, **k):
+            raise RuntimeError("the trouble store is down")
+
+    tid = "broken00000a"
+    proof = _covering_proof("broken-trouble", tid, declares=False)
+    _seal(proof)
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
+                               trouble_device=_Broken())
+    assert isinstance(exc, Uncovered), \
+        f"a broken trouble store replaced the refusal with its own failure: {exc!r}"
+
+
+def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past():
+    """Ruled 2026-09-07: a stage token is a system word and compares folded. A bare string
+    compare against "PROVED" would let ``proved`` through the one rung that guards the
+    terminal — the check going green for the wrong reason, on the cheapest possible input."""
+    tid = "lowercase00a"
+    proof = _covering_proof("lowercase", tid, declares=False)
+    _seal(proof)
+    with tempfile.TemporaryDirectory() as tmp:
+        import cairn.machines.build_inspector.inspector as _insp
+        hp, sp = _paths(tmp)
+        at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
+                    "[LEARNME] -> PROVED")
+        _saved = _insp._CHART_BERTHS
+        _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+        try:
+            with _owner_is(_covered_owner(tid, proof)):
+                clear(at_learn, "proved", actor=_OWNER, boat_id=tid, proven_by=proof,
+                      history_path=hp, state_path=sp, ticket=tid)
+        except Uncovered:
+            pass
+        else:
+            raise AssertionError("a lower-case 'proved' walked past the coverage rung")
+        finally:
+            _insp._CHART_BERTHS = _saved
+
+
+def test_proven_by_IS_READ_AS_ONE_OR_MANY_because_a_seam_has_more_than_one_end():
+    """The live trouble clearance-gate-checks-one-proof-while-the-record-names-many —
+    THE HARBOR'S HALF. ``proof_coverage`` has read a crossing's ``proven_by`` as one-or-many
+    since 2026-09-07; this rung called ``standing()`` on the value whole, so a list was a
+    TypeError at the door — and where it did not throw, the gate verified ONE proof while the
+    sieve judged all of them. EVERY named proof must stand: a seam is not proven because one
+    of its ends is.
+
+    AND IT IS ONLY HALF, measured 2026-09-09 rather than assumed. This tooth crosses to
+    PROVEME, and PROVEME ``is_summons`` — so the IDENTICAL rung inside the chokepoint
+    (``transitions.inspect_clearance``, which fires only on a crossing into a REST) never ran
+    here, and stayed unfixed while this tooth read green. Ticket 1accdc1781aa found it the
+    expensive way: the harbor cleared a two-ended seam and the chokepoint then raised
+    ``expected str, bytes or os.PathLike object, not list``. Base's half is proved at base's
+    own address — ``cairn/tools/base/proofs/test_transitions.py``,
+    ``test_the_clearance_lane_reads_proven_by_AS_ONE_OR_MANY_and_every_end_must_stand`` — and
+    the seam end-to-end by ``test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed``
+    in codemother's proof. A rung that exists twice must be proved twice."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        # Two proofs, both standing — the list must clear, not throw. Unticketed for the same
+        # reason as the scope tooth above: the entry gate is in the path off ``_WF``.
+        with _owner_is(_covered_owner("manyends000a", _PROVEN)):
+            out = clear(_WF, "PROVEME", actor=_OWNER, boat_id="manyends000a",
+                        proven_by=[_PROVEN, _COVERED_PROOF], history_path=hp, state_path=sp)
+        assert "[PROVEME" in out, out
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        # One end unsealed — the whole seam is unproven, and the refusal says WHICH end.
+        try:
+            with _owner_is(_covered_owner("oneend0000a", _PROVEN)):
+                clear(_WF, "PROVEME", actor=_OWNER, boat_id="oneend0000a",
+                      proven_by=[_PROVEN, _UNSEALED], history_path=hp, state_path=sp)
+        except Unproven as exc:
+            assert _UNSEALED in str(exc) and "one of its ends" in str(exc), str(exc)
+        else:
+            raise AssertionError("a seam with an unproven end cleared")
+        assert not Path(hp).exists(), "and nothing was written"
+
+
+def test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT():
+    """THE DEFECT THIS VOYAGE UNCOVERED, and the rung above is unbuildable without the fix.
+    ``persist_validation`` REPLACES, so ``evidence.hollow`` had a lifetime of one commit:
+    measured 2026-09-09, the fc93d8cd5961 run reported "hollow evidence landed on 1 of 1
+    standing validation(s)" and a corpus-wide read found ZERO records anywhere carrying the
+    key, because the pre-commit reseal ladder runs on every commit and each reseal dropped
+    it. The carry is FINGERPRINT-BOUND, which is the whole point: a reading about a tree that
+    no longer exists must expire (Law 3)."""
+    tid = "survive0000a"
+    proof = _covering_proof("survives-reseal", tid)
+    _seal(proof)
+    assert record_hollow(proof, tid, {"thing.py": [_COVERED_TOOTH]}) is True
+
+    def _hollow_now():
+        from cairn.tools.base.validation import latest_seal
+        return ((latest_seal(proof, artifact=False).get("evidence") or {}).get("hollow") or {})
+
+    assert tid in _hollow_now(), "the setup must land the reading"
+    _seal(proof)                       # a re-seal of UNCHANGED code
+    assert tid in _hollow_now(), \
+        "a re-seal of the same code dropped the hollow reading — the one-commit lifetime is back"
+    Path(proof).write_text(Path(proof).read_text(encoding="utf-8") + "\n# moved\n",
+                           encoding="utf-8")
+    _seal(proof)                       # a re-seal AFTER the code moved
+    assert tid not in _hollow_now(), \
+        ("a hollow reading outlived the tree it was taken on — it must expire with the "
+         "fingerprint (Law 3), or the gate leans on a measurement about code that is gone")
+
+
 def _main() -> int:
     checks = [
         test_the_owner_may_clear_a_legal_move_and_it_is_recorded,
@@ -1308,6 +1739,21 @@ def _main() -> int:
         test_THE_BLIND_COUNT_CANNOT_BE_REMOVED_WITHOUT_THIS_PROOF_GOING_RED,
         test_the_read_face_prints_only_numbers_the_library_returned,
         test_this_build_added_no_tracing_of_its_own,
+        # THE PROOF MUST COVER THE BOAT (ticket 1accdc1781aa). Admission first, then the
+        # three refusals, then the fork, then the two Law 7 teeth, then the seam read and
+        # the store fix the rung stands on.
+        test_a_COVERED_boat_crosses_to_PROVED_and_the_rung_is_reachable,
+        test_the_rung_fires_ONLY_at_PROVED_so_a_boat_under_construction_still_moves,
+        test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass,
+        test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED,
+        test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal,
+        test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE,
+        test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading,
+        test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding,
+        test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace,
+        test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past,
+        test_proven_by_IS_READ_AS_ONE_OR_MANY_because_a_seam_has_more_than_one_end,
+        test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT,
     ]
     for check in checks:
         check()

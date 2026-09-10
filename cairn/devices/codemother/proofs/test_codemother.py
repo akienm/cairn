@@ -5,6 +5,7 @@ mine, ingest, constraints compiler, constraint proof lifecycle, challenge,
 query, and digest.
 """
 
+import contextlib
 import json
 import os
 import sys
@@ -17,6 +18,14 @@ from cairn.devices.tester.scratch import scratch_dir
 # intersection of three things already on disk: the ticket's clauses, this
 # declaration, and the teeth the seal records as actually printed.
 PROVES = {
+    # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, and `proven_by` is read as one-or-many so
+    # the crossing can name all of them. Clauses (1) and (4) of 1accdc1781aa are the tester's
+    # end (cairn/devices/tester/proofs/test_the_seal_announces_itself.py); clause (3) is the
+    # harbor's (machines/harbor_master/proofs/test_clearance.py). These two are codemother's.
+    "1accdc1781aa": {
+        "2": "test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof",
+        "5": "test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody",
+    },
     "8754ae677af6": {
         "1": "test_a_crossing_codemother_admits_names_her_in_the_record",
         "2": "test_the_door_still_refuses_an_unproven_boat_through_her",
@@ -431,9 +440,12 @@ _HARBOR_BOAT = "6acd0cf29fe1"
 # A cursor sitting ON PROVEME, so the legal forward step is PROVED. Written out rather
 # than rendered because the fixture must not depend on a class definition that can move.
 _FIXTURE_WORKFLOW = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
+# The one tooth the fixture proof prints. Named once because three things must agree about
+# it: the function, the PASS line the seal records, and the clause the ticket declares.
+_FIXTURE_TOOTH = "test_nothing_is_nothing"
 
 
-def _fixture_component(tag, *, seal=True):
+def _fixture_component(tag, *, seal=True, boat=None):
     """Mint a scratch component the census admits and the build gate passes.
 
     Returns ``(component_dir, proof_path)``. Every field here was driven empirically
@@ -469,12 +481,20 @@ def _fixture_component(tag, *, seal=True):
     }), encoding="utf-8")
     (comp / "fixture.py").write_text("def nothing():\n    return None\n", encoding="utf-8")
     proof = comp / "proofs" / "test_fixture.py"
+    # ``PROVES`` IS WRITTEN BEFORE THE SEAL, NEVER AFTER (2026-09-09, ticket 1accdc1781aa).
+    # The coverage rung asks two questions of the same file: does it DECLARE the ticket's
+    # clause (read off the AST) and is the seal still ABOUT this source (read off the
+    # fingerprint). Sealing first and declaring after answers the first and breaks the
+    # second, which is the shape ``seal_fingerprint_current`` exists to catch.
+    declares = (f'PROVES = {{{boat!r}: {{"1": {_FIXTURE_TOOTH!r}}}}}\n\n\n'
+                if boat else "")
     proof.write_text(
-        'def test_nothing_is_nothing():\n'
+        declares +
+        f'def {_FIXTURE_TOOTH}():\n'
         '    assert True\n'
-        '    print("PASS: test_nothing_is_nothing")\n\n\n'
+        f'    print("PASS: {_FIXTURE_TOOTH}")\n\n\n'
         'if __name__ == "__main__":\n'
-        '    test_nothing_is_nothing()\n', encoding="utf-8")
+        f'    {_FIXTURE_TOOTH}()\n', encoding="utf-8")
     (comp / "history.json").write_text("[]", encoding="utf-8")
     (comp / "state.json").write_text(
         json.dumps({"cursor": None, "window": [], "count": 0}), encoding="utf-8")
@@ -482,6 +502,143 @@ def _fixture_component(tag, *, seal=True):
         from cairn.devices.tester.device import TesterDevice
         TesterDevice().run_proof(str(proof), sink="validations", caller="cc")
     return comp, proof
+
+
+# A boat that exists only inside this proof. NOT a cast id and never filed: the teeth
+# below need a boat whose coverage they can build from nothing, and building six states
+# onto a live voyage's name is what ``test_clearance``'s cast-registry note warns against.
+_FIXTURE_BOAT = "cfa17e00b0a7"
+
+
+_SECOND_TOOTH = "test_the_other_end_holds"
+
+
+def _a_second_end(comp, boat, first_proof):
+    """Mint, declare and seal a SECOND proof for the same boat, covering clause 2.
+
+    A SEAM HAS ENDS IN MORE THAN ONE COMPONENT and this is the fixture shape of that: two
+    proof files, one clause each, one boat. It lives here rather than inside
+    ``_fixture_component`` because most teeth want the one-ended case — the two-ended one
+    is a specific claim, made once, by the tooth that needs it.
+    """
+    other = comp / "proofs" / "test_other_end.py"
+    other.write_text(
+        f'PROVES = {{{boat!r}: {{"2": {_SECOND_TOOTH!r}}}}}\n\n\n'
+        f'def {_SECOND_TOOTH}():\n'
+        '    assert True\n'
+        f'    print("PASS: {_SECOND_TOOTH}")\n\n\n'
+        'if __name__ == "__main__":\n'
+        f'    {_SECOND_TOOTH}()\n', encoding="utf-8")
+    from cairn.devices.tester.device import TesterDevice
+    tester = TesterDevice()
+    tester.run_proof(str(other), sink="validations", caller="cc")
+    # AND THE FIRST END IS RESEALED, because writing this file MOVED the component's
+    # fingerprint and the seal already standing on the first proof is now about a tree that
+    # no longer exists. That is the horizon rung doing its job — measured the first time
+    # this fixture ran, where the refusal read "the code moved under the proof" and was
+    # entirely correct. A fixture that left it stale would be measuring the horizon rung
+    # instead of the coverage rung it is aimed at.
+    tester.run_proof(str(first_proof), sink="validations", caller="cc")
+    return other
+
+
+@contextlib.contextmanager
+def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
+    """Give ``boat`` REAL coverage, and point the gate's owner read at the fixture corpus.
+
+    THE COVERAGE RUNG IS SATISFIED, NEVER ROUTED AROUND (2026-09-09, ticket 1accdc1781aa).
+    On the day the clearance gate grew its PROVED coverage rung this tooth went red, and
+    the cheap repair was to aim the crossing at a target the rung does not guard. That
+    would have left the tooth green over a claim it no longer makes: what it asserts is
+    that a GATED crossing can actually be cleared and that the record names codemother,
+    and a crossing that dodges one of the gates is not a gated crossing.
+
+    So the coverage here is built for real, in the order the rung reads it:
+
+    - the proof DECLARES the boat's clause (written before the seal — see
+      ``_fixture_component``), and the tester has already SEALED it green;
+    - ``record_hollow`` lands ``evidence.hollow[boat]`` on that standing seal with a
+      NON-EMPTY tooth list, which is what says the build is not hollow;
+    - the ticket's latest crossing NAMES the proof, so the rung has something to read.
+
+    WHAT IS SUBSTITUTED IS THE CORPUS, NOT THE GATE. ``boat_owner_of`` takes its three
+    roots as parameters for exactly this — its own docstring says "ONLY so a proof can
+    point this at a fixture" — but ``clear`` calls it with none of them, and the defaults
+    were bound at def time, so patching the module constants would do nothing. The wrapper
+    below therefore calls THE REAL FUNCTION with fixture roots: every hop it makes is the
+    hop the live gate makes, over files this proof wrote. The chokepoint's own named-ticket
+    gate is a separate question with a separate source — existence only, via a glob that
+    never opens the file — so ``_TICKETS`` is pointed at the same directory to make the
+    fixture boat cast.
+    """
+    from cairn.devices.tester.validation_store import record_hollow
+    import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
+    import cairn.tools.base.transitions as _transitions
+
+    root = comp.parent
+    landed = record_hollow(str(proof), boat, {"fixture.py": [_FIXTURE_TOOTH]})
+    assert landed is True, (
+        f"the hollow reading did not land on {proof}'s seal — the rung would refuse for a "
+        "reason the fixture created, not one the gate found")
+    # A SECOND END IS COVERED THE SAME WAY, NEVER EXEMPTED. Each end carries its own hollow
+    # reading because the rung asks it of every proof the crossing names — an end admitted
+    # on the first end's evidence would be a seam half-checked.
+    if second_end is not None:
+        assert record_hollow(str(second_end), boat, {"other.py": [_SECOND_TOOTH]}) is True, (
+            f"the hollow reading did not land on {second_end}'s seal")
+
+    # ``<root>/tickets`` is deliberately the shape a COMMONS has, not an arbitrary scratch
+    # folder: three different readers ask where this boat lives — the owner read
+    # (``tickets_dir``), the sealed handler's corpus scan (``load_tickets(commons)`` →
+    # ``commons/tickets``) and ``grammar.ticket_path`` — and one directory in the commons'
+    # own shape answers all three without any of them being told something different.
+    tickets = root / "tickets"
+    tickets.mkdir(parents=True, exist_ok=True)
+    # ``<id>-<slug>.json``, WHICH IS THE FILENAME EVERY READER EXPECTS — measured the hard
+    # way: a bare ``<id>.json`` resolves for ``boat_owner_of`` (it globs both ways) and for
+    # ``_find_ticket``, and returns None from ``grammar.ticket_path``, whose hex branch is
+    # ``<claim>-*.json`` and nothing else. Two of three readers said yes and the crossing
+    # failed at the third. A fixture that is not filed the way a cast ticket is filed is a
+    # fixture measuring a shape the world does not have.
+    (tickets / f"{boat}-a-fixture-boat.json").write_text(json.dumps({
+        "id": boat,
+        "node_class": "code-seam",
+        # ABSOLUTE, AND THAT IS WHAT MAKES ONE FIXTURE SERVE TWO RESOLVERS. ``os.path.join``
+        # returns an absolute right-hand side unchanged, so ``boat_owner_of`` finds this
+        # charter under any root it is given; and ``_resolve_component_dir`` has an explicit
+        # absolute-path branch, so the sealed path derives this component's history from the
+        # same field with nothing patched. A relative spelling would have needed a third
+        # substitution to say the same thing twice.
+        "owning_intention": str(comp / "intention+why.json"),
+        "falsifier": (
+            f"DONE when (1) {_FIXTURE_TOOTH} prints its PASS under the tester"
+            + (f"; (2) {_SECOND_TOOTH} prints its PASS at the other end."
+               if second_end is not None else ".")),
+        "workflow_and_state": _FIXTURE_WORKFLOW,
+        # ONE-OR-MANY, WRITTEN AS THE WORLD WRITES IT: a single-ended boat records a string
+        # and a seam records a list, because that is what the live corpus holds and a
+        # fixture that only ever wrote lists would not measure the string path at all.
+        "crossings": [{"target": "PROVEME",
+                       "proven_by": (str(proof) if second_end is None
+                                     else [str(proof), str(second_end)])}],
+    }), encoding="utf-8")
+
+    real = _clearance.boat_owner_of
+    saved_tickets = _transitions._TICKETS
+
+    def _fixture_owner_of(boat_id, **kw):
+        kw.setdefault("tickets_dir", str(tickets))
+        kw.setdefault("cairn_root", str(root))
+        kw.setdefault("commons_root", str(root))
+        return real(boat_id, **kw)
+
+    _clearance.boat_owner_of = _fixture_owner_of
+    _transitions._TICKETS = tickets
+    try:
+        yield boat
+    finally:
+        _clearance.boat_owner_of = real
+        _transitions._TICKETS = saved_tickets
 
 
 def _ask_codemother_to_cross(comp, proof, *, boat=_HARBOR_BOAT):
@@ -526,9 +683,16 @@ def test_a_crossing_codemother_admits_names_her_in_the_record():
     ``cc`` ON PURPOSE — the CLI is a person's mouth, and if the actor tracked the human
     at the keyboard the record would read 'cc' here. It reads 'codemother' because the
     hand that fires the clearance gate is the DEVICE the envelope reached, and the
-    device asks the harbor as itself."""
-    comp, proof = _fixture_component("cm_admit_")
-    answer = _ask_codemother_to_cross(comp, proof)
+    device asks the harbor as itself.
+
+    AND THE BOAT IS COVERED, NOT EXEMPT. Until 2026-09-09 this tooth crossed
+    harbor_master's own live ticket, which carries no crossings and no hollow reading —
+    fine while PROVED asked only for proven-space, and a red the moment the clearance
+    gate grew its coverage rung. The repair builds the coverage rather than dodging the
+    rung; ``_the_boat_is_covered`` says why at length."""
+    comp, proof = _fixture_component("cm_admit_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof) as boat:
+        answer = _ask_codemother_to_cross(comp, proof, boat=boat)
     assert answer.get("accepted") is True, f"the crossing was refused: {answer}"
     assert answer.get("asked_as") == "codemother", \
         f"asked_as is {answer.get('asked_as')!r}, expected 'codemother'"
@@ -715,6 +879,212 @@ def test_a_history_that_is_not_a_list_is_refused_by_name():
 # RUNNER
 # ══════════════════════════════════════════════════════════════════════════
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 14. A GREEN SEAL CROSSES THE BOAT IT PROVES
+#     ticket 1accdc1781aa — clauses (2) and (5) of the falsifier. Clause (1)
+#     and (4) are the tester's end of the seam and berth with it
+#     (cairn/devices/tester/proofs/test_the_seal_announces_itself.py);
+#     clause (3) is the harbor's and berths with the gate
+#     (cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py).
+#     A seam has ends in more than one component, and `proven_by` is read as
+#     one-or-many for exactly this reason.
+# ══════════════════════════════════════════════════════════════════════════
+
+@contextlib.contextmanager
+def _the_sealed_path_can_find_the_boat(comp, boat=_FIXTURE_BOAT):
+    """Point the sealed handler's two corpus reads at the fixture commons.
+
+    WHAT IS SUBSTITUTED IS THE CORPUS, NOT A GATE — the same line ``_the_boat_is_covered``
+    draws, and it matters more here because this tooth walks the whole seam. Two reads ask
+    the world where a boat lives: ``_boats_named_on`` scans ``load_tickets(_COMMONS)`` for
+    tickets standing at PROVEME, and ``_crossing_coordinates`` asks ``grammar.ticket_path``
+    for the file so it can derive the workflow and the component's history. Both are
+    pointed at ``<root>/tickets`` — the fixture ticket, in the commons' own shape.
+
+    EVERYTHING ELSE RUNS FOR REAL: the bus request, the harbor's clearance gate with its
+    authority check, its proven-space check, its PROVED coverage rung, the entry and exit
+    gates, and the journal write. What a fixture may not do is put a manufactured PROVEME
+    state onto a live voyage's name — measured 2026-09-09, the corpus holds ZERO tickets at
+    PROVEME, so there is no real boat this handler could have been fired at.
+
+    ``grammar.ticket_path`` is replaced by a WRAPPER around the real function rather than a
+    stub: the lookup it performs — hex-id glob, whole-slug match, the 2026-09-09 narrowing —
+    is logic this tooth wants exercised, not logic it wants to reimplement.
+    """
+    import cairn.devices.codemother.shim as _shim
+    import cairn.tools.chain.grammar as _grammar
+
+    root = comp.parent
+    real_ticket_path = _grammar.ticket_path
+    saved_commons = _shim._COMMONS
+
+    def _fixture_ticket_path(claim, *args, **kw):
+        # ``*args`` because ``root`` is POSITIONAL on the real signature and callers pass it
+        # that way; swallowing it into keywords would make this wrapper refuse a call the
+        # real function accepts.
+        kw.setdefault("tickets_dir", str(root / "tickets"))
+        return real_ticket_path(claim, *args, **kw)
+
+    _grammar.ticket_path = _fixture_ticket_path
+    _shim._COMMONS = root
+    try:
+        yield boat
+    finally:
+        _grammar.ticket_path = real_ticket_path
+        _shim._COMMONS = saved_commons
+
+
+def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
+    """Post one `sealed` message at codemother and return her answer.
+
+    Sent as ``tester`` because that is who sends it in the world — ``cairn test --seal``
+    is the only caller — and over ``request`` rather than ``post`` only so this tooth can
+    read the answer. The handler cannot tell the difference: it reads the envelope's body
+    and returns a dict either way, which is what clause (4)'s tooth relies on when the
+    same message arrives by ``post`` and is drained off the mailbox instead.
+    """
+    from cairn.tools.base.bus_client import reach
+
+    bus = reach("codemother", "harbor_master")
+    reply = bus.request(
+        sender="tester", to="codemother", verb="sealed",
+        why=f"proof: a green seal on {proof} crosses the boat it proves",
+        body={"proof": str(proof), "verdict": verdict,
+              "source_fingerprint": "", "validations_path": ""},
+        timeout=180)
+    assert reply, "codemother never answered the sealed message"
+    return reply.get("body") or {}
+
+
+def _troubles_now():
+    """How many trouble files stand in the commons right now. n=1 measurements, both ends."""
+    troubles = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "troubles"
+    return len(list(troubles.glob("*.json"))) if troubles.is_dir() else 0
+
+
+def test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof():
+    """FALSIFIER CLAUSE (2): the seal crosses the boat, and the record says codemother did it.
+
+    THE DEFECT THIS ENDS, measured 2026-09-07: twelve tickets stood at PROVEME with a green
+    seal already on the proof they named. Nothing was wrong with any of them — the proof had
+    run, the seal had landed, the coverage was there. The crossing simply required a hand to
+    remember, and twelve times nobody did. So the seal announces itself and the boat moves on
+    the announcement.
+
+    The whole seam is fired, end to end: a ``sealed`` message arrives at codemother, she finds
+    the boat that named the proof, and she asks the HARBOR to cross it — as herself, over the
+    bus, through the gate. She decides nothing about whether it may cross; the gate does, and
+    it is the same gate with the same coverage rung a hand would have met.
+    """
+    comp, proof = _fixture_component("cm_sealed_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof) as boat,             _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof)
+
+    assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
+    assert answer.get("crossed") == [boat],         f"crossed is {answer.get('crossed')!r}, expected [{boat!r}]; refused={answer.get('refused')!r}"
+    assert answer.get("refused") == [], f"a crossing was refused: {answer.get('refused')!r}"
+
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    assert len(history) == 1, f"expected exactly 1 crossing record, got {len(history)}"
+    record = history[0]
+    assert record.get("cleared_by") == "codemother",         f"cleared_by is {record.get('cleared_by')!r} — the record does not say whose hand it was"
+    assert "PROVED" in (record.get("workflow_and_state") or record.get("to") or ""), record
+    print("PASS: test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof")
+
+
+def test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody():
+    """FALSIFIER CLAUSE (5): the quiet case, and it must stay quiet.
+
+    Most seals are this one. ``cairn test --seal`` over the corpus lands dozens of green
+    seals on proofs no boat at PROVEME is waiting on, and the handler must answer each with
+    a shrug: no crossing, and NO TROUBLE. A trouble raised here would be the loudest kind of
+    Law 7 failure — a diagnostic surface reporting a problem that does not exist, once per
+    proof per run, until nobody reads the surface at all.
+
+    The corpus is the REAL one, deliberately: this tooth's claim is about a proof nothing
+    names, and the strongest fixture for 'nothing names it' is a proof minted seconds ago in
+    scratch, checked against every ticket actually on file."""
+    comp, proof = _fixture_component("cm_unnamed_")
+    before = _troubles_now()
+    answer = _tell_codemother_a_seal_landed(proof)
+    after = _troubles_now()
+
+    assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
+    assert answer.get("crossed") == [],         f"a proof no boat names crossed something: {answer.get('crossed')!r}"
+    assert answer.get("refused") == [],         f"a proof no boat names produced a refusal: {answer.get('refused')!r}"
+    assert after == before,         f"the quiet case raised {after - before} trouble(s) — a surface that cries at every seal"
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    assert history == [], f"nothing was named, yet {len(history)} crossing(s) were journaled"
+    print("PASS: test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody")
+
+
+def test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed():
+    """THE DEFECT THIS VOYAGE UNCOVERED IN ITS OWN BUILD, fixed under the bounds ruling
+    2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage.
+
+    ``_handle_sealed`` passed the ONE proof that had just sealed as the crossing's
+    ``proven_by``. Everywhere else in this path the field is read as one-or-many precisely
+    because a seam has ends in more than one component, and the crossing is the RECORD OF
+    TRUTH about what this move was cleared onto — so a record naming one end of a two-ended
+    seam claims less than the gate actually verified, and a reader a year out goes and looks
+    at half the evidence (Law 5: the proof shares the address; Law 7: a record of truth never
+    collapses).
+
+    FOUND BY BUILDING THIS TICKET, not by reading the code: ``1accdc1781aa``'s own five
+    clauses live in three files. The fix is one line of intent — the crossing carries what
+    the BOAT declared, and the seal is only the event that says now.
+
+    WHAT ACTUALLY BITES, MEASURED 2026-09-09 rather than assumed. This docstring first
+    claimed the single-proof spelling would red at ``clause_declared``. IT DOES NOT, and the
+    reason is worth keeping: ``_coverage_lacks`` composes ``coverage_lacks(ticket, ...)``,
+    which reads the clause-to-tooth join off THE TICKET'S OWN crossings, not off the list
+    this call passes — so the clause rung sees both ends however the caller spells the
+    crossing. The list is used by ``hollow_lacks(ticket, named)`` alone. So the single-proof
+    spelling loses two things and neither of them is clause coverage: the hollow reading is
+    never demanded of the unnamed end, and the record on disk names one proof of two. The
+    assertion below is the second one, and reverting the fix reds it verbatim:
+    ``the record names '.../test_fixture.py' — a seam's crossing must name every end``."""
+    comp, proof = _fixture_component("cm_two_ends_", boat=_FIXTURE_BOAT)
+    other = _a_second_end(comp, _FIXTURE_BOAT, proof)
+    with _the_boat_is_covered(comp, proof, second_end=other) as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
+        # SEALED ON ONE END ONLY — which is the real shape: a builder reseals the file they
+        # touched, and the boat is proved by all of its ends.
+        answer = _tell_codemother_a_seal_landed(proof)
+
+    assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
+    assert answer.get("refused") == [], (
+        f"a two-ended seam was refused: {answer.get('refused')}")
+    assert answer.get("crossed") == [boat], (
+        f"expected the two-ended boat to cross, got {answer.get('crossed')}")
+
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    assert len(history) == 1, f"expected one crossing record, got {len(history)}: {history}"
+    named = history[0].get("proven_by")
+    assert isinstance(named, list) and {str(proof), str(other)} == {str(one) for one in named}, (
+        f"the record names {named!r} — a seam's crossing must name every end, or the record "
+        "claims less than the gate verified")
+    print("PASS: test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed")
+
+
+def test_a_RED_seal_crosses_nothing_at_all():
+    """The clause-(5) neighbour the ticket's WRONG INTENT depends on: red never moves a boat.
+
+    Not a clause of its own, and it is here because the WRONG INTENT clause is *'a boat
+    auto-crossed to PROVED is later redded by Akien'* — the one shape that must be
+    impossible for this path to produce on its own is a RED measurement moving anything.
+    The handler answers before it ever looks for a boat, so a red seal cannot even reach the
+    corpus scan."""
+    comp, proof = _fixture_component("cm_red_seal_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof) as boat,             _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof, verdict="red")
+    assert answer.get("accepted") is True, answer
+    assert answer.get("crossed") == [],         f"a RED seal crossed {answer.get('crossed')!r} — the boat moved on a failed measurement"
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    assert history == [], f"a RED seal journaled {len(history)} crossing(s)"
+    print("PASS: test_a_RED_seal_crosses_nothing_at_all")
+
 if __name__ == "__main__":
     tests = [
         test_shim_imports_and_has_correct_device_id,
@@ -743,6 +1113,10 @@ if __name__ == "__main__":
         test_the_harbor_shim_is_reachable_by_its_own_name,
         test_a_handler_that_posts_does_not_re_enter_its_own_mailbox,
         test_a_history_that_is_not_a_list_is_refused_by_name,
+        test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof,
+        test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody,
+        test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed,
+        test_a_RED_seal_crosses_nothing_at_all,
     ]
     passed = 0
     failed = 0

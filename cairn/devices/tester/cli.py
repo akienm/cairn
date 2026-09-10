@@ -240,6 +240,72 @@ def _reseal_hook_admin(args) -> int:
     return 0 if got["green"] else 1
 
 
+# --- THE SEAL ANNOUNCES ITSELF -------------------------------------------------------
+#
+# THE MEASURED DEFECT (2026-09-07, ticket 1accdc1781aa): twelve tickets sat at
+# ``PROVEME:waiting`` with a green seal already standing on the proof they named. The seal
+# was minted here and then sat still, because the only thing that could turn a green into a
+# crossing was a mind remembering to go and do it. The operator's lived symptom is the one
+# that matters: the inbox said nineteen waiting and the true number of boats actually
+# needing a human was unknowable without opening every one.
+#
+# SENDING IS A TOOL; CODEMOTHER OWNS WHAT HAPPENS. This function announces a fact — this
+# proof sealed, this verdict, this fingerprint, this record — and stops. It does not decide
+# which boats move, does not cross anything, and cannot: it names no ticket. CodeMother owns
+# the care of the code (ruled 2026-09-06) and the harbor owns the door; the tester owns the
+# seal, and an announcement is the whole of its reach past its own edge. That separation is
+# what stops this from becoming "the tester crosses boats", which is Law 6 with the owner
+# filed off.
+#
+# A SEND FAILURE NEVER UNWINDS A SEAL, and the order is the same one ``persist_validation``
+# settled for its verdict-change trouble: THE NEW MEASUREMENT OUTRANKS THE ANNOUNCEMENT. The
+# record of truth landed through the store's door before this line ran. If the bus is down,
+# codemother is unreachable, or the wiring raises, the failure is emitted on the tester's own
+# trail (loud — Law 7) and the command's exit code is untouched. Losing a seal because
+# nobody was listening would be the diagnostic surface eating the record.
+#
+# AND IT POSTS RATHER THAN ASKS. ``post`` drops the envelope in the bus store; if codemother
+# is not up, her next beat drains it (device-owns-its-subscription — the bus is a store, not
+# a router). ``request`` would block this command on her crossings, which are not its work.
+def _announce_seals(tester, sealed_green: list) -> None:
+    """Tell codemother about every green seal this run landed. Never raises."""
+    if not sealed_green:
+        return
+    try:
+        # ``reach`` and NOT ``connect_bus``, which is what the ticket's HOW named: a beat
+        # costs ~23.5s on this machine and the probe at
+        # ``tools/base/probes/a_client_reaches_and_never_beats.py`` reds any client that
+        # pays it. A sealing run is a client — it wants one device to hear one thing.
+        from cairn.tools.base.bus_client import reach
+        # ``validations_path_for`` AND NOT ``..._for_artifact``, MEASURED 2026-09-09. The
+        # artifact form is for a thing with no ``proofs/`` directory and derives
+        # ``<dir>/validations/<stem>.json`` — applied to a PROOF that reads
+        # ``<comp>/proofs/validations/<stem>.json``, one directory too deep and not where
+        # the seal just landed. The message would have carried a field naming nothing on
+        # disk, and a receiver has no way to tell that from a real address (Law 7: a record
+        # of truth never collapses an error into a coherent shape).
+        from cairn.devices.tester.validation_store import validations_path_for
+
+        bus = reach("codemother")
+        for proof, record in sealed_green:
+            evidence = record.get("evidence") or {}
+            bus.post(
+                sender="tester", to="codemother", channel="personal", verb="sealed",
+                why=f"a green seal landed on {proof}",
+                body={"proof": str(proof),
+                      "verdict": record.get("verdict", ""),
+                      "source_fingerprint": evidence.get("source_fingerprint", ""),
+                      "validations_path": validations_path_for(str(proof))},
+            )
+    except Exception as exc:  # noqa: BLE001 — the seal already landed; this is the telling
+        tester.emit("sealed_announce_failed", pointer=str(len(sealed_green)),
+                    values={"error": f"{type(exc).__name__}: {exc}",
+                            "unannounced": [str(one) for one, _ in sealed_green]})
+        print(f"  (the {len(sealed_green)} green seal(s) landed, but codemother could not be "
+              f"told: {type(exc).__name__}: {exc} — the seals stand; the crossings they "
+              f"would have fired did not)")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="cairn test",
@@ -309,6 +375,7 @@ def main(argv: list[str] | None = None) -> int:
     reds: list[tuple[Path, dict]] = []
     refused: list[tuple[Path, str]] = []
     persisted = 0
+    sealed_green: list[tuple[Path, dict]] = []
     isolations: Counter[str] = Counter()
 
     def isolation_for(proof: Path) -> str:
@@ -361,6 +428,8 @@ def main(argv: list[str] | None = None) -> int:
         if sink == "validations":
             persisted += 1
         verdict = record["verdict"]
+        if verdict == GREEN and sink == "validations":
+            sealed_green.append((proof, record))
         if verdict == GREEN:
             if not args.quiet:
                 seal = record["evidence"]["seal"]["verdict"]
@@ -414,6 +483,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"\n─── SEAL REFUSED: {rel} " + "─" * 20)
             for line in why.splitlines():
                 print(f"    {line}")
+        _announce_seals(tester, sealed_green)
     else:
         print("NOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, "
               "so nothing here has changed what `standing()` says about any of this code. "

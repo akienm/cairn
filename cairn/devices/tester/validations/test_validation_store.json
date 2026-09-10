@@ -2,12 +2,12 @@
   {
     "claim": "proof test_validation_store.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-09T19:35:17",
+    "date": "2026-09-09T20:47:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_FINGERPRINT_is_what_a_FORCED_write_cannot_fake_and_the_LIMIT_is_asserted_too\n  PASS  test_standing_answers_all_FOUR_outcomes_and_says_which\n  PASS  test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands\n  PASS  test_an_AGREEING_rerun_announces_NOTHING\n  PASS  test_the_announcement_fires_in_BOTH_directions\n  PASS  test_a_FAILING_announcement_does_not_lose_the_NEW_measurement\n  PASS  test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING\n  PASS  test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS\n    (208 validations files; every one holds exactly one current record)\n  PASS  test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD\n    (205 proofs censused; 153 standing (74.6%); every non-standing carries a why; standing is subset of sealed)\n  PASS  test_CENSUS_INVARIANTS_over_the_real_corpus\n  PASS  test_an_edit_to_a_file_the_proof_never_IMPORTS_leaves_the_fingerprint_STILL\n  PASS  test_the_CLOSURE_names_only_repo_files_and_always_names_its_own_proof\n  PASS  test_a_file_that_VANISHED_from_the_closure_MOVES_the_digest_rather_than_raising\n  PASS  test_a_closure_that_does_not_name_THIS_proof_is_DISCARDED_not_compared\n  PASS  test_a_proof_OUTSIDE_the_repo_SEALS_no_closure_rather_than_an_EMPTY_one\n  PASS  test_a_PRE_CLOSURE_seal_is_still_re_checked_the_way_it_was_TAKEN\n  PASS  test_the_RUNNER_actually_REPORTS_a_closure_end_to_end\ngreen — validation_store: one current record beside its proof, drift refused, a changed verdict announced before the replace",
+      "stdout_tail": "  PASS  test_the_FINGERPRINT_is_what_a_FORCED_write_cannot_fake_and_the_LIMIT_is_asserted_too\n  PASS  test_standing_answers_all_FOUR_outcomes_and_says_which\n  PASS  test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands\n  PASS  test_an_AGREEING_rerun_announces_NOTHING\n  PASS  test_the_announcement_fires_in_BOTH_directions\n  PASS  test_a_FAILING_announcement_does_not_lose_the_NEW_measurement\n  PASS  test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING\n  PASS  test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS\n    (208 validations files; every one holds exactly one current record)\n  PASS  test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD\n    (205 proofs censused; 173 standing (84.4%); every non-standing carries a why; standing is subset of sealed)\n  PASS  test_CENSUS_INVARIANTS_over_the_real_corpus\n  PASS  test_an_edit_to_a_file_the_proof_never_IMPORTS_leaves_the_fingerprint_STILL\n  PASS  test_the_CLOSURE_names_only_repo_files_and_always_names_its_own_proof\n  PASS  test_a_file_that_VANISHED_from_the_closure_MOVES_the_digest_rather_than_raising\n  PASS  test_a_closure_that_does_not_name_THIS_proof_is_DISCARDED_not_compared\n  PASS  test_a_proof_OUTSIDE_the_repo_SEALS_no_closure_rather_than_an_EMPTY_one\n  PASS  test_a_PRE_CLOSURE_seal_is_still_re_checked_the_way_it_was_TAKEN\n  PASS  test_the_RUNNER_actually_REPORTS_a_closure_end_to_end\ngreen — validation_store: one current record beside its proof, drift refused, a changed verdict announced before the replace",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_real_validation_round_trips_beside_its_proof",
@@ -38,7 +38,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "75bb54a97b99a09f35518dae431e47bba3a07fa19cc32260735332ed7351e100",
+      "source_fingerprint": "2e992f0c12d8ea8adc852db085b574e787b23c30e52f04ae00d609ff0fc8424e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -64,36 +64,36 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1670402-g03c8qnr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1900246-_gp51qh0/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
           "paths": [
-            "logs/tester/0/20260910.013513.038118.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013513.300824.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013513.545698.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013513.773234.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013514.001232.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013514.249092.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013514.478727.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013514.708246.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013514.938925.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013515.173903.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013515.408792.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013515.638273.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013515.933059.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013516.172536.TesterDevice.run_proof.json",
-            "logs/tester/0/20260910.013516.899817.TesterDevice.run_proof.json"
+            "logs/tester/0/20260910.024740.967873.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024741.211559.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024741.446016.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024741.675694.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024741.912325.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024742.155815.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024742.403481.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024742.631772.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024742.865406.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024743.098086.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024743.350543.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024743.591452.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024743.884546.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024744.118993.TesterDevice.run_proof.json",
+            "logs/tester/0/20260910.024744.848573.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121122396,
-          "disk_bytes": 131571712,
-          "entries": 4263,
+          "bytes": 121157342,
+          "disk_bytes": 131698688,
+          "entries": 4291,
           "builds": 1,
-          "reuses": 16
+          "reuses": 13
         }
       }
     },

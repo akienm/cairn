@@ -301,7 +301,20 @@ def _announce_seals(tester, sealed_green: list) -> None:
         # of truth never collapses an error into a coherent shape).
         from cairn.devices.tester.validation_store import validations_path_for
 
-        bus = reach("codemother")
+        # REACHING CODEMOTHER ALONE MADE THE CROSSING IMPOSSIBLE, MEASURED 2026-09-09 ON
+        # THE FIRST LIVE FIRE OF THIS SEAM. ``reach`` wires a delivery hook for each device
+        # it names, and ``post`` fires that hook SYNCHRONOUSLY, in this process — so
+        # codemother heard the seal here rather than on her own beat, and here the harbor
+        # was not wired. She refused every boat, correctly and loudly at her own trail:
+        # "'harbor_master' is not wired on this bus, so there is no door to knock on.
+        # Wired: ['codemother']. Reach it first: reach('codemother', 'harbor_master')".
+        # The command printed a clean SEALED and the ticket did not move. Reaching only the
+        # device you are ADDRESSING is the natural reading of ``reach``, and it is wrong
+        # here: the announcement sets a crossing in motion, and the door that crossing
+        # knocks on has to be wired wherever the handler ends up running. So this names
+        # both — the receiver and the door it will use — which is what the message actually
+        # costs. It is still one exchange and no heartbeat: two shims pulsed, ~0.5s.
+        bus = reach("codemother", "harbor_master")
         for proof, record in sealed_green:
             evidence = record.get("evidence") or {}
             bus.post(
@@ -312,6 +325,16 @@ def _announce_seals(tester, sealed_green: list) -> None:
                       "source_fingerprint": evidence.get("source_fingerprint", ""),
                       "validations_path": validations_path_for(str(proof))},
             )
+        # AND THE RING IS FLUSHED BEFORE THIS PROCESS DIES. ``post`` appends to an
+        # in-memory ring and the ground loop's beat is what batch-writes it; a beat is the
+        # one thing a sealing run never fires. So an envelope that was NOT handled by the
+        # synchronous hook — codemother down, her shim unloadable, a handler that raised —
+        # lived only in this process and went with it. "Her next beat drains the mail" was
+        # true of the mail directory and false of the bus store, and the store is where
+        # ``_check_mail`` looks (``bus.undelivered``). Measured the same run: the sealed
+        # envelope was in no channel afterwards at all. Flushing costs one transaction and
+        # is what makes the post a STORE rather than a hope.
+        bus.flush()
     except Exception as exc:  # noqa: BLE001 — the seal already landed; this is the telling
         tester.emit("sealed_announce_failed", pointer=str(len(sealed_green)),
                     values={"error": f"{type(exc).__name__}: {exc}",

@@ -102,7 +102,7 @@ def _fixture_bus() -> BusDevice:
     return bus
 
 
-def _seal_through_the_cli(proof: Path, bus: BusDevice) -> int:
+def _seal_through_the_cli(proof: Path, bus: BusDevice, reached: list | None = None) -> int:
     """Run ``cairn test --seal <proof>`` for real, with its bus pointed at ``bus``.
 
     WHAT IS SUBSTITUTED IS THE BUS, AND NOTHING ELSE. The tester runs, the verdict is
@@ -114,11 +114,31 @@ def _seal_through_the_cli(proof: Path, bus: BusDevice) -> int:
     ``reach`` is patched on the MODULE rather than on the import site because
     ``_announce_seals`` imports it inside the function body, so the name is looked up on
     ``bus_client`` at the moment of the call.
+
+    ``reached``, when given, collects the device names the command asked for — see the
+    stub below for why that argument is no longer thrown away.
     """
     from cairn.devices.tester import cli
 
+    reached = reached if reached is not None else []
+
     saved = bus_client.reach
-    bus_client.reach = lambda *_devices: bus
+
+    def _reach(*devices):
+        # THE ARGUMENT IS RECORDED, NOT DISCARDED, AND THAT IS A FIX. This stub was
+        # ``lambda *_devices: bus`` — it swallowed the one thing the call says, which is
+        # WHICH DEVICES THE ANNOUNCEMENT WIRES. No tooth in this file could see that
+        # ``_announce_seals`` reached codemother and nothing else, so no tooth could see
+        # that the crossing it exists to start had no door to knock on. The instrument was
+        # structurally incapable of failing on the defect it was written to guard, which is
+        # the hollow shape Law 8 names — and the underscore on ``_devices`` was the whole
+        # of it. Measured 2026-09-09, on the first LIVE fire, in the one place a fixture
+        # bus never looks: the real one, where harbor_master has to be wired for
+        # codemother to cross anything.
+        reached.extend(devices)
+        return bus
+
+    bus_client.reach = _reach
     try:
         return cli.main(["--seal", str(proof)])
     finally:
@@ -192,6 +212,61 @@ def test_a_green_seal_posts_EXACTLY_ONE_sealed_message_carrying_all_four_fields(
         "disk is indistinguishable from a real address to whoever reads it")
 
     print("PASS: test_a_green_seal_posts_EXACTLY_ONE_sealed_message_carrying_all_four_fields")
+
+
+def test_THE_ANNOUNCEMENT_WIRES_THE_DOOR_THE_CROSSING_WILL_KNOCK_ON():
+    """Clause (1)'s missing half, and the one the FIRST LIVE FIRE found (2026-09-09).
+
+    Every tooth above measures the ENVELOPE — one message, four fields, each checked
+    against the world. All of them read green on a run where not one boat crossed, because
+    none of them asks the other question the announcement answers: WHO IS WIRED WHEN IT
+    LANDS. ``post`` fires the addressee's delivery hook synchronously, in the announcing
+    process, so codemother heard this seal inside ``cairn test`` rather than on her own
+    beat — and there ``harbor_master`` did not exist. She refused every boat with the right
+    words on her own trail; the command printed SEALED; the ticket stayed at PROVEME. A
+    seam whose whole claim is "a green seal crosses the boat it proves" had a green proof
+    on every part of the sentence except the verb.
+
+    SO THE TOOTH IS ABOUT THE ARGUMENT, NOT THE MESSAGE. It reds if the announcement stops
+    naming the harbor — which is exactly the edit that would silently restore the defect,
+    and is the natural edit, because reaching only the device you are addressing is what
+    ``reach`` reads like it means.
+
+    AND IT REDS IF THE RING IS NOT FLUSHED. The fallback for a receiver that did not handle
+    the message is the bus STORE, which is where ``_check_mail`` looks (``bus.undelivered``)
+    — not the mail directory, and not the in-memory ring, which dies with this process. On
+    the live run the envelope was afterwards in no channel at all: neither crossed nor
+    waiting, simply gone. Both halves are one claim — the announcement leaves the crossing
+    either DONE or RECOVERABLE, never neither.
+    """
+    proof = _fixture_proof("seal_ann_wired_")
+    bus = _fixture_bus()
+    reached: list = []
+
+    rc = _seal_through_the_cli(proof, bus, reached)
+    assert rc == 0, f"the fixture proof did not run green through `cairn test --seal` (rc={rc})"
+
+    assert reached, (
+        "the announcement reached no device at all — with nothing wired the post cannot "
+        "be delivered and cannot be recovered")
+    assert "codemother" in reached, (
+        f"the announcement did not reach its addressee; it reached {reached!r}")
+    assert "harbor_master" in reached, (
+        f"the announcement reached {reached!r} — codemother is told, but the harbor door "
+        "her crossing knocks on is not wired in the process where she will hear it, so "
+        "every boat is refused with \"'harbor_master' is not wired on this bus\" and the "
+        "command still prints SEALED. Measured on the live fire of 2026-09-09")
+
+    assert not bus._ring, (
+        f"{len(bus._ring)} envelope(s) were still in the in-memory ring when the command "
+        "returned. The ring is batch-written by the ground loop's beat and a sealing run "
+        "never fires one, so an envelope left here dies with the process: a message that "
+        "was neither acted on nor stored. `bus.undelivered` reads the STORE")
+
+    assert len(_sealed_messages(bus)) == 1, (
+        "the flush must not cost the record its single message, nor duplicate it")
+
+    print("PASS: test_THE_ANNOUNCEMENT_WIRES_THE_DOOR_THE_CROSSING_WILL_KNOCK_ON")
 
 
 def test_a_run_that_seals_NOTHING_announces_nothing():
@@ -315,6 +390,7 @@ def test_a_bus_THAT_REFUSES_the_telling_still_leaves_the_seal_standing():
 
 TEETH = [
     test_a_green_seal_posts_EXACTLY_ONE_sealed_message_carrying_all_four_fields,
+    test_THE_ANNOUNCEMENT_WIRES_THE_DOOR_THE_CROSSING_WILL_KNOCK_ON,
     test_a_run_that_seals_NOTHING_announces_nothing,
     test_with_codemother_UNWIRED_the_seal_stands_and_her_next_beat_drains_the_mail,
     test_a_bus_THAT_REFUSES_the_telling_still_leaves_the_seal_standing,

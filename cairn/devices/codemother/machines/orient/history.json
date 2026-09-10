@@ -2026,5 +2026,264 @@
     "fingerprint": "37f38681f5cad9b0872034efd787105007a386f888280bc7fc93e25cd36ff123",
     "at": "2026-09-10T17:34:41",
     "seq": 7
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(berth_deposits_again) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '4c022c44de53'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py', 'cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py'] (seal 2026-09-10T17:54:52, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(berth_deposits_again) emitted the probe berthed at cairn/devices/codemother/machines/orient/probes/a_berth_deposits_again.py (ticket '4c022c44de53')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260910T172659-7e7a66b8057b.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(berth_deposits_again) crossing",
+        "actual": "a cast ticket for the WATCHME(berth_deposits_again) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4c022c44de53",
+          "watch_object": "berth_deposits_again",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4c022c44de53-orient-deposit-reads-stored-provenance.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '4c022c44de53' carries a watchme spec for 'berth_deposits_again'",
+        "actual": "ticket '4c022c44de53' carries a watchme spec for 'berth_deposits_again'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4c022c44de53",
+          "watch_object": "berth_deposits_again",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "4c022c44de53",
+          "watch_object": "berth_deposits_again",
+          "berth": "cairn/devices/codemother/machines/orient/probes/a_berth_deposits_again.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'orient' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'orient' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "4c022c44de53",
+          "component": "orient",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '4c022c44de53' is cast",
+        "actual": "named ticket '4c022c44de53' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "4c022c44de53",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4c022c44de53-orient-deposit-reads-stored-provenance.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "4c022c44de53"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'orient' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'orient' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "orient",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "every one of 2 proofs (cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py, cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py) stands in proven-space",
+        "actual": "every one of 2 proofs (cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py, cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py) stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "every one of 2 proofs (cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py, cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py)",
+          "named": [
+            "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py",
+            "cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py's seal at '2026-09-10T17:54:52'",
+        "actual": "the witness dates cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py's seal at '2026-09-10T17:54:52'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py",
+          "named": [
+            "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py",
+            "cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py"
+          ],
+          "seal": "2026-09-10T17:54:52",
+          "claimed": "2026-09-10T17:54:52"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '4c022c44de53' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "4c022c44de53"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py",
+      "cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py"
+    ],
+    "proven_seal_date": "2026-09-10T17:54:52",
+    "delegated": false,
+    "ticket": "4c022c44de53",
+    "note": "The deposit door now READS the provenance the write door derived, and that is the whole change: one keyword-only switch, measure_provenance, defaulting to the strict side so no caller changes behaviour by silence. Write doors pass True, deposit doors pass False. It chooses the LABEL'S SOURCE, never whether the gate runs.\n\nWHY IT WAS WRONG BEFORE: the floor reads TODAY'S tree. A berth measured honestly last week was refused this week because a file had moved — the door asking a stored record whether the sender was honest, when the sender was the door. Measured across 620 walked berths: 463 now deposit, 0 refuse for provenance.\n\nAND THE CENSUS KILLED ITS OWN AUTHOR'S NUMBER. The pre-build estimate said 2 orient and 2 constrain berths were blocked by something else. The live walk says 157 (155 pointer, 2 other): the provenance check had been firing FIRST and short-circuiting ahead of the ref/source-resolution check, so berths with an independent second defect were counted inside the provenance bucket. Hypothesis 5 is dispositioned KILLED on its stated numbers. No pointer refusal became a pass; 216 of 309 constrain berths pass, not all of them. That second defect is out of bounds here and owed its own ticket at 157, not 4.\n\nFOUR DEFECTS THIS VOYAGE UNCOVERED AND FIXED IN IT (ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage):\n  1. THE CONSTRAIN SEAL WAS HOLLOW. test_chart_constrain.py defined 26 teeth and its main() roster listed 21 — every tooth this build added was missing, so the seal read green over teeth that never ran. The earlier red-check had been run under pytest, which collects every def and therefore could never expose a short roster. Caught by diffing the sealed teeth_green against def test_ in the file; re-run through the SEALED path, where mutation A reds. That kicked the boat back to PROVEME, and the kick-back is on the record because it is true.\n  2. NEITHER PROOF DECLARED WHAT IT PROVED. cairn test --hollow refused for proof_coverage. Declaring PROVES exposed clauses (c) and (e) with no tooth at all: (c) had only ever been checked by live fire against one instance-space berth, and (e) had been answered by REWORDING the sentence, which changes nothing. Both now have teeth, both red-checked. Clause (c) is now an invariant that makes the world move on purpose rather than pinning a berth.\n  3. A RED KILLED THE WHOLE ROSTER INSTEAD OF NAMING ITS OWN TOOTH. Both proofs stopped at the first failing tooth, so a hollow reading of them turned on ALPHABETICAL ORDER: reverting orient.py reds test_a_berth_whose_floor_moved_..., which sorts first, and the run died before printing a line. The reader recorded UNRAN — 'the proof printed no teeth at all' — which is the verdict meaning nothing here says whether a tooth checks this file. The same revert against a proof whose first tooth survived would have read fine. Every tooth now runs, a failing one prints its name beside RED, and the process still exits non-zero. Against a reverted orient.py the proof names 7 of 26 red, six of them declared.\n  4. THE CHARTER AND THE WATCH HAD NO TOOTH, AND THAT IS SYSTEMIC. Reverting orient/intention+why.json redded nothing, and so did removing the WATCHME probe — both files this voyage was REQUIRED to write (sail steps 7 and 8). Measured across 281 decompose berths carrying a writes_to: 46 name a component charter, 42 name a probes/ module, 76 berths and 67 tickets in all. A quarter of every charted build writes an artifact no proof in the corpus reads. Fixed at this address rather than by widening the gate's skip list: the clause (a) tooth now asserts the charter's gates paragraph names the switch and says which door measures and which reads, and the clause (c) tooth now loads the probe and asserts a module-level PROBE carrying both a carry and an enough. Both mutations red their declared tooth. The general case — a gate that demands a tooth for a file class the corpus never tooths — is a finding for Akien, not a gate I quietly loosened.\n\nThe watch is armed at cairn/devices/codemother/machines/orient/probes/a_berth_deposits_again.py: 1 of 2 consecutive counting beats, not yet enough — which is the honest reading, because a corpus that has not moved cannot tell a fixed door from a quiet week.",
+    "fingerprint": "386c4ae5c3c1c908827d2028b01478b558b86b742e614b93410263f218ac6eb0",
+    "at": "2026-09-10T17:59:20",
+    "seq": 8
   }
 ]

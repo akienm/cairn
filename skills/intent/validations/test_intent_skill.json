@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_intent_skill.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T17:56:27",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-09T18:23:37",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -34,7 +34,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f8efee4864307ca61a000fa423503b448ed8655c98ef844d4dee8f4975a4d100",
+      "source_fingerprint": "ecfa864289699b2f0595e75ce4db4def82cfadc36d00047883108b2c07d969c1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -76,7 +76,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1395213-6qitgilg/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1465371-it3yoyye/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,8 +89,17 @@
           "disk_bytes": 131366912,
           "entries": 4217,
           "builds": 1,
-          "reuses": 8
+          "reuses": 34
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "c1534eca00356597af2e982074130e6f337a074c7f5ff0e71fafa282c27a5396",
+        "opened": "2026-09-09T18:23:37",
+        "last_red": "2026-09-09T18:23:37",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-skills-intent",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

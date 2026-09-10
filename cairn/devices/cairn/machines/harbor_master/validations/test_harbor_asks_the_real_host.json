@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T17:56:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-09T19:32:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,7 +22,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ab6c515f9085c0ed5cc1986dc955d9f2ca7c71bfac57c090eab5506f4a4e7839",
+      "source_fingerprint": "8327d0d365eb7f44f3534fe43645991ab52705126c0c030daf932c0fd79b7935",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -70,24 +70,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1395213-mbfk1myr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1670402-a1501899/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20260909.235619.783807.BusDevice.post.json",
-            "logs/charter/0/20260909.235619.761665.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20260909.235619.755615.TesterDevice.run_proof.json"
+            "logs/bus/0/20260910.013225.363858.BusDevice.post.json",
+            "logs/charter/0/20260910.013225.341717.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20260910.013225.335488.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121065312,
-          "disk_bytes": 131379200,
-          "entries": 4226,
+          "bytes": 121119391,
+          "disk_bytes": 131522560,
+          "entries": 4255,
           "builds": 1,
-          "reuses": 3
+          "reuses": 4
         }
       }
     },

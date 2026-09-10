@@ -902,7 +902,14 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         _saved = _insp._CHART_BERTHS
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
         try:
-            with _owner_is(_covered_owner(_OTHER_BOAT, _covering)):
+            # AND THE CROSSING RECORD IS STOOD UP TOO (2026-09-10). The coverage rung used to
+            # read this boat's proofs off the substituted ticket dict; since the crossings
+            # migration it derives them from the journals, and this boat is REAL — its live
+            # journal names the real ``test_clearance.py``, whose fingerprint moves every time
+            # this file is edited. Reading the live record here would make the tooth red on
+            # its own author. The fixture world is the same substitution ``_owner_is`` already
+            # makes, one read further down.
+            with _owner_is(_covered_owner(_OTHER_BOAT, _covering)), _fixture_journals():
                 new = clear(
                     at_learn, "PROVED",
                     actor=_OWNER, boat_id=_OTHER_BOAT,
@@ -1497,6 +1504,48 @@ def test_this_build_added_no_tracing_of_its_own():
 # because a ``tickets_dir=`` parameter would hand the caller back the choice of what the gate
 # reads. Naming the proof by ABSOLUTE path is what lets a fixture ticket point at scratch
 # without any door into the gate at all.
+#
+# AND SINCE 2026-09-10 A SECOND READ IS SUBSTITUTED, for the same reason and by the same
+# means. The ticket's record of crossings is now DERIVED from history.json in two roots
+# (ruling crossings-are-derived-never-written) rather than stored on the ticket, so an
+# absolute proof path is no longer everything a fixture needs — the record itself lives on
+# disk. ``_crossing_roots`` is the module-level read the gate asks, taking no arguments so
+# no caller can pass one, and ``_journalled`` stands a scratch world behind it. THE JOURNAL
+# IS REAL TOO: the same ``{"entries": [...]}`` shape ``emit`` writes, read by the same
+# derivation the live gate reads, in a scratch root — never a manufactured entry in a record
+# of truth (Law 7).
+
+
+def _journal_world() -> Path:
+    world = Path(_SCRATCH) / "journal-world"
+    (world / "cairn").mkdir(parents=True, exist_ok=True)
+    return world
+
+
+def _journalled(tid: str, proof: str, *, to: str = "PROVEME") -> None:
+    """Record a crossing for ``tid`` in the fixture world's journal — append, never replace,
+    so a tooth that records twice gets latest-wins the way the live derivation orders by ``at``."""
+    path = _journal_world() / "cairn" / "history.json"
+    doc = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"entries": []}
+    n = len(doc["entries"])
+    doc["entries"].append({"ticket": tid, "to": to, "direction": "forward", "actor": _OWNER,
+                           "at": f"2026-09-10T00:{n // 60:02d}:{n % 60:02d}",
+                           "proven_by": proof})
+    path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+
+
+@contextlib.contextmanager
+def _fixture_journals():
+    """Stand the fixture world behind the gate's crossing-record read — the ``_owner_is``
+    precedent, applied to the second read the coverage rung makes."""
+    world = _journal_world()
+    real = _clearance._crossing_roots
+    _clearance._crossing_roots = lambda: {"repo": world, "commons": world / "commons",
+                                          "instance": world / "instance"}
+    try:
+        yield
+    finally:
+        _clearance._crossing_roots = real
 
 _COVERED_TOOTH = "test_the_thing_the_build_added"
 
@@ -1516,12 +1565,19 @@ def _covering_proof(name: str, tid: str, *, declares: bool = True) -> str:
 
 
 def _fixture_ticket(tid: str, proof: str, *, node_class: str = "code-seam") -> dict:
-    """A boat whose falsifier names exactly one clause and whose latest crossing names ``proof``."""
+    """A boat whose falsifier names exactly one clause.
+
+    NO ``crossings`` KEY, because no ticket in the corpus carries one since 2026-09-10
+    (ruling crossings-are-derived-never-written) and a fixture shaped like the old world
+    would go green over a reader that no longer exists. The proof this boat leans on reaches
+    the coverage rung the way the real crossing carries it — as ``clear``'s ``proven_by``
+    argument, which the rung passes through as ``named``.
+    """
+    _journalled(tid, proof)
     return {
         "id": tid,
         "node_class": node_class,
         "falsifier": "DONE when (1) the thing the build added is actually there.",
-        "crossings": [{"target": "PROVEME", "proven_by": proof}],
     }
 
 
@@ -1568,7 +1624,7 @@ def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
     _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
     _t._TICKETS = _FIXTURE_TICKETS
     try:
-        with _owner_is(owner):
+        with _owner_is(owner), _fixture_journals():
             clear(at_learn, "PROVED", actor=_OWNER, boat_id=boat, proven_by=proven_by,
                   history_path=hp, state_path=sp, ticket=boat, **kw)
     except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
@@ -1629,7 +1685,7 @@ def test_the_rung_fires_ONLY_at_PROVED_so_a_boat_under_construction_still_moves(
         hp, sp = _paths(tmp)
         owner = _clearance.BoatOwner(intention="thing/intention+why.json", hands=(_OWNER,),
                                      ticket={"id": "nocover0000a", "node_class": "code-seam",
-                                             "falsifier": "DONE when (1) x.", "crossings": []})
+                                             "falsifier": "DONE when (1) x."})
         with _owner_is(owner):
             out = clear(_WF, "PROVEME", actor=_OWNER, boat_id="nocover0000a",
                         proven_by=_PROVEN, history_path=hp, state_path=sp)
@@ -1694,7 +1750,10 @@ def test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_sea
     proof = _covering_proof("no-hollow", tid)
     _seal(proof)
     ticket = _fixture_ticket(tid, proof)
-    assert _clearance.coverage_lacks(ticket, repo_root=Path(_REPO_ROOT)) == [], \
+    with _fixture_journals():
+        clean = _clearance.coverage_lacks(ticket, repo_root=Path(_REPO_ROOT),
+                                          roots=_clearance._crossing_roots())
+    assert clean == [], \
         "the setup must be CLEAN to the coverage sieve, or this tooth proves nothing new"
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)

@@ -117,10 +117,30 @@ def _fixture(tmp: Path, *, with_added: bool = False) -> tuple[Path, Path]:
          "writes_to": ["subject.py", "unchecked.py", "proofs/test_fixture.py"]}]}))
     (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({
         "id": FIXTURE,
-        "chart_chain": {"decompose": str(berth)},
-        "crossings": [{"to": "BUILDME", "date": "2020-01-02T00:00:00",
-                       "proven_by": "proofs/test_fixture.py"}]}))
+        "chart_chain": {"decompose": str(berth)}}))
+    _journal(repo, [{"to": "BUILDME", "proven_by": "proofs/test_fixture.py"}])
     return repo, commons
+
+
+def _journal(repo: Path, crossings: list[dict], *, at: str = "history.json") -> Path:
+    """The fixture world's crossing record, in the ONE shape the derivation reads.
+
+    Since 2026-09-10 (ruling crossings-are-derived-never-written) a ticket carries no
+    ``crossings`` key and hollow derives them from history.json in the two roots it is handed.
+    So a fixture that wants a crossing writes a journal — which is also what ``emit`` does, so
+    the fixture and the world now agree about where a crossing comes from. Untracked on
+    purpose: the journal describes the build, it is not part of it, and hollow must not revert it.
+    """
+    path = repo / at
+    path.parent.mkdir(parents=True, exist_ok=True)
+    entries = []
+    for i, one in enumerate(crossings):
+        entry = {"ticket": FIXTURE, "direction": "forward", "actor": "fixture",
+                 "at": f"2020-01-02T00:0{i}:00"}
+        entry.update(one)
+        entries.append(entry)
+    path.write_text(json.dumps({"entries": entries}, indent=2), encoding="utf-8")
+    return path
 
 
 def _measured(tmp: Path) -> dict:
@@ -331,9 +351,7 @@ def test_a_run_that_could_not_be_measured_says_so_instead_of_passing():
     """Law 3 held as a type: 'not measured' may not travel through the same return as 'clean'."""
     tmp = scratch_dir("cairn-hollowproof-")
     repo, commons = _fixture(tmp)
-    t = json.loads((commons / "tickets" / f"{FIXTURE}-fixture.json").read_text())
-    t["crossings"] = [{"to": "PROVEME", "date": "2020-01-02T00:00:00"}]  # no BUILDME, no proof
-    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps(t))
+    _journal(repo, [{"to": "PROVEME"}])  # rewritten: no BUILDME anywhere, and no proof named
     try:
         measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
     except HollowUnmeasurable as why:
@@ -582,12 +600,11 @@ def _fixture_spread(tmp: Path, *, with_silent: bool = False) -> tuple[Path, Path
          "writes_to": ["subject.py", "second.py", "unchecked.py"]}]}))
     (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({
         "id": FIXTURE,
-        "chart_chain": {"decompose": str(berth)},
-        "crossings": [
-            {"to": "BUILDME", "date": "2020-01-02T00:00:00",
-             "proven_by": "proofs/test_fixture.py"},
-            {"to": "PROVEME", "date": "2020-01-04T00:00:00", "proven_by": later},
-        ]}))
+        "chart_chain": {"decompose": str(berth)}}))
+    _journal(repo, [
+        {"to": "BUILDME", "proven_by": "proofs/test_fixture.py"},
+        {"to": "PROVEME", "proven_by": later},
+    ])
     return repo, commons
 
 

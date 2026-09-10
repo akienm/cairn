@@ -90,6 +90,8 @@ from pathlib import Path
 from cairn.devices.tester.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
+from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
 
@@ -113,43 +115,55 @@ def _ticket_path(ticket_id: str, commons: Path = COMMONS) -> Path:
     return hits[0]
 
 
-def _buildme_crossing(ticket: dict) -> dict:
-    """The LATEST forward crossing into BUILDME — latest, because a kicked-back ticket
-    re-crosses, and the pre-build state that matters is the one before the build that stands."""
-    for entry in reversed(ticket.get("crossings") or []):
-        if isinstance(entry, dict) and entry.get("to") == "BUILDME":
-            return entry
-    raise HollowUnmeasurable(
-        "hollow: the ticket names no BUILDME crossing, so there is no 'before the build' to "
-        "revert to. A ticket that never crossed BUILDME has no build to call hollow.")
+def _roots(repo_root: Path = REPO_ROOT, commons: Path = COMMONS) -> dict:
+    """The world this measurement's CROSSINGS are derived from — built from the two roots
+    ``measure`` is already handed, never from the live table.
+
+    No new parameter was needed and none was added: ``repo_root`` and ``commons`` have always
+    been how a caller says which world to measure, and the journals live in exactly those two
+    places. Reaching past them to ``address.ROOTS`` would make a fixture run read the live
+    corpus's journals for its own ticket id and derive nothing — a hollow reading of a world
+    nobody asked about.
+    """
+    return {"repo": Path(repo_root), "commons": Path(commons), "instance": Path(commons)}
+
+
+def _buildme_crossing(ticket: dict, roots: dict | None = None) -> dict:
+    """The LATEST FORWARD crossing into BUILDME — latest, because a kicked-back ticket
+    re-crosses, and the pre-build state that matters is the one before the build that stands.
+
+    DERIVED FROM THE JOURNALS since 2026-09-10 (ruling crossings-are-derived-never-written).
+    The rule is unchanged; ``direction`` is now actually checked, which the stored array could
+    not do — it carried no direction field, so a disposition into BUILDME and a forward crossing
+    into it were the same record and hollow would have reverted to the wrong world.
+    """
+    crossing = buildme_crossing(str(ticket.get("id") or ""), roots)
+    if crossing is None:
+        raise HollowUnmeasurable(
+            "hollow: no journal in either root records a forward crossing into BUILDME for "
+            f"ticket {ticket.get('id')!r}, so there is no 'before the build' to revert to. "
+            "A ticket that never crossed BUILDME has no build to call hollow.")
+    return crossing
 
 
 def _buildme_at(ticket: dict, crossing: dict, repo_root: Path = REPO_ROOT) -> str:
-    """When the build began, to the second when the journal knows and to the day when it does not.
+    """When the build began, TO THE SECOND — and there is no longer a coarser branch to fall to.
 
-    The crossing record on the ticket carries only a ``date``; the component's own history.json
-    carries an ``at`` with a time. Preferring the journal is not fussiness — ``git rev-list -1
-    --before=2026-09-07`` resolves to the last commit before that day STARTED, which on a ticket
-    built and committed the same day silently reverts to a whole day earlier than the build.
+    THE DAY-GRANULAR FALLBACK IS RETIRED, not patched. It existed because the crossing record on
+    the ticket carried only a ``date``, and ``git rev-list -1 --before=2026-09-07`` resolves to
+    the last commit before that day STARTED — so a ticket built and committed on one day
+    silently reverted to a whole day earlier and hollow measured the wrong world. The journal
+    entry has always carried an ``at`` with a time; deriving the crossing from the journal means
+    every crossing now has one, so the branch that could be wrong no longer has anything to be
+    wrong about. An entry with no ``at`` is unmeasurable and says so (Law 3).
     """
-    journal = crossing.get("journal")
-    if journal:
-        jpath = Path(repo_root) / journal
-        if jpath.is_file():
-            try:
-                entries = json.loads(jpath.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
-                entries = []
-            for e in reversed(entries if isinstance(entries, list) else []):
-                if (isinstance(e, dict) and e.get("to") == "BUILDME"
-                        and e.get("direction") == "forward"
-                        and e.get("ticket") == ticket.get("id") and e.get("at")):
-                    return str(e["at"])
-    if crossing.get("date"):
-        return str(crossing["date"])
-    raise HollowUnmeasurable(
-        "hollow: the BUILDME crossing carries neither a journal entry with an 'at' nor a date, "
-        "so the pre-build commit cannot be resolved.")
+    at = str(crossing.get("at") or "")
+    if not at:
+        raise HollowUnmeasurable(
+            "hollow: the derived BUILDME crossing carries no 'at', so the pre-build commit "
+            "cannot be resolved to the second. A day is not close enough — rev-list --before "
+            "resolves a bare date to the last commit before that day STARTED.")
+    return at
 
 
 def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
@@ -192,7 +206,7 @@ def writes_to(ticket: dict) -> list[str]:
     return out
 
 
-def proven_by(ticket: dict) -> list[str]:
+def proven_by(ticket: dict, roots: dict | None = None) -> list[str]:
     """EVERY proof this ticket's crossings name, unioned — deliberately NOT ``_proven_by``.
 
     THE SHARED READER ANSWERS A DIFFERENT QUESTION, and reusing it here produced WRONG
@@ -224,14 +238,7 @@ def proven_by(ticket: dict) -> list[str]:
     questions.
         -> ticket proven-by-answers-two-questions-and-one-reader-serves-both
     """
-    seen: list[str] = []
-    for entry in ticket.get("crossings") or []:
-        if not isinstance(entry, dict) or not entry.get("proven_by"):
-            continue
-        raw = entry["proven_by"]
-        for one in ([raw] if isinstance(raw, str) else [str(x) for x in raw if x]):
-            if one not in seen:
-                seen.append(one)
+    seen = proven_by_since_buildme(str(ticket.get("id") or ""), roots)
     if not seen:
         raise HollowUnmeasurable(
             f"hollow: no crossing on ticket {ticket.get('id')} names a proof, so there is no "
@@ -350,11 +357,12 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
 
     ticket = json.loads(_ticket_path(ticket_id, commons).read_text(encoding="utf-8"))
     tid = str(ticket.get("id") or ticket_id)
-    crossing = _buildme_crossing(ticket)
+    roots = _roots(repo_root, commons)
+    crossing = _buildme_crossing(ticket, roots)
     at = _buildme_at(ticket, crossing, repo_root)
     commit = prebuild_commit(at, repo_root=repo_root)
     files = writes_to(ticket)
-    proofs = proven_by(ticket)
+    proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
     # PROVES map for THIS ticket. A proof holding teeth for three tickets would otherwise let a

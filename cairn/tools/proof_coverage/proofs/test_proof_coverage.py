@@ -37,17 +37,52 @@ TICKET = "feeb4c786b14"
 
 # ── fixtures ─────────────────────────────────────────────────────────────────────────
 
-def _ticket(clauses_text: str, *, proven_by: str | None, node_class: str = "code-seam",
-            cursor: str = "PROVEME", crossings: list | None = None) -> dict:
+def _roots(tmp: Path) -> dict:
+    """The world a fixture ticket's CROSSINGS are derived from.
+
+    Since the crossings stopped being an array on the ticket, a fixture ticket dict carries
+    no evidence of its own — the derivation reads journals off disk. Handing ``lacks`` only
+    ``repo_root`` would point the proof-reads at the fixture and the crossing-reads at the
+    live corpus, where ``fixture01`` has never crossed anything.
+    """
+    return {"repo": tmp, "commons": tmp / "CairnCommons", "instance": tmp / ".cairn"}
+
+
+def _journal(tmp: Path, entries: list[dict], *, at: str = "cairn/fixture/history.json") -> Path:
+    """A history.json in the fixture world — the shape ``emit`` writes and the ONLY shape
+    the crossings derivation reads. Writing the crossing here rather than onto the ticket
+    is the point of the migration: a gate reads what physics wrote."""
+    path = tmp / at
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"entries": entries}, indent=2), encoding="utf-8")
+    return path
+
+
+def _ticket(tmp: Path, clauses_text: str, *, proven_by: str | None,
+            node_class: str = "code-seam", cursor: str = "PROVEME",
+            crossings: list | None = None) -> dict:
+    """A fixture ticket, plus the JOURNAL its crossing lives in.
+
+    ``crossings`` is still the parameter a tooth varies — an empty list means "this ticket
+    has journalled nothing", which is how the ``crossing_record_absent`` split is exercised
+    — but the entries land in a history.json under ``tmp`` rather than on the returned dict.
+    The ticket itself carries no crossings key at all, because no ticket in the corpus does.
+    """
     wf = ("code-seam@v2: THINKME -> TICKETME -> BUILDME -> "
           f"[{cursor}:waiting] -> PROVED")
     if crossings is None:
-        crossings = [{"date": "2026-09-07", "to": "BUILDME", "by": "CC",
+        crossings = [{"to": "BUILDME", "direction": "forward", "actor": "CC",
                       **({"proven_by": proven_by} if proven_by else {})}]
+    entries = []
+    for i, one in enumerate(crossings):
+        entry = {"ticket": "fixture01", "at": f"2026-09-07T10:0{i}:00",
+                 "direction": "forward", "actor": "CC"}
+        entry.update(one)
+        entries.append(entry)
+    _journal(tmp, entries)
     return {"id": "fixture01", "node_class": node_class, "workflow_and_state": wf,
             "falsifier": {"proves_green": "the fixture is green",
-                          "proves_red": clauses_text},
-            "crossings": crossings}
+                          "proves_red": clauses_text}}
 
 
 def _component(tmp: Path, *, proof_body: str, name: str = "widget") -> Path:
@@ -152,10 +187,10 @@ def test_an_undeclared_clause_is_named_by_its_number():
             'PROVES = {"fixture01": {"1": "test_first_half"}}\n'
             'print("  ok   test_first_half")\n'))
         _seal(proof, teeth_green=["test_first_half"])
-        ticket = _ticket("DONE when (1) the first half holds and (2) the second half holds.",
+        ticket = _ticket(tmp, "DONE when (1) the first half holds and (2) the second half holds.",
                          proven_by=str(proof))
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     kinds = {f["kind"] for f in found}
     assert kinds == {"clause_declared"}, found
@@ -174,11 +209,11 @@ def test_a_declared_tooth_that_never_ran_green_is_named():
             'PROVES = {"fixture01": {"1": "test_renamed_yesterday"}}\n'
             'print("  ok   test_the_new_name")\n'))
         _seal(proof, teeth_green=["test_the_new_name"])
-        ticket = _ticket("DONE when the widget holds.", proven_by=str(proof))
+        ticket = _ticket(tmp, "DONE when the widget holds.", proven_by=str(proof))
         # a falsifier with no (N) markers is one clause, keyed WHOLE
         ticket["falsifier"]["proves_red"] = "DONE when (1) the widget holds."
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert [f["kind"] for f in found] == ["declared_tooth_green"], found
     assert found[0]["values"]["tooth"] == "test_renamed_yesterday", found[0]
@@ -193,9 +228,9 @@ def test_a_proof_that_declares_nothing_for_this_ticket_is_named():
             'PROVES = {"someone_elses_ticket": {"1": "test_unrelated"}}\n'
             'print("  ok   test_unrelated")\n'))
         _seal(proof, teeth_green=["test_unrelated"])
-        ticket = _ticket("DONE when (1) the widget holds.", proven_by=str(proof))
+        ticket = _ticket(tmp, "DONE when (1) the widget holds.", proven_by=str(proof))
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert "proof_declares_the_ticket" in {f["kind"] for f in found}, found
 
@@ -207,9 +242,9 @@ def test_a_flat_falsifier_is_one_clause_and_still_needs_a_tooth():
         tmp = Path(tmp)
         proof = _component(tmp, proof_body='print("  ok   test_something")\n')
         _seal(proof, teeth_green=["test_something"])
-        ticket = _ticket("DONE when the widget holds under load.", proven_by=str(proof))
+        ticket = _ticket(tmp, "DONE when the widget holds under load.", proven_by=str(proof))
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert pc.clauses(ticket) == [pc.WHOLE]
     assert "clause_declared" in {f["kind"] for f in found}, found
@@ -220,9 +255,11 @@ def test_wrong_intent_clauses_are_not_demanded_as_teeth():
     to have built — a disposition, not a condition a tooth can go green on. Demanding a
     tooth for 'this was a bad idea' would make every well-written falsifier redder than a
     lazy one, which is the incentive exactly backwards."""
-    ticket = _ticket(
-        "DONE when (1) the widget holds. WRONG INTENT if (2) nobody ever uses the widget.",
-        proven_by=None)
+    with tempfile.TemporaryDirectory() as tmp:
+        ticket = _ticket(
+            Path(tmp),
+            "DONE when (1) the widget holds. WRONG INTENT if (2) nobody ever uses the widget.",
+            proven_by=None)
     assert pc.clauses(ticket) == ["1"], pc.clauses(ticket)
 
 
@@ -238,10 +275,10 @@ def test_a_fully_covered_ticket_produces_no_finding():
             'PROVES = {"fixture01": {"1": "test_first", "2": "test_second"}}\n'
             'print("  ok   test_first")\nprint("  ok   test_second")\n'))
         _seal(proof, teeth_green=["test_first", "test_second"])
-        ticket = _ticket("DONE when (1) the first holds and (2) the second holds.",
+        ticket = _ticket(tmp, "DONE when (1) the first holds and (2) the second holds.",
                          proven_by=str(proof))
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert found == [], found
 
@@ -263,12 +300,12 @@ def test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof():
             'PROVES = {"fixture01": {"2": "test_that_end"}}\nprint("  ok   test_that_end")\n'))
         _seal(near, teeth_green=["test_this_end"])
         _seal(far, teeth_green=["test_that_end"])
-        ticket = _ticket("DONE when (1) this end holds and (2) that end holds.",
+        ticket = _ticket(tmp, "DONE when (1) this end holds and (2) that end holds.",
                          proven_by=None, crossings=[{"date": "2026-09-07", "to": "PROVEME",
                                                      "by": "CC",
                                                      "proven_by": [str(near), str(far)]}])
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert found == [], found
 
@@ -285,12 +322,12 @@ def test_each_proof_in_a_list_is_still_checked_on_its_own_terms():
         bystander = _component(tmp, name="bystander", proof_body='print("  ok   test_x")\n')
         _seal(near, teeth_green=["test_this_end", "test_that_end"])
         _seal(bystander, teeth_green=["test_x"])
-        ticket = _ticket("DONE when (1) this end holds and (2) that end holds.",
+        ticket = _ticket(tmp, "DONE when (1) this end holds and (2) that end holds.",
                          proven_by=None,
                          crossings=[{"date": "2026-09-07", "to": "PROVEME", "by": "CC",
                                      "proven_by": [str(near), str(bystander)]}])
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert [f["kind"] for f in found] == ["proof_declares_the_ticket"], found
     assert found[0]["values"]["proof"].endswith("bystander/proofs/test_widget.py"), found[0]
@@ -304,9 +341,9 @@ def test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered():
         proof = _component(tmp, proof_body=(
             'PROVES = {"fixture01": {"1": "test_first"}}\nprint("  ok   test_first")\n'))
         _seal(proof, teeth_green=["test_first"], fingerprint="0" * 64)
-        ticket = _ticket("DONE when (1) the first holds.", proven_by=str(proof))
+        ticket = _ticket(tmp, "DONE when (1) the first holds.", proven_by=str(proof))
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert [f["kind"] for f in found] == ["seal_fingerprint_current"], found
 
@@ -316,8 +353,9 @@ def test_a_ticket_below_proveme_is_not_asked_for_coverage():
     would red the whole backlog for not having finished — Law 9 reds what claims green, not
     what is honestly under way."""
     from cairn.machines.build_inspector.inspector import _workflow_cursor, _PROVEN_SPACE
-    assert _workflow_cursor(_ticket("x", proven_by=None, cursor="BUILDME")[
-        "workflow_and_state"]) == "BUILDME"
+    with tempfile.TemporaryDirectory() as tmp:
+        below = _ticket(Path(tmp), "x", proven_by=None, cursor="BUILDME")
+    assert _workflow_cursor(below["workflow_and_state"]) == "BUILDME"
     assert "BUILDME" not in _PROVEN_SPACE
     assert {"PROVEME", "WATCHME", "PROVED"} == set(_PROVEN_SPACE)
 
@@ -418,10 +456,10 @@ def test_a_concept_piece_with_no_review_record_reds():
         piece = tmp / "press_office" / "the-method.md"
         piece.parent.mkdir(parents=True)
         piece.write_text("# The method\n", encoding="utf-8")
-        ticket = _ticket("DONE when (1) three readers say it lands.",
+        ticket = _ticket(tmp, "DONE when (1) three readers say it lands.",
                          proven_by=str(piece), node_class="concept-piece")
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert [f["kind"] for f in found] == ["review_record"], found
     assert "no review record" in found[0]["why"], found[0]["why"]
@@ -439,10 +477,10 @@ def test_a_concept_piece_with_a_review_record_is_covered():
             "method": "review by 3 readers", "verdict": "green", "evidence": {},
             "falsifier": "a reader says it does not land", "horizon": "until it is rewritten",
         }]), encoding="utf-8")
-        ticket = _ticket("DONE when (1) three readers say it lands.",
+        ticket = _ticket(tmp, "DONE when (1) three readers say it lands.",
                          proven_by=str(piece), node_class="concept-piece")
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert found == [], found
 
@@ -461,10 +499,10 @@ def test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece():
             "method": "ran the proof as a subprocess", "verdict": "green", "evidence": {},
             "falsifier": "x", "horizon": "x",
         }]), encoding="utf-8")
-        ticket = _ticket("DONE when (1) three readers say it lands.",
+        ticket = _ticket(tmp, "DONE when (1) three readers say it lands.",
                          proven_by=str(piece), node_class="concept-piece")
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert [f["kind"] for f in found] == ["review_record"], found
 
@@ -476,12 +514,18 @@ def test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot():
     those carry no crossings array at all, because they were resolved before the crossing
     record existed. Both are red; collapsing them into one line would bury nineteen
     actionable tickets under two hundred archaeological ones."""
-    absent = _ticket("DONE when (1) x.", proven_by=None, crossings=[])
-    forgot = _ticket("DONE when (1) x.", proven_by=None,
-                     crossings=[{"date": "2026-09-07", "to": "PROVEME", "by": "CC"}])
+    # TWO WORLDS, NOT TWO TICKETS IN ONE. Both fixtures are ``fixture01``, and the crossings
+    # derivation indexes journals BY TICKET ID across the whole world — so a single tmp would
+    # merge "journalled nothing" into "journalled without a proof" and the split under test
+    # would silently stop being a split.
+    with tempfile.TemporaryDirectory() as t1, tempfile.TemporaryDirectory() as t2:
+        t1, t2 = Path(t1), Path(t2)
+        absent = _ticket(t1, "DONE when (1) x.", proven_by=None, crossings=[])
+        forgot = _ticket(t2, "DONE when (1) x.", proven_by=None,
+                         crossings=[{"to": "PROVEME"}])
 
-    a = pc.lacks(absent, repo_root=REPO_ROOT)
-    f = pc.lacks(forgot, repo_root=REPO_ROOT)
+        a = pc.lacks(absent, repo_root=t1, roots=_roots(t1))
+        f = pc.lacks(forgot, repo_root=t2, roots=_roots(t2))
 
     assert [x["kind"] for x in a] == ["crossing_record_absent"], a
     assert [x["kind"] for x in f] == ["proof_named"], f
@@ -497,13 +541,13 @@ def test_the_latest_crossing_wins_when_a_ticket_was_kicked_back():
         proof = _component(tmp, proof_body=(
             'PROVES = {"fixture01": {"1": "test_first"}}\nprint("  ok   test_first")\n'))
         _seal(proof, teeth_green=["test_first"])
-        ticket = _ticket("DONE when (1) the first holds.", proven_by=None, crossings=[
+        ticket = _ticket(tmp, "DONE when (1) the first holds.", proven_by=None, crossings=[
             {"date": "2026-09-01", "to": "PROVEME", "by": "CC",
              "proven_by": str(tmp / "gone" / "proofs" / "test_old.py")},
             {"date": "2026-09-07", "to": "PROVEME", "by": "CC", "proven_by": str(proof)},
         ])
 
-        found = pc.lacks(ticket, repo_root=tmp)
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert found == [], found
 

@@ -621,7 +621,9 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
     fixture boat cast.
     """
     from cairn.devices.tester.validation_store import record_hollow
+    from cairn.tools.base.address import ROOTS
     import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
+    import cairn.devices.codemother.shim as _shim
     import cairn.tools.base.transitions as _transitions
 
     root = comp.parent
@@ -664,17 +666,47 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
             + (f"; (2) {_SECOND_TOOTH} prints its PASS at the other end."
                if second_end is not None else ".")),
         "workflow_and_state": _FIXTURE_WORKFLOW,
-        # ONE-OR-MANY, WRITTEN AS THE WORLD WRITES IT: a single-ended boat records a string
-        # and a seam records a list, because that is what the live corpus holds and a
-        # fixture that only ever wrote lists would not measure the string path at all.
-        "crossings": [{"target": "PROVEME",
-                       "proven_by": (str(proof) if second_end is None
-                                     else [str(proof), str(second_end)])}],
     }), encoding="utf-8")
+
+    # THE BOAT'S CROSSING RECORD IS A JOURNAL ENTRY, NOT A FIELD ON THE TICKET (2026-09-10,
+    # ruling crossings-are-derived-never-written). This fixture used to hand-write a
+    # ``crossings`` array here, which is precisely the thing the ruling ended: a gate must not
+    # be handed its own evidence by whoever wants through it. So the PROVEME crossing is
+    # written where ``emit`` writes one — a journal — and the gate DERIVES it, over exactly the
+    # code path the live corpus walks.
+    #
+    # THE FIXTURE WORLD IS THE *COMMONS* HALF AND THE REPO STAYS LIVE, deliberately. The
+    # derivation relativises proof paths against ``roots["repo"]``, and these proofs live in
+    # scratch: pointing the repo root at the scratch tree would rewrite them to
+    # ``a_fixture_component/proofs/...``, which resolves against class-space and finds
+    # nothing. Live repo + fixture commons leaves the absolute spellings alone, and
+    # ``proof_coverage.lacks`` has an absolute branch for exactly them.
+    #
+    # ONE-OR-MANY, WRITTEN AS THE WORLD WRITES IT: a single-ended boat records a string and a
+    # seam records a list, because that is what the live journals hold and a fixture that only
+    # ever wrote lists would not measure the string path at all.
+    journal = root / "journal" / "history.json"
+    journal.parent.mkdir(parents=True, exist_ok=True)
+    journal.write_text(json.dumps([{
+        "seq": 1,
+        "at": "2026-09-10T00:00:01",
+        "ticket": boat,
+        "from": "BUILDME",
+        "to": "PROVEME",
+        "direction": "forward",
+        "actor": "cc",
+        "proven_by": (str(proof) if second_end is None
+                      else [str(proof), str(second_end)]),
+    }]), encoding="utf-8")
+
+    def _fixture_crossing_roots():
+        return {"repo": ROOTS["repo"], "commons": root, "instance": root}
 
     real = _clearance.boat_owner_of
     real_load_class_def = _transitions.load_class_def
     saved_tickets = _transitions._TICKETS
+    real_gate_roots = _clearance._crossing_roots
+    real_shim_roots = _shim._crossing_roots
 
     def _fixture_owner_of(boat_id, **kw):
         kw.setdefault("tickets_dir", str(tickets))
@@ -711,12 +743,21 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
     _clearance.boat_owner_of = _fixture_owner_of
     _transitions.load_class_def = _portable_load_class_def
     _transitions._TICKETS = tickets
+    # THE FIFTH AND SIXTH CORPUS READS — where each side derives the boat's CROSSINGS from.
+    # Two, not one, because the two readers ask different questions of the same journals:
+    # codemother's sealed path asks "which boat names this proof", the harbor's coverage rung
+    # asks "do the proofs the record names cover the boat". Both are module-level reads taking
+    # no arguments, for the reason their own docstrings give.
+    _clearance._crossing_roots = _fixture_crossing_roots
+    _shim._crossing_roots = _fixture_crossing_roots
     try:
         yield boat
     finally:
         _clearance.boat_owner_of = real
         _transitions.load_class_def = real_load_class_def
         _transitions._TICKETS = saved_tickets
+        _clearance._crossing_roots = real_gate_roots
+        _shim._crossing_roots = real_shim_roots
 
 
 def _ask_codemother_to_cross(comp, proof, *, boat=_HARBOR_BOAT):

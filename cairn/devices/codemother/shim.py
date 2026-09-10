@@ -56,6 +56,20 @@ _HARBOR = "harbor_master"
 _COMMONS = Path(__file__).resolve().parents[3].parent / "CairnCommons"
 
 
+def _crossing_roots() -> dict | None:
+    """Which world this device derives a boat's CROSSING RECORD from — ``None`` for the live one.
+
+    A READ, NOT A PARAMETER, and the precedent is ``clearance._crossing_roots`` (2026-09-10,
+    ticket d2ecdb867bc9). Since the crossings stopped being an array on the ticket, a fixture
+    that mints a boat in scratch has nowhere to put that boat's crossing except a journal, and
+    the derivation has to be told where to look. Making it an argument on ``_boats_named_on``
+    would put the world a device reads its evidence from into the hands of whoever posts the
+    message — the shape the clearance charter refuses. It takes no arguments for exactly that
+    reason: there is nothing here for a caller to pass.
+    """
+    return None
+
+
 def _resolved(path: str) -> str:
     """One spelling for one file. A relative path is read against class-space, which is
     where a repo-relative proof path in a ticket means."""
@@ -316,6 +330,7 @@ class CodeMotherDevice(BaseDevice):
         file, and a boat left behind by a string compare is exactly the parked boat this
         ticket exists to stop.
         """
+        from cairn.tools.base.crossings import proven_by_latest
         from cairn.tools.base.transitions import parse_workflow
         from cairn.tools.proof_coverage import load_tickets
 
@@ -330,15 +345,14 @@ class CodeMotherDevice(BaseDevice):
                     continue
             except Exception:      # noqa: BLE001 — a malformed cursor is the ticket
                 continue           # inspector's finding, not this handler's
-            for entry in reversed(ticket.get("crossings") or []):
-                if not isinstance(entry, dict) or not entry.get("proven_by"):
-                    continue
-                raw = entry["proven_by"]
-                named = [raw] if isinstance(raw, str) else [str(one) for one in raw if one]
-                if want in {_resolved(one) for one in named}:
-                    out.append({"ticket": str(ticket.get("id") or ""),
-                                "proven_by": named})
-                break              # the LATEST crossing that names any, and only it
+            # THE LATEST CROSSING THAT NAMES ANY, AND ONLY IT — derived from the journals
+            # since 2026-09-10 (ruling crossings-are-derived-never-written), and asked for
+            # by the name of the rule rather than re-implemented. This loop and
+            # proof_coverage._proven_by were the same eleven lines written twice, which is
+            # how two readers of one key drift into two rules without anyone deciding to.
+            named = proven_by_latest(str(ticket.get("id") or ""), _crossing_roots())
+            if named and want in {_resolved(one) for one in named}:
+                out.append({"ticket": str(ticket.get("id") or ""), "proven_by": named})
         return [one for one in out if one["ticket"]]
 
     # --- the watcher face, now actually reachable ---------------------------

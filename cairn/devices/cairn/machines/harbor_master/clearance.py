@@ -952,6 +952,17 @@ def mint_grant(*, minted_by: str, boat_id: str, to_actor: str, target: str,
     )
 
 
+def _crossing_roots() -> dict | None:
+    """Which world this gate derives a boat's CROSSING RECORD from — ``None`` for the live one.
+
+    A read, not a parameter, and the difference is Law 6's: a caller may not choose what
+    evidence the gate reads, but a PROOF may stand a fixture world behind the gate the same
+    way it stands a fixture owner behind ``boat_owner_of``. It takes no arguments for exactly
+    that reason — there is nothing here for a caller to pass.
+    """
+    return None
+
+
 def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
     """Every reason the proof(s) this crossing leans on do not COVER this boat — one pass.
 
@@ -968,6 +979,17 @@ def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
     the falsifier wearing a coat. A proof drives this the way the retirement teeth do —
     substitute the READ (``boat_owner_of``) and name proofs by ABSOLUTE path, which both
     instruments already resolve, so a fixture needs no door into the gate at all.
+
+    AND THE REFUSAL SURVIVED THE CROSSINGS MIGRATION BY MOVING, NOT BY BENDING. Since
+    2026-09-10 the ticket's record of crossings is DERIVED from the journals rather than
+    stored on the ticket, so "name proofs by absolute path and substitute the owner read" no
+    longer gives a fixture everything it needs — the record now lives on disk in two roots.
+    The answer is the second half of the same sentence: substitute the READ. ``_crossing_roots``
+    is a module-level read with no parameters, exactly like ``boat_owner_of``, so a proof can
+    stand a fixture world behind it and no CALLER is ever handed the choice. Handing the
+    caller its own ``proven_by`` instead was tried and is wrong: this rung reads the RECORD's
+    proofs where rule 2 reads THE CROSSING's, and collapsing the two lets a fresh
+    ``proven_by=`` walk a stale record past both.
     """
     ticket = owner.ticket
     if not isinstance(ticket, dict):
@@ -981,7 +1003,7 @@ def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
     # them all to the empty string. ``boat_id`` IS the id (a boat is its ticket, ruled
     # 2026-08-10) and rule 0c has already refused a crossing where the two disagree.
     ticket = {**ticket, "id": ticket.get("id") or boat_id}
-    return (list(coverage_lacks(ticket, repo_root=Path(CAIRN_ROOT)))
+    return (list(coverage_lacks(ticket, repo_root=Path(CAIRN_ROOT), roots=_crossing_roots()))
             + hollow_lacks(ticket, named))
 
 

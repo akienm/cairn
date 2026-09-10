@@ -43,6 +43,7 @@ import json
 import re
 from pathlib import Path
 
+from cairn.tools.base.crossings import has_crossings, proven_by_latest
 from cairn.tools.system_word import fold
 
 # ── the vocabulary of a printed tooth ────────────────────────────────────────────────
@@ -203,7 +204,7 @@ def declared(proof_path) -> dict:
     return {}
 
 
-def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
+def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> list[dict]:
     """Every reason this ticket is not covered by the proof it names — one entry per lack.
 
     EVERY lack, in one pass, never the first one found: a caller who fixes what he is told
@@ -218,6 +219,27 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
     and no seal store — the default reaches the real store through cairn.tools.base.validation,
     which is the read-side door for seals (tools may import devices; devices may not import
     each other).
+
+    ``roots`` is the WORLD THE CROSSINGS ARE DERIVED FROM — ``{"repo": ..., "commons": ...}``,
+    defaulting to the live three-root table. It exists for the same reason ``seal_reader``
+    does, and the reason is now sharper than injectability: since the crossings stopped
+    being an array on the ticket (ruling 2026-09-10-crossings-are-derived-never-written)
+    a caller holding a ticket dict no longer carries its own evidence. ``repo_root`` says
+    where the PROOFS are read from; ``roots`` says where the JOURNALS are. A fixture that
+    passed only the first would be checked against the live corpus's journals and derive
+    nothing for its own ticket — which is exactly what the fixtures did, and it reds
+    thirteen teeth rather than passing quietly, because absence of a crossing IS a lack.
+
+    THE PROOFS ARE NEVER TAKEN FROM THE CALLER, and that was tried and measured wrong on
+    2026-09-10. The clearance gate holds the crossing's own ``proven_by`` and it is tempting
+    to hand it here — but the gate's coverage rung deliberately reads a DIFFERENT set from
+    rule 2: rule 2 asks whether the proofs THIS crossing names stand, the rung asks whether
+    the proofs THE RECORD names cover the boat. Collapsing them lets a fresh ``proven_by=``
+    walk a stale record straight past both, which is the attack
+    ``test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED`` exists to hold shut. It
+    went green on the collapsed reader. So the reading stays derived, and a caller who wants
+    a different world says so with ``roots`` — which is where the evidence is, never what it
+    says.
     """
     if seal_reader is None:
         seal_reader = _latest_seal
@@ -229,7 +251,7 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
                       "the falsifier is empty or unreadable, so there is nothing a proof "
                       "could be checked against")]
 
-    named = _proven_by(ticket)
+    named = _proven_by(ticket, roots)
     if not named:
         # TWO LACKS, NOT ONE, and the split is a measurement rather than a courtesy.
         # Measured 2026-09-07 over the live corpus: of 230 tickets at PROVEME or beyond,
@@ -239,7 +261,7 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None) -> list[dict]:
         # find is a proof nobody checked), and collapsing them into one line would bury
         # nineteen actionable tickets under two hundred archaeological ones. Distinguishing
         # them is not an exemption: neither goes green, and the counts stay exact.
-        no_record = not (ticket.get("crossings") or [])
+        no_record = not has_crossings(tid, roots)
         return [_lack(tid,
                       "crossing_record_absent" if no_record else "proof_named",
                       "the ticket's latest crossing names the proof that proves it",
@@ -358,7 +380,7 @@ def _lack(ticket_id: str, kind: str, about: str, why: str, **values) -> dict:
     return {"ticket": ticket_id, "kind": kind, "about": about, "why": why, "values": values}
 
 
-def _proven_by(ticket: dict) -> list[str]:
+def _proven_by(ticket: dict, roots=None) -> list[str]:
     """The proof or proofs named by the LATEST crossing that names any — always a list.
 
     Latest, not first: a ticket kicked back to BUILDME and re-crossed names a new proof,
@@ -369,19 +391,15 @@ def _proven_by(ticket: dict) -> list[str]:
     one path there would force the crossing to lie about two thirds of the evidence.
     Duplicates are dropped and order is kept, so the first named proof stays the one a
     single-proof lack points at.
+
+    THE CROSSINGS COME FROM THE JOURNALS NOW, not from an array on the ticket
+    (ruling 2026-09-10-crossings-are-derived-never-written). The rule this function
+    implements is unchanged and is why the derivation offers it by name; what changed is
+    that a gate no longer reads evidence a hand wrote. Measured before the switch: 42
+    tickets carried a crossings list, 2 an empty one, 1 a prose string where this loop
+    parsed dicts — and NOTHING wrote any of them.
     """
-    for entry in reversed(ticket.get("crossings") or []):
-        if not isinstance(entry, dict) or not entry.get("proven_by"):
-            continue
-        raw = entry["proven_by"]
-        one = [raw] if isinstance(raw, str) else [str(p) for p in raw if p]
-        seen, out = set(), []
-        for p in one:
-            if p not in seen:
-                seen.add(p)
-                out.append(p)
-        return out
-    return []
+    return proven_by_latest(str(ticket.get("id") or ""), roots)
 
 
 def _latest_seal(path: Path, *, artifact: bool = False):

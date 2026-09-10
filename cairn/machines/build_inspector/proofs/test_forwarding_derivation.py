@@ -498,10 +498,43 @@ def test_k_the_reader_answers_the_fixture_and_the_live_repo(d: str) -> None:
 def test_l_the_M_flag_measurement_is_retaken_not_cited(d: str) -> None:
     """(xii) THE TICKET'S GATE (1) NAMES ``-C`` AND THIS BUILD SHIPS ``-M`` ALONE.
 
-    The reason is a measurement, so the proof re-takes it rather than quoting it:
-    git emits no copy records without ``--find-copies-harder``, so ``-M`` and
-    ``-M -C`` produce the identical record. Asserted as SET EQUALITY — an invariant
-    that stays true as the history grows, never a count.
+    The reason is a measurement, so the proof re-takes it rather than quoting it.
+
+    THE ORIGINAL CLAIM WAS "IDENTICAL RECORD" AND IT IS NOW MEASURABLY FALSE.
+    It read: git emits no copy records without ``--find-copies-harder``, so ``-M``
+    and ``-M -C`` produce the identical record. Over 673 records on 2026-09-10 they
+    produce the same COUNT and the same SOURCES, but two targets differ. The tooth
+    had already met this once and answered it with a carve-out permitting any extra
+    target whose name ends in ``__init__.py`` — a FILENAME ALLOWLIST, which is a
+    snapshot of what the corpus happened to hold wearing an invariant's clothes. It
+    reds the moment the corpus grows a second case, which is exactly what happened:
+    resealing ``cairn/tools/bus_client/validations/`` changed two files enough that
+    copy detection retargets
+
+        cairn/tools/base/validations/test_a_client_reaches_and_never_beats.json
+
+    away from its same-named successor in ``bus_client/validations/`` and onto a
+    DIFFERENTLY named file in that same directory.
+
+    SO THE TOOTH ASKS THE CONSUMER'S QUESTION INSTEAD OF GIT'S. ``_directory_home``
+    counts a vote only where ``final.endswith("/" + rel)`` — the basename must
+    survive the rename. A retarget that keeps the basename can still vote; one that
+    does not is silently dropped from the tally. That is the whole of what the flag
+    choice can cost, and it is measurable per pair:
+
+        -M's target preserves the source basename at least as often as -C's does.
+
+    An invariant, not a snapshot, and it stays true as the history grows because it
+    compares the two readings against each other rather than against a remembered
+    list. Measured today it holds on both disagreeing pairs — the ``__init__.py``
+    pair preserves the basename BOTH ways (git pairing content-free files
+    arbitrarily, which is why the old allowlist looked sufficient), and the
+    validation-JSON pair preserves it under ``-M`` and loses it under ``-C``.
+
+    THE SHIPPED FLAG DOES NOT CHANGE, AND ITS JUSTIFICATION GETS STRONGER. The
+    record was "-M is equivalent to -C, so either will do". The measurement says
+    "-M is never worse than -C and is sometimes better", which is a reason to ship
+    it rather than a shrug about which to ship.
 
     It matters beyond tidiness: where copy detection DOES surface it produced a
     wrong-but-existing target in the directory vote, which is clause (5) arriving by
@@ -524,13 +557,41 @@ def test_l_the_M_flag_measurement_is_retaken_not_cited(d: str) -> None:
          "tooth reds, the measurement that disposed the ticket's gate (1) was "
          "taken wrong and the shipped flags must be revisited. "
          f"Extra sources: {mc_sources - m_sources}")
-    m_targets = {pair[1] for pair in m_set}
-    mc_targets = {pair[1] for pair in mc_set}
-    extra_targets = mc_targets - m_targets
-    assert not extra_targets or all(
-        t.endswith("__init__.py") for t in extra_targets
-    ), ("-C changes non-trivial target pairings without --find-copies-harder: "
-        f"{extra_targets}")
+    # THE RECORD IS THE SAME SIZE. An extra record would be a copy git found without
+    # being asked, which is the thing the flag question is actually about.
+    assert len(m_set) == len(mc_set), \
+        ("-C changes the SIZE of the rename record without --find-copies-harder "
+         f"({len(m_set)} vs {len(mc_set)}); the flag measurement must be retaken")
+
+    # AND WHERE THEY DISAGREE ON A TARGET, -M IS NEVER THE WORSE READING — measured
+    # by the only property the consumer reads off a pair, not by a list of filenames.
+    m_by_source: dict = {}
+    mc_by_source: dict = {}
+    for bucket, pairs in ((m_by_source, m_set), (mc_by_source, mc_set)):
+        for old_path, new_path in pairs:
+            bucket.setdefault(old_path, set()).add(new_path)
+
+    def _votes(source: str, targets) -> int:
+        """How many of these targets could cast a directory vote for this source.
+
+        Mirrors ``_directory_home``'s own predicate: a vote is counted only where the
+        target ends in "/" + the source's tail, so a rename that changes the basename
+        contributes nothing to the tally no matter how real the move was.
+        """
+        tail = source.rsplit("/", 1)[-1]
+        return sum(1 for t in targets if t.endswith("/" + tail))
+
+    worse = {}
+    for source, m_targets in m_by_source.items():
+        mc_targets = mc_by_source.get(source, set())
+        if m_targets == mc_targets:
+            continue
+        if _votes(source, m_targets) < _votes(source, mc_targets):
+            worse[source] = {"-M": sorted(m_targets), "-M -C": sorted(mc_targets)}
+    assert not worse, \
+        ("-C preserves a source's basename where -M does not, so the shipped -M "
+         "record would lose a directory vote that copy detection keeps. The flag "
+         f"choice must be revisited: {worse}")
 
 
 def test_m_the_live_corpus_holds_the_two_ended_invariant(d: str) -> None:

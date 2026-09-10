@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_forwarding_derivation.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-10T14:07:35",
+    "caller": "sail 95e3b9911dd0",
+    "date": "2026-09-10T14:31:31",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "green test_a_dead_git_raises_and_never_answers_empty\ngreen test_b_forwarding_into_a_hole_is_declined\ngreen test_c_a_live_address_is_never_forwarded\ngreen test_d_a_dissolution_gets_no_manufactured_winner\ngreen test_e_a_cycle_terminates\ngreen test_f_a_suffix_breaking_vote_does_not_count\ngreen test_g_plurality_not_unanimity\ngreen test_h_a_bare_plurality_is_still_not_a_majority\ngreen test_i_the_hand_order_keeps_precedence\ngreen test_j_the_plain_and_transitive_follows_answer\ngreen test_ja_an_absolute_address_reaches_the_relative_record\ngreen test_jb_a_claimless_packet_still_reaches_the_derived_door\ngreen test_k_the_reader_answers_the_fixture_and_the_live_repo\nRED   test_l_the_M_flag_measurement_is_retaken_not_cited\n      AssertionError: -C changes non-trivial target pairings without --find-copies-harder: {'cairn/tools/bus_client/validations/test_the_three_faces_resolve_a_shim_from_disk.json', 'cairn/devices/cairn/machines/harbor_master/__init__.py'}\ngreen test_m_the_live_corpus_holds_the_two_ended_invariant\ngreen test_n_a_dead_reader_is_distinguishable_from_a_clean_corpus\n\n1 of 16 RED",
+      "returncode": 0,
+      "stdout_tail": "green test_a_dead_git_raises_and_never_answers_empty\ngreen test_b_forwarding_into_a_hole_is_declined\ngreen test_c_a_live_address_is_never_forwarded\ngreen test_d_a_dissolution_gets_no_manufactured_winner\ngreen test_e_a_cycle_terminates\ngreen test_f_a_suffix_breaking_vote_does_not_count\ngreen test_g_plurality_not_unanimity\ngreen test_h_a_bare_plurality_is_still_not_a_majority\ngreen test_i_the_hand_order_keeps_precedence\ngreen test_j_the_plain_and_transitive_follows_answer\ngreen test_ja_an_absolute_address_reaches_the_relative_record\ngreen test_jb_a_claimless_packet_still_reaches_the_derived_door\ngreen test_k_the_reader_answers_the_fixture_and_the_live_repo\ngreen test_l_the_M_flag_measurement_is_retaken_not_cited\ngreen test_m_the_live_corpus_holds_the_two_ended_invariant\ngreen test_n_a_dead_reader_is_distinguishable_from_a_clean_corpus\n\nall 16 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_dead_git_raises_and_never_answers_empty",
@@ -23,17 +23,16 @@
         "test_ja_an_absolute_address_reaches_the_relative_record",
         "test_jb_a_claimless_packet_still_reaches_the_derived_door",
         "test_k_the_reader_answers_the_fixture_and_the_live_repo",
+        "test_l_the_M_flag_measurement_is_retaken_not_cited",
         "test_m_the_live_corpus_holds_the_two_ended_invariant",
         "test_n_a_dead_reader_is_distinguishable_from_a_clean_corpus"
       ],
-      "teeth_red": [
-        "test_l_the_M_flag_measurement_is_retaken_not_cited"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "c82071d0633b28eaccf84b11f76d974be46d2dac6175fa51418c4692edeadab3",
+      "source_fingerprint": "582c99e63fc2e534ff173adda1d9de445e1eb0575e099b67a8586437b656f324",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -71,7 +70,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-652741-50kj41jz/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-739512-uk1u1_pq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -84,17 +83,8 @@
           "disk_bytes": 133890048,
           "entries": 4317,
           "builds": 1,
-          "reuses": 18
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "2824b9f298308b6f85b26397e2cae8e80068a776265e780cb3896d224dc7a87c",
-        "opened": "2026-09-10T13:11:57",
-        "last_red": "2026-09-10T14:07:35",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

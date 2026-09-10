@@ -1137,3 +1137,81 @@ def test_the_migration_names_a_notes_reshape_and_refuses_a_shape_it_cannot_carry
         f"the run skipped a ticket silently instead of reporting the refusal: {report['refused']}"
     assert refused["d1c7d1c7d1c7"]["notes_shape"] == "dict", refused["d1c7d1c7d1c7"]
     return True
+
+
+def test_an_unmeasurable_baseline_says_whether_the_proof_failed_or_never_ran():
+    """THE 24TH TOOTH — a refusal that sends the reader to the right place.
+
+    HOW THIS WAS FOUND, because the finding is about a message and not about a number.
+    Ticket 95e3b9911dd0's own live fire — the voyage measuring itself, which is what the
+    criterion asked for — came back:
+
+        hollow: these declared teeth are not green at HEAD, so no reversion reading can be
+        attributed to a file: {"cairn/devices/tester/proofs/test_hollow.py": [ ...nine... ]}
+
+    Nine teeth named, all nine healthy. The suite was green twice on that exact tree at
+    264.72s and 234.01s, and ``cairn test --hollow`` passes ``--timeout`` (default 120s)
+    straight through to ``run_proof``. So the proof was KILLED at 120s, printed no tooth at
+    all, and every declared tooth read "not green" — a true sentence that points at nine
+    files to repair when the entire fix is one flag.
+
+    THE INFORMATION WAS NEVER MISSING. ``device.run_proof``'s ``TimeoutExpired`` arm already
+    records ``returncode: None`` and ``timed out after Ns``, and deliberately writes
+    ``teeth_green``/``teeth_red`` as EMPTY rather than absent so that "we did not look" and
+    "we looked and found none" stay distinguishable downstream. ``run_all`` then read the two
+    tooth lists and dropped the rest of the record on the floor, which is where the
+    distinction died — one line after it was carefully preserved.
+
+    Law 7: a diagnostic surface may collapse an error into a coherent shape only when it is
+    not a record of truth, and this refusal is the record hollow leaves behind. "Not green"
+    was coherent and wrong about what to do next, which is the specific failure the Law names.
+
+    THE TOOTH ASSERTS THE DISTINCTION, NOT THE WORDING — both arms run the same measurement
+    against the same fixture and differ only in what the tester reports, so a message that
+    stops separating them reds here.
+    """
+    tmp = scratch_dir("cairn-hollowcause-")
+    repo, commons = _fixture(tmp)
+
+    class TimedOut:
+        """What device.py writes when a proof is killed: no returncode, empty tooth lists."""
+        def run_proof(self, path, **kw):
+            return {"evidence": {"returncode": None, "stdout_tail": "",
+                                 "stderr_tail": "timed out after 120s",
+                                 "teeth_green": [], "teeth_red": []}}
+
+    class ToothFailed:
+        """What device.py writes when the proof RAN and a declared tooth asserted false."""
+        def run_proof(self, path, **kw):
+            return {"evidence": {"returncode": 1, "stdout_tail": "", "stderr_tail": "",
+                                 "teeth_green": ["test_something_else"],
+                                 "teeth_red": ["test_value_is_two"]}}
+
+    def refusal(tester) -> str:
+        try:
+            measure(FIXTURE, repo_root=repo, commons=commons,
+                    berths_root=_berths_root(tmp), timeout=120, tester=tester)
+        except HollowUnmeasurable as exc:
+            return str(exc)
+        raise AssertionError("hollow was supposed to refuse an unmeasurable baseline and did not")
+
+    killed = refusal(TimedOut())
+    failed = refusal(ToothFailed())
+
+    # THE KILLED RUN SAYS SO, AND SAYS WHAT TO DO. The old message said neither.
+    assert "never finished" in killed, killed
+    assert "timed out after 120s" in killed, killed
+    assert "--timeout" in killed, killed
+    assert '"teeth_that_ran_at_all": 0' in killed, killed
+
+    # THE FAILED TOOTH IS NOT DESCRIBED AS A TIMEOUT — the arm that would make the repair
+    # above a lie by firing on both.
+    assert "never finished" not in failed, failed
+    assert "--timeout" not in failed, failed
+    assert "assertion failed" in failed, failed
+    # It ran: two teeth printed, one of them the declared one that went red.
+    assert '"teeth_that_ran_at_all": 2' in failed, failed
+
+    # AND BOTH STILL NAME THE DECLARED TOOTH THAT IS MISSING — the repair adds a cause, it
+    # does not trade the original finding away for it.
+    assert "test_value_is_two" in killed and "test_value_is_two" in failed

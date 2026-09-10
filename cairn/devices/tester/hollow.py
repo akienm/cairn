@@ -440,8 +440,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     wt = scratch_worktree(head, repo_root=repo_root)
     log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} (BUILDME at {at})")
 
-    def run_all() -> tuple[dict[str, set[str]], dict[str, int]]:
-        """Each named proof's green teeth AND how many teeth it printed at all, run in the worktree.
+    def run_all() -> tuple[dict[str, set[str]], dict[str, int], dict[str, str]]:
+        """Each named proof's green teeth, how many teeth it printed at all, and why it printed none.
 
         THE SECOND NUMBER IS NOT BOOKKEEPING — it is what keeps this instrument from reading
         green for the wrong reason. A reverted file can red a tooth two ways: the tooth ran and
@@ -457,10 +457,12 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         """
         green: dict[str, set[str]] = {}
         ran: dict[str, int] = {}
+        why_none: dict[str, str] = {}
         for rel in proofs:
             path = wt / rel
             if not path.is_file():
                 green[rel], ran[rel] = set(), 0
+                why_none[rel] = "the proof file does not exist at this commit"
                 continue
             _purge_bytecode(wt)
             record = tester.run_proof(path, sink="none", caller="cairn test --hollow",
@@ -468,18 +470,51 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             ev = record["evidence"]
             green[rel] = set(ev.get("teeth_green") or [])
             ran[rel] = len(green[rel]) + len(ev.get("teeth_red") or [])
-        return green, ran
+            if not ran[rel]:
+                # A PROOF THAT PRINTED NO TOOTH AT ALL DID NOT FAIL — IT NEVER RAN, and the
+                # two are a different finding with a different fix. The record already knows
+                # which: a timeout comes back returncode None with the seconds in its stderr
+                # tail (device.py's TimeoutExpired arm), an import error or crash comes back
+                # with a real returncode and a traceback. Reaching into the record for it here
+                # is the whole of the repair — the information was always present and this
+                # function was discarding it one line later.
+                rc = ev.get("returncode")
+                tail = (ev.get("stderr_tail") or "").strip()
+                if rc is None:
+                    why_none[rel] = (f"the proof did NOT fail — it never finished: {tail or 'killed'}. "
+                                     f"Re-run with a larger --timeout (currently {timeout}s).")
+                else:
+                    why_none[rel] = (f"the proof did NOT fail — it never reached a check "
+                                     f"(exit {rc}, a broken import or a crash): "
+                                     f"{tail.splitlines()[-1] if tail else 'no output'}")
+        return green, ran, why_none
 
-    baseline, baseline_ran = run_all()
+    baseline, baseline_ran, baseline_why = run_all()
     missing = {rel: sorted(set(declared_teeth[rel]) - baseline[rel]) for rel in proofs}
     missing = {k: v for k, v in missing.items() if v}
     if missing:
         # A DECLARED TOOTH THAT IS NOT GREEN AT HEAD makes every later reading unreadable: it
         # would show up red under every reversion and name every file load-bearing. Loud, and
         # the run stops — this is a red about the proof, not a finding about a file.
+        #
+        # AND THE MESSAGE NAMES *WHICH* RED. Until 2026-09-10 this said "these declared teeth
+        # are not green at HEAD" for both of the two ways a tooth can be missing, and those
+        # two send a reader to opposite places. A tooth that RAN and FAILED is a broken proof
+        # to repair. A proof that printed NO tooth at all ran out of time or died on import —
+        # nothing is broken and the fix is a flag. The measured case that exposed it: ticket
+        # 95e3b9911dd0's own live fire, where test_hollow.py needs ~250s and the default
+        # timeout is 120s, so all nine declared teeth read "not green" and the finding pointed
+        # at nine healthy teeth instead of at one number. Law 7 — a diagnostic surface may not
+        # collapse an error into a coherent shape, and "not green" was exactly that shape:
+        # true as far as it went, and wrong about what to do next.
+        detail = {rel: {"teeth_not_green": lost,
+                        "of_declared": len(declared_teeth[rel]),
+                        "teeth_that_ran_at_all": baseline_ran[rel],
+                        "cause": baseline_why.get(rel, "the tooth ran at HEAD and its assertion failed")}
+                  for rel, lost in missing.items()}
         raise HollowUnmeasurable(
-            f"hollow: these declared teeth are not green at HEAD, so no reversion reading can "
-            f"be attributed to a file: {json.dumps(missing)}")
+            f"hollow: no reversion reading can be attributed to a file — "
+            f"{json.dumps(detail, indent=2)}")
 
     measured: dict[str, list[str]] = {}
     unran: dict[str, list[str]] = {}
@@ -500,7 +535,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             log(f"  UNWRIT {rel}  (identical at the pre-build commit — the build did not write it)")
             continue
         try:
-            after, after_ran = run_all()
+            after, after_ran, _ = run_all()
         finally:
             _restore(wt, rel)
         # DECLARED TEETH ONLY, and the filter is the ticket's bound rather than a nicety.

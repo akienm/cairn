@@ -49,7 +49,7 @@ from cairn.devices.tester.validation_store import (
     standing_seal,
     validations_path_for,
 )
-from cairn.tools.base import bus_client
+from cairn.tools import bus_client
 from cairn.devices.db_domain import store
 
 # Clause (1) is the message; clause (4) is the seal surviving codemother's absence.

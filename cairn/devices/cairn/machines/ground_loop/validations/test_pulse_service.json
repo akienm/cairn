@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_pulse_service.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:23:48",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:08:22",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -24,10 +24,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7c5fa8a02b527b4b022f77d8ffc4b207cc7ff2eb4f0ebb189a15f4d46b456705",
+      "source_fingerprint": "facff0903643cd10d310f0a980e79a0cff64bc3aed8570ef890ef59052132526",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -55,48 +55,48 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-kiswwfi6/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-mltywc8m/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 27,
           "paths": [
-            "logs/ground_loop/0/20260909.232347.226766.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.227211.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.349997.GroundLoopDevice.pulse_deactivated.json",
-            "logs/ground_loop/0/20260909.232347.350266.GroundLoopDevice.undiscovered.json",
-            "logs/ground_loop/0/20260909.232347.424341.GroundLoopDevice.pulse_refused.json",
-            "logs/ground_loop/0/20260909.232347.553250.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.553402.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.606524.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.606696.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.765755.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.765920.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.820018.GroundLoopDevice.pulse_deactivated.json",
-            "logs/ground_loop/0/20260909.232347.820153.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.877030.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.877197.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.877327.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.939558.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232347.939737.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232347.996569.GroundLoopDevice.pulse_deactivated.json",
-            "logs/ground_loop/0/20260909.232348.055633.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232348.055790.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232348.055917.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232348.056025.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232348.125368.GroundLoopDevice.pulse_activated.json",
-            "logs/ground_loop/0/20260909.232348.125592.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232348.187965.GroundLoopDevice.pulse_deactivated.json",
-            "logs/ground_loop/0/20260909.232348.254063.GroundLoopDevice.pulse_activated.json"
+            "logs/ground_loop/0/20260910.050820.729154.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050820.729567.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050820.836495.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260910.050820.836715.GroundLoopDevice.undiscovered.json",
+            "logs/ground_loop/0/20260910.050820.885702.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260910.050820.983479.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050820.983623.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.034279.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.034443.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.216754.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.216947.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.275846.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260910.050821.275969.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.333612.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.333763.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.333887.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.385280.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.385440.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.434744.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260910.050821.485836.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.485974.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.486085.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.486193.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.535855.GroundLoopDevice.pulse_activated.json",
+            "logs/ground_loop/0/20260910.050821.536016.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050821.586873.GroundLoopDevice.pulse_deactivated.json",
+            "logs/ground_loop/0/20260910.050821.636108.GroundLoopDevice.pulse_activated.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121073304,
-          "disk_bytes": 131477504,
-          "entries": 4246,
+          "bytes": 123111018,
+          "disk_bytes": 133734400,
+          "entries": 4317,
           "builds": 1,
-          "reuses": 13
+          "reuses": 9
         }
       }
     },

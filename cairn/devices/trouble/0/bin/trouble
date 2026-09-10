@@ -17,7 +17,7 @@ case "$subcmd" in
   live)
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 
 as_json = '--json' in sys.argv[1:]
 bus = reach('trouble')
@@ -50,7 +50,7 @@ for t in troubles:
   clear)
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 
 args = sys.argv[1:]
 identity = args[0] if args and not args[0].startswith('--') else ''
@@ -90,7 +90,7 @@ else:
   drain)
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 # reach() pulses the shim, and the shim drains on pulse — so this has already happened by
 # the time the bus comes back. The subcommand exists so an operator can MAKE it happen
 # without waiting for a beat, and see what the fold did.

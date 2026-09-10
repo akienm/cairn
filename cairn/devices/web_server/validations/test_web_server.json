@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_web_server.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:26:41",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:15:40",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -21,10 +21,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "55df2d738521a0926b1fb76838d4ed779a709ef777b834a4fa7744e6e7ebbb29",
+      "source_fingerprint": "03387aeec770b6cc1eac328db2c98ad77e73bf3c9c5e086904d5fc050e3c419b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -61,37 +61,37 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-u8_xgvo_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-b_i5vkru/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 16,
           "paths": [
-            "logs/ground_loop/0/20260909.232641.621543.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.621780.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.622128.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.622265.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.622676.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.622800.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.623104.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.623231.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.623651.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.623776.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.624205.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.624330.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.624651.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.624775.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.625301.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232641.625428.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260910.051539.937651.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.937902.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.938268.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.938406.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.938825.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.938955.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.939299.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.939426.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.939872.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.940005.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.940455.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.940625.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.940994.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.941127.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.941680.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051539.941815.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121066777,
-          "disk_bytes": 131432448,
-          "entries": 4235,
+          "bytes": 123104494,
+          "disk_bytes": 133689344,
+          "entries": 4306,
           "builds": 1,
-          "reuses": 34
+          "reuses": 55
         }
       }
     },

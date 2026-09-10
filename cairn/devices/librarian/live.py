@@ -46,7 +46,7 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.library import learn as learn_verb
 from cairn.devices.librarian.library import shelve

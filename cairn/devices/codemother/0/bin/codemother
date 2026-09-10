@@ -36,7 +36,7 @@ proven_by = _flag('--proven-by')
 if not proven_by:
     print('cross needs --proven-by <proof path>: Law 8 asks a hand to name the proof that stands, and no ticket field carries one (censused 2026-09-09: 0 of 258).')
     sys.exit(1)
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 bus = reach('codemother', 'harbor_master')
 body = {'ticket': ticket, 'target': target, 'proven_by': proven_by}
 for flag, key in (('--history', 'history_path'), ('--state', 'state_path'), ('--workflow', 'workflow')):

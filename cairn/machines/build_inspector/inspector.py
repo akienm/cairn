@@ -3392,7 +3392,7 @@ def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
     `clear` per stale one — on the reasoning that clearing is a read-modify-write and so
     belongs to the one hand that owns the store. That reasoning was correct. The conclusion
     was not: it put the READ and the DIFFERENCE on this side and only the WRITE on trouble's,
-    and it made this module a bus client. ``cairn.tools.base.bus_client`` imports
+    and it made this module a bus client. ``cairn.tools.bus_client`` imports
     ``inference_domain`` and, through the bus device, ``db_domain`` — so the build inspector,
     the one machine that must be able to reach no graph tree, no database and no host, could
     statically reach all three. Its OWN sieve caught it: ``fire_path_unreachable``, 4 findings,

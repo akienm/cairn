@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 
 _INSTANCE_ROOT = instance_path("codemother", 0)
 _WATCH_LOG = _INSTANCE_ROOT / "watch"

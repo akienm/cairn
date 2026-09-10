@@ -30,7 +30,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.charter import projector
-from cairn.tools.operator_inbox.inbox import cursor_of, is_stage_token, status_label
+from cairn.tools.operator_inbox.inbox import (
+    cursor_of, is_stage_token, status_label, with_derived_phase,
+)
 from cairn.devices.cairn.machines.harbor_master import register
 
 _SRC_ROOT = _REPO_ROOT.parent   # ~/dev/src — the root the register's source pointers are relative to
@@ -60,7 +62,15 @@ def test_register_is_an_index_not_a_rival_record():
     # OPEN: the standing IS the one label the one reader derives from the ticket's OWN string.
     for b in reg["open"]:
         ticket = json.loads(_abs(b["source"]).read_text(encoding="utf-8"))
-        own = status_label(cursor_of(ticket["workflow_and_state"]))
+        # THROUGH THE ONE READER, INCLUDING ITS DERIVED HALF. ``in-process`` is never stored
+        # on a ticket (2026-09-08 ruling: it is runtime state and the file is git-tracked), so
+        # the label the register shows for a ticket under a LIVE sail legitimately differs
+        # from the string in the file. Recomputing ``own`` from the file alone made this proof
+        # the second reader it exists to forbid — measured 2026-09-09, when it red with
+        # "register standing 'TICKETME:in-process' is not the ticket's own label
+        # 'TICKETME:waiting'" against the very sail that was building it.
+        own = status_label(with_derived_phase(
+            cursor_of(ticket["workflow_and_state"]), ticket["id"]))
         assert b["standing"] == b["label"] == own, (
             f"{b['id']}: register standing '{b['standing']}' is not the ticket's own label "
             f"{own!r} — a second reader (Law 7, ticket 3feb201c84ea)")

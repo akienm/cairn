@@ -25,13 +25,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-from cairn.tools.base import bus_client
+from cairn.tools import bus_client
 
 # THE PROBE IS IMPORTED INSIDE THE TEETH THAT CHECK IT, NEVER AT MODULE LEVEL. The hollow
 # check reverts the build file by file and asks which teeth red; a module-level import of the
 # probe would make its removal break the whole proof (no teeth printed — "unreadable") instead
 # of redding (ii), (iii), (iv). Measured 2026-09-09 on this very file, first hollow run.
-_PROBE_MOD = "cairn.tools.base.probes.a_client_reaches_and_never_beats"
+_PROBE_MOD = "cairn.tools.bus_client.probes.a_client_reaches_and_never_beats"
 
 
 def _probe():
@@ -115,7 +115,7 @@ def test_ii_the_walk_names_a_planted_client_and_nothing_else():
         (root / "pkg").mkdir()
         (root / "pkg" / "client.py").write_text(
             '"""a docstring that says connect_bus and connect_system is not a caller."""\n'
-            "from cairn.tools.base.bus_client import connect_bus\n"
+            "from cairn.tools.bus_client import connect_bus\n"
             "\n"
             "def wire():\n"
             "    # a comment naming connect_bus() is not a caller either\n"
@@ -125,18 +125,18 @@ def test_ii_the_walk_names_a_planted_client_and_nothing_else():
             encoding="utf-8")
         (root / "pkg" / "proofs").mkdir()
         (root / "pkg" / "proofs" / "test_beat_cost.py").write_text(
-            "from cairn.tools.base.bus_client import connect_bus\nbus = connect_bus()\n",
+            "from cairn.tools.bus_client import connect_bus\nbus = connect_bus()\n",
             encoding="utf-8")
         for rel in RUNNER_ROSTER:
             p = root / rel
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text("import cairn.tools.base.bus_client as bc\nbus, loop = bc.connect_system()\n",
+            p.write_text("import cairn.tools.bus_client as bc\nbus, loop = bc.connect_system()\n",
                          encoding="utf-8")
         (root / "pkg" / "broken.py").write_text("def (:\n", encoding="utf-8")
         found = walk_client_callers(root)
         assert found == [{"file": "pkg/client.py", "line": 6, "callee": "connect_bus"}], found
         (root / "pkg" / "attr.py").write_text(
-            "import cairn.tools.base.bus_client as bc\nb = bc.connect_system(beat=True)\n",
+            "import cairn.tools.bus_client as bc\nb = bc.connect_system(beat=True)\n",
             encoding="utf-8")
         found = walk_client_callers(root)
         assert [f["file"] for f in found] == ["pkg/attr.py", "pkg/client.py"], found

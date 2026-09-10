@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_stale_restart.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:23:50",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:08:24",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -12,10 +12,10 @@
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f48780b83736aa91faf05951d3214072705801d761224341ad75c4aa8bfde4ed",
+      "source_fingerprint": "12e5381ce5a8343dcf0c7b1f6cede4816136f967b7a8f4fdb0ea24db510f7f5b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -48,24 +48,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-5cgd0teg/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-f2v9def_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/ground_loop/0/20260909.232350.564899.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232350.634089.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232350.634449.GroundLoopDevice.discovered.json"
+            "logs/ground_loop/0/20260910.050824.170076.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050824.244972.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050824.245396.GroundLoopDevice.discovered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121064553,
-          "disk_bytes": 131379200,
-          "entries": 4222,
+          "bytes": 123102270,
+          "disk_bytes": 133636096,
+          "entries": 4293,
           "builds": 1,
-          "reuses": 15
+          "reuses": 11
         }
       }
     },

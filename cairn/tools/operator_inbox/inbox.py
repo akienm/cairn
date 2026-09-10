@@ -193,7 +193,7 @@ def owning_component(owning_intention) -> str:
 
 def _ticket_record(path: Path, ticket: dict) -> dict:
     cursor = cursor_of(ticket.get("workflow_and_state", ""))
-    cursor = _with_derived_phase(cursor, ticket.get("id") or path.stem[:12])
+    cursor = with_derived_phase(cursor, ticket.get("id") or path.stem[:12])
     return {
         "id": ticket.get("id") or path.stem[:12],
         "title": ticket.get("title", "") or "",
@@ -206,14 +206,22 @@ def _ticket_record(path: Path, ticket: dict) -> dict:
     }
 
 
-def _with_derived_phase(cursor: str | None, ticket_id: str) -> str | None:
+def with_derived_phase(cursor: str | None, ticket_id: str) -> str | None:
     """Overlay the DERIVED ``in-process`` phase (2026-09-08). ``in-process`` is never stored
     on the ticket — it is runtime state and the ticket is git-tracked and shared — so the one
     place it can be true is a live sail record in instance-space, read here at display time.
 
     STATELESS BY CONSTRUCTION, which is the property that makes it safe: nothing writes it
     and nothing has to remember to clear it, so a session that dies takes its claim with it.
-    A lack reads as "no live sail", never as an exception (Law 7)."""
+    A lack reads as "no live sail", never as an exception (Law 7).
+
+    PUBLIC SINCE 2026-09-09 (ticket dd8ad9702b49, fixed in passing under the bounds ruling),
+    because it was private and therefore uncallable, and the FIRST consequence of that was
+    exactly the drift the one-reader rule exists to stop: harbor_master's own register proof
+    recomputed the label as ``status_label(cursor_of(...))`` — skipping this overlay — and
+    went red the moment a live sail made the register read ``:in-process`` while the ticket
+    file still said ``:waiting``. Neither record was wrong; there were two readers. An
+    overlay that only one module can reach is a one-reader rule with a private door."""
     if not cursor:
         return cursor
     base = cursor.split(":", 1)[0]

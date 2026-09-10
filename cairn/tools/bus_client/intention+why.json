@@ -1,0 +1,42 @@
+{
+  "component": "bus_client",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "what": "The three faces that get a process onto the bus: reach(*devices) wires a delivery hook per named device and pays no heartbeat; connect_bus and connect_system wire and beat. Plus harbor_source and inference_seam, the two named seams built on them, and the shim loader they share.",
+  "why": "A process that wants to ask one device one question should not have to run the system to do it. Measured 2026-09-09: connect_bus() costs 23.5s on this machine and reach('inference_domain') costs 0.23s, and five clients were paying the first price for the second job. reach exists so the cost of speaking matches the size of what is said.",
+  "entry": "GRAFTED by git mv from cairn/tools/base/bus_client.py on 2026-09-09, ticket dd8ad9702b49, with its probe, its proof and that proof's standing validation. Not a fresh build and not a rewrite: the module's bytes are unchanged but for one comment naming its own address, and the fc93d8cd5961 reach-not-beat contract rides through untouched. _CLASS_ROOT is Path(__file__).resolve().parents[3] at both addresses, so the move needed no depth fix — measured, not assumed.",
+  "invoke": "`from cairn.tools.bus_client import reach` — the client's face, and the one nearly every caller wants. `connect_bus` / `connect_system` are the RUNNER's faces and belong to the web server listener and the ground loop's own process; a client that calls them is a finding, not a style choice. No CLI door: it is composed by whoever needs to speak, never run at a person.",
+  "state_and_history": "state.json + history.json beside this charter, born at this ticket's BUILDME crossing on 2026-09-09. A TOOL HOLDS NO STATE OF ITS OWN (Law 6): the bus state it touches berths under the holder that assembled the client, at ~/.cairn/devices/<device>/<instance>/, and is that holder's to own and gate. That is precisely why this is a tool and not a machine — there is nothing at THIS address whose writes need gating.",
+  "how_it_learns": "It does not, and it holds nothing to learn from. What learns is the roster around it: probes/a_client_reaches_and_never_beats.py walks class-space every time it fires and names any client that reached for a beating face, so the census of who calls which face is the thing that grows. The module itself is the same three functions it was.",
+  "gates": "proof gate — proofs/test_a_client_reaches_and_never_beats.py: five teeth over the two faces, an AST walk that distinguishes a CALL from the word in a docstring, a live walk over class-space that must come back empty, and a fixture tooth that plants a client and checks the walk names it and nothing else. Determinism gate — bin/cmd/determinism must report this component REACHING cairn.devices.inference_domain: the reach is real and belongs here, and a report that lost it would mean the walk went blind, not that the code got cleaner. Importer gate — the corpus walk in the second proof: an import site left at cairn.tools.base.bus_client anywhere in cairn/, bin/ or skills/ reds, and records (history.json, state.json, intention+why.json) are excluded by KIND rather than by exception, because a record naming the old address is telling the truth about where this code came from.",
+  "falsifier": "DONE while bin/cmd/determinism shows cairn/tools/base carrying no llm edge AND cairn/tools/bus_client carrying one — the reach relocated rather than vanished. WRONG INTENT if the determinism walk's component granularity is itself the defect (a gate judged on the gate module's own closure rather than its directory's), in which case this address change bought nothing and the question is ticket 675ab0daa171's, at Akien's gate. My read: the move is right regardless — base is a bag of unrelated primitives and a bus reacher never belonged in the gate's directory.",
+  "proof": "proofs/test_a_client_reaches_and_never_beats.py. Its teeth were proved capable of failing at this address rather than assumed to be: run once with the probe's own path strings left naming cairn/tools/base, the third tooth reds with 'roster names a file that is not there'; rewritten, 5/5 green. That is the difference between a green and a green that means something. AND proofs/test_the_three_faces_resolve_a_shim_from_disk.py — the second half of this ticket's PROVED gate, in the gate's own words: the three faces resolve a shim FROM DISK, and every importer in class-space imports at the new address, RUN rather than grepped. Five teeth: a device planted on disk is found and the same device with its shim.py deleted is lost (the file IS the declaration, measured both ways in one tooth); all three faces route through the one loader and build their shim from the file at cairn/devices/<name>/shim.py; harbor_master — a device nested under a machine — still resolves where discovery says, which is the regression ticket 8754ae677af6 measured the day before; reach refuses an unknown name loudly and names the address it looked at; and the corpus walk imports 18 modules for real across 25 files that name the client. That last tooth PARSES rather than greps, because three files name the departed address in prose as provenance and the moved probe names live paths as string literals — a text search cannot tell a sentence about the past from a path the interpreter will follow. Proved capable of failing 2026-09-09: a one-line module importing the old address, planted in this directory, reds the walk outright.",
+  "feedback": {
+    "to": "cairn/devices/codemother",
+    "why": "A client found paying the beat is a care-of-the-code finding — the cost is measured and the fix is a one-word change of face, which is exactly the class codemother reviews adversarially toward the code."
+  },
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Akien owns the ruling this address exists to satisfy — 'NO GATES MAY CONSULT ORACLES EVER PERIOD', 2026-08-13. CC writes the code and the proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "traces_to": [
+    "Law 4 (a rule that matters is enforced by physics — the client cannot reach an oracle from inside the gate's directory because it is not in the gate's directory; nothing asks anyone to remember)",
+    "Law 3 (nothing is known until measured — 23.5s against 0.23s is why reach exists, and eight VIOLATION blocks going to zero is why this address does)",
+    "Law 8 (a false green gets leaned on by a peer — hence the determinism gate above demands the reach still be VISIBLE here, not merely absent from base)",
+    "Law 6 (everything has exactly one owner except a tool, which has users — the test this component passes, and the reason it is a tool)"
+  ],
+  "provenance": "Born 2026-09-09 from ticket dd8ad9702b49, itself born of a standing deterministic red: 'A GATE CONSULTS AN ORACLE: cairn/tools/base', reported by cairn/tools/determinism since 2026-08-31. The chart measured the ticket's own HOW incomplete — eight violations stood, not one, and seven were a different edge entirely — so the voyage cleared all eight, under the standing ruling CairnCommons/decisions/2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage.json.",
+  "claim_provenance": {
+    "what": "cc-read",
+    "why": "cc-measured",
+    "entry": "cc-measured",
+    "owner": "akien-verbatim"
+  },
+  "learns": "no — a tool with no state of its own has nothing to learn from; see how_it_learns for what learns around it",
+  "filed_edges": [
+    "ticket 675ab0daa171 (a seal fingerprints the import closure, not the directory) — the coherent opposite reading of this whole move, unruled, and at Akien's gate rather than in this build",
+    "ticket sole-path-sees-subprocess-and-dynamic-import — a subprocess dials and imports nothing, and a dynamic import is invisible, so this tool's user census has a measured blind spot"
+  ]
+}

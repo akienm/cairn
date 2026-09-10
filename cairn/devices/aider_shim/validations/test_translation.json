@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_translation.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:57:19",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:07:14",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -39,10 +39,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "bad83037b357138e0f3a756c0853f7c06019bab23da79dc05c30c6f9b6f99b94",
+      "source_fingerprint": "e55ce76ef9723c490c1e4866309163935093358be1a727e881f4b1883d05afcc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -67,7 +67,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1397501-0uit1dah/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-5743b8m2/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,11 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 121063967,
-          "disk_bytes": 131366912,
-          "entries": 4217,
+          "bytes": 123101502,
+          "disk_bytes": 133623808,
+          "entries": 4288,
           "builds": 1,
-          "reuses": 1
+          "reuses": 3
         }
       }
     },

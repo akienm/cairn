@@ -64,47 +64,14 @@ from cairn.devices.tester.validation_store import (
 )
 from cairn.tools.system_word import fold_flags
 
-# The repo root: cairn/devices/tester/cli.py -> cairn/devices/tester -> cairn -> root
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# discover() AND REPO_ROOT LIVE IN discovery.py, and they left this file for an import-graph
+# reason: _announce_seals below reaches the bus, the bus client imports inference_domain, and
+# cairn/tools/base/validation.py imports THIS MODULE for discover alone — which put a static
+# path to an oracle inside seven gate components. Measured 2026-09-09, ticket dd8ad9702b49.
+# Re-exported here so the command's public surface is exactly what it was.
+from cairn.devices.tester.discovery import REPO_ROOT, discover  # noqa: E402
 
-
-def discover(targets: list[str]) -> list[Path]:
-    """Resolve CLI targets to proof files.
-
-    A directory (or no argument at all, meaning the repo) expands to every
-    ``*/proofs/test_*.py`` beneath it. Sorted, because an unstable run order makes an
-    intermittent red impossible to attribute — the one failure mode a proof suite must
-    never add on its own.
-    """
-    if not targets:
-        targets = [str(REPO_ROOT)]
-    found: list[Path] = []
-    for t in targets:
-        p = Path(t)
-        if not p.is_absolute():
-            p = (Path.cwd() / p).resolve()
-        if p.is_file():
-            found.append(p)
-        elif p.is_dir():
-            # BOTH SHAPES, because the obvious thing to type is a ``proofs/`` directory and
-            # the pattern below cannot match it: ``**/proofs/test_*.py`` requires a
-            # ``proofs`` segment BENEATH the directory given, so pointing this command at
-            # ``cairn/tools/base/proofs/`` found ZERO files and the run reported success on
-            # whatever else was named alongside it. Measured 2026-09-07 while sealing a
-            # six-target run: 3 proofs found where 14 were asked for. That is exactly the
-            # hollow green the docstring above forbids, wearing the one disguise it did not
-            # check for — a correct-looking count.
-            found.extend(p.glob("**/proofs/test_*.py"))
-            if p.name == "proofs":
-                found.extend(p.glob("test_*.py"))
-        else:
-            # Loud, and it exits non-zero below. A typo'd path that silently ran zero
-            # proofs and reported success is a hollow green (Law 8) — the worst outcome
-            # this command could produce, because it looks exactly like a good one.
-            print(f"cairn test: no such path: {t}", file=sys.stderr)
-            found.append(Path(t))  # kept so the run reports it as unrunnable, not skipped
-    # dedupe, keep determinism
-    return sorted(set(found))
+__all__ = ["REPO_ROOT", "discover", "main"]
 
 
 def _hollow_run(args) -> int:
@@ -291,7 +258,7 @@ def _announce_seals(tester, sealed_green: list) -> None:
         # costs ~23.5s on this machine and the probe at
         # ``tools/base/probes/a_client_reaches_and_never_beats.py`` reds any client that
         # pays it. A sealing run is a client — it wants one device to hear one thing.
-        from cairn.tools.base.bus_client import reach
+        from cairn.tools.bus_client import reach
         # ``validations_path_for`` AND NOT ``..._for_artifact``, MEASURED 2026-09-09. The
         # artifact form is for a thing with no ``proofs/`` directory and derives
         # ``<dir>/validations/<stem>.json`` — applied to a PROOF that reads

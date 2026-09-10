@@ -725,7 +725,7 @@ def _ask_codemother_to_cross(comp, proof, *, boat=_HARBOR_BOAT):
     This is the exact path `cairn codemother cross` walks — the CLI is a mouth over
     this request and nothing else — so the tooth measures the seam, not a helper.
     """
-    from cairn.tools.base.bus_client import reach
+    from cairn.tools.bus_client import reach
 
     bus = reach("codemother", "harbor_master")
     # request() answers with the reply ENVELOPE; the device's answer is its body.
@@ -861,7 +861,7 @@ def test_the_actor_is_the_envelopes_sender_not_the_bodys_claim():
     and the Law 6 authority check would be deciding about a name the caller picked. The
     handler refuses a body that DISAGREES with the sender; a body that agrees is merely
     redundant. Fired straight at harbor_master so the tooth measures the door itself."""
-    from cairn.tools.base.bus_client import reach
+    from cairn.tools.bus_client import reach
 
     bus = reach("harbor_master")
     reply = bus.request(
@@ -910,7 +910,7 @@ def test_the_harbor_shim_is_reachable_by_its_own_name():
     harbor — which berths at ``cairn/devices/cairn/machines/harbor_master/`` — was
     unreachable by name and every caller had to know its path. A device that can only
     be reached by those who already know where it lives is not on the bus."""
-    from cairn.tools.base.bus_client import reach
+    from cairn.tools.bus_client import reach
 
     bus = reach("harbor_master")
     wired = bus.list()
@@ -1066,7 +1066,7 @@ def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
     and returns a dict either way, which is what clause (4)'s tooth relies on when the
     same message arrives by ``post`` and is drained off the mailbox instead.
     """
-    from cairn.tools.base.bus_client import reach
+    from cairn.tools.bus_client import reach
 
     bus = reach("codemother", "harbor_master")
     reply = bus.request(

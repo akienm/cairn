@@ -23,7 +23,7 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 from cairn.devices.intention_extractor.extractor import IntentionExtractorDevice
 
 DEFAULT_MODEL = "qwen2.5:7b"

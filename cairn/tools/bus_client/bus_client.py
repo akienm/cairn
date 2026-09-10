@@ -17,7 +17,7 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
-# Class-space root, derived from this file's own address (cairn/tools/base/bus_client.py →
+# Class-space root, derived from this file's own address (cairn/tools/bus_client/bus_client.py →
 # three parents up). Never configured: a tool is discovered-from where it is installed, the
 # same rule ``discovery.repo_root`` states for the ground loop.
 _CLASS_ROOT = Path(__file__).resolve().parents[3]

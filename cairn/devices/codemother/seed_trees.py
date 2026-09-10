@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.tree.tree import deposit_learning
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 
 
 QUESTIONS_FILE = Path(__file__).parent / "cognition_questions.json"

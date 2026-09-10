@@ -2,8 +2,8 @@
   {
     "claim": "proof test_interceptor.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-09T11:45:22",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-09-09T23:07:12",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -28,10 +28,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "6701caac4183a0aafe08ea3ff7a9e9e85a78a6f2f045d389e742005b0c7ee62e",
+      "source_fingerprint": "54e9af6967c2150439082b4f3382a2c49d6577146583015ab718fb4be016f20a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -45,7 +45,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-271987-1ldtsbm_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-j84nuski/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -54,11 +54,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116728438,
-          "disk_bytes": 125538304,
-          "entries": 3663,
+          "bytes": 123101502,
+          "disk_bytes": 133623808,
+          "entries": 4288,
           "builds": 1,
-          "reuses": 4
+          "reuses": 2
         }
       }
     },

@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_web_server_chat.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:26:43",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:15:41",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -20,10 +20,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f02bbadb31a17f29fd8f43a6053436637151633ff4365f14f6ebcc4677dbd091",
+      "source_fingerprint": "b0c21d15df03f17baf9068522eeab55e0c4a28191641904e5f3dbc6d4b136734",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -65,28 +65,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-8dqhetbw/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-4l__99ja/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/librarian/0/last_known.json",
-            "logs/ground_loop/0/20260909.232642.761836.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232642.762754.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232642.763868.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232642.764540.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232642.765220.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232642.765898.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260910.051541.194982.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051541.195986.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051541.197078.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051541.197777.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051541.198466.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.051541.199123.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121065009,
-          "disk_bytes": 131391488,
-          "entries": 4225,
+          "bytes": 123102726,
+          "disk_bytes": 133648384,
+          "entries": 4296,
           "builds": 1,
-          "reuses": 35
+          "reuses": 56
         }
       }
     },

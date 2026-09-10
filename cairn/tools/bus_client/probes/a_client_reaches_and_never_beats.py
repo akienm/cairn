@@ -1,8 +1,9 @@
 """PROBE — does any CLIENT in class-space still pay the heartbeat to ask one question?
 
 Berth for the WATCHME that ticket ``fc93d8cd5961`` (a-client-reaches-and-a-runner-beats)
-carries. Berthed beside ``cairn/tools/base`` because that is WHAT IT WATCHES: the two faces
-of ``bus_client.py`` — ``connect_bus``/``connect_system`` (RUN the system: a full
+carries. Berthed beside ``cairn/tools/bus_client`` because that is WHAT IT WATCHES: the two faces
+of ``bus_client.py`` (it moved there from ``cairn/tools/base`` on 2026-09-09, ticket
+dd8ad9702b49, and this probe moved with it — a probe berths with what it watches) — ``connect_bus``/``connect_system`` (RUN the system: a full
 ``GroundLoopDevice.beat``) and ``reach`` (USE it: wire, pulse only the shims addressed).
 
 THE MEASUREMENT THAT BORE IT (2026-09-09, the efficiency eval Akien asked for): one
@@ -21,7 +22,7 @@ short, named, and on disk:
 
   * ``cairn/devices/web_server/listener.py`` — the web server, whose nav IS the beat's roster;
   * ``cairn/devices/cairn/machines/ground_loop/__main__.py`` — the heartbeat's own process;
-  * ``cairn/tools/base/bus_client.py`` — the definitions themselves;
+  * ``cairn/tools/bus_client/bus_client.py`` — the definitions themselves;
   * any ``proofs/`` tree — a proof may beat on purpose to measure what a beat costs.
 
 Everything else that CALLS ``connect_bus`` or ``connect_system`` is a client, and a client
@@ -70,14 +71,14 @@ BEATING_FACES = frozenset({"connect_bus", "connect_system"})
 RUNNER_ROSTER = frozenset({
     "cairn/devices/web_server/listener.py",
     "cairn/devices/cairn/machines/ground_loop/__main__.py",
-    "cairn/tools/base/bus_client.py",
+    "cairn/tools/bus_client/bus_client.py",
 })
 
 # A proof may beat on purpose (to measure the beat), so any proofs/ tree is off the walk.
 _EXEMPT_SEGMENTS = frozenset({"proofs", "__pycache__", ".git", "node_modules"})
 
 # THE PROOF WHOSE SEAL THE CLEAR READS — the fixture tooth lives there.
-PROOF = _REPO_ROOT / "cairn" / "tools" / "base" / "proofs" / "test_a_client_reaches_and_never_beats.py"
+PROOF = _REPO_ROOT / "cairn" / "tools" / "bus_client" / "proofs" / "test_a_client_reaches_and_never_beats.py"
 
 # THE HORIZON. Same tracked debt as the siblings at this address: 1000 pulses stands for
 # "clearly a long standing" until the beat rate is a real number.

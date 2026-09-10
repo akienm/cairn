@@ -66,7 +66,7 @@ def _two_beats() -> dict:
     if _MEASURED is not None:
         return _MEASURED
 
-    from cairn.tools.base.bus_client import _wire
+    from cairn.tools.bus_client import _wire
 
     seen = {"ids": set()}
     original = Probe.fires

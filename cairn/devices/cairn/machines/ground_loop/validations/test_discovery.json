@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_discovery.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:23:43",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:08:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -23,10 +23,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "12dc51e053a2ebb493e9024879656686ad60c04e40065ae79d0f409dbe5c845b",
+      "source_fingerprint": "44fb3005637eb7b0043e11a79b484f9e12c5389c79ff375a614e72596439a8dc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -53,36 +53,36 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-cahvx8fo/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-tse_q7g6/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
           "paths": [
-            "logs/ground_loop/0/20260909.232342.635102.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.693237.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.693412.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.693519.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.693615.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.750308.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.803009.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232342.852559.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.853685.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.853818.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232342.905587.GroundLoopDevice.undiscovered.json",
-            "logs/ground_loop/0/20260909.232342.953492.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232343.003675.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232343.055630.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260909.232343.173830.GroundLoopDevice.discovered.json"
+            "logs/ground_loop/0/20260910.050816.092984.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.150971.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.151240.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.151352.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.151450.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.207860.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.262017.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.050816.315075.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.316275.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.316412.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.362932.GroundLoopDevice.undiscovered.json",
+            "logs/ground_loop/0/20260910.050816.407994.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.454025.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.499272.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260910.050816.591251.GroundLoopDevice.discovered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121067362,
-          "disk_bytes": 131428352,
-          "entries": 4234,
+          "bytes": 123105079,
+          "disk_bytes": 133685248,
+          "entries": 4305,
           "builds": 1,
-          "reuses": 11
+          "reuses": 7
         }
       }
     },

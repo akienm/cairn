@@ -2,8 +2,8 @@
   {
     "claim": "proof test_intention_extractor.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-09T15:43:05",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-09-09T23:09:50",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -25,10 +25,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "31a112982d8c84ae1117175226296ee6fd5e44db5d36339e193823ef6016dae3",
+      "source_fingerprint": "5c8da5690501d6a37644ef6e1c9be58b7b338c5222d02f7a7a6bb1bcb52e3106",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -52,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-992462-1t_7nso3/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-gtvov8jk/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119905368,
-          "disk_bytes": 128954368,
-          "entries": 3755,
+          "bytes": 123101502,
+          "disk_bytes": 133623808,
+          "entries": 4288,
           "builds": 1,
-          "reuses": 2
+          "reuses": 33
         }
       }
     },

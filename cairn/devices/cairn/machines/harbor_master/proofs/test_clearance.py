@@ -262,13 +262,13 @@ _correct_the_corpus_roots_if_this_is_a_worktree()
 # intact"). NOTHING IS SILENCED: the raiser still runs, still writes its emission, still
 # returns its record — it writes into a temp world the drain never reads. A tooth that wants
 # to ASSERT on a raise still injects its own device and is untouched by this.
-import atexit as _atexit
-import shutil as _shutil
-import tempfile as _tempfile
 import cairn.tools.base.diagnostic as _diagnostic
 
-_TROUBLE_SANDBOX = Path(_tempfile.mkdtemp(prefix="clearance-proof-trouble-world-"))
-_atexit.register(_shutil.rmtree, _TROUBLE_SANDBOX, True)
+# THROUGH THE DOOR — scratch_dir registers its own removal, which is why this reaches for it
+# rather than for mkdtemp+atexit (what stood here until 2026-09-09 and was caught by
+# test_scratch.py's corpus tooth; ticket dd8ad9702b49 fixed it in passing). Line 320 in this
+# same file was already going through the door: two temp worlds, one of them hand-rolled.
+_TROUBLE_SANDBOX = scratch_dir("clearance-proof-trouble-world-")
 _LIVE_MODULE_RAISER = _diagnostic.ModuleRaiser
 
 

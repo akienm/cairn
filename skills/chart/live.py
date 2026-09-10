@@ -37,7 +37,7 @@ from cairn.devices.codemother.machines.validate.validate import deposit_validate
 from cairn.devices.codemother.machines.verdict.verdict import (VerdictRefused, mark_deposited, pending,
                                  validate_verdict, verdict_nexus,
                                  verdict_node_parts)
-from cairn.tools.base.bus_client import reach
+from cairn.tools.bus_client import reach
 from cairn.tools.system_word import fold_head
 from cairn.devices.librarian.live import embed_metered_via_bus, embed_via_bus
 

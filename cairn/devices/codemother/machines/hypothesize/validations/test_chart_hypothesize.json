@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_chart_hypothesize.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T20:14:37",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-09-09T23:09:22",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -22,10 +22,10 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "c266e13081f307bba9291516a20299f66db81ec87e29dc61c6fdc50df04594bc",
+      "source_fingerprint": "aeacf27d4b7a0d4b79b9239866a7300f0f2aceee0e979ed7683b699b7971dac9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -80,7 +80,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1798033-ov1lgyqv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2366936-b72u4wj9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,11 +89,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 121140227,
-          "disk_bytes": 131588096,
-          "entries": 4263,
+          "bytes": 123101502,
+          "disk_bytes": 133623808,
+          "entries": 4288,
           "builds": 1,
-          "reuses": 4
+          "reuses": 22
         }
       }
     },

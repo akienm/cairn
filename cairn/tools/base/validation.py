@@ -8,13 +8,31 @@ functions, the same pattern bus_client uses for bus access.
 Tools can import from any device (the device_isolation sieve checks only
 ``cairn/devices/<X>/`` files importing ``cairn.devices.<Y>``). So the imports
 here are legal; the callers in other devices import from this tool instead.
+
+LEGAL IS NOT FREE, and the price is paid by whoever imports THIS. Seven components
+import this module — cairn/machines/build_inspector and the six codemother chart
+doors — and all seven are GATES, so whatever this module can reach, a gate can
+reach. Akien ruled 2026-08-13: NO GATES MAY CONSULT ORACLES EVER PERIOD. On
+2026-09-09 ``bin/cmd/determinism`` read eight violations of that ruling and seven
+were this one module, reaching ``cairn/devices/tester/cli.py``, which had just
+acquired a bus dial and with it a static path to ``inference_domain``.
+
+So the rule this file follows is narrower than "tools may import devices": REACH
+FOR THE NARROWEST MODULE THAT HOLDS WHAT YOU NEED. ``discover`` comes from
+``tester/discovery.py``, which imports ``Path`` and ``sys`` and can never grow an
+oracle; it does NOT come from ``tester/cli.py``, which is the command and reaches
+the bus. Each function below names its own source for the same reason — the
+function-local imports are not laziness, they are what keeps one caller's needs
+from becoming every caller's import closure.
 """
 from __future__ import annotations
 
 
 def discover(targets):
     """Resolve CLI targets to proof files — ``**/proofs/test_*.py`` beneath each."""
-    from cairn.devices.tester.cli import discover as _discover
+    # discovery.py, NOT cli.py — cli.py reaches the bus and would drag an oracle into
+    # every gate that imports this tool (ticket dd8ad9702b49, measured 2026-09-09).
+    from cairn.devices.tester.discovery import discover as _discover
     return _discover(targets)
 
 

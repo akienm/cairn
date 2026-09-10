@@ -391,7 +391,7 @@ class DiagnosticBase:
         read-modify-write and so must happen in the one hand that owns the store. That
         reasoning was right and the conclusion did not follow: what must happen in the
         owner's hand is the DECIDING and the WRITING, not the ASKING. A bus request made
-        the asker dial the bus — and ``cairn.tools.base.bus_client`` reaches
+        the asker dial the bus — and ``cairn.tools.bus_client`` reaches
         ``inference_domain`` and, through the bus device, ``db_domain``, so every clearer
         statically reached a database and a host. The build inspector's own
         ``fire_path_unreachable`` sieve measured it and reds the machine that must reach

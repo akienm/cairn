@@ -1030,10 +1030,23 @@ def main() -> None:
 
     # Tooth 1 — a component with PROVED-ticket history entries fires
     # history_reach(root) scans root.rglob("history.json"), tickets via _TICKETS_ROOT
+    # THE FIXTURE COMMONS LIVES INSIDE THE SCRATCH DIR — one extra path segment, the
+    # same shape teeth 4 and 5 below already use for slate_reach. history_reach resolves
+    # a ticket with ``ticket_path(tid, root=str(root))``, i.e. the SIBLING of the root it
+    # is handed, so handing it hr_root put the fixture's commons at hr_root's PARENT —
+    # which is /tmp. Measured 2026-09-09: /tmp/CairnCommons/tickets held two fixture
+    # tickets dated Sep 8, written outside the scratch dir and never reaped, and that
+    # leaked directory then DEFEATED an existence-based worktree guard in
+    # test_clearance.py — from a worktree the derived commons "existed", holding two
+    # fixture tickets and none of the operator's.
+    # (Patching ``_insp._TICKETS_ROOT`` was the OLD spelling and it never did anything:
+    # history_reach's only reader of that constant was a dead local, removed in the same
+    # act. The root argument is the seam.)
     with scratch_dir("inspector-proof-hr-stale-") as hr_root:
-        comp = hr_root / "stale_history"
+        repo_root = hr_root / "repo"
+        comp = repo_root / "stale_history"
         comp.mkdir(parents=True)
-        tickets_dir = hr_root.parent / "CairnCommons" / "tickets"
+        tickets_dir = hr_root / "CairnCommons" / "tickets"
         tickets_dir.mkdir(parents=True, exist_ok=True)
         (tickets_dir / "proved-ticket.json").write_text(json.dumps({
             "id": "proved-ticket",
@@ -1045,8 +1058,8 @@ def main() -> None:
         ]))
         saved_tr = _insp._TICKETS_ROOT
         try:
-            _insp._TICKETS_ROOT = str(hr_root)
-            findings = history_reach(hr_root)
+            _insp._TICKETS_ROOT = str(repo_root)
+            findings = history_reach(repo_root)
         finally:
             _insp._TICKETS_ROOT = saved_tr
         assert len(findings) == 1, \
@@ -1056,9 +1069,11 @@ def main() -> None:
 
     # Tooth 2 — a component with only active-ticket entries stays quiet
     with scratch_dir("inspector-proof-hr-active-") as hr_root:
-        comp = hr_root / "active_history"
+        # Same shape as tooth 1: the fixture commons stays inside the scratch dir.
+        repo_root = hr_root / "repo"
+        comp = repo_root / "active_history"
         comp.mkdir(parents=True)
-        tickets_dir = hr_root.parent / "CairnCommons" / "tickets"
+        tickets_dir = hr_root / "CairnCommons" / "tickets"
         tickets_dir.mkdir(parents=True, exist_ok=True)
         (tickets_dir / "active-ticket.json").write_text(json.dumps({
             "id": "active-ticket",
@@ -1069,8 +1084,8 @@ def main() -> None:
         ]))
         saved_tr = _insp._TICKETS_ROOT
         try:
-            _insp._TICKETS_ROOT = str(hr_root)
-            findings = history_reach(hr_root)
+            _insp._TICKETS_ROOT = str(repo_root)
+            findings = history_reach(repo_root)
         finally:
             _insp._TICKETS_ROOT = saved_tr
         assert findings == [], \

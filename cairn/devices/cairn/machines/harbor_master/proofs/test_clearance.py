@@ -109,6 +109,153 @@ from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.scratch import scratch_dir
 from cairn.devices.tester.validation_store import persist_validation, record_hollow
 
+
+# ══════════════════════════════════════════════════════════════════════════════════════
+# THE CORPUS IS WHERE GIT SAYS IT IS — not where THIS CHECKOUT's parent happens to be.
+# ══════════════════════════════════════════════════════════════════════════════════════
+# ``clearance.COMMONS_ROOT`` and ``transitions._NODE_CLASSES`` both spell the commons as
+# "the sibling of the checkout I am imported from". That is right in the live tree and
+# wrong in every WORKTREE of it — and a worktree is exactly where ``cairn test --hollow``
+# does all of its reverting, so the expression is wrong precisely where this proof most
+# needs to run.
+#
+# MEASURED 2026-09-09, and it was worse than a red tooth: this module DIED AT IMPORT.
+# ``_OWNER = boat_owner_of(_BOAT)`` runs at module level, found no
+# /tmp/CairnCommons/tickets/boat-owner-is-read-not-stated.json, and raised
+# OwnerUnresolvable before a single tooth ran. To the hollow verb that reads as "the
+# declared tooth test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_... is not green at HEAD",
+# which refuses the WHOLE measurement of ticket 1accdc1781aa with HollowUnmeasurable — one
+# unportable path hiding every reversion reading the ticket has.
+#
+# THE SAME CLASS the trouble proofs took on 2026-09-09 and the codemother proofs took the
+# same day: ``git rev-parse --git-common-dir`` is the shared ``.git`` of the repo AND of
+# every worktree of it, so its parent is the MAIN working tree from wherever this runs.
+#     -> ticket a-proof-that-reaches-a-sibling-repo-by-relative-path-cannot-be-reproven-elsewhere
+#
+# THE CORRECTION IS CONDITIONAL AND ADDRESS-ONLY. In the live tree the default resolves and
+# NOTHING is patched — so the ordinary run is byte-for-byte the run it always was, and this
+# block cannot quietly become the thing the teeth are measuring. When it does fire it
+# substitutes an ADDRESS and never a behaviour: the real ``boat_owner_of`` walks the real
+# hops over the operator's real tickets and real charters, and the real ``load_class_def``
+# reads the real code-seam definition. A stub of either would make these teeth pass by
+# lowering the bar they exist to hold.
+#
+# IT MUST BE A WRAPPER, not a constant assignment: both roots are DEFAULT ARGUMENTS bound
+# at def time (``boat_owner_of(..., commons_root=COMMONS_ROOT)``,
+# ``load_class_def(..., root=_NODE_CLASSES)``), so rebinding the module constants would do
+# nothing at all. And the predicate is "does the given root exist", not "did the caller
+# pass one" — ``emit`` always passes its own default, which IS the broken expression.
+
+def _main_tree() -> Path:
+    """This repo's MAIN working tree, named the same from itself and from any worktree."""
+    import subprocess
+    common = subprocess.run(
+        ["git", "-C", str(Path(__file__).resolve().parent),
+         "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        capture_output=True, text=True)
+    if common.returncode == 0 and common.stdout.strip():
+        return Path(common.stdout.strip()).parent
+    # NOT A SILENT FALLBACK: outside a git checkout there is no main tree to name, so the
+    # checkout itself is the honest best effort and the caller below fails LOUDLY naming
+    # the path it looked in — the behaviour that surfaced this bug in the first place.
+    return _REPO_ROOT
+
+
+def _correct_the_corpus_roots_if_this_is_a_worktree() -> None:
+    from cairn.devices.cairn.machines.harbor_master import clearance as _c
+    from cairn.tools.base import transitions as _t
+
+    # THE PREDICATE IS "AM I THE MAIN TREE", NOT "DOES THE DEFAULT DIRECTORY EXIST", and
+    # the difference is a measurement rather than a preference. The existence spelling was
+    # written first and did not fire: a proof had leaked fixture tickets into
+    # /tmp/CairnCommons/tickets on 2026-09-08, so from a worktree at /tmp/hw the derived
+    # default WAS a directory — holding two fixture tickets and none of the operator's. The
+    # correction stood down and the module died at import exactly as before, now pointing at
+    # a folder that existed. Asking git which tree this is cannot be fooled that way, and it
+    # is the same question the resolution itself is built on.
+    if _REPO_ROOT.resolve() == _main_tree().resolve():
+        return                                    # the live tree: change nothing
+    tree = _main_tree()
+    commons = tree.parent / "CairnCommons"
+    real_owner, real_load = _c.boat_owner_of, _t.load_class_def
+
+    def _rooted_owner_of(boat_id, **kw):
+        kw.setdefault("tickets_dir", str(commons / "tickets"))
+        kw.setdefault("cairn_root", str(tree))
+        kw.setdefault("commons_root", str(commons))
+        return real_owner(boat_id, **kw)
+
+    def _rooted_load(node_class, *, root=None):
+        if root is None or not Path(root).is_dir():
+            root = commons / "node_classes"
+        return real_load(node_class, root=root)
+
+    _c.boat_owner_of = _rooted_owner_of
+    _t.load_class_def = _rooted_load
+    # AND THE CHOKEPOINT'S OWN CAST-TICKET ROOT, which is a THIRD spelling of the same
+    # sibling expression (``transitions._TICKETS``). This one is read at call time rather
+    # than bound as a default, so the constant IS the seam — no wrapper needed. Found the
+    # way the other two were: the crossing got past the owner rung and then refused
+    # "named ticket 'an-intention-declares-its-gated-hands' is not cast — no file ... in
+    # /tmp/CairnCommons/tickets". Three readers, three spellings, one wrong assumption.
+    _t._TICKETS = commons / "tickets"
+    # AND THIS MODULE'S OWN BINDING, which is a SEPARATE NAME and was the half that bit.
+    # ``from ...clearance import boat_owner_of`` at the top copied the function object into
+    # these globals, so patching the clearance module alone leaves ``_OWNER =
+    # boat_owner_of(_BOAT)`` forty lines below still calling the unrooted original — and
+    # that line is the one that died at import. ``clear()`` resolves its own call through
+    # the clearance module, so BOTH bindings are needed and neither is redundant.
+    globals()["boat_owner_of"] = _rooted_owner_of
+
+
+_correct_the_corpus_roots_if_this_is_a_worktree()
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════
+# THE FIXTURE BOATS RAISE THEIR TROUBLES INTO A SANDBOX, NOT INTO THE OPERATOR'S INBOX.
+# ══════════════════════════════════════════════════════════════════════════════════════
+# ``_raise_uncovered_trouble`` takes a ``device`` and, when nobody hands it one, builds
+# ``ModuleRaiser("harbor_master")`` against the LIVE world. Two teeth below inject their
+# own device and assert against it; every OTHER tooth that walks a refusal path leaves the
+# default in place, so its emission landed in the real ~/.cairn/logs/harbor_master trail and
+# the trouble device's next beat folded it into CairnCommons/troubles/.
+#
+# MEASURED 2026-09-09, after running this proof six times in one afternoon: EIGHT new files
+# in the operator's live trouble store, named for boats that exist only in this file —
+# ``boat-crossed-to-proved-uncovered-hollowf0000a``, ``-nohollow000a``, ``-lowercase00a``,
+# ``-moved00000a``, ``-uncover0000a`` — one of them with ``count: 6``, one occurrence per
+# run, each pointing at a ``/tmp/clearance-proven-space-*`` that no longer exists. Those sit
+# in the session-open banner as LIVE TROUBLE alongside real ones. Law 7 cuts BOTH ways: a
+# record of truth may never collapse an error, and it may never be fed a manufactured one.
+#
+# ``set_diagnostic_roots`` is the seam built for exactly this (its own docstring: "a proof
+# that only wants isolation should reach for this — it leaves the mechanism under test
+# intact"). NOTHING IS SILENCED: the raiser still runs, still writes its emission, still
+# returns its record — it writes into a temp world the drain never reads. A tooth that wants
+# to ASSERT on a raise still injects its own device and is untouched by this.
+import atexit as _atexit
+import shutil as _shutil
+import tempfile as _tempfile
+import cairn.tools.base.diagnostic as _diagnostic
+
+_TROUBLE_SANDBOX = Path(_tempfile.mkdtemp(prefix="clearance-proof-trouble-world-"))
+_atexit.register(_shutil.rmtree, _TROUBLE_SANDBOX, True)
+_LIVE_MODULE_RAISER = _diagnostic.ModuleRaiser
+
+
+class _SandboxedModuleRaiser(_LIVE_MODULE_RAISER):
+    """A ModuleRaiser whose default world is this proof's temp tree, not the operator's."""
+
+    def __init__(self, component, instance=0, *, roots=None):
+        super().__init__(component, instance, roots=roots or {
+            "repo": _TROUBLE_SANDBOX,
+            "commons": _TROUBLE_SANDBOX,
+            "instance": _TROUBLE_SANDBOX,
+        })
+
+
+_diagnostic.ModuleRaiser = _SandboxedModuleRaiser
+
 # The real code-seam@v1 string, cursor at BUILDME. Legal forward from here: PROVEME (the next
 # summons). Illegal: LEARNME (a skip PAST the PROVEME gate). Validated against the REAL
 # node-class table (CairnCommons/node_classes/code-seam.json) — non-hollow, like transitions.

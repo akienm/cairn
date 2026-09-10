@@ -2555,7 +2555,13 @@ def history_reach(root: Path) -> list[dict]:
     yet — reddening the component before the migration can act is premature.
     Called by inspect() after the sieve shake, alongside slate_reach.
     """
-    tickets_dir = Path(_TICKETS_ROOT).parent / "CairnCommons" / "tickets"
+    # NO tickets_dir HERE. There was one — ``Path(_TICKETS_ROOT).parent / "CairnCommons"
+    # / "tickets"`` — and nothing in this function ever read it: the lookup below is
+    # ``ticket_path(tid, root=str(root))``, which derives the store from the SCANNED
+    # root, not from the module constant. Found 2026-09-09 by a fixture that patched
+    # _TICKETS_ROOT and changed nothing. A dead local that names the right directory by
+    # a different route is worse than no local: it tells a reader which knob to turn,
+    # and the knob is not connected.
     findings = []
     for h in sorted(root.rglob("history.json")):
         comp_dir = h.parent

@@ -42,6 +42,22 @@ PROVES = {
         "7": "test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run",
     },
     "95e3b9911dd0": {
+        # THE LETTERED KEYS ARE THE ONES THE GATE ASKS FOR. This ticket's falsifier enumerates
+        # its DONE-when list (a)..(d), and until 2026-09-10 proof_coverage.clauses() read digit
+        # markers only — so a four-clause falsifier came back as the one-clause fallback "all"
+        # and three of its four clauses needed no tooth. Fixed in this voyage (_lettered_run);
+        # what it fixed shows up here, as four demands instead of one.
+        "a": "test_the_reader_names_no_stored_chart_chain_and_calls_the_derivation_instead",
+        "b": "test_no_ticket_in_the_live_commons_carries_a_stored_chart_chain",
+        "c": "test_a_ticket_no_decompose_berth_claims_raises_the_named_lack_not_an_empty_list",
+        "d": "test_the_derived_decompose_berth_equals_a_stored_one_the_fixture_authored",
+        # Clause (c) has a SECOND half the key above cannot carry — "never an AttributeError,
+        # the two bare-string carriers are the regression test". One proof declares one tooth
+        # per clause key, so that half stands under "4" below rather than going unrecorded.
+        #
+        # THE NUMBERED KEYS BELOW ARE THE VALIDATE BERTH'S TWELVE CRITERIA, kept because they
+        # are the map from a criterion to the tooth that answers it. The gate does not read
+        # them for this ticket (it wants a..d); a reader tracing a criterion does.
         "1": "test_the_reader_names_no_stored_chart_chain_and_calls_the_derivation_instead",
         "2": "test_the_derived_decompose_berth_equals_a_stored_one_the_fixture_authored",
         "3": "test_a_ticket_no_decompose_berth_claims_raises_the_named_lack_not_an_empty_list",

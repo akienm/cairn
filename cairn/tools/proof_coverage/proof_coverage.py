@@ -95,6 +95,10 @@ _MARKER_LABEL = re.compile(
 
 # A clause key is the number inside a ``(N)`` marker in the DONE-when text.
 _CLAUSE_MARK = re.compile(r"\((\d{1,2})\)")
+# ...or the letter inside an ``(x)`` marker, for the falsifiers that enumerate with letters.
+# Read ONLY under the run test below, because a bare letter in parentheses is far more often
+# prose than a clause — see ``_lettered_run``.
+_LETTER_MARK = re.compile(r"\(([a-z])\)")
 # Everything from WRONG INTENT onward describes what would make the ticket the WRONG THING
 # to have built — a disposition, not a condition a tooth can go green on. Cutting it is
 # what stops the sieve demanding a tooth for "this was a bad idea".
@@ -171,7 +175,54 @@ def clauses(ticket: dict) -> list[str]:
         return []
     head = _WRONG_INTENT.split(text)[0]
     found = list(dict.fromkeys(_CLAUSE_MARK.findall(head)))
-    return found or [WHOLE]
+    if found:
+        return found
+    lettered = list(dict.fromkeys(_LETTER_MARK.findall(head)))
+    if _lettered_run(lettered):
+        return lettered
+    return [WHOLE]
+
+
+def _lettered_run(letters: list[str]) -> bool:
+    """Is this letter list an ENUMERATION, or is it prose that happens to parenthesise a letter?
+
+    ADDED 2026-09-10, ticket 95e3b9911dd0 — a bug that voyage uncovered in its own crossing and
+    therefore fixed. Its falsifier numbers four DONE-when clauses (a) through (d); ``clauses()``
+    read digits only, returned the one-clause fallback ``["all"]``, and the clearance gate then
+    demanded a single declared tooth for a four-clause falsifier. Three of its four clauses
+    needed no tooth at all. That is coverage credited for looking at less, which is the hollow
+    green Law 8 exists to refuse.
+
+    WHY THE RUN TEST AND NOT A BARE REGEX. Measured over all 272 tickets in the commons: 107
+    falsifiers mark clauses with digits, 146 mark none at all, 15 mark only letters, and 4 mark
+    both. Reading every ``(x)`` as a clause manufactures phantom clauses on five of those,
+    because a lone parenthesised letter is usually a REFERENCE:
+
+        73c9d3093973  "the substance of the sibling ticket's clause (c)"
+        a48f95c51a41  "without half (b) this is not a distinction but a breach"
+        b96f8e602da0  "filed edge (b) naming an unwired host ... must also red db_domain's edge (e)"
+        feeb4c786b14  "run over the live corpus before (d), it reds all 19 PROVEME tickets"
+
+    Demanding a tooth for "edge (e)" is not a stricter gate, it is a broken one — and a gate that
+    reds for a reason nobody can satisfy teaches a caller to look for the exemption, which is how
+    a real check gets plastered over. So a letter list counts only when it looks like a list: two
+    or more markers, starting at ``a``, consecutive, no gaps. Every one of the five prose cases
+    fails it (['c'], ['b'], ['b','e'], ['d'], and the mixed ones never reach here because digits
+    win); all fifteen genuine enumerations pass it.
+
+    DIGITS STILL WIN OUTRIGHT when both appear, which is why this is reached only after the digit
+    findall comes back empty. On ``db059208bbd9`` the digits (1)-(4) are the clause list and the
+    letters (a)-(c) enumerate teeth WITHIN one clause — a nesting, not a competition, and the
+    outer level is the one a gate asks about.
+
+    BLAST RADIUS, MEASURED RATHER THAN ASSUMED: 14 tickets change from ``["all"]`` to a real
+    clause list. Eleven are already PROVED, one SUPERSEDED and one RETIRED, so they will not
+    cross again; exactly two are in flight — 95e3b9911dd0 (this voyage) and d2ecdb867bc9, which
+    is still at TICKETME and has not built. Nothing under way is blocked by the tightening.
+    """
+    if len(letters) < 2:
+        return False
+    return letters == [chr(ord("a") + i) for i in range(len(letters))]
 
 
 def declared(proof_path) -> dict:

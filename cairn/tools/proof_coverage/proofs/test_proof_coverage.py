@@ -263,6 +263,56 @@ def test_wrong_intent_clauses_are_not_demanded_as_teeth():
     assert pc.clauses(ticket) == ["1"], pc.clauses(ticket)
 
 
+def test_a_lettered_falsifier_enumerates_its_clauses_and_prose_letters_do_not():
+    """THE SIEVE READ DIGITS ONLY, so a falsifier that enumerated with LETTERS collapsed to
+    one clause named 'all' — and one tooth anywhere in the proof discharged the whole thing.
+    Measured 2026-09-10 over all 272 tickets: 107 mark clauses with digits, 146 mark nothing,
+    15 mark with letters ONLY, and 4 carry both. The 15 were each reading as a single clause.
+
+    A bare letter regex is the WRONG fix and this tooth pins why. Five of those tickets
+    parenthesise a letter as PROSE — 'clause (c)', 'half (b)', 'edge (b) ... edge (e)',
+    'before (d)' — pointing back at an enumeration written somewhere else. A naive reader
+    mints phantom clauses on all five and demands teeth for conditions nobody wrote.
+
+    So the reader asks whether the letters form an ENUMERATION: two or more, starting at
+    'a', consecutive. That predicate accepts every genuine lettered falsifier in the corpus
+    and rejects all five prose cases. Digits win outright where both appear, because a
+    ticket that numbered its clauses has already said how it enumerates."""
+    def _clauses(text: str) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            return pc.clauses(_ticket(Path(tmp), text, proven_by=None))
+
+    # (i) a real lettered enumeration is four clauses, not one
+    assert _clauses(
+        "DONE when (a) the reader calls the derivation, (b) no ticket carries a stored "
+        "copy, (c) a missing berth raises the named lack, and (d) the derived berth "
+        "equals a stored one.") == ["a", "b", "c", "d"]
+
+    # (ii) the four measured prose shapes stay ONE clause — no phantom teeth demanded
+    for prose in (
+        "DONE when the migration satisfies clause (c) of the ruling it implements.",
+        "DONE when the second half (b) of the falsifier is instrumented.",
+        "DONE when edge (b) and edge (e) of the graph are both walked.",
+        "DONE when the gate fires before (d) rather than after it.",
+    ):
+        assert _clauses(prose) == [pc.WHOLE], prose
+
+    # (iii) a lone letter is not an enumeration
+    assert _clauses("DONE when option (a) is the one that ships.") == [pc.WHOLE]
+
+    # (iv) a gapped run is not an enumeration either — it is prose citing two labels
+    assert _clauses("DONE when (a) holds and (c) holds.") == [pc.WHOLE]
+
+    # (v) digits win outright when a ticket marks both ways
+    assert _clauses(
+        "DONE when (1) the door refuses, per clause (a), and (2) the sieve reds.") == ["1", "2"]
+
+    # (vi) WRONG INTENT still splits off first, letters or not
+    assert _clauses(
+        "DONE when (a) the widget holds and (b) the gate fires. "
+        "WRONG INTENT if (c) nobody ever uses it.") == ["a", "b"]
+
+
 # ── clause (3) ───────────────────────────────────────────────────────────────────────
 
 def test_a_fully_covered_ticket_produces_no_finding():

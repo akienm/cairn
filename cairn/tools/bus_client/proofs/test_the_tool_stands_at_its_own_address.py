@@ -10,6 +10,7 @@ Between them they left six of this build's own files with no declared tooth watc
     cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py
     cairn/tools/bus_client/history.json   cairn/tools/bus_client/state.json
     cairn/tools/base/history.json         cairn/tools/base/state.json
+    cairn/tools/determinism/validations/test_determinism.json
 
 which is the exact shape Law 8 calls a hollow green: the two proofs are green whether those
 files are there or not, so they are not evidence about them. The clearance gate refuses on it
@@ -58,6 +59,8 @@ GATE = "cairn/tools/base"
 CHARTER = TOOL + "/intention+why.json"
 PROBE_PATH = TOOL + "/probes/a_client_reaches_and_never_beats.py"
 PROBE_DOTTED = "cairn.tools.bus_client.probes.a_client_reaches_and_never_beats"
+DETERMINISM_SEAL = "cairn/tools/determinism/validations/test_determinism.json"
+PURITY_TOOTH = "test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle"
 
 # The keys the cursor and the last journal entry must agree on. Not the whole record: the
 # journal entry carries a `proved` list the projector does not copy, and demanding byte
@@ -104,6 +107,47 @@ def _probe_berths_with_what_it_watches() -> str:
     return "probe: %s imports and carries a PROBE with carry and enough" % PROBE_PATH
 
 
+def _the_purity_seal_is_current() -> str:
+    """The record the ticket's own DONE-when rests on says the gate directory came out pure.
+
+    THE SIXTH HOLLOW FILE, and it is a record rather than code, which is why no behavioural
+    tooth could ever have covered it. This ticket's falsifier reads "test_q passes, and `base`
+    shows no llm edge in the determinism report" — and what the CORPUS holds of that claim is
+    one standing validation. It was sealed RED at 2026-09-09T11:47 naming ['cairn/tools/base'],
+    and stayed red for nine hours after the move made it green because nothing resealed it. A
+    stale red seal on the very proof this ticket's claim rests on is the claim being unrecorded,
+    not merely untidy (Law 9: unknown is not green).
+
+    READ, NEVER RE-COMPUTED. The assertion is over the bytes of the standing record: green, and
+    the purity tooth in teeth_green. It deliberately does NOT call validation_store.standing(),
+    which re-takes the fingerprint over the seal's closure — inside the hollow check's scratch
+    worktree that recomputation can move for reasons that have nothing to do with the file being
+    reverted, and a tooth that reds in every worktree would report "covered" for all nineteen
+    files at once. A broad tooth manufactures coverage; this one reds for exactly one reversion.
+    """
+    path = _REPO_ROOT / DETERMINISM_SEAL
+    assert path.is_file(), (
+        "no standing validation at %s — proven-space has not spoken about the purity of the "
+        "gate's directory, and this ticket's DONE-when rests on it" % DETERMINISM_SEAL)
+    try:
+        trail = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise AssertionError("%s does not parse: %s" % (DETERMINISM_SEAL, exc)) from exc
+    assert isinstance(trail, list) and trail, "%s holds no records" % DETERMINISM_SEAL
+    seal = trail[-1]
+    evidence = seal.get("evidence") or {}
+    assert seal.get("verdict") == "green", (
+        "the standing seal at %s reads %r, dated %s — the corpus's record of 'no gate consults "
+        "an oracle' is a RED, and red teeth were %r"
+        % (DETERMINISM_SEAL, seal.get("verdict"), seal.get("date"), evidence.get("teeth_red")))
+    assert PURITY_TOOTH in (evidence.get("teeth_green") or []), (
+        "the standing seal at %s is green but does not carry %s among its green teeth (red: %r) "
+        "— the seal says nothing about the one tooth this ticket's falsifier names"
+        % (DETERMINISM_SEAL, PURITY_TOOTH, evidence.get("teeth_red")))
+    return "purity seal: %s is green at %s with %s among its green teeth" % (
+        DETERMINISM_SEAL, seal.get("date"), PURITY_TOOTH)
+
+
 def _journal_mirrors_the_cursor(component: str) -> str:
     state_path = _REPO_ROOT / component / "state.json"
     hist_path = _REPO_ROOT / component / "history.json"
@@ -136,7 +180,8 @@ def test_i_every_address_this_build_wrote_is_load_bearing():
     lines = [_charter_stands(),
              _probe_berths_with_what_it_watches(),
              _journal_mirrors_the_cursor(TOOL),
-             _journal_mirrors_the_cursor(GATE)]
+             _journal_mirrors_the_cursor(GATE),
+             _the_purity_seal_is_current()]
     print("  PASS  test_i_every_address_this_build_wrote_is_load_bearing")
     for line in lines:
         print("          %s" % line)
@@ -157,6 +202,11 @@ def test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor():
               "(%s)" % _journal_mirrors_the_cursor(component))
 
 
+def test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth():
+    print("  PASS  test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth "
+          "(%s)" % _the_purity_seal_is_current())
+
+
 def check():
     """Every tooth runs whatever the one before it did — the declared tooth may not be hidden
     behind an earlier failure, or the hollow reading cannot tell "nothing checks this file"
@@ -165,7 +215,8 @@ def check():
     for tooth in (test_i_every_address_this_build_wrote_is_load_bearing,
                   test_ii_the_charter_berths_at_the_tools_own_address,
                   test_iii_the_watchme_probe_moved_with_what_it_watches,
-                  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor):
+                  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor,
+                  test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth):
         try:
             tooth()
         except BaseException as exc:               # noqa: BLE001 — a red is a reading, not a crash
@@ -175,8 +226,9 @@ def check():
         print("RED: %d failing" % len(failures))
         return 1
     print("green — bus_client stands at its own address: its own charter, the WATCHME probe "
-          "berthed with what it watches, and a journal at each end of the seam whose cursor is "
-          "its own last entry")
+          "berthed with what it watches, a journal at each end of the seam whose cursor is its "
+          "own last entry, and a standing purity seal that is green rather than nine hours "
+          "stale")
     return 0
 
 

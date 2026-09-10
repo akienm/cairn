@@ -6,6 +6,7 @@ Hermetic where it mutates (a fabricated temp root — no live snapshot values ar
 pinned); the two live-root teeth assert MEMBERSHIP invariants only. Exit 0 = green.
 """
 import ast
+import importlib.util
 import json
 import os
 import pytest
@@ -24,7 +25,7 @@ PROVES = {
     # Clauses (a), (b) and (d) are also declared at the constrain end of the same seam;
     # a clause covered in two proofs is two teeth for it, not a conflict.
     "4c022c44de53": {
-        "a": "test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one",
+        "a": "test_the_default_is_measure_and_the_charter_beside_it_says_the_same",
         "b": "test_the_write_door_measures_the_label_and_the_deposit_door_reads_it",
         "c": "test_a_berth_whose_floor_moved_underneath_it_still_deposits",
         "d": "test_reading_the_stored_label_is_not_skipping_the_gate",
@@ -455,13 +456,43 @@ def test_reading_the_stored_label_is_not_skipping_the_gate(root):
                    "confidence")
 
 
-def test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one(root):
-    """THE DEFAULT IS THE STRICT SIDE. Every caller that does not name the switch gets the
+def test_the_default_is_measure_and_the_charter_beside_it_says_the_same(root):
+    """CLAUSE (a), IN BOTH THE PLACES THE ANSWER IS WRITTEN — the code and the charter.
+
+    THE DEFAULT IS THE STRICT SIDE. Every caller that does not name the switch gets the
     behaviour that existed before this build, so the change is opt-in at exactly two
-    production call sites and nowhere else."""
+    production call sites and nowhere else. That is the first half and it was the whole
+    tooth until 2026-09-10.
+
+    THE SECOND HALF EXISTS BECAUSE A CHARTER IS NOT DECORATION HERE (Law 5: intent, state
+    and proofs share an address). This build changed what this door DOES and rewrote the
+    charter's ``gates`` paragraph to say so. Nothing checked the second write. Measured the
+    same day across 281 decompose berths carrying a writes_to: 46 name a component's
+    ``intention+why.json`` and 42 name a ``probes/`` module, 76 berths and 67 tickets in
+    all — a quarter of every charted build writes an artifact that, until a tooth reads it,
+    no proof can be redded by. ``cairn test --hollow`` says so in as many words, and the
+    honest reading of "no declared tooth redded" on a charter is not that the check is
+    mis-aimed: it is that the design record and the code were free to disagree.
+
+    So this tooth reads BOTH. It fails if the switch stops defaulting to measure, and it
+    fails if the charter stops recording which door measures and which reads — the two
+    ways this component can start lying about itself, caught by one assertion each.
+    """
     packet = a_packet_whose_stored_label_the_floor_will_not_reproduce()
     expect_refusal(lambda: validate_orient(dict(packet), root=root),
                    "declares its own provenance")
+
+    charter = json.load(open(os.path.join(os.path.dirname(ORIENT_PY), "intention+why.json"),
+                             encoding="utf-8"))
+    gates = charter.get("gates") or ""
+    assert "measure_provenance" in gates, (
+        "the charter's gates paragraph does not name the switch this door now takes — the "
+        "code changed and the design record did not follow it")
+    lowered = gates.lower()
+    for phrase in ("write door", "deposit door"):
+        assert phrase in lowered, (
+            "the charter's gates paragraph does not say which door measures and which "
+            "reads; missing %r" % phrase)
 
 
 
@@ -527,6 +558,33 @@ def test_a_berth_whose_floor_moved_underneath_it_still_deposits(root):
     expect_refusal(lambda: validate_orient(dict(stored), root=root),
                    "declares its own provenance")
     assert validate_orient(dict(stored), root=root, measure_provenance=False) is not None
+
+    # AND THE LIVE HALF OF THIS SAME CLAUSE IS ARMED, which is not a second subject: the
+    # fixture above builds its world and tears it down inside one run, so a berth in it is
+    # never OLDER than the tree it is checked against — and age against a moving tree is
+    # exactly the condition the defect needed. What this tooth can pin is the invariant;
+    # what only a live corpus can answer is whether the invariant holds out there. The
+    # ticket carries WATCHME(berth_deposits_again) for that reason, and an unarmed watch
+    # would leave the clause proved in the one world where it could not fail.
+    #
+    # It is read here rather than left to the emission gate because reverting the probe
+    # redded nothing: measured 2026-09-10, 42 of 281 decompose berths name a probes/ module
+    # in writes_to and no proof in the corpus reads one, so `cairn test --hollow` called
+    # every one of them a file no tooth checks — correctly.
+    probe_path = os.path.join(os.path.dirname(ORIENT_PY), "probes",
+                              "a_berth_deposits_again.py")
+    assert os.path.isfile(probe_path), (
+        "the watch this ticket carries is not at the berth the ticket names: " + probe_path)
+    spec = importlib.util.spec_from_file_location("_a_berth_deposits_again", probe_path)
+    probe_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(probe_mod)
+    probe = getattr(probe_mod, "PROBE", None)
+    assert probe is not None, "the probe module declares no module-level PROBE"
+    # carry and enough are what make a watch a watch rather than a heartbeat: one says what
+    # rides back, the other says when it has learned enough to stop. A probe missing either
+    # is the shape that reads green off one historical fact forever.
+    assert getattr(probe, "carry", None) is not None, "the PROBE declares no carry"
+    assert getattr(probe, "enough", None) is not None, "the PROBE declares no enough"
 
 
 def test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them(root):

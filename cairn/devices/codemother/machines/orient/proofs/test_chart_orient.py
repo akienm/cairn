@@ -18,6 +18,20 @@ from cairn.tools.chain.grammar import (component_roster, ref_exists)
 from cairn.devices.codemother.machines.orient.orient import (AUTHORED_FIELDS, FLOOR_AUTHORED, OrientRefused, deposit_orient, floor_facts, floor_packet, validate_orient, write_packet)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
+PROVES = {
+    # 2026-09-10, ticket 4c022c44de53 — the deposit door reads the provenance the write
+    # door derived. Lettered clauses because that ticket's falsifier enumerates (a)..(e).
+    # Clauses (a), (b) and (d) are also declared at the constrain end of the same seam;
+    # a clause covered in two proofs is two teeth for it, not a conflict.
+    "4c022c44de53": {
+        "a": "test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one",
+        "b": "test_the_write_door_measures_the_label_and_the_deposit_door_reads_it",
+        "c": "test_a_berth_whose_floor_moved_underneath_it_still_deposits",
+        "d": "test_reading_the_stored_label_is_not_skipping_the_gate",
+        "e": "test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them",
+    },
+}
+
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
 # The rule this tooth holds is "stdlib plus the doors a LEG needs, and no leg reaches
 # another leg". Its history is a narrowing, not a widening: through 2026-08-12 stage 1
@@ -482,6 +496,67 @@ def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root):
         # the store is not part of the claim.
         pass
 
+
+
+def test_a_berth_whose_floor_moved_underneath_it_still_deposits(root):
+    """CLAUSE (c), AS AN INVARIANT RATHER THAN AS THE ONE BERTH THAT RAISED IT.
+
+    The trouble named orient-20260909T215820-6525fe88f4a3.json: a berth written honestly
+    on 2026-09-09 and refused at the deposit door on 2026-09-10, because a file moved in
+    between. Pinning that berth would pin a snapshot of instance-space, so this tooth
+    MAKES THE WORLD MOVE instead. The packet earns ``floor`` for refs and unknowns from
+    the live floor, the write door stamps that label into the berth, and then the fixture
+    creates the file the floor had reported ungrounded. Nothing about the packet changed;
+    only the corpus did. The write door must now refuse the very label it wrote — that is
+    the correct answer to "is this sender honest?" asked of a berth — and the deposit door
+    must take it, which is the correct answer to "is this the label this door derived?".
+    """
+    request = "close alpha's gate and read cairn/tools/alpha/later.py"
+    fp = floor_packet(request, root=root)
+    assert fp["refs"] and fp["unknowns"], fp
+    packet = dict(good_packet(), request=request, refs=fp["refs"],
+                  domain=fp["domain"], unknowns=fp["unknowns"])
+    berth = write_packet(packet, instance_dir=os.path.join(root, "berths"), root=root)
+    stored = json.load(open(berth, encoding="utf-8"))
+    assert stored["provenance"]["refs"] == "floor", stored["provenance"]
+    assert stored["provenance"]["unknowns"] == "floor", stored["provenance"]
+
+    with open(os.path.join(root, "cairn", "tools", "alpha", "later.py"), "w") as fh:
+        fh.write("x = 1\n")
+
+    expect_refusal(lambda: validate_orient(dict(stored), root=root),
+                   "declares its own provenance")
+    assert validate_orient(dict(stored), root=root, measure_provenance=False) is not None
+
+
+def test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them(root):
+    """CLAUSE (e). THE FIX IS NOT THE WORDING — IT IS WHICH DOOR CAN SAY IT.
+
+    The sentence tells its reader to leave the floor-authored keys out because THIS DOOR
+    writes them. That is true advice for a packet arriving from a ceiling, whose label is
+    a claim; it is nonsense said to a berth, whose keys this door already wrote, and
+    obeying it would strip a stored measurement to get past a gate. Rewording it would
+    have changed nothing, so this tooth does not read the wording: it asserts the sentence
+    is REACHABLE at the write door and UNREACHABLE at the deposit door, on one object.
+    """
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    try:
+        validate_orient(dict(packet), root=root)
+        raise AssertionError("the write door accepted a misdeclared label")
+    except OrientRefused as err:
+        assert "keys out" in str(err) and "this door" in str(err), str(err)
+
+    # Same object, read mode: the packet passes, so there is no sentence at all. Asserting
+    # on the accepted return rather than on a captured string is deliberate — a door that
+    # merely softened the wording would still fail here.
+    assert validate_orient(dict(packet), root=root, measure_provenance=False) is not None
+
+    # And the deposit door is wired to the read side: its refusal is about the BERTH, a
+    # sentence it can only reach by having already passed the provenance question.
+    expect_refusal(
+        lambda: deposit_orient(packet, [0.0], berth_path="/nonexistent/berth.json",
+                               root=root),
+        "does not exist on disk")
 
 
 def main():

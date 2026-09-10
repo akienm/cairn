@@ -60,6 +60,19 @@ BETA_HOME = os.path.join("cairn", "tools", "beta")
 NESTED_HOME = os.path.join("cairn", "devices", "holder", "machines", "nested")
 
 
+PROVES = {
+    # 2026-09-10, ticket 4c022c44de53 — the deposit door reads the provenance the write
+    # door derived. Lettered clauses because that ticket's falsifier enumerates (a)..(e).
+    # Clause (c) names an ORIENT berth by name and is declared at that end of the seam.
+    "4c022c44de53": {
+        "a": "test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one",
+        "b": "test_the_deposit_door_itself_reads_rather_than_measures",
+        "d": "test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one",
+        "e": "test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them",
+    },
+}
+
+
 def make_root():
     """A synthetic world at the house's REAL shape: components on their rungs, one of
     them NESTED under a holder, plus a berthed orient packet to fill from.
@@ -812,6 +825,29 @@ def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root, orien
 
 
 
+def test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them(root, orient_berth):
+    """CLAUSE (e) AT THE CONSTRAIN END. The sentence tells its reader to leave the
+    floor-authored keys out because THIS DOOR writes them — true advice for a packet a
+    ceiling just assembled, nonsense said to a berth whose keys this door already wrote.
+    Rewording it changes nothing, so this tooth does not read the wording: it asserts the
+    sentence is REACHABLE at the write door and UNREACHABLE at the deposit door, on one
+    object."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    try:
+        validate_constrain(dict(packet), root=root)
+        raise AssertionError("the write door accepted a misdeclared label")
+    except ConstrainRefused as err:
+        assert "keys out" in str(err) and "this door" in str(err), str(err)
+
+    assert validate_constrain(dict(packet), root=root,
+                              measure_provenance=False) is not None
+
+    expect_refusal(
+        lambda: deposit_constrain(packet, [0.0], berth_path="/nonexistent/berth.json",
+                                  root=root),
+        "does not exist on disk")
+
+
 def _main() -> int:
     root, orient_berth = make_root()
     checks = [
@@ -844,6 +880,7 @@ def _main() -> int:
         test_reading_the_stored_label_is_not_skipping_the_gate,
         test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one,
         test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one,
+        test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them,
         test_import_allowlist,
     ]
     try:
@@ -877,7 +914,9 @@ def _main() -> int:
           "label the write door already derived — a switch whose default is the strict "
           "side, and reading is not skipping: a stored label that is missing, "
           "uncovering, unknown-stratum or forged against the berth still refuses at the "
-          "deposit door; the schema gate "
+          "deposit door, and the sentence telling a sender to leave those keys out "
+          "is reachable at the write door and unreachable at the deposit one; "
+          "the schema gate "
           "refuses hollow shapes, the door composes the inspector's own judges (by "
           "identity), the berth round-trips, the deposit-back is gated, and the brick's "
           "doors are exactly the three composed ones")

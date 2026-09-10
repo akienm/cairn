@@ -482,7 +482,15 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         mark = "HOLLOW" if not redded else ("UNRAN " if broke else "ok    ")
         log(f"  {mark} {rel}  ({how}) → " +
             (", ".join(redded) if redded else "no declared tooth redded")
-            + (f"  [{len(broke)} proof(s) printed no teeth at all: the import broke]" if broke else ""))
+            # WHAT WAS SEEN, NOT WHY. This line used to read "the import broke", which is a
+            # cause nothing here observed: all that was measured is a tooth count of zero, and
+            # a proof reaches zero by a broken import, by a timeout (120s per proof, and a
+            # reverted file can make a proof HANG rather than fail), or by any crash before
+            # its first check. Naming one of the three at a diagnostic surface sends the
+            # builder to look in the wrong place — Law 7 is about what a diagnostic surface
+            # may not collapse, and a guess wearing a fact's clothes is a collapse.
+            + (f"  [{len(broke)} proof(s) printed no teeth at all — did not reach a check: a "
+               f"broken import, a timeout, or a crash before the first tooth]" if broke else ""))
 
     hollow_files = [f for f, teeth in measured.items() if not teeth]
     reasons: list[str] = []
@@ -500,8 +508,11 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # this whole module exists to catch, so it reds and says exactly what it saw.
         reasons.append(
             f"unreadable: {f} reverted and {', '.join(broke)} printed no teeth at all — the "
-            f"reversion broke the proof rather than failing a tooth, so nothing here says "
-            f"whether a tooth checks this file")
+            f"proof never reached a check (a broken import, a timeout, or a crash) rather "
+            f"than failing a tooth, so nothing here says whether a tooth checks this file. "
+            f"THE FIX BELONGS TO THE PROOF: it must survive its subject being taken away — "
+            f"resolve the names this build ADDED at call time rather than binding them at "
+            f"import, and keep the reverted world reachable enough to run")
     if not measured:
         # THE SKIP LIST IS NOT AN ESCAPE HATCH. Every file skipped and none measured is a run
         # that proved nothing, and reporting it green would make "add it to the skip list" the

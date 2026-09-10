@@ -66,6 +66,7 @@ if str(_REPO_ROOT) not in sys.path:
 #   test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED
 #   test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal
 #   test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE
+#   test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow
 #   test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading
 #   test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding
 PROVES = {
@@ -98,10 +99,38 @@ from cairn.devices.cairn.machines.harbor_master.clearance import (
     retirement_of,
     riders_of,
 )
-from cairn.devices.cairn.machines.harbor_master.clearance import (  # noqa: E402
-    Uncovered,
-    hollow_lacks,
-)
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════
+# THE NAMES THIS BUILD ADDED ARE RESOLVED AT CALL TIME, NOT AT IMPORT TIME.
+# ══════════════════════════════════════════════════════════════════════════════════════
+# ``Uncovered`` and ``hollow_lacks`` did not exist in clearance before ticket 1accdc1781aa,
+# and they were imported at module level like everything above. That is fine until the one
+# instrument that must revert this build runs: ``cairn test --hollow`` checks out the
+# pre-build clearance.py under a scratch worktree and re-runs these teeth, and a module-level
+# import of a name the reverted file does not define kills the WHOLE MODULE before a single
+# tooth prints. Measured 2026-09-09: the hollow run reported
+#
+#   UNRAN cairn/.../clearance.py [1 proof(s) printed no teeth at all: the import broke]
+#   unreadable: ... the reversion broke the proof rather than failing a tooth, so nothing
+#   here says whether a tooth checks this file
+#
+# — the reading this proof exists to make, unmade, on the file this proof is ABOUT. Resolving
+# late turns that into a real reading: the reverted file still imports, the teeth still run,
+# and the two that lean on the new names fail LOUDLY and specifically, which is precisely the
+# signal the instrument is asking for. A proof that must survive its subject being taken away
+# cannot bind its subject's newest names at import time.
+def _built(name):
+    """A name ticket 1accdc1781aa added to clearance, fetched now rather than at import."""
+    from cairn.devices.cairn.machines.harbor_master import clearance as _c
+    try:
+        return getattr(_c, name)
+    except AttributeError as exc:  # the hollow instrument's reversion, or a real regression
+        raise AssertionError(
+            f"clearance does not define {name!r} — under `cairn test --hollow` this IS the "
+            f"reading (the reverted file lacks it, so this tooth is evidence about it); "
+            f"at HEAD it is a regression: {exc}") from exc
+
 from cairn.devices.cairn.machines.harbor_master import clearance as _clearance
 from cairn.devices.cairn.machines.harbor_master import register as _register
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
@@ -1617,7 +1646,7 @@ def test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_p
     _seal(proof)
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
-        assert isinstance(exc, Uncovered), f"an uncovered boat crossed to PROVED: {exc!r}"
+        assert isinstance(exc, _built("Uncovered")), f"an uncovered boat crossed to PROVED: {exc!r}"
         msg = str(exc)
         for want in ("proof_declares_the_ticket", "clause_declared", "hollow_evidence_absent"):
             assert want in msg, f"the refusal must name the {want} lack in the same pass: {msg}"
@@ -1651,7 +1680,7 @@ def test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED():
     with tempfile.TemporaryDirectory() as tmp:
         # The owner's ticket records the STALE proof; the crossing names the FRESH one.
         exc = _cross_to_proved(_covered_owner(tid, stale), tmp, boat=tid, proven_by=fresh)
-        assert isinstance(exc, Uncovered), f"a stale-fingerprint seal cleared PROVED: {exc!r}"
+        assert isinstance(exc, _built("Uncovered")), f"a stale-fingerprint seal cleared PROVED: {exc!r}"
         assert "seal_fingerprint_current" in str(exc), str(exc)
 
 
@@ -1669,7 +1698,7 @@ def test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_sea
         "the setup must be CLEAN to the coverage sieve, or this tooth proves nothing new"
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
-        assert isinstance(exc, Uncovered), f"a code-seam with no hollow reading crossed: {exc!r}"
+        assert isinstance(exc, _built("Uncovered")), f"a code-seam with no hollow reading crossed: {exc!r}"
         assert "hollow_evidence_absent" in str(exc), str(exc)
 
 
@@ -1683,10 +1712,42 @@ def test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE(
     assert record_hollow(proof, tid, {"real.py": [_COVERED_TOOTH], "decorative.py": []}) is True
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
-        assert isinstance(exc, Uncovered), f"a hollow file crossed to PROVED: {exc!r}"
+        assert isinstance(exc, _built("Uncovered")), f"a hollow file crossed to PROVED: {exc!r}"
         assert "hollow_file" in str(exc) and "decorative.py" in str(exc), str(exc)
         assert "real.py" not in str(exc), \
             "only the HOLLOW files are named — listing the sound ones buries the finding"
+
+
+def test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow():
+    """The third value a reading can carry, and the one the seal used to throw away.
+
+    ``cairn test --hollow`` reverts a file and re-runs the ticket's teeth. Usually a tooth
+    reds (covered) or none does (hollow). The third outcome is that the reversion breaks the
+    proof's IMPORT, so it prints no teeth at all — and then whatever tooth list survives says
+    nothing whatever about that file. ``hollow.measure`` already refuses to call that covered
+    or hollow and reds the run; until 2026-09-09 the SEAL dropped the distinction, so this
+    rung read a leftover non-empty list and called the file covered. Two files on this very
+    ticket's reading came through that hole. It is its own refusal and its own fix text: a
+    hollow file needs a tooth written, an unreadable one needs the proof to stop binding the
+    build's new names at import time — sending the builder at the other problem costs a
+    round trip."""
+    tid = "unreadabl0a"
+    proof = _covering_proof("unreadable", tid)
+    _seal(proof)
+    assert record_hollow(proof, tid, {"real.py": [_COVERED_TOOTH],
+                                      "broke.py": {"unreadable": ["proofs/test_broke.py"]}}) is True
+    lacks = _built("hollow_lacks")(_fixture_ticket(tid, proof), [proof],
+                                   repo_root=Path(_REPO_ROOT))
+    kinds = [one["kind"] for one in lacks]
+    assert kinds == ["hollow_unreadable"], \
+        f"an unreadable reading must red ONCE, as itself, not as a hollow file: {kinds}"
+    assert lacks[0]["values"]["files"] == ["broke.py"], lacks[0]
+    assert "real.py" not in json.dumps(lacks[0]), \
+        "only the UNREADABLE files are named — listing the sound ones buries the finding"
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
+        assert isinstance(exc, _built("Uncovered")), f"an unreadable reading crossed: {exc!r}"
+        assert "hollow_unreadable" in str(exc) and "broke.py" in str(exc), str(exc)
 
 
 def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
@@ -1698,13 +1759,13 @@ def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
     proof = _covering_proof("concept", tid)
     _seal(proof)
     ticket = _fixture_ticket(tid, proof, node_class="concept-piece")
-    assert hollow_lacks(ticket, [proof], repo_root=Path(_REPO_ROOT)) == [], \
+    assert _built("hollow_lacks")(ticket, [proof], repo_root=Path(_REPO_ROOT)) == [], \
         "a concept-piece was asked for a hollow reading it cannot have"
     # And the fold is the system's, not a string compare: he may type it in any case.
-    assert hollow_lacks({**ticket, "node_class": "Concept-Piece"}, [proof],
+    assert _built("hollow_lacks")({**ticket, "node_class": "Concept-Piece"}, [proof],
                         repo_root=Path(_REPO_ROOT)) == [], \
         "the node class is a system word and folds case (ruled 2026-09-07)"
-    assert hollow_lacks(_fixture_ticket(tid, proof), [proof],
+    assert _built("hollow_lacks")(_fixture_ticket(tid, proof), [proof],
                         repo_root=Path(_REPO_ROOT)) != [], \
         "and the fork must be the CLASS — a code-seam with the same seal is still asked"
 
@@ -1721,7 +1782,7 @@ def test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding():
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
                                trouble_device=dev)
-    assert isinstance(exc, Uncovered)
+    assert isinstance(exc, _built("Uncovered"))
     assert len(dev.raised) == 1, f"exactly one trouble per refusal: {dev.raised}"
     one = dev.raised[0]
     assert tid in one["identity"], one["identity"]
@@ -1745,7 +1806,7 @@ def test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_t
     with tempfile.TemporaryDirectory() as tmp:
         exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
                                trouble_device=_Broken())
-    assert isinstance(exc, Uncovered), \
+    assert isinstance(exc, _built("Uncovered")), \
         f"a broken trouble store replaced the refusal with its own failure: {exc!r}"
 
 
@@ -1767,7 +1828,7 @@ def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_
             with _owner_is(_covered_owner(tid, proof)):
                 clear(at_learn, "proved", actor=_OWNER, boat_id=tid, proven_by=proof,
                       history_path=hp, state_path=sp, ticket=tid)
-        except Uncovered:
+        except _built("Uncovered"):
             pass
         else:
             raise AssertionError("a lower-case 'proved' walked past the coverage rung")
@@ -1895,6 +1956,7 @@ def _main() -> int:
         test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED,
         test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal,
         test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE,
+        test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow,
         test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading,
         test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding,
         test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace,

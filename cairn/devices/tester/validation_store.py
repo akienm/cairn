@@ -784,7 +784,17 @@ def record_hollow(proof_path: str, ticket: str, measured: dict, *, trouble_devic
     if not isinstance(evidence, dict):
         return False
     hollow = evidence.get("hollow")
+    # ``list(t)`` ON A NON-LIST WOULD LAUNDER IT. A file's reading is normally a list of the
+    # teeth that redded, and the coercion made that concrete. Since 2026-09-09 a file whose
+    # reversion broke the proof's IMPORT instead of failing a tooth is sealed as
+    # ``{"unreadable": [proofs]}`` — a dict, deliberately, so the gate cannot mistake it for
+    # a reading — and ``list()`` over that dict yields ``["unreadable"]``: a NON-EMPTY tooth
+    # list, which reads at the gate as a file covered by a tooth named "unreadable". The
+    # narrowest possible hollow green, manufactured by a defensive cast. Lists are still
+    # normalised; anything else rides through as itself.
     evidence["hollow"] = {**(hollow if isinstance(hollow, dict) else {}),
-                          str(ticket): {str(f): list(t) for f, t in measured.items()}}
+                          str(ticket): {str(f): (list(t) if isinstance(t, (list, tuple, set))
+                                                 else t)
+                                        for f, t in measured.items()}}
     persist_validation(record, proof_path=proof_path, trouble_device=trouble_device)
     return True

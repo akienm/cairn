@@ -646,6 +646,23 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
         (Law 8 — a proof a hollow build couldn't pass; Law 9 — green is EARNED).
       - the key is present and names a hollow FILE -> red, and the refusal names the file,
         because that is the one thing the builder has to go and fix.
+      - the key is present and names an UNREADABLE file -> red, and it is its OWN refusal,
+        not folded into hollow. A file reads unreadable when reverting it stopped the proof
+        reaching a check at all — a broken import, a timeout, a crash — instead of failing a
+        tooth, so the run printed no teeth and nothing it left behind says whether anything
+        checks that file. (Both causes were measured on 2026-09-09: reverting clearance.py
+        broke test_clearance's module-level import; reverting codemother's shim left every
+        bus tooth waiting 180s on a verb the reverted device no longer declares, past the
+        instrument's own 120s default.) ``hollow.measure`` refuses to
+        call that covered OR hollow and reds the run; before 2026-09-09 the seal dropped the
+        distinction and this rung read the leftover tooth list as evidence — the instrument
+        declining to judge, and the gate judging in its name. The value is a dict
+        (``{"unreadable": [proofs]}``) rather than a list precisely so it cannot be mistaken
+        for a reading: an unreadable file is not "hollow with an empty list", and telling the
+        builder to go make a tooth red would send them at the wrong problem. The fix is to
+        make the proof survive its subject being taken away — resolve the build's new names
+        at call time rather than binding them at import, and give the run a timeout that
+        outlasts the waits a reverted world creates — and then take the reading again.
       - the key is present and every measured file redded a tooth -> covered.
 
     AND THE READING EXPIRES WITH THE CODE. It rides ``evidence`` beside the
@@ -680,7 +697,20 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
                 f"command: `cairn test --hollow {tid} --seal`",
                 proof=str(one)))
             continue
-        empty = sorted(f for f, teeth in reading.items() if not teeth)
+        unreadable = sorted(f for f, r in reading.items() if not isinstance(r, list))
+        if unreadable:
+            out.append(_lack(
+                tid, "hollow_unreadable",
+                f"every file the build of {tid} touched yields a READABLE reversion reading",
+                f"reverting {', '.join(unreadable)} stopped the proof reaching a check at "
+                "all — a broken import, a timeout, or a crash — rather than failing a tooth, "
+                "so the run printed no teeth and nothing measured says whether this file is "
+                "checked at all: not covered, not hollow, UNREAD. FIX: make the proof survive "
+                "its subject being taken away (resolve this build's new names at call time, "
+                f"and allow a timeout that outlasts the reverted world's waits), then `cairn "
+                f"test --hollow {tid} --seal` again",
+                proof=str(one), files=unreadable))
+        empty = sorted(f for f, r in reading.items() if isinstance(r, list) and not r)
         if empty:
             out.append(_lack(
                 tid, "hollow_file",

@@ -141,10 +141,25 @@ def _hollow_run(args) -> int:
           f"· {n_skip} skipped · reverted to {finding['commit'][:12]}")
 
     if args.seal:
+        # AN UNREADABLE FILE IS SEALED AS UNREADABLE, NEVER AS A TOOTH LIST.
+        # ``measured[rel]`` is set for every file the run touched, INCLUDING the ones whose
+        # proof printed no teeth at all — it never reached a check (a broken import, a
+        # timeout, a crash) rather than failing a tooth. For those the
+        # tooth list is whatever survived, and it is meaningless — hollow.measure says so
+        # loudly ("NOT COUNTED AS HOLLOW, AND NOT COUNTED AS COVERED"), reds the verdict, and
+        # names them in `unran`. Sealing `measured` alone dropped that distinction on the way
+        # to the gate: ``hollow_lacks`` reds an ABSENT key and an EMPTY list and nothing else,
+        # so a file with a non-empty leftover list read as COVERED — the instrument refusing
+        # to call it evidence, and the gate that reads the instrument's own record calling it
+        # earned. Measured 2026-09-09 on this ticket's own reading: two files, both of them
+        # the seam under test. That is a hollow green between two of our own parts, which is
+        # the exact shape Law 8 names, so the marker rides the record and the gate reads it.
+        reading = {f: t for f, t in finding["measured"].items()}
+        for f, broke in finding["unran"].items():
+            reading[f] = {"unreadable": sorted(broke)}
         persisted = 0
         for rel in finding["proofs"]:
-            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"],
-                                   {f: t for f, t in finding["measured"].items()})
+            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading)
             persisted += 1 if landed else 0
         print(f"SEALED — hollow evidence landed on {persisted} of {len(finding['proofs'])} "
               f"standing validation(s) through the store's door.")

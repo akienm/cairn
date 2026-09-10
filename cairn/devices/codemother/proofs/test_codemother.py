@@ -8,10 +8,59 @@ query, and digest.
 import contextlib
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
 from cairn.devices.tester.scratch import scratch_dir
+
+
+def _commons_root():
+    """The operator's REAL commons, named the same from the live tree and from a worktree.
+
+    THE CLASS OF BUG THIS ENDS, and it is a class with its own ticket
+    (a-proof-that-reaches-a-sibling-repo-by-relative-path-cannot-be-reproven-elsewhere):
+    ``parents[N].parent / "CairnCommons"`` is the sibling of WHATEVER CHECKOUT IS RUNNING.
+    A worktree is a checkout of this repo at another path, so from
+    ``/tmp/cairn-hollow-xxx/worktree`` that expression names a CairnCommons under /tmp that
+    has never existed. Measured 2026-09-09 on THIS file: 29/29 green in the live tree, 28/29
+    in ``git worktree add /tmp/hw HEAD``, the one red being
+    ``test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof`` with
+    ``unknown node-class 'code-seam' — no definition at /tmp/CairnCommons/node_classes/``.
+    And because a declared tooth that is not green at HEAD makes every reversion reading
+    unattributable, that one path was refusing the whole hollow measurement of ticket
+    1accdc1781aa with ``HollowUnmeasurable``.
+
+    WHY GIT'S COMMON DIR. ``--git-common-dir`` is the shared ``.git`` of the repo AND of
+    every worktree of it, so its parent is the MAIN working tree from wherever this runs,
+    and its sibling is the one commons the operator actually has. The precedent is
+    ``cairn/devices/trouble/proofs/test_trouble.py`` (2026-09-09), which took the same fix
+    for the same reason and now reads 37/37 both ways; the reasoning there — why not an env
+    var, why not ``cairnmap.commons_root()`` (it derives from ``__file__`` and carries the
+    same bug, and widening it from here is the shape Law 8 refuses) — holds here unchanged.
+    """
+    return _main_tree().parent / "CairnCommons"
+
+
+def _main_tree():
+    """The MAIN working tree of this repo, named the same from itself and from a worktree.
+
+    ``--git-common-dir`` is the shared ``.git`` of the repo AND of every worktree of it, so
+    its parent is the main tree from wherever this runs. Everything a proof reaches for
+    outside its own scratch — the operator's commons, his real cast tickets, the node-class
+    definitions — hangs off this one answer, so it is derived once here rather than
+    re-spelled per tooth.
+    """
+    common = subprocess.run(
+        ["git", "-C", str(Path(__file__).resolve().parent),
+         "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        capture_output=True, text=True)
+    if common.returncode == 0 and common.stdout.strip():
+        return Path(common.stdout.strip()).parent
+    # NOT A SILENT FALLBACK: outside a git checkout there is no main tree to name. The
+    # checkout itself is the honest best effort, and the caller then fails LOUDLY naming
+    # the path it looked in — the behaviour that surfaced this bug in the first place.
+    return Path(__file__).resolve().parents[4]
 
 # WHICH TICKET CLAUSES THESE TEETH COVER — read out of the AST by
 # cairn/tools/proof_coverage, never by importing this module. The join is the
@@ -624,6 +673,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
     }), encoding="utf-8")
 
     real = _clearance.boat_owner_of
+    real_load_class_def = _transitions.load_class_def
     saved_tickets = _transitions._TICKETS
 
     def _fixture_owner_of(boat_id, **kw):
@@ -632,12 +682,40 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
         kw.setdefault("commons_root", str(root))
         return real(boat_id, **kw)
 
+    def _portable_load_class_def(node_class, *, root=None):
+        """THE FOURTH CORPUS READ, and the one this fixture missed until 2026-09-09.
+
+        The three above substitute WHERE THE BOAT LIVES. This one is where its CLASS lives:
+        the gate validates the workflow string against ``code-seam.json``, and
+        ``transitions._NODE_CLASSES`` names ``<this checkout>.parent / CairnCommons /
+        node_classes``. That expression is right for the live tree and wrong for every
+        worktree of it — see ``_commons_root`` for the measurement and the class of bug.
+
+        A MODULE-CONSTANT PATCH WOULD DO NOTHING, which is why this is a wrapper: the root
+        is a DEFAULT ARGUMENT on both ``load_class_def`` and ``emit``, bound at def time, so
+        the constant is already spent by the time a fixture could reach it. And the test is
+        "does the given root exist", not "did the caller pass one" — ``emit`` ALWAYS passes
+        a root (its own default, which is the broken expression), so an ``or`` spelling
+        would keep the broken path and change nothing. Measured: it did.
+
+        THE REAL DEFINITION, NEVER A FIXTURE ONE. A synthetic ``code-seam.json`` written
+        here would make the tooth pass by lowering the bar it measures — the workflow string
+        on the fixture ticket has to conform to the class def the live corpus casts against,
+        and a stub would let a drifted string through. This substitutes the ADDRESS and
+        nothing else, exactly as the three wrappers above do.
+        """
+        if root is None or not Path(root).is_dir():
+            root = _commons_root() / "node_classes"
+        return real_load_class_def(node_class, root=root)
+
     _clearance.boat_owner_of = _fixture_owner_of
+    _transitions.load_class_def = _portable_load_class_def
     _transitions._TICKETS = tickets
     try:
         yield boat
     finally:
         _clearance.boat_owner_of = real
+        _transitions.load_class_def = real_load_class_def
         _transitions._TICKETS = saved_tickets
 
 
@@ -712,6 +790,49 @@ def test_a_crossing_codemother_admits_names_her_in_the_record():
     print("PASS: test_a_crossing_codemother_admits_names_her_in_the_record")
 
 
+@contextlib.contextmanager
+def _the_real_corpus_is_reachable():
+    """Point the gate's corpus reads at the MAIN tree — for the teeth that use a REAL boat.
+
+    ``_the_boat_is_covered`` builds a fixture commons and aims everything at it. This is the
+    other case: a tooth whose boat is a genuine cast ticket, because what it measures is a
+    refusal from a LATER rung and the owner rung has to resolve first for that refusal to be
+    the one it sees. The defaults resolve the commons as the sibling of whatever checkout is
+    running, so from a worktree the owner read finds no ticket at all and the door refuses
+    ``OwnerUnresolvable`` — a refusal from the wrong rung, which reads as a red about a
+    behaviour the tooth was not asking about. Measured 2026-09-09 in ``git worktree add
+    /tmp/hw HEAD``: expected ``'Unproven'``, got ``'OwnerUnresolvable'``.
+
+    NOTHING IS SOFTENED. Every root here is the operator's own — the same files the live
+    gate reads — so the tooth still meets the real owner rung, the real node-class
+    definition, and then the real proven-space rung that it exists to assert.
+    """
+    import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
+    import cairn.tools.base.transitions as _transitions
+
+    commons, tree = _commons_root(), _main_tree()
+    real_owner, real_load = _clearance.boat_owner_of, _transitions.load_class_def
+
+    def _rooted_owner_of(boat_id, **kw):
+        kw.setdefault("tickets_dir", str(commons / "tickets"))
+        kw.setdefault("cairn_root", str(tree))
+        kw.setdefault("commons_root", str(commons))
+        return real_owner(boat_id, **kw)
+
+    def _rooted_load(node_class, *, root=None):
+        if root is None or not Path(root).is_dir():
+            root = commons / "node_classes"
+        return real_load(node_class, root=root)
+
+    _clearance.boat_owner_of = _rooted_owner_of
+    _transitions.load_class_def = _rooted_load
+    try:
+        yield
+    finally:
+        _clearance.boat_owner_of = real_owner
+        _transitions.load_class_def = real_load
+
+
 def test_the_door_still_refuses_an_unproven_boat_through_her():
     """FALSIFIER CLAUSE (2): reaching the door as codemother does not soften it.
 
@@ -721,7 +842,8 @@ def test_the_door_still_refuses_an_unproven_boat_through_her():
     Law 7 failure the handler was written against. And the history must be UNTOUCHED:
     a door that refuses but writes anyway has not refused."""
     comp, proof = _fixture_component("cm_refuse_", seal=False)
-    answer = _ask_codemother_to_cross(comp, proof)
+    with _the_real_corpus_is_reachable():
+        answer = _ask_codemother_to_cross(comp, proof)
     assert answer.get("accepted") is False, f"an unproven boat was ADMITTED: {answer}"
     assert answer.get("refusal") == "Unproven", \
         f"the refusal is {answer.get('refusal')!r}, expected 'Unproven'"
@@ -958,8 +1080,16 @@ def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
 
 
 def _troubles_now():
-    """How many trouble files stand in the commons right now. n=1 measurements, both ends."""
-    troubles = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "troubles"
+    """How many trouble files stand in the commons right now. n=1 measurements, both ends.
+
+    THROUGH ``_commons_root`` AND NOT THE SIBLING GUESS, because the guess made this
+    function a hollow green rather than a red: in a worktree it named a directory that does
+    not exist, ``is_dir()`` returned False, and BOTH readings came back 0 — so "no trouble
+    was raised" was true of an empty set the tooth was never looking at. That is the
+    coin-toss shape (a check that passes for the wrong reason), and it is worse here than
+    the crossing bug above, which at least failed loudly.
+    """
+    troubles = _commons_root() / "troubles"
     return len(list(troubles.glob("*.json"))) if troubles.is_dir() else 0
 
 

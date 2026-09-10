@@ -1266,6 +1266,26 @@ def main() -> None:
                    "none, because we agreed on this earlier"):
         assert not _floor(hollow), f"a plausible sentence opened the floor: {hollow!r}"
 
+    # THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the
+    # ruling gate ENFORCES (one commit cannot address two repos, so its what_conforms are
+    # written 'CairnCommons/...' and 'cairn/cairn/...'). The floor knew repo-relative and
+    # commons-relative only, so a reason naming a real ruling in the system's own third
+    # spelling read as pointing at nothing. Measured: 9 of 196 reds were exactly that,
+    # every one honest. Fixture: the commons' PARENT holds the file, and neither repo/ nor
+    # commons/ does — so only the third branch can pass this.
+    (fr / "CairnCommons" / "decisions").mkdir(parents=True)
+    (fr / "CairnCommons" / "decisions" / "2026-01-01-a-thing-was-ruled.json").write_text("{}")
+    assert not (_rr / "CairnCommons/decisions/2026-01-01-a-thing-was-ruled.json").exists()
+    assert not (_cc / "CairnCommons/decisions/2026-01-01-a-thing-was-ruled.json").exists()
+    assert _floor("none, because CairnCommons/decisions/2026-01-01-a-thing-was-ruled.json ruled it"), \
+        ("a path written in the ruling gate's OWN convention did not resolve — the floor "
+         "asks whether the referent exists, not which of three legal spellings was used")
+
+    # and the third branch is a RESOLVE, not a widening: a roots-parent path to nothing
+    # still fails, so the convention was added without adding a channel.
+    assert not _floor("none, because CairnCommons/decisions/2026-01-01-never-ruled.json ruled it"), \
+        "the roots-parent branch passed a path that is not on disk — that is a channel, not a convention"
+
     # AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries
     # commas and full stops, and the floor strips them before it looks.
     assert _floor("none, because (cairn/tools/thing.py), which already does it."), \

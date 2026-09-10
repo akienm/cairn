@@ -1970,6 +1970,20 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
     Measured over the corpus at the fix: 326 ``none, because <X>`` reasons on filed
     tickets, 321 passing, 95 passing honestly. The floor built against "one plausible
     sentence" was accepting them at 71%.
+
+    AND THERE ARE THREE PATH CONVENTIONS IN THIS SYSTEM, NOT TWO (same voyage, found by
+    trying to write a passing reason and failing). A path here is written relative to the
+    cairn repo (``cairn/tools/chain/grammar.py``), relative to the commons
+    (``tickets/<id>-<slug>.json``), or relative to the ROOTS PARENT ``~/dev/src``
+    (``CairnCommons/decisions/<id>.json``, ``cairn/cairn/tools/...``) — and the third is
+    not a stray habit: it is the convention the ruling gate ENFORCES on every packet's
+    ``what_dies``/``what_conforms``, because one commit cannot address two repos. This
+    function knew the first two, so a reason naming a real ruling in the spelling the
+    ruling gate demands read as pointing at nothing. Measured: 9 of the 196 reasons this
+    floor reds are exactly that, each one honest. The floor's question is whether the
+    referent RESOLVES, never which of three legal spellings the author reached for; the
+    guard is unchanged either way — the token must still look like a path AND still be
+    on disk.
     """
     from cairn.tools.chain.grammar import ticket_path
 
@@ -1987,6 +2001,12 @@ def reason_has_referent(reason: str, *, repo: Path | None = None,
             if p.is_absolute() and p.exists():
                 return True
             if (repo / token).exists() or (commons / token).exists():
+                return True
+            # THE THIRD CONVENTION: relative to the roots parent, which is what the ruling
+            # gate writes. ``commons.parent`` rather than a new constant — the two roots
+            # sit side by side by construction, and deriving it here keeps this function
+            # honest under the injected ``repo``/``commons`` a door's fixture hands it.
+            if (commons.parent / token).exists():
                 return True
             continue
         if ticket_path(token, root=str(repo),

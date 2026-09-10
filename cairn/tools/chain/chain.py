@@ -38,6 +38,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+from pathlib import Path
 
 from cairn.tools.chain.grammar import INSTANCE_DIR, ticket_spellings
 
@@ -375,10 +376,155 @@ def scan(tickets_dir: str) -> list[dict]:
     return out
 
 
+def drop_stored_chart_chain(tickets_dir: str | None = None, *, apply: bool = False,
+                            berths_root=None) -> dict:
+    """Remove the ``chart_chain`` key from every commons ticket that carries one.
+
+    NOT A DELETE OF EVIDENCE — a delete of a SECOND COPY of an address this module already
+    computes. ``chain_for_ticket`` resolves the standing chain from the berth store, and the
+    BUILDME entry gate has derived it that way for months. The stored field had exactly ONE
+    reader in the live tree (``hollow.writes_to``) and ZERO writers, which means every one of
+    its 24 carriers was typed by a hand onto the very ticket a gate would later judge. Akien
+    ruled that shape out for ``crossings`` on 2026-09-10; this is the same shape, one field
+    over.
+
+    THE COMPARISON HAPPENED BEFORE ANYTHING WAS WRITTEN, because after this verb runs it
+    cannot be taken again. Measured 2026-09-10 over all 22 dict-carriers: derived == stored,
+    22 of 22, 0 different, 0 derived-None-where-stored-had-a-path, 0 gained.
+
+    TWO SHAPES, AND THE SECOND IS WHY THIS IS LONGER THAN A ``del``. Twenty-two carriers hold
+    a dict; two hold a bare STRING of prose, and ``hollow`` dereferenced them with ``.get``,
+    so a bare-string carrier reached the reader as an ``AttributeError`` rather than as a
+    named lack. Both strings name berths the derivation reproduces exactly — all eight stages
+    for both, including the verdict berths their prose cites — so the addresses are not lost.
+    What is NOT reproducible is one digest inside ``2744aab73ff3``'s string ("7 criteria pass,
+    8 hypotheses dispositioned"), and Law 5 is explicit that history moved out is kept and
+    greppable, never destroyed. So the prose is carried into ``notes`` rather than dropped,
+    verbatim — including its citation of ``cairn.machines.chart.live``, a module path that
+    dissolved on 2026-08-13. Correcting the quote would be editing a historical record to
+    make it look righter than it was; the note says where the path went instead.
+
+    Default is a DRY RUN. ``apply=True`` writes through ``transitions._write_ticket`` — the
+    atomic writer that reproduces each file's measured serialisation — and ``_ticket_shape``
+    is read from the on-disk bytes BEFORE the doc is mutated. Handing it the edited doc asks
+    it to reproduce the old bytes from new content, which no pair can do: it refuses,
+    correctly, and the migration dies on its first file with nothing written.
+    """
+    from cairn.tools.base.transitions import _write_ticket
+    from cairn.tools.base.transitions import _ticket_shape as _shape_of
+
+    root = Path(tickets_dir or _default_tickets_dir())
+    report: dict = {"applied": bool(apply), "removed": [], "prose_moved": [], "empty": [],
+                    "notes_carried": 0, "disagreed": [], "unreadable": []}
+    if not root.is_dir():
+        return report
+    for path in sorted(root.glob("*.json")):
+        try:
+            raw = path.read_bytes()
+            doc = json.loads(raw.decode("utf-8"))
+        except (OSError, ValueError, UnicodeDecodeError) as exc:
+            report["unreadable"].append({"ticket": path.name, "why": str(exc)})
+            continue
+        if not isinstance(doc, dict) or "chart_chain" not in doc:
+            continue
+        ensure_ascii, newline = _shape_of(raw, doc)
+        value = doc["chart_chain"]
+        tid = str(doc.get("id") or path.stem.split("-")[0])
+        notes = doc.get("notes")
+        notes = list(notes) if isinstance(notes, list) else ([notes] if notes else [])
+
+        if isinstance(value, str) and value.strip():
+            notes.append(
+                "chart_chain (removed 2026-09-10, ticket 95e3b9911dd0 — the chain is DERIVED "
+                "from the berths by cairn.tools.chain.chain.chain_for_ticket, never stored on "
+                "the ticket a gate judges). This ticket carried PROSE where the readers "
+                "expected a mapping; the derivation reproduces every berth it names. Carried "
+                "verbatim, stale module path and all — `cairn.machines.chart.live` dissolved "
+                "2026-08-13 and is now `skills.chart.live`: " + value.strip())
+            report["prose_moved"].append({"ticket": tid, "chars": len(value)})
+            report["notes_carried"] += 1
+        elif isinstance(value, dict) and value:
+            # THE LAST CHANCE TO NOTICE A DISAGREEMENT, taken rather than assumed. The
+            # equivalence was measured across the corpus before this verb existed; measuring
+            # it again HERE, per file, means a carrier that drifted between then and now is
+            # reported instead of silently discarded.
+            derived = chain_for_ticket(tid, berths_root=berths_root)
+            for stage, stored in value.items():
+                if not stored or derived.get(stage) == stored:
+                    continue
+                report["disagreed"].append(
+                    {"ticket": tid, "stage": stage, "stored": stored,
+                     "derived": derived.get(stage)})
+                # ANYTHING THE DERIVATION DOES NOT REPRODUCE IS CARRIED OUT, NOT DROPPED.
+                # The dry run of 2026-09-10 is what taught this branch it was needed: one
+                # ticket (782554235fca) had stored `ran`, `note` and `verdict_berth` INSIDE
+                # the mapping — keys that are not chain stages at all — and its `note` held
+                # 500 characters of Akien-facing friction reporting that appears nowhere
+                # else in either root. A migration that deleted the key would have deleted
+                # that with it, silently, and Law 5 is explicit: history moved out is kept
+                # and greppable, never destroyed. So the test is not "is this key a stage"
+                # but "can the derivation reproduce this value" — which catches the prose
+                # and the stale addresses with one predicate instead of a key allowlist
+                # somebody has to keep current.
+                notes.append(
+                    "chart_chain.%s (removed 2026-09-10, ticket 95e3b9911dd0 — the chain is "
+                    "DERIVED from the berths by cairn.tools.chain.chain.chain_for_ticket). "
+                    "This value was NOT reproduced by the derivation, so it is carried here "
+                    "rather than dropped; the derivation answers %r for that stage. Stored "
+                    "value: %s" % (stage, derived.get(stage),
+                                   stored if isinstance(stored, str) else repr(stored)))
+                report["notes_carried"] += 1
+            report["removed"].append({"ticket": tid, "stages": len(value)})
+        else:
+            report["empty"].append({"ticket": tid})
+
+        del doc["chart_chain"]
+        if notes:
+            doc["notes"] = notes
+        if apply:
+            _write_ticket(path, doc, ensure_ascii, newline)
+    return report
+
+
+def carriers(tickets_dir: str | None = None) -> list[dict]:
+    """Every commons ticket still carrying a stored ``chart_chain``, with the shape it holds.
+
+    THE SWEEP THE WATCH READS, and it is deliberately a plain corpus read: no oracle, no
+    inference, no database. A hand typed this field 24 times with nothing objecting, so the
+    question the probe asks forever after is not "did the migration run" but "has anyone
+    typed it back". An empty list is the resting answer.
+    """
+    root = Path(tickets_dir or _default_tickets_dir())
+    out: list[dict] = []
+    if not root.is_dir():
+        return out
+    for path in sorted(root.glob("*.json")):
+        try:
+            doc = json.loads(path.read_bytes().decode("utf-8"))
+        except (OSError, ValueError, UnicodeDecodeError):
+            continue
+        if isinstance(doc, dict) and "chart_chain" in doc:
+            out.append({"ticket": str(doc.get("id") or path.stem.split("-")[0]),
+                        "file": path.name,
+                        "shape": type(doc["chart_chain"]).__name__})
+    return out
+
+
 def _default_tickets_dir() -> str:
-    here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(here))),
-                        "CairnCommons", "tickets")
+    """The commons ticket store — a SIBLING of the cairn repo, never a child of it.
+
+    FIXED 2026-09-10 (ticket 95e3b9911dd0, a bug this voyage uncovered and therefore fixes).
+    This walked up THREE levels from ``cairn/tools/chain/`` and landed on the repo root, then
+    joined ``CairnCommons/tickets`` to it — resolving to ``<repo>/CairnCommons/tickets``,
+    which has never existed. The commons is at ``~/dev/src/CairnCommons``, one level ABOVE the
+    repo. Nothing red: ``scan()``'s ``__main__`` globbed a directory that is not there, found
+    no files, and printed "0 nonconforming chart_notes block(s)" with exit 0 — a green earned
+    by looking at nothing, which is the coin-toss-red shape. Four levels, and the answer is
+    checked rather than assumed.
+    """
+    here = Path(os.path.abspath(__file__))
+    # chain.py -> chain/ -> tools/ -> cairn/ -> <repo root> -> <src dir holding both roots>
+    return str(here.parents[4] / "CairnCommons" / "tickets")
 
 
 if __name__ == "__main__":  # pragma: no cover — the reading, run by hand

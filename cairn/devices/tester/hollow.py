@@ -91,6 +91,7 @@ from cairn.devices.tester.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
+from cairn.tools.chain.chain import chain_for_ticket
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
@@ -177,18 +178,45 @@ def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
     return commit
 
 
-def writes_to(ticket: dict) -> list[str]:
+def writes_to(ticket: dict, *, berths_root=None) -> list[str]:
     """Every file the ticket's decompose berth says this build writes, in berth order, deduped.
 
     THE CHART IS THE CLAIM AND THIS IS WHAT CHECKS IT. The list is not re-derived from the
     diff: a diff says what changed, and the question here is whether what the ticket SAID it
     would build is load-bearing. A build that quietly wrote elsewhere is a different finding
     (against the chart leg), and reading the diff instead would hide it by construction.
+
+    AND THE BERTH IS DERIVED FROM THE BERTHS, NEVER READ OFF THE TICKET. hollow is an
+    instrument whose reading gates a crossing, and until 2026-09-10 it took the address of
+    its own evidence from a ``chart_chain`` field on the very ticket it was judging — a
+    field with ONE reader (this line) and ZERO writers anywhere in the tree, meaning all 24
+    carriers were typed by a hand. That is the shape Akien ruled on for ``crossings`` the
+    same day: a gate may not read evidence the judged thing supplies about itself. The
+    BUILDME entry gate had already been deriving this exact chain from the berth store for
+    months (``a_berthed_chart_chain_claims_the_ticket``), so the two mouths were reading one
+    field two ways. This one now calls the same resolver, and the disagreement is gone by
+    construction rather than by anyone keeping the copy fresh.
+
+    Measured before the change, over all 22 dict carriers at the key this reads: derived ==
+    stored, 22 of 22, none lost, none gained. The stored field was a cache of a fact the system
+    already computed. (The whole-mapping reading is not that clean and is recorded at
+    ``cairn/tools/chain/proofs/evidence-2026-09-10-derived-equals-stored.json`` — four stored
+    values across two tickets that the derivation does not reproduce, none of them a decompose
+    berth, all carried into those tickets' notes rather than dropped.)
+
+    ``berths_root`` EXISTS BECAUSE THE SANDBOX CONTRACT WAS TWO ROOTS AND THIS MADE IT THREE.
+    ``measure`` has always let a caller supply its own repo and its own commons, which is what
+    makes the fixture world in the proofs possible. Reading the berth off the ticket needed
+    neither, so the change quietly introduced a third root that only the live store could
+    satisfy — and six fixture teeth went red naming a ticket the real berth store has never
+    heard of. The parameter is not a convenience: an instrument that can only be measured
+    against production cannot be measured at all.
     """
-    berth = (ticket.get("chart_chain") or {}).get("decompose")
+    tid = ticket.get("id")
+    berth = chain_for_ticket(tid, berths_root=berths_root)["decompose"] if tid else None
     if not berth:
         raise HollowUnmeasurable(
-            f"hollow: ticket {ticket.get('id')} names no decompose berth, so nothing declares "
+            f"hollow: ticket {tid} names no decompose berth, so nothing declares "
             f"which files the build writes. There is no list to check the proof against.")
     try:
         packet = json.loads(Path(berth).read_text(encoding="utf-8"))
@@ -345,7 +373,7 @@ def _restore(worktree: Path, rel: str) -> None:
 
 
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
-            timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
+            berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
     """Revert this ticket's build file by file and report which declared teeth each one reds.
 
     Returns the finding as data — ``verdict`` green|red, ``measured`` {file: [teeth]},
@@ -361,7 +389,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     crossing = _buildme_crossing(ticket, roots)
     at = _buildme_at(ticket, crossing, repo_root)
     commit = prebuild_commit(at, repo_root=repo_root)
-    files = writes_to(ticket)
+    files = writes_to(ticket, berths_root=berths_root)
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own

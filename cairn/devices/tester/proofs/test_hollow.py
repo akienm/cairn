@@ -40,7 +40,19 @@ PROVES = {
         "5": "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
         "6": "test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_checks_is_not_hollow",
         "7": "test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run",
-    }
+    },
+    "95e3b9911dd0": {
+        "1": "test_the_reader_names_no_stored_chart_chain_and_calls_the_derivation_instead",
+        "2": "test_the_derived_decompose_berth_equals_a_stored_one_the_fixture_authored",
+        "3": "test_a_ticket_no_decompose_berth_claims_raises_the_named_lack_not_an_empty_list",
+        "4": "test_a_bare_string_chart_chain_is_no_longer_dereferenced_by_the_reader",
+        "6": "test_the_derived_reader_teeth_red_against_the_stored_field_reader",
+        "7": "test_no_ticket_in_the_live_commons_carries_a_stored_chart_chain",
+        "8": "test_the_migration_removes_one_key_and_carries_what_it_cannot_re_derive_to_notes",
+        "9": "test_the_migrations_dry_run_names_exactly_the_files_the_apply_run_writes",
+        "10": "test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_zero_alone",
+        "11": "test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_zero_alone",
+    },
 }
 
 FIXTURE = "f1x7u2e00001"
@@ -111,15 +123,38 @@ def _fixture(tmp: Path, *, with_added: bool = False) -> tuple[Path, Path]:
     _git(repo, "commit", "-qm", "the build",
          env={**env, "GIT_AUTHOR_DATE": "2020-01-03T00:00:00", "GIT_COMMITTER_DATE": "2020-01-03T00:00:00"})
 
-    berth = tmp / "decompose.json"
-    berth.write_text(json.dumps({"sub_problems": [
-        {"what": "the build", "kind": "build",
-         "writes_to": ["subject.py", "unchecked.py", "proofs/test_fixture.py"]}]}))
-    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({
-        "id": FIXTURE,
-        "chart_chain": {"decompose": str(berth)}}))
+    _berth_decompose(tmp, ["subject.py", "unchecked.py", "proofs/test_fixture.py"])
+    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({"id": FIXTURE}))
     _journal(repo, [{"to": "BUILDME", "proven_by": "proofs/test_fixture.py"}])
     return repo, commons
+
+
+def _berths_root(tmp: Path) -> Path:
+    """The fixture world's THIRD root.
+
+    Until 2026-09-10 a fixture needed two — its own repo and its own commons — because the
+    decompose berth's address was a string on the ticket and a string needs no store. Deriving
+    the berth (ticket 95e3b9911dd0) made the berth STORE part of what a measurement reads, so a
+    fixture that cannot supply one is measuring production. The layout mirrors the live store
+    exactly, because chain._packet_index globs ``<root>/*/packets/*.json`` and a flattened
+    sandbox would index nothing — green for want of looking."""
+    return tmp / "berths"
+
+
+def _berth_path(tmp: Path) -> Path:
+    return _berths_root(tmp) / "0" / "packets" / "decompose-20200103T000000-f1x7u2e00001.json"
+
+
+def _berth_decompose(tmp: Path, files: list) -> Path:
+    """One berthed decompose packet CLAIMING the fixture ticket. The claim is the whole
+    mechanism — the derivation finds a berth by the ticket it names, never by its filename."""
+    path = _berth_path(tmp)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "ticket": FIXTURE, "stage": "decompose",
+        "sub_problems": [{"what": "the build", "kind": "build", "writes_to": files}]}),
+        encoding="utf-8")
+    return path
 
 
 def _journal(repo: Path, crossings: list[dict], *, at: str = "history.json") -> Path:
@@ -145,7 +180,7 @@ def _journal(repo: Path, crossings: list[dict], *, at: str = "history.json") -> 
 
 def _measured(tmp: Path) -> dict:
     repo, commons = _fixture(tmp)
-    return measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    return measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
 
 
 def test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow():
@@ -178,7 +213,7 @@ def test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero():
     """
     tmp = scratch_dir("cairn-hollowproof-")
     repo, commons = _fixture(tmp)
-    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     assert f["verdict"] == "red", f["verdict"]
     assert any("hollow: unchecked.py reverted, no declared tooth redded" == r
                for r in f["reasons"]), f["reasons"]
@@ -192,10 +227,11 @@ def test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero():
          "sys.path.insert(0, %r)\n"
          "import cairn.devices.tester.hollow as h\n"
          "import cairn.devices.tester.cli as cli\n"
-         "h.measure = functools.partial(h.measure, commons=pathlib.Path(%r))\n"
+         "h.measure = functools.partial(h.measure, commons=pathlib.Path(%r), "
+         "berths_root=%r)\n"
          "cli.REPO_ROOT = pathlib.Path(%r)\n"
          "sys.exit(cli.main(['--hollow', %r, '-q']))\n"
-         % (str(_REPO_ROOT), str(commons), str(repo), FIXTURE)],
+         % (str(_REPO_ROOT), str(commons), str(_berths_root(tmp)), str(repo), FIXTURE)],
         cwd=str(_REPO_ROOT), capture_output=True, text=True)
     assert child.returncode == 1, (child.returncode, child.stdout[-2000:], child.stderr[-2000:])
     # The exit code and the NAMED file come from the same run — a bare non-zero could be a crash.
@@ -242,7 +278,7 @@ def test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway():
     repo, commons = _fixture(tmp)
     raised = False
     try:
-        measure(FIXTURE, repo_root=repo, commons=commons, timeout=60, tester=Exploding())
+        measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60, tester=Exploding())
     except RuntimeError:
         raised = True
     assert raised, "the fixture tester was supposed to raise and did not"
@@ -353,7 +389,7 @@ def test_a_run_that_could_not_be_measured_says_so_instead_of_passing():
     repo, commons = _fixture(tmp)
     _journal(repo, [{"to": "PROVEME"}])  # rewritten: no BUILDME anywhere, and no proof named
     try:
-        measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+        measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     except HollowUnmeasurable as why:
         assert "BUILDME" in str(why), why
         return True
@@ -400,13 +436,13 @@ def test_an_unchanged_file_is_reported_unwritten_not_hollow():
     right verdict reached for entirely the wrong reason, which is the coin-toss green."""
     tmp = scratch_dir("cairn-hollowproof-")
     repo, commons = _fixture(tmp)
-    berth = json.loads((tmp / "decompose.json").read_text())
+    berth = json.loads(_berth_path(tmp).read_text())
     berth["sub_problems"][0]["writes_to"].append("untouched.py")
-    (tmp / "decompose.json").write_text(json.dumps(berth))
+    _berth_path(tmp).write_text(json.dumps(berth))
     # Present and identical at BOTH commits — so reverting it changes nothing.
     subprocess.run(["git", "-C", str(repo), "checkout", "-q", "HEAD~1"], capture_output=True)
     subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], capture_output=True)
-    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     assert "untouched.py" not in f["measured"], f["measured"]
     return True
 
@@ -461,11 +497,11 @@ def test_a_file_absent_before_the_build_is_REMOVED_and_not_emptied():
     """
     tmp = scratch_dir("cairn-hollowproof-")
     repo, commons = _fixture(tmp, with_added=True)
-    berth = json.loads((tmp / "decompose.json").read_text())
+    berth = json.loads(_berth_path(tmp).read_text())
     berth["sub_problems"][0]["writes_to"].append("added_by_build.py")
-    (tmp / "decompose.json").write_text(json.dumps(berth))
+    _berth_path(tmp).write_text(json.dumps(berth))
 
-    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     assert "added_by_build.py" in f["unran"], (f["unran"], f["measured"])
     assert f["unran"]["added_by_build.py"] == ["proofs/test_fixture.py"], f["unran"]
     assert any("unreadable: added_by_build.py" in r for r in f["reasons"]), f["reasons"]
@@ -594,13 +630,8 @@ def _fixture_spread(tmp: Path, *, with_silent: bool = False) -> tuple[Path, Path
              env={**env, "GIT_AUTHOR_DATE": date, "GIT_COMMITTER_DATE": date})
 
     later = ["proofs/test_second.py"] + (["proofs/test_silent.py"] if with_silent else [])
-    berth = tmp / "decompose.json"
-    berth.write_text(json.dumps({"sub_problems": [
-        {"what": "the build", "kind": "build",
-         "writes_to": ["subject.py", "second.py", "unchecked.py"]}]}))
-    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({
-        "id": FIXTURE,
-        "chart_chain": {"decompose": str(berth)}}))
+    _berth_decompose(tmp, ["subject.py", "second.py", "unchecked.py"])
+    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps({"id": FIXTURE}))
     _journal(repo, [
         {"to": "BUILDME", "proven_by": "proofs/test_fixture.py"},
         {"to": "PROVEME", "proven_by": later},
@@ -627,7 +658,7 @@ def test_a_proof_named_on_an_earlier_crossing_still_counts_and_the_file_it_check
     """
     tmp = scratch_dir("cairn-hollowspread-")
     repo, commons = _fixture_spread(tmp)
-    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     assert f["proofs"] == ["proofs/test_fixture.py", "proofs/test_second.py"], f["proofs"]
     assert f["measured"]["subject.py"] == ["test_value_is_two"], f["measured"]
     assert f["measured"]["second.py"] == ["test_other_is_two"], f["measured"]
@@ -662,7 +693,7 @@ def test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run():
     tmp = scratch_dir("cairn-hollowsilent-")
     repo, commons = _fixture_spread(tmp, with_silent=True)
     counter = Counting()
-    f = measure(FIXTURE, repo_root=repo, commons=commons, timeout=60, tester=counter)
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60, tester=counter)
 
     assert f["silent_proofs"] == ["proofs/test_silent.py"], f["silent_proofs"]
     assert "proofs/test_silent.py" not in f["proofs"], f["proofs"]
@@ -673,12 +704,313 @@ def test_a_proof_declaring_no_tooth_for_this_ticket_is_dropped_and_never_run():
     # THE SAVING CHANGED THE COST AND NOT THE ANSWER, and that is measured rather than argued:
     # the same fixture without the mute proof is read again and the two findings are compared.
     # A filter that also moved the verdict would be an optimisation that edits the truth.
-    plain_repo, plain_commons = _fixture_spread(scratch_dir("cairn-hollowsilent-"))
-    plain = measure(FIXTURE, repo_root=plain_repo, commons=plain_commons, timeout=60)
+    plain_tmp = scratch_dir("cairn-hollowsilent-")
+    plain_repo, plain_commons = _fixture_spread(plain_tmp)
+    plain = measure(FIXTURE, repo_root=plain_repo, commons=plain_commons,
+                    berths_root=_berths_root(plain_tmp), timeout=60)
     assert (f["measured"], f["hollow"], f["verdict"]) == \
         (plain["measured"], plain["hollow"], plain["verdict"]), (f, plain)
     assert f["hollow"] == ["unchecked.py"], f["hollow"]
     return True
+
+
+# ---------------------------------------------------------------------------------------
+# TICKET 95e3b9911dd0 — hollow derives the chart chain from the berths, never from a stored
+# copy. The defect these check: a gate reading its own evidence off the ticket it is judging.
+# On 2026-09-10 the field had ONE reader (line 188 here), ZERO writers anywhere in the tree,
+# and TWENTY-FOUR carriers, so every one of them was typed by a hand — while the BUILDME
+# entry gate had been deriving the same chain from the berth store for months.
+# ---------------------------------------------------------------------------------------
+
+_HOLLOW_SRC = _REPO_ROOT / "cairn" / "devices" / "tester" / "hollow.py"
+
+# The pre-change reader, verbatim as it stood before this ticket. Tooth 6 puts it BACK, in a
+# scratch copy, and requires these teeth to red against it — a tooth that passes both ways is
+# measuring nothing.
+_OLD_READER = 'berth = (ticket.get("chart_chain") or {}).get("decompose")'
+_NEW_READER = ('berth = chain_for_ticket(tid, berths_root=berths_root)["decompose"] '
+               'if tid else None')
+
+
+def _reads_the_stored_field(source: str) -> list:
+    """Every line of a source that dereferences the ticket-side chart_chain key.
+
+    Comments do not count and MUST not: this module's own docstrings name the field a dozen
+    times, and a check that could not tell prose from a dereference would red the record of
+    why the field went away."""
+    hits = []
+    for lineno, line in enumerate(source.splitlines(), 1):
+        stripped = line.strip()
+        if stripped.startswith("#") or not stripped:
+            continue
+        if 'ticket.get("chart_chain")' in line or "ticket['chart_chain']" in line \
+                or 'ticket["chart_chain"]' in line:
+            hits.append((lineno, stripped))
+    return hits
+
+
+def _sandbox_chain(tmp: Path, ticket: str, stage: str = "decompose", **packet_extra) -> tuple:
+    """A berths root holding one berthed packet claiming ``ticket`` at ``stage``.
+
+    Returns (berths_root, packet_path). Real files in a real directory, because
+    ``claiming_packet_paths`` globs and reads them — a mock would prove the mock."""
+    # THE LAYOUT IS THE INDEX'S, not a convenience: chain._packet_index globs
+    # ``<root>/*/packets/*.json``, where the middle segment is the INSTANCE. A sandbox that
+    # flattened it would index nothing and every derivation here would read None — green for
+    # the wrong reason, which is this proof module's own recorded failure shape.
+    root = tmp / "berths"
+    packets = root / "0" / "packets"
+    packets.mkdir(parents=True, exist_ok=True)
+    path = packets / f"{stage}-20260910T000000-aaaaaaaaaaaa.json"
+    packet = {"ticket": ticket, "stage": stage}
+    packet.update(packet_extra)
+    path.write_text(json.dumps(packet), encoding="utf-8")
+    return str(root), str(path)
+
+
+def test_the_reader_names_no_stored_chart_chain_and_calls_the_derivation_instead():
+    """CRITERION 1 — the reader dereferences no stored value, and the berth comes from the
+    derivation the entry gate already used."""
+    source = _HOLLOW_SRC.read_text(encoding="utf-8")
+    hits = _reads_the_stored_field(source)
+    assert hits == [], f"hollow still dereferences the ticket-side chart_chain: {hits}"
+    assert "from cairn.tools.chain.chain import chain_for_ticket" in source, \
+        "the derivation is not imported — the reader cannot be deriving anything"
+    assert _NEW_READER in source, "the derived reader is not at its call site"
+    return True
+
+
+def test_the_derived_decompose_berth_equals_a_stored_one_the_fixture_authored():
+    """CRITERION 2 — an INVARIANT, not the day's corpus count.
+
+    The one-shot reading over the 24 live carriers cannot be re-run after the migration deletes
+    the stored side, so it is recorded once at
+    ``cairn/tools/chain/proofs/evidence-2026-09-10-derived-equals-stored.json`` (decompose:
+    22 same, 0 different, 0 lost). What is checked HERE, forever, is the property that reading
+    made plausible: where a berth claims the ticket at decompose, the derivation returns that
+    berth's path — so a stored copy of it was never carrying anything the derivation lacks."""
+    tmp = scratch_dir("cairn-chainderive-")
+    root, packet_path = _sandbox_chain(tmp, FIXTURE, writes_to=["a.py"])
+    from cairn.tools.chain.chain import chain_for_ticket
+    derived = chain_for_ticket(FIXTURE, berths_root=root)["decompose"]
+    assert derived == packet_path, (derived, packet_path)
+    # And the LATEST wins, which is the whole reason a stored copy goes stale: a second berth
+    # lands and the ticket's typed string still names the first.
+    later = Path(root) / "0" / "packets" / "decompose-20260911T000000-bbbbbbbbbbbb.json"
+    later.write_text(json.dumps({"ticket": FIXTURE, "stage": "decompose"}), encoding="utf-8")
+    assert chain_for_ticket(FIXTURE, berths_root=root)["decompose"] == str(later)
+    return True
+
+
+def test_a_ticket_no_decompose_berth_claims_raises_the_named_lack_not_an_empty_list():
+    """CRITERION 3 — Law 3 held as a type. 'Nothing declares what this build writes' may not
+    travel back through the same return as 'this build writes nothing'."""
+    from cairn.devices.tester.hollow import writes_to
+    try:
+        writes_to({"id": "n0such7icke7"})
+    except HollowUnmeasurable as why:
+        assert "n0such7icke7" in str(why), why
+        assert "decompose" in str(why), why
+        return True
+    raise AssertionError("a ticket no berth claims returned a file list instead of refusing")
+
+
+def test_a_bare_string_chart_chain_is_no_longer_dereferenced_by_the_reader():
+    """CRITERION 4 — the shape error is gone BECAUSE nothing is dereferenced.
+
+    Two of the 24 carriers (2744aab73ff3, 81f719868158) stored PROSE where the reader called
+    ``.get`` on it, so those two reached the instrument as an ``AttributeError`` — an unnamed
+    crash where a named lack belonged. The fix is not a type check. The reader stopped looking
+    at the field, so its shape cannot reach the reader at all."""
+    from cairn.devices.tester.hollow import writes_to
+    ticket = {"id": "n0such7icke7",
+              "chart_chain": "the chain ran on 2026-08-10, see cairn.machines.chart.live"}
+    try:
+        writes_to(ticket)
+    except AttributeError as boom:  # the pre-change failure, and it must not be reachable
+        raise AssertionError(f"the reader dereferenced the stored string: {boom}")
+    except HollowUnmeasurable as why:
+        assert "decompose" in str(why), why
+        return True
+    raise AssertionError("a bare-string carrier returned a file list — the field is being read")
+
+
+def test_the_derived_reader_teeth_red_against_the_stored_field_reader():
+    """CRITERION 6 — THE ANTI-HOLLOW TOOTH. Put the old reader back in a scratch copy and
+    require the teeth above to fail against it. A tooth green both ways checks nothing, which
+    is the exact failure the instrument these teeth belong to exists to catch."""
+    source = _HOLLOW_SRC.read_text(encoding="utf-8")
+    assert _NEW_READER in source, "cannot revert what is not there"
+    reverted = source.replace(_NEW_READER, _OLD_READER, 1)
+    assert reverted != source
+
+    # Tooth 1 must red on the reverted source.
+    assert _reads_the_stored_field(reverted), \
+        "the reverted source did not trip tooth 1 — tooth 1 is not measuring the reversion"
+
+    # Tooth 4 must red on the reverted READER, not merely on the reverted text. So the scratch
+    # copy is really imported and really called.
+    # AT THE SAME DEPTH AS THE ORIGINAL: the module computes its REPO_ROOT from ``__file__``
+    # at import time, so a scratch copy dropped at the top of a temp dir dies on an IndexError
+    # before the reader is ever reached — and a tooth that fails for THAT reason is measuring
+    # the fixture, not the reversion.
+    tmp = scratch_dir("cairn-hollowrevert-")
+    mod_dir = tmp / "cairn" / "devices" / "tester"
+    mod_dir.mkdir(parents=True, exist_ok=True)
+    mod_path = mod_dir / "hollow_reverted.py"
+    mod_path.write_text(reverted, encoding="utf-8")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("hollow_reverted", mod_path)
+    old = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(old)
+    try:
+        old.writes_to({"id": "n0such7icke7",
+                       "chart_chain": "the chain ran on 2026-08-10, see cairn.machines.chart.live"})
+    except AttributeError:
+        return True  # the pre-change reader crashes exactly where the ticket said it did
+    except Exception as other:
+        raise AssertionError(
+            f"the pre-change reader did not raise AttributeError on a bare string; it raised "
+            f"{type(other).__name__}: {other}. Tooth 4 is then not measuring what it claims.")
+    raise AssertionError("the pre-change reader accepted a bare string — tooth 4 is hollow")
+
+
+def test_no_ticket_in_the_live_commons_carries_a_stored_chart_chain():
+    """CRITERION 7 — an INVARIANT over the live corpus: zero, forever, not 'zero today'.
+
+    This is the one tooth that reads the real store, and it must: the defect was hands typing
+    a field, and a fixture cannot have hands. It asserts a count of zero rather than a
+    difference from 24, so it stays true as the corpus grows and reds the day one comes back."""
+    from cairn.tools.chain.chain import carriers
+    found = carriers()
+    assert found == [], f"{len(found)} ticket(s) carry a stored chart_chain again: {found[:5]}"
+    return True
+
+
+def test_the_migration_removes_one_key_and_carries_what_it_cannot_re_derive_to_notes():
+    """CRITERION 8 — the migration deletes the key and NOTHING ELSE, and what the derivation
+    cannot reproduce is carried rather than dropped.
+
+    The dry run over the live corpus surfaced why this tooth is not paranoia: one ticket stored
+    three keys that are not chain stages at all, one of them ~500 characters of friction
+    reporting for Akien that appears nowhere else in either root. A migration written against a
+    key allowlist would have deleted it silently."""
+    from cairn.tools.chain.chain import drop_stored_chart_chain
+    tmp = scratch_dir("cairn-chartmigrate-")
+    root, packet_path = _sandbox_chain(tmp, FIXTURE)
+    tickets = tmp / "tickets"
+    tickets.mkdir()
+    keeper = {"id": FIXTURE, "title": "a fixture", "cursor": "x", "notes": ["an existing note"],
+              "chart_chain": {"decompose": packet_path,
+                              "note": "SOMETHING NO DERIVATION CAN REPRODUCE"}}
+    path = tickets / f"{FIXTURE}-a-fixture.json"
+    path.write_text(json.dumps(keeper, indent=2) + "\n", encoding="utf-8")
+    untouched = {"id": "0ther7icke700", "title": "no chain here"}
+    other = tickets / "0ther7icke700-no-chain-here.json"
+    other.write_text(json.dumps(untouched, indent=2) + "\n", encoding="utf-8")
+    before_other = other.read_bytes()
+
+    report = drop_stored_chart_chain(str(tickets), apply=True)
+    assert report["applied"] is True, report
+    after = json.loads(path.read_text(encoding="utf-8"))
+    assert "chart_chain" not in after, after
+    # EVERY OTHER FIELD BYTE-FOR-BYTE — the door is an edit, never a reformat.
+    for key, value in keeper.items():
+        if key in ("chart_chain", "notes"):
+            continue
+        assert after[key] == value, (key, after.get(key), value)
+    carried = " ".join(str(n) for n in after["notes"])
+    assert "an existing note" in carried, "the standing notes were replaced instead of appended"
+    assert "SOMETHING NO DERIVATION CAN REPRODUCE" in carried, \
+        f"the non-derivable value was dropped rather than carried: {after['notes']}"
+    # A ticket that never carried the key is not opened, written, or touched.
+    assert other.read_bytes() == before_other, "the migration rewrote a ticket it had no business in"
+    return True
+
+
+def test_the_migrations_dry_run_names_exactly_the_files_the_apply_run_writes():
+    """CRITERION 9 — the dry run is a PREVIEW, which means it is worthless if it can disagree
+    with the run it previews. Same corpus, twice, compared key by key."""
+    from cairn.tools.chain.chain import drop_stored_chart_chain
+
+    def _spread(tag):
+        tmp = scratch_dir(tag)
+        root, packet_path = _sandbox_chain(tmp, FIXTURE)
+        _spread.roots.append(root)
+        tickets = tmp / "tickets"
+        tickets.mkdir()
+        (tickets / "a.json").write_text(json.dumps(
+            {"id": FIXTURE, "chart_chain": {"decompose": packet_path}}, indent=2) + "\n",
+            encoding="utf-8")
+        (tickets / "b.json").write_text(json.dumps(
+            {"id": "b0b0b0b0b0b0", "chart_chain": "prose, not a mapping"}, indent=2) + "\n",
+            encoding="utf-8")
+        (tickets / "c.json").write_text(json.dumps({"id": "c0c0c0c0c0c0"}, indent=2) + "\n",
+                                        encoding="utf-8")
+        return tickets
+
+    _spread.roots = []
+    dry_tickets, wet_tickets = _spread("cairn-chartdry-"), _spread("cairn-chartwet-")
+    dry_root, wet_root = _spread.roots
+    dry = drop_stored_chart_chain(str(dry_tickets), berths_root=dry_root)
+    wet = drop_stored_chart_chain(str(wet_tickets), apply=True, berths_root=wet_root)
+    assert dry["applied"] is False and wet["applied"] is True, (dry["applied"], wet["applied"])
+    # THE ABSOLUTE PATHS DIFFER BY CONSTRUCTION — two scratch spreads, two temp roots — so the
+    # comparison is over SHAPE, not bytes. A comparison that demanded byte equality here would
+    # be red every run for a reason that has nothing to do with the property under test.
+    for key in ("removed", "prose_moved", "empty", "notes_carried", "unreadable"):
+        assert dry[key] == wet[key], f"dry run and apply disagree on {key}: {dry[key]} vs {wet[key]}"
+    assert [d["ticket"] for d in dry["disagreed"]] == [d["ticket"] for d in wet["disagreed"]], \
+        (dry["disagreed"], wet["disagreed"])
+    # And the sandbox berth really is being derived against, so 'disagreed' is empty for the
+    # ticket whose stored value the sandbox berth reproduces.
+    assert dry["disagreed"] == [], f"the derivation did not see the sandbox berth: {dry['disagreed']}"
+    return True
+
+
+def test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_zero_alone():
+    """CRITERION 10 — the probe fires on ONE reappearance, and its clear is not a historical
+    fact.
+
+    The sibling ``a_pickup_is_witnessed`` cleared on ``pickups >= 1``, took its 1 in August 2026
+    and read green off it for a month. So this checks the property that failure lacked: every
+    clause can go back DOWN, and zero carriers alone is not enough to clear."""
+    from cairn.tools.base.probes import no_ticket_carries_a_stored_chart_chain as probe
+
+    clean = {"corpus": {"carrier_count": 0, "carriers": [], "reader_reads_the_stored_key": [],
+                        "voyages_since_migration": 9, "voyage_tickets": ["x"]}}
+    assert probe._trigger(None, clean) is False, "the probe fires on a clean corpus"
+    assert probe._enough(clean) is True, "a clean corpus with traffic does not clear the watch"
+
+    # ONE reappearance is the whole failure — no floor, no warm-up.
+    one_back = {"corpus": dict(clean["corpus"], carrier_count=1,
+                               carriers=[{"ticket": FIXTURE, "file": "f.json", "kind": "dict",
+                                          "entries": 1}])}
+    assert probe._trigger(None, one_back) is True, "one hand-written key did not fire the probe"
+    assert probe._enough(one_back) is False, "the watch cleared with a carrier standing"
+    assert FIXTURE in json.dumps(probe._carry(one_back)), "the carry does not name the carrier"
+
+    # A FALLBACK inside the reader is the same hand at one remove, and cannot be seen by
+    # counting keys — so it is its own clause.
+    fallback = {"corpus": dict(clean["corpus"],
+                               reader_reads_the_stored_key=[{"line": 188, "text": "..."}])}
+    assert probe._trigger(None, fallback) is True, "a reader fallback did not fire the probe"
+    assert probe._enough(fallback) is False, "the watch cleared with a reader fallback standing"
+
+    # THE ANTI-HOLLOW CLAUSE: zero carriers with no traffic is what the migration LEFT BEHIND.
+    idle = {"corpus": dict(clean["corpus"], voyages_since_migration=0, voyage_tickets=[])}
+    assert probe._enough(idle) is False, \
+        "the watch cleared on zero carriers alone — that is a_pickup_is_witnessed all over again"
+
+    # And it reaches no oracle (CRITERION 11): the base tool's charter forbids one at this
+    # address, and the check is over the module's own imports rather than a promise about them.
+    source = Path(probe.__file__).read_text(encoding="utf-8")
+    for reach in ("inference", "psycopg", "requests", "httpx", "socket", "anthropic", "urllib"):
+        for lineno, line in enumerate(source.splitlines(), 1):
+            if line.startswith(("import ", "from ")) and reach in line:
+                raise AssertionError(f"the probe reaches an oracle at line {lineno}: {line!r}")
+    return True
+
 
 if __name__ == "__main__":
     raise SystemExit(print_teeth_main(__file__))

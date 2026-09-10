@@ -560,16 +560,43 @@ def test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_the
 
 
 def main():
+    """EVERY TOOTH RUNS, AND A FAILING ONE PRINTS ITS OWN NAME BESIDE THE WORD RED.
+
+    This used to stop at the first failure, and that made the reading of this proof
+    depend on ALPHABETICAL ORDER. Measured 2026-09-10: reverting ``orient.py`` under
+    ``cairn test --hollow`` redded ``test_a_berth_whose_floor_moved_underneath_it_...``,
+    which sorts first, so the run died before printing a single line and the hollow
+    reader saw a proof that "printed no teeth at all" — UNRAN, the verdict that means
+    *nothing here says whether a tooth checks this file*. The same revert against a
+    proof whose first tooth happened to survive would have read fine. A gate whose
+    answer turns on a function name's first letter is not measuring what it claims to.
+
+    So a red is REPORTED, not raised: the run continues, the tooth's name goes out on a
+    red-marked line (``teeth_printed`` reads the marker word beside the name), and the
+    process still exits non-zero at the end. Nothing gets softer — a red proof is still
+    a red proof — but the record now names WHICH teeth redded instead of losing the
+    whole roster to the first one.
+    """
     root = make_root()
     teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_")]
+    failures = []
     try:
         for tooth in teeth:
-            tooth(root)
-            print("PASS %s" % tooth.__name__)
+            try:
+                tooth(root)
+            except BaseException as err:  # noqa: BLE001 — a red is data here, not control flow
+                failures.append((tooth.__name__, err))
+                print("RED %s :: %s: %s" % (tooth.__name__, type(err).__name__, err))
+            else:
+                print("PASS %s" % tooth.__name__)
     finally:
         shutil.rmtree(root, ignore_errors=True)
+    if failures:
+        print("red: %d of %d teeth" % (len(failures), len(teeth)))
+        return 1
     print("green: %d teeth" % len(teeth))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

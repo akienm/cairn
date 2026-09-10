@@ -883,13 +883,29 @@ def _main() -> int:
         test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them,
         test_import_allowlist,
     ]
+    # EVERY TOOTH RUNS, AND A FAILING ONE PRINTS ITS OWN NAME BESIDE THE WORD RED.
+    # This stopped at the first failure until 2026-09-10, which made a hollow reading of
+    # this proof depend on where the redded tooth happened to sit in the list above: an
+    # early one killed the run before it printed anything, and the reader recorded "the
+    # proof printed no teeth at all" rather than which tooth caught the revert. A red is
+    # reported here and the process still exits non-zero below; nothing gets softer.
+    failures = []
     try:
         for check in checks:
-            check(root, orient_berth)
-            print(f"  PASS  {check.__name__}")
+            try:
+                check(root, orient_berth)
+            except BaseException as err:  # noqa: BLE001 — a red is data here, not control flow
+                failures.append(check.__name__)
+                print(f"  RED   {check.__name__} :: {type(err).__name__}: {err}")
+            else:
+                print(f"  PASS  {check.__name__}")
     finally:
         _cleanup()
         shutil.rmtree(root, ignore_errors=True)
+    if failures:
+        print(f"red — chart/constrain, {len(failures)} of {len(checks)} teeth: "
+              + ", ".join(failures))
+        return 1
     # The summary names WHAT WAS PROVED and is rewritten whenever the teeth change. It is
     # the last line of the sealed record's stdout, so a reader of a validation trail meets
     # this sentence and nothing else — a stale one describes a build that no longer exists

@@ -415,7 +415,14 @@ def drop_stored_chart_chain(tickets_dir: str | None = None, *, apply: bool = Fal
 
     root = Path(tickets_dir or _default_tickets_dir())
     report: dict = {"applied": bool(apply), "removed": [], "prose_moved": [], "empty": [],
-                    "notes_carried": 0, "disagreed": [], "unreadable": []}
+                    "notes_carried": 0, "disagreed": [], "unreadable": [],
+                    # BOTH OF THESE WERE BEHAVIOUR BEFORE THEY WERE REPORT KEYS, which is the
+                    # defect. The 2026-09-10 apply run normalised one ticket's string-shaped
+                    # `notes` into a list and said nothing about it — 782554235fca, caught by
+                    # diffing the commit key-by-key rather than by eye. A migration that
+                    # reshapes a field it was not asked to touch and does not name the reshape
+                    # is a record of truth collapsing an event (Law 7).
+                    "notes_reshaped": [], "refused": []}
     if not root.is_dir():
         return report
     for path in sorted(root.glob("*.json")):
@@ -430,8 +437,33 @@ def drop_stored_chart_chain(tickets_dir: str | None = None, *, apply: bool = Fal
         ensure_ascii, newline = _shape_of(raw, doc)
         value = doc["chart_chain"]
         tid = str(doc.get("id") or path.stem.split("-")[0])
-        notes = doc.get("notes")
-        notes = list(notes) if isinstance(notes, list) else ([notes] if notes else [])
+        # THE NOTES SHAPE IS A DECISION, NOT A ONE-LINER. Across the 272-ticket corpus
+        # `notes` is a list 51 times and a dict 3 times; before this verb ran it was a bare
+        # string exactly once. A list is appendable and a string is promotable to a
+        # one-element list with its text preserved verbatim — but a DICT is neither. Wrapping
+        # a mapping in a list to make room for a carried value invents an ordering the ticket
+        # never had and hides the mapping's keys behind an index, and the old one-liner did
+        # exactly that silently. So the dict case REFUSES the file: nothing is deleted from a
+        # ticket whose carried values have nowhere honest to land, and the refusal is
+        # reported so a hand can place them. Skipping is safe here in a way it is not for most
+        # migrations, because the field being removed is a SECOND COPY of a derivable address.
+        raw_notes = doc.get("notes")
+        if isinstance(raw_notes, list):
+            notes = list(raw_notes)
+        elif isinstance(raw_notes, str) and raw_notes.strip():
+            notes = [raw_notes]
+            report["notes_reshaped"].append(
+                {"ticket": tid, "from": "str", "to": "list", "chars": len(raw_notes),
+                 "why": "a string cannot take an appended entry; the original is element 0, verbatim"})
+        elif not raw_notes:
+            notes = []
+        else:
+            report["refused"].append(
+                {"ticket": tid, "notes_shape": type(raw_notes).__name__,
+                 "why": "a carried value has nowhere honest to land in a %s-shaped notes field; "
+                        "chart_chain was NOT removed from this ticket"
+                        % type(raw_notes).__name__})
+            continue
 
         if isinstance(value, str) and value.strip():
             notes.append(

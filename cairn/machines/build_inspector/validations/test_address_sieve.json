@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_address_sieve.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:16:34",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-10T13:11:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "2a6fc1a45d2d800991a6e5a1701699c913cf454ec8bcc3d088a7a0a881e69cac",
+      "source_fingerprint": "e8f41cf61d424440e4d69ce295e9cc0ffdb430036f75c3e7602597372ceb4c34",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -40,6 +40,7 @@
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
+        "cairn/tools/base/crossings.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
@@ -65,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-qo63ajsr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-480713-7qg5mxnq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123101502,
-          "disk_bytes": 133623808,
-          "entries": 4288,
+          "bytes": 123299537,
+          "disk_bytes": 133890048,
+          "entries": 4317,
           "builds": 1,
-          "reuses": 58
+          "reuses": 16
         }
       }
     },

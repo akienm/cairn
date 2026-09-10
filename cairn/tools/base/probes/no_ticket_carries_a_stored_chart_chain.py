@@ -121,11 +121,21 @@ def _walk() -> dict:
                     or 'get("chart_chain")' in line:
                 fallback.append({"line": lineno, "text": stripped[:120]})
 
+    # DISTINCT TICKETS, NOT CROSSINGS — and the difference is the whole anti-hollow clause.
+    # A ticket may cross PROVED many times: 9579a6f9cec6 carries FIVE forward PROVED crossings,
+    # each naming a different proof, which is why crossings.proven_by_since_buildme unions
+    # across them instead of taking the latest. Counting crossings would therefore let ONE
+    # ticket re-crossing three times satisfy "3 voyages have sailed since the migration" —
+    # the clause would clear on a single voyage's bookkeeping, which is precisely the
+    # a_pickup_is_witnessed failure it was written against. Caught 2026-09-10 by firing the
+    # probe and reading a count of 2 beside a ticket list of 1.
+    sailed = sorted({v["ticket"] for v in voyages if v["ticket"]})
     return {
         "carriers": carriers,
         "carrier_count": len(carriers),
-        "voyages_since_migration": len(voyages),
-        "voyage_tickets": sorted({v["ticket"] for v in voyages if v["ticket"]}),
+        "voyages_since_migration": len(sailed),
+        "voyage_tickets": sailed,
+        "proved_crossings_since_migration": len(voyages),
         "reader_reads_the_stored_key": fallback,
     }
 

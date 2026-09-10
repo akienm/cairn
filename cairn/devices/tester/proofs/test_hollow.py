@@ -354,22 +354,61 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     Snapshotting "5 hollow" here would red the day someone writes the missing teeth, which is
     the day the system got BETTER. What must hold forever is the instrument's contract: every
     writes_to file is either measured or skipped for one of the two stated reasons, no file is
-    both, the pre-build commit really precedes the crossing, and the whole thing fits inside
-    the ticket's five-minute bound.
+    both, the pre-build commit really precedes the crossing, and the per-file loop shares ONE
+    worktree rather than building a fresh one for every file.
+
+    THE WALL-CLOCK BOUND THAT STOOD HERE WAS A COIN TOSS, AND MEASUREMENT KILLED IT.
+    Ticket d0f2b03952e3 wrote "a single ticket takes more than five minutes -> the design is
+    wrong", and named its own remedy in the same breath: "the per-file loop shares one worktree
+    and one instance swap, not a different design". This tooth asserted the five minutes
+    literally. Four readings of the same command on one box, 2026-09-10: 157.4s, ~300s, 366.3s,
+    382.2s — a 2.4x spread with the instrument unchanged between them, and the 382s run's own
+    log records loadavg climbing 1.88 -> 6.79 while it ran. Two of the four redded. A tooth
+    whose verdict is set by what else the laptop happens to be doing is not a measurement of
+    this code, and under Law 8 a random red still costs the resolver every time it fires.
+
+    AND THE BOUND COULD NEVER HAVE CAUGHT WHAT IT WAS WRITTEN FOR. The instrumented run breaks
+    down as 156.8s of a 157.4s total spent inside 27 pytest invocations — 99.6% of the wall is
+    this verb running OTHER components' proofs. The worktree setup the clause is actually about
+    is ~0.6s. Regressing to one worktree per file would move the total by well under one
+    percent: invisible beneath a 2.4x load swing. The clock was reading the box's speed and had
+    no view of the design at all.
+
+    What replaces it reads the design directly and does not care how loaded the box is: count
+    the worktree creations in one real run over a ticket with many declared files. One shared
+    worktree is the contract; one per file is precisely the failure d0f2b03952e3 names. The
+    loose guard at the end catches a hang, which is the only thing a wall clock here can
+    honestly report.
+
+    ONE RUN, NOT TWO. This tooth used to fire the whole measurement twice — once as a timed
+    CLI subprocess and again in-process for the invariants — so it paid the full cost twice and
+    threw the expensive half away. That is why a session asserting "under 300s" took 455s of
+    wall to do it. The CLI return path keeps its own tooth above
+    (test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero), which drives the real
+    `_hollow_run` over the fixture world, so nothing is uncovered by measuring once here.
     """
     import time
+    from cairn.devices.tester import hollow as _h
     from cairn.devices.tester.hollow import writes_to, _ticket_path
+
+    made: list[str] = []
+    real_worktree = _h.scratch_worktree
+
+    def counting(*a, **kw):
+        wt = real_worktree(*a, **kw)
+        made.append(str(wt))
+        return wt
+
+    _h.scratch_worktree = counting
     started = time.time()
-    proc = subprocess.run([sys.executable, "-m", "cairn.devices.tester.cli",
-                           "--hollow", "9579a6f9cec6"],
-                          cwd=str(_REPO_ROOT), capture_output=True, text=True)
+    try:
+        f = measure("9579a6f9cec6", repo_root=_REPO_ROOT, timeout=120)
+    finally:
+        _h.scratch_worktree = real_worktree
     elapsed = time.time() - started
-    assert proc.returncode in (0, 1), (proc.returncode, proc.stderr[-800:])
-    assert elapsed < 300, f"a single ticket took {elapsed:.0f}s against the ticket's 5-minute bound"
 
     ticket = json.loads(_ticket_path("9579a6f9cec6").read_text(encoding="utf-8"))
     declared_files = writes_to(ticket)
-    f = measure("9579a6f9cec6", repo_root=_REPO_ROOT, timeout=120)
     seen = set(f["measured"]) | {s["file"] for s in f["skipped"]} | set(f["unchanged"])
     assert seen == set(declared_files), sorted(seen ^ set(declared_files))
     assert not (set(f["measured"]) & {s["file"] for s in f["skipped"]}), "a file both measured and skipped"
@@ -377,6 +416,17 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     for s in f["skipped"]:
         assert s["why"] in (SKIP_INSTRUMENT,) or "not a path in this repo" in s["why"] \
             or "not present at HEAD" in s["why"], s
+
+    # THE DESIGN INVARIANT the killed clock was a proxy for. Many files, ONE worktree.
+    assert len(declared_files) > 1, \
+        f"this tooth can say nothing about a per-file loop that runs once: {declared_files}"
+    assert made == [f["worktree"]], \
+        (f"the loop built {len(made)} worktree(s) for {len(declared_files)} declared files; "
+         f"ticket d0f2b03952e3 requires ONE shared worktree for the whole run: {made}")
+
+    # A hang is the only thing a wall clock can honestly report here — see the docstring.
+    assert elapsed < 1800, f"the run took {elapsed:.0f}s, which is a hang, not a slow box"
+
     # The commit reverted to must genuinely precede the crossing that named the build.
     at = _git(_REPO_ROOT, "show", "-s", "--format=%cI", f["commit"]).stdout.strip()
     assert at[:19] < f["buildme_at"][:19], (at, f["buildme_at"])
@@ -1014,3 +1064,76 @@ def test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_
 
 if __name__ == "__main__":
     raise SystemExit(print_teeth_main(__file__))
+
+
+def test_the_migration_names_a_notes_reshape_and_refuses_a_shape_it_cannot_carry():
+    """CRITERION 8, THE HALF THE EYEBALL DIFF MISSED — a migration may not reshape a field it
+    was not asked to touch without saying so, and may not reshape one it cannot carry at all.
+
+    HOW THIS WAS FOUND, because the method is the point. Criterion 8 was first answered by
+    reading `git show --numstat` per file: 20 files at 0-added, 4 with small additions, no
+    reformats, verdict pass. Then the same commit was diffed KEY BY KEY through the parser
+    instead of by line, and one file disagreed with the eye: 782554235fca's `notes` had been a
+    bare STRING and came out a four-element LIST. Nothing was lost (the original string is
+    element 0, verbatim, and this tooth pins that), but the migration had changed the TYPE of a
+    field outside its remit and its report said nothing at all. Twenty files at 0-added is
+    exactly the reading that makes a careful reader stop looking.
+
+    The str case is legitimate and stays: a string has nowhere to append, so promoting it to a
+    one-element list is the only way to carry a value without destroying the prose. It now
+    lands in `notes_reshaped` so the run declares it.
+
+    The dict case is NOT legitimate and is now refused. Measured across the 272-ticket corpus:
+    `notes` is a list 51 times and a dict 3 times. Wrapping a mapping in a list to make room
+    invents an ordering the ticket never had and buries its keys behind an index — so the
+    ticket is skipped whole, with its `chart_chain` left in place and the refusal reported.
+    Leaving the key is the safe failure here precisely because the key is a SECOND COPY of an
+    address `chain_for_ticket` derives: nothing is lost by not deleting it, and something real
+    would be lost by mangling the notes to delete it."""
+    from cairn.tools.chain.chain import drop_stored_chart_chain
+    tmp = scratch_dir("cairn-notesshape-")
+    root, packet_path = _sandbox_chain(tmp, FIXTURE)
+    tickets = tmp / "tickets"
+    tickets.mkdir()
+
+    prose = "Akien-facing friction reporting that appears nowhere else in either root."
+    stringy = tickets / f"{FIXTURE}-string-notes.json"
+    stringy.write_text(json.dumps(
+        {"id": FIXTURE, "notes": prose,
+         "chart_chain": {"decompose": packet_path, "note": "NOT REPRODUCIBLE"}},
+        indent=2) + "\n", encoding="utf-8")
+
+    dicty = tickets / "d1c7d1c7d1c7-dict-notes.json"
+    dict_notes = {"2026-08-01": "the first note", "2026-08-02": "the second"}
+    dicty.write_text(json.dumps(
+        {"id": "d1c7d1c7d1c7", "notes": dict_notes,
+         "chart_chain": {"decompose": packet_path, "note": "ALSO NOT REPRODUCIBLE"}},
+        indent=2) + "\n", encoding="utf-8")
+    dict_bytes_before = dicty.read_bytes()
+
+    report = drop_stored_chart_chain(str(tickets), apply=True)
+
+    # THE STRING CASE: reshaped, carried verbatim, and DECLARED.
+    after = json.loads(stringy.read_text(encoding="utf-8"))
+    assert isinstance(after["notes"], list), after["notes"]
+    assert after["notes"][0] == prose, \
+        f"the original prose was not preserved verbatim as element 0: {after['notes'][0]!r}"
+    assert "chart_chain" not in after, after
+    reshapes = {r["ticket"]: r for r in report["notes_reshaped"]}
+    assert FIXTURE in reshapes, \
+        f"the run reshaped a notes field and did not say so — the whole defect: {report['notes_reshaped']}"
+    assert reshapes[FIXTURE]["from"] == "str" and reshapes[FIXTURE]["to"] == "list", reshapes[FIXTURE]
+    assert reshapes[FIXTURE]["chars"] == len(prose), reshapes[FIXTURE]
+
+    # THE DICT CASE: refused whole, byte-identical on disk, and reported.
+    assert dicty.read_bytes() == dict_bytes_before, \
+        "a ticket whose notes could not carry the value was written anyway"
+    after_dict = json.loads(dicty.read_text(encoding="utf-8"))
+    assert after_dict["notes"] == dict_notes, "the mapping was mangled"
+    assert "chart_chain" in after_dict, \
+        "the key was deleted from a ticket whose carried value had nowhere to land"
+    refused = {r["ticket"]: r for r in report["refused"]}
+    assert "d1c7d1c7d1c7" in refused, \
+        f"the run skipped a ticket silently instead of reporting the refusal: {report['refused']}"
+    assert refused["d1c7d1c7d1c7"]["notes_shape"] == "dict", refused["d1c7d1c7d1c7"]
+    return True

@@ -7961,5 +7961,121 @@
     "fingerprint": "1f84d79a3380bc77a52d601e0fa022e2fcf39adea03e87d3ee776a18384d7f19",
     "at": "2026-09-10T12:45:14",
     "seq": 35
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(chart_chain) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '95e3b9911dd0', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "95e3b9911dd0"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "95e3b9911dd0"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "95e3b9911dd0"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "actor": "CC",
+    "ticket": "95e3b9911dd0",
+    "note": "hollow.writes_to now calls chain_for_ticket() — the resolver the BUILDME entry gate already used — instead of reading a stored chart_chain off the ticket it is judging. chart_chain had ONE reader, ZERO writers and 24 carriers, every one typed by a hand: a gate input handed to the gate. drop_stored_chart_chain laid all 24 down, tolerating both shapes (2 were bare strings that reached the old reader as an AttributeError), carrying every value the derivation cannot reproduce into notes rather than deleting it. 22 passed twice in test_hollow.py (243s, 253s).\n\nTHE THIRD ROOT — the finding this build turned up in itself. measure() has always taken its own repo_root and its own commons; that is what makes a fixture world possible. The berth's address used to be a string ON the ticket, and a string needs no store, so deriving it quietly made the berth STORE part of what a measurement reads. Six existing fixture teeth went red naming a ticket the live berth store has never heard of. berths_root is now threaded through writes_to, measure and the migration: an instrument that can only be measured against production cannot be measured at all.\n\nA WALL-CLOCK BOUND KILLED BY MEASUREMENT (ruling 2026-09-09, a bug the voyage uncovers is fixed by that voyage). The live tooth asserted d0f2b03952e3's five-minute clause literally. Four readings of the same command on one box today: 157.4s, ~300s, 366.3s, 382.2s — a 2.4x spread with the instrument unchanged, and the 382s run's own log records loadavg climbing 1.88 to 6.79 while it ran. Two of four redded. Worse, the bound could never have caught what it was written for: 156.8s of the 157.4s total is spent inside 27 pytest invocations of OTHER components' proofs (99.6%), and the worktree setup the clause is about is ~0.6s — a regression to one worktree per file would move the total less than one percent, invisible under the load swing. Replaced with the invariant the clause actually names and which no load can move: count the worktree creations in one real run over a many-file ticket, and require exactly one. The tooth also fired the whole measurement TWICE (a timed CLI subprocess plus a second in-process run for the invariants), which is why asserting 'under 300s' cost 455s of wall; it now runs once, at 167s, and the CLI return path keeps its own fixture tooth.\n\nA BUG FIXED IN PASSING: chain's _default_tickets_dir walked up three levels and joined CairnCommons/tickets onto the cairn repo root — a path that has never existed. The commons is a SIBLING one level higher. Nothing was red: scan()'s __main__ globbed an empty directory and printed '0 nonconforming' with exit 0. A green earned by looking at nothing.",
+    "fingerprint": "1f518b61bbabccec9292352417ece0dba0c9abba16d286366599aa346605a723",
+    "at": "2026-09-10T13:30:22",
+    "seq": 36
   }
 ]

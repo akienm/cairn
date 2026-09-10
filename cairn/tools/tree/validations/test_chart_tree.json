@@ -2,32 +2,23 @@
   {
     "claim": "proof test_chart_tree.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-10T14:10:59",
+    "date": "2026-09-10T17:30:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_nexus_name_is_identity\n  PASS  test_the_table_is_born_owned_by_chart\n  PASS  test_gate_before_seed\n  PASS  test_deposit_back_lands_and_dedups\n  PASS  test_counsel_keeps_its_floor_visible\n  PASS  test_the_librarians_tools_are_the_only_door\n  PASS  test_the_dial_reads_exact_fractions_in_time_order\n  PASS  test_the_dial_reports_unreadable_never_skips\n  PASS  test_an_absent_berth_is_a_nameable_state\n  PASS  test_the_real_berth_by_invariant\n  PASS  test_tree_is_a_legal_stratum_at_the_packet_gate\ngreen — chart/tree + chart/dial: the table is born chart's, the gate runs before the seed, deposit-back lands honest and dedups, counsel keeps its labeled floor, the librarian's tools are the only door, and the dial reads true — exact on fixtures, by invariant on the live berth",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_nexus_name_is_identity\n  PASS  test_the_table_is_born_owned_by_chart",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 345, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 333, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 135, in test_gate_before_seed\n    assert \"does not exist\" in msg\n           ^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError",
       "teeth_green": [
         "test_a_nexus_name_is_identity",
-        "test_the_table_is_born_owned_by_chart",
-        "test_gate_before_seed",
-        "test_deposit_back_lands_and_dedups",
-        "test_counsel_keeps_its_floor_visible",
-        "test_the_librarians_tools_are_the_only_door",
-        "test_the_dial_reads_exact_fractions_in_time_order",
-        "test_the_dial_reports_unreadable_never_skips",
-        "test_an_absent_berth_is_a_nameable_state",
-        "test_the_real_berth_by_invariant",
-        "test_tree_is_a_legal_stratum_at_the_packet_gate"
+        "test_the_table_is_born_owned_by_chart"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "eb74ed39fb24a3c3457a8e7b69cd90a6b9cfeff19aa5395f73491f721e9c9d15",
+      "source_fingerprint": "36e0b277869e8077057f562e6ad523378c40f4e390980c0563efadaa9ea4d9b8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -89,7 +80,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-652741-o5vasune/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1361166-r2adwrq3/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -98,12 +89,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123299537,
-          "disk_bytes": 133890048,
-          "entries": 4317,
+          "bytes": 127637417,
+          "disk_bytes": 138387456,
+          "entries": 4422,
           "builds": 1,
-          "reuses": 37
+          "reuses": 9
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "9c3ea461676de22915d120bb120049abada8d5642813fb2fc7ff45bfc4471f37",
+        "opened": "2026-09-10T17:30:30",
+        "last_red": "2026-09-10T17:30:30",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-tree",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

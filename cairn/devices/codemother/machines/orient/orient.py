@@ -337,12 +337,17 @@ def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
     holds no state" into eight charters.
 
     AGREEING WITH THE MEASUREMENT IS NOT DECLARING, which is why this refuses on
-    DISAGREEMENT rather than on presence. Two reasons, and the second is the load-bearing
-    one: a label that matches what re-running the floor produced is not a claim the
-    sender made, it is a claim the sender RE-DERIVED, and there is nothing to refuse in
-    being right. And ``validate_orient`` runs at both doors over the same object, so a
-    refuse-on-presence rule would make the berth's own output illegal at the deposit one
-    line later — the door refusing the packet it just wrote."""
+    DISAGREEMENT rather than on presence: a label that matches what re-running the floor
+    produced is not a claim the sender made, it is a claim the sender RE-DERIVED, and
+    there is nothing to refuse in being right.
+
+    THIS RUNS AT THE WRITE DOOR ONLY, and that is the correction of 2026-09-10 (ticket
+    4c022c44de53). It used to run at the deposit door too, on the argument that a rule
+    reaching both doors is unavoidable. Unavoidable it was; correct it was not. A label
+    the write door DERIVED and stamped is not a sender's claim, and re-asking the
+    question of it later asks a different question — one about whether the world moved,
+    not about whether the sender was honest. It moves, and 286 of 356 berthed orient
+    packets were refused for it."""
     prov = packet.get("provenance") or {}
     wrong = {f: (prov[f], measured.get(f)) for f in FLOOR_AUTHORED
              if f in prov and prov[f] != measured.get(f)}
@@ -351,8 +356,8 @@ def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
             "orient refuses a packet that declares its own provenance for %s — those are "
             "DERIVED at the door by re-running the floor over the packet's own 'request' "
             "and comparing, and a field earns 'floor' only when the floor's answer can be "
-            "REPRODUCED. Declared vs measured: %s. Drop those keys (the door writes them) "
-            "and carry 'request' so there is something to reproduce."
+            "REPRODUCED. Declared vs measured: %s. Leave those keys out — this door "
+            "writes them — and carry 'request' so there is something to reproduce."
             % (", ".join(sorted(wrong)),
                "; ".join("%s declared %r, measured %r" % (f, d, m)
                          for f, (d, m) in sorted(wrong.items()))))
@@ -418,7 +423,8 @@ def inspect_orient(packet: dict, root: str = CAIRN_ROOT) -> list:
     return record
 
 
-def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
+def validate_orient(packet: dict, root: str = CAIRN_ROOT, *,
+                    measure_provenance: bool = True) -> dict:
     """ORIENT'S OWN GATE at the handoff — an == compare over its inspector's record.
 
     Opens only when every entry's expected equals its actual, per entry, no oracle
@@ -436,22 +442,34 @@ def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
         # is not a gate verdict. It is loud and it is terminal.
         raise OrientRefused("orient packet must be a dict, got %s" % type(packet).__name__)
 
-    # PROVENANCE IS MEASURED HERE, AT THE GATE, AND IN PLACE — the physics for the whole
-    # build (Law 4: a rule that matters is enforced by the schema or the kernel, and
-    # until it is it is an IOU). Putting it here rather than in ``write_packet`` is what
-    # makes it unavoidable: BOTH doors a packet can pass through — the berth and the
-    # deposit — go through this function, so there is no route by which a packet reaches
-    # instance-space or the tree carrying a label it wrote about itself.
+    # PROVENANCE IS MEASURED AT THE WRITE DOOR AND READ AT THE DEPOSIT DOOR — one
+    # function, one switch, and the switch chooses the SOURCE of the label, never
+    # whether the gate runs. The gate below runs on both paths, unconditionally.
     #
-    # IN PLACE, and the alternative is a trap rather than a style preference: /chart
-    # calls ``write_packet(p)`` and then ``deposit_orient(p, ...)`` with the same object.
-    # A copy would berth the measured provenance and hand the caller back a packet whose
-    # provenance this very door would then refuse — the berth and the packet disagreeing
-    # about what the packet is.
-    measured = measured_provenance(packet, root=root)
-    refuse_misdeclared_floor_provenance(packet, measured)
-    if measured:
-        packet["provenance"] = measured
+    # The measurement re-runs the floor over the packet's own ``request`` and compares.
+    # That is the right question to ask of a packet arriving from outside — has this
+    # sender earned the label it wrote? — and the wrong question to ask of a packet that
+    # has already been through this door, because the floor reads TODAY's tree. A file
+    # moves, a component is renamed, and the floor's answer changes underneath a berth
+    # that was measured honestly last week. Re-measuring at the deposit door then refuses
+    # a label THIS DOOR derived and stamped, for a reason that is about the world moving
+    # rather than about the sender (which is the caveat the ``floor_earns_its_label``
+    # probe carries about its own disagreement table, and the reason it fires on nothing).
+    #
+    # Measured before this build, over every berth in instance-space: 286 of 356 orient
+    # packets and 293 of 348 constrain packets were refused at the deposit door for a
+    # provenance label their own write door had written.
+    #
+    # IN PLACE on the measured path, and the alternative is a trap rather than a style
+    # preference: /chart calls ``write_packet(p)`` and then ``deposit_orient(p, ...)``
+    # with the same object. A copy would berth the measured provenance and hand the
+    # caller back a packet whose provenance this very door would then refuse — the berth
+    # and the packet disagreeing about what the packet is.
+    if measure_provenance:
+        measured = measured_provenance(packet, root=root)
+        refuse_misdeclared_floor_provenance(packet, measured)
+        if measured:
+            packet["provenance"] = measured
 
     record = inspect_orient(packet, root=root)
     if not gate.verdict(record)["opens"]:
@@ -463,8 +481,12 @@ def validate_orient(packet: dict, root: str = CAIRN_ROOT) -> dict:
 def write_packet(packet: dict, *, instance_dir: str = INSTANCE_DIR,
                  root: str = CAIRN_ROOT) -> str:
     """The berth: validate at the door, then land the packet in instance-space
-    (runtime state, never in git). Returns the path."""
-    validate_orient(packet, root=root)
+    (runtime state, never in git). Returns the path.
+
+    MEASURES provenance: this is the door a packet arrives at from outside, so the
+    floor-authored labels are re-derived here and a sender that declares them wrongly is
+    refused."""
+    validate_orient(packet, root=root, measure_provenance=True)
     os.makedirs(instance_dir, exist_ok=True)
     digest = hashlib.sha256(
         json.dumps(packet, sort_keys=True).encode("utf-8")).hexdigest()[:12]
@@ -476,17 +498,53 @@ def write_packet(packet: dict, *, instance_dir: str = INSTANCE_DIR,
     return path
 
 
+def _refuse_provenance_the_berth_does_not_carry(packet: dict, berth_path: str) -> None:
+    """THE READ DOOR'S ANCHOR — added 2026-09-10 with the measure/read switch, and the
+    switch is not honest without it.
+
+    The charter's falsifier clause (8) reds ``any route by which a packet reaches a berth
+    or the tree carrying a provenance label its sender wrote``. While both doors measured,
+    that clause held by re-derivation. Once the deposit door READS the label, re-derivation
+    is gone and the clause would hold only for callers who hand the deposit the same object
+    they berthed — true of /chart, and true of nobody by construction. A caller could pass a
+    real berth path beside a forged provenance and the tree would take the forgery.
+
+    So the label is pinned to the berth instead: the deposit accepts exactly the provenance
+    the WRITE door stamped into the file it is pointing at. Reading rather than
+    re-measuring, and still not the sender's word."""
+    try:
+        with open(os.path.expanduser(berth_path), encoding="utf-8") as fh:
+            berthed = json.load(fh)
+    except (OSError, ValueError) as err:
+        raise OrientRefused(
+            "deposit_orient: berth %r could not be read back (%s) — the deposit reads its "
+            "provenance from the berth rather than re-measuring it, so an unreadable berth "
+            "leaves the label unanchored" % (berth_path, err))
+    if (berthed.get("provenance") or {}) != (packet.get("provenance") or {}):
+        raise OrientRefused(
+            "deposit_orient: the packet's provenance is not the one the berth carries. "
+            "The deposit door READS this label rather than measuring it, so it must be "
+            "the label the write door stamped: berth %r carries %r, the packet carries "
+            "%r." % (berth_path, berthed.get("provenance"), packet.get("provenance")))
+
+
 def deposit_orient(packet: dict, vector, *, berth_path: str, nexus: str = "orient",
-                   conn=None) -> dict:
+                   root: str = CAIRN_ROOT, conn=None) -> dict:
     """The deposit-back: a berthed packet's intent becomes the tree's memory of this
     orientation. Gate before seed — the packet re-validates at this door, and the berth
-    must exist on disk."""
-    validate_orient(packet)
+    must exist on disk.
+
+    READS the packet's stored provenance rather than re-measuring it: the label on a
+    berthed packet was derived by ``write_packet`` and belongs to this door, not to the
+    sender. The gate still runs in full here, so a stored provenance that is missing a
+    key, fails to cover the authored fields, or names an unknown stratum is refused."""
+    validate_orient(packet, root=root, measure_provenance=False)
     if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
         raise OrientRefused(
             f"deposit_orient: berth {berth_path!r} does not exist on disk — a node whose "
             "provenance points at nothing is fabricated attribution one layer up; "
             "nothing landed")
+    _refuse_provenance_the_berth_does_not_carry(packet, berth_path)
     provenance = {
         "source": berth_path,
         "confidence": packet["confidence"],

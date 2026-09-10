@@ -580,9 +580,13 @@ def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
     AGREEING WITH THE MEASUREMENT IS NOT DECLARING, which is why this refuses on
     DISAGREEMENT rather than on presence: a label that matches what re-running the floor
     produced is a claim the sender RE-DERIVED, and there is nothing to refuse in being
-    right. It also has to be that way mechanically — ``validate_constrain`` runs at both
-    doors over the same object, so a refuse-on-presence rule would make the berth's own
-    output illegal at the deposit one line later."""
+    right.
+
+    THIS RUNS AT THE WRITE DOOR ONLY (ticket 4c022c44de53, 2026-09-10). It used to run at
+    the deposit door as well, and the charters the floor reads get reworded — so 293 of
+    348 berthed constrain packets were refused at that door for a label this door had
+    itself derived. Asking a stored label whether the floor still agrees is a question
+    about the world, not about the sender."""
     prov = packet.get("provenance") or {}
     wrong = {f: (prov[f], measured.get(f)) for f in FLOOR_AUTHORED
              if f in prov and prov[f] != measured.get(f)}
@@ -591,8 +595,8 @@ def refuse_misdeclared_floor_provenance(packet: dict, measured: dict) -> None:
             "constrain refuses a packet that declares its own provenance for %s — those "
             "are DERIVED at the door by re-running the floor over the packet's own "
             "'intent_ref' and comparing, and a field earns 'floor' only when the floor's "
-            "answer can be REPRODUCED. Declared vs measured: %s. Drop those keys (the "
-            "door writes them)."
+            "answer can be REPRODUCED. Declared vs measured: %s. Leave those keys out — "
+            "this door writes them."
             % (", ".join(sorted(wrong)),
                "; ".join("%s declared %r, measured %r" % (f, d, m)
                          for f, (d, m) in sorted(wrong.items()))))
@@ -728,7 +732,8 @@ def inspect_constrain(packet: dict, root: str = CAIRN_ROOT) -> list:
     return record
 
 
-def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
+def validate_constrain(packet: dict, root: str = CAIRN_ROOT, *,
+                       measure_provenance: bool = True) -> dict:
     """CONSTRAIN'S OWN GATE at the handoff — an == compare over ``inspect_constrain``.
 
     Opens only when every entry's expected equals its actual, per entry, no oracle
@@ -747,17 +752,26 @@ def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
         raise ConstrainRefused("constrain packet must be a dict, got %s"
                     % type(packet).__name__)
 
-    # PROVENANCE IS MEASURED HERE, AT THE GATE, AND IN PLACE — the same position orient
-    # settled on one stage up, for the same reason: BOTH doors a packet can leave by (the
-    # berth and the deposit) run this function, so there is no route by which a packet
-    # reaches instance-space or the tree carrying a label it wrote about itself. In place
-    # rather than on a copy because /chart calls write_constrain(p) and then
+    # PROVENANCE IS MEASURED AT THE WRITE DOOR AND READ AT THE DEPOSIT DOOR — the same
+    # position orient settled on one stage up, and for the same reason. The switch chooses
+    # where the label COMES FROM; it never chooses whether the gate runs, and the gate
+    # below runs on both paths.
+    #
+    # Measuring asks a packet arriving from outside whether it earned the label it wrote.
+    # Asked again at the deposit door it becomes a different question, because the floor
+    # reads TODAY's charters and TODAY's tree: a charter is reworded, a ref moves, and the
+    # floor's answer changes underneath a berth that was measured honestly last week.
+    # Measured before this build, 293 of 348 berthed constrain packets were refused at the
+    # deposit door for a label their own write door had derived and stamped.
+    #
+    # In place rather than on a copy because /chart calls write_constrain(p) and then
     # deposit_constrain(p, ...) with the SAME object — a copy would berth the measured
     # provenance and hand the caller back a packet this very door would then refuse.
-    measured = measured_provenance(packet, root=root)
-    refuse_misdeclared_floor_provenance(packet, measured)
-    if measured:
-        packet["provenance"] = measured
+    if measure_provenance:
+        measured = measured_provenance(packet, root=root)
+        refuse_misdeclared_floor_provenance(packet, measured)
+        if measured:
+            packet["provenance"] = measured
 
     record = inspect_constrain(packet, root=root)
     if gate.verdict(record)["opens"]:
@@ -772,8 +786,12 @@ def validate_constrain(packet: dict, root: str = CAIRN_ROOT) -> dict:
 def write_constrain(packet: dict, *, instance_dir: str = INSTANCE_DIR,
                     root: str = CAIRN_ROOT) -> str:
     """The berth: gate at the door (shape + the composed judges), then land in
-    instance-space beside orient's packets. Returns the path."""
-    validate_constrain(packet, root=root)
+    instance-space beside orient's packets. Returns the path.
+
+    MEASURES provenance: this is the door a packet arrives at from outside, so the
+    floor-authored labels are re-derived here and a sender that declares them wrongly is
+    refused."""
+    validate_constrain(packet, root=root, measure_provenance=True)
     os.makedirs(instance_dir, exist_ok=True)
     digest = hashlib.sha256(
         json.dumps(packet, sort_keys=True).encode("utf-8")).hexdigest()[:12]
@@ -796,17 +814,44 @@ def constrain_node_content(packet: dict) -> str:
         intent, "; ".join(bounds["in"]), "; ".join(bounds["out"]))
 
 
+def _refuse_provenance_the_berth_does_not_carry(packet: dict, berth_path: str) -> None:
+    """THE READ DOOR'S ANCHOR (2026-09-10, ticket 4c022c44de53) — the same anchor orient
+    holds one stage up, for the same reason. Once the deposit door reads the label instead
+    of re-deriving it, only the berth can say what the write door actually stamped; without
+    this, a caller could pass a real berth path beside a forged provenance."""
+    try:
+        with open(os.path.expanduser(berth_path), encoding="utf-8") as fh:
+            berthed = json.load(fh)
+    except (OSError, ValueError) as err:
+        raise ConstrainRefused(
+            "deposit_constrain: berth %r could not be read back (%s) — the deposit reads "
+            "its provenance from the berth rather than re-measuring it, so an unreadable "
+            "berth leaves the label unanchored" % (berth_path, err))
+    if (berthed.get("provenance") or {}) != (packet.get("provenance") or {}):
+        raise ConstrainRefused(
+            "deposit_constrain: the packet's provenance is not the one the berth carries. "
+            "The deposit door READS this label rather than measuring it, so it must be the "
+            "label the write door stamped: berth %r carries %r, the packet carries %r."
+            % (berth_path, berthed.get("provenance"), packet.get("provenance")))
+
+
 def deposit_constrain(packet: dict, vector, *, berth_path: str, root: str = CAIRN_ROOT,
                       conn=None) -> dict:
     """The deposit-back: the bounds become the constrain tree's memory of this
     class of request — the next similar request walks to its settled bounds
     instead of re-deriving them (Law 1 as the brick's runtime). Gate before seed;
-    the berth must exist on disk."""
-    validate_constrain(packet, root=root)
+    the berth must exist on disk.
+
+    READS the packet's stored provenance rather than re-measuring it: the label on a
+    berthed packet was derived by ``write_constrain`` and belongs to this door, not to
+    the sender. The gate still runs in full here, so a stored provenance that is missing
+    a key, fails to cover the authored fields, or names an unknown stratum is refused."""
+    validate_constrain(packet, root=root, measure_provenance=False)
     if not isinstance(berth_path, str) or not os.path.isfile(os.path.expanduser(berth_path)):
         raise ConstrainRefused(
             "deposit_constrain: berth %r does not exist on disk — a node whose "
             "provenance points at nothing is fabricated attribution one layer up" % (berth_path,))
+    _refuse_provenance_the_berth_does_not_carry(packet, berth_path)
     content = constrain_node_content(packet)
     provenance = {
         "source": berth_path,

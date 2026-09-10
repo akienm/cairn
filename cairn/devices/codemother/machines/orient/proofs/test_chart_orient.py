@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "..")))
 
 from cairn.tools.chain.grammar import (component_roster, ref_exists)
-from cairn.devices.codemother.machines.orient.orient import (AUTHORED_FIELDS, FLOOR_AUTHORED, OrientRefused, floor_facts, floor_packet, validate_orient, write_packet)
+from cairn.devices.codemother.machines.orient.orient import (AUTHORED_FIELDS, FLOOR_AUTHORED, OrientRefused, deposit_orient, floor_facts, floor_packet, validate_orient, write_packet)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 ORIENT_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "orient.py"))
@@ -360,6 +360,127 @@ def test_refusal_is_one_pass_complete(root):
     joined = " ".join(first)
     for needle in ("missing fields", "confidence", "stratum"):
         assert needle in joined, (needle, joined)
+
+
+
+def a_packet_whose_stored_label_the_floor_will_not_reproduce():
+    """ONE object, and the whole pair turns on it being one.
+
+    It declares ``floor`` for ``refs``. The refs are hand-picked, so re-running the floor
+    over its own request produces something else and the write door refuses the label —
+    which is exactly right for a packet arriving from outside. The same object is what a
+    berth holds AFTER the write door has stamped it and the world has since moved: a
+    label this door derived, that this door can no longer reproduce. Nothing about the
+    packet distinguishes those two cases, which is why the door cannot tell them apart by
+    inspection and needs the caller to say which door it is."""
+    packet = good_packet()
+    packet["provenance"] = {"intent": "cc", "scope": "cc", "domain": "cc",
+                            "refs": "floor", "unknowns": "cc"}
+    return packet
+
+
+def test_the_write_door_measures_the_label_and_the_deposit_door_reads_it(root):
+    """THE DEFECT, AS A PAIR ON ONE OBJECT (ticket 4c022c44de53).
+
+    Before this build both doors re-measured, so a packet the write door had labelled and
+    stamped was refused at the deposit door the moment the floor's answer moved
+    underneath it — measured at 286 of 356 berthed orient packets and 293 of 348
+    constrain ones. The pair below is what stops that: the same object, refused where the
+    label is a claim and accepted where it is a record."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    expect_refusal(lambda: validate_orient(dict(packet), root=root),
+                   "declares its own provenance")
+    assert validate_orient(dict(packet), root=root, measure_provenance=False) is not None
+
+
+def test_the_deposit_door_itself_reads_rather_than_measures(root):
+    """THE WIRING, BEHAVIOURALLY — not by reading the call site.
+
+    ``deposit_orient`` is fired on the packet the write door would refuse, with a berth
+    path that does not exist. It must fall through the provenance question entirely and
+    refuse for the BERTH, because reaching that refusal is only possible if the packet
+    already passed the gate in read mode. A deposit door that still measured would refuse
+    one line earlier and never mention the berth at all."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    expect_refusal(
+        lambda: deposit_orient(packet, [0.0], berth_path="/nonexistent/berth.json",
+                               root=root),
+        "does not exist on disk")
+
+
+def test_reading_the_stored_label_is_not_skipping_the_gate(root):
+    """THE GUARD — the switch chooses the label's SOURCE, never whether the gate runs.
+
+    This is the tooth that says what the ticket's falsifier calls the wrong intent: a
+    read-mode door that waved malformed provenance through would have turned a
+    measurement question into a hole. Each packet below is refused in READ mode, where
+    there is no measurement to catch it and only the gate stands."""
+    missing = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    missing["provenance"] = {k: v for k, v in missing["provenance"].items()
+                             if k != "unknowns"}
+    expect_refusal(lambda: validate_orient(missing, root=root,
+                                           measure_provenance=False),
+                   "provenance")
+
+    martian = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    martian["provenance"]["unknowns"] = "martian"
+    expect_refusal(lambda: validate_orient(martian, root=root,
+                                           measure_provenance=False),
+                   "stratum")
+
+    invented = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    invented["refs"] = ["cairn/tools/nowhere/nowhere.py"]
+    expect_refusal(lambda: validate_orient(invented, root=root,
+                                           measure_provenance=False),
+                   "refs")
+
+    nonsense = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    nonsense["confidence"] = "very"
+    expect_refusal(lambda: validate_orient(nonsense, root=root,
+                                           measure_provenance=False),
+                   "confidence")
+
+
+def test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one(root):
+    """THE DEFAULT IS THE STRICT SIDE. Every caller that does not name the switch gets the
+    behaviour that existed before this build, so the change is opt-in at exactly two
+    production call sites and nowhere else."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce()
+    expect_refusal(lambda: validate_orient(dict(packet), root=root),
+                   "declares its own provenance")
+
+
+
+def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root):
+    """CLAUSE (8) OF THE CHARTER, HELD BY A DIFFERENT MECHANISM.
+
+    While both doors measured, "no packet reaches the tree carrying a label its sender
+    wrote" held by re-derivation. The read door cannot hold it that way, so it holds it by
+    ANCHOR: the deposit accepts exactly the provenance the write door stamped into the
+    berth it is pointing at. A real berth path beside a forged label is the route this
+    closes, and it is a route the pre-build code did not have to close."""
+    # The berth dir hangs off ``root`` rather than pytest's tmp_path: this module is also
+    # run by its own ``main()`` — which is how the TESTER runs it — and main() hands each
+    # tooth exactly one argument. A tooth that only works under pytest is a tooth the seal
+    # cannot reach.
+    packet = good_packet()
+    berth = write_packet(packet, instance_dir=os.path.join(root, "berths"), root=root)
+
+    forged = json.load(open(berth, encoding="utf-8"))
+    forged["provenance"] = dict(forged["provenance"], refs="floor")
+    expect_refusal(lambda: deposit_orient(forged, [0.0], berth_path=berth, root=root),
+                   "not the one the berth carries")
+
+    honest = json.load(open(berth, encoding="utf-8"))
+    try:
+        deposit_orient(honest, [0.0], berth_path=berth, root=root)
+    except OrientRefused as err:
+        raise AssertionError("the berth's own packet was refused at its own deposit: %s"
+                             % err)
+    except Exception:
+        # Past the gate and into the tree write, which is what this tooth is asserting;
+        # the store is not part of the claim.
+        pass
 
 
 

@@ -726,6 +726,92 @@ def test_floor_kinds_names_every_kind_the_floor_emits(root, orient_berth):
         remove()
 
 
+
+def a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth):
+    """ONE object. It declares ``floor`` for ``constraints``; the constraints are
+    hand-picked, so re-running the constrain floor over the ref'd orient berth produces
+    something else. That is a claim to refuse when the packet arrives from outside, and a
+    RECORD to read when the packet is a berth this door already stamped and the charters
+    underneath have since been reworded."""
+    packet = good_packet(orient_berth)
+    packet["provenance"] = dict(packet["provenance"], constraints="floor")
+    return packet
+
+
+def test_the_write_door_measures_the_label_and_the_deposit_door_reads_it(root, orient_berth):
+    """THE DEFECT, AS A PAIR ON ONE OBJECT (ticket 4c022c44de53). Measured before the
+    build: 293 of 348 berthed constrain packets were refused at the deposit door for a
+    label their own write door had derived and stamped."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    expect_refusal(lambda: validate_constrain(dict(packet), root=root),
+                   "declares its own provenance")
+    assert validate_constrain(dict(packet), root=root,
+                              measure_provenance=False) is not None
+
+
+def test_the_deposit_door_itself_reads_rather_than_measures(root, orient_berth):
+    """THE WIRING, BEHAVIOURALLY. ``deposit_constrain`` is fired on the packet the write
+    door refuses, with a berth path that does not exist. Reaching the berth refusal is
+    only possible if the gate already passed in read mode."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    expect_refusal(
+        lambda: deposit_constrain(packet, [0.0], berth_path="/nonexistent/berth.json",
+                                  root=root),
+        "does not exist on disk")
+
+
+def test_reading_the_stored_label_is_not_skipping_the_gate(root, orient_berth):
+    """THE GUARD — the switch chooses the label's SOURCE, never whether the gate runs.
+    Each packet is refused in READ mode, where no measurement stands behind the gate."""
+    missing = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    missing["provenance"] = {k: v for k, v in missing["provenance"].items()
+                             if k != "bounds"}
+    expect_refusal(lambda: validate_constrain(missing, root=root,
+                                              measure_provenance=False), "provenance")
+
+    martian = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    martian["provenance"]["bounds"] = "martian"
+    expect_refusal(lambda: validate_constrain(martian, root=root,
+                                              measure_provenance=False), "stratum")
+
+    unbounded = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    unbounded["bounds"] = {"in": ["alpha's gate"], "out": []}
+    expect_refusal(lambda: validate_constrain(unbounded, root=root,
+                                              measure_provenance=False), "out")
+
+    unresolvable = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    unresolvable["constraints"] = [dict(unresolvable["constraints"][0],
+                                        source="cairn/tools/nowhere/nowhere.py")]
+    expect_refusal(lambda: validate_constrain(unresolvable, root=root,
+                                              measure_provenance=False), "source")
+
+
+def test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one(root, orient_berth):
+    """THE DEFAULT IS THE STRICT SIDE — every caller that does not name the switch keeps
+    the behaviour that stood before this build."""
+    packet = a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth)
+    expect_refusal(lambda: validate_constrain(dict(packet), root=root),
+                   "declares its own provenance")
+
+
+
+
+def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root, orient_berth):
+    """THE ANCHOR — the same one orient holds. The read door cannot re-derive the label,
+    so it takes the one the write door stamped into the berth and refuses anything else."""
+    packet = good_packet(orient_berth)
+    # Off ``root``, not pytest's tmp_path — the tester runs this module through its own
+    # runner, which hands a tooth its world and nothing else.
+    berth = write_constrain(packet, instance_dir=os.path.join(root, "berths"), root=root)
+
+    forged = json.load(open(berth, encoding="utf-8"))
+    forged["provenance"] = dict(forged["provenance"], constraints="floor")
+    expect_refusal(
+        lambda: deposit_constrain(forged, [0.0], berth_path=berth, root=root),
+        "not the one the berth carries")
+
+
+
 def _main() -> int:
     root, orient_berth = make_root()
     checks = [
@@ -749,6 +835,15 @@ def _main() -> int:
         test_the_door_composes_the_installed_judges,
         test_the_berth_lands_and_the_door_holds,
         test_deposit_back_is_gated,
+        # 2026-09-10, ticket 4c022c44de53. THE ROSTER IS THE POPULATION, NOT THE FILE:
+        # these five were written, passed under pytest, and were absent from this list,
+        # so the seal read green over a build whose new teeth never ran. Caught by
+        # diffing the sealed teeth_green against ``def test_`` in this file.
+        test_the_write_door_measures_the_label_and_the_deposit_door_reads_it,
+        test_the_deposit_door_itself_reads_rather_than_measures,
+        test_reading_the_stored_label_is_not_skipping_the_gate,
+        test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one,
+        test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one,
         test_import_allowlist,
     ]
     try:
@@ -777,7 +872,12 @@ def _main() -> int:
           "instrument is refused, and every kind the floor emits is named in FLOOR_KINDS; "
           "provenance for those two is MEASURED by re-running the floor, the 'floor' "
           "label is reachable and BOTH mutations (drop one, forge one) red it, and a "
-          "misdeclared label is refused rather than quietly corrected; the schema gate "
+          "misdeclared label is refused rather than quietly corrected, and that "
+          "measurement happens at the WRITE door while the DEPOSIT door reads the "
+          "label the write door already derived — a switch whose default is the strict "
+          "side, and reading is not skipping: a stored label that is missing, "
+          "uncovering, unknown-stratum or forged against the berth still refuses at the "
+          "deposit door; the schema gate "
           "refuses hollow shapes, the door composes the inspector's own judges (by "
           "identity), the berth round-trips, the deposit-back is gated, and the brick's "
           "doors are exactly the three composed ones")

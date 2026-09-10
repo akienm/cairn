@@ -8601,5 +8601,259 @@
     "fingerprint": "15549a7b9549600caba6545145f76a8f0fc088015cbd3b81160243aa5ec6b839",
     "at": "2026-09-10T14:14:09",
     "seq": 37
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(chart_chain) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '95e3b9911dd0'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/tester/proofs/test_hollow.py (seal 2026-09-10T14:55:02, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(chart_chain) emitted the probe berthed at cairn/tools/base/probes/no_ticket_carries_a_stored_chart_chain.py (ticket '95e3b9911dd0')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260910T144329-f7a19905ff81.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(chart_chain) crossing",
+        "actual": "a cast ticket for the WATCHME(chart_chain) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "95e3b9911dd0",
+          "watch_object": "chart_chain",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/95e3b9911dd0-hollow-derives-the-chart-chain-from-the-berths-never-from-a-stored-copy.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '95e3b9911dd0' carries a watchme spec for 'chart_chain'",
+        "actual": "ticket '95e3b9911dd0' carries a watchme spec for 'chart_chain'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "95e3b9911dd0",
+          "watch_object": "chart_chain",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "95e3b9911dd0",
+          "watch_object": "chart_chain",
+          "berth": "cairn/tools/base/probes/no_ticket_carries_a_stored_chart_chain.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "95e3b9911dd0",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '95e3b9911dd0' is cast",
+        "actual": "named ticket '95e3b9911dd0' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "95e3b9911dd0",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/95e3b9911dd0-hollow-derives-the-chart-chain-from-the-berths-never-from-a-stored-copy.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "95e3b9911dd0"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "tester",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/tester/proofs/test_hollow.py stands in proven-space",
+        "actual": "cairn/devices/tester/proofs/test_hollow.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_hollow.py",
+          "named": [
+            "cairn/devices/tester/proofs/test_hollow.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/tester/proofs/test_hollow.py's seal at '2026-09-10T14:55:02'",
+        "actual": "the witness dates cairn/devices/tester/proofs/test_hollow.py's seal at '2026-09-10T14:55:02'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_hollow.py",
+          "named": [
+            "cairn/devices/tester/proofs/test_hollow.py"
+          ],
+          "seal": "2026-09-10T14:55:02",
+          "claimed": "2026-09-10T14:55:02"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '95e3b9911dd0' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "95e3b9911dd0"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/tester/proofs/test_hollow.py",
+    "proven_seal_date": "2026-09-10T14:55:02",
+    "delegated": false,
+    "ticket": "95e3b9911dd0",
+    "note": "hollow derives the chart chain from the berths. The reader no longer dereferences a stored chart_chain; 24 tickets' stored copies were laid down by the migration; the watch probe reports a carrier that reappears and does not clear on zero alone. Live fire at HEAD b4cd311: 3 files measured, 0 hollow, 1 skipped as the instrument. Two bugs the voyage uncovered were fixed under it: hollow's unmeasurable-baseline refusal now names whether the proof failed or never ran, and the clause sieve now reads a lettered enumeration instead of collapsing it to one clause.",
+    "fingerprint": "11959c40497603b0582d460c6ebcafe76e0f4d0549747eaf4d33cf902227a33e",
+    "at": "2026-09-10T15:25:47",
+    "seq": 38
   }
 ]

@@ -1,0 +1,58 @@
+[
+  {
+    "claim": "proof test_the_tool_stands_at_its_own_address.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-10T00:11:42",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_i_every_address_this_build_wrote_is_load_bearing\n          charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled\n          probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough\n          journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME')\n          journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME')\n  PASS  test_ii_the_charter_berths_at_the_tools_own_address (charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled)\n  PASS  test_iii_the_watchme_probe_moved_with_what_it_watches (probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough)\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME'))\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME'))\ngreen — bus_client stands at its own address: its own charter, the WATCHME probe berthed with what it watches, and a journal at each end of the seam whose cursor is its own last entry",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_i_every_address_this_build_wrote_is_load_bearing",
+        "test_ii_the_charter_berths_at_the_tools_own_address",
+        "test_iii_the_watchme_probe_moved_with_what_it_watches",
+        "test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "d029b2939ffccb0fa7e0a42ef0bcb6a7f8f2127a87eec45c888920149dbba433",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/probes/__init__.py",
+        "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py",
+        "cairn/tools/bus_client/proofs/test_the_tool_stands_at_its_own_address.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2557090-uwsjv4jn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 123124689,
+          "disk_bytes": 133648384,
+          "entries": 4289,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

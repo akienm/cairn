@@ -49,7 +49,34 @@ if str(_REPO_ROOT) not in sys.path:
 # code under test, and tooth ii would pass while measuring nothing. ``_CLASS_ROOT`` lives
 # here too. The faces reached this way are the same objects the package hands out.
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
-from cairn.tools.bus_client import bus_client  # noqa: E402
+
+
+class _LazyModule:
+    """``cairn.tools.bus_client.bus_client`` resolved at CALL time, never at import time.
+
+    MEASURED NECESSARY 2026-09-09 BY THE HOLLOW READING OF THIS BUILD. Bound at import, the
+    module under test is a load-bearing name in the proof's own header — so when `cairn test
+    --hollow` reverted ``bus_client.py`` (absent before the build) this file raised
+    ModuleNotFoundError before its first tooth and printed NO teeth at all. The clearance gate
+    reads that as ``hollow_unreadable``, and it is right to: "the proof crashed" and "no tooth
+    checks this file" are different answers, and a run that cannot reach a check has measured
+    nothing. A proof has to survive its subject being taken away in order to say anything about
+    whether that subject is load-bearing.
+
+    __setattr__ forwards too, because the teeth monkeypatch ``_CLASS_ROOT`` and
+    ``_load_device_shim`` on the module object itself — a proxy that only read would leave those
+    writes on the proxy, where ``_wire``'s own module global would never see them, and tooth ii
+    would pass while measuring nothing.
+    """
+
+    def __getattr__(self, name):
+        return getattr(importlib.import_module("cairn.tools.bus_client.bus_client"), name)
+
+    def __setattr__(self, name, value):
+        setattr(importlib.import_module("cairn.tools.bus_client.bus_client"), name, value)
+
+
+bus_client = _LazyModule()
 
 # The live device the faces are exercised against. `cc` is chosen for one measured
 # reason: `reach("cc")` costs 0.03s on this machine (2026-09-09), against 0.96s for
@@ -57,6 +84,18 @@ from cairn.tools.bus_client import bus_client  # noqa: E402
 # a proof nobody runs, and the thing under test here is shim RESOLUTION, which every
 # device pays identically.
 LIVE_DEVICE = "cc"
+
+# WHICH CLAUSE OF THE TICKET'S FALSIFIER EACH TOOTH PROVES — read by proof_coverage and by
+# the hollow check. The falsifier carries no ``(N)`` markers, so it is ONE clause covering
+# the whole DONE-when, and it is served from TWO ends: the determinism proof answers "test_q
+# passes and base shows no llm edge", this one answers "the importers resolve". Both declare
+# ``all``; the coverage reader takes a clause as covered when ANY declarer is green, so the
+# two are more evidence rather than a conflict to adjudicate.
+PROVES = {
+    "dd8ad9702b49": {
+        "all": "test_v_every_importer_in_class_space_imports_at_the_new_address",
+    }
+}
 
 OLD_DOTTED = "cairn.tools.base.bus_client"
 OLD_PATH = "cairn/tools/base/bus_client"
@@ -344,11 +383,29 @@ def test_v_every_importer_in_class_space_imports_at_the_new_address():
 
 
 def check():
-    test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost()
-    test_ii_all_three_faces_go_to_disk_for_the_named_device()
-    test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says()
-    test_iv_reach_refuses_a_name_no_shim_answers_to()
-    test_v_every_importer_in_class_space_imports_at_the_new_address()
+    """Every tooth runs, whatever the one before it did — and that is the hollow reading's
+    requirement, not tidiness.
+
+    A tooth that raises used to take the whole run with it, so the teeth AFTER it printed
+    nothing and the reading could not tell "no tooth checks this file" from "the run stopped
+    before the tooth that does". The declared tooth for ticket dd8ad9702b49 is test_v, the LAST
+    one — under a sequential runner every reversion that upset an earlier tooth would have
+    hidden test_v's verdict behind it.
+    """
+    failures = []
+    for tooth in (test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost,
+                  test_ii_all_three_faces_go_to_disk_for_the_named_device,
+                  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says,
+                  test_iv_reach_refuses_a_name_no_shim_answers_to,
+                  test_v_every_importer_in_class_space_imports_at_the_new_address):
+        try:
+            tooth()
+        except BaseException as exc:               # noqa: BLE001 — a red is a reading, not a crash
+            failures.append(tooth.__name__)
+            print("  RED  %s: %s: %s" % (tooth.__name__, type(exc).__name__, exc))
+    if failures:
+        print("RED: %d failing" % len(failures))
+        return 1
     print("green — the three faces resolve a shim from the file on disk, a device that is "
           "not there refuses loudly, the nested device still resolves, and every importer "
           "in class-space was RUN at the new address")

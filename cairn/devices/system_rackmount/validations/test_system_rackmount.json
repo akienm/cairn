@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_rackmount.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-09T17:26:23",
+    "date": "2026-09-09T23:39:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "1c209e0c83be76d2803a6415e330505f9271a1ed042e82fad4f566c4dc05971d",
+      "source_fingerprint": "42facbebc24253618b1c0cb45780553ff7b7d76b3450c320284cc33e50d8ca8a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -58,34 +58,46 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1290249-2cgkqfvb/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2466807-clad1yyr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/bus/0/20260909.232621.522563.BusDevice.post.json",
-            "logs/bus/0/20260909.232621.568182.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260909.232621.748165.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260909.232621.831286.BusDevice.post.json",
-            "logs/ground_loop/0/20260909.232621.453211.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232621.453471.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232621.657457.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232621.837661.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232622.840219.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260909.232622.840441.GroundLoopDevice.subscribe.json",
-            "logs/system_rackmount/0/20260909.232621.453622.SystemRackmountDevice.subscribe.json",
-            "logs/system_rackmount/0/20260909.232621.657692.SystemRackmountDevice.subscribe.json"
+            "logs/bus/0/20260910.053903.091716.BusDevice.post.json",
+            "logs/bus/0/20260910.053903.133965.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260910.053903.338346.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260910.053903.427674.BusDevice.post.json",
+            "logs/ground_loop/0/20260910.053903.018017.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.053903.018289.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.053903.233270.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.053903.434942.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.053904.437709.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260910.053904.437924.GroundLoopDevice.subscribe.json",
+            "logs/system_rackmount/0/20260910.053903.018474.SystemRackmountDevice.subscribe.json",
+            "logs/system_rackmount/0/20260910.053903.233610.SystemRackmountDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 121066659,
-          "disk_bytes": 131416064,
-          "entries": 4235,
+          "bytes": 123124682,
+          "disk_bytes": 133693440,
+          "entries": 4307,
           "builds": 1,
-          "reuses": 30
+          "reuses": 0
         }
+      },
+      "reseal_closed": {
+        "proof_sha256": "327f0030154e09279980860be91640524bc01798923f3411fdfcb88e4709ace3",
+        "opened": "2026-09-09T23:33:55",
+        "last_red": "2026-09-09T23:33:55",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-system-rackmount",
+        "ruling": null,
+        "closed_at": "2026-09-09T23:39:04",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "327f0030154e09279980860be91640524bc01798923f3411fdfcb88e4709ace3"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

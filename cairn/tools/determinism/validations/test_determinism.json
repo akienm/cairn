@@ -2,12 +2,12 @@
   {
     "claim": "proof test_determinism.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-09T11:47:00",
+    "date": "2026-09-09T23:49:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_a_pure_imports_are_pure\n  ok   test_b_shelling_out_does_not_cost_purity\n  ok   test_c_a_computed_argv_is_not_chased\n  ok   test_d_off_box_state_is_reported_but_does_not_set_the_verdict\n  ok   test_e_the_llm_in_the_fire_path_reaches_an_oracle\n  ok   test_f_a_sleep_seam_does_not_red_the_fire_path\n  ok   test_g_a_seam_reachable_from_the_fire_path_still_counts\n  ok   test_h_an_llm_off_the_path_is_not_caught\n  ok   test_i_a_charter_with_no_code_is_not_on_the_roster\n  ok   test_j_the_hollow_floor_refuses_an_unread_tree\n  ok   test_k_the_real_corpus_is_read_by_invariant\n  ok   test_l2_calling_a_gate_does_not_make_you_one\n  ok   test_l_a_gate_is_derived_from_the_import_not_from_a_charter\n  ok   test_m_a_gate_that_reaches_an_oracle_is_a_violation\n  ok   test_n_a_gate_may_not_have_a_sleep_seam_either\n  ok   test_o_a_non_gate_reaching_an_oracle_is_not_a_violation\n  ok   test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates\n  RED  test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle: AssertionError: A GATE CONSULTS AN ORACLE: ['cairn/tools/base']\n\nRED: 1 failing",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_pure_imports_are_pure\n  ok   test_b_shelling_out_does_not_cost_purity\n  ok   test_c_a_computed_argv_is_not_chased\n  ok   test_d_off_box_state_is_reported_but_does_not_set_the_verdict\n  ok   test_e_the_llm_in_the_fire_path_reaches_an_oracle\n  ok   test_f_a_sleep_seam_does_not_red_the_fire_path\n  ok   test_g_a_seam_reachable_from_the_fire_path_still_counts\n  ok   test_h_an_llm_off_the_path_is_not_caught\n  ok   test_i_a_charter_with_no_code_is_not_on_the_roster\n  ok   test_j_the_hollow_floor_refuses_an_unread_tree\n  ok   test_k_the_real_corpus_is_read_by_invariant\n  ok   test_l2_calling_a_gate_does_not_make_you_one\n  ok   test_l_a_gate_is_derived_from_the_import_not_from_a_charter\n  ok   test_m_a_gate_that_reaches_an_oracle_is_a_violation\n  ok   test_n_a_gate_may_not_have_a_sleep_seam_either\n  ok   test_o_a_non_gate_reaching_an_oracle_is_not_a_violation\n  ok   test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates\n  ok   test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle\n\ngreen: 0 failing",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_pure_imports_are_pure",
@@ -26,17 +26,16 @@
         "test_m_a_gate_that_reaches_an_oracle_is_a_violation",
         "test_n_a_gate_may_not_have_a_sleep_seam_either",
         "test_o_a_non_gate_reaching_an_oracle_is_not_a_violation",
-        "test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates"
-      ],
-      "teeth_red": [
+        "test_p_the_gate_tool_is_not_counted_as_one_of_its_own_gates",
         "test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle",
-        "1 failing"
+        "0 failing"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "81dfb62dfe0de58007a2eec2b715b1174f34558aa621605d666fd53e7cd83961",
+      "source_fingerprint": "81cd75c1bd29b250350a51dd057215d29d7cdea6b5f4b70d5f9de83f859ebffa",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -51,7 +50,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-271987-2ao1o5cl/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2492397-gexz0u_g/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,11 +59,59 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116728438,
-          "disk_bytes": 125538304,
-          "entries": 3663,
+          "bytes": 123124689,
+          "disk_bytes": 133648384,
+          "entries": 4289,
           "builds": 1,
-          "reuses": 37
+          "reuses": 1
+        }
+      },
+      "hollow": {
+        "dd8ad9702b49": {
+          "cairn/devices/tester/discovery.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/tester/cli.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/tools/base/validation.py": [
+            "test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle"
+          ],
+          "cairn/tools/bus_client/__init__.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/tools/bus_client/bus_client.py": {
+            "unreadable": [
+              "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py"
+            ]
+          },
+          "cairn/tools/bus_client/intention+why.json": [],
+          "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py": [],
+          "cairn/devices/web_server/listener.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/intention_extractor/live.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/codemother/seed_trees.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/codemother/watch.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/librarian/live.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "skills/chart/live.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/devices/aider_shim/interceptor.py": [
+            "test_v_every_importer_in_class_space_imports_at_the_new_address"
+          ],
+          "cairn/tools/base/history.json": [],
+          "cairn/tools/base/state.json": [],
+          "cairn/tools/bus_client/history.json": [],
+          "cairn/tools/bus_client/state.json": []
         }
       }
     },

@@ -40,6 +40,22 @@ from cairn.tools.import_sieve import sieve
 
 LLM_IMPORT = "from cairn.devices.inference_domain import domain\n"
 
+# WHICH CLAUSE OF A TICKET'S FALSIFIER EACH TOOTH PROVES — read by proof_coverage and by the
+# hollow check. dd8ad9702b49 (bus_client leaves the gate's directory) states one unnumbered
+# DONE-when, so it is a single ``all`` clause, and test_q is the half of it this proof owns:
+# "test_q passes, and `base` shows no llm edge in the determinism report" — one tooth, because
+# test_q's assertion IS the report's violation list. The other half ("the importers resolve")
+# is declared on the same clause by
+# cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py.
+# THE RED THIS TOOTH TOOK IS THE POINT: sealed red at 2026-09-09T11:47 naming
+# ['cairn/tools/base'], green after the move — the same command, the same corpus, different
+# code.
+PROVES = {
+    "dd8ad9702b49": {
+        "all": "test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle",
+    }
+}
+
 
 def _tree(**components) -> Path:
     """A synthetic corpus: {component_path: {filename: source}}, each with a charter.

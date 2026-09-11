@@ -1,9 +1,9 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(crossings) -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(crossings) -> PROVED",
     "direction": "forward",
     "entry_gate": "clean — a berthed chart chain claims ticket 'd2ecdb867bc9', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
@@ -11,12 +11,12 @@
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -36,64 +36,35 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
             "DROPPED",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'base' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'base' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "d2ecdb867bc9",
-          "component": "base",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'd2ecdb867bc9' is cast",
-        "actual": "named ticket 'd2ecdb867bc9' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "d2ecdb867bc9",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d2ecdb867bc9-a-crossing-is-derived-from-the-journal-never-stored-on-the-ticket.json"
         }
       },
       {
@@ -136,263 +107,21 @@
         }
       }
     ],
-    "checks_proved": 8,
-    "ticket": "d2ecdb867bc9",
+    "checks_proved": 6,
+    "cleared_by": "CC",
     "actor": "CC",
-    "note": "Derive a ticket's crossings from the journals; delete the stored array. Measured at BUILDME: 271 tickets, 42 carrying a crossings LIST (99 dict entries) and 1 carrying PROSE; 5 non-proof read sites in 3 files; ZERO writers. 50 history.json in both roots, 676 journal entries, 582 carrying a ticket. 97 of 99 stored entries join a journal entry on (ticket,to). Derivation rule settled by measurement: proven_by = union since the latest BUILDME crossing, paths normalized repo-relative — 34 identical, 8 derived-superset, 0 loss over the 42.",
-    "fingerprint": "48a2256e39327616bd2577f39e8100097430fb8be08336e934ff82b84688ea1a",
-    "at": "2026-09-10T10:04:55",
-    "seq": 102
+    "proven_by": [
+      "cairn/tools/base/proofs/test_crossings_are_derived.py"
+    ],
+    "proven_seal_date": "2026-09-10T18:03:22",
+    "delegated": false,
+    "ticket": "d2ecdb867bc9",
+    "note": "The derivation is built and the six readers ask the journals. This crossing seals the proof over it.\n\nTHE PROOF GAINED FOUR THINGS BEFORE IT COULD CARRY THIS CROSSING:\n  1. A PROVES DECLARATION. Without one, cairn test --hollow refuses outright — undeclared coverage cannot be measured. Clauses (a)..(d) now each name one tooth.\n  2. CLAUSE (b) HAD NO TOOTH. 'All six readers call it instead of ticket.get(crossings)' is a fact about three files, not about any fixture world, so the tooth reads the three gate readers and reds if any takes its evidence from the stored array. Measured at the pre-build commit 8bca770403d8: proof_coverage carried it at two sites, hollow at two, the shim at one.\n  3. CLAUSE (d) HAD NO TOOTH. hollow._buildme_at's day-granular fallback returned '2026-09-01' pre-build for a crossing with no time; it now refuses. git rev-list --before resolves a bare date to the last commit before that day STARTED, so the retired branch reverted a same-day build to a whole day early and said nothing.\n  4. THE DERIVATION WAS BOUND AT IMPORT, which is the UNRAN defect wearing another coat. crossings.py did not exist before this build, so the hollow reader's removal of it turned the proof into a collection error: no tooth ran, nothing printed, and the reading said only 'the proof never reached a check'. The name now resolves on first attribute access inside the tooth that wants it, so the removal reds teeth BY NAME.\n\nThe watch is armed at cairn/tools/base/probes/no_ticket_carries_a_stored_crossing.py, and clause (c)'s tooth now asserts it loads and declares both halves of a Probe — because the corpus scan is a snapshot and the ticket's horizon is a span.",
+    "fingerprint": "59c069f862b024a28c8834cc7037166b15dc6bcb4a4c77da3354afa87fdd1278",
+    "at": "2026-09-10T18:04:02",
+    "seq": 103
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a-client-reaches-and-never-beats) -> [PROVED]",
-      "direction": "forward",
-      "entry_gate": "not_applicable",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'fc93d8cd5961'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
-      "clearance_gate": "cleared by 'CC' onto cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py (seal 2026-09-09T16:13:07, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-      "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(a-client-reaches-and-never-beats) emitted the probe berthed at cairn/tools/base/probes/a_client_reaches_and_never_beats.py (ticket 'fc93d8cd5961')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260909T161356-32badbb8d04d.json",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVED' in the code-seam@v2 vocabulary",
-          "actual": "'PROVED' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED moves the cursor off position 4",
-          "actual": "WATCHME -> PROVED moves the cursor off position 4",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "cursor": 4,
-            "resolved": 5
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> PROVED",
-          "actual": "WATCHME -> PROVED",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVED",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "PROVED",
-              "PROVEME",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_names_a_cast_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "a cast ticket for the WATCHME(a-client-reaches-and-never-beats) crossing",
-          "actual": "a cast ticket for the WATCHME(a-client-reaches-and-never-beats) crossing",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "fc93d8cd5961",
-            "watch_object": "a-client-reaches-and-never-beats",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/fc93d8cd5961-a-client-reaches-and-a-runner-beats.json"
-          }
-        },
-        {
-          "identity": "the_ticket_carries_a_spec_for_this_watch",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "ticket 'fc93d8cd5961' carries a watchme spec for 'a-client-reaches-and-never-beats'",
-          "actual": "ticket 'fc93d8cd5961' carries a watchme spec for 'a-client-reaches-and-never-beats'",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "fc93d8cd5961",
-            "watch_object": "a-client-reaches-and-never-beats",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_promised_probe_is_berthed_and_armed",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_emission",
-          "expected": "the probe the spec promised is berthed and armed",
-          "actual": "the probe the spec promised is berthed and armed",
-          "fatality": "none",
-          "source": "transitions.inspect_emission",
-          "values": {
-            "ticket": "fc93d8cd5961",
-            "watch_object": "a-client-reaches-and-never-beats",
-            "berth": "cairn/tools/base/probes/a_client_reaches_and_never_beats.py",
-            "findings": []
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "fc93d8cd5961",
-            "component": "base",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'fc93d8cd5961' is cast",
-          "actual": "named ticket 'fc93d8cd5961' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "PROVED",
-            "ticket": "fc93d8cd5961",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/fc93d8cd5961-a-client-reaches-and-a-runner-beats.json"
-          }
-        },
-        {
-          "identity": "the_claiming_chart_is_answered",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_exit",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_exit",
-          "values": {
-            "findings": [],
-            "ticket": "fc93d8cd5961"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_clearance_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
-          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "component": "base",
-            "cleared_by": "CC",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_witness_is_whole",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness carries every field the harbor's gate stamps",
-          "actual": "the witness carries every field the harbor's gate stamps",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "cleared_by": "CC",
-            "missing": [],
-            "demanded": [
-              "proven_by",
-              "proven_seal_date"
-            ]
-          }
-        },
-        {
-          "identity": "the_named_proof_stands_in_proven_space",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py stands in proven-space",
-          "actual": "cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py stands in proven-space",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py",
-            "why": "sealed green 2026-09-09T16:13:07 by cairn test --reseal, and the fingerprint over the 91 file(s) the proof imports still matches what was proved (df9c8b4e9353…)"
-          }
-        },
-        {
-          "identity": "the_witness_agrees_with_the_seal_it_names",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_clearance",
-          "expected": "the witness dates cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py's seal at '2026-09-09T16:13:07'",
-          "actual": "the witness dates cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py's seal at '2026-09-09T16:13:07'",
-          "fatality": "none",
-          "source": "transitions.inspect_clearance",
-          "values": {
-            "target": "PROVED",
-            "proof": "cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py",
-            "seal": "2026-09-09T16:13:07",
-            "claimed": "2026-09-09T16:13:07"
-          }
-        },
-        {
-          "identity": "demo_gate_binding_check",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::_require_demo",
-          "expected": "ticket carries demo flag, or does not",
-          "actual": "ticket 'fc93d8cd5961' has no demo flag — gate does not fire",
-          "fatality": "closes the gate",
-          "source": "transitions._require_demo",
-          "values": {
-            "ticket": "fc93d8cd5961"
-          }
-        }
-      ],
-      "checks_proved": 14,
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": "cairn/tools/base/proofs/test_a_client_reaches_and_never_beats.py",
-      "proven_seal_date": "2026-09-09T16:13:07",
-      "delegated": false,
-      "ticket": "fc93d8cd5961",
-      "note": "A client reaches; a runner beats. connect_bus() cost 23.5s (a full GroundLoopDevice.beat) and five clients paid it to ask for one embedding; they now call reach() at 0.23s, counsel is 0.66s warm. The walk finds zero client callers; the probe reds any Call off the runner roster. THE VOYAGE ALSO FOUND AND FIXED ITS OWN INSTRUMENT: the hollow verb's subject inherited the launcher's PYTHONPATH and imported the live tree from inside the scratch worktree, so 29 of 204 proofs were unmeasurable and the guard tooth measured the convention, not the instrument (device.py _env_pinned_to, 2189bb4). Chart discrepancy on the verdict: the decompose berth's writes_to never named the five client files, so the hollow verb never reverted them; reverted by hand, each reds teeth (i) and (iii).",
-      "fingerprint": "4ec5baa1fbd96db160114a7b786bf8fd99fc0126f877c7b00a38462257e11bb2",
-      "at": "2026-09-09T16:14:31",
-      "seq": 98
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -1451,7 +1180,129 @@
       "fingerprint": "48a2256e39327616bd2577f39e8100097430fb8be08336e934ff82b84688ea1a",
       "at": "2026-09-10T10:04:55",
       "seq": 102
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(crossings) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'd2ecdb867bc9', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d2ecdb867bc9"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d2ecdb867bc9"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d2ecdb867bc9"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "cairn/tools/base/proofs/test_crossings_are_derived.py"
+      ],
+      "proven_seal_date": "2026-09-10T18:03:22",
+      "delegated": false,
+      "ticket": "d2ecdb867bc9",
+      "note": "The derivation is built and the six readers ask the journals. This crossing seals the proof over it.\n\nTHE PROOF GAINED FOUR THINGS BEFORE IT COULD CARRY THIS CROSSING:\n  1. A PROVES DECLARATION. Without one, cairn test --hollow refuses outright — undeclared coverage cannot be measured. Clauses (a)..(d) now each name one tooth.\n  2. CLAUSE (b) HAD NO TOOTH. 'All six readers call it instead of ticket.get(crossings)' is a fact about three files, not about any fixture world, so the tooth reads the three gate readers and reds if any takes its evidence from the stored array. Measured at the pre-build commit 8bca770403d8: proof_coverage carried it at two sites, hollow at two, the shim at one.\n  3. CLAUSE (d) HAD NO TOOTH. hollow._buildme_at's day-granular fallback returned '2026-09-01' pre-build for a crossing with no time; it now refuses. git rev-list --before resolves a bare date to the last commit before that day STARTED, so the retired branch reverted a same-day build to a whole day early and said nothing.\n  4. THE DERIVATION WAS BOUND AT IMPORT, which is the UNRAN defect wearing another coat. crossings.py did not exist before this build, so the hollow reader's removal of it turned the proof into a collection error: no tooth ran, nothing printed, and the reading said only 'the proof never reached a check'. The name now resolves on first attribute access inside the tooth that wants it, so the removal reds teeth BY NAME.\n\nThe watch is armed at cairn/tools/base/probes/no_ticket_carries_a_stored_crossing.py, and clause (c)'s tooth now asserts it loads and declares both halves of a Probe — because the corpus scan is a snapshot and the ticket's horizon is a span.",
+      "fingerprint": "59c069f862b024a28c8834cc7037166b15dc6bcb4a4c77da3354afa87fdd1278",
+      "at": "2026-09-10T18:04:02",
+      "seq": 103
     }
   ],
-  "count": 103
+  "count": 104
 }

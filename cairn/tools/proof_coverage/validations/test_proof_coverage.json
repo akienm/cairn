@@ -2,12 +2,12 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-10T18:19:40",
+    "date": "2026-09-10T18:34:22",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_proof_that_declares_nothing_for_this_ticket_is_named\n  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n  ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n  ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n  ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n  ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n  ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n  ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n  ok   test_an_undeclared_clause_is_named_by_its_number\n  ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n  ok   test_every_printing_style_in_the_corpus_is_read\n  ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n  ok   test_the_live_corpus_reds_every_ticket_at_proveme\n  ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n  ok   test_this_very_proof_declares_the_ticket_that_built_it\n  ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n\n28/28 green",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_proof_that_declares_nothing_for_this_ticket_is_named\n  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n  ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n  ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n  ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n  ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n  ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n  ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n  ok   test_an_undeclared_clause_is_named_by_its_number\n  ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n  ok   test_every_printing_style_in_the_corpus_is_read\n  FAIL test_the_latest_crossing_wins_when_a_ticket_was_kicked_back: [{'ticket': 'fixture01', 'kind': 'proof_on_disk', 'about': 'gone/proofs/test_old.py exists', 'why': 'the named proof is not on disk — the seal it claims cannot be about anything', 'values': {'proof': 'gone/proofs/test_old.py'}}]\n  ok   test_the_live_corpus_reds_every_ticket_at_proveme\n  ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n  ok   test_this_very_proof_declares_the_ticket_that_built_it\n  ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n\n27/28 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
@@ -33,18 +33,19 @@
         "test_an_undeclared_clause_is_named_by_its_number",
         "test_each_proof_in_a_list_is_still_checked_on_its_own_terms",
         "test_every_printing_style_in_the_corpus_is_read",
-        "test_the_latest_crossing_wins_when_a_ticket_was_kicked_back",
         "test_the_live_corpus_reds_every_ticket_at_proveme",
         "test_the_printer_writes_names_THIS_MODULE_can_read_back",
         "test_this_very_proof_declares_the_ticket_that_built_it",
         "test_wrong_intent_clauses_are_not_demanded_as_teeth"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_the_latest_crossing_wins_when_a_ticket_was_kicked_back"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "fa58ac62540bb677b15853422b9facc2738a25c871e84c1d33f739f8ca7961a3",
+      "source_fingerprint": "672fd486741239a6854f53c017083618f913f906ed5d1f9939372bae92b0af59",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -90,12 +91,12 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1495241-ywxu0jli/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1542022-1zd0m0em/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/tester/0/20260911.001924.018504.TesterDevice.run_proof.json"
+            "logs/tester/0/20260911.003401.524698.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
@@ -107,6 +108,15 @@
           "builds": 1,
           "reuses": 21
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "0f4da6098981b3566a32e1908f8625cb532a7ac47820e020ca39aecdb6d5cf88",
+        "opened": "2026-09-10T18:34:22",
+        "last_red": "2026-09-10T18:34:22",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-proof-coverage",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

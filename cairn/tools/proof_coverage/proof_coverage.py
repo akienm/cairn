@@ -43,7 +43,6 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.crossings import has_crossings, proven_by_latest
 from cairn.tools.system_word import fold
 
 # ── the vocabulary of a printed tooth ────────────────────────────────────────────────
@@ -312,6 +311,15 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
         # find is a proof nobody checked), and collapsing them into one line would bury
         # nineteen actionable tickets under two hundred archaeological ones. Distinguishing
         # them is not an exemption: neither goes green, and the counts stay exact.
+        # BOUND AT CALL TIME, NEVER AT IMPORT — and that is a measured requirement, not a
+        # style choice. ``cairn/tools/base/crossings.py`` did not exist before ticket
+        # d2ecdb867bc9, and the hollow reader proves that build load-bearing by taking the
+        # file away and re-running the proofs beside it. Those proofs reach this module for
+        # ``print_teeth_main`` — which has nothing to do with crossings — so a module-level
+        # import turned the removal into a crash in the RUNNER: the proof printed no teeth at
+        # all and hollow recorded UNRAN instead of a redded tooth. Measured 2026-09-10.
+        from cairn.tools.base.crossings import has_crossings
+
         no_record = not has_crossings(tid, roots)
         return [_lack(tid,
                       "crossing_record_absent" if no_record else "proof_named",
@@ -450,6 +458,9 @@ def _proven_by(ticket: dict, roots=None) -> list[str]:
     tickets carried a crossings list, 2 an empty one, 1 a prose string where this loop
     parsed dicts — and NOTHING wrote any of them.
     """
+    # Bound at call time — see the note at the has_crossings site above.
+    from cairn.tools.base.crossings import proven_by_latest
+
     return proven_by_latest(str(ticket.get("id") or ""), roots)
 
 

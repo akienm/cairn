@@ -98,6 +98,18 @@ COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
 
 SKIP_INSTRUMENT = "under proofs/ — reverting the instrument makes the reading meaningless"
 SKIP_OUTSIDE = "not a path in this repo — nothing to revert in a worktree of it"
+SKIP_RECORD = ("a record, not source — the system writes it and no proof asserts over it, "
+               "so reverting it can only ever red nothing")
+
+# THE THREE RECORD NAMES, and the list is closed on purpose. `history.json` (append-only, the
+# voyage's own trail), `state.json` (compiled from the component's tickets, never hand-edited)
+# and anything under `validations/` (written BY the tester about a proof) are the three files
+# CLAUDE.md's Law 5 names as the component's records, beside its charter and its code. Every
+# other .json in the tree stays measured, because plenty of them ARE source a proof reads —
+# `machines/corrosion/constraint_set.json` is the constraint set the corrosion sieve walks, and
+# a charter is read by the inspector. A broad "skip the json" would have swallowed those.
+_RECORD_NAMES = frozenset({"history.json", "state.json"})
+_RECORD_DIRS = frozenset({"validations"})
 
 
 class HollowUnmeasurable(RuntimeError):
@@ -282,6 +294,30 @@ def _classify(rel: str) -> str | None:
         return SKIP_OUTSIDE
     if "proofs" in p.parts:
         return SKIP_INSTRUMENT
+    # A RECORD CANNOT BE PINNED BY A PROOF, SO ITS REVERSION IS NOT EVIDENCE OF A HOLLOW BUILD.
+    # This is the same reasoning the line above already makes about the instrument, applied to
+    # the other class of file a build honestly writes. A decompose berth that names
+    # `history.json` in `writes_to` is telling the truth — the voyage does append to it — and
+    # until this line the truth cost the ticket its crossing: the file reverts, no declared
+    # tooth reds (none could), and the run reported it under `hollow`, which is the word for a
+    # build whose CODE nothing checks. Law 7: a diagnostic surface may not collapse two errors
+    # into one shape, and "unpinnable by construction" and "possibly hollow" send a builder to
+    # opposite work — one to nothing, one to go write a tooth that cannot exist.
+    #
+    # MEASURED 2026-09-11, through this module's OWN resolver rather than over the berth
+    # directory — the first count walked every decompose packet ever berthed and read 43 of 286,
+    # which is a fact about the store and not about what hollow would revert. Asking
+    # `writes_to()` per ticket, the way the verb does: 194 tickets have a standing `writes_to`,
+    # and 34 of them (17%) name at least one record — 21 `history.json`, 7 `state.json`, 24
+    # under `validations/`, 52 entries in all. So this was never one ticket's slip; it was a
+    # standing tax on honest charting, and the cheapest way past it was to under-declare what
+    # the build writes, which is the opposite of what `writes_to` is for.
+    #
+    # AND IT IS NOT AN ESCAPE HATCH: `measure` already reds a run in which every `writes_to`
+    # file was skipped ("a measurement of the empty set is not a pass"), so a build that names
+    # nothing but records still cannot buy a green with this line.
+    if _RECORD_DIRS & set(p.parts) or p.name in _RECORD_NAMES:
+        return SKIP_RECORD
     return None
 
 

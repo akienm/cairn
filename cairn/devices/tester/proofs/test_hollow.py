@@ -23,7 +23,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.tester.hollow import (  # noqa: E402
-    HollowUnmeasurable, SKIP_INSTRUMENT, _restore, measure,
+    HollowUnmeasurable, SKIP_INSTRUMENT, SKIP_RECORD, _restore, measure,
 )
 from cairn.devices.tester.scratch import git_env, scratch_dir, scratch_worktree  # noqa: E402
 from cairn.devices.tester.validation_store import (  # noqa: E402
@@ -510,6 +510,82 @@ def test_an_unchanged_file_is_reported_unwritten_not_hollow():
     subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], capture_output=True)
     f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     assert "untouched.py" not in f["measured"], f["measured"]
+    return True
+
+
+def test_a_record_named_in_writes_to_is_skipped_and_a_plain_json_beside_it_is_not():
+    """A RECORD REDS NOTHING BY CONSTRUCTION, AND CALLING THAT HOLLOW IS A COLLAPSE (Law 7).
+
+    `history.json` is append-only, `state.json` is compiled from the component's tickets, and
+    anything under `validations/` is written BY the tester about a proof. No proof asserts over
+    any of them, so reverting one can only ever red nothing — which is the same sentence the
+    verb already prints for a build whose CODE nothing checks. Two findings, one word, and they
+    send a builder to opposite work: one to nothing at all, one to go write a tooth that cannot
+    exist.
+
+    AND THE SECOND HALF IS THE ONE THAT KEEPS THE SKIP HONEST. `constraint_set.json` is a plain
+    json beside the records and it IS source — the corrosion sieve walks it — so it must stay
+    measured and, here, be named hollow, because nothing in this fixture checks it. A rule that
+    skipped "the json files" would have swallowed it and every charter with it, and the skip
+    list is the cheapest way past this check forever if it is allowed to grow by kind rather
+    than by name.
+    """
+    tmp = scratch_dir("cairn-hollowproof-")
+    repo, commons = _fixture(tmp)
+    env = {**git_env(), "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+           "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
+    # NESTED UNDER comp/ BECAUSE THE FIXTURE'S OWN BUILDME JOURNAL IS repo/history.json —
+    # untracked on purpose (see _journal), and overwriting it takes the crossing away.
+    records = ["comp/history.json", "comp/state.json", "comp/validations/test_fixture.json"]
+    (repo / "comp" / "validations").mkdir(parents=True, exist_ok=True)
+    for rel in records:
+        (repo / rel).write_text('[{"written": "by the build"}]\n')
+    # NOT a record: a plain json the corrosion sieve's real counterpart is read from.
+    (repo / "comp" / "constraint_set.json").write_text('{"constraints": []}\n')
+    _git(repo, "add", "-A", env=env)
+    _git(repo, "commit", "-qm", "the build writes its records",
+         env={**env, "GIT_AUTHOR_DATE": "2020-01-03T01:00:00",
+              "GIT_COMMITTER_DATE": "2020-01-03T01:00:00"})
+
+    berth = json.loads(_berth_path(tmp).read_text())
+    berth["sub_problems"][0]["writes_to"].extend(records + ["comp/constraint_set.json"])
+    _berth_path(tmp).write_text(json.dumps(berth))
+
+    f = measure(FIXTURE, repo_root=repo, commons=commons,
+                berths_root=_berths_root(tmp), timeout=60)
+    skipped = {s["file"]: s["why"] for s in f["skipped"]}
+    for rel in records:
+        assert skipped.get(rel) == SKIP_RECORD, (rel, skipped)
+        assert rel not in f["hollow"], (rel, f["hollow"])
+        assert rel not in f["measured"], (rel, f["measured"])
+    assert "comp/constraint_set.json" not in skipped, skipped
+    assert "comp/constraint_set.json" in f["hollow"], f["hollow"]
+    return True
+
+
+def test_every_writes_to_file_being_a_record_is_still_a_red_not_a_free_green():
+    """THE SKIP LIST IS NOT AN ESCAPE HATCH, and the tooth above is exactly what would turn it
+    into one if this did not hold. A ticket whose whole writes_to is records measures nothing,
+    and `measure` already reds a run that measured the empty set — this pins that the new class
+    rides that guard rather than around it."""
+    tmp = scratch_dir("cairn-hollowproof-")
+    repo, commons = _fixture(tmp)
+    env = {**git_env(), "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+           "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
+    (repo / "comp").mkdir(parents=True, exist_ok=True)
+    (repo / "comp" / "history.json").write_text('[{"written": "by the build"}]\n')
+    _git(repo, "add", "-A", env=env)
+    _git(repo, "commit", "-qm", "records only",
+         env={**env, "GIT_AUTHOR_DATE": "2020-01-03T01:00:00",
+              "GIT_COMMITTER_DATE": "2020-01-03T01:00:00"})
+    berth = json.loads(_berth_path(tmp).read_text())
+    berth["sub_problems"][0]["writes_to"] = ["comp/history.json"]
+    _berth_path(tmp).write_text(json.dumps(berth))
+
+    f = measure(FIXTURE, repo_root=repo, commons=commons,
+                berths_root=_berths_root(tmp), timeout=60)
+    assert f["verdict"] == "red", f
+    assert any("measured nothing" in r for r in f["reasons"]), f["reasons"]
     return True
 
 

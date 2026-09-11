@@ -260,16 +260,25 @@ def test_THE_INDEX_REFRESHES_when_a_journal_moves_so_a_reader_sees_its_own_cross
 
 
 def test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY():
-    """The migration's standing invariant, over the real corpus — the one tooth here that is not
-    a fixture, because the claim IS about the world. 42 tickets carried a list and 1 carried
-    prose on 2026-09-10; a hand that writes one back reds here and at the WATCHME probe.
+    """CLAUSE (c) — the key is gone from the corpus, and the watch that keeps it gone is armed.
+
+    THE SKIP THAT USED TO GUARD THE CORPUS HALF IS GONE, and removing it was a measured fix, not
+    tidying. ``ROOTS["commons"]`` is derived as the repo's SIBLING, so inside the git worktree
+    the hollow reader builds there is no commons to read and this tooth called
+    ``pytest.skip``. A skipped tooth is neither green nor red — which is exactly right, and
+    exactly why it could not serve as hollow evidence: the reader saw the one tooth declared for
+    this clause fail to go green at HEAD and refused to attribute any reversion reading at all.
+    So the corpus half now runs WHEN THERE IS A CORPUS (always in the live tree, which is where
+    the seal is taken) and the watch half runs ANYWHERE.
+
+    Both halves are the same claim at two horizons. 42 tickets carried a list and 1 carried
+    prose on 2026-09-10; the scan says none does NOW, and the probe is what can still say so in
+    a month. The ticket's horizon asks for the span, not the instant.
     """
     from cairn.tools.base.address import ROOTS
     tickets = Path(ROOTS["commons"]) / "tickets"
-    if not tickets.is_dir():
-        pytest.skip("no live commons on this box")
     carriers = []
-    for path in sorted(tickets.glob("*.json")):
+    for path in (sorted(tickets.glob("*.json")) if tickets.is_dir() else []):
         try:
             doc = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -280,14 +289,11 @@ def test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY():
         f"{len(carriers)} ticket(s) carry a stored crossings key, which no writer writes and "
         f"four gate-reading sites would believe: {carriers[:5]}")
 
-    # AND THE WATCH THAT KEEPS THIS TRUE AFTER TODAY IS ARMED, checked here rather than left to
-    # the emission gate alone. The corpus scan above is a snapshot: it says nothing carries the
-    # key at this instant. The ticket's falsifier asks for more than an instant — "the next
-    # voyage crosses PROVED without any hand touching a crossing" — and the thing that can say
-    # that is the probe, not this tooth. Measured 2026-09-10 across 281 decompose berths, 42
-    # name a probes/ module in writes_to and no proof in the corpus reads one, so a voyage can
-    # be required to write a watch that nothing can fail on. This asserts the probe module
-    # loads and declares both halves of a Probe; take it away and this clause reds.
+    # THE WATCH THAT KEEPS THIS TRUE AFTER TODAY — and the half of this tooth that runs no
+    # matter where the proof is standing, because the probe berths beside the proof rather than
+    # in the commons. Measured 2026-09-10 across 281 decompose berths carrying a writes_to: 42
+    # name a probes/ module and no proof in the corpus reads one, so a voyage can be REQUIRED to
+    # write a watch that nothing is able to fail on. Take the probe away and this clause reds.
     probe_path = Path(__file__).resolve().parents[1] / "probes" / "no_ticket_carries_a_stored_crossing.py"
     assert probe_path.is_file(), f"the watch this ticket carries is not at its berth: {probe_path}"
     import importlib.util

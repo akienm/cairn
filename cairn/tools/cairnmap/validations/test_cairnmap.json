@@ -2,7 +2,7 @@
   {
     "claim": "proof test_cairnmap.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-11T11:43:33",
+    "date": "2026-09-11T11:45:11",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -37,7 +37,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "243f9af51bbccf35f8005210a22a66d5516cfb187d748895d481616e9edee9df",
+      "source_fingerprint": "28d9ef369a0a9235b525e28de707dee70d9920c42d64feffa4a64d95b3c97a71",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -55,7 +55,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-277660-yh5c34c4/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-282319-xaoqq4kj/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,6 +69,20 @@
           "entries": 4492,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "7aed0fd0ba29": {
+          "cairn/tools/cairnmap/cairnmap.py": [
+            "test_a_node_class_with_no_membership_rule_is_ONE_red",
+            "test_the_charter_records_where_membership_lives"
+          ],
+          "cairn/tools/cairnmap/intention+why.json": [
+            "test_the_charter_records_where_membership_lives"
+          ],
+          "cairn/tools/cairnmap/probes/the_roster_fault_is_one_finding.py": [
+            "test_the_watchme_probe_is_armed_and_can_be_made_to_fire"
+          ]
         }
       }
     },

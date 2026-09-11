@@ -27,6 +27,18 @@ import sys
 import tempfile
 from pathlib import Path
 
+# WHICH TOOTH ANSWERS WHICH CLAUSE — read by proof_coverage and by `cairn test --hollow`.
+# Ticket 299d4f72ae40's clauses (1) and (4) are about what the SURFACE says out loud: the
+# override line before a run, and the refusal line that does not stop the batch. Its other
+# three clauses are about the store's write door and are declared beside it, in
+# test_seal_is_never_silently_dropped.py.
+PROVES = {
+    "299d4f72ae40": {
+        "1": "test_an_explicit_netns_says_so_when_it_disagrees_with_the_standing_record",
+        "4": "test_a_refused_seal_is_reported_and_the_batch_carries_on",
+    },
+}
+
 REPO = Path(__file__).resolve().parents[4]
 CAIRN = REPO / "bin" / "cairn"
 

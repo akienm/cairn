@@ -73,6 +73,27 @@ from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
 from cairn.tools.base import validation as public_validation
 
+# WHICH TOOTH ANSWERS WHICH CLAUSE — read by proof_coverage and by `cairn test --hollow`.
+# Ticket 299d4f72ae40's falsifier enumerates its DONE-when list (1)..(5); clauses (1) and (4)
+# are about the CLI SURFACE and are declared in test_cli.py, because one proof declares one
+# tooth per clause key and the surface's teeth do not live here. A clause declared in neither
+# file is a clause nothing measures, which is the lack the gate names rather than a hollow
+# build — so the split is written down in both directions.
+PROVES = {
+    "299d4f72ae40": {
+        "2": "test_a_recorded_choice_not_to_measure_is_not_silently_converted",
+        "3": "test_the_guard_covers_every_persisting_caller_not_only_the_flag",
+        "5": "test_both_guards_are_narrow_and_neither_walls_the_ordinary_door",
+        # NOT A FALSIFIER CLAUSE — the falsifier stops at (5). This key is the ticket's
+        # WATCHME obligation, declared here so the PROBE FILE IS MEASURED: `cairn test
+        # --hollow` reverts every file the build touched and asks which declared tooth reds,
+        # and with no key naming this tooth the probe read HOLLOW while a tooth about nothing
+        # else sat ten lines below it. The gate reads clauses (1)..(5) and ignores this one;
+        # the hollow reader reads every declared tooth, which is exactly the difference.
+        "watchme": "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
+    },
+}
+
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"
 _RED_FIXTURE = _FIXTURES / "red_proof.py"
@@ -417,7 +438,21 @@ def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
     A probe nobody has watched fire is a probe nobody has measured. The sibling probe's own
     pattern: the reading takes its predicate as an argument so a tooth can substitute one.
     """
-    from cairn.devices.tester.probes import an_open_reading_is_not_silently_converted as probe
+    # THE ABSENCE IS TURNED INTO AN ASSERTION DELIBERATELY. A bare import would raise
+    # ImportError when the probe is not there, and `cairn test --hollow` reads a run that
+    # never reached a check as UNREAD rather than as a redded tooth — the instrument
+    # declining to judge. Measured on this voyage: with the bare import, reverting the probe
+    # read HOLLOW ("no declared tooth redded") even though this tooth is entirely about the
+    # probe. Raising AssertionError says the same fact in the shape the reader can count.
+    try:
+        from cairn.devices.tester.probes import (
+            an_open_reading_is_not_silently_converted as probe,
+        )
+    except ImportError as exc:
+        raise AssertionError(
+            "there is no probe at cairn/devices/tester/probes/an_open_reading_is_not_"
+            f"silently_converted.py, so the WATCHME crossing is armed by nothing: {exc}"
+        ) from None
 
     assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough), (
         "the probe carries no carry or no enough, and the emission gate reads both")

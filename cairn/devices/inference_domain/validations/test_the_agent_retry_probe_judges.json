@@ -1,0 +1,60 @@
+[
+  {
+    "claim": "proof test_the_agent_retry_probe_judges.py passes under python3",
+    "caller": "CC",
+    "date": "2026-09-11T16:12:53",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_bare_chat_hit_is_not_the_finding\n  ok   test_a_replayed_tool_carrying_call_is_the_finding\n  ok   test_the_carry_reports_the_three_states_apart\n  ok   test_the_clear_needs_the_floor_and_the_floor_is_the_TICKETS_number\n  ok   test_the_era_floor_refuses_to_count_an_impossibility\n  ok   test_the_probe_is_armed_in_the_emission_gates_shape\ngreen: 6 teeth",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_bare_chat_hit_is_not_the_finding",
+        "test_a_replayed_tool_carrying_call_is_the_finding",
+        "test_the_carry_reports_the_three_states_apart",
+        "test_the_clear_needs_the_floor_and_the_floor_is_the_TICKETS_number",
+        "test_the_era_floor_refuses_to_count_an_impossibility",
+        "test_the_probe_is_armed_in_the_emission_gates_shape",
+        "6 teeth"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "6be2fb8407e50c34979ad7e63bab2d48f0e54228fe3c6c22aea2db8094beb368",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/probes/__init__.py",
+        "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
+        "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/probe.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1025037-b15916_f/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 129525043,
+          "disk_bytes": 140464128,
+          "entries": 4521,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

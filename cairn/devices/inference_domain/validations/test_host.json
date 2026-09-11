@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_host.py passes under python3",
-    "caller": "cairn/devices/inference_domain",
-    "date": "2026-09-11T15:42:17",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-11T16:10:51",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -54,7 +54,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "82c1a04addba3a12b65ff8a8bda09d1b654e610f2eb3a3ed795dfc29aa033bb9",
+      "source_fingerprint": "1bbeb32ac89f95a9b4b6f5c9b37efae3a003818afa859a98e27f037839c477b4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -78,7 +78,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-934734-nlf896po/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1018789-we21pa10/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -87,11 +87,22 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129523241,
+          "bytes": 129525043,
           "disk_bytes": 140464128,
           "entries": 4521,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "548dd13fb4db": {
+          "cairn/devices/inference_domain/host.py": [
+            "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
+            "test_an_agent_retry_gets_a_fresh_sample",
+            "test_the_agent_shapes_are_CHECKED_not_exempted",
+            "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host"
+          ],
+          "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py": []
         }
       }
     },

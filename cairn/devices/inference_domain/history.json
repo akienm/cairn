@@ -6421,5 +6421,85 @@
     "fingerprint": "206866ed39e45e92c1538c583a04a6597ea30e5b5d075d2167329a6e816c771e",
     "at": "2026-09-11T16:09:36",
     "seq": 39
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(an_agent_retry_gets_a_fresh_sample) -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVEME moves the cursor off position 4",
+        "actual": "WATCHME -> PROVEME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 4,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVEME",
+        "actual": "WATCHME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "548dd13fb4db",
+    "actor": "CC",
+    "note": "BACK-EDGE TO PROVEME — the hollow check bit, and it was RIGHT. `cairn test --hollow 548dd13fb4db` reverted the build file by file and reported the WATCHME probe (probes/an_agent_retry_gets_a_fresh_sample.py) as HOLLOW: removed whole, and not one declared tooth went red. A file the build ships that nothing can distinguish from its own absence is exactly the state Law 8 names, and the honest answer is a tooth rather than an exemption. So the voyage retreats to PROVEME, adds proofs/test_the_agent_retry_probe_judges.py (6 teeth, run twice, sealed under the tester at isolation=netns), and re-crosses naming it. THE WATCH THAT ANSWERS clause (e) IN THE WILD MUST ITSELF BE CAPABLE OF SAYING NO: the new teeth pin that one replayed tool-carrying call fires the trigger (with the hit REMOVED as the control), that an ordinary cached chat does not, that the era floor refuses to count a world where a toolset could not yet cross, that an empty store does not clear, and that _ENOUGH is the ticket's 50 and not the probe's own.",
+    "fingerprint": "ddc468ca4a7bb169bf8478692b276aaa4f0928b87c368bed3f211779b62015c0",
+    "at": "2026-09-11T16:12:53",
+    "seq": 40
   }
 ]

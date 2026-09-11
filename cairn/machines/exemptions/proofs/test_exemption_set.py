@@ -301,6 +301,13 @@ def test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE():
 
 
 def main():
+    # EACH FUNCTION PRINTS ITS OWN NAME AS A TOOTH, and the readable sentences stay.
+    # The PROVES map declares teeth by FUNCTION NAME, and the tester's parser prefers a
+    # test_-anchored identifier over the sentence on the same line — so a proof that prints
+    # only sentences declares eleven teeth that can never be matched against anything it
+    # printed. Measured 2026-09-10: the hollow runner read 36 teeth that ran and 0 of 11
+    # declared as green, and refused to attribute any reversion to any file. The sentences
+    # are what a human reads; the identifier is what the instrument reads.
     for fn in (test_AN_ABSENT_SET_REDS,
                test_AN_UNREADABLE_SET_REDS,
                test_AN_EMPTY_SET_REDS,
@@ -313,7 +320,9 @@ def main():
                test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM,
                test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE):
         print(fn.__name__)
+        before = FAIL
         fn()
+        print("  %s   %s" % ("ok  " if FAIL == before else "FAIL", fn.__name__))
     print("\n%d passed, %d failed" % (PASS, FAIL))
     return 1 if FAIL else 0
 

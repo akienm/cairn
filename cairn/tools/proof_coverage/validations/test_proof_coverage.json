@@ -2,7 +2,7 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-10T18:34:22",
+    "date": "2026-09-10T19:34:11",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -45,7 +45,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "672fd486741239a6854f53c017083618f913f906ed5d1f9939372bae92b0af59",
+      "source_fingerprint": "fc8acaa12c5c5faa0808bfde54b9692519468d83b514cfcca5ee6e79be73b5c3",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -91,29 +91,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1542022-1zd0m0em/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1726536-6_qzr651/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/tester/0/20260911.003401.524698.TesterDevice.run_proof.json"
+            "logs/tester/0/20260911.013352.502335.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 128660391,
-          "disk_bytes": 139444224,
-          "entries": 4438,
+          "bytes": 128749461,
+          "disk_bytes": 139546624,
+          "entries": 4447,
           "builds": 1,
-          "reuses": 21
+          "reuses": 30
         }
       },
       "reseal_ladder": {
         "proof_sha256": "0f4da6098981b3566a32e1908f8625cb532a7ac47820e020ca39aecdb6d5cf88",
         "opened": "2026-09-10T18:34:22",
-        "last_red": "2026-09-10T18:34:22",
-        "passes": 1,
+        "last_red": "2026-09-10T19:34:11",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-proof-coverage",
         "ruling": null

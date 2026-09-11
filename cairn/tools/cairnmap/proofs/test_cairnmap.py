@@ -25,6 +25,22 @@ sys.path.insert(0, str(REPO))
 from cairn.tools.cairnmap import cairnmap, cli  # noqa: E402
 from cairn.tools.gate import gate  # noqa: E402
 
+# WHICH TOOTH ANSWERS WHICH FALSIFIER CLAUSE — the declaration `cairn test --hollow`
+# reads. Ticket 7aed0fd0ba29's falsifier is written as one prose DONE-when sentence
+# rather than an enumerated list, so proof_coverage.clauses() reads it as the single
+# clause "all" and one tooth has to carry it.
+#
+# THE TOOTH CHOSEN IS THE DISCRIMINATING ONE, not the broadest. Against the reverted
+# build — the pre-build reader, which swallows the absent key via
+# `.get("members_so_far", [])` and returns ([], None) — this tooth goes RED, because a
+# node class carrying no membership rule produces NO fault there at all. A tooth that
+# merely exercises the gate would stay green on the hollow build and certify nothing.
+PROVES = {
+    "7aed0fd0ba29": {
+        "all": "test_a_node_class_with_no_membership_rule_is_ONE_red",
+    },
+}
+
 
 # ── the synthetic world ──────────────────────────────────────────────────────
 

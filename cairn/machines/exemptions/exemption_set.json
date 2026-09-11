@@ -1,0 +1,83 @@
+{
+ "schema_version": "exemption-set-v1",
+ "description": "The declared exemption set — every place in CODE where a check declines to run over some member of its own population. Each entry declares its justification KIND and carries the evidence for that kind: 'ruling' names a decision id Akien confirmed; 'no-other-way' states the impossibility in one line. The sieve checks only that the declared kind's evidence resolves — it never reads English to decide which kind applies, and it never judges the quality of a no-other-way statement. Narrowing this set fires the check on itself (self-reference), which is the only defence a hand-authored set has: NOTHING HERE DISCOVERS AN EXEMPTION NOBODY ENTERED, and that hole is stated rather than hidden. Measured 2026-09-10 by direct reading of every site, not by grep.",
+ "kinds": {
+  "ruling": "evidence is a decision id under CairnCommons/decisions/ that resolves, is kind 'ruling', and is confirmed.",
+  "no-other-way": "evidence is a non-empty one-line statement of the impossibility — why the check CANNOT run here, not why it is inconvenient.",
+  "__anchor__": "Every entry also carries a `symbol`: literal text that MUST appear in the file at `path`. It is what stops the set certifying itself — rename or delete the exempting construct and the entry reds, even though its reason is untouched."
+ },
+ "exemptions": [
+  {
+   "id": "exemption-set-self-reference",
+   "path": "cairn/machines/exemptions/exemption_set.json",
+   "description": "The declared set itself. Removing or narrowing it is the one move a hand-authored set cannot otherwise see.",
+   "kind": "set",
+   "justification_kind": "no-other-way",
+   "evidence": "Nothing in the system discovers an exemption site automatically, so the set can only ever be narrowed by hand. Self-membership makes that narrowing fire the check on itself; without it there is no other way for a dropped entry to be visible to any instrument.",
+   "symbol": "exemption-set-self-reference"
+  },
+  {
+   "id": "device-isolation-db-domain",
+   "path": "cairn/machines/build_inspector/inspector.py",
+   "description": "_DEVICE_ISOLATION['exempt'] = ('db_domain',) — db_domain is the sole device another device may import. Every other cross-device import reds.",
+   "kind": "sieve-scope",
+   "justification_kind": "ruling",
+   "evidence": "2026-08-31-no-cross-device-imports",
+   "symbol": "\"exempt\": (\"db_domain\",)"
+  },
+  {
+   "id": "address-rule-exemption-of",
+   "path": "cairn/tools/base/address_rule.py",
+   "description": "exemption_of() returns a REASON, not a boolean, and there are exactly TWO: 'the module that owns the address' and 'a proof asserting the rule must construct what the rule forbids'. They are one site with two reasons, kept as one entry because the function's own docstring makes the pair the unit: a THIRD reason appearing there is the signal to route back rather than add a member.",
+   "kind": "sieve-scope",
+   "justification_kind": "no-other-way",
+   "evidence": "Reason one: the module that defines the instance-space address is the one place it must be spelled literally, so a rule forbidding every spelling would forbid its own definition — the owner cannot be inside the population the rule governs. Reason two: a proof asserting the rule must construct the very thing the rule forbids in order to show the rule bites, so forbidding it under proofs/ would make the rule unfalsifiable.",
+   "symbol": "def exemption_of("
+  },
+  {
+   "id": "transitions-ticket-exempt-roster",
+   "path": "cairn/tools/base/transitions.py",
+   "description": "_EXEMPT_ROSTER (around line 828) — components permitted to cross forward into BUILDME or PROVED without naming a cast ticket. MEASURED 2026-09-10: frozenset(), ZERO members, so it exempts nobody today.",
+   "kind": "roster",
+   "justification_kind": "no-other-way",
+   "evidence": "The roster is empty, so nothing is exempted and the entry records the reason BEFORE a first member arrives, which is the only moment the reason is still known; an empty roster with a documented bar is the alternative to an ambient pass, and an ambient pass cannot be journaled.",
+   "symbol": "_EXEMPT_ROSTER: frozenset[str]"
+  },
+  {
+   "id": "transitions-clearance-exempt-roster",
+   "path": "cairn/tools/base/transitions.py",
+   "description": "_CLEARANCE_EXEMPT_ROSTER (around line 956) — components permitted to cross into a REST without evidence the authority rung ran. MEASURED 2026-09-10: frozenset(), ZERO members.",
+   "kind": "roster",
+   "justification_kind": "no-other-way",
+   "evidence": "The roster is empty, so nothing is exempted; its own comment records that the bootstrap needed no entry because this ticket's own PROVED crossing cleared rather than being waived, and an entry added merely because a component is behind on seals would be the gate not landing while wearing a roster's clothes.",
+   "symbol": "_CLEARANCE_EXEMPT_ROSTER: frozenset[str]"
+  },
+  {
+   "id": "watchme-obligation-cannot-attach",
+   "path": "cairn/tools/base/watchme_spec.py",
+   "description": "Two watchme exemptions stated as ONE rule: a @v1 workflow, and a ticket carrying migrated_from. The module docstring cites Akien's ruling of 2026-08-03 ('a workflow is composed at ticketing time by the ticketer based on the needs of the ticket'). MEASURED 2026-09-10: that ruling has NO decision file in CairnCommons/decisions/, so it cannot be cited as a resolvable id — the justification that stands is the structural one below.",
+   "kind": "sieve-scope",
+   "justification_kind": "no-other-way",
+   "evidence": "The obligation attaches at ticketing, to a version whose vocabulary contains WATCHME; a @v1 string's registered vocabulary contains none, and a migrated_from ticket had its version claim applied by a sweep rather than composed by its ticketer, so in both cases there is nobody who was ever asked the question and nothing the obligation could have attached to.",
+   "symbol": "migrated_from"
+  },
+  {
+   "id": "beat-walk-skips-proofs-and-build-dirs",
+   "path": "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py",
+   "description": "_EXEMPT_SEGMENTS takes proofs/, __pycache__, .git and node_modules off the beat walk, and RUNNER_ROSTER names the three files permitted to beat. The comment already states that a roster which grows is the finding leaking back under another name.",
+   "kind": "sieve-scope",
+   "justification_kind": "no-other-way",
+   "evidence": "A proof of the no-beat rule must beat on purpose to measure the beat, so walking proofs/ would red the very instrument that establishes the rule; __pycache__, .git and node_modules hold no authored source, so there is nothing there the rule could be about.",
+   "symbol": "_EXEMPT_SEGMENTS = frozenset("
+  },
+  {
+   "id": "hollow-skips-the-instrument",
+   "path": "cairn/devices/tester/hollow.py",
+   "description": "Any path with 'proofs' in its parts is skipped by the hollow runner, with the reason carried in the module constant SKIP_INSTRUMENT.",
+   "kind": "sieve-scope",
+   "justification_kind": "no-other-way",
+   "evidence": "The hollow runner reverts a file and asks whether a declared tooth reds; reverting the instrument that does the asking makes the reading meaningless rather than merely noisy, so there is no way to measure hollowness of a proof by reverting it.",
+   "symbol": "SKIP_INSTRUMENT"
+  }
+ ]
+}

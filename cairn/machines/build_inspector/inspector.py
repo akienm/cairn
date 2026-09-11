@@ -2474,6 +2474,136 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def every_exemption_cites_a_ruling_or_an_impossibility(row: dict, comp_dir: Path) -> list[dict]:
+    """A declared exemption's justification does not resolve.
+
+    Provenance: ruling 2026-09-10-exemption-reasons-are-not-rulings. Akien:
+    "these are all going to be disallowed unless they have a there-is-no-other-way
+    reason", and, on the alternative, "why are we bothering with me having to
+    review 187 exeptions. my ADD brain won't." So the answer is a sieve, not a
+    queue: NOTHING HERE ASKS HIM ANYTHING.
+
+    An exemption is a place in CODE where a check declines to run over some
+    member of its own population. Measured 2026-09-10 by direct reading of every
+    site: SEVEN in the live tree, FIVE of which stated their reason only as
+    English prose in a comment or docstring — good reasons, unreadable by any
+    instrument, and therefore indistinguishable from no reason at all. (The
+    inherited "187 exemptions" was a phantom; the ruling traces it.)
+
+    Reads the declared set (cairn/machines/exemptions/exemption_set.json) when
+    the exemptions component is inspected — the same shape, and the same
+    component gate, as constraint_enforcement_holds above. The set includes
+    ITSELF, so narrowing it fires the check on itself; that self-reference is
+    the only defence a hand-authored set has, because nothing here discovers an
+    exemption site nobody entered.
+
+    DETERMINISTIC BY CONSTRUCTION, and that is the point rather than a
+    nicety (Akien: "nothing in inspectors or gates is allowed to be llm"). Each
+    entry DECLARES its justification kind — "ruling" with a decision id, or
+    "no-other-way" with a stated impossibility — and this sieve checks only that
+    the declared kind's evidence resolves. It never reads English to decide
+    which kind applies, and it never judges whether a no-other-way argument is a
+    GOOD one. That judgment stays the model's; the floor is that the evidence
+    exists and resolves.
+    """
+    if row["component"] != "exemptions":
+        return []
+    set_path = comp_dir / "exemption_set.json"
+    if not set_path.exists():
+        return [_finding(
+            "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+            "exemption set exists", expected=True, actual=False,
+        )]
+    try:
+        eset = json.loads(set_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return [_finding(
+            "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+            "exemption set readable", expected=True, actual=False,
+        )]
+    exemptions = eset.get("exemptions") if isinstance(eset, dict) else None
+    if not exemptions:
+        return [_finding(
+            "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+            "exemption set non-empty", expected=True, actual=False,
+        )]
+    from cairn.machines.exemptions.justification import justification_lack
+    findings = []
+    repo_root = comp_dir
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    for entry in exemptions:
+        eid = entry.get("id") if isinstance(entry, dict) else None
+        lack = justification_lack(entry)
+        if lack:
+            findings.append(_finding(
+                "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+                "exemption justified: %s" % (eid or "<no id>"),
+                expected=True, actual=False,
+                exemption_id=eid,
+                exemption_path=(entry.get("path") if isinstance(entry, dict) else None),
+                justification_kind=(entry.get("justification_kind")
+                                    if isinstance(entry, dict) else None),
+                lack=lack,
+            ))
+            continue
+        site = repo_root / entry["path"]
+        if not site.exists():
+            findings.append(_finding(
+                "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+                "exemption site present: %s" % eid,
+                expected=True, actual=False,
+                exemption_id=eid,
+                exemption_path=entry["path"],
+                lack="the site this exemption is about no longer resolves — the "
+                     "reason may still be good, but it is now attached to nothing",
+            ))
+            continue
+        # THE ANCHOR, and it is what stops the set certifying itself. Every entry
+        # names literal text that must appear at its path; rename or delete the
+        # exempting construct and the entry reds even though its reason is
+        # untouched. Without it a set an author wrote and a sieve the same author
+        # wrote agree with each other and with nothing else.
+        symbol = entry.get("symbol")
+        if not isinstance(symbol, str) or not symbol.strip():
+            findings.append(_finding(
+                "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+                "exemption anchored: %s" % eid,
+                expected=True, actual=False,
+                exemption_id=eid, exemption_path=entry["path"],
+                lack="entry names no symbol — an exemption with no anchor in the "
+                     "code cannot be checked against the code",
+            ))
+            continue
+        try:
+            text = site.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            text = ""
+            _ = e
+        if symbol not in text:
+            findings.append(_finding(
+                "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+                "exemption anchored: %s" % eid,
+                expected=True, actual=False,
+                exemption_id=eid, exemption_path=entry["path"],
+                symbol=symbol,
+                lack="the declared symbol does not appear at that path — the "
+                     "exempting construct was renamed or removed and the reason "
+                     "now stands over nothing",
+            ))
+    if not any(isinstance(e, dict) and "exemptions" in str(e.get("path", ""))
+               for e in exemptions):
+        findings.append(_finding(
+            "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
+            "exemption set includes itself",
+            expected=True, actual=False,
+            lack="the set dropped its own entry — nothing discovers an exemption "
+                 "site automatically, so self-membership is the only way a "
+                 "narrowing of this set is visible to any instrument",
+        ))
+    return findings
+
+
 def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
     """Working-copy history.json and state.json match their last committed version.
 
@@ -3138,6 +3268,8 @@ SIEVES = {
     "charter_asserts_file_present": charter_asserts_file_present,
     "crossing_fingerprints_verified": crossing_fingerprints_verified,
     "constraint_enforcement_holds": constraint_enforcement_holds,
+    "every_exemption_cites_a_ruling_or_an_impossibility":
+        every_exemption_cites_a_ruling_or_an_impossibility,
     "history_integrity": history_integrity,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,

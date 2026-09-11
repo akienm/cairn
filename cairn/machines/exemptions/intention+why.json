@@ -1,0 +1,21 @@
+{
+ "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+ "what": "The declared exemption set — every place in CODE where a check declines to run over some member of its own population, each entry declaring HOW it is justified and carrying the evidence for that kind. The sieve every_exemption_cites_a_ruling_or_an_impossibility (build_inspector) reads this set and reds any entry whose declared evidence does not resolve.",
+ "why": "Akien, 2026-09-10: 'these are all going to be disallowed unless they have a there-is-no-other-way reason.' An exemption is how a check stops applying to something, so an unjustified one is a hole in a gate that nothing reports. Five of the seven exemption sites measured in the live tree on 2026-09-10 state their reason ONLY as English prose in a comment or docstring — good reasons, unreadable by any instrument, and therefore indistinguishable from no reason at all. The ruling 2026-09-10-exemption-reasons-are-not-rulings names the fix and its shape: the same declared-set-plus-sieve the corrosion machine already proves out, at single-digit scale. TWO KINDS, DECLARED NOT INFERRED: 'ruling' carries a decision id Akien confirmed; 'no-other-way' carries a one-line statement of the impossibility. THE SIEVE NEVER READS ENGLISH TO DECIDE WHICH KIND APPLIES — the kind is declared and only its evidence is checked. That is what keeps it deterministic, which is Akien's standing rule that nothing in an inspector or a gate may be an LLM. The ruling also forbids the alternative by name: no review table, no approval queue, nothing for Akien to work through.",
+ "falsifier": "An exemption site exists in the tree and is not in the set; or a set entry's declared evidence does not resolve and the sieve reads green; or the set drops its own self-entry and nothing reds; or the set grows to cover exemptions nobody can justify, which is the check not landing while wearing a set's clothes.",
+ "feedback": {},
+ "learns": "It does not learn — the set is authored, exactly as corrosion's constraint set is. The resolver reads CairnCommons/decisions/ for confirmed rulings, so what it accepts changes when Akien rules, never on its own. The KNOWN HOLE, stated here rather than discovered later: the set cannot discover an exemption site nobody entered, so a new exemption written tomorrow is invisible until a hand adds it. Self-membership is the one defence a hand-authored set has — narrowing the set fires the check on itself.",
+ "runtime_role": "machine",
+ "gated_by": [
+  "codemother",
+  "Akien",
+  "CC"
+ ],
+ "claim_provenance": {
+  "role": "cc-read",
+  "what": "cc-read",
+  "why": "akien"
+ },
+ "durable_state": "none — the set is git-tracked authored data in class-space, and the sieve holds nothing between runs.",
+ "owner": "TRANSITIONAL CO-LISTING (Akien, RULED 2026-09-06, ruling 2026-09-06-codemother-owns-the-care-of-the-code): codemother is the owner of the care of the code, and this component is one of the inspectors/gates that are hers. CC stays co-listed until codemother has a hand, her line up, and a judgment of her own."
+}

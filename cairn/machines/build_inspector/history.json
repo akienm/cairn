@@ -6271,5 +6271,270 @@
     "fingerprint": "ba43b3e3511d6c877927abe067eec9f04736b300c8944d92f555a7eff7177ea5",
     "at": "2026-09-08T18:37:30",
     "seq": 63
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(exemption_reasons) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '892a0f9cd925', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'build_inspector' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'build_inspector' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "892a0f9cd925",
+          "component": "build_inspector",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '892a0f9cd925' is cast",
+        "actual": "named ticket '892a0f9cd925' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "892a0f9cd925",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/892a0f9cd925-an-exemption-cites-a-ruling-or-an-impossibility.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "892a0f9cd925",
+    "actor": "CC",
+    "note": "An exemption written in code stands only if it cites a ruling or states an impossibility. MEASURED AT BUILDME, by direct reading rather than grep: SEVEN exemption sites in the live tree. (a) inspector.py _DEVICE_ISOLATION exempt=('db_domain',) — cites ruling 2026-08-31-no-cross-device-imports. (b) address_rule.exemption_of — two impossibility reasons, prose in a docstring. (c) transitions._EXEMPT_ROSTER and (d) _CLEARANCE_EXEMPT_ROSTER — both frozenset(), ZERO members, reasons in comments. (e) watchme_spec — two exemptions stated as one rule, citing Akien's 2026-08-03 ruling, prose. (f) bus_client probe _EXEMPT_SEGMENTS + RUNNER_ROSTER — nothing machine-readable. (g) hollow.py skips any path under proofs/ — reason is a module constant, not attached as a justification. FIVE of seven carry a reason no checker can read. ALSO MEASURED: no cairn/machines/exemptions directory; find for exemption*set* returns zero; the SIEVES table holds 33 names and none contains 'exempt'. The inherited '187 exemptions' is a PHANTOM — traced in the ruling to a conflation with 187 history.json entries carrying proven_by. The real population is single digits, which is what the ruling predicted. SCOPE CUT, made without escalating: 'exemption' names two populations. The 326 `none, because <X>` reasons on filed tickets are OUT — they have their own floor (reason_has_referent, inspector.py:1938) answering a different question. The seven code sites where a check declines to run are IN. DETERMINISM IS THE DESIGN, per Akien's standing rule that nothing in inspectors or gates may be LLM: each set entry declares its justification KIND — 'ruling' with a decision id, or 'no-other-way' with a stated impossibility — and the sieve checks only that the declared kind's evidence resolves. It never reads English to decide which kind applies, and it never judges the quality of a no-other-way statement.",
+    "fingerprint": "dabe5d10582142cd933c4c3afefe47ad9d71d93371e9ce17d85d244b8b22ec20",
+    "at": "2026-09-10T19:15:31",
+    "seq": 64
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(exemption_reasons) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '892a0f9cd925', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "892a0f9cd925"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/machines/exemptions/proofs/test_exemption_set.py",
+    "proven_seal_date": "2026-09-10T19:25:38",
+    "delegated": false,
+    "ticket": "892a0f9cd925",
+    "note": "the declared exemption set stands with 8 entries, the sieve reds an entry whose justification does not resolve or whose symbol has moved, and the watch fires when the corpus grows a site nobody entered. 36 of 36 teeth, twice.",
+    "fingerprint": "3cbf4011451327da9f7c520c7902653833ac3a3add47e0bdd38b39c8db8211fd",
+    "at": "2026-09-10T19:25:52",
+    "seq": 65
   }
 ]

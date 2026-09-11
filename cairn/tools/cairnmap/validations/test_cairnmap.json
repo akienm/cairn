@@ -1,16 +1,18 @@
 [
   {
     "claim": "proof test_cairnmap.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T11:46:07",
+    "caller": "sail:7aed0fd0ba29",
+    "date": "2026-09-11T11:24:52",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  test_a_check_that_stops_running_makes_the_record_shorter\n  green  test_check_is_derived_from_the_record_and_never_parallel\n  green  test_code_without_a_charter_reds\n  green  test_corrupt_charter_is_loud_and_the_rest_still_renders\n  green  test_first_sentence_is_a_cut_never_a_break\n  green  test_gate_exit_codes_and_render_always_presents\n  green  test_green_world_and_direction_one\n  green  test_installed_without_charter_reds\n  green  test_misaimed_symlink_reds\n  green  test_named_brief_and_unknown_name_refusal\n  green  test_render_mutates_nothing\n  green  test_roster_entry_with_no_charter_reds\n  green  test_roster_omission_reds\n  green  test_standing_in_a_directory_briefs_on_it\n  green  test_the_gate_lists_what_it_proved_not_only_what_failed\n  green  test_uncharted_command_reds_and_does_not_render\n  green  test_uninstalled_skill_reds\n\n17/17 teeth green",
+      "stdout_tail": "  green  test_a_rule_that_derives_from_elsewhere_is_ONE_red\n  green  test_check_is_derived_from_the_record_and_never_parallel\n  green  test_code_without_a_charter_reds\n  green  test_corrupt_charter_is_loud_and_the_rest_still_renders\n  green  test_first_sentence_is_a_cut_never_a_break\n  green  test_gate_exit_codes_and_render_always_presents\n  green  test_green_world_and_direction_one\n  green  test_installed_without_charter_reds\n  green  test_misaimed_symlink_reds\n  green  test_named_brief_and_unknown_name_refusal\n  green  test_render_mutates_nothing\n  green  test_skill_directory_with_no_charter_reds\n  green  test_standing_in_a_directory_briefs_on_it\n  green  test_the_gate_lists_what_it_proved_not_only_what_failed\n  green  test_the_retired_roster_coming_back_is_ONE_red\n  green  test_the_watchme_probe_is_armed_and_can_be_made_to_fire\n  green  test_uncharted_command_reds_and_does_not_render\n  green  test_uninstalled_skill_reds\n\n20/20 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_check_that_stops_running_makes_the_record_shorter",
+        "test_a_node_class_with_no_membership_rule_is_ONE_red",
+        "test_a_rule_that_derives_from_elsewhere_is_ONE_red",
         "test_check_is_derived_from_the_record_and_never_parallel",
         "test_code_without_a_charter_reds",
         "test_corrupt_charter_is_loud_and_the_rest_still_renders",
@@ -21,10 +23,11 @@
         "test_misaimed_symlink_reds",
         "test_named_brief_and_unknown_name_refusal",
         "test_render_mutates_nothing",
-        "test_roster_entry_with_no_charter_reds",
-        "test_roster_omission_reds",
+        "test_skill_directory_with_no_charter_reds",
         "test_standing_in_a_directory_briefs_on_it",
         "test_the_gate_lists_what_it_proved_not_only_what_failed",
+        "test_the_retired_roster_coming_back_is_ONE_red",
+        "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
         "test_uncharted_command_reds_and_does_not_render",
         "test_uninstalled_skill_reds"
       ],
@@ -33,22 +36,25 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "92f4b0bab6e14630247cb1a2e94b1060e94eaeb444c536b2051f7a9d8cd98176",
+      "source_fingerprint": "6f7ea5e521f2f9df7a6f1074253e46912322fc980261bfac8ae480f01420ab8d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py",
         "cairn/tools/cairnmap/__init__.py",
         "cairn/tools/cairnmap/cairnmap.py",
         "cairn/tools/cairnmap/cli.py",
+        "cairn/tools/cairnmap/probes/__init__.py",
+        "cairn/tools/cairnmap/probes/the_roster_fault_is_one_finding.py",
         "cairn/tools/cairnmap/proofs/test_cairnmap.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-271987-6py4p3jp/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-225873-1xo5x2eg/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,11 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116728438,
-          "disk_bytes": 125538304,
-          "entries": 3663,
+          "bytes": 129151873,
+          "disk_bytes": 140042240,
+          "entries": 4491,
           "builds": 1,
-          "reuses": 35
+          "reuses": 0
         }
       }
     },

@@ -125,16 +125,73 @@ def commands(repo: Path | None = None) -> list[str]:
                   if p.is_file() and os.access(p, os.X_OK))
 
 
-def skill_roster(commons: Path | None = None) -> tuple[list[str], str | None]:
-    """``members_so_far`` from the skill node-class, names without the slash.
-    A missing or unreadable roster is a red, not an empty list — the roster is a
-    record of truth, and this gate is the physics its roster_note asked for."""
+# The directory name the skill node-class's derivation rule must point at. Named once so
+# the "does the rule still mean skills/?" test below reads as a check rather than a magic
+# substring, and so a future move of the skills root breaks here loudly instead of quietly
+# passing a rule that has stopped describing this repo.
+_SKILLS_DIR = "skills"
+
+
+def skill_membership(commons: Path | None = None,
+                     repo: Path | None = None) -> tuple[list[str], str | None]:
+    """The skill membership set, DERIVED — plus the one fault that says it could not be.
+
+    WHY THIS DOES NOT READ A LIST. It used to read ``members_so_far`` from the skill
+    node-class, and on 2026-08-28 the corpus RETIRED that key in favour of
+    ``members_derived_by``: a rule (``ls -d ~/dev/src/cairn/skills/*/ | grep -v
+    __pycache__``) rather than a hand-kept roster, because the roster's own
+    ``roster_note`` records the same omission defect recurring three times. The reader
+    did not follow. ``.get("members_so_far", [])`` on an ABSENT key returns ``[]``
+    WITHOUT raising, so the unreadable-roster guard never fired, the empty set sailed
+    into the comparison lanes, and one missing roster became fifteen findings — one per
+    chartered skill — on a surface whose charter demands it be ONE. Measured 2026-09-09:
+    21 findings over 73 charters, 15 of them that single fault wearing fifteen faces.
+
+    THREE WAYS THIS IS A FAULT, AND EACH IS EXACTLY ONE. The rule ABSENT (nothing says
+    how membership is derived); ``members_so_far`` BACK (the retirement came undone, and
+    two mouths now answer the membership question); the rule NO LONGER NAMING
+    ``skills/`` (it derives from somewhere this reader does not look, so agreeing with it
+    would be luck). Each returns an empty set beside a sentence, and the caller's guard
+    keeps the derived lanes ABSENT rather than green — because a lane that could not read
+    its input has not passed, and saying so once is the whole point.
+
+    THE DERIVATION IS THE DIRECTORY, and that is the CHEAP half of the rule on purpose:
+    the rule's ``ls`` and ``grep -v __pycache__`` are reproduced as an ``iterdir`` and a
+    name test, not shelled out. A gate that ran a string from a data file would be
+    executing the corpus, and the corpus is not trusted that far.
+    """
     path = (commons or commons_root()) / "node_classes" / "skill.json"
     try:
-        members = json.loads(path.read_text(encoding="utf-8")).get("members_so_far", [])
-        return sorted(m.lstrip("/") for m in members), None
+        data = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
-        return [], f"skill roster unreadable: {path} — {type(exc).__name__}: {exc}"
+        return [], f"skill membership unreadable: {path} — {type(exc).__name__}: {exc}"
+    if not isinstance(data, dict):
+        return [], (f"skill membership unreadable: {path} — the node class is a "
+                    f"{type(data).__name__}, not an object")
+
+    if "members_so_far" in data:
+        return [], (f"the retired roster is back: {path} carries `members_so_far`, which "
+                    f"the corpus retired on 2026-08-28 in favour of `members_derived_by`. "
+                    f"Two mouths answering one question is the defect the retirement "
+                    f"removed — delete the list, keep the rule")
+
+    rule = data.get("members_derived_by")
+    if not isinstance(rule, str) or not rule.strip():
+        return [], (f"skill membership has no rule: {path} carries no usable "
+                    f"`members_derived_by`, so nothing says how the membership set is "
+                    f"derived and this gate has no set to compare against")
+    if f"/{_SKILLS_DIR}/" not in rule and not rule.rstrip().endswith(f"/{_SKILLS_DIR}"):
+        return [], (f"skill membership is derived from elsewhere: {path} says "
+                    f"`members_derived_by` = {rule!r}, which does not name {_SKILLS_DIR}/ "
+                    f"— this gate reads {_SKILLS_DIR}/ and agreeing with that rule would "
+                    f"be luck, not derivation")
+
+    skills_dir = (repo or repo_root()) / _SKILLS_DIR
+    if not skills_dir.is_dir():
+        return [], (f"skill membership cannot be derived: {path} derives it from "
+                    f"{skills_dir}, which is not a directory")
+    return sorted(d.name for d in skills_dir.iterdir()
+                  if d.is_dir() and d.name != "__pycache__"), None
 
 
 def installed_skills(install: Path | None = None) -> dict[str, Path | None]:
@@ -218,37 +275,41 @@ def inspect(repo: Path | None = None, commons: Path | None = None,
               "doesn't run)" % d for d in sorted(chartless)],
         components_walked=len(address.component_dirs(pkg)[0]) if pkg.is_dir() else 0))
 
-    # Skill lane: charter <-> roster <-> installed symlink must be the same set.
+    # Skill lane: charter <-> membership <-> installed symlink must be the same set.
+    #
+    # RETIRED 2026-09-11 (ticket 7aed0fd0ba29): `every_chartered_skill_is_on_the_roster`.
+    # Its successor is `every_skill_directory_carries_a_charter` below — the same
+    # comparison, read from the end that can still disagree. The reason is not tidiness:
+    # membership is now DERIVED from `skills/`, and `chartered` is filtered out of that
+    # same listing, so `chartered - membership` is empty BY CONSTRUCTION. A check that
+    # cannot go red is a green earned by arithmetic rather than by the world, and Law 8
+    # calls that worse here than a red, because a peer leans on it without re-checking.
+    # The property it used to watch did not stop mattering — it stopped needing a check,
+    # which is Law 4 doing its job: physics replacing a rule. The direction that survives
+    # is the falsifiable one — a skill directory with no charter is a world that exists.
     chartered = {Path(c["dir"]).name for c in charters if c["dir"].startswith("skills/")}
-    roster, roster_err = skill_roster(commons)
+    membership, membership_err = skill_membership(commons, repo)
     record.append(_entry_of(
-        "the_skill_roster_is_readable",
-        expected=[], actual=[roster_err] if roster_err else [],
+        "the_skill_membership_rule_is_declared",
+        expected=[], actual=[membership_err] if membership_err else [],
         location="CairnCommons/node_classes/skill.json",
-        reds=[roster_err] if roster_err else [],
-        roster_size=len(roster)))
+        reds=[membership_err] if membership_err else [],
+        membership_size=len(membership)))
 
     installed = installed_skills(install)
-    # GUARDED: an unreadable roster is ONE finding. Comparing a charter set against the
-    # empty list it degrades to would append a second entry per skill, all of them
-    # derived from the failure above — the gate is already closed, and a record that
-    # multiplies one fault into fifteen is a diagnostic surface lying about how many
-    # things are wrong. Absent, not passed.
-    if not roster_err:
+    # GUARDED: a membership set that could not be derived is ONE finding. Comparing a
+    # charter set against the empty list it degrades to would append an entry per skill,
+    # all of them derived from the failure above — the gate is already closed, and a
+    # record that multiplies one fault into fifteen is a diagnostic surface lying about
+    # how many things are wrong. Absent, not passed.
+    if not membership_err:
         record.append(_entry_of(
-            "every_chartered_skill_is_on_the_roster",
-            expected=sorted(chartered), actual=sorted(chartered & set(roster)),
-            location="CairnCommons/node_classes/skill.json",
-            reds=["skill missing from the roster: /%s carries a charter but "
-                  "node_classes/skill.json members_so_far omits it (the measured "
-                  "2026-07-31 defect)" % n for n in sorted(chartered - set(roster))]))
-        record.append(_entry_of(
-            "every_roster_entry_carries_a_charter",
-            expected=sorted(roster), actual=sorted(set(roster) & chartered),
+            "every_skill_directory_carries_a_charter",
+            expected=sorted(membership), actual=sorted(set(membership) & chartered),
             location="skills/",
-            reds=["roster entry with no charter: /%s is in members_so_far but "
-                  "skills/%s/%s does not exist" % (n, n, CHARTER)
-                  for n in sorted(set(roster) - chartered)]))
+            reds=["skill directory with no charter: /%s is a member by the node class's "
+                  "own derivation rule, but skills/%s/%s does not exist"
+                  % (n, n, CHARTER) for n in sorted(set(membership) - chartered)]))
 
     where = skills_install_dir() if install is None else install
     record.append(_entry_of(

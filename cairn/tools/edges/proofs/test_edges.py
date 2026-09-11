@@ -79,7 +79,10 @@ def _build_world(tmp: Path) -> tuple[Path, Path]:
     # care about it — still, the world needs to be valid for gather)
     nc = commons / "node_classes"
     nc.mkdir(parents=True)
-    (nc / "skill.json").write_text(json.dumps({"members_so_far": []}))
+    # THE RULE, NOT THE RETIRED LIST (2026-08-28). edges does not read membership, but
+    # cairnmap.gather runs over this world, so the world has to be one that still exists.
+    (nc / "skill.json").write_text(json.dumps(
+        {"members_derived_by": "ls -d ~/dev/src/cairn/skills/*/ | grep -v __pycache__"}))
 
     return repo, commons
 

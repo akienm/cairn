@@ -1,0 +1,263 @@
+[
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-roster-fault-is-one-finding) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '7aed0fd0ba29', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'cairnmap' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'cairnmap' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "7aed0fd0ba29",
+          "component": "cairnmap",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '7aed0fd0ba29' is cast",
+        "actual": "named ticket '7aed0fd0ba29' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "7aed0fd0ba29",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/7aed0fd0ba29-cairnmap-reads-a-roster-the-corpus-retired.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "ticket": "7aed0fd0ba29",
+    "chart": "/home/akien/.cairn/devices/chart/0/packets/validate-20260911T111247-f719223b5609.json",
+    "note": "BUILDME — cairnmap's two skill-roster lanes read `members_so_far`, a key the corpus deliberately retired on 2026-08-28 in favour of `members_derived_by`. `.get(key, [])` on an ABSENT key returns [] without raising, so the unreadable-roster guard never fires and one missing roster becomes fifteen findings — one per chartered skill — instead of the single fault the charter demands. The build replaces skill_roster() with a membership reader that consults the derivation rule (absent rule, a returning `members_so_far`, or a rule not naming skills/ are each ONE red), retires `every_chartered_skill_is_on_the_roster` with a note naming its successor (under derivation it is a tautology — a green that cannot go red, Law 8), keeps `every_roster_entry_carries_a_charter` as `every_skill_directory_carries_a_charter` because it stays genuinely falsifiable, adds the tooth for the ABSENT-KEY shape the existing corrupt-file tooth never covered, moves the fixtures in cairnmap's and edges' proofs off the retired key, moves the charter's falsifier clauses 3 and 12 off it, and arms the WATCHME probe. The load-bearing prediction, made before the build: the gate drops from 21 findings to exactly 6.",
+    "fingerprint": "8c107cc94ede615adc550dd97785c97ab6390db0ab3a5e88c26becdddaf15f4f",
+    "at": "2026-09-11T11:16:07",
+    "seq": 0
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the-roster-fault-is-one-finding) -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '7aed0fd0ba29', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "7aed0fd0ba29"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "ticket": "7aed0fd0ba29",
+    "chart": "/home/akien/.cairn/devices/chart/0/packets/validate-20260911T111247-f719223b5609.json",
+    "note": "PROVEME — the prediction made before the build held exactly: `cairnmap --gate` dropped from 21 findings to 6, and the 6 are name-for-name the ones the ticket put out of bounds (/ruled chartered-but-not-installed, five bin/cmd entries no charter's invoke names). 20/20 teeth green twice; edges 9/9 twice. skill_roster() is now skill_membership(), deriving from the node class's own `members_derived_by` rule and naming THREE faults, each exactly one red: no rule declared (the ABSENT-KEY shape `.get(key, [])` swallowed), `members_so_far` back, or a rule that stops naming skills/. `every_chartered_skill_is_on_the_roster` is RETIRED with a note naming its successor — under derivation it compares a set against a superset of itself, a green arithmetic guarantees, which Law 8 calls worse here than a red. Its falsifiable half survives as `every_skill_directory_carries_a_charter`. THREE BUGS THE VOYAGE UNCOVERED AND FIXED (bounds ruling 2026-09-09): (1) the proof's lane floor was `len(record) >= 8`, a count that cannot say WHICH lane went missing — now the lanes are named, so retiring one is an edit to that list; (2) TEETH was collected at import time, so a tooth appended at the end of the file never ran and the file printed a confident 19/19 over it — now collected at call time; (3) the WATCHME probe's first reading counted the gate's ABSOLUTE red total and fired at 7, six of which were the corpus's standing out-of-bounds findings — rewritten to read the DELTA a substituted starved node class adds, which is the only attributable number.",
+    "fingerprint": "f3929c26653b1f4ca3b1fd2b23d5ac0bf5f5334f53c8859026938b6a2fd89e0c",
+    "at": "2026-09-11T11:24:32",
+    "seq": 1
+  }
+]

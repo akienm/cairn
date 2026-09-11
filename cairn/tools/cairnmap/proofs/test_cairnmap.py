@@ -57,7 +57,13 @@ def build_world(parent: Path) -> dict:
 
     nc = commons / "node_classes"
     nc.mkdir(parents=True)
-    (nc / "skill.json").write_text(json.dumps({"members_so_far": ["/alpha", "/beta"]}))
+    # THE RULE, NOT A LIST. The corpus retired `members_so_far` on 2026-08-28; a fixture
+    # still writing it would build a world the live one no longer has, and a proof over a
+    # world that does not exist proves nothing about the one that does. The rule names
+    # `skills/`, which this fixture has just populated with alpha and beta — so the
+    # membership set is DERIVED here exactly as it is derived live.
+    (nc / "skill.json").write_text(json.dumps(
+        {"members_derived_by": "ls -d ~/dev/src/cairn/skills/*/ | grep -v __pycache__"}))
 
     install.mkdir()
     for name in ("alpha", "beta"):
@@ -116,21 +122,76 @@ def test_green_world_and_direction_one():
             assert expected in surface, f"charter'd fact missing from the surface: {expected!r}"
 
 
-def test_roster_omission_reds():
-    """The measured 2026-07-31 defect: chartered + installed, absent from the roster."""
+def test_a_node_class_with_no_membership_rule_is_ONE_red():
+    """THE DEFECT THIS TOOTH WAS CAST FOR (ticket 7aed0fd0ba29), and the shape its
+    sibling below could never reach.
+
+    The old reader said ``.get("members_so_far", [])``. A CORRUPT file raised and was
+    caught — the tooth for that is
+    ``test_a_check_that_stops_running_makes_the_record_shorter``, and it passed for a
+    year. An ABSENT KEY raises NOTHING: the call returns ``[]``, the error stays None,
+    the guard never fires, and the empty set sails into the comparison lanes as though
+    it were an answer. That is precisely what the live corpus did on 2026-08-28 when it
+    deleted the key, and what nothing noticed until 2026-09-09: 15 findings claiming
+    fifteen skills were missing from a roster that did not exist.
+
+    The world here is VALID JSON and simply says nothing about membership. One fault,
+    one red, and the derived lane ABSENT rather than green.
+    """
+    with world() as w:
+        assert_green(w)
+        whole = [e["identity"] for e in cairnmap.inspect()]
+        nc = w["commons"] / "node_classes" / "skill.json"
+        nc.write_text(json.dumps({"what": "a node class that forgot to say how"}))
+
+        after = cairnmap.inspect()
+        names = [e["identity"] for e in after]
+        assert "every_skill_directory_carries_a_charter" not in names, (
+            "a lane whose input could not be read must be ABSENT, never green: " + str(names))
+        assert len(after) < len(whole), (
+            "the record must get SHORTER when a check stops running: " + str(names))
+        one_red(w, "skill membership has no rule")
+
+
+def test_the_retired_roster_coming_back_is_ONE_red():
+    """Two mouths answering one question is the defect the 2026-08-28 retirement removed.
+
+    A `members_so_far` reappearing beside `members_derived_by` is not a harmless extra
+    field: it is a second answer that can disagree with the first, and the corpus has
+    already measured that disagreement three times (the node class's own `roster_note`).
+    So the reader reds on its PRESENCE rather than quietly preferring one of them.
+    """
     with world() as w:
         assert_green(w)
         nc = w["commons"] / "node_classes" / "skill.json"
-        nc.write_text(json.dumps({"members_so_far": ["/alpha"]}))
-        one_red(w, "missing from the roster: /beta")
+        nc.write_text(json.dumps({
+            "members_derived_by": "ls -d ~/dev/src/cairn/skills/*/ | grep -v __pycache__",
+            "members_so_far": ["/alpha", "/beta"]}))
+        one_red(w, "the retired roster is back")
 
 
-def test_roster_entry_with_no_charter_reds():
+def test_a_rule_that_derives_from_elsewhere_is_ONE_red():
+    """Agreeing with a rule you do not actually follow is luck, not derivation."""
     with world() as w:
         assert_green(w)
         nc = w["commons"] / "node_classes" / "skill.json"
-        nc.write_text(json.dumps({"members_so_far": ["/alpha", "/beta", "/gamma"]}))
-        one_red(w, "roster entry with no charter: /gamma")
+        nc.write_text(json.dumps({"members_derived_by": "ls -d ~/dev/src/cairn/machines/*/"}))
+        one_red(w, "derived from elsewhere")
+
+
+def test_skill_directory_with_no_charter_reds():
+    """THE DIRECTION THAT SURVIVED THE RETIREMENT, and the proof that it still can red.
+
+    ``every_chartered_skill_is_on_the_roster`` was retired on 2026-09-11 because under
+    derivation it compares a set against a superset of itself — no world reds it. This
+    one reads the same disagreement from the end that CAN still disagree: a directory
+    the node class's rule calls a member, carrying no charter. The world exists, and
+    here it is.
+    """
+    with world() as w:
+        assert_green(w)
+        (w["repo"] / "skills" / "gamma").mkdir()
+        one_red(w, "skill directory with no charter: /gamma")
 
 
 def test_uninstalled_skill_reds():
@@ -225,8 +286,7 @@ def test_gate_exit_codes_and_render_always_presents():
     """A gate's exit code IS its verdict; a view presents even when red inside."""
     with world() as w:
         assert_green(w)
-        nc = w["commons"] / "node_classes" / "skill.json"
-        nc.write_text(json.dumps({"members_so_far": ["/alpha"]}))
+        (w["repo"] / "skills" / "gamma").mkdir()
         code, out = run_cli(["--gate"])
         assert code == 1 and "RED" in out, f"gate over a red world: {code}, {out!r}"
         code, out = run_cli([])
@@ -265,12 +325,35 @@ def test_the_gate_lists_what_it_proved_not_only_what_failed():
     this half alone proves nothing, which is exactly why it is paired. FACE TWO: every
     entry carries EXPECTED beside ACTUAL and they are equal on a pass, so an entry that
     stopped comparing anything cannot sit in the record looking green.
+
+    THE FLOOR NAMES THE LANES RATHER THAN COUNTING THEM (changed 2026-09-11, ticket
+    7aed0fd0ba29). It used to read ``len(record) >= 8``, and a count is the wrong
+    instrument for "a lane went missing": it cannot say WHICH, it is satisfied by any
+    replacement, and retiring one lane on purpose leaves a maintainer with a bare number
+    to lower and no place to say why. Naming them costs one line per lane and makes the
+    retirement of ``every_chartered_skill_is_on_the_roster`` an EDIT TO THIS LIST — which
+    is exactly what "a deleted lane makes the record shorter, never cleaner" asks for.
+    Deleting a name from here to make a red go away is the defect; do not.
     """
+    expected_lanes = [
+        "every_charter_parses",
+        "every_component_carries_a_charter",
+        "the_skill_membership_rule_is_declared",
+        # RETIRED 2026-09-11: every_chartered_skill_is_on_the_roster — a tautology once
+        # membership is derived from the same directory `chartered` is filtered out of.
+        # Its surviving half is the next line; see cairnmap.py's lane assembly.
+        "every_skill_directory_carries_a_charter",
+        "every_chartered_skill_is_installed",
+        "every_installed_skill_points_at_its_charter",
+        "every_command_is_named_by_a_charter",
+    ]
     with world() as w:
         assert_green(w)
         record = cairnmap.inspect()
         assert record, "an empty proof record is an error, not a pass"
-        assert len(record) >= 8, f"lanes went missing from the record: {record}"
+        assert [e["identity"] for e in record] == expected_lanes, (
+            "the record's lanes are not the declared set — a lane went missing, was "
+            f"renamed, or appeared unannounced: {[e['identity'] for e in record]}")
         for entry in record:
             assert gate.passed(entry), f"consistent world, failing entry: {entry}"
             assert "expected" in entry and "actual" in entry, entry
@@ -282,16 +365,21 @@ def test_the_gate_lists_what_it_proved_not_only_what_failed():
 def test_a_check_that_stops_running_makes_the_record_shorter():
     """The whole reason the record replaces the complaint list: absence must be VISIBLE.
 
-    An unreadable roster is ONE fault. The three-record skill lane cannot run against a
-    roster it could not read, so its two roster entries are ABSENT from the record — not
-    silently passed, and not multiplied into one derived finding per skill. A reader
-    diffing the two records SEES the checks that stopped running.
+    An unreadable node class is ONE fault. The skill lane cannot run against a membership
+    set it could not derive, so the derived entry is ABSENT from the record — not silently
+    passed, and not multiplied into one derived finding per skill. A reader diffing the two
+    records SEES the check that stopped running.
+
+    THIS TOOTH COVERS THE CORRUPT-FILE SHAPE ONLY, and that limit is the point: it passed
+    continuously while the ABSENT-KEY shape went unguarded, because a corrupt file RAISES
+    and an absent key does not. Its sibling
+    ``test_a_node_class_with_no_membership_rule_is_ONE_red`` is the tooth for the shape
+    this one cannot reach. Do not merge them.
     """
     with world() as w:
         assert_green(w)
         whole = [e["identity"] for e in cairnmap.inspect()]
-        assert "every_chartered_skill_is_on_the_roster" in whole
-        assert "every_roster_entry_carries_a_charter" in whole
+        assert "every_skill_directory_carries_a_charter" in whole
 
         (w["commons"] / "node_classes" / "skill.json").write_text("{not json", encoding="utf-8")
         after = cairnmap.inspect()
@@ -299,11 +387,10 @@ def test_a_check_that_stops_running_makes_the_record_shorter():
         assert len(after) < len(whole), (
             "a check that could not run must make the record SHORTER, never cleaner: "
             f"{names}")
-        assert "every_chartered_skill_is_on_the_roster" not in names, names
-        assert "every_roster_entry_carries_a_charter" not in names, names
+        assert "every_skill_directory_carries_a_charter" not in names, names
 
         failed = [e for e in after if not gate.passed(e)]
-        assert [e["identity"] for e in failed] == ["the_skill_roster_is_readable"], (
+        assert [e["identity"] for e in failed] == ["the_skill_membership_rule_is_declared"], (
             "one fault must produce one failing entry, not one per skill: "
             f"{[e['identity'] for e in failed]}")
         assert len(cairnmap.check()) == 1, cairnmap.check()
@@ -329,18 +416,89 @@ def test_check_is_derived_from_the_record_and_never_parallel():
         assert any("ghost" in r for r in from_record), from_record
 
 
-# ── runner ───────────────────────────────────────────────────────────────────
+def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
+    """A probe that cannot be made to fire on demand is a probe nobody has measured.
 
-TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+    TWO HALVES, because either alone is hollow. FIRST: the module is armed the way the
+    emission gate reads it — a module-level frozen ``Probe`` carrying both a ``carry`` and
+    an ``enough``. SECOND, and the one that costs something: its reading is handed a
+    substitute reporting the PRE-BUILD behaviour, and it must FIRE. Before this build a
+    node class that said nothing about membership left the reader lane PASSING (an absent
+    key returned an empty set with no error) and sent the empty set into the comparison
+    lane, where it became one red per chartered skill. That is the world reconstructed
+    below, and a probe that stayed quiet through it would be watching nothing.
+    """
+    from cairn.tools.base.probe import Probe
+    from cairn.tools.cairnmap.probes import the_roster_fault_is_one_finding as probe
+
+    assert isinstance(probe.PROBE, Probe), "the emission gate reads a module-level PROBE"
+    assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough), \
+        "the ticket's watchme spec binds both a carry and an enough"
+
+    def entry(identity, reds):
+        return {"identity": identity, "location": "fixture", "code": "fixture",
+                "expected": [], "actual": list(reds), "fatality": "none",
+                "source": "fixture", "values": {"reds": list(reds), "lack": ""}}
+
+    def pre_build_record(node_class_text: str):
+        """The 2026-09-09 behaviour: an absent key is an empty answer, not a fault."""
+        starved = "members_derived_by" not in node_class_text
+        return [
+            entry("every_charter_parses", []),
+            # PASSING even when starved — this is the whole defect.
+            entry("the_skill_roster_is_readable", []),
+            entry("every_chartered_skill_is_on_the_roster",
+                  [f"skill missing from the roster: /s{i}" for i in range(15)]
+                  if starved else []),
+            entry("every_roster_entry_carries_a_charter", []),
+        ]
+
+    fired = probe.multiplication_reading(record_of=pre_build_record)
+    assert fired["fires"], (
+        "the probe must FIRE against the pre-build behaviour it was armed to watch: "
+        f"{fired}")
+    assert fired["reds_from_one_fault"] == 15, fired
+    assert "multiplied" in fired["what"], fired["what"]
+
+    def post_build_record(node_class_text: str):
+        """Today's behaviour: one fault, one red, the derived lane absent."""
+        starved = "members_derived_by" not in node_class_text
+        record = [entry("every_charter_parses", []),
+                  entry("the_skill_membership_rule_is_declared",
+                        ["skill membership has no rule: <fixture>"] if starved else [])]
+        if not starved:
+            record.append(entry("every_skill_directory_carries_a_charter", []))
+        return record
+
+    quiet = probe.multiplication_reading(record_of=post_build_record)
+    assert not quiet["fires"], f"the probe must be quiet against the built behaviour: {quiet}"
+    assert quiet["reds_from_one_fault"] == 1 and quiet["derived_lane_absent"], quiet
+
+
+# ── runner ───────────────────────────────────────────────────────────────────
+#
+# TEETH IS COLLECTED AT CALL TIME, NOT AT IMPORT TIME (changed 2026-09-11, ticket
+# 7aed0fd0ba29). It used to be a module-level list comprehension over globals(), which
+# silently EXCLUDES any tooth defined below it — and a tooth appended to the end of the
+# file is the single most natural way to add one. Measured the same day: a new tooth was
+# appended, the file printed "19/19 teeth green", and the tooth had never run. A collector
+# that reports a confident green over a test it did not execute is the hollow pass Law 8
+# calls worse here than a red. Collecting inside main() makes file order irrelevant.
+
+
+def teeth() -> list:
+    return [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+
 
 if __name__ == "__main__":
+    all_teeth = teeth()
     failed = 0
-    for tooth in TEETH:
+    for tooth in all_teeth:
         try:
             tooth()
             print(f"  green  {tooth.__name__}")
         except Exception as exc:
             failed += 1
             print(f"  RED    {tooth.__name__}: {exc}")
-    print(f"\n{len(TEETH) - failed}/{len(TEETH)} teeth green")
+    print(f"\n{len(all_teeth) - failed}/{len(all_teeth)} teeth green")
     sys.exit(1 if failed else 0)

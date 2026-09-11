@@ -490,7 +490,15 @@ def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
             entry("every_roster_entry_carries_a_charter", []),
         ]
 
-    fired = probe.multiplication_reading(record_of=pre_build_record)
+    # THE STANDING TEXT IS HANDED IN, never read from a sibling directory. hollow runs this
+    # proof in a worktree under /tmp where ~/dev/src/CairnCommons is not beside the repo;
+    # a tooth that reached for it redded at HEAD and made every reversion reading
+    # unattributable (measured 2026-09-11, this ticket's own hollow run).
+    standing = json.dumps({"members_derived_by":
+                           "ls -d ~/dev/src/cairn/skills/*/ | grep -v __pycache__"})
+
+    fired = probe.multiplication_reading(record_of=pre_build_record,
+                                         node_class_text=standing)
     assert fired["fires"], (
         "the probe must FIRE against the pre-build behaviour it was armed to watch: "
         f"{fired}")
@@ -507,7 +515,8 @@ def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
             record.append(entry("every_skill_directory_carries_a_charter", []))
         return record
 
-    quiet = probe.multiplication_reading(record_of=post_build_record)
+    quiet = probe.multiplication_reading(record_of=post_build_record,
+                                         node_class_text=standing)
     assert not quiet["fires"], f"the probe must be quiet against the built behaviour: {quiet}"
     assert quiet["reds_from_one_fault"] == 1 and quiet["derived_lane_absent"], quiet
 

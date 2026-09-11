@@ -87,7 +87,7 @@ def _live_record(node_class_text: str) -> list[dict]:
         return cairnmap.inspect(commons=Path(tmp))
 
 
-def multiplication_reading(record_of=_live_record) -> dict:
+def multiplication_reading(record_of=_live_record, node_class_text=None) -> dict:
     """WHAT A MEMBERSHIP FAULT COSTS THE RECORD, over the live corpus — AS A DELTA.
 
     IT HAD TO BE A DELTA, AND THE PROBE'S OWN FIRST LIVE READ IS WHY (2026-09-11, measured
@@ -103,9 +103,23 @@ def multiplication_reading(record_of=_live_record) -> dict:
     Takes the record function as an argument so a proof can hand it the PRE-BUILD
     behaviour and watch this fire. A probe that cannot be made to fire on demand is a
     probe nobody has measured.
+
+    AND TAKES THE STANDING NODE-CLASS TEXT THE SAME WAY, for a reason measured on
+    2026-09-11 in this ticket's own hollow run. The live half used to read
+    ``_CLASS_SPACE.parent / "CairnCommons"`` unconditionally, even when ``record_of`` was
+    injected — so the proof tooth driving this was hermetic in every respect but one, and
+    that one assumed the repo sits at ``~/dev/src/cairn`` with the commons beside it.
+    ``cairn test --hollow`` runs the proofs in a GIT WORKTREE under /tmp, where that
+    sibling does not exist: the tooth redded at HEAD with ``No such file or directory``,
+    and hollow correctly refused to attribute any reversion reading at all. A tooth that
+    cannot survive being run somewhere else is a tooth the hollow reader cannot use, and
+    the hollow reader is the thing that decides whether this build is load-bearing.
     """
-    commons = _CLASS_SPACE.parent / "CairnCommons"
-    live = record_of((commons / "node_classes" / "skill.json").read_text(encoding="utf-8"))
+    if node_class_text is None:
+        # THE STANDING TEXT, read live — the default, and what a pulse gets.
+        commons = _CLASS_SPACE.parent / "CairnCommons"
+        node_class_text = (commons / "node_classes" / "skill.json").read_text(encoding="utf-8")
+    live = record_of(node_class_text)
     starved = record_of(json.dumps({"what": "a node class that says nothing about members"}))
 
     def reds_of(record):

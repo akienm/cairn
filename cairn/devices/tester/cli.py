@@ -380,6 +380,11 @@ def main(argv: list[str] | None = None) -> int:
     reds: list[tuple[Path, dict]] = []
     refused: list[tuple[Path, str]] = []
     persisted = 0
+    # WHAT SEAL EACH PERSISTED RECORD ACTUALLY CARRIES (ticket 481221f45884). The count alone
+    # cannot tell a record taken under a netns from one taken with the route wide open, and the
+    # closing line used to print the count under the single word SEALED. Read off the record the
+    # store just took, so it costs nothing and cannot disagree with what landed.
+    persisted_seals: Counter[str] = Counter()
     sealed_green: list[tuple[Path, dict]] = []
     isolations: Counter[str] = Counter()
 
@@ -401,13 +406,35 @@ def main(argv: list[str] | None = None) -> int:
 
         A DIAGNOSTIC RUN IS UNCHANGED, deliberately. Without ``--seal`` nothing lands in a
         record of truth, so there is nothing to preserve; widening the per-proof read to every
-        run would be a change to what a plain ``cairn test`` COSTS, and that is outside this
+        run would be a change to what a plain ``cairn test`` COSTS, and that is outside that
         ticket's bounds.
+
+        AND A FIRST SEAL IS TAKEN UNDER THE SEAL (ticket 481221f45884). The clause above used
+        to end "runs bare, which is this command's documented default" — and that made every
+        proof's FIRST seal the weakest one it would ever get. The record that landed said
+        ``seal: {verdict: "open"}``, which in this device's vocabulary means *nobody asked*
+        (isolation.py: "not asked for; the route is open by construction, said so"). So the
+        one moment a proof enters proven-space was the one moment nothing measured whether it
+        could reach the network, and the validation recorded that absence as if it were a
+        reading. Measured 2026-09-10 across both roots: 218 validation files, 54 of them
+        standing at ``open``.
+
+        Reproducing a standing ``open`` is still ``none`` — that is ticket 4431cf2bc625's
+        guard and this branch sits BENEATH it, never over it. The change is only what happens
+        when ``standing_seal`` finds nothing at all: there is no measurement to preserve, so
+        the honest default is the one that MAKES a measurement rather than the one that
+        records its absence. Law 9 — green is earned, and a first seal taken bare was green
+        nobody had earned.
+
+        Not a flag. The charter's eleventh falsifier clause says the instance seal must never
+        become a caller's choice, and a proof that honestly needs a route now reds loudly and
+        goes to Akien as a ruling, which is a route out that leaves a record. An opt-out flag
+        would be the same escape with nothing written down.
         """
         if args.netns:
             return "netns"
         if args.seal:
-            return isolation_for_seal(standing_seal(str(proof))) or "none"
+            return isolation_for_seal(standing_seal(str(proof))) or "netns"
         return "none"
 
     for proof in proofs:
@@ -432,6 +459,8 @@ def main(argv: list[str] | None = None) -> int:
             continue
         if sink == "validations":
             persisted += 1
+            persisted_seals[(record.get("evidence", {}).get("seal") or {}).get("verdict")
+                            or "no seal key"] += 1
         verdict = record["verdict"]
         if verdict == GREEN and sink == "validations":
             sealed_green.append((proof, record))
@@ -481,8 +510,25 @@ def main(argv: list[str] | None = None) -> int:
         # record-of-truth command miscounting the records it just wrote is a Law 7 defect in
         # one line, and it was misreporting exactly the thing this ticket is about. `persisted`
         # is now incremented once per record that actually went through the door.
-        print(f"SEALED — {persisted} VALIDATION(s) persisted through the store's door "
-              f"beside the proofs they seal (a red seals its red; Law 7).")
+        # AND THE WORD SEALED NEVER STANDS OVER A RECORD NOBODY SEALED (ticket 481221f45884).
+        # This line used to print one count under one word. A run that persisted fifty records
+        # of which forty carried `seal: {verdict: "open"}` — which in this device's vocabulary
+        # means NOBODY ASKED — reported itself, in the last line on screen, as a sealing run.
+        # That is a diagnostic surface stating a convenient shape instead of the measurement,
+        # at the exact surface a builder reads before deciding this code can be leaned on
+        # (Law 7, and Law 8's false-green worse-than-a-red). The verdicts ride inside the
+        # records that just landed, so the split is a read of what happened, not a new claim.
+        under_seal = persisted_seals.get("sealed", 0)
+        spread_seals = " ".join(f"{k}={v}" for k, v in sorted(persisted_seals.items()))
+        # PERSISTED, not SEALED: the count is of records that went through the door, and how
+        # many of those were actually sealed is the NEXT line. The em-dash is load-bearing —
+        # test_seal_is_never_silently_dropped.py reads the count off it (ticket 4431cf2bc625).
+        print(f"PERSISTED — {persisted} VALIDATION(s) persisted through the store's door beside "
+              f"the proofs they seal (a red seals its red; Law 7).")
+        print(f"  {under_seal} of {persisted} taken UNDER THE SEAL"
+              + (f" — seal {spread_seals}" if spread_seals else "")
+              + (". A record reading `open` means the route was never measured, not that it "
+                 "was measured shut." if persisted_seals.get("sealed", 0) != persisted else "."))
         for proof, why in refused:
             rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
             print(f"\n─── SEAL REFUSED: {rel} " + "─" * 20)

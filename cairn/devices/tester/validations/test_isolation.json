@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-10T18:29:26",
+    "caller": "cairn test",
+    "date": "2026-09-10T21:07:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 139.4MB disk, 4435 entries, live root read 1x this process\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
+      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 139.6MB disk, 4453 entries, live root read 1x this process\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_isolation_is_honestly_open",
@@ -30,7 +30,7 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "48e572c231f6c146b2e1fae6eb5e488daf7c56c987408560b3bdca42294035de",
+      "source_fingerprint": "20c4a9533068eb9233fc4565b381ec18d909493763bea3952eb8c1f46e4c63cd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -54,26 +54,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1542022-2vnenf9t/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2012559-z3ivk4_q/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/tester/0/20260911.002918.345687.TesterDevice.run_proof.json",
-            "logs/tester/0/20260911.002920.194268.TesterDevice.run_proof.json",
-            "logs/tester/0/20260911.002921.941618.TesterDevice.run_proof.json",
-            "logs/tester/0/20260911.002923.800840.TesterDevice.run_proof.json",
-            "logs/tester/0/20260911.002925.369076.TesterDevice.run_proof.json"
+            "logs/tester/0/20260911.030704.093757.TesterDevice.run_proof.json",
+            "logs/tester/0/20260911.030705.458434.TesterDevice.run_proof.json",
+            "logs/tester/0/20260911.030706.832058.TesterDevice.run_proof.json",
+            "logs/tester/0/20260911.030708.167169.TesterDevice.run_proof.json",
+            "logs/tester/0/20260911.030709.559344.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 128661572,
-          "disk_bytes": 139460608,
-          "entries": 4442,
+          "bytes": 128829422,
+          "disk_bytes": 139661312,
+          "entries": 4460,
           "builds": 1,
-          "reuses": 8
+          "reuses": 4
         }
       }
     },

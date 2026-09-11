@@ -30,9 +30,12 @@ seal asked-for-but-breached is a measured RED, never a shrug.
 FRESH design, mechanism grafted. The design — four seal verdicts mapped to CP1/Law 3, the
 gate *owned by the tester* (MAP.md:333), the seal recorded inside the ratified VALIDATION
 rather than a parallel record — is Cairn's, authored to Form v0. The OS plumbing (the
-`bwrap --unshare-net --cap-add CAP_NET_ADMIN` flag string, the inside-probe, the
-`available()` apparmor check) crosses nearly literally from UU's isolation.py, because it
-is kernel truth, not a design Cairn replaced.
+`bwrap --unshare-net` flag string, the inside-probe, the `available()` apparmor check)
+crosses nearly literally from UU's isolation.py, because it is kernel truth, not a design
+Cairn replaced. One flag of that graft has since been dropped and did not survive contact:
+`--cap-add CAP_NET_ADMIN` came across for a Router Cairn never built, and on 2026-09-10 it
+was measured to be the sole reason no sandbox could be started inside a sealed one. The
+reasoning and the four trials are at NetnsIsolation.
 
 DEFERRED, filed not faked (the programmable-network pillar, pulled by real need — Law 1):
 UU's netpolicy Router (claim an address and BE the dependency; serve a FIXTURE; REFUSE
@@ -72,6 +75,24 @@ BREACHED = "breached"            # asked for, the route is STILL there — a mea
 # address (which UU hard-coded to its inference slot). No packet's payload matters; only
 # whether the kernel has a route at all.
 DEFAULT_PROBE_TARGET = ("1.1.1.1", 53)
+
+# THE MARKER A TESTER SANDBOX CARRIES, so a run started INSIDE one can tell (2026-09-10,
+# ticket 481221f45884). It is set with bwrap's own ``--setenv`` on the sealed sandbox and is
+# inherited by everything started within it, which is exactly the reach it needs: the case
+# it exists for is a proof that runs ``cairn test`` as a subprocess, two or more levels down.
+#
+# IT CANNOT MANUFACTURE A GREEN, and that is why an env var is safe here where it would
+# usually be a smell. A run that finds the marker does not get to skip the measurement — it
+# takes the SAME probe, bare, inside the namespace it inherited, and only ``noroute`` earns
+# SEALED. Set it by hand on an ordinary shell and the very next seal reads BREACHED, loudly,
+# because the route really is there. The marker chooses which question to ask; the socket
+# still answers it.
+SEAL_MARKER = "CAIRN_TESTER_SEALED"
+
+
+def inside_a_seal() -> bool:
+    """TRUE when this process is running inside a network seal the tester built."""
+    return os.environ.get(SEAL_MARKER) == "1"
 
 # The inside-probe. Printed tokens, classified by errno so we distinguish "no route at all"
 # (the seal worked) from "reached the host, port said no" (a route exists — NOT sealed).
@@ -555,6 +576,32 @@ class Isolation(ABC):
         if not self.seals_network:
             return Seal(OPEN, f"{self.name}: no seal requested — the route is open by construction, and the record says so")
 
+        # AN INHERITED SEAL IS A SEAL, AND IT IS STILL MEASURED (2026-09-10, ticket
+        # 481221f45884). Inside a namespace the tester already cut, there is no bare route to
+        # use as a control — everything this process can start is already dark — so the
+        # control branch below would read "no baseline route" and return INDETERMINATE over a
+        # run whose route was measurably removed. That is the instrument failing to recognise
+        # its own handiwork, and it turned three proofs red the day first seals started being
+        # taken under the seal: every proof that drives `cairn test` as a subprocess.
+        #
+        # The reading here is NOT weaker than the ordinary one, it answers the same question
+        # with the control taken at a different moment: the outer seal proved, with a bare
+        # positive control, that this namespace removes the route, and this probe confirms
+        # from inside that it is still gone. A route found here is BREACHED — the outer seal
+        # leaking is a real finding and the loudest one this module can make.
+        if inside_a_seal():
+            inside = _classify(self._run_probe(probe, cwd))
+            if inside == "noroute":
+                return Seal(SEALED, f"{host}:{port} unreachable inside the seal this run "
+                                    f"INHERITED — the namespace was cut by an outer tester "
+                                    f"run, which took the bare positive control, and the "
+                                    f"route is confirmed still gone from in here")
+            if inside == "route":
+                return Seal(BREACHED, f"{host}:{port} is reachable inside a namespace marked "
+                                      f"{SEAL_MARKER}=1 — the INHERITED seal did NOT hold (RED)")
+            return Seal(INDETERMINATE, f"the inherited-seal probe gave no clear verdict "
+                                       f"(got {inside!r}) — CP1")
+
         control = _classify(self._run_probe(probe, cwd))
         if control != "route":
             return Seal(
@@ -599,9 +646,22 @@ class NetnsIsolation(Isolation):
     Rootless (unprivileged user namespaces), daemonless, sub-second. ``--dev-bind / /``
     keeps the whole filesystem intact — including any Unix socket, which is a file and not
     the network, so it survives the seal (the asymmetry a later FORWARD path will lean on).
-    ``--cap-add CAP_NET_ADMIN`` lets a run configure the netns it already owns (what a later
-    Router needs to claim an address); without it the namespace is merely dark, which is all
-    the seal itself requires.
+    NO ``--cap-add CAP_NET_ADMIN``, AND ITS REMOVAL IS A MEASUREMENT (2026-09-10, ticket
+    481221f45884). It crossed from UU with the rest of the flag string, for a Router that
+    would need to configure the netns it owns — a thing that still does not exist. What it
+    DID do was make every nested sandbox impossible: a process carrying that capability
+    cannot start bwrap at all, so any proof that drives ``cairn test`` as a subprocess died
+    the moment the outer run was itself sealed. Measured on this host, four trials:
+
+        netns+cap inside netns+cap   -> bwrap: Unexpected capabilities but not setuid
+        netns              inside netns+cap   -> same refusal
+        plain --dev-bind   inside netns+cap   -> same refusal
+        netns+cap inside plain --dev-bind     -> OK
+
+    and with the capability dropped, every combination runs. The flag was the sole cause;
+    the seal never needed it — this module's own note said so ("without it the namespace is
+    merely dark, which is all the seal itself requires"). It comes back with the Router that
+    wants it, and not before (build minimal, grow against need).
 
     ``available()`` reports the real reason the seal cannot be built rather than degrading
     quietly to running on the host — a sandbox that cannot be built must say so loudly.
@@ -618,7 +678,13 @@ class NetnsIsolation(Isolation):
         # becoming root-in-namespace breaks uid-matched services (e.g. Postgres peer auth).
         # Least privilege here is not hygiene, it is correctness — a grader that breaks the
         # thing it observes is worse than no grader.
-        flags = ["bwrap", "--dev-bind", "/", "/", "--unshare-net", "--cap-add", "CAP_NET_ADMIN"]
+        flags = ["bwrap", "--dev-bind", "/", "/"]
+        if not inside_a_seal():
+            # AN INHERITED SEAL IS NOT RE-CUT. If this process is already running inside a
+            # namespace the tester built, the route is already gone and a second --unshare-net
+            # would buy nothing while costing a namespace whose behaviour would have to be
+            # measured all over again. The marker rides the sandbox so the inner run can know.
+            flags += ["--unshare-net", "--setenv", SEAL_MARKER, "1"]
         if instance_swap is not None:
             # ONE sandbox carrying both seals, never a sandbox inside a sandbox: they are
             # flags on the same bwrap, so composing them costs nothing and nesting would cost

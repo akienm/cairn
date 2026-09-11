@@ -17,9 +17,27 @@ import json
 from pathlib import Path
 
 from cairn.devices.tester.scratch import scratch_dir
-from cairn.machines.build_inspector.inspector import (
-    SIEVES, the_nest, every_exemption_cites_a_ruling_or_an_impossibility as SIEVE)
+from cairn.machines.build_inspector import inspector as INSP
 from cairn.machines.exemptions.justification import justification_lack, LEGAL_KINDS
+
+_SIEVE_NAME = "every_exemption_cites_a_ruling_or_an_impossibility"
+
+# THE SUBJECT IS RESOLVED AT CALL TIME, NOT BOUND AT IMPORT.
+# A proof must survive its subject being taken away. Binding the sieve with a
+# from-import made the whole module unimportable the moment the hollow runner
+# reverted inspector.py, so it printed NO teeth at all and the reading came back
+# "unreadable" rather than "ok" or "HOLLOW" — the instrument could not say whether
+# any tooth checks that file. Measured 2026-09-10, and the runner said so itself.
+_GONE = [{"about": "the inspector defines no exemption sieve at all",
+          "expected": True, "actual": False, "compare": "exact",
+          "method": _SIEVE_NAME, "component": "exemptions",
+          "values": {"lack": "the live inspector module has no attribute " + _SIEVE_NAME}}]
+
+
+def SIEVE(row, comp_dir):
+    """The sieve as the live inspector currently holds it — or a standing red."""
+    fn = getattr(INSP, _SIEVE_NAME, None)
+    return _GONE if fn is None else fn(row, comp_dir)
 
 PASS = 0
 FAIL = 0
@@ -37,6 +55,7 @@ PROVES = {
         "a no-other-way kind must state something": "test_AN_EMPTY_IMPOSSIBILITY_REDS",
         "the reason is anchored in the code": "test_A_SYMBOL_THAT_MOVED_REDS",
         "the live set carries every measured site": "test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES",
+        "the component carries its own why": "test_THE_COMPONENT_SAYS_WHAT_IT_IS",
         "the sieve is registered and fires": "test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST",
         "nothing here reaches an inference host": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM",
         "the watch probe is armed and can fire": "test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE",
@@ -227,11 +246,66 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
            SIEVE(ROW, REAL_SET.parent) == [], SIEVE(ROW, REAL_SET.parent))
 
 
+def _charter_row() -> dict:
+    """The census row shape the charter-bearing sieves read."""
+    return {"component": "exemptions",
+            "dir": "cairn/machines/exemptions",
+            "charter_on_disk": (REPO / "cairn" / "machines" / "exemptions"
+                                / "intention+why.json").is_file(),
+            "proofs": 1, "validations": [], "devices": [], "emit_sites": []}
+
+
+def test_THE_COMPONENT_SAYS_WHAT_IT_IS():
+    """The charter and the package docstring — the two files that carry the WHY.
+
+    Neither is code, and a build that shipped the sieve and the set without them
+    would pass every other tooth here. That is exactly the shape Law 5 forbids:
+    a component without an intention doesn't run, and a reader arriving cold at
+    this directory would have the machinery and none of the reason for it.
+
+    Measured 2026-09-10: with intention+why.json removed the hollow runner read
+    HOLLOW, because no declared tooth noticed. With __init__.py removed the
+    package still imports (Python treats the directory as a namespace package)
+    and its ONLY measurable consequence is that the docstring — the definition of
+    what an exemption IS — is gone and the package's __file__ reads None. This
+    tooth claims exactly that much and no more.
+    """
+    import importlib
+    import cairn.machines.exemptions as E
+    E = importlib.reload(E)
+    _check("the package is a real package, not a namespace", E.__file__ is not None, E.__file__)
+    doc = (E.__doc__ or "").strip()
+    _check("and it says what an exemption is", "declines to run" in doc, doc[:80])
+
+    charter = REPO / "cairn" / "machines" / "exemptions" / "intention+why.json"
+    _check("the charter is on disk", charter.is_file(), charter)
+    if not charter.is_file():
+        return
+    try:
+        c = json.loads(charter.read_text(encoding="utf-8"))
+    except Exception as exc:
+        _check("the charter parses", False, exc)
+        return
+    _check("the charter parses", True)
+    # THE REQUIRED FIELDS ARE NOT A LIST I KEEP HERE — they are whatever the
+    # charter-bearing sieves demand, and a hand-copied list drifts from them
+    # silently. Measured 2026-09-10: my first draft of this tooth demanded
+    # `how_it_learns` and the sieve reads `learns`, so the tooth redded a charter
+    # the inspector reads green. Ask the inspector instead of remembering.
+    charter_sieves = ("charter_on_disk", "learning_declared", "durable_state_declared",
+                      "claim_provenance", "runtime_role_declared", "gated_by_declared")
+    for name in charter_sieves:
+        fn = getattr(INSP, name, None)
+        _check("the inspector's %s is satisfied" % name,
+               fn is not None and fn(_charter_row(), charter.parent) == [],
+               None if fn is None else fn(_charter_row(), charter.parent))
+
+
 def test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST():
     name = "every_exemption_cites_a_ruling_or_an_impossibility"
-    _check("the sieve is in SIEVES", name in SIEVES, sorted(SIEVES)[:3])
-    in_nest = any(name in names for _phase, names in the_nest())
-    _check("the sieve is assembled into the nest", in_nest, the_nest())
+    _check("the sieve is in SIEVES", name in INSP.SIEVES, sorted(INSP.SIEVES)[:3])
+    in_nest = any(name in names for _phase, names in INSP.the_nest())
+    _check("the sieve is assembled into the nest", in_nest, INSP.the_nest())
     _check("it fires only for the exemptions component",
            SIEVE({"component": "corrosion"}, REAL_SET.parent) == [])
 
@@ -247,8 +321,11 @@ def test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM():
                 if ("import %s" % b) in text or ("from %s" % b) in text]
         _check("%s imports no inference path" % Path(mod.__file__).name,
                not hits, hits)
-    sieve_src = Path(SIEVES["every_exemption_cites_a_ruling_or_an_impossibility"]
-                     .__code__.co_filename)
+    registered = INSP.SIEVES.get(_SIEVE_NAME)
+    _check("the sieve is registered under its own name", registered is not None, sorted(INSP.SIEVES)[:3])
+    if registered is None:
+        return
+    sieve_src = Path(registered.__code__.co_filename)
     _check("the sieve lives in the inspector, not in a device",
            "machines/build_inspector" in str(sieve_src), sieve_src)
 
@@ -301,6 +378,7 @@ def test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE():
 
 
 def main():
+    global FAIL
     # EACH FUNCTION PRINTS ITS OWN NAME AS A TOOTH, and the readable sentences stay.
     # The PROVES map declares teeth by FUNCTION NAME, and the tester's parser prefers a
     # test_-anchored identifier over the sentence on the same line — so a proof that prints
@@ -316,12 +394,21 @@ def main():
                test_AN_EMPTY_IMPOSSIBILITY_REDS,
                test_A_SYMBOL_THAT_MOVED_REDS,
                test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES,
+               test_THE_COMPONENT_SAYS_WHAT_IT_IS,
                test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST,
                test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM,
                test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE):
         print(fn.__name__)
         before = FAIL
-        fn()
+        # A CRASH IS A RED TOOTH, NOT A SILENT EXIT. When the hollow runner takes a
+        # file away, the tooth that depended on it must SAY SO and the rest must
+        # still run — a traceback out of main() prints no further teeth and the
+        # reading comes back unreadable for every file at once.
+        try:
+            fn()
+        except Exception as exc:
+            FAIL += 1
+            print("  FAIL %s raised %s: %s" % (fn.__name__, type(exc).__name__, exc))
         print("  %s   %s" % ("ok  " if FAIL == before else "FAIL", fn.__name__))
     print("\n%d passed, %d failed" % (PASS, FAIL))
     return 1 if FAIL else 0

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_corrosion_sieve.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-10T19:33:06",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "CC",
+    "date": "2026-09-10T19:47:17",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "PASS: weakening without ruling fires a finding\nPASS: ruled weakening does NOT fire (beneficial drift)\nPASS: present constraint is untouched (no finding)\nPASS: constraint set excluding itself fires self-reference finding\nPASS: stale unrelated ruling does NOT satisfy the check\nPASS: all four constraint kinds caught by the same predicate\nPASS: non-corrosion component returns empty (no false positives)\nPASS: missing constraint set fires a finding\nPASS: empty constraint set fires a finding\n\n9 passed, 0 failed out of 9",
+      "stdout_tail": "PASS: weakening without ruling fires a finding\nPASS: ruled weakening does NOT fire (beneficial drift)\nPASS: present constraint is untouched (no finding)\nPASS: constraint set excluding itself fires self-reference finding\nPASS: stale unrelated ruling does NOT satisfy the check\nPASS: all four constraint kinds caught by the same predicate\nPASS: non-corrosion component returns empty (no false positives)\nPASS: missing constraint set fires a finding\nPASS: empty constraint set fires a finding\nPASS: a worktree resolves the commons of the checkout it was cut from\nPASS: and the rulings store is readable from inside it\nPASS: an explicit CAIRN_COMMONS_ROOT outranks both rules\n\n12 passed, 0 failed out of 12",
       "stderr_tail": "",
       "teeth_green": [
         "weakening without ruling fires a finding",
@@ -18,14 +18,17 @@
         "all four constraint kinds caught by the same predicate",
         "non-corrosion component returns empty (no false positives)",
         "missing constraint set fires a finding",
-        "empty constraint set fires a finding"
+        "empty constraint set fires a finding",
+        "a worktree resolves the commons of the checkout it was cut from",
+        "and the rulings store is readable from inside it",
+        "an explicit CAIRN_COMMONS_ROOT outranks both rules"
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "874bfd4dac301ee4e2790eb876e62d31a4468bac06b252f6a3a82ff969096a67",
+      "source_fingerprint": "19d48e0b5eca6a70a4c2e828ef6e9504f78d7c4695296d0c8f533a8e5ec561d2",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -65,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1726536-neqppcpa/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1788459-ec9vhmq6/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,7 +81,7 @@
           "disk_bytes": 139542528,
           "entries": 4444,
           "builds": 1,
-          "reuses": 19
+          "reuses": 0
         }
       }
     },

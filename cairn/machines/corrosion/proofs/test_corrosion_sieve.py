@@ -254,24 +254,25 @@ def test_the_commons_resolves_from_a_worktree():
     answer is SILENT — an absent store makes `ruling_covers_path` return None, which
     reads as "no ruling covers this path" rather than "I could not look". Measured
     2026-09-10 in the hollow runner's scratch worktree: every declared ruling in the
-    exemption set stopped resolving at once, and the reading could not be taken.
+    exemption set stopped resolving at once, and no reversion reading could be taken.
 
-    Reverting the resolver to the constant fails this tooth.
+    The tree here is built the way a worktree is — a `.git` FILE naming the real git
+    dir, and nothing beside it — rather than by `git worktree add`, because the
+    reseal's sandbox cannot cut a worktree (`.git/index: Not a directory`) and a
+    tooth that reds for want of an index is measuring the sandbox, not the resolver.
+    `rev-parse --git-common-dir` reads no index, so this shape exercises the same
+    branch everywhere. Reverting the resolver to the constant fails this tooth.
     """
     global PASS, FAIL
-    import subprocess as _sp
     from cairn.machines.corrosion import citation
 
     live = citation._CAIRN_ROOT.parent / "CairnCommons"
     root = scratch_dir("commons_from_worktree_")
     wt = root / "worktree"
-    made = _sp.run(["git", "-C", str(citation._CAIRN_ROOT), "worktree", "add",
-                    "--detach", str(wt), "HEAD"], capture_output=True, text=True)
+    wt.mkdir()
+    (wt / ".git").write_text(
+        "gitdir: %s\n" % (citation._CAIRN_ROOT / ".git"), encoding="utf-8")
     try:
-        if made.returncode != 0:
-            FAIL += 1
-            print(f"FAIL: could not cut a worktree to measure against: {made.stderr.strip()}")
-            return
         env_free = {k: v for k, v in os.environ.items() if k != "CAIRN_COMMONS_ROOT"}
         with patch.dict(os.environ, env_free, clear=True), \
              patch.object(citation, "_CAIRN_ROOT", wt):
@@ -298,8 +299,6 @@ def test_the_commons_resolves_from_a_worktree():
                 FAIL += 1
                 print(f"FAIL: env override ignored, got {got}")
     finally:
-        _sp.run(["git", "-C", str(citation._CAIRN_ROOT), "worktree", "remove",
-                 "--force", str(wt)], capture_output=True, text=True)
         shutil.rmtree(root, ignore_errors=True)
 
 

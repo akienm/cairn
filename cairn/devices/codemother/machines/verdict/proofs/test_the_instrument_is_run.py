@@ -42,10 +42,32 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 sys.path.insert(0, str(_REPO_ROOT))
 
+# THE THREE NAMES THIS TICKET ADDED ARE REACHED THROUGH THE MODULE, NOT IMPORTED
+# FROM IT — and that is a tooth about the HOLLOW CHECK, not a style choice.
+# `cairn test --hollow` reverts the build and re-runs this file, and a reversion is
+# only attributable when the teeth FAIL. A from-import of a name the reverted
+# verdict.py does not carry kills the whole module at collection: zero teeth run,
+# and hollow reads "never reached a check (a broken import or a crash)" — exactly
+# the reading it gives a proof that is hollow for real. Measured here: the first
+# hollow run of this file returned `teeth_that_ran_at_all: 0` and could attribute
+# nothing. Held on the module, each tooth raises AttributeError inside itself, so
+# it fails, and the reversion is attributable to the file that caused it.
+from cairn.devices.codemother.machines.verdict import verdict as _verdict  # noqa: E402
 from cairn.devices.codemother.machines.verdict.verdict import (  # noqa: E402
-    VerdictRefused, extract_command, inspect_verdict, observe_instruments,
-    run_instrument, validate_verdict, write_verdict)
+    VerdictRefused, inspect_verdict, validate_verdict, write_verdict)
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+
+
+def extract_command(*a, **kw):
+    return _verdict.extract_command(*a, **kw)
+
+
+def observe_instruments(*a, **kw):
+    return _verdict.observe_instruments(*a, **kw)
+
+
+def run_instrument(*a, **kw):
+    return _verdict.run_instrument(*a, **kw)
 
 PROVES = {
     "8e5db5f3edb2": {

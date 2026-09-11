@@ -17,11 +17,50 @@ import subprocess
 from pathlib import Path
 
 _CAIRN_ROOT = Path(__file__).resolve().parents[3]
-_COMMONS_ROOT = _CAIRN_ROOT.parent / "CairnCommons"
+
+
+def _commons_root() -> Path:
+    """Where the commons is, resolved so a CHECKOUT OF THIS REPO still finds it.
+
+    The sibling-of-my-own-root rule is right for the working checkout and WRONG
+    for every git worktree, because a worktree has no commons beside it. That is
+    not a hypothetical: measured 2026-09-10, the hollow runner builds its scratch
+    worktree under /tmp, this resolver returned /tmp/<scratch>/CairnCommons, the
+    store read as absent, and EVERY declared ruling silently stopped resolving —
+    so a tooth asserting the live exemption set is justified failed at HEAD, and
+    the hollow reading could not be taken at all. The failure is quiet in the
+    dangerous direction: an absent store makes ruling_covers_path return None,
+    which reads as "no ruling covers this" rather than "I could not look".
+
+    Three resolutions, most explicit first. A worktree shares the main checkout's
+    commons BY CONSTRUCTION — git's common dir names the checkout it was cut from —
+    so the second rule is a fact about the repo, not a guess about the filesystem.
+    """
+    env = os.environ.get("CAIRN_COMMONS_ROOT")
+    if env:
+        return Path(env)
+    beside = _CAIRN_ROOT.parent / "CairnCommons"
+    if beside.is_dir():
+        return beside
+    try:
+        common = subprocess.run(
+            ["git", "-C", str(_CAIRN_ROOT), "rev-parse", "--git-common-dir"],
+            capture_output=True, text=True, timeout=10)
+        if common.returncode == 0 and common.stdout.strip():
+            gitdir = Path(common.stdout.strip())
+            if not gitdir.is_absolute():
+                gitdir = (_CAIRN_ROOT / gitdir).resolve()
+            main_checkout = gitdir.parent
+            cut_from = main_checkout.parent / "CairnCommons"
+            if cut_from.is_dir():
+                return cut_from
+    except Exception:
+        pass
+    return beside
 
 
 def _rulings_store() -> Path:
-    return _COMMONS_ROOT / "decisions"
+    return _commons_root() / "decisions"
 
 
 def ruling_covers_path(rel_path: str) -> str | None:

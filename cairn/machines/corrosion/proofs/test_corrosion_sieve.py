@@ -246,6 +246,63 @@ def test_empty_constraint_set_reds():
         shutil.rmtree(root)
 
 
+def test_the_commons_resolves_from_a_worktree():
+    """A CHECKOUT of this repo still finds the commons — the worktree tooth.
+
+    `_commons_root` used to be a module constant: the sibling of my own root. That
+    is right in the working checkout and wrong in every git worktree, and the wrong
+    answer is SILENT — an absent store makes `ruling_covers_path` return None, which
+    reads as "no ruling covers this path" rather than "I could not look". Measured
+    2026-09-10 in the hollow runner's scratch worktree: every declared ruling in the
+    exemption set stopped resolving at once, and the reading could not be taken.
+
+    Reverting the resolver to the constant fails this tooth.
+    """
+    global PASS, FAIL
+    import subprocess as _sp
+    from cairn.machines.corrosion import citation
+
+    live = citation._CAIRN_ROOT.parent / "CairnCommons"
+    root = scratch_dir("commons_from_worktree_")
+    wt = root / "worktree"
+    made = _sp.run(["git", "-C", str(citation._CAIRN_ROOT), "worktree", "add",
+                    "--detach", str(wt), "HEAD"], capture_output=True, text=True)
+    try:
+        if made.returncode != 0:
+            FAIL += 1
+            print(f"FAIL: could not cut a worktree to measure against: {made.stderr.strip()}")
+            return
+        env_free = {k: v for k, v in os.environ.items() if k != "CAIRN_COMMONS_ROOT"}
+        with patch.dict(os.environ, env_free, clear=True), \
+             patch.object(citation, "_CAIRN_ROOT", wt):
+            got = citation._commons_root()
+            if got == live:
+                PASS += 1
+                print("PASS: a worktree resolves the commons of the checkout it was cut from")
+            else:
+                FAIL += 1
+                print(f"FAIL: worktree resolved the commons to {got}, wanted {live}")
+            store = citation._rulings_store()
+            if store.is_dir():
+                PASS += 1
+                print("PASS: and the rulings store is readable from inside it")
+            else:
+                FAIL += 1
+                print(f"FAIL: rulings store unreadable from a worktree: {store}")
+        with patch.dict(os.environ, {"CAIRN_COMMONS_ROOT": str(root)}):
+            got = citation._commons_root()
+            if got == root:
+                PASS += 1
+                print("PASS: an explicit CAIRN_COMMONS_ROOT outranks both rules")
+            else:
+                FAIL += 1
+                print(f"FAIL: env override ignored, got {got}")
+    finally:
+        _sp.run(["git", "-C", str(citation._CAIRN_ROOT), "worktree", "remove",
+                 "--force", str(wt)], capture_output=True, text=True)
+        shutil.rmtree(root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     test_weakening_without_ruling_reds()
     test_weakening_with_ruling_greens()
@@ -256,5 +313,6 @@ if __name__ == "__main__":
     test_non_corrosion_component_skips()
     test_missing_constraint_set_reds()
     test_empty_constraint_set_reds()
+    test_the_commons_resolves_from_a_worktree()
     print(f"\n{PASS} passed, {FAIL} failed out of {PASS + FAIL}")
     sys.exit(1 if FAIL else 0)

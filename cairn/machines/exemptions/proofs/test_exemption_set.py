@@ -45,8 +45,20 @@ FAIL = 0
 REPO = Path(__file__).resolve().parents[4]
 REAL_SET = REPO / "cairn" / "machines" / "exemptions" / "exemption_set.json"
 
+# THE CLAUSE KEYS THE GATE ASKS FOR ARE DERIVED FROM THE FALSIFIER, NOT CHOSEN HERE.
+# proof_coverage.clauses() reads the ticket's falsifier for (1)(2)(3) or (a)(b)(c)
+# markers and falls back to the single clause "all" when it finds none. This ticket's
+# falsifier is unnumbered prose, so the gate asks for exactly one key, "all" — and the
+# twelve descriptive keys below, which read as thorough coverage, answered a question
+# nobody asks. Measured 2026-09-10: the PROVED crossing refused with "clause (all) is
+# undeclared" against a map declaring twelve clauses. The descriptive keys stay because
+# the hollow runner reads every declared tooth name and uses them to attribute a
+# reversion to a file; "all" is what the clearance gate joins on, and it names the
+# content tooth because that is the one aimed at the falsifier's subject rather than at
+# the sieve's logic.
 PROVES = {
     "892a0f9cd925": {
+        "all": "test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES",
         "the set exists and is read": "test_AN_ABSENT_SET_REDS",
         "the set is readable": "test_AN_UNREADABLE_SET_REDS",
         "the set is non-empty": "test_AN_EMPTY_SET_REDS",

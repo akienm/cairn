@@ -1,22 +1,26 @@
 {
   "cursor": {
-    "from": "BUILDME",
-    "to": "PROVEME",
-    "standing": "PROVEME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> [PROVED]",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket '8e5db5f3edb2', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '8e5db5f3edb2'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py (seal 2026-09-11T10:26:49, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_instrument_is_re_run_not_reported) emitted the probe berthed at cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py (ticket '8e5db5f3edb2')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260911T102447-29ff9d6573af.json",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "PROVED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -36,28 +40,30 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
-          "cursor": 2,
-          "resolved": 3
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> PROVEME",
-        "actual": "BUILDME -> PROVEME",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVEME",
+          "target": "PROVED",
           "legal_from_here": [
+            "BUILDME",
             "DROPPED",
+            "PROVED",
             "PROVEME",
             "RETIRED",
             "SUPERSEDED",
@@ -68,55 +74,411 @@
         }
       },
       {
-        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "identity": "the_crossing_names_a_cast_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the_instrument_is_re_run_not_reported) crossing",
+        "actual": "a cast ticket for the WATCHME(the_instrument_is_re_run_not_reported) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "8e5db5f3edb2",
+          "watch_object": "the_instrument_is_re_run_not_reported",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8e5db5f3edb2-the-verdict-door-runs-the-instrument-it-is-handed.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '8e5db5f3edb2' carries a watchme spec for 'the_instrument_is_re_run_not_reported'",
+        "actual": "ticket '8e5db5f3edb2' carries a watchme spec for 'the_instrument_is_re_run_not_reported'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "8e5db5f3edb2",
+          "watch_object": "the_instrument_is_re_run_not_reported",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "8e5db5f3edb2",
+          "watch_object": "the_instrument_is_re_run_not_reported",
+          "berth": "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'codemother' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'codemother' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "8e5db5f3edb2",
+          "component": "codemother",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '8e5db5f3edb2' is cast",
+        "actual": "named ticket '8e5db5f3edb2' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "8e5db5f3edb2",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8e5db5f3edb2-the-verdict-door-runs-the-instrument-it-is-handed.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "transitions.inspect_exit",
         "values": {
           "findings": [],
           "ticket": "8e5db5f3edb2"
         }
       },
       {
-        "identity": "the_ticket_names_its_intent_firing",
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemother' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemother' is on _CLEARANCE_EXEMPT_ROSTER",
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "transitions.inspect_clearance",
         "values": {
-          "findings": [],
-          "ticket": "8e5db5f3edb2"
+          "target": "PROVED",
+          "component": "codemother",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
         }
       },
       {
-        "identity": "the_ticket_names_its_sorted_door_firing",
+        "identity": "the_witness_is_whole",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
         "fatality": "none",
-        "source": "transitions.inspect_entry",
+        "source": "transitions.inspect_clearance",
         "values": {
-          "findings": [],
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py stands in proven-space",
+        "actual": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
+          "named": [
+            "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py's seal at '2026-09-11T10:26:49'",
+        "actual": "the witness dates cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py's seal at '2026-09-11T10:26:49'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
+          "named": [
+            "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py"
+          ],
+          "seal": "2026-09-11T10:26:49",
+          "claimed": "2026-09-11T10:26:49"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '8e5db5f3edb2' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
           "ticket": "8e5db5f3edb2"
         }
       }
     ],
-    "checks_proved": 6,
+    "checks_proved": 14,
+    "cleared_by": "CC",
     "actor": "CC",
-    "ticket": "8e5db5f3edb2",
     "proven_by": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
-    "note": "Same evidence, named correctly this time: test_the_instrument_is_run.py alone, which declares a tooth for every one of the ticket's five falsifier clauses. test_chart_verdict.py and test_falsifier_verdict.py were run green as criterion 6's regression check and are NOT named here, because `also_proven_by` is read by the coverage rung as a claim that a proof covers this boat, and they do not.",
-    "fingerprint": "2d7424c888458c30055c44fb933a1696569e98a6f089f2e668cb1921c7b66920",
-    "at": "2026-09-11T10:33:09",
-    "seq": 22
+    "proven_seal_date": "2026-09-11T10:26:49",
+    "delegated": false,
+    "ticket": "8e5db5f3edb2",
+    "note": "THE DOOR NOW RUNS WHAT IT IS HANDED. write_verdict extracts a runnable command from each criterion's instrument or refuses BY NAME quoting the prose it could not run; runs it under a bound; reads the chart's own declared expect_exit ahead of the builder's answer; refuses a contradicted outcome in BOTH directions (a reported pass the re-run disagrees with, and a reported fail the re-run reproduces as passing); refuses a bound overrun as a TIMEOUT by that name; and stamps the command, exit and output tail into the artifact before the digest is taken, so the berth's filename still describes its contents.\n\nTHE ORDERING IS THE DISTINCTION WORTH KEEPING. The run entries fire BEFORE the coverage check, which costs a fork on an artifact that was going to be refused anyway. What it buys is that a builder can tell \"go fix the build\" (the coverage kick-back over a reported failure) from \"your report of a failure cannot be reproduced and the build may be fine\". Those two send a builder to opposite work, and Law 7 forbids a diagnostic surface collapsing them into one shape.\n\nTHREE FINDINGS AGAINST THE INSTRUMENTS, ALL FIXED INSIDE THE VOYAGE. The first hollow reading was teeth_that_ran_at_all: 0 because the proof from-imported three names the reverted verdict.py does not carry, so the module died at collection and nothing was attributable — the ticket's own defect one level up. The names now ride the module. The second was 0 again because the proof's __main__ ran pytest.main and printed dots, so the seal read teeth_green: [] — it now calls the shared print_teeth_main. The third was four RECORDS in the decompose berth's writes_to reading as hollow; records cannot be pinned by any proof, so hollow gained a SKIP_RECORD class (commit a562d76) under ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage. Measured through hollow's own resolver: 34 of 194 tickets (17%) carry a record in writes_to — a standing tax on honest charting, not this ticket's slip.\n\nCLOSE: all 8 validate criteria pass, run by the door itself (the live fire of this very build). hollow reads 2 measured, 0 hollow. determinism still reads the machine PURE DETERMINISTIC and REFUSES GATE.\n\nAND THE VOYAGE'S LAST FINDING IS ABOUT ITS OWN RECORD. The first run at this crossing was refused twice for naming test_chart_verdict.py and test_falsifier_verdict.py in `also_proven_by` — they were run green as criterion 6's regression check, but the coverage rung reads that field as a claim that a proof COVERS the boat, and neither does. Writing PROVES entries into them to get past the gate would have manufactured coverage, so the record was corrected instead: a retreat to TICKETME and a re-crossed BUILDME, which is the cut `crossings.proven_by_since_buildme` calls the whole of the kick-back protection. Nothing in the tree changed on the retreat. The finding worth keeping is that nothing at the PROVEME crossing tells a builder `also_proven_by` is a coverage claim rather than a log of what was run — the field name reads like the second thing, and the gate catches it four crossings later.",
+    "fingerprint": "db12869b3a54819d66f8cc51cbb7703f4d8e03e4dcd44aebe0caa6ad99606966",
+    "at": "2026-09-11T10:34:00",
+    "seq": 24
   },
   "window": [
+    {
+      "from": "WATCHME",
+      "to": "TICKETME",
+      "standing": "TICKETME",
+      "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
+      "direction": "back",
+      "severity": 3,
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+          "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "TICKETME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> TICKETME moves the cursor off position 4",
+          "actual": "WATCHME -> TICKETME moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "TICKETME",
+            "cursor": 4,
+            "resolved": 1
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> TICKETME",
+          "actual": "WATCHME -> TICKETME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "TICKETME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "PROVED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "back"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "actor": "CC",
+      "ticket": "8e5db5f3edb2",
+      "note": "KICKED BACK BY THE CLEARANCE GATE, and the finding is about this voyage's RECORD, not its code.\n\nThe PROVED gate refused twice, naming `proof_declares_the_ticket` against\ntest_chart_verdict.py and test_falsifier_verdict.py. Both refusals are correct and neither\nis about the build. On the PROVEME crossing of 2026-09-11T09:51:47 I put those two proofs in\n`also_proven_by` because criterion 6 of the claiming validate berth runs them as a REGRESSION\ncheck — they must stay green under this change, and they did (38 passed). But `also_proven_by`\nis not the field for \"proofs this voyage ran\"; the coverage rung reads it as \"proofs that\nCOVER this boat\", and asks each one for a PROVES entry naming this ticket. Neither has one,\nand neither should: this ticket's five falsifier clauses are all about write_verdict /\ninspect_verdict, and those two proofs answer other tickets' clauses about the same machine.\nInventing PROVES entries to satisfy the gate would be manufacturing coverage, which is the\nexact shape Law 8 calls worse than a red — so the record is what gets corrected, not the proofs.\n\nWHY THE RETREAT GOES PAST BUILDME AND NOT TO IT. The journal is append-only (Law 7): the\n09:51:47 record cannot be edited, and nothing in the grammar erases a crossing — a disposition\nis an ejection, not a correction. The one eraser that exists is the cut in\n`crossings.proven_by_since_buildme`, which unions the proofs named at or after the LATEST\nFORWARD BUILDME crossing, and whose docstring calls that cut \"the WHOLE of the kick-back\nprotection ... what keeps that union from also picking up the abandoned proof of a build that\nwas kicked back.\" This is that case, arriving on the mechanism built for it. A back edge TO\nBUILDME would not do it — the cut keys on a FORWARD BUILDME entry — so the retreat lands at\nTICKETME and the build re-crosses, which is also the honest severity: the ticket is being\nre-taken, the code is not being rewritten.\n\nNOTHING IN THE TREE CHANGES ON THIS RETREAT. No source file is touched, no proof is re-run for\na different answer, no seal moves. The re-crossed BUILDME names only\ntest_the_instrument_is_run.py, which does cover the boat: the coverage rung's clause check\nalready passes on it alone (the two `proof_declares_the_ticket` entries were the ONLY lacks\nleft once the hollow evidence sealed), so all five falsifier clauses have teeth in that one\nproof and the neighbours were surplus the whole time.\n\nTHE FINDING WORTH KEEPING, and it is about the chart leg, not the builder: nothing at the\nPROVEME crossing tells a builder that `also_proven_by` is a COVERAGE claim rather than a record\nof what was run. The field name reads like the second thing. The gate catches it — four\ncrossings later, after a hollow seal and two refusals — which is the right place to catch it\nand an expensive place to learn it.",
+      "fingerprint": "5fb803f34e24cb55fc268105af9ba19c4fa3cb70f6458bc914643fa4c87bff4b",
+      "at": "2026-09-11T10:32:56",
+      "seq": 20
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '8e5db5f3edb2', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "8e5db5f3edb2",
+            "component": "codemother",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '8e5db5f3edb2' is cast",
+          "actual": "named ticket '8e5db5f3edb2' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "8e5db5f3edb2",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8e5db5f3edb2-the-verdict-door-runs-the-instrument-it-is-handed.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8e5db5f3edb2"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8e5db5f3edb2"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "8e5db5f3edb2"
+          }
+        }
+      ],
+      "checks_proved": 8,
+      "actor": "CC",
+      "ticket": "8e5db5f3edb2",
+      "note": "Re-crossed after the clearance gate kicked this build back for evidence that did not cover the boat. No source changed on the retreat; this crossing exists so the coverage union restarts here and names only the proof that covers the ticket. See the TICKETME retreat note for the full finding.",
+      "fingerprint": "373525f3765d7e220201168479861add092600b540670cab4d4419ae8b850c51",
+      "at": "2026-09-11T10:33:09",
+      "seq": 21
+    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -226,17 +588,13 @@
         }
       ],
       "checks_proved": 6,
-      "ticket": "8e5db5f3edb2",
       "actor": "CC",
+      "ticket": "8e5db5f3edb2",
       "proven_by": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
-      "also_proven_by": [
-        "cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py",
-        "cairn/devices/codemother/machines/verdict/proofs/test_falsifier_verdict.py"
-      ],
-      "note": "write_verdict now RUNS each criterion's instrument, stamps what it observed into the artifact it berths, and gates on that reading: a runnable command extracted or a refusal naming the criterion and quoting the prose; the declared expect_exit read from the chart's own criterion ahead of the builder's answer; a re-run that contradicts the report refused in both directions; a bound overrun refused as a TIMEOUT by that name. The run entries fire BEFORE the coverage check on purpose — with coverage first, a reported `fail` always earned the generic kick-back and clause (3)'s other half could never fire, which is Law 7's collapse at a diagnostic surface. 44 green twice; determinism still reads PURE DETERMINISTIC / REFUSES GATE.",
-      "fingerprint": "be169cbad468c5643afcb3133ceab24c6c58cbe6583d9a88a81cf2c8523b8f65",
-      "at": "2026-09-11T09:51:47",
-      "seq": 18
+      "note": "Same evidence, named correctly this time: test_the_instrument_is_run.py alone, which declares a tooth for every one of the ticket's five falsifier clauses. test_chart_verdict.py and test_falsifier_verdict.py were run green as criterion 6's regression check and are NOT named here, because `also_proven_by` is read by the coverage rung as a claim that a proof covers this boat, and they do not.",
+      "fingerprint": "2d7424c888458c30055c44fb933a1696569e98a6f089f2e668cb1921c7b66920",
+      "at": "2026-09-11T10:33:09",
+      "seq": 22
     },
     {
       "from": "PROVEME",
@@ -767,33 +1125,36 @@
         }
       ],
       "checks_proved": 38,
-      "ticket": "8e5db5f3edb2",
       "actor": "CC",
+      "ticket": "8e5db5f3edb2",
       "proven_by": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
-      "note": "The probe is armed at cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py. It watches the one thing the teeth cannot: whether the instruments ARRIVING at this door stay falsifiable. A door that re-runs everything it is handed refuses nothing if every instrument degrades into `true`, a bare `ls` or an `echo` — the silence would have moved rather than gone. The probe censuses the berthed corpus for trivially-green commands and fires on a rise; it was proved fireable by a substitute reading and quiet on a clean one, and its arming census was taken against the SHIPPED door rather than the pre-build one, so every later comparison has a real baseline.",
-      "fingerprint": "6dc05afb2321a91b6541943c7b68475ba2668aa9e61c393051d8ac980786c8d0",
-      "at": "2026-09-11T10:25:58",
-      "seq": 19
+      "note": "The probe is unchanged and still armed at its berth; this crossing is re-walked only because the retreat that corrected the evidence record went back past it.",
+      "fingerprint": "0c25470c77656a41e9e0b0d33ddec32fca577991f2b4f6391d1f5b5762d64d29",
+      "at": "2026-09-11T10:33:50",
+      "seq": 23
     },
     {
       "from": "WATCHME",
-      "to": "TICKETME",
-      "standing": "TICKETME",
-      "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
-      "direction": "back",
-      "severity": 3,
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> [PROVED]",
+      "direction": "forward",
       "entry_gate": "not_applicable",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket '8e5db5f3edb2'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+      "clearance_gate": "cleared by 'CC' onto cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py (seal 2026-09-11T10:26:49, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_instrument_is_re_run_not_reported) emitted the probe berthed at cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py (ticket '8e5db5f3edb2')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260911T102447-29ff9d6573af.json",
       "proved": [
         {
           "identity": "the_target_is_in_the_vocabulary",
           "location": "cairn/tools/base/transitions.py",
           "code": "transitions.py::inspect_rules",
-          "expected": "'TICKETME' in the code-seam@v2 vocabulary",
-          "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
           "fatality": "none",
           "source": "transitions.inspect_rules",
           "values": {
-            "target": "TICKETME",
+            "target": "PROVED",
             "vocabulary": [
               "THINKME",
               "TICKETME",
@@ -813,26 +1174,26 @@
           "identity": "the_crossing_moves_the_cursor",
           "location": "cairn/tools/base/transitions.py",
           "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> TICKETME moves the cursor off position 4",
-          "actual": "WATCHME -> TICKETME moves the cursor off position 4",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
           "fatality": "none",
           "source": "transitions.inspect_rules",
           "values": {
-            "target": "TICKETME",
+            "target": "PROVED",
             "cursor": 4,
-            "resolved": 1
+            "resolved": 5
           }
         },
         {
           "identity": "the_crossing_is_a_legal_edge",
           "location": "cairn/tools/base/transitions.py",
           "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> TICKETME",
-          "actual": "WATCHME -> TICKETME",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
           "fatality": "none",
           "source": "transitions.inspect_rules",
           "values": {
-            "target": "TICKETME",
+            "target": "PROVED",
             "legal_from_here": [
               "BUILDME",
               "DROPPED",
@@ -843,95 +1204,62 @@
               "THINKME",
               "TICKETME"
             ],
-            "direction": "back"
-          }
-        }
-      ],
-      "checks_proved": 3,
-      "actor": "CC",
-      "ticket": "8e5db5f3edb2",
-      "note": "KICKED BACK BY THE CLEARANCE GATE, and the finding is about this voyage's RECORD, not its code.\n\nThe PROVED gate refused twice, naming `proof_declares_the_ticket` against\ntest_chart_verdict.py and test_falsifier_verdict.py. Both refusals are correct and neither\nis about the build. On the PROVEME crossing of 2026-09-11T09:51:47 I put those two proofs in\n`also_proven_by` because criterion 6 of the claiming validate berth runs them as a REGRESSION\ncheck — they must stay green under this change, and they did (38 passed). But `also_proven_by`\nis not the field for \"proofs this voyage ran\"; the coverage rung reads it as \"proofs that\nCOVER this boat\", and asks each one for a PROVES entry naming this ticket. Neither has one,\nand neither should: this ticket's five falsifier clauses are all about write_verdict /\ninspect_verdict, and those two proofs answer other tickets' clauses about the same machine.\nInventing PROVES entries to satisfy the gate would be manufacturing coverage, which is the\nexact shape Law 8 calls worse than a red — so the record is what gets corrected, not the proofs.\n\nWHY THE RETREAT GOES PAST BUILDME AND NOT TO IT. The journal is append-only (Law 7): the\n09:51:47 record cannot be edited, and nothing in the grammar erases a crossing — a disposition\nis an ejection, not a correction. The one eraser that exists is the cut in\n`crossings.proven_by_since_buildme`, which unions the proofs named at or after the LATEST\nFORWARD BUILDME crossing, and whose docstring calls that cut \"the WHOLE of the kick-back\nprotection ... what keeps that union from also picking up the abandoned proof of a build that\nwas kicked back.\" This is that case, arriving on the mechanism built for it. A back edge TO\nBUILDME would not do it — the cut keys on a FORWARD BUILDME entry — so the retreat lands at\nTICKETME and the build re-crosses, which is also the honest severity: the ticket is being\nre-taken, the code is not being rewritten.\n\nNOTHING IN THE TREE CHANGES ON THIS RETREAT. No source file is touched, no proof is re-run for\na different answer, no seal moves. The re-crossed BUILDME names only\ntest_the_instrument_is_run.py, which does cover the boat: the coverage rung's clause check\nalready passes on it alone (the two `proof_declares_the_ticket` entries were the ONLY lacks\nleft once the hollow evidence sealed), so all five falsifier clauses have teeth in that one\nproof and the neighbours were surplus the whole time.\n\nTHE FINDING WORTH KEEPING, and it is about the chart leg, not the builder: nothing at the\nPROVEME crossing tells a builder that `also_proven_by` is a COVERAGE claim rather than a record\nof what was run. The field name reads like the second thing. The gate catches it — four\ncrossings later, after a hollow seal and two refusals — which is the right place to catch it\nand an expensive place to learn it.",
-      "fingerprint": "5fb803f34e24cb55fc268105af9ba19c4fa3cb70f6458bc914643fa4c87bff4b",
-      "at": "2026-09-11T10:32:56",
-      "seq": 20
-    },
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket '8e5db5f3edb2', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME"
-            ],
             "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(the_instrument_is_re_run_not_reported) crossing",
+          "actual": "a cast ticket for the WATCHME(the_instrument_is_re_run_not_reported) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "8e5db5f3edb2",
+            "watch_object": "the_instrument_is_re_run_not_reported",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8e5db5f3edb2-the-verdict-door-runs-the-instrument-it-is-handed.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket '8e5db5f3edb2' carries a watchme spec for 'the_instrument_is_re_run_not_reported'",
+          "actual": "ticket '8e5db5f3edb2' carries a watchme spec for 'the_instrument_is_re_run_not_reported'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "8e5db5f3edb2",
+            "watch_object": "the_instrument_is_re_run_not_reported",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "8e5db5f3edb2",
+            "watch_object": "the_instrument_is_re_run_not_reported",
+            "berth": "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py",
+            "findings": []
           }
         },
         {
           "identity": "the_crossing_shows_its_ticket_or_its_exemption",
           "location": "cairn/tools/base/transitions.py",
           "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "expected": "a ticket named on the PROVED crossing, or 'codemother' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'codemother' on _EXEMPT_ROSTER",
           "fatality": "none",
           "source": "transitions.inspect_named_ticket",
           "values": {
-            "target": "BUILDME",
+            "target": "PROVED",
             "ticket": "8e5db5f3edb2",
             "component": "codemother",
             "exempt": false,
@@ -947,176 +1275,118 @@
           "fatality": "none",
           "source": "transitions.inspect_named_ticket",
           "values": {
-            "target": "BUILDME",
+            "target": "PROVED",
             "ticket": "8e5db5f3edb2",
             "looked_at": "/home/akien/dev/src/CairnCommons/tickets/8e5db5f3edb2-the-verdict-door-runs-the-instrument-it-is-handed.json"
           }
         },
         {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "identity": "the_claiming_chart_is_answered",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
+          "code": "transitions.py::inspect_exit",
           "expected": [],
           "actual": [],
           "fatality": "none",
-          "source": "transitions.inspect_entry",
+          "source": "transitions.inspect_exit",
           "values": {
             "findings": [],
             "ticket": "8e5db5f3edb2"
           }
         },
         {
-          "identity": "the_ticket_names_its_intent_firing",
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemother' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'codemother' is on _CLEARANCE_EXEMPT_ROSTER",
           "fatality": "none",
-          "source": "transitions.inspect_entry",
+          "source": "transitions.inspect_clearance",
           "values": {
-            "findings": [],
-            "ticket": "8e5db5f3edb2"
+            "target": "PROVED",
+            "component": "codemother",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
           }
         },
         {
-          "identity": "the_ticket_names_its_sorted_door_firing",
+          "identity": "the_witness_is_whole",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
           "fatality": "none",
-          "source": "transitions.inspect_entry",
+          "source": "transitions.inspect_clearance",
           "values": {
-            "findings": [],
-            "ticket": "8e5db5f3edb2"
-          }
-        }
-      ],
-      "checks_proved": 8,
-      "actor": "CC",
-      "ticket": "8e5db5f3edb2",
-      "note": "Re-crossed after the clearance gate kicked this build back for evidence that did not cover the boat. No source changed on the retreat; this crossing exists so the coverage union restarts here and names only the proof that covers the ticket. See the TICKETME retreat note for the full finding.",
-      "fingerprint": "373525f3765d7e220201168479861add092600b540670cab4d4419ae8b850c51",
-      "at": "2026-09-11T10:33:09",
-      "seq": 21
-    },
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the_instrument_is_re_run_not_reported) -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket '8e5db5f3edb2', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
             ]
           }
         },
         {
-          "identity": "the_crossing_moves_the_cursor",
+          "identity": "the_named_proof_stands_in_proven_space",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py stands in proven-space",
+          "actual": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py stands in proven-space",
           "fatality": "none",
-          "source": "transitions.inspect_rules",
+          "source": "transitions.inspect_clearance",
           "values": {
-            "target": "PROVEME",
-            "cursor": 2,
-            "resolved": 3
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME",
-          "actual": "BUILDME -> PROVEME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "legal_from_here": [
-              "DROPPED",
-              "PROVEME",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME"
+            "target": "PROVED",
+            "proof": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
+            "named": [
+              "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py"
             ],
-            "direction": "forward"
+            "why": ""
           }
         },
         {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "identity": "the_witness_agrees_with_the_seal_it_names",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py's seal at '2026-09-11T10:26:49'",
+          "actual": "the witness dates cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py's seal at '2026-09-11T10:26:49'",
           "fatality": "none",
-          "source": "transitions.inspect_entry",
+          "source": "transitions.inspect_clearance",
           "values": {
-            "findings": [],
-            "ticket": "8e5db5f3edb2"
+            "target": "PROVED",
+            "proof": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
+            "named": [
+              "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py"
+            ],
+            "seal": "2026-09-11T10:26:49",
+            "claimed": "2026-09-11T10:26:49"
           }
         },
         {
-          "identity": "the_ticket_names_its_intent_firing",
+          "identity": "demo_gate_binding_check",
           "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
+          "code": "transitions.py::_require_demo",
+          "expected": "ticket carries demo flag, or does not",
+          "actual": "ticket '8e5db5f3edb2' has no demo flag — gate does not fire",
+          "fatality": "closes the gate",
+          "source": "transitions._require_demo",
           "values": {
-            "findings": [],
-            "ticket": "8e5db5f3edb2"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
             "ticket": "8e5db5f3edb2"
           }
         }
       ],
-      "checks_proved": 6,
+      "checks_proved": 14,
+      "cleared_by": "CC",
       "actor": "CC",
-      "ticket": "8e5db5f3edb2",
       "proven_by": "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
-      "note": "Same evidence, named correctly this time: test_the_instrument_is_run.py alone, which declares a tooth for every one of the ticket's five falsifier clauses. test_chart_verdict.py and test_falsifier_verdict.py were run green as criterion 6's regression check and are NOT named here, because `also_proven_by` is read by the coverage rung as a claim that a proof covers this boat, and they do not.",
-      "fingerprint": "2d7424c888458c30055c44fb933a1696569e98a6f089f2e668cb1921c7b66920",
-      "at": "2026-09-11T10:33:09",
-      "seq": 22
+      "proven_seal_date": "2026-09-11T10:26:49",
+      "delegated": false,
+      "ticket": "8e5db5f3edb2",
+      "note": "THE DOOR NOW RUNS WHAT IT IS HANDED. write_verdict extracts a runnable command from each criterion's instrument or refuses BY NAME quoting the prose it could not run; runs it under a bound; reads the chart's own declared expect_exit ahead of the builder's answer; refuses a contradicted outcome in BOTH directions (a reported pass the re-run disagrees with, and a reported fail the re-run reproduces as passing); refuses a bound overrun as a TIMEOUT by that name; and stamps the command, exit and output tail into the artifact before the digest is taken, so the berth's filename still describes its contents.\n\nTHE ORDERING IS THE DISTINCTION WORTH KEEPING. The run entries fire BEFORE the coverage check, which costs a fork on an artifact that was going to be refused anyway. What it buys is that a builder can tell \"go fix the build\" (the coverage kick-back over a reported failure) from \"your report of a failure cannot be reproduced and the build may be fine\". Those two send a builder to opposite work, and Law 7 forbids a diagnostic surface collapsing them into one shape.\n\nTHREE FINDINGS AGAINST THE INSTRUMENTS, ALL FIXED INSIDE THE VOYAGE. The first hollow reading was teeth_that_ran_at_all: 0 because the proof from-imported three names the reverted verdict.py does not carry, so the module died at collection and nothing was attributable — the ticket's own defect one level up. The names now ride the module. The second was 0 again because the proof's __main__ ran pytest.main and printed dots, so the seal read teeth_green: [] — it now calls the shared print_teeth_main. The third was four RECORDS in the decompose berth's writes_to reading as hollow; records cannot be pinned by any proof, so hollow gained a SKIP_RECORD class (commit a562d76) under ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage. Measured through hollow's own resolver: 34 of 194 tickets (17%) carry a record in writes_to — a standing tax on honest charting, not this ticket's slip.\n\nCLOSE: all 8 validate criteria pass, run by the door itself (the live fire of this very build). hollow reads 2 measured, 0 hollow. determinism still reads the machine PURE DETERMINISTIC and REFUSES GATE.\n\nAND THE VOYAGE'S LAST FINDING IS ABOUT ITS OWN RECORD. The first run at this crossing was refused twice for naming test_chart_verdict.py and test_falsifier_verdict.py in `also_proven_by` — they were run green as criterion 6's regression check, but the coverage rung reads that field as a claim that a proof COVERS the boat, and neither does. Writing PROVES entries into them to get past the gate would have manufactured coverage, so the record was corrected instead: a retreat to TICKETME and a re-crossed BUILDME, which is the cut `crossings.proven_by_since_buildme` calls the whole of the kick-back protection. Nothing in the tree changed on the retreat. The finding worth keeping is that nothing at the PROVEME crossing tells a builder `also_proven_by` is a coverage claim rather than a log of what was run — the field name reads like the second thing, and the gate catches it four crossings later.",
+      "fingerprint": "db12869b3a54819d66f8cc51cbb7703f4d8e03e4dcd44aebe0caa6ad99606966",
+      "at": "2026-09-11T10:34:00",
+      "seq": 24
     }
   ],
-  "count": 23
+  "count": 25
 }

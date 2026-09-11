@@ -45,6 +45,15 @@ Teeth a hollow build could not pass:
   6. THE WATCH PROBE IS ARMED AND CAN FIRE. PROBE is a frozen Probe carrying a carry and an
      enough, it is quiet against the live decision, and it fires the moment the decision is
      reverted to the pre-build answer.
+  7. A SEAL CUT INSIDE A SEAL IS INHERITED AND STILL MEASURED. A sealing run started inside an
+     already-sealed namespace does not re-cut it — it takes the same bare probe in the namespace
+     it inherited. Added mid-voyage, because the stronger default made nested sandboxes the
+     ordinary case and they did not work: `--cap-add CAP_NET_ADMIN` came across from UU for a
+     Router Cairn never built and was the sole reason bwrap refused to start inside a seal.
+  8. THE STRONGER DEFAULT CHANGES ISOLATION, NOT VERDICT. One fixture proof read at `none` and at
+     `netns` comes back with the same verdict over the same teeth. This is the ticket's own WRONG
+     INTENT clause turned into a tooth: a netns run that reds for a reason unrelated to network
+     reach means the ticket bought a stronger default and spent it.
 
 Self-cleaning: every tooth writes into a throwaway temp component tree, so no real component's
 validations/ is touched. The teeth drive the REAL CLI over REAL fixtures rather than reading the
@@ -73,6 +82,18 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.tester import cli
 from cairn.devices.tester import validation_store as vs
 from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
+
+# WHICH TOOTH ANSWERS WHICH DONE-CLAUSE of ticket 481221f45884, read by
+# cairn.tools.proof_coverage without importing this module. One tooth per clause, and the
+# clause numbers are the ticket's own `(1) (2) (3)`, so a clause that gains a tooth here and
+# loses it in the falsifier reds rather than drifting quietly.
+PROVES = {
+    "481221f45884": {
+        "1": "test_a_first_seal_lands_sealed_not_open",
+        "2": "test_the_word_sealed_never_stands_over_an_open_record",
+        "3": "test_the_stronger_default_changes_isolation_not_verdict",
+    },
+}
 
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"
@@ -326,13 +347,58 @@ def test_a_seal_cut_inside_a_seal_is_inherited_and_still_measured():
             f"ticket was cast against")
 
 
+def test_the_stronger_default_changes_isolation_not_verdict() -> None:
+    """CLAUSE 3, and the tooth the nesting bug would have been caught by.
+
+    The ticket's third DONE clause says the six proofs that had no standing seal at cast still
+    reproduce under the stronger default — five green sealed, and launchers/proofs/test_bootstrap.py's
+    red is its own dependency tooth rather than the seal. That sentence names a POPULATION that no
+    longer exists: those six have since been sealed, so re-deriving "the six at cast" from today's
+    world is impossible and a tooth that tried would be measuring the calendar.
+
+    So the tooth asserts the INVARIANT the clause is made of, which is the thing that can still be
+    false tomorrow: RAISING THE DEFAULT MOVES THE ISOLATION AND NOTHING ELSE. One fixture proof, run
+    through the device's own door at `none` and then at `netns`, must come back with the same verdict
+    and the same teeth. A netns run that reds for a reason unrelated to network reach is exactly the
+    WRONG INTENT this ticket wrote down for itself — the ticket bought a stronger default and spent
+    it — and it is not hypothetical: on the day this was built, `--cap-add CAP_NET_ADMIN` made every
+    nested sandbox refuse to start, so proofs redded under the seal for a reason that had nothing to
+    do with the network. This tooth reds on that world and is quiet on this one.
+
+    `sink="none"` deliberately: the comparison is about the reading, and persisting two records for
+    one fixture proof would leave the second standing over the first for no reason.
+    """
+    from cairn.devices.tester.device import TesterDevice
+
+    dev = TesterDevice()
+    with tempfile.TemporaryDirectory() as tmp:
+        target = _tree(tmp, "test_reproduces") / "test_reproduces.py"
+        bare = dev.run_proof(str(target), sink="none", caller="481221f45884 clause 3",
+                             isolation="none", timeout=120)
+        under = dev.run_proof(str(target), sink="none", caller="481221f45884 clause 3",
+                              isolation="netns", timeout=120)
+
+    assert bare["verdict"] == "green", f"the fixture is not green bare — the tooth measures nothing: {bare}"
+    assert under["verdict"] == bare["verdict"], (
+        f"the same proof read {bare['verdict']!r} at isolation none and {under['verdict']!r} under "
+        f"the seal. The stronger default changed a VERDICT, which is the WRONG INTENT clause of "
+        f"ticket 481221f45884 in one line: the ticket bought a stronger default and spent it.\n"
+        f"under the seal: {under}")
+
+    bare_teeth = (bare.get("evidence") or {}).get("teeth_green")
+    under_teeth = (under.get("evidence") or {}).get("teeth_green")
+    assert under_teeth == bare_teeth, (
+        f"the seal changed which teeth ran: bare {bare_teeth!r}, under the seal {under_teeth!r}. "
+        f"Same verdict over a different set of teeth is a green that means something else.")
+
+
 def _main() -> int:
     # The roster is DERIVED from declaration order, never typed — a hand-kept list is a list a new
     # tooth can be left off, and the file prints the same triumphant line either way (the tester's
     # own charter, falsifier clause 9).
     checks = [v for k, v in globals().items() if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 7, (
-        f"the derived roster collapsed — the seven teeth of ticket 481221f45884: {len(checks)}")
+    assert len(checks) >= 8, (
+        f"the derived roster collapsed — the eight teeth of ticket 481221f45884: {len(checks)}")
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")

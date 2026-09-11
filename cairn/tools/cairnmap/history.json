@@ -795,5 +795,85 @@
     "fingerprint": "d32f6ade58c58ed5093c369fc464dc11dc0c45fb3e195fe6e6bbb51b5152da3f",
     "at": "2026-09-11T11:32:45",
     "seq": 2
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(the-roster-fault-is-one-finding) -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVEME moves the cursor off position 4",
+        "actual": "WATCHME -> PROVEME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 4,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVEME",
+        "actual": "WATCHME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "7aed0fd0ba29",
+    "actor": "CC",
+    "note": "RETREAT, and the reason is a finding about /sail rather than about this build. Neither the BUILDME->PROVEME nor the PROVEME->WATCHME crossing carried `proven_by`, so no crossing on this ticket named the proof that proves it. The clearance gate refused the PROVED crossing with two lacks — [proof_named] and [hollow_evidence_absent] — and `cairn test --hollow 7aed0fd0ba29 --seal` refused for the same root cause: 'no crossing on ticket 7aed0fd0ba29 names a proof, so there is no instrument to run against the reverted build'. The proof existed and was green and sealed the whole time; what was missing was the crossing SAYING SO. /sail's step 4 says to seal under the tester and never says to name the proof on the crossing, so the builder learns this by being refused at the last gate — which is where the cost is highest. Retreating to PROVEME to re-cross carrying the name is the honest repair: the record shows the voyage went back and said what proves it, rather than a hand writing evidence into a gate's input. Defect filed against /sail: `/sail never tells the builder to pass proven_by`.",
+    "fingerprint": "c8e491d68b40eac26d169c2685716179b655a9b5f03fb125170ef41c46447e16",
+    "at": "2026-09-11T11:35:05",
+    "seq": 3
   }
 ]

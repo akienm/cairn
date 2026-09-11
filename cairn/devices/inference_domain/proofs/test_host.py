@@ -104,6 +104,26 @@ class Transport:
 # sealed proof must never read. The routed walk has its own teeth below, on injected fixtures.
 _FIXTURE_ENDPOINT = "http://fixture-host:11434"
 
+# WHICH CLAUSE OF 548dd13fb4db'S FALSIFIER EACH TOOTH PROVES — read by proof_coverage and by
+# the hollow check, which fires each named tooth at a REVERTED build and demands a red.
+# The ticket states five DONE-when clauses plus a WRONG INTENT; this proof owns the three that
+# are about what crosses to the host. The cache-side clauses (b) and (e) are declared by
+# cairn/devices/inference_domain/proofs/test_inference_domain.py, which is where the canonical
+# digest and the agent lane actually live.
+#
+# (c) IS THE ONE THAT EARNS ITS KEEP. The inbound tool-call argument shape fails ONLY on the
+# second turn — OpenAI carries arguments as a JSON string, ollama wants an object — so a
+# one-shot test reads green over a door that cannot hold a conversation. Measured 2026-09-11 on
+# hex.local against qwen3-coder:30b before any of this was built.
+PROVES = {
+    "548dd13fb4db": {
+        "carries_a_toolset": "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
+        "second_turn": "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
+        "checked_not_exempted": "test_the_agent_shapes_are_CHECKED_not_exempted",
+    }
+}
+
+
 
 def _resolver(t, **kw):
     return host.ollama_resolver(model="llama3.2:1b", endpoint=_FIXTURE_ENDPOINT,

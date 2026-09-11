@@ -67,6 +67,23 @@ class _CountingResolver:
             "provenance": {"host": "fake-host", "call": self.calls},
         }
 
+# WHICH CLAUSE OF 548dd13fb4db'S FALSIFIER EACH TOOTH PROVES — the two cache-side clauses.
+# The host-side clauses are declared by cairn/devices/inference_domain/proofs/test_host.py.
+#
+# (b) is pinned rather than built: canonicalize() digests every request key but `domain`, so
+# `tools` entered the key the moment it became a request key. The tooth exists so a later
+# "harmless normalisation" that strips tools before hashing reds here instead of quietly
+# serving an answer computed under somebody else's toolset.
+# (e) is the clause the WATCHME probe watches in the wild — an agent re-asks a byte-identical
+# question ON PURPOSE, and serving that from the store is not a saved call, it is a hang.
+PROVES = {
+    "548dd13fb4db": {
+        "toolset_is_part_of_the_question": "test_a_differing_toolset_is_a_different_question",
+        "agent_retry_gets_a_fresh_sample": "test_an_agent_retry_gets_a_fresh_sample",
+    }
+}
+
+
 
 def test_compile_once_a_repeat_does_not_touch_the_host():
     r = _CountingResolver()

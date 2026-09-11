@@ -24,9 +24,24 @@ dependencies = [
 dev = [
   "pytest>=7",
   "wtree",
+  # cairn/devices/cairn/proofs/test_trouble_panel.py imports starlette.routing directly to
+  # assert the panel's route shape. A proof that imports an undeclared package is green only
+  # on a box that happens to have it, which is the same hypothesis-as-fact this file exists
+  # to end (see the psycopg2 note above).
+  "starlette",
 ]
 aider = [
   "aider-chat",
+]
+# THE WEB SERVER IS A DEVICE, SO ITS DEPENDENCIES ARE OPTIONAL, NOT CORE. A bare box that
+# never raises a pane should not be made to install an ASGI stack to bring the floor up —
+# that is the rescue ethos again. Measured 2026-09-10: cairn/devices/web_server/listener.py
+# imports starlette and uvicorn at module scope and neither was declared anywhere, so
+# launchers/proofs/test_bootstrap.py stood red and the device worked only by accident of
+# this host.
+web = [
+  "starlette",
+  "uvicorn",
 ]
 
 # `pip install -e .` stays green at all times (MAP.md spine). The import root is

@@ -54,6 +54,14 @@ def make_root():
     tmp = str(scratch_dir("falsifier_verdict_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
+    # THE PROBE'S SURVEY, AS A COMMAND (ticket 8e5db5f3edb2). A falsifier-form
+    # verdict has no validate berth to declare `expect_exit`, so the declaration
+    # rides the verdict entry — this script exits with whatever it is handed, which
+    # is what lets the fixture below prove the door reads the declaration instead
+    # of assuming zero.
+    os.makedirs(os.path.join(root, "probes"))
+    with open(os.path.join(root, "probes", "survey.sh"), "w") as fh:
+        fh.write("echo \"surveyed the corpus for clause ${1:-0}\"\nexit \"${1:-0}\"\n")
     tickets = os.path.join(tmp, "CairnCommons", "tickets")
     os.makedirs(tickets)
     with open(os.path.join(tickets, "watched.json"), "w") as fh:
@@ -89,8 +97,13 @@ def artifact_for(ticket, root, *, drop=(), fail=(), **extra):
     for i, c in enumerate(criteria):
         if i in drop:
             continue
+        # Clause (2) declares a NON-ZERO pass, deliberately: exit status is the
+        # INSTRUMENT's answer and not the CRITERION's, and a fixture whose every
+        # instrument exits 0 could not tell a read declaration from an assumed zero.
         verdicts.append({"claim": c["claim"],
-                         "instrument": "the probe's survey of the ticket corpus",
+                         "instrument": "the probe's survey of the ticket corpus: "
+                                       "`bash probes/survey.sh %d`" % (3 if i == 1 else 0),
+                         "expect_exit": 3 if i == 1 else 0,
                          "outcome": "fail" if i in fail else "pass",
                          "evidence": "measured %d of 57 tickets; clause held" % (i + 1),
                          "discriminating_observation": "re-ran against a corpus with "
@@ -135,7 +148,16 @@ def test_the_berth_round_trips(root, tickets):
     path = write_verdict(artifact_for("watched", root), instance_dir=berths, root=root)
     assert os.path.basename(path).startswith("verdict-")
     with open(path) as fh:
-        assert json.load(fh)["validate_ref"] == FALSIFIER_REF + "watched"
+        berthed = json.load(fh)
+    assert berthed["validate_ref"] == FALSIFIER_REF + "watched"
+    # ONE CONTRACT, STILL (the design's own clause 6): the run the door took for
+    # itself lands on a falsifier-form artifact exactly as it lands on a
+    # chart-sourced one — same key, same shape, no second schema for this form.
+    stamp = berthed["observed_runs"]
+    assert [o["run"]["exit"] for o in stamp] == [0, 3, 0]
+    assert [o["expect_exit"] for o in stamp] == [0, 3, 0], \
+        "with no validate berth to read, the declaration rides the verdict entry"
+    assert "surveyed the corpus for clause 3" in stamp[1]["run"]["tail"]
 
 
 # ------------------------------------------------------- the obligation is real

@@ -82,6 +82,16 @@ def make_root():
     tmp = str(scratch_dir("chart_verdict_proof_"))
     root = os.path.join(tmp, "repo")
     os.makedirs(os.path.join(root, "cairn"))
+    # TWO REAL INSTRUMENTS (ticket 8e5db5f3edb2). The door RUNS what it is handed,
+    # so a fixture whose instruments are prose exercises the refusal path and
+    # nothing else. These are the smallest honest commands: one exits 0, one exits
+    # 7, and the second is here so `expect_exit` is a DECLARATION the door reads
+    # rather than a zero it assumes.
+    os.makedirs(os.path.join(root, "proofs"))
+    for name, body in (("splitter.sh", "echo 'splitter: 2 runs, 0 red'\nexit 0\n"),
+                       ("phantom.sh", "echo 'phantom ref refused'\nexit 7\n")):
+        with open(os.path.join(root, "proofs", name), "w") as fh:
+            fh.write(body)
     tickets = os.path.join(tmp, "CairnCommons", "tickets")
     os.makedirs(tickets)
     with open(os.path.join(tickets, "sworn.json"), "w") as fh:
@@ -105,10 +115,12 @@ def make_root():
         json.dump({"ticket": "sworn", "hypothesize_ref": hyp,
                    "criteria": [
                        {"claim": "the splitter is green twice",
-                        "instrument": "python3 proofs/test_splitter.py, twice",
+                        "instrument": "the splitter's teeth, twice: `bash proofs/splitter.sh`",
+                        "expect_exit": 0,
                         "covers": ["build the alpha splitter"]},
                        {"claim": "the door refuses the phantom",
-                        "instrument": "the door's own gate",
+                        "instrument": "bash proofs/phantom.sh",
+                        "expect_exit": 7,
                         "covers": ["compose the settled machinery"]}]}, fh)
     return root, berths, val
 
@@ -139,11 +151,11 @@ def good_artifact(val):
         "validate_ref": val,
         "verdicts": [
             {"claim": "the splitter is green twice",
-             "instrument": "python3 proofs/test_splitter.py, twice",
+             "instrument": "the splitter's teeth, twice: `bash proofs/splitter.sh`",
              "outcome": "pass", "evidence": "exit 0 on both runs",
              "discriminating_observation": "reverted the fix; the same instrument exits 1"},
             {"claim": "the door refuses the phantom",
-             "instrument": "the door's own gate",
+             "instrument": "bash proofs/phantom.sh",
              "outcome": "pass", "evidence": "VerdictRefused raised, tree untouched",
              "discriminating_observation": "removed the ref check; the phantom berths"},
         ],
@@ -248,7 +260,20 @@ def test_the_berth_lands_and_the_door_holds(root, berths, val):
     path = write_verdict(a, instance_dir=berth_dir, root=root)
     assert os.path.basename(path).startswith("verdict-")
     with open(path) as fh:
-        assert json.load(fh) == a, "the berthed artifact round-trips whole"
+        berthed = json.load(fh)
+    # WHAT THE DOOR OBSERVED LANDS IN THE RECORD (ticket 8e5db5f3edb2 clause 5).
+    # The artifact round-trips whole and carries one key more than it was handed:
+    # the run the door took for itself, so a reader who doubts the verdict can
+    # re-run the very string the door ran instead of taking its word.
+    stamp = berthed.pop("observed_runs")
+    assert berthed == a, "the berthed artifact round-trips whole"
+    assert [o["run"]["command"] for o in stamp] == ["bash proofs/splitter.sh",
+                                                    "bash proofs/phantom.sh"]
+    assert [o["run"]["exit"] for o in stamp] == [0, 7]
+    assert [o["expect_exit"] for o in stamp] == [0, 7], \
+        "expect_exit is READ from the validate berth, not assumed to be zero"
+    assert "phantom ref refused" in stamp[1]["run"]["tail"], \
+        "the output tail lands beside the exit, or a reader has a verdict and no evidence"
     expect_refusal(lambda: write_verdict(dict(a, verdicts=[]),
                                          instance_dir=berth_dir, root=root),
                    "not yet answered")
@@ -459,13 +484,18 @@ def test_a_failed_deposit_stands_pending_and_is_named(root, berths, val):
 # — so the tooth is a golden string over FIXTURE data (never live data: a snapshot of
 # something that legitimately moves is a spurious red waiting to happen). If a renderer
 # change is intended, this literal changes in the same commit and says so.
+# CHANGED 2026-09-11 IN THE SAME COMMIT AS THE RENDERER'S INPUT, which is what the
+# paragraph above asks for: ticket 8e5db5f3edb2 made the door RUN the instrument it is
+# handed, so the fixture's two instruments became real commands. The renderer itself was
+# not touched — it is a pure join over the same parts — and the diff between the two
+# literals is exactly the two instrument strings and nothing else.
 _GOLDEN_WHOLE = (
     "VERDICT for ticket sworn — the chart answered at PROVED. CRITERIA: the splitter "
-    "is green twice -> pass [by python3 proofs/test_splitter.py, twice: exit 0 on both "
-    "runs]; the door refuses the phantom -> pass [by the door's own gate: "
-    "VerdictRefused raised, tree untouched]. HYPOTHESES: CONFIRMED: build the alpha "
-    "splitter — decided by: exit 0 on both runs; KILLED: compose the settled machinery "
-    "— decided by: the phantom berthed on run one"
+    "is green twice -> pass [by the splitter's teeth, twice: `bash proofs/splitter.sh`: "
+    "exit 0 on both runs]; the door refuses the phantom -> pass [by bash "
+    "proofs/phantom.sh: VerdictRefused raised, tree untouched]. HYPOTHESES: CONFIRMED: "
+    "build the alpha splitter — decided by: exit 0 on both runs; KILLED: compose the "
+    "settled machinery — decided by: the phantom berthed on run one"
 )
 
 
@@ -738,7 +768,14 @@ def test_import_allowlist_tree_free(root, berths, val):
     # resolution functions (claiming_packets, chain_for_ticket, verdict_error
     # et al.) factored from verdict.py to the chain tool. Still tree-free:
     # chain.py reads berth files, no db or embed host.
-    allow = ("__future__", "hashlib", "json", "os", "re", "time",
+    # shlex/shutil/subprocess joined 2026-09-11 (ticket 8e5db5f3edb2): the door RUNS
+    # the instrument it is handed. All three are stdlib and none reaches a tree, the
+    # db or the embed host — the tree-free claim is untouched, and so is the PURE
+    # DETERMINISTIC grade: `cairn determinism` excludes subprocess from its oracle
+    # walk by name (determinism.py:156) under Akien's ruling that deterministic code
+    # may call other scripts. A run is a fork, never an ask.
+    allow = ("__future__", "hashlib", "json", "os", "re", "shlex", "shutil",
+             "subprocess", "time",
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.tools.gate.gate")
     assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \

@@ -350,4 +350,11 @@ def test_the_probe_is_armed_and_can_be_made_to_fire(world):
 
 
 if __name__ == "__main__":
-    raise SystemExit(pytest.main([__file__, "-q"]))
+    # THE SHARED PRINTER, not ``pytest.main([__file__, "-q"])`` — which is the near miss
+    # ``print_teeth_main``'s own docstring names: it runs every tooth honestly and prints
+    # dots, so the seal records ``teeth_green: []`` and no clause can be declared against
+    # it. Measured on this voyage: `cairn test --hollow` read `teeth_that_ran_at_all: 0`
+    # off this file and could attribute nothing, for exactly that reason.
+    from cairn.tools.proof_coverage import print_teeth_main
+
+    raise SystemExit(print_teeth_main(__file__))

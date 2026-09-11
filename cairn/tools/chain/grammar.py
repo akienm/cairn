@@ -233,11 +233,43 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
         return True
     candidate = os.path.expanduser(ref)
     if os.path.isabs(candidate):
-        return os.path.exists(candidate)
+        # An absolute ref falls THROUGH to the ticket-by-id fallback below rather than
+        # returning here: a berthed packet cites a ticket by absolute path more often
+        # than not, and that is exactly the citation a retitling breaks.
+        return os.path.exists(candidate) or _ticket_ref_resolves_by_id(candidate, root)
     if os.path.exists(os.path.join(root, ref)):
         return True
     commons = os.path.join(os.path.dirname(root), "CairnCommons")
-    return os.path.exists(os.path.join(commons, ref))
+    if os.path.exists(os.path.join(commons, ref)):
+        return True
+    return _ticket_ref_resolves_by_id(ref, root)
+
+
+def _ticket_ref_resolves_by_id(ref: str, root: str) -> bool:
+    """A REF AT A TICKET'S OLD FILENAME STILL RESOLVES, BY ID.
+
+    A ticket file is ``<12-hex id>-<slug>.json`` and only the id is stable: the slug is
+    the title, and a title changes whenever the work is rescoped. Measured on voyage
+    548dd13fb4db, 2026-09-11 — Akien's mid-voyage correction moved the OpenAI envelope
+    out of inference_domain, the ticket was retitled from ``-speaks-a-second-wire-format``
+    to ``-carries-a-tool-using-conversation``, and every berthed packet that had cited the
+    ticket BY PATH went unresolvable in the same act. ``constraint_traces`` then read those
+    berthed constraints as FABRICATED ATTRIBUTION — the 2026-07-26 class, a bound citing
+    nothing — when the bound cited a real ticket that had merely been renamed.
+
+    A berthed packet is a record of truth and may not be rewritten to satisfy a rule
+    invented afterwards (Law 7), so the repair belongs HERE, in resolution, not there. The
+    id is what the citation always meant; the slug was never the referent.
+
+    Deliberately narrow: only a ``tickets/`` path whose basename opens with a hex id, and
+    only after every literal path check above has already failed. A ref that resolves
+    literally never reaches this, so nothing that worked before can be answered differently.
+    """
+    base = os.path.basename(ref)
+    if not base.endswith(".json") or os.path.basename(os.path.dirname(ref)) != "tickets":
+        return False
+    head = base[: -len(".json")].split("-", 1)[0]
+    return bool(_HEX_ID_RE.match(head)) and ticket_path(head, root) is not None
 
 
 def ticket_path(claim, root: str = CAIRN_ROOT, tickets_dir: str | None = None) -> str | None:

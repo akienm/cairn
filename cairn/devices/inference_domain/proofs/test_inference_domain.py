@@ -42,7 +42,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
-from cairn.devices.inference_domain import domain
+from cairn.devices.inference_domain import domain, host
 
 # Ephemeral table + a per-run tag on every canonical, so cleanup is exact and re-runs never collide.
 _NONCE = f"{os.getpid()}_{datetime.now(timezone.utc).strftime('%H%M%S%f')}"
@@ -574,6 +574,55 @@ def test_the_verdict_constraint_exists_on_the_table():
         conn.close()
 
 
+def test_a_differing_toolset_is_a_different_question():
+    """The toolset is CONTENT, not dressing — the same turns under different tools can call for
+    a different answer, so they must not share a cache entry.
+
+    This holds BY CONSTRUCTION rather than by anything built for it: canonicalize() digests every
+    request key but `domain`, so `tools` entered the key the moment it became a request key. The
+    tooth PINS the property so a later "optimisation" that strips tools before hashing — which
+    would look like a harmless normalisation — reds here instead of silently serving an answer
+    computed under somebody else's toolset."""
+    turns = [{"role": "user", "content": f"toolset_{_NONCE}"}]
+    tools_a = [{"type": "function", "function": {"name": "alpha"}}]
+    tools_b = [{"type": "function", "function": {"name": "beta"}}]
+    r = _CountingResolver()
+
+    domain.resolve({"kind": "chat", "messages": turns, "tools": tools_a},
+                   resolver=r, table=_TABLE)
+    assert r.calls == 1, "the first ask is a miss"
+    domain.resolve({"kind": "chat", "messages": turns, "tools": tools_b},
+                   resolver=r, table=_TABLE)
+    assert r.calls == 2, "the SAME turns under a DIFFERENT toolset are a different question"
+    again = domain.resolve({"kind": "chat", "messages": turns, "tools": tools_a},
+                           resolver=r, table=_TABLE)
+    assert again["hit"] is True and r.calls == 2, \
+        "and the first toolset is still its own question — a hit, not a third call"
+
+
+def test_an_agent_retry_gets_a_fresh_sample():
+    """THE AGENT LANE, end to end through the real domain (ticket 548dd13fb4db).
+
+    An agent re-asks a byte-identical question ON PURPOSE — turn N+1 carries turn N plus the tool
+    result, and a stalled loop re-sends a prefix it has sent before. Serving that from the cache
+    is not a saved call, it is a HANG: the agent gets back the identical tool_calls, runs the
+    identical tool, appends the identical result, and asks again forever. So a resolver built for
+    the agent lane returns host.EXPIRED and every lookup misses by construction.
+
+    Asserted against the REAL constant, not a hand-rolled past timestamp, because the constant is
+    the thing that can rot: if EXPIRED ever stopped parsing, _valid would read it as no-expiry and
+    this lane would silently become the permanent cache it exists to avoid."""
+    r = _CountingResolver(horizon=host.EXPIRED)
+    tag = {"kind": "chat", "messages": [{"role": "user", "content": f"agent_{_NONCE}"}]}
+
+    first = domain.resolve(dict(tag), resolver=r, table=_TABLE)
+    assert first["hit"] is False and r.calls == 1, "the first ask is a miss"
+    second = domain.resolve(dict(tag), resolver=r, table=_TABLE)
+    assert second["hit"] is False, \
+        "a byte-identical retry in the agent lane must NOT be served from the store"
+    assert r.calls == 2, "the agent lane re-resolves — a replayed tool_call is how the loop hangs"
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -604,6 +653,8 @@ def _main() -> int:
         test_the_ticket_comes_back_whole,
         test_an_out_of_vocabulary_verdict_is_refused_at_the_database,
         test_the_verdict_constraint_exists_on_the_table,
+        test_a_differing_toolset_is_a_different_question,
+        test_an_agent_retry_gets_a_fresh_sample,
     ]
     try:
         for check in checks:

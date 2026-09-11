@@ -657,6 +657,192 @@ def test_a_response_carrying_no_done_key_at_all_is_left_alone():
     assert out["cost"] == 9, f"and meters its own prompt_eval_count: {out['cost']}"
 
 
+# ---------------------------------------------------------------------------------------------
+# A TOOL-USING CONVERSATION (ticket 548dd13fb4db). The teeth below are the ones a ONE-SHOT test
+# cannot have: the defect they were written against appears only on the SECOND turn, which is
+# exactly why the live spike read green and the agent loop did not.
+# ---------------------------------------------------------------------------------------------
+
+# The toolset as hermes actually sends it (measured 2026-09-11: 25 of these ride every request;
+# one is enough to prove the crossing, and the shape is the OpenAI function schema verbatim).
+_A_TOOLSET = [{
+    "type": "function",
+    "function": {
+        "name": "terminal",
+        "description": "Run a shell command",
+        "parameters": {"type": "object",
+                       "properties": {"command": {"type": "string"}},
+                       "required": ["command"]},
+    },
+}]
+
+# A REAL tool-calling response shape: the content is EMPTY because the calls are the content.
+_REAL_TOOL_CALL = {
+    "model": "qwen3-coder:30b", "created_at": "2026-09-11T00:00:00.000000Z",
+    "message": {"role": "assistant", "content": "",
+                "tool_calls": [{"function": {"name": "terminal",
+                                             "arguments": {"command": "hostname"}}}]},
+    "done": True, "done_reason": "stop",
+    "prompt_eval_count": 1200, "eval_count": 30,
+}
+
+# The SECOND turn's request: what an agent sends back after running the tool. These three turns
+# are the shape validated_messages used to refuse outright.
+_A_TOOL_USING_CONVERSATION = [
+    {"role": "user", "content": "what host am I on?"},
+    {"role": "assistant", "content": "",
+     "tool_calls": [{"id": "call_1",
+                     "function": {"name": "terminal", "arguments": {"command": "hostname"}}}]},
+    {"role": "tool", "tool_call_id": "call_1", "content": "akiendelllinux"},
+]
+
+
+def test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical():
+    """Both halves in one tooth, because the risk is a pair: carrying the toolset is the
+    feature, and NOT perturbing the toolless payload is what keeps every existing chat caller
+    asking the same question. An unconditional `tools` key would pass the first half and
+    silently fork the cache for everyone else (canonicalize digests every request key)."""
+    t = Transport(_REAL_CHAT)
+    _resolver(t)({"kind": "chat", "messages": _A_TURN, "tools": _A_TOOLSET})
+    body = t.bodies[-1]
+    assert body["tools"] == _A_TOOLSET, f"the toolset must cross to the host verbatim: {body}"
+    assert sorted(body) == ["messages", "model", "options", "stream", "tools"], \
+        f"a tool-carrying chat body carries the toolset and nothing invented: {sorted(body)}"
+
+    t2 = Transport(_REAL_CHAT)
+    _resolver(t2)({"kind": "chat", "messages": _A_TURN})
+    assert "tools" not in t2.bodies[-1], \
+        f"a chat WITHOUT a toolset must send no 'tools' key at all — an empty one is a " \
+        f"different question to canonicalize(): {t2.bodies[-1]}"
+
+
+def test_the_answer_lifts_tool_calls_out_of_the_hosts_message():
+    """The calls must reach the caller ON THE ANSWER, because the answer is what resolve()
+    STORES and what a cache hit replays. Anything left only in the raw body is dropped forever
+    on every hit — and absent (not empty) on a plain chat, so stored answers keep their shape."""
+    t = Transport(_REAL_TOOL_CALL)
+    out = _resolver(t)({"kind": "chat", "messages": _A_TURN, "tools": _A_TOOLSET})
+    assert out["answer"]["tool_calls"] == _REAL_TOOL_CALL["message"]["tool_calls"], \
+        f"the host's tool_calls must be lifted onto the answer: {out['answer']}"
+    assert out["answer"]["text"] == "", "a tool-calling turn has empty text, and that is not an error"
+    assert out["cost"] == 1200 + 30, "a tool-calling answer is metered like any other"
+
+    plain = _resolver(Transport(_REAL_CHAT))({"kind": "chat", "messages": _A_TURN})
+    assert "tool_calls" not in plain["answer"], \
+        f"a plain chat answer must not grow an empty tool_calls key: {plain['answer']}"
+
+
+def test_the_second_turn_of_a_tool_using_conversation_reaches_the_host():
+    """THE TOOTH THE ONE-SHOT GREEN COULD NOT HAVE. Measured 2026-09-11: the first turn of a
+    hermes conversation succeeded against hex.local and the second failed, because the door
+    refused the two turns an agent appends — the assistant turn whose content is empty (its
+    tool_calls ARE its content) and the tool-result turn. A proof that sends one user turn
+    reads green through exactly that defect, which is why this sends THREE."""
+    t = Transport(_REAL_CHAT)
+    _resolver(t)({"kind": "chat", "messages": _A_TOOL_USING_CONVERSATION, "tools": _A_TOOLSET})
+    sent = t.bodies[-1]["messages"]
+    assert sent == _A_TOOL_USING_CONVERSATION, \
+        f"all three turns of a tool-using conversation must cross verbatim: {sent}"
+    assert len(sent) == 3 and sent[1]["content"] == "" and sent[2]["role"] == "tool", \
+        "the empty-content assistant turn and the tool-result turn are the two that used to be refused"
+
+
+def test_the_agent_shapes_are_CHECKED_not_exempted():
+    """The gate-health ruling made physics (Akien, 2026-09-11: when a gate reads a component's
+    health and that health is the work, "the answer is a second checkable shape, never an
+    exemption"). THIS is the tooth that tells the two apart: an exemption can only let things
+    THROUGH, so if the new shapes were a hole, every case below would sail past. Each must be
+    refused, and refused BEFORE the host is dialed."""
+    malformed = [
+        ({"role": "tool", "content": "out"},
+         "a tool result with no tool_call_id — the model cannot tell which call it answers"),
+        ({"role": "user", "tool_call_id": "c1", "content": "out"},
+         "a tool result whose role is not 'tool' pairs a result with the wrong speaker"),
+        ({"role": "tool", "tool_call_id": "c1", "content": {"not": "a string"}},
+         "a tool result whose content is a dict would reach the model through somebody's repr()"),
+        ({"role": "user", "content": "",
+          "tool_calls": [{"function": {"name": "t", "arguments": {}}}]},
+         "only an assistant turn calls tools"),
+        ({"role": "assistant", "content": "", "tool_calls": []},
+         "an assistant turn with empty content and no calls says nothing at all"),
+        ({"role": "assistant", "content": "", "tool_calls": [{"function": {"arguments": {}}}]},
+         "a tool call with no function name"),
+        ({"role": "assistant", "content": "", "tool_calls": [{"function": {"name": "t"}}]},
+         "a tool call whose arguments are missing entirely"),
+    ]
+    for turn, because in malformed:
+        t = Transport(_REAL_CHAT)
+        _refuses(lambda t=t, turn=turn: _resolver(t)({"kind": "chat", "messages": [turn]}),
+                 host.BadRequest, because=because)
+        assert t.urls == [], \
+            f"a malformed agent turn must never reach the host ({because}): {t.urls}"
+
+
+def test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door():
+    """The measured cross-format defect, turned into a LOUD refusal instead of a confusing one.
+
+    OpenAI carries tool-call arguments as a JSON STRING; ollama wants an object and answers a
+    string with a complaint about a missing closing brace — after ~18s of cold model load, from
+    somebody else's process, on the second turn only. Refusing here costs nothing and names the
+    owner of the fix: the shim that speaks the wire format owes the json.loads(), not this door.
+
+    THE REFUSAL IS CHECKED BY ITS REASON, NOT MERELY BY ITS OCCURRENCE — and that is not
+    fastidiousness, it is a measured correction. Written the obvious way (assert it raises
+    BadRequest) this tooth read GREEN against the pre-build code, because the OLD door happened
+    to refuse the same turn for an unrelated reason: the assistant's content was empty. A tooth
+    that cannot tell "caught the string arguments" from "tripped over empty content" is a
+    coin-toss green, and it would have gone on reading green if this branch were deleted."""
+    t = Transport(_REAL_CHAT)
+    string_args = [{"role": "assistant", "content": "",
+                    "tool_calls": [{"function": {"name": "terminal",
+                                                 "arguments": '{"command": "hostname"}'}}]}]
+    try:
+        _resolver(t)({"kind": "chat", "messages": string_args})
+        raise AssertionError(
+            "NO REFUSAL AT ALL — tool-call arguments arriving as a JSON string are the OpenAI "
+            "wire shape, and forwarding them buys a confusing host error 18 seconds later")
+    except host.BadRequest as e:
+        said = str(e).lower()
+        assert "arguments" in said and "string" in said, (
+            "THE REFUSAL FIRED FOR THE WRONG REASON. It must name the ARGUMENTS as the defect; "
+            "refusing this turn over its empty content would read identical here while the "
+            f"string-argument branch was missing entirely. Got: {e}")
+    assert t.urls == [], "the string-argument refusal must happen before the host is dialed"
+
+
+def test_the_horizon_is_a_construction_policy_and_never_touches_the_request():
+    """The agent lane, and the reason it is a FACTORY keyword. A request key would enter
+    canonicalize() and fork the cache so the chat and agent callers stopped sharing answers they
+    should share; out-of-band, both lanes ask the same question and only the KEEPING differs."""
+    default = _resolver(Transport(_REAL_CHAT))({"kind": "chat", "messages": _A_TURN})
+    assert default["horizon"] == "", "the default stays no-expiry: a temperature-0 answer does not rot"
+
+    agent = _resolver(Transport(_REAL_CHAT), horizon=host.EXPIRED)(
+        {"kind": "chat", "messages": _A_TURN})
+    assert agent["horizon"] == host.EXPIRED, \
+        f"an agent-lane resolver returns the expired horizon it was built with: {agent['horizon']}"
+
+    # And the request dict is left alone — the canonical key cannot have been perturbed.
+    request = {"kind": "chat", "messages": _A_TURN}
+    before = json.dumps(request, sort_keys=True)
+    _resolver(Transport(_REAL_CHAT), horizon=host.EXPIRED)(request)
+    assert json.dumps(request, sort_keys=True) == before, \
+        "the horizon policy must not write itself into the request — that would fork the cache"
+
+
+def test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite():
+    """A constant worth a tooth, because getting it wrong FAILS OPEN AND SILENTLY. domain._valid
+    treats an unparseable horizon as no-expiry (deliberately — a bad shape should not discard a
+    stored answer), so a word like "expired" would cache FOREVER for the one caller who needs no
+    caching at all. This asserts the constant against the real reader, not against its name."""
+    from datetime import datetime, timezone
+    from cairn.devices.inference_domain import domain
+    now = datetime.now(timezone.utc)
+    assert domain._valid({"horizon": host.EXPIRED}, now) is False, \
+        f"EXPIRED must read as EXPIRED to the real validator, not merely look expired: {host.EXPIRED}"
+    assert domain._valid({"horizon": ""}, now) is True, "the default horizon still means no expiry"
+
+
 def _main() -> int:
     checks = [
         test_an_unmetered_response_is_refused_not_metered_as_zero,
@@ -688,6 +874,13 @@ def _main() -> int:
         test_a_malformed_messages_list_never_reaches_the_host,
         test_the_chat_walk_obeys_the_domains_escalation_rule,
         test_the_shipped_models_stack_declares_the_chat_verb,
+        test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical,
+        test_the_answer_lifts_tool_calls_out_of_the_hosts_message,
+        test_the_second_turn_of_a_tool_using_conversation_reaches_the_host,
+        test_the_agent_shapes_are_CHECKED_not_exempted,
+        test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door,
+        test_the_horizon_is_a_construction_policy_and_never_touches_the_request,
+        test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite,
         test_a_non_final_answer_is_refused_by_its_own_name,
         test_a_response_carrying_no_done_key_at_all_is_left_alone,
     ]

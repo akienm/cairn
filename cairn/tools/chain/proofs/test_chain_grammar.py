@@ -22,6 +22,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from cairn.tools.chain.grammar import (component_of, identity_lack,  # noqa: E402
                                        ref_exists, ticket_path, ticket_spellings)
+from cairn.tools.chain.grammar import _HEX_ID_RE
+
+# The live commons, because this tooth's subject is what happens to a REAL ticket when it
+# is retitled — a synthetic root has no tickets/ for a renamed citation to miss.
+from cairn.tools.chain.grammar import CAIRN_ROOT as _CR
+TICKETS = os.path.join(os.path.dirname(_CR), "CairnCommons", "tickets")
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
 GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "grammar.py"))
@@ -242,6 +248,43 @@ def test_component_of_reads_a_path_the_orient_floor_would_author(root):
         assert component_of(junk, root) is None, \
             "a non-ref answers None rather than raising — the floor loops over " \
             "whatever a packet carried, and a crash there is a dead stage"
+
+def test_a_ref_at_a_tickets_OLD_filename_still_resolves_by_id(root):
+    """A RETITLED TICKET DOES NOT FABRICATE ITS OWN CITATIONS.
+
+    A ticket file is ``<12-hex id>-<slug>.json``, and only the id is stable — the slug
+    is the title, and a title changes whenever work is rescoped. Measured on voyage
+    548dd13fb4db (2026-09-11): Akien's mid-voyage correction retitled the ticket, and in
+    the same act every berthed packet that had cited it BY PATH stopped resolving.
+    ``constraint_traces`` then read those berthed constraints as fabricated attribution —
+    a bound citing nothing — when the bound cited a real ticket someone had renamed.
+
+    The berthed packet is a record of truth and may not be rewritten (Law 7), so the
+    repair lives in resolution. This tooth pins BOTH halves: the old spelling resolves,
+    and the narrowness that keeps it from resolving anything else.
+    """
+    live = [f for f in os.listdir(TICKETS) if _HEX_ID_RE.match(f.split("-", 1)[0])]
+    assert live, "no filed ticket to measure against"
+    real = os.path.join(TICKETS, sorted(live)[0])
+    tid = os.path.basename(real).split("-", 1)[0]
+    assert ref_exists(real), "the ticket's CURRENT path must resolve literally"
+
+    renamed = os.path.join(TICKETS, tid + "-a-title-this-ticket-has-never-carried.json")
+    assert not os.path.exists(renamed), "the fixture path must not actually exist"
+    assert ref_exists(renamed), \
+        "a ref at a ticket's old filename must still resolve — the id is what the " \
+        "citation always meant, and the slug was never the referent"
+
+    assert not ref_exists(os.path.join(TICKETS, "ffffffffffff-no-such-ticket.json")), \
+        "AN UNFILED ID MUST STILL REFUSE. If any hex-looking name resolved, the " \
+        "fallback would certify fabricated attribution instead of catching it"
+    assert not ref_exists(os.path.join(TICKETS, "not-a-hex-id-at-all.json")), \
+        "a non-hex stem is not a ticket id and gets no fallback"
+    assert not ref_exists(os.path.join(os.path.dirname(TICKETS), "decisions",
+                                       tid + "-somewhere-else.json")), \
+        "THE NARROWNESS: the fallback fires only for a path under tickets/. A real id " \
+        "under another directory names a file that does not exist, and must say so"
+
 
 def test_import_allowlist(root):
     """The rung holds: stdlib plus the two tools the grammar composes, and nothing

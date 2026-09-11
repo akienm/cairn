@@ -29,14 +29,28 @@ TWO THINGS MEASURED AGAINST THE LIVE HOST, 2026-07-26 (both changed the design):
 
 HORIZON AND FALSIFIER. A time horizon on a temperature-0 completion is superstition: nothing
 about the answer rots as the clock moves. What DOES invalidate it is the model changing under
-us. So the horizon is left empty (no expiry, the domain's documented '' case) and the falsifier
-carries the model's DIGEST in a mechanically-checkable form — ``model_digest == sha256:...``,
+us. So the horizon DEFAULTS to empty (no expiry, the domain's documented '' case) and the
+falsifier carries the model's DIGEST in a mechanically-checkable form — ``model_digest == sha256:...``,
 answerable by one ``/api/tags`` read. Charter edge (c) says VERIFY checks the horizon only and
 the falsifier is carried for T1.4; this makes that edge cheap to close later instead of leaving
 prose in the column. Sampling is pinned to temperature 0 by default for the same reason: caching
 a nondeterministic call quietly changes what the cache MEANS (a stand-in for a fresh call
 becomes a stand-in for one particular roll), and the request's options are canonicalized with
 it, so a caller who wants sampling gets a different question, not a corrupted answer.
+
+THE AGENT LANE — why the horizon became a POLICY instead of a constant. Everything above holds
+for a question asked once. An AGENT asks the same question repeatedly ON PURPOSE: turn N+1
+carries turn N's messages plus the tool result, and a loop that stalls re-sends a prefix it has
+sent before. Replaying a cached answer there is not a saved call, it is a HANG — the agent gets
+back the identical ``tool_calls``, runs the identical tool, appends the identical result, and
+asks again forever. The cache would be manufacturing the loop it appears to be optimising.
+
+So a caller building a resolver for an agent passes ``horizon=EXPIRED`` and every lookup misses
+by construction. This is a CONSTRUCTION-time keyword on the factory, never a request key, and
+that placement is the whole point: a request key would enter ``canonicalize()`` (which digests
+every key but ``domain``) and silently FORK THE CACHE, so the chat callers and the agent callers
+would stop sharing answers they should share. Out-of-band, the two lanes ask the same question
+and only the keeping differs.
 
 Dependency-light on purpose: stdlib ``urllib`` only, no client library, and the HTTP call is
 itself an injected ``transport`` so the code-seam proofs run with no host present.
@@ -191,9 +205,26 @@ def validated_messages(request: dict) -> list:
     cold qwen3-coder:30b load is ~18s (measured 2026-08-16), so a malformed request that
     reaches the host is not a wasted round trip, it is a wasted eighteen seconds.
 
-    Every entry needs BOTH a role and a content string. A turn missing one is the shape ollama
-    accepts and answers strangely rather than rejecting, which would make the defect surface as
-    a bad answer instead of as an error (Law 7 — loud at the diagnostic surface).
+    TWO SHAPES, BOTH CHECKED HARD — never one shape plus an exemption. A plain chat turn needs
+    BOTH a role and a non-empty content string; a turn missing one is the shape ollama accepts
+    and answers strangely rather than rejecting, which would make the defect surface as a bad
+    answer instead of as an error (Law 7 — loud at the diagnostic surface).
+
+    A TOOL-USING conversation is made of two turns that shape cannot describe, and the answer
+    is a second checkable shape rather than a hole (Akien's ruling 2026-09-11, when a gate
+    reads a component's health and that health is the work: *"the answer is a second checkable
+    shape, never an exemption"*). An ASSISTANT turn may carry ``tool_calls`` instead of content
+    — the calls ARE its content — and a TOOL turn carries the ``tool_call_id`` it answers. Each
+    branch refuses its own malformations, which is exactly what distinguishes this from an
+    exemption: an exemption can only let things through, and these branches turn things away.
+
+    ARGUMENTS ARRIVE AS AN OBJECT, NEVER AS A JSON STRING, and the refusal says so by name.
+    The OpenAI wire format carries tool-call arguments as a string; ollama's /api/chat wants an
+    object and answers a string with "Value looks like object, but can't find closing '}'
+    symbol" (measured 2026-09-11 against hex.local qwen3-coder:30b, and only on the SECOND turn
+    of a conversation — a one-shot test never sees it). That translation is the SHIM's debt, not
+    this door's: refusing here costs nothing, while passing it through costs ~18s of cold model
+    load to reach a confusing error from somebody else's process.
     """
     messages = request.get("messages")
     if not isinstance(messages, list) or not messages:
@@ -204,13 +235,94 @@ def validated_messages(request: dict) -> list:
             raise BadRequest(
                 f"messages[{i}] must be a dict with 'role' and 'content', "
                 f"got {type(turn).__name__}")
-        lacking = [k for k in ("role", "content")
-                   if not isinstance(turn.get(k), str) or not turn[k].strip()]
-        if lacking:
+        role = turn.get("role")
+        if not isinstance(role, str) or not role.strip():
             raise BadRequest(
-                f"messages[{i}] lacks a non-empty {' and '.join(repr(k) for k in lacking)} "
-                f"(carried {sorted(turn)})")
+                f"messages[{i}] lacks a non-empty 'role' (carried {sorted(turn)})")
+        # Which shape a turn DECLARES decides which shape it is checked against. Declaring is
+        # carrying the key or the role, so a turn cannot slip between the branches: anything
+        # that names neither falls to the chat branch and meets its full teeth.
+        if role == "tool" or "tool_call_id" in turn:
+            _validated_tool_result(i, turn)
+        elif "tool_calls" in turn:
+            _validated_tool_calls(i, turn)
+        else:
+            lacking = [k for k in ("role", "content")
+                       if not isinstance(turn.get(k), str) or not turn[k].strip()]
+            if lacking:
+                raise BadRequest(
+                    f"messages[{i}] lacks a non-empty {' and '.join(repr(k) for k in lacking)} "
+                    f"(carried {sorted(turn)})")
     return messages
+
+
+def _validated_tool_result(i: int, turn: dict) -> None:
+    """A TOOL-RESULT turn: the answer a tool gave, pinned to the call that asked for it.
+
+    ``content`` may legitimately be empty — a command that printed nothing still ran, and
+    saying so is different from saying nothing — so emptiness is allowed here where the chat
+    shape forbids it. What may NOT be missing is the ``tool_call_id``: without it the model
+    cannot tell which of several parallel calls this answers, and ollama will cheerfully
+    accept the turn and reason from the wrong pairing.
+    """
+    if turn.get("role") != "tool":
+        raise BadRequest(
+            f"messages[{i}] carries 'tool_call_id' but its role is {turn.get('role')!r} — a "
+            "turn answering a tool call has role 'tool'; anything else pairs a result with "
+            "the wrong speaker")
+    call_id = turn.get("tool_call_id")
+    if not isinstance(call_id, str) or not call_id.strip():
+        raise BadRequest(
+            f"messages[{i}] is a tool result with no non-empty 'tool_call_id' (carried "
+            f"{sorted(turn)}) — the model cannot tell which call this answers")
+    if not isinstance(turn.get("content"), str):
+        raise BadRequest(
+            f"messages[{i}] is a tool result whose 'content' is "
+            f"{type(turn.get('content')).__name__}, not a string — a tool's output reaches the "
+            "model as text, and a dict here would be stringified by somebody's repr()")
+
+
+def _validated_tool_calls(i: int, turn: dict) -> None:
+    """An ASSISTANT turn whose content IS its tool calls.
+
+    Empty content is the normal shape here, not a defect: the model chose to act rather than
+    speak. Each call must name a function and carry its arguments as an OBJECT — see the
+    module note in ``validated_messages`` for why a JSON string is refused here rather than
+    forwarded.
+    """
+    if turn.get("role") != "assistant":
+        raise BadRequest(
+            f"messages[{i}] carries 'tool_calls' but its role is {turn.get('role')!r} — only an "
+            "assistant turn calls tools")
+    calls = turn.get("tool_calls")
+    if not isinstance(calls, list) or not calls:
+        raise BadRequest(
+            f"messages[{i}] has a 'tool_calls' that is not a non-empty list (got {calls!r}) — an "
+            "assistant turn with empty content and no calls says nothing at all")
+    for j, call in enumerate(calls):
+        if not isinstance(call, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}] must be a dict, got {type(call).__name__}")
+        fn = call.get("function")
+        if not isinstance(fn, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}] lacks a 'function' dict (carried {sorted(call)})")
+        if not isinstance(fn.get("name"), str) or not fn["name"].strip():
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function lacks a non-empty 'name' "
+                f"(carried {sorted(fn)})")
+        args = fn.get("arguments")
+        if isinstance(args, str):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function.arguments arrived as a JSON STRING. "
+                "That is the OpenAI wire shape; this door speaks the object shape, and ollama "
+                "refuses the string with a message about a missing closing brace — on the "
+                "SECOND turn only, which is why it hides from one-shot tests. Whoever "
+                "translates the wire format owes this json.loads(); the shim, not the door.")
+        if not isinstance(args, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function.arguments must be an object, got "
+                f"{type(args).__name__}")
 
 
 def _urllib_get(url: str, timeout: float) -> tuple[int, bytes]:
@@ -267,6 +379,18 @@ def digest_falsifier(model: str, digest: str) -> str:
     return f"model_digest({model}) == {digest}"
 
 
+EXPIRED = "1970-01-01T00:00:00+00:00"
+"""A horizon already past, for the agent lane: every lookup against it misses.
+
+IT MUST PARSE AS A TIMESTAMP, and that is the whole reason this is a constant rather than a
+word. ``domain._valid`` treats an UNPARSEABLE horizon as no-expiry (deliberately — a bad
+horizon shape should not silently discard a stored answer), so a plausible sentinel like
+``"expired"`` or ``"none"`` would land in the column, fail ``fromisoformat``, and mean the
+exact OPPOSITE of its name — permanent caching for the one caller who needs none, failing
+open and silently. The epoch is the cheapest value that cannot drift into that trap.
+"""
+
+
 def ollama_resolver(
     *,
     model: str,
@@ -277,6 +401,7 @@ def ollama_resolver(
     temperature: float = 0.0,
     stacks: dict | None = None,
     overlay: dict | None = None,
+    horizon: str = "",
 ):
     """Build the ``resolver`` callable ``domain.resolve`` injects — the host, behind one seam.
 
@@ -309,7 +434,8 @@ def ollama_resolver(
     """
     if endpoint is None:
         return _routed_resolver(model=model, timeout=timeout, transport=transport, get=get,
-                                temperature=temperature, stacks=stacks, overlay=overlay)
+                                temperature=temperature, stacks=stacks, overlay=overlay,
+                                horizon=horizon)
     send = transport or _urllib_transport
     digests: dict[str, str] = {}
 
@@ -377,6 +503,12 @@ def ollama_resolver(
             # have refused every chat call and the design would have gone back for a ruling
             # rather than quietly metering zero.
             payload = {"model": name, "messages": messages, "stream": False, "options": options}
+            if request.get("tools"):
+                # ONLY when the caller carries one: an unconditional key would change the
+                # payload every existing chat caller sends, and `tools` is part of the question
+                # — canonicalize() digests every request key, so a toolset that rode along
+                # silently would fork the cache for callers who never asked for one.
+                payload["tools"] = request["tools"]
             body = _post("/api/chat", payload,
                          endpoint=endpoint, timeout=timeout, transport=send)
             message = body.get("message")
@@ -388,6 +520,13 @@ def ollama_resolver(
                     f"{type(message).__name__}"
                     + (f" carrying {sorted(message)}" if isinstance(message, dict) else ""))
             answer = {"text": message["content"], "role": message.get("role", "assistant"), "body": body}
+            if isinstance(message.get("tool_calls"), list) and message["tool_calls"]:
+                # Lifted onto the answer rather than left in `body`, because the answer is what
+                # resolve() STORES and what a cache hit replays byte-for-byte — anything a
+                # caller can only reach by digging into the raw body is a caller reading around
+                # the seam. Absent, never empty, on a plain chat answer: an always-present key
+                # would change the shape of every chat answer already in the store.
+                answer["tool_calls"] = message["tool_calls"]
         else:
             raise BadRequest(
                 f"unknown request kind {kind!r} — this resolver sends 'generate', 'embed' or "
@@ -397,8 +536,10 @@ def ollama_resolver(
             "answer": answer,
             "cost": metered_cost(body),          # refuses rather than metering zero
             "falsifier": _falsifier_for(name),
-            "horizon": "",                       # no time expiry: a temperature-0 answer does not
-                                                 # rot with the clock; the digest is what falsifies
+            "horizon": horizon,                  # DEFAULT "" — no time expiry: a temperature-0
+                                                 # answer does not rot with the clock; the digest
+                                                 # is what falsifies. A caller that passes EXPIRED
+                                                 # gets the agent lane (see EXPIRED below).
             "provenance": {
                 "host": endpoint,
                 "path": _PATH_FOR_KIND[kind],
@@ -412,7 +553,7 @@ def ollama_resolver(
 
 
 def _routed_resolver(*, model: str, timeout: float, transport, get, temperature: float,
-                     stacks: dict | None, overlay: dict | None):
+                     stacks: dict | None, overlay: dict | None, horizon: str = ""):
     """The routed walk: the nest decides WHO may be dialed, the walk discovers who ANSWERS.
 
     Per call: shake the nest for this request's kind and model, then dial survivors cheapest
@@ -431,7 +572,8 @@ def _routed_resolver(*, model: str, timeout: float, transport, get, temperature:
         if rung_endpoint not in inners:
             inners[rung_endpoint] = ollama_resolver(
                 model=model, endpoint=rung_endpoint, timeout=timeout,
-                transport=transport, get=get, temperature=temperature)
+                transport=transport, get=get, temperature=temperature,
+                horizon=horizon)
         return inners[rung_endpoint]
 
     def resolver(request: dict) -> dict:

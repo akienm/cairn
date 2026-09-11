@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_host.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-09T23:33:44",
+    "caller": "cairn/devices/inference_domain",
+    "date": "2026-09-11T15:42:17",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so\n  PASS  test_no_other_module_in_the_tree_opens_the_inference_host\n  PASS  test_the_sole_path_tooth_reds_on_a_planted_dialer\n  PASS  test_the_outbound_body_wears_the_named_domains_prompt_content\n  PASS  test_a_bare_requests_outbound_body_is_byte_for_byte_undressed\n  PASS  test_generals_walk_is_todays_walk_exactly\n  PASS  test_the_walk_obeys_the_domains_escalation_rule\n  PASS  test_a_chat_call_meters_the_hosts_own_counters\n  PASS  test_an_unmetered_chat_answer_is_refused_not_metered_as_zero\n  PASS  test_chat_opens_api_chat_and_nothing_else\n  PASS  test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed\n  PASS  test_a_malformed_messages_list_never_reaches_the_host\n  PASS  test_the_chat_walk_obeys_the_domains_escalation_rule\n  PASS  test_the_shipped_models_stack_declares_the_chat_verb\n  PASS  test_a_non_final_answer_is_refused_by_its_own_name\n  PASS  test_a_response_carrying_no_done_key_at_all_is_left_alone\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
+      "stdout_tail": "  PASS  test_a_bare_requests_outbound_body_is_byte_for_byte_undressed\n  PASS  test_generals_walk_is_todays_walk_exactly\n  PASS  test_the_walk_obeys_the_domains_escalation_rule\n  PASS  test_a_chat_call_meters_the_hosts_own_counters\n  PASS  test_an_unmetered_chat_answer_is_refused_not_metered_as_zero\n  PASS  test_chat_opens_api_chat_and_nothing_else\n  PASS  test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed\n  PASS  test_a_malformed_messages_list_never_reaches_the_host\n  PASS  test_the_chat_walk_obeys_the_domains_escalation_rule\n  PASS  test_the_shipped_models_stack_declares_the_chat_verb\n  PASS  test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical\n  PASS  test_the_answer_lifts_tool_calls_out_of_the_hosts_message\n  PASS  test_the_second_turn_of_a_tool_using_conversation_reaches_the_host\n  PASS  test_the_agent_shapes_are_CHECKED_not_exempted\n  PASS  test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door\n  PASS  test_the_horizon_is_a_construction_policy_and_never_touches_the_request\n  PASS  test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite\n  PASS  test_a_non_final_answer_is_refused_by_its_own_name\n  PASS  test_a_response_carrying_no_done_key_at_all_is_left_alone\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_unmetered_response_is_refused_not_metered_as_zero",
@@ -39,6 +39,13 @@
         "test_a_malformed_messages_list_never_reaches_the_host",
         "test_the_chat_walk_obeys_the_domains_escalation_rule",
         "test_the_shipped_models_stack_declares_the_chat_verb",
+        "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
+        "test_the_answer_lifts_tool_calls_out_of_the_hosts_message",
+        "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
+        "test_the_agent_shapes_are_CHECKED_not_exempted",
+        "test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door",
+        "test_the_horizon_is_a_construction_policy_and_never_touches_the_request",
+        "test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite",
         "test_a_non_final_answer_is_refused_by_its_own_name",
         "test_a_response_carrying_no_done_key_at_all_is_left_alone"
       ],
@@ -47,7 +54,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "2dd98c53b4e3f4556a45f29b1e3331cf666fbecb2778f8423f0928a735279ca3",
+      "source_fingerprint": "82c1a04addba3a12b65ff8a8bda09d1b654e610f2eb3a3ed795dfc29aa033bb9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -71,7 +78,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2444760-uxatdlbd/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-934734-nlf896po/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,11 +87,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123121808,
-          "disk_bytes": 133644288,
-          "entries": 4289,
+          "bytes": 129523241,
+          "disk_bytes": 140464128,
+          "entries": 4521,
           "builds": 1,
-          "reuses": 15
+          "reuses": 0
         }
       }
     },

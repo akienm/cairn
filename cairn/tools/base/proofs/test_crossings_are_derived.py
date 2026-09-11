@@ -17,7 +17,41 @@ from pathlib import Path
 
 import pytest
 
-from cairn.tools.base import crossings as X
+class _TheDerivation:
+    """Bind the derivation AT CALL TIME, never at import — and that is a measured requirement.
+
+    ``cairn/tools/base/crossings.py`` DID NOT EXIST before this build. The hollow reader proves a
+    build is load-bearing by taking each written file away and re-running this proof, and a
+    module-level ``from cairn.tools.base import crossings`` turns that removal into a COLLECTION
+    ERROR: pytest never reaches a tooth, nothing prints, and the reader records UNRAN — the
+    verdict meaning "nothing here says whether a tooth checks this file." A proof that cannot
+    survive its own subject being taken away is not an instrument for measuring whether it checks
+    that subject.
+
+    So the name resolves on first attribute access, inside the tooth that wants it. Take
+    ``crossings.py`` away and each tooth that touches the derivation reds BY NAME; the teeth that
+    do not touch it still run and still report. This is the same defect that made a sibling
+    voyage's hollow reading turn on alphabetical order, arriving by the other door.
+    """
+
+    def __getattr__(self, name):
+        from cairn.tools.base import crossings
+        return getattr(crossings, name)
+
+
+X = _TheDerivation()
+
+
+PROVES = {
+    # 2026-09-10, ticket d2ecdb867bc9 — a crossing is derived from the journal, never stored on
+    # the ticket. Lettered clauses because that ticket's falsifier enumerates (a)..(d).
+    "d2ecdb867bc9": {
+        "a": "test_ALSO_PROVEN_BY_IS_READ_or_the_derivation_LOSES_a_proof",
+        "b": "test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array",
+        "c": "test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY",
+        "d": "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG",
+    },
+}
 
 
 def _world(tmp: str) -> dict[str, Path]:
@@ -245,6 +279,90 @@ def test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY():
     assert carriers == [], (
         f"{len(carriers)} ticket(s) carry a stored crossings key, which no writer writes and "
         f"four gate-reading sites would believe: {carriers[:5]}")
+
+    # AND THE WATCH THAT KEEPS THIS TRUE AFTER TODAY IS ARMED, checked here rather than left to
+    # the emission gate alone. The corpus scan above is a snapshot: it says nothing carries the
+    # key at this instant. The ticket's falsifier asks for more than an instant — "the next
+    # voyage crosses PROVED without any hand touching a crossing" — and the thing that can say
+    # that is the probe, not this tooth. Measured 2026-09-10 across 281 decompose berths, 42
+    # name a probes/ module in writes_to and no proof in the corpus reads one, so a voyage can
+    # be required to write a watch that nothing can fail on. This asserts the probe module
+    # loads and declares both halves of a Probe; take it away and this clause reds.
+    probe_path = Path(__file__).resolve().parents[1] / "probes" / "no_ticket_carries_a_stored_crossing.py"
+    assert probe_path.is_file(), f"the watch this ticket carries is not at its berth: {probe_path}"
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_no_ticket_carries_a_stored_crossing", probe_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    probe = getattr(mod, "PROBE", None)
+    assert probe is not None, "the probe module declares no module-level PROBE"
+    assert getattr(probe, "carry", None) is not None, "the PROBE declares no carry"
+    assert getattr(probe, "enough", None) is not None, "the PROBE declares no enough"
+
+
+def test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array():
+    """CLAUSE (b) — the three sites that hand a gate its evidence ask the record of truth.
+
+    This is the clause the derivation existed to satisfy, and it is the one a fixture cannot
+    reach: whether ``proof_coverage``, ``hollow`` and the codemother shim READ the journals is a
+    fact about those three files, not about any world this proof can build. So the tooth reads
+    them, which is the honest instrument for the claim actually made.
+
+    Measured at the pre-build commit 8bca770403d8: all three carried ``ticket.get("crossings")``
+    — proof_coverage at two sites, hollow at two, the shim at one. Each of those is a gate input
+    typed by a hand: clearance refuses PROVED on a boat proof_coverage calls uncovered, and
+    hollow reverts to the commit the BUILDME entry names. Revert any one of the three and this
+    tooth names it.
+
+    THE PROBE IS DELIBERATELY NOT IN THIS SET. ``no_ticket_carries_a_stored_crossing.py`` reads
+    the key ON PURPOSE — finding one is its whole job — so folding it in would make the tooth
+    red for the one file whose reading of the key is correct.
+    """
+    root = Path(__file__).resolve().parents[4]   # proofs/ base/ tools/ cairn/ -> the repo
+    readers = {
+        "cairn/tools/proof_coverage/proof_coverage.py": "clearance refuses PROVED on an uncovered boat",
+        "cairn/devices/tester/hollow.py": "the hollow reading reverts to the commit this names",
+        "cairn/devices/codemother/shim.py": "the shim names the proofs a review reads",
+    }
+    stored_reads, no_import = [], []
+    for rel, what_it_gates in readers.items():
+        text = (root / rel).read_text(encoding="utf-8")
+        code = "\n".join(line for line in text.splitlines()
+                          if not line.lstrip().startswith("#"))
+        for shape in ('ticket.get("crossings")', "ticket.get('crossings')",
+                      'ticket["crossings"]', "ticket['crossings']"):
+            if shape in code:
+                stored_reads.append(f"{rel} reads {shape} — and {what_it_gates}")
+        if "cairn.tools.base.crossings" not in code:
+            no_import.append(rel)
+    assert stored_reads == [], (
+        "a gate reader still takes its evidence from the ticket's stored array, which no writer "
+        "writes and a hand therefore typed: " + "; ".join(stored_reads))
+    assert no_import == [], (
+        "a gate reader names the derivation nowhere, so it is getting its crossings from "
+        "somewhere this tooth cannot see: " + ", ".join(no_import))
+
+
+def test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG():
+    """CLAUSE (d) — hollow resolves the pre-build moment to the second or refuses to guess.
+
+    The retired branch read the stored crossing's ``date``, which is a DAY. ``git rev-list -1
+    --before=2026-09-07`` resolves a bare date to the last commit before that day STARTED, so a
+    ticket built and committed on one day reverted to a whole day earlier and the hollow reading
+    measured a world the build never stood in — a wrong answer delivered with no sign it was
+    wrong, which Law 3 calls a hypothesis wearing a measurement's clothes.
+
+    Deriving from the journal means every crossing carries an ``at`` with a time, so the branch
+    that could be wrong has nothing left to be wrong about. At the pre-build commit this same
+    call returned ``"2026-09-01"``; now it refuses.
+    """
+    from cairn.devices.tester.hollow import HollowUnmeasurable, _buildme_at
+    ticket = {"id": "t1", "crossings": [{"to": "BUILDME", "date": "2026-09-01"}]}
+    crossing = {"to": "BUILDME", "date": "2026-09-01"}   # a day, and no 'at'
+    with pytest.raises(HollowUnmeasurable) as red:
+        _buildme_at(ticket, crossing)
+    assert "at" in str(red.value), (
+        "hollow refused, but not for the missing time — the message must name what is absent")
 
 
 if __name__ == "__main__":

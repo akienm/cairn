@@ -96,11 +96,38 @@ from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
 # cairn.tools.proof_coverage without importing this module. One tooth per clause, and the
 # clause numbers are the ticket's own `(1) (2) (3)`, so a clause that gains a tooth here and
 # loses it in the falsifier reds rather than drifting quietly.
+#
+# AND TWO KEYS THAT ARE NOT CLAUSES, DELIBERATELY, WITH NAMES INSTEAD OF NUMBERS. The WATCHME
+# probe is mandatory build output — the emission gate refuses the crossing without it — but it
+# answers the falsifier's HORIZON, not any of its DONE-when clauses, and `clauses()` cuts the
+# falsifier at WRONG INTENT so the horizon never becomes a clause. Two readers read this map and
+# they read it differently: `proof_coverage.lacks` iterates the ticket's CLAUSES and ignores any
+# key outside them, while `hollow.measure` takes the map's VALUES as the declared-tooth set for
+# every file in writes_to. So without an entry here the probe is a file the build must write and
+# no declared tooth can bite, and the PROVED gate reads it — correctly — as hollow. Measured on
+# this voyage 2026-09-10: `Uncovered ... reverting .../probes/a_first_seal_is_taken_under_the_seal.py
+# redded NO declared tooth`.
+#
+# THE KEY IS A PHRASE SO IT CANNOT BE MISTAKEN FOR A CLAUSE THE FALSIFIER DOES NOT HAVE. Writing
+# it as `"4"` would read as a fourth DONE-when clause to every human opening this file, and the
+# falsifier numbers three. The shape is borrowed from ticket 892a0f9cd925, whose map carries
+# "the watch probe is armed and can fire" among eleven other named keys — cited, not grafted.
+#
+# THE SECOND NAMED KEY IS THE SAME CASE FOR A DIFFERENT REASON: isolation.py is build output of
+# this voyage (SEAL_MARKER, inside_a_seal, the inherited-seal branch, and the CAP_NET_ADMIN
+# removal), and it is there because the voyage UNCOVERED that bug and fixed it with the ticket
+# it was under — ruling 2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage. A bug
+# fixed under a ticket is not a DONE-when clause of that ticket's falsifier, and writing one in
+# after the fact would be editing the falsifier to fit the build. So it takes a name here, and
+# the file it protects can be named in writes_to honestly.
 PROVES = {
     "481221f45884": {
         "1": "test_a_first_seal_lands_sealed_not_open",
         "2": "test_the_word_sealed_never_stands_over_an_open_record",
         "3": "test_the_stronger_default_changes_isolation_not_verdict",
+        "the watch probe is armed and can fire": "test_the_watch_probe_is_armed_and_can_fire",
+        "a seal cut inside a seal is inherited and still measured":
+            "test_a_seal_cut_inside_a_seal_is_inherited_and_still_measured",
     },
 }
 

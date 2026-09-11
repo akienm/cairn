@@ -160,12 +160,30 @@ def test_the_carry_reports_the_three_states_apart():
 
 
 def main():
+    """EVERY TOOTH RUNS, AND A FAILURE PRINTS ITS NAME BESIDE A RED MARKER.
+
+    A runner that stops at the first raise prints nothing for the teeth behind it, and the
+    reader — here, cairn test --hollow's teeth_printed — cannot tell "this tooth failed" from
+    "this proof never ran". Measured: with the probe reverted away, the stop-at-first shape
+    reported `1 proof(s) printed no teeth at all`, which is the diagnostic collapse Law 7
+    forbids. Printing FAIL per tooth is what makes a reverted subject a READING.
+    """
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
+    red = []
     for t in tests:
-        t()
-        print("  ok  ", t.__name__)
+        try:
+            t()
+        except BaseException as exc:                       # noqa: BLE001 — a crash is a red
+            red.append(t.__name__)
+            print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
+        else:
+            print("  ok   ", t.__name__)
+    if red:
+        print(f"red: {len(red)} of {len(tests)} teeth — {', '.join(red)}")
+        return 1
     print(f"green: {len(tests)} teeth")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -1,27 +1,44 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T15:07:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-11T12:17:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "",
       "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "292316f5df4c10b03f88805a2d95f8b63f8c485dc4d2d654f1a7ca2aa67887b4",
+      "source_fingerprint": "b0e3111432dff0f01ea66654c7500f1232a86b6c70fb326a3902aadd1feb3a5f",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cc/proofs/test_tmux_mode.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-82yen_ed/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-371230-s3id1sdz/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 129248042,
+          "disk_bytes": 140148736,
+          "entries": 4500,
+          "builds": 1,
+          "reuses": 3
         }
       }
     },

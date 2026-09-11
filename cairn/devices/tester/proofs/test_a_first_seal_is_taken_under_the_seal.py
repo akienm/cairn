@@ -54,6 +54,15 @@ Teeth a hollow build could not pass:
      `netns` comes back with the same verdict over the same teeth. This is the ticket's own WRONG
      INTENT clause turned into a tooth: a netns run that reds for a reason unrelated to network
      reach means the ticket bought a stronger default and spent it.
+  9. THE ROSTER CARRIES EVERY TOOTH. Housekeeping rather than a clause: the count is derived at
+     call time, so a tooth deleted reds here instead of shrinking the proof quietly.
+
+THE RUNNER IS `proof_coverage.print_teeth_main`, NOT A HAND-ROLLED LOOP, and the reason is this
+voyage's own measurement. The hand-rolled loop ran the teeth in declaration order and stopped at
+the first red, so reverting `cli.py` — which reds the FIRST tooth — made it print no tooth names
+at all, and the hollow runner could only report `unreadable`. A proof that dies the moment its
+subject is taken away cannot say whether it was checking that subject. Under pytest the same
+revert reds five teeth by name in 19 seconds.
 
 Self-cleaning: every tooth writes into a throwaway temp component tree, so no real component's
 validations/ is touched. The teeth drive the REAL CLI over REAL fixtures rather than reading the
@@ -392,20 +401,28 @@ def test_the_stronger_default_changes_isolation_not_verdict() -> None:
         f"Same verdict over a different set of teeth is a green that means something else.")
 
 
-def _main() -> int:
-    # The roster is DERIVED from declaration order, never typed — a hand-kept list is a list a new
-    # tooth can be left off, and the file prints the same triumphant line either way (the tester's
-    # own charter, falsifier clause 9).
-    checks = [v for k, v in globals().items() if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 8, (
-        f"the derived roster collapsed — the eight teeth of ticket 481221f45884: {len(checks)}")
-    for check in checks:
-        check()
-        print(f"  PASS  {check.__name__}")
-    print("green — a first seal is taken under the seal, the standing-open guard is untouched, "
-          "and the summary never says SEALED over a record nobody sealed")
-    return 0
+def test_the_roster_carries_every_tooth() -> None:
+    """THE ROSTER IS DERIVED, AND THIS IS WHAT NOTICES ONE GOING MISSING.
+
+    Until 2026-09-10 this was an assertion inside a hand-rolled ``_main`` that ran the teeth in
+    declaration order and stopped at the first red. That shape is the defect the hollow runner
+    named on this very voyage: reverting ``cli.py`` reds the FIRST tooth, so the runner raised
+    before printing a single name, and hollow read ``printed no teeth at all`` — a proof that
+    cannot survive its subject being taken away says nothing about whether it checks that
+    subject. Measured the same day: the same revert, run under pytest, reds five teeth in 19s.
+
+    So the runner moved to ``proof_coverage.print_teeth_main``, which runs every tooth and prints
+    each by name under a green, red or skip marker — the printer that lives beside the reader of
+    those names, so the two cannot drift. What that move cost was the roster-collapse guard, and
+    this tooth is it: nine teeth, counted at call time off the module's own globals, so a tooth
+    deleted reds here rather than shrinking the proof quietly."""
+    roster = sorted(k for k, v in globals().items() if k.startswith("test_") and callable(v))
+    assert len(roster) >= 9, (
+        f"the derived roster collapsed — the nine teeth of ticket 481221f45884 (eight clauses "
+        f"plus this one): {len(roster)} → {roster}")
 
 
 if __name__ == "__main__":
-    raise SystemExit(_main())
+    from cairn.tools.proof_coverage import print_teeth_main
+
+    raise SystemExit(print_teeth_main(__file__))

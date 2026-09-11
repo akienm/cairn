@@ -16,6 +16,17 @@ assert what it must NOT refuse: `sealed -> breached` and `sealed -> indeterminat
 land, because a guard that blocked those would be protecting an old green from a new red,
 which is Law 7 inverted at the exact door Law 7 most cares about.
 
+AND THE MIRROR, BUILT 2026-09-10 (ticket 299d4f72ae40). The guard above left the opposite
+direction open, and the asymmetry was the finding: the same door refused to retire a
+MEASUREMENT without a written reason while letting a deliberate NON-measurement be retired
+without one. `open` is a recorded choice not to ask — and one `cairn test --seal --netns` over
+a proof standing at `open` converted it to `sealed`, silently, irreversibly, because the door
+REPLACES. Measured at HEAD 57bd9cf on a fixture: rc 0, four lines of output, no mention of the
+override, and the `open` unrecoverable. 54 of the 219 standing validations across both roots
+were convertible by one such sweep. So `SealConversionRefused` mirrors `SealDowngradeRefused`
+in shape, in raise site, and in its escape — and the teeth below assert BOTH predicates are
+narrow, because two guards at one door is two chances to wall off the ordinary entrance.
+
 Teeth a hollow build could not pass:
 
   1. A MEASUREMENT CANNOT BE REPLACED BY THE ABSENCE OF ONE. sealed -> open raises
@@ -60,6 +71,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.tester import validation_store as vs
 from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
+from cairn.tools.base import validation as public_validation
 
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"
@@ -142,7 +154,16 @@ def test_the_escape_is_recorded_permanently_not_ambient():
 
         # A BLANK REASON IS NOT A REASON. The field exists to make the choice legible; a
         # whitespace string would satisfy a truthiness check and legible nothing.
-        vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
+        #
+        # THE RE-ARM CARRIES ITS OWN REASON, AND THAT IS NOT SCAFFOLDING. The standing record is
+        # `open` at this point, so putting `sealed` back is a genuine conversion and meets the
+        # MIRROR guard built on ticket 299d4f72ae40. Before that guard existed this line was
+        # silent; the fact that it now has to say why it is converting is the ticket working on
+        # its own proof file, which is the cheapest possible demonstration that the door sees
+        # every caller.
+        vs.persist_validation(_sealable(proof, SEALED), proof_path=proof,
+                              converting_because="re-arming the fixture for the blank-reason "
+                                                 "half of this tooth")
         try:
             vs.persist_validation(_sealable(proof, OPEN), proof_path=proof, unsealing_because="   ")
         except vs.SealDowngradeRefused:
@@ -165,13 +186,20 @@ def test_the_guard_does_not_block_a_NEW_measurement():
                 f"sealed -> {landing} was blocked; the guard is reading strength, not "
                 "whether anyone looked")
 
-    # AND THE ORDINARY SEALING ACT IS UNTOUCHED: open -> sealed is the first real seal of a
-    # proof that had never been asked, and it is the direction the whole corpus travels.
+    # AND THE ORDINARY SEALING ACT IS UNTOUCHED — which is `None` -> sealed, NOT `open` ->
+    # sealed. This clause used to run `open` -> sealed under the words "the first real seal of
+    # a proof that had never been asked", and the file's own fourth tooth already said that was
+    # wrong: NOTHING STANDING IS NOT `open`. A proof that had never been asked has no record at
+    # all. Corrected on ticket 299d4f72ae40, whose whole subject is that distinction; the
+    # `open` -> measured half moved into its own tooth below, where it now refuses.
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
-        vs.persist_validation(_sealable(proof, OPEN), proof_path=proof)
+        assert _standing_verdict(proof) is None, "the fixture was not a virgin tree"
         vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
-        assert _standing_verdict(proof) == SEALED, "open -> sealed was blocked"
+        assert _standing_verdict(proof) == SEALED, (
+            "a FIRST seal was blocked — nothing was standing, so neither guard had anything to "
+            "protect, and walling off the ordinary entrance to proven-space is the one thing "
+            "they must never do")
 
 
 def test_the_standing_seal_is_readable_and_its_isolation_reproducible():
@@ -201,8 +229,12 @@ def test_the_standing_seal_is_readable_and_its_isolation_reproducible():
 
         # A measured failure still reproduces at the isolation it was measured under —
         # `breached` means the netns was asked for and did not hold, so re-running bare
-        # would answer a different question.
-        vs.persist_validation(_sealable(proof, BREACHED), proof_path=proof)
+        # would answer a different question. The standing record is `open` here, so landing a
+        # measured reading over it is a conversion and carries its reason (ticket
+        # 299d4f72ae40); this tooth is about the READER, and the reason keeps it about that.
+        vs.persist_validation(_sealable(proof, BREACHED), proof_path=proof,
+                              converting_because="posing a measured failure to prove the "
+                                                 "reader maps it back to netns")
         assert vs.isolation_for_seal(vs.standing_seal(proof)) == "netns"
 
 
@@ -244,12 +276,167 @@ def test_the_seal_summary_counts_what_LANDED_not_what_passed():
         assert len(reds) == 1, f"the red fixture did not seal its red: {[p.name for p in landed]}"
 
 
+# ─── THE MIRROR (ticket 299d4f72ae40) ────────────────────────────────────────────────────────
+
+def test_a_recorded_choice_not_to_measure_is_not_silently_converted():
+    """`open` -> sealed RAISES, and the file on disk is byte-identical afterwards.
+
+    THE BYTES, NOT THE VERDICT. Asserting the standing verdict is still `open` would pass for
+    a door that wrote and then rolled back, or one that rewrote the record with the same
+    verdict and a new timestamp. The claim is that nothing landed at all — which is what makes
+    it a refusal rather than an undo — so the tooth compares the file's bytes.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        vs.persist_validation(_sealable(proof, OPEN), proof_path=proof)
+        before = Path(vs.validations_path_for(proof)).read_bytes()
+
+        raised = None
+        try:
+            vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
+        except vs.SealConversionRefused as refusal:
+            raised = refusal
+        assert raised is not None, (
+            "open -> sealed landed unannounced — a recorded choice not to measure was retired "
+            "by a measurement, and nothing on disk says the choice was ever made")
+        assert OPEN in str(raised) and SEALED in str(raised), (
+            f"the refusal names neither reading, so it cannot be acted on: {raised}")
+        assert Path(vs.validations_path_for(proof)).read_bytes() == before, (
+            "the refusal wrote anyway — a door that refuses after writing is not a door")
+
+
+def test_the_conversion_escape_is_recorded_permanently_not_ambient():
+    """With a reason the conversion LANDS, the reason rides inside the surviving record, and
+    the evidence already there survives it.
+
+    INSIDE, NOT BESIDE, AND THE REASON IS STRUCTURAL: this door replaces, so there is no
+    superseded record left to carry one. Measured 2026-09-10 across both roots: all 219
+    validation files hold exactly one record, and `_atomic_write(path, [record])` is why.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        vs.persist_validation(_sealable(proof, OPEN), proof_path=proof)
+        landing = _sealable(proof, SEALED)
+        vs.persist_validation(landing, proof_path=proof,
+                              converting_because="the proof was always meant to be sealed")
+        assert _standing_verdict(proof) == SEALED, "the stated reason did not open the gate"
+
+        stored = vs.read_validations(proof)[-1]["evidence"]
+        assert stored.get("converting_because") == (
+            "the proof was always meant to be sealed"), (
+            f"the reason did not ride into the record: {sorted(stored)}")
+        # AND IT DISPLACED NOTHING. The escape merges into evidence; a write that replaced the
+        # dict would drop source_fingerprint and silently un-expire the seal.
+        for key in landing["evidence"]:
+            assert key in stored, f"the escape dropped evidence key {key!r} on its way in"
+
+
+def test_both_guards_are_narrow_and_neither_walls_the_ordinary_door():
+    """THE THREE TRANSITIONS THAT MUST STILL LAND, run against the mirror rather than its
+    sibling: `open` -> `open` (a re-run reproducing the standing choice — the ordinary path,
+    and the one `cairn test --seal` takes on every commit), `sealed` -> `sealed`, and
+    `None` -> `open` (a first record that honestly asked for nothing).
+
+    A guard testing `was != now` instead of the two named verdicts would pass every tooth
+    above and red the whole pre-commit ladder on the next commit. This is the tooth that
+    catches it.
+    """
+    for standing, landing in ((OPEN, OPEN), (SEALED, SEALED)):
+        with tempfile.TemporaryDirectory() as tmp:
+            proof = _fake_proof(tmp)
+            vs.persist_validation(_sealable(proof, standing), proof_path=proof)
+            vs.persist_validation(_sealable(proof, landing), proof_path=proof)
+            assert _standing_verdict(proof) == landing, (
+                f"{standing} -> {landing} was blocked; a guard reading 'anything changed' has "
+                "replaced one reading 'a choice was retired'")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        vs.persist_validation(_sealable(proof, OPEN), proof_path=proof)
+        assert _standing_verdict(proof) == OPEN, (
+            "a first record carrying `open` was refused — nothing was standing, so there was "
+            "no choice to retire")
+
+
+def test_the_guard_covers_every_persisting_caller_not_only_the_flag():
+    """THE GUARD IS AT THE DOOR, NOT AT THE FLAG, and this is the tooth that says so in
+    behaviour rather than in a comment.
+
+    TWO READINGS, AND THE SECOND IS THE HONEST SHAPE OF THE FIRST. `cairn/tools/base/validation.py`'s
+    public `run_proof` persists with `sink="validations"` and NEVER forwards isolation — measured
+    2026-09-10 at its own signature, which takes no isolation argument at all. So today it can
+    only ever mint an `open` reading, and it cannot itself perform a conversion. What it CAN do
+    is meet the door: reading 1 fires the sibling guard through it, proving the wrapper passes
+    through `persist_validation` with no escape kwarg of its own. Reading 2 then fires the
+    conversion guard through the exact call shape `device.py` uses when that wrapper seals —
+    `persist_validation(record, proof_path=...)`, positional record, no reason — so the two
+    together say: any caller reaching this door meets both guards, whichever direction it moves.
+
+    A fix bolted to `--netns` would have passed neither reading, and that is the latent miss
+    this placement was chosen against.
+    """
+    # READING 1: the wrapper reaches the guarded door with no escape of its own. The fixture is
+    # COPIED into the temp tree first, so the wrapper's real persist lands there and no real
+    # component's validations/ is touched — this file's self-cleaning promise holds.
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        Path(proof).write_text(_GREEN_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
+        vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
+
+        raised = None
+        try:
+            public_validation.run_proof(proof, sink="validations", caller="the coverage tooth")
+        except vs.SealDowngradeRefused as refusal:
+            raised = refusal
+        assert raised is not None, (
+            "the public wrapper sealed without meeting the door's guards. It forwards no "
+            "isolation, so its run reads `open`; landing that over a standing `sealed` is "
+            "exactly what SealDowngradeRefused exists to refuse, and a caller that walks past "
+            "it is a caller a CLI-bolted fix would never have covered")
+        assert _standing_verdict(proof) == SEALED, "the refusal wrote anyway"
+
+    # READING 2: the conversion guard fires through the exact call shape device.py uses.
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        vs.persist_validation(_sealable(proof, OPEN), proof_path=proof)
+        raised = None
+        try:
+            # device.py:604 verbatim in shape: positional record, proof_path only, no reason.
+            vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
+        except vs.SealConversionRefused as refusal:
+            raised = refusal
+        assert raised is not None, (
+            "a caller that names no reason walked the conversion through — the guard is "
+            "reading something the CLI supplies, not something the door sees")
+
+
+def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
+    """THE PROBE EXISTS AT THE BERTH THE TICKET NAMES, declares a frozen module-level PROBE
+    with both a carry and an enough, and its reading FIRES when handed the pre-build answer.
+
+    A probe nobody has watched fire is a probe nobody has measured. The sibling probe's own
+    pattern: the reading takes its predicate as an argument so a tooth can substitute one.
+    """
+    from cairn.devices.tester.probes import an_open_reading_is_not_silently_converted as probe
+
+    assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough), (
+        "the probe carries no carry or no enough, and the emission gate reads both")
+
+    # THE PRE-BUILD WORLD: a door that let the conversion through.
+    fired = probe.conversion_reading(refuses=lambda was, now: False)
+    assert fired["fires"], "the probe cannot be made to fire, so its quiet means nothing"
+    # AND THE WORLD AS BUILT.
+    live = probe.conversion_reading()
+    assert not live["fires"], f"the probe fires against the built guard: {live['what']}"
+
+
 def _main() -> int:
     # The roster is DERIVED from declaration order, never typed — a hand-kept list is a list
     # a new tooth can be left off, and the file prints the same triumphant line either way.
     checks = [v for k, v in globals().items() if k.startswith("test_") and callable(v)]
-    assert len(checks) >= 5, (
-        f"the derived roster collapsed — the five teeth of ticket 4431cf2bc625: {len(checks)}")
+    assert len(checks) >= 10, (
+        "the derived roster collapsed — five teeth for ticket 4431cf2bc625 and five for its "
+        f"mirror 299d4f72ae40, and the roster found {len(checks)}")
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")

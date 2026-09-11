@@ -415,6 +415,28 @@ class SealDowngradeRefused(ValueError):
     """A measurement was about to be replaced by the absence of one, and the door said no."""
 
 
+class SealConversionRefused(ValueError):
+    """A recorded choice NOT to measure was about to be replaced by a measurement, and the door
+    said no.
+
+    THE MIRROR OF ITS SIBLING, AND THE ASYMMETRY IT CLOSES IS THE WHOLE FINDING. ``SealDowngradeRefused``
+    protects a reading from being retired by the absence of one. This protects the ABSENCE from
+    being retired by a reading — and the absence is not nothing: ``open`` means *asked for
+    nothing, and said so*, which is a recorded decision about how this proof is run. Measured
+    2026-09-10 at HEAD 57bd9cf, on a fixture: a standing ``open``, one ``cairn test --seal
+    --netns`` over it, and the record read ``sealed`` with four lines of output, no mention of
+    an override, and the ``open`` unrecoverable — because this door REPLACES. 54 of the 219
+    standing validations across both roots were convertible by one such sweep.
+
+    Why it is a gate and not a wall: converting IS the right act much of the time — an ``open``
+    standing on a proof that should be sealed is exactly what wants fixing. What the door
+    refuses is converting SILENTLY. ``converting_because`` is the escape, and the reason rides
+    inside the surviving record's evidence, mirroring ``unsealing_because`` in both shape and
+    placement. Inside rather than beside, for the same reason as its sibling: the door replaces,
+    so there is no superseded record left on disk to carry one.
+    """
+
+
 def _seal_verdict_of(record: dict) -> str | None:
     """The seal verdict recorded INSIDE one VALIDATION's evidence, or ``None`` if it carries none.
 
@@ -584,6 +606,7 @@ def _atomic_write(path: str, data) -> None:
 def persist_validation(
     validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None,
     trouble_device=None, unsealing_because: str | None = None,
+    converting_because: str | None = None,
 ) -> str:
     """The single write-door: SEAL one VALIDATION as the current record beside what it seals.
 
@@ -630,6 +653,20 @@ def persist_validation(
     itself already rides in evidence. A ruling id is a legal thing to write there; the field
     takes prose so that the cheaper case does not have to mint a ruling to get past a bug.
 
+    AND THE ABSENCE OF A MEASUREMENT IS NEVER REPLACED BY ONE SILENTLY (2026-09-10, ticket
+    299d4f72ae40). The mirror of the guard above, and it was left open by it: a standing
+    ``open`` is not an empty slot, it is a recorded choice not to ask, and until this build one
+    ``cairn test --seal --netns`` converted it to ``sealed`` with nothing said and nothing left
+    behind. The same store refused to retire a MEASUREMENT without a written reason while
+    letting a deliberate NON-measurement be retired without one — that asymmetry is what this
+    closes. ``converting_because`` is its escape and behaves exactly like ``unsealing_because``:
+    the reason rides permanently in the landed record's evidence.
+
+    NEITHER GUARD FIRES WHEN NOTHING IS STANDING. A first seal — ``None`` -> anything — is the
+    ordinary way a proof enters proven-space, and ``None`` is not ``open``: it is "no record",
+    where ``open`` is "a record saying nobody asked". ``_seal_verdict_of`` keeps them apart on
+    purpose, and the guards read it, so a proof being sealed for the first time meets no door.
+
     ``trouble_device`` is injectable for proofs; see ``announce_verdict_change``.
     """
     if (proof_path is None) == (artifact_path is None):
@@ -675,6 +712,30 @@ def persist_validation(
                 "pass unsealing_because='<why>' and the reason rides permanently in the "
                 "record's evidence.")
         record["evidence"] = {**evidence, "unsealing_because": unsealing_because}
+
+    # THE MIRROR, AND IT SITS HERE RATHER THAN IN THE CLI FOR THE REASON A PROVIDER DOES NOT
+    # KNOW ITS CONSUMERS. The observed conversion came through `cairn test --seal --netns`, but
+    # `cairn/tools/base/validation.py`'s public `run_proof` also persists and never forwards
+    # isolation at all, so it lands `open` or a measured verdict depending only on what its
+    # caller's environment did — and a guard bolted to the flag would not see it. One door, one
+    # guard, every persisting caller covered.
+    #
+    # `was is not None` is load-bearing and is NOT the same test as `was != OPEN`: a first seal
+    # has no standing record, and refusing it would wall off the ordinary entrance to
+    # proven-space.
+    if was == OPEN and now in _MEASURED_SEALS:
+        if not (isinstance(converting_because, str) and converting_because.strip()):
+            raise SealConversionRefused(
+                f"{os.path.relpath(path)} carries a seal of {OPEN!r} — which is not an empty "
+                f"slot, it is a RECORDED CHOICE not to measure ('asked for nothing, and said "
+                f"so') — and this record carries {now!r}. Because this door REPLACES, landing "
+                "it would retire that choice with nothing left on disk to say it was ever "
+                "made, and the reading that replaced it would look like it had always been "
+                "there (Law 3). Two ways forward: run the proof at the isolation its standing "
+                "record was taken at (`cairn test --seal` reproduces it per proof, so the "
+                "ordinary path never reaches here), or pass converting_because='<why>' and the "
+                "reason rides permanently in the record's evidence.")
+        record["evidence"] = {**evidence, "converting_because": converting_because}
 
     # AND A HOLLOW READING SURVIVES A RE-SEAL OF THE SAME CODE (2026-09-09, uncovered by the
     # 1accdc1781aa voyage). Same shape as the guard above, one level in: because the door

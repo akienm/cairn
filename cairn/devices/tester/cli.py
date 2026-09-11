@@ -57,6 +57,7 @@ from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.validation_store import (
+    SealConversionRefused,
     SealDowngradeRefused,
     isolation_for_seal,
     record_hollow,
@@ -72,6 +73,16 @@ from cairn.tools.system_word import fold_flags
 from cairn.devices.tester.discovery import REPO_ROOT, discover  # noqa: E402
 
 __all__ = ["REPO_ROOT", "discover", "main"]
+
+
+def _rel(proof) -> object:
+    """HOW A PROOF IS NAMED ON SCREEN — one spelling, used by every line that names one.
+
+    The run loop and the override announcement both print a proof, and a reader matching an
+    OVERRIDE line to the green or REFUSED line below it is matching two strings. Two spellings
+    of the same path would make that a puzzle rather than a read (Law 7).
+    """
+    return proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
 
 
 def _hollow_run(args) -> int:
@@ -399,10 +410,20 @@ def main(argv: list[str] | None = None) -> int:
         that said nobody had asked.
 
         So a sealing run asks each proof's standing validation what isolation its seal was
-        taken at and reproduces THAT. ``--netns`` still wins outright — an explicit ask
-        outranks a standing record, because that is the only way to seal something the first
-        time. A proof that has never been sealed has nothing to reproduce and runs bare, which
-        is this command's documented default.
+        taken at and reproduces THAT. ``--netns`` still decides what this run does — an
+        explicit ask outranks a standing record for the run itself. What it no longer does is
+        decide it QUIETLY: when the explicit ask disagrees with what the standing record says,
+        this closure says so before the proof runs, naming the proof and the reading being
+        overridden. A proof that has never been sealed has nothing to disagree with and nothing
+        is printed.
+
+        THE SENTENCE THAT USED TO SIT HERE SAID ``--netns`` WINS OUTRIGHT, "because that is the
+        only way to seal something the first time" — and that reason is still true, but it was
+        being used to license something wider. A first seal has no standing record: the store's
+        guards read ``None`` and never fire, so nothing about a first seal needed the override
+        to be silent. The case the sentence actually covered was a standing reading the flag
+        disagreed with, and that one is now announced here and refused at the store's door
+        unless a reason rides with it (ticket 299d4f72ae40).
 
         A DIAGNOSTIC RUN IS UNCHANGED, deliberately. Without ``--seal`` nothing lands in a
         record of truth, so there is nothing to preserve; widening the per-proof read to every
@@ -432,13 +453,24 @@ def main(argv: list[str] | None = None) -> int:
         would be the same escape with nothing written down.
         """
         if args.netns:
+            # THE ANNOUNCEMENT, AND IT FIRES ONLY ON DISAGREEMENT. A line printed on every
+            # proof of a sweep is a line nobody reads, and the operator does not need telling
+            # that the flag they typed is in effect. What they cannot see — and could not
+            # recover afterwards, because the store REPLACES — is that this run is also
+            # changing what a standing record says about a proof. Before the run, per Law 7:
+            # a diagnostic surface is loud, and loud after the fact is not loud.
+            standing = standing_seal(str(proof)) if args.seal else None
+            if standing is not None and isolation_for_seal(standing) != "netns":
+                print(f"  OVERRIDE {_rel(proof)}  (--netns; its standing seal reads "
+                      f"{standing!r}, which would have run at "
+                      f"{isolation_for_seal(standing)!r})")
             return "netns"
         if args.seal:
             return isolation_for_seal(standing_seal(str(proof))) or "netns"
         return "none"
 
     for proof in proofs:
-        rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
+        rel = _rel(proof)
         if not proof.is_file():
             print(f"  UNRUNNABLE  {proof}")
             reds.append((proof, {}))
@@ -448,7 +480,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             record = tester.run_proof(proof, sink=sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation)
-        except SealDowngradeRefused as refusal:
+        except (SealDowngradeRefused, SealConversionRefused) as refusal:
             # THE DOOR REFUSED THE SEAL, NOT THE PROOF, and the difference has to survive to
             # the screen. The batch continues: one proof whose seal cannot land is not a
             # reason to lose the verdicts of the fifty after it, and swallowing the refusal

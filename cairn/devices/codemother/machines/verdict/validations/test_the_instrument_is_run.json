@@ -1,0 +1,91 @@
+[
+  {
+    "claim": "proof test_the_instrument_is_run.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-11T10:26:49",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_extraction_declines_rather_than_guesses\n.\n  ok   test_a_non_zero_success_exit_is_read_from_the_declaration\n.\n  ok   test_a_contradicted_outcome_is_refused\n.\n  ok   test_a_timeout_is_refused_by_its_own_name\n.\n  ok   test_the_observed_run_lands_in_the_berthed_artifact\n.\n  ok   test_the_probe_is_armed_and_can_be_made_to_fire\n                                                                   [100%]\n6 passed in 2.05s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_extraction_declines_rather_than_guesses",
+        "test_a_non_zero_success_exit_is_read_from_the_declaration",
+        "test_a_contradicted_outcome_is_refused",
+        "test_a_timeout_is_refused_by_its_own_name",
+        "test_the_observed_run_lands_in_the_berthed_artifact",
+        "test_the_probe_is_armed_and_can_be_made_to_fire"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "54a0527e0728d4c72563a0b52dc4297237fa21ca0956dd0fe6b87cdbd9147a72",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/machines/__init__.py",
+        "cairn/devices/codemother/machines/verdict/__init__.py",
+        "cairn/devices/codemother/machines/verdict/probes/__init__.py",
+        "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py",
+        "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
+        "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-56601-stylt2zn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 129092305,
+          "disk_bytes": 139956224,
+          "entries": 4480,
+          "builds": 1,
+          "reuses": 2
+        }
+      },
+      "hollow": {
+        "8e5db5f3edb2": {
+          "cairn/devices/codemother/machines/verdict/verdict.py": [
+            "test_a_contradicted_outcome_is_refused",
+            "test_a_non_zero_success_exit_is_read_from_the_declaration",
+            "test_a_timeout_is_refused_by_its_own_name",
+            "test_extraction_declines_rather_than_guesses",
+            "test_the_observed_run_lands_in_the_berthed_artifact"
+          ],
+          "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py": [
+            "test_the_probe_is_armed_and_can_be_made_to_fire"
+          ]
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

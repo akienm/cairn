@@ -2,7 +2,7 @@
   {
     "claim": "proof test_crossings_are_derived.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-10T18:24:18",
+    "date": "2026-09-11T10:22:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -30,7 +30,7 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b4cbb13e508876b675f650e1f7230dd2bb4c16bf557d7443fc20d62d18cdda21",
+      "source_fingerprint": "fbe661ddb767d40a1d7732817ff5f02ad42b4285641fa4b98dec2f8216da47b8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -58,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1541040-m9ybac7z/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-37872-8pp0bkmf/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,32 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 128660036,
-          "disk_bytes": 139440128,
-          "entries": 4435,
+          "bytes": 129069589,
+          "disk_bytes": 139931648,
+          "entries": 4479,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "d2ecdb867bc9": {
-          "cairn/tools/base/crossings.py": [
-            "test_ALSO_PROVEN_BY_IS_READ_or_the_derivation_LOSES_a_proof",
-            "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG"
-          ],
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array"
-          ],
-          "cairn/devices/tester/hollow.py": [
-            "test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array",
-            "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG"
-          ],
-          "cairn/devices/codemother/shim.py": [
-            "test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array"
-          ],
-          "cairn/tools/base/probes/no_ticket_carries_a_stored_crossing.py": [
-            "test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY"
-          ]
+          "reuses": 1
         }
       }
     },

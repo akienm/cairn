@@ -7043,5 +7043,270 @@
     "fingerprint": "2f415596b650e43e8bd5ecd174507a28e9f6792eaaef5d82cd96da4bc9045273",
     "at": "2026-09-11T16:16:27",
     "seq": 41
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(an_agent_retry_gets_a_fresh_sample) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '548dd13fb4db'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/devices/inference_domain/proofs/test_resolve_verb.py', 'cairn/devices/inference_domain/proofs/test_host.py', 'cairn/devices/inference_domain/proofs/test_inference_domain.py', 'cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py'] (seal 2026-09-11T16:29:10, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(an_agent_retry_gets_a_fresh_sample) emitted the probe berthed at cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py (ticket '548dd13fb4db')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260911T154040-1a23ced87155.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(an_agent_retry_gets_a_fresh_sample) crossing",
+        "actual": "a cast ticket for the WATCHME(an_agent_retry_gets_a_fresh_sample) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "548dd13fb4db",
+          "watch_object": "an_agent_retry_gets_a_fresh_sample",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/548dd13fb4db-the-one-inference-door-carries-a-tool-using-conversation.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '548dd13fb4db' carries a watchme spec for 'an_agent_retry_gets_a_fresh_sample'",
+        "actual": "ticket '548dd13fb4db' carries a watchme spec for 'an_agent_retry_gets_a_fresh_sample'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "548dd13fb4db",
+          "watch_object": "an_agent_retry_gets_a_fresh_sample",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "548dd13fb4db",
+          "watch_object": "an_agent_retry_gets_a_fresh_sample",
+          "berth": "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'inference_domain' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "548dd13fb4db",
+          "component": "inference_domain",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '548dd13fb4db' is cast",
+        "actual": "named ticket '548dd13fb4db' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "548dd13fb4db",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/548dd13fb4db-the-one-inference-door-carries-a-tool-using-conversation.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "548dd13fb4db"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'inference_domain' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "inference_domain",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "every one of 4 proofs (cairn/devices/inference_domain/proofs/test_resolve_verb.py, cairn/devices/inference_domain/proofs/test_host.py, cairn/devices/inference_domain/proofs/test_inference_domain.py, cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py) stands in proven-space",
+        "actual": "every one of 4 proofs (cairn/devices/inference_domain/proofs/test_resolve_verb.py, cairn/devices/inference_domain/proofs/test_host.py, cairn/devices/inference_domain/proofs/test_inference_domain.py, cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py) stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "every one of 4 proofs (cairn/devices/inference_domain/proofs/test_resolve_verb.py, cairn/devices/inference_domain/proofs/test_host.py, cairn/devices/inference_domain/proofs/test_inference_domain.py, cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py)",
+          "named": [
+            "cairn/devices/inference_domain/proofs/test_resolve_verb.py",
+            "cairn/devices/inference_domain/proofs/test_host.py",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+            "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/inference_domain/proofs/test_resolve_verb.py's seal at '2026-09-11T16:29:10'",
+        "actual": "the witness dates cairn/devices/inference_domain/proofs/test_resolve_verb.py's seal at '2026-09-11T16:29:10'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/inference_domain/proofs/test_resolve_verb.py",
+          "named": [
+            "cairn/devices/inference_domain/proofs/test_resolve_verb.py",
+            "cairn/devices/inference_domain/proofs/test_host.py",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+            "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py"
+          ],
+          "seal": "2026-09-11T16:29:10",
+          "claimed": "2026-09-11T16:29:10"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '548dd13fb4db' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "548dd13fb4db"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/inference_domain/proofs/test_resolve_verb.py",
+      "cairn/devices/inference_domain/proofs/test_host.py",
+      "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+      "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py"
+    ],
+    "proven_seal_date": "2026-09-11T16:29:10",
+    "delegated": false,
+    "ticket": "548dd13fb4db",
+    "note": "PROVED — THE ONE INFERENCE DOOR NOW CARRIES A TOOL-USING CONVERSATION, and the thing worth reading in a year is what this voyage REFUSED to build. It opened as 'the one inference door speaks a second wire format' and a spike had already proved an OpenAI/OpenRouter listener on 127.0.0.1:8899 driving a full hermes agent loop against hex.local. Akien read back mid-voyage and corrected it: 'the shims handle all the interfacing with the outside world... adding a port on the inference proxy, as sensible as that is, and it really is, the architecture wants to force everything to be similar specifically because fewer things to know as you or i switch between pieces.' So the envelope left this device entirely. inference_domain keeps exactly ONE inbound contract — its bus verb — and the OpenAI wire becomes cairn/machines/openai_wire, held by hermes_shim (cb97524c0e8e), reusable by anyone: 'if you build it as it's own machine, then anybody can include it.' A WORKING SPIKE WAS THE ARGUMENT FOR THE WRONG SHAPE, and the measure of that is that not one line of it entered class-space.\n\nWHAT ACTUALLY LANDED, all of it inside the one verb: (1) the `tools` key reaches ollama /api/chat and rides INTO the canonical text the cache is keyed on — the same turns under a different toolset are a different question, and a proof tooth pins that a toolset change moves the canonical while the stripped `domain` key does not, so the tooth discriminates rather than merely differing. (2) validated_messages grew a SECOND CHECKABLE SHAPE for the agent lane (assistant turns with tool_calls and content \"\", tool-result turns with tool_call_id) rather than an exemption — the 2026-09-11 gate-health ruling applied at its first real occasion. (3) The agent lane takes a zero horizon by asking the resolver for a past horizon; domain.py was not touched, because a cache that can be told to forget from the call site is not a cache.\n\nTHE TOOTH THAT MATTERS MOST IS THE SECOND-TURN ONE. OpenAI carries tool-call arguments as a JSON string and ollama wants an object; the inbound half of that translation fails ONLY on the second turn, so a one-shot test reads green over a broken door. Measured before the build, and the proof carries a turn-2 tooth because of it.\n\nTWO DEFECTS THE VOYAGE UNCOVERED AND THEREFORE FIXED. The retitle that followed the rescope broke every berthed packet that had cited this ticket BY PATH, and constraint_traces read those bounds as FABRICATED ATTRIBUTION. A berthed packet is a record of truth and may not be rewritten to satisfy a rule invented afterwards (Law 7), so the repair went into grammar.ref_exists: a ref at a ticket's OLD filename resolves by id, because the id is what the citation always meant and the slug was never the referent. Four negative assertions pin its narrowness. And the watch probe's _ENOUGH read 20 against a ticket demanding 50 — a probe grading itself easier than the spec it was compiled from.\n\nCARRIED OUT, NOT HIDDEN: qwen3-coder:30b — the only model the shipped stack declares for chat — emits tool calls as TEXT rather than structured tool_calls on hex.local ollama 0.30.11, while qwen2.5:7b, llama3.2:3b and devstral-small-2:24b all return them structured. prompt_eval_count 291 proves the toolset reached it. That is a model-selection finding and it belongs to cb97524c0e8e, which is where a shim chooses what it dials.\n\nAND THE VOYAGE'S LAST RED IS THE ONE IT ALMOST DID NOT LOOK FOR. Clearing the coverage gate meant reading which proofs the record names, and the record named test_resolve_verb.py — the BUS face of this same door — which declared nothing for this ticket. The cheap fix was to unname it. The honest question was whether the bus verb carries a toolset at all, and it did not: _handle_resolve builds its request from a WHITELIST of body keys and `tools` was not in it, so every other device posting a tool-using question over the one door got a coherent, metered, toolless answer and no error anywhere. Measured as a red tooth first, then fixed in one key. This matters more than the host-side work it was found behind: the Python call is CC's path, the verb is EVERYBODY's, and hermes_shim is about to be the first caller through it. The whitelist stays a whitelist — the request IS the cache key, so an unfiltered copy lets a stray body key fork the store for every caller.\n\nTHE FALSIFIER'S FIVE CLAUSES ARE NOW MARKED (a)-(e). They were always five, in prose; proof_coverage read no markers and fell back to one clause covering the whole thing, so the gate would have accepted a single tooth for a five-clause falsifier. Marking them demanded FIVE declared green teeth instead of one, and clause (d) — one call, two records, joined by the canonical digest — had no tooth in the agent lane until this close. The ticket's own PROVES comments had been writing \"(b) and (e)\" for days; the letters were already the vocabulary, just not machine-readable.",
+    "fingerprint": "e5a8e10b26d37e086a51771d172d04e9f015d9c080a62819351626ad63711099",
+    "at": "2026-09-11T16:35:22",
+    "seq": 42
   }
 ]

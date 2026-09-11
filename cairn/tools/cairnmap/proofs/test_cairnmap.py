@@ -26,18 +26,39 @@ from cairn.tools.cairnmap import cairnmap, cli  # noqa: E402
 from cairn.tools.gate import gate  # noqa: E402
 
 # WHICH TOOTH ANSWERS WHICH FALSIFIER CLAUSE — the declaration `cairn test --hollow`
-# reads. Ticket 7aed0fd0ba29's falsifier is written as one prose DONE-when sentence
-# rather than an enumerated list, so proof_coverage.clauses() reads it as the single
-# clause "all" and one tooth has to carry it.
+# and the clearance gate's coverage rung both read.
 #
-# THE TOOTH CHOSEN IS THE DISCRIMINATING ONE, not the broadest. Against the reverted
-# build — the pre-build reader, which swallows the absent key via
-# `.get("members_so_far", [])` and returns ([], None) — this tooth goes RED, because a
-# node class carrying no membership rule produces NO fault there at all. A tooth that
-# merely exercises the gate would stay green on the hollow build and certify nothing.
+# THE FALSIFIER'S DONE-WHEN ENUMERATES THREE CLAUSES and always did: it was written as
+# three statements joined by semicolons, so `proof_coverage.clauses()` read the whole
+# sentence as the single fallback clause "all" and exactly one tooth could be declared.
+# One declared tooth is not a stricter bar, it is a blinder: `cairn test --hollow` counts
+# only DECLARED teeth, so reverting this component's charter or removing its WATCHME probe
+# read HOLLOW — "no declared tooth redded" — while the tooth that would have redded on the
+# probe sat right here, undeclarable. Marking the three clauses (1)(2)(3) on 2026-09-11 is
+# a rendering of what the sentence already said, not a change to what is promised.
+#
+# EACH TOOTH IS THE DISCRIMINATING ONE FOR ITS CLAUSE, not the broadest available:
+#
+#   (1) the roster fault is reported ONCE if at all, never once per skill. Against the
+#       reverted build — the pre-build reader, which swallows the absent key via
+#       `.get("members_so_far", [])` and returns ([], None) — this tooth goes RED, because
+#       a node class carrying no membership rule produces NO fault there at all. A tooth
+#       that merely exercises the gate would stay green on the hollow build.
+#   (2) the retirement proof and cairnmap agree about where membership lives. The charter
+#       IS where cairnmap records that, so the tooth reads the design record against the
+#       code — the two mouths that were free to disagree until something read both.
+#   (3) the gate's remaining findings are all real. No tooth can settle that in a fixture:
+#       it is a question about the LIVE corpus over time, which is precisely why the ticket
+#       carries a WATCHME whose nexus is "cairnmap's own tree — the surface that learns
+#       whether its findings are real". The declared tooth is the one that proves that
+#       watch exists and can be made to fire; it is the honest floor under a clause whose
+#       real answer arrives from live traffic, and it says so rather than pretending the
+#       fixture settled it.
 PROVES = {
     "7aed0fd0ba29": {
-        "all": "test_a_node_class_with_no_membership_rule_is_ONE_red",
+        "1": "test_a_node_class_with_no_membership_rule_is_ONE_red",
+        "2": "test_the_charter_records_where_membership_lives",
+        "3": "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
     },
 }
 
@@ -489,6 +510,52 @@ def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
     quiet = probe.multiplication_reading(record_of=post_build_record)
     assert not quiet["fires"], f"the probe must be quiet against the built behaviour: {quiet}"
     assert quiet["reds_from_one_fault"] == 1 and quiet["derived_lane_absent"], quiet
+
+
+def test_the_charter_records_where_membership_lives():
+    """CLAUSE (2): the retirement proof and cairnmap agree about where membership lives —
+    and the agreement is checked in BOTH the places the answer is written.
+
+    THE CODE'S ANSWER is `members_derived_by` on the skill node class: a rule that says how
+    to derive the set, read by `skill_membership`. The corpus retired the stored
+    `members_so_far` roster on 2026-08-28 and `CairnCommons/node_classes/proofs/
+    test_membership_derived.py` holds that retirement shut from the other end.
+
+    THE CHARTER'S ANSWER is the design record beside this code, and until this tooth existed
+    nothing read it. That is not a hypothetical gap: the pre-build charter promised a lane
+    (`every_chartered_skill_is_on_the_roster`) that this build RETIRED as tautological, and
+    described a proof ("the roster omission replay") that no longer exists. A charter that
+    still advertises a retired check is a component lying about itself at the one surface a
+    mind arriving cold reads first (Law 5), and `cairn cairnmap` renders that lie as help.
+
+    Same shape as `test_chart_orient.py::test_the_default_is_measure_and_the_charter_beside
+    _it_says_the_same`, and for the same measured reason: a quarter of every charted build
+    writes a charter that, until a tooth reads it, no proof can be redded by.
+    """
+    assert hasattr(cairnmap, "skill_membership"), (
+        "the code's answer to 'where does membership live' is skill_membership()")
+    assert not hasattr(cairnmap, "skill_roster"), (
+        "skill_roster() read the retired stored list; its survival beside skill_membership() "
+        "is the two-mouths defect the retirement removed")
+
+    charter = json.loads((REPO / "cairn" / "tools" / "cairnmap" / cairnmap.CHARTER)
+                         .read_text(encoding="utf-8"))
+    falsifier = charter.get("falsifier") or ""
+    owner = charter.get("owner") or ""
+    proof_field = charter.get("proof") or ""
+
+    assert "members_derived_by" in falsifier, (
+        "the charter's falsifier does not name the key the code actually reads — the design "
+        "record and the reader disagree about where membership lives")
+    assert "every_chartered_skill_is_on_the_roster" in falsifier and "RETIRED" in falsifier, (
+        "the charter does not record that the roster lane was retired, so it still promises "
+        "a red from a lane that no longer runs")
+    assert "roster omission replay" not in proof_field, (
+        "the charter's proof paragraph still describes the roster omission replay, a tooth "
+        "this build removed")
+    assert "membership rule" in owner, (
+        "the charter's owner paragraph still says cairnmap does not own the skill ROSTER; "
+        "what it does not own is the membership RULE, and the two are different objects")
 
 
 # ── runner ───────────────────────────────────────────────────────────────────

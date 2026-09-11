@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_cairnmap.py passes under python3",
-    "caller": "sail:7aed0fd0ba29",
-    "date": "2026-09-11T11:24:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-11T11:36:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -36,7 +36,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "6f7ea5e521f2f9df7a6f1074253e46912322fc980261bfac8ae480f01420ab8d",
+      "source_fingerprint": "372f373f907f1bc04e668af80e0be823508b0e38a7c9f6e6ad5a21a0ec84832d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -54,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-225873-1xo5x2eg/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-258308-wmqf8n0_/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,11 +63,20 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129151873,
-          "disk_bytes": 140042240,
-          "entries": 4491,
+          "bytes": 129177503,
+          "disk_bytes": 140066816,
+          "entries": 4492,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "7aed0fd0ba29": {
+          "cairn/tools/cairnmap/cairnmap.py": [
+            "test_a_node_class_with_no_membership_rule_is_ONE_red"
+          ],
+          "cairn/tools/cairnmap/intention+why.json": [],
+          "cairn/tools/cairnmap/probes/the_roster_fault_is_one_finding.py": []
         }
       }
     },

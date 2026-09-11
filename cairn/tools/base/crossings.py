@@ -33,12 +33,31 @@ Read one key and that ticket loses ``cairn/tools/base/proofs/test_raise_trouble.
 hollow's instrument set. Read both and the derived set is byte-identical to the stored one.
 n=1 is the whole population of that key today, which is why it is read by name and not by guess.
 
-TWO READING VERBS, NOT ONE, and their difference is deliberate. ``proven_by_latest`` answers
-"which proof does THIS crossing stand on" (proof_coverage's gate, codemother's shim);
-``proven_by_since_buildme`` answers "which instruments can measure this build at all" (hollow).
-Bending one reader to serve both questions is the defect recorded at ticket
-proven-by-answers-two-questions-and-one-reader-serves-both — so there are two verbs with their
-reasons written down, over one derivation.
+ONE READING VERB, AND THE SECOND ONE WAS RETIRED THE DAY IT WAS MEASURED. This module first
+shipped with two — a ``proven_by_latest`` answering "which proof does THIS crossing stand on"
+for proof_coverage's gate and codemother's shim, beside ``proven_by_since_buildme`` answering
+"which instruments can measure this build at all" for hollow. The split cited a ticket named
+proven-by-answers-two-questions-and-one-reader-serves-both. THAT TICKET DOES NOT EXIST and
+never did: the citation was authored in this module's own build commit (5f44a62) and a grep of
+both roots returns nothing. So the split carried no ruling, and the measurement was free to
+settle it (Law 9 — anything settled by measurement trumps approvals).
+
+IT DOES NOT SURVIVE THE JOURNALS, and the reason is structural rather than incidental. One
+crossing ACT is journaled at EVERY component address it touches (Law 5), so a voyage that
+proves a seam at four addresses leaves four PROVED entries, each naming that address's share of
+the evidence. "The latest crossing that names a proof" then resolves to the LAST RECORD — one
+component's share — and not to the act. Measured 2026-09-10 against the stored arrays at
+b9828a2^: reading the last record loses proofs on 4 of the 42 tickets (675ab0daa171,
+6ec9b384b451, 9579a6f9cec6, dd8ad9702b49 — up to 5 at once), while the union since the latest
+forward BUILDME loses nothing anywhere: 24 identical, 18 derived-superset, 0 loss. The chart's
+own hypothesize berth predicted exactly this and the build deviated from it.
+
+THE KICK-BACK WHY IS UNTOUCHED, which is what makes the collapse safe rather than merely
+tidier. The reason the gate wanted "latest" was that a ticket sent back to BUILDME and
+re-crossed must not be checked against the proof it abandoned — and the cut at the latest
+FORWARD BUILDME already excludes every abandoned proof, because abandonment is precisely what
+crossing BUILDME again marks. What the extra narrowing removed was never an abandoned proof; it
+was the rest of the same act.
 """
 
 from __future__ import annotations
@@ -51,7 +70,7 @@ from cairn.tools.base.address import ROOTS
 
 __all__ = [
     "journals", "crossings_for", "has_crossings",
-    "proven_by_latest", "proven_by_since_buildme", "buildme_crossing",
+    "proven_by_since_buildme", "buildme_crossing",
 ]
 
 
@@ -206,20 +225,6 @@ def has_crossings(ticket_id: str, roots: dict[str, Path] | None = None) -> bool:
     return bool(_index(roots).get(str(ticket_id)))
 
 
-def proven_by_latest(ticket_id: str, roots: dict[str, Path] | None = None) -> list[str]:
-    """The proofs named by the LATEST crossing that names any — and only it.
-
-    THE GATE'S RULE, and the reason is a kick-back: a ticket sent back to BUILDME and re-crossed
-    must not be checked against the proof it abandoned. Consumers: ``proof_coverage._proven_by``
-    and ``codemother/shim.py``'s proofs_pending read, which already implemented this rule
-    separately and identically.
-    """
-    for entry in reversed(crossings_for(ticket_id, roots)):
-        if entry["proofs"]:
-            return list(entry["proofs"])
-    return []
-
-
 def buildme_crossing(ticket_id: str, roots: dict[str, Path] | None = None) -> dict | None:
     """The LATEST FORWARD crossing into BUILDME — the start of the build that STANDS.
 
@@ -237,14 +242,17 @@ def buildme_crossing(ticket_id: str, roots: dict[str, Path] | None = None) -> di
 def proven_by_since_buildme(ticket_id: str, roots: dict[str, Path] | None = None) -> list[str]:
     """Every proof named at or after the latest forward BUILDME crossing — the UNION.
 
-    HOLLOW'S RULE, and it is deliberately not ``proven_by_latest``. Measured 2026-09-09: read
-    latest-only, hollow reported FIVE of eight ``writes_to`` files hollow on 9579a6f9cec6; read
-    as the union, none. A seam is proved by several proofs at several addresses, and the reading
-    that asks "could ANY instrument have caught this file" needs all of them.
+    THE ONE RULE ALL THREE CONSUMERS READ — hollow, proof_coverage's gate, and codemother's
+    shim. Measured 2026-09-09: read last-record-only, hollow reported FIVE of eight ``writes_to``
+    files hollow on 9579a6f9cec6; read as the union, none. A seam is proved by several proofs at
+    several addresses, and every reading that asks what evidence stands behind this build needs
+    all of them. The module header records why the second verb that once served the gate did not
+    survive contact with the journals.
 
     The cut at BUILDME is what keeps that union from also picking up the abandoned proof of a
-    build that was kicked back — the same reason ``proven_by_latest`` takes the latest. Measured
-    over all 42 tickets that carried a stored array: 36 identical, 6 derived-superset, 0 loss.
+    build that was kicked back — and it is the WHOLE of the kick-back protection, which is why
+    no consumer needs a narrower reading. Measured over all 42 tickets that carried a stored
+    array: 24 identical, 18 derived-superset, 0 loss.
     """
     entries = crossings_for(ticket_id, roots)
     start = 0

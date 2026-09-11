@@ -440,10 +440,18 @@ def _lack(ticket_id: str, kind: str, about: str, why: str, **values) -> dict:
 
 
 def _proven_by(ticket: dict, roots=None) -> list[str]:
-    """The proof or proofs named by the LATEST crossing that names any — always a list.
+    """Every proof named since the build that stands — always a list.
 
-    Latest, not first: a ticket kicked back to BUILDME and re-crossed names a new proof,
-    and reading the first crossing would check the abandoned one forever.
+    Since the latest FORWARD BUILDME, not from the beginning: a ticket kicked back and
+    re-crossed must not be checked against the proof it abandoned, and crossing BUILDME
+    again is exactly what marks the abandonment.
+
+    NOT "the latest crossing that names any", which is what this read was until
+    2026-09-10 and which loses evidence under the journals. One crossing ACT is journaled
+    at every component address it touches, so the last record carries one component's
+    share of the act. Measured against the stored arrays at b9828a2^: the last-record
+    reading loses proofs on 4 of 42 tickets; this one loses none. The whole measurement is
+    at the head of cairn/tools/base/crossings.py.
 
     ``proven_by`` may be one path or a list of them. A ticket whose subject is a SEAM has
     ends in more than one component, and its clauses are proved by teeth in each — writing
@@ -459,9 +467,9 @@ def _proven_by(ticket: dict, roots=None) -> list[str]:
     parsed dicts — and NOTHING wrote any of them.
     """
     # Bound at call time — see the note at the has_crossings site above.
-    from cairn.tools.base.crossings import proven_by_latest
+    from cairn.tools.base.crossings import proven_by_since_buildme
 
-    return proven_by_latest(str(ticket.get("id") or ""), roots)
+    return proven_by_since_buildme(str(ticket.get("id") or ""), roots)
 
 
 def _latest_seal(path: Path, *, artifact: bool = False):

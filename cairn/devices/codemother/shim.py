@@ -320,9 +320,9 @@ class CodeMotherDevice(BaseDevice):
 
         Two conditions and both are necessary. The cursor, because a proof is named on a
         boat's PROVEME crossing and stays named after it moves on — matching on the name
-        alone would re-cross a boat every time its proof was resealed. And the LATEST
-        crossing (``proof_coverage._proven_by``'s rule), because a boat kicked back to
-        BUILDME and re-crossed names a new proof, and the abandoned one must stop
+        alone would re-cross a boat every time its proof was resealed. And the cut at the
+        latest forward BUILDME (``proof_coverage._proven_by``'s rule), because a boat
+        kicked back and re-crossed names a new proof, and the abandoned one must stop
         pulling it forward.
 
         The paths are compared RESOLVED. The tester announces an absolute path; a ticket
@@ -330,7 +330,7 @@ class CodeMotherDevice(BaseDevice):
         file, and a boat left behind by a string compare is exactly the parked boat this
         ticket exists to stop.
         """
-        from cairn.tools.base.crossings import proven_by_latest
+        from cairn.tools.base.crossings import proven_by_since_buildme
         from cairn.tools.base.transitions import parse_workflow
         from cairn.tools.proof_coverage import load_tickets
 
@@ -345,12 +345,16 @@ class CodeMotherDevice(BaseDevice):
                     continue
             except Exception:      # noqa: BLE001 — a malformed cursor is the ticket
                 continue           # inspector's finding, not this handler's
-            # THE LATEST CROSSING THAT NAMES ANY, AND ONLY IT — derived from the journals
+            # EVERY PROOF NAMED SINCE THE BUILD THAT STANDS — derived from the journals
             # since 2026-09-10 (ruling crossings-are-derived-never-written), and asked for
             # by the name of the rule rather than re-implemented. This loop and
             # proof_coverage._proven_by were the same eleven lines written twice, which is
             # how two readers of one key drift into two rules without anyone deciding to.
-            named = proven_by_latest(str(ticket.get("id") or ""), _crossing_roots())
+            # It read the LAST RECORD until later that same day. One crossing act is
+            # journaled at every address it touches, so the last record is one component's
+            # share of the act and a boat proved at four addresses was surfaced by only one
+            # of its four proofs. Measured: 1 of the 42 migrated tickets lost 3 proofs.
+            named = proven_by_since_buildme(str(ticket.get("id") or ""), _crossing_roots())
             if named and want in {_resolved(one) for one in named}:
                 out.append({"ticket": str(ticket.get("id") or ""), "proven_by": named})
         return [one for one in out if one["ticket"]]

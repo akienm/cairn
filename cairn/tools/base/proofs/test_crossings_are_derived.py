@@ -92,8 +92,6 @@ def test_ALSO_PROVEN_BY_IS_READ_or_the_derivation_LOSES_a_proof():
         got = X.proven_by_since_buildme("t1", roots=w)
         assert got == ["p/one.py", "p/two.py", "p/three.py"], (
             f"also_proven_by was not read: {got}")
-        assert X.proven_by_latest("t1", roots=w) == ["p/one.py", "p/two.py", "p/three.py"], (
-            "the latest-crossing read must see the same key")
 
 
 def test_the_UNION_CUTS_AT_THE_LATEST_BUILDME_so_an_abandoned_proof_is_not_carried():
@@ -116,31 +114,55 @@ def test_the_UNION_CUTS_AT_THE_LATEST_BUILDME_so_an_abandoned_proof_is_not_carri
             f"the union did not cut at the latest BUILDME: {got}")
 
 
-def test_the_LATEST_READ_NAMES_ONE_CROSSING_and_is_never_the_union():
-    """Two verbs, two questions. The gate asks what THIS crossing stands on; hollow asks what
-    could measure the build at all. Collapsing them is the defect recorded at ticket
-    proven-by-answers-two-questions-and-one-reader-serves-both — so if ``proven_by_latest``
-    ever starts unioning, this reds while the tooth above stays green."""
+def test_ONE_ACT_JOURNALED_AT_FOUR_ADDRESSES_is_read_as_four_proofs_not_one():
+    """THE READING THAT WAS RETIRED THE DAY IT SHIPPED, and this tooth is what stops it coming back.
+
+    A crossing ACT is journaled at EVERY component address it touches (Law 5), so a voyage that
+    proves a seam at four addresses leaves four PROVED entries, each naming that address's share
+    of the evidence. A reader that takes "the latest crossing that names a proof" therefore
+    resolves to the LAST RECORD — one component's share — and calls it the act.
+
+    This module shipped with exactly that reader, named ``proven_by_latest``, citing a ticket
+    called proven-by-answers-two-questions-and-one-reader-serves-both. A grep of both roots
+    returns nothing: that ticket does not exist and never did, and the citation was authored in
+    this module's own build commit. Measured against the stored arrays at b9828a2^, the
+    last-record reading loses proofs on 4 of the 42 migrated tickets — 9579a6f9cec6 loses five
+    at once — while the union since the latest forward BUILDME loses none. The verb is gone and
+    all three consumers read the union.
+
+    The four journals below are ONE act. Reintroduce a last-record read anywhere and this reds.
+    """
     with tempfile.TemporaryDirectory() as tmp:
         w = _world(tmp)
         _journal(w["repo"], "cairn/devices/alpha/history.json", [
-            _cross("BUILDME", "2026-01-01T10:00:00", proven_by="p/early.py"),
-            _cross("PROVEME", "2026-01-02T10:00:00", proven_by="p/late.py"),
+            _cross("BUILDME", "2026-01-01T10:00:00"),
+            _cross("PROVED", "2026-01-02T10:00:00", proven_by="p/alpha.py"),
         ])
-        assert X.proven_by_latest("t1", roots=w) == ["p/late.py"]
-        assert X.proven_by_since_buildme("t1", roots=w) == ["p/early.py", "p/late.py"]
+        for i, device in enumerate(("beta", "gamma", "delta"), start=1):
+            _journal(w["repo"], f"cairn/devices/{device}/history.json", [
+                _cross("PROVED", f"2026-01-02T10:00:0{i}", proven_by=f"p/{device}.py")])
+        got = X.proven_by_since_buildme("t1", roots=w)
+        assert got == ["p/alpha.py", "p/beta.py", "p/gamma.py", "p/delta.py"], (
+            "one PROVED act journaled at four addresses must read as four proofs, not as the "
+            f"share of whichever address journaled last: {got}")
+        assert not hasattr(X, "proven_by_latest"), (
+            "the retired verb is back. It reads the last journal RECORD and calls it the act, "
+            "which loses evidence on any seam proved at more than one address.")
 
 
 def test_a_CROSSING_THAT_NAMES_NO_PROOF_is_stepped_over_not_treated_as_an_answer():
-    """"The latest crossing" and "the latest crossing that NAMES a proof" differ on every
-    ticket whose last act named none — and the second is the one both consumers implemented."""
+    """A ticket whose LAST act named no proof still stands on what its earlier acts named.
+
+    A PROVED crossing routinely names none — the evidence was declared at PROVEME — so a reader
+    that stopped at the last record would answer "nothing" for a fully proved boat. The union
+    steps over the silent entry instead of treating it as the answer."""
     with tempfile.TemporaryDirectory() as tmp:
         w = _world(tmp)
         _journal(w["repo"], "cairn/devices/alpha/history.json", [
             _cross("BUILDME", "2026-01-01T10:00:00", proven_by="p/one.py"),
             _cross("PROVED", "2026-01-02T10:00:00"),
         ])
-        assert X.proven_by_latest("t1", roots=w) == ["p/one.py"]
+        assert X.proven_by_since_buildme("t1", roots=w) == ["p/one.py"]
 
 
 def test_DIRECTION_IS_CHECKED_which_the_stored_array_could_not_do():
@@ -224,7 +246,7 @@ def test_A_TICKET_THAT_NEVER_CROSSED_derives_to_nothing_and_says_so_without_rais
         ])
         assert X.has_crossings("t1", roots=w) is False
         assert X.crossings_for("t1", roots=w) == []
-        assert X.proven_by_latest("t1", roots=w) == []
+        assert X.proven_by_since_buildme("t1", roots=w) == []
         assert X.buildme_crossing("t1", roots=w) is None
 
 

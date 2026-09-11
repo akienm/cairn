@@ -583,9 +583,24 @@ def test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot():
 
 
 def test_the_latest_crossing_wins_when_a_ticket_was_kicked_back():
-    """A ticket kicked back to BUILDME and re-crossed names a NEW proof. Reading the first
-    crossing would check the abandoned one forever — and the abandoned one is exactly the
-    proof least likely to still cover anything."""
+    """A ticket kicked back to BUILDME and re-crossed names a NEW proof. Reading from the
+    beginning would check the abandoned one forever — and the abandoned one is exactly the
+    proof least likely to still cover anything.
+
+    THE FORWARD BUILDME IN THE MIDDLE IS THE WHOLE FIXTURE, and leaving it out is what made
+    this tooth red on 2026-09-10. The read stopped being "the latest crossing that names
+    any" and became "the union since the latest forward BUILDME"
+    (``crossings.proven_by_since_buildme``, under ruling
+    2026-09-10-crossings-are-derived-never-written), because one crossing ACT journals at
+    every component address it touches and a last-record read loses the other addresses'
+    share of the evidence. Under that rule the BUILDME cut carries the kick-back protection
+    by itself — so a fixture with two bare PROVEME crossings and no BUILDME is not a
+    kick-back at all, it is two proofs of one build, and the union is the CORRECT answer
+    over it. The fixture now crosses BUILDME the way a real kick-back does, which is what
+    the tooth's own name always said it did.
+
+    IT STILL BITES: revert the cut to index 0 and the abandoned ``test_old.py`` comes back
+    into the union, which is exactly the ``proof_on_disk`` lack this asserts away."""
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         proof = _component(tmp, proof_body=(
@@ -594,6 +609,7 @@ def test_the_latest_crossing_wins_when_a_ticket_was_kicked_back():
         ticket = _ticket(tmp, "DONE when (1) the first holds.", proven_by=None, crossings=[
             {"date": "2026-09-01", "to": "PROVEME", "by": "CC",
              "proven_by": str(tmp / "gone" / "proofs" / "test_old.py")},
+            {"date": "2026-09-05", "to": "BUILDME", "direction": "forward", "by": "CC"},
             {"date": "2026-09-07", "to": "PROVEME", "by": "CC", "proven_by": str(proof)},
         ])
 

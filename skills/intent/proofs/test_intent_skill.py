@@ -21,11 +21,23 @@ same act as the berth — and pinned in the seam's proof; the tooth below re-che
 composition end to end through /intent's OWN charter, which is the part that could
 break without anyone touching the seam.
 
-STANDING IOU, unchanged and NOT discharged here: the skill class's derivation gate
-(`cairn cairnmap --gate` renders every skill from its charter, and no charter-less
-command renders) is still unbuilt — it lands with the presentation surface. This file
-replaces PROOF.md's *behavioral* section, which was hand-run, and leaves the
-derivation gate recorded as the debt it is (Law 4).
+THE DERIVATION GATE IOU IS DISCHARGED, and this docstring carried the opposite claim
+until 2026-09-11. `cairn cairnmap --gate` has been built and runnable since 2026-08-13;
+the ninth tooth below says so in its own docstring and has been reading it for weeks.
+Two sentences in one file disagreeing about whether a thing exists is the drift Law 5
+is made of, and the tooth is the half with an instrument behind it.
+
+TWO KINDS OF TOOTH LIVE HERE, and the difference is which tree they can read. The
+HERMETIC ones (clause_1 .. clause_4, added 2026-09-11 under ticket c691e19d5464) call
+``cairnmap.inspect(repo=REPO)`` with REPO derived from ``__file__``, so they read the
+tree they are standing in. The HOST-WIDE one shells out to ``bin/cairn cairnmap --gate``
+and reads whatever the host resolves. That is not a style choice: ``cairnmap.repo_root()``
+is NAME-based (``roots_parent() / "cairn"``), so inside a git worktree — which is where
+``cairn test --hollow`` measures — the CLI lands outside the worktree and reports 0
+charters, and every lane passes vacuously. Measured 2026-09-11 in a real worktree: 15
+findings, 6 checks proved, 0 charters. So only the hermetic four are DECLARED to hollow;
+the host-wide one stays because the live fire against the real host is worth having, and
+is deliberately undeclared because it cannot answer a reversion question.
 """
 
 from __future__ import annotations
@@ -83,6 +95,21 @@ GOOD = {
     "bullets": [{"text": "the /intent contract admits a complete firing", "stratum": "code"}],
 }
 
+
+
+# ── ticket c691e19d5464 — the five commands the map cannot render ────────────
+# One tooth per MARKED clause of the falsifier (proof_coverage.clauses() reads
+# ['1','2','3','4'] off the DONE-when head). Only the hermetic teeth are here: the
+# host-wide subprocess tooth below cannot run where hollow measures, and declaring a
+# tooth that reds at HEAD in a worktree makes every reversion unreadable.
+PROVES = {
+    "c691e19d5464": {
+        "1": "test_clause_1_the_command_lane_carries_no_reds",
+        "2": "test_clause_2_the_five_are_named_with_real_usage",
+        "3": "test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face",
+        "4": "test_clause_4_no_charter_was_minted_under_bin_cmd",
+    },
+}
 
 def world():
     return scratch_dir("intent-proof-")
@@ -229,10 +256,167 @@ def test_the_skill_class_derivation_gate_is_green():
     assert re.search(r"\d+ charters", run.stdout), f"the gate reported no census: {run.stdout}"
 
 
-TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+
+# ── ticket c691e19d5464: the command lane, read hermetically ─────────────────
+# THE FIVE, and where each is owned. The owner is the charter of the component the
+# dispatcher in bin/cmd actually execs — never a charter minted under bin/cmd, which is
+# the ticket's WRONG INTENT clause. Measured 2026-09-11 across 22 existing ownership
+# sites: 17 are a component's own top-level `invoke`, 5 are facility blocks on bin's
+# charter, and ZERO live under bin/cmd.
+COMMAND_OWNERS = {
+    "groundloop": "cairn/devices/cairn/machines/ground_loop/intention+why.json",
+    "mailcheck": "cairn/devices/cc/intention+why.json",
+    "operator": "cairn/tools/operator_inbox/intention+why.json",
+    "operator_inbox": "cairn/tools/operator_inbox/intention+why.json",
+    "review": "cairn/machines/skill_block/intention+why.json",
+    "ruled": "skills/ruled/intention+why.json",
+}
+
+# WHAT COUNTS AS REAL USAGE, and why it is a shape rather than a word list. The gate's
+# own lane is satisfied by the bare string `cairn operator_inbox` — which is how that
+# charter passed for weeks while telling a reader nothing about how to run the thing.
+# The falsifier's clause (2) closes that: the mention must carry usage the dispatcher
+# ACTUALLY accepts. Three shapes qualify, and each is checkable without knowing the
+# command: an angle-bracket placeholder (`<id>`), a pipe-separated alternation of
+# subcommands (`status|stop`), or — for a dispatcher that genuinely takes no arguments,
+# which bin/cmd/mailcheck does — the explicit words "no arguments". The third is not a
+# loophole: mailcheck's real usage IS the bare form, and a charter that says so is
+# saying something a bare word cannot. (Written into the ticket 2026-09-11: the clause
+# as first cast said "at minimum one subcommand or argument", which mailcheck cannot
+# satisfy and which would have been a bar no honest charter could clear.)
+_USAGE_WINDOW = 80
+_USAGE_SHAPE = re.compile(r"<[^>\n]+>|\w+\|\w+|no arguments")
+
+
+def _invoke_of(rel: str) -> str:
+    """The component's OWN top-level invoke — not a facility block's.
+
+    The lane accepts either (cairnmap.units() yields the charter itself plus any
+    top-level dict carrying both `what` and `invoke`), and for these six the owner is
+    the component itself. Reading only the top-level string is what makes the tooth
+    stricter than the lane it checks, which is the point of a clause (2) at all.
+    """
+    charter = json.loads((REPO / rel).read_text(encoding="utf-8"))
+    return charter.get("invoke") or ""
+
+
+def test_clause_1_the_command_lane_carries_no_reds():
+    """Falsifier clause (1), read against THIS tree rather than against the host.
+
+    `cairnmap.inspect(repo=REPO)` runs the same predicate the CLI gate runs — for each
+    executable in bin/cmd, a `\bcairn <name>\b` search across every charter'd unit's
+    invoke — but over the repo this file is standing in. That is what lets the tooth run
+    inside `cairn test --hollow`'s worktree, where the CLI reads a repo that isn't there.
+
+    Only the command lane is read. The commons-reading lanes beside it legitimately red
+    in a worktree (commons_root() is name-based too), and collapsing 'this lane is
+    clean' into 'the gate is green' would make the tooth unreadable exactly where it is
+    needed most (Law 7 — a diagnostic surface may not collapse an error).
+    """
+    from cairn.tools.cairnmap import cairnmap
+    entry = [e for e in cairnmap.inspect(repo=REPO)
+             if e["identity"] == "every_command_is_named_by_a_charter"]
+    assert len(entry) == 1, f"the command lane did not run at all: {entry}"
+    reds = entry[0]["values"]["reds"]
+    assert reds == [], "commands no charter's invoke names:\n  " + "\n  ".join(reds)
+    # NON-VACUITY, and it is the whole reason this tooth can be trusted inside a
+    # worktree. A lane that found no commands reds nothing and looks identical to a lane
+    # that found twenty-five and owned them all. The CLI's worktree run failed exactly
+    # this way: 0 charters, command lane 'pass'.
+    expected = entry[0]["expected"]
+    assert len(expected) >= 20, (
+        f"the lane walked {len(expected)} command(s) — it found no corpus, so its green "
+        f"says nothing: {expected}")
+    assert set(COMMAND_OWNERS) <= set(expected), (
+        f"the six this ticket is about are not among the commands walked: {expected}")
+
+
+def test_clause_2_the_five_are_named_with_real_usage():
+    """Falsifier clause (2): named by the RIGHT charter, and with usage a bare word
+    cannot fake.
+
+    Clause (1) only asks whether SOME charter mentions the command — a charter anywhere
+    in the corpus could claim `cairn review` and the lane would go green. This tooth
+    pins the mention to the charter of the component the dispatcher execs, and to that
+    charter's OWN top-level invoke rather than a facility block, so 'owned' means the
+    thing a reader would go and read.
+    """
+    for name, rel in sorted(COMMAND_OWNERS.items()):
+        invoke = _invoke_of(rel)
+        assert invoke, f"{rel} carries no top-level `invoke` at all, so it names nothing"
+        hits = [m for m in re.finditer(rf"\bcairn {re.escape(name)}\b", invoke)]
+        assert hits, (
+            f"`cairn {name}` is not named by its own component's invoke ({rel}) — the "
+            f"lane may still be green off some other charter, which is the substitution "
+            f"this clause exists to catch")
+        # At least ONE mention must carry usage in its window. `cairn review` appears
+        # twice in skill_block's invoke — the bare listing form and the marking form —
+        # and only the second carries an argument; either satisfying is correct.
+        assert any(_USAGE_SHAPE.search(invoke[m.end():m.end() + _USAGE_WINDOW])
+                   for m in hits), (
+            f"`cairn {name}` is named in {rel} with no real usage within "
+            f"{_USAGE_WINDOW} chars — no <placeholder>, no sub|command alternation, and "
+            f"no explicit 'no arguments'. A bare mention satisfies the gate's lane and "
+            f"tells a reader nothing, which is the measured state of `cairn "
+            f"operator_inbox` before this ticket.")
+
+
+def test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face():
+    """Falsifier clause (3)'s two halves, and the WRONG INTENT clause that rides it.
+
+    The gate's sixth red is not a command-lane red at all — /ruled carries a charter and
+    has no entry in ~/.claude/skills — but the host-wide tooth below reads the WHOLE
+    gate, so it cannot go green until this clears. A COPY would clear the gate and fork
+    the source; the ticket names that as WRONG INTENT, and all 14 pre-existing entries
+    are symlinks, so the install pattern is not in question.
+
+    The install half is host state and survives a repo reversion by construction; the
+    charter half does not, which is what gives this tooth something to say about the
+    build.
+    """
+    from cairn.tools.cairnmap import cairnmap
+    installed = cairnmap.installed_skills()
+    assert "ruled" in installed, (
+        f"/ruled is chartered and not installed — the derivation gate's sixth finding. "
+        f"Installed: {sorted(installed)}")
+    link = Path.home() / ".claude" / "skills" / "ruled"
+    assert link.is_symlink(), (
+        f"{link} exists but is not a symlink — a copied skill forks its own source, and "
+        f"every one of the other {len(installed) - 1} entries is a link")
+    target = installed["ruled"]
+    assert target is not None and (target / "SKILL.md").is_file(), (
+        f"the /ruled link resolves to {target}, which carries no SKILL.md")
+    # The repo half: the charter must record the CLI face beside the slash face. Both
+    # are real — bin/cmd/ruled execs skills.ruled.door directly — and a charter naming
+    # only one of a component's two faces is a charter a reader cannot run from.
+    invoke = _invoke_of(COMMAND_OWNERS["ruled"])
+    assert "/ruled" in invoke and re.search(r"\bcairn ruled\b", invoke), (
+        f"the /ruled charter records only one of its two faces: {invoke!r}")
+
+
+def test_clause_4_no_charter_was_minted_under_bin_cmd():
+    """The ticket's WRONG INTENT clause, head on: five charters appearing under bin/cmd
+    would clear the gate by manufacturing five components that are not components.
+
+    A dispatcher is a two-line exec into a component that already has a charter; giving
+    it one of its own would make the complexity axis say there are five more things in
+    the system than there are. This tooth contributes no reversion signal (nothing this
+    build writes can make it red) and is declared anyway, because the clause is a bound
+    on the SHAPE of the fix and an unwatched bound is the one a later hand crosses.
+    """
+    minted = sorted(str(p.relative_to(REPO)) for p in (REPO / "bin" / "cmd").rglob("intention+why.json"))
+    assert minted == [], f"charters minted under bin/cmd: {minted}"
+
+
 
 
 def _main() -> int:
+    # COLLECTED HERE, NOT AT MODULE LEVEL. A `TEETH = [...]` comprehension sitting
+    # above the last def collects only what is above it, and the runner then prints a
+    # confident count over teeth that never ran. Measured corpus-wide 2026-09-09: 189
+    # of 211 proofs carry the module-level shape. Collecting at call time makes the
+    # count equal the file.
+    TEETH = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     reds = 0
     for tooth in TEETH:
         try:

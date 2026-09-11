@@ -1666,5 +1666,272 @@
     "fingerprint": "7a5aedc33343515fe775a44aab37402c0265afe8cb0fb41d04ff3dc5ed56a151",
     "at": "2026-09-11T11:46:00",
     "seq": 5
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'c691e19d5464', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'cairnmap' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'cairnmap' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "c691e19d5464",
+          "component": "cairnmap",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'c691e19d5464' is cast",
+        "actual": "named ticket 'c691e19d5464' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "c691e19d5464",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/c691e19d5464-five-commands-the-map-cannot-render.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      }
+    ],
+    "checks_proved": 8,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/tools/cairnmap/proofs/test_cairnmap.py",
+    "proven_seal_date": "2026-09-11T11:45:11",
+    "delegated": false,
+    "ticket": "c691e19d5464",
+    "note": "BUILDME. Five executables in bin/cmd are named by no charter's `invoke`, so the derivation gate reds seven-to-one on its last lane and skills/intent's derivation-gate tooth cannot go green. The fix is to name each command in the charter of the component its dispatcher execs — ground_loop, cc, operator_inbox, skill_block, skills/ruled — never by minting a charter under bin/cmd (the ticket's WRONG INTENT clause; measured: 0 charters live there today, and of 22 existing command-ownership sites 17 are a component's own top-level invoke and 5 are facility blocks on bin's charter). The gate's sixth, separate red — /ruled chartered but not installed — rides this ticket rather than B6, because the tooth the falsifier names reads the WHOLE gate. THE CHART SETTLED ONE THING THAT COST THE PREVIOUS VOYAGE A RETREAT: the existing tooth shells out to `bin/cairn cairnmap --gate` with cwd=REPO, and cairnmap.repo_root() is NAME-based (roots_parent()/'cairn'), so inside a git worktree — which is exactly where hollow measures — the gate reads 0 charters, the command lane passes vacuously and the tooth reds at HEAD. Measured directly: a real worktree at /tmp/cairn-hollow-lKYq/worktree returned 15 findings, 6 checks proved, 0 charters. Declaring that tooth to hollow would raise HollowUnmeasurable. So the build writes FOUR HERMETIC teeth that call cairnmap.inspect(repo=REPO) with REPO derived from __file__ — inspect/check/installed_skills/gather/commands all accept explicit paths — and declares those; the host-wide subprocess tooth stays and is deliberately NOT declared, because its job is the live fire against the host, not the reversion reading. The teeth are written FIRST, before any charter is touched, so they are observed RED for the right reason (five named commands, not a traceback) and go green one charter at a time. Writing them last would make a tooth that asserts nothing indistinguishable from one that asserts everything. THE BUILDME CROSSING NAMES test_cairnmap.py, NOT the proof this ticket edits, and the reason is the clearance gate rather than a preference: skills/intent/proofs/test_intent_skill.py is sealed RED (2026-09-11T10:01) BECAUSE of the six findings this ticket exists to clear, and the harbor clears only onto proven code (Law 8). Naming it here would be asking the gate to accept the defect as its own warrant. The PROVEME and PROVED crossings name it, once it is green, and proven_by unions across crossings — so hollow reads both, and drops test_cairnmap.py as declaring no tooth for this ticket.",
+    "fingerprint": "c8da35898e6c3c9f7a3472b7a50533035b3b08ce43c2dfa45381f96cb0b68b24",
+    "at": "2026-09-11T12:10:10",
+    "seq": 6
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'c691e19d5464', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c691e19d5464"
+        }
+      }
+    ],
+    "checks_proved": 6,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "skills/intent/proofs/test_intent_skill.py",
+    "proven_seal_date": "2026-09-11T12:16:14",
+    "delegated": false,
+    "ticket": "c691e19d5464",
+    "note": "PROVEME. The build landed and the gate is green on the host: `./bin/cairn cairnmap --gate` now exits 0 with SEVEN checks proved over 75 charters, where it read six findings at BUILDME. skills/intent/proofs/test_intent_skill.py prints 13/13 teeth green and is sealed green under the tester at 2026-09-11T12:16:14, netns-confirmed (1.1.1.1:53 reachable bare, unreachable inside the seal) — so this crossing may name it, which the BUILDME crossing could not. WHAT WAS WRITTEN: five charters gained or extended a top-level `invoke` naming their command with its real usage — ground_loop (`cairn groundloop status|start|stop|restart`), cc (`cairn mailcheck`, no arguments), operator_inbox (`cairn operator show artifact <id>`, and the byte-identical `cairn operator_inbox` face), skill_block (`cairn review` bare and `cairn review <id> \"words\"`), and skills/ruled (`/ruled [<id>]` plus `cairn ruled [<id>]`). Zero charters were minted under bin/cmd — the ticket's WRONG INTENT clause holds. /ruled was installed as a SYMLINK (~/.claude/skills/ruled -> the repo directory), not a copy, which the other WRONG INTENT clause required; the host now carries 15 installed skills, all symlinks. MEASURED PROGRESSION, one charter at a time: 9/13 teeth with the gate at 6 findings, then 11/13 at 1 finding after the five charter writes, then 13/13 at 0 after the install and the recompile poke. The four new teeth were written BEFORE any charter was touched and observed red for the right reason — 'commands no charter's invoke names' and '`cairn groundloop` is not named by its own component's invoke' — never a traceback. TWO DEFECTS THE VOYAGE FIXED IN PASSING, per the bounds ruling of 2026-09-09. (1) The proof carried the corpus's hand-rolled __main__ trap: TEETH was collected at MODULE level, so a tooth defined after that line would be printed by nobody; the collection moved inside _main(). 189 of 211 proofs still carry the module-level shape and that is a standing ticket, not this one's. (2) The ticket's own clause (2) as cast demanded 'at minimum one subcommand or argument the dispatcher actually accepts', which `bin/cmd/mailcheck` — a self-contained reader taking NO arguments — could never satisfy honestly. The bar was refined to a checkable shape within 80 characters of the named command (a `<placeholder>`, a `sub|command` alternation, or the explicit words 'no arguments'), the falsifier was edited to say so and to say why, and the tooth's comment block carries the same reasoning. A bar no honest charter could clear forces either a false invoke or an exemption; the third shape admits the true answer and still refuses a bare word.",
+    "fingerprint": "0b956453d3b0a857d7209ddcfcab3041c8ddbfe4912aa01058e4e3ea2539d6e9",
+    "at": "2026-09-11T12:16:46",
+    "seq": 7
   }
 ]

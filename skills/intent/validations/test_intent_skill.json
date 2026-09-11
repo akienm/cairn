@@ -1,40 +1,35 @@
 [
   {
     "claim": "proof test_intent_skill.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-11T10:01:27",
+    "caller": "CC",
+    "date": "2026-09-11T12:16:14",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "          RED: skill missing from the roster: /sail carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /saveslate carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /sorted carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /tellmeabout carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n          RED: skill missing from the roster: /whatslefttodo carries a charter but node_classes/skill.json members_so_far omits it (the measured 2026-07-31 defect)\n  pass  every_roster_entry_carries_a_charter\n  FAIL  every_chartered_skill_is_installed\n          RED: skill not installed: /ruled carries a charter but has no entry in /home/akien/.claude/skills\n  pass  every_installed_skill_points_at_its_charter\n  FAIL  every_command_is_named_by_a_charter\n          RED: command without a charter: bin/cmd/groundloop — no charter's invoke mentions `cairn groundloop`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/mailcheck — no charter's invoke mentions `cairn mailcheck`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/operator — no charter's invoke mentions `cairn operator`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/review — no charter's invoke mentions `cairn review`, so it cannot render (an undocumented command is impossible, by design)\n          RED: command without a charter: bin/cmd/ruled — no charter's invoke mentions `cairn ruled`, so it cannot render (an undocumented command is impossible, by design)\nderivation gate: RED — 21 finding(s) (8 checks proved · 75 charters)\n\n  green  test_the_two_entrances_cannot_differ_in_strictness\n\n8/9 teeth green",
+      "returncode": 0,
+      "stdout_tail": "  green  test_a_real_firing_against_the_REAL_charter_traces_and_finds\n  green  test_an_incomplete_firing_is_refused_by_the_REAL_contract\n  green  test_both_exits_are_instructed_including_the_kill\n  green  test_clause_1_the_command_lane_carries_no_reds\n  green  test_clause_2_the_five_are_named_with_real_usage\n  green  test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face\n  green  test_clause_4_no_charter_was_minted_under_bin_cmd\n  green  test_every_contract_field_carries_its_why\n  green  test_the_anatomy_is_a_CALL_not_a_paragraph_about_one\n  green  test_the_kill_exit_fires_the_same_door\n  green  test_the_markdown_and_the_charter_cannot_drift\n  green  test_the_skill_class_derivation_gate_is_green\n  green  test_the_two_entrances_cannot_differ_in_strictness\n\n13/13 teeth green\nskill:/intent is WIRED — the anatomy is a call the markdown fires, the charter's contract and the executed question set cannot drift apart, a firing traces its green and emits a finding at either exit, and the real contract refuses an incomplete packet naming every lack at once",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_real_firing_against_the_REAL_charter_traces_and_finds",
         "test_an_incomplete_firing_is_refused_by_the_REAL_contract",
         "test_both_exits_are_instructed_including_the_kill",
+        "test_clause_1_the_command_lane_carries_no_reds",
+        "test_clause_2_the_five_are_named_with_real_usage",
+        "test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face",
+        "test_clause_4_no_charter_was_minted_under_bin_cmd",
         "test_every_contract_field_carries_its_why",
         "test_the_anatomy_is_a_CALL_not_a_paragraph_about_one",
         "test_the_kill_exit_fires_the_same_door",
         "test_the_markdown_and_the_charter_cannot_drift",
-        "every_charter_parses",
-        "every_component_carries_a_charter",
-        "the_skill_roster_is_readable",
-        "every_roster_entry_carries_a_charter",
-        "every_installed_skill_points_at_its_charter",
+        "test_the_skill_class_derivation_gate_is_green",
         "test_the_two_entrances_cannot_differ_in_strictness"
       ],
-      "teeth_red": [
-        "test_the_skill_class_derivation_gate_is_green",
-        "every_chartered_skill_is_on_the_roster",
-        "every_chartered_skill_is_installed",
-        "every_command_is_named_by_a_charter"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "dae73f7d98591848e557c9cf637cc61ed1faf858f2bad52b3bac289a7f924624",
+      "source_fingerprint": "4a5ed78bf06baaa3090652ba2670a3f49c95c5fb61b93354825a9d3d9cdd2edd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -59,6 +54,8 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/cairnmap/__init__.py",
+        "cairn/tools/cairnmap/cairnmap.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -76,7 +73,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4148970-c3skoeos/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-368249-_zm1_8zk/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,21 +82,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129069589,
-          "disk_bytes": 139931648,
-          "entries": 4479,
+          "bytes": 129247724,
+          "disk_bytes": 140148736,
+          "entries": 4500,
           "builds": 1,
-          "reuses": 37
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "c1534eca00356597af2e982074130e6f337a074c7f5ff0e71fafa282c27a5396",
-        "opened": "2026-09-09T18:23:37",
-        "last_red": "2026-09-11T10:01:27",
-        "passes": 7,
-        "rung": 3,
-        "trouble": "seal-red-skills-intent",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

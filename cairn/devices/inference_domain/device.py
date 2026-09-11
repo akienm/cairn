@@ -41,8 +41,18 @@ class InferenceDomainDevice(BaseDevice):
         temperature = body.get("temperature", 0.0)
         resolver = host.ollama_resolver(model=model, temperature=temperature)
 
+        # THE WHITELIST IS THE REQUEST, so a key missing from it is a question silently
+        # rewritten. `tools` was missing until 2026-09-11 (ticket 548dd13fb4db): host.py sent
+        # the toolset on /api/chat, canonicalize() digested it and the cache forked on it —
+        # and none of that was reachable from the bus, because the key never entered the
+        # request here. A caller posting a tool-using conversation over the one door got a
+        # coherent toolless answer and no error anywhere, which is exactly the collapse Law 7
+        # forbids a door to make. Held as a whitelist rather than opened to the whole body on
+        # purpose: the request IS the cache key, so an unfiltered copy lets any stray body key
+        # fork the store for every caller.
         request = {k: v for k, v in body.items()
-                   if k in ("kind", "prompt", "messages", "model", "domain", "options")}
+                   if k in ("kind", "prompt", "messages", "model", "domain", "options",
+                            "tools")}
         result = domain.resolve(request, resolver=resolver, sink=self.debug_sink)
         self.debug_sink.emit("resolve",
                              pointer=body.get("kind", ""),

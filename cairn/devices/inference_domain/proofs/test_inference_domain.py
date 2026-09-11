@@ -67,19 +67,25 @@ class _CountingResolver:
             "provenance": {"host": "fake-host", "call": self.calls},
         }
 
-# WHICH CLAUSE OF 548dd13fb4db'S FALSIFIER EACH TOOTH PROVES — the two cache-side clauses.
+# WHICH CLAUSE OF 548dd13fb4db'S FALSIFIER EACH TOOTH PROVES — the three cache-side clauses.
+# The keys are the ticket's own clause letters because that is what proof_coverage reads off
+# the falsifier's (a)…(e) markers; a descriptive key covers nothing the gate can see.
 # The host-side clauses are declared by cairn/devices/inference_domain/proofs/test_host.py.
 #
 # (b) is pinned rather than built: canonicalize() digests every request key but `domain`, so
 # `tools` entered the key the moment it became a request key. The tooth exists so a later
 # "harmless normalisation" that strips tools before hashing reds here instead of quietly
 # serving an answer computed under somebody else's toolset.
+# (d) is the clause that could most easily come apart in THIS lane: the toolset is a request
+# key, so it moves the canonical and therefore the digest, and a build that hashed one form
+# for the store and another for the trail would leave two true records nobody can join.
 # (e) is the clause the WATCHME probe watches in the wild — an agent re-asks a byte-identical
 # question ON PURPOSE, and serving that from the store is not a saved call, it is a hang.
 PROVES = {
     "548dd13fb4db": {
-        "toolset_is_part_of_the_question": "test_a_differing_toolset_is_a_different_question",
-        "agent_retry_gets_a_fresh_sample": "test_an_agent_retry_gets_a_fresh_sample",
+        "b": "test_a_differing_toolset_is_a_different_question",
+        "d": "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest",
+        "e": "test_an_agent_retry_gets_a_fresh_sample",
     }
 }
 
@@ -640,6 +646,78 @@ def test_an_agent_retry_gets_a_fresh_sample():
     assert r.calls == 2, "the agent lane re-resolves — a replayed tool_call is how the loop hangs"
 
 
+def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
+    """Clause (d) FOR THE NEW LANE: one tool-using call, two records, joinable.
+
+    The meter row and the trail line already existed and are proved at their own addresses —
+    what is unproved before this tooth is that the AGENT lane lands both. It is the lane where
+    they could most easily come apart: the toolset is a request key, so it moves the canonical
+    and therefore the digest, and a build that canonicalized the request for the store but
+    pointed the trail line at some pre-toolset form would leave two true records that cannot be
+    joined. Two records of one event that cannot be put beside each other are not better than
+    one; they are worse, because each reads complete.
+
+    Read the way a human reads it: the row out of the store, the line off disk, and the join
+    made by hand rather than trusted.
+    """
+    import json as _json
+    import tempfile
+    from cairn.tools.base import address
+    from cairn.tools.base.breadcrumb_log import RECORD_NAME
+
+    turns = [{"role": "user", "content": f"both_records_{_NONCE}"},
+             {"role": "assistant", "content": "",
+              "tool_calls": [{"function": {"name": "clock", "arguments": {}}}]},
+             {"role": "tool", "content": "12:00"}]
+    toolset = [{"type": "function", "function": {"name": "clock"}}]
+    r = _CountingResolver()
+
+    tmp = Path(tempfile.mkdtemp(prefix="cairn_agent_trail_both_records_"))
+    domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
+    try:
+        trail = domain.diagnostic_trail()
+        assert not trail.exists(), f"the fixture world must start with no trail: {trail}"
+
+        out = domain.resolve({"kind": "chat", "messages": turns, "tools": toolset},
+                             resolver=r, table=_TABLE)
+        assert out["hit"] is False and r.calls == 1, "the first agent ask is a miss"
+
+        rows = store.read(_TABLE, where="canonical = %s", params=(out["canonical"],))
+        assert len(rows) == 1, \
+            f"a tool-carrying call must land exactly one row in the meter, got {len(rows)}"
+
+        # BOTH SHAPES THE RECEIVER CAN WRITE — one JSONL file, or one .json per record. Which
+        # one lands is the receiver's business and not this tooth's claim; reading only the
+        # first is how a tooth goes red for the wrong reason.
+        lines = []
+        jsonl = trail / RECORD_NAME
+        if jsonl.is_file():
+            lines += [_json.loads(x) for x in jsonl.read_text(encoding="utf-8").splitlines()
+                      if x.strip()]
+        lines += [_json.loads(f.read_text(encoding="utf-8")) for f in sorted(trail.glob("*.json"))]
+        assert lines, f"the call left no trail line at all: {sorted(trail.glob('*'))}"
+        misses = [x for x in lines if x.get("gate") == "miss"]
+        assert len(misses) == 1, f"one miss, one line — got {lines}"
+
+        # THE JOIN, MADE RATHER THAN ASSUMED. This is the whole clause: the pointer on the
+        # line is the digest of the canonical on the row, so a reader holding either record
+        # can find the other. A toolset that moved one and not the other reds here.
+        assert misses[0]["pointer"] == domain.canonical_digest(rows[0]["canonical"]), (
+            f"the trail line and the meter row do not join: line pointer "
+            f"{misses[0]['pointer']!r} vs digest of the row's canonical "
+            f"{domain.canonical_digest(rows[0]['canonical'])!r}")
+
+        # NON-VACUITY: the digest must actually depend on the toolset, or the join above would
+        # hold for a build that dropped tools before hashing and the tooth would prove nothing
+        # about the agent lane in particular.
+        bare = domain.canonical_digest(domain.canonicalize(
+            {"kind": "chat", "messages": turns}))
+        assert misses[0]["pointer"] != bare, \
+            "the digest that joins the two records must carry the toolset — it does not"
+    finally:
+        domain.set_diagnostic_roots(None)
+
+
 def _cleanup():
     """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
     conn = store.connect()
@@ -672,6 +750,7 @@ def _main() -> int:
         test_the_verdict_constraint_exists_on_the_table,
         test_a_differing_toolset_is_a_different_question,
         test_an_agent_retry_gets_a_fresh_sample,
+        test_a_tool_carrying_call_lands_both_records_joined_by_the_digest,
     ]
     try:
         for check in checks:

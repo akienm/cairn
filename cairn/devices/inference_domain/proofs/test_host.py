@@ -115,10 +115,15 @@ _FIXTURE_ENDPOINT = "http://fixture-host:11434"
 # second turn — OpenAI carries arguments as a JSON string, ollama wants an object — so a
 # one-shot test reads green over a door that cannot hold a conversation. Measured 2026-09-11 on
 # hex.local against qwen3-coder:30b before any of this was built.
+# THE KEYS ARE THE TICKET'S OWN CLAUSE LETTERS, and that is physics rather than tidiness:
+# proof_coverage.clauses() reads the (a)…(e) markers off the falsifier and demands a declared
+# tooth per letter, so a descriptive key covers nothing the gate can see. `checked_not_exempted`
+# keeps its name on purpose — it answers the WRONG INTENT half, which is not a DONE-when clause
+# and has no letter to take.
 PROVES = {
     "548dd13fb4db": {
-        "carries_a_toolset": "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
-        "second_turn": "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
+        "a": "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
+        "c": "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
         "checked_not_exempted": "test_the_agent_shapes_are_CHECKED_not_exempted",
     }
 }

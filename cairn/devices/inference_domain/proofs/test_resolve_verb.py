@@ -98,6 +98,14 @@ def _rig_with_inference(bus):
 
 # --- teeth ------------------------------------------------------------------
 
+# WHICH CLAUSE OF 548dd13fb4db'S FALSIFIER THIS PROOF COVERS. The ticket's clause (a) is about
+# THE ONE INFERENCE DOOR carrying a tool-using conversation — and for every other device the one
+# door is this verb, not the Python call. test_host.py proves the host end; this proves the bus
+# end, and they are not the same seam: the verb copies the body key by key into the request, so a
+# toolset can cross the host boundary perfectly and still never reach it.
+PROVES = {"548dd13fb4db": {"a": "test_a_toolset_survives_the_bus_verb"}}
+
+
 def test_resolve_verb_is_declared():
     """The inference_domain device declares a 'resolve' verb."""
     dev = InferenceDomainDevice()
@@ -195,6 +203,68 @@ def test_yield_view_via_get_verb():
     assert "avoided" in data, f"yield view must report avoided, got {sorted(data)}"
 
 
+def test_a_toolset_survives_the_bus_verb():
+    """A `tools` list posted over the bus REACHES the resolver — it is not dropped in the copy.
+
+    THE HOLLOW SHAPE THIS BITES, and it was the live one when this tooth was written: the
+    handler builds its request with a whitelist of body keys, so a caller posting a toolset
+    over the bus got a perfectly ordinary toolless answer and NO error anywhere. Every seam
+    below this one carried the toolset correctly — host.py sends `tools` on /api/chat,
+    canonicalize() digests it, the cache forks on it — and none of that is reachable from the
+    bus if the key never makes it into the request. A silent drop at a door is the reading
+    Law 7 forbids: the answer is coherent, it is simply an answer to a different question.
+
+    The control is the whole tooth: asserting the key is present would pass on a handler that
+    forwarded the whole body unfiltered, so the toolless call must come back WITHOUT the key —
+    the whitelist is doing its job in both directions or neither.
+    """
+    seen = []
+
+    def _capturing(request):
+        seen.append(dict(request))
+        return {"answer": {"text": "ack", "role": "assistant"},
+                "cost": 1, "falsifier": "test", "horizon": "", "provenance": {}}
+
+    turns = [{"role": "user", "content": f"what time is it? {_NONCE}"},
+             {"role": "assistant", "content": "",
+              "tool_calls": [{"function": {"name": "clock", "arguments": {}}}]},
+             {"role": "tool", "content": "12:00"}]
+    toolset = [{"type": "function",
+                "function": {"name": "clock", "description": "the time",
+                             "parameters": {"type": "object", "properties": {}}}}]
+
+    bus = _fresh_bus()
+    _rig_with_inference(bus)
+    with patch("cairn.devices.inference_domain.host.ollama_resolver",
+               return_value=_capturing):
+        bus.request(sender="caller", to="inference_domain", channel="personal",
+                    verb="resolve", why="proof: a toolset crosses the bus",
+                    body={"kind": "chat", "messages": turns, "model": "qwen2.5:7b",
+                          "tools": toolset})
+    assert seen, "the resolver was never called — the request never reached the domain"
+    assert seen[-1].get("tools") == toolset, (
+        "the bus verb DROPPED the toolset: the resolver saw "
+        f"{sorted(seen[-1])} — a caller asking a tool-using question over the one door got "
+        "a toolless answer with no error anywhere")
+    assert seen[-1].get("messages") == turns, \
+        "the agent-shaped turns must cross unchanged too — an assistant turn with empty " \
+        "content and present tool_calls, and a tool-result turn"
+
+    # THE CONTROL: no toolset in, no toolset key out. Without this the assertion above is
+    # satisfied by a handler that copies the body wholesale, which is a different design.
+    seen.clear()
+    with patch("cairn.devices.inference_domain.host.ollama_resolver",
+               return_value=_capturing):
+        bus.request(sender="caller", to="inference_domain", channel="personal",
+                    verb="resolve", why="proof: a toolless chat carries no toolset",
+                    body={"kind": "chat",
+                          "messages": [{"role": "user", "content": f"plain {_NONCE}"}],
+                          "model": "qwen2.5:7b"})
+    assert seen and "tools" not in seen[-1], \
+        "a toolless chat must carry no `tools` key at all — an always-present key forks the " \
+        "cache for every caller who never asked for one"
+
+
 if __name__ == "__main__":
     checks = [
         test_resolve_verb_is_declared,
@@ -204,6 +274,7 @@ if __name__ == "__main__":
         test_generate_kind,
         test_device_is_bus_unaware,
         test_yield_view_via_get_verb,
+        test_a_toolset_survives_the_bus_verb,
     ]
     failures = 0
     try:

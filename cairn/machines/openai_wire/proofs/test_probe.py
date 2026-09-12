@@ -9,6 +9,18 @@ import sys
 from cairn.machines.openai_wire.probes import openai_wire_is_included_by_a_second_holder as probe
 from cairn.tools.base.probe import Probe
 
+# Coverage declaration read by cairn.tools.proof_coverage. This proof covers no lettered
+# DONE-when clause — those are test_translate's (b) and test_serve's (a, c, d, e). It covers
+# the WATCHME summons the ticket carries: the probe file is load-bearing only if a tooth reds
+# when it is taken away (the 548dd13fb4db hollow finding), so the clause key is the watched
+# object's name rather than a letter.
+PROVES = {
+    "76639374d9f9": {
+        "watchme:openai_wire_is_included_by_a_second_holder":
+            "two_distinct_holders_is_enough_and_one_is_not",
+    },
+}
+
 PASS = 0
 FAIL = 0
 

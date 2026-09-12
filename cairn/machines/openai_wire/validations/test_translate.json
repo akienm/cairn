@@ -1,0 +1,63 @@
+[
+  {
+    "claim": "proof test_translate.py passes under python3",
+    "caller": "CC:sail:76639374d9f9",
+    "date": "2026-09-12T14:28:01",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green inbound_string_arguments_become_objects\n  green inbound_does_not_mutate_its_input\n  green inbound_unparseable_arguments_stay_loud\n  green inbound_empty_arguments_become_empty_object\n  green inbound_plain_messages_ride_through\n  green outbound_object_arguments_become_strings_with_id_and_type\n  green outbound_ids_are_distinct_per_call\n  green outbound_text_only_has_no_tool_calls_key\n  green envelope_finish_reason_follows_tool_calls\n  green translate_imports_stdlib_only\n\n10 passed, 0 failed out of 10",
+      "stderr_tail": "",
+      "teeth_green": [
+        "inbound_string_arguments_become_objects",
+        "inbound_does_not_mutate_its_input",
+        "inbound_unparseable_arguments_stay_loud",
+        "inbound_empty_arguments_become_empty_object",
+        "inbound_plain_messages_ride_through",
+        "outbound_object_arguments_become_strings_with_id_and_type",
+        "outbound_ids_are_distinct_per_call",
+        "outbound_text_only_has_no_tool_calls_key",
+        "envelope_finish_reason_follows_tool_calls",
+        "translate_imports_stdlib_only"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "a0f1dc059533b162231a1ffe25af56fc723668df511802ea01e81b141ecc7b18",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/openai_wire/__init__.py",
+        "cairn/machines/openai_wire/proofs/test_translate.py",
+        "cairn/machines/openai_wire/serve.py",
+        "cairn/machines/openai_wire/translate.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3277603-m7tecnyv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 130907767,
+          "disk_bytes": 142258176,
+          "entries": 4703,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

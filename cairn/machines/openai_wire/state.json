@@ -1,9 +1,9 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(openai_wire_is_included_by_a_second_holder) -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(openai_wire_is_included_by_a_second_holder) -> PROVED",
     "direction": "forward",
     "entry_gate": "clean — a berthed chart chain claims ticket '76639374d9f9', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
     "proved": [
@@ -11,12 +11,12 @@
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -36,64 +36,35 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
             "DROPPED",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'openai_wire' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'openai_wire' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "76639374d9f9",
-          "component": "openai_wire",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket '76639374d9f9' is cast",
-        "actual": "named ticket '76639374d9f9' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "76639374d9f9",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/76639374d9f9-openai-wire-is-a-machine-anybody-can-include.json"
         }
       },
       {
@@ -136,13 +107,19 @@
         }
       }
     ],
-    "checks_proved": 8,
+    "checks_proved": 6,
     "ticket": "76639374d9f9",
-    "actor": "cc",
-    "note": "openai_wire is born here. The chain berthed 2026-09-11 (orient -> validate, seven berths); the build follows the triage order: translate.py (pure) first, serve.py second, the machine_imports_no_device sieve third, its registration and first live run fourth, the WATCHME probe fifth, the per-clause teeth last. Source is the throwaway test program at CairnCommons/measurements/2026-09-11-hermes-openai-door-spike.py, which served a real hermes-agent through inference_domain; the work is taking its two device imports and its ENDPOINT/MODEL globals away from it so a holder injects them.",
-    "fingerprint": "5a6c621b4e1893a7d2d5edcec5bd968be13713c8d10d84d5b3d9ab20dc6c4122",
-    "at": "2026-09-12T14:03:34",
-    "seq": 0
+    "actor": "CC",
+    "cleared_by": "CC",
+    "proven_by": [
+      "cairn/machines/openai_wire/proofs/test_translate.py",
+      "cairn/machines/openai_wire/proofs/test_serve.py",
+      "cairn/machines/openai_wire/proofs/test_probe.py"
+    ],
+    "note": "openai_wire built as its own machine under the charted chain: translate.py is the pure half (string->object in, object->string out, null content->'' — the shape ollama refused on the spike's second turn, measured 2026-09-11), serve.py answers /v1/chat/completions and /v1/models from INJECTED callables and nothing else — a raising resolve is a named 502, stream=true a named 400. 29 teeth over three proofs, each run twice: test_translate (10, clause b), test_serve (12, clauses a/c/d/e — clause e rides a real loopback listener with a scripted holder standing in for 'ask inference_domain over the bus'; the real holder is cb97524c0e8e's), test_probe (7, so the WATCHME probe is a file a hollow build could not ship — the 548dd13fb4db lesson). Clause (a) is answered by physics rather than by a reading: the machine_imports_no_device sieve now stands in build_inspector, and its FIRST live red was build_inspector itself importing codemother's verdict validator — cast as 135a905eac3c, not narrowed. The spike's own translation code was cited and rewritten, not grafted.",
+    "fingerprint": "81c1efc16f563b69496f665f82c86d77ecc2032951b88d845a1c2ea88aad3f12",
+    "at": "2026-09-12T14:27:31",
+    "seq": 1
   },
   "window": [
     {
@@ -289,7 +266,129 @@
       "fingerprint": "5a6c621b4e1893a7d2d5edcec5bd968be13713c8d10d84d5b3d9ab20dc6c4122",
       "at": "2026-09-12T14:03:34",
       "seq": 0
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> WATCHME(openai_wire_is_included_by_a_second_holder) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '76639374d9f9', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "76639374d9f9"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "76639374d9f9"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "76639374d9f9"
+          }
+        }
+      ],
+      "checks_proved": 6,
+      "ticket": "76639374d9f9",
+      "actor": "CC",
+      "cleared_by": "CC",
+      "proven_by": [
+        "cairn/machines/openai_wire/proofs/test_translate.py",
+        "cairn/machines/openai_wire/proofs/test_serve.py",
+        "cairn/machines/openai_wire/proofs/test_probe.py"
+      ],
+      "note": "openai_wire built as its own machine under the charted chain: translate.py is the pure half (string->object in, object->string out, null content->'' — the shape ollama refused on the spike's second turn, measured 2026-09-11), serve.py answers /v1/chat/completions and /v1/models from INJECTED callables and nothing else — a raising resolve is a named 502, stream=true a named 400. 29 teeth over three proofs, each run twice: test_translate (10, clause b), test_serve (12, clauses a/c/d/e — clause e rides a real loopback listener with a scripted holder standing in for 'ask inference_domain over the bus'; the real holder is cb97524c0e8e's), test_probe (7, so the WATCHME probe is a file a hollow build could not ship — the 548dd13fb4db lesson). Clause (a) is answered by physics rather than by a reading: the machine_imports_no_device sieve now stands in build_inspector, and its FIRST live red was build_inspector itself importing codemother's verdict validator — cast as 135a905eac3c, not narrowed. The spike's own translation code was cited and rewritten, not grafted.",
+      "fingerprint": "81c1efc16f563b69496f665f82c86d77ecc2032951b88d845a1c2ea88aad3f12",
+      "at": "2026-09-12T14:27:31",
+      "seq": 1
     }
   ],
-  "count": 1
+  "count": 2
 }

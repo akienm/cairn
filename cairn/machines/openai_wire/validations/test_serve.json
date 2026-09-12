@@ -1,0 +1,65 @@
+[
+  {
+    "claim": "proof test_serve.py passes under python3",
+    "caller": "CC:sail:76639374d9f9",
+    "date": "2026-09-12T14:28:03",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green models_lists_what_the_injected_callable_says\n  green completion_carries_the_envelope_from_the_injected_resolve\n  green tool_calls_come_back_openai_shaped\n  green a_raising_resolve_is_a_named_5xx_not_an_empty_answer\n  green a_resolve_returning_garbage_is_a_named_5xx\n  green stream_true_is_refused_with_the_reason_on_the_wire\n  green unknown_paths_are_named_404s\n  green a_body_without_messages_is_a_named_400\n  green a_raising_models_is_a_named_5xx\n  green make_server_is_a_separate_door\n  green a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener\n  green the_machine_imports_no_device\n\n12 passed, 0 failed out of 12",
+      "stderr_tail": "",
+      "teeth_green": [
+        "models_lists_what_the_injected_callable_says",
+        "completion_carries_the_envelope_from_the_injected_resolve",
+        "tool_calls_come_back_openai_shaped",
+        "a_raising_resolve_is_a_named_5xx_not_an_empty_answer",
+        "a_resolve_returning_garbage_is_a_named_5xx",
+        "stream_true_is_refused_with_the_reason_on_the_wire",
+        "unknown_paths_are_named_404s",
+        "a_body_without_messages_is_a_named_400",
+        "a_raising_models_is_a_named_5xx",
+        "make_server_is_a_separate_door",
+        "a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener",
+        "the_machine_imports_no_device"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "74762510ac41bcd698a0daaa71e7129d96e4b55fa8d092fe1dd1cf8ae80e024d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/openai_wire/__init__.py",
+        "cairn/machines/openai_wire/proofs/test_serve.py",
+        "cairn/machines/openai_wire/serve.py",
+        "cairn/machines/openai_wire/translate.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3277603-mnefwily/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 130907767,
+          "disk_bytes": 142258176,
+          "entries": 4703,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

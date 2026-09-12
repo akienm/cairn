@@ -17,8 +17,24 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from cairn.machines.build_inspector.inspector import SIEVES, machine_imports_no_device
 from cairn.tools.import_sieve.sieve import HollowScan
+
+
+class _Late:
+    """The build's names are resolved AT CALL TIME, never bound at import. `cairn test
+    --hollow` reverts the subject file by file and re-runs this proof; a proof that dies at
+    import prints no teeth and the reading is UNRAN, not red (hollow.py: "THE FIX BELONGS TO
+    THE PROOF: it must survive its subject being taken away"). Resolving late turns a missing
+    subject into a red tooth, which is the evidence the crossing needs."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module(self._module), name)
+
+_inspector = _Late("cairn.machines.build_inspector.inspector")
 
 # Coverage declaration read by cairn.tools.proof_coverage: clause (a) of 76639374d9f9 is
 # "openai_wire imports no device — the new machine_imports_no_device sieve says so, not a
@@ -71,11 +87,11 @@ MR = _fixture_root()
 
 def _shake(name, dir_=None):
     row = {"dir": dir_ or f"machines/{name}", "component": name}
-    return machine_imports_no_device(row, MR / row["dir"])
+    return _inspector.machine_imports_no_device(row, MR / row["dir"])
 
 
 def the_sieve_is_registered_under_its_own_name():
-    assert SIEVES["machine_imports_no_device"] is machine_imports_no_device
+    assert _inspector.SIEVES["machine_imports_no_device"] is _inspector.machine_imports_no_device
 
 
 def a_machine_importing_a_device_reds_by_file_and_module():
@@ -107,7 +123,7 @@ def an_empty_tree_raises_rather_than_reading_clean():
     hollow = _scratch("inspector-proof-hollow-") / "cairn" / "machines" / "hollow"
     hollow.mkdir(parents=True)
     try:
-        machine_imports_no_device({"dir": "machines/hollow", "component": "hollow"}, hollow)
+        _inspector.machine_imports_no_device({"dir": "machines/hollow", "component": "hollow"}, hollow)
     except HollowScan:
         return
     raise AssertionError("an empty machines tree read clean instead of raising HollowScan")

@@ -9,8 +9,24 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.machines.openai_wire import translate
 from cairn.tools.import_sieve.sieve import imports_in
+
+
+class _Late:
+    """The build's names are resolved AT CALL TIME, never bound at import. `cairn test
+    --hollow` reverts the subject file by file and re-runs this proof; a proof that dies at
+    import prints no teeth and the reading is UNRAN, not red (hollow.py: "THE FIX BELONGS TO
+    THE PROOF: it must survive its subject being taken away"). Resolving late turns a missing
+    subject into a red tooth, which is the evidence the crossing needs."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module(self._module), name)
+
+translate = _Late("cairn.machines.openai_wire.translate")
 
 PASS = 0
 FAIL = 0
@@ -19,6 +35,9 @@ HERE = Path(__file__).resolve().parent.parent
 PROVES = {
     "76639374d9f9": {
         "b": "inbound_string_arguments_become_objects",
+        # not a lettered clause: the charter is in the build's writes_to, and a component
+        # without an intention does not run, so its absence must red a declared tooth.
+        "charter": "the_charter_stands_beside_the_code_and_names_this_proof",
     },
 }
 
@@ -114,7 +133,14 @@ def translate_imports_stdlib_only():
     assert found <= {"json", "time", "uuid"}, found
 
 
+def the_charter_stands_beside_the_code_and_names_this_proof():
+    charter = json.loads((HERE / "intention+why.json").read_text(encoding="utf-8"))
+    assert charter.get("why") and charter.get("proof"), sorted(charter)
+    assert "test_translate.py" in charter["proof"], charter["proof"]
+
+
 TEETH = [
+    the_charter_stands_beside_the_code_and_names_this_proof,
     inbound_string_arguments_become_objects,
     inbound_does_not_mutate_its_input,
     inbound_unparseable_arguments_stay_loud,

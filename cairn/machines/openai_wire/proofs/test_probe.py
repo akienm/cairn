@@ -6,8 +6,24 @@ Provenance: ticket 76639374d9f9.
 """
 import sys
 
-from cairn.machines.openai_wire.probes import openai_wire_is_included_by_a_second_holder as probe
 from cairn.tools.base.probe import Probe
+
+
+class _Late:
+    """The build's names are resolved AT CALL TIME, never bound at import. `cairn test
+    --hollow` reverts the subject file by file and re-runs this proof; a proof that dies at
+    import prints no teeth and the reading is UNRAN, not red (hollow.py: "THE FIX BELONGS TO
+    THE PROOF: it must survive its subject being taken away"). Resolving late turns a missing
+    subject into a red tooth, which is the evidence the crossing needs."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module(self._module), name)
+
+probe = _Late("cairn.machines.openai_wire.probes.openai_wire_is_included_by_a_second_holder")
 
 # Coverage declaration read by cairn.tools.proof_coverage. This proof covers no lettered
 # DONE-when clause — those are test_translate's (b) and test_serve's (a, c, d, e). It covers

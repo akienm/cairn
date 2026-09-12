@@ -13,8 +13,25 @@ import threading
 import urllib.request
 from pathlib import Path
 
-from cairn.machines.openai_wire import make_handler, make_server, STREAM_GAP
 from cairn.tools.import_sieve.sieve import imports_in
+
+
+class _Late:
+    """The build's names are resolved AT CALL TIME, never bound at import. `cairn test
+    --hollow` reverts the subject file by file and re-runs this proof; a proof that dies at
+    import prints no teeth and the reading is UNRAN, not red (hollow.py: "THE FIX BELONGS TO
+    THE PROOF: it must survive its subject being taken away"). Resolving late turns a missing
+    subject into a red tooth, which is the evidence the crossing needs."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module(self._module), name)
+
+_wire = _Late("cairn.machines.openai_wire")
+translate = _Late("cairn.machines.openai_wire.translate")
 
 PASS = 0
 FAIL = 0
@@ -79,7 +96,7 @@ def _drive(handler, method, path, body=None):
 
 
 def _handler(resolve=None, models=None):
-    return make_handler(resolve=resolve or (lambda req: {"text": "alive", "role": "assistant", "tool_calls": []}),
+    return _wire.make_handler(resolve=resolve or (lambda req: {"text": "alive", "role": "assistant", "tool_calls": []}),
                         models=models or (lambda: ["m1", "m2"]))
 
 
@@ -147,7 +164,7 @@ def stream_true_is_refused_with_the_reason_on_the_wire():
     status, out = _drive(_handler(resolve=lambda req: called.append(req)), "POST", "/v1/chat/completions",
                          {"model": "m", "messages": [{"role": "user", "content": "hi"}], "stream": True})
     assert status == 400, (status, out)
-    assert out["error"]["type"] == "cairn_stream_gap" and out["error"]["message"] == STREAM_GAP, out
+    assert out["error"]["type"] == "cairn_stream_gap" and out["error"]["message"] == _wire.STREAM_GAP, out
     assert called == [], "a refused request must never reach the answerer"
 
 
@@ -172,8 +189,8 @@ def a_raising_models_is_a_named_5xx():
 
 
 def make_server_is_a_separate_door():
-    assert callable(make_server)
-    assert make_server.__module__ == "cairn.machines.openai_wire.serve"
+    assert callable(_wire.make_server)
+    assert _wire.make_server.__module__ == "cairn.machines.openai_wire.serve"
 
 
 def a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener():
@@ -182,7 +199,6 @@ def a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener():
     gets the final text. Both turns ride a real ThreadingHTTPServer on an ephemeral loopback
     port — make_server's own door — and the resolve sees provider-shaped arguments (objects)
     only because the holder ran translate.to_provider, which is the holder's job."""
-    from cairn.machines.openai_wire import translate
     turns = []
 
     def bus_ask(request):                     # stands in for: ask inference_domain over the bus
@@ -195,7 +211,7 @@ def a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener():
                 "tool_calls": [{"function": {"name": "read_file", "arguments": {"path": "a.py"}}}],
                 "usage": {"prompt_tokens": 7, "completion_tokens": 3}}
 
-    srv = make_server(_handler(resolve=bus_ask, models=lambda: ["m"]), "127.0.0.1", 0)
+    srv = _wire.make_server(_handler(resolve=bus_ask, models=lambda: ["m"]), "127.0.0.1", 0)
     port = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     try:

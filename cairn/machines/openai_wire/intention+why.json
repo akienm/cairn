@@ -1,0 +1,43 @@
+{
+  "component": "openai_wire",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "code-seam",
+  "what": "A machine any holder can include: it speaks the OpenAI chat-completions wire format on one side (POST /v1/chat/completions, GET /v1/models) and calls an INJECTED `resolve` callable on the other. translate.py is the pure half — dict to dict, both directions, stdlib only. serve.py is the handler whose `resolve` and `models` are constructor arguments, plus a make_server helper kept separate so the teeth never open a port. It never reaches for an answerer: the only way to get an answer out of it is to hand it one.",
+  "why": "Akien's ruling, 2026-09-11, verbatim: 'the shims handle all the interfacing with the outside world. it's what allows us to integrate a device. adding a port on the inference proxy, as sensible as that is, and it really is, the architecture wants to force everything to be similar specifically because fewer things to know as you or i switch between pieces. extra work to make it all the same to be sure. but all the same means less cogniting on which path is right.' And the rung: 'and if you build it as it's own machine, then anybody can include it.' The lived symptom is a foreign process (hermes-agent, first) that dials a provider directly — a SECOND door to the inference host (Law 6) — and the only way to close it is to offer the door it already knows how to speak. Law 1 is what is banked: the next OpenAI-shaped process re-derives none of this.",
+  "entry": "Built 2026-09-12 under ticket 76639374d9f9 from a MEASURED source: CairnCommons/measurements/2026-09-11-hermes-openai-door-spike.py, a throwaway test program that served a real hermes-agent 0.21.1 through inference_domain and proved each translation on the wire. The build's work was removing its two device imports and its module-level ENDPOINT/MODEL globals — those belong to the holder — and splitting the handler from the server so the teeth construct one with fakes.",
+  "invoke": "`from cairn.machines.openai_wire import make_handler, make_server` — a holder builds `make_handler(resolve=..., models=...)` and hands the class to `make_server(handler, host, port)`, then owns the listener it gets back. `from cairn.machines.openai_wire import translate` for the pure half: to_provider(messages), to_openai(answer), completion(answer, model, usage). No CLI door and no process of its own: a machine is not its own process, only a device is (CLAUDE.md).",
+  "state_and_history": "history.json + state.json beside this charter, born at this ticket's BUILDME crossing on 2026-09-12. A MACHINE KEEPS NO STATE OF ITS OWN HERE (Law 6): the port, the capture, and any answer cache belong to whoever assembles it, at that holder's instance address.",
+  "durable_state": "none at this address. Any capture of what crossed the wire is the holder's, written where the holder berths it; the machine holds no table, no file, no cache of its own.",
+  "learns": "It does not. It is a wire translation and a handler with its answerer injected; nothing here has an outcome to learn from. What learns is the roster around it: probes/openai_wire_is_included_by_a_second_holder.py counts the DISTINCT holders importing it, and two is the number that says building it as a machine paid.",
+  "gates": "proof gate — proofs/test_translate.py (clause b) and proofs/test_serve.py (clauses c, d) run green under the tester at isolation=netns, teeth a hollow build could not pass; a netns run makes any accidental dial fail loudly. Import gate — machine_imports_no_device in build_inspector reds any file under cairn/machines/ importing cairn.devices.* (db_domain excepted by ruling 2026-08-31); openai_wire is its first subject (clause a). Durability gate — not done until proven AND committed.",
+  "falsifier": "DONE when (a) openai_wire imports no device — the machine_imports_no_device sieve says so, not a reading; (b) translate.py's functions are pure and provable with dicts alone in BOTH directions (string->object inbound, object->string outbound, null content->''); (c) serve.py answers /v1/chat/completions and /v1/models from injected callables alone, and a handler built with a resolve that raises returns a named 5xx rather than a coherent empty answer; (d) stream=true is refused with the reason on the wire. WRONG INTENT if the machine ends up knowing about inference_domain, the bus, or hermes — any of the three means it is a device wearing a machine's name, and the next holder cannot include it.",
+  "proof": "proofs/test_translate.py — the pure half with dicts and nothing else, plus a tooth over import_sieve.imports_in(translate.py) asserting stdlib only. proofs/test_serve.py — the handler driven against fake rfile/wfile with no make_server call, asserting on the bytes written: the envelope, the models list, the named 5xx carrying the exception type, the stream=true refusal, the named 404.",
+  "feedback": {
+    "to": "cairn/devices/codemother",
+    "why": "A machine that grows a device import is a care-of-the-code finding — the sieve reds it and codemother owns the inspectors."
+  },
+  "owner": "A MACHINE HAS A HOLDER (Law 6): its port and its state belong to whoever assembles it. Akien owns the ruling this address exists to satisfy (2026-09-11, 'if you build it as it's own machine, then anybody can include it'). CC writes the code and the proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "traces_to": [
+    "Law 6 (a foreign process dialling a provider directly is a second door to the inference host; the door it already speaks is how the one door stays one)",
+    "Law 1 (the next OpenAI-shaped process re-derives none of the wire translation)",
+    "Law 7 (a resolver that raises becomes a named 5xx, never a 200 with an empty choice; stream=true is refused by name rather than faked)",
+    "Law 4 (the no-device property is a sieve, not a promise)"
+  ],
+  "provenance": "Cast 2026-09-11 as ticket 76639374d9f9 under Akien's ruling against a port on the inference proxy; charted the same day (seven berths); built 2026-09-12.",
+  "claim_provenance": {
+    "what": "cc-read",
+    "why": "akien-verbatim",
+    "entry": "cc-measured",
+    "owner": "akien-verbatim"
+  },
+  "filed_edges": [
+    "ticket cb97524c0e8e (hermes runs as a device beside CC) — the first holder; falsifier clause (e) of 76639374d9f9 is that ticket's",
+    "streaming — refused by name here, never implemented; a holder that needs it is a new ticket",
+    "model selection (qwen3-coder:30b emits tool calls as text on hex.local ollama 0.30.11; devstral-small-2:24b returns them structured) — the holder's, carried on cb97524c0e8e"
+  ]
+}

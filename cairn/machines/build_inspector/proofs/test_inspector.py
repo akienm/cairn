@@ -1306,6 +1306,50 @@ def main() -> None:
     assert _floor("none, because (cairn/tools/thing.py), which already does it."), \
         "a real referent wrapped in punctuation stopped resolving"
 
+    # machine_imports_no_device (ticket 76639374d9f9): a top-level machine that imports a
+    # device reds, named by file and module; db_domain is forgiven by ENUMERATION (a
+    # look-alike device is not); an instrument under proofs/ or probes/ may read what it
+    # measures; a device row and a nested machine row are not this sieve's to judge; and
+    # an empty tree raises rather than reading clean.
+    from cairn.machines.build_inspector.inspector import machine_imports_no_device
+    from cairn.tools.import_sieve.sieve import HollowScan
+    assert SIEVES["machine_imports_no_device"] is machine_imports_no_device
+    mr = scratch_dir("inspector-proof-machines-") / "cairn"
+    for name, line in [("dialer", "from cairn.devices.inference_domain import domain\n"),
+                       ("storer", "from cairn.devices.db_domain import store\n"),
+                       ("lookalike", "import cairn.devices.db_domain_x.store\n"),
+                       ("clean", "import json\n")]:
+        d = mr / "machines" / name
+        (d / "proofs").mkdir(parents=True)
+        (d / "probes").mkdir()
+        (d / "x.py").write_text(line)
+        (d / "proofs" / "test_x.py").write_text("from cairn.devices.inference_domain import domain\n")
+        (d / "probes" / "p.py").write_text("from cairn.devices.bus import bus\n")
+
+    def _shake(name, dir_=None):
+        row = {"dir": dir_ or f"machines/{name}", "component": name}
+        return machine_imports_no_device(row, mr / row["dir"])
+
+    caught = _shake("dialer")
+    assert [f["method"] for f in caught] == ["machine_imports_no_device"], caught
+    assert "dialer/x.py" in caught[0]["about"] and "cairn.devices.inference_domain" in caught[0]["about"], caught
+    assert caught[0]["values"]["file"].endswith("machines/dialer/x.py"), caught
+    assert _shake("storer") == [], "db_domain is the one forgiven device"
+    look = _shake("lookalike")
+    assert len(look) == 1 and "db_domain_x" in look[0]["about"], \
+        "the exemption is an enumerated list, not a prefix — db_domain_x must red"
+    assert _shake("clean") == [], "proofs/ and probes/ are instruments and may read a device"
+    assert _shake("dialer", "devices/dialer") == [], "a device row is device_isolation_holds' to judge"
+    assert _shake("dialer", "devices/x/machines/dialer") == [], "a nested machine is its device's"
+    hollow = scratch_dir("inspector-proof-hollow-") / "cairn" / "machines" / "hollow"
+    hollow.mkdir(parents=True)
+    try:
+        machine_imports_no_device({"dir": "machines/hollow", "component": "hollow"}, hollow)
+    except HollowScan:
+        pass
+    else:
+        raise AssertionError("an empty machines tree read clean instead of raising HollowScan")
+
     print("build_inspector proofs: all teeth green")
 
 

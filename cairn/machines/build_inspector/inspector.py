@@ -3243,6 +3243,65 @@ def device_isolation_holds(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+_MACHINE_ISOLATION = {
+    "kind": "machine_isolation",
+    "capability": "no machine may import a device (db_domain is the sole exception)",
+    "module_prefix": "cairn.devices.",
+    "exempt": ("db_domain",),
+}
+
+
+def machine_imports_no_device(row: dict, comp_dir: Path) -> list[dict]:
+    """A top-level machine imports a device. db_domain is the sole exception.
+
+    Provenance: Akien, 2026-09-11 (ticket 76639374d9f9, verbatim): "the openai wire
+    is a machine anybody can include" — and a machine that imports a device cannot be
+    included by anybody, only by that device. The db_domain exemption rides the same
+    ruling as device_isolation_holds (2026-08-31-no-cross-device-imports: "anybody may
+    talk to our database proxy directly. the only one.").
+
+    Only fires for top-level machine rows (dir = machines/<name>): a machine nested
+    under a device is that device's, and the boundary there is device_isolation_holds'.
+    Proofs and probes are instruments and may read what they measure, so they are
+    skipped. The exemption is an ENUMERATED device list, never a dotted prefix — a
+    prefix would forgive `cairn.devices.db_domain_x` too.
+    """
+    if not row["dir"].startswith("machines/"):
+        return []
+    parts = row["dir"].split("/")
+    if len(parts) != 2:
+        return []
+    graph = import_sieve.import_graph(str(comp_dir.parent))
+    if not graph:
+        raise import_sieve.HollowScan(
+            f"the sieve was shaken over 0 files under {comp_dir.parent} — a clean result "
+            "here means the scan did not read the tree, not that the tree is clean")
+    prefix = row["component"] + os.sep
+    module_prefix = _MACHINE_ISOLATION["module_prefix"]
+    exempt = frozenset(_MACHINE_ISOLATION["exempt"])
+    findings = []
+    for path, imported in sorted(graph.items()):
+        if not path.startswith(prefix):
+            continue
+        if os.sep + "proofs" + os.sep in path or os.sep + "probes" + os.sep in path \
+                or os.sep + "proofs_disabled" + os.sep in path:
+            continue
+        found = sorted(
+            m for m in imported
+            if m.startswith(module_prefix)
+            and m[len(module_prefix):].split(".", 1)[0] not in exempt)
+        if found:
+            findings.append(_finding(
+                "machine_imports_no_device", row["component"],
+                f"{path} imports {found} — {row['component']} is a machine and may not "
+                f"import a device; {_MACHINE_ISOLATION['capability']}",
+                expected=True, actual=False,
+                rule=dict(_MACHINE_ISOLATION),
+                file=str(comp_dir.parent / path),
+            ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -3278,6 +3337,7 @@ SIEVES = {
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
     "device_isolation_holds": device_isolation_holds,
+    "machine_imports_no_device": machine_imports_no_device,
     "working_tree_clean": working_tree_clean,
 }
 

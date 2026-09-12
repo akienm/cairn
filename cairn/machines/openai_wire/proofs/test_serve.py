@@ -9,8 +9,6 @@ Provenance: ticket 76639374d9f9.
 import io
 import json
 import sys
-import threading
-import urllib.request
 from pathlib import Path
 
 from cairn.tools.import_sieve.sieve import imports_in
@@ -40,14 +38,14 @@ HERE = Path(__file__).resolve().parent.parent
 # Clause (e) is the holder's clause, and this proof plays the holder: the resolve it injects
 # is a SCRIPTED stand-in for "ask inference_domain over the bus" (a netns seal can reach no
 # bus), and what the tooth proves is that the machine carries a whole tool-using turn end to
-# end through a real listener. The REAL holder is ticket cb97524c0e8e's; the live fire in
-# this voyage's verdict artifact is where a real model answered through this same door.
+# end through the real handler. The REAL holder is ticket cb97524c0e8e's; the live fire in
+# this voyage's verdict artifact is where a real model answered through make_server's door.
 PROVES = {
     "76639374d9f9": {
         "a": "the_machine_imports_no_device",
         "c": "a_raising_resolve_is_a_named_5xx_not_an_empty_answer",
         "d": "stream_true_is_refused_with_the_reason_on_the_wire",
-        "e": "a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener",
+        "e": "a_holder_serves_a_tool_using_turn_end_to_end",
     },
 }
 
@@ -193,12 +191,19 @@ def make_server_is_a_separate_door():
     assert _wire.make_server.__module__ == "cairn.machines.openai_wire.serve"
 
 
-def a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener():
+def a_holder_serves_a_tool_using_turn_end_to_end():
     """The holder's side, scripted: turn 1 asks with a tool and gets a tool call back; turn 2
     carries the tool result (arguments as a JSON STRING, as an OpenAI client sends them) and
-    gets the final text. Both turns ride a real ThreadingHTTPServer on an ephemeral loopback
-    port — make_server's own door — and the resolve sees provider-shaped arguments (objects)
-    only because the holder ran translate.to_provider, which is the holder's job."""
+    gets the final text. Both turns are real HTTP bytes parsed by the real handler class and
+    read back off the wire it wrote; the resolve sees provider-shaped arguments (objects) only
+    because the holder ran translate.to_provider, which is the holder's job.
+
+    Why no listener here: the sole-path sieve (build_inspector.sole_path_holds) does not
+    exempt proofs, and every client that could dial a loopback port is on its list — a proof
+    of an HTTP face cannot bind and dial without becoming a second door. So the TCP listener
+    is exercised where a dial is allowed to live: the voyage's verdict instrument
+    (CairnCommons/measurements/2026-09-12-76639374d9f9-verdict-instruments.py live_two_turn)
+    runs these same two turns through make_server against the real inference host."""
     turns = []
 
     def bus_ask(request):                     # stands in for: ask inference_domain over the bus
@@ -211,34 +216,26 @@ def a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener():
                 "tool_calls": [{"function": {"name": "read_file", "arguments": {"path": "a.py"}}}],
                 "usage": {"prompt_tokens": 7, "completion_tokens": 3}}
 
-    srv = _wire.make_server(_handler(resolve=bus_ask, models=lambda: ["m"]), "127.0.0.1", 0)
-    port = srv.server_address[1]
-    threading.Thread(target=srv.serve_forever, daemon=True).start()
-    try:
-        def post(body):
-            req = urllib.request.Request(f"http://127.0.0.1:{port}/v1/chat/completions",
-                                         data=json.dumps(body).encode(),
-                                         headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=5) as r:
-                return json.loads(r.read())
-        tools = [{"type": "function", "function": {"name": "read_file",
-                                                   "parameters": {"type": "object"}}}]
-        history = [{"role": "user", "content": "what is in a.py?"}]
-        first = post({"model": "m", "messages": history, "tools": tools})
-        msg = first["choices"][0]["message"]
-        assert first["choices"][0]["finish_reason"] == "tool_calls", first
-        call = msg["tool_calls"][0]
-        assert json.loads(call["function"]["arguments"]) == {"path": "a.py"}, call
-        history += [msg, {"role": "tool", "tool_call_id": call["id"], "content": "print(1)"}]
-        second = post({"model": "m", "messages": history, "tools": tools})
-        assert second["choices"][0]["finish_reason"] == "stop", second
-        assert second["choices"][0]["message"]["content"] == "the file holds print(1)", second
-        assert second["usage"]["total_tokens"] == 13, second
-        listed = json.loads(urllib.request.urlopen(f"http://127.0.0.1:{port}/v1/models", timeout=5).read())
-        assert [d["id"] for d in listed["data"]] == ["m"], listed
-    finally:
-        srv.shutdown()
-        srv.server_close()
+    handler = _handler(resolve=bus_ask, models=lambda: ["m"])
+    tools = [{"type": "function", "function": {"name": "read_file",
+                                               "parameters": {"type": "object"}}}]
+    history = [{"role": "user", "content": "what is in a.py?"}]
+    status, first = _drive(handler, "POST", "/v1/chat/completions",
+                           {"model": "m", "messages": history, "tools": tools})
+    assert status == 200, (status, first)
+    msg = first["choices"][0]["message"]
+    assert first["choices"][0]["finish_reason"] == "tool_calls", first
+    call = msg["tool_calls"][0]
+    assert json.loads(call["function"]["arguments"]) == {"path": "a.py"}, call
+    history += [msg, {"role": "tool", "tool_call_id": call["id"], "content": "print(1)"}]
+    status, second = _drive(handler, "POST", "/v1/chat/completions",
+                            {"model": "m", "messages": history, "tools": tools})
+    assert status == 200, (status, second)
+    assert second["choices"][0]["finish_reason"] == "stop", second
+    assert second["choices"][0]["message"]["content"] == "the file holds print(1)", second
+    assert second["usage"]["total_tokens"] == 13, second
+    status, listed = _drive(handler, "GET", "/v1/models")
+    assert status == 200 and [d["id"] for d in listed["data"]] == ["m"], listed
     assert len(turns) == 2, turns
     assert turns[1][1]["tool_calls"][0]["function"]["arguments"] == {"path": "a.py"}, \
         "the provider must see the tool-call arguments as an OBJECT on turn two"
@@ -263,7 +260,7 @@ TEETH = [
     a_body_without_messages_is_a_named_400,
     a_raising_models_is_a_named_5xx,
     make_server_is_a_separate_door,
-    a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener,
+    a_holder_serves_a_tool_using_turn_end_to_end,
     the_machine_imports_no_device,
 ]
 

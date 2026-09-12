@@ -2,12 +2,12 @@
   {
     "claim": "proof test_serve.py passes under python3",
     "caller": "CC:sail:76639374d9f9",
-    "date": "2026-09-12T14:42:27",
+    "date": "2026-09-12T14:47:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green models_lists_what_the_injected_callable_says\n  green completion_carries_the_envelope_from_the_injected_resolve\n  green tool_calls_come_back_openai_shaped\n  green a_raising_resolve_is_a_named_5xx_not_an_empty_answer\n  green a_resolve_returning_garbage_is_a_named_5xx\n  green stream_true_is_refused_with_the_reason_on_the_wire\n  green unknown_paths_are_named_404s\n  green a_body_without_messages_is_a_named_400\n  green a_raising_models_is_a_named_5xx\n  green make_server_is_a_separate_door\n  green a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener\n  green the_machine_imports_no_device\n\n12 passed, 0 failed out of 12",
+      "stdout_tail": "  green models_lists_what_the_injected_callable_says\n  green completion_carries_the_envelope_from_the_injected_resolve\n  green tool_calls_come_back_openai_shaped\n  green a_raising_resolve_is_a_named_5xx_not_an_empty_answer\n  green a_resolve_returning_garbage_is_a_named_5xx\n  green stream_true_is_refused_with_the_reason_on_the_wire\n  green unknown_paths_are_named_404s\n  green a_body_without_messages_is_a_named_400\n  green a_raising_models_is_a_named_5xx\n  green make_server_is_a_separate_door\n  green a_holder_serves_a_tool_using_turn_end_to_end\n  green the_machine_imports_no_device\n\n12 passed, 0 failed out of 12",
       "stderr_tail": "",
       "teeth_green": [
         "models_lists_what_the_injected_callable_says",
@@ -20,7 +20,7 @@
         "a_body_without_messages_is_a_named_400",
         "a_raising_models_is_a_named_5xx",
         "make_server_is_a_separate_door",
-        "a_holder_serves_a_tool_using_turn_end_to_end_through_a_real_listener",
+        "a_holder_serves_a_tool_using_turn_end_to_end",
         "the_machine_imports_no_device"
       ],
       "teeth_red": [],
@@ -28,7 +28,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0b86fdda12654f4164618d7c969f284ec6fc22a0a783bfbfa6f509b8e14761ca",
+      "source_fingerprint": "99c4678cc95ff3e61fb3c74521f432ef54f7889bcc8a474cccec3674c253c3bb",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -42,7 +42,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3317959-mn_n0j3w/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3330707-s3dk9nac/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -51,11 +51,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 130907767,
+          "bytes": 130908131,
           "disk_bytes": 142258176,
           "entries": 4703,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       }
     },

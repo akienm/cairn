@@ -16,6 +16,12 @@ PASS = 0
 FAIL = 0
 HERE = Path(__file__).resolve().parent.parent
 
+PROVES = {
+    "76639374d9f9": {
+        "b": "inbound_string_arguments_become_objects",
+    },
+}
+
 
 def _tooth(name, fn):
     global PASS, FAIL

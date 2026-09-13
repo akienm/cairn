@@ -243,6 +243,29 @@ def test_iv_reach_refuses_a_name_no_shim_answers_to():
     print("  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to")
 
 
+def test_vi_the_ground_loop_fronts_the_loop_it_was_built_in():
+    """THE ONE DEVICE WHOSE SHIM IS HANDED ITS DEVICE. Every other shim is built from ``bus``
+    alone and starts or lazily builds what it fronts; the ground loop's shim fronts the chassis
+    that pulses it, and a second GroundLoopDevice would be a loop nobody beats.
+
+    REGRESSION TOOTH, MEASURED 2026-09-13: ``connect_system(devices=["ground_loop", ...])`` is
+    the web server's own wiring and it had two failure shapes in eleven days — silently no
+    shim (the loader spelled ``cairn.devices.ground_loop.shim``, nothing sat there, the nav
+    lost the heartbeat's page and nothing red) and then ``TypeError: GroundLoopShim.__init__()
+    missing 1 required positional argument: 'loop'`` once the loader learned to walk to the
+    nested folder. The listener exited 1 on every start after the 2026-09-12 reboot. Both
+    shapes fail the same two lines below: the shim is there, and it fronts THIS loop."""
+    bus, loop = bus_client.connect_system(devices=["ground_loop"], beat=False)
+    shim = loop.shim_for("ground_loop")
+    assert shim is not None, \
+        "connect_system was asked for ground_loop and the roster carries no shim for it"
+    assert type(shim).__name__ == "GroundLoopShim", \
+        "the roster fronts ground_loop with %r, not the concrete shim" % (type(shim).__name__,)
+    assert shim._device is loop, \
+        "the ground loop's shim fronts a different loop from the one connect_system handed back"
+    print("  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in")
+
+
 def _docstring_nodes(tree):
     """Every Constant node that is a docstring — the first statement of a module, class or
     function. Prose recording where a module CAME FROM is not a call site, and a tooth that
@@ -397,7 +420,8 @@ def check():
                   test_ii_all_three_faces_go_to_disk_for_the_named_device,
                   test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says,
                   test_iv_reach_refuses_a_name_no_shim_answers_to,
-                  test_v_every_importer_in_class_space_imports_at_the_new_address):
+                  test_v_every_importer_in_class_space_imports_at_the_new_address,
+                  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in):
         try:
             tooth()
         except BaseException as exc:               # noqa: BLE001 — a red is a reading, not a crash

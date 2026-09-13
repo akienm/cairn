@@ -37,6 +37,18 @@ def _wire(*, devices: list[str] | None = None, beat: bool = True):
     loop.subscribe(BusShim(bus, loop))
 
     for name in (devices or []):
+        if name == "ground_loop":
+            # THE LOOP'S OWN SHIM IS HANDED THE LOOP — it fronts the chassis being built here,
+            # never a second one (ground_loop/shim.py: "constructor injection is the honest
+            # join"). The generic loader below builds a shim from ``bus`` alone, which is every
+            # other device's contract and not this one's. MEASURED 2026-09-13: the listener
+            # asked for "ground_loop" and got NOTHING from 2026-09-02 (7864f6c moved the
+            # subscription here, and the loader then spelled an address no shim.py sat at) and
+            # a TypeError from 2026-09-09 (8475127's walk found the real shim and called it
+            # without the loop) — the web server failed on every start after the 09-12 reboot.
+            from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim
+            loop.subscribe(GroundLoopShim(loop, bus=bus))
+            continue
         shim = _load_device_shim(name, bus)
         if shim is not None:
             loop.subscribe(shim)

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_import_sieve.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:10:46",
+    "date": "2026-09-13T10:35:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -51,7 +51,7 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fb26ad7e7f8eb23c72abf93784d8607649250576d4be4064e59781253b786093",
+      "source_fingerprint": "82ff58aecc9b19900c4c040e0431f7456642248af43adb64430b4caf42810a6c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -87,7 +87,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2193664-tg4h2o45/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2278376-y08esjh7/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -96,24 +96,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 131221536,
-          "disk_bytes": 142589952,
-          "entries": 4722,
+          "bytes": 133835991,
+          "disk_bytes": 145285120,
+          "entries": 4750,
           "builds": 1,
-          "reuses": 0
+          "reuses": 32
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "2a72e29be1c0f0b996f4517a88b2b8c7c4829985d2a57440b46a9ffce1188560",
-        "opened": "2026-09-09T20:18:15",
-        "last_red": "2026-09-09T20:18:15",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-import-sieve",
-        "ruling": null,
-        "closed_at": "2026-09-13T10:10:46",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "2a72e29be1c0f0b996f4517a88b2b8c7c4829985d2a57440b46a9ffce1188560"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -257,6 +257,17 @@ class Drive:
         # cgroup has to be one thing this proof can kill whole.
         env["SUPERCLAUDE_NO_SCOPE"] = "1"
         env["SUPERCLAUDE_GROUND_LOOP_UNIT"] = self.loop_unit
+        # THE WEB UNIT TOO. The launcher starts the web server under a fixed unit name whenever
+        # port 80 is free, and a proof that isolates only the loop's name leaves that one live.
+        # MEASURED 2026-09-13: the operator's cairn-web-server.service was down (a wiring bug),
+        # port 80 was free, and this proof's launcher started the REAL-named unit with HOME
+        # pointed into this scratch tree — StandardOutput=append:/tmp/cairn-proof-heartbeat-*/
+        # home-2/.cairn/logs/web_server.log. When the scratch tree was swept, every later start
+        # of the operator's unit died 209/STDOUT before python ran. A proof may not leave a
+        # unit in the live manager that outlives its own scratch.
+        self.web_unit = f"cairn-proof-web-{_TAG}-{n}"
+        _UNITS.append(self.web_unit)
+        env["SUPERCLAUDE_WEB_UNIT"] = self.web_unit
         if strip_systemd_run:
             # The prime-directive arm: make systemd-run genuinely unreachable rather than
             # asking the launcher to pretend it is.
@@ -387,6 +398,16 @@ def arms_one_and_two() -> None:
         res = residency(loop_cg)
         check("the loop sits in a unit the user manager OWNS, not a caller's scope",
               res["lifetime"] == "manager", f"{res}")
+
+        # THE OPERATOR'S UNIT IS NOT THIS PROOF'S TO TOUCH. The launcher also starts the web
+        # server, and it will under whatever name it is handed — so ask the live manager what
+        # cairn-web-server.service logs to, and refuse any answer inside this run's scratch.
+        # (Measured 2026-09-13: it answered /tmp/cairn-proof-heartbeat-*/home-2/..., and the
+        # operator's server died 209/STDOUT on every start once that tree was swept.)
+        shown = _run("systemctl", "--user", "show", "cairn-web-server.service",
+                     "-p", "StandardOutput", "-p", "StandardError", timeout=20).stdout
+        check("the launch left the operator's cairn-web-server unit alone",
+              str(_SCRATCH) not in shown, f"live unit now logs to: {shown.strip()!r}")
 
         beats_before = (rec.get("state") or {}).get("beats")
         killed = d.kill_the_caller()

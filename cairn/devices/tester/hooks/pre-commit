@@ -11,10 +11,19 @@
 # commit is the event, and a clock would be re-asking a question nothing had changed the
 # answer to (Law 1), 1440 times a day.
 #
-# WHY IT NEVER BLOCKS. What stops a false green is the seal not going green: component_color
-# reds the component on every inspector pass until it reproves. A hook that refused the
-# commit would put "commit often" and "a red is fixed or ruled" in a fight, and the loser
-# would be this hook, uninstalled. So it reports and gets out of the way — always exit 0.
+# WHY THE RESEAL NEVER BLOCKS. What stops a false green is the seal not going green:
+# component_color reds the component on every inspector pass until it reproves. A hook
+# that refused the commit would put "commit often" and "a red is fixed or ruled" in a
+# fight, and the loser would be this hook, uninstalled. So it reports and gets out of the
+# way — exit 0.
+#
+# THE ONE EXCEPTION, AND WHY IT IS FIRST (2026-09-13, ticket 30531f6e1c5d). Before the
+# reseal, the artifact door's commit question runs, and it BLOCKS: a record of truth
+# (state, history, a charter, a validation) whose staged bytes the artifact journal never
+# saw was changed around its door, and the commit is the last moment anything can tell.
+# No later inspector pass reds it — after the commit the hand edit IS the record. The
+# way through is named in the refusal (`cairn artifact hand-edit <path> --why`), and
+# `--no-verify` is policy's edge, owed as physics in the ticket, not hidden here.
 set -uo pipefail
 
 REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
@@ -29,5 +38,8 @@ if [ -r "$BOOTSTRAP" ]; then
 fi
 
 cd "$REPO" || exit 0
+if [ -f "$REPO/cairn/tools/artifact/artifact.py" ]; then
+  PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check "$REPO" || exit 2
+fi
 "$PY" -m cairn.devices.tester.cli --reseal || true
 exit 0

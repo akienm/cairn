@@ -2194,22 +2194,19 @@ def _ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
         "git diff as the lines it changed. Nothing was written.")
 
 
-def _write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool) -> None:
-    """Write ``doc`` back to ``path`` in the shape ``_ticket_shape`` measured, atomically.
+def _write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
+                  why: str = "phase") -> None:
+    """Write ``doc`` back to ``path`` in the shape ``_ticket_shape`` measured, atomically,
+    THROUGH THE ARTIFACT DOOR (ticket 30531f6e1c5d).
 
     Atomic because the file is git-tracked: a partial write here is not a lost convenience
     (as it would be for the instance-space sail record) but a corrupted record of truth
-    sitting in ``git status``. Temp-then-replace in the same directory keeps the rename on
-    one filesystem, so it is a real atomic swap."""
+    sitting in ``git status``. The door does temp-then-replace in the same directory, and
+    journals the crossing with WHO made it from the caller's cgroup — which is exactly the
+    fact ticket 481221f45884's hand-moved cursor (commit 42e3db0) had no record of."""
+    from cairn.tools.artifact import artifact as door
     body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
-    blob = (body + "\n" if newline else body).encode("utf-8")
-    tmp = path.with_name(path.name + ".tmp")
-    try:
-        tmp.write_bytes(blob)
-        os.replace(tmp, path)
-    except BaseException:
-        tmp.unlink(missing_ok=True)
-        raise
+    door.write(path, body + "\n" if newline else body, verb="phase", why=why)
 
 
 def set_phase(
@@ -2348,7 +2345,8 @@ def set_phase(
             ticket_doc.pop("release", None)
         else:
             ticket_doc["release"] = release
-        _write_ticket(ticket_file, ticket_doc, *ticket_shape)
+        _write_ticket(ticket_file, ticket_doc, *ticket_shape,
+                      why=f"phase {wf.here} -> {phase}" + (f" ({release})" if release else ""))
 
     if history_path and state_path:
         projector.append_entry(history_path, state_path, dict(record))

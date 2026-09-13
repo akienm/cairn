@@ -44,7 +44,10 @@ def test_state_is_derived_not_authored():
         assert persisted == projector.project(projector.read_history(hp))
         # corrupt the sidecar by hand; ONE more append must restore the truth —
         # state is recomputed from history, so it cannot stay diverged.
-        projector._atomic_write(sp, {"cursor": "LIES", "window": ["forged"], "count": 999})
+        # BY HAND, on purpose: a forgery is exactly the write that does not go through a door
+        # (the projector's _atomic_write now rides the artifact door and demands a why).
+        with open(sp, "w", encoding="utf-8") as f:
+            json.dump({"cursor": "LIES", "window": ["forged"], "count": 999}, f)
         returned = projector.append_entry(hp, sp, {"standing": "step3"})
         with open(sp, encoding="utf-8") as f:
             after = json.load(f)

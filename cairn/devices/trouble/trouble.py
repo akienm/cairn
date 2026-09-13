@@ -191,7 +191,8 @@ class TroubleDevice(BaseDevice):
             existing["count"] += 1
             existing["last_seen"] = stamp
             existing["occurrences"] = (existing.get("occurrences", []) + [occurrence])[-OCCURRENCE_TAIL:]
-            self._write(ident, existing)
+            self._write(ident, existing, verb="raise",
+                        why=f"recurrence #{existing['count']} of {ident}")
             # NOT notified — deliberately. The record grows; the demand for attention does not.
             # GATE CONTACT (DiagnosticBase): the increment IS still a crossing — a record of
             # truth changed. What the damper rations is NOTIFICATION; a held breadcrumb is a
@@ -219,7 +220,7 @@ class TroubleDevice(BaseDevice):
             "recurred_after_clear": (existing or {}).get("resolution") if existing else None,
             "prior_attempts": ((existing or {}).get("prior_attempts", 0) + 1) if existing else 0,
         }
-        self._write(ident, ticket)
+        self._write(ident, ticket, verb="raise", why=f"raised: {why}"[:200])
         # GATE CONTACT (DiagnosticBase): a NEW ticket landed and attention was spent — the
         # lane's first-class crossing. Emitted after the write lands; thin (the ticket on
         # disk is the record of truth; the breadcrumb points at it).
@@ -268,7 +269,8 @@ class TroubleDevice(BaseDevice):
         if not outstanding:
             ticket["standing"] = CLEARED
             ticket["resolution"] = ticket["cleared_by"][-1]
-        self._write(ident, ticket)
+        self._write(ident, ticket, verb="clear",
+                    why=f"cleared by {by}: {what_changed}"[:200])
         # GATE CONTACT (DiagnosticBase): a recipient said the change was made — the crossing
         # that takes (or moves toward taking) a ticket off the live list. Reads (live/all)
         # emit nothing: no crossing, no state change.
@@ -303,7 +305,7 @@ class TroubleDevice(BaseDevice):
 
         ticket["cleared_by"].append(
             {"amendment": True, "by": by, "at": _now(), "correction": correction})
-        self._write(ident, ticket)
+        self._write(ident, ticket, verb="clear", why=f"amended by {by}: {correction}"[:200])
         self.emit("amend", pointer=ident,
                   values={"outcome": "amended", "standing": ticket.get("standing")})
         return {"outcome": "amended", "id": ident, "standing": ticket.get("standing")}
@@ -400,7 +402,12 @@ class TroubleDevice(BaseDevice):
         except json.JSONDecodeError:
             return None
 
-    def _write(self, ident: str, ticket: dict) -> None:
+    def _write(self, ident: str, ticket: dict, *, verb: str, why: str) -> None:
+        """Every trouble lands through the artifact door (ticket 30531f6e1c5d): the write is
+        atomic and the journal names WHO raised, cleared or amended it from the caller's
+        cgroup. A store under a scratch root (a proof's world) is outside the door's
+        jurisdiction and is written plainly — the door says so rather than pretending."""
+        from cairn.tools.artifact import artifact as door
         self._root.mkdir(parents=True, exist_ok=True)
-        self._path(ident).write_text(
-            json.dumps(ticket, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        door.write(self._path(ident), json.dumps(ticket, indent=2, ensure_ascii=False) + "\n",
+                   verb=verb, why=why)

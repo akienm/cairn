@@ -103,6 +103,15 @@ import subprocess
 from cairn.tools.gate import gate
 from cairn.tools.import_sieve import sieve
 
+
+def _write_record(path: str, record: dict, *, why: str) -> None:
+    """A ruling lands through the artifact door (ticket 30531f6e1c5d): journaled with WHO
+    wrote it from the caller's cgroup, so a decision that was never opened here cannot
+    reach a commit unnoticed."""
+    from cairn.tools.artifact import artifact as door
+    door.write(path, json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+               verb="ruling", why=why)
+
 # ── the shape ─────────────────────────────────────────────────────────────────
 
 KIND = "ruling"
@@ -494,9 +503,7 @@ def open_ruling(packet: dict, roots_parent: str | None = None) -> str:
     d = store_dir(rp)
     os.makedirs(d, exist_ok=True)
     path = os.path.join(d, f"{record['id']}.json")
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(record, fh, indent=2, ensure_ascii=False)
-        fh.write("\n")
+    _write_record(path, record, why=f"ruling opened: {record['id']}")
     return path
 
 
@@ -544,9 +551,7 @@ def confirm(ruling_id: str, evidence: str, roots_parent: str | None = None) -> s
         record["confirmation_verbatim"] = evidence.strip()
     else:
         record.setdefault("reaffirmations", []).append(evidence.strip())
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(record, fh, indent=2, ensure_ascii=False)
-        fh.write("\n")
+    _write_record(path, record, why=f"ruling confirmed by his words: {evidence.strip()[:120]}")
     return path
 
 
@@ -616,9 +621,7 @@ def supersede(old_id: str, new_id: str, evidence: str,
     record["supersedes"] = _supersessions(new) + [{"id": old_id,
                                                    "evidence": evidence.strip()}]
     path = os.path.join(store_dir(rp), f"{new_id}.json")
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(record, fh, indent=2, ensure_ascii=False)
-        fh.write("\n")
+    _write_record(path, record, why=f"ruling {new_id} supersedes {old_id}")
     return path
 
 

@@ -1,0 +1,99 @@
+[
+  {
+    "claim": "proof test_artifact_gate.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-13T17:13:57",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  allowed: \"python3 - <<EOF\\nopen('cairn/tools/x/x.py','w').write('')\\nEOF\"\n  PASS  refused: 'echo {} > ../CairnCommons/tickets/x.json'\n  PASS  refused: 'python3 gen.py >> cairn/tools/x/history.json'\n  PASS  refused: 'sed -i s/a/b/ cairn/tools/x/intention+why.json'\n  PASS  refused: 'cp /tmp/x.json CairnCommons/decisions/2026-x.json'\n  PASS  refused: 'mv CairnCommons/tickets/a.json CairnCommons/tickets/b.json'\n  PASS  refused: 'rm CairnCommons/slates/2026-x.json'\n  PASS  refused: 'python3 - <<EOF\\nopen(\"cairn/tools/x/state.json\",\"w\").write(\"{}\")\\nEOF'\n  PASS  refused: 'python3 -c \"import json;json.dump({}, open(\\'CairnCommons/ideas/x.json\\''\n  PASS  refused: 'python3 -c \"from pathlib import Path; Path(\\'cairn/tools/x/validations/'\n  PASS  an empty command is allowed\n  PASS  an unrelated tool is allowed\nTHE HOOK CONTRACT\n  PASS  test_the_pretooluse_gate_refuses_a_write_to_a_record\n  PASS  exit 0 to allow\n  PASS  unreadable stdin allows and says so\nTHE WIRING — the gate stands at PreToolUse for every tool that can write a record\n  PASS  test_the_gate_is_wired_at_pretooluse_for_every_writing_tool  — matchers=['Bash', 'Edit', 'MultiEdit', 'Write']\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "Write to CairnCommons/tickets/x.json is refused",
+        "Write to CairnCommons/troubles/x.json is refused",
+        "Write to CairnCommons/decisions/x.json is refused",
+        "Write to CairnCommons/slates/x.json is refused",
+        "Write to CairnCommons/ideas/x.json is refused",
+        "Write to CairnCommons/questions/x.json is refused",
+        "Write to CairnCommons/adjudications/x.json is refused",
+        "Edit of cairn/tools/x/state.json is refused",
+        "Edit of cairn/tools/x/history.json is refused",
+        "Edit of cairn/tools/x/intention+why.json is refused",
+        "Edit of cairn/tools/x/validations/test_x.json is refused",
+        "Edit of cairn/tools/artifact/jurisdiction.json is refused",
+        "MultiEdit of a ticket is refused",
+        "Write to cairn/tools/artifact/artifact.py is allowed",
+        "Write to CLAUDE.md is allowed",
+        "Write to bin/cmd/artifactgate is allowed",
+        "Write to cairn/tools/x/proofs/test_x.py is allowed",
+        "Write to CairnCommons/intentions-congruency-lab/x.json is allowed (not a record yet)",
+        "Write to CairnCommons/node_classes/x.json is allowed (not a record yet)",
+        "Write to CairnCommons/notes/x.md is allowed (not a record yet)",
+        "Write to CairnCommons/intentions-not-beside-code/I-x.md is allowed (not a record yet)",
+        "a Write outside both roots is allowed",
+        "the refusal carries the way through",
+        "allowed: 'cat CairnCommons/tickets/x.json > /tmp/y'",
+        "allowed: 'grep -rn foo CairnCommons/tickets/ 2>&1 | head'",
+        "allowed: \"cat ../CairnCommons/troubles/a.json | python3 -c 'import sys,json;prin\"",
+        "allowed: 'git -C ../CairnCommons commit -am x && git push'",
+        "allowed: 'bin/cairn artifact write ../CairnCommons/tickets/x.json --verb cast --'",
+        "allowed: \"bin/cairn artifact hand-edit cairn/tools/x/state.json --why 'x'\"",
+        "allowed: 'PYTHONPATH=. python3 skills/sorted/door.py /tmp/packet.json'",
+        "allowed: 'bin/cairn ruling open /tmp/ruling.json'",
+        "allowed: 'ls cairn/tools/x/validations/'",
+        "allowed: \"python3 - <<EOF\\nopen('cairn/tools/x/x.py','w').write('')\\nEOF\"",
+        "refused: 'echo {} > ../CairnCommons/tickets/x.json'",
+        "refused: 'python3 gen.py >> cairn/tools/x/history.json'",
+        "refused: 'sed -i s/a/b/ cairn/tools/x/intention+why.json'",
+        "refused: 'cp /tmp/x.json CairnCommons/decisions/2026-x.json'",
+        "refused: 'mv CairnCommons/tickets/a.json CairnCommons/tickets/b.json'",
+        "refused: 'rm CairnCommons/slates/2026-x.json'",
+        "refused: 'python3 - <<EOF\\nopen(\"cairn/tools/x/state.json\",\"w\").write(\"{}\")\\nEOF'",
+        "refused: 'python3 -c \"import json;json.dump({}, open(\\'CairnCommons/ideas/x.json\\''",
+        "refused: 'python3 -c \"from pathlib import Path; Path(\\'cairn/tools/x/validations/'",
+        "an empty command is allowed",
+        "an unrelated tool is allowed",
+        "test_the_pretooluse_gate_refuses_a_write_to_a_record",
+        "exit 0 to allow",
+        "unreadable stdin allows and says so",
+        "test_the_gate_is_wired_at_pretooluse_for_every_writing_tool"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "920bb13cd1ab7d55590e393304b8dabec98a1854db721ea1ed0d9eee6c98ea50",
+      "fingerprint_closure": [
+        "bin/proofs/test_artifact_gate.py",
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3365789-1jgv169g/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 134859732,
+          "disk_bytes": 146345984,
+          "entries": 4766,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

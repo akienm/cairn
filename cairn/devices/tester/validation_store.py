@@ -568,8 +568,8 @@ def announce_verdict_change(path: str, change: dict, *, device=None) -> dict:
         detail=dict(change, trail=path))
 
 
-def _atomic_write(path: str, data) -> None:
-    """Write JSON via temp-file + rename, then drop the file to read-only.
+def _atomic_write(path: str, data, *, why: str) -> None:
+    """Write JSON via the artifact door — temp-file + rename, dropped to read-only, JOURNALED.
 
     THE MODE BIT IS THE CHEAP HALF OF THE GATE (2026-08-05, ticket
     validation-store-door-is-the-only-path). A record of truth declared append-only was a
@@ -583,24 +583,20 @@ def _atomic_write(path: str, data) -> None:
     history shape this bit was born against was an ordinary ``open(path, "w")`` in code
     somebody wrote without knowing the file was a record of truth.
 
+    THE JOURNAL IS THE OTHER HALF (2026-09-13, ticket 30531f6e1c5d). The deliberate bypass
+    the mode bit never stopped is now caught at commit: ``cairn.tools.artifact`` journals
+    every seal with WHO wrote it from the caller's cgroup, and the pre-commit check refuses
+    a validation whose staged bytes the journal never saw. A fixture address (under the temp
+    dir) is outside the door's jurisdiction and is written plainly.
+
     RESIDUE, stated because git cannot carry it: git tracks only the executable bit, so a
     fresh clone lands these files at 0644 and they are unprotected until the door next writes.
     The mode is a property of the working tree, not of the record. What survives a clone is
     git itself — the record is a committed file, so a hand-edit in a fresh clone is a diff.
     """
-    directory = os.path.dirname(path) or "."
-    os.makedirs(directory, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        os.chmod(tmp, 0o444)
-        os.replace(tmp, path)  # rename over a read-only file needs the DIRECTORY, not the file
-    except BaseException:
-        if os.path.exists(tmp):
-            os.chmod(tmp, 0o644)
-            os.remove(tmp)
-        raise
+    from cairn.tools.artifact import artifact as door
+    door.write(path, json.dumps(data, ensure_ascii=False, indent=2), verb="seal", why=why,
+               mode=0o444)
 
 
 def persist_validation(
@@ -785,7 +781,10 @@ def persist_validation(
             announce_verdict_change(path, change, device=trouble_device)
         except Exception:  # noqa: BLE001 — see the docstring: the new measurement outranks it
             pass
-    _atomic_write(path, [record])
+    _atomic_write(path, [record], why=(
+        f"seal {record.get('verdict', '?')} by {record.get('caller', '?')}"
+        + (f"; unsealing because {unsealing_because}" if unsealing_because else "")
+        + (f"; converting because {converting_because}" if converting_because else "")))
     if change is not None and record.get("verdict") == "green" and not fixture_address:
         identity = f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}"
         what_changed = (f"re-seal round-trip: {change['from']}→green by "

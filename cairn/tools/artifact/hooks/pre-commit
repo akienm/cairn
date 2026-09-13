@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# cairn-artifact-door — the commit question for a repository of records of truth.
+#
+# Ticket: CairnCommons/tickets/30531f6e1c5d-records-of-truth-change-only-through-the-artifact-door.json
+# Source: cairn/tools/artifact/hooks/pre-commit  (tracked; installed by
+#         `cairn artifact install-hook <root>`; the cairn repo's own hook is the tester's,
+#         which runs this same check as its first step)
+#
+# WHY IT BLOCKS, when the tester's hook next door never does. That hook reports a seal
+# gone stale — a fact the next inspector pass reds on its own, so refusing the commit
+# would buy nothing. This one asks whether a record of truth changed AROUND its door,
+# and the commit is the one moment every such change passes: after it, the record IS
+# the truth and nothing downstream can tell a journaled write from a hand edit. There
+# is no later red to fall back on. So the refusal is here, and it carries the way
+# through: `cairn artifact hand-edit <path> --why '...'` parks the change for Akien.
+#
+# `git commit --no-verify` walks around this. That is policy's edge, named in the
+# ticket as owed physics (a second unix user owning the record roots), not hidden.
+set -uo pipefail
+
+TOP="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -n "$TOP" ] || exit 0
+
+# The door lives in the cairn repo: named by CAIRN_REPO, or the sibling called cairn,
+# or the standing checkout. A record repo with no door in reach cannot be checked, and
+# a check that cannot run must say so and REFUSE — an unanswerable question is not a yes.
+CAIRN="${CAIRN_REPO:-}"
+[ -n "$CAIRN" ] || { [ -f "$TOP/cairn/tools/artifact/artifact.py" ] && CAIRN="$TOP"; }
+[ -n "$CAIRN" ] || { [ -f "$TOP/../cairn/cairn/tools/artifact/artifact.py" ] && CAIRN="$(cd "$TOP/../cairn" && pwd)"; }
+[ -n "$CAIRN" ] || { [ -f "$HOME/dev/src/cairn/cairn/tools/artifact/artifact.py" ] && CAIRN="$HOME/dev/src/cairn"; }
+if [ -z "$CAIRN" ]; then
+  echo "artifact check: REFUSED — the artifact door (cairn/tools/artifact) is not reachable from $TOP; set CAIRN_REPO" >&2
+  exit 2
+fi
+
+BOOTSTRAP="$CAIRN/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$CAIRN" || exit 2
+PYTHONPATH="$CAIRN${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check "$TOP"

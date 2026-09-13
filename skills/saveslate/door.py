@@ -262,7 +262,11 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
         "open_threads": payload["open_threads"],
     }
     slate_path = slates / f"{record['id']}.json"
-    slate_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    # Through the artifact door (ticket 30531f6e1c5d): the slate is read into every future
+    # session, and the journal names who wrote it.
+    from cairn.tools.artifact import artifact as door
+    door.write(slate_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+               verb="slate", why=f"slate written at a boundary: {record['id']}")
     result["slate"] = str(slate_path)
     return result
 

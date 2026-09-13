@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""cairn artifactgate — the PreToolUse gate on writing a record of truth around its door.
+
+Ticket 30531f6e1c5d. The artifact door (``cairn/tools/artifact``) journals WHO wrote a
+record from the caller's cgroup, and the pre-commit check refuses a record whose staged
+bytes the journal never saw. That check is the physics; this gate is the friction in
+front of it, so CC learns at the Edit/Write tool call — one refusal, one retype — rather
+than at commit, after the edit is made and the way through is a park.
+
+WHAT IT REFUSES. An ``Edit``/``Write``/``MultiEdit`` whose ``file_path`` the door's
+``locate`` says is a record of truth in a known root; and a ``Bash`` command in which a
+record path and a write-shaped verb CO-OCCUR (``>``, ``tee``, ``sed -i``, ``cp``, ``mv``,
+``rm``, ``write_text``, ``json.dump``, ``open(..., "w")``) — unless the command itself
+fires the door (``cairn artifact``, ``artifact.write``) or a skill door. The set of
+record paths is read from the door's ``jurisdiction.json``: one spelling, never a second
+list here (Law 1).
+
+CO-OCCURRENCE, NOT PARSING — the same trade deletegate took with its eyes open: a false
+refuse costs one split command; a false allow costs a hand edit that the commit check
+would catch anyway. Split the command, or route it through the door.
+
+Contract (measured 2026-08-18 for deletegate, same hook API): stdin is JSON carrying
+``tool_name`` and ``tool_input``; exit 0 allows, exit 2 blocks and feeds stderr back to
+Claude. Registered at ``.claude/settings.json`` under ``hooks.PreToolUse``.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO))
+
+from cairn.tools.artifact import artifact as door  # noqa: E402
+
+# The co-occurrence verbs. A shell REDIRECT is not here: `cat <record> > /tmp/x` is a read,
+# and ``>`` beside a record path is the commonest honest shape — so a redirect refuses
+# only when its TARGET is a record (``_redirect_re``), measured against the text after it.
+WRITE_VERBS = re.compile(
+    r"\btee\b|\bsed\s+-[a-zA-Z]*i|(?:^|[\s;&|(])(?:cp|mv|rm|truncate)\b"
+    r"|write_text\(|write_bytes\(|json\.dump\(|open\([^)]*[\"'][wa][\"']"
+)
+DOOR_FORMS = ("cairn artifact", "cairn.tools.artifact", "artifact.write", "door.write",
+              "skills/", "skill_block", "cairn ruling", "cairn review", "cairn recordverdict")
+
+REFUSAL = """REFUSED — this writes a record of truth around the artifact door.
+
+  {what}
+
+A record of truth (a ticket, trouble, ruling, slate, idea, a component's state/history/
+charter, a validation) changes only through its door, which journals WHO wrote it from
+the kernel's cgroup for the caller (ticket 30531f6e1c5d). The pre-commit check refuses
+any record whose staged bytes the journal never saw, so a write here would be caught
+at commit anyway — this refusal saves you the park.
+
+The way through:
+  - the record's own door: the skill door (/sorted, /saveslate, /idea), `cairn ruling`,
+    the trouble device, `set_phase` for a cursor, the validation store for a seal;
+  - a record with no door yet:
+      cairn artifact write <path> --verb <cast|append|...> --why '...' --from <file>
+  - a change you already made by hand:
+      cairn artifact hand-edit <path> --why '...'   (parks it for Akien's approval)
+
+If the gate is wrong here — a Bash command that only READS a record beside a redirect —
+split the command. That is the co-occurrence trade, recorded in this file's docstring."""
+
+
+def _record_re() -> re.Pattern:
+    """A regex over command TEXT for any path the jurisdiction declares, built from the
+    declared rules so this gate never carries a second spelling of the set."""
+    alts = []
+    for name, root in door.jurisdiction()["roots"].items():
+        for rule in root.get("records", []):
+            pat = re.escape(rule["name"]).replace(r"\*", r"[^\s/'\"]*")
+            if "under" in rule:
+                alts.append(re.escape(rule["under"]) + "/" + pat)
+            elif "parent" in rule:
+                alts.append(re.escape(rule["parent"]) + "/" + pat)
+            else:
+                alts.append(r"(?:^|/)" + pat)
+    return re.compile("(?:" + "|".join(alts) + r")(?=$|[\s'\";:|&)>])")
+
+
+def _redirect_re() -> re.Pattern:
+    return re.compile(r">>?\s*['\"]?[^\s'\"]*" + _record_re().pattern)
+
+
+def verdict(tool_name: str, tool_input: dict) -> str | None:
+    """``None`` to allow; the refusal text to block. One function, so the proof measures
+    what the hook does."""
+    if tool_name in ("Edit", "Write", "MultiEdit"):
+        path = tool_input.get("file_path") or ""
+        if path and door.locate(path) is not None:
+            return REFUSAL.format(what=f"blocked: {tool_name} {path}")
+        return None
+    if tool_name == "Bash":
+        cmd = tool_input.get("command") or ""
+        if not cmd or any(f in cmd for f in DOOR_FORMS):
+            return None
+        if not _record_re().search(cmd):
+            return None
+        if not WRITE_VERBS.search(cmd) and not _redirect_re().search(cmd):
+            return None
+        return REFUSAL.format(what=f"blocked: Bash: {cmd.strip()[:300]}")
+    return None
+
+
+def _main() -> int:
+    try:
+        payload = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        print("artifactgate: could not read the hook payload as JSON — allowing, unguarded",
+              file=sys.stderr)
+        return 0
+    refusal = verdict(payload.get("tool_name", ""), payload.get("tool_input") or {})
+    if refusal is None:
+        return 0
+    print(refusal, file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

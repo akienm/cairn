@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 from datetime import datetime
 
 from cairn.tools.base.diagnostic import DiagnosticBase
@@ -184,18 +183,13 @@ def read_history(path: str) -> list[dict]:
     return loaded
 
 
-def _atomic_write(path: str, data) -> None:
-    """Write JSON via a temp file + rename, so a reader never sees a half-written log."""
-    directory = os.path.dirname(path) or "."
-    fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.remove(tmp)
-        raise
+def _atomic_write(path: str, data, *, why: str) -> None:
+    """Write JSON through the artifact door (ticket 30531f6e1c5d): a temp file + rename so a
+    reader never sees a half-written log, and a journal entry naming WHO appended — a
+    history and its state are records of truth, and the pre-commit check refuses either
+    when its staged bytes were not written here."""
+    from cairn.tools.artifact import artifact as door
+    door.write(path, json.dumps(data, ensure_ascii=False, indent=2), verb="append", why=why)
 
 
 def append_entry(
@@ -228,9 +222,11 @@ def append_entry(
     record.setdefault("at", datetime.now().isoformat(timespec="seconds"))
     prior = read_history(history_path)
     history = append(prior, record)
-    _atomic_write(history_path, history)
+    why = (f"append {record.get('id') or record.get('ticket') or '?'}: "
+           f"{record.get('standing') or record.get('event') or record.get('what') or ''}")[:200]
+    _atomic_write(history_path, history, why=why)
     state = project(history, window=window)
-    _atomic_write(state_path, state)
+    _atomic_write(state_path, state, why=f"state re-projected after {why}"[:200])
     # The gate contact — emitted AFTER the write lands, so the record describes a transition
     # that actually happened. Carries only what this door truthfully knows; whatever the seed
     # asks for and this cannot supply shows up MISSING in the findings, which is the honest

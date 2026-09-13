@@ -98,7 +98,10 @@ def fire(payload: dict, *, now: datetime | None = None, skills_root=None, berths
     base = ideas_dir(commons)
     base.mkdir(parents=True, exist_ok=True)
     path, stem = _record_path(base, when, payload["prose"])
-    path.write_text(json.dumps({
+    # Through the artifact door (ticket 30531f6e1c5d): the idea is a record of truth, and
+    # the journal names who captured it.
+    from cairn.tools.artifact import artifact as door
+    door.write(path, json.dumps({
         "id": stem,
         "date": when.isoformat(),
         "author": payload["author"],
@@ -107,7 +110,7 @@ def fire(payload: dict, *, now: datetime | None = None, skills_root=None, berths
         "trace_id": result["trace_id"],
         "finding_id": result["finding_id"],
         "berth": result["berth"],
-    }, indent=2, sort_keys=True) + "\n")
+    }, indent=2, sort_keys=True) + "\n", verb="idea", why=f"idea captured: {stem}")
 
     return {**result, "idea": str(path), "id": stem}
 

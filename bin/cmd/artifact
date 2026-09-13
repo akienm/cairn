@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# cairn artifact — the artifact door's front door (ticket 30531f6e1c5d).
+#
+# A thin registration against the dispatcher, matching bin/cmd/ruling: resolve the
+# interpreter, hand off, keep the exit code. It owns no logic about what it runs (Law 6).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tools.artifact "$@"

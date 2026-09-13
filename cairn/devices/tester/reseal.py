@@ -93,6 +93,18 @@ from cairn.devices.tester.validation_store import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CALLER = "cairn test --reseal"
 
+# WHO THE SELF-CLEAR SPEAKS FOR. A trouble is cleared PER RECIPIENT (trouble.py: `outstanding`
+# is every notified name with no clear in its name), and this door's troubles are notified to
+# the lane's default recipient, `cc`. Measured 2026-09-13: 11 of 12 seal-red troubles in the
+# store carried up to three clears `by="cairn test --reseal"` — the fold appended each one,
+# read `cc` as still outstanding, and left the trouble OPEN. A green reseal announced its fix
+# into a record nobody's inbox ever left. So the clear is sent AS the recipient it discharges
+# (the build inspector's reconcile does the same, `by="cc"`), and CALLER rides in
+# `what_changed` where it is provenance rather than a name the fold has to match. The
+# literal is a copy of trouble.DEFAULT_RECIPIENTS on purpose: a device may not import another
+# (device_isolation_holds), and a seam that has to agree on one word does not need a door.
+CLEARS_FOR = "cc"
+
 _SLUG = re.compile(r"[^a-z0-9-]+")
 
 
@@ -422,8 +434,8 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                                          "closed_proof_sha256": now_hash}
         persist_validation({**record, "evidence": evidence}, proof_path=str(proof))
         try:
-            raiser.clear_trouble(identity, by=CALLER, what_changed=(
-                f"reseal door: {rel} ran green and its seal was landed through the store's "
+            raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
+                f"{CALLER}: {rel} ran green and its seal was landed through the store's "
                 f"door — the fingerprint reproduces again"))
         except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
             pass           #   (loud and wrong beats quiet and wrong; Law 7)

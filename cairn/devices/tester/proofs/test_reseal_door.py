@@ -54,6 +54,7 @@ PROVES = {
         "6": "test_no_rung_writes_a_seal_without_a_run_in_the_same_act",
         "7": "test_a_timeout_writes_no_seal_and_bounds_no_repair",
         "8": "test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing",
+        "9": "test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list",
     }
 }
 
@@ -581,6 +582,63 @@ def test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing():
         "lane is firing on the verdict alone and has blinded rung 2 to every repair")
     assert out2["outcome"] == "resealed", out2
     assert standing(str(proof))["proven"] is True, standing(str(proof))["why"]
+
+
+# ── tooth 9 ───────────────────────────────────────────────────────────────────────────
+
+def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list():
+    """RUNG 3's OTHER HALF, MEASURED AT THE HOLDER. Tooth 4 asserts the door EMITS a clear
+    with the right identity — and that was every bit of the seam a fake raiser could see.
+    What the fake could not see, and what stood wrong in the live store for four days
+    (2026-09-09..13, 11 of 12 seal-red troubles): the trouble device clears PER RECIPIENT,
+    its troubles are notified to `cc`, and the door signed its clear `by="cairn test
+    --reseal"`. The fold appended the clear, read `cc` as still outstanding, and left the
+    trouble OPEN — a green announcing its fix into a record nobody's inbox ever left, three
+    times over on some components. The emission was right; the identity was right; the
+    NAME was wrong, and only the holder can say so.
+
+    So this tooth stands a REAL TroubleDevice over a scratch store behind the door's raiser
+    and asserts the one thing that matters to the operator: after the green, ``live()`` no
+    longer carries the trouble. The device's own docstring says nothing but the recipient
+    may clear — this tooth is what proves the door speaks as one."""
+    from cairn.devices.trouble.trouble import TroubleDevice
+
+    root, proof = _component()
+    store = root / "troubles"
+    holder = TroubleDevice(root=store)
+
+    class _HolderRaiser:
+        """The door's raiser, wired straight to the holder: what the emission lane folds
+        to, without the lane — the FOLD is what is under test, not the drain."""
+        def raise_trouble(self, identity, *, why, detail=None):
+            holder.raise_trouble(identity, why=why, detail=detail)
+
+        def clear_trouble(self, identity, *, by, what_changed):
+            holder.clear(identity, by=by, what_changed=what_changed)
+
+    persist_validation(_record(proof, GREEN), proof_path=str(proof))
+    (root / "code.py").write_text("VALUE = 3\n", encoding="utf-8")
+    raiser = _HolderRaiser()
+    identity = trouble_identity(proof)
+
+    red = reseal(proof, tester=_FakeTester(RED, tail="AssertionError: fixture"), raiser=raiser)
+    assert red["outcome"] == "red", red
+    assert [t["id"] for t in holder.live()] == [identity], (
+        "the red did not land as a live trouble at the holder")
+
+    (root / "code.py").write_text("VALUE = 2\n", encoding="utf-8")
+    green = reseal(proof, tester=_FakeTester(GREEN), raiser=raiser)
+    assert green["outcome"] == "resealed", green
+    still = [t["id"] for t in holder.live()]
+    record = json.loads((store / f"{identity}.json").read_text(encoding="utf-8"))
+    assert still == [], (
+        f"the door's clear reached the holder and the trouble is STILL LIVE: standing="
+        f"{record.get('standing')!r}, notified={record.get('notified')!r}, cleared_by="
+        f"{[c['by'] for c in record.get('cleared_by', [])]!r} — the clear is signed by a name "
+        f"that is not a recipient, so the fold appends it and nothing ever leaves the inbox")
+    assert record["standing"] == "CLEARED", record
+    assert "cairn test --reseal" in record["resolution"]["what_changed"], (
+        "the door's name is provenance and belongs in what_changed")
 
 
 if __name__ == "__main__":

@@ -148,6 +148,18 @@ cast that predates the door, or genuinely cannot fire it, records
 `"sorted_berth": "none, because <X>"` with a resolvable referent — silence reds at
 the crossing.
 
+**The filing itself rides the artifact door** (since 2026-09-13, ticket
+`30531f6e1c5d`): a ticket is a record of truth, so write it with
+`cairn artifact write CairnCommons/tickets/<id>-<slug>.json --verb cast --why '<why>' --from <file>`
+(or `cairn.tools.artifact.artifact.write(path, content, verb="cast", why=...)`).
+A `write_text`/heredoc at a record path is refused at PreToolUse by
+`bin/cmd/artifactgate` and, if it somehow lands, at commit by `cairn artifact
+check`. Later edits to the ticket (measured_at_build, chart_claim, a cursor the
+harbor moved) go the same way — verb `cast`; a cursor moved by `clearance.clear`
+is written back through the door in the same act. A change you cannot route
+through a door is a **hand edit**: `cairn artifact hand-edit <path> --why '<why>'`
+parks it for Akien and the record stays at its journaled bytes until he approves.
+
 **Write-through the model.** If what you filed is a *model source* — a homeless
 intention in `intentions-not-beside-code/`, or a beside-code `intention+why.json` charter —
 poke the compiled model's sole write-door in the **same act**, so the next

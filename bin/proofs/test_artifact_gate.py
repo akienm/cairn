@@ -51,7 +51,10 @@ def _load(path: Path, name: str):
     return mod
 
 
-gate = _load(_GATE, "artifactgate")
+# The subject is bound at CALL time, never at import: the hollow reading takes
+# bin/cmd/artifactgate away and reruns this proof; an absent subject reds both declared
+# teeth instead of crashing the reader.
+gate = None
 FAILURES: list[str] = []
 
 
@@ -61,7 +64,28 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def _red_every_declared_tooth(reason: str) -> None:
+    for name in PROVES["30531f6e1c5d"].values():
+        if name not in FAILURES:
+            check(name, False, reason)
+
+
 def main() -> int:
+    global gate
+    if not _GATE.exists():
+        print(f"the subject {_GATE} is absent")
+        _red_every_declared_tooth("subject absent")
+        return 1
+    try:
+        gate = _load(_GATE, "artifactgate")
+        return _teeth()
+    except Exception as exc:  # noqa: BLE001 — a subject whose world was taken away
+        print(f"the teeth could not run to the end: {exc!r}")
+        _red_every_declared_tooth(f"aborted: {type(exc).__name__}")
+        return 1
+
+
+def _teeth() -> int:
     print("WRITE TOOLS")
     for rel in ("tickets/x.json", "troubles/x.json", "decisions/x.json", "slates/x.json",
                 "ideas/x.json", "questions/x.json", "adjudications/x.json"):

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_v2_migration.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:19:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-13T17:27:38",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "d44c7e6380219262561fbaf40ac179dac125b6cf3ef48f2d0b6752d027ac4df4",
+      "source_fingerprint": "93b8b22dc636b182a95614836a1e8fedbeaa9e83f749e8935fc16d6338705af5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -39,6 +39,8 @@
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/store.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
@@ -48,6 +50,8 @@
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/proofs/test_v2_migration.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -59,29 +63,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-1tqct0zb/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3380497-kxnh_gy1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/bus/0/20260910.051941.191338.BusDevice.post.json",
-            "logs/bus/0/20260910.051941.193320.BusDevice.post.json",
-            "logs/bus/0/20260910.051941.194438.BusDevice.post.json",
-            "logs/bus/0/20260910.051941.195649.BusDevice.post.json",
-            "logs/charter/0/20260910.051941.163543.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260910.051941.193140.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260910.051941.194293.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260910.051941.195508.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260913.232738.435921.BusDevice.post.json",
+            "logs/bus/0/20260913.232738.438467.BusDevice.post.json",
+            "logs/bus/0/20260913.232738.440499.BusDevice.post.json",
+            "logs/bus/0/20260913.232738.442382.BusDevice.post.json",
+            "logs/charter/0/20260913.232738.410768.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232738.438256.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232738.440332.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232738.442222.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 123104594,
-          "disk_bytes": 133656576,
-          "entries": 4300,
+          "bytes": 134885367,
+          "disk_bytes": 146411520,
+          "entries": 4782,
           "builds": 1,
-          "reuses": 99
+          "reuses": 27
         }
       }
     },

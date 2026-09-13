@@ -2,7 +2,7 @@
   {
     "claim": "proof test_crossing_fingerprint.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:35:17",
+    "date": "2026-09-13T17:27:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "759b9dbfd49e88287bceb33da66aee62b1867b9a053b3e6eb0a3acaf037ecb7b",
+      "source_fingerprint": "38d589fb904f4c679aa4514d1fcb22b6c1780026a1c22734ef6f5efb1ca9ed50",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -42,6 +42,8 @@
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
@@ -54,6 +56,8 @@
         "cairn/tools/base/proofs/test_crossing_fingerprint.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -72,35 +76,35 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2278376-p7rwuon8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3380497-1_lgk1de/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/bus/0/20260913.163517.268227.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.270556.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.271929.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.287128.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.288884.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.291104.BusDevice.post.json",
-            "logs/bus/0/20260913.163517.292897.BusDevice.post.json",
-            "logs/charter/0/20260913.163517.231149.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.270330.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.271721.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.286894.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.288673.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.290896.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163517.292690.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260913.232701.215894.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.218217.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.219802.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.228110.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.229843.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.231854.BusDevice.post.json",
+            "logs/bus/0/20260913.232701.233464.BusDevice.post.json",
+            "logs/charter/0/20260913.232701.190727.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.218059.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.219663.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.227950.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.229705.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.231721.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232701.233313.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 133841218,
-          "disk_bytes": 145342464,
-          "entries": 4768,
+          "bytes": 134887502,
+          "disk_bytes": 146436096,
+          "entries": 4788,
           "builds": 1,
-          "reuses": 23
+          "reuses": 15
         }
       }
     },

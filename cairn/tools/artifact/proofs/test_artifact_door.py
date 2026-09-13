@@ -29,7 +29,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from cairn.tools.artifact import artifact as A  # noqa: E402
+# The subject is bound at CALL time, never at import: the hollow reading takes artifact.py
+# (and jurisdiction.json) away and reruns this proof, and a proof that cannot even start
+# reads UNREADABLE rather than red. ``A`` is resolved in main(); an absent or unloadable
+# subject reds every declared tooth below instead of crashing the reader.
+A = None  # type: ignore[assignment]
 
 REPO = Path(__file__).resolve().parents[4]
 FAILURES: list[str] = []
@@ -394,19 +398,39 @@ def teeth_beside(tmp: Path) -> None:
 LIVE_LINES_BEFORE = -1
 
 
+def _red_every_declared_tooth(reason: str) -> None:
+    """The subject is gone or the world it needs is: every tooth this proof declares reds,
+    by name, so proof_coverage and the hollow reading see a red rather than a crash."""
+    for name in PROVES["30531f6e1c5d"].values():
+        if name not in FAILURES:
+            check(name, False, reason)
+
+
 def main() -> int:
-    global LIVE_LINES_BEFORE
-    live = A.journal_path(A.roots()["CairnCommons"])
-    LIVE_LINES_BEFORE = len(live.read_text().splitlines()) if live.exists() else 0
-    teeth_callers()
-    with tempfile.TemporaryDirectory(prefix="cairn-artifact-door-proof-") as d:
-        tmp = Path(d)
-        try:
-            teeth_door(tmp)
-            teeth_hook(tmp)
-        finally:
-            A.set_diagnostic_roots(None)
-        teeth_beside(tmp)
+    global A, LIVE_LINES_BEFORE
+    try:
+        from cairn.tools.artifact import artifact as door
+    except Exception as exc:  # noqa: BLE001 — the reverted world is the case this handles
+        print(f"the subject cairn.tools.artifact.artifact does not load: {exc!r}")
+        _red_every_declared_tooth("subject absent")
+        print(f"\nRED — {len(FAILURES)} failure(s)")
+        return 1
+    A = door
+    try:
+        live = A.journal_path(A.roots()["CairnCommons"])
+        LIVE_LINES_BEFORE = len(live.read_text().splitlines()) if live.exists() else 0
+        teeth_callers()
+        with tempfile.TemporaryDirectory(prefix="cairn-artifact-door-proof-") as d:
+            tmp = Path(d)
+            try:
+                teeth_door(tmp)
+                teeth_hook(tmp)
+            finally:
+                A.set_diagnostic_roots(None)
+            teeth_beside(tmp)
+    except Exception as exc:  # noqa: BLE001 — a subject whose world was taken away
+        print(f"the teeth could not run to the end: {exc!r}")
+        _red_every_declared_tooth(f"aborted: {type(exc).__name__}")
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     for f in FAILURES:
         print(f"  - {f}")

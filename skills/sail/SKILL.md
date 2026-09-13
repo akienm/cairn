@@ -99,6 +99,14 @@ thirteen records in four days and then had no caller at all. **Do not hand-write
 `:in-process` onto a cursor — the write door refuses it**, and a session that dies
 takes its claim with it, which is the property a stored phase could never have.
 
+The crossing returns the new workflow string; the ticket's `workflow_and_state`
+is written back **through the artifact door** (ticket `30531f6e1c5d`, 2026-09-13):
+`cairn.tools.artifact.artifact.write(<ticket path>, <json>, verb="cast", why=...)`
+or `transitions.set_phase` (whose `_write_ticket` rides the same door). A
+`write_text` at the ticket path is refused at PreToolUse and at commit; the
+journal entry names the cursor's mover by cgroup class — the evidence 481221f45884
+never had.
+
 ## 2. Build inside the berths
 
 - **constrain's bounds are hard edges** — `out` is out; wanting something out

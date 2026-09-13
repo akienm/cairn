@@ -57,7 +57,9 @@ PYTHONPATH=$HOME/dev/src/cairn python3 skills/saveslate/door.py --session <sessi
 
 A refusal names every lack in one pass and **writes nothing** — fix and refire.
 On pass the door berths the firing AND writes `CairnCommons/slates/<id>.json` in
-the same act; there is no other path to the store. Report the berth and the slate
+the same act; there is no other path to the store — and that write rides the
+artifact door (ticket `30531f6e1c5d`, verb `slate`), so the journal names which
+session wrote the slate and `cairn artifact check CairnCommons` passes at commit. Report the berth and the slate
 path, then commit the slate (committed is part of done).
 
 ## Relation to CC's memory

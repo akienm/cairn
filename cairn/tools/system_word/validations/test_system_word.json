@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_word.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:36:19",
+    "date": "2026-09-13T17:28:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -41,7 +41,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f958120295161e18db7618f077cf15afc41b8d0c27d23de745db01b4b776467e",
+      "source_fingerprint": "419412de6a3b57c4da16eab574c2a2c142fa8df47a2488d25bf87b7e2a55ef9d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -104,6 +104,8 @@
         "cairn/machines/skill_block/__main__.py",
         "cairn/machines/skill_block/skill_block.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
@@ -120,6 +122,8 @@
         "cairn/tools/base/transitions.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -147,25 +151,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2278376-hs8uhs3z/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3380497-u01tjmho/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/bus/0/20260913.163618.022275.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260913.163618.193542.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20260913.163618.723988.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260913.163618.899080.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20260913.232827.360757.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260913.232827.603157.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20260913.232828.266142.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260913.232828.485543.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 133837153,
-          "disk_bytes": 145301504,
-          "entries": 4758,
+          "bytes": 134883437,
+          "disk_bytes": 146395136,
+          "entries": 4778,
           "builds": 1,
-          "reuses": 34
+          "reuses": 42
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_slate_door.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T11:38:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-13T17:28:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -51,7 +51,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "70cf09129ae819222d94140718bb48a871210db39ad6bc387454ed005e9312a3",
+      "source_fingerprint": "67513d5ccbd076d03dc08ae161359adabd1c9d91e421e7f51eca4d67db382901",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -60,8 +60,12 @@
         "cairn/machines/skill_block/__init__.py",
         "cairn/machines/skill_block/skill_block.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
         "skills/saveslate/door.py",
@@ -69,24 +73,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-247047-pxlzlzwq/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3380497-biw1ot57/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/learning_block/0/traces/skill:intent.jsonl",
             "devices/learning_block/0/traces/skill:saveslate.jsonl",
-            "devices/skill_block/0/berths/saveslate/saveslate-20260909T113850-6cd92be3820c.json"
+            "devices/skill_block/0/berths/saveslate/saveslate-20260913T172841-a1f3377937b0.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 115608716,
-          "disk_bytes": 124420096,
-          "entries": 3662,
+          "bytes": 134894274,
+          "disk_bytes": 146395136,
+          "entries": 4771,
           "builds": 1,
-          "reuses": 1
+          "reuses": 50
         }
       }
     },

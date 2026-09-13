@@ -24,8 +24,10 @@ live question set; the charter is its compiled face.
 ## First: refresh + consult the model (Law 1 — the cheapest gate)
 
 Before firing the questions, read the compiled intentions model — **fresh**. The
-model is a ~0.2s compile of its sources; an out-of-band source write (a hand-edited
-charter, one written outside a skill step) may have landed since the last compile.
+model is a ~0.2s compile of its sources; an out-of-band source write (a charter
+written outside a skill step — since 2026-09-13 every `intention+why.json` write
+rides the artifact door, and a hand edit is parked rather than landed) may have
+landed since the last compile.
 So the reader **pokes the gate to refresh, then consults** — the read is the event
 that refreshes it; no daemon watches on your behalf:
 

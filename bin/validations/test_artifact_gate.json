@@ -2,7 +2,7 @@
   {
     "claim": "proof test_artifact_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-13T17:13:57",
+    "date": "2026-09-13T17:57:12",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -64,7 +64,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "920bb13cd1ab7d55590e393304b8dabec98a1854db721ea1ed0d9eee6c98ea50",
+      "source_fingerprint": "8b0c5476bcbae04a3128000eee4a664e52381bcdc6cb6386555ca2faf260b230",
       "fingerprint_closure": [
         "bin/proofs/test_artifact_gate.py",
         "cairn/__init__.py",
@@ -76,7 +76,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3365789-1jgv169g/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3507767-bu2fpqc_/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,11 +85,77 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 134859732,
-          "disk_bytes": 146345984,
-          "entries": 4766,
+          "bytes": 134954759,
+          "disk_bytes": 146464768,
+          "entries": 4775,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "30531f6e1c5d": {
+          "cairn/tools/artifact/jurisdiction.json": {
+            "unreadable": [
+              "bin/proofs/test_artifact_gate.py",
+              "cairn/tools/artifact/proofs/test_artifact_door.py"
+            ]
+          },
+          "cairn/tools/artifact/artifact.py": {
+            "unreadable": [
+              "bin/proofs/test_artifact_gate.py",
+              "cairn/tools/artifact/proofs/test_artifact_door.py"
+            ]
+          },
+          "cairn/tools/artifact/__main__.py": [
+            "test_the_cli_front_door_answers_caller_with_a_measured_class",
+            "test_the_hook_blocks_a_commit_made_around_the_door",
+            "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
+            "test_the_three_caller_classes_measure_gate_cc_akien"
+          ],
+          "bin/cmd/artifact": [
+            "test_the_cli_front_door_answers_caller_with_a_measured_class"
+          ],
+          "cairn/tools/artifact/hooks/pre-commit": [
+            "test_the_hook_blocks_a_commit_made_around_the_door"
+          ],
+          "cairn/devices/tester/hooks/pre-commit": [
+            "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder"
+          ],
+          "bin/cmd/artifactgate": {
+            "unreadable": [
+              "bin/proofs/test_artifact_gate.py"
+            ]
+          },
+          ".claude/settings.json": [
+            "test_the_gate_is_wired_at_pretooluse_for_every_writing_tool"
+          ],
+          "cairn/devices/tester/validation_store.py": [
+            "test_the_seal_store_writes_its_validation_through_the_door"
+          ],
+          "cairn/tools/charter/projector.py": [
+            "test_the_projector_writes_history_and_state_through_the_door"
+          ],
+          "cairn/tools/base/transitions.py": [
+            "test_a_chain_break_is_detected_by_replay",
+            "test_a_record_edited_around_the_door_is_refused_at_the_commit_question",
+            "test_a_scratch_world_never_reaches_the_live_journal",
+            "test_hand_edit_parks_and_the_record_stays_at_its_journaled_bytes",
+            "test_the_charter_stands_beside_the_code_and_names_this_proof",
+            "test_the_hook_blocks_a_commit_made_around_the_door",
+            "test_the_live_cairn_journal_verifies_from_genesis",
+            "test_the_phase_writer_moves_a_ticket_through_the_door",
+            "test_the_probe_is_armed_with_carry_and_enough",
+            "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder"
+          ],
+          ".artifact-journal.jsonl": [
+            "test_the_live_cairn_journal_verifies_from_genesis"
+          ],
+          "cairn/tools/artifact/intention+why.json": [
+            "test_the_charter_stands_beside_the_code_and_names_this_proof"
+          ],
+          "cairn/tools/artifact/probes/callers_are_known.py": [
+            "test_the_probe_is_armed_with_carry_and_enough"
+          ]
         }
       }
     },

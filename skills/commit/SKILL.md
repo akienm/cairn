@@ -22,6 +22,17 @@ The charter lives beside this file in `intention+why.json`.
    ```
 4. Push, if a remote is configured.
 
+**The commit question runs first, blocking, in both repos' pre-commit hooks**
+(ticket `30531f6e1c5d`, 2026-09-13): `cairn artifact check <root>` refuses a
+staged record of truth (ticket, trouble, decision, slate, idea, state, history,
+charter, validation) whose bytes are not the artifact journal's last `sha_after`.
+`REFUSED — N record(s) staged around the artifact door` is not a hook to skip:
+never `--no-verify`. The fix is the one the refusal names — re-issue the write
+through its door, or `cairn artifact hand-edit <path> --why '<why>'` to park it
+for Akien. If the working copy IS the door's output and only the index is stale
+(a reseal landed after `git add`), `git add` it again and re-ask
+`cairn artifact check <root>`.
+
 If work is on the default branch and this is durable/shared work, branch first
 rather than committing straight to it.
 

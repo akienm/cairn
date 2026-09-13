@@ -2,7 +2,7 @@
   {
     "claim": "proof test_emission_gate.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:35:30",
+    "date": "2026-09-13T17:27:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "b7c1ab68705e1dd7c29c2ce1090bc4b3fcc7edc68b3cb6ac58c0e190199e300f",
+      "source_fingerprint": "8edd434fa1b957e1c0f758b01029a041a3b3b199503df6332ce26734d55e734d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,6 +50,8 @@
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
@@ -65,6 +67,8 @@
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -83,30 +87,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2278376-14pei5go/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3380497-mb0f_yoa/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/bus/0/20260913.163530.247179.BusDevice.post.json",
-            "logs/bus/0/20260913.163530.251762.BusDevice.post.json",
-            "logs/bus/0/20260913.163530.253301.BusDevice.post.json",
-            "logs/bus/0/20260913.163530.255951.BusDevice.post.json",
-            "logs/charter/0/20260913.163530.223086.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163530.251609.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163530.253160.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260913.163530.255809.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260913.232718.214703.BusDevice.post.json",
+            "logs/bus/0/20260913.232718.221989.BusDevice.post.json",
+            "logs/bus/0/20260913.232718.224948.BusDevice.post.json",
+            "logs/bus/0/20260913.232718.229160.BusDevice.post.json",
+            "logs/charter/0/20260913.232718.186107.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232718.221782.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232718.224755.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260913.232718.228966.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 133839284,
-          "disk_bytes": 145321984,
-          "entries": 4763,
+          "bytes": 134885437,
+          "disk_bytes": 146411520,
+          "entries": 4782,
           "builds": 1,
-          "reuses": 25
+          "reuses": 18
         }
       }
     },

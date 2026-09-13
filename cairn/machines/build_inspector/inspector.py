@@ -3572,8 +3572,24 @@ def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
     return filed
 
 
+def _standing_finding_ids(findings: list[dict], *, baseline_path: Path | None = None) -> list[str]:
+    """The trouble identities the current findings SUSTAIN: one per finding above baseline.
+
+    The raise side and the reconcile side read the same set, and the set is the ABOVE-BASELINE
+    findings, because that is what a finding trouble IS ("appeared above baseline ... no
+    covering ticket", `_finding_why`). Measured 2026-09-13: the reconcile was handed every
+    finding, baselined or not, so a trouble raised before its ticket landed in the baseline
+    stood forever — the inspector re-read the covered finding as still-standing on every run
+    and never emitted the clear. Covering a finding by ticket is exactly the condition that
+    retires its trouble; this is where that condition is read."""
+    return sorted({
+        _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
+        for f in check_baseline(findings, baseline_path=baseline_path)
+    })
+
+
 def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
-    """Hand trouble the complete current finding set; it clears what no longer stands.
+    """Hand trouble the current ABOVE-BASELINE finding set; it clears what no longer stands.
 
     Returns the number of identities reported still-standing — NOT a count of clears, which
     this side no longer knows and no longer should. That is the whole change (2026-09-08,
@@ -3599,10 +3615,7 @@ def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
     A lane we cannot reach leaves the stale troubles standing. That is still the safe
     direction: an uncleared trouble is loud and wrong, a silently-cleared one is quiet and
     wrong (Law 7). The emission is on disk either way, and the beat drains it."""
-    still = sorted({
-        _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
-        for f in current_findings
-    })
+    still = _standing_finding_ids(current_findings)
     _raiser().reconcile_troubles(
         "inspector-new-finding-", still, by="cc",
         what_changed=("build inspector reconcile: the condition that raised this trouble no "

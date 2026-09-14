@@ -129,9 +129,13 @@ nobody.
   The field is the list of ids that printed (`open-<12hex>`), or `"none, because
   <X>"` with a resolvable referent. The door refuses an id that does not resolve
   under `CairnCommons/questions/`. He answers in chat (record it verbatim with
-  `cairn question answer <id> "<his words>"`) or from his own shell; an answer that
-  bears more questions opens them with `--follow-up "<q?>"`, and the loop goes
-  around until every one is answered. Physics, not policy: the BUILDME entry
+  `cairn question answer <id> "<his words>" --spawned none`) or from his own
+  shell; an answer that bears more questions opens them with `--spawned "<q?>"`
+  (repeatable — `--spawned` is required, so "spawned nothing" is a recorded
+  claim, not a default), and the loop goes around until every one is answered.
+  The link has two ends: the door writes the id onto the ticket's `questions`
+  in the same act, and the inspector's `question_links_agree` sieve reds the
+  two ends disagreeing. Physics, not policy: the BUILDME entry
   gate's lane `the_ticket_has_every_answer_it_needs` holds the crossing while any
   question on the ticket stands open. **Rulings are retired** — `cairn ruling open`
   refuses; a decision is a question, and its answer is the decision.
@@ -168,6 +172,14 @@ it (`buildme_rides_the_sorted`), alongside the chart claim and `intent_berth`. A
 cast that predates the door, or genuinely cannot fire it, records
 `"sorted_berth": "none, because <X>"` with a resolvable referent — silence reds at
 the crossing.
+
+**Rebind the questions raised before the id existed.** A question opened at
+`/intent` could only name the intent berth path as its ticket. Once the ticket
+file is filed with its `intent_berth`, run `cairn question rebind <id>`: every
+question bound to that berth path is rewritten to the ticket id and the id lands
+on the ticket's `questions` in the same act (ticket bc7b64626405). The BUILDME
+lane already counts berth-bound questions, so an unrebound question still holds
+the crossing — the rebind is what makes the ticket show it.
 
 **The filing itself rides the artifact door** (since 2026-09-13, ticket
 `30531f6e1c5d`): a ticket is a record of truth, so write it with

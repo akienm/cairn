@@ -10,7 +10,7 @@ that would show up in my inbox."* (ticket `9adc6fddf185`). A decision he has to 
 is a **question bound to the ticket that needs it**, and his answer is the decision:
 
     cairn question open --ticket <id> "<question?>" --why "<what the build cannot settle without it>"
-    cairn question answer <qid> "<his words>" [--follow-up "<q?>"]
+    cairn question answer <qid> "<his words>" --spawned none | --spawned "<q?>"
     cairn question list [<ticket>]
 
 The ticket does not cross to BUILDME while a question on it stands open

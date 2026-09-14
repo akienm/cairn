@@ -11,7 +11,7 @@ whose ``to`` is BUILDME and whose ``at`` is after the gate's birth, count the qu
 bound to that ticket that were still unresolved AT THAT MOMENT (unresolved now, or
 answered after the crossing). FIRES on the first crossing that went through with one
 standing — the WRONG-INTENT clause. ENOUGH once 20 tickets have crossed clean AND at least
-5 answers bore follow-ups (the loop went around at least once outside the proof).
+5 answers spawned questions (the loop went around at least once outside the proof).
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from cairn.tools.question import question as Q
 
 GATE_BORN = "2026-09-14T00:00:00"
 ENOUGH_CROSSINGS = 20
-ENOUGH_FOLLOW_UPS = 5
+ENOUGH_SPAWNED = 5
 _REPO = Path(__file__).resolve().parents[4]
 
 
@@ -72,8 +72,8 @@ def _measure(context: dict) -> dict:
     context.update({
         "crossings": len(crossings), "leaked": leaked,
         "answers": len(answered), "answer_classes": dict(classes),
-        "with_follow_ups": sum(1 for q in answered if q.get("follow_ups")),
-        "follow_up_depth": dict(depth),
+        "with_spawned": sum(1 for q in answered if Q.spawned_of(q)),
+        "spawned_depth": dict(depth),
     })
     return context
 
@@ -90,15 +90,15 @@ def _carry(context: dict) -> dict:
     return {
         "crossings": context["crossings"], "leaked": context["leaked"][:20],
         "answers": context["answers"], "answer_classes": context["answer_classes"],
-        "with_follow_ups": context["with_follow_ups"], "follow_up_depth": context["follow_up_depth"],
+        "with_spawned": context["with_spawned"], "spawned_depth": context["spawned_depth"],
         "finding": (
             "%d BUILDME crossing(s) went through while a question on the ticket stood open — "
             "the gate the_ticket_has_every_answer_it_needs did not hold; the WRONG-INTENT "
             "clause of ticket 9adc6fddf185" % n
         ) if n else (
             "every one of %d BUILDME crossings since the gate had no open question standing "
-            "(%d answers, %d with follow-ups)" % (context["crossings"], context["answers"],
-                                                   context["with_follow_ups"])
+            "(%d answers, %d that spawned questions)" % (context["crossings"], context["answers"],
+                                                   context["with_spawned"])
         ),
     }
 
@@ -107,7 +107,7 @@ def _enough(context: dict) -> bool:
     if "crossings" not in context:
         _measure(context)
     return (not context["leaked"] and context["crossings"] >= ENOUGH_CROSSINGS
-            and context["with_follow_ups"] >= ENOUGH_FOLLOW_UPS)
+            and context["with_spawned"] >= ENOUGH_SPAWNED)
 
 
 PROBE = Probe(

@@ -19,7 +19,7 @@ RETIRED = (
     "/ruled is retired (ticket 9adc6fddf185, Akien 2026-09-14: 'why are we still doing "
     "rulings? we replaced that with questions that would show up in my inbox').\n"
     "  a decision he must make:  cairn question open --ticket <id> \"<question?>\" --why \"<what it blocks>\"\n"
-    "  his answer (verbatim):    cairn question answer <qid> \"<his words>\" [--follow-up \"<q?>\"]\n"
+    "  his answer (verbatim):    cairn question answer <qid> \"<his words>\" --spawned none | --spawned \"<q?>\"\n"
     "  what stands open:         cairn question list\n"
     "The past rulings stay readable: cairn ruling list | show <id>. Nothing opens or confirms one."
 )

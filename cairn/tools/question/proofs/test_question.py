@@ -8,7 +8,8 @@ that run in a subprocess — the BUILDME entry gate and the CLI):
   1. a question opens THROUGH THE ARTIFACT DOOR (the journal entry is read back) and the
      operator inbox lists it under its ticket;
   2. an answer resolves it, the journal names the caller class the kernel measured, and a
-     follow-up is born of it on the same ticket — the loop going around;
+     spawned question is born of it on the same ticket — the loop going around (the field
+     was ``follow_ups`` until ticket bc7b64626405 made ``spawned`` a required claim);
   3. the entry gate's fourth lane reds a ticket with an open question and ``_entry_gate``
      raises naming ``cairn question answer``; the same ticket crosses once answered. With
      the gate reverted the lane is absent and this tooth reds — the hollow reading;
@@ -42,14 +43,21 @@ FAILURES: list[str] = []
 PROVES = {
     "9adc6fddf185": {
         "1": "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
-        "2": "test_an_answer_resolves_it_and_a_follow_up_is_born_of_it",
+        "2": "test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
         "3": "test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
         "4": "test_ruling_open_is_retired_and_no_skill_opens_one",
         "5": "test_an_answered_question_is_same_act_evidence_for_the_sieves",
         "cli": "test_the_cli_opens_answers_and_lists",
         "charter": "test_the_charter_stands_beside_the_code_and_names_this_proof",
         "probe": "test_the_probe_is_armed_with_carry_and_enough",
-    }
+    },
+    # the links ticket re-worded two of these teeth: the answer's ``spawned`` opens each
+    # question born_of it (clause 2) and the CLI says ``--spawned`` — the rest of that
+    # ticket is proved beside this file in test_question_links.py
+    "bc7b64626405": {
+        "2": "test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
+        "cli": "test_the_cli_opens_answers_and_lists",
+    },
 }
 
 
@@ -70,7 +78,13 @@ def _world(tmp: Path) -> Path:
 
 
 def _env(qdir: Path) -> dict:
-    return dict(os.environ, PYTHONPATH=str(REPO), CAIRN_QUESTIONS_DIR=str(qdir))
+    """The subprocess seam: the scratch questions store AND the scratch artifact roots — without
+    the roots the CLI's ticket-side link (ticket bc7b64626405) lands on the LIVE 9adc ticket,
+    which this proof did once, on 2026-09-14, two phantom ids the sieve then reported."""
+    commons = qdir.parent
+    return dict(os.environ, PYTHONPATH=str(REPO), CAIRN_QUESTIONS_DIR=str(qdir),
+                CAIRN_ARTIFACT_ROOTS=json.dumps({"CairnCommons": str(commons),
+                                                 "cairn": str(commons.parent / "cairn")}))
 
 
 def _gate_in_subprocess(qdir: Path) -> dict:
@@ -97,7 +111,7 @@ def _gate_in_subprocess(qdir: Path) -> dict:
 def teeth_door(tmp: Path) -> None:
     commons = _world(tmp)
     qdir = commons / "questions"
-    print("THE DOOR — open, answer, follow-up, over a scratch world")
+    print("THE DOOR — open, answer, spawned, over a scratch world")
 
     # 1. open through the door; the inbox lists it under the ticket
     rec = Q.open_question(TICKET, "does the proof's question show in the inbox?",
@@ -112,11 +126,11 @@ def teeth_door(tmp: Path) -> None:
     check(PROVES[TICKET]["1"], on_disk and entry is not None and listed and not rec["resolved"],
           f"on_disk={on_disk} journaled={entry is not None} listed={listed}")
 
-    # 2. the answer resolves it, journals the caller class, bears a follow-up born of it
-    ans = Q.answer(qid, "yes — and is the follow-up bound too?",
-                   follow_ups=["is the follow-up bound to the same ticket?"], root=qdir)
+    # 2. the answer resolves it, journals the caller class, bears a spawned question born of it
+    ans = Q.answer(qid, "yes — and is the spawned one bound too?",
+                   spawned=["is the spawned question bound to the same ticket?"], root=qdir)
     back = Q.read(qid, root=qdir)
-    fu = back.get("follow_ups") or []
+    fu = back.get("spawned") or []
     child = Q.read(fu[0], root=qdir) if fu else {}
     journal = A.read_journal(commons)
     aentry = next((e for e in reversed(journal) if e.get("verb") == "answer"), None)
@@ -126,22 +140,22 @@ def teeth_door(tmp: Path) -> None:
           and cls in ("cc", "akien", "gate")
           and len(fu) == 1 and child.get("born_of") == qid and child.get("ticket") == TICKET
           and not child.get("resolved"),
-          f"resolved={back.get('resolved')} class={cls} follow_ups={fu} child_born_of={child.get('born_of')}")
+          f"resolved={back.get('resolved')} class={cls} spawned={fu} child_born_of={child.get('born_of')}")
     twice = False
     try:
-        Q.answer(qid, "again", root=qdir)
+        Q.answer(qid, "again", spawned=[], root=qdir)
     except Q.Refused:
         twice = True
     check("a second answer is refused — it is a new question", twice)
 
-    # 3. the gate: the follow-up stands open → the fourth lane is red and the crossing raises;
+    # 3. the gate: the spawned question stands open → the fourth lane is red and the crossing raises;
     #    answer it → every lane green and the crossing goes through.
     g_open = _gate_in_subprocess(qdir)
     lane = "the_ticket_has_every_answer_it_needs"
     red_and_raised = (g_open["lanes"].get(lane) not in (None, "none")
                       and g_open["raised"] is not None
                       and "cairn question answer" in g_open["raised"])
-    Q.answer(fu[0], "yes", root=qdir)
+    Q.answer(fu[0], "yes", spawned=[], root=qdir)
     g_done = _gate_in_subprocess(qdir)
     green_and_crossed = g_done["lanes"].get(lane) == "none" and g_done["raised"] is None
     check(PROVES[TICKET]["3"], red_and_raised and green_and_crossed,
@@ -177,7 +191,7 @@ def teeth_door(tmp: Path) -> None:
                             capture_output=True, text=True, env=env, timeout=120)
     cid = next((tok for tok in r_open.stdout.split() if tok.startswith("open-")), "")
     r_list = subprocess.run(cli + ["list", TICKET], capture_output=True, text=True, env=env, timeout=120)
-    r_ans = subprocess.run(cli + ["answer", cid, "yes", "--follow-up", "and its follow-up?"],
+    r_ans = subprocess.run(cli + ["answer", cid, "yes", "--spawned", "and its spawned question?"],
                            capture_output=True, text=True, env=env, timeout=120)
     r_show = subprocess.run(cli + ["show", cid], capture_output=True, text=True, env=env, timeout=120)
     r_bad = subprocess.run(cli + ["open", "--ticket", TICKET, "not a question", "--why", "x"],

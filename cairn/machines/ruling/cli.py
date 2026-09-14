@@ -47,7 +47,7 @@ def _cmd_open(path: str) -> int:
     # open-68aabd7eb2e0: no migration); list/verify/confirm/supersede keep reading it.
     print("cairn ruling open is retired — a decision is a question bound to its ticket.\n"
           "  open one:   cairn question open --ticket <id> \"<question?>\" --why \"<what it blocks>\"\n"
-          "  his answer: cairn question answer <qid> \"<his words>\" [--follow-up \"<q>\"]\n"
+          "  his answer: cairn question answer <qid> \"<his words>\" --spawned none | --spawned \"<q?>\"\n"
           "The ticket does not cross to BUILDME while a question stands (ticket 9adc6fddf185).",
           file=sys.stderr)
     return 2

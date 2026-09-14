@@ -709,7 +709,7 @@ def format_inbox(data: dict) -> str:
             if q.get("born_of"):
                 lines.append(f"      born of {q['born_of']}")
         lines.append("")
-        lines.append('  answer with: cairn question answer <id> "your words" [--follow-up "<q>"]')
+        lines.append('  answer with: cairn question answer <id> "your words" --spawned none | --spawned "<q?>"')
         lines.append("")
 
     # DESIGN (THINKME tickets — not yet designed, need operator input)
@@ -901,8 +901,30 @@ def _format_ticket(doc: dict, path: Path) -> str:
             lines.append(_wrap(f"· {m}", "  ", width))
         lines.append("")
 
+    qtree = _questions_tree(doc, path)
+    if qtree:
+        lines.append("QUESTIONS:")
+        lines.append(qtree)
+        lines.append("")
+
     lines.append("")
     return "\n".join(lines)
+
+
+def _questions_tree(doc: dict, path: Path) -> str:
+    """The ticket's linked questions as a tree — question → spawned → spawned (ticket
+    bc7b64626405). Only ``open-*`` ids in the ticket's ``questions`` are links; a ticket
+    carrying ``{q, a}`` prose pairs there renders no section. The records are read from the
+    questions store beside the ticket's own ``tickets/`` dir, so a scratch world reads its own.
+    """
+    from cairn.tools.question import question as Q
+
+    links = Q.links_of(doc)
+    if not links:
+        return ""
+    qroot = path.resolve().parent.parent / "questions"
+    records = Q._all(qroot) if qroot.exists() else []
+    return Q.render_tree(records, roots_ids=links, indent=1)
 
 
 # ---------------------------------------------------------------------------

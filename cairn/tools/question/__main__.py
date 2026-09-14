@@ -2,9 +2,13 @@
 question.py; this file only parses and prints.
 
   cairn question open --ticket <id> "<question>" --why "<what it blocks>" [--born-of <qid>]
-  cairn question answer <qid> "<his words>" [--follow-up "<question>" ...]
-  cairn question list [<ticket>]                   unresolved questions (for one ticket, or all)
+  cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
+  cairn question rebind <ticket-id>                questions bound to the ticket's intent berth → the id
+  cairn question list [<ticket>]                   open questions (all), or one ticket's whole tree
   cairn question show <qid>
+
+``--spawned`` is required: ``none`` (a system word, folds case) records that the answer bore
+no new question; each other value is a question the answer bore, opened born_of this one.
 """
 
 from __future__ import annotations
@@ -32,7 +36,10 @@ def main(argv: list[str] | None = None) -> int:
     a = sub.add_parser("answer")
     a.add_argument("qid")
     a.add_argument("words")
-    a.add_argument("--follow-up", action="append", default=[], dest="follow_ups")
+    a.add_argument("--spawned", action="append", dest="spawned",
+                   help="'none', or a question this answer bore (repeatable); required")
+    rb = sub.add_parser("rebind")
+    rb.add_argument("ticket")
     ls = sub.add_parser("list")
     ls.add_argument("ticket", nargs="?")
     sh = sub.add_parser("show")
@@ -45,14 +52,30 @@ def main(argv: list[str] | None = None) -> int:
             print(f"question opened: {rec['id']} against {rec['ticket']}")
             return 0
         if args.verb == "answer":
-            rec = Q.answer(args.qid, args.words, follow_ups=args.follow_ups)
+            spawned = args.spawned
+            if spawned is not None:
+                spawned = [] if [fold(x) for x in spawned] == ["none"] else spawned
+            rec = Q.answer(args.qid, args.words, spawned=spawned)
             print(f"answered: {rec['id']} ({rec['answered_by']})")
-            for f in rec["follow_ups"]:
-                print(f"  follow-up opened: {f}")
+            for f in rec["spawned"]:
+                print(f"  spawned: {f}")
+            if not rec["spawned"]:
+                print("  spawned: none")
+            return 0
+        if args.verb == "rebind":
+            recs = Q.rebind(args.ticket)
+            for r in recs:
+                print(f"rebound: {r['id']} -> {args.ticket}")
+            if not recs:
+                print(f"nothing bound to the intent berth of {args.ticket}")
             return 0
         if args.verb == "list":
-            recs = Q.open_for(args.ticket) if args.ticket else Q.list_open()
-            print(Q.render(recs) if recs else "no open questions")
+            if args.ticket:
+                recs = Q.for_ticket(args.ticket)
+                print(Q.render_tree(recs) if recs else f"no questions on {args.ticket}")
+            else:
+                recs = Q.list_open()
+                print(Q.render(recs) if recs else "no open questions")
             return 0
         if args.verb == "show":
             print(json.dumps(Q.read(args.qid), indent=2, ensure_ascii=False))

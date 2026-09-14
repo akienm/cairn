@@ -2105,7 +2105,7 @@ def buildme_has_no_open_questions(ticket: str, *, questions_root: Path | None = 
     QUESTIONS. If the answer does, we keep going around until you have all the answers you
     need"*). A decision the build needs is opened at /sorted as
     ``CairnCommons/questions/open-*.json`` bound to the ticket id (``cairn question open``);
-    his answer resolves it and may bear follow-ups, each unresolved until answered. This
+    his answer resolves it and says what it spawned, each spawned question unresolved until answered. This
     sieve does not judge the answers — only that none is still owed. Red returns ONE finding
     naming every open question, complete on the first pass; an unreadable question counts
     as unresolved (Law 7). His answer to open-af21a85960fc, the question that decided this
@@ -2129,7 +2129,7 @@ def buildme_has_no_open_questions(ticket: str, *, questions_root: Path | None = 
         expected=0, actual=len(owed),
         open_questions=[{"id": q.get("id"), "question": q.get("question"),
                          "born_of": q.get("born_of")} for q in owed],
-        answer_with="cairn question answer <id> \"his words\" [--follow-up \"<q>\"]",
+        answer_with="cairn question answer <id> \"his words\" --spawned none | --spawned \"<q?>\"",
     )]
 
 
@@ -2640,6 +2640,87 @@ def every_exemption_cites_a_ruling_or_an_impossibility(row: dict, comp_dir: Path
                  "site automatically, so self-membership is the only way a "
                  "narrowing of this set is visible to any instrument",
         ))
+    return findings
+
+
+def question_links_agree(row: dict, comp_dir: Path, *, commons: Path | None = None) -> list[dict]:
+    """A question and its ticket name each other, and an answer's spawned ids exist born of it.
+
+    Provenance: ticket bc7b64626405 (Akien, 2026-09-14: *"if a question is about a ticket, it
+    should have a bidirectional link ... 'and the answer spawned x, y and z new questions' in
+    some jsonic way that's not prose"* — something an inspector could inspect). The question
+    door writes both ends of the link in one act; this sieve reds the two ends disagreeing,
+    which is the drift the door's existence is supposed to make impossible. Scoped to the
+    ``question`` component's row (the corpus lives in the commons; one row reads it once).
+
+    ONLY ``open-*`` STRINGS ARE LINKS. A ticket's ``questions`` field carries three shapes in
+    the corpus (census 2026-09-14): 129 lists of ``{q, a}`` prose pairs, a ``"none, because"``
+    string, and the ids the door writes. The prose pairs and the string are not links and are
+    not judged here. Four clauses, one finding each:
+      (i)   a ticket lists an id whose record does not exist, or names another ticket;
+      (ii)  a question names a ticket id whose file exists but does not list it;
+      (iii) a resolved question's ``spawned`` (or pre-build ``follow_ups``) names an id that
+            is not a record born_of it;
+      (iv)  a question is still bound to a berth path some filed ticket carries as
+            ``intent_berth`` — /sorted cast, and ``cairn question rebind`` never ran.
+    ``commons`` points a proof at a scratch world; live it is the door's own commons root.
+    """
+    if row.get("component") != "question":
+        return []
+    from cairn.tools.artifact import artifact as door
+    from cairn.tools.question import question as Q
+
+    root = Path(commons) if commons is not None else door.roots().get("CairnCommons")
+    if root is None or not (root / "questions").exists():
+        return []
+    questions = {q.get("id"): q for q in Q._all(root / "questions")}
+    tickets: dict[str, tuple[str, dict]] = {}
+    berths: dict[str, str] = {}
+    tdir = root / "tickets"
+    for tk in sorted(tdir.glob("*.json")) if tdir.exists() else []:
+        try:
+            doc = json.loads(tk.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(doc, dict):
+            continue
+        tid = tk.stem.split("-", 1)[0]
+        tickets[tid] = (tk.name, doc)
+        berth = doc.get("intent_berth")
+        if isinstance(berth, str) and "/" in berth:
+            berths[berth] = tid
+    findings = []
+
+    def red(about, **values):
+        findings.append(_finding("question_links_agree", row["component"], about,
+                                 expected=True, actual=False, **values))
+
+    for tid, (fname, doc) in tickets.items():
+        for qid in Q.links_of(doc):
+            q = questions.get(qid)
+            if q is None:
+                red(f"ticket {tid} links {qid}: the question record exists", ticket=fname, question=qid)
+            elif q.get("ticket") != tid:
+                red(f"ticket {tid} links {qid}: the question names the ticket back",
+                    ticket=fname, question=qid, question_names=q.get("ticket"))
+    for qid, q in questions.items():
+        if q.get("unreadable"):
+            continue
+        tid = q.get("ticket")
+        if isinstance(tid, str) and tid in tickets:
+            fname, doc = tickets[tid]
+            if qid not in Q.links_of(doc):
+                red(f"question {qid} names ticket {tid}: the ticket lists it back",
+                    ticket=fname, question=qid, fix=f"cairn question rebind {tid} — or the door wrote one end only")
+        elif isinstance(tid, str) and tid in berths:
+            red(f"question {qid} is bound to an intent berth that ticket {berths[tid]} carries: rebound to the id",
+                ticket=tickets[berths[tid]][0], question=qid, berth=tid, fix=f"cairn question rebind {berths[tid]}")
+        if q.get("resolved"):
+            for kid in Q.spawned_of(q):
+                child = questions.get(kid)
+                if child is None or child.get("born_of") != qid:
+                    red(f"answer to {qid} spawned {kid}: a record born of it exists",
+                        question=qid, spawned=kid, born_of=(child or {}).get("born_of"))
     return findings
 
 
@@ -3369,6 +3450,7 @@ SIEVES = {
     "every_exemption_cites_a_ruling_or_an_impossibility":
         every_exemption_cites_a_ruling_or_an_impossibility,
     "history_integrity": history_integrity,
+    "question_links_agree": question_links_agree,
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,

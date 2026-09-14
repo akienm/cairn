@@ -20,7 +20,21 @@ from pathlib import Path
 
 from cairn.devices.tester.scratch import scratch_dir
 from cairn.machines.build_inspector import inspector as INSP
-from cairn.machines.exemptions.justification import justification_lack, LEGAL_KINDS
+
+# THE SAME LESSON, TAKEN AGAIN FOR justification.py (measured 2026-09-14 under ticket
+# 9adc6fddf185): justification imports `answered_question` from corrosion/citation at ITS
+# module load, so reverting citation.py made a from-import of justification crash this
+# proof before its first tooth — UNRAN, not red. Resolved at call time, a subject that
+# cannot load is a standing red on every tooth that reaches for it.
+_JUSTIFICATION_GONE = None
+try:
+    from cairn.machines.exemptions.justification import justification_lack, LEGAL_KINDS
+except Exception as _exc:  # noqa: BLE001 — the reverted world is the case this handles
+    _JUSTIFICATION_GONE = repr(_exc)
+
+    def justification_lack(entry):
+        return f"the justification module does not load: {_JUSTIFICATION_GONE}"
+    LEGAL_KINDS = ()
 
 _SIEVE_NAME = "every_exemption_cites_a_ruling_or_an_impossibility"
 

@@ -127,6 +127,12 @@ def test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched():
     edges = json.dumps(charter.get("filed_edges") or charter.get("edges") or charter)
     assert "importlib" in edges and "proof_binds_its_subject_at_call_time" in edges, (
         "the charter must file the loader-call blind spot as the sieve's edge")
+    # and the tester's charter names the sieve as hollow's FRONT DOOR — hollow stays the
+    # backstop for the shapes the walk cannot see, and says so where hollow is chartered
+    tester = json.loads((REPO_ROOT / "cairn/devices/tester/intention+why.json").read_text())
+    tedges = json.dumps(tester.get("filed_edges") or []).lower()
+    assert "proof_binds_its_subject_at_call_time" in tedges and "front door" in tedges, (
+        "the tester's charter must name the sieve as the hollow reading's front door")
     return True
 
 
@@ -159,7 +165,22 @@ def test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_r
     assert predicted in unran, (predicted, reading.get("verdict"), reading.get("reasons"))
     assert any(p.endswith(world.proof) for p in unran[predicted]), unran
     assert reading.get("verdict") == "red", reading.get("verdict")
+    # (d) in life the same comparison is the WATCHME probe's: every hollow UNRAN measured
+    # against what the sieve predicted. Armed, or the crossing cannot be made.
+    _probe_is_armed()
     return True
+
+
+def _probe_is_armed():
+    import importlib  # bound here: the probe berths with what it watches, added by this build
+    mod = importlib.import_module("cairn.tools.proof_coverage.probes.sieve_predicts_unran")
+    probe = mod.PROBE
+    assert probe.to == "harbor_master" and callable(probe.carry) and callable(probe.enough)
+    carried = probe.carry({})
+    assert "finding" in carried and "unpredicted" in carried, carried
+    assert isinstance(carried["readings_since_build"], int)
+    assert isinstance(carried["unpredicted"], list)
+    return carried
 
 
 # ── clause 5 ──────────────────────────────────────────────────────────────────────────
@@ -182,13 +203,7 @@ def test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it():
 # ── extras — not clauses, still teeth ────────────────────────────────────────────────
 
 def test_the_watchme_probe_is_armed_with_carry_and_enough():
-    import importlib
-    mod = importlib.import_module("cairn.tools.proof_coverage.probes.sieve_predicts_unran")
-    probe = mod.PROBE
-    assert probe.to == "harbor_master" and callable(probe.carry) and callable(probe.enough)
-    carried = probe.carry({})
-    assert "finding" in carried and "unpredicted" in carried, carried
-    assert isinstance(carried["readings_since_build"], int)
+    _probe_is_armed()
     return True
 
 

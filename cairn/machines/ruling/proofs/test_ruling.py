@@ -76,6 +76,16 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.machines.ruling import ruling
 
+# The retirement half of ticket 9adc6fddf185 (a decision is a question bound to its ticket):
+# this proof's tooth is that `cairn ruling open` refuses pointing at `cairn question` and
+# `ruling --hook` is gone from the Stop hooks. The rest of the ticket's teeth live in
+# cairn/tools/question/proofs/test_question.py.
+PROVES = {
+    "9adc6fddf185": {
+        "4": "test_the_hook_no_longer_fires_on_stop",
+    }
+}
+
 
 # ── a synthetic world ─────────────────────────────────────────────────────────
 

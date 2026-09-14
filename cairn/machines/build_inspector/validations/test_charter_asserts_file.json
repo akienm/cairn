@@ -2,25 +2,26 @@
   {
     "claim": "proof test_charter_asserts_file.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-14T11:50:08",
+    "date": "2026-09-14T12:15:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 113, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 104, in _main\n    c()\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 90, in test_live_corpus_is_clean\n    assert not failures, (\n           ^^^^^^^^^^^^\nAssertionError: the live corpus must be clean after corrections, 2 finding(s):\nquestion: asserted file present: history.json\nquestion: asserted file present: state.json",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames\n  PASS  test_live_corpus_is_clean\ngreen — charter_asserts_file_present (5 teeth): a false assertion is caught, an honest qualification passes, present files pass, the check is not hardcoded to two filenames, and the live corpus is clean",
+      "stderr_tail": "",
       "teeth_green": [
         "test_false_assertion_is_caught",
         "test_honest_qualification_passes",
         "test_present_file_passes",
-        "test_not_hardcoded_to_two_filenames"
+        "test_not_hardcoded_to_two_filenames",
+        "test_live_corpus_is_clean"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "85c846ccb5ab5255e176ed981aab6b2a583135c009556c0f7f77079a8e9250b3",
+      "source_fingerprint": "560503f0209abff6c64aefdde679cbf2e636cd942e06a6f0e9bd916f06606a37",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2121476-u7qs_b1h/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2209118-memwudij/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,21 +66,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 135995699,
-          "disk_bytes": 147529728,
-          "entries": 4785,
+          "bytes": 136043599,
+          "disk_bytes": 147591168,
+          "entries": 4793,
           "builds": 1,
-          "reuses": 31
+          "reuses": 14
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "ddbbb8c1bdc757055ee30742fc5c7b9a9ab16e7b2bb78150792ba783fe6200fb",
         "opened": "2026-09-14T11:50:08",
         "last_red": "2026-09-14T11:50:08",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-09-14T12:15:32",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "ddbbb8c1bdc757055ee30742fc5c7b9a9ab16e7b2bb78150792ba783fe6200fb"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

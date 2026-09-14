@@ -211,8 +211,18 @@ def teeth_retirement() -> None:
             if ("cairn ruling open" in low or "open a ruling" in low) and not any(
                     w in low for w in ("retired", "refuse", "never", "not ")):
                 tellers.append(f"{skill.parent.name}:{n}")
-    check(PROVES[TICKET]["4"], ruling_refuses and ruled_refuses and hook_gone and not tellers,
-          f"ruling open rc={r.returncode} /ruled rc={r2.returncode} hook_gone={hook_gone} tellers={tellers}")
+    # the two prose surfaces that TELL the next mind where a decision goes: /ruled's own
+    # SKILL.md must read as retired and point at the question door, and CLAUDE.md's
+    # residue must name decision intake by `cairn question` rather than `cairn ruling`.
+    ruled_md = (REPO / "skills" / "ruled" / "SKILL.md").read_text(encoding="utf-8").lower()
+    ruled_md_retired = "retired" in ruled_md and "cairn question" in ruled_md
+    claude_md = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
+    claude_md_tells = ("cairn question" in claude_md and TICKET in claude_md
+                       and "ruling intake (`cairn ruling`)" not in claude_md)
+    check(PROVES[TICKET]["4"], ruling_refuses and ruled_refuses and hook_gone and not tellers
+          and ruled_md_retired and claude_md_tells,
+          f"ruling open rc={r.returncode} /ruled rc={r2.returncode} hook_gone={hook_gone} tellers={tellers} "
+          f"ruled_md_retired={ruled_md_retired} claude_md_tells={claude_md_tells}")
 
 
 def teeth_beside() -> None:
@@ -222,9 +232,14 @@ def teeth_beside() -> None:
         doc = json.loads(charter.read_text())
     except (OSError, ValueError):
         doc = {}
+    # and the tool is a real package, not a namespace the interpreter improvises: the
+    # tester's discovery and `python -m cairn.tools.question` both stand on __init__.py.
+    import importlib.util
+    spec = importlib.util.find_spec("cairn.tools.question")
+    is_package = bool(spec and spec.origin and spec.origin.endswith("__init__.py"))
     check(PROVES[TICKET]["charter"],
-          bool(doc) and "test_question.py" in json.dumps(doc) and bool(doc.get("why")),
-          f"{charter.name}: {sorted(doc)[:6]}")
+          bool(doc) and "test_question.py" in json.dumps(doc) and bool(doc.get("why")) and is_package,
+          f"{charter.name}: {sorted(doc)[:6]} package_origin={getattr(spec, 'origin', None)}")
     try:
         from cairn.tools.question.probes import no_crossing_with_an_open_question as probe_mod
         probe = probe_mod.PROBE

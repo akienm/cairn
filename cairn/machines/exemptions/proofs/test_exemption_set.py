@@ -14,6 +14,8 @@ discharging ruling 2026-09-10-exemption-reasons-are-not-rulings.
 """
 
 import json
+import os
+import tempfile
 from pathlib import Path
 
 from cairn.devices.tester.scratch import scratch_dir
@@ -71,7 +73,13 @@ PROVES = {
         "the sieve is registered and fires": "test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST",
         "nothing here reaches an inference host": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM",
         "the watch probe is armed and can fire": "test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE",
-    }
+    },
+    # ticket 9adc6fddf185 clause 5: an ANSWERED question is same-act evidence; an open
+    # one and a cite of neither still red. The triple tooth below reds if the kind is
+    # narrowed back to the pair.
+    "9adc6fddf185": {
+        "5": "test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT",
+    },
 }
 
 
@@ -166,6 +174,40 @@ def test_A_RULING_THAT_DOES_NOT_RESOLVE_REDS():
     lack = justification_lack(entry)
     _check("and the resolver says why, not just no",
            "no decision file" in lack, lack)
+
+
+def test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT():
+    """Ticket 9adc6fddf185: the question lane replaced rulings as the decision's record.
+    Over a scratch questions store (CAIRN_QUESTIONS_DIR is read at call time by the
+    citation module): an answered question resolves as evidence, an unanswered one is
+    the decision still owed, and a kind that is neither is refused as before."""
+    import json as _json
+    with tempfile.TemporaryDirectory() as d:
+        qdir = Path(d)
+        (qdir / "open-aaaaaaaaaaaa.json").write_text(_json.dumps(
+            {"id": "open-aaaaaaaaaaaa", "ticket": "t", "question": "x?", "resolved": True,
+             "answer": "yes", "answered_by": "Akien"}))
+        (qdir / "open-bbbbbbbbbbbb.json").write_text(_json.dumps(
+            {"id": "open-bbbbbbbbbbbb", "ticket": "t", "question": "y?", "resolved": False,
+             "answer": None}))
+        old = os.environ.get("CAIRN_QUESTIONS_DIR")
+        os.environ["CAIRN_QUESTIONS_DIR"] = str(qdir)
+        try:
+            base = {"id": "q-site", "path": "cairn/machines/exemptions/exemption_set.json",
+                    "description": "x", "kind": "sieve-scope", "symbol": "exemptions"}
+            answered = justification_lack(dict(base, justification_kind="question",
+                                               evidence="open-aaaaaaaaaaaa"))
+            opened = justification_lack(dict(base, justification_kind="question",
+                                             evidence="open-bbbbbbbbbbbb"))
+            neither = justification_lack(dict(base, justification_kind="neither", evidence="x"))
+        finally:
+            if old is None:
+                os.environ.pop("CAIRN_QUESTIONS_DIR", None)
+            else:
+                os.environ["CAIRN_QUESTIONS_DIR"] = old
+    _check("test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT",
+           answered == "" and "still open" in opened and "must be one of" in neither,
+           (answered, opened, neither))
 
 
 def test_AN_EMPTY_IMPOSSIBILITY_REDS():
@@ -405,6 +447,7 @@ def main():
                test_AN_EMPTY_SET_REDS,
                test_A_SET_THAT_DROPPED_ITS_OWN_ENTRY_REDS,
                test_A_RULING_THAT_DOES_NOT_RESOLVE_REDS,
+               test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT,
                test_AN_EMPTY_IMPOSSIBILITY_REDS,
                test_A_SYMBOL_THAT_MOVED_REDS,
                test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES,

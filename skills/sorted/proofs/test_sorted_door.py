@@ -26,6 +26,17 @@ from cairn.machines.skill_block.skill_block import read_berth                   
 sys.path.insert(0, str(_REPO / "skills" / "sorted"))
 import door  # noqa: E402
 
+# Ticket 9adc6fddf185 (a decision is a question bound to its ticket): the /sorted cast
+# carries the questions it could not settle, and the door refuses one that does not
+# resolve. Declared so `cairn test --hollow` can watch these teeth red when the field,
+# the contract, or the skill text that names it is reverted.
+PROVES = {"9adc6fddf185": {
+    "door": "unresolvable question id refused",
+    "exemption": "questions exemption without referent refused",
+    "contract": "the contract names questions",
+    "skill": "the skill tells the caster to open a question",
+}}
+
 PASSES = 0
 def ok(name: str, cond: bool, detail: str = ""):
     global PASSES
@@ -113,6 +124,17 @@ def main() -> int:
             ok("questions exemption without referent refused", False, "door passed")
         except DoorRefused as exc:
             ok("questions exemption without referent refused", "questions" in fields_of(exc))
+
+        # 2c. the contract and the skill text carry the field — a door that judges a
+        # field its own charter does not name, or a SKILL.md that never tells the caster
+        # how to open one, is the half-built seam a hollow build would leave.
+        charter = json.loads((_REPO / "skills" / "sorted" / "intention+why.json").read_text())
+        contract = charter.get("input_contract") or {}
+        ok("the contract names questions", "questions" in contract, f"fields={sorted(contract)}")
+        skill_md = (_REPO / "skills" / "sorted" / "SKILL.md").read_text(encoding="utf-8")
+        ok("the skill tells the caster to open a question",
+           "cairn question open" in skill_md and "**questions**" in skill_md,
+           "SKILL.md names no `cairn question open` under a questions field")
 
         # 3. flat + semantic lacks land in the SAME refusal
         try:

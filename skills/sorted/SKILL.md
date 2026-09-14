@@ -117,10 +117,30 @@ nobody.
   two dispositions, no judgment at resolve time.
 - **children** — the deconstruction, if any (`/sorted` fires again per child;
   children prove before parents), or `"none, because <X>"`.
+- **questions** — **the spec choices this cast could not settle** (Akien,
+  2026-09-14, ticket `9adc6fddf185`: *"slash sorted should lead to questions, and
+  if i can't answer then right then ... they become open questions in the inbox.
+  and yes, the answer to the question is the decision"*). A choice that only his
+  head can settle is NOT an assumption to carry in `assumption_check` — it is a
+  question, opened FIRST, through its door, bound to the ticket:
+
+      cairn question open --ticket <ticket-id> "<the question?>" --why "<what the build cannot settle without it>"
+
+  The field is the list of ids that printed (`open-<12hex>`), or `"none, because
+  <X>"` with a resolvable referent. The door refuses an id that does not resolve
+  under `CairnCommons/questions/`. He answers in chat (record it verbatim with
+  `cairn question answer <id> "<his words>"`) or from his own shell; an answer that
+  bears more questions opens them with `--follow-up "<q?>"`, and the loop goes
+  around until every one is answered. Physics, not policy: the BUILDME entry
+  gate's lane `the_ticket_has_every_answer_it_needs` holds the crossing while any
+  question on the ticket stands open. **Rulings are retired** — `cairn ruling open`
+  refuses; a decision is a question, and its answer is the decision.
 - **exit / disposition** — `routed_forward` + `"cast"`; or `routed_out` +
   `"not-ready"` / `"escalated:<rung>"`. The escalation ladder, cheapest
   first: back up and re-question · `/advisor` · a bounded subagent · review the
-  field · **ask Akien**. Stuck → escalate, don't confabulate (CP1).
+  field · **open a question for Akien** (`cairn question open`, above — the cast
+  can still go forward with the question standing; BUILDME waits for the answer).
+  Stuck → escalate, don't confabulate (CP1).
 - **bullets** — what this firing learned that Akien should see, `{text, stratum}`,
   stratum `code|tree`. Forced at BOTH exits.
 
@@ -139,9 +159,10 @@ denominator the `sorted-door-refusals` watch reads, data rather than a mistake t
 hide. **The firing prints a berth path — carry it.**
 
 ### 5. Resolve
-Survivors **file to CairnCommons** — the cast node to `tickets/`, kicked-back
-questions to the question corpus. Filing is the consequence of resolving, not a
-separate act. **The ticket carries the berth**: put the printed path in the
+Survivors **file to CairnCommons** — the cast node to `tickets/`; the questions
+the packet carries are already in the corpus (`questions/open-<id>.json`, bound
+to the ticket by their `ticket` field — they surface in his inbox on his next
+`akienupdate`). Filing is the consequence of resolving, not a separate act. **The ticket carries the berth**: put the printed path in the
 ticket's `"sorted_berth"` field — the emit chokepoint's BUILDME entry gate demands
 it (`buildme_rides_the_sorted`), alongside the chart claim and `intent_berth`. A
 cast that predates the door, or genuinely cannot fire it, records

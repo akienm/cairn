@@ -8,11 +8,18 @@ commit that weakened the constraint, or which lands in the same commit.
 This implementation checks two things:
   1. Does a confirmed ruling's what_conforms include this path?
   2. Was a ruling file co-committed with the change to this path?
+
+Since 2026-09-14 (ticket 9adc6fddf185) there is a third, and it is the live one: was an
+ANSWERED question (CairnCommons/questions/open-<id>.json, the inbox lane) named in the
+commit that made the change? A decision Akien makes is a question bound to its ticket
+and answered in the inbox; ``cairn ruling open`` is retired and decisions/ is read-only
+record, so the standing rulings keep resolving and new authority arrives as answers.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -61,6 +68,80 @@ def _commons_root() -> Path:
 
 def _rulings_store() -> Path:
     return _commons_root() / "decisions"
+
+
+def _questions_store() -> Path:
+    """Where answered questions live — the SAME lane the operator inbox reads. Since
+    2026-09-14 (ticket 9adc6fddf185) a decision Akien makes is a question bound to its
+    ticket and answered in the inbox, not a ruling; decisions/ is read-only record."""
+    env = os.environ.get("CAIRN_QUESTIONS_DIR")
+    if env:
+        return Path(env)
+    return _commons_root() / "questions"
+
+
+_QUESTION_ID = re.compile(r"\bopen-[0-9a-f]{12}\b")
+
+
+def answered_question(qid: str) -> tuple[bool, str]:
+    """Does this question id open as an ANSWERED question? Returns (ok, why_not).
+
+    Same-act evidence in the shape the question door writes (``cairn question answer``):
+    the record is resolved and carries his words. An UNANSWERED question is not evidence —
+    it is the decision still owed — so it resolves False, by design.
+    """
+    if not isinstance(qid, str) or not qid.strip():
+        return False, "evidence is empty — a question kind must name an open-<id>"
+    qid = qid.strip()
+    if not qid.startswith("open-"):
+        qid = "open-" + qid
+    path = _questions_store() / (qid + ".json")
+    if not path.is_file():
+        return False, "no question file at %s" % path.name
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        return False, "question file unreadable: %s" % e
+    if not isinstance(record, dict):
+        return False, "question file is not an object"
+    if not record.get("resolved"):
+        return False, "question %s is still open — the decision is owed, not made" % qid
+    if not (isinstance(record.get("answer"), str) and record["answer"].strip()):
+        return False, "question %s is marked resolved but carries no answer" % qid
+    return True, ""
+
+
+def question_cited_in_commit(rel_path: str, commit: str | None = None,
+                             repo: Path | None = None) -> str | None:
+    """The id of an ANSWERED question named in the commit that last changed rel_path, or None.
+
+    The question twin of ``ruling_cited_in_commit``: 'in the same act' is the commit
+    message naming an open-<id> whose record is answered. A named-but-unanswered question
+    does not count — see ``answered_question``.
+    """
+    repo = repo or _CAIRN_ROOT
+    if commit is None:
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(repo), "log", "-1", "--format=%H", "--", rel_path],
+                capture_output=True, text=True, timeout=10)
+            commit = result.stdout.strip()
+        except Exception:
+            return None
+    if not commit:
+        return None
+    try:
+        msg_result = subprocess.run(
+            ["git", "-C", str(repo), "log", "-1", "--format=%B", commit],
+            capture_output=True, text=True, timeout=10)
+        message = msg_result.stdout
+    except Exception:
+        return None
+    for qid in _QUESTION_ID.findall(message):
+        ok, _ = answered_question(qid)
+        if ok:
+            return qid
+    return None
 
 
 def ruling_covers_path(rel_path: str) -> str | None:

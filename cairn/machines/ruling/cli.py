@@ -29,7 +29,8 @@ from cairn.tools.system_word import fold
 
 _USAGE = """cairn ruling — the ruling intake gate (CairnCommons/decisions/)
 
-  cairn ruling open <packet.json>   intake: refuse with every reason, or write
+  cairn ruling open <packet.json>   RETIRED 2026-09-14 — a decision is a question:
+                                    `cairn question open --ticket <id> "<q>" --why ...`
   cairn ruling list                 every ruling and its verdict
   cairn ruling verify <id>          the mechanical verdict for one
   cairn ruling confirm <id> "<his words>"   his sign-off, with its source recorded
@@ -39,25 +40,17 @@ _USAGE = """cairn ruling — the ruling intake gate (CairnCommons/decisions/)
 
 
 def _cmd_open(path: str) -> int:
-    with open(path, encoding="utf-8") as fh:
-        packet = json.load(fh)
-    try:
-        written = ruling.open_ruling(packet)
-    except ValueError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
-    print(f"ruling opened: {written}")
-    # No second ask, either way. If he typed RULED it is confirmed and there is nobody to
-    # ask; if he did not, this is MY reading and the work proceeds regardless — an unmarked
-    # packet is never a red and never a nag (Akien, 2026-08-13: "it does not need to stop
-    # the work"). Said once, here, and not again every turn.
-    if ruling.ruled_marks(json.load(open(written, encoding="utf-8"))):
-        print("CONFIRMED by his RULED marker. The verdict now measures the WORK.")
-    else:
-        print("UNMARKED — no RULED in his words, so this is MY READING on the record. "
-              "It does not stop the work and will not be raised again; it stays visible "
-              "in `cairn ruling list` until he marks it.")
-    return 0
+    # RETIRED 2026-09-14 (ticket 9adc6fddf185; Akien: "why are we still doing rulings? we
+    # replaced that with questions that would show up in my inbox"). A decision he has to
+    # make is a QUESTION bound to the ticket that needs it, answered in his inbox; the answer
+    # is the decision. The store in decisions/ stays read-only and citable (his answer to
+    # open-68aabd7eb2e0: no migration); list/verify/confirm/supersede keep reading it.
+    print("cairn ruling open is retired — a decision is a question bound to its ticket.\n"
+          "  open one:   cairn question open --ticket <id> \"<question?>\" --why \"<what it blocks>\"\n"
+          "  his answer: cairn question answer <qid> \"<his words>\" [--follow-up \"<q>\"]\n"
+          "The ticket does not cross to BUILDME while a question stands (ticket 9adc6fddf185).",
+          file=sys.stderr)
+    return 2
 
 
 def _cmd_list() -> int:
@@ -261,8 +254,8 @@ def main(argv: list[str]) -> int:
         return 2
 
     verb, rest = fold(argv[0]), argv[1:]  # system words fold (ruled 2026-09-07); the rest is his
-    if verb == "open" and rest:
-        return _cmd_open(rest[0])
+    if verb == "open":
+        return _cmd_open(rest[0] if rest else "")
     if verb == "list":
         return _cmd_list()
     if verb == "verify" and rest:

@@ -3,6 +3,7 @@
  "description": "The declared exemption set — every place in CODE where a check declines to run over some member of its own population. Each entry declares its justification KIND and carries the evidence for that kind: 'ruling' names a decision id Akien confirmed; 'no-other-way' states the impossibility in one line. The sieve checks only that the declared kind's evidence resolves — it never reads English to decide which kind applies, and it never judges the quality of a no-other-way statement. Narrowing this set fires the check on itself (self-reference), which is the only defence a hand-authored set has: NOTHING HERE DISCOVERS AN EXEMPTION NOBODY ENTERED, and that hole is stated rather than hidden. Measured 2026-09-10 by direct reading of every site, not by grep.",
  "kinds": {
   "ruling": "evidence is a decision id under CairnCommons/decisions/ that resolves, is kind 'ruling', and is confirmed.",
+  "question": "evidence is an open-<id> under CairnCommons/questions/ that is ANSWERED (resolved with his words) — the inbox lane that replaced rulings 2026-09-14, ticket 9adc6fddf185. An unanswered question is a decision still owed and does not resolve.",
   "no-other-way": "evidence is a non-empty one-line statement of the impossibility — why the check CANNOT run here, not why it is inconvenient.",
   "__anchor__": "Every entry also carries a `symbol`: literal text that MUST appear in the file at `path`. It is what stops the set certifying itself — rename or delete the exempting construct and the entry reds, even though its reason is untouched."
  },

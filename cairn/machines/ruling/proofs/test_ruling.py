@@ -964,29 +964,35 @@ def test_casual_that_holds_does_not_fire():
             f"casual 'that holds' should not trigger: {result.stdout}")
 
 
-def test_hook_is_unconditional():
+def test_the_hook_no_longer_fires_on_stop():
+    """RETIRED 2026-09-14 (ticket 9adc6fddf185). The Stop hook existed so a ruling I had not
+    opened would be named every turn; a decision is now a QUESTION bound to its ticket and
+    answered in the inbox, so there is no packet to nag about (Akien: "we don't need 'Stop
+    says:' hook for the same reason"; his answer to open-ce55ecde0651: only ruling --hook
+    retires). The tooth flipped: `ruling --hook` must be ABSENT from the Stop hooks, and
+    `cairn ruling open` must refuse and point at `cairn question`."""
     settings_path = os.path.join(str(_REPO_ROOT), ".claude", "settings.json")
     assert os.path.isfile(settings_path), f"settings.json not found at {settings_path}"
     settings = json.load(open(settings_path))
-    hooks = settings.get("hooks", {})
-    stop_entries = hooks.get("Stop", [])
-    found = False
-    for entry in stop_entries:
+    commands = []
+    for entry in settings.get("hooks", {}).get("Stop", []):
         if isinstance(entry, dict) and "hooks" in entry:
-            for h in entry["hooks"]:
-                cmd = h.get("command", "") if isinstance(h, dict) else str(h)
-                if "ruling" in cmd and "--hook" in cmd:
-                    found = True
-                    break
+            commands += [h.get("command", "") if isinstance(h, dict) else str(h) for h in entry["hooks"]]
         elif isinstance(entry, dict):
-            cmd = entry.get("command", "")
-            if "ruling" in cmd and "--hook" in cmd:
-                found = True
-        elif isinstance(entry, str) and "ruling" in entry and "--hook" in entry:
-            found = True
-        if found:
-            break
-    assert found, f"ruling --hook not in Stop hooks: {stop_entries}"
+            commands.append(entry.get("command", ""))
+        elif isinstance(entry, str):
+            commands.append(entry)
+    stale = [c for c in commands if "ruling" in c and "--hook" in c]
+    assert not stale, f"ruling --hook still wired on Stop (retired 2026-09-14): {stale}"
+
+    with tempfile.TemporaryDirectory() as d:
+        env = {**os.environ, "CAIRN_ROOTS_PARENT": d, "PYTHONPATH": str(_REPO_ROOT)}
+        act = subprocess.run([sys.executable, "-m", "cairn.machines.ruling.cli", "open", "nope.json"],
+                             capture_output=True, text=True, cwd=str(_REPO_ROOT), env=env)
+        assert act.returncode != 0, "cairn ruling open must refuse (retired 2026-09-14)"
+        assert "cairn question" in act.stderr, f"the refusal must point at cairn question: {act.stderr!r}"
+        assert not os.path.exists(os.path.join(d, "CairnCommons", "decisions")) or \
+            not os.listdir(os.path.join(d, "CairnCommons", "decisions")), "open wrote a packet"
 
 
 def _main() -> int:
@@ -1030,7 +1036,7 @@ def _main() -> int:
         test_hook_fires_on_marker_without_packet,
         test_hook_silent_when_packet_opened,
         test_casual_that_holds_does_not_fire,
-        test_hook_is_unconditional,
+        test_the_hook_no_longer_fires_on_stop,
     ]
     for check in checks:
         check()

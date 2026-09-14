@@ -697,9 +697,19 @@ def format_inbox(data: dict) -> str:
         lines.append("")
         lines.append(_section_line(f"QUESTIONS FOR OPERATOR ({questions['count']})"))
         lines.append("")
+        # The operator reads the QUESTION, not its id (ticket 9adc6fddf185): each line is
+        # the question bound to its ticket, and the answer is one command.
         for q in questions["open"]:
-            qid = q.get("id", "?") if isinstance(q, dict) else str(q)
-            lines.append(f"    {qid}")
+            if not isinstance(q, dict):
+                lines.append(f"    {q}")
+                continue
+            qid = q.get("id", "?")
+            lines.append(f"    {qid}  [{q.get('ticket') or '-'}]")
+            lines.append(f"      {q.get('question', '')}")
+            if q.get("born_of"):
+                lines.append(f"      born of {q['born_of']}")
+        lines.append("")
+        lines.append('  answer with: cairn question answer <id> "your words" [--follow-up "<q>"]')
         lines.append("")
 
     # DESIGN (THINKME tickets — not yet designed, need operator input)

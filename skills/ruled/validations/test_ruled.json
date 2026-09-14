@@ -1,27 +1,47 @@
 [
   {
     "claim": "proof test_ruled.py passes under python3",
-    "caller": "ruled",
-    "date": "2026-08-27T20:54:25",
+    "caller": "cairn test",
+    "date": "2026-09-14T12:08:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\ncollecting ... collected 5 items\n\ntest_ruled.py::test_confirm_records_evidence PASSED                      [ 20%]\ntest_ruled.py::test_confirm_verify_green_ruled PASSED                    [ 40%]\ntest_ruled.py::test_refuse_on_no_match PASSED                            [ 60%]\ntest_ruled.py::test_list_open_shows_unmarked PASSED                      [ 80%]\ntest_ruled.py::test_main_dispatches_correctly PASSED                     [100%]\n\n============================== 5 passed in 0.03s ===============================",
+      "stdout_tail": "  ok test_bare_ruled_refuses_and_points_at_the_question_door\n  ok test_ruled_with_an_id_confirms_nothing\n  ok test_ruled_with_a_bogus_id_refuses_the_same_way\n  ok test_the_door_does_not_import_the_ruling_machine\nGREEN",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_bare_ruled_refuses_and_points_at_the_question_door",
+        "test_ruled_with_an_id_confirms_nothing",
+        "test_ruled_with_a_bogus_id_refuses_the_same_way",
+        "test_the_door_does_not_import_the_ruling_machine"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "971a91bdd7ee01664ea1a01b4e587900413b11068cb91f67d3aac9bbd722dbaf",
+      "source_fingerprint": "aae50e61fcc6e662cc075f95125b110adc3f681d047357371cc205f839ccc36a",
+      "fingerprint_closure": [
+        "skills/__init__.py",
+        "skills/ruled/door.py",
+        "skills/ruled/proofs/test_ruled.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1taq8eax/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2207558-ru4440fi/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 136043083,
+          "disk_bytes": 147587072,
+          "entries": 4792,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

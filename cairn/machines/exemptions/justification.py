@@ -8,6 +8,10 @@ impossibility argument is a GOOD one stays the model's judgment, not a sieve's.
 
   ruling        evidence is a decision id under CairnCommons/decisions/ that
                 resolves, is kind "ruling", and is confirmed.
+  question      evidence is an open-<id> under CairnCommons/questions/ that is
+                ANSWERED — the inbox lane that replaced rulings 2026-09-14
+                (ticket 9adc6fddf185). An unanswered question is a decision
+                still owed and does not resolve.
   no-other-way  evidence is a non-empty statement of the impossibility.
 
 THE STORE IS CORROSION'S, NOT A SECOND ONE. ``citation._rulings_store`` and
@@ -28,9 +32,9 @@ from __future__ import annotations
 
 import json
 
-from cairn.machines.corrosion.citation import _rulings_store, ruling_covers_path
+from cairn.machines.corrosion.citation import _rulings_store, answered_question, ruling_covers_path
 
-LEGAL_KINDS = ("ruling", "no-other-way")
+LEGAL_KINDS = ("ruling", "question", "no-other-way")
 
 
 def ruling_resolves(decision_id: str) -> tuple[bool, str]:
@@ -85,4 +89,9 @@ def justification_lack(entry: dict) -> str:
         if covering:
             return ""
         return "declared ruling does not resolve: %s" % why
+    if kind == "question":
+        ok, why = answered_question(evidence)
+        if ok:
+            return ""
+        return "declared question does not resolve as answered: %s" % why
     return ""

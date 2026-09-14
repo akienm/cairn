@@ -1299,6 +1299,7 @@ def inspect_entry(ticket: str) -> list[dict]:
     from cairn.machines.build_inspector.inspector import buildme_rides_the_chart as _chart
     from cairn.machines.build_inspector.inspector import buildme_rides_the_intent as _intent
     from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as _sorted
+    from cairn.machines.build_inspector.inspector import buildme_has_no_open_questions as _answered
 
     code = "transitions.py::inspect_entry"
     return [
@@ -1307,6 +1308,11 @@ def inspect_entry(ticket: str) -> list[dict]:
         _sieve_lane("the_ticket_names_its_intent_firing", _intent(ticket),
                     code=code, ticket=ticket),
         _sieve_lane("the_ticket_names_its_sorted_door_firing", _sorted(ticket),
+                    code=code, ticket=ticket),
+        # The fourth lane joined 2026-09-14 (ticket 9adc6fddf185): a decision the build
+        # needs is an open question bound to the ticket, and an unanswered one holds the
+        # crossing — "until you have all the answers you need" is this lane, not prose.
+        _sieve_lane("the_ticket_has_every_answer_it_needs", _answered(ticket),
                     code=code, ticket=ticket),
     ]
 
@@ -1326,15 +1332,15 @@ def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
     own named, cast ticket — an un-cast or unnamed ticket is not gated (v0; the
     stricter require-a-ticket edge is filed on the ticket).
     """
-    # ALL checks run, and their findings are reported TOGETHER. Not three gates in
-    # sequence: a caller missing a chart, an /intent berth AND a /sorted berth must
-    # learn all three on the first pass, or fixing one only earns the right to be
+    # ALL checks run, and their findings are reported TOGETHER. Not four gates in
+    # sequence: a caller missing a chart, an /intent berth, a /sorted berth AND an answer
+    # must learn all four on the first pass, or fixing one only earns the right to be
     # refused for the next (the complete-diagnostic-on-first-pass method, and Law 7
     # at a diagnostic surface). The third addend joined 2026-08-03 (ticket
     # sorted-becomes-a-learning-block).
     record = inspect_entry(ticket)
-    note = ("clean — a berthed chart chain claims ticket %r, and the ticket names its "
-            "/intent firing and its /sorted door firing; %s"
+    note = ("clean — a berthed chart chain claims ticket %r, the ticket names its "
+            "/intent firing and its /sorted door firing, and no open question stands against it; %s"
             % (ticket, ENTRY_GATE._default_note(record)))
 
     def _red(_record, bad):
@@ -1349,7 +1355,8 @@ def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
             f"finding(s) across {len(_record)} check(s), all named on this first pass. Skipping "
             "/chart, /intent or the "
             "/sorted door is a build error, the same physics that refuses skipping a stage "
-            "inside the chain. Nothing was journaled. Fix what is named below, then cross "
+            "inside the chain; an open question against the ticket is a decision the build "
+            "still owes (answer it: cairn question answer <id> \"his words\"). Nothing was journaled. Fix what is named below, then cross "
             "again:\n" + "\n".join(lines))
 
     return ENTRY_GATE.run(record, note=note, red_fn=_red)

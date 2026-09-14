@@ -2097,6 +2097,42 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
     return []
 
 
+def buildme_has_no_open_questions(ticket: str, *, questions_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff no UNRESOLVED open question cites the ticket.
+
+    The loop's exit condition as physics (ticket 9adc6fddf185, Akien 2026-09-14: *"the answer
+    to the question is the decision ... ASSUMING THE ANSWER DOES NOT LEAD TO YET MORE
+    QUESTIONS. If the answer does, we keep going around until you have all the answers you
+    need"*). A decision the build needs is opened at /sorted as
+    ``CairnCommons/questions/open-*.json`` bound to the ticket id (``cairn question open``);
+    his answer resolves it and may bear follow-ups, each unresolved until answered. This
+    sieve does not judge the answers — only that none is still owed. Red returns ONE finding
+    naming every open question, complete on the first pass; an unreadable question counts
+    as unresolved (Law 7). His answer to open-af21a85960fc, the question that decided this
+    gate exists: "absolutelyyes!".
+    """
+    from cairn.tools.question import question as Q
+
+    try:
+        owed = Q.open_for(ticket, root=questions_root)
+    except OSError as exc:
+        return [_finding(
+            "buildme_has_no_open_questions", ticket,
+            "question store readable",
+            expected=True, actual=False, error=str(exc),
+        )]
+    if not owed:
+        return []
+    return [_finding(
+        "buildme_has_no_open_questions", ticket,
+        "every question the build needs is answered",
+        expected=0, actual=len(owed),
+        open_questions=[{"id": q.get("id"), "question": q.get("question"),
+                         "born_of": q.get("born_of")} for q in owed],
+        answer_with="cairn question answer <id> \"his words\" [--follow-up \"<q>\"]",
+    )]
+
+
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.
@@ -2445,7 +2481,7 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
             "constraint_enforcement_holds", row["component"],
             "constraint set non-empty", expected=True, actual=False,
         )]
-    from cairn.machines.corrosion.citation import ruling_covers_path
+    from cairn.machines.corrosion.citation import question_cited_in_commit, ruling_covers_path
     findings = []
     repo_root = comp_dir
     while repo_root.name and not (repo_root / ".git").exists():
@@ -2455,7 +2491,10 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
         cid = entry.get("id", cpath)
         abs_path = repo_root / cpath
         if not abs_path.exists():
-            covering = ruling_covers_path(cpath)
+            # Same-act evidence is a confirmed ruling covering the path OR, since
+            # 2026-09-14 (ticket 9adc6fddf185), an ANSWERED question named in the commit
+            # that made the change — the inbox lane that replaced rulings.
+            covering = ruling_covers_path(cpath) or question_cited_in_commit(cpath, repo=repo_root)
             if not covering:
                 findings.append(_finding(
                     "constraint_enforcement_holds", row["component"],

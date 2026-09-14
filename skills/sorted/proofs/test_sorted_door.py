@@ -76,6 +76,7 @@ def main() -> int:
                         "nexus": "the sorted-door trace", "consumer": "Akien",
                         "probe": "skills/sorted/proofs/door_health_probe.py"},
             "children": "none, because the node is a leaf (see real-ticket)",
+            "questions": "none, because every choice is settled in the fixture (see real-ticket)",
             "exit": "routed_forward",
             "disposition": "cast",
             "bullets": [{"text": "fixture cast", "stratum": "code"}],
@@ -99,6 +100,20 @@ def main() -> int:
                    "node_class" in f and "watchme" in f and "disposition" in f,
                    f"lacks named only {f}")
         # no whack-a-mole: both passes named the identical set
+        # 2b. a question that lives only in the packet is refused (ticket 9adc6fddf185):
+        # every id must resolve to a record the question door wrote, and the
+        # exemption string must carry a referent like every other 'none, because'.
+        try:
+            door.fire(dict(GOOD, questions=["open-000000000000"]), **roots)
+            ok("unresolvable question id refused", False, "door passed a phantom question")
+        except DoorRefused as exc:
+            ok("unresolvable question id refused", "questions" in fields_of(exc), fields_of(exc))
+        try:
+            door.fire(dict(GOOD, questions="none, because I said so"), **roots)
+            ok("questions exemption without referent refused", False, "door passed")
+        except DoorRefused as exc:
+            ok("questions exemption without referent refused", "questions" in fields_of(exc))
+
         # 3. flat + semantic lacks land in the SAME refusal
         try:
             door.fire({k: v for k, v in bad.items() if k != "bullets"}, **roots)
@@ -263,6 +278,7 @@ def main() -> int:
         # purpose — the real caller is the skill): keep the fixture class out by using
         # a real class the live roster carries.
         live_good = dict(GOOD, node_class="code-seam",
+                         questions="none, because every choice is settled (see bin/cmd/question)",
                          workflow="code-seam@v2: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> WATCHME(door-health) -> PROVED")
         pkt.write_text(json.dumps(live_good))
         r = subprocess.run([sys.executable, str(_REPO / "skills/sorted/door.py"), str(pkt)],

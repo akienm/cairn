@@ -1,23 +1,23 @@
 ---
 name: ruled
-description: Akien's RULED marker fires the ruling door — /ruled <id> confirms, bare /ruled lists open unmarked, /ruled <no-match> refuses loudly.
+description: RETIRED 2026-09-14 (ticket 9adc6fddf185) — rulings are questions in Akien's inbox now; every /ruled mode refuses and points at `cairn question`.
 ---
 
-# /ruled — his marker's front door
+# /ruled — RETIRED
 
-`/ruled <id>` confirms the named ruling packet, recording the invocation as
-evidence. Bare `/ruled` lists open unmarked rulings. `/ruled <no-match>` refuses
-loudly, naming the store searched.
+Akien, 2026-09-14: *"why are we still doing rulings? we replaced that with questions
+that would show up in my inbox."* (ticket `9adc6fddf185`). A decision he has to make
+is a **question bound to the ticket that needs it**, and his answer is the decision:
 
-The skill wraps `cairn/machines/ruling/ruling.py`'s existing `confirm`,
-`open_rulings`, and `verify` functions. It creates no new intake, no new store,
-and no new confirmation authority.
+    cairn question open --ticket <id> "<question?>" --why "<what the build cannot settle without it>"
+    cairn question answer <qid> "<his words>" [--follow-up "<q?>"]
+    cairn question list [<ticket>]
 
-## Usage
-
-    cairn ruled <id>         confirm the ruling; show verify result
-    cairn ruled              list open unmarked rulings
-    cairn ruled <no-match>   loud refusal naming the store
+The ticket does not cross to BUILDME while a question on it stands open
+(`the_ticket_has_every_answer_it_needs`). `CairnCommons/decisions/` stays a
+read-only, citable record; nothing opens or confirms a ruling any more, so every
+mode of this skill (`/ruled`, `/ruled <id>`, `cairn ruled`) exits 2 with the pointer
+above. The directory stays so the retirement is readable at its own address.
 
 ## Charter
 

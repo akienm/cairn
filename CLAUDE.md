@@ -203,18 +203,22 @@ An IOU without a real ticket is itself the defect this section is made of.
   intention it changed. A **hand**-edit is the defect, and it is not one-writer.
   → regeneration makes a hand-edit transient, not impossible, and nothing announces
   one while it lives. · *ticket the-lab-is-derived-never-authored*
-- **A deterministic red is fixed, or it carries a ruling from Akien — never a paragraph.**
+- **A deterministic red is fixed, or it carries a decision from Akien — never a paragraph.**
   CC may not weaken, suppress, exempt or explain away a deterministic result. Two
-  dispositions, no third. The ruling requirement is an **escape route**, not a lock
+  dispositions, no third. (Since 2026-09-14, ticket 9adc6fddf185, the decision is an
+  **answered question** — `cairn question open --ticket <id> "<q?>"`, his answer
+  recorded verbatim — never a ruling packet; `decisions/` is read-only and still
+  citable.) The decision requirement is an **escape route**, not a lock
   (Akien, 2026-08-14): sometimes the check *is* wrong, and where the only moves are
   plaster or paralysis the measured reflex is plaster — so "this check is wrong" has
   to be sayable rather than smuggled into a rationalisation. His reason is about *my*
   behaviour, not the artifacts: *"presenting a deterministic result of an error will
   prompt you to fix it, not to plaster over it."* An opinion invites negotiation; a
   deterministic red offers nothing to negotiate with.
-  → this is one face of **corrosion** — drift with a ruling behind it is the system
+  → this is one face of **corrosion** — drift with a decision behind it is the system
   learning, drift with none is decay — and the enforcement is one predicate over both:
-  *a constraint stopped constraining, and no ruling sits in the same act*.
+  *a constraint stopped constraining, and no ruling or answered question sits in the
+  same act*.
   **PHYSICS SHIPPED:** `constraint_enforcement_holds` sieve in `build_inspector`,
   reading `cairn/machines/corrosion/constraint_set.json`. The residue moves below.
   · *ticket a-constraint-that-stopped-constraining-carries-a-ruling*
@@ -252,12 +256,16 @@ charter, never from this file.
   history-reach-feeds-a-migration). · *ticket state-and-history-door-catches-in-place-edits*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
   in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*
-- ruling intake (`cairn ruling`) → **PHYSICS SHIPPED:** Stop hook pairing detector
-  scans user messages for ruling markers with no `cairn ruling open` in the session.
-  Strong markers fire unconditionally; `that holds` fires only with strong context.
-  The residue: the detector checks for `ruling open` in tool_use command text, so a
-  ruling opened via subprocess or outside the transcript is invisible.
-  · *ticket ruling-intake-ensures-packets-are-opened*
+- decision intake (`cairn question`, ticket 9adc6fddf185, 2026-09-14) → **PHYSICS
+  SHIPPED:** a decision is a question bound to its ticket, opened at `/sorted`
+  (`questions` field, the door refuses an id that does not resolve), standing in his
+  inbox; the BUILDME entry lane `the_ticket_has_every_answer_it_needs` holds the
+  crossing while one is open; an answer that bears more questions opens them as
+  follow-ups. Rulings retired: `cairn ruling open` and `/ruled` refuse, the Stop-hook
+  pairing detector is gone. The residue: a question raised at `/intent` has no ticket
+  id yet and nothing rebinds it when `/sorted` casts one (charter edge (a)); and
+  "answered" is a field, not a judgement — a deflection resolves as written unless CC
+  opens the follow-up (edge (c)). · *ticket 9adc6fddf185*
 - corrosion (`constraint_enforcement_holds` sieve in `build_inspector`, declared set
   at `cairn/machines/corrosion/constraint_set.json`) → the set is hand-authored and
   the predicate cannot discover constraints not listed; a constraint silently

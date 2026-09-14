@@ -186,8 +186,10 @@ def test_AN_EMPTY_IMPOSSIBILITY_REDS():
     out = SIEVE(ROW, comp)
     _check("an illegal justification_kind reds",
            any("must be one of" in n for n in _lacks(out)), out)
-    _check("and the two legal kinds are the declared pair",
-           set(LEGAL_KINDS) == {"ruling", "no-other-way"}, LEGAL_KINDS)
+    # Three since 2026-09-14 (ticket 9adc6fddf185): an ANSWERED question in the inbox lane
+    # is same-act evidence, the shape that replaced rulings; the pair became a triple.
+    _check("and the three legal kinds are the declared triple",
+           set(LEGAL_KINDS) == {"ruling", "question", "no-other-way"}, LEGAL_KINDS)
 
 
 def test_A_SYMBOL_THAT_MOVED_REDS():

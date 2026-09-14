@@ -61,7 +61,7 @@ _HERE = Path(__file__).resolve().parent
 _REPO = _HERE.parents[2]
 _JURISDICTION = _HERE / "jurisdiction.json"
 
-VERBS = ("genesis", "cast", "append", "compile", "seal", "raise", "clear", "ruling", "slate",
+VERBS = ("genesis", "cast", "append", "compile", "seal", "raise", "clear", "ruling", "slate", "question", "answer",
          "idea", "charter", "phase", "hand-edit", "rename", "remove", "bulk", "write")
 
 # Caller classes, and the cgroup leaf that MEASURES each. ``akien`` is a desktop-app scope

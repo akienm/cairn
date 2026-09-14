@@ -211,6 +211,40 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
                                      "'not-ready' or 'escalated:<rung>', so the two-exit "
                                      "vocabulary never flattens the three real outcomes"})
 
+    # THE QUESTIONS THE CAST COULD NOT SETTLE (ticket 9adc6fddf185, Akien 2026-09-14:
+    # "slash sorted should lead to questions, and if i can't answer then right then ...
+    # they become open questions in the inbox"). Each id must resolve to a record the
+    # question door wrote under CairnCommons/questions/ — a question that lives only in
+    # this packet is the assumption the field exists to stop; the ticket's filing step
+    # binds the ids and the BUILDME lane the_ticket_has_every_answer_it_needs holds the
+    # crossing until every one is answered. 'none, because <X>' carries a referent.
+    questions = payload.get("questions")
+    if questions is None or (isinstance(questions, (str, list)) and not questions):
+        pass  # absence is the flat contract's lack
+    elif isinstance(questions, str):
+        if not _EXEMPT_RE.match(questions.strip()):
+            lacks.append({"field": "questions",
+                          "why": "a string here is the exemption 'none, because <X>' — a list of "
+                                 "open-<id> ids is the other legal shape"})
+        elif not reason_has_referent(questions.strip()[_EXEMPT_RE.match(questions.strip()).end():],
+                                     repo=repo or _REPO, commons=commons or _COMMONS):
+            lacks.append({"field": "questions",
+                          "why": "'none, because <X>' must carry a resolvable referent (a path, a "
+                                 "ticket id, a command) — a sentence pointing at nothing is the "
+                                 "hollow pass this door was built against"})
+    elif isinstance(questions, list):
+        qdir = Path(commons) / "questions" if commons is not None else (_COMMONS / "questions")
+        for q in questions:
+            qid = q if isinstance(q, str) and q.startswith("open-") else f"open-{q}"
+            if not isinstance(q, str) or not q.strip() or not (qdir / f"{qid}.json").is_file():
+                lacks.append({"field": "questions",
+                              "why": f"{q!r} does not resolve under {qdir} — open it first: "
+                                     "cairn question open --ticket <id> \"<q>\" --why \"...\""})
+    else:
+        lacks.append({"field": "questions",
+                      "why": f"carries a {type(questions).__name__} — the legal shapes are a list "
+                             "of open-<id> ids or the exemption string 'none, because <X>'"})
+
     return lacks
 
 

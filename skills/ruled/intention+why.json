@@ -5,9 +5,9 @@
   "axis": "work-loop",
   "what": "Akien's RULED marker fires the ruling door in the same act he types it — /ruled <id> confirms a packet, bare /ruled lists open unmarked, /ruled <no-match> refuses loudly naming the store searched.",
   "why": "n=2 measured 2026-08-15: both confirmations of the authority ruling reached the door only because CC noticed 'so /ruled ...' in conversation and hand-ran confirm — the marker enforced by CC's attention, which is policy doing physics' job (Law 4). The skill makes his typing the command the confirmation, with no relay.",
-  "invoke": "/ruled [<id>] — the slash face, fired by CC inside a session. CLI: `cairn ruled [<id>]` (bin/cmd/ruled, a dispatcher into `python3 -m skills.ruled.door`) — the same door from a terminal, bare to open a ruling packet, or with a ruling id to work the one named. Two faces, one door; a charter naming only the slash face is a charter a reader cannot run the command from.",
-  "state": "v0 — first build 2026-08-27.",
-  "produces": "a confirmed ruling packet (when <id> matches), a listing of open unmarked rulings (bare), or a loud refusal naming the store (no match).",
+  "invoke": "RETIRED — /ruled [<id>] (the slash face) and `cairn ruled [<id>]` (bin/cmd/ruled, a dispatcher into `python3 -m skills.ruled.door`) both exit 2 and print the replacement: `cairn question open --ticket <id> \"<q?>\" --why ...`, `cairn question answer <qid> \"<his words>\"`. Two faces, one door, one refusal.",
+  "state": "RETIRED 2026-09-14 under ticket 9adc6fddf185 (Akien: 'why are we still doing rulings? we replaced that with questions that would show up in my inbox'). Every mode exits 2 pointing at `cairn question open|answer|list`; decisions/ is read-only; the directory stays so the retirement is readable here. v0 first build 2026-08-27.",
+  "produces": "a refusal (exit 2) naming the question door that replaced rulings; nothing is written.",
   "input_contract": {
     "id": "optional — the ruling id to confirm. When present, the skill calls ruling.confirm(id, evidence) where evidence is the invocation itself. When absent, lists open unmarked rulings.",
     "evidence": "derived from the invocation — his slash command IS his words verbatim."
@@ -22,7 +22,7 @@
   "gated_by": [
     "CC"
   ],
-  "proof": "skills/ruled/proofs/test_ruled.py — exercises all three modes against a synthetic store.",
+  "proof": "skills/ruled/proofs/test_ruled.py — every mode refuses, names the replacement, and the door imports no ruling machine.",
   "provenance": "Akien's idea verbatim 2026-08-15: 'and we should add a /RULED since i seem to keep using it :)'. Ticket CairnCommons/tickets/ruled.json.",
   "learns": "It does not; it wires rulings to the store without learning from them.",
   "claim_provenance": {

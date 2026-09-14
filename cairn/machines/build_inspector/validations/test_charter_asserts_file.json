@@ -2,7 +2,7 @@
   {
     "claim": "proof test_charter_asserts_file.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-14T12:15:32",
+    "date": "2026-09-14T17:02:21",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "560503f0209abff6c64aefdde679cbf2e636cd942e06a6f0e9bd916f06606a37",
+      "source_fingerprint": "33a46be43bc698dd3ce300ba307afcb2976dcb0432c5bc03d671d4306efe342d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -57,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2209118-memwudij/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3026685-9dyp178b/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,24 +66,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136043599,
-          "disk_bytes": 147591168,
-          "entries": 4793,
+          "bytes": 136325959,
+          "disk_bytes": 147927040,
+          "entries": 4819,
           "builds": 1,
-          "reuses": 14
+          "reuses": 20
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "ddbbb8c1bdc757055ee30742fc5c7b9a9ab16e7b2bb78150792ba783fe6200fb",
-        "opened": "2026-09-14T11:50:08",
-        "last_red": "2026-09-14T11:50:08",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null,
-        "closed_at": "2026-09-14T12:15:32",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "ddbbb8c1bdc757055ee30742fc5c7b9a9ab16e7b2bb78150792ba783fe6200fb"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

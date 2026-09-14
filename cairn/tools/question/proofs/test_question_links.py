@@ -42,9 +42,12 @@ A = None  # type: ignore[assignment]
 I = None  # type: ignore[assignment]
 
 REPO = Path(__file__).resolve().parents[4]
-LIVE_COMMONS = REPO.parent / "CairnCommons"
+# the live commons sits beside the repo; beside a hollow worktree under /tmp it does not, and the
+# tester's own hollow.py resolves it at $HOME the same way — the in-life teeth read the LIVE corpus
+LIVE_COMMONS = (REPO.parent / "CairnCommons" if (REPO.parent / "CairnCommons").is_dir()
+                else Path.home() / "dev" / "src" / "CairnCommons")
 TICKET = "bc7b64626405"
-GATE_TICKET = "9adc6fddf185"  # the live ticket the entry gate is read over (its chain is berthed)
+GATE_LANE = "the_ticket_has_every_answer_it_needs"  # the BUILDME entry lane 9adc6fddf185 added
 TID = "0badc0ffee00"          # the scratch world's ticket
 BERTH = "/home/akien/.cairn/devices/skill_block/0/berths/intent/intent-20260101T000000-proofworld.json"
 FAILURES: list[str] = []
@@ -96,26 +99,25 @@ def _env(commons: Path) -> dict:
                 CAIRN_ARTIFACT_ROOTS=json.dumps({"CairnCommons": str(commons), "cairn": str(commons.parent / "cairn")}))
 
 
-def _gate_in_subprocess(qdir: Path) -> dict:
-    """The entry gate over the SCRATCH questions store and the LIVE 9adc ticket — question.py
-    binds its store at import, so the gate runs where the environment hands it the scratch one;
-    the ticket is live so the other three lanes read green and only the answers lane moves."""
+def _gate_in_subprocess(commons: Path) -> dict:
+    """The entry lane over the SCRATCH ticket — question.py binds its store at import, so the lane's
+    predicate runs where the environment hands it the scratch store and the scratch roots. The lane
+    IS ``buildme_has_no_open_questions`` composed under GATE_LANE (transitions.inspect_entry); the
+    proof reads that composition off the chokepoint's source rather than crossing a live ticket,
+    because the live commons is not beside a hollow worktree."""
     code = (
-        "import json\n"
-        "from cairn.tools.base.transitions import inspect_entry, _entry_gate, EntryGateRed\n"
-        f"rec = inspect_entry({GATE_TICKET!r})\n"
-        "lanes = {l['identity']: l.get('fatality') for l in rec}\n"
-        "try:\n"
-        f"    note, _ = _entry_gate({GATE_TICKET!r}); raised = None\n"
-        "except EntryGateRed as exc:\n"
-        "    raised = str(exc)\n"
-        "print(json.dumps({'lanes': lanes, 'raised': raised}))\n"
+        "import inspect, json\n"
+        "from cairn.tools.base import transitions as T\n"
+        "from cairn.machines.build_inspector.inspector import buildme_has_no_open_questions as lane\n"
+        "src = inspect.getsource(T.inspect_entry)\n"
+        f"composed = {GATE_LANE!r} in src and 'buildme_has_no_open_questions' in src\n"
+        f"found = lane({TID!r})\n"
+        "print(json.dumps({'composed': composed, 'findings': found}))\n"
     )
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                       env=dict(os.environ, PYTHONPATH=str(REPO), CAIRN_QUESTIONS_DIR=str(qdir)),
-                       timeout=300, cwd=REPO)
+                       env=_env(commons), timeout=300, cwd=REPO)
     if r.returncode != 0:
-        return {"lanes": {}, "raised": None, "error": r.stderr[-600:]}
+        return {"composed": False, "findings": None, "error": r.stderr[-600:]}
     return json.loads(r.stdout.strip().splitlines()[-1])
 
 
@@ -178,35 +180,33 @@ def teeth_door(tmp: Path) -> None:
           f"refused={refused} still_open={still_open} none_ok={none_ok} born_ok={born_ok} "
           f"statement_refused={not_a_question} journal_says={says}")
 
-    # 3. a berth-bound question counts against the ticket, holds the live gate, and rebinds
-    A.set_diagnostic_roots(None)
-    try:
-        live_berth = Q._berth_of(GATE_TICKET)
-    finally:
-        A.set_diagnostic_roots({"CairnCommons": commons, "cairn": tmp / "cairn", "parked": tmp / "parked"})
-    b = Q.open_question(live_berth or "no-berth", "raised at /intent, before the id existed?",
-                        "edge (a)", root=qdir)
-    g_open = _gate_in_subprocess(qdir)
-    lane = "the_ticket_has_every_answer_it_needs"
-    held = g_open["lanes"].get(lane) not in (None, "none") and g_open["raised"] is not None
+    # 3. a berth-bound question counts against the ticket, holds the entry lane, and rebinds
+    for k in kids:  # tooth 2's spawned questions are still open on the ticket — settle them first
+        Q.answer(k["id"], "settled", spawned=[], root=qdir)
+    b = Q.open_question(BERTH, "raised at /intent, before the id existed?", "edge (a)", root=qdir)
+    g_open = _gate_in_subprocess(commons)
+    held = (g_open["composed"] and bool(g_open["findings"])
+            and b["id"] in json.dumps(g_open["findings"]))
     Q.answer(b["id"], "it does", spawned=[], root=qdir)
-    g_done = _gate_in_subprocess(qdir)
-    released = g_done["lanes"].get(lane) == "none" and g_done["raised"] is None
+    g_done = _gate_in_subprocess(commons)
+    released = g_done["composed"] and g_done["findings"] == []
     # the scratch ticket's berth: open on it, open_for counts it, rebind renames and links
     s = Q.open_question(BERTH, "bound to the scratch berth?", "edge (a)", root=qdir)
     counted = s["id"] in {q["id"] for q in Q.open_for(TID, root=qdir)}
     unlisted = s["id"] not in Q.links_of(_ticket(commons))
     moved = Q.rebind(TID, root=qdir)
     after = Q.read(s["id"], root=qdir)
-    rebound = ([m["id"] for m in moved] == [s["id"]] and after["ticket"] == TID
+    # both berth-bound records move — an answered question still belongs to its ticket
+    rebound = ({m["id"] for m in moved} == {b["id"], s["id"]} and after["ticket"] == TID
+               and Q.read(b["id"], root=qdir)["ticket"] == TID
                and s["id"] in Q.links_of(_ticket(commons)) and Q.rebind(TID, root=qdir) == [])
     no_file = False
     try:
         Q.rebind("feedfacefeed", root=qdir)
     except Q.Refused:
         no_file = True
-    check(PROVES[TICKET]["3"], bool(live_berth) and held and released and counted and unlisted and rebound and no_file,
-          f"live_berth={bool(live_berth)} held={held} released={released} "
+    check(PROVES[TICKET]["3"], held and released and counted and unlisted and rebound and no_file,
+          f"lane_composed={g_open.get('composed')} held={held} released={released} "
           f"{g_open.get('error', '')[:100]}{g_done.get('error', '')[:100]} counted={counted} "
           f"unlisted_before={unlisted} rebound={rebound} no_file_refused={no_file}")
 
@@ -343,10 +343,9 @@ def teeth_beside() -> None:
     # names binds an added name at import, so nothing reads UNRAN), and, once a reading has
     # landed on this proof's own validation, that no written file read hollow or unreadable
     try:
-        from cairn.tools.base import transitions as T
         from cairn.devices.tester import validation_store as V
         from cairn.tools.proof_coverage import proof_coverage as PC
-        live = json.loads(Path(T._find_ticket(TICKET)).read_text(encoding="utf-8"))
+        live = json.loads(next((LIVE_COMMONS / "tickets").glob(TICKET + "-*.json")).read_text(encoding="utf-8"))
         wrote = [w for w in PC._writes_to(live) if "/proofs/" not in w]
         binds = PC.proof_binds_its_subject_at_call_time(live, repo_root=REPO)
         trail = V.read_validations(str(Path(__file__).resolve()))

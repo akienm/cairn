@@ -29,7 +29,13 @@ PROVES = {
         "3": "test_a_fully_covered_ticket_produces_no_finding",
         "4": "test_the_live_corpus_reds_every_ticket_at_proveme",
         "5": "test_a_concept_piece_with_no_review_record_reds",
-    }
+    },
+    # ticket c5b6b128a376 (2026-09-14): the binding sieve RIDES THIS LIST — clause (4)'s
+    # "the lack rides lacks()" has its red half in test_call_time_binding.py and its green
+    # half here: a covered ticket the sieve has nothing to say about is still no finding.
+    "c5b6b128a376": {
+        "4": "test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing",
+    },
 }
 
 TICKET = "feeb4c786b14"
@@ -331,6 +337,31 @@ def test_a_fully_covered_ticket_produces_no_finding():
         found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
 
     assert found == [], found
+
+
+def test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing():
+    """Since 2026-09-14 ``lacks()`` extends its list with ``proof_binds_its_subject_at_call_time``.
+    A world with no berth, no crossing to diff against and no ``.git`` is a world the sieve can
+    say nothing about — and saying nothing is ``[]`` on the same list, never a lack of its own
+    kind and never a crash of the join. The red half (a proof that binds an added file at
+    module level IS named, by line) lives in test_call_time_binding.py over a git-backed world."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        proof = _component(tmp, proof_body=(
+            'PROVES = {"fixture01": {"1": "test_first"}}\n'
+            'from fixture.subject import thing  # module level, and the sieve cannot know it was added\n'
+            'print("  ok   test_first")\n'))
+        (tmp / "cairn/fixture").mkdir(parents=True, exist_ok=True)
+        (tmp / "cairn/fixture/subject.py").write_text("thing = 1\n", encoding="utf-8")
+        _seal(proof, teeth_green=["test_first"])
+        ticket = _ticket(tmp, "DONE when (1) the first holds.", proven_by=str(proof))
+
+        found = pc.lacks(ticket, repo_root=tmp, roots=_roots(tmp))
+        direct = pc.proof_coverage.proof_binds_its_subject_at_call_time(
+            ticket, repo_root=tmp, roots=_roots(tmp))
+
+    assert found == [], found
+    assert direct == [], direct
 
 
 def test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof():

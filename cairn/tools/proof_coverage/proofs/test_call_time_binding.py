@@ -173,6 +173,11 @@ def test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_r
 
 def _probe_is_armed():
     import importlib  # bound here: the probe berths with what it watches, added by this build
+    pkg = importlib.import_module("cairn.tools.proof_coverage.probes")
+    assert pkg.__file__ and pkg.__file__.endswith("__init__.py"), (
+        "the probes berth is a regular package, not a namespace fallback — its __init__ says "
+        "what berths there")
+    assert "WATCHME" in (pkg.__doc__ or ""), pkg.__doc__
     mod = importlib.import_module("cairn.tools.proof_coverage.probes.sieve_predicts_unran")
     probe = mod.PROBE
     assert probe.to == "harbor_master" and callable(probe.carry) and callable(probe.enough)

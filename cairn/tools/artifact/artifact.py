@@ -517,7 +517,10 @@ def parked_dir() -> Path:
     env = os.environ.get("CAIRN_ARTIFACT_ROOTS")
     if env and "parked" in json.loads(env):
         return Path(json.loads(env)["parked"])
-    return Path.home() / ".cairn" / "devices" / "operator" / "0" / "tools" / "artifact" / "parked"
+    # The address is RESOLVED, never spelled (address_is_resolved_never_spelled): the parks
+    # berth under the operator instance's held copy of this tool, Law 6's shape for tool state.
+    from cairn.tools.base.address import tool_path
+    return tool_path("operator", 0, "artifact") / "parked"
 
 
 def _head_bytes(root: Path, rel: Path) -> bytes | None:

@@ -400,7 +400,340 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
                                + "; ".join(f"{tooth} in {Path(p).name}" for p, tooth in reds)
                                + " — none is among the teeth its seal recorded green",
                                clause=clause, tooth=reds[0][1], proof=reds[0][0]))
+    # THE BINDING SIEVE RIDES THE SAME LIST, so PROVEME reds through the path that already
+    # exists — one report, every lack, and nothing new for a gate to remember to call.
+    found.extend(proof_binds_its_subject_at_call_time(ticket, repo_root=repo_root, roots=roots,
+                                                      named=named))
     return found
+
+
+# ── the binding sieve: does the proof reach its subject at call time, or at import? ─────
+# THE THIRD TIME IS A SIEVE (ticket c5b6b128a376, 2026-09-14). Three proofs in five days
+# bound a name their own build ADDED at module level — crossings.py from this file's own
+# proofs (2026-09-10), artifact.py from test_artifact_door.py (a38204e, 2026-09-13), a name
+# in citation.py two hops behind test_exemption_set.py (e1dcc6e, 2026-09-14). Each was found
+# the same way: the hollow reading reverted the file, the proof crashed in its import block
+# before printing a single tooth, hollow recorded UNRAN with a paragraph saying "resolve the
+# names this build ADDED at call time", and a hand fixed it two to five minutes later. The
+# paragraph did not stop the second or the third. A rule that matters is physics (Law 4),
+# and the physics is the same join this module already makes — the ticket's proofs and the
+# ticket's BUILDME crossing — plus two things hollow already reads: the pre-build commit and
+# the decompose berth's ``writes_to``.
+#
+# WHAT IT READS, AND WHAT IT DOES NOT. Module-level ``import`` / ``from … import`` statements
+# — the direct children of ``Module.body``, nothing nested. An import inside ``def``, inside
+# ``try``, inside ``if`` is by construction NOT the defect: those are exactly the shapes the
+# three hand fixes took (a call-time import, a try/except with a stub). The walk is
+# transitive through every module it can resolve to a file under the repo (the script-dir
+# rule for a proof run as a script, the repo root for ``cairn.*`` and ``skills.*``, the
+# package for a relative import), because the third instance was two hops from the proof and
+# a one-hop walk would have read it green. It resolves a name only against what is actually
+# on disk: a ``from X import y`` where ``X/y.py`` exists binds a FILE, otherwise it binds a
+# NAME in X's file. A star import binds every added name in the module it names.
+#
+# THE ADDED SET IS BOUNDED TO WHAT HOLLOW REVERTS — the berth's ``writes_to`` minus the files
+# hollow's ``_classify`` skips (under ``proofs/``, records, outside the repo). A helper under
+# ``proofs/fixtures/`` is added by the build too, but hollow never takes it away, so binding
+# it at import cannot make a proof UNRAN; flagging it would be a sieve with a stricter
+# opinion than the instrument it is the front door for. The walk still RECURSES through such
+# a helper, because the helper may itself bind an added non-proof file at module level.
+#
+# WHAT IT CANNOT SEE, said here rather than discovered: a loader call (``_load(path)``,
+# ``importlib``), a module-level constant computed from the subject, a fixture that binds at
+# collection. Those stay hollow's, and the WATCHME on the ticket measures this sieve AGAINST
+# hollow — one UNRAN it did not predict moves the instrument into hollow as a pre-flight.
+#
+# IT RESOLVES ITS OWN INPUTS AT CALL TIME. crossings and chain are bound inside the function,
+# for the reason written at the has_crossings site above; this sieve reds the shape, so the
+# sieve committing it would be the self-referential UNRAN and the ticket's own gate would
+# refuse the ticket that built it.
+
+_GIT_LOCATION_VARS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX",
+                      "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES")
+
+
+def _git(repo_root: Path, *args: str) -> str | None:
+    """stdout of one git command against ``repo_root``, or None when git says no. The seven
+    location variables are stripped so a pre-commit hook's ``GIT_DIR`` cannot point the read
+    at the wrong repository — the same list the tester's scratch module strips, kept here by
+    value because a tool may not import a device."""
+    import os
+    import subprocess
+    env = {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
+    try:
+        got = subprocess.run(["git", "-C", str(repo_root), *args], capture_output=True,
+                             text=True, env=env, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if got.returncode != 0:
+        return None
+    return got.stdout
+
+
+def _prebuild_commit(at: str, *, repo_root: Path) -> str | None:
+    """The last commit at or before the BUILDME crossing's ``at`` — the world the build was
+    added to. Two lines, the same two hollow runs (``rev-list -1 --before``), so the two
+    instruments diff against one commit by construction. None when git cannot say; the sieve
+    is then silent and hollow's mouth reds the unmeasurable case in its own words."""
+    if not (Path(repo_root) / ".git").exists():
+        return None  # not a repository (a fixture world): nothing to diff against
+    out = _git(repo_root, "rev-list", "-1", f"--before={at}", "HEAD")
+    return (out or "").strip() or None
+
+
+def _writes_to(ticket: dict, berths_root=None) -> list[str]:
+    """The decompose berth's ``writes_to``, deduped, or [] when no berth claims the ticket.
+    Empty is not a lack HERE: hollow already reds a ticket with no berth in its own words,
+    and a second mouth for the same absence is how a reader learns to ignore both."""
+    from cairn.tools.chain.chain import chain_for_ticket
+    tid = str(ticket.get("id") or "")
+    if not tid:
+        return []
+    berth = chain_for_ticket(tid, berths_root=berths_root).get("decompose")
+    if not berth:
+        return []
+    try:
+        packet = json.loads(Path(berth).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    out: list[str] = []
+    for piece in packet.get("sub_problems") or []:
+        for f in piece.get("writes_to") or []:
+            if str(f) not in out:
+                out.append(str(f))
+    return out
+
+
+def _hollow_reverts(rel: str) -> bool:
+    """Mirror of hollow's ``_classify`` returning True where hollow measures the file: not
+    outside the repo, not an instrument, not a record."""
+    p = Path(rel)
+    if p.is_absolute() or rel.startswith("..") or "CairnCommons" in p.parts:
+        return False
+    if "proofs" in p.parts:
+        return False
+    if {"validations"} & set(p.parts) or p.name in {"history.json", "state.json"}:
+        return False
+    return True
+
+
+def _top_level_names(source: str) -> set[str]:
+    """The names a module binds at its top level: def, class, assignment targets, and what
+    its own module-level imports bind. Unparseable reads as no names."""
+    try:
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return set()
+    out: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(node.name)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for t in targets:
+                for n in ast.walk(t):
+                    if isinstance(n, ast.Name):
+                        out.add(n.id)
+        elif isinstance(node, ast.Import):
+            for a in node.names:
+                out.add((a.asname or a.name).split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            for a in node.names:
+                if a.name != "*":
+                    out.add(a.asname or a.name)
+    return out
+
+
+def _added_by_the_build(pre: str, writes_to: list[str], *, repo_root: Path):
+    """What the build added among the files hollow would revert: the files absent at the
+    pre-build commit, and for each file that existed, the top-level names its working copy
+    binds that the pre-build version did not."""
+    files: set[str] = set()
+    names: dict[str, set[str]] = {}
+    for rel in writes_to:
+        if not rel.endswith(".py") or not _hollow_reverts(rel):
+            continue
+        now = repo_root / rel
+        if not now.is_file():
+            continue
+        before = _git(repo_root, "show", f"{pre}:{rel}")
+        if before is None:
+            files.add(rel)
+            continue
+        try:
+            current = now.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        added = _top_level_names(current) - _top_level_names(before)
+        if added:
+            names[rel] = added
+    return files, names
+
+
+def _rel_to(path: Path, repo_root: Path) -> str | None:
+    try:
+        return Path(path).resolve().relative_to(Path(repo_root).resolve()).as_posix()
+    except ValueError:
+        return None
+
+
+def _module_file(base: Path, parts: list[str]) -> Path | None:
+    """``base/a/b/c.py`` or ``base/a/b/c/__init__.py``, whichever exists."""
+    if not parts:
+        return None
+    stem = base.joinpath(*parts)
+    if stem.with_suffix(".py").is_file():
+        return stem.with_suffix(".py")
+    if (stem / "__init__.py").is_file():
+        return stem / "__init__.py"
+    return None
+
+
+def _resolve(dotted: str, level: int, *, importer: Path, repo_root: Path) -> list[Path]:
+    """Every repo file ``import <dotted>`` binds, in binding order: each package ``__init__``
+    on the way down, then the module itself. Resolution tries the importer's own directory
+    first (a proof run as a script has it at ``sys.path[0]``), then the repo root; a relative
+    import resolves against the importer's package. Anything that resolves to nothing under
+    the repo — stdlib, site-packages, a name no file answers to — resolves to []."""
+    parts = [p for p in dotted.split(".") if p] if dotted else []
+    if level:
+        base = importer.parent
+        for _ in range(level - 1):
+            base = base.parent
+        bases = [base]
+    else:
+        bases = [importer.parent, Path(repo_root)]
+    for base in bases:
+        target = _module_file(base, parts) if parts else (base / "__init__.py" if level else None)
+        if target is None:
+            continue
+        out: list[Path] = []
+        for i in range(1, len(parts)):
+            init = base.joinpath(*parts[:i]) / "__init__.py"
+            if init.is_file():
+                out.append(init)
+        out.append(target)
+        return out
+    return []
+
+
+_BINDING_FIX = ("THE FIX BELONGS TO THE PROOF: it must survive its subject being taken away — "
+                "resolve the names this build ADDED at call time rather than binding them at "
+                "import (move the import inside the tooth or inside main(); the hollow reading "
+                "reverts the file and a proof that crashes in its import block prints no teeth, "
+                "which hollow records as UNRAN rather than as a red tooth)")
+
+
+def proof_binds_its_subject_at_call_time(ticket: dict, *, repo_root: Path, roots=None,
+                                         named: list[str] | None = None) -> list[dict]:
+    """Every module-level binding, in any proof this ticket names or in any repo module those
+    proofs reach through module-level imports, of a FILE or a top-level NAME that this build
+    added — one lack per binding, carrying the proof, the line, and the import chain that
+    reaches it. Empty when nothing binds early, and empty (silent, not green) when the
+    inputs are not there to read: no BUILDME crossing, no pre-build commit, no decompose
+    berth. Each of those is already a lack in another mouth.
+
+    ``named`` is the proof list ``lacks`` has already derived, handed over so the journals
+    are not re-indexed for the same ticket; a caller without one lets it be derived here."""
+    from cairn.tools.base.crossings import buildme_crossing
+
+    tid = str(ticket.get("id") or "")
+    repo_root = Path(repo_root)
+    # The berth first: it is the cached read, and most of the corpus at PROVEME or beyond
+    # predates decompose berths — asking the journals for those would be paying the
+    # expensive read to learn nothing.
+    berths_root = (roots or {}).get("berths") if isinstance(roots, dict) else None
+    wrote = _writes_to(ticket, berths_root)
+    if not wrote:
+        return []
+    crossing = buildme_crossing(tid, roots) if tid else None
+    at = str((crossing or {}).get("at") or "")
+    if not at:
+        return []
+    pre = _prebuild_commit(at, repo_root=repo_root)
+    if not pre:
+        return []
+    added_files, added_names = _added_by_the_build(pre, wrote, repo_root=repo_root)
+    if not added_files and not added_names:
+        return []
+
+    found: list[dict] = []
+    for one in (named if named is not None else _proven_by(ticket, roots)):
+        proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
+        if not proof_path.is_file():
+            continue  # proof_on_disk is the mouth for this
+        seen: set[str] = set()
+        _walk_bindings(proof_path, [], proof=one, tid=tid, repo_root=repo_root,
+                       added_files=added_files, added_names=added_names, seen=seen, found=found)
+    return found
+
+
+def _walk_bindings(module: Path, chain: list[str], *, proof: str, tid: str, repo_root: Path,
+                   added_files: set[str], added_names: dict[str, set[str]],
+                   seen: set[str], found: list[dict]) -> None:
+    rel = _rel_to(module, repo_root)
+    if rel is None or rel in seen:
+        return
+    seen.add(rel)
+    try:
+        tree = ast.parse(module.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError, ValueError):
+        return
+
+    def lack(line: int, imported: str, *, file: str | None = None, name: str | None = None,
+             via: str) -> None:
+        link = f"{rel}:{line}"
+        what = f"file {file}" if file else f"name {name} in {via}"
+        found.append(_lack(
+            tid, "proof_binds_its_subject_at_call_time",
+            f"{Path(proof).name} reaches everything this build added at call time, never at import",
+            f"{link} binds {what} at module level ({imported}) — the build added it, so the "
+            f"hollow reading takes it away and the proof cannot reach its first tooth. "
+            + (f"Chain: {' -> '.join(chain + [link])}. " if chain else "")
+            + _BINDING_FIX,
+            proof=proof, line=line, module=rel, chain=chain + [link], imported=imported,
+            **({"file": file} if file else {"name": name, "in": via})))
+
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                for target in _resolve(alias.name, 0, importer=module, repo_root=repo_root):
+                    trel = _rel_to(target, repo_root)
+                    if trel in added_files:
+                        lack(node.lineno, f"import {alias.name}", file=trel, via=trel)
+                    _walk_bindings(target, chain + [f"{rel}:{node.lineno}"], proof=proof, tid=tid,
+                                   repo_root=repo_root, added_files=added_files,
+                                   added_names=added_names, seen=seen, found=found)
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            stmt = f"from {'.' * node.level}{base} import " + ", ".join(a.name for a in node.names)
+            holders = _resolve(base, node.level, importer=module, repo_root=repo_root)
+            for target in holders:
+                trel = _rel_to(target, repo_root)
+                if trel in added_files:
+                    lack(node.lineno, stmt, file=trel, via=trel)
+                _walk_bindings(target, chain + [f"{rel}:{node.lineno}"], proof=proof, tid=tid,
+                               repo_root=repo_root, added_files=added_files,
+                               added_names=added_names, seen=seen, found=found)
+            holder = holders[-1] if holders else None
+            hrel = _rel_to(holder, repo_root) if holder else None
+            for alias in node.names:
+                if alias.name == "*":
+                    for name in sorted(added_names.get(hrel or "", ())):
+                        lack(node.lineno, stmt, name=name, via=hrel)
+                    continue
+                # ``from pkg import sub`` binds a FILE when pkg/sub.py exists, a NAME otherwise.
+                sub = _resolve(f"{base}.{alias.name}" if base else alias.name, node.level,
+                               importer=module, repo_root=repo_root)
+                if sub:
+                    srel = _rel_to(sub[-1], repo_root)
+                    if srel in added_files:
+                        lack(node.lineno, stmt, file=srel, via=srel)
+                    _walk_bindings(sub[-1], chain + [f"{rel}:{node.lineno}"], proof=proof, tid=tid,
+                                   repo_root=repo_root, added_files=added_files,
+                                   added_names=added_names, seen=seen, found=found)
+                elif hrel and alias.name in added_names.get(hrel, ()):
+                    lack(node.lineno, stmt, name=alias.name, via=hrel)
 
 
 def _concept_lacks(ticket: dict, tid: str, artifact: str, repo_root: Path, seal_reader) -> list[dict]:

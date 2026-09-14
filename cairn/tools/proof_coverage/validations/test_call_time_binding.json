@@ -1,0 +1,91 @@
+[
+  {
+    "claim": "proof test_call_time_binding.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-14T15:48:31",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main\n  ok   test_a_transitive_binding_is_red_naming_the_chain\n       (live corpus: 27 lack(s) each anchored on a module-level import of something absent at pre)\n  ok   test_every_live_corpus_lack_is_a_module_level_import_of_something_absent_at_pre\n  ok   test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it\n  ok   test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow\n  ok   test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched\n  ok   test_the_watchme_probe_is_armed_with_carry_and_enough\n  ok   test_this_proof_binds_nothing_the_build_added_at_module_level\nGREEN — 8/8 teeth",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main",
+        "test_a_transitive_binding_is_red_naming_the_chain",
+        "test_every_live_corpus_lack_is_a_module_level_import_of_something_absent_at_pre",
+        "test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it",
+        "test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow",
+        "test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched",
+        "test_the_watchme_probe_is_armed_with_carry_and_enough",
+        "test_this_proof_binds_nothing_the_build_added_at_module_level"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "43c8c3564a1753d0a8dea8112f1109086dc309152a46a98feb9e804e5fb0dac2",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/hollow.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/validation.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/probes/__init__.py",
+        "cairn/tools/proof_coverage/probes/sieve_predicts_unran.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/proof_coverage/proofs/fixtures/__init__.py",
+        "cairn/tools/proof_coverage/proofs/fixtures/historical_instances.py",
+        "cairn/tools/proof_coverage/proofs/test_call_time_binding.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2818655-x3gv9c96/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 3,
+          "paths": [
+            "logs/tester/0/20260914.214828.607712.TesterDevice.run_proof.json",
+            "logs/tester/0/20260914.214829.621808.TesterDevice.run_proof.json",
+            "logs/tester/0/20260914.214830.634304.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 136217775,
+          "disk_bytes": 147808256,
+          "entries": 4813,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

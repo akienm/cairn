@@ -236,3 +236,69 @@ class TestMutationTeeth:
         """An empty SKILL.md has no steps — the step extraction returns nothing."""
         assert _extract_steps("") == []
         assert _extract_steps("# Just a title\nSome text.") == []
+
+
+# ---------------------------------------------------------------------------
+# (d) THE CALL-TIME BINDING RULE (ticket c5b6b128a376, 2026-09-14) — step 3 names it
+# ---------------------------------------------------------------------------
+
+
+class TestCallTimeBindingRule:
+    """Step 3 ('Prove — twice') carries the rule the binding sieve enforces, and names the
+    sieve by its registered name — so a builder reading the liturgy learns the rule where a
+    proof is written, and can find the instrument that reds it. Three hand-fixed instances
+    (2026-09-10, -13, -14) followed hollow's own guidance text; the sentence here is the
+    one a builder reads BEFORE the run, the sieve is what makes it physics."""
+
+    def test_step_3_names_the_call_time_binding_rule(self):
+        steps = _extract_steps(_read_skill())
+        body = steps[_step_index(steps, "3")][2]
+        assert re.search(r"at call time", body), "step 3 no longer says a proof binds at call time"
+        assert re.search(r"never at import", body), "step 3 no longer says never at import"
+        assert "proof_binds_its_subject_at_call_time" in body, (
+            "step 3 no longer names the sieve that reds a module-level binding of an added name")
+
+    def test_the_named_sieve_resolves(self):
+        mod = importlib.import_module("cairn.tools.proof_coverage.proof_coverage")
+        assert callable(getattr(mod, "proof_binds_its_subject_at_call_time", None)), (
+            "the sieve step 3 names does not exist in proof_coverage")
+
+
+# ---------------------------------------------------------------------------
+# The runner — ``python3 <this file>`` is how the tester seals a proof (cli.py: nothing in
+# this repo runs pytest). Until 2026-09-14 this file had no runner, so its seal was a
+# GREEN OVER ZERO TEETH — returncode 0 with an empty stdout — exactly the hollow seal
+# proof_coverage names. Every tooth now prints itself, so the seal records what ran.
+# ---------------------------------------------------------------------------
+
+PROVES = {
+    "c5b6b128a376": {
+        "5": "test_step_3_names_the_call_time_binding_rule",
+    }
+}
+
+
+def main() -> int:
+    import inspect
+    import sys
+    reds = 0
+    total = 0
+    for _, cls in sorted(globals().items()):
+        if not (inspect.isclass(cls) and cls.__name__.startswith("Test")):
+            continue
+        for name, fn in sorted(vars(cls).items()):
+            if not (name.startswith("test_") and callable(fn)):
+                continue
+            total += 1
+            try:
+                fn(cls())
+                print(f"  ok   {name}")
+            except Exception as exc:  # noqa: BLE001 — a proof reports, never hides
+                reds += 1
+                print(f"RED  {name}  {type(exc).__name__}: {exc}")
+    print(f"{'GREEN' if not reds else 'RED'} — {total - reds}/{total} teeth")
+    return 1 if reds else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

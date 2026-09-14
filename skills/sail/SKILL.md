@@ -127,6 +127,11 @@ never had.
 Proofs beside the code (`proofs/`), teeth a hollow build could not pass.
 **Run twice; never trust the first green.** A proof over live data asserts
 invariants, never snapshots.
+**A proof binds what its build ADDED at call time, never at import** — a
+module-level `from <added> import x` crashes before the first tooth when the hollow
+reading takes the subject away, so PROVEME reds it by line
+(`proof_binds_its_subject_at_call_time`, in proof_coverage) before hollow spends its
+budget to say UNRAN; move the import inside the tooth or inside `main()`.
 
 ## 4. Journal PROVEME, then seal
 

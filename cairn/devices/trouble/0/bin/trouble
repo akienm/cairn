@@ -94,9 +94,30 @@ from cairn.tools.bus_client import reach
 # reach() pulses the shim, and the shim drains on pulse — so this has already happened by
 # the time the bus comes back. The subcommand exists so an operator can MAKE it happen
 # without waiting for a beat, and see what the fold did.
-from cairn.devices.trouble.shim import TroubleShim
+# Measured 2026-09-15: the pulse folded 461 emissions and this printed '0 folded', because
+# the count came from the SECOND drain, after the pulse had already advanced the
+# watermarks. So the report is pending-before minus pending-after — what the sweep as a
+# whole folded, whichever process did the folding (Law 7: the count is the lane's value).
+from cairn.devices.trouble.shim import TroubleShim, GATES
+def pending(shim):
+    marks = shim._load_watermarks(); out = {}
+    for src in shim._source_dirs():
+        key = f'{src.parent.name}/{src.name}'
+        for gate in GATES:
+            wm = marks.get(key if gate == 'raise_trouble' else f'{key}::{gate}', '')
+            if not isinstance(wm, str): wm = ''
+            n = sum(1 for q in src.glob(f'*.{gate}.json') if q.name > wm)
+            if n: out[f'{key}:{gate}'] = n
+    return out
+shim = TroubleShim()
+before = pending(shim)
 reach('trouble')
-print(json.dumps(TroubleShim().drain(), indent=2))
+report = shim.drain()
+after = pending(shim)
+report['pending_before'] = before
+report['pending_after'] = after
+report['folded_count'] = sum(before.values()) - sum(after.values())
+print(json.dumps(report, indent=2))
 " "$@"
     ;;
   *)

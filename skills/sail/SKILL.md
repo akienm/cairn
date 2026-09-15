@@ -284,7 +284,13 @@ berths tells the trees what was *decided*; it says nothing about whether the
 intention *worked*. That question is step 7's, and it is answered later, by a
 probe, against the ticket's own falsifier.
 
-## 10. Commit and push
+## 10. Clean up, commit and push
+
+Run `cairn cleanup` first — it folds what the voyage threw off (the trouble lane's
+emissions, today; more steps as they are needed) so the inbox reads the world and not a
+backlog. Nothing hosts that fold on a beat (Akien, 2026-09-15: *"build a 'clean up
+script' now that does this, and is available to simply be called after something's
+done"*), so the end of a sail is where a hand calls it.
 
 Committed is part of done. Commit autonomously, push at smells-like-done, then
 verify with the instrument (`python3 -m cairn.tools.orient.orient git`), never from

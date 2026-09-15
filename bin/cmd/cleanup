@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# cairn cleanup — the after-work sweep: fold what the work threw off, so the next reader
+# (the session-open banner, the operator inbox) reads the world and not a backlog.
+#
+# Akien, 2026-09-15, on the drain that had no host: "the answer is actually to build a
+# 'clean up script' now that does this, and is available to simply be called after
+# something's done in the future." So this is a hand's act with one name, called at the
+# end of a sail, a reseal, a session — not a beat, not a daemon (reaching for daemons is
+# drift), and not the rack, which is not built. Each step below reaches its owner's own
+# door (the trouble lane folds through `cairn trouble drain`; nothing here writes a store).
+#
+# One step today; grow against need. A step that fails says so and the sweep goes on,
+# exiting nonzero at the end — a cleanup that stops at the first refusal leaves the rest
+# undone in silence (Law 7).
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CAIRN="$HERE/../cairn"
+rc=0
+
+step() {  # step <name> <command...> — run it, keep the exit code, print one line per step
+  local name="$1"; shift
+  local out
+  if out="$("$@" 2>&1)"; then
+    printf '%-24s ok    %s\n' "$name" "$(printf '%s' "$out" | "$CAIRN" cleanup --summarize "$name" 2>/dev/null || printf '%s' "$out" | tail -1)"
+  else
+    rc=1
+    printf '%-24s RED   %s\n' "$name" "$(printf '%s' "$out" | tail -3 | tr '\n' ' ')"
+  fi
+}
+
+case "${1:-}" in
+  --summarize)
+    # internal: turn a step's output into its one line (json from the drain -> counts)
+    python3 -c '
+import sys, json
+name = sys.argv[1]; raw = sys.stdin.read()
+try:
+    d = json.loads(raw[raw.index("{"):])
+except Exception:
+    print(raw.strip().splitlines()[-1] if raw.strip() else ""); sys.exit(0)
+if name == "troubles":
+    refused = d.get("refused") or []
+    n = d.get("folded_count", len(d.get("folded") or []))
+    before = d.get("pending_before") or {}
+    print(f"{n} folded, {len(refused)} refused" + (f"; from {before}" if before else ""))
+else:
+    print(json.dumps(d)[:160])
+' "$2"
+    exit 0
+    ;;
+  -h|--help)
+    echo "cairn cleanup — fold what the work threw off; call it after a sail, a reseal, a session."
+    echo "steps: troubles (cairn trouble drain)"
+    exit 0
+    ;;
+esac
+
+step troubles "$CAIRN" trouble drain
+
+exit $rc

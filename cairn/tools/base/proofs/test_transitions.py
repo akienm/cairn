@@ -1470,11 +1470,12 @@ def test_a_lane_whose_input_the_lane_above_refused_is_absent_never_green():
     assert not transitions.gate.passed(blind[0]), blind
 
 
-def test_the_entry_gate_names_all_three_sieves_so_a_dropped_one_shortens_the_record():
-    """THE GATE THE RECORD WAS MOST OWED. Three sieves used to collapse into one word, so a
-    sieve that stopped firing wrote the same 'clean' line as a crossing that satisfied all
-    three. The count IS the ruleset's size: drop a sieve and this tooth fails on the LENGTH,
-    which is the whole difference between a shorter record and a cleaner one."""
+def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record():
+    """THE GATE THE RECORD WAS MOST OWED. The sieves used to collapse into one word, so a
+    sieve that stopped firing wrote the same 'clean' line as a crossing that satisfied them
+    all. The count IS the ruleset's size: drop a sieve and this tooth fails on the LENGTH,
+    which is the whole difference between a shorter record and a cleaner one. Four since
+    2026-09-14 (ticket 9adc6fddf185): the_ticket_has_every_answer_it_needs is the fourth."""
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
@@ -1485,7 +1486,8 @@ def test_the_entry_gate_names_all_three_sieves_so_a_dropped_one_shortens_the_rec
             assert [e["identity"] for e in record] == [
                 "a_berthed_chart_chain_claims_the_ticket",
                 "the_ticket_names_its_intent_firing",
-                "the_ticket_names_its_sorted_door_firing"], record
+                "the_ticket_names_its_sorted_door_firing",
+                "the_ticket_has_every_answer_it_needs"], record
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             transitions.emit(_AT_TICKET, "BUILDME",
                              history_path=hist, state_path=state, ticket="widget")
@@ -1495,11 +1497,13 @@ def test_the_entry_gate_names_all_three_sieves_so_a_dropped_one_shortens_the_rec
     named = [e["identity"] for e in rec["proved"]]
     for sieve in ("a_berthed_chart_chain_claims_the_ticket",
                   "the_ticket_names_its_intent_firing",
-                  "the_ticket_names_its_sorted_door_firing"):
+                  "the_ticket_names_its_sorted_door_firing",
+                  "the_ticket_has_every_answer_it_needs"):
         assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
     assert rec["entry_gate"].endswith(
-        "the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, "
-        "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing"), \
+        "the entry_gate proved 4 check(s): a_berthed_chart_chain_claims_the_ticket, "
+        "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, "
+        "the_ticket_has_every_answer_it_needs"), \
         f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
 
 
@@ -1527,7 +1531,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised
     # and the record still lists what PASSED beside the one that did not — the half a
     # findings list throws away
-    assert len(record) == 3 and sum(transitions.gate.passed(e) for e in record) == 2, record
+    assert len(record) == 4 and sum(transitions.gate.passed(e) for e in record) == 3, record
 
 
 def test_a_lane_that_refuses_and_names_nothing_still_speaks():

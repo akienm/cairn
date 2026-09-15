@@ -93,6 +93,7 @@ def main() -> int:
         "workflow": "code-seam@v1: [THINKME] -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> PROVED",
         "gates_bound": "prove_gate: this proof, beside the code",
         "watchme": "none, because skills/design/proofs/test_design_door.py is the watch itself",
+        "questions": "none, because skills/design/proofs/test_design_door.py is a proof fixture, not a cast",
         "children": "none, because skills/design/door.py is the one seam under proof",
         "exit": "routed_out", "disposition": "not-ready",
         "bullets": [{"text": "t", "stratum": "code"}]}, **kw)["berth"]

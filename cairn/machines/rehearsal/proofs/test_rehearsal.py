@@ -69,16 +69,22 @@ def _node(step, state="builds_as_written", assumption="", would_settle="", confi
 WIRE = "unlisted: wire the widget"
 CLEAN_TREE = {"nodes": [_node("D1"), _node("D2")]}
 CLEAN_TREE_WIRED = {"nodes": [_node("D1"), _node("D2"), _node("D3")]}   # after decide() adds D3
+# every carried decision is in every tree (a reading that skips one is handed back);
+# what the three readings disagree on is the wiring step nobody decided, and read 3
+# alone also sees a lint step — that is the one step_absent left to a reader.
+LINT = "unlisted: lint the widget"
 GAPPY_TREES = [
     {"nodes": [_node("D1"),
                _node("unlisted: Wire The Widget", "builds_under_assumption", "it hangs off the rack",
-                     "say where the widget is wired")]},
+                     "say where the widget is wired"),
+               _node("D2")]},
     {"nodes": [_node("D1"),
-               _node(WIRE, "cannot_proceed", "", "say where the widget is wired")]},
+               _node(WIRE, "cannot_proceed", "", "say where the widget is wired"),
+               _node("D2")]},
     {"nodes": [_node("D1"),
                _node(WIRE, "builds_under_assumption", "it hangs off the shim",
                      "say where the widget is wired"),
-               _node("D2")]},
+               _node("D2"), _node(LINT)]},
 ]
 
 
@@ -142,11 +148,13 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
         assert sorted(set(sum((g["reads"] for g in wire), []))) == [1, 2, 3], wire
         # the fold: 'unlisted: Wire The Widget' and 'unlisted: wire the widget' are ONE step, never a step_absent
         assert not any(g["kind"] == "step_absent" and g["step"].lower() == WIRE for g in rec["gaps"]), rec["gaps"]
-        # D2 is in read 3 only — step_absent in reads 1 and 2
+        # the lint step is in read 3 only — step_absent in reads 1 and 2; an id can never be
+        # step_absent, because a reading missing one is handed back before it counts
         absent = [g for g in rec["gaps"] if g["kind"] == "step_absent"]
-        assert absent and absent[0]["step"] == "D2" and absent[0]["reads"] == [1, 2], absent
-        # D1 builds_as_written in all three reads under the same id: no gap of any kind names it
-        assert not any(g["step"] == "D1" for g in rec["gaps"]), rec["gaps"]
+        assert absent and absent[0]["step"] == LINT and absent[0]["reads"] == [1, 2], absent
+        assert all(g["step"].startswith("unlisted: ") for g in absent), absent
+        # D1 and D2 build as written in all three reads under the same id: no gap names them
+        assert not any(g["step"] in ("D1", "D2") for g in rec["gaps"]), rec["gaps"]
         # the would_settle line rides the gap
         assert any("say where the widget is wired" in (g.get("would_settle") or []) for g in rec["gaps"])
         # deterministic: the same trees twice → the same list
@@ -183,11 +191,14 @@ def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes
     w = World()
     try:
         # a decision id the ticket does not carry is a lack the pattern cannot see — the machine re-reads
-        stub = Stub([{"nodes": [_node("D9")]}, CLEAN_TREE])
+        stub = Stub([{"nodes": [_node("D1"), _node("D2"), _node("D9")]},
+                     {"nodes": [_node("D1")]},
+                     CLEAN_TREE])
         rec = R.rehearse(TID, reader=stub, **_kw(w))
-        first = rec["meta"]["attempts"][0]["schema_lacks"]
-        assert len(first) == 1 and "'D9' names a decision the ticket does not carry" in first[0], first
-        assert rec["clean"] and stub.calls == 6, (rec["clean"], stub.calls)
+        att = [a["schema_lacks"] for a in rec["meta"]["attempts"]]
+        assert len(att[0]) == 1 and "'D9' names a decision the ticket does not carry" in att[0][0], att[0]
+        assert att[1] == ["nodes: every decision gets one node; missing ['D2']"], att[1]
+        assert rec["clean"] and stub.calls == 9, (rec["clean"], stub.calls)
         # identity is stamped from truth, never trusted from the reader
         assert rec["reads"][0]["ticket"] == TID and rec["reads"][2]["read"] == 3
     finally:
@@ -335,6 +346,9 @@ def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the
     assert R.validate({"nodes": [_node("unlisted: x", st) for st in R.STATES]}) == []
     assert R.validate({"nodes": [_node("D1"), _node("D12")]}) == [], "any D<n> passes the shape alone"
     assert R.validate({"nodes": [_node("D1"), _node("D12")]}, {1}) == ["nodes[1].step: 'D12' names a decision the ticket does not carry (it has [1])"]
+    assert R.validate({"nodes": [_node("D1")]}, {1, 2}) == ["nodes: every decision gets one node; missing ['D2']"]
+    assert R.validate({"nodes": [_node("D1"), _node("D2"), _node("D2")]}, {1, 2}) == ["nodes: every decision gets one node; doubled ['D2']"]
+    assert R.validate({"nodes": [_node("D1"), _node("D2"), _node("unlisted: x")]}, {1, 2}) == []
     assert R.validate({"nodes": []}) and R.validate({"nodes": [{"step": "x"}]}) and R.validate([])
     assert R.validate({"nodes": [_node("x")]}) and R.validate({"nodes": [_node("D0")]}) and R.validate({"nodes": [_node("unlisted:")]})
     assert R.validate({"nodes": [dict(_node("unlisted: x"), extra=1)]}), "additionalProperties: false"
@@ -345,6 +359,7 @@ def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the
     for bad in ("x", "D0", "d1", "unlisted:", "unlisted: "):
         assert not pat.match(bad) and not R.STEP_RE.match(bad), bad
     assert "D<n>" in text and "unlisted:" in text, "the prompt teaches the step vocabulary"
+    assert "exactly\n  one node" in text or "exactly one node" in text.replace("\n  ", " "), "one node per decision, always"
     assert "unlisted" in R.GAP_KINDS
 
 

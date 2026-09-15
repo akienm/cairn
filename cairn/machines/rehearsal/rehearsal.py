@@ -129,7 +129,8 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
     the contract the reader is handed and this is its mirror — a tooth in the proof holds
     the two together over the schema's own examples. ``decision_ids`` is the ticket's own
     vocabulary: a step naming ``D<n>`` the ticket does not carry is a lack the schema's
-    pattern cannot see, so the machine checks it here and the read is re-read (D5)."""
+    pattern cannot see, and so is a carried decision with no node or with two — every
+    decision gets exactly one — so the machine checks both here and the read is re-read (D5)."""
     lacks: list[str] = []
     if not isinstance(tree, dict):
         return [f"tree is {type(tree).__name__}, not an object"]
@@ -170,6 +171,22 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
         if "confidence" in n and not (isinstance(c, (int, float)) and not isinstance(c, bool)
                                       and 0 <= c <= 1):
             lacks.append(f"{at}.confidence: a number in [0, 1] is required")
+    # every decision the ticket carries, exactly once (D17): three readers that each judge
+    # which decisions are steps never converge on the same set — measured on this machine's
+    # own ticket, 6 of 17 ids step_absent — so the set is not judged, it is required. A
+    # missing or doubled id is a lack like any other and the read is re-read (D5).
+    if decision_ids is not None:
+        seen: list[int] = []
+        for n in nodes:
+            m = STEP_RE.match(n.get("step") or "") if isinstance(n, dict) else None
+            if m and m.group("n"):
+                seen.append(int(m.group("n")))
+        missing = sorted(decision_ids - set(seen))
+        doubled = sorted({i for i in seen if seen.count(i) > 1})
+        if missing:
+            lacks.append(f"nodes: every decision gets one node; missing {['D%d' % i for i in missing]}")
+        if doubled:
+            lacks.append(f"nodes: every decision gets one node; doubled {['D%d' % i for i in doubled]}")
     return lacks
 
 

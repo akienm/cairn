@@ -1,0 +1,37 @@
+{
+  "component": "rehearsal",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0",
+  "what": "The rehearsal: a build performed without the build. Renders a cast ticket plus its standing chart berths as text, has the cheapest model (Haiku 4.5, via `claude -p --model claude-haiku-4-5-20251001 --output-format json`) read it three times cold and return a typed build tree per schema.json (nodes with state in builds_as_written | builds_under_assumption | cannot_proceed, assumption, would_settle, confidence), diffs the three trees by code into gaps, lets CC dispose each gap as a decision line on the ticket or a question in the inbox, and writes a clean rehearsal (three reads, zero gaps) to CairnCommons/rehearsals/ through the artifact door (verb rehearse). The BUILDME entry lane the_ticket_rehearses_clean (sieve buildme_rides_the_rehearsal in build_inspector) refuses a crossing without a clean record whose ticket hash still matches.",
+  "why": "A ticket's buildability was a self-report by its own author (/sorted's builder_check: the same mind writes and judges), and the cost of a ticket that only reads as buildable lands on Akien's inbox and on Opus's build. Akien, 2026-09-15: 'we're not measuring yes it has field a but we're measuing if it can be built as written' — 'that gives us almost a hard gate on ticket quality equal to me. and then we run all our tickets thru it, and i don't have to approve them because we know they'll build as we meant.' The gate reads 'no reader has to assume', never 'Haiku's build is the build': the post-PROVED diff of the built proof against the converged tree is the gate's own measurement (Law 8 — a hollow green is worse than a red).",
+  "falsifier": "DONE when `cairn rehearse <ticket>` over a deliberately underspecified fixture returns gaps naming the underspecified step in all three reads; with the gap answered as a decision line returns zero gaps; a BUILDME crossing without a clean rehearsal is refused by name; the crossing passes with one; a ticket edited after its rehearsal is refused again; the prompt asserts the reader's job is the tree and cannot_proceed is a legal answer. WRONG INTENT if over the first ten real tickets Opus's build diverges from the converged tree as often as from un-rehearsed tickets — then the reader measures Haiku's habits, not the ticket.",
+  "gates": [
+    "proof gate (proofs/ under the tester in netns, reader stubbed — no proof tooth calls the real reader)",
+    "artifact door (records via verb rehearse; the ticket's rehearsal and decisions fields via verb cast)",
+    "BUILDME entry lane the_ticket_rehearses_clean (physics, Law 4)",
+    "WATCHME probe the_rehearsal_predicts_the_build (probes/) — the post-PROVED divergence list, enough at eight clean of ten"
+  ],
+  "how_it_learns": "Not yet, by design. v1 records every gap, every decision line and every post-PROVED divergence on the rehearsal record and learns nothing from them; the learning tree that asks the recurring questions before the first read is a child cast after ten records exist, because a tree trained on zero verdicts is the hollow learning the chart chain measured at 0.00.",
+  "owner": "CC builds it; codemother owns the care of the code (the lane and the sieve are inspector things, per ruling 2026-09-06-codemother-owns-the-care-of-the-code). The rehearsal records in the commons are records of truth gated by the artifact door.",
+  "gated_by": [
+    "codemother",
+    "Akien",
+    "CC"
+  ],
+  "ticket": "cf80bdb57205",
+  "from_idea": "2026-09-15-1-so-we-re-getting-buried-in",
+  "homeless_intention": "CairnCommons/intentions-not-beside-code/I-the-cheapest-reader-proves-a-ticket-before-it-is-built.md",
+  "invoke": "CLI: `cairn rehearse <ticket>` prints the gaps; `cairn rehearse <ticket> --decide <step> \"<line>\" --by <provenance>` appends a decision line; loop cap 5, the sixth pass opens a question on the ticket. Fired by /sail step 0c after the chart, before BUILDME.",
+  "filed_edges": [
+    "(a) transport: the claude CLI carries an 18.9k-token Claude Code preamble per call; a plain-API or inference_proxy transport is a follow-on ticket.",
+    "(b) the learning tree over recurring gaps: child cast after ten records.",
+    "(c) the reader has no repo access by design; a cannot_proceed naming a file the survey did not list is recorded as a finding against the chart's survey leg."
+  ],
+  "claim_provenance": {
+    "what": "cc-read of Akien 2026-09-15 (from_idea)",
+    "why": "Akien verbatim 2026-09-15",
+    "falsifier": "cc-read"
+  },
+  "state_of_build": "CAST 2026-09-15, not built. Everything above is the design; nothing here runs yet (Law 9: born red)."
+}

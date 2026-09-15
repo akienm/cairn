@@ -3,15 +3,15 @@
   "runtime_role": "tool",
   "role": "charter",
   "schema_version": "v0",
-  "what": "Deterministic Python script that reads live state and produces the operator inbox — every figure is a measurement taken at runtime, never stored. Sections ordered by expected-emptiness: totals, troubles, email, adjudications, questions, design, tickets, intentions, ideas. Runs as a cairn verb (cairn operator_inbox). Replaces the whatslefttodo LLM skill.",
+  "what": "Deterministic Python script that reads live state and produces the operator inbox — every figure is a measurement taken at runtime, never stored. Sections ordered by whose head has to settle them, then by expected-emptiness: totals, email, adjudications (the review lane — what only his head can settle), lap, questions, design, then the CC-owned lanes (live troubles), then tickets, intentions, ideas. The review lane drains by measurement (ticket fb988505c5cb, 2026-09-15): a berth whose ticket rests at a terminal cursor is not awaiting his review and is not rendered in the lane, though it still resolves by id in `show artifact`. Runs as a cairn verb (cairn operator_inbox). Replaces the whatslefttodo LLM skill.",
   "why": "Because the operator should be able to run one command and see everything that needs attention, with zero stale figures. The old LLM skill re-derived the inbox from scratch every time, could invent counts, and stored data it read — this script cannot report stale data because it stores none. Akien, 2026-08-27: 'this skill should just run a script. and that script should produce the same output... this isn't for CC to prepare in a skill every time from scratch. this is for deterministic python.'",
-  "how_it_learns": "It does not learn — it reads. Each reader calls the source's own API (TroubleDevice().live(), pending_findings(), filesystem globs) and the script assembles the results. A new data source is a new reader function added to the script, not a learned behavior.",
+  "how_it_learns": "It does not learn — it reads. Each reader calls the source's own API (TroubleDevice().live(), pending_reviews(), filesystem globs) and the script assembles the results. A new data source is a new reader function added to the script, not a learned behavior.",
   "laws": {
     "law_1": "The script retires the re-derivation of the inbox — the resolver is spent on the novel, not on re-deriving the settled.",
     "law_3": "Every figure in the output is a live measurement. An unmeasured claim would be a section reporting from stored data.",
     "law_10": "The script's output IS the observation — every recorded observation is measurement."
   },
-  "the_naming": "'Operator' not 'Akien' — multi-operator future. 'Adjudications' not 'findings' — findings has two meanings in the system (a finding is also a learning_block record). Section order is a ruling from the 2026-08-27 session: expected-emptiness puts troubles and email at the top.",
+  "the_naming": "'Operator' not 'Akien' — multi-operator future. 'Adjudications' not 'findings' — findings has two meanings in the system (a finding is also a learning_block record). Section order was a ruling from the 2026-08-27 session (expected-emptiness put troubles and email at the top); RE-RULED 2026-09-15 by Akien verbatim ('that leaves me ideas and intentions only' — ticket fb988505c5cb, decision 7): troubles are deterministic reds and CC's to fix or carry a decision, so they render under a CC-owned lane AFTER the operator's sections, headed 'CC owns these; this lane is so you can see them', the count kept in the banner header for Law 7 loudness.",
   "filed_edges": [],
   "gated_by": [
     "CC",
@@ -24,5 +24,6 @@
     "role": "cc-read",
     "what": "cc-read",
     "why": "cc-read"
-  }
+  },
+  "falsifier": "RED when any of these measures true, by the named instrument: (1) a berth in the review lane (`pending_reviews()`) is named by a ticket whose cursor reads terminal under `transitions.is_terminal` — instrument: probe cairn/tools/operator_inbox/probes/the_lane_holds_only_his_decisions.py, count terminal_in_lane must be 0; (2) Akien re-raises a drained decision — instrument: the same probe's re_raised count over questions bound to fb988505c5cb not raised by the cc caller class, must be 0; (3) a section's printed count differs from an independent read of its source — instrument: probe operator_inbox_matches_live_state.py, mismatches must be []; (4) a ticket wears two labels across the inbox, dashboard and harbor map — instrument: probe one_status_everywhere.py, divergences must be {}; (5) the reviewed log's bytes change across a render — instrument: cairn/machines/skill_block/proofs/test_review_lane_drains_by_measurement.py, reviewed-log sha before == after; (6) live troubles render above the operator's sections or absent from the CC lane — instrument: cairn/tools/operator_inbox/proofs/test_operator_inbox.py test_troubles_render_under_a_cc_owned_lane_after_the_operators_sections and bin/proofs/test_slate.py CUSTODY tooth. WRONG INTENT: a decision he needed to see was drained — one instance reds fb988505c5cb and re-enters at its cast."
 }

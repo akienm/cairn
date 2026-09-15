@@ -298,18 +298,17 @@ def build() -> tuple[str, str]:
     lines.append("CAIRN — SESSION OPEN".center(WIDTH))
     lines.append(_rule("═"))
 
-    # Troubles FIRST. A blocked thing learned about after the plan is learned too late.
+    # The trouble COUNT first, one line, loud (Law 7). The DETAIL moved under a CC-owned
+    # lane below the operator's lanes (ticket fb988505c5cb, Akien 2026-09-15: "that leaves
+    # me ideas and intentions only") — a live trouble is a deterministic red, and a
+    # deterministic red is CC's to fix or to carry a decision on, never his to re-read at
+    # every session open. The count stays at the top so a blocked thing is still learned
+    # about before the plan; what moved is whose eyes the paragraphs are for.
     if t_err:
         lines.append(f"!! {t_err}")
         lines.append("")
     elif troubles:
-        lines.append(f"!! {len(troubles)} LIVE TROUBLE(S) — these stay in the inbox until cleared:")
-        for t in troubles:
-            ident = t.get("id", "<no id>")
-            count = t.get("count", "?")
-            why = t.get("why", "<no why recorded>")
-            lines.append(f"   [{count}x] {ident}")
-            lines.append(_render(why, "        "))
+        lines.append(f"!! {len(troubles)} LIVE TROUBLE(S) — CC owns these; detail in the CC lane below.")
         lines.append("")
     else:
         lines.append("   no live troubles. (the normal operating state is zero — this is it.)")
@@ -366,6 +365,21 @@ def build() -> tuple[str, str]:
         lines.append(_wrap("SHOWING HALF THE LANE: homeless open-*.json only. The "
                            "charters' filed_edges need a projector that does not exist "
                            "yet (open-the-frontier-projector).", "   "))
+        lines.append("")
+
+    # THE TROUBLE LANE, fifth — CC-owned, beside the open questions and below every lane
+    # that is his. Zero prints NOTHING here; the zero was already stated at the top.
+    if troubles and not t_err:
+        lines.append(f"🔧 LIVE TROUBLES — {len(troubles)} standing (CC owns these; "
+                     f"this lane is so you can see them):")
+        for t in troubles:
+            ident = t.get("id", "<no id>")
+            count = t.get("count", "?")
+            why = t.get("why", "<no why recorded>")
+            lines.append(f"   [{count}x] {ident}")
+            lines.append(_render(why, "        "))
+        lines.append(_wrap("each is a deterministic red: CC fixes it or opens a question "
+                           "on its ticket; they stay here until cleared.", "   "))
         lines.append("")
 
     if slate is None:

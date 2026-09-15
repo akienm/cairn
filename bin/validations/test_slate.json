@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_slate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T11:39:18",
+    "caller": "CC /sail fb988505c5cb",
+    "date": "2026-09-15T11:09:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   picks the later WRITTEN_AT\n  ok   does NOT pick the alphabetically-last filename\n  ok   no ambiguity warning when the winner is stamped\n  ok   exit 0\n\n    ...and an unstamped record of the same day ranks below a stamped one\n  ok   stamped still wins\n  ok   unstamped does not win\n\n    ...and a day of only-unstamped slates is named as a guess, not an answer\n  ok   says the ranking fell back to filename order\n  ok   names how many slates share the date\n  ok   still restores a slate\n  ok   still exit 0\n\n    ...and a lone unstamped slate does not cry ambiguity\n  ok   no warning for a lone unstamped slate\n  ok   restores it\n\n92/92 green",
+      "stdout_tail": "  ok   picks the later WRITTEN_AT\n  ok   does NOT pick the alphabetically-last filename\n  ok   no ambiguity warning when the winner is stamped\n  ok   exit 0\n\n    ...and an unstamped record of the same day ranks below a stamped one\n  ok   stamped still wins\n  ok   unstamped does not win\n\n    ...and a day of only-unstamped slates is named as a guess, not an answer\n  ok   says the ranking fell back to filename order\n  ok   names how many slates share the date\n  ok   still restores a slate\n  ok   still exit 0\n\n    ...and a lone unstamped slate does not cry ambiguity\n  ok   no warning for a lone unstamped slate\n  ok   restores it\n\n96/96 green",
       "stderr_tail": "",
       "teeth_green": [
         "picks the later DATE",
@@ -29,6 +29,10 @@
         "a trouble with NO standing is still live",
         "a CLEARED trouble is not shown",
         "the count rides along",
+        "THE COUNT TOOTH: the trouble count is the first line under the rule",
+        "THE CUSTODY TOOTH: the detail renders under a lane that says CC owns it",
+        "the CC lane sits BELOW the operator's review lane",
+        "the count line does not carry the paragraphs",
         "says the inbox is empty",
         "exit 0 on the live tree",
         "emits a session-open banner",
@@ -99,13 +103,13 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "2684adc5be8261d83c224c3e12d433dd1adec4a85c57fb08684080e7d37da26a",
+      "source_fingerprint": "d7244756eb3adda8ea4a22c5bd92944f5297274298e14f8ce197dae3b90b2aff",
       "fingerprint_closure": [
         "bin/proofs/test_slate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-248031-porbtim0/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1714687-ezpngq5i/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -114,11 +118,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115596717,
-          "disk_bytes": 124407808,
-          "entries": 3661,
+          "bytes": 136593248,
+          "disk_bytes": 148242432,
+          "entries": 4839,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       }
     },

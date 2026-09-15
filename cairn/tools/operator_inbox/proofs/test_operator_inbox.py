@@ -45,10 +45,23 @@ def test_adjudications_match_independent_read():
 
 
 def test_questions_match_independent_read():
+    """``resolved`` is the discriminator, not the filename: since ticket 9adc6fddf185
+    (2026-09-14) an answered question keeps its ``open-`` name and carries ``resolved``.
+    The independent read counts what the lane's contract counts — unresolved, plus
+    unreadable (which counts as unresolved, Law 7). Stale form found red 2026-09-15
+    (1 open against 7 files) while ticket fb988505c5cb sealed this file."""
     result = read_questions()
     if QUESTIONS_DIR.exists():
-        independent = list(QUESTIONS_DIR.glob("open-*.json"))
-        assert result["count"] == len(independent)
+        independent = 0
+        for p in QUESTIONS_DIR.glob("open-*.json"):
+            try:
+                doc = json.loads(p.read_text())
+            except (json.JSONDecodeError, OSError):
+                independent += 1
+                continue
+            if not (isinstance(doc, dict) and doc.get("resolved")):
+                independent += 1
+        assert result["count"] == independent
     else:
         assert result["count"] == 0
 
@@ -73,10 +86,15 @@ def test_tickets_match_independent_read():
                 continue
             independent_count += 1
     assert result["total_not_done"] == independent_count
-    # one status: every record's label IS status_label(cursor_of(its own state string))
+    # one status: every record's label IS status_label(cursor_of(its own state string)),
+    # with the DERIVED in-process phase overlaid (ruling 2026-09-08: in-process is runtime
+    # state, never stored, so the file says :waiting while a live sail says :in-process —
+    # found red 2026-09-15 with ticket fb988505c5cb's own voyage in flight).
+    from cairn.tools.operator_inbox.inbox import with_derived_phase
     for r in result["records"]:
         own = json.loads(Path(r["source"]).read_text())["workflow_and_state"]
-        assert r["label"] == status_label(cursor_of(own)), (r["id"], r["label"], own[:80])
+        assert r["label"] == status_label(with_derived_phase(cursor_of(own), r["id"])), \
+            (r["id"], r["label"], own[:80])
 
 
 # --- moved on (ticket 3ed960cc402e): an artifact past its stage is not reported at it ---
@@ -225,10 +243,33 @@ def test_format_produces_output():
 
 
 def test_section_order_is_ruled():
+    """Troubles moved below the operator's sections 2026-09-15 (ticket fb988505c5cb,
+    Akien: "that leaves me ideas and intentions only") — a live trouble is CC's
+    deterministic red, rendered so he can see it, after everything that is his."""
     assert SECTION_ORDER == [
-        "troubles", "email", "adjudications", "lap", "questions",
-        "design", "tickets", "intentions", "ideas",
+        "email", "adjudications", "lap", "questions", "design",
+        "troubles", "tickets", "intentions", "ideas",
     ]
+
+
+def test_troubles_render_under_a_cc_owned_lane_after_the_operators_sections():
+    """The lane says who owns it, sits after the review lane and the questions, and the
+    live count still rides the summary line at the top (Law 7 loudness kept)."""
+    data = gather_all()
+    live = [{"id": "trouble-zzzz", "standing": "OPEN", "why": "WHYMARKERZZZZ"}]
+    data = dict(data, troubles={"live": live, "live_count": 1, "total_count": 1},
+                adjudications={"findings": [{"berth_id": "abc", "skill": "intent",
+                                             "title": "t", "when": "", "bullets": []}],
+                               "count": 1})
+    out = format_inbox(data)
+    i_sum = out.find("1 live trouble(s)")
+    i_lane = out.find("LIVE TROUBLES (1) — CC owns these")
+    i_rev = out.find("ARTIFACTS AWAITING REVIEW")
+    i_why = out.find("WHYMARKERZZZZ")
+    assert -1 < i_sum < i_rev < i_lane < i_why, (i_sum, i_rev, i_lane, i_why)
+    assert "TROUBLES NEEDING OPERATOR ATTENTION" not in out
+    zero = format_inbox(dict(data, troubles={"live": [], "live_count": 0, "total_count": 3}))
+    assert "TROUBLES: 0 live (3 exist, all CLEARED)" in zero
 
 
 def test_no_akien_in_headers():
@@ -336,3 +377,68 @@ def test_gather_all_includes_lap():
     data = gather_all()
     assert "lap" in data
     assert "count" in data["lap"]
+
+
+def test_the_lane_probe_is_armed_and_measures_a_scratch_world():
+    """Ticket fb988505c5cb (2026-09-15), falsifier clause (5) + WRONG INTENT: the WATCHME
+    probe the_lane_holds_only_his_decisions is armed (module-level PROBE with callable
+    trigger/carry/enough) and, handed a scratch world through its pulse context, reads
+    the lane as pending_reviews does — a berth named by a [PROVED] ticket drained, one
+    named by a [BUILDME] ticket kept, zero terminal-ticket berths left in the lane — and
+    reads a LACK the moment a question bound to the ticket is raised by Akien rather than
+    by the cc caller class. No read touches the live commons: every root is scratch."""
+    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.operator_inbox.probes import the_lane_holds_only_his_decisions as probe_mod
+
+    probe = probe_mod.PROBE
+    assert callable(probe.trigger) and callable(probe.carry) and callable(probe.enough)
+    assert probe.to == "codemother"
+
+    root = scratch_dir("lane-probe-proof-")
+    berths, tickets, ideas, questions = (root / "berths", root / "tickets",
+                                         root / "ideas", root / "questions")
+    for d in (berths / "intent", berths / "sorted", tickets, ideas, questions):
+        d.mkdir(parents=True)
+    reviewed = root / "reviewed.jsonl"
+    reviewed.write_text("")
+
+    def berth(skill, fid):
+        p = berths / skill / f"{skill}-20260915T000000-{fid}.json"
+        p.write_text(json.dumps({"skill": skill, "finding_id": fid, "title": fid,
+                                 "when": "2026-09-15T00:00:00", "exit": "routed_forward",
+                                 "bullets": [], "answers": {}}))
+        return p
+
+    proved = berth("intent", "proved-intent")
+    kept = berth("sorted", "buildme-sorted")
+    (tickets / "aaaaaaaaaaaa-scratch.json").write_text(json.dumps({
+        "id": "aaaaaaaaaaaa", "intent_berth": str(proved),
+        "sorted_berth": "none, because scratch",
+        "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"}))
+    (tickets / "bbbbbbbbbbbb-scratch.json").write_text(json.dumps({
+        "id": "bbbbbbbbbbbb", "intent_berth": "none, because scratch",
+        "sorted_berth": str(kept),
+        "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"}))
+
+    ctx = {"root": str(berths), "reviewed_path": str(reviewed), "tickets": str(tickets),
+           "ideas": str(ideas), "questions": str(questions)}
+    m = probe_mod._measure(dict(ctx))
+    assert m["census"] == 2 and m["lane"] == 1 and m["drained"] == 1, m
+    assert m["terminal_in_lane"] == [] and m["re_raised"] == [] and m["clean"], m
+    assert probe_mod._trigger(None, dict(ctx)) is False
+    carried = probe_mod._carry(dict(ctx))
+    assert "zero terminal in lane" in carried["finding"], carried
+
+    # a cc-raised question on the ticket is CC's own work, not a re-raise
+    (questions / "open-000000000001.json").write_text(json.dumps({
+        "id": "open-000000000001", "ticket": "fb988505c5cb",
+        "raised_by": "cc (superclaude-1.scope)", "question": "any terminal?", "resolved": True}))
+    assert probe_mod._measure(dict(ctx))["clean"]
+
+    # a question HE raised on the ticket is the WRONG-INTENT clause: a lack, named
+    (questions / "open-000000000002.json").write_text(json.dumps({
+        "id": "open-000000000002", "ticket": "fb988505c5cb",
+        "raised_by": "Akien, in chat", "question": "why did the sorted for X vanish?"}))
+    m2 = probe_mod._measure(dict(ctx))
+    assert not m2["clean"] and [q["id"] for q in m2["re_raised"]] == ["open-000000000002"], m2
+    assert "re-raised" in probe_mod._carry(dict(ctx))["finding"]

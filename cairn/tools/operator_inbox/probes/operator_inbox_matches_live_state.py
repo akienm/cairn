@@ -36,7 +36,6 @@ def _check_all() -> dict:
         read_tickets, read_ideas, read_intentions,
     )
     from cairn.devices.trouble.trouble import TroubleDevice
-    from cairn.machines.learning_block.learning_block import pending_findings
 
     mismatches = []
 
@@ -50,8 +49,14 @@ def _check_all() -> dict:
             "independent": len(independent_troubles),
         })
 
+    # the "adjudications" section IS the review lane now (pending_reviews, since ticket
+    # slate-compiles-from-the-world's successor made findings berths); the old
+    # learning_block.pending_findings read 0 against the lane's 34 on 2026-09-15. The
+    # independent read walks the berth root by hand: every berth doc not in his reviewed
+    # log, not under an auto-drain skill, and not named by a terminal ticket (ticket
+    # fb988505c5cb: measurement drains the lane).
     script_adj = read_adjudications()
-    independent_adj = pending_findings()
+    independent_adj = _independent_review_lane()
     if script_adj["count"] != len(independent_adj):
         mismatches.append({
             "section": "adjudications",
@@ -61,7 +66,19 @@ def _check_all() -> dict:
 
     script_q = read_questions()
     questions_dir = Path.home() / "dev" / "src" / "CairnCommons" / "questions"
-    independent_q = len(list(questions_dir.glob("open-*.json"))) if questions_dir.exists() else 0
+    # ``resolved`` is the discriminator, not the filename (ticket 9adc6fddf185, 2026-09-14:
+    # an answered question keeps its open-* name). Counting files read 7 against the lane's
+    # 1 on 2026-09-15 — a mismatch on every pulse that was the probe's own stale contract.
+    independent_q = 0
+    if questions_dir.exists():
+        for qp in questions_dir.glob("open-*.json"):
+            try:
+                qdoc = json.loads(qp.read_text())
+            except (OSError, json.JSONDecodeError):
+                independent_q += 1
+                continue
+            if not (isinstance(qdoc, dict) and qdoc.get("resolved")):
+                independent_q += 1
     if script_q["count"] != independent_q:
         mismatches.append({
             "section": "questions",
@@ -83,6 +100,33 @@ def _check_all() -> dict:
     }
 
     return {"mismatches": mismatches, "current_counts": current_counts}
+
+
+def _independent_review_lane() -> list[str]:
+    from cairn.machines.skill_block.skill_block import (
+        AUTO_DRAIN_SKILLS, berth_root, berth_ticket_cursors, reviewed_berth_ids,
+    )
+    from cairn.tools.base.transitions import is_terminal
+    base = berth_root()
+    if not base.is_dir():
+        return []
+    reviewed = reviewed_berth_ids()
+    cursors = berth_ticket_cursors()
+    lane: list[str] = []
+    for skill_dir in sorted(base.iterdir()):
+        if not skill_dir.is_dir() or skill_dir.name in AUTO_DRAIN_SKILLS:
+            continue
+        for berth_file in sorted(skill_dir.glob("*.json")):
+            try:
+                doc = json.loads(berth_file.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(doc, dict) or doc.get("finding_id") in reviewed:
+                continue
+            if any(is_terminal(c) for c in cursors.get(str(berth_file.resolve()), [])):
+                continue
+            lane.append(str(berth_file))
+    return lane
 
 
 def _trigger(now, context: dict) -> bool:

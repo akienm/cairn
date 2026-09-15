@@ -57,13 +57,18 @@ LABEL_ORDER = [
 # word — loud on every surface (Law 7), never a quiet "UNKNOWN" bucket.
 UNPARSED = "UNPARSED"
 
+# Troubles moved BELOW the operator's sections on 2026-09-15 (ticket fb988505c5cb, Akien:
+# "that leaves me ideas and intentions only"): a live trouble is a deterministic red, and
+# a deterministic red is CC's to fix or to carry a decision on — the lane is CC-owned and
+# rendered so he can SEE it, not so he has to act on it. The live count stays on the
+# summary line at the top (Law 7 loudness is kept; only the paragraphs moved).
 SECTION_ORDER = [
-    "troubles",
     "email",
     "adjudications",
     "lap",
     "questions",
     "design",
+    "troubles",
     "tickets",
     "intentions",
     "ideas",
@@ -624,21 +629,6 @@ def format_inbox(data: dict) -> str:
     lines.append("  " + format_summary(data))
     lines.append("")
 
-    # TROUBLES
-    if troubles["live_count"] == 0:
-        lines.append(f"  TROUBLES: 0 live ({troubles['total_count']} exist, all CLEARED)")
-    else:
-        lines.append(_section_line("TROUBLES NEEDING OPERATOR ATTENTION"))
-        lines.append("")
-        for t in troubles["live"]:
-            tid = t.get("id", "?")
-            standing = t.get("standing", "?")
-            why = t.get("why", "")
-            lines.append(f"    {tid}  ({standing})")
-            if why:
-                lines.append(f"      {why[:100]}")
-        lines.append("")
-
     # EMAIL
     if email["count"] == 0:
         lines.append(f"  EMAIL: {email.get('note', '0 unresolved')}")
@@ -723,6 +713,23 @@ def format_inbox(data: dict) -> str:
             lines.append(format_ticket_row(r))
         lines.append("")
 
+    # TROUBLES — CC-owned, after every section that is his (SECTION_ORDER, above).
+    if troubles["live_count"] == 0:
+        lines.append(f"  TROUBLES: 0 live ({troubles['total_count']} exist, all CLEARED)")
+    else:
+        lines.append("")
+        lines.append(_section_line(f"LIVE TROUBLES ({troubles['live_count']}) — CC owns these; "
+                                   "this lane is so you can see them"))
+        lines.append("")
+        for t in troubles["live"]:
+            tid = t.get("id", "?")
+            standing = t.get("standing", "?")
+            why = t.get("why", "")
+            lines.append(f"    {tid}  ({standing})")
+            if why:
+                lines.append(f"      {why[:100]}")
+        lines.append("")
+
     # TICKETS — every label in priority order (by_label arrives ordered), same
     # tokens the dashboard and the harbor map print for the same tickets.
     lines.append("")
@@ -755,7 +762,9 @@ def format_inbox(data: dict) -> str:
 def show_artifact(id_prefix: str) -> str:
     """Show a pending artifact or ticket by id prefix."""
     from cairn.machines.skill_block.skill_block import pending_reviews, read_berth
-    pending = pending_reviews()
+    # drain=False: the deep view resolves a berth the measured lane has drained (its ticket
+    # is terminal) — reference stays readable by id, it just stops asking for his eyes.
+    pending = pending_reviews(drain=False)
     id_prefix = fold(id_prefix)   # ids are system-minted lowercase hex; his prefix folds
     matches = [p for p in pending if p["berth_id"].startswith(id_prefix)]
 

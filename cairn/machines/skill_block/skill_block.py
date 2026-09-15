@@ -378,12 +378,138 @@ def mark_reviewed(berth_id: str, words: str, *,
 AUTO_DRAIN_SKILLS = {"saveslate"}
 
 
+# ---------------------------------------------------------------------------
+# MEASUREMENT DRAINS THE REVIEW LANE (ticket fb988505c5cb, 2026-09-15).
+#
+# A berth whose ticket has reached a terminal cursor is REFERENCE, not a decision
+# Akien's head still has to settle — the ticket was built, proved and crossed, and
+# every one of those crossings was measured. Leaving its /intent and /sorted berths
+# in the review lane was costing him the one resource that funds the project (his
+# review bandwidth), so the lane's membership is now measured from the ticket side:
+# the ticket names its berths (``intent_berth`` / ``sorted_berth`` are berth paths;
+# ``from_idea`` is an idea id whose FILE under ideas/ names the idea berth) and the
+# cursor is read through the grammar (``transitions.parse_workflow``), never by
+# string-matching a bracket. Nothing here writes: the reviewed log is his voice
+# (Law 6) and stays byte-identical; the drain is a read-time filter.
+# ---------------------------------------------------------------------------
+
+def _commons_root() -> Path:
+    """The commons the tickets and ideas are read from. ``CAIRN_ARTIFACT_ROOTS`` is the
+    artifact door's own seam for a scratch world (so a proof isolates the same way the door
+    does); ``CAIRN_COMMONS_ROOT`` is the inbox's; the live commons is the default."""
+    env = os.environ.get("CAIRN_ARTIFACT_ROOTS")
+    if env:
+        try:
+            named = json.loads(env)
+            if isinstance(named, dict) and named.get("CairnCommons"):
+                return Path(named["CairnCommons"])
+        except json.JSONDecodeError:
+            pass
+    return Path(os.environ.get("CAIRN_COMMONS_ROOT",
+                               Path.home() / "dev" / "src" / "CairnCommons"))
+
+
+def tickets_root(root: Path | None = None) -> Path:
+    if root is not None:
+        return Path(root)
+    env = os.environ.get("CAIRN_TICKETS_DIR")
+    return Path(env) if env else _commons_root() / "tickets"
+
+
+def ideas_root(root: Path | None = None) -> Path:
+    if root is not None:
+        return Path(root)
+    env = os.environ.get("CAIRN_IDEAS_DIR")
+    return Path(env) if env else _commons_root() / "ideas"
+
+
+def _read_json_dict(path: Path) -> dict | None:
+    """A record that cannot be read contributes NOTHING — it neither drains nor keeps.
+    Law 7 for the lane: an unreadable ticket is never a reason to drop a decision."""
+    try:
+        doc = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
+def _berth_key(value: object) -> str | None:
+    """A ticket's berth pointer, normalised for the map — or None when the field carries
+    ``none, because …``, an empty string, or anything that is not a path."""
+    if not isinstance(value, str) or not value.startswith("/"):
+        return None
+    return str(Path(value).resolve())
+
+
+def _idea_berth(from_idea: object, ideas: Path) -> str | None:
+    """``from_idea`` is an idea id (or, on eight older tickets, a path to the idea file);
+    the idea FILE carries the berth path. The berth doc itself does not record its idea
+    id, which is why the join goes through the file and not the berth (D3, corrected)."""
+    if not isinstance(from_idea, str) or not from_idea.strip() or from_idea.startswith("none"):
+        return None
+    p = Path(from_idea) if from_idea.startswith("/") else ideas / f"{from_idea}.json"
+    if p.suffix != ".json":
+        p = p.with_suffix(".json")
+    doc = _read_json_dict(p)
+    if doc is None:
+        return None
+    return _berth_key(doc.get("berth"))
+
+
+def berth_ticket_cursors(*, tickets: Path | None = None,
+                         ideas: Path | None = None) -> dict[str, list[str]]:
+    """THE TICKET-SIDE MAP: berth path → the cursor STATE of every ticket naming it.
+
+    Read from the tickets root, one pass; a ticket names up to three berths (its intent
+    firing, its sorted door firing, and — through ``from_idea`` and the idea file — the
+    idea that bore it). One idea bears several tickets, so a berth may collect several
+    cursors; ``drains_by_measurement`` decides what the list means. A ticket whose cursor
+    does not parse contributes nothing for its berths (it is UNPARSED, not terminal)."""
+    from cairn.tools.base.transitions import MalformedWorkflow, parse_workflow
+    tdir = tickets_root(tickets)
+    idir = ideas_root(ideas)
+    out: dict[str, list[str]] = {}
+    if not tdir.is_dir():
+        return out
+    for tp in sorted(tdir.glob("*.json")):
+        if tp.name.startswith("_"):
+            continue
+        doc = _read_json_dict(tp)
+        if doc is None or not isinstance(doc.get("workflow_and_state"), str):
+            continue
+        try:
+            state = parse_workflow(doc["workflow_and_state"]).here
+        except MalformedWorkflow:
+            continue
+        keys = [_berth_key(doc.get("intent_berth")), _berth_key(doc.get("sorted_berth")),
+                _idea_berth(doc.get("from_idea"), idir)]
+        for k in keys:
+            if k is not None:
+                out.setdefault(k, []).append(state)
+    return out
+
+
+def drains_by_measurement(cursors: list[str]) -> bool:
+    """The ANY-terminal rule (Akien's answer on open-d0a5003c404a, 2026-09-15): a berth
+    drains when AT LEAST ONE ticket naming it rests at a terminal cursor. An empty list —
+    no ticket names the berth, or every ticket naming it was unreadable — keeps it."""
+    from cairn.tools.base.transitions import is_terminal
+    return any(is_terminal(c) for c in cursors)
+
+
 def pending_reviews(*, root: Path | None = None,
-                    reviewed_path: Path | None = None) -> list[dict]:
+                    reviewed_path: Path | None = None,
+                    drain: bool = True,
+                    tickets: Path | None = None,
+                    ideas: Path | None = None) -> list[dict]:
+    """The review lane. ``drain=True`` (the lane Akien sees) drops every berth named by a
+    terminal ticket; ``drain=False`` is the full census the deep view (``show artifact``)
+    and the live-fire diff read, so a drained berth still resolves by id."""
     base = berth_root(root)
     if not base.is_dir():
         return []
     reviewed = reviewed_berth_ids(path=reviewed_path)
+    cursors = berth_ticket_cursors(tickets=tickets, ideas=ideas) if drain else {}
     pending: list[dict] = []
     for skill_dir in sorted(base.iterdir()):
         if not skill_dir.is_dir():
@@ -395,6 +521,8 @@ def pending_reviews(*, root: Path | None = None,
             if doc is None:
                 continue
             if doc.get("finding_id") in reviewed:
+                continue
+            if drain and drains_by_measurement(cursors.get(str(berth_file.resolve()), [])):
                 continue
             pending.append({
                 "berth_id": doc.get("finding_id"),
@@ -439,4 +567,5 @@ __all__ = [
     "block_name", "load_contract", "judge_for", "berth_root", "fire", "read_berth",
     "inspect_firing", "find_paired_sorted",
     "reviewed_berth_ids", "mark_reviewed", "pending_reviews", "sweep_reviewed",
+    "tickets_root", "ideas_root", "berth_ticket_cursors", "drains_by_measurement",
 ]

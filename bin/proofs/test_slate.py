@@ -245,6 +245,21 @@ def main() -> int:
               "re-deriving LIVE here would be a second owner of it")
         check("a CLEARED trouble is not shown", "WHY-MARKER-CLEARED" not in r.stdout)
         check("the count rides along", "[3x]" in r.stdout, r.stdout[:400])
+        # ticket fb988505c5cb (Akien 2026-09-15, "that leaves me ideas and intentions
+        # only"): the COUNT stays at the top, the DETAIL renders under a CC-owned lane
+        # below every lane that is his — the review lane and the lap.
+        i_top = r.stdout.find("2 LIVE TROUBLE(S)")
+        i_lane = r.stdout.find("LIVE TROUBLES — 2 standing (CC owns these")
+        i_gate = r.stdout.find("ARTIFACTS AWAITING REVIEW")
+        i_why = r.stdout.find("WHY-MARKER-ONE")
+        check("THE COUNT TOOTH: the trouble count is the first line under the rule",
+              -1 < i_top < i_slate and i_top < i_lane, f"top@{i_top} lane@{i_lane}")
+        check("THE CUSTODY TOOTH: the detail renders under a lane that says CC owns it",
+              i_lane != -1 and i_why > i_lane, f"lane@{i_lane} why@{i_why}")
+        check("the CC lane sits BELOW the operator's review lane",
+              i_gate == -1 or i_lane > i_gate, f"gate@{i_gate} lane@{i_lane}")
+        check("the count line does not carry the paragraphs",
+              i_why > i_top and "CC owns these" in r.stdout[i_top:i_why])
 
         # ── 8. zero troubles is stated, not silent ────────────────────────────────
         print("\n8. zero live troubles is announced, not silence")

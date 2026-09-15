@@ -29,7 +29,12 @@ The teeth, each against the charter's falsifier:
      eight empty divergences of ten, WRONG-INTENT trigger at seven;
   8. after PROVED, ``record_divergence`` writes the diff both ways onto the clean record;
   9. ``cairn rehearse --help`` exits 0 and ``--standing`` speaks JSON through the subprocess
-     seam.
+     seam;
+ 10. the entry gate's five lanes (folded into 4 above) and the CLI's ``--decide`` step form;
+ 11. the live fire's recorded reads (fixtures/live_fire_pass1.json, 46 gaps over 12/16/12
+     free-text steps; live_fire_pass4.json, 0 gaps over 36/36/36 decision ids) replay through
+     ``gaps`` and ``validate`` to the recorded numbers — clause 6's evidence without the
+     reader (D15).
 """
 from __future__ import annotations
 
@@ -47,6 +52,20 @@ from cairn.machines.rehearsal import rehearsal as R          # noqa: E402
 from cairn.tools.artifact import artifact as door             # noqa: E402
 
 REPO = Path(__file__).resolve().parents[4]
+
+# The falsifier's clauses, each with the tooth that reds on a hollow build (read by
+# ``clearance.hollow_lacks`` through ``cairn test --hollow``; plain literals, ast-parsed).
+# Clause 6 is the live fire itself; its tooth replays the fire's recorded reads (D15).
+PROVES = {
+    "cf80bdb57205": {
+        "1": "test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read",
+        "2": "test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes",
+        "3": "test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green",
+        "4": "test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate",
+        "5": "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
+        "6": "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
+    },
+}
 TID = "0badc0ffee01"
 STEM = f"{TID}-a-fixture-ticket-that-leaves-one-step-unsaid"
 TICKET = {
@@ -445,9 +464,41 @@ def test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess
         w.close()
 
 
+# 11 -----------------------------------------------------------------------
+
+def test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth():
+    """Clause 6 of the falsifier is the live fire, and a live Haiku call is never a proof
+    tooth (D15). What the proof CAN pin is the live fire's evidence: the three real reads of
+    pass 1 (12/16/12 free-text steps, 46 gaps) and pass 4 (36/36/36 decision-id nodes, 0
+    gaps) are berthed under fixtures/ and replayed through the same ``gaps`` and ``validate``
+    the live run used. A hollow build with the diff reverted cannot reproduce either number."""
+    fx = Path(__file__).resolve().parent / "fixtures"
+    one = json.loads((fx / "live_fire_pass1.json").read_text())
+    four = json.loads((fx / "live_fire_pass4.json").read_text())
+    assert one["pass"] == 1 and not one["clean"] and four["pass"] == 4 and four["clean"], (one["pass"], four["pass"])
+    # pass 1: three cold reads over the un-amended ticket — every read names a gap, the
+    # recorded count is reproduced, and the same trees twice give the same list (D6)
+    g1 = R.gaps(one["reads"])
+    assert len(g1) == one["gaps_recorded"] == 46, (len(g1), one["gaps_recorded"])
+    assert sorted(set(sum((g["reads"] for g in g1), []))) == [1, 2, 3], "a read that named no gap"
+    assert {g["kind"] for g in g1} >= {"assumes", "step_absent"}, {g["kind"] for g in g1}
+    assert R.gaps(one["reads"]) == g1
+    # pass 4: three reads that each carry every one of the 36 decisions once, and agree
+    ids = set(range(1, 37))
+    for t in four["reads"]:
+        assert R.validate(t, ids) == [], R.validate(t, ids)
+        assert sorted(n["step"] for n in t["nodes"]) == sorted(f"D{i}" for i in ids)
+    assert R.gaps(four["reads"]) == [] and four["gaps_recorded"] == 0
+    # the reads are the live reader's, not a stub's: three distinct sha-stamped reads per pass
+    for rec in (one, four):
+        assert [t["read"] for t in rec["reads"]] == [1, 2, 3] and len({t["ticket_sha256"] for t in rec["reads"]}) == 1
+        assert rec["cost_usd"] > 0.5, rec["cost_usd"]
+    assert one["reads"][0]["ticket_sha256"] != four["reads"][0]["ticket_sha256"]
+
+
 def main() -> int:
     teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
-    assert len(teeth) >= 9, len(teeth)
+    assert len(teeth) >= 11, len(teeth)
     for tooth in teeth:
         tooth()
         print(f"  PASS  {tooth.__name__}")
@@ -455,7 +506,8 @@ def main() -> int:
           "reader, re-reads a schema failure, diffs three trees into deterministic gaps, disposes a gap "
           "as a decision line, writes clean and unclean records through the door, holds the fifth "
           "BUILDME lane on a missing or stale rehearsal, opens one question at the pass cap, arms the "
-          "WATCHME probe, and writes the post-PROVED divergence")
+          "WATCHME probe, writes the post-PROVED divergence, and replays the live fire's recorded "
+          "reads to the recorded numbers")
     return 0
 
 

@@ -1,0 +1,311 @@
+{
+ "recorded_from": "CairnCommons/rehearsals/cf80bdb57205-20260915T195502.json",
+ "why": "the live fire's three cold Haiku reads of the rehearsal ticket, recorded so the proof can replay the diff over real trees without calling the reader (D15)",
+ "pass": 1,
+ "clean": false,
+ "gaps_recorded": 46,
+ "cost_usd": 0.7125,
+ "reads": [
+  {
+   "ticket": "cf80bdb57205",
+   "ticket_sha256": "74121f14aa3812362b82d786641240de27928b5fb294d0e83592db716f1e0ecd",
+   "read": 1,
+   "nodes": [
+    {
+     "step": "add verb `rehearse` to artifact.VERBS",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "add rehearsals/ to jurisdiction.json as a record class",
+     "state": "builds_under_assumption",
+     "assumption": "the entry follows the same {under, name} structure as existing record classes in the jurisdiction, with under='rehearsals' and name='*.json'",
+     "would_settle": "specify the exact JSON entry to add to jurisdiction.json for rehearsals/",
+     "confidence": 0.85
+    },
+    {
+     "step": "write prompt.md and schema.json",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "write rehearsal.py with render, injectable reader, schema check, diff, loop, and record write",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "write proofs/test_rehearsal.py with reader stubbed by recorded trees",
+     "state": "builds_under_assumption",
+     "assumption": "the builder can create or obtain fixture rehearsal records demonstrating three-tree agreement (zero gaps) and three-tree disagreement (one gap) scenarios",
+     "would_settle": "provide sample fixture rehearsal records that the proof should use to validate the diff and loop logic",
+     "confidence": 0.85
+    },
+    {
+     "step": "write sieve buildme_rides_the_rehearsal in inspector.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "add fifth lane the_ticket_rehearses_clean to transitions.inspect_entry",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "write __main__.py with argparse for <ticket>, --decide <step> <line> --by <who>",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "write bin/cmd/rehearse as a CLI shim",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "write probe the_rehearsal_predicts_the_build.py to read divergence lists from rehearsal records",
+     "state": "builds_under_assumption",
+     "assumption": "the builder can load the proof validations/artifacts (resolved from ticket.validations at fire time), extract proof tooth names, compare them against the rehearsal record's step names (set difference), and understand where the divergence_list field should be written on the rehearsal record",
+     "would_settle": "specify the validation artifact format, how to locate and load proof files, how to extract proof tooth names, and how the probe should write divergences back to the rehearsal record (via door or direct write)",
+     "confidence": 0.8
+    },
+    {
+     "step": "add /sail step 0c between the chart and BUILDME to run `cairn rehearse <ticket>`",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "run live fire: execute `cairn rehearse` with the real reader over ticket d421051bc1f7",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "ticket": "cf80bdb57205",
+   "ticket_sha256": "74121f14aa3812362b82d786641240de27928b5fb294d0e83592db716f1e0ecd",
+   "read": 2,
+   "nodes": [
+    {
+     "step": "Create cairn/machines/rehearsal/ directory and __init__.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "Add verb 'rehearse' to artifact.VERBS in cairn/tools/artifact/artifact.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "Add rehearsals/ record class to jurisdiction.json with {under, name} entry",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "Write cairn/machines/rehearsal/schema.json specifying node shape",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "Write cairn/machines/rehearsal/prompt.md instructing Haiku as reader",
+     "state": "builds_under_assumption",
+     "assumption": "Prompt wording can be derived from D2 (job is tree, cannot_proceed is legal), D4 (input is ticket + chart berths + charters), D5 (schema structure), and patterns in the codebase such as existing prompts for similar tasks",
+     "would_settle": "Name a reference prompt in the codebase to template from, or specify the exact sections the prompt must contain (job description, schema explanation, cannot_proceed permission, input format)",
+     "confidence": 0.65
+    },
+    {
+     "step": "Write cairn/machines/rehearsal/rehearsal.py orchestrating render, calls, diff, loop, record",
+     "state": "builds_under_assumption",
+     "assumption": "The text-render format combining ticket + chart berths + orient-ref charters can be derived from skills/chart/live.py output and existing render patterns; D6 diff (step case-fold via system_word.fold, assumption text equality, presence check) is implementable from the decision text; loop disposition (decision line vs open question) follows from the ticket's narrative and CC's CLI interface",
+     "would_settle": "Specify exact render format (e.g., JSON structure, free text sections with markers, or YAML) and write out the D6 gap-detection pseudocode with example input/output showing each gap type",
+     "confidence": 0.55
+    },
+    {
+     "step": "Write __main__.py with argparse signature: <ticket> --decide <step> '<line>' --by <provenance>",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.85
+    },
+    {
+     "step": "Write bin/cmd/rehearse shim invoking python3 -m cairn.machines.rehearsal",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "Write proofs/test_rehearsal.py with reader stubbed by recorded trees",
+     "state": "builds_under_assumption",
+     "assumption": "Fixture tickets with expected tree outputs (agreeing trees, diverging trees differing in step presence, diverging trees differing in assumption text, schema-violating trees) can be synthesized or sourced from existing test data; the stub can be provided as JSON fixtures inline in the test",
+     "would_settle": "Provide 3-5 fixture test cases with ticket and expected 3-tree sets, one showing gaps in all three reads and one showing agreement or cleaned gap after decision",
+     "confidence": 0.6
+    },
+    {
+     "step": "Write sieve buildme_rides_the_rehearsal in build_inspector/inspector.py following buildme_rides_the_sorted pattern",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.85
+    },
+    {
+     "step": "Add the_ticket_rehearses_clean lane to transitions.inspect_entry as fifth _sieve_lane call",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "Update cairn/tools/base/proofs/test_transitions.py entry-gate teeth to expect five lanes",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.9
+    },
+    {
+     "step": "Write probe cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.8
+    },
+    {
+     "step": "Write divergence-list logic into rehearsal.py to run after PROVED",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.8
+    },
+    {
+     "step": "Add /sail step 0c between 0b and 1 in skills/sail/SKILL.md naming rehearse command",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.85
+    },
+    {
+     "step": "Run live fire: cairn rehearse d421051bc1f7 with real Haiku and verify record creation and cost",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.75
+    }
+   ]
+  },
+  {
+   "ticket": "cf80bdb57205",
+   "ticket_sha256": "74121f14aa3812362b82d786641240de27928b5fb294d0e83592db716f1e0ecd",
+   "read": 3,
+   "nodes": [
+    {
+     "step": "verb `rehearse` in artifact.VERBS",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.99
+    },
+    {
+     "step": "rehearsals/ entry in artifact jurisdiction.json",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.98
+    },
+    {
+     "step": "cairn/machines/rehearsal/prompt.md and schema.json",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.95
+    },
+    {
+     "step": "cairn/machines/rehearsal/rehearsal.py (render, reader, schema check, diff, loop, record write)",
+     "state": "builds_under_assumption",
+     "assumption": "schema-failing reads are retried until valid; the diff handles 1–3 valid reads equally; the rehearsal record carries {ticket_sha256, nodes (converged tree), divergence_list (written after PROVED)}, written via artifact.write(verb='rehearse')",
+     "would_settle": "explicitly specify (1) retry behavior for schema-invalid reads, (2) diff result when fewer than three reads succeed, (3) rehearsal record JSON schema",
+     "confidence": 0.82
+    },
+    {
+     "step": "cairn/machines/rehearsal/proofs/test_rehearsal.py (reader stubbed by recorded trees)",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.93
+    },
+    {
+     "step": "sieve buildme_rides_the_rehearsal in cairn/machines/build_inspector/inspector.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.96
+    },
+    {
+     "step": "fifth lane the_ticket_rehearses_clean in cairn/tools/base/transitions.inspect_entry",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.97
+    },
+    {
+     "step": "cairn/machines/rehearsal/__main__.py (argparse: <ticket>, --decide <step> '<line>' --by <provenance>)",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.96
+    },
+    {
+     "step": "bin/cmd/rehearse (CLI shim)",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.98
+    },
+    {
+     "step": "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.94
+    },
+    {
+     "step": "/sail step 0c: rehearse until clean",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.99
+    },
+    {
+     "step": "live fire: rehearsal record for a real ticket via `cairn rehearse` with the real reader",
+     "state": "builds_as_written",
+     "assumption": "",
+     "would_settle": "",
+     "confidence": 0.96
+    }
+   ]
+  }
+ ]
+}

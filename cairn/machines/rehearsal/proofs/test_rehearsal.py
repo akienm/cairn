@@ -99,6 +99,7 @@ class Stub:
         out = self.script[self.calls % len(self.script)]
         self.calls += 1
         self.last_text = text
+        self.texts = getattr(self, "texts", []) + [text]
         return (json.loads(json.dumps(out)) if out is not None else None,
                 {"model": "stub", "cost_usd": 0.001, "duration_ms": 1})
 
@@ -199,6 +200,12 @@ def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes
         assert len(att[0]) == 1 and "'D9' names a decision the ticket does not carry" in att[0][0], att[0]
         assert att[1] == ["nodes: every decision gets one node; missing ['D2']"], att[1]
         assert rec["clean"] and stub.calls == 9, (rec["clean"], stub.calls)
+        # a re-read is told what it lacked — and only its own lack; the first attempt of
+        # every read is the bare text (cold to the other reads, D1)
+        t = stub.texts
+        assert "HANDED BACK" not in t[0] and "HANDED BACK" not in t[3] and "HANDED BACK" not in t[6], "first attempts are cold"
+        assert t[1].startswith(t[0]) and "'D9' names a decision the ticket does not carry" in t[1], t[1][-400:]
+        assert t[2].startswith(t[0]) and "missing ['D2']" in t[2] and "D9" not in t[2][len(t[0]):], "each re-read carries its own lack, not the history"
         # identity is stamped from truth, never trusted from the reader
         assert rec["reads"][0]["ticket"] == TID and rec["reads"][2]["read"] == 3
     finally:

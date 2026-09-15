@@ -59,6 +59,15 @@ GAP_KINDS = ("assumes", "assumption_differs", "cannot_proceed", "step_absent", "
 # decision names is a decision the ticket still owes.
 STEP_RE = re.compile(r"^(?:D(?P<n>[1-9][0-9]*)|unlisted: \S.*)$")
 UNLISTED = "unlisted: "
+HANDED_BACK = """
+
+# YOUR PREVIOUS READING WAS HANDED BACK
+
+It did not pass the shape, for these reasons. Read the ticket again and return the whole
+tree — every decision the ticket carries, exactly once, in the form above.
+
+{lacks}
+"""
 
 Reader = Callable[[str, dict], tuple[dict | None, dict]]
 
@@ -279,12 +288,19 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
     and the meta of every attempt."""
     schema_doc = schema()
     attempts: list[dict] = []
+    handed_back = text
     for attempt in range(1, RETRIES_PER_READ + 2):
-        tree, meta = reader(text, schema_doc)
+        tree, meta = reader(handed_back, schema_doc)
         lacks = validate(tree, decision_ids) if tree is not None else [meta.get("error") or "reader returned nothing"]
         attempts.append({"attempt": attempt, "read": n, "schema_lacks": lacks, **meta})
         if not lacks:
             return {"ticket": ticket, "ticket_sha256": sha, "read": n, "nodes": tree["nodes"]}, attempts
+        # A re-read is told what it lacked. MEASURED 2026-09-15 on this machine's own ticket
+        # (36 decisions): read 3 returned D1..D17 and nothing after, three times running, at
+        # $0.27 a time — the same text to the same reader is the same mistake, and a re-read
+        # that learns nothing is a coin toss on temperature. The re-read stays cold with
+        # respect to the OTHER two reads (D1); it is warm only to its own refusal.
+        handed_back = text + HANDED_BACK.format(lacks="\n".join(f"- {l}" for l in lacks))
     raise ReaderFailed(
         f"read {n}: no tree passed the schema in {RETRIES_PER_READ + 1} attempts — last lacks: "
         + "; ".join(attempts[-1]["schema_lacks"][:5]))

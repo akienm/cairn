@@ -2,12 +2,12 @@
   {
     "claim": "proof test_harbor_register.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-14T16:59:11",
+    "date": "2026-09-15T11:18:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (fleet: 294 open, 65 in port, 5 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stdout_tail": "    (fleet: 297 open, 67 in port, 5 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
       "stderr_tail": "",
       "teeth_green": [
         "test_fleet_queries_both_berths_nonempty",
@@ -21,7 +21,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "92907f67e46912363ee30f31c5ba3b941e9fd9d91fb4e19f46576a55dd6bf1e1",
+      "source_fingerprint": "a8f4db69b592e034e2eb1262b1d2b6975b3341bf1c4f32cbbdedd313f7c00235",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -49,7 +49,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3026685-5499q566/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1732492-kjr329gv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,9 +58,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136325959,
-          "disk_bytes": 147927040,
-          "entries": 4819,
+          "bytes": 136616302,
+          "disk_bytes": 148267008,
+          "entries": 4840,
           "builds": 1,
           "reuses": 4
         }

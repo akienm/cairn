@@ -1,0 +1,66 @@
+{
+  "$comment": "no $schema key on purpose: the claude CLI's --json-schema validator (measured 2026-09-15, live fire) refuses a draft/2020-12 $schema ref — 'no schema with key or ref'; the shape is draft-07-compatible and validate() mirrors it by hand",
+  "title": "rehearsal build tree",
+  "description": "One cold read of a ticket by the cheapest reader (ticket cf80bdb57205, D5). The reader's job is the TREE, never code; cannot_proceed is a legal answer. The identity fields (ticket, ticket_sha256, read) are stamped from truth by the machine after the shape is checked, never trusted from the reader.",
+  "type": "object",
+  "required": [
+    "nodes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "ticket": {
+      "type": "string"
+    },
+    "ticket_sha256": {
+      "type": "string"
+    },
+    "read": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "state",
+          "assumption",
+          "would_settle",
+          "confidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": "string",
+            "minLength": 1,
+            "description": "one build step, named so a second cold reader would name it the same way"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "builds_as_written",
+              "builds_under_assumption",
+              "cannot_proceed"
+            ]
+          },
+          "assumption": {
+            "type": "string",
+            "description": "empty when builds_as_written; otherwise the one thing the ticket left unsaid that this step rests on"
+          },
+          "would_settle": {
+            "type": "string",
+            "description": "the one-line decision that, added to the ticket, would make this step builds_as_written"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    }
+  }
+}

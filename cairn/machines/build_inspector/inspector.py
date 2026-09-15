@@ -2133,6 +2133,39 @@ def buildme_has_no_open_questions(ticket: str, *, questions_root: Path | None = 
     )]
 
 
+
+def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff the ticket carries a ``rehearsal`` pointer at a readable,
+    CLEAN rehearsal record whose ``ticket_sha256`` equals the sha256 of the ticket's live bytes.
+
+    The fifth entry lane (ticket cf80bdb57205, Akien 2026-09-15: *"We run an agent with the
+    ticket, ask for it's proof tree, simplify or get questions answered, then try again until
+    it passes that gate. All on the cheapest model. and after the prebuild."*). The rehearsal
+    machine (``cairn/machines/rehearsal``) has the cheapest reader read the ticket plus its
+    chart three times cold and diffs the trees by code; a pass with zero gaps writes a clean
+    record under ``<commons>/rehearsals/`` through the artifact door and points the ticket at
+    it. This sieve does not judge the trees — only that a clean record stands over THESE
+    bytes (D8: an edited ticket is un-rehearsed again). Red returns ONE finding naming the
+    lack and the command that clears it; None or an unreadable ticket returns [] (the
+    chokepoint's own refusal covers that). Rides the door's roots, so the scratch world a
+    proof hands the door is the world this reads.
+    """
+    from cairn.machines.rehearsal import rehearsal as R
+
+    if R.ticket_file(ticket, root) is None:
+        return []
+    st = R.standing(ticket, root)
+    if st["ok"]:
+        return []
+    return [_finding(
+        "buildme_rides_the_rehearsal", ticket,
+        "a clean rehearsal record stands over the ticket's live bytes",
+        expected=True, actual=False,
+        lack=st["lack"], record=st.get("record"),
+        ticket_sha256=st.get("ticket_sha256"), live_sha256=st.get("live_sha256"),
+        rehearse_with=f"cairn rehearse {ticket}",
+    )]
+
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.

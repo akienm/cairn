@@ -76,6 +76,42 @@ packets carry `"ticket": "<id>"` so the entry gate can find them. Swallowing
 /chart did not swallow /sorted: the sequence is still **/sorted → /sail**, and
 /sail's own first act is the chart.
 
+## 0c. Rehearse it — the cheapest reader reads the ticket before the build (physics since 2026-09-15)
+
+Before the BUILDME crossing, **rehearse the ticket**:
+
+```bash
+cairn rehearse <ticket-id>
+```
+
+Haiku reads the ticket plus its standing chart berths and charters **three
+times, cold**, each read a tree of build steps with what each step assumes.
+Nothing here reads the repo; the reader sees only what the ticket carries. The
+three trees are diffed deterministically into **gaps** — a step one read
+assumed and another could not proceed on, a step present in one read and
+absent in another, an assumption the reads disagree on — and a record is
+written under `CairnCommons/rehearsals/` through the artifact door. Exit 0 is
+**clean**: the ticket's `rehearsal` field points at the record and the record
+carries the sha256 of the ticket's live bytes. Exit 1 lists the gaps.
+
+**A gap is disposed one of two ways, never argued with:**
+
+- it is decidable from the ticket's own decisions → write the missing line as a
+  decision, by name, and rehearse again:
+  `cairn rehearse <ticket-id> --decide "<step>" "<the one-line decision>" --by "<who>"`
+- it needs Akien → `cairn question open --ticket <ticket-id> --why "<why>" "<q?>"`
+  and the entry lane `the_ticket_has_every_answer_it_needs` holds the crossing
+  until he answers.
+
+**Five passes is the cap** (ticket cf80bdb57205, D11): the sixth pass reads
+nothing and opens ONE question naming the standing gaps — a ticket that cannot
+be rehearsed clean in five is a ticket being written by trial, and that is his
+to see. The fifth BUILDME entry lane, `the_ticket_rehearses_clean`, refuses the
+crossing on no record, an unclean record, or a record whose hash no longer
+matches the live ticket (edit the ticket → rehearse again). Akien, 2026-09-15:
+*the ticket is a list of one-line decisions, and the cheapest model proves it
+is buildable before the expensive one builds it.*
+
 ## 1. Journal BUILDME
 
 Every crossing rides the emit chokepoint (`cairn.tools.base.transitions.emit`) at the
@@ -188,6 +224,11 @@ re-opens a node whose intention did not work is the **owner's** act (Law 6).
 - Cross PROVED with a note worth reading in a year — the exit gate reads the
   crossing's ticket and journals its verdict on the record.
 - Ticket cursor → `[PROVED]` with the story-bearing distinctions.
+- `cairn rehearse <ticket-id> --proved <proof paths...>` — writes the
+  **divergence** (steps the rehearsal foresaw that no tooth proves; teeth no
+  step foresaw) onto the clean record. It is the WATCHME probe's raw material
+  (`the_rehearsal_predicts_the_build`): ten PROVED tickets with eight empty
+  divergences is the rehearsal earning its keep.
 - Charter delta ONLY if the design shifted — and any charter write pokes
   `cairn/tools/intentions_model_compiler/recompile_gate.sh` in the same act.
 - **The `in-process` claim clears itself here, automatically.** PROVED is a

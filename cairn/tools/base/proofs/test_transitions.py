@@ -1475,7 +1475,8 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     sieve that stopped firing wrote the same 'clean' line as a crossing that satisfied them
     all. The count IS the ruleset's size: drop a sieve and this tooth fails on the LENGTH,
     which is the whole difference between a shorter record and a cleaner one. Four since
-    2026-09-14 (ticket 9adc6fddf185): the_ticket_has_every_answer_it_needs is the fourth."""
+    2026-09-14 (ticket 9adc6fddf185): the_ticket_has_every_answer_it_needs is the fourth.
+    Five since 2026-09-15 (ticket cf80bdb57205): the_ticket_rehearses_clean is the fifth."""
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
@@ -1487,7 +1488,8 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                 "a_berthed_chart_chain_claims_the_ticket",
                 "the_ticket_names_its_intent_firing",
                 "the_ticket_names_its_sorted_door_firing",
-                "the_ticket_has_every_answer_it_needs"], record
+                "the_ticket_has_every_answer_it_needs",
+                "the_ticket_rehearses_clean"], record
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             transitions.emit(_AT_TICKET, "BUILDME",
                              history_path=hist, state_path=state, ticket="widget")
@@ -1498,12 +1500,13 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     for sieve in ("a_berthed_chart_chain_claims_the_ticket",
                   "the_ticket_names_its_intent_firing",
                   "the_ticket_names_its_sorted_door_firing",
-                  "the_ticket_has_every_answer_it_needs"):
+                  "the_ticket_has_every_answer_it_needs",
+                  "the_ticket_rehearses_clean"):
         assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
     assert rec["entry_gate"].endswith(
-        "the entry_gate proved 4 check(s): a_berthed_chart_chain_claims_the_ticket, "
+        "the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, "
         "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, "
-        "the_ticket_has_every_answer_it_needs"), \
+        "the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean"), \
         f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
 
 
@@ -1531,7 +1534,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised
     # and the record still lists what PASSED beside the one that did not — the half a
     # findings list throws away
-    assert len(record) == 4 and sum(transitions.gate.passed(e) for e in record) == 3, record
+    assert len(record) == 5 and sum(transitions.gate.passed(e) for e in record) == 4, record
 
 
 def test_a_lane_that_refuses_and_names_nothing_still_speaks():

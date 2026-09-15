@@ -126,10 +126,85 @@ def test_a_probe_cannot_move_a_nodes_state():
         "a probe with a state-moving method is the authority leak this row exists to refuse"
 
 
+def test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path():
+    """THE THREE SPELLINGS AND THE HOLE (ticket 2516e958a6dd, 2026-09-15). A probe author
+    names the owning ticket by hex id, by slug, or by the full ``<hex>-<slug>`` stem, and
+    all three are the same file. Until this ticket ``owning_ticket`` re-derived the lookup
+    with a reversed glob (``*-<name>.json``, the id on the wrong side) and holed every
+    hex-id name — 9 of 84 arguments across ``probes/*.py`` the day it was measured. It now
+    rides the one locator, ``cairn.tools.chain.grammar.ticket_path``.
+
+    Against a synthetic root, so the tooth measures the RULE and not whichever live tickets
+    happen to be filed today. The hole is Law 7: a string naming the path looked at, never
+    None — the receiver prints what it was handed and a hole is loud there."""
+    import tempfile
+
+    from cairn.tools.base.probe import owning_ticket
+
+    with tempfile.TemporaryDirectory(prefix="owning-ticket-scratch-root-") as d:
+        filed = Path(d) / "abcdef012345-a-probe-under-test.json"
+        filed.write_text("{}")
+        for spelling in ("abcdef012345", "a-probe-under-test", "abcdef012345-a-probe-under-test"):
+            got = owning_ticket(spelling, tickets_root=d)
+            assert got == str(filed), f"{spelling!r} -> {got!r}; every spelling is the one file"
+        hole = owning_ticket("nowhere", tickets_root=d)
+        assert hole.startswith("{unresolvable:") and str(Path(d) / "nowhere.json") in hole, hole
+        assert owning_ticket("under-test", tickets_root=d).startswith("{unresolvable:"), \
+            "a TAIL of the slug resolved — the locator's narrowing (voyage 8754ae677af6) is gone"
+
+
+def test_owning_ticket_agrees_with_the_one_locator_over_every_probe():
+    """THE CENSUS (the ticket's falsifier). Every ``owning_ticket("...")`` and
+    ``_OWNING_TICKET = "..."`` argument under the repo's ``probes/*.py`` resolves the same
+    way through both names: a hole exactly where ``ticket_path`` answers None, and never a
+    hole for a 12-hex id. Measured before the build: names=84, holes=9, disagree=10. A
+    proof over live data asserts the invariant, never the snapshot — a new probe naming its
+    ticket in any spelling is covered the day it lands.
+
+    The lazy import is part of the contract: chain imports base at module top, so base may
+    reach chain only inside a body. Importing the probe module must load no chain module."""
+    import re
+    import subprocess
+
+    from cairn.tools.base.probe import owning_ticket
+    from cairn.tools.chain.grammar import ticket_path
+
+    probe = subprocess.run(
+        [sys.executable, "-c", "import sys, cairn.tools.base.probe; "
+         "print(sorted(m for m in sys.modules if m.startswith('cairn.tools.chain')))"],
+        cwd=_REPO_ROOT, capture_output=True, text=True, env={"PYTHONPATH": str(_REPO_ROOT)})
+    assert probe.returncode == 0 and probe.stdout.strip() == "[]", \
+        f"importing the probe module loaded the chain package: {probe.stdout} {probe.stderr[-200:]}"
+
+    names: dict[str, set[str]] = {}
+    for f in _REPO_ROOT.glob("**/probes/*.py"):
+        src = f.read_text(encoding="utf-8")
+        for m in re.finditer(r'owning_ticket\(\s*"([^"]+)"', src):
+            names.setdefault(m.group(1), set()).add(str(f.relative_to(_REPO_ROOT)))
+        if "owning_ticket(" in src:
+            for m in re.finditer(r'_(?:OWNING_)?TICKET\s*=\s*"([^"]+)"', src):
+                names.setdefault(m.group(1), set()).add(str(f.relative_to(_REPO_ROOT)))
+    assert names, "no probe names its owning ticket — the census scanned nothing"
+
+    disagree, hex_holes = [], []
+    for name in sorted(names):
+        hole = owning_ticket(name).startswith("{unresolvable:")
+        located = ticket_path(name)
+        if hole != (located is None) or (not hole and owning_ticket(name) != located):
+            disagree.append((name, sorted(names[name])))
+        if hole and re.fullmatch(r"[0-9a-f]{12}", name):
+            hex_holes.append((name, sorted(names[name])))
+    print(f"  census: names={len(names)} hex-holes={len(hex_holes)} disagree={len(disagree)}")
+    assert not hex_holes, f"a hex-id probe still holes: {hex_holes}"
+    assert not disagree, f"the two locators disagree: {disagree}"
+
+
 def _main() -> int:
     for check in (test_a_trigger_is_any_predicate_evaluated_where_owned,
                   test_it_is_immutable, test_construction_refuses_a_defect_loudly,
-                  test_a_probe_cannot_move_a_nodes_state):
+                  test_a_probe_cannot_move_a_nodes_state,
+                  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path,
+                  test_owning_ticket_agrees_with_the_one_locator_over_every_probe):
         check()
         print(f"  PASS  {check.__name__}")
     print("green — Probe: a trigger is any predicate (evaluated where its data is owned), "

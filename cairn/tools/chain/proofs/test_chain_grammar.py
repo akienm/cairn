@@ -195,6 +195,36 @@ def test_a_slug_claim_must_be_the_WHOLE_slug_and_never_a_TAIL_of_one(root):
         "a tail of a one-word slug must not resolve"
 
 
+def test_a_full_stem_resolves_before_the_regex_gates_and_a_tail_still_does_not(root):
+    """THE LITERAL FILE IS CHECKED FIRST (ticket 2516e958a6dd, 2026-09-15). A full
+    ``<hex>-<slug>`` stem is digit-leading, so ``_TICKET_RE`` refused it and ``_HEX_ID_RE``
+    did too — the one locator answered None for the exact file on disk, and that was the one
+    spelling ``probe.owning_ticket`` resolved with its own reversed glob, which is why it
+    kept a second lookup. The literal look is a FILENAME look: a claim carrying ``os.sep``
+    is not a stem and gets none, so the check cannot become a path oracle.
+
+    Asserted beside the narrowing, in the same synthetic dir, so the two can never be
+    traded against each other: the stem resolves AND the tail stays refused."""
+    tickets = pathlib.Path(root) / "synthetic-commons" / "tickets"
+    tickets.mkdir(parents=True, exist_ok=True)
+    (tickets / "abcdef012345-a-thing-that-ends-in-it.json").write_text("{}")
+    (tickets / "0badf00d1234-moreabout.json").write_text("{}")
+    kw = {"tickets_dir": str(tickets)}
+
+    assert ticket_path("abcdef012345-a-thing-that-ends-in-it", **kw) == \
+        str(tickets / "abcdef012345-a-thing-that-ends-in-it.json"), \
+        "a full stem must resolve to its own file"
+    assert ticket_path("0badf00d1234-moreabout", **kw) == \
+        str(tickets / "0badf00d1234-moreabout.json"), \
+        "a digit-leading stem fails both regex gates and must resolve through the literal look"
+    assert ticket_path("0badf00d1234", **kw) is not None and \
+        ticket_path("moreabout", **kw) is not None, "the id and the slug still resolve"
+    for tail in ("it", "ends-in-it", "about", "badf00d1234-moreabout"):
+        assert ticket_path(tail, **kw) is None, f"{tail!r} resolved — a tail is not a stem"
+    assert ticket_path(os.path.join("..", "tickets", "0badf00d1234-moreabout"), **kw) is None, \
+        "a claim carrying a separator is a path, not a stem, and gets no literal look"
+
+
 def test_identity_lack_names_its_remediation(root):
     """Tickets berths-carry-request-identity + the-claim-rides-every-link:
     MISMATCH (both claim, disagree) names both tickets and the resolver;

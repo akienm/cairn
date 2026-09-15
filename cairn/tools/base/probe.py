@@ -242,11 +242,14 @@ def owning_ticket(name: str, *, tickets_root=None) -> str:
     """
     root = PurePath(tickets_root) if tickets_root is not None else _TICKETS
     path = Path(root) / f"{name}.json"
-    if path.exists():
-        return str(path)
-    hits = list(Path(root).glob(f"*-{name}.json"))
-    if len(hits) == 1:
-        return str(hits[0])
+    # THE ONE LOCATOR (ticket 2516e958a6dd, 2026-09-15). This used to re-derive the lookup
+    # with a reversed glob — ``*-<name>.json``, the id on the wrong side — which holed every
+    # probe naming its ticket by hex id: 9 of 84 arguments across probes/*.py, 10 disagreements
+    # with ``ticket_path``. The import is lazy because chain imports base at module top.
+    from cairn.tools.chain.grammar import ticket_path
+    found = ticket_path(name, tickets_dir=str(root))
+    if found:
+        return found
     return ("{unresolvable:" + str(path) + " — the owning ticket is not at this address; it "
             "has migrated beside its code as history, or the name drifted}")
 

@@ -306,11 +306,22 @@ def ticket_path(claim, root: str = CAIRN_ROOT, tickets_dir: str | None = None) -
 
     ``tickets_dir`` overrides where to look, for a caller holding an injected commons
     (the skill doors judge fixtures under a tmp root). Default derivation is unchanged.
+
+    THE LITERAL FILE IS CHECKED BEFORE EITHER REGEX GATE (ticket 2516e958a6dd,
+    2026-09-15): a full ``<hex>-<slug>`` stem is digit-leading, so ``_TICKET_RE`` refused
+    it and ``_HEX_ID_RE`` did too — the one locator answered None for the exact file on
+    disk. That was the one spelling ``probe.owning_ticket`` resolved and this did not,
+    and the reason it kept its own lookup. The guard is a filename, never a path: a
+    claim carrying ``os.sep`` is not a stem and gets no literal look.
     """
     if not isinstance(claim, str):
         return None
     if tickets_dir is None:
         tickets_dir = os.path.join(os.path.dirname(root), "CairnCommons", "tickets")
+    if claim and os.sep not in claim:
+        literal = os.path.join(tickets_dir, claim + ".json")
+        if os.path.isfile(literal):
+            return literal
     if _HEX_ID_RE.match(claim):
         import glob as _glob
         matches = _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))

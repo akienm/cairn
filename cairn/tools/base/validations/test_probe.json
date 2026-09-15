@@ -1,26 +1,28 @@
 [
   {
     "claim": "proof test_probe.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:19:19",
+    "caller": "CC 2516e958a6dd",
+    "date": "2026-09-15T12:17:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
+      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\n  PASS  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path\n  census: names=84 hex-holes=0 disagree=0\n  PASS  test_owning_ticket_agrees_with_the_one_locator_over_every_probe\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_trigger_is_any_predicate_evaluated_where_owned",
         "test_it_is_immutable",
         "test_construction_refuses_a_defect_loudly",
-        "test_a_probe_cannot_move_a_nodes_state"
+        "test_a_probe_cannot_move_a_nodes_state",
+        "test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path",
+        "test_owning_ticket_agrees_with_the_one_locator_over_every_probe"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "424c2692071cef60c8f291b63b627fff5e6ad9e644a9bdc8bd9ccb6b384ea141",
+      "source_fingerprint": "41d6a0cbb11f321b985f4fb0a53d172378418d1f0cec7626ffce844b7856312a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -31,13 +33,20 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_probe.py",
+        "cairn/tools/base/settled.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-tktdfcl5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1913641-7wkzhuib/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -46,11 +55,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123101502,
-          "disk_bytes": 133623808,
-          "entries": 4288,
+          "bytes": 136761249,
+          "disk_bytes": 148447232,
+          "entries": 4861,
           "builds": 1,
-          "reuses": 87
+          "reuses": 0
         }
       }
     },

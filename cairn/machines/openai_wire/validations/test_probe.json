@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_probe.py passes under python3",
-    "caller": "CC:sail:76639374d9f9",
-    "date": "2026-09-12T14:42:30",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T12:32:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "e2d87d5d37e76408ea73070b0466e0122c0bea12e314b4f3472560e083128180",
+      "source_fingerprint": "8e192d5c7960d3dce43a83d1f114aa4fb4d68f3762eb09060b2917c0c3cf1ee1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -35,13 +35,23 @@
         "cairn/machines/openai_wire/translate.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
         "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py"
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3317959-2_uugg1s/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1914280-hhqxq_r0/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -50,46 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 130907767,
-          "disk_bytes": 142258176,
-          "entries": 4703,
+          "bytes": 136761249,
+          "disk_bytes": 148447232,
+          "entries": 4861,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "76639374d9f9": {
-          "cairn/machines/openai_wire/__init__.py": [
-            "a_holder_serves_a_tool_using_turn_end_to_end",
-            "a_raising_resolve_is_a_named_5xx_not_an_empty_answer",
-            "stream_true_is_refused_with_the_reason_on_the_wire",
-            "the_machine_imports_no_device"
-          ],
-          "cairn/machines/openai_wire/intention+why.json": [
-            "the_charter_stands_beside_the_code_and_names_this_proof"
-          ],
-          "cairn/machines/openai_wire/translate.py": [
-            "a_holder_serves_a_tool_using_turn_end_to_end",
-            "a_raising_resolve_is_a_named_5xx_not_an_empty_answer",
-            "inbound_string_arguments_become_objects",
-            "stream_true_is_refused_with_the_reason_on_the_wire",
-            "the_machine_imports_no_device",
-            "two_distinct_holders_is_enough_and_one_is_not"
-          ],
-          "cairn/machines/openai_wire/serve.py": [
-            "a_holder_serves_a_tool_using_turn_end_to_end",
-            "a_raising_resolve_is_a_named_5xx_not_an_empty_answer",
-            "inbound_string_arguments_become_objects",
-            "stream_true_is_refused_with_the_reason_on_the_wire",
-            "the_machine_imports_no_device",
-            "two_distinct_holders_is_enough_and_one_is_not"
-          ],
-          "cairn/machines/build_inspector/inspector.py": [
-            "a_machine_importing_a_device_reds_by_file_and_module"
-          ],
-          "cairn/machines/openai_wire/probes/openai_wire_is_included_by_a_second_holder.py": [
-            "two_distinct_holders_is_enough_and_one_is_not"
-          ]
+          "reuses": 69
         }
       }
     },

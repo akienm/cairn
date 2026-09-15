@@ -152,6 +152,14 @@ def main() -> None:
     for f in live["findings"]:
         if f["method"] != _SIEVE:
             continue
+        if "refusal" in f["values"]:
+            # THE SIEVE'S SECOND SHAPE: a component it could not shake (zero files under the
+            # root — a charter cast ahead of its code, born red by Law 9). The finding names
+            # the root, not a site, and the root must be real and really empty of code.
+            root_dir = Path(f["values"]["root"])
+            assert root_dir.is_dir() and not list(root_dir.rglob("*.py")), \
+                f"a refusal must name a real root the rule read zero files under: {f}"
+            continue
         site = Path(f["values"]["site"].rsplit(":", 1)[0])
         assert (site if site.is_absolute() else _REPO_ROOT / site).exists(), \
             f"the sieve named a file the world does not hold: {f}"

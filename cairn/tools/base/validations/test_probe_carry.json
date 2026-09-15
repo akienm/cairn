@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_probe_carry.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:19:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T12:33:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -33,7 +33,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "f095ff696e75e20773bea532288903c351cbfe99a017cc5d2d4a4b9ff913a4ed",
+      "source_fingerprint": "8eb0861d4bed3f00655b422af99daf1cd3c238f4bc918f436a2ba106de2233f4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -52,31 +52,38 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_probe_carry.py",
+        "cairn/tools/base/settled.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
         "cairn/tools/instanceizer/__init__.py",
         "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-8r81r81s/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1914280-4bmfiye1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/bus/0/20260910.051921.095852.BusDevice.post.json",
-            "logs/bus/0/20260910.051921.146538.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260915.183319.503230.BusDevice.post.json",
+            "logs/bus/0/20260915.183319.559660.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 123102103,
-          "disk_bytes": 133632000,
-          "entries": 4292,
+          "bytes": 136761850,
+          "disk_bytes": 148455424,
+          "entries": 4865,
           "builds": 1,
-          "reuses": 88
+          "reuses": 86
         }
       }
     },

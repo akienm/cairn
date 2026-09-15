@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_inference_domain.py passes under python3",
-    "caller": "CC",
-    "date": "2026-09-11T16:29:15",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T12:23:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -36,7 +36,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "de2f1ccbca6dcd3ee96c33f72387533405954f92d5483bf0960e6daeee14f9fe",
+      "source_fingerprint": "b53d6ce752749b701c17ce9d222d1d42a0fc4b2e323ffd2fccc52b14e0e77a3e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,68 +66,53 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1071646-sx0rc0cv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1914280-iydkffy1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 32,
           "paths": [
-            "logs/inference_domain/0/20260911.222914.584595.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.597175.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.610555.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.622103.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.635726.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.648354.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.690115.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.703512.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.718228.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.738449.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.751965.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.765095.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.780865.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.823001.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.858461.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222914.875631.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.889183.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.903082.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.923683.inference_domain_domain_resolve.refused.json",
-            "logs/inference_domain/0/20260911.222914.942687.inference_domain_domain_resolve.refused.json",
-            "logs/inference_domain/0/20260911.222914.962667.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222914.984719.inference_domain_domain_resolve.refused.json",
-            "logs/inference_domain/0/20260911.222915.005901.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.019403.inference_domain_domain_resolve.refused.json",
-            "logs/inference_domain/0/20260911.222915.039699.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.053301.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.097076.inference_domain_domain_resolve.refused.json",
-            "logs/inference_domain/0/20260911.222915.225162.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.243226.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.260281.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20260911.222915.277186.inference_domain_domain_resolve.miss.json",
-            "logs/inference_domain/0/20260911.222915.291406.inference_domain_domain_resolve.miss.json"
+            "logs/inference_domain/0/20260915.182346.888327.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182346.900244.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182346.912184.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182346.924110.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182346.936369.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182346.948589.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182346.982635.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182346.993866.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182347.006152.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182347.023511.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.035042.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182347.047302.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.079782.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.099050.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.111718.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182347.123682.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.136235.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.149405.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.169592.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260915.182347.188334.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260915.182347.207186.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.277466.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260915.182347.318047.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.331217.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260915.182347.348386.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.359744.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.387419.inference_domain_domain_resolve.refused.json",
+            "logs/inference_domain/0/20260915.182347.460843.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.472185.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.497920.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20260915.182347.512404.inference_domain_domain_resolve.miss.json",
+            "logs/inference_domain/0/20260915.182347.524083.inference_domain_domain_resolve.miss.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 129535907,
-          "disk_bytes": 140599296,
-          "entries": 4555,
+          "bytes": 136771039,
+          "disk_bytes": 148578304,
+          "entries": 4895,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "548dd13fb4db": {
-          "cairn/devices/inference_domain/host.py": [
-            "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest",
-            "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
-            "test_an_agent_retry_gets_a_fresh_sample",
-            "test_the_agent_shapes_are_CHECKED_not_exempted",
-            "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host"
-          ],
-          "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py": [
-            "test_a_replayed_tool_carrying_call_is_the_finding",
-            "test_the_probe_is_armed_in_the_emission_gates_shape"
-          ]
+          "reuses": 36
         }
       }
     },

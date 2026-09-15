@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_console_pane.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:18:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T12:32:38",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "cachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 10 items\n\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_in_floor_without_bus PASSED [ 10%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_in_floor_without_bus PASSED [ 20%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_shows_info_messages PASSED [ 30%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_shows_debug_messages PASSED [ 40%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_and_debug_do_not_cross PASSED [ 50%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_do_not_alter_channels PASSED [ 60%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_are_not_in_declared_panes PASSED [ 70%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_empty_channels_render_empty_entries PASSED [ 80%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_record_channels_not_in_diagnostic_panes PASSED [ 90%]\ncairn/tools/base/proofs/test_console_pane.py::test_roster_minimum PASSED [100%]\n\n============================== 10 passed in 0.43s ==============================\n\n\u001b[32m10 teeth green\u001b[0m",
+      "stdout_tail": "cachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 10 items\n\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_in_floor_without_bus PASSED [ 10%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_in_floor_without_bus PASSED [ 20%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_pane_shows_info_messages PASSED [ 30%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_debug_pane_shows_debug_messages PASSED [ 40%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_info_and_debug_do_not_cross PASSED [ 50%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_do_not_alter_channels PASSED [ 60%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_panes_are_not_in_declared_panes PASSED [ 70%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_empty_channels_render_empty_entries PASSED [ 80%]\ncairn/tools/base/proofs/test_console_pane.py::TestConsolePanes::test_record_channels_not_in_diagnostic_panes PASSED [ 90%]\ncairn/tools/base/proofs/test_console_pane.py::test_roster_minimum PASSED [100%]\n\n============================== 10 passed in 0.56s ==============================\n\n\u001b[32m10 teeth green\u001b[0m",
       "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [],
@@ -15,7 +15,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ea29edacbfefdd8ccee56ec810ba0a23bd6f69360989ccc7bf6c703d5e4b66c3",
+      "source_fingerprint": "f43049ca6956fd30a7967876afc9481b5fa9ace0cfe51f9701f2ad339d6cf772",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -40,35 +40,35 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-7aun7jkh/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1914280-5s8uv34r/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/bus/0/20260910.051850.388884.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.389119.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.431111.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260910.051850.448946.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.490389.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260910.051850.507957.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.508158.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.567363.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260910.051850.634387.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260910.051850.693444.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260910.051850.711680.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.712396.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.712530.BusDevice.post.json",
-            "logs/bus/0/20260910.051850.756508.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260915.183236.939270.BusDevice.post.json",
+            "logs/bus/0/20260915.183236.939599.BusDevice.post.json",
+            "logs/bus/0/20260915.183236.992702.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260915.183237.017131.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.067040.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260915.183237.093205.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.093576.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.144694.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260915.183237.219709.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260915.183237.295234.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260915.183237.320656.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.321908.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.322145.BusDevice.post.json",
+            "logs/bus/0/20260915.183237.373050.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 123105059,
-          "disk_bytes": 133681152,
-          "entries": 4304,
+          "bytes": 136764806,
+          "disk_bytes": 148504576,
+          "entries": 4877,
           "builds": 1,
-          "reuses": 72
+          "reuses": 75
         }
       }
     },

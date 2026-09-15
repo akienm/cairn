@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_watch_probe.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-08T20:54:01",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T12:23:57",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0f06ccbb80c5b8cdd201c8f106942f57d2443599663b5bb4896955ddf92eb578",
+      "source_fingerprint": "1634ebfda1651f5c1ddc7f12f6b331c029c4138e85c24e88f0e38b21cd40ab6f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -37,12 +37,21 @@
         "cairn/tools/base/address.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py"
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1985615-b80tuh65/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1914280-x6sypb4k/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -51,11 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110206783,
-          "disk_bytes": 118902784,
-          "entries": 3621,
+          "bytes": 136761249,
+          "disk_bytes": 148447232,
+          "entries": 4861,
           "builds": 1,
-          "reuses": 6
+          "reuses": 40
         }
       }
     },

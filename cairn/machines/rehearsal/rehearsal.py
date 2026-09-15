@@ -51,7 +51,14 @@ RETRIES_PER_READ = 2    # D5: a read that fails the schema is re-read; this many
 PASS_CAP = 5            # D11
 MODEL = "claude-haiku-4-5-20251001"   # D7: the cheapest reader
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
-GAP_KINDS = ("assumes", "assumption_differs", "cannot_proceed", "step_absent")
+GAP_KINDS = ("assumes", "assumption_differs", "cannot_proceed", "step_absent", "unlisted")
+# D6 as amended (open-d71a52522428, Akien: "i am trying to move us AWAY from free text"): a step
+# is named by the ticket decision it builds — D<n> — or, when no decision covers it, by
+# "unlisted: <text>". A decision id folds exactly, so three reads converge or they do not; an
+# unlisted step is itself a gap, because the ticket is a list of decisions and a step no
+# decision names is a decision the ticket still owes.
+STEP_RE = re.compile(r"^(?:D(?P<n>[1-9][0-9]*)|unlisted: \S.*)$")
+UNLISTED = "unlisted: "
 
 Reader = Callable[[str, dict], tuple[dict | None, dict]]
 
@@ -110,11 +117,19 @@ def _stamp() -> str:
 # ---------------------------------------------------------------------------
 # the schema, by hand
 
-def validate(tree: object) -> list[str]:
+def decision_ids_of(doc: dict) -> set[int]:
+    """The ``n`` of every decision the ticket carries — the vocabulary a step may name."""
+    have = doc.get("decisions") if isinstance(doc, dict) else None
+    return {d["n"] for d in (have or []) if isinstance(d, dict) and isinstance(d.get("n"), int)}
+
+
+def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
     """Every way ``tree`` fails schema.json, named; empty means it passes. Written by hand
     because the box has no jsonschema package and the shape is small; the schema file stays
     the contract the reader is handed and this is its mirror — a tooth in the proof holds
-    the two together over the schema's own examples."""
+    the two together over the schema's own examples. ``decision_ids`` is the ticket's own
+    vocabulary: a step naming ``D<n>`` the ticket does not carry is a lack the schema's
+    pattern cannot see, so the machine checks it here and the read is re-read (D5)."""
     lacks: list[str] = []
     if not isinstance(tree, dict):
         return [f"tree is {type(tree).__name__}, not an object"]
@@ -138,6 +153,14 @@ def validate(tree: object) -> list[str]:
         step = n.get("step")
         if "step" in n and not (isinstance(step, str) and step.strip()):
             lacks.append(f"{at}.step: a non-empty string is required")
+        elif "step" in n:
+            m = STEP_RE.match(step)
+            if not m:
+                lacks.append(f"{at}.step: {step!r} is neither D<n> (a decision the ticket carries) "
+                             f"nor 'unlisted: <text>'")
+            elif m.group("n") and decision_ids is not None and int(m.group("n")) not in decision_ids:
+                lacks.append(f"{at}.step: {step!r} names a decision the ticket does not carry "
+                             f"(it has {sorted(decision_ids)})")
         if "state" in n and n.get("state") not in STATES:
             lacks.append(f"{at}.state: {n.get('state')!r} is not one of {STATES}")
         for k in ("assumption", "would_settle"):
@@ -231,7 +254,8 @@ def claude_reader(prompt_text: str, schema_doc: dict) -> tuple[dict | None, dict
     return tree, meta
 
 
-def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str) -> tuple[dict, list[dict]]:
+def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
+              decision_ids: set[int] | None = None) -> tuple[dict, list[dict]]:
     """Read ``n`` of three: call the reader, check the shape, re-read on a schema failure
     (D5) up to ``RETRIES_PER_READ`` times. Identity fields are stamped from truth AFTER the
     shape passes — the reader's own ``ticket``/``read`` are never trusted. Returns the tree
@@ -240,7 +264,7 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str) -> tu
     attempts: list[dict] = []
     for attempt in range(1, RETRIES_PER_READ + 2):
         tree, meta = reader(text, schema_doc)
-        lacks = validate(tree) if tree is not None else [meta.get("error") or "reader returned nothing"]
+        lacks = validate(tree, decision_ids) if tree is not None else [meta.get("error") or "reader returned nothing"]
         attempts.append({"attempt": attempt, "read": n, "schema_lacks": lacks, **meta})
         if not lacks:
             return {"ticket": ticket, "ticket_sha256": sha, "read": n, "nodes": tree["nodes"]}, attempts
@@ -258,7 +282,8 @@ def gaps(reads: list[dict]) -> list[dict]:
     reads whose assumption text differs on the same step."* Steps fold (a word the reader
     could type); assumption text is free text and never folds. One gap per (kind, step),
     reads merged, sorted by (kind, step) so two runs over the same trees write the same
-    list."""
+    list. Amended (open-d71a52522428): a step named ``unlisted: <text>`` in any read is a
+    gap of kind ``unlisted`` — the ticket owes the decision that would name it."""
     by_kind_step: dict[tuple[str, str], dict] = {}
 
     def gap(kind: str, step: str, read_n: int, **more) -> None:
@@ -278,6 +303,9 @@ def gaps(reads: list[dict]) -> list[dict]:
         seen: dict[str, dict] = {}
         for node in r.get("nodes", []):
             seen.setdefault(fold(node["step"]), node)
+            if node["step"].startswith(UNLISTED):
+                gap("unlisted", node["step"], r["read"],
+                    would_settle=node.get("would_settle", "").strip())
             if node["state"] == "builds_under_assumption":
                 gap("assumes", node["step"], r["read"],
                     assumption=node.get("assumption", "").strip(),
@@ -352,9 +380,10 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     if passes >= PASS_CAP:
         return _open_the_question(ticket, root)
     text, sha_at_read, tk = render(ticket, root=root, berths_root=berths_root, repo=repo)
+    ids = decision_ids_of(json.loads(tk.read_text(encoding="utf-8")))
     reads, meta = [], []
     for n in range(1, READS + 1):
-        tree, attempts = read_tree(text, reader, n, ticket=ticket, sha=sha_at_read)
+        tree, attempts = read_tree(text, reader, n, ticket=ticket, sha=sha_at_read, decision_ids=ids)
         reads.append(tree)
         meta.extend(attempts)
     found = gaps(reads)
@@ -494,6 +523,22 @@ def _tokens(s: str) -> set[str]:
     return {t for t in _TOKEN.findall(fold(s).replace("_", " ")) if t not in _STOP and len(t) > 1}
 
 
+def decision_ids_and_text(tk: Path | None) -> list[dict]:
+    if tk is None:
+        return []
+    doc = json.loads(tk.read_text(encoding="utf-8"))
+    return [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+
+
+def step_text(step: str, decisions: dict[int, str]) -> str:
+    """A step's words for the divergence tokens: the decision's text for ``D<n>``, the text
+    after the prefix for an unlisted step — the id itself carries no tokens a tooth shares."""
+    m = STEP_RE.match(step or "")
+    if m and m.group("n"):
+        return decisions.get(int(m.group("n")), step)
+    return step[len(UNLISTED):] if step.startswith(UNLISTED) else step
+
+
 def teeth_of(proof: Path | str) -> list[str]:
     """``def test_*`` names in a proof file, in order."""
     text = Path(proof).read_text(encoding="utf-8")
@@ -527,7 +572,9 @@ def record_divergence(ticket: str, proofs: list[Path | str], *, root: Path | str
     rec = json.loads(rec_path.read_text(encoding="utf-8"))
     if not rec.get("clean"):
         raise Refused(f"{st['record']} is not a clean record — divergence is measured against a converged tree")
-    steps = [n["step"] for n in rec["reads"][0]["nodes"]]
+    tk = ticket_file(ticket, root)
+    decisions = {d["n"]: d.get("text", "") for d in decision_ids_and_text(tk)}
+    steps = [step_text(n["step"], decisions) for n in rec["reads"][0]["nodes"]]
     teeth = [t for p in proofs for t in teeth_of(p)]
     d = divergence(steps, teeth)
     d["proofs"] = [str(p) for p in proofs]

@@ -11,7 +11,9 @@ The teeth, each against the charter's falsifier:
 
   1. a deliberately underspecified fixture returns gaps naming the underspecified step in
      all three reads, and the gap list is byte-identical over the same trees twice (D6);
-     step names fold through cairn.tools.system_word;
+     steps are decision ids (D<n>) or 'unlisted: <text>' (D6 as amended, open-d71a52522428),
+     an unlisted step is a gap of its own kind, and step names fold through
+     cairn.tools.system_word;
   2. a read that fails the schema is re-read (D5) and every attempt is recorded; a reader
      that never satisfies it refuses the pass and writes NO record;
   3. with the gap answered as a decision line (``decide``, journaled ``cast``) the next pass
@@ -50,7 +52,8 @@ STEM = f"{TID}-a-fixture-ticket-that-leaves-one-step-unsaid"
 TICKET = {
     "id": TID, "title": "a fixture ticket that leaves one step unsaid",
     "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-    "decisions": [{"n": 1, "text": "write the widget", "by": "the proof"}],
+    "decisions": [{"n": 1, "text": "write the widget", "by": "the proof"},
+                  {"n": 2, "text": "prove the widget", "by": "the proof"}],
     "questions": [],
 }
 
@@ -60,17 +63,22 @@ def _node(step, state="builds_as_written", assumption="", would_settle="", confi
             "would_settle": would_settle, "confidence": confidence}
 
 
-CLEAN_TREE = {"nodes": [_node("write the widget"), _node("prove the widget")]}
+# D6 as amended (open-d71a52522428): a step is a decision id, or 'unlisted: <text>' when the
+# ticket carries no decision for it. The fixture ticket carries D1 and D2; the wiring step is
+# the one it leaves unsaid.
+WIRE = "unlisted: wire the widget"
+CLEAN_TREE = {"nodes": [_node("D1"), _node("D2")]}
+CLEAN_TREE_WIRED = {"nodes": [_node("D1"), _node("D2"), _node("D3")]}   # after decide() adds D3
 GAPPY_TREES = [
-    {"nodes": [_node("write the widget"),
-               _node("Wire The Widget", "builds_under_assumption", "it hangs off the rack",
+    {"nodes": [_node("D1"),
+               _node("unlisted: Wire The Widget", "builds_under_assumption", "it hangs off the rack",
                      "say where the widget is wired")]},
-    {"nodes": [_node("write the widget"),
-               _node("wire the widget", "cannot_proceed", "", "say where the widget is wired")]},
-    {"nodes": [_node("write the widget"),
-               _node("wire the widget", "builds_under_assumption", "it hangs off the shim",
+    {"nodes": [_node("D1"),
+               _node(WIRE, "cannot_proceed", "", "say where the widget is wired")]},
+    {"nodes": [_node("D1"),
+               _node(WIRE, "builds_under_assumption", "it hangs off the shim",
                      "say where the widget is wired"),
-               _node("prove the widget")]},
+               _node("D2")]},
 ]
 
 
@@ -127,14 +135,18 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
         assert stub.calls == 3, stub.calls
         assert not rec["clean"] and rec["pass"] == 1, rec
         kinds = {(g["kind"], g["step"].lower()) for g in rec["gaps"]}
-        assert ("assumes", "wire the widget") in kinds and ("cannot_proceed", "wire the widget") in kinds, kinds
-        wire = [g for g in rec["gaps"] if g["step"].lower() == "wire the widget" and g["kind"] != "step_absent"]
+        assert ("assumes", WIRE) in kinds and ("cannot_proceed", WIRE) in kinds, kinds
+        # an unlisted step is a gap of its own kind in every read that names it (D6 as amended)
+        assert ("unlisted", WIRE) in kinds, kinds
+        wire = [g for g in rec["gaps"] if g["step"].lower() == WIRE and g["kind"] != "step_absent"]
         assert sorted(set(sum((g["reads"] for g in wire), []))) == [1, 2, 3], wire
-        # the fold: 'Wire The Widget' and 'wire the widget' are ONE step, never a step_absent
-        assert not any(g["kind"] == "step_absent" and g["step"].lower() == "wire the widget" for g in rec["gaps"]), rec["gaps"]
-        # 'prove the widget' is in read 3 only — step_absent in reads 1 and 2
+        # the fold: 'unlisted: Wire The Widget' and 'unlisted: wire the widget' are ONE step, never a step_absent
+        assert not any(g["kind"] == "step_absent" and g["step"].lower() == WIRE for g in rec["gaps"]), rec["gaps"]
+        # D2 is in read 3 only — step_absent in reads 1 and 2
         absent = [g for g in rec["gaps"] if g["kind"] == "step_absent"]
-        assert absent and absent[0]["step"] == "prove the widget" and absent[0]["reads"] == [1, 2], absent
+        assert absent and absent[0]["step"] == "D2" and absent[0]["reads"] == [1, 2], absent
+        # D1 builds_as_written in all three reads under the same id: no gap of any kind names it
+        assert not any(g["step"] == "D1" for g in rec["gaps"]), rec["gaps"]
         # the would_settle line rides the gap
         assert any("say where the widget is wired" in (g.get("would_settle") or []) for g in rec["gaps"])
         # deterministic: the same trees twice → the same list
@@ -163,8 +175,19 @@ def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes
         attempts = rec["meta"]["attempts"]
         assert len(attempts) == 9 and [a["attempt"] for a in attempts[:3]] == [1, 2, 3], attempts
         assert attempts[0]["schema_lacks"] and "state" in " ".join(attempts[0]["schema_lacks"]), attempts[0]
+        assert any("neither D<n>" in l for l in attempts[0]["schema_lacks"]), "a free-text step fails the shape"
         assert attempts[1]["schema_lacks"] == ["reader returned nothing"], attempts[1]
         assert attempts[2]["schema_lacks"] == [], attempts[2]
+    finally:
+        w.close()
+    w = World()
+    try:
+        # a decision id the ticket does not carry is a lack the pattern cannot see — the machine re-reads
+        stub = Stub([{"nodes": [_node("D9")]}, CLEAN_TREE])
+        rec = R.rehearse(TID, reader=stub, **_kw(w))
+        first = rec["meta"]["attempts"][0]["schema_lacks"]
+        assert len(first) == 1 and "'D9' names a decision the ticket does not carry" in first[0], first
+        assert rec["clean"] and stub.calls == 6, (rec["clean"], stub.calls)
         # identity is stamped from truth, never trusted from the reader
         assert rec["reads"][0]["ticket"] == TID and rec["reads"][2]["read"] == 3
     finally:
@@ -189,11 +212,12 @@ def test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record
     w = World()
     try:
         R.rehearse(TID, reader=Stub(GAPPY_TREES), **_kw(w))
-        entry = R.decide(TID, "wire the widget", "the widget is wired off the rack shim", by="Akien verbatim", root=w.commons)
+        entry = R.decide(TID, WIRE, "the widget is wired off the rack shim", by="Akien verbatim", root=w.commons)
         doc = json.loads(w.ticket.read_text())
-        assert doc["decisions"][-1] == entry and entry["n"] == 2 and entry["source"] == "rehearsal", doc["decisions"]
+        assert doc["decisions"][-1] == entry and entry["n"] == 3 and entry["source"] == "rehearsal", doc["decisions"]
         assert [e["verb"] for e in w.journal()] == ["rehearse", "cast"]
-        rec = R.rehearse(TID, reader=Stub([CLEAN_TREE]), **_kw(w))
+        # the next read names the step by the decision it now has — the loop converges on ids
+        rec = R.rehearse(TID, reader=Stub([CLEAN_TREE_WIRED]), **_kw(w))
         assert rec["clean"] and rec["gaps"] == [] and rec["pass"] == 2, rec
         doc = json.loads(w.ticket.read_text())
         assert doc["rehearsal"] == rec["record"], doc.get("rehearsal")
@@ -308,9 +332,20 @@ def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the
     assert tuple(node["properties"]["state"]["enum"]) == R.STATES
     assert sorted(node["required"]) == sorted(["step", "state", "assumption", "would_settle", "confidence"])
     assert s["properties"]["read"]["maximum"] == R.READS
-    assert R.validate({"nodes": [_node("x", st) for st in R.STATES]}) == []
+    assert R.validate({"nodes": [_node("unlisted: x", st) for st in R.STATES]}) == []
+    assert R.validate({"nodes": [_node("D1"), _node("D12")]}) == [], "any D<n> passes the shape alone"
+    assert R.validate({"nodes": [_node("D1"), _node("D12")]}, {1}) == ["nodes[1].step: 'D12' names a decision the ticket does not carry (it has [1])"]
     assert R.validate({"nodes": []}) and R.validate({"nodes": [{"step": "x"}]}) and R.validate([])
-    assert R.validate({"nodes": [dict(_node("x"), extra=1)]}), "additionalProperties: false"
+    assert R.validate({"nodes": [_node("x")]}) and R.validate({"nodes": [_node("D0")]}) and R.validate({"nodes": [_node("unlisted:")]})
+    assert R.validate({"nodes": [dict(_node("unlisted: x"), extra=1)]}), "additionalProperties: false"
+    import re as _re
+    pat = _re.compile(node["properties"]["step"]["pattern"])
+    for good in ("D1", "D42", "unlisted: wire it"):
+        assert pat.match(good) and R.STEP_RE.match(good), good
+    for bad in ("x", "D0", "d1", "unlisted:", "unlisted: "):
+        assert not pat.match(bad) and not R.STEP_RE.match(bad), bad
+    assert "D<n>" in text and "unlisted:" in text, "the prompt teaches the step vocabulary"
+    assert "unlisted" in R.GAP_KINDS
 
 
 # 7 ------------------------------------------------------------------------
@@ -356,6 +391,7 @@ def test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways(
         assert d["steps_unproved"] == ["prove the widget"], d
         assert d["teeth_unforeseen"] == ["test_the_rack_hums"], d
         assert d["matched"] == [["write the widget", "test_write_the_widget_lands"]], d
+        assert R.step_text("unlisted: wire the widget", {}) == "wire the widget" and R.step_text("D7", {}) == "D7"
         rec = json.loads((w.commons / json.loads(w.ticket.read_text())["rehearsal"]).read_text())
         assert rec["divergence"]["steps_unproved"] == ["prove the widget"] and rec["divergence"]["proofs"] == [str(proof)]
         assert w.journal()[-1]["verb"] == "rehearse" and "divergence" in w.journal()[-1]["why"]
@@ -376,12 +412,12 @@ def test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess
         assert r.returncode == 0, r.stderr[-400:]
         st = json.loads(r.stdout)
         assert st["ok"] is False and "no rehearsal pointer" in st["lack"], st
-        r = subprocess.run(cli + [TID, "--DECIDE", "wire the widget", "off the shim"],
+        r = subprocess.run(cli + [TID, "--DECIDE", WIRE, "off the shim"],
                            capture_output=True, text=True, env=w.env(), timeout=120)
         assert r.returncode == 2 and "--by" in r.stderr, (r.returncode, r.stderr[-200:])
-        r = subprocess.run(cli + [TID, "--decide", "wire the widget", "off the shim", "--by", "the proof"],
+        r = subprocess.run(cli + [TID, "--decide", WIRE, "off the shim", "--by", "the proof"],
                            capture_output=True, text=True, env=w.env(), timeout=120)
-        assert r.returncode == 0 and "decided D2" in r.stdout, r.stdout + r.stderr[-300:]
+        assert r.returncode == 0 and "decided D3" in r.stdout, r.stdout + r.stderr[-300:]
         assert json.loads(w.ticket.read_text())["decisions"][-1]["text"] == "off the shim"
     finally:
         w.close()

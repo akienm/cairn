@@ -36,7 +36,8 @@
           "step": {
             "type": "string",
             "minLength": 1,
-            "description": "one build step, named so a second cold reader would name it the same way"
+            "description": "the ticket decision this step builds, by id: D<n> (the n of an entry in the ticket's decisions list) — or 'unlisted: <text>' for a step no decision covers, which is itself a gap the ticket owes a decision for",
+            "pattern": "^(D[1-9][0-9]*|unlisted: \\S.*)$"
           },
           "state": {
             "type": "string",

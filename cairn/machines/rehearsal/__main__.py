@@ -2,7 +2,7 @@
 rehearsal.py; this file only parses and prints.
 
   cairn rehearse <ticket>                                    one pass: render, three cold reads, the diff, one record
-  cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line on the ticket
+  cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line on the ticket (step is D<n> or "unlisted: <text>")
   cairn rehearse <ticket> --proved <proof.py> [<proof.py> ...]  after PROVED: the divergence list onto the clean record
   cairn rehearse <ticket> --standing                         what the BUILDME lane reads, as JSON
 
@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("ticket")
     p.add_argument("--decide", nargs=2, metavar=("STEP", "LINE"),
-                   help="dispose the gap at STEP as the decision LINE on the ticket")
+                   help="dispose the gap at STEP (D<n> or 'unlisted: <text>') as the decision LINE on the ticket")
     p.add_argument("--by", help="who made the decision (required with --decide)")
     p.add_argument("--proved", nargs="+", metavar="PROOF",
                    help="after PROVED: diff these proofs' teeth against the converged tree")

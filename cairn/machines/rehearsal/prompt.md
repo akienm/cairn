@@ -16,8 +16,12 @@ if a step needs something you cannot see here, the ticket did not say it.
 JSON matching the schema you were given: a `nodes` list, one node per build step, in the
 order a builder would take them. For each node:
 
-- `step` — the step, named plainly (a file to write, a function to add, a record to change,
-  a gate to cross). Name it the way a second reader who never saw your answer would name it.
+- `step` — **the decision this step builds, by id**: `D<n>`, where `n` is the `n` of an
+  entry in the ticket's `decisions` list. One node per decision that a builder would carry
+  out; a decision that is only a measurement or a ruling gets no node. A step you would
+  take that **no decision names** is `unlisted: <what the step is>` — and that is a
+  finding in itself: the ticket is a list of decisions, and a step no decision covers is a
+  decision the ticket still owes. Never invent a `D<n>` the list does not carry.
 - `state` — exactly one of:
   - `builds_as_written` — the text says everything this step needs.
   - `builds_under_assumption` — buildable, but only by assuming something the text does not
@@ -35,5 +39,6 @@ order a builder would take them. For each node:
 
 - Stay inside the text. Do not use anything you believe about the world beyond it.
 - One step per node; do not merge steps to shorten the list, do not split one to lengthen it.
-- Name steps consistently: the same step named the same way is how three readings converge.
+- Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings
+  converge; a plain-English step name is free text, and free text never converges.
 - No prose outside the JSON.

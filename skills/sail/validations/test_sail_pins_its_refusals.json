@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_sail_pins_its_refusals.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-14T15:48:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-15T14:10:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -34,7 +34,7 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "e1a9d08e85c7cc3d9e054dd710188d64c648af4a35cf75eab1a9484ad0f4a2b1",
+      "source_fingerprint": "c999a06c86c5c180b35adb0aa7bb0d3ffd2ebe36d88caf091a6468f044d7b115",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -56,7 +56,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2818655-pjb231_e/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2210943-zfctcwx6/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,39 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136216849,
-          "disk_bytes": 147795968,
-          "entries": 4808,
+          "bytes": 136879506,
+          "disk_bytes": 148590592,
+          "entries": 4871,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "c5b6b128a376": {
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main",
-            "test_a_transitive_binding_is_red_naming_the_chain",
-            "test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing",
-            "test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it",
-            "test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow",
-            "test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched"
-          ],
-          "cairn/tools/proof_coverage/probes/__init__.py": [
-            "test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow"
-          ],
-          "cairn/tools/proof_coverage/probes/sieve_predicts_unran.py": [
-            "test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow"
-          ],
-          "skills/sail/SKILL.md": [
-            "test_step_3_names_the_call_time_binding_rule",
-            "test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it"
-          ],
-          "cairn/devices/tester/intention+why.json": [
-            "test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched"
-          ],
-          "cairn/tools/proof_coverage/intention+why.json": [
-            "test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched"
-          ]
+          "reuses": 81
         }
       }
     },

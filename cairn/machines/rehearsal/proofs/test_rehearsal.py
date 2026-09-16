@@ -34,7 +34,9 @@ The teeth, each against the charter's falsifier:
  11. the live fire's recorded reads (fixtures/live_fire_pass1.json, 46 gaps over 12/16/12
      free-text steps; live_fire_pass4.json, 0 gaps over 36/36/36 decision ids) replay through
      ``gaps`` and ``validate`` to the recorded numbers — clause 6's evidence without the
-     reader (D15).
+     reader (D15);
+ 12. the package init exists and skills/sail/SKILL.md sends the builder to `cairn rehearse`
+     before the BUILDME crossing, naming the lane and both dispositions of a gap.
 """
 from __future__ import annotations
 
@@ -48,7 +50,21 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from cairn.machines.rehearsal import rehearsal as R          # noqa: E402
+
+
+class _CallTime:
+    """The machine under proof, bound at CALL time, never at import. A hollow reading reverts
+    rehearsal.py to before the build and runs this file; a module-level import would then die
+    before the first tooth printed, and the instrument would read every reverted file as
+    UNREADABLE instead of the teeth that red without the machine (measured 2026-09-15 on the
+    first reading of cf80bdb57205: 5 of 12 files unread). ``R.gaps`` still reads as it did."""
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module("cairn.machines.rehearsal.rehearsal"), name)
+
+
+R = _CallTime()
 from cairn.tools.artifact import artifact as door             # noqa: E402
 
 REPO = Path(__file__).resolve().parents[4]
@@ -64,6 +80,14 @@ PROVES = {
         "4": "test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate",
         "5": "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
         "6": "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
+        # the rest of the teeth, under the name of what each pins — the hollow reading counts
+        # DECLARED teeth only, so an undeclared tooth is one a reverted file can never red
+        "reread": "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing",
+        "lanes": "test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal",
+        "cap": "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing",
+        "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
+        "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
+        "skill": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
     },
 }
 TID = "0badc0ffee01"
@@ -496,12 +520,38 @@ def test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_c
     assert one["reads"][0]["ticket_sha256"] != four["reads"][0]["ticket_sha256"]
 
 
+# 12 -----------------------------------------------------------------------
+
+def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme():
+    """The build's two non-code writes: the package init that makes ``cairn.machines.rehearsal``
+    importable as a machine (not a namespace accident), and the /sail step that is the only
+    mouth telling a builder the lane exists. Both were hollow on the first reading (2026-09-15)."""
+    assert (REPO / "cairn" / "machines" / "rehearsal" / "__init__.py").is_file()
+    skill = (REPO / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
+    assert "cairn rehearse <ticket-id>" in skill, "the skill never tells the builder to rehearse"
+    assert "the_ticket_rehearses_clean" in skill, "the skill never names the lane that holds the crossing"
+    assert "--decide" in skill and "cairn question open" in skill, "the skill never says how a gap is disposed"
+    assert skill.index("cairn rehearse <ticket-id>") < skill.index("## 1. Journal BUILDME"), \
+        "the rehearsal step must come before the BUILDME crossing"
+
+
 def main() -> int:
     teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
-    assert len(teeth) >= 11, len(teeth)
+    assert len(teeth) >= 12, len(teeth)
+    failed = []
     for tooth in teeth:
-        tooth()
+        # every tooth runs, whatever the one before it did: a run that stops at the first red
+        # prints no teeth, and a hollow reading cannot tell that from a proof that never ran
+        try:
+            tooth()
+        except Exception as e:                       # noqa: BLE001 — the reason is the record
+            failed.append(tooth.__name__)
+            print(f"  FAIL  {tooth.__name__}: {type(e).__name__}: {str(e)[:300]}")
+            continue
         print(f"  PASS  {tooth.__name__}")
+    if failed:
+        print(f"red — {len(failed)} of {len(teeth)} teeth: {', '.join(failed)}")
+        return 1
     print(f"green — {len(teeth)} teeth: the rehearsal machine renders, reads through an injectable "
           "reader, re-reads a schema failure, diffs three trees into deterministic gaps, disposes a gap "
           "as a decision line, writes clean and unclean records through the door, holds the fifth "

@@ -697,6 +697,22 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
                 f"command: `cairn test --hollow {tid} --seal`",
                 proof=str(one)))
             continue
+        if not reading:
+            # A READING THAT NAMES NO FILE MEASURED NOTHING, and the instrument says so
+            # itself ("a measurement of the empty set is not a pass") — but until
+            # 2026-09-15 the seal landed `{}` and this rung read it as covered: nothing
+            # unreadable, nothing empty, so nothing to red. Measured on cf80bdb57205, whose
+            # 15 writes_to files were all skipped: `cairn test --hollow` exited 1 and the
+            # gate would have opened PROVED on the record of a run that reverted nothing.
+            out.append(_lack(
+                tid, "hollow_nothing_measured",
+                f"the hollow reading for {tid} names at least one reverted file",
+                "the reading is empty — every writes_to file was skipped, so no file was "
+                "reverted and no tooth was watched; the green on this proof is the green "
+                "of a run that measured the empty set. FIX: make the decompose berth name "
+                f"repo files the build writes, then `cairn test --hollow {tid} --seal`",
+                proof=str(one)))
+            continue
         unreadable = sorted(f for f, r in reading.items() if not isinstance(r, list))
         if unreadable:
             out.append(_lack(

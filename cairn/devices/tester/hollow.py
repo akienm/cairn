@@ -286,6 +286,23 @@ def proven_by(ticket: dict, roots: dict | None = None) -> list[str]:
     return seen
 
 
+def _inside(f: str, repo_root: Path) -> str:
+    """An absolute path under the repo is the same address written another way — the chart
+    is free to spell it either way, and the reversion is of the file, not the spelling.
+    Measured 2026-09-15 on cf80bdb57205: its decompose berth named all 15 writes_to files
+    absolutely (81 of 1194 across the berth store do), and every one was skipped as "not a
+    path in this repo", which was false for 15 of 15 — the run measured nothing and said so,
+    but the skip reason lied. A path outside the repo stays as it came and is skipped by
+    ``_classify`` for the true reason."""
+    p = Path(f)
+    if not p.is_absolute():
+        return f
+    try:
+        return str(p.resolve().relative_to(Path(repo_root).resolve()))
+    except ValueError:
+        return f
+
+
 def _classify(rel: str) -> str | None:
     """Why this file is not measured, or None when it is. One place, so the run and the
     report cannot disagree about which files were skipped and for what."""
@@ -425,7 +442,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     crossing = _buildme_crossing(ticket, roots)
     at = _buildme_at(ticket, crossing, repo_root)
     commit = prebuild_commit(at, repo_root=repo_root)
-    files = writes_to(ticket, berths_root=berths_root)
+    files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own

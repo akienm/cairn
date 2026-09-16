@@ -513,6 +513,24 @@ def test_an_unchanged_file_is_reported_unwritten_not_hollow():
     return True
 
 
+def test_an_absolute_path_inside_the_repo_is_measured_as_the_relative_one_and_one_outside_is_still_skipped():
+    """The chart may spell a repo file absolutely (81 of 1194 writes_to in the berth store do,
+    2026-09-15) and the reversion is of the file, not of the spelling. Measured on
+    cf80bdb57205: 15 of 15 skipped as "not a path in this repo", every one of them under it."""
+    tmp = scratch_dir("cairn-hollowproof-")
+    repo, commons = _fixture(tmp)
+    berth = json.loads(_berth_path(tmp).read_text())
+    berth["sub_problems"][0]["writes_to"] = [str(repo / "subject.py"), "unchecked.py",
+                                             "/nowhere/outside/the/repo.py"]
+    _berth_path(tmp).write_text(json.dumps(berth))
+    f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
+    assert f["measured"]["subject.py"] == ["test_value_is_two"], f["measured"]
+    assert str(repo / "subject.py") not in f["measured"], f["measured"]
+    skipped = {s["file"]: s["why"] for s in f["skipped"]}
+    assert "/nowhere/outside/the/repo.py" in skipped and "subject.py" not in skipped, skipped
+    return True
+
+
 def test_a_record_named_in_writes_to_is_skipped_and_a_plain_json_beside_it_is_not():
     """A RECORD REDS NOTHING BY CONSTRUCTION, AND CALLING THAT HOLLOW IS A COLLAPSE (Law 7).
 

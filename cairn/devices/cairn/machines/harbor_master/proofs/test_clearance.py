@@ -1809,6 +1809,28 @@ def test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow():
         assert "hollow_unreadable" in str(exc) and "broke.py" in str(exc), str(exc)
 
 
+def test_an_EMPTY_reading_is_REFUSED_as_nothing_measured_and_never_read_as_covered():
+    """The instrument reds a run in which every writes_to file was skipped ("a measurement of
+    the empty set is not a pass") and --seal still lands `{}` — measured 2026-09-15 on
+    cf80bdb57205, 15 of 15 files skipped. Before this tooth the rung read `{}` as covered:
+    nothing unreadable, nothing empty, nothing to red — the gate opening PROVED on the record
+    of a run that reverted nothing."""
+    tid = "empty0read0a"
+    proof = _covering_proof("emptyreading", tid)
+    _seal(proof)
+    assert record_hollow(proof, tid, {}) is True
+    lacks = _built("hollow_lacks")(_fixture_ticket(tid, proof), [proof],
+                                   repo_root=Path(_REPO_ROOT))
+    kinds = [one["kind"] for one in lacks]
+    assert kinds == ["hollow_nothing_measured"], \
+        f"an empty reading must red ONCE, as nothing measured, never as covered: {kinds}"
+    assert "--hollow " + tid in lacks[0]["why"], lacks[0]
+    with tempfile.TemporaryDirectory() as tmp:
+        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof)
+        assert isinstance(exc, _built("Uncovered")), f"an empty reading crossed: {exc!r}"
+        assert "hollow_nothing_measured" in str(exc), str(exc)
+
+
 def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
     """The fork that keeps this rung honest rather than merely strict. A concept-piece is
     proved by PEOPLE READING IT — there is no build to hollow out and no file to revert, so
@@ -2016,6 +2038,7 @@ def _main() -> int:
         test_a_CODE_SEAM_WITH_NO_HOLLOW_READING_is_refused_the_same_as_an_absent_seal,
         test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE,
         test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow,
+        test_an_EMPTY_reading_is_REFUSED_as_nothing_measured_and_never_read_as_covered,
         test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading,
         test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding,
         test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace,

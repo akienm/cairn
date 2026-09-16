@@ -1505,5 +1505,261 @@
     "fingerprint": "18bbec570b89b51e688d3a88475cd36a508fcf33beeb3389443d6f489f514f0b",
     "at": "2026-09-15T17:40:58",
     "seq": 4
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_rehearsal_predicts_the_build) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'cf80bdb57205'; clean — the exit_gate proved 1 check(s): the_claiming_chart_is_answered",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/machines/rehearsal/proofs/test_rehearsal.py'] (seal 2026-09-15T18:34:49, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_rehearsal_predicts_the_build) emitted the probe berthed at cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py (ticket 'cf80bdb57205')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260915T173751-2be464b458aa.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the_rehearsal_predicts_the_build) crossing",
+        "actual": "a cast ticket for the WATCHME(the_rehearsal_predicts_the_build) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cf80bdb57205",
+          "watch_object": "the_rehearsal_predicts_the_build",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/cf80bdb57205-the-cheapest-reader-rehearses-a-ticket-before-buildme.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'cf80bdb57205' carries a watchme spec for 'the_rehearsal_predicts_the_build'",
+        "actual": "ticket 'cf80bdb57205' carries a watchme spec for 'the_rehearsal_predicts_the_build'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cf80bdb57205",
+          "watch_object": "the_rehearsal_predicts_the_build",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cf80bdb57205",
+          "watch_object": "the_rehearsal_predicts_the_build",
+          "berth": "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'rehearsal' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'rehearsal' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "cf80bdb57205",
+          "component": "rehearsal",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'cf80bdb57205' is cast",
+        "actual": "named ticket 'cf80bdb57205' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "cf80bdb57205",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/cf80bdb57205-the-cheapest-reader-rehearses-a-ticket-before-buildme.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "cf80bdb57205"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'rehearsal' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'rehearsal' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "rehearsal",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/machines/rehearsal/proofs/test_rehearsal.py stands in proven-space",
+        "actual": "cairn/machines/rehearsal/proofs/test_rehearsal.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/machines/rehearsal/proofs/test_rehearsal.py",
+          "named": [
+            "cairn/machines/rehearsal/proofs/test_rehearsal.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/machines/rehearsal/proofs/test_rehearsal.py's seal at '2026-09-15T18:34:49'",
+        "actual": "the witness dates cairn/machines/rehearsal/proofs/test_rehearsal.py's seal at '2026-09-15T18:34:49'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/machines/rehearsal/proofs/test_rehearsal.py",
+          "named": [
+            "cairn/machines/rehearsal/proofs/test_rehearsal.py"
+          ],
+          "seal": "2026-09-15T18:34:49",
+          "claimed": "2026-09-15T18:34:49"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket 'cf80bdb57205' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "cf80bdb57205"
+        }
+      }
+    ],
+    "checks_proved": 14,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/machines/rehearsal/proofs/test_rehearsal.py"
+    ],
+    "proven_seal_date": "2026-09-15T18:34:49",
+    "delegated": false,
+    "ticket": "cf80bdb57205",
+    "note": "PROVED: 12 teeth sealed green under netns; verdict 6/6 by instrument; hollow reading 12 measured, 0 hollow, 0 unread (the first reading skipped 15 of 15 on absolute paths and the gate would have read {} as covered — both fixed this voyage); live fire 46 -> 27 -> 9 -> refused -> CLEAN pass 4 over the ticket's own bytes, $3.12 ledgered + ~$0.81 refused; findings on the charter: --standing reads stale after any post-rehearsal cursor write, a refused pass is unledgered spend, genesis journals per record class",
+    "fingerprint": "19ba156e3cdd684f6c6584e2be7c0d572846f5c66a7ea4acfb8ea4657cfe597f",
+    "at": "2026-09-15T18:35:23",
+    "seq": 5
   }
 ]

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_no_direct_reach.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-17T13:11:14",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-17T16:52:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "6dff58fdb345b9dfbfef5e1f1770bd7c1b61482c79bf1434fa11af8c4399b11a",
+      "source_fingerprint": "650bb4b18ae2f902b653ff8689d99502f6bb9622f52ada8411799f02af34efd9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -60,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1691269-ufyredly/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2314943-5nb0xmgy/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,21 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 143397540,
-          "disk_bytes": 155353088,
-          "entries": 4971,
+          "bytes": 145561412,
+          "disk_bytes": 157581312,
+          "entries": 4995,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "50ad391f4e95": {
-          "cairn/devices/inference_domain/device.py": [
-            "test_aider_shim_reaches_inference_domain_only_through_a_door"
-          ],
-          "cairn/devices/aider_shim/interceptor.py": [
-            "test_aider_shim_reaches_inference_domain_only_through_a_door"
-          ]
         }
       }
     },

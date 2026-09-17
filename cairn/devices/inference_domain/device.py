@@ -31,7 +31,7 @@ class InferenceDomainDevice(BaseDevice):
         return {**super().declared_verbs(), "resolve": self._handle_resolve}
 
     def declared_views(self) -> dict:
-        return {"yield": self._yield_view}
+        return {"yield": self._yield_view, "models": self._models_view}
 
     def _handle_resolve(self, envelope: dict) -> dict:
         from cairn.devices.inference_domain import domain, host
@@ -63,6 +63,15 @@ class InferenceDomainDevice(BaseDevice):
     def _yield_view(self) -> dict:
         from cairn.devices.inference_domain import domain
         return domain.yield_report()
+
+    def _models_view(self) -> dict:
+        """The parsed models stack — the owner's declaration of what it will answer for.
+
+        A consumer (aider_shim first, ticket 50ad391f4e95) sizes its model table off this
+        instead of reading ``machines/route/stacks/models.json`` out of this device's tree.
+        """
+        from cairn.devices.inference_domain.machines.route.route import load_stacks
+        return load_stacks()["models"]
 
     def intention(self) -> dict:
         return {

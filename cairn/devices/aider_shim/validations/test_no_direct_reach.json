@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_no_direct_reach.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-17T12:45:37",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_device_has_modules_to_measure\n.\n  ok   test_no_module_in_aider_shim_imports_inference_domain\n.\n  ok   test_no_module_in_aider_shim_spells_a_path_into_inference_domain\n.\n  ok   test_the_instrument_would_catch_a_repointed_path\n.\n  ok   test_the_surface_asks_the_bus_for_the_models_stack\n.\n  ok   test_an_injected_stack_never_touches_the_bus\n.\n  ok   test_inference_domain_declares_a_models_view_that_returns_the_stack\n.\n  ok   test_the_seam_answers_the_same_stack_as_the_view\n                                                                 [100%]\n8 passed in 0.16s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_device_has_modules_to_measure",
+        "test_no_module_in_aider_shim_imports_inference_domain",
+        "test_no_module_in_aider_shim_spells_a_path_into_inference_domain",
+        "test_the_instrument_would_catch_a_repointed_path",
+        "test_the_surface_asks_the_bus_for_the_models_stack",
+        "test_an_injected_stack_never_touches_the_bus",
+        "test_inference_domain_declares_a_models_view_that_returns_the_stack",
+        "test_the_seam_answers_the_same_stack_as_the_view"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "366cbf0185dbc4d0fbf04012cad6e0f63bf535b1794473a0ec4c4f49aa84d293",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/aider_shim/__init__.py",
+        "cairn/devices/aider_shim/fence.py",
+        "cairn/devices/aider_shim/interceptor.py",
+        "cairn/devices/aider_shim/proofs/test_no_direct_reach.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/device.py",
+        "cairn/devices/inference_domain/domain.py",
+        "cairn/devices/inference_domain/machines/__init__.py",
+        "cairn/devices/inference_domain/machines/route/__init__.py",
+        "cairn/devices/inference_domain/machines/route/route.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1613010-cpq6dpa4/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 142395612,
+          "disk_bytes": 154337280,
+          "entries": 4968,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

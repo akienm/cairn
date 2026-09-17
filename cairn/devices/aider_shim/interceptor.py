@@ -160,7 +160,8 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     ``resolver`` and ``resolve`` are injected seams so a proof can drive the whole surface
     without a host: when absent and ``bus`` is provided, inference goes through the bus
     (the sole path for inter-device inference, ticket 87a7f1c7ae21). When all three are
-    absent, the fallback is direct import of ``inference_domain`` (subprocess use only).
+    absent, the fallback is the ``bus_client`` seam (subprocess use only) — this device
+    imports nothing from inference_domain and names no path into its tree.
 
     ``ticket`` is stamped on every recorded ask. It is the ONLY thing that will ever say a
     ticket was built through this shim — a verdict artifact records that a ticket reached a
@@ -170,6 +171,9 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     """
     fence = fence or Fence()
     log = log if log is not None else SeenLog(record_path=DEFAULT_RECORD)
+    # Resolved once, here, so every consumer below (model_cost, get_model_info) reads the
+    # same answer and none of them has to know how the stack was reached.
+    models_stack = _stack(models_stack, bus)
     mod = _Surface(MODULE_NAME)
     #: Marks this as a Cairn surface rather than the real package. Identity via
     #: ``isinstance`` is the stronger check and :func:`installed` uses it; this flag is for
@@ -411,13 +415,30 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     return mod
 
 
-def _stack(models_stack):
+def _stack(models_stack, bus=None):
+    """The models stack, asked for rather than reached for (ticket 50ad391f4e95).
+
+    Until 2026-09-17 this walked ``parents[2] / "devices" / "inference_domain" / ... /
+    "models.json"`` — a path into another device's file tree, which is a cross-device
+    import spelled as a filesystem walk: the stack's owner could move the file and this
+    device would red without either side having decided anything. Now the stack is an
+    answer, and there are three ways to get one, in the order the whole surface uses:
+    injected (a proof's fixture), over the bus (``get`` / ``what=models`` on
+    ``inference_domain`` — the same door ``_do_resolve`` uses for inference), or through
+    the ``bus_client`` seam for subprocess use without a bus, exactly as inference falls
+    back to ``inference_seam()``. Nothing here names inference_domain's tree.
+    """
     if models_stack is not None:
         return models_stack
-    import json  # noqa: PLC0415
-    from pathlib import Path  # noqa: PLC0415
-    here = Path(__file__).resolve().parents[2] / "devices" / "inference_domain" / "machines" / "route" / "stacks"
-    return json.loads((here / "models.json").read_text(encoding="utf-8"))
+    if bus is not None:
+        reply = bus.request(
+            sender="aider_shim", to="inference_domain", verb="get",
+            why="aider's model_cost table is the stack the owner declares",
+            body={"what": "models"},
+        )
+        return reply["body"]["data"]
+    from cairn.tools.bus_client import models_stack as _seam  # noqa: PLC0415
+    return _seam()
 
 
 def _model_cost(models_stack, fence: Fence | None = None) -> dict:

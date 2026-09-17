@@ -160,6 +160,17 @@ def inference_seam():
     return domain.resolve, host.ollama_resolver
 
 
+def models_stack() -> dict:
+    """inference_domain's parsed models stack — for subprocess use without a bus.
+
+    The twin of :func:`inference_seam`: the tool holds the one import so a consumer
+    (aider_shim, ticket 50ad391f4e95) never reaches into inference_domain's tree for
+    ``stacks/models.json``. Over a bus the same answer is ``get`` / ``what=models``.
+    """
+    from cairn.devices.inference_domain.machines.route.route import load_stacks
+    return load_stacks()["models"]
+
+
 def _device_shim_module(device_name: str) -> str | None:
     """The dotted module path of ``<device folder>/shim.py``, found the way DISCOVERY
     finds a device — by walking class-space, not by assuming a shape.

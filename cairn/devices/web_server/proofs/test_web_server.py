@@ -19,6 +19,11 @@ Teeth a hollow surface could not pass:
     the surface.
   - THE WEB SERVER OWNS NO STATE: it is a device (Form v0 #2) and holds nothing — its state() is
     pulled live (served count + the current roster), never a cached copy of device internals.
+  - THE GRADUATION TO STARLETTE (ticket 72e8e3509287, five teeth at the foot, declared in PROVES):
+    one web server in the tree; logic stays out of the transport; every pane URL renders
+    identically through the ASGI app driven in-process over a raw scope, and a WebSocket is
+    accepted and pushed to; no dependency beyond the graft source; the graft names its ticket
+    and its source.
 
 Runnable bare (NO socket, NO DB, NO framework):
     python3 cairn/devices/web_server/proofs/test_web_server.py     # exit 0 = green
@@ -44,6 +49,19 @@ from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 from cairn.devices.web_server.server import WebServerDevice
+
+# Ticket 72e8e3509287 (the web server graduates to Starlette) — five numbered proves_red clauses,
+# one tooth each; the teeth stand at the foot of this file.
+PROVES = {
+    "72e8e3509287": {
+        "1": "test_there_is_one_web_server",
+        "2": "test_device_logic_stays_out_of_the_transport",
+        "3": "test_existing_pane_urls_render_identically_through_the_asgi_app",
+        "4": "test_the_graft_brings_no_dependency_beyond_its_source",
+        "5": "test_the_graft_carries_its_ticket_and_proof",
+    },
+}
+
 
 
 class _Device(BaseDevice):
@@ -188,7 +206,215 @@ def test_the_trace_wire_counts_a_pass_and_a_refusal():
     assert all(r["consumer"] == "training" for r in recs), "the denominator must not expire"
 
 
+# ---------------------------------------------------------------------------------------------
+# TICKET 72e8e3509287 — the web server graduates to Starlette. The proves_red falsifier has five
+# numbered clauses, one tooth each. Every tooth resolves the LISTENER at call time (importlib,
+# never a module-level import) so a hollow reading that reverts listener.py to the stdlib version
+# still reaches a check and prints a red tooth rather than dying on import.
+# ---------------------------------------------------------------------------------------------
+
+_LISTENER_REL = "cairn/devices/web_server/listener.py"
+
+
+def _listener_module():
+    import importlib
+    return importlib.import_module("cairn.devices.web_server.listener")
+
+
+def _listener_source() -> str:
+    return (_REPO_ROOT / _LISTENER_REL).read_text(encoding="utf-8")
+
+
+def _py_files_under(root: Path):
+    for p in root.rglob("*.py"):
+        if "__pycache__" in p.parts:
+            continue
+        yield p
+
+
+def _asgi_http(app, path: str, *, method: str = "GET", body: bytes = b"") -> tuple[int, str, str]:
+    """Drive the ASGI app IN-PROCESS over a raw scope — no socket, no client library. This is the
+    transport the listener hands to uvicorn, exercised exactly as uvicorn would, minus the bind."""
+    import asyncio
+
+    scope = {"type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1", "method": method,
+             "scheme": "http", "path": path, "raw_path": path.encode(), "query_string": b"",
+             "root_path": "", "headers": [(b"host", b"proof")], "client": ("127.0.0.1", 1),
+             "server": ("proof", 80)}
+    sent: list[dict] = []
+    handed = {"body": False}
+
+    async def receive():
+        if handed["body"]:
+            return {"type": "http.disconnect"}
+        handed["body"] = True
+        return {"type": "http.request", "body": body, "more_body": False}
+
+    async def send(message):
+        sent.append(message)
+
+    asyncio.run(app(scope, receive, send))
+    start = next(m for m in sent if m["type"] == "http.response.start")
+    headers = {k.decode(): v.decode() for k, v in start["headers"]}
+    text = b"".join(m.get("body", b"") for m in sent if m["type"] == "http.response.body").decode("utf-8")
+    return start["status"], headers.get("content-type", ""), text
+
+
+def _asgi_websocket(app, path: str) -> list[dict]:
+    """Open a WebSocket over a raw scope: connect, let the server push, then disconnect. Returns
+    every message the server sent."""
+    import asyncio
+
+    scope = {"type": "websocket", "asgi": {"version": "3.0"}, "scheme": "ws", "path": path,
+             "raw_path": path.encode(), "query_string": b"", "root_path": "",
+             "headers": [(b"host", b"proof")], "client": ("127.0.0.1", 1), "server": ("proof", 80),
+             "subprotocols": []}
+    inbound = [{"type": "websocket.connect"}, {"type": "websocket.disconnect", "code": 1000}]
+    sent: list[dict] = []
+
+    async def receive():
+        return inbound.pop(0) if inbound else {"type": "websocket.disconnect", "code": 1000}
+
+    async def send(message):
+        sent.append(message)
+
+    asyncio.run(app(scope, receive, send))
+    return sent
+
+
+def test_there_is_one_web_server():
+    """Clause (1): no second web server. Census every module in the tree that BINDS a server
+    (uvicorn.Server, http.server's HTTPServer/ThreadingHTTPServer, serve_forever) and keep the
+    ones that are a PRESENTATION surface — they render text/html or hold the WebServerDevice.
+    Exactly one may: the listener. (Measured 2026-09-17: cairn/machines/openai_wire/serve.py also
+    builds a ThreadingHTTPServer — an OpenAI-shaped JSON wire with injected answerers, no page,
+    no pane, no html; the one-web-server rule is about FACES, and the tooth says so by predicate
+    rather than by exempting a name.)"""
+    import re
+    binder = re.compile(r"uvicorn\.Server\(|ThreadingHTTPServer\(|HTTPServer\(|serve_forever\(")
+    face = re.compile(r"text/html|WebServerDevice|web_server\.render|web_server\.server")
+    binders, faces = [], []
+    for p in _py_files_under(_REPO_ROOT / "cairn"):
+        if "proofs" in p.parts:
+            continue
+        src = p.read_text(encoding="utf-8", errors="replace")
+        if binder.search(src):
+            rel = str(p.relative_to(_REPO_ROOT))
+            binders.append(rel)
+            if face.search(src):
+                faces.append(rel)
+    assert _LISTENER_REL in binders, f"the listener binds the one server; binders: {binders}"
+    assert faces == [_LISTENER_REL], (
+        f"exactly one module may serve a FACE — the web_server listener; found {faces} "
+        f"(all binders: {binders})")
+
+
+def test_device_logic_stays_out_of_the_transport():
+    """Clause (2): routing and rendering are server.py and render.py; the listener is TRANSPORT.
+    Measured on the source, not asserted: the listener's request handlers call the device's
+    ``serve`` and carry no markup, no content-type, no route table beyond the catch-all; the
+    listener never imports render/html; and the logic files never import the transport."""
+    import ast
+    src = _listener_source()
+    tree = ast.parse(src)
+    strings = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+    leaked = [s for s in strings if "<" in s and ">" in s or "text/html" in s]
+    assert leaked == [], f"markup or a content-type in the transport is rendering leaking upward: {leaked}"
+    imported = {(n.module or "") for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+    imported |= {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+    assert not any(m.endswith("render") or m == "html" for m in imported), \
+        f"the listener imports a renderer: {sorted(imported)}"
+    handlers = [n for n in tree.body if isinstance(n, ast.AsyncFunctionDef) and n.name.startswith("_handle_")
+                and "ws" not in n.name]
+    assert len(handlers) >= 2, "a GET and a POST handler are the whole HTTP face"
+    for h in handlers:
+        calls = [ast.unparse(c.func) for c in ast.walk(h) if isinstance(c, ast.Call)]
+        assert "_device.serve" in calls, f"{h.name} must route through the device's serve(): {calls}"
+    for logic in ("server.py", "render.py"):
+        lsrc = (_REPO_ROOT / "cairn/devices/web_server" / logic).read_text(encoding="utf-8")
+        assert "starlette" not in lsrc and "uvicorn" not in lsrc, \
+            f"{logic} is the logic layer and must not know the transport"
+
+
+def test_existing_pane_urls_render_identically_through_the_asgi_app():
+    """Clause (3): no pane URL regresses — the Starlette app, driven in-process over a raw ASGI
+    scope, returns byte-for-byte what ``WebServerDevice.serve`` returns for every URL the
+    surface teeth above exercise, 200s and the 404 alike; a POST reaches serve() with its body.
+    And proves_green (2): a WebSocket connection is accepted and RECEIVES A SERVER PUSH — the
+    capability the stdlib listener lacked — with the trouble lane asked over the bus, never
+    imported."""
+    listener = _listener_module()
+    web, _ = _wired()
+
+    class _Bus:
+        asked: list[dict] = []
+
+        def request(self, **kw):
+            self.asked.append(kw)
+            return {"body": {"troubles": [{"id": "t-1", "standing": "live", "why": "a fixture trouble",
+                                           "count": 2}]}}
+
+    saved = (listener._device, listener._bus)
+    listener._device, listener._bus = web, _Bus()
+    try:
+        app = listener._make_app()
+        for path in ("/", "/device/alpha", "/device/beta", "/device/ghost", "/nowhere"):
+            expect = web.serve(path)
+            got = _asgi_http(app, path)
+            assert got[0] == expect[0], f"{path}: status {got[0]} through the app, {expect[0]} direct"
+            assert got[2] == expect[2], f"{path}: the body through the app differs from serve()'s"
+            assert expect[1].split(";")[0] in got[1], f"{path}: content-type {got[1]!r} vs {expect[1]!r}"
+        status, _ct, body = _asgi_http(app, "/device/alpha", method="POST", body=b"say=hello")
+        assert status == web.serve("/device/alpha", method="POST", body="say=hello")[0], \
+            "a POST reaches serve() with its body"
+        pushed = _asgi_websocket(app, "/ws/troubles")
+        kinds = [m["type"] for m in pushed]
+        assert kinds[0] == "websocket.accept", f"the upgrade is accepted first: {kinds}"
+        sends = [m for m in pushed if m["type"] == "websocket.send"]
+        assert sends, f"the server PUSHES without being asked — that is the capability: {kinds}"
+        import json as _json
+        payload = _json.loads(sends[0]["text"])
+        assert payload == [{"id": "t-1", "standing": "live", "why": "a fixture trouble", "count": 2}], payload
+        assert listener._bus.asked and listener._bus.asked[0]["to"] == "trouble" \
+            and listener._bus.asked[0]["verb"] == "live", "the lane is ASKED over the bus"
+        assert len(listener._ws_clients) == 0, "a disconnected client is dropped from the set"
+    finally:
+        listener._device, listener._bus = saved
+
+
+def test_the_graft_brings_no_dependency_beyond_its_source():
+    """Clause (4): the graft source (TheIgors' utility_closet_server.py) imports the stdlib,
+    starlette and uvicorn — the listener may import those and cairn itself, nothing else."""
+    import ast
+    allowed_roots = set(sys.stdlib_module_names) | {"starlette", "uvicorn", "cairn"}
+    tree = ast.parse(_listener_source())
+    roots = set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            roots |= {a.name.split(".")[0] for a in n.names}
+        elif isinstance(n, ast.ImportFrom) and n.module:
+            roots.add(n.module.split(".")[0])
+    extra = sorted(roots - allowed_roots)
+    assert extra == [], f"the listener grew a dependency the graft source never had: {extra}"
+    assert {"starlette", "uvicorn"} <= roots, f"the listener IS the Starlette/uvicorn transport: {sorted(roots)}"
+
+
+def test_the_graft_carries_its_ticket_and_proof():
+    """Clause (5): bytes enter by graft with a ticket and a proof (Law 8). The listener's own
+    docstring names the ticket and the graft source; this proof declares a tooth for every
+    clause of that ticket."""
+    import ast
+    doc = ast.get_docstring(ast.parse(_listener_source())) or ""
+    assert "72e8e3509287" in doc, "the listener names the graft ticket"
+    assert "utility_closet_server.py" in doc, "the listener names its graft source"
+    assert set(PROVES["72e8e3509287"]) == {"1", "2", "3", "4", "5"}, "every clause has a tooth"
+    for tooth in PROVES["72e8e3509287"].values():
+        assert callable(globals().get(tooth)), f"declared tooth {tooth} exists"
+
+
+
 def _main() -> int:
+    red: list[str] = []
     for check in (test_the_nav_is_the_roster,
                   test_a_device_page_renders_its_panes,
                   test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav,
@@ -196,9 +422,27 @@ def _main() -> int:
                   test_an_absent_pane_renders_its_reason,
                   test_the_web_server_owns_no_state_and_is_a_device,
                   test_the_crossings_are_no_longer_silent,
-                  test_the_trace_wire_counts_a_pass_and_a_refusal):
-        check()
+                  test_the_trace_wire_counts_a_pass_and_a_refusal,
+                  test_there_is_one_web_server,
+                  test_device_logic_stays_out_of_the_transport,
+                  test_existing_pane_urls_render_identically_through_the_asgi_app,
+                  test_the_graft_brings_no_dependency_beyond_its_source,
+                  test_the_graft_carries_its_ticket_and_proof):
+        # EVERY TOOTH RUNS AND EACH RED IS PRINTED AS ITSELF. A run that stops at the first red
+        # leaves every later tooth unprinted, and a hollow reading (cairn test --hollow) cannot
+        # tell "this tooth caught the reversion" from "this tooth never ran". Ticket c5b6b128a376.
+        try:
+            check()
+        except Exception as e:  # noqa: BLE001 — the red is the finding, printed by name
+            import traceback
+            traceback.print_exc()
+            print(f"  FAIL  {check.__name__}: {type(e).__name__}: {e}")
+            red.append(check.__name__)
+            continue
         print(f"  PASS  {check.__name__}")
+    if red:
+        print(f"red — web_server: {len(red)} tooth/teeth failed: {', '.join(red)}")
+        return 1
     print("green — web_server: the nav IS the roster, a device page renders its panes pulled live "
           "through the heartbeat, an unknown device is a coherent 404, every device string is "
           "escaped, absent panes say why, and the surface owns no state")

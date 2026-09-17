@@ -155,8 +155,11 @@ def test_the_codemother_launcher_folds_its_subcommand():
     assert r.returncode == lo.returncode and r.stdout == lo.stdout, (r.stderr, lo.stderr)
     r = subprocess.run([str(_CODEMOTHER), "SHOW", "NOT-A-VIEW"],
                        capture_output=True, text=True, timeout=60)
-    assert r.returncode == 1 and "usage: cairn codemother show" in r.stderr, (
-        f"an uppercase SHOW must reach the show branch (its own usage), not the default: "
+    # The show branch hands an unknown view to the base resolver (ticket b41b0c0fff0e), whose
+    # refusal names the view it was given, folded, and the views that exist — the default arm
+    # prints help and never says "no view".
+    assert r.returncode == 2 and "no view 'not-a-view'" in r.stderr, (
+        f"an uppercase SHOW must reach the show branch (the resolver's refusal), not the default: "
         f"rc={r.returncode} {r.stderr!r} {r.stdout[:80]!r}")
 
 

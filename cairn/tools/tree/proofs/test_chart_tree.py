@@ -4,8 +4,10 @@ hollow build could not pass:
   - THE TABLE IS BORN OWNED BY CHART: the nexus's table registers under owner 'chart',
     and a write wearing any other name is refused by db_domain's physics, not manners.
   - GATE BEFORE SEED: a malformed packet never reaches the tree (validate_orient runs at
-    the deposit-back door), and a berth path that does not exist on disk refuses — a node
-    whose provenance points at nothing is fabricated attribution one layer up.
+    the deposit-back door), and a berth path that does not exist on disk refuses BY NAME —
+    a node whose provenance points at nothing is fabricated attribution one layer up —
+    with the control that the same packet, berthed, is accepted (so the refusal measured
+    is the berth's, not an earlier lack; ticket 9c46e187f2de).
   - DEPOSIT-BACK LANDS HONESTLY: content is the packet's intent, provenance names the
     berth, standing is hypothesis (inherited physics); a duplicate writes nothing.
   - COUNSEL KEEPS ITS FLOOR VISIBLE: the resolution floor rides every answer, labeled as
@@ -54,6 +56,11 @@ from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.loop import RESOLUTION_FLOOR
 
+# The falsifier of 9c46e187f2de is one unnumbered clause, so one composite tooth carries it.
+PROVES = {
+    "9c46e187f2de": {"all": "test_gate_before_seed"},
+}
+
 _NEXUS = f"orient_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 _TABLE = nexus_table(_NEXUS)
 _PROV = {"source": "proofs/test_chart_tree.py", "ground": "fixture"}
@@ -81,13 +88,19 @@ def _packet(intent="wire the tree stratum into the orient nexus of the chart dev
         "refs": ["tree"],
         "unknowns": [],
         "confidence": 0.7,
-        # ONLY THE TWO THE DOOR DOES NOT MEASURE. It carried "refs": "floor" until
-        # 2026-08-14, when provenance for refs/domain/unknowns stopped being the
-        # sender's to write (ticket orient-floor-authors-and-provenance-is-measured) —
-        # validate_orient now derives those by re-running the floor, and a fixture that
-        # declares one gets refused for THAT rather than for the thing the tooth is
-        # about, which is how this proof found the change.
-        "provenance": {"intent": "cc", "scope": "cc"},
+        # ALL FIVE AUTHORED FIELDS, because this fixture stands for a BERTHED packet.
+        # The write door (validate_orient with measure_provenance=True) refuses a
+        # sender that declares refs/domain/unknowns and stamps them itself (ticket
+        # orient-floor-authors-and-provenance-is-measured, 2026-08-14); the deposit
+        # door (measure_provenance=False, since ticket 4c022c44de53) measures nothing
+        # and REQUIRES coverage of every authored field — a berthed packet always has
+        # it. A fixture carrying only intent/scope was refused with "provenance does
+        # not cover: domain, refs, unknowns" one lack BEFORE the berth-existence check,
+        # so the berth tooth asserted a refusal the door never reached (ticket
+        # 9c46e187f2de). 'cc' is an accepted stratum; the value is not what the tooth
+        # measures, the coverage is.
+        "provenance": {"intent": "cc", "scope": "cc",
+                       "domain": "cc", "refs": "cc", "unknowns": "cc"},
     }
     p.update(over)
     return p
@@ -130,11 +143,24 @@ def test_gate_before_seed():
         del broken["confidence"]
         _refuses(OrientRefused, deposit_orient, broken, [1.0, 0.0, 0.0], berth_path=berth)
         # A berth that does not exist on disk refuses — provenance may not point at nothing.
+        # The refusal must be THAT refusal: it names the missing path, and it is not the
+        # coverage refusal that stood in front of it until ticket 9c46e187f2de.
+        missing = os.path.join(tmp, "no-such-berth.json")
         msg = _refuses(OrientRefused, deposit_orient, _packet(), [1.0, 0.0, 0.0],
-                       berth_path=os.path.join(tmp, "no-such-berth.json"))
-        assert "does not exist" in msg
-    assert trees.tree_state(_NEXUS, table=_TABLE, owner="chart") == before, \
-        "a refused deposit-back must leave the tree exactly where it stood"
+                       berth_path=missing)
+        assert "does not exist" in msg, msg
+        assert missing in msg, "the refusal must name the berth that is not there: " + msg
+        assert "provenance does not cover" not in msg, \
+            "the fixture was refused one lack early — the berth check was never reached"
+        assert trees.tree_state(_NEXUS, table=_TABLE, owner="chart") == before, \
+            "a refused deposit-back must leave the tree exactly where it stood"
+        # THE CONTROL: the same packet, with the berth that exists, is accepted — so the
+        # refusal above was the berth's and not some earlier lack the packet carries.
+        control = _packet(intent=f"the gate control packet of the chart tree proof [{_NEXUS}]")
+        berth = _berthed_fixture(tmp, control)
+        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_NEXUS)
+        _CREATED_NODES.append(r["node_id"])
+        assert r["duplicate"] is False, "the control packet must land as a new node"
 
 
 def test_deposit_back_lands_and_dedups():

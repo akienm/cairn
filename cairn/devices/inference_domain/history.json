@@ -7386,5 +7386,85 @@
     "fingerprint": "49664fd7989430b1bd3b5f646d1297ecde6d432634b5d55078cbacbea8cabf20",
     "at": "2026-09-17T16:00:36",
     "seq": 43
+  },
+  {
+    "from": "WATCHME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(the_verdict_vocabulary_is_refused_at_the_database) -> PROVED",
+    "direction": "back",
+    "severity": 3,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> TICKETME moves the cursor off position 4",
+        "actual": "WATCHME -> TICKETME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 4,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> TICKETME",
+        "actual": "WATCHME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "actor": "CC",
+    "ticket": "6890cf7e4053",
+    "note": "kick-back WATCHME->TICKETME: the ticket crossed PROVEME on 2026-09-02 before the forward BUILDME crossing was journaled with a proven_by, so the hollow reading has no prebuild commit to measure from; re-entering the voyage so the forward BUILDME names cairn/devices/inference_domain/proofs/test_inference_domain.py and the hollow can read",
+    "fingerprint": "ea328b6bc6cc3c0605fe7b7f97175bd9390145fc2de73ac1fc665f6180cd7ddd",
+    "at": "2026-09-17T17:04:08",
+    "seq": 44
   }
 ]

@@ -7308,5 +7308,83 @@
     "fingerprint": "e5a8e10b26d37e086a51771d172d04e9f015d9c080a62819351626ad63711099",
     "at": "2026-09-11T16:35:22",
     "seq": 42
+  },
+  {
+    "from": "BUILDME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(inference-task-tickets-are-complete) -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME moves the cursor off position 2",
+        "actual": "BUILDME -> TICKETME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 2,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME",
+        "actual": "BUILDME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "actor": "CC",
+    "ticket": "ea4a6151300f",
+    "note": "kicked back to TICKETME to drop a wrong proven_by: the 2026-09-06 BUILDME crossing named test_an_inference_call_logs_that_it_started.py (which declares nothing for ea4a) and the 2026-09-07 kick-back named test_proof_coverage.py; the build is now in hand (domain.py task ticket + caller + specified/selected + trouble raise; device.py sender + refusal-as-value; probe; proof test_task_ticket.py with one composite tooth for clause all) and the forward BUILDME will name the right proof after a CLEAN rehearsal",
+    "fingerprint": "49664fd7989430b1bd3b5f646d1297ecde6d432634b5d55078cbacbea8cabf20",
+    "at": "2026-09-17T16:00:36",
+    "seq": 43
   }
 ]

@@ -673,6 +673,7 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
     r = _CountingResolver()
 
     tmp = Path(tempfile.mkdtemp(prefix="cairn_agent_trail_both_records_"))
+    outer = getattr(domain._trail, "_diagnostic_roots", None)
     domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
     try:
         trail = domain.diagnostic_trail()
@@ -715,7 +716,7 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
         assert misses[0]["pointer"] != bare, \
             "the digest that joins the two records must carry the toolset — it does not"
     finally:
-        domain.set_diagnostic_roots(None)
+        domain.set_diagnostic_roots(outer)
 
 
 def _cleanup():
@@ -752,11 +753,19 @@ def _main() -> int:
         test_an_agent_retry_gets_a_fresh_sample,
         test_a_tool_carrying_call_lands_both_records_joined_by_the_digest,
     ]
+    # THE WHOLE RUN IN A FIXTURE WORLD. Since ticket ea4a6151300f every resolve() writes a
+    # task ticket into the device's instance-space beside its trail; with the roots left
+    # live, this proof's 32 calls landed 32 fixture tickets in the LIVE tickets folder
+    # (measured 2026-09-17). The roots move once here and every tooth rides them.
+    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.base import address as _address
+    domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_infer_proof_")})
     try:
         for check in checks:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
+        domain.set_diagnostic_roots(None)
         _cleanup()
     print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
     return 0

@@ -53,11 +53,36 @@ class InferenceDomainDevice(BaseDevice):
         request = {k: v for k, v in body.items()
                    if k in ("kind", "prompt", "messages", "model", "domain", "options",
                             "tools")}
-        result = domain.resolve(request, resolver=resolver, sink=self.debug_sink)
+        # THE CALLER RIDES THE ENVELOPE (ticket ea4a6151300f): the bus stamps ``sender`` on
+        # every envelope, so over this door the asker's identity is measured off the message,
+        # not guessed off a call stack that ends in the shim. An envelope with no sender is
+        # passed through as None and the domain records ``unknown`` — a measurement that
+        # found nothing, never a blank.
+        caller = envelope.get("sender") or None
+        try:
+            result = domain.resolve(request, resolver=resolver, sink=self.debug_sink,
+                                    caller=caller)
+        except Exception as refusal:
+            # A REFUSAL COMES BACK AS A VALUE, NOT A CRASH. The domain already wrote the
+            # task ticket and raised the trouble; what the bus caller needs is an
+            # intelligible answer they can act on — which host said no, why, and where the
+            # ticket is — rather than a traceback folded into the reply channel (Law 7:
+            # loud, and permanent in the ticket; this face may shape it, never hide it).
+            ticket = getattr(refusal, "task_ticket", None)
+            self.debug_sink.emit("resolve",
+                                 pointer=body.get("kind", ""),
+                                 values={"hit": False, "model": model,
+                                         "outcome": "refused",
+                                         "refused": type(refusal).__name__})
+            return {"outcome": "refused", "refused": type(refusal).__name__,
+                    "detail": str(refusal)[:2000], "ticket": ticket, "model": model,
+                    "hit": False, "answer": None}
         self.debug_sink.emit("resolve",
                              pointer=body.get("kind", ""),
                              values={"hit": result.get("hit", False),
-                                     "model": model})
+                                     "model": model,
+                                     "outcome": "answered",
+                                     "ticket": result.get("ticket")})
         return result
 
     def _yield_view(self) -> dict:

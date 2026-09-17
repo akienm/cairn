@@ -238,9 +238,17 @@ def test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged(
         assert r.calls == 1, "the ask must have reached the seam"
 
         records = _lines(trail)
-        assert len(records) == 1 and records[0]["gate"] == "refused", (
-            f"a refused ask must leave exactly one line, naming the branch: {records}")
-        v = records[0]["values"]
+        refused = [r for r in records if r["gate"] == "refused"]
+        assert len(refused) == 1, (
+            f"a refused ask must leave exactly one REFUSED line, naming the branch: {records}")
+        # Since ticket ea4a6151300f a refusal also raises a trouble, and raise_trouble lands
+        # its emission in the raiser's own log home — this trail. That is the second line
+        # here, and it is the trouble lane's, not the refusal's: it must NOT be a second
+        # refused record, and nothing else may land beside the two.
+        others = [r["gate"] for r in records if r["gate"] != "refused"]
+        assert others == ["raise_trouble"], (
+            f"beside the refused line only the trouble raise may stand: {records}")
+        v = refused[0]["values"]
         assert v["refused"] == "RuntimeError", f"the line must name the exception TYPE: {v}"
         assert "the host refused this ask" in v["detail"], f"and carry its own words: {v}"
         assert v["domain"] == "general", v

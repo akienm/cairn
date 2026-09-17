@@ -277,6 +277,12 @@ if __name__ == "__main__":
         test_a_toolset_survives_the_bus_verb,
     ]
     failures = 0
+    # The device's trail and task tickets (ticket ea4a6151300f) ride the roots: moved into a
+    # fixture world for the run so a bus proof leaves nothing in the live tickets folder.
+    from cairn.devices.inference_domain import domain as _domain
+    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.base import address as _address
+    _domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_resolve_verb_")})
     try:
         for check in checks:
             try:
@@ -286,6 +292,7 @@ if __name__ == "__main__":
                 failures += 1
                 print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
     finally:
+        _domain.set_diagnostic_roots(None)
         try:
             conn = store.connect()
             with conn.cursor() as cur:

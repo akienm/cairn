@@ -77,11 +77,16 @@ OPEN EDGES, filed not faked:
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
+import os
 import sys
+import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.devices.db_domain import store
+from cairn.tools.base import address
 from cairn.tools.base.diagnostic import DiagnosticBase
 
 # inference_domain owns its cache. One append-only table is both the compiled answers
@@ -182,6 +187,162 @@ def diagnostic_records() -> list[dict]:
     """What this door's crossings ARE — read from wherever ``diagnostic_trail`` points, so a
     caller under ``set_diagnostic_roots`` reads the world it moved the device into."""
     return _trail.diagnostic_records()
+
+
+# ── the task ticket: one artifact per call, the call made inspectable ────────
+#
+# TICKET ea4a6151300f. The meter (a row) says what a call COST and the trail (a line) says
+# which far end it crossed to; neither says WHO asked, what they asked FOR versus what the
+# route actually SELECTED, or how the call ENDED. So every ``resolve`` now writes ONE FILE —
+# the task ticket — into this device's own instance-space, and hands its path back on the
+# result. The receiver can open it or ignore it; either way the call is inspectable after
+# the fact, which is what a ticket is for.
+#
+# WHY A FILE AND NOT MORE COLUMNS (Akien 2026-08-31, superseding the first cut): the
+# inference call is a TASK the domain performs, and a task produces an ARTIFACT. The row
+# stays the index and the meter; the ticket is the whole record, in the one root that is
+# nobody's shared truth (instance-space, never git). It is not a parallel store — nothing
+# is read back from it to answer a call, and the cache is still the one place a hit comes
+# from.
+#
+# THE CALLER IS MEASURED, NOT DECLARED (Akien: "call chain or message envelope"). Over the
+# bus the shim knows the sender and passes it in; a direct caller (tree.py's embed, the
+# inference seam a subprocess uses) declared nothing, so the identity is read off the call
+# stack — the nearest frame that is not this module, named by its class-space address. A
+# call that leaves NO trace of who asked records ``unknown`` rather than a blank, because
+# a blank is a field somebody forgot and ``unknown`` is a measurement that found nothing.
+TICKETS = "tickets"
+_TICKET_FIELDS = ("id", "caller", "request", "canonical", "verdict", "outcome",
+                  "specified", "selected", "response", "cost", "timings", "trouble")
+_HERE = Path(__file__).resolve()
+_REPO = address.ROOTS["repo"]
+
+
+def tickets_dir(roots: dict | None = None) -> Path:
+    """Where this device's task tickets land: ``<instance>/devices/inference_domain/0/tickets``.
+
+    Follows the trail's roots (``set_diagnostic_roots``) so a proof that moved the device
+    into a temp world finds its tickets there too, never in the live tree."""
+    table = roots if roots is not None else getattr(_trail, "_diagnostic_roots", None)
+    return address.instance_path("inference_domain", 0, table) / TICKETS
+
+
+def _frame_identity(frames) -> str | None:
+    """The nearest caller outside this module, as a class-space address — or None."""
+    for frame in frames:
+        filename = getattr(frame, "filename", None) or (frame[1] if isinstance(frame, tuple) else None)
+        if not filename or filename.startswith("<"):
+            continue                    # <stdin>, <string>, <frozen …>: nowhere to point at
+        path = Path(filename)
+        try:
+            resolved = path.resolve()
+        except OSError:
+            continue
+        if not resolved.is_file():
+            continue
+        if resolved == _HERE:
+            continue
+        try:
+            rel = resolved.relative_to(_REPO)
+        except ValueError:
+            # Outside class-space: a shell, a REPL, a script with no address to name.
+            continue
+        func = getattr(frame, "function", None) or (frame[3] if isinstance(frame, tuple) else "")
+        return f"{rel.as_posix()}:{func}" if func else rel.as_posix()
+    return None
+
+
+def caller_identity(explicit: str | None = None, *, frames=None) -> dict:
+    """Who asked — ``{"identity", "how"}``. ``how`` says which measurement produced it:
+    ``declared`` (the caller or the shim named it), ``call_chain`` (read off the stack),
+    or ``none`` (nothing named it — identity ``unknown``)."""
+    if explicit:
+        return {"identity": str(explicit), "how": "declared"}
+    if frames is None:
+        frames = inspect.stack()[1:]
+    found = _frame_identity(frames)
+    if found:
+        return {"identity": found, "how": "call_chain"}
+    return {"identity": "unknown", "how": "none"}
+
+
+def _specified(request: dict, domain_name: str) -> dict:
+    """What the CALLER asked for — read off the request before the route touched it."""
+    return {"model": request.get("model"),
+            "provider": request.get("provider"),
+            "domain": request.get("domain") or domain_name,
+            "kind": request.get("kind", "generate")}
+
+
+def _selected(provenance: dict) -> dict:
+    """What the route actually USED — read off the resolver's own provenance, so the two
+    blocks can disagree and the disagreement is the finding (a route that escalated)."""
+    return {k: provenance.get(k) for k in ("model", "provider", "host", "path", "route_walked")
+            if k in provenance}
+
+
+_counter = 0
+
+
+def _ticket_path(ticket: dict, *, roots: dict | None = None) -> Path:
+    """Allocate the ticket's address before anything is written, so a trouble raised on
+    the way down can NAME the ticket it belongs to (the chart's fourth criterion)."""
+    global _counter
+    _counter += 1
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
+    name = f"{stamp}-{ticket['canonical_digest'][:12]}-{os.getpid()}-{_counter}.json"
+    return tickets_dir(roots) / name
+
+
+def _write_task_ticket(ticket: dict, *, roots: dict | None = None,
+                       path: Path | None = None) -> Path:
+    """One JSON file per call. Loud on failure (Law 7) — but a ticket that cannot be
+    written may not eat the answer, so the caller wraps this in its own try."""
+    path = path or _ticket_path(ticket, roots=roots)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ticket = dict(ticket, id=path.stem)
+    path.write_text(json.dumps(ticket, indent=2, sort_keys=True, default=str) + "\n",
+                    encoding="utf-8")
+    return path
+
+
+def read_task_tickets(*, roots: dict | None = None, limit: int | None = None) -> list[dict]:
+    """The tickets read back, newest first. A reader's face for the probe and the operator."""
+    folder = tickets_dir(roots)
+    if not folder.is_dir():
+        return []
+    names = sorted((p for p in folder.glob("*.json")), reverse=True)
+    if limit is not None:
+        names = names[:limit]
+    out = []
+    for p in names:
+        try:
+            out.append(json.loads(p.read_text(encoding="utf-8")))
+        except (OSError, json.JSONDecodeError) as exc:
+            out.append({"id": p.stem, "unreadable": f"{type(exc).__name__}: {exc}"})
+    return out
+
+
+def ticket_lacks(ticket: dict) -> list[str]:
+    """What a task ticket is MISSING to be complete — ``[]`` is complete. The probe and the
+    proof judge with this one predicate so they cannot disagree about the word."""
+    lacks = [f for f in _TICKET_FIELDS if f not in ticket]
+    caller = ticket.get("caller") or {}
+    if not caller.get("identity"):
+        lacks.append("caller.identity")
+    outcome = ticket.get("outcome") or {}
+    if outcome.get("kind") not in ("answered", "refused"):
+        lacks.append("outcome.kind")
+    if outcome.get("kind") == "refused":
+        if not outcome.get("refused"):
+            lacks.append("outcome.refused")
+        if not ticket.get("trouble"):
+            lacks.append("trouble")
+    timings = ticket.get("timings") or {}
+    for k in ("started", "finished", "elapsed_ms"):
+        if k not in timings:
+            lacks.append(f"timings.{k}")
+    return lacks
 
 
 def canonicalize(request: dict) -> str:
@@ -285,7 +446,7 @@ def _latest_valid_answer(canonical: str, now: datetime, *, table: str, conn) -> 
 
 
 def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = CACHE,
-            conn=None, stacks: dict | None = None, sink=None) -> dict:
+            conn=None, stacks: dict | None = None, sink=None, caller: str | None = None) -> dict:
     """Run the inference-ticket workflow and return the answer.
 
     `resolver(request) -> {"answer": <jsonb-able>, "cost": <number>, "falsifier"?, "horizon"?,
@@ -293,11 +454,48 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
     client later (and only here). On a verified hit the resolver is NEVER called: that untouched
     host call is inference compilation happening (Telos 1).
 
-    Returns `{"answer", "hit": bool, "canonical"}`.
+    Returns `{"answer", "hit": bool, "canonical", "cost", "provenance", "ticket"}` — ``ticket``
+    is the path of the task ticket this call wrote (ticket ea4a6151300f), so the receiver can
+    inspect what happened rather than only consume the answer. ``caller`` is the asker's
+    identity when the caller (or the shim, from the envelope's sender) declares it; undeclared,
+    it is read off the call stack, and a call nothing can name records ``unknown``.
     """
     sink = sink or _trail
+    started = datetime.now(timezone.utc)
+    tick = time.perf_counter()
+    who = caller_identity(caller, frames=inspect.stack()[1:])
     request, domain_name = _domain_dressed(request, stacks=stacks)
     canonical = canonicalize(request)
+    ticket = {
+        "caller": who,
+        "request": request,
+        "canonical": canonical,
+        "canonical_digest": canonical_digest(canonical),
+        "specified": _specified(request, domain_name),
+        "cache": {"table": table},
+    }
+
+    def _close(verdict: str, *, outcome: dict, selected: dict, response, cost, trouble,
+               path: Path | None = None) -> Path | None:
+        """Finish and write the ticket. In its own try: a ticket that cannot be written is
+        said loudly on stderr and the ANSWER (or the refusal) still reaches the caller."""
+        finished = datetime.now(timezone.utc)
+        ticket.update({
+            "verdict": verdict,
+            "outcome": outcome,
+            "selected": selected,
+            "response": response,
+            "cost": cost,
+            "trouble": trouble,
+            "timings": {"started": started.isoformat(), "finished": finished.isoformat(),
+                        "elapsed_ms": round((time.perf_counter() - tick) * 1000, 3)},
+        })
+        try:
+            return _write_task_ticket(ticket, path=path)
+        except Exception as unwritten:      # pragma: no cover — instance-space unwritable
+            print(f"inference_domain: a task ticket went UNWRITTEN ({unwritten!r}); "
+                  f"the answer itself follows", file=sys.stderr)
+            return None
     own = conn or store.connect()
     try:
         ensure_cache(table=table, conn=own)
@@ -341,9 +539,13 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                 values={"domain": domain_name, "served_from": str(prior["created"])},
                 now=moment,
             )
+            served = {"served_from": str(prior["created"]), "domain": domain_name}
+            path = _close("hit", outcome={"kind": "answered", "served_from": str(prior["created"])},
+                          selected=_selected(dict(prior.get("provenance") or {})),
+                          response=prior["answer"], cost=prior["cost"], trouble=None)
             return {"answer": prior["answer"], "hit": True, "canonical": canonical,
-                    "cost": prior["cost"],
-                    "provenance": {"served_from": str(prior["created"]), "domain": domain_name}}
+                    "cost": prior["cost"], "provenance": served,
+                    "ticket": str(path) if path else None}
 
         # MISS — the one place the host is touched. Meter (this row) + resolve + record, as one
         # append: the answer, its falsifier/horizon (so it can later be invalidated, T1.4), its
@@ -399,6 +601,39 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             except Exception as untrailed:      # pragma: no cover — the trail being unwritable
                 print(f"inference_domain: a refusal left no trail record ({untrailed!r}); "
                       f"the refusal itself follows", file=sys.stderr)
+            # THE TROUBLE LANE (ticket ea4a6151300f): a failed call is a fault, and a fault
+            # that cannot escalate anywhere else goes to trouble. ``raise_trouble`` is the
+            # inherited tool on DiagnosticBase — one emission file in this device's own log
+            # home, folded into a counted ticket at the trouble device's drain — so no
+            # import of the trouble device and no second path: the SAME defect (the same
+            # canonical refused again) increments, it does not shout twice. Its own try,
+            # for the same reason the trail's is: the refusal is the caller's answer.
+            trouble = None
+            ticket_path = _ticket_path(ticket)     # named first, so the trouble can point at it
+            try:
+                raiser = sink if hasattr(sink, "raise_trouble") else _trail
+                record = raiser.raise_trouble(
+                    f"inference-refused-{canonical_digest(canonical)[:16]}",
+                    why=f"the inference host refused an ask at domain {domain_name!r}: "
+                        f"{type(refusal).__name__}: {str(refusal)[:200]}",
+                    detail={"refused": type(refusal).__name__, "detail": str(refusal)[:2000],
+                            "domain": domain_name, "caller": who,
+                            "canonical_digest": canonical_digest(canonical),
+                            "ticket": str(ticket_path)},
+                    now=moment)
+                trouble = {"identity": record.get("pointer"), "poke": record.get("poke"),
+                           "home": record.get("home")}
+            except Exception as unraised:      # pragma: no cover — the lane unreachable
+                print(f"inference_domain: a refusal raised no trouble ({unraised!r}); "
+                      f"the refusal itself follows", file=sys.stderr)
+                trouble = {"identity": None, "poke": f"unraised: {unraised!r}"}
+            path = _close("refused",
+                          outcome={"kind": "refused", "refused": type(refusal).__name__,
+                                   "detail": str(refusal)[:2000]},
+                          selected={}, response=None, cost=0, trouble=trouble,
+                          path=ticket_path)
+            if path is not None:
+                refusal.task_ticket = str(path)
             raise
         provenance = dict(result.get("provenance") or {})
         provenance["domain"] = domain_name    # which vertical rode — the watch reads this
@@ -430,9 +665,12 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             values={k: provenance[k] for k in _ENDPOINT_KEYS if k in provenance},
             now=moment,
         )
+        path = _close("miss", outcome={"kind": "answered"}, selected=_selected(provenance),
+                      response=result["answer"], cost=result.get("cost", 0), trouble=None)
         return {"answer": result["answer"], "hit": False, "canonical": canonical,
                 "cost": result.get("cost", 0),
-                "provenance": provenance}
+                "provenance": provenance,
+                "ticket": str(path) if path else None}
     finally:
         if conn is None:
             own.close()

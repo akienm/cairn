@@ -81,12 +81,25 @@ class _CountingResolver:
 # for the store and another for the trail would leave two true records nobody can join.
 # (e) is the clause the WATCHME probe watches in the wild — an agent re-asks a byte-identical
 # question ON PURPOSE, and serving that from the store is not a saved call, it is a hang.
+#
+# 6890cf7e4053 (the verdict vocabulary is held by postgres) — three numbered clauses:
+# (1) the STANDING table carries the constraint, decided by an actual write it refuses;
+# (2) the vocabulary is physics at the database, not a Python check at the writer — a raw
+#     INSERT that bypasses every writer is refused with postgres' own 23514;
+# (3) the deciding observation is a write refusal, never DDL text or a pg_constraint row —
+#     the probe's row-read is held against the refusal, so a probe that reports "present"
+#     over a table that accepts the write reds here.
 PROVES = {
     "548dd13fb4db": {
         "b": "test_a_differing_toolset_is_a_different_question",
         "d": "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest",
         "e": "test_an_agent_retry_gets_a_fresh_sample",
-    }
+    },
+    "6890cf7e4053": {
+        "1": "test_the_standing_table_refuses_an_out_of_vocabulary_write",
+        "2": "test_an_out_of_vocabulary_verdict_is_refused_at_the_database",
+        "3": "test_the_probes_row_read_agrees_with_an_actual_write_refusal",
+    },
 }
 
 
@@ -597,6 +610,63 @@ def test_the_verdict_constraint_exists_on_the_table():
         conn.close()
 
 
+def _standing_table_refuses(verdict: str) -> str | None:
+    """Try ONE out-of-vocabulary write against the STANDING cache table and return the
+    pgcode postgres refused it with (None when the write was accepted). The transaction is
+    rolled back either way, so the live table is read for an invariant and left as found —
+    the one shape a proof may touch live data in."""
+    conn = store.connect()
+    try:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    f'INSERT INTO "{domain.CACHE}" (canonical, verdict, cost) '
+                    f"VALUES (%s, %s, 0)",
+                    (f"vocab_check_standing_{_NONCE}", verdict),
+                )
+            except Exception as exc:
+                conn.rollback()
+                return getattr(exc, "pgcode", None) or type(exc).__name__
+            conn.rollback()
+            return None
+    finally:
+        conn.close()
+
+
+def test_the_standing_table_refuses_an_out_of_vocabulary_write():
+    """6890cf7e4053 clause (1): production and a fresh install agree — the STANDING table
+    ``inference_calls`` refuses the write, decided by the write itself."""
+    code = _standing_table_refuses("invalid")
+    assert code == "23514", (
+        f"the standing table {domain.CACHE} must refuse an out-of-vocabulary verdict with "
+        f"postgres' check_violation (23514); got {code!r}"
+        + (" — the write was ACCEPTED" if code is None else "")
+    )
+
+
+def test_the_probes_row_read_agrees_with_an_actual_write_refusal():
+    """6890cf7e4053 clause (3): the WATCHME probe reads a pg_constraint row; this tooth holds
+    that read against the refusal of an actual write, so a row that says "present" over a
+    table that accepts the write is red. The probe is bound at call time (hollow reverts it)."""
+    import importlib.util
+    probe_path = (_REPO_ROOT / "cairn" / "devices" / "inference_domain" / "probes"
+                  / "the_verdict_vocabulary_is_refused_at_the_database.py")
+    spec = importlib.util.spec_from_file_location("_verdict_vocab_probe", probe_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.PROBE.carry is not None and mod.PROBE.enough is not None, "the probe is armed"
+    corpus = mod.survey_the_corpus()
+    refused = _standing_table_refuses("invalid") == "23514"
+    assert corpus["constraint_exists"] == refused, (
+        f"the probe's row-read says constraint_exists={corpus['constraint_exists']} but an "
+        f"actual write was {'refused' if refused else 'ACCEPTED'} — the row is not the physics"
+    )
+    assert refused, "the deciding observation is the refusal, and it must be a refusal"
+    assert mod._enough({"corpus": corpus}) and not mod._trigger(None, {"corpus": corpus}), (
+        "with the constraint biting, the probe is at enough and does not trigger"
+    )
+
+
 def test_a_differing_toolset_is_a_different_question():
     """The toolset is CONTENT, not dressing — the same turns under different tools can call for
     a different answer, so they must not share a cache entry.
@@ -749,6 +819,8 @@ def _main() -> int:
         test_the_ticket_comes_back_whole,
         test_an_out_of_vocabulary_verdict_is_refused_at_the_database,
         test_the_verdict_constraint_exists_on_the_table,
+        test_the_standing_table_refuses_an_out_of_vocabulary_write,
+        test_the_probes_row_read_agrees_with_an_actual_write_refusal,
         test_a_differing_toolset_is_a_different_question,
         test_an_agent_retry_gets_a_fresh_sample,
         test_a_tool_carrying_call_lands_both_records_joined_by_the_digest,
@@ -759,13 +831,19 @@ def _main() -> int:
     # (measured 2026-09-17). The roots move once here and every tooth rides them.
     from cairn.devices.tester.scratch import scratch_dir
     from cairn.tools.base import address as _address
-    domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_infer_proof_")})
+    # RESOLVED AT CALL TIME: a hollow reading reverts domain.py to a world before ea4a6151300f,
+    # where this name does not exist, and a proof that dies here prints no teeth at all — an
+    # UNREAD file rather than a measured one. Absent the door, there is no trail to move.
+    _move_roots = getattr(domain, "set_diagnostic_roots", None)
+    if _move_roots:
+        _move_roots({**_address.ROOTS, "instance": scratch_dir("cairn_infer_proof_")})
     try:
         for check in checks:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        domain.set_diagnostic_roots(None)
+        if _move_roots:
+            _move_roots(None)
         _cleanup()
     print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
     return 0

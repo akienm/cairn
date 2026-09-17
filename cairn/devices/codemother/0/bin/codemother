@@ -99,12 +99,29 @@ print(format_dashboard())
 " "$@"
         ;;
       *)
-        echo "usage: cairn codemother show dashboard" >&2
-        exit 1
+        # not the dashboard: a root view (status, settings, or a device view) — the base resolver
+        # (ticket b41b0c0fff0e) takes the whole line; an empty name is its exit 2 naming the views.
+        exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.shim import CodeMotherShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(CodeMotherShim, sys.argv[1:]))
+" show "$what" "$@"
         ;;
     esac
     ;;
   *)
+    # A non-empty line that is none of the arms above is a root verb (list show get stop start
+    # settings, `hot` modifier) and resolves in the shim base (ticket b41b0c0fff0e); only the
+    # bare `cairn codemother` prints this help.
+    if [ -n "$subcmd" ]; then
+      exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.shim import CodeMotherShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(CodeMotherShim, sys.argv[1:]))
+" "$subcmd" "$@"
+    fi
     exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.codemother.shim import CodeMotherShim

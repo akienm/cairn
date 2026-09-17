@@ -121,6 +121,17 @@ print(json.dumps(report, indent=2))
 " "$@"
     ;;
   *)
+    # A non-empty line that is not live/clear/drain is a root verb (list show get stop start
+    # settings, `hot` modifier) and resolves in the shim base (ticket b41b0c0fff0e); only the
+    # bare `cairn trouble` prints this help.
+    if [ -n "$subcmd" ]; then
+      exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.trouble.shim import TroubleShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(TroubleShim, sys.argv[1:]))
+" "$subcmd" "$@"
+    fi
     exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.trouble.shim import TroubleShim

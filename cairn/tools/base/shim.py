@@ -83,6 +83,13 @@ NEVER_BOOTED = "NEVER_BOOTED"
 OFFLINE = "OFFLINE"
 ONLINE = "ONLINE"
 
+# THE ROOT VERBS, ruled 2026-09-06 (ticket 15d6a0ef9c11), resolved once in BaseShim.resolve
+# (ticket b41b0c0fff0e). `hot` is a modifier, never a verb; status and settings are the two
+# views every device has without declaring them.
+ROOT_VERBS = ("list", "show", "get", "stop", "start", "settings")
+ROOT_VIEWS = ("status", "settings")
+HOT = "hot"
+
 # --- the first shim starts the ground loop (ticket d6eb399ab6ad) -----------------------
 
 # THE REFUSAL VOCABULARY systemd-run speaks when the unit NAME is already held — copied from
@@ -823,17 +830,38 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         return {"verbs": [], "panes": []}
 
     def _capture_last_known(self) -> None:
+        # THE SNAPSHOT IS THE CACHE (ticket b41b0c0fff0e): every `cairn <device> ...` is a
+        # fresh process, so the only thing a cold query can answer from is this file. When the
+        # device is awake its introspect() rides along; a stop keeps the last live reading
+        # under presence OFFLINE, so "what it said last" survives "it is not running now".
         now = datetime.now(timezone.utc)
-        self._last_known = {"presence": self._presence, "timestamp": now.isoformat()}
+        record = {"presence": self._presence, "timestamp": now.isoformat()}
+        if self._device is not None:
+            try:
+                record["introspect"] = self._device.introspect()
+            except Exception as exc:  # noqa: BLE001
+                record["introspect_absent"] = f"{type(exc).__name__}: {exc}"
+        elif self._last_known and "introspect" in self._last_known:
+            record["introspect"] = self._last_known["introspect"]
+        self._last_known = record
         self._persist_last_known()
 
+    def _last_known_path(self) -> Path:
+        # Keyed by device_id, which every shim pins — the module-derived diagnostic_device is
+        # the same name for every real shim (measured 2026-09-16) and None for a proof's
+        # throwaway subclass, which still needs somewhere to remember.
+        return instance_path(self.device_id, self.diagnostic_instance) / "last_known.json"
+
+    def _read_last_known(self) -> dict | None:
+        try:
+            return json.loads(self._last_known_path().read_text())
+        except (OSError, ValueError):
+            return None
+
     def _persist_last_known(self) -> None:
-        device = self.diagnostic_device
-        if device is None:
-            return
-        home = instance_path(device, self.diagnostic_instance)
+        final = self._last_known_path()
+        home = final.parent
         home.mkdir(parents=True, exist_ok=True)
-        final = home / "last_known.json"
         fd, tmp = tempfile.mkstemp(prefix="last_known.json.", dir=str(home))
         try:
             with os.fdopen(fd, "w") as fh:
@@ -851,6 +879,138 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             self._presence = ONLINE
             self._capture_last_known()
 
+    def _stop_device(self) -> None:
+        """Put the device down — the other half of the process-manager role (ticket
+        b41b0c0fff0e). Default: drop the in-process instance and read OFFLINE; the snapshot
+        keeps the last live introspect so a cold query still has something honest to say. A
+        shim whose device is a real process overrides this to stop it; none does today."""
+        if self._presence != ONLINE:
+            return
+        self._device = None
+        self._presence = OFFLINE
+        self._capture_last_known()
+
+    # --- the root verbs (ticket b41b0c0fff0e; vocabulary ruled 2026-09-06 on 15d6a0ef9c11) --
+
+    def resolve(self, argv: list[str]) -> dict:
+        """The ONE resolver for the ruled root verbs — list, show, get, stop, start, settings —
+        and the `hot` modifier. Returns ``{"exit", "text", "data", "cached"}``; ``cli_main``
+        below is the mouth that prints it. Devices declare views, panes and a
+        ``_start_device``; this reads them and they override nothing here.
+
+        COLD vs HOT is the whole meaning of the modifier: without ``hot`` a query answers from
+        what the shim HOLDS (a live device if this process already woke one, else the
+        instance's last_known.json snapshot) and starts nothing; with ``hot`` the device is
+        woken through the shim's own lazy start and asked, and the answer becomes the next
+        cold one. Nothing escapes: any error is exit 1 with its text (Law 7)."""
+        try:
+            return self._resolve(list(argv))
+        except Exception as exc:  # noqa: BLE001
+            verb = argv[0] if argv else ""
+            return {"exit": 1, "text": f"{self.device_id}: {verb} failed: {type(exc).__name__}: {exc}",
+                    "data": None, "cached": None}
+
+    def _resolve(self, argv: list[str]) -> dict:
+        dev = self.device_id
+        if not argv:
+            return {"exit": 0, "text": f"device: {dev}\nclass:  cairn/devices/{dev}/", "data": None, "cached": None}
+        if canon(argv[0], (HOT,)) is not None:
+            return {"exit": 2, "text": "hot is a modifier, not a verb — put it after show, get or list",
+                    "data": None, "cached": None}
+        verb = canon(argv[0], ROOT_VERBS)
+        if verb is None:
+            return {"exit": 2, "text": f"cairn {dev}: no such verb {argv[0]!r} — root verbs: {' '.join(ROOT_VERBS)}",
+                    "data": None, "cached": None}
+        rest = [a for a in argv[1:] if canon(a, (HOT,)) is None]
+        hot = len(rest) != len(argv) - 1
+
+        if verb == "start":
+            if self.running:
+                return {"exit": 0, "text": f"{dev} already running", "data": None, "cached": False}
+            self._ensure_device()
+            return {"exit": 0, "text": f"started {dev}", "data": None, "cached": False}
+        if verb == "stop":
+            if not self.running:
+                return {"exit": 0, "text": f"{dev} is not running", "data": None, "cached": False}
+            self._stop_device()
+            return {"exit": 0, "text": f"stopped {dev}", "data": None, "cached": False}
+
+        if hot and not self.running:
+            self._ensure_device()
+        live = self.running
+        snap = None if live else self._read_last_known()
+        introspect = self._device.introspect() if live else (snap or {}).get("introspect")
+        if live:
+            self._capture_last_known()
+            timestamp = self._last_known["timestamp"]
+        else:
+            timestamp = (snap or {}).get("timestamp")
+        cached = not live
+
+        if verb == "list":
+            if live:
+                views = list(self._device.declared_views())
+                panes = [p.get("kind") for p in self._device.declared_panes()]
+            else:
+                contract = self.declared_contract()
+                views = list(contract.get("views") or [])
+                panes = list(contract.get("panes") or [])
+            data = {"verbs": list(ROOT_VERBS), "views": list(ROOT_VIEWS) + views, "panes": panes}
+            lines = []
+            for key in ("verbs", "views", "panes"):
+                lines.append(f"{key}:")
+                if data[key]:
+                    lines.extend(f"  {name}" for name in data[key])
+                else:
+                    lines.append("  (none)")
+            if cached:
+                lines.append(f"(cold — the {dev} is not running; add hot for the device's own list)")
+            return {"exit": 0, "text": "\n".join(lines), "data": data, "cached": cached}
+
+        # show / get / settings resolve a VIEW
+        if verb == "settings":
+            what, rest = "settings", []
+        elif not rest or not rest[0].strip():  # a launcher may hand an empty token through
+            available = list(ROOT_VIEWS) + (list(self._device.declared_views()) if live else [])
+            return {"exit": 2, "text": f"cairn {dev} {verb} <view> — views: {' '.join(available)}",
+                    "data": None, "cached": cached}
+        else:
+            what = rest[0]
+        device_views = self._device.declared_views() if live else {}
+        if canon(what, device_views) is not None and canon(what, ROOT_VIEWS) is not None:
+            return {"exit": 2, "text": f"device view {canon(what, ROOT_VIEWS)!r} collides with the root view",
+                    "data": None, "cached": cached}
+        root = canon(what, ROOT_VIEWS)
+        name = root or canon(what, device_views)
+        if name is None:
+            available = list(ROOT_VIEWS) + list(device_views)
+            return {"exit": 2, "text": f"cairn {dev}: no view {what!r} — views: {' '.join(available)}",
+                    "data": None, "cached": cached}
+        if root is not None:
+            if introspect is None:
+                data = None
+            elif root == "status":
+                data = {"intention": introspect.get("intention"), "state": introspect.get("state")}
+            else:
+                data = introspect.get("settings")
+        else:
+            data = device_views[name]()
+
+        if verb == "get":
+            payload = {"device": dev, "view": name, "cached": cached, "timestamp": timestamp, "data": data}
+            return {"exit": 0, "text": json.dumps(payload, default=str), "data": data, "cached": cached}
+        # show (and bare settings)
+        if name == "settings" and not data:
+            return {"exit": 0, "text": "No settings", "data": data, "cached": cached}
+        if data is None:
+            return {"exit": 0, "text": "never run", "data": None, "cached": cached}
+        if live:
+            text = self._device._render_view(name, data)
+        else:
+            text = (f"cached {timestamp} — the {dev} is not running; add hot for live values\n"
+                    + json.dumps(data, indent=2, default=str, ensure_ascii=False))
+        return {"exit": 0, "text": text, "data": data, "cached": cached}
+
     def _start_device(self):
         """Wake the device (the heavier process) — the shim's process-manager role. A shim that
         receives mail must say how it starts its device; the default refuses loudly rather than
@@ -860,3 +1020,16 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             f"shim for {self.device_id!r} received mail but declares no _start_device — a shim "
             f"that is delivered to must know how to wake its device"
         )
+
+
+def cli_main(shim_cls, argv: list[str]) -> int:
+    """The mouth every self-named launcher speaks through (ticket b41b0c0fff0e): construct the
+    shim, resolve the line, print the text — stdout on 0, stderr otherwise — and hand back the
+    exit code. One function, so `cairn tester show status hot` and `cairn cc show status hot`
+    cannot differ in anything but the device."""
+    import sys
+    shim = shim_cls()
+    result = shim.resolve(list(argv))
+    stream = sys.stdout if result["exit"] == 0 else sys.stderr
+    print(result["text"], file=stream)
+    return int(result["exit"])

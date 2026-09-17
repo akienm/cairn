@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
+# cairn cc [verb] [args...] — the root verbs (list show get stop start settings, and the `hot`
+# modifier) resolve in the shim base, one resolver for every device (ticket b41b0c0fff0e).
+# No arguments keeps this launcher's own face: the device, its class, and its pending mail.
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+if [ $# -gt 0 ]; then
+  exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.cc.shim import CCShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(CCShim, sys.argv[1:]))
+" "$@"
+fi
 exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
 from cairn.devices.cc.shim import CCShim
@@ -11,4 +22,4 @@ mail = shim.pending_mail()
 print(f'pending mail: {len(mail)}')
 for m in mail[:5]:
     print(f'  - {m.get(\"subject\", m.get(\"path\", \"?\"))}')
-" "$@"
+"

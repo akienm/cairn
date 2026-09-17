@@ -32,6 +32,22 @@ _is_listening() {
   ss -tlnH 2>/dev/null | grep -q ':80\b'
 }
 
+# --- the root verbs (ticket b41b0c0fff0e) ------------------------------------
+# A first token that folds to one of the six root verbs (cairn.tools.base.shim.ROOT_VERBS)
+# resolves in the shim base: `cairn librarian show status hot` wakes a LibrarianDevice in
+# this process and reads it live. Anything else is the web-server start below, as always.
+case "${1:-}" in
+  [Ll][Ii][Ss][Tt]|[Ss][Hh][Oo][Ww]|[Gg][Ee][Tt]|[Ss][Tt][Oo][Pp]|[Ss][Tt][Aa][Rr][Tt]|[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss])
+    export PATH="${CAIRN_VENV:-$HOME/.cairn/venv}/bin:$PATH"
+    exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.librarian.shim import LibrarianShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(LibrarianShim, sys.argv[1:]))
+" "$@"
+    ;;
+esac
+
 if [[ "${1:-}" == "--status" ]]; then
   if _is_listening; then
     echo "librarian: web server is listening on port 80"

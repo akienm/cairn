@@ -66,60 +66,13 @@ fi
 
 # ── Step 3: instance-space wiring ───────────────────────────────────────────
 echo "[3/5] instance-space device wiring..."
-wired=0
-skipped=0
-
-_wire_device() {
-  local device="$1" instance="${2:-0}" class_bin="$3"
-  local inst_dir="$INSTANCE_ROOT/$device/$instance"
-  local inst_bin="$inst_dir/bin"
-
-  if [[ -d "$inst_bin" ]]; then
-    skipped=$((skipped + 1))
-    return 0
-  fi
-
-  mkdir -p "$inst_bin" 2>/dev/null || true
-
-  if [[ -d "$class_bin" ]]; then
-    for script in "$class_bin"/*; do
-      [[ -f "$script" && -x "$script" ]] || continue
-      local name
-      name="$(basename "$script")"
-      ln -sf "$script" "$inst_bin/$name" 2>/dev/null || true
-    done
-    wired=$((wired + 1))
-  fi
-}
-
-# superclaude is special: its launcher lives in launchers/, not a device bin/.
-# Wire it by hand rather than scanning.
-_wire_single() {
-  local device="$1" instance="$2" script_path="$3"
-  local inst_bin="$INSTANCE_ROOT/$device/$instance/bin"
-  local name
-  name="$(basename "$script_path")"
-  if [[ -L "$inst_bin/$name" || -f "$inst_bin/$name" ]]; then
-    skipped=$((skipped + 1))
-    return 0
-  fi
-  mkdir -p "$inst_bin" 2>/dev/null || true
-  ln -sf "$script_path" "$inst_bin/$name" 2>/dev/null || true
-  wired=$((wired + 1))
-}
-
-_wire_single "superclaude" "0" "$REPO_ROOT/launchers/superclaude"
-
-# Devices with instance 0 bin/ directories in class-space get wired.
-for dev_dir in "$REPO_ROOT"/cairn/devices/*/; do
-  [[ -d "$dev_dir" ]] || continue
-  local_dev="$(basename "$dev_dir")"
-  if [[ -d "$dev_dir/0/bin" ]]; then
-    _wire_device "$local_dev" "0" "$dev_dir/0/bin"
-  fi
-done
-
-echo "  wired $wired device(s), $skipped already done."
+# The recipe lives in bootstrap.sh as cairn_wire_instances (lifted 2026-09-16, ticket
+# 0853294fe972) so bin/cairn's floor check and this first run share it rather than copy it.
+if declare -F cairn_wire_instances >/dev/null 2>&1; then
+  echo "  $(CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances) device(s)."
+else
+  echo "  WARNING: bootstrap.sh did not load — nothing wired." >&2
+fi
 
 # ── Step 4: ground loop + web server ────────────────────────────────────────
 echo "[4/5] starting ground loop + web server..."

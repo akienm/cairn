@@ -73,6 +73,78 @@ if [ $# -eq 0 ]; then
   exit 2
 fi
 
+# ── the floor (ticket 0853294fe972) ──────────────────────────────────────────
+# "the cairn command sees that the venv exists, and the db, and that it's all set up"
+# (Akien, 2026-09-06, CairnCommons/intentions-not-beside-code/I-the-command-lazy-inits-the-system.md).
+# THE HAPPY PATH IS THREE BUILTIN TESTS AND NOTHING ELSE — no subprocess, no python, no
+# cache (baseline 4.3ms median to exec, measured 2026-09-16; the budget is <10ms added).
+# A miss pays the heavy path once: the lay-down is LIFTED, never copied — the venv is
+# launchers/bootstrap.sh's (verify then apply), the wiring is bootstrap.sh's
+# cairn_wire_instances, the db start is one sudo -n call and the only place it is made.
+# A floor that cannot be laid is refused loud, with the check named, exit 3 — the resolver
+# is never reached on a floor that is not there (Law 7; gates are physics).
+CAIRN_VENV="${CAIRN_VENV:-$HOME/.cairn/venv}"
+CAIRN_PG_SOCKET_DIR="${CAIRN_PG_SOCKET_DIR:-/var/run/postgresql}"
+
+_floor_refuse() {  # <check> <what was probed, what came back, the one remedy>
+  echo "cairn: floor: $1 — $2" >&2
+  exit 3
+}
+
+_floor_venv() {
+  [[ -x "$CAIRN_VENV/bin/python3" ]] && return 0
+  # shellcheck source=/dev/null
+  source "$HERE/../launchers/bootstrap.sh" 2>/dev/null || _floor_refuse venv \
+    "$CAIRN_VENV/bin/python3 is absent and $HERE/../launchers/bootstrap.sh (the venv's one recipe) did not load"
+  declare -F cairn_bootstrap_apply >/dev/null 2>&1 || _floor_refuse venv \
+    "$CAIRN_VENV/bin/python3 is absent and bootstrap.sh exposes no cairn_bootstrap_apply"
+  cairn_bootstrap_verify >/dev/null 2>&1 || cairn_bootstrap_apply >/dev/null 2>&1 || true
+  cairn_bootstrap_verify >/dev/null 2>&1 && return 0
+  _floor_refuse venv "$CAIRN_VENV/bin/python3 was absent and the lay-down (launchers/bootstrap.sh cairn_bootstrap_apply) did not leave a working venv: $(printf '%s | ' ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"})"
+}
+
+_floor_db() {
+  local sock="$CAIRN_PG_SOCKET_DIR/.s.PGSQL.5432"
+  [[ -S "$sock" ]] && return 0
+  # The socket file is a cheap read that can lie both ways (absent while a server binds a
+  # port only; present after a crash) — the miss path asks the real question.
+  if command -v pg_isready >/dev/null 2>&1 && pg_isready -h "$CAIRN_PG_SOCKET_DIR" -p 5432 -q 2>/dev/null; then
+    return 0
+  fi
+  local started
+  started="$(sudo -n systemctl start postgresql.service 2>&1)" || _floor_refuse db \
+    "postgres is down at $sock and this user could not start it (sudo -n systemctl start postgresql.service: ${started:-refused}); lay the sudoers line once — the ollama line's twin, for /bin/systemctl start postgresql.service — or run: cairn sudorelay"
+  local i=0
+  while (( i < 75 )); do
+    [[ -S "$sock" ]] && return 0
+    sleep 0.2; i=$((i + 1))
+  done
+  _floor_refuse db "postgres was started (systemctl start postgresql.service returned 0) but $sock did not appear within 15s"
+}
+
+_floor_instance() {
+  [[ -d "$INSTANCE_ROOT/cairn/0" ]] && return 0
+  # shellcheck source=/dev/null
+  source "$HERE/../launchers/bootstrap.sh" 2>/dev/null || true
+  if declare -F cairn_wire_instances >/dev/null 2>&1; then
+    CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances >/dev/null 2>&1 || true
+  fi
+  # Class-space wires no cairn/0 bin, so the cairn device's instance home — where the ground
+  # loop's liveness record and the sail record live — is made here, as its machines would on
+  # first write.
+  mkdir -p "$INSTANCE_ROOT/cairn/0" 2>/dev/null || true
+  [[ -d "$INSTANCE_ROOT/cairn/0" ]] && return 0
+  _floor_refuse instance "$INSTANCE_ROOT/cairn/0 was absent and could not be laid (launchers/bootstrap.sh cairn_wire_instances + mkdir)"
+}
+
+_floor() {
+  _floor_venv
+  export PATH="$CAIRN_VENV/bin:$PATH"   # the launcher's python3 IS the floor, not whatever came first
+  _floor_db
+  _floor_instance
+}
+_floor
+
 # THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim
 # (ruled 2026-09-07: system words are case-insensitive when Akien types them; his free
 # text is never touched — cairn/tools/system_word is the rule's one address).

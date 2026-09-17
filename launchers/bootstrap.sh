@@ -281,3 +281,60 @@ json.dump({
   echo "Until these are fixed, python3 outside $CAIRN_REPO_ROOT cannot import cairn."
   return 1
 }
+
+# ── wire — instance-space bins from class-space, sourceable, exits never ─────
+# Lifted whole from bootstrap_first_run.sh's step 3 on 2026-09-16 (ticket 0853294fe972) so
+# the one wiring recipe has two callers — the first run and bin/cairn's floor check — and no
+# copy. Uses CAIRN_INSTANCE_ROOT (default $HOME/.cairn/devices). Prints "wired N skipped M".
+# A device is wired when its class-space 0/bin exists and its instance bin does not: every
+# executable in the class bin gets a symlink. superclaude is wired by hand (its launcher
+# lives in launchers/, not a device bin). Nothing here is fatal — a link that cannot be
+# made is a finding the first run prints, not an abort.
+cairn_wire_instances() {
+  local instance_root="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
+  local wired=0 skipped=0
+
+  _cairn_wire_device() {
+    local device="$1" instance="${2:-0}" class_bin="$3"
+    local inst_bin="$instance_root/$device/$instance/bin"
+    if [[ -d "$inst_bin" ]]; then
+      skipped=$((skipped + 1))
+      return 0
+    fi
+    mkdir -p "$inst_bin" 2>/dev/null || true
+    if [[ -d "$class_bin" ]]; then
+      local script name
+      for script in "$class_bin"/*; do
+        [[ -f "$script" && -x "$script" ]] || continue
+        name="$(basename "$script")"
+        ln -sf "$script" "$inst_bin/$name" 2>/dev/null || true
+      done
+      wired=$((wired + 1))
+    fi
+  }
+
+  _cairn_wire_single() {
+    local device="$1" instance="$2" script_path="$3"
+    local inst_bin="$instance_root/$device/$instance/bin"
+    local name
+    name="$(basename "$script_path")"
+    if [[ -L "$inst_bin/$name" || -f "$inst_bin/$name" ]]; then
+      skipped=$((skipped + 1))
+      return 0
+    fi
+    mkdir -p "$inst_bin" 2>/dev/null || true
+    ln -sf "$script_path" "$inst_bin/$name" 2>/dev/null || true
+    wired=$((wired + 1))
+  }
+
+  _cairn_wire_single "superclaude" "0" "$CAIRN_REPO_ROOT/launchers/superclaude"
+  local dev_dir dev
+  for dev_dir in "$CAIRN_REPO_ROOT"/cairn/devices/*/; do
+    [[ -d "$dev_dir" ]] || continue
+    dev="$(basename "$dev_dir")"
+    [[ -d "$dev_dir/0/bin" ]] && _cairn_wire_device "$dev" "0" "$dev_dir/0/bin"
+  done
+  _cairn_boot_log "wire: wired=$wired skipped=$skipped root=$instance_root"
+  echo "wired $wired skipped $skipped"
+  return 0
+}

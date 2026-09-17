@@ -83,6 +83,115 @@ NEVER_BOOTED = "NEVER_BOOTED"
 OFFLINE = "OFFLINE"
 ONLINE = "ONLINE"
 
+# --- the first shim starts the ground loop (ticket d6eb399ab6ad) -----------------------
+
+# THE REFUSAL VOCABULARY systemd-run speaks when the unit NAME is already held — copied from
+# launchers/superclaude (the case arms at :362), so the two callers of the same runner cannot
+# read the same refusal two ways.
+_LOOP_NAME_HELD = ("already loaded", "fragment file", "already exists")
+_LOOP_MODULE = "cairn.devices.cairn.machines.ground_loop"
+_LOOP_LOG = Path("~/.cairn/logs/ground_loop_nohup.log")
+
+
+def ensure_ground_loop(now: datetime, *, home: Path | None = None, log: Path | None = None) -> dict:
+    """Every shim, on start, checks the instance's ground loop and launches it if it is not
+    running (Akien, 2026-09-06, verbatim in I-the-command-lazy-inits-the-system.md: "shims, on
+    start, check to see if the ground loop is running. if it' not, the shim launches the ground
+    loop"). The heartbeat is lazy-inited by the first thing that needs a pulse and by nothing
+    else — no service unit, no boot script.
+
+    THE CHECK IS THE INSTANCE'S LIVENESS RECORD and nothing else: ``read_liveness`` (DEAD when
+    the record is absent or older than its staleness threshold) — never the process table,
+    never a unit query, so a shim on a second host of the same instance asks about the
+    instance's loop, not its host's. THE SPAWN IS THE RUNNER MODULE, spawned, never imported:
+    the runner's own flock is the only-once guarantee (ground_loop charter: "a CALL, not a
+    policy"), so a race between two shims costs the loser an exit 3 and nothing else. The
+    argv is launchers/superclaude's systemd-run block, spelled once here for python; the three
+    outcomes (started | refused | fall-through) are that launcher's three, decided before
+    anything is logged, and every one is a dated line in the same log a human already reads.
+
+    Returns ``{verdict, spawned, note}``: verdict as read ('LIVE'|'DEAD'), spawned one of
+    'unit' | 'setsid' | 'none'. NOTHING ESCAPES: a shim always constructs (Law 7 — loud in the
+    log, never a silent pass and never a crashed shim), and it owns nothing about the loop
+    beyond what its one attempt did. On LIVE this is one file read and no spawn."""
+    import subprocess
+    from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness  # deferred: ground_loop imports base
+
+    log = (log or _LOOP_LOG).expanduser()
+
+    def note(text: str) -> None:
+        try:
+            log.parent.mkdir(parents=True, exist_ok=True)
+            with open(log, "a", encoding="utf-8") as fh:
+                fh.write(f"{datetime.now().astimezone().isoformat(timespec='seconds')} shim: ground_loop: {text}\n")
+        except OSError:
+            pass
+
+    try:
+        found = read_liveness(now, home)
+    except Exception as exc:  # noqa: BLE001
+        note(f"liveness unreadable ({type(exc).__name__}: {exc}) — nothing spawned")
+        return {"verdict": "DEAD", "spawned": "none", "note": f"liveness unreadable: {exc}"}
+    if found.get("verdict") == "LIVE":
+        return {"verdict": "LIVE", "spawned": "none", "note": f"loop LIVE, age {found.get('age_s'):.0f}s"}
+
+    # systemd's append: opens the log itself and creates no directory — under a fresh HOME
+    # the unit dies at 209/STDOUT before python runs (measured 2026-09-16, first proof run).
+    try:
+        log.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        note(f"log directory unwritable ({exc}) — nothing spawned")
+        return {"verdict": "DEAD", "spawned": "none", "note": f"log directory unwritable: {exc}"}
+    unit = os.environ.get("CAIRN_GROUND_LOOP_UNIT", "cairn-ground-loop")
+    repo_root = Path(__file__).resolve().parents[3]
+    env_home = os.environ.get("HOME", str(Path.home()))
+    argv = ["systemd-run", "--user", "--quiet", "--unit", unit,
+            "--working-directory", str(repo_root),
+            f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
+            "-p", "SuccessExitStatus=3",
+            "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}",
+            "--", "python3", "-m", _LOOP_MODULE]
+
+    def run_unit():
+        return subprocess.run(argv, capture_output=True, text=True, timeout=30)
+
+    try:
+        try:
+            r = run_unit()
+        except FileNotFoundError:
+            r = None
+        if r is not None and r.returncode == 0:
+            note(f"spawn attempted as {unit}.service on the user manager (singleton guard decides; loser exits 3)")
+            return {"verdict": "DEAD", "spawned": "unit", "note": f"{unit}.service started"}
+        if r is not None:
+            err = (r.stderr or "") + (r.stdout or "")
+            note(err.strip())
+            if any(k in err for k in _LOOP_NAME_HELD) or ("Unit " in err and "already" in err):
+                subprocess.run(["systemctl", "--user", "reset-failed", f"{unit}.service"],
+                               capture_output=True, text=True, timeout=30)
+                r2 = run_unit()
+                if r2.returncode == 0:
+                    note(f"spawn attempted as {unit}.service after reset-failed (singleton guard decides; loser exits 3)")
+                    return {"verdict": "DEAD", "spawned": "unit", "note": f"{unit}.service started after reset-failed"}
+                err2 = (r2.stderr or "") + (r2.stdout or "")
+                note(err2.strip())
+                note(f"{unit}.service refused the start — nothing was spawned, and NOTHING was spawned another way "
+                     "either, because the name being held means a loop already holds it; the lines above are "
+                     "systemd-run's reason")
+                return {"verdict": "DEAD", "spawned": "none", "note": f"refused: {err2.strip()[:200]}"}
+        # systemd-run absent, or refused for a reason that is not the name being held: the
+        # fall-through, which leaves the loop in THIS session and it dies with it.
+        with open(log, "a", encoding="utf-8") as fh:
+            subprocess.Popen(["python3", "-m", _LOOP_MODULE], cwd=str(repo_root),
+                             start_new_session=True, stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
+        note("systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die "
+             "with this process's session (singleton guard decides; loser exits 3)")
+        return {"verdict": "DEAD", "spawned": "setsid", "note": "spawned with setsid"}
+    except Exception as exc:  # noqa: BLE001
+        note(f"spawn failed ({type(exc).__name__}: {exc}) — nothing spawned")
+        return {"verdict": "DEAD", "spawned": "none", "note": f"spawn failed: {exc}"}
+
+
 
 class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     """Abstract base for every Cairn device shim.
@@ -141,6 +250,14 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         # beats, and firing stays in the shim. Empty for every device without one.
         self._pulse_mods: list = []
         self._last_known: dict | None = None
+        # THE FIRST SHIM STARTS THE GROUND LOOP (ticket d6eb399ab6ad). The constructor is the
+        # one event every shim start shares, so the check sits here and nowhere else; the
+        # result is kept, not acted on — the shim owns nothing about the loop beyond what its
+        # one attempt did. ensure_ground_loop never raises; the guard is belt over braces.
+        try:
+            self._ground_loop = ensure_ground_loop(datetime.now(timezone.utc).astimezone())
+        except Exception as exc:  # noqa: BLE001
+            self._ground_loop = {"verdict": "DEAD", "spawned": "none", "note": f"check failed: {exc}"}
 
     @property
     @abstractmethod

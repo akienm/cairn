@@ -387,10 +387,36 @@ def records_for(ticket: str, root: Path | str | None = None) -> list[tuple[Path,
     return out
 
 
+def _last_answer_at(ticket: str, root: Path | str | None) -> datetime | None:
+    """When Akien last answered a question THIS machine opened on the ticket (D11's), or None."""
+    from cairn.tools.question import question as Q
+    stamps = []
+    for q in Q.for_ticket(ticket, root=commons(root) / "questions"):
+        if q.get("source") == "rehearsal" and q.get("resolved") and q.get("answered_at"):
+            try:
+                stamps.append(datetime.fromisoformat(str(q["answered_at"])))
+            except ValueError:
+                continue
+    return max(stamps) if stamps else None
+
+
 def passes_since_clean(ticket: str, root: Path | str | None = None) -> int:
+    """Unclean passes in a row — since the last clean record, or since Akien ANSWERED the
+    question the cap opened, whichever is later. The answer is the new input the next passes
+    run on, so the loop starts over at zero; without this reset the cap re-fires forever after
+    the answer (measured 2026-09-17 on a705346aa75c: five unclean passes, one question, and
+    ``answer it, then rehearse again`` — the CLI's own line — would have opened a second)."""
+    reset = _last_answer_at(ticket, root)
     n = 0
     for _, doc in records_for(ticket, root):
-        n = 0 if doc.get("clean") else n + 1
+        if doc.get("clean"):
+            n = 0
+            continue
+        try:
+            before_answer = reset is not None and datetime.fromisoformat(str(doc.get("at"))) <= reset
+        except ValueError:
+            before_answer = False
+        n = 0 if before_answer else n + 1
     return n
 
 

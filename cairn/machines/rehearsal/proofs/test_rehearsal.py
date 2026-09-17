@@ -377,6 +377,15 @@ def test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_no
         out2 = R.rehearse(TID, reader=stub, **_kw(w))
         assert out2["question"] == out["question"] and out2.get("already_open"), out2
         assert len(Q.open_for(TID, root=w.commons / "questions")) == 1, "ONE question, not one per call"
+        # his answer is the new input: the loop starts over — the next call READS again and
+        # writes pass 1, and opens no second question (measured red 2026-09-17 on a705346aa75c)
+        Q.answer(out["question"], "the widget is wired in bin/widget.sh", spawned=[],
+                 root=w.commons / "questions")
+        assert R.passes_since_clean(TID, w.commons) == 0, "an answered question resets the cap"
+        rec = R.rehearse(TID, reader=stub, **_kw(w))
+        assert stub.calls == 3 * (R.PASS_CAP + 1), "after the answer the reader reads again"
+        assert rec.get("pass") == 1 and "question" not in rec, rec
+        assert len(Q.open_for(TID, root=w.commons / "questions")) == 0, "no second question"
     finally:
         w.close()
 

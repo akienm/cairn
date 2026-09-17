@@ -27,14 +27,17 @@ DEVICE = Path(__file__).resolve().parents[1]
 FORBIDDEN_MODULE = "cairn.devices.inference_domain"
 FORBIDDEN_PATH_PARTS = ("inference_domain",)
 
-# Clauses of 50ad391f4e95's falsifier: (1) zero imports from cairn.devices.inference_domain,
-# (2) zero hardcoded paths into its tree, (3) the reach was replaced by a door rather than
-# repointed — the wrong-intent clause, proved by the surface asking the bus for the stack.
+# 50ad391f4e95's falsifier numbers no clauses — proof_coverage.clauses() reads it as the one
+# clause ``all`` — so ONE tooth is declared for it, and that tooth is the ticket's whole claim
+# run end to end: zero imports, zero paths, the owner declares the view, the surface asks the
+# bus. It is composed from the narrow teeth below (each of which still prints on its own so a
+# red names WHICH half fell), and it reds when ANY of the build's three files is reverted —
+# measured 2026-09-17: with the first draft's three narrow declarations, the hollow reading
+# reverted inference_domain/device.py and no declared tooth redded, because the view tooth
+# was not among them.
 PROVES = {
     "50ad391f4e95": {
-        "1": "test_no_module_in_aider_shim_imports_inference_domain",
-        "2": "test_no_module_in_aider_shim_spells_a_path_into_inference_domain",
-        "3": "test_the_surface_asks_the_bus_for_the_models_stack",
+        "all": "test_aider_shim_reaches_inference_domain_only_through_a_door",
     },
 }
 
@@ -191,6 +194,19 @@ def test_the_seam_answers_the_same_stack_as_the_view():
     from cairn.devices.inference_domain.device import InferenceDomainDevice
 
     assert models_stack() == InferenceDomainDevice().declared_views()["models"]()
+
+
+def test_aider_shim_reaches_inference_domain_only_through_a_door():
+    """The declared tooth: the falsifier whole. Reverting interceptor.py restores the path walk
+    (the scan reds) and stops the bus ask (the fake bus sees zero asks); reverting
+    inference_domain/device.py removes the view (the get verb refuses); reverting bus_client
+    removes the seam (the import fails)."""
+    test_the_device_has_modules_to_measure()
+    test_no_module_in_aider_shim_imports_inference_domain()
+    test_no_module_in_aider_shim_spells_a_path_into_inference_domain()
+    test_the_surface_asks_the_bus_for_the_models_stack()
+    test_inference_domain_declares_a_models_view_that_returns_the_stack()
+    test_the_seam_answers_the_same_stack_as_the_view()
 
 
 if __name__ == "__main__":

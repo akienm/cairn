@@ -2,7 +2,7 @@
   {
     "claim": "proof test_probescan.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T12:17:43",
+    "date": "2026-09-17T13:01:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "06d59d64601cb87c51243371abf3de6bcc807b344d38050bcd08faddd51376ad",
+      "source_fingerprint": "759b50931a99ddded81f0dc7b8684ff081d4d900c20ff5ee3f76668af51fe524",
       "fingerprint_closure": [
         "bin/proofs/test_probescan.py",
         "cairn/__init__.py",
@@ -30,6 +30,7 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/store.py",
         "cairn/devices/librarian/__init__.py",
@@ -55,18 +56,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1914280-_w4bc3_l/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1658907-o0c3kx7y/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "devices/librarian/0/last_known.json"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136761249,
-          "disk_bytes": 148447232,
-          "entries": 4861,
+          "bytes": 143388309,
+          "disk_bytes": 155332608,
+          "entries": 4968,
           "builds": 1,
           "reuses": 0
         }

@@ -225,6 +225,33 @@ def test_ideas_match_independent_read():
     assert result["count"] == len(open_stems), (result["count"], sorted(open_stems))
     assert sorted(i["id"] for i in result["items"]) == sorted(open_stems)
 
+    # the two probes beside the reader run over the same live commons and must agree
+    # with it: the WATCHME(idea-past-idea) probe this ticket carries reads the open
+    # ideas through the one reader and, with today pushed far ahead, calls every one
+    # of them stale with the same two voices answered "no" this walk answered; and the
+    # inbox-matches-live-state probe's independent reads (the review lane walked by
+    # hand, questions discriminated by `resolved`, not by filename) match every
+    # section the script prints. Both are read from disk, so a reverted or removed
+    # probe reds here instead of reading hollow.
+    from datetime import date
+    from cairn.tools.base.probe import Probe
+    from cairn.tools.operator_inbox.probes import an_open_idea_that_went_stale as stale_probe
+    from cairn.tools.operator_inbox.probes import operator_inbox_matches_live_state as match_probe
+    for mod in (stale_probe, match_probe):
+        assert isinstance(mod.PROBE, Probe) and mod.PROBE.carry and mod.PROBE.enough, mod.__name__
+    assert stale_probe._OWNING_TICKET == "3ed960cc402e"
+    far = stale_probe.survey(today=date(2099, 1, 1))
+    assert far["open"] == result["count"] and far["moved_on"] == result["moved_on"], far
+    assert len(far["stale"]) == far["open"] and far["would_bite"] == bool(far["open"]), far
+    assert sorted(s["stem"] for s in far["stale"]) == sorted(open_stems), far["stale"]
+    for entry in far["stale"]:
+        assert entry["an /intent firing names it"] is False, entry
+        assert entry["a ticket cites it"] is False, entry
+    checked = match_probe._check_all()
+    assert checked["mismatches"] == [], checked["mismatches"]
+    assert checked["current_counts"]["ideas"] == result["count"], checked["current_counts"]
+    assert checked["current_counts"]["intentions"] == read_intentions()["count"], checked["current_counts"]
+
 
 def test_intentions_match_independent_read():
     result = read_intentions()

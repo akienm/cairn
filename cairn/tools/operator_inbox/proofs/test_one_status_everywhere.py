@@ -278,6 +278,16 @@ def test_fixture_prose_standing_is_a_finding_not_a_status():
         assert "unassigned (1):" in port, "a ticket naming no owner is berthed loud, not dropped"
         fleet = dev._fleet_cache
         assert [f["component"] for f in fleet["findings"]] == ["tools/fx_widget"]
+        # the harbor's own charter says so too: register() carries a findings berth and the
+        # open standings wear the one label operator_inbox's reader derives. Read from the
+        # module's own directory so a reverted charter (hollow) reds here, not a stale copy.
+        import inspect as _inspect
+        charter_path = Path(_inspect.getfile(w.register)).resolve().parent / "intention+why.json"
+        charter = json.loads(charter_path.read_text())
+        what = charter.get("what", "")
+        assert "findings" in what and "operator_inbox" in what, (
+            f"the harbor charter's `what` does not name the findings berth and the one reader: {what[:200]}")
+        assert set(fleet) >= {"open", "in_port", "findings", "fleet", "counts"}, sorted(fleet)
 
 
 def test_crossing_patch_reloads_the_ticket_not_the_target():

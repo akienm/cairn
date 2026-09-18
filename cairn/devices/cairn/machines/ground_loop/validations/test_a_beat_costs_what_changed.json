@@ -1,28 +1,29 @@
 [
   {
     "claim": "proof test_a_beat_costs_what_changed.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-17T16:54:00",
+    "caller": "cairn test",
+    "date": "2026-09-17T23:23:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_dead_loop_is_not_read_as_a_beat_cost\n  ok   test_a_file_touched_between_beats_is_seen_by_the_second\n  ok   test_a_warm_beat_costs_less_than_the_ruled_cadence\n  ok   test_every_standing_probe_is_evaluated_on_every_beat\n  ok   test_the_bound_is_the_runners_and_cannot_be_widened_here\n  ok   test_the_watch_fires_when_the_beat_overruns_its_budget\n\n  cold beat 54.0s · warm beat 37.2s · 101 probes evaluated cold, 95 warm (6 retired on the cold beat)\n\n6/6 green",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_dead_loop_is_not_read_as_a_beat_cost\n  ok   test_a_file_touched_between_beats_is_seen_by_the_second\n  FAIL test_a_warm_beat_costs_less_than_the_ruled_cadence: a warm beat cost 76.5s against a 60.0s cadence — the loop cannot hold its period, and the beat is re-deriving what did not change (cold beat was 399.7s)\n  ok   test_every_standing_probe_is_evaluated_on_every_beat\n  ok   test_the_bound_is_the_runners_and_cannot_be_widened_here\n  ok   test_the_watch_fires_when_the_beat_overruns_its_budget\n\n  cold beat 399.7s · warm beat 76.5s · 102 probes evaluated cold, 97 warm (5 retired on the cold beat)\n\n5/6 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_dead_loop_is_not_read_as_a_beat_cost",
         "test_a_file_touched_between_beats_is_seen_by_the_second",
-        "test_a_warm_beat_costs_less_than_the_ruled_cadence",
         "test_every_standing_probe_is_evaluated_on_every_beat",
         "test_the_bound_is_the_runners_and_cannot_be_widened_here",
         "test_the_watch_fires_when_the_beat_overruns_its_budget"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_a_warm_beat_costs_less_than_the_ruled_cadence"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "9682a1be833b9eaa2c6dfea82e9262486716a5f6c4f7e14fb6a54a1eb1dcea75",
+      "source_fingerprint": "95328a53c6839f25b5ae4aa90fcca11b56a07d6a16698b9d8f5b0fded163936a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -58,14 +59,17 @@
         "cairn/devices/codemother/machines/survey/survey.py",
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/devices/codemother/watch.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/device.py",
         "cairn/devices/inference_domain/domain.py",
+        "cairn/devices/inference_domain/host.py",
         "cairn/devices/inference_domain/machines/__init__.py",
         "cairn/devices/inference_domain/machines/route/__init__.py",
         "cairn/devices/inference_domain/machines/route/route.py",
+        "cairn/devices/inference_domain/shim.py",
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/chat.py",
         "cairn/devices/librarian/library.py",
@@ -149,10 +153,10 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2314943-cfjj9idr/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3451883-lm8j4asv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 229,
+          "count": 285,
           "paths": [
             "devices/cairn/0/last_known.json",
             "devices/cairn/0/machines/counting_block/probe_ack.json",
@@ -165,9 +169,20 @@
             "devices/charter/0/tools/data_recorder/inbound/records.jsonl",
             "devices/codemother/0/last_known.json",
             "devices/codemother/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/codemother/0/watch/activations/activation-2026-09-18T051607.92.json",
+            "devices/codemother/0/watch/activations/activation-2026-09-18T051713.10.json",
+            "devices/codemother/0/watch/activations/activation-2026-09-18T051813.18.json",
+            "devices/codemother/0/watch/activations/activation-2026-09-18T051913.27.json",
+            "devices/codemother/0/watch/activations/activation-2026-09-18T052013.37.json",
+            "devices/codemother/0/watch/last_seen_head.json",
             "devices/harbor_master/0/last_known.json",
             "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
             "devices/inference_domain/0/last_known.json",
+            "devices/inference_domain/0/tickets/20260918T051613038988-e3f9b383813c-3451937-1.json",
+            "devices/inference_domain/0/tickets/20260918T051713152685-c9862da3f4e4-3451937-2.json",
+            "devices/inference_domain/0/tickets/20260918T051813236508-c9862da3f4e4-3451937-3.json",
+            "devices/inference_domain/0/tickets/20260918T051913313949-de74f7b81e83-3451937-4.json",
+            "devices/inference_domain/0/tickets/20260918T052013417185-b7f6e5cbff6d-3451937-5.json",
             "devices/inference_domain/0/tools/data_recorder/inbound/records.jsonl",
             "devices/librarian/0/last_known.json",
             "devices/press_office/0/tools/data_recorder/inbound/records.jsonl",
@@ -175,35 +190,24 @@
             "devices/tester/0/tools/data_recorder/inbound/records.jsonl",
             "devices/trouble/0/last_known.json",
             "folders/press_office/data/records.jsonl",
-            "logs/bus/0/20260917.225230.371978.BusDevice.post.json",
-            "logs/bus/0/20260917.225230.395834.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260917.225230.468582.BusDevice.post.json",
-            "logs/bus/0/20260917.225233.007605.BusDevice.post.json",
-            "logs/bus/0/20260917.225235.077760.BusDevice.post.json",
-            "logs/bus/0/20260917.225237.537923.BusDevice.post.json",
-            "logs/bus/0/20260917.225237.761010.BusDevice.post.json",
-            "logs/bus/0/20260917.225243.779505.BusDevice.post.json",
-            "logs/bus/0/20260917.225243.779837.BusDevice.post.json",
-            "logs/bus/0/20260917.225247.718114.BusDevice.post.json",
-            "logs/bus/0/20260917.225247.726334.BusDevice.post.json",
-            "logs/bus/0/20260917.225247.726613.BusDevice.post.json",
-            "logs/bus/0/20260917.225248.520793.BusDevice.post.json",
-            "logs/bus/0/20260917.225248.916168.BusDevice.post.json",
-            "logs/bus/0/20260917.225248.916379.BusDevice.post.json",
-            "logs/bus/0/20260917.225248.916529.BusDevice.post.json",
-            "logs/bus/0/20260917.225249.051853.BusDevice.post.json",
-            "logs/bus/0/20260917.225249.066054.BusDevice.post.json",
-            "logs/bus/0/20260917.225249.073655.BusDevice.post.json"
+            "logs/bus/0/20260918.051533.116855.BusDevice.post.json",
+            "logs/bus/0/20260918.051533.160310.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.051533.271679.BusDevice.post.json",
+            "logs/bus/0/20260918.051538.337260.BusDevice.post.json",
+            "logs/bus/0/20260918.051542.355935.BusDevice.post.json",
+            "logs/bus/0/20260918.051547.104142.BusDevice.post.json",
+            "logs/bus/0/20260918.051547.539996.BusDevice.post.json",
+            "logs/bus/0/20260918.051558.025108.BusDevice.post.json"
           ],
-          "elided": 189
+          "elided": 245
         },
         "scratch": {
           "measured": true,
-          "bytes": 146194718,
-          "disk_bytes": 159002624,
-          "entries": 5209,
+          "bytes": 153614933,
+          "disk_bytes": 166948864,
+          "entries": 5416,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       }
     },

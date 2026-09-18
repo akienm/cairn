@@ -26,19 +26,18 @@ registry row are dropped. Under the tester's netns seal the DB rides the Unix so
 """
 from __future__ import annotations
 
+import contextlib
 import ast
-import os
 import pytest
 import re
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.tree.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.librarian import trees
@@ -49,14 +48,25 @@ from cairn.tools.orient.nexus import (
     propose_scan,
 )
 
-_NONCE = f"corrections_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
-_TABLE = nexus_table(_NONCE, owner="orient")
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("corrections", owner="orient")))
+    return _HELD[0]
+
+
+def _table() -> str:
+    return nexus_table(_nexus(), owner="orient")
 _PROV = {"source": "proofs/test_orient_nexus.py", "date": "2026-07-28"}
 
 
 @pytest.fixture(autouse=True)
 def _nonce_corpus():
-    nexus.CORPUS = _NONCE
+    nexus.CORPUS = _nexus()
     yield
     nexus.CORPUS = "corrections"
 
@@ -70,14 +80,14 @@ def _refuses(exc, fn, *args, **kwargs):
 
 
 def test_the_corpus_table_is_born_owned_by_orient():
-    r = deposit_correction(f"the first correction of an orient-owned corpus [{_NONCE}]",
+    r = deposit_correction(f"the first correction of an orient-owned corpus [{_nexus()}]",
                            [1.0, 0.0, 0.0], _PROV)
     assert r["duplicate"] is False
-    assert store.owner_of(_TABLE) == "orient", \
+    assert store.owner_of(_table()) == "orient", \
         "the corpus table must register under owner 'orient' at birth (Law 6)"
     try:
-        store.write(_TABLE, "chart", {
-            "node_id": "forced", "tree": _NONCE, "content": "should never land",
+        store.write(_table(), "chart", {
+            "node_id": "forced", "tree": _nexus(), "content": "should never land",
             "vector": [1.0], "provenance": {"source": "x"}, "standing": "hypothesis"})
         raise AssertionError("a non-orient write must be REFUSED by db_domain (Law 6)")
     except OwnershipError:
@@ -85,7 +95,7 @@ def test_the_corpus_table_is_born_owned_by_orient():
 
 
 def test_an_undated_correction_may_not_take_residence():
-    before = trees.tree_state(_NONCE, table=_TABLE, owner="orient")
+    before = trees.tree_state(_nexus(), table=_table(), owner="orient")
     msg = _refuses(GraftRefused, deposit_correction,
                    "a correction arriving with no date on it",
                    [1.0, 0.0, 0.0], {"source": "somewhere real"})
@@ -94,7 +104,7 @@ def test_an_undated_correction_may_not_take_residence():
     _refuses(trees.DepositRefused, deposit_correction,
              "a dated correction with an empty source",
              [1.0, 0.0, 0.0], {"date": "2026-07-28", "source": ""})
-    assert trees.tree_state(_NONCE, table=_TABLE, owner="orient") == before, \
+    assert trees.tree_state(_nexus(), table=_table(), owner="orient") == before, \
         "a refused deposit must leave the corpus exactly where it stood"
 
 
@@ -111,7 +121,7 @@ def test_the_founding_corrections_carry_their_scars():
 
 
 def test_counsel_walks_with_its_floor_visible():
-    deposit_correction(f"a second correction, far from the first [{_NONCE}]",
+    deposit_correction(f"a second correction, far from the first [{_nexus()}]",
                        [0.0, 0.0, 1.0], _PROV)
     got = counsel_corrections([0.9, 0.1, 0.0], k=10)
     assert got["walk"], "the walk sees the corpus"
@@ -178,18 +188,8 @@ def test_the_fire_path_never_reaches_the_tree():
             "graft's only cairn door is chart's nexus verbs")
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
-    nexus.CORPUS = _NONCE      # the proof runs in a nonce corpus; the live one is Akien's
+    nexus.CORPUS = _nexus()      # the proof runs in a nonce corpus; the live one is Akien's
     checks = [
         test_the_corpus_table_is_born_owned_by_orient,
         test_an_undated_correction_may_not_take_residence,
@@ -204,7 +204,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         nexus.CORPUS = "corrections"
-        _cleanup()
+        _SCRATCH.close()
     print("green — orient/nexus: the corpus is born orient's, undated corrections are "
           "turned away, the founding scars trace to real scans, counsel keeps its "
           "labeled floor, a proposal cannot touch the registry, and the fire-path "

@@ -21,8 +21,9 @@ Requires Postgres (domain.resolve writes to the cache). Self-cleaning.
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -38,10 +39,9 @@ from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 from cairn.devices.inference_domain.device import InferenceDomainDevice  # noqa: E402
 from cairn.devices.inference_domain.shim import InferenceDomainShim  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLES: list[str] = []
+_RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
+_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc)
 
 FAKE_VECTOR = [0.1, 0.2, 0.3]
@@ -79,8 +79,7 @@ class CallerShim(BaseShim):
 
 
 def _fresh_bus():
-    bus = BusDevice(table=f"_bus_resolve_{_NONCE}_{len(_TABLES)}")
-    _TABLES.append(bus.table)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_resolve"))
     return bus
 
 
@@ -225,7 +224,7 @@ def test_a_toolset_survives_the_bus_verb():
         return {"answer": {"text": "ack", "role": "assistant"},
                 "cost": 1, "falsifier": "test", "horizon": "", "provenance": {}}
 
-    turns = [{"role": "user", "content": f"what time is it? {_NONCE}"},
+    turns = [{"role": "user", "content": f"what time is it? {_RUN}"},
              {"role": "assistant", "content": "",
               "tool_calls": [{"function": {"name": "clock", "arguments": {}}}]},
              {"role": "tool", "content": "12:00"}]
@@ -258,7 +257,7 @@ def test_a_toolset_survives_the_bus_verb():
         bus.request(sender="caller", to="inference_domain", channel="personal",
                     verb="resolve", why="proof: a toolless chat carries no toolset",
                     body={"kind": "chat",
-                          "messages": [{"role": "user", "content": f"plain {_NONCE}"}],
+                          "messages": [{"role": "user", "content": f"plain {_RUN}"}],
                           "model": "qwen2.5:7b"})
     assert seen and "tools" not in seen[-1], \
         "a toolless chat must carry no `tools` key at all — an always-present key forks the " \
@@ -293,17 +292,7 @@ if __name__ == "__main__":
                 print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
     finally:
         _domain.set_diagnostic_roots(None)
-        try:
-            conn = store.connect()
-            with conn.cursor() as cur:
-                for base in _TABLES:
-                    for table in (f"{base}_delivery", base):
-                        cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                        cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
-                                    (table,))
-            conn.close()
-        except Exception as exc:  # noqa: BLE001
-            print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
+        _SCRATCH.close()
     if failures:
         print(f"RED — {failures} tooth/teeth bit")
         raise SystemExit(1)

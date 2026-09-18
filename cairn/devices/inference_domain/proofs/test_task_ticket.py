@@ -37,24 +37,30 @@ from __future__ import annotations
 
 import contextlib
 import json
-import os
 import sys
+import uuid
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
 from cairn.devices.inference_domain import domain
 from cairn.devices.inference_domain.probes import are_inference_task_tickets_complete as probe
 from cairn.devices.tester.scratch import scratch_dir
 from cairn.tools.base import address
 
-_NONCE = f"{os.getpid()}_{datetime.now(timezone.utc).strftime('%H%M%S%f')}"
-_TABLE = f"_probe_task_ticket_{_NONCE}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _table() -> str:
+    """The proof's one table, minted on first use as scratch."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+    return _HELD[0]
 
 PROVES = {
     "ea4a6151300f": {
@@ -125,8 +131,8 @@ def _trail_lines(tmp: Path) -> list[dict]:
 def test_one_call_writes_one_ticket_naming_the_canonical():
     with _isolated() as tmp:
         assert _tickets(tmp) == [], "the isolated root starts with no tickets"
-        out = domain.resolve({"q": f"one_{_NONCE}", "model": "qwen2.5:7b"},
-                             resolver=_Resolver(), table=_TABLE)
+        out = domain.resolve({"q": f"one_{_RUN}", "model": "qwen2.5:7b"},
+                             resolver=_Resolver(), table=_table())
         tickets = _tickets(tmp)
         assert len(tickets) == 1, f"one call must write exactly one ticket, found {len(tickets)}"
         t = tickets[0]
@@ -137,7 +143,7 @@ def test_one_call_writes_one_ticket_naming_the_canonical():
         assert t["verdict"] == "miss" and t["outcome"]["kind"] == "answered"
         assert t["response"] == out["answer"], "the ticket carries the response"
         assert domain.ticket_lacks(t) == [], f"a fresh ticket is complete, lacks {domain.ticket_lacks(t)}"
-        assert t["cache"]["table"] == _TABLE
+        assert t["cache"]["table"] == _table()
 
 
 def test_the_caller_rides_the_bus_envelope_through_the_shim():
@@ -164,11 +170,11 @@ def test_the_caller_rides_the_bus_envelope_through_the_shim():
         import cairn.devices.inference_domain.host as host
         kept = host.ollama_resolver
         host.ollama_resolver = lambda **kw: r
-        domain.resolve = lambda request, **kw: real(request, table=_TABLE, **kw)
+        domain.resolve = lambda request, **kw: real(request, table=_table(), **kw)
         try:
-            result = dev._handle_resolve({"sender": f"probe-sender-{_NONCE}",
+            result = dev._handle_resolve({"sender": f"probe-sender-{_RUN}",
                                           "body": {"kind": "generate",
-                                                   "prompt": f"bus_{_NONCE}",
+                                                   "prompt": f"bus_{_RUN}",
                                                    "model": "qwen2.5:7b"}})
         finally:
             host.ollama_resolver = kept
@@ -176,7 +182,7 @@ def test_the_caller_rides_the_bus_envelope_through_the_shim():
         tickets = _tickets(tmp)
         assert len(tickets) == 1
         t = tickets[0]
-        assert t["caller"] == {"identity": f"probe-sender-{_NONCE}", "how": "declared"}, (
+        assert t["caller"] == {"identity": f"probe-sender-{_RUN}", "how": "declared"}, (
             f"the ticket's caller is the envelope sender, got {t['caller']}")
         assert result["ticket"] and Path(result["ticket"]).is_file(), result
         assert json.loads(Path(result["ticket"]).read_text())["id"] == t["id"]
@@ -185,7 +191,7 @@ def test_the_caller_rides_the_bus_envelope_through_the_shim():
 
 def test_a_direct_call_is_named_off_the_call_chain_and_nothing_records_unknown():
     with _isolated() as tmp:
-        domain.resolve({"q": f"direct_{_NONCE}"}, resolver=_Resolver(), table=_TABLE)
+        domain.resolve({"q": f"direct_{_RUN}"}, resolver=_Resolver(), table=_table())
         t = _tickets(tmp)[0]
         assert t["caller"]["how"] == "call_chain", t["caller"]
         assert t["caller"]["identity"].startswith("cairn/devices/inference_domain/proofs/test_task_ticket.py"), (
@@ -203,8 +209,8 @@ def test_specified_and_selected_are_both_carried_and_may_disagree():
         r = _Resolver(provenance={"host": "http://hex.local:11434", "path": "/api/generate",
                                   "model": "qwen2.5:14b", "provider": "ollama",
                                   "route_walked": ["local", "hex"]})
-        domain.resolve({"q": f"esc_{_NONCE}", "model": "qwen2.5:7b", "provider": "ollama"},
-                       resolver=r, table=_TABLE)
+        domain.resolve({"q": f"esc_{_RUN}", "model": "qwen2.5:7b", "provider": "ollama"},
+                       resolver=r, table=_table())
         t = _tickets(tmp)[0]
         assert t["specified"]["model"] == "qwen2.5:7b", t["specified"]
         assert t["selected"]["model"] == "qwen2.5:14b", t["selected"]
@@ -216,9 +222,9 @@ def test_specified_and_selected_are_both_carried_and_may_disagree():
 
 def test_a_refusal_raises_a_trouble_naming_the_ticket_and_the_shim_returns_a_value():
     with _isolated() as tmp:
-        err = _Unreachable(f"dial 127.0.0.1:1 refused {_NONCE}")
+        err = _Unreachable(f"dial 127.0.0.1:1 refused {_RUN}")
         try:
-            domain.resolve({"q": f"refused_{_NONCE}"}, resolver=_Refusing(err), table=_TABLE)
+            domain.resolve({"q": f"refused_{_RUN}"}, resolver=_Refusing(err), table=_table())
         except _Unreachable as caught:
             assert caught is err, "the very instance the resolver raised reaches the caller"
         else:
@@ -256,10 +262,10 @@ def test_a_refusal_raises_a_trouble_naming_the_ticket_and_the_shim_returns_a_val
         real = domain.resolve
         kept = host.ollama_resolver
         host.ollama_resolver = lambda **kw: _Refusing(_Unreachable("bus dial refused"))
-        domain.resolve = lambda request, **kw: real(request, table=_TABLE, **kw)
+        domain.resolve = lambda request, **kw: real(request, table=_table(), **kw)
         try:
             value = dev._handle_resolve({"sender": "some-device", "body": {"kind": "generate",
-                                                                            "prompt": f"busref_{_NONCE}"}})
+                                                                            "prompt": f"busref_{_RUN}"}})
         finally:
             host.ollama_resolver = kept
             domain.resolve = real
@@ -272,10 +278,10 @@ def test_a_refusal_raises_a_trouble_naming_the_ticket_and_the_shim_returns_a_val
 def test_the_ticket_is_not_a_parallel_store_and_costs_bounded_latency():
     with _isolated() as tmp:
         r = _Resolver()
-        ask = {"q": f"hit_{_NONCE}"}
-        domain.resolve(dict(ask), resolver=r, table=_TABLE)
+        ask = {"q": f"hit_{_RUN}"}
+        domain.resolve(dict(ask), resolver=r, table=_table())
         t0 = time.perf_counter()
-        hit = domain.resolve(dict(ask), resolver=r, table=_TABLE)
+        hit = domain.resolve(dict(ask), resolver=r, table=_table())
         elapsed = time.perf_counter() - t0
         assert hit["hit"] is True and r.calls == 1, "the answer still comes from the cache, one host call"
         tickets = _tickets(tmp)
@@ -293,7 +299,7 @@ def test_the_ticket_is_not_a_parallel_store_and_costs_bounded_latency():
 def test_the_probe_shares_the_predicate_and_fires_on_a_lacking_ticket():
     with _isolated() as tmp:
         for n in range(3):
-            domain.resolve({"q": f"probe_{n}_{_NONCE}"}, resolver=_Resolver(), table=_TABLE)
+            domain.resolve({"q": f"probe_{n}_{_RUN}"}, resolver=_Resolver(), table=_table())
         good = domain.read_task_tickets()
         assert len(good) == 3 and all(domain.ticket_lacks(t) == [] for t in good)
         s = probe.judge_tickets(good)
@@ -334,23 +340,13 @@ def test_every_inference_call_produces_a_complete_task_ticket():
         print(f"    PASS  {check.__name__}")
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     try:
         test_every_inference_call_produces_a_complete_task_ticket()
         print("  PASS  test_every_inference_call_produces_a_complete_task_ticket")
     finally:
         domain.set_diagnostic_roots(None)
-        _cleanup()
+        _SCRATCH.close()
     print("green — every inference call produces a complete task ticket, and a refusal raises a trouble")
     return 0
 

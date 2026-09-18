@@ -18,26 +18,6 @@ sys.path.insert(0, str(REPO_ROOT))
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
 from cairn.devices.cairn.machines.bus.bus import BusDevice, CHANNELS
-from cairn.devices.db_domain import store
-
-import uuid
-
-_NONCE = uuid.uuid4().hex[:8]
-
-
-def _fresh_table():
-    return f"_console_pane_test_{_NONCE}_{uuid.uuid4().hex[:6]}"
-
-
-def _drop_table(table):
-    try:
-        conn = store._conn()
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (table,))
-        conn.commit()
-    except Exception:
-        pass
 
 
 class _Device(BaseDevice):
@@ -83,9 +63,7 @@ class TestConsolePanes:
         assert "absent" in debug, "without bus the debug pane explains why it is absent"
 
     def test_info_pane_shows_info_messages(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             bus.post(sender="system", to="test_console_device", channel="info",
                      why="startup", body={"text": "device started"})
@@ -98,13 +76,9 @@ class TestConsolePanes:
             assert len(entries) == 2, f"expected 2 entries, got {len(entries)}"
             assert entries[0]["body"] == {"text": "device started"}
             assert entries[1]["body"] == {"text": "health check passed"}
-        finally:
-            _drop_table(table)
 
     def test_debug_pane_shows_debug_messages(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             bus.post(sender="system", to="test_console_device", channel="debug",
                      why="trace", body={"text": "entering probe loop"})
@@ -114,13 +88,9 @@ class TestConsolePanes:
             entries = debug["data"]["entries"]
             assert len(entries) == 1, f"expected 1 entry, got {len(entries)}"
             assert entries[0]["body"] == {"text": "entering probe loop"}
-        finally:
-            _drop_table(table)
 
     def test_info_and_debug_do_not_cross(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             bus.post(sender="system", to="test_console_device", channel="info",
                      why="info msg", body={"text": "info only"})
@@ -133,19 +103,13 @@ class TestConsolePanes:
             debug_bodies = [e["body"]["text"] for e in debug["data"]["entries"]]
             assert "debug only" not in info_bodies, "debug message must not appear in info pane"
             assert "info only" not in debug_bodies, "info message must not appear in debug pane"
-        finally:
-            _drop_table(table)
 
     def test_panes_do_not_alter_channels(self):
         channels_before = dict(CHANNELS)
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             shim.active_page()
             assert CHANNELS == channels_before, "rendering info+debug panes must not alter CHANNELS"
-        finally:
-            _drop_table(table)
 
     def test_panes_are_not_in_declared_panes(self):
         dev = _Device()
@@ -154,22 +118,16 @@ class TestConsolePanes:
         assert "debug" not in declared_kinds, "debug is a floor pane (shim), not declared (device)"
 
     def test_empty_channels_render_empty_entries(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             page = shim.active_page()
             info = [p for p in page["panes"] if p["kind"] == "info"][0]
             debug = [p for p in page["panes"] if p["kind"] == "debug"][0]
             assert info["data"] == {"entries": []}, "empty info channel → empty entries, not absent"
             assert debug["data"] == {"entries": []}, "empty debug channel → empty entries, not absent"
-        finally:
-            _drop_table(table)
 
     def test_record_channels_not_in_diagnostic_panes(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("console_pane") as bus:
             shim = _Shim(bus=bus)
             bus.post(sender="alice", to="test_console_device", channel="personal",
                      why="chat", body={"text": "hello"})
@@ -186,8 +144,6 @@ class TestConsolePanes:
             assert "fleet news" not in info_bodies, "announce message must not appear in info"
             assert "hello" not in debug_bodies, "personal message must not appear in debug"
             assert "fleet news" not in debug_bodies, "announce message must not appear in debug"
-        finally:
-            _drop_table(table)
 
 
 ROSTER_MIN = 9

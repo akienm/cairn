@@ -47,6 +47,9 @@ OPEN EDGES, filed not faked (round-three: the sole-route/owner-gate physics firs
 from __future__ import annotations
 
 import json
+import os
+from contextlib import contextmanager
+from datetime import datetime, timezone
 
 import psycopg2
 from psycopg2 import sql
@@ -60,6 +63,10 @@ _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to 
 
 # db_domain owns its own metadata table — the registry that makes ownership a fact.
 _REGISTRY = "cairn_owned"
+# ...and the registry of SCRATCH: tables born through ``scratch()`` that belong to one
+# process for exactly its lifetime (ticket 201a37bf1613). A row here is what makes a
+# table sweepable; a name is never the predicate.
+_SCRATCH = "cairn_scratch"
 
 
 class OwnershipError(Exception):
@@ -389,6 +396,241 @@ def drop_table(table: str, owner: str, *, conn=None) -> bool:
                 (table,),
             )
             return existed
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+# ── scratch: a table that cannot outlive the process that minted it ──────────
+#
+# Ticket 201a37bf1613 (Akien 2026-09-06: "we have 9075 tables? wow!"). Measured that
+# evening: 9,087 tables, 12 live, and every proof hand-rolling its own teardown against a
+# store that had no word for "mine until I exit". This section is the word (Law 4):
+#
+#   - ``scratch(owner, prefix, columns)`` mints ``<prefix>_<pid>_<HHMMSSffff>`` through
+#     ``create_owned_table`` (the owner gate is untouched — scratch rides it), records
+#     (table, pid, created) in ``cairn_scratch``, and drops the table, its registered
+#     companions and their rows on exit WHATEVER the exit.
+#   - ``register_scratch_companion(table, companion)`` — a machine that creates a table
+#     beside one it was handed (the bus's ``_delivery``, the librarian's split children)
+#     registers it under the parent's pid so it drops with its parent.
+#   - ``sweep_scratch()`` drops every cairn_scratch row whose minter is dead — pid absent
+#     from /proc, or present with a start time later than the row's ``created`` (pid
+#     reuse) — and its companions, and returns the count. The tester calls it before
+#     every seal: the one event every proof already passes through, so no clock and no
+#     daemon (memory reaching-for-daemons-is-drift). A proof killed with SIGKILL mid-run
+#     is cleaned by the next seal, not by a finally block it never reached.
+#
+# THE SWEEP NEVER TOUCHES A TABLE WITHOUT A cairn_scratch ROW. The live set is the
+# registry's non-scratch rows, never a name pattern (the ticket's WRONG INTENT clause).
+
+
+def _ensure_scratch_registry(conn) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            sql.SQL(
+                "CREATE TABLE IF NOT EXISTS {reg} ("
+                "  table_name text PRIMARY KEY,"
+                "  pid integer NOT NULL,"
+                "  created timestamptz NOT NULL DEFAULT now(),"
+                "  companion_of text NULL"
+                ")"
+            ).format(reg=sql.Identifier(_SCRATCH))
+        )
+        cur.execute(
+            sql.SQL(
+                "INSERT INTO {reg} (table_name, owner) VALUES (%s, %s) "
+                "ON CONFLICT (table_name) DO NOTHING"
+            ).format(reg=sql.Identifier(_REGISTRY)),
+            (_SCRATCH, "db_domain"),
+        )
+
+
+def scratch_name(prefix: str, suffix: str = "") -> str:
+    """The name rule: ``<prefix>_<pid>_<HHMMSSffff>[_<suffix>]`` — the leaker stays legible
+    if it ever leaks again (memory self-describing-fixture-names). The prefix is the
+    caller's own word (bus_traffic, chat_pane, trees); no leading underscore, the registry
+    is the truth. The suffix is for a name a derivation ends in (a nexus's ``_nodes``) —
+    the pid and stamp still sit where the sweep's eye and the probe's regex look."""
+    for role, word in (("prefix", prefix), ("suffix", suffix)):
+        if word == "" and role == "suffix":
+            continue
+        if not word or not word.replace("_", "").isalnum():
+            raise ValueError(f"scratch {role} {word!r} is not a legal identifier fragment")
+    now = datetime.now()
+    name = f"{prefix}_{os.getpid()}_{now.strftime('%H%M%S')}{now.microsecond // 100:04d}"
+    return f"{name}_{suffix}" if suffix else name
+
+
+def process_start(pid: int) -> float | None:
+    """The epoch second a live pid started, or None when /proc has no such pid.
+
+    /proc/<pid>/stat field 22 is start time in clock ticks since boot; /proc/stat ``btime``
+    is boot time in epoch seconds. Together they date the process, which is what tells a
+    reused pid from the minter it replaced."""
+    try:
+        with open(f"/proc/{pid}/stat", encoding="utf-8") as fh:
+            stat = fh.read()
+        with open("/proc/stat", encoding="utf-8") as fh:
+            btime = next(int(line.split()[1]) for line in fh if line.startswith("btime "))
+    except (OSError, StopIteration, ValueError):
+        return None
+    # the comm field may carry spaces; everything after the last ')' is positional
+    fields = stat.rsplit(")", 1)[1].split()
+    ticks = int(fields[19])  # field 22, counted from field 3
+    return btime + ticks / os.sysconf("SC_CLK_TCK")
+
+
+def minter_alive(pid: int, created: datetime) -> bool:
+    """Is the process that minted a scratch row still the one that holds it? Absent from
+    /proc → dead. Present but started after the row was created → a reused pid, dead.
+    One tick of slack (clock ticks are 10ms; ``created`` is Postgres now())."""
+    start = process_start(pid)
+    if start is None:
+        return False
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=timezone.utc)
+    return start <= created.timestamp() + 1.0
+
+
+def is_scratch(table: str, *, conn=None) -> bool:
+    """Does ``table`` have a cairn_scratch row — parent or companion?"""
+    own_conn = conn or connect()
+    try:
+        _ensure_scratch_registry(own_conn)
+        with own_conn.cursor() as cur:
+            cur.execute(
+                sql.SQL("SELECT 1 FROM {reg} WHERE table_name = %s").format(
+                    reg=sql.Identifier(_SCRATCH)),
+                (table,),
+            )
+            return cur.fetchone() is not None
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def scratch_rows(*, conn=None) -> list[dict]:
+    """Every cairn_scratch row: table_name, pid, created, companion_of."""
+    own_conn = conn or connect()
+    try:
+        _ensure_scratch_registry(own_conn)
+        with own_conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                sql.SQL("SELECT table_name, pid, created, companion_of FROM {reg} "
+                        "ORDER BY created, table_name").format(reg=sql.Identifier(_SCRATCH)))
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def register_scratch_companion(table: str, companion: str, *, conn=None) -> None:
+    """Record ``companion`` as born beside the scratch ``table``, under the same pid, so it
+    drops with its parent on exit and on sweep. Refused when ``table`` is not scratch —
+    a companion of a live table is a live table."""
+    own_conn = conn or connect()
+    try:
+        _ensure_scratch_registry(own_conn)
+        with own_conn.cursor() as cur:
+            cur.execute(
+                sql.SQL("SELECT pid, companion_of FROM {reg} WHERE table_name = %s").format(
+                    reg=sql.Identifier(_SCRATCH)),
+                (table,),
+            )
+            row = cur.fetchone()
+            if row is None:
+                raise OwnershipError(
+                    f"{table!r} is not a scratch table — refusing to register {companion!r} "
+                    "as its companion (a companion of a live table is a live table)")
+            pid, parent = row
+            cur.execute(
+                sql.SQL(
+                    "INSERT INTO {reg} (table_name, pid, companion_of) VALUES (%s, %s, %s) "
+                    "ON CONFLICT (table_name) DO NOTHING"
+                ).format(reg=sql.Identifier(_SCRATCH)),
+                (companion, pid, parent or table),
+            )
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def _drop_scratch_family(table: str, conn) -> list[str]:
+    """Drop ``table`` and every companion registered under it, plus their rows in both
+    registries. Owner-gated through ``drop_table`` under each table's recorded owner —
+    the store dropping what the store minted."""
+    with conn.cursor() as cur:
+        cur.execute(
+            sql.SQL("SELECT table_name FROM {reg} WHERE companion_of = %s").format(
+                reg=sql.Identifier(_SCRATCH)),
+            (table,),
+        )
+        companions = [r[0] for r in cur.fetchall()]
+    dropped = []
+    for name in [*companions, table]:
+        owner = owner_of(name, conn=conn) or "db_domain"
+        drop_table(name, owner, conn=conn)
+        with conn.cursor() as cur:
+            cur.execute(
+                sql.SQL("DELETE FROM {reg} WHERE table_name = %s").format(
+                    reg=sql.Identifier(_SCRATCH)),
+                (name,),
+            )
+        dropped.append(name)
+    return dropped
+
+
+@contextmanager
+def scratch(owner: str, prefix: str, columns: dict[str, str], *, conn=None, suffix: str = ""):
+    """A table that is yours until you exit — and no longer.
+
+    Mints ``<prefix>_<pid>_<HHMMSSffff>[_<suffix>]``, creates it owned by ``owner`` through the one
+    door, records it in cairn_scratch under this pid, yields the name, and on exit — normal,
+    exception, anything a finally can catch — drops it with its companions and rows. What a
+    finally cannot catch (SIGKILL, OOM) the next ``sweep_scratch`` catches by the pid."""
+    name = scratch_name(prefix, suffix)
+    own_conn = conn or connect()
+    try:
+        _ensure_scratch_registry(own_conn)
+        create_owned_table(name, owner, columns, conn=own_conn)
+        with own_conn.cursor() as cur:
+            cur.execute(
+                sql.SQL("INSERT INTO {reg} (table_name, pid) VALUES (%s, %s)").format(
+                    reg=sql.Identifier(_SCRATCH)),
+                (name, os.getpid()),
+            )
+        try:
+            yield name
+        finally:
+            _drop_scratch_family(name, own_conn)
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+def sweep_scratch(*, conn=None, report: list | None = None) -> int:
+    """Drop every scratch family whose minter is dead; return how many tables were dropped.
+
+    The predicate is the registry row and the pid — never a name. A companion whose parent
+    row is gone is swept on its own pid. Pass a list as ``report`` to receive the dropped
+    names (the tester logs them on the seal's evidence, so a leaker is named, not counted)."""
+    own_conn = conn or connect()
+    try:
+        rows = scratch_rows(conn=own_conn)
+        dropped: list[str] = []
+        parents = {r["table_name"] for r in rows if r["companion_of"] is None}
+        for r in rows:
+            if r["table_name"] in dropped:
+                continue
+            if r["companion_of"] is not None and r["companion_of"] in parents:
+                continue  # rides its parent's verdict
+            if minter_alive(r["pid"], r["created"]):
+                continue
+            dropped.extend(_drop_scratch_family(r["table_name"], own_conn))
+        if report is not None:
+            report.extend(dropped)
+        return len(dropped)
     finally:
         if conn is None:
             own_conn.close()

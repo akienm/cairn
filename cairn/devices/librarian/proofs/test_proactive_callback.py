@@ -15,9 +15,9 @@ the callback appears in the verdict and on the device's notification surface.
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
-from datetime import datetime, timezone
+import uuid
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -26,20 +26,20 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.db_domain import store
 from cairn.devices.librarian.loop import resolve_query, PROMOTION_THRESHOLD
-from cairn.devices.librarian.trees import (NODES_TABLE, OWNER, LibrarianDevice,
-                                           deposit, corroborate)
+from cairn.devices.librarian.trees import (NODES_TABLE, LibrarianDevice, corroborate,
+                                           deposit, forget_leaf, scratch_leaf)
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_proactive_callback.py", "ground": "fixture"}
 
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
+_HELD: dict[str, str] = {}
 
 
 def _t(name: str) -> str:
-    t = f"_callback_{name}_{_NONCE}"
-    if t not in _TABLES:
-        _TABLES.append(t)
-    return t
+    if name not in _HELD:
+        _HELD[name] = _SCRATCH.enter_context(scratch_leaf(f"callback_{name}"))
+    return _HELD[name]
 
 
 _NEAR = [0.99, 0.05, 0.0]
@@ -71,12 +71,12 @@ def fake_seam(embeds: dict, scripts: list):
 def test_deposit_records_origin_session():
     """A deposit with session_id carries origin_session in the node's provenance."""
     tbl = _t("origin")
-    q = f"what color is the sky ({_NONCE})"
+    q = f"what color is the sky ({_RUN})"
     dev = _fresh_librarian()
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0],
-         f"the sky is blue ({_NONCE})": _NEAR},
-        scripts=[f'{{"nodes": ["the sky is blue ({_NONCE})"]}}'])
+         f"the sky is blue ({_RUN})": _NEAR},
+        scripts=[f'{{"nodes": ["the sky is blue ({_RUN})"]}}'])
     got = resolve_query(q, resolve=seam, tree="origin", table=tbl, dev=dev,
                         session_id="session-A", max_backfills=1)
     assert got["deposited"], "expected at least one deposit"
@@ -90,12 +90,12 @@ def test_deposit_records_origin_session():
 def test_deposit_without_session_has_no_origin():
     """A deposit without session_id has no origin_session in provenance."""
     tbl = _t("no_origin")
-    q = f"what color is grass ({_NONCE})"
+    q = f"what color is grass ({_RUN})"
     dev = _fresh_librarian()
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0],
-         f"grass is green ({_NONCE})": _NEAR},
-        scripts=[f'{{"nodes": ["grass is green ({_NONCE})"]}}'])
+         f"grass is green ({_RUN})": _NEAR},
+        scripts=[f'{{"nodes": ["grass is green ({_RUN})"]}}'])
     got = resolve_query(q, resolve=seam, tree="no_origin", table=tbl, dev=dev,
                         max_backfills=1)
     assert got["deposited"], "expected at least one deposit"
@@ -109,7 +109,7 @@ def test_deposit_without_session_has_no_origin():
 def test_promotion_produces_callback_with_origin():
     """When a node with origin_session is promoted, the verdict carries a callback."""
     tbl = _t("cb_yes")
-    content = f"callbacks fire on promotion ({_NONCE})"
+    content = f"callbacks fire on promotion ({_RUN})"
     dev = _fresh_librarian()
 
     prov_a = {**_PROV, "origin_session": "session-A", "question": "q1"}
@@ -117,13 +117,13 @@ def test_promotion_produces_callback_with_origin():
     node_id = node["node_id"]
 
     for i in range(PROMOTION_THRESHOLD):
-        corroborate(node_id, f"cross-question-{i}-{_NONCE}",
+        corroborate(node_id, f"cross-question-{i}-{_RUN}",
                     promote_at=PROMOTION_THRESHOLD, tree="cb_yes", table=tbl)
 
     row = store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
     assert row["standing"] == "earned", "node should be promoted to earned"
 
-    q = f"promotion callback query ({_NONCE})"
+    q = f"promotion callback query ({_RUN})"
     seam = fake_seam({q: [1.0, 0.0, 0.0], content: _NEAR}, scripts=[])
     got = resolve_query(q, resolve=seam, tree="cb_yes", table=tbl, dev=dev,
                         session_id="session-B", max_backfills=0)
@@ -144,17 +144,17 @@ def test_promotion_produces_callback_with_origin():
 def test_promotion_without_origin_produces_no_callback():
     """A promoted node without origin_session produces no callback."""
     tbl = _t("cb_no")
-    content = f"no origin no callback ({_NONCE})"
+    content = f"no origin no callback ({_RUN})"
     dev = _fresh_librarian()
 
     node = deposit(content, _NEAR, _PROV, tree="cb_no", table=tbl)
     node_id = node["node_id"]
 
     for i in range(PROMOTION_THRESHOLD):
-        corroborate(node_id, f"cross-q-{i}-{_NONCE}",
+        corroborate(node_id, f"cross-q-{i}-{_RUN}",
                     promote_at=PROMOTION_THRESHOLD, tree="cb_no", table=tbl)
 
-    q = f"no origin callback query ({_NONCE})"
+    q = f"no origin callback query ({_RUN})"
     seam = fake_seam({q: [1.0, 0.0, 0.0], content: _NEAR}, scripts=[])
     got = resolve_query(q, resolve=seam, tree="cb_no", table=tbl, dev=dev,
                         max_backfills=0)
@@ -206,16 +206,16 @@ def test_chat_turn_threads_session_id():
     """chat_turn passes session_id through to resolve_query's deposits."""
     tbl = _t("chat_sid")
     dev = _fresh_librarian()
-    q = f"chat session thread ({_NONCE})"
+    q = f"chat session thread ({_RUN})"
 
     from cairn.devices.librarian.chat import chat_turn
     seam = fake_seam(
         {q: [1.0, 0.0, 0.0],
-         f"chat backfill ({_NONCE})": _NEAR,
+         f"chat backfill ({_RUN})": _NEAR,
          # The articulation reply
          },
         scripts=[
-            f'{{"nodes": ["chat backfill ({_NONCE})"]}}',
+            f'{{"nodes": ["chat backfill ({_RUN})"]}}',
             f"I found something about that.",
         ])
     got = chat_turn(q, resolve=seam, tree="chat_sid", table=tbl, dev=dev,
@@ -233,18 +233,14 @@ def _main() -> int:
               if k.startswith("test_") and callable(v)]
     assert len(checks) >= 8, (
         f"roster floor: expected at least 8 teeth, found {len(checks)}")
-    conn = store.connect()
     try:
         for check in checks:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        for t in _TABLES:
-            try:
-                store.drop_tree(t, OWNER, conn=conn)
-            except Exception:
-                pass
-        conn.close()
+        for t in _HELD.values():       # this run's rows out of the shared tables, then the scratch leaves dropped
+            forget_leaf(t)
+        _SCRATCH.close()
     print("green — proactive resolution callback: deposits carry origin_session, "
           "promotions produce callbacks, notifications surface on the pane")
     return 0

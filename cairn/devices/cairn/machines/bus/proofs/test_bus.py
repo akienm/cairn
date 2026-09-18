@@ -25,9 +25,8 @@ is dropped on the way out.
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -39,12 +38,20 @@ from cairn.devices.cairn.machines.bus.bus import BusDevice, ChannelError
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_bus_traffic_{_NONCE}"     # the ephemeral transit table this proof owns
+_SCRATCH = contextlib.ExitStack()   # the one transit table this proof owns rides store.scratch()
+_HELD: list[BusDevice] = []
+
+
+def _table() -> str:
+    """The ephemeral transit table this proof owns — minted once, through the scratch door,
+    dropped with its ``_delivery`` companion at close (or swept by pid if this process dies)."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(BusDevice.scratch("bus_traffic")))
+    return _HELD[0].table
 
 
 def _fresh_bus() -> BusDevice:
-    bus = BusDevice(table=_TABLE)
+    bus = BusDevice(table=_table())
     # SILENCED, and it belongs in the constructor rather than in the one test that reads
     # breadcrumbs (ticket a-device-logs-without-being-wired, 2026-08-18). An un-wired device now
     # WRITES to ~/.cairn/logs/bus/0/ — so a proof that leaves it alone both loses the held list
@@ -111,9 +118,9 @@ def test_transit_is_owner_gated():
     bus = _fresh_bus()
     bus.post(sender="a", to="b", channel="info", why="ensure the table exists")
     # The transit table is the bus's; a non-bus writer is refused by db_domain's gate (Law 6).
-    assert store.owner_of(_TABLE) == "bus"
+    assert store.owner_of(_table()) == "bus"
     try:
-        store.write(_TABLE, "impostor", {"id": "x", "sender": "x", "addressee": "y",
+        store.write(_table(), "impostor", {"id": "x", "sender": "x", "addressee": "y",
                                          "channel": "info", "kind": "diagnostic", "why": "w",
                                          "body": {}, "reply_to": None, "date": "now"})
         raise AssertionError("only the bus may write transit — a non-owner write must be refused (Law 6)")
@@ -160,16 +167,6 @@ def test_it_is_a_device():
     assert list(bus.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     checks = [
         test_a_message_round_trips_with_why_and_causality,
@@ -184,7 +181,7 @@ def _main() -> int:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
     print("green — bus: one substrate for all comms; messages round-trip with why + causality, "
           "records refuse to collapse while diagnostics may, transit is owner-gated through db_domain")
     return 0

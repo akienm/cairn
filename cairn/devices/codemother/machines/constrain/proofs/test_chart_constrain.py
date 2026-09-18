@@ -29,12 +29,12 @@ DB teeth need the one-time provisioning (as the tree proof). Self-cleaning.
 from __future__ import annotations
 
 import ast
+import contextlib
 import json
 import os
 import pytest
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -47,12 +47,20 @@ from cairn.devices.codemother.machines.constrain.constrain import (
     AUTHORED_FIELDS, ConstrainRefused, constrain_floor, constrain_node_content,
     deposit_constrain, validate_constrain, write_constrain,
 )
-from cairn.tools.tree.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-_NEXUS = f"constrain_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("constrain")))
+    return _HELD[0]
 
 
 ALPHA_HOME = os.path.join("cairn", "tools", "alpha")
@@ -346,18 +354,18 @@ def test_deposit_back_is_gated(root, orient_berth):
     assert content.startswith("bound the alpha gate work — IN: ") and "OUT: beta" in content, \
         "the node content is the ONE rendering: upstream intent + the bounds"
     # A berth that does not exist refuses, tree untouched.
-    table = nexus_table(_NEXUS)
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
+    table = nexus_table(_nexus())
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
     expect_refusal(lambda: deposit_constrain(packet, [1.0, 0.0, 0.0],
                                              berth_path=berth + ".gone", root=root),
                    "does not exist")
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == before
     # The real deposit lands in the constrain corpus with the berth as provenance.
-    unique = content + f" [{_NEXUS}]"
+    unique = content + f" [{_nexus()}]"
     r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "intent_ref": packet["intent_ref"],
                        "confidence": packet["confidence"]},
-                      tree=_NEXUS, table=table, owner="chart")
+                      tree=_nexus(), table=table, owner="chart")
     rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
@@ -391,18 +399,6 @@ def test_import_allowlist(root, orient_berth):
         "chart's tree verbs")
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            t = nexus_table(_NEXUS)
-            cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-    finally:
-        conn.close()
-
-
-
 def test_refusal_is_one_pass_complete(root, orient_berth):
     """Ticket chart-doors-refuse-in-one-pass: a multi-defective packet learns EVERY
     shape lack in ONE refusal, a second identical firing names the identical set
@@ -433,7 +429,6 @@ def test_refusal_is_one_pass_complete(root, orient_berth):
         raise AssertionError("floor read a berth that does not exist")
     except ConstrainRefused as e:
         assert "REMEDIATION" in str(e), str(e)
-
 
 
 def test_request_identity_is_physics(root, orient_berth):
@@ -739,7 +734,6 @@ def test_floor_kinds_names_every_kind_the_floor_emits(root, orient_berth):
         remove()
 
 
-
 def a_packet_whose_stored_label_the_floor_will_not_reproduce(orient_berth):
     """ONE object. It declares ``floor`` for ``constraints``; the constraints are
     hand-picked, so re-running the constrain floor over the ref'd orient berth produces
@@ -807,8 +801,6 @@ def test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one(root
                    "declares its own provenance")
 
 
-
-
 def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root, orient_berth):
     """THE ANCHOR — the same one orient holds. The read door cannot re-derive the label,
     so it takes the one the write door stamped into the berth and refuses anything else."""
@@ -822,7 +814,6 @@ def test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one(root, orien
     expect_refusal(
         lambda: deposit_constrain(forged, [0.0], berth_path=berth, root=root),
         "not the one the berth carries")
-
 
 
 def test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them(root, orient_berth):
@@ -900,7 +891,7 @@ def _main() -> int:
             else:
                 print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
         shutil.rmtree(root, ignore_errors=True)
     if failures:
         print(f"red — chart/constrain, {len(failures)} of {len(checks)} teeth: "

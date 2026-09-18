@@ -47,12 +47,12 @@ DB teeth need the one-time provisioning (as the tree proof). Self-cleaning.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import pytest
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -68,12 +68,20 @@ from cairn.devices.codemother.machines.verdict.verdict import (
 )
 from skills.chart import live as live_mod
 from skills.chart.live import deposit_verdict, drain_pending
-from cairn.tools.tree.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-_NEXUS = f"verdict_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("verdict")))
+    return _HELD[0]
 
 
 def make_root():
@@ -298,8 +306,8 @@ def test_the_deposit_face_is_gated(root, berths, val):
     berth_dir = os.path.join(root, "instance", "deposit_berth")
     a = good_artifact(val)
     berth = write_verdict(a, instance_dir=berth_dir, root=root)
-    table = nexus_table(_NEXUS)
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
+    table = nexus_table(_nexus())
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
     fixed = lambda text: [1.0, 0.0, 0.0]  # noqa: E731 — the seam, not a vector, since 2026-07-29
     expect_refusal(lambda: deposit_verdict(a, fixed,
                                            berth_path=berth + ".gone", root=root),
@@ -307,16 +315,16 @@ def test_the_deposit_face_is_gated(root, berths, val):
     expect_refusal(lambda: deposit_verdict(dict(a, dispositions=[]), fixed,
                                            berth_path=berth, root=root),
                    "undispositioned")
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before, \
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == before, \
         "a refused deposit leaves the tree standing"
     # The real landing, with the berth as provenance (scratch corpus, as the
     # sibling proofs: the LIVE hypothesize tree is never a fixture).
     content = verdict_node_content(a)
-    unique = content + f" [{_NEXUS}]"
+    unique = content + f" [{_nexus()}]"
     r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "validate_ref": a["validate_ref"],
                        "ticket": a["ticket"]},
-                      tree=_NEXUS, table=table, owner="chart")
+                      tree=_nexus(), table=table, owner="chart")
     rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
@@ -421,14 +429,14 @@ def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val)
     # That sharing is the stone's win and has its own tooth below; here it would just
     # blur what this one is asking.
     drained_artifact = dict(good_artifact(val))
-    drained_artifact["verdicts"] = [dict(v, evidence=v["evidence"] + f" — drained [{_NEXUS}]")
+    drained_artifact["verdicts"] = [dict(v, evidence=v["evidence"] + f" — drained [{_nexus()}]")
                                     for v in drained_artifact["verdicts"]]
-    drained_artifact["dispositions"] = [dict(d, by=d["by"] + f" — drained [{_NEXUS}]")
+    drained_artifact["dispositions"] = [dict(d, by=d["by"] + f" — drained [{_nexus()}]")
                                         for d in drained_artifact["dispositions"]]
     art = _berth_a_verdict(berths, drained_artifact, "20260729T040000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
-    table = nexus_table(_NEXUS)
-    drained = drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 1.0, 0.0],
+    table = nexus_table(_nexus())
+    drained = drain_pending(root=root, nexus=_nexus(), embed=lambda text: [0.0, 1.0, 0.0],
                             ledger_path=ledger)
     assert len(drained) == 1 and drained[0]["berth"] == art, drained
     assert "failed" not in drained[0] and drained[0]["duplicates"] == 0, drained
@@ -445,10 +453,10 @@ def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val)
     assert not store.read(trees.NODES_TABLE, where="content = %s", params=(whole,)), \
         "the WHOLE verdict must never be persisted as a node — one node holds one claim"
     assert pending(ledger_path=ledger) == [], "the landed berth is marked, not pending"
-    standing = trees.tree_state(_NEXUS, table=table, owner="chart")
-    assert drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 1.0, 0.0],
+    standing = trees.tree_state(_nexus(), table=table, owner="chart")
+    assert drain_pending(root=root, nexus=_nexus(), embed=lambda text: [0.0, 1.0, 0.0],
                          ledger_path=ledger) == [], "a second drain has nothing to do"
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == standing, \
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == standing, \
         "a re-drain must never double-deposit — the tree stands exactly still"
     os.unlink(art)
 
@@ -462,9 +470,9 @@ def test_a_failed_deposit_stands_pending_and_is_named(root, berths, val):
     bad = _berth_a_verdict(berths, dict(good_artifact(val), dispositions=[]),
                            "20260729T050000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == bad
-    table = nexus_table(_NEXUS)
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
-    drained = drain_pending(root=root, nexus=_NEXUS, embed=lambda text: [0.0, 0.0, 1.0],
+    table = nexus_table(_nexus())
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
+    drained = drain_pending(root=root, nexus=_nexus(), embed=lambda text: [0.0, 0.0, 1.0],
                             ledger_path=ledger)
     assert len(drained) == 1 and "failed" in drained[0], drained
     assert "undispositioned" in drained[0]["failed"], drained
@@ -473,7 +481,7 @@ def test_a_failed_deposit_stands_pending_and_is_named(root, berths, val):
         "a failed deposit leaves its entry STANDING — nothing vanishes"
     assert not [r for r in read_ledger(ledger_path=ledger) if r["kind"] == "deposited"], \
         "nothing may claim a landing that did not happen"
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before, \
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == before, \
         "a refused deposit leaves the tree standing"
     os.unlink(bad)
     os.unlink(ledger)
@@ -581,9 +589,9 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     the parts are bare by construction and the attribution has to ride SOMEWHERE."""
     ledger = os.path.join(root, "instance", "ledger7", "verdict-deposits.jsonl")
     a = dict(good_artifact(val))
-    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — byte-identity tooth [{_NEXUS}]")
+    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — byte-identity tooth [{_nexus()}]")
                      for v in a["verdicts"]]
-    a["dispositions"] = [dict(d, by=d["by"] + f" — byte-identity [{_NEXUS}]")
+    a["dispositions"] = [dict(d, by=d["by"] + f" — byte-identity [{_nexus()}]")
                          for d in a["dispositions"]]
     art = _berth_a_verdict(berths, a, "20260729T080000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
@@ -594,8 +602,8 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
         # the metered shape: a dict carrying the host's own count beside the vector
         return {"vector": [float(len(seen)), 1.0, 0.0], "tokens": 10 + len(seen)}
 
-    table = nexus_table(_NEXUS)
-    drained = drain_pending(root=root, nexus=_NEXUS, embed=recording_embed,
+    table = nexus_table(_nexus())
+    drained = drain_pending(root=root, nexus=_nexus(), embed=recording_embed,
                             ledger_path=ledger)
     assert "failed" not in drained[0], drained
     assert seen == [c for _, c in verdict_node_parts(a)], \
@@ -622,11 +630,11 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     second = dict(a)
     second["verdicts"] = [a["verdicts"][0],
                           dict(a["verdicts"][1],
-                               evidence=f"VerdictRefused raised on the second run too [{_NEXUS}]")]
+                               evidence=f"VerdictRefused raised on the second run too [{_nexus()}]")]
     art2 = _berth_a_verdict(berths, second, "20260729T081500")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art2
-    grew_from = trees.tree_state(_NEXUS, table=table, owner="chart")
-    d2 = drain_pending(root=root, nexus=_NEXUS,
+    grew_from = trees.tree_state(_nexus(), table=table, owner="chart")
+    d2 = drain_pending(root=root, nexus=_nexus(),
                        embed=lambda text: {"vector": [2.0, 1.0, 0.0], "tokens": 5},
                        ledger_path=ledger)
     assert "failed" not in d2[0], d2
@@ -634,7 +642,7 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     assert [p["part_index"] for p in shared] == [0, 2, 3], d2[0]["parts"]
     assert d2[0]["deposited"][0] == drained[0]["deposited"][0], \
         "an unchanged claim must be the SAME node, not a second copy of itself"
-    grew_to = trees.tree_state(_NEXUS, table=table, owner="chart")
+    grew_to = trees.tree_state(_nexus(), table=table, owner="chart")
     assert grew_to["nodes"] - grew_from["nodes"] == 1, \
         "only the claim that actually changed is a new node"
     os.unlink(art)
@@ -658,12 +666,12 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
     path exists, and the next tooth proves no length is even consulted."""
     ledger = os.path.join(root, "instance", "ledger8", "verdict-deposits.jsonl")
     a = dict(good_artifact(val))
-    a["dispositions"] = [dict(d, by=d["by"] + f" — refusal tooth [{_NEXUS}]") for d in a["dispositions"]]
-    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — refusal tooth [{_NEXUS}]")
+    a["dispositions"] = [dict(d, by=d["by"] + f" — refusal tooth [{_nexus()}]") for d in a["dispositions"]]
+    a["verdicts"] = [dict(v, evidence=v["evidence"] + f" — refusal tooth [{_nexus()}]")
                      for v in a["verdicts"]]
     art = _berth_a_verdict(berths, a, "20260729T090000")
     assert enqueue_verdict("sworn", berths_root=berths, ledger_path=ledger) == art
-    table = nexus_table(_NEXUS)
+    table = nexus_table(_nexus())
     calls = {"n": 0}
 
     def refusing_embed(text):
@@ -672,7 +680,7 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
             raise RuntimeError("HostRefused: input exceeds the model's context length")
         return {"vector": [0.0, 0.0, float(calls["n"])], "tokens": 7}
 
-    drained = drain_pending(root=root, nexus=_NEXUS, embed=refusing_embed,
+    drained = drain_pending(root=root, nexus=_nexus(), embed=refusing_embed,
                             ledger_path=ledger)
     assert len(drained) == 1 and "failed" in drained[0], drained
     assert "context length" in drained[0]["failed"], drained
@@ -687,15 +695,15 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
         "the parts before the refusal landed; the refused one and its successors did not"
     # THE RETRY: the same berth, a seam that no longer refuses. The already-landed
     # parts come back as DUPLICATES and the tree grows by exactly the missing two.
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
-    again = drain_pending(root=root, nexus=_NEXUS,
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
+    again = drain_pending(root=root, nexus=_nexus(),
                           embed=lambda text: {"vector": [0.0, 0.0, 9.0], "tokens": 7},
                           ledger_path=ledger)
     assert "failed" not in again[0], again
     assert again[0]["duplicates"] == 2, again[0]
     assert len(again[0]["deposited"]) == 4
     assert pending(ledger_path=ledger) == [], "the completed berth is finally marked"
-    after = trees.tree_state(_NEXUS, table=table, owner="chart")
+    after = trees.tree_state(_nexus(), table=table, owner="chart")
     assert after["nodes"] - before["nodes"] == 2, (before, after)
     os.unlink(art)
     os.unlink(ledger)
@@ -801,7 +809,7 @@ def test_the_deposit_lands_in_the_nexus_the_artifact_names(root, berths, val):
     (one drain can land two berths in two different trees)."""
     berth_dir = os.path.join(root, "instance", "nexus_berth")
     fixed = lambda text: [0.0, 0.5, 0.5]  # noqa: E731
-    named = _NEXUS + "_named"
+    named = _SCRATCH.enter_context(scratch_nexus("verdict_named"))   # a second tree of its own, also scratch
     a = dict(good_artifact(val), nexus=named)
     berth = write_verdict(a, instance_dir=berth_dir, root=root)
 
@@ -814,28 +822,15 @@ def test_the_deposit_lands_in_the_nexus_the_artifact_names(root, berths, val):
 
     # An explicit argument still wins — the caller is closer to the truth than a
     # file, and every existing drain call in this proof depends on that holding.
-    before_scratch = trees.tree_state(_NEXUS, table=nexus_table(_NEXUS), owner="chart")
-    got = deposit_verdict(a, fixed, berth_path=berth, root=root, nexus=_NEXUS)
-    assert got["nexus"] == _NEXUS, got["nexus"]
-    assert trees.tree_state(_NEXUS, table=nexus_table(_NEXUS), owner="chart") \
+    before_scratch = trees.tree_state(_nexus(), table=nexus_table(_nexus()), owner="chart")
+    got = deposit_verdict(a, fixed, berth_path=berth, root=root, nexus=_nexus())
+    assert got["nexus"] == _nexus(), got["nexus"]
+    assert trees.tree_state(_nexus(), table=nexus_table(_nexus()), owner="chart") \
         != before_scratch, "the explicit argument was ignored"
 
     # And an artifact that says nothing resolves to where it always landed — the
     # non-regression that makes this field additive rather than a migration.
     assert verdict_mod.verdict_nexus(good_artifact(val)) == "hypothesize"
-
-
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for name in (_NEXUS, _NEXUS + "_named"):
-                t = nexus_table(name)
-                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
-                            (t,))
-    finally:
-        conn.close()
 
 
 def _main() -> int:
@@ -866,7 +861,7 @@ def _main() -> int:
             check(root, berths, val)
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
         shutil.rmtree(os.path.dirname(root), ignore_errors=True)
     print("green — chart/verdict: the shape gate refuses narration, coverage is "
           "complete on first pass (an unreadable chain refuses, never vanishes), "

@@ -54,10 +54,10 @@ from __future__ import annotations
 
 import contextlib
 import json
-import os
 import shutil
 import sys
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -69,8 +69,16 @@ from cairn.devices.inference_domain import domain
 from cairn.devices.tester.scratch import scratch_dir
 from cairn.tools.base import address
 
-_NONCE = f"{os.getpid()}_{datetime.now(timezone.utc).strftime('%H%M%S%f')}"
-_TABLE = f"_probe_trail_{_NONCE}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _table() -> str:
+    """The proof's one table, minted on first use as scratch."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+    return _HELD[0]
 
 
 class _Resolver:
@@ -163,7 +171,7 @@ def test_a_miss_lands_a_line_that_names_the_far_end():
         assert not trail.exists(), f"the fixture world must start with no trail: {trail}"
 
         r = _Resolver()
-        out = domain.resolve({"q": f"miss_{_NONCE}"}, resolver=r, table=_TABLE)
+        out = domain.resolve({"q": f"miss_{_RUN}"}, resolver=r, table=_table())
         assert out["hit"] is False and r.calls == 1
 
         records = _lines(trail)
@@ -201,9 +209,9 @@ def test_a_hit_records_the_crossing_that_did_not_happen():
     with _isolated_trail():
         trail = domain.diagnostic_trail()
         r = _Resolver()
-        tag = {"q": f"hit_{_NONCE}"}
-        domain.resolve(dict(tag), resolver=r, table=_TABLE)
-        hit = domain.resolve(dict(tag), resolver=r, table=_TABLE)
+        tag = {"q": f"hit_{_RUN}"}
+        domain.resolve(dict(tag), resolver=r, table=_table())
+        hit = domain.resolve(dict(tag), resolver=r, table=_table())
 
         assert hit["hit"] is True and r.calls == 1, (
             "compile-once is a standing contract — observing the door must not touch the host")
@@ -228,7 +236,7 @@ def test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged(
         r = _Refusing(boom)
 
         try:
-            domain.resolve({"q": f"refused_{_NONCE}"}, resolver=r, table=_TABLE)
+            domain.resolve({"q": f"refused_{_RUN}"}, resolver=r, table=_table())
             raise AssertionError("a raising resolver must PROPAGATE — recording is not handling")
         except AssertionError:
             raise
@@ -261,7 +269,7 @@ def test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null():
     with _isolated_trail():
         trail = domain.diagnostic_trail()
         r = _Resolver(provenance={"host": "http://loopback:11434"})
-        domain.resolve({"q": f"sparse_{_NONCE}"}, resolver=r, table=_TABLE)
+        domain.resolve({"q": f"sparse_{_RUN}"}, resolver=r, table=_table())
 
         v = _lines(trail)[0]["values"]
         assert v["host"] == "http://loopback:11434", v
@@ -287,17 +295,17 @@ def test_the_trail_and_the_meter_agree():
     """
     with _isolated_trail() as tmp:
         trail = domain.diagnostic_trail()
-        tag = f"agree_{_NONCE}"
+        tag = f"agree_{_RUN}"
         r = _Resolver()
 
         # Three distinct questions (three misses), one repeat (a hit), one refusal — so the
         # trail carries all three gates and the count cannot be right by having only one kind.
         for n in range(3):
-            domain.resolve({"q": f"{tag}_{n}"}, resolver=r, table=_TABLE)
-        domain.resolve({"q": f"{tag}_0"}, resolver=r, table=_TABLE)
+            domain.resolve({"q": f"{tag}_{n}"}, resolver=r, table=_table())
+        domain.resolve({"q": f"{tag}_0"}, resolver=r, table=_table())
         try:
             domain.resolve({"q": f"{tag}_bad"}, resolver=_Refusing(RuntimeError("nope")),
-                           table=_TABLE)
+                           table=_table())
         except RuntimeError:
             pass
 
@@ -305,7 +313,7 @@ def test_the_trail_and_the_meter_agree():
             return sum(1 for rec in _lines(trail) if rec["gate"] == "miss")
 
         def row_misses() -> int:
-            rows = store.read(_TABLE, where="canonical LIKE %s AND verdict = 'miss'",
+            rows = store.read(_table(), where="canonical LIKE %s AND verdict = 'miss'",
                               params=(f"%{tag}%",))
             return len(rows)
 
@@ -319,7 +327,7 @@ def test_the_trail_and_the_meter_agree():
         elsewhere = scratch_dir("cairn_trail_elsewhere_")
         try:
             domain.set_diagnostic_roots({**address.ROOTS, "instance": elsewhere})
-            domain.resolve({"q": f"{tag}_9"}, resolver=r, table=_TABLE)
+            domain.resolve({"q": f"{tag}_9"}, resolver=r, table=_table())
         finally:
             domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
 
@@ -422,7 +430,7 @@ def test_the_probe_reads_the_address_the_device_declares():
     p = _probe()
     with _isolated_trail() as tmp:
         r = _Resolver()
-        domain.resolve({"q": f"follows_{_NONCE}"}, resolver=r, table=_TABLE)
+        domain.resolve({"q": f"follows_{_RUN}"}, resolver=r, table=_table())
         s = p.survey_the_corpus()
         assert s["trail_exists"] is True, (
             f"the probe must have found the trail at the device's CURRENT berth ({tmp}): {s}")
@@ -433,17 +441,6 @@ def test_the_probe_reads_the_address_the_device_declares():
             f"how this tooth passed for two months while the probe read the live trail — the "
             f"bound that admits the accident is the bound the accident meets (ruling "
             f"2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage).")
-
-
-def _cleanup():
-    """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
 
 
 def _main() -> int:
@@ -467,7 +464,7 @@ def _main() -> int:
             print(f"  PASS  {check.__name__}")
     finally:
         domain.set_diagnostic_roots(None)
-        _cleanup()
+        _SCRATCH.close()
     print("green — an inference call leaves a record in the device's own trail, and the trail "
           "agrees with the meter")
     return 0

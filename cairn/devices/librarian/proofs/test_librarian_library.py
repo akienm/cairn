@@ -26,11 +26,11 @@ db_domain (nonce table, self-cleaning), as in the trees and loop proofs.
 from __future__ import annotations
 
 import ast
+import contextlib
 import hashlib
-import os
 import shutil
 import sys
-from datetime import datetime
+import uuid
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -46,9 +46,17 @@ from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import LibrarianDevice
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_library_{_NONCE}"
-_TMP = scratch_dir(f"cairn_library_{_NONCE}_")
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _table() -> str:
+    """The proof's one table, minted on first use as scratch."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(trees.scratch_leaf("library")))
+    return _HELD[0]
+_TMP = scratch_dir(f"cairn_library_{_RUN}_")
 _SHELF = _TMP / "library"
 _SRC = _TMP / "sources"
 _SRC.mkdir(parents=True)
@@ -156,10 +164,10 @@ def test_learn_deposits_every_passage_anchored_to_the_shelf():
                   "beta passage that is also comfortably long enough to keep\n")
     shelved = shelve(src, "lessons", library=_SHELF)
     got = learn("lessons/teach.txt", resolve=fake_embed(), tree="taught",
-                library=_SHELF, table=_TABLE)
+                library=_SHELF, table=_table())
     assert got["passages"] == 2 and len(got["deposited"]) == 2
     assert got["duplicates"] == 0 and got["refused"] == []
-    leaf_rows = store.read(_TABLE)
+    leaf_rows = store.read(_table())
     assert len(leaf_rows) == 2
     rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(lr["node_id"],))[0]
             for lr in leaf_rows]
@@ -173,23 +181,23 @@ def test_learn_deposits_every_passage_anchored_to_the_shelf():
 
 def test_relearn_writes_nothing():
     got = learn("lessons/teach.txt", resolve=fake_embed(), tree="taught",
-                library=_SHELF, table=_TABLE)
+                library=_SHELF, table=_table())
     assert got["duplicates"] == 2 and got["deposited"] == [], \
         "the graph already holds the frozen file — re-learning is all duplicates (Law 1)"
-    assert len(store.read(_TABLE)) == 2
+    assert len(store.read(_table())) == 2
 
 
 def test_learn_refuses_the_unshelved_the_missing_and_the_rotted():
     _refuses(LearnRefused, learn, "nowhere/ghost.txt", resolve=fake_embed(),
-             library=_SHELF, table=_TABLE)
+             library=_SHELF, table=_table())
     _refuses(LearnRefused, learn, "lessons/teach.txt", resolve=None,
-             library=_SHELF, table=_TABLE)
+             library=_SHELF, table=_table())
     # Rot the shelf under the register: the frozen copy's bytes drift.
     shelved_path = _SHELF / "lessons" / "teach.txt"
     frozen = shelved_path.read_text(encoding="utf-8")
     shelved_path.write_text(frozen + "a drifted line\n", encoding="utf-8")
     msg = _refuses(LearnRefused, learn, "lessons/teach.txt", resolve=fake_embed(),
-                   library=_SHELF, table=_TABLE)
+                   library=_SHELF, table=_table())
     assert "rotted" in msg and "sha256:" in msg, "rot is loud and names both digests"
     shelved_path.write_text(frozen, encoding="utf-8")  # restore the frozen copy
     # And gone entirely:
@@ -197,7 +205,7 @@ def test_learn_refuses_the_unshelved_the_missing_and_the_rotted():
     shelve(src, "lessons", library=_SHELF)
     (_SHELF / "lessons" / "gone.txt").unlink()
     _refuses(LearnRefused, learn, "lessons/gone.txt", resolve=fake_embed(),
-             library=_SHELF, table=_TABLE)
+             library=_SHELF, table=_table())
 
 
 def test_binary_shelves_but_refuses_to_learn():
@@ -205,20 +213,20 @@ def test_binary_shelves_but_refuses_to_learn():
     src.write_bytes(bytes(range(256)) * 4)
     shelve(src, "lessons", library=_SHELF)
     msg = _refuses(LearnRefused, learn, "lessons/opaque.bin", resolve=fake_embed(),
-                   library=_SHELF, table=_TABLE)
+                   library=_SHELF, table=_table())
     assert "utf-8" in msg, "a binary needs a reader, not a silent skip"
 
 
 def test_learned_nodes_resolve_with_their_citation_intact():
-    a = f"the anchor passage this tooth will walk straight back to [{_NONCE}]"
-    b = f"the decoy passage pointing in an orthogonal direction entirely [{_NONCE}]"
+    a = f"the anchor passage this tooth will walk straight back to [{_RUN}]"
+    b = f"the decoy passage pointing in an orthogonal direction entirely [{_RUN}]"
     src = _source("walkback.txt", f"{a}\n\n{b}\n")
     shelve(src, "lessons", library=_SHELF)
     seam = fake_embed({a: [1.0, 0.0, 0.0], b: [0.0, 1.0, 0.0]})
     learn("lessons/walkback.txt", resolve=seam, tree="walkback",
-          library=_SHELF, table=_TABLE)
+          library=_SHELF, table=_table())
     dev = _fresh_librarian()
-    walk = dev.nearest([0.99, 0.05, 0.0], k=2, tree="walkback", table=_TABLE)
+    walk = dev.nearest([0.99, 0.05, 0.0], k=2, tree="walkback", table=_table())
     assert walk[0]["content"] == a, "the learned passage is reachable as structure"
     assert walk[0]["provenance"] == {"source": "library:lessons/walkback.txt",
                                      "passage": "p0",
@@ -230,7 +238,7 @@ def test_learned_nodes_resolve_with_their_citation_intact():
 def test_the_learn_crossing_breadcrumbs():
     dev = _fresh_librarian()
     learn("lessons/teach.txt", resolve=fake_embed(), tree="taught",
-          library=_SHELF, table=_TABLE, dev=dev)
+          library=_SHELF, table=_table(), dev=dev)
     crumbs = [c for c in dev.held_diagnostics() if c["gate"] == "learn"]
     assert len(crumbs) == 1 and crumbs[0]["pointer"] == "lessons/teach.txt"
     assert crumbs[0]["values"] == {"tree": "taught", "passages": 2, "deposited": 0,
@@ -263,17 +271,6 @@ def test_library_opens_no_door_of_its_own():
         "through the injected seam (sole-path, Law 4)")
 
 
-def _cleanup():
-    shutil.rmtree(_TMP, ignore_errors=True)
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     checks = [
         test_shelve_freezes_a_copy_and_registers_its_digest,
@@ -294,7 +291,8 @@ def _main() -> int:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        shutil.rmtree(_TMP, ignore_errors=True)
+        _SCRATCH.close()
     print("green — librarian/library: shelved is frozen, rot is loud, citations are "
           "positions in the frozen file, learn is deposit-only and anchored, learned "
           "nodes resolve as structure with their citations intact, and the library "

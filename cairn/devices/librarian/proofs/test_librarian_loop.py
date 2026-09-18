@@ -40,9 +40,10 @@ data (standing, provenance, created) is read from cairn_nodes (NODES_TABLE), not
 
 from __future__ import annotations
 
+import contextlib
 import ast
-import os
 import sys
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -54,21 +55,21 @@ from cairn.devices.db_domain import store
 from cairn.devices.inference_domain import domain
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query
-from cairn.devices.librarian.trees import (NODES_TABLE, OWNER, LibrarianDevice, corroborate,
+from cairn.devices.librarian.trees import (forget_leaf, scratch_leaf, NODES_TABLE, OWNER, LibrarianDevice, corroborate,
                                            deposit, node_id_for, refute)
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_librarian_loop.py", "ground": "fixture"}
 
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
+_HELD: dict[str, str] = {}
 
 
 def _t(name: str) -> str:
     """Per-test nonce leaf table — each test "tree" IS its own leaf table (three-table design)."""
-    t = f"_loop_{name}_{_NONCE}"
-    if t not in _TABLES:
-        _TABLES.append(t)
-    return t
+    if name not in _HELD:
+        _HELD[name] = _SCRATCH.enter_context(scratch_leaf(f"loop_{name}"))
+    return _HELD[name]
 
 
 def _node(node_id: str) -> dict:
@@ -118,9 +119,9 @@ def test_a_refuted_node_stays_present_labelled_and_uncounted():
     """The falsifier the ticket actually turns on: PRESENT, LABELLED, NOT COUNTED.
     A deleted node would also 'fail to count' — that is the hollow build this excludes."""
     tbl = _t("retired")
-    wrong = deposit(f"the reading room shuts at four ({_NONCE})", _NEAR, _PROV,
+    wrong = deposit(f"the reading room shuts at four ({_RUN})", _NEAR, _PROV,
                     tree="retired", table=tbl)["node_id"]
-    said = deposit(f"no — the posted hours say six ({_NONCE})", _FAR, {"source": "correction"},
+    said = deposit(f"no — the posted hours say six ({_RUN})", _FAR, {"source": "correction"},
                    tree="retired", table=tbl)["node_id"]
     refute(wrong, said, "the posted hours say six", tree="retired", table=tbl)
 
@@ -131,7 +132,7 @@ def test_a_refuted_node_stays_present_labelled_and_uncounted():
 
     walked = {n["node_id"]: n for n in got["nodes"]}
     assert wrong in walked, "the refuted node must still be PRESENT in the walk, not deleted"
-    assert f"the reading room shuts at four ({_NONCE})" in walked[wrong]["content"], "and readable"
+    assert f"the reading room shuts at four ({_RUN})" in walked[wrong]["content"], "and readable"
     assert walked[wrong]["evidence"] is False, "a refuted node may never count as evidence"
     assert "refuted" in (walked[wrong].get("evidence_why") or ""), \
         f"the label must say WHY: {walked[wrong].get('evidence_why')!r}"
@@ -144,9 +145,9 @@ def test_a_node_earned_then_refuted_is_still_uncounted():
     earned pass-through short-circuits, so a refuted-but-previously-earned node would
     come back evidence:True if the refuted clause were placed after it."""
     tbl = _t("earned_then_wrong")
-    nid = deposit(f"an earned claim that later turned out wrong ({_NONCE})", _NEAR, _PROV,
+    nid = deposit(f"an earned claim that later turned out wrong ({_RUN})", _NEAR, _PROV,
                   tree="earned-then-wrong", table=tbl)["node_id"]
-    said = deposit(f"that claim does not survive the measurement ({_NONCE})", _FAR,
+    said = deposit(f"that claim does not survive the measurement ({_RUN})", _FAR,
                    {"source": "correction"}, tree="earned-then-wrong", table=tbl)["node_id"]
     store.update(NODES_TABLE, OWNER, {"standing": "earned"},
                  where="node_id = %s", params=(nid,))
@@ -167,10 +168,10 @@ def test_the_receipts_cite_only_what_the_record_holds():
     node was born from — and 19 of the 78 live rows carry no birth question, so the
     absence is REPORTED, never filled with a plausible invention."""
     tbl = _t("receipts")
-    with_q = deposit(f"a node born of an earlier asking ({_NONCE})", _NEAR,
+    with_q = deposit(f"a node born of an earlier asking ({_RUN})", _NEAR,
                      {**_PROV, "question": "what did they ask before"},
                      tree="receipts", table=tbl)["node_id"]
-    without_q = deposit(f"a library fold that nobody asked for ({_NONCE})", [0.98, 0.06, 0.0],
+    without_q = deposit(f"a library fold that nobody asked for ({_RUN})", [0.98, 0.06, 0.0],
                         {"source": "library-fold"}, tree="receipts", table=tbl)["node_id"]
 
     seam = fake_seam({"a fresh question about the same region": [1.0, 0.0, 0.0]}, scripts=[])
@@ -251,7 +252,7 @@ def test_the_livelock_is_broken_by_key_physics():
 def test_no_progress_terminates_loudly_instead_of_spinning():
     tbl = _t("stuck")
     q = "a question the model cannot ground"
-    far_node = f"the same far node, forever ({_NONCE})"
+    far_node = f"the same far node, forever ({_RUN})"
     seam = fake_seam({q: [1.0, 0.0, 0.0]},
                      scripts=[f'{{"nodes": ["{far_node}"]}}',
                               f'{{"nodes": ["{far_node}"]}}'])
@@ -317,7 +318,7 @@ def test_the_home_field_shape_is_unmanufacturable():
 
 def test_cross_question_corroboration_promotes_at_threshold():
     tbl = _t("tenure")
-    fact = f"the standing fact that answers several distinct questions ({_NONCE})"
+    fact = f"the standing fact that answers several distinct questions ({_RUN})"
     nid = node_id_for(fact)
     deposit(fact, _NEAR, {"source": "llm-backfill", "question": "the birth question"},
             tree="tenure", table=tbl)
@@ -347,7 +348,7 @@ def test_cross_question_corroboration_promotes_at_threshold():
 
 def test_lazy_decay_fades_the_uncorroborated_only():
     tbl = _t("fade")
-    aged = f"an aged shard nobody ever walked back to ({_NONCE})"
+    aged = f"an aged shard nobody ever walked back to ({_RUN})"
     nid = deposit(aged, _NEAR, {"source": "llm-backfill", "question": "its own birth question"},
                   tree="fade", table=tbl)["node_id"]
     store.update(NODES_TABLE, OWNER,
@@ -421,21 +422,10 @@ def test_loop_opens_no_door_of_its_own():
 
 
 def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for t in _TABLES:
-                cur.execute("SELECT 1 FROM information_schema.tables "
-                            "WHERE table_name = %s", (t,))
-                if cur.fetchone():
-                    cur.execute(
-                        f'DELETE FROM "{NODES_TABLE}" WHERE node_id IN '
-                        f'(SELECT node_id FROM "{t}")')
-                    cur.execute(f'DROP TABLE "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-    finally:
-        conn.close()
-
+    """This run's rows out of the shared tables, then every scratch leaf dropped."""
+    for t in _HELD.values():
+        forget_leaf(t)
+    _SCRATCH.close()
 
 def _main() -> int:
     checks = [

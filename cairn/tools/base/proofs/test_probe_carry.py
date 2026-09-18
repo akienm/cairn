@@ -28,30 +28,14 @@ WHAT THIS PROVES:
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.base.probe import Probe, by_copy, by_pointer, by_text, owning_ticket
-
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_bus_traffic_{_NONCE}"     # the ephemeral transit table this proof owns
-
-
-def _cleanup() -> None:
-    from cairn.devices.db_domain import store
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
 
 ALWAYS = lambda now, ctx: True   # noqa: E731 — a trigger is a predicate, not a kind
 
@@ -225,18 +209,15 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
             return [Probe(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
                              to="test_recipient", carry=by_text("ticket detected at {gate} as {ticket}"))]
 
-    # An EPHEMERAL transit table this proof owns — the durable bus is shared, so counting a
+    # A SCRATCH transit table this proof owns — the durable bus is shared, so counting a
     # live channel would pin a legitimately-moving value and go red on the second run.
-    bus = BusDevice(table=_TABLE)
-    try:
+    with BusDevice.scratch("probe_carry") as bus:
         shim = _Shim(bus=bus)
         shim.on_pulse(now="2026-07-25", context={**seen, "gate": "PROVEME"})
         posted = bus.read(to="test_recipient", channel="personal")
         assert len(posted) == 1, f"one fire, one poke — got {len(posted)}"
         assert posted[0]["body"]["text"] == \
             "ticket detected at PROVEME as {'id': 'T-7', 'gate': 'PROVEME'}", posted[0]["body"]
-    finally:
-        _cleanup()
 
 
 TESTS = [

@@ -31,12 +31,12 @@ the Unix socket is a file (db_domain's documented asymmetry).
 """
 from __future__ import annotations
 
+import contextlib
 import ast
 import json
 import os
 import sys
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -49,7 +49,7 @@ from skills.chart.dial import dial
 from cairn.tools.chain.grammar import (STRATA)
 from cairn.devices.codemother.machines.orient.orient import (OrientRefused, deposit_orient)
 from cairn.tools.tree.tree import (
-    TreeRefused, counsel, deposit_learning, nexus_table,
+    TreeRefused, counsel, deposit_learning, nexus_table, scratch_nexus,
 )
 from cairn.devices.db_domain import store
 from cairn.devices.db_domain.store import OwnershipError
@@ -61,8 +61,21 @@ PROVES = {
     "9c46e187f2de": {"all": "test_gate_before_seed"},
 }
 
-_NEXUS = f"orient_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
-_TABLE = nexus_table(_NEXUS)
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("orient")))
+    return _HELD[0]
+
+
+def _table() -> str:
+    return nexus_table(_nexus())
+
+
 _PROV = {"source": "proofs/test_chart_tree.py", "ground": "fixture"}
 
 
@@ -120,14 +133,14 @@ def test_a_nexus_name_is_identity():
 
 
 def test_the_table_is_born_owned_by_chart():
-    r = deposit_learning(_NEXUS, "the first learning of a chart-owned tree",
+    r = deposit_learning(_nexus(), "the first learning of a chart-owned tree",
                          [1.0, 0.0, 0.0], _PROV)
     assert r["duplicate"] is False
-    assert store.owner_of(_TABLE) == "chart", \
+    assert store.owner_of(_table()) == "chart", \
         "the nexus's table must register under owner 'chart' at birth (Law 6)"
     try:
-        store.write(_TABLE, "librarian", {
-            "node_id": "forced", "tree": _NEXUS, "content": "should never land",
+        store.write(_table(), "librarian", {
+            "node_id": "forced", "tree": _nexus(), "content": "should never land",
             "vector": [1.0], "provenance": {"source": "x"}, "standing": "hypothesis"})
         raise AssertionError("a non-chart write must be REFUSED by db_domain (Law 6)")
     except OwnershipError:
@@ -135,7 +148,7 @@ def test_the_table_is_born_owned_by_chart():
 
 
 def test_gate_before_seed():
-    before = trees.tree_state(_NEXUS, table=_TABLE, owner="chart")
+    before = trees.tree_state(_nexus(), table=_table(), owner="chart")
     with tempfile.TemporaryDirectory() as tmp:
         berth = _berthed_fixture(tmp, _packet())
         # A malformed packet (missing a required field) never reaches the tree.
@@ -152,22 +165,22 @@ def test_gate_before_seed():
         assert missing in msg, "the refusal must name the berth that is not there: " + msg
         assert "provenance does not cover" not in msg, \
             "the fixture was refused one lack early — the berth check was never reached"
-        assert trees.tree_state(_NEXUS, table=_TABLE, owner="chart") == before, \
+        assert trees.tree_state(_nexus(), table=_table(), owner="chart") == before, \
             "a refused deposit-back must leave the tree exactly where it stood"
         # THE CONTROL: the same packet, with the berth that exists, is accepted — so the
         # refusal above was the berth's and not some earlier lack the packet carries.
-        control = _packet(intent=f"the gate control packet of the chart tree proof [{_NEXUS}]")
+        control = _packet(intent=f"the gate control packet of the chart tree proof [{_nexus()}]")
         berth = _berthed_fixture(tmp, control)
-        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_NEXUS)
+        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_nexus())
         _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False, "the control packet must land as a new node"
 
 
 def test_deposit_back_lands_and_dedups():
     with tempfile.TemporaryDirectory() as tmp:
-        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_NEXUS}]")
+        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_nexus()}]")
         berth = _berthed_fixture(tmp, packet)
-        r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_NEXUS)
+        r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_nexus())
         _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False
         node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
@@ -176,27 +189,28 @@ def test_deposit_back_lands_and_dedups():
         assert node_rows[0]["provenance"]["source"] == berth, "provenance names the berth"
         assert node_rows[0]["provenance"]["confidence"] == packet["confidence"]
         assert node_rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
-        leaf_rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
+        leaf_rows = store.read(_table(), where="node_id = %s", params=(r["node_id"],))
         assert leaf_rows, "a leaf must land in the nexus's table"
         # The same packet again: a duplicate writes nothing (Law 1).
-        before = trees.tree_state(_NEXUS, table=_TABLE, owner="chart")
-        r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_NEXUS)
+        before = trees.tree_state(_nexus(), table=_table(), owner="chart")
+        r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_nexus())
         assert r2["duplicate"] is True
-        assert trees.tree_state(_NEXUS, table=_TABLE, owner="chart") == before
+        assert trees.tree_state(_nexus(), table=_table(), owner="chart") == before
 
 
 def test_counsel_keeps_its_floor_visible():
     # An empty tree is an honest empty counsel.
-    got = counsel([1.0, 0.0, 0.0], nexus=f"{_NEXUS}_empty")
+    with scratch_nexus("orient_empty") as empty:     # a nexus nobody deposited into
+        got = counsel([1.0, 0.0, 0.0], nexus=empty)
     assert got["walk"] == [] and got["above_floor"] == []
     assert got["floor"] == RESOLUTION_FLOOR, "the floor is imported, not re-minted"
     assert "guess" in got["floor_is"] and "n=1" in got["floor_is"], \
         "the floor's label travels — a guess must say it is one"
     # A populated tree: above_floor holds only nodes at/above the floor.
-    r_far = deposit_learning(_NEXUS, "a learning pointing far away from the query",
+    r_far = deposit_learning(_nexus(), "a learning pointing far away from the query",
                              [0.0, 0.0, 1.0], _PROV)
     _CREATED_NODES.append(r_far["node_id"])
-    got = counsel([0.9, 0.1, 0.0], nexus=_NEXUS, k=10)
+    got = counsel([0.9, 0.1, 0.0], nexus=_nexus(), k=10)
     assert got["walk"], "the walk sees the tree"
     assert all(n["similarity"] >= got["floor"] for n in got["above_floor"])
     assert all(n["similarity"] < got["floor"]
@@ -205,7 +219,8 @@ def test_counsel_keeps_its_floor_visible():
 
 def test_the_librarians_tools_are_the_only_door():
     allowed = {
-        tree.__file__: ("__future__", "os", "re", "cairn.devices.codemother.machines.orient.orient",
+        tree.__file__: ("__future__", "contextlib", "os", "re",   # contextlib: scratch_nexus (201a37bf1613)
+                        "cairn.devices.codemother.machines.orient.orient",
                         "cairn.devices.librarian.trees", "cairn.devices.librarian.loop"),
         # cairn.devices.codemother.machines.constrain.constrain joined 2026-07-28 (chart-constrain), cairn.devices.codemother.machines.survey.survey
         # and cairn.devices.codemother.machines.decompose.decompose the same day (chart-survey, chart-decompose),
@@ -326,20 +341,6 @@ def test_tree_is_a_legal_stratum_at_the_packet_gate():
 _CREATED_NODES: list[str] = []
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for t in (_TABLE, nexus_table(f"{_NEXUS}_empty")):
-                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-            for nid in _CREATED_NODES:
-                cur.execute(f'DELETE FROM "{trees.EMBEDDINGS_TABLE}" WHERE node_id = %s', (nid,))
-                cur.execute(f'DELETE FROM "{trees.NODES_TABLE}" WHERE node_id = %s', (nid,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     checks = [
         test_a_nexus_name_is_identity,
@@ -359,7 +360,9 @@ def _main() -> int:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        for name in _HELD:            # this run's rows out of the shared tables, then the scratch nexus dropped
+            trees.forget_leaf(nexus_table(name))
+        _SCRATCH.close()
     print("green — chart/tree + chart/dial: the table is born chart's, the gate runs "
           "before the seed, deposit-back lands honest and dedups, counsel keeps its "
           "labeled floor, the librarian's tools are the only door, and the dial reads "

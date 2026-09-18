@@ -56,6 +56,7 @@ from collections import Counter
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.validation_store import (
     SealConversionRefused,
     SealDowngradeRefused,
@@ -479,7 +480,8 @@ def main(argv: list[str] | None = None) -> int:
         isolations[isolation] += 1
         try:
             record = tester.run_proof(proof, sink=sink, caller="cairn test",
-                                      timeout=args.timeout, isolation=isolation)
+                                      timeout=args.timeout, isolation=isolation,
+                                      scratch_sweep=sweep_scratch() if sink == "validations" else None)
         except (SealDowngradeRefused, SealConversionRefused) as refusal:
             # THE DOOR REFUSED THE SEAL, NOT THE PROOF, and the difference has to survive to
             # the screen. The batch continues: one proof whose seal cannot land is not a
@@ -496,6 +498,12 @@ def main(argv: list[str] | None = None) -> int:
         verdict = record["verdict"]
         if verdict == GREEN and sink == "validations":
             sealed_green.append((proof, record))
+        # the scratch sweep that ran before this proof (ticket 201a37bf1613) — a line only
+        # when it dropped something or could not run, so a clean corpus stays quiet
+        sweep = record.get("evidence", {}).get("scratch_sweep") or {}
+        if sweep.get("dropped") or sweep.get("error"):
+            print(f"  swept  {sweep.get('dropped', 0)} scratch table(s) before {rel}: "
+                  f"{', '.join(sweep.get('tables', [])) or sweep.get('error')}")
         if verdict == GREEN:
             if not args.quiet:
                 seal = record["evidence"]["seal"]["verdict"]

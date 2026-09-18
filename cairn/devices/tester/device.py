@@ -376,6 +376,7 @@ class TesterDevice(BaseDevice):
         caller: str | None = None,
         timeout: int = 120,
         isolation: str = "none",
+        scratch_sweep: dict | None = None,
     ) -> dict:
         """Run ``proof_path`` as a subprocess; produce a VALIDATION of the outcome.
 
@@ -407,6 +408,18 @@ class TesterDevice(BaseDevice):
                 f"run_proof: sink={sink!r} is not one of {sorted(_SINKS)} — a sink is named, "
                 f"never guessed. Use 'validations' to seal through persist_validation, or "
                 f"'none' to run the proof and write nothing.")
+        # A SEAL SWEEPS FIRST (ticket 201a37bf1613). The sweep itself lives in
+        # cairn/devices/tester/scratch_sweep.py, not here — the inspector's fire path reaches
+        # this module and may not reach a database — so the caller runs it and hands the
+        # result in, and a seal without one is refused the way a seal without a sink is.
+        # A run that seals nothing records that nothing was swept, never a made-up zero.
+        if sink == "validations" and not isinstance(scratch_sweep, dict):
+            raise ValueError(
+                "run_proof: sink='validations' seals, and a seal sweeps scratch first — pass "
+                "scratch_sweep=cairn.devices.tester.scratch_sweep.sweep() (ticket 201a37bf1613). "
+                f"got scratch_sweep={scratch_sweep!r}")
+        if scratch_sweep is None:
+            scratch_sweep = {"skipped": "the caller sealed nothing and swept nothing"}
         # Resolve to an absolute path BEFORE anything downstream uses proof_path.parent
         # as a cwd. The netns seal runs the subject under `bwrap --chdir <parent>`, and a
         # RELATIVE parent resolves against the namespace root (/), not the host cwd — so a
@@ -487,6 +500,7 @@ class TesterDevice(BaseDevice):
                             cwd=str(proof_path.parent), instance_swap=swap)
             base_evidence = {
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
+                "scratch_sweep": scratch_sweep,
             }
             try:
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,

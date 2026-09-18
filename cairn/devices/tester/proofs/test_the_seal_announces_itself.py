@@ -32,9 +32,9 @@ measured with codemother genuinely absent — not stubbed absent, actually never
 from __future__ import annotations
 
 import json
+import contextlib
 import os
 import sys
-import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -50,9 +50,6 @@ from cairn.devices.tester.validation_store import (
     validations_path_for,
 )
 from cairn.tools import bus_client
-from cairn.devices.db_domain import store
-
-# Clause (1) is the message; clause (4) is the seal surviving codemother's absence.
 # Clauses (2) and (5) are codemother's own (cairn/devices/codemother/proofs/test_codemother.py);
 # clause (3) is the harbor door's (machines/harbor_master/proofs/test_clearance.py).
 PROVES = {
@@ -65,8 +62,7 @@ PROVES = {
 # Every fixture table this run mints, dropped in the runner's ``finally``. The bus's own
 # proofs do it this way and the reason is the same: a table named after a nonce is not a
 # leak the next run trips over, it is a leak the DATABASE accumulates forever.
-_NONCE = uuid.uuid4().hex[:8]
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 
 _TOOTH = "test_nothing_is_nothing"
 
@@ -97,8 +93,7 @@ def _fixture_proof(tag: str) -> Path:
 
 def _fixture_bus() -> BusDevice:
     """A bus on an ephemeral table. ``table`` is injectable for exactly this."""
-    bus = BusDevice(table=f"_seal_ann_{_NONCE}_{len(_TABLES)}")
-    _TABLES.append(bus.table)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("seal_ann"))
     return bus
 
 
@@ -409,18 +404,7 @@ def main() -> int:
                 import traceback
                 traceback.print_exc()
     finally:
-        try:
-            conn = store.connect()
-            with conn.cursor() as cur:
-                for base in _TABLES:
-                    for table in (f"{base}_delivery", base):
-                        cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                        cur.execute(
-                            f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
-                            (table,))
-            conn.close()
-        except Exception as exc:  # noqa: BLE001
-            print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
+        _SCRATCH.close()
     if failures:
         print(f"RED — {failures} tooth/teeth bit")
         return 1

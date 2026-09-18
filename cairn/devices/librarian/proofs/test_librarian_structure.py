@@ -18,9 +18,9 @@ Seams: the DB is the real one through db_domain (nonce tables, self-cleaning).
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
-from datetime import datetime
+import uuid
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -31,21 +31,21 @@ from cairn.devices.db_domain import store
 from cairn.devices.librarian.trees import (
     EMBEDDINGS_TABLE, LINKS_TABLE, NODES_TABLE, OWNER,
     _LEAF_COLUMNS, _LINK_COLUMNS,
-    attractor, calve, cosine, deposit, ensure_trees,
+    attractor, calve, cosine, deposit, ensure_trees, forget_leaf,
     link, link_id_for, link_neighbors, linked, nearest,
-    node_id_for, route, traverse_link,
+    node_id_for, route, scratch_leaf, traverse_link,
 )
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
+_HELD: dict[str, str] = {}
 
 
 def _t(name: str) -> str:
-    t = f"_struct_{name}_{_NONCE}"
-    if t not in _TABLES:
-        _TABLES.append(t)
-    return t
+    if name not in _HELD:
+        _HELD[name] = _SCRATCH.enter_context(scratch_leaf(f"struct_{name}"))
+    return _HELD[name]
 
 
 def _node(node_id: str) -> dict:
@@ -61,29 +61,18 @@ def _deposit(content: str, vector, table: str):
 
 
 def teardown_module():
+    """This run's rows out of the shared tables, then every scratch leaf dropped (a calved
+    child is a companion of its scratch parent, so it goes with it)."""
+    for t in _HELD.values():
+        forget_leaf(t)
+    _SCRATCH.close()
     conn = store.connect()
     try:
-        nids = set()
-        for t in _TABLES:
-            if store.owner_of(t, conn=conn) is None:
-                continue
-            for r in store.read(t, conn=conn):
-                nids.add(r["node_id"])
-        for t in _TABLES:
-            owner = store.owner_of(t, conn=conn)
-            if owner is not None:
-                store.drop_table(t, owner, conn=conn)
-        if nids:
-            store.delete(EMBEDDINGS_TABLE, OWNER,
-                         where="node_id = ANY(%s)", params=(list(nids),), conn=conn)
-            store.delete(NODES_TABLE, OWNER,
-                         where="node_id = ANY(%s)", params=(list(nids),), conn=conn)
         if store.owner_of(LINKS_TABLE, conn=conn) is not None:
             store.delete(LINKS_TABLE, OWNER,
                          where="link_id LIKE %s", params=("%",), conn=conn)
     finally:
         conn.close()
-
 
 # ── attractor ────────────────────────────────────────────────────────────────
 
@@ -96,9 +85,9 @@ def test_attractor_of_an_empty_tree_is_none():
 
 def test_attractor_is_the_centroid():
     t = _t("attr_cent")
-    _deposit(f"attractor centroid north {_NONCE}", [1.0, 0.0, 0.0], t)
-    _deposit(f"attractor centroid south {_NONCE}", [-1.0, 0.0, 0.0], t)
-    _deposit(f"attractor centroid east {_NONCE}", [0.0, 1.0, 0.0], t)
+    _deposit(f"attractor centroid north {_RUN}", [1.0, 0.0, 0.0], t)
+    _deposit(f"attractor centroid south {_RUN}", [-1.0, 0.0, 0.0], t)
+    _deposit(f"attractor centroid east {_RUN}", [0.0, 1.0, 0.0], t)
     a = attractor(table=t)
     assert a is not None
     assert len(a) == 3
@@ -109,7 +98,7 @@ def test_attractor_is_the_centroid():
 
 def test_attractor_of_one_node_is_that_node():
     t = _t("attr_one")
-    _deposit(f"attractor single node {_NONCE}", [0.5, 0.3, 0.8], t)
+    _deposit(f"attractor single node {_RUN}", [0.5, 0.3, 0.8], t)
     a = attractor(table=t)
     assert abs(a[0] - 0.5) < 1e-9
     assert abs(a[1] - 0.3) < 1e-9
@@ -121,7 +110,7 @@ def test_attractor_of_one_node_is_that_node():
 
 def test_calve_below_threshold_returns_none():
     t = _t("calve_small")
-    _deposit(f"calve small node {_NONCE}", [1.0, 0.0, 0.0], t)
+    _deposit(f"calve small node {_RUN}", [1.0, 0.0, 0.0], t)
     assert calve(table=t, threshold=100) is None
 
 
@@ -129,9 +118,9 @@ def test_calve_splits_into_two_children():
     t = _t("calve_split")
     n_nodes = 20
     for i in range(n_nodes // 2):
-        _deposit(f"calve north cluster {i} {_NONCE}", [1.0, 0.1 * i / n_nodes, 0.0], t)
+        _deposit(f"calve north cluster {i} {_RUN}", [1.0, 0.1 * i / n_nodes, 0.0], t)
     for i in range(n_nodes // 2):
-        _deposit(f"calve south cluster {i} {_NONCE}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
+        _deposit(f"calve south cluster {i} {_RUN}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
 
     result = calve(table=t, threshold=n_nodes)
     assert result is not None
@@ -141,8 +130,6 @@ def test_calve_splits_into_two_children():
     assert result["sizes"][1] > 0
 
     child_a, child_b = result["children"]
-    _TABLES.append(child_a)
-    _TABLES.append(child_b)
 
     from cairn.devices.librarian.trees import _leaf_rows
     conn = store.connect()
@@ -165,16 +152,14 @@ def test_calve_splits_into_two_children():
 def test_calve_children_have_distinct_attractors():
     t = _t("calve_attr")
     for i in range(10):
-        _deposit(f"calve attr east {i} {_NONCE}", [1.0, 0.0, 0.05 * i], t)
+        _deposit(f"calve attr east {i} {_RUN}", [1.0, 0.0, 0.05 * i], t)
     for i in range(10):
-        _deposit(f"calve attr west {i} {_NONCE}", [-1.0, 0.0, 0.05 * i], t)
+        _deposit(f"calve attr west {i} {_RUN}", [-1.0, 0.0, 0.05 * i], t)
 
     result = calve(table=t, threshold=20)
     assert result is not None
 
     child_a, child_b = result["children"]
-    _TABLES.append(child_a)
-    _TABLES.append(child_b)
 
     a_attr = attractor(table=child_a)
     b_attr = attractor(table=child_b)
@@ -188,13 +173,13 @@ def test_calve_links_survive_split():
     t = _t("calve_links")
     n_nodes = 20
     for i in range(n_nodes // 2):
-        _deposit(f"calve link north {i} {_NONCE}", [1.0, 0.1 * i / n_nodes, 0.0], t)
+        _deposit(f"calve link north {i} {_RUN}", [1.0, 0.1 * i / n_nodes, 0.0], t)
     for i in range(n_nodes // 2):
-        _deposit(f"calve link south {i} {_NONCE}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
+        _deposit(f"calve link south {i} {_RUN}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
 
-    nid_n0 = node_id_for(f"calve link north 0 {_NONCE}")
-    nid_n1 = node_id_for(f"calve link north 1 {_NONCE}")
-    nid_s0 = node_id_for(f"calve link south 0 {_NONCE}")
+    nid_n0 = node_id_for(f"calve link north 0 {_RUN}")
+    nid_n1 = node_id_for(f"calve link north 1 {_RUN}")
+    nid_s0 = node_id_for(f"calve link south 0 {_RUN}")
 
     link(nid_n0, nid_n1, 0.9)
     link(nid_n0, nid_s0, 0.3)
@@ -211,8 +196,6 @@ def test_calve_links_survive_split():
     assert result["links_verified"] >= 2
 
     child_a, child_b = result["children"]
-    _TABLES.append(child_a)
-    _TABLES.append(child_b)
 
     post_links = linked(nid_n0)
     assert len(post_links) == 2
@@ -231,10 +214,10 @@ def test_link_id_is_direction_independent():
 
 def test_link_creates_and_updates():
     t = _t("link_basic")
-    _deposit(f"link node alpha {_NONCE}", [1.0, 0.0, 0.0], t)
-    _deposit(f"link node beta {_NONCE}", [0.9, 0.1, 0.0], t)
-    nid_a = node_id_for(f"link node alpha {_NONCE}")
-    nid_b = node_id_for(f"link node beta {_NONCE}")
+    _deposit(f"link node alpha {_RUN}", [1.0, 0.0, 0.0], t)
+    _deposit(f"link node beta {_RUN}", [0.9, 0.1, 0.0], t)
+    nid_a = node_id_for(f"link node alpha {_RUN}")
+    nid_b = node_id_for(f"link node beta {_RUN}")
 
     r1 = link(nid_a, nid_b, 0.95)
     assert r1["updated"] is False
@@ -246,10 +229,10 @@ def test_link_creates_and_updates():
 
 def test_linked_returns_both_directions():
     t = _t("link_bidir")
-    _deposit(f"linked bidir alpha {_NONCE}", [1.0, 0.0, 0.0], t)
-    _deposit(f"linked bidir beta {_NONCE}", [0.0, 1.0, 0.0], t)
-    nid_a = node_id_for(f"linked bidir alpha {_NONCE}")
-    nid_b = node_id_for(f"linked bidir beta {_NONCE}")
+    _deposit(f"linked bidir alpha {_RUN}", [1.0, 0.0, 0.0], t)
+    _deposit(f"linked bidir beta {_RUN}", [0.0, 1.0, 0.0], t)
+    nid_a = node_id_for(f"linked bidir alpha {_RUN}")
+    nid_b = node_id_for(f"linked bidir beta {_RUN}")
 
     link(nid_a, nid_b, 0.80)
 
@@ -262,10 +245,10 @@ def test_linked_returns_both_directions():
 
 def test_traverse_increments_count():
     t = _t("link_trav")
-    _deposit(f"traverse node one {_NONCE}", [1.0, 0.0, 0.0], t)
-    _deposit(f"traverse node two {_NONCE}", [0.0, 1.0, 0.0], t)
-    nid_a = node_id_for(f"traverse node one {_NONCE}")
-    nid_b = node_id_for(f"traverse node two {_NONCE}")
+    _deposit(f"traverse node one {_RUN}", [1.0, 0.0, 0.0], t)
+    _deposit(f"traverse node two {_RUN}", [0.0, 1.0, 0.0], t)
+    nid_a = node_id_for(f"traverse node one {_RUN}")
+    nid_b = node_id_for(f"traverse node two {_RUN}")
 
     link(nid_a, nid_b, 0.75)
     r1 = traverse_link(nid_a, nid_b)
@@ -282,10 +265,10 @@ def test_traverse_nonexistent_returns_none():
 
 def test_link_neighbors_creates_links():
     t = _t("link_neigh")
-    _deposit(f"link neighbor center {_NONCE}", [1.0, 0.0, 0.0], t)
-    _deposit(f"link neighbor near {_NONCE}", [0.95, 0.05, 0.0], t)
-    _deposit(f"link neighbor far {_NONCE}", [0.0, 0.0, 1.0], t)
-    nid_center = node_id_for(f"link neighbor center {_NONCE}")
+    _deposit(f"link neighbor center {_RUN}", [1.0, 0.0, 0.0], t)
+    _deposit(f"link neighbor near {_RUN}", [0.95, 0.05, 0.0], t)
+    _deposit(f"link neighbor far {_RUN}", [0.0, 0.0, 1.0], t)
+    nid_center = node_id_for(f"link neighbor center {_RUN}")
 
     results = link_neighbors(nid_center, k=2, table=t)
     assert len(results) == 2
@@ -301,9 +284,9 @@ def test_route_ranks_by_attractor_proximity():
     t_north = _t("route_north")
     t_south = _t("route_south")
     for i in range(3):
-        _deposit(f"route north node {i} {_NONCE}", [1.0, 0.1 * i, 0.0], t_north)
+        _deposit(f"route north node {i} {_RUN}", [1.0, 0.1 * i, 0.0], t_north)
     for i in range(3):
-        _deposit(f"route south node {i} {_NONCE}", [-1.0, 0.1 * i, 0.0], t_south)
+        _deposit(f"route south node {i} {_RUN}", [-1.0, 0.1 * i, 0.0], t_south)
 
     query_north = [0.9, 0.0, 0.0]
     ranked = route(query_north, tables=[t_north, t_south])
@@ -320,7 +303,7 @@ def test_route_skips_empty_trees():
     t_full = _t("route_full")
     t_empty = _t("route_empty")
     ensure_trees(table=t_empty)
-    _deposit(f"route full node {_NONCE}", [1.0, 0.0, 0.0], t_full)
+    _deposit(f"route full node {_RUN}", [1.0, 0.0, 0.0], t_full)
 
     ranked = route([1.0, 0.0, 0.0], tables=[t_full, t_empty])
     assert len(ranked) == 1
@@ -332,7 +315,7 @@ def test_route_respects_k():
     for i in range(4):
         t = _t(f"route_k_{i}")
         tables.append(t)
-        _deposit(f"route k node {i} {_NONCE}", [1.0 - 0.2 * i, 0.2 * i, 0.0], t)
+        _deposit(f"route k node {i} {_RUN}", [1.0 - 0.2 * i, 0.2 * i, 0.0], t)
 
     ranked = route([1.0, 0.0, 0.0], tables=tables, k=2)
     assert len(ranked) == 2

@@ -31,7 +31,7 @@ receipt tables are dropped on the way out.
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -47,8 +47,7 @@ from cairn.devices.db_domain import store  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLES: list[str] = []      # every ephemeral transit table this run made, for the drop
+_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 11, 12, 0, tzinfo=timezone.utc)
 
 
@@ -83,8 +82,7 @@ class MailboxShim(BaseShim):
 
 def _fresh_bus():
     """A fresh bus with its own ephemeral tables, tracked for cleanup."""
-    bus = BusDevice(table=f"_bus_traffic_{_NONCE}_{len(_TABLES)}")
-    _TABLES.append(bus.table)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_traffic"))
     return bus
 
 
@@ -243,17 +241,7 @@ if __name__ == "__main__":
                 failures += 1
                 print(f"  FAIL  {name}: {type(exc).__name__}: {exc}")
     finally:
-        try:
-            conn = store.connect()
-            with conn.cursor() as cur:
-                for base in _TABLES:
-                    for table in (f"{base}_delivery", base):
-                        cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                        cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
-                                    (table,))
-            conn.close()
-        except Exception as exc:  # noqa: BLE001 — cleanup is best-effort, and says so out loud
-            print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
+        _SCRATCH.close()
     if failures:
         print(f"RED — {failures} tooth/teeth bit")
         raise SystemExit(1)

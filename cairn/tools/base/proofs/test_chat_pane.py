@@ -17,26 +17,6 @@ sys.path.insert(0, str(REPO_ROOT))
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
 from cairn.devices.cairn.machines.bus.bus import BusDevice, CHANNELS
-from cairn.devices.db_domain import store
-
-import uuid
-
-_NONCE = uuid.uuid4().hex[:8]
-
-
-def _fresh_table():
-    return f"_chat_pane_test_{_NONCE}_{uuid.uuid4().hex[:6]}"
-
-
-def _drop_table(table):
-    try:
-        conn = store._conn()
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (table,))
-        conn.commit()
-    except Exception:
-        pass
 
 
 class _Device(BaseDevice):
@@ -73,9 +53,7 @@ class TestChatPaneIsFloor:
         assert "absent" in chat, "without bus the chat pane explains why it is absent"
 
     def test_chat_pane_shows_personal_messages(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("chat_pane") as bus:
             shim = _Shim(bus=bus)
             bus.post(sender="alice", to="test_chat_device", channel="personal",
                      why="test message", body={"text": "hello"})
@@ -89,19 +67,13 @@ class TestChatPaneIsFloor:
             assert turns[0]["sender"] == "alice"
             assert turns[1]["sender"] == "bob"
             assert turns[0]["body"] == {"text": "hello"}
-        finally:
-            _drop_table(table)
 
     def test_chat_pane_does_not_alter_channels(self):
         channels_before = dict(CHANNELS)
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("chat_pane") as bus:
             shim = _Shim(bus=bus)
             shim.active_page()
             assert CHANNELS == channels_before, "rendering the chat pane must not alter CHANNELS"
-        finally:
-            _drop_table(table)
 
     def test_chat_pane_is_not_in_declared_panes(self):
         dev = _Device()
@@ -110,15 +82,11 @@ class TestChatPaneIsFloor:
         ), "chat is a floor pane (shim), not a declared pane (device)"
 
     def test_empty_personal_channel_renders_empty_turns(self):
-        table = _fresh_table()
-        bus = BusDevice(table=table)
-        try:
+        with BusDevice.scratch("chat_pane") as bus:
             shim = _Shim(bus=bus)
             page = shim.active_page()
             chat = [p for p in page["panes"] if p["kind"] == "personal_feed"][0]
             assert chat["data"] == {"turns": []}, "empty personal channel → empty turns, not absent"
-        finally:
-            _drop_table(table)
 
 
 ROSTER_MIN = 5

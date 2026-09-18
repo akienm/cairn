@@ -27,6 +27,7 @@ codemother bounces it.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 import uuid
@@ -38,7 +39,6 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import address as _address  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
@@ -53,8 +53,8 @@ PROVES = {"65b34c57ab71": {
 }}
 
 NOW = datetime(2026, 9, 18, 12, 0, 0)
-_NONCE = uuid.uuid4().hex[:8]
-_TABLES: list[str] = []
+_RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
+_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 _LIVE_INSTANCE = _address.ROOTS["instance"]
 _CLASS_CHARTER = _REPO_ROOT / "cairn/devices/codemother/0/tools/charter/intention+why.json"
 
@@ -73,8 +73,7 @@ def _restore_roots() -> None:
 
 
 def _fresh_bus():
-    bus = BusDevice(table=f"_charter_held_{_NONCE}_{len(_TABLES)}")
-    _TABLES.append(bus.table)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("charter_held"))
     loop = GroundLoopDevice(bus=bus)
     loop.subscribe(BusShim(bus, loop))
     loop.subscribe(CodeMotherShim(bus=bus))
@@ -118,27 +117,27 @@ def test_a_message_to_charter_lands_in_the_held_inbound():
     before = len(_inbound(held))
     bus = _fresh_bus()
     env = bus.post(sender="charter-probe", to="charter", channel="personal",
-                   why=f"proof {_NONCE}: a finding addressed to the tool by name")
+                   why=f"proof {_RUN}: a finding addressed to the tool by name")
     records = _inbound(held)
     assert len(records) == before + 1, (before, len(records))
     assert records[-1]["envelope_id"] == env["id"] and records[-1]["probe_source"] == "charter-probe", records[-1]
     assert env["id"] not in {e["id"] for e in bus.undelivered(to="charter")}, "posted but undelivered"
     env2 = bus.post(sender="charter-probe", to="codemother/0/tools/charter", channel="personal",
-                    why=f"proof {_NONCE}: the same instance by its full address")
+                    why=f"proof {_RUN}: the same instance by its full address")
     records = _inbound(held)
     assert len(records) == before + 2 and records[-1]["envelope_id"] == env2["id"], records[-1:]
     # a name nothing holds is still undelivered — the resolver did not widen to "anything"
-    env3 = bus.post(sender="charter-probe", to=f"nobody-holds-{_NONCE}", channel="personal",
+    env3 = bus.post(sender="charter-probe", to=f"nobody-holds-{_RUN}", channel="personal",
                     why="proof: an unheld name")
     assert len(_inbound(held)) == before + 2
-    assert env3["id"] in {e["id"] for e in bus.undelivered(to=f"nobody-holds-{_NONCE}")}
+    assert env3["id"] in {e["id"] for e in bus.undelivered(to=f"nobody-holds-{_RUN}")}
     print("ok test_a_message_to_charter_lands_in_the_held_inbound")
 
 
 def test_the_backpack_receives_and_reads_back_feedback():
     held = _codemother.charter_instance()
     bus = _fresh_bus()
-    finding = f"charter finding {_NONCE}: a class string was improvised"
+    finding = f"charter finding {_RUN}: a class string was improvised"
     reply = bus.request(sender="cc", to="codemother", channel="personal", verb="charter",
                         why="proof: feedback for the held charter instance",
                         body={"record": {"finding": finding}, "read": 1})
@@ -172,18 +171,6 @@ def test_charter_stays_a_tool():
 
 # --- the run ---------------------------------------------------------------------------------
 
-def _cleanup():
-    try:
-        conn = store.connect()
-        with conn.cursor() as cur:
-            for base in _TABLES:
-                for table in (f"{base}_delivery", base):
-                    cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                    cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (table,))
-        conn.close()
-    except Exception as exc:  # noqa: BLE001
-        print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
-
 
 def _run_all() -> int:
     teeth = [globals()[PROVES["65b34c57ab71"][k]] for k in sorted(PROVES["65b34c57ab71"])]
@@ -199,7 +186,7 @@ def _run_all() -> int:
                 print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
     finally:
         _restore_roots()
-        _cleanup()
+        _SCRATCH.close()
     print("green — the charter tool's instance is held under codemother" if rc == 0 else "RED")
     return rc
 

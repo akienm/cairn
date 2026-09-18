@@ -14,9 +14,8 @@ Bus-completion child (a). Teeth a hollow pass cannot satisfy:
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -29,8 +28,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.db_domain import store  # noqa: E402
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every bus this proof mints rides store.scratch(): dropped at close, swept by pid if not
 
 
 class VerbDevice(BaseDevice):
@@ -126,9 +124,7 @@ class _VerbShim(BaseShim):
 
 def test_post_carries_verb_in_envelope():
     """(1) a post with verb= carries it in the envelope."""
-    tbl = f"_test_verb_post_{_NONCE}"
-    _TABLES.append(tbl)
-    bus = BusDevice(table=tbl)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("test_verb_post"))
     env = bus.post(sender="tester", to="target", channel="personal",
                    verb="ping", why="proof", body={"x": 1})
     assert env["verb"] == "ping", f"envelope must carry verb, got {env}"
@@ -203,9 +199,7 @@ def test_probe_carries_verb():
     )
     assert probe.verb == "ping"
 
-    tbl = f"_test_verb_fire_{_NONCE}"
-    _TABLES.append(tbl)
-    bus = BusDevice(table=tbl)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("test_verb_fire"))
     shim = _VerbShim(VerbDevice(), bus=bus)
     record = shim._fire(probe)
     assert record["verb"] == "ping", f"fire record must carry verb: {record}"
@@ -214,9 +208,7 @@ def test_probe_carries_verb():
 
 def test_verb_column_in_transit_table():
     """(7) the verb column exists after _ensure."""
-    tbl = f"_test_verb_col_{_NONCE}"
-    _TABLES.append(tbl)
-    bus = BusDevice(table=tbl)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("test_verb_col"))
     bus._ensure()
     conn = store.connect()
     try:
@@ -224,7 +216,7 @@ def test_verb_column_in_transit_table():
             cur.execute(
                 "SELECT 1 FROM information_schema.columns "
                 "WHERE table_schema = 'public' AND table_name = %s "
-                "AND column_name = 'verb'", (tbl,))
+                "AND column_name = 'verb'", (bus.table,))
             assert cur.fetchone() is not None, "verb column must exist"
     finally:
         conn.close()
@@ -238,21 +230,6 @@ def test_probe_default_verb_is_empty():
         to="target",
     )
     assert probe.verb == "", f"default verb must be empty, got {probe.verb!r}"
-
-
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for tbl in _TABLES:
-                for table in (f"{tbl}_delivery", tbl):
-                    cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                    cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s',
-                                (table,))
-    except Exception as exc:  # noqa: BLE001
-        print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
-    finally:
-        conn.close()
 
 
 if __name__ == "__main__":
@@ -271,5 +248,5 @@ if __name__ == "__main__":
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
     print(f"8/8 green — the verb resolves, unknown goes RED, legacy falls back")

@@ -80,6 +80,7 @@ import hashlib
 import inspect
 import json
 import os
+from contextlib import contextmanager
 import sys
 import time
 from datetime import datetime, timezone
@@ -408,6 +409,18 @@ def ensure_cache(*, table: str = CACHE, conn=None) -> None:
         "verdict IN ('hit', 'miss', 'refused')",
         conn=conn,
     )
+
+
+@contextmanager
+def scratch_cache(prefix: str = "infer_cache"):
+    """A cache table that cannot outlive this process (ticket 201a37bf1613): minted through
+    ``store.scratch()`` under the cache's owner and columns, constrained like the standing
+    cache, yielded by name, dropped at exit — swept by pid if the process never gets there.
+    For proofs; the standing cache is ``ensure_cache``."""
+    with store.scratch(CACHE_OWNER, prefix, _CACHE_COLUMNS) as table:
+        store.add_owned_constraint(table, CACHE_OWNER, "verdict_vocabulary",
+                                   "verdict IN ('hit', 'miss', 'refused')")
+        yield table
 
 
 def _valid(row: dict, now: datetime) -> bool:

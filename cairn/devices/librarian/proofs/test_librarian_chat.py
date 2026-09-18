@@ -41,13 +41,13 @@ data (standing, provenance, created) is read from cairn_nodes (NODES_TABLE), not
 
 from __future__ import annotations
 
+import contextlib
 import ast
 import hashlib
 import inspect
 import json
-import os
 import sys
-from datetime import datetime
+import uuid
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -58,19 +58,19 @@ from cairn.devices.db_domain import store
 from cairn.devices.librarian import chat as chat_module
 from cairn.devices.librarian.chat import ChatRefused, ChatSession, chat_turn, parse_reply, route
 from cairn.devices.librarian.shim import LibrarianShim
-from cairn.devices.librarian.trees import NODES_TABLE, OWNER, LibrarianDevice
+from cairn.devices.librarian.trees import forget_leaf, scratch_leaf, NODES_TABLE, OWNER, LibrarianDevice
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 
-_TABLES: list[str] = []
+_SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
+_HELD: dict[str, str] = {}
 
 
 def _t(name: str) -> str:
     """Per-test nonce leaf table — each test "tree" IS its own leaf table (three-table design)."""
-    t = f"_chat_{name}_{_NONCE}"
-    if t not in _TABLES:
-        _TABLES.append(t)
-    return t
+    if name not in _HELD:
+        _HELD[name] = _SCRATCH.enter_context(scratch_leaf(f"chat_{name}"))
+    return _HELD[name]
 
 
 def _node(node_id: str) -> dict:
@@ -160,7 +160,7 @@ def test_the_correction_prefix_routes_free_with_the_host_face_down():
 def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the_shape():
     dev = _fresh_librarian()
     tbl = _t("corrected")
-    wrong = f"the reading room shuts at four on weekdays, per the old sign ({_NONCE})"
+    wrong = f"the reading room shuts at four on weekdays, per the old sign ({_RUN})"
     (nid,) = _seed(dev, "corrected", tbl, [(wrong, [1.0, 0.0, 0.0])])
     seam = fake_seam(["unused — a correction turn spends NO generate"])
 
@@ -444,21 +444,10 @@ def test_chat_opens_no_door_of_its_own():
 
 
 def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for t in _TABLES:
-                cur.execute("SELECT 1 FROM information_schema.tables "
-                            "WHERE table_name = %s", (t,))
-                if cur.fetchone():
-                    cur.execute(
-                        f'DELETE FROM "{NODES_TABLE}" WHERE node_id IN '
-                        f'(SELECT node_id FROM "{t}")')
-                    cur.execute(f'DROP TABLE "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-    finally:
-        conn.close()
-
+    """This run's rows out of the shared tables, then every scratch leaf dropped."""
+    for t in _HELD.values():
+        forget_leaf(t)
+    _SCRATCH.close()
 
 def _main() -> int:
     checks = [

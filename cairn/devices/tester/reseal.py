@@ -79,6 +79,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.validation_store import (
     closure_of,
     component_root_for,
@@ -379,8 +380,9 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     iso = isolation or isolation_for_seal(standing_seal(str(proof))) or "none"
     # THE RUN. Everything below disposes of THIS record; nothing below can produce a seal
     # without it (the ticket's WRONG INTENT clause, in one line of control flow).
+    # this door seals (persist_validation below), so it sweeps first (ticket 201a37bf1613)
     record = tester.run_proof(proof, sink="none", caller=CALLER, timeout=timeout,
-                             isolation=iso)
+                             isolation=iso, scratch_sweep=sweep_scratch())
     evidence = dict(record.get("evidence") or {})
     identity = trouble_identity(proof)
 

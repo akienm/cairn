@@ -28,10 +28,8 @@ from __future__ import annotations
 import ast
 import hashlib
 import itertools
-import os
 import pytest
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -46,24 +44,17 @@ from cairn.devices.librarian.summarize import (
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import LibrarianDevice
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_summary_{_NONCE}"
+_TABLE = ""     # the current test's own leaf — a scratch table, minted per test below
 _test_seq = itertools.count()
 
 
 @pytest.fixture(autouse=True)
 def _fresh_table():
-    """Each test gets its own leaf table to avoid cross-test state in the shared nonce."""
+    """Each test gets its own scratch leaf (store.scratch(): dropped at exit, swept by pid if not)."""
     global _TABLE
-    _TABLE = f"_summary_{_NONCE}_{next(_test_seq)}"
-    yield
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
+    with trees.scratch_leaf(f"summary_{next(_test_seq)}") as table:
+        _TABLE = table
+        yield
 
 
 def _fresh_librarian() -> LibrarianDevice:
@@ -318,16 +309,6 @@ def test_summarize_opens_no_door_of_its_own():
         "only through trees and the host only through the injected seam (sole-path, Law 4)")
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     checks = [
         test_the_transducer_renders_a_cited_summary,
@@ -344,23 +325,12 @@ def _main() -> int:
         test_the_render_prompt_carries_the_region_whole,
         test_summarize_opens_no_door_of_its_own,
     ]
-    tables_used = []
-    try:
-        for check in checks:
-            global _TABLE
-            _TABLE = f"_summary_{_NONCE}_{next(_test_seq)}"
-            tables_used.append(_TABLE)
+    for check in checks:
+        global _TABLE
+        with trees.scratch_leaf(f"summary_{next(_test_seq)}") as table:
+            _TABLE = table
             check()
-            print(f"  PASS  {check.__name__}")
-    finally:
-        conn = store.connect()
-        try:
-            with conn.cursor() as cur:
-                for t in tables_used:
-                    cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-                    cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-        finally:
-            conn.close()
+        print(f"  PASS  {check.__name__}")
     print("green — librarian/summarize: citations are code-built and traceable, the "
           "summary lands back in the graph and a walk finds it, the transducer never "
           "eats its own output and rewrites nothing, unanchored and minted drafts refuse "

@@ -21,8 +21,9 @@ Requires Postgres (domain.resolve writes to the cache). Self-cleaning.
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -38,10 +39,9 @@ from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 from cairn.devices.inference_domain.device import InferenceDomainDevice  # noqa: E402
 from cairn.devices.inference_domain.shim import InferenceDomainShim  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLES: list[str] = []
+_RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
+_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 9, 18, 12, 0, tzinfo=timezone.utc)
 FAKE_VECTOR = [0.5, 0.25, 0.125]
 SEEN: list[dict] = []
@@ -80,8 +80,7 @@ class CallerShim(BaseShim):
 
 
 def _fresh_bus():
-    bus = BusDevice(table=f"_bus_infer_{_NONCE}_{len(_TABLES)}")
-    _TABLES.append(bus.table)
+    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_infer"))
     loop = GroundLoopDevice(bus=bus)
     loop.subscribe(BusShim(bus, loop))
     loop.subscribe(InferenceDomainShim(bus=bus))
@@ -108,7 +107,7 @@ def test_embed_and_infer_are_declared_beside_resolve():
 def test_infer_over_the_bus_answers_a_completion():
     bus = _fresh_bus()
     SEEN.clear()
-    nonce = f"say the nonce {_NONCE}"
+    nonce = f"say the nonce {_RUN}"
     reply = _ask(bus, "infer", {"prompt": nonce, "model": "qwen2.5:7b"})
     assert reply["sender"] == "inference_domain" and reply["addressee"] == "caller", reply
     assert reply["body"]["answer"]["text"] == f"stub says: {nonce}", reply["body"]
@@ -119,7 +118,7 @@ def test_infer_over_the_bus_answers_a_completion():
 def test_embed_over_the_bus_answers_a_vector():
     bus = _fresh_bus()
     SEEN.clear()
-    reply = _ask(bus, "embed", {"prompt": f"embed me {_NONCE}", "model": "nomic-embed-text"})
+    reply = _ask(bus, "embed", {"prompt": f"embed me {_RUN}", "model": "nomic-embed-text"})
     assert reply["body"]["answer"]["vector"] == FAKE_VECTOR, reply["body"]
     assert SEEN and SEEN[-1]["kind"] == "embed", SEEN
 
@@ -128,7 +127,7 @@ def test_the_verb_fixes_the_kind_over_a_callers_own():
     """embed means embed: a body that says kind=generate still gets a vector from ``embed``."""
     bus = _fresh_bus()
     SEEN.clear()
-    reply = _ask(bus, "embed", {"kind": "generate", "prompt": f"contrary {_NONCE}",
+    reply = _ask(bus, "embed", {"kind": "generate", "prompt": f"contrary {_RUN}",
                                 "model": "nomic-embed-text"})
     assert "vector" in reply["body"]["answer"], reply["body"]
     assert SEEN[-1]["kind"] == "embed", SEEN
@@ -138,22 +137,9 @@ def test_no_host_is_dialed():
     """Every ask above went to the stub — the recorder saw every request the domain made."""
     bus = _fresh_bus()
     SEEN.clear()
-    _ask(bus, "infer", {"prompt": f"one {_NONCE}", "model": "qwen2.5:7b"})
-    _ask(bus, "embed", {"prompt": f"two {_NONCE}", "model": "nomic-embed-text"})
+    _ask(bus, "infer", {"prompt": f"one {_RUN}", "model": "qwen2.5:7b"})
+    _ask(bus, "embed", {"prompt": f"two {_RUN}", "model": "nomic-embed-text"})
     assert [r["kind"] for r in SEEN] == ["generate", "embed"], SEEN
-
-
-def _cleanup():
-    try:
-        conn = store.connect()
-        with conn.cursor() as cur:
-            for base in _TABLES:
-                for table in (f"{base}_delivery", base):
-                    cur.execute(f'DROP TABLE IF EXISTS "{table}"')
-                    cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (table,))
-        conn.close()
-    except Exception as exc:  # noqa: BLE001
-        print(f"  (cleanup refused: {type(exc).__name__}: {exc})")
 
 
 if __name__ == "__main__":
@@ -175,6 +161,6 @@ if __name__ == "__main__":
                 print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
     finally:
         _domain.set_diagnostic_roots(None)
-        _cleanup()
+        _SCRATCH.close()
     print("green — infer and embed answer over the bus, no host dialed" if rc == 0 else "RED")
     sys.exit(rc)

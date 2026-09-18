@@ -59,6 +59,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from contextlib import contextmanager
 from datetime import datetime
 
 from cairn.tools.base.device import BaseDevice
@@ -196,6 +197,18 @@ class BusDevice(BaseDevice):
         self._ring_delivered: set[str] = set()
         self._folder_recorders: dict[str, Any] = {}
 
+    @classmethod
+    @contextmanager
+    def scratch(cls, prefix: str = "bus_traffic", device_id: str = "bus"):
+        """A bus over a table that cannot outlive this process (ticket 201a37bf1613): the
+        transit table is minted through ``store.scratch`` under the bus's owner, its
+        ``_delivery`` companion is registered beside it at ``_ensure``, and both drop on
+        exit — or on the tester's next sweep if this process is killed first. This is the
+        one way a proof gets a bus of its own; a hand-named ``BusDevice(table=...)`` in a
+        proof is the leak the ticket measured (2,424 orphan ``_delivery`` tables)."""
+        with store.scratch(_BUS_OWNER, prefix, _TRAFFIC_COLUMNS) as table:
+            yield cls(table=table, device_id=device_id)
+
     def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
         self._delivery_hooks[device_id] = deliver
         if device_id not in self._channel_toggles:
@@ -313,6 +326,13 @@ class BusDevice(BaseDevice):
         if not self._ensured:
             store.create_owned_table(self._table, _BUS_OWNER, _TRAFFIC_COLUMNS)
             store.create_owned_table(self._delivery_table, _BUS_OWNER, _DELIVERY_COLUMNS)
+            # A transit table born through store.scratch() (a proof's) takes its receipt
+            # table down with it: register the companion under the parent's pid so the
+            # scratch exit and the tester's sweep drop both. Measured 2026-09-06: 2,424
+            # `_delivery` tables leaked because the proofs never knew this one existed
+            # (ticket 201a37bf1613).
+            if store.is_scratch(self._table):
+                store.register_scratch_companion(self._table, self._delivery_table)
             # Migrate: add verb column to an existing transit table that predates it.
             conn = store.connect()
             try:

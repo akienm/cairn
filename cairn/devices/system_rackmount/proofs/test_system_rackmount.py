@@ -38,12 +38,12 @@ dropped on the way out.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import subprocess
 import sys
 import time
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -52,7 +52,6 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.db_domain import store
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 from cairn.devices.system_rackmount.rackmount import (
     SystemRackmountDevice,
@@ -60,14 +59,21 @@ from cairn.devices.system_rackmount.rackmount import (
     _default_sampler,
 )
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_bus_sysrm_{_NONCE}"       # the ephemeral bus table this proof owns
+_SCRATCH = contextlib.ExitStack()   # the one bus table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_HELD: list[BusDevice] = []
+
+
+def _table() -> str:
+    """The proof's one bus table, minted on first use through BusDevice.scratch()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(BusDevice.scratch("bus_sysrm")))
+    return _HELD[0].table
 
 
 def _rig(reading: dict):
     """Wire the full chain: a heartbeat, a real bus, the system device (with an injected,
     mutable reading), and its shim subscribed to the beat. Returns them for the test to drive."""
-    bus = BusDevice(table=_TABLE)
+    bus = BusDevice(table=_table())
     dev = SystemRackmountDevice(sampler=lambda: reading)
     shim = SystemRackmountShim(dev, bus)
     gl = GroundLoopDevice()
@@ -226,16 +232,6 @@ def test_it_is_a_device_and_its_shim_is_a_shim():
     assert shim.device_id == "system_rackmount", "the shim is the shim OF the system device"
 
 
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
-
-
 def _main() -> int:
     checks = [
         test_it_advertises_a_menu_and_refuses_an_unadvertised_name,
@@ -251,7 +247,7 @@ def _main() -> int:
             check()
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
     print("green — system_rackmount: the system device advertises resource-threshold probes "
           "and pokes subscribers through the heartbeat + bus, evaluating locally so the reading "
           "never leaves (Law 6); the central-scheduler goof is gone")

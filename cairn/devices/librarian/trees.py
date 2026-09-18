@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
 from cairn.tools.base.device import BaseDevice
@@ -184,6 +185,36 @@ def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
     store.create_owned_table(NODES_TABLE, OWNER, _NODE_COLUMNS, conn=conn)
     store.create_owned_table(EMBEDDINGS_TABLE, OWNER, _EMBEDDING_COLUMNS, conn=conn)
     store.create_owned_table(table, owner, _LEAF_COLUMNS, conn=conn)
+
+
+@contextmanager
+def scratch_leaf(prefix: str, *, owner: str = OWNER, suffix: str = ""):
+    """A leaf table that cannot outlive this process (ticket 201a37bf1613): minted through
+    ``store.scratch()`` with the leaf columns, the shared tables ensured beside it, yielded
+    by name, dropped at exit — swept by pid if the process never gets there. Children a
+    calve mints under it ride as companions (see ``calve``). For proofs and one-shot
+    drains; a standing leaf is ``ensure_trees``."""
+    with store.scratch(owner, prefix, _LEAF_COLUMNS, suffix=suffix) as table:
+        ensure_trees(table=table, owner=owner)
+        yield table
+
+
+def forget_leaf(table: str, *, conn=None) -> int:
+    """Take a leaf's nodes out of the shared node and embedding tables — a proof's rows
+    leave the corpus before its scratch leaf drops. Returns the node count forgotten."""
+    own = conn or store.connect()
+    try:
+        if store.owner_of(table, conn=own) is None:
+            return 0
+        nids = sorted({r["node_id"] for r in store.read(table, conn=own)})
+        if not nids:
+            return 0
+        store.delete(EMBEDDINGS_TABLE, OWNER, where="node_id = ANY(%s)", params=(nids,), conn=own)
+        store.delete(NODES_TABLE, OWNER, where="node_id = ANY(%s)", params=(nids,), conn=own)
+        return len(nids)
+    finally:
+        if conn is None:
+            own.close()
 
 
 def ensure_threads(*, conn=None) -> None:
@@ -986,6 +1017,11 @@ def calve(*, table: str = NODES, owner: str = OWNER,
         child_b = f"{table}_1"
         store.create_owned_table(child_a, owner, _LEAF_COLUMNS, conn=own)
         store.create_owned_table(child_b, owner, _LEAF_COLUMNS, conn=own)
+        # children of a scratch leaf (a proof's) are scratch: they drop with the parent
+        # (ticket 201a37bf1613 — the same companion rule the bus's _delivery rides)
+        if store.is_scratch(table, conn=own):
+            store.register_scratch_companion(table, child_a, conn=own)
+            store.register_scratch_companion(table, child_b, conn=own)
 
         node_ids = set()
         sizes = [0, 0]

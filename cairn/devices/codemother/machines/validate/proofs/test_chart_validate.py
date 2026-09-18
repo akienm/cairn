@@ -31,12 +31,12 @@ DB teeth need the one-time provisioning (as the tree proof). Self-cleaning.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import pytest
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -50,12 +50,20 @@ from cairn.devices.codemother.machines.validate.validate import (
     ValidateRefused, deposit_validate, validate_floor, validate_node_content,
     validate_validate, write_validate,
 )
-from cairn.tools.tree.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-_NEXUS = f"validate_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("validate")))
+    return _HELD[0]
 
 
 def make_root():
@@ -284,18 +292,18 @@ def test_deposit_back_is_gated(root, triage_berth, hypothesize_berth):
         and "[by inspect(component=alpha), clean]" in content, \
         "the node content is the ONE rendering: upstream intent + the criteria, instruments visible"
     # A berth that does not exist refuses, tree untouched.
-    table = nexus_table(_NEXUS)
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
+    table = nexus_table(_nexus())
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
     expect_refusal(lambda: deposit_validate(packet, [1.0, 0.0, 0.0],
                                             berth_path=berth + ".gone", root=root),
                    "does not exist")
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == before
     # The real deposit lands in the validate corpus with the berth as provenance.
-    unique = content + f" [{_NEXUS}]"
+    unique = content + f" [{_nexus()}]"
     r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "hypothesize_ref": packet["hypothesize_ref"],
                        "confidence": packet["confidence"]},
-                      tree=_NEXUS, table=table, owner="chart")
+                      tree=_nexus(), table=table, owner="chart")
     rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
@@ -321,18 +329,6 @@ def test_import_allowlist(root, triage_berth, hypothesize_berth):
         f"validate.py imports outside its allowlist: {offenders} — four "
         "composed doors only: the inspector's judge, hypothesize's chain "
         "reader, chart's settled orient machinery, and chart's tree verbs")
-
-
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            t = nexus_table(_NEXUS)
-            cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-    finally:
-        conn.close()
-
 
 
 def test_refusal_is_one_pass_complete(root, triage_berth, hypothesize_berth):
@@ -365,7 +361,6 @@ def test_refusal_is_one_pass_complete(root, triage_berth, hypothesize_berth):
         raise AssertionError("floor read a berth that does not exist")
     except ValidateRefused as e:
         assert "REMEDIATION" in str(e), str(e)
-
 
 
 def test_request_identity_is_physics(root, triage_berth, hypothesize_berth):
@@ -417,7 +412,7 @@ def _main() -> int:
             check(root, triage_berth, hypothesize_berth)
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
         shutil.rmtree(os.path.dirname(root), ignore_errors=True)
     print("green — chart/validate: stage 7 fills only through an unbroken "
           "six-link chain (hypothesize's reader composed by identity), the "

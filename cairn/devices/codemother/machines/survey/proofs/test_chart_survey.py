@@ -32,12 +32,12 @@ DB teeth need the one-time provisioning (as the tree proof). Self-cleaning.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import pytest
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -51,12 +51,20 @@ from cairn.devices.codemother.machines.survey.survey import (
     survey_node_content, validate_survey, write_survey,
 )
 from cairn.tools.chain.grammar import component_of, component_roster
-from cairn.tools.tree.tree import nexus_table
+from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-_NEXUS = f"survey_{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
+_SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _nexus() -> str:
+    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("survey")))
+    return _HELD[0]
 
 
 def make_root():
@@ -313,18 +321,18 @@ def test_deposit_back_is_gated(root, orient_berth, constrain_berth):
         and "ABSENT: a prior sweep" in content, \
         "the node content is the ONE rendering: upstream intent + the inventory"
     # A berth that does not exist refuses, tree untouched.
-    table = nexus_table(_NEXUS)
-    before = trees.tree_state(_NEXUS, table=table, owner="chart")
+    table = nexus_table(_nexus())
+    before = trees.tree_state(_nexus(), table=table, owner="chart")
     expect_refusal(lambda: deposit_survey(packet, [1.0, 0.0, 0.0],
                                           berth_path=berth + ".gone", root=root),
                    "does not exist")
-    assert trees.tree_state(_NEXUS, table=table, owner="chart") == before
+    assert trees.tree_state(_nexus(), table=table, owner="chart") == before
     # The real deposit lands in the survey corpus with the berth as provenance.
-    unique = content + f" [{_NEXUS}]"
+    unique = content + f" [{_nexus()}]"
     r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "constrain_ref": packet["constrain_ref"],
                        "confidence": packet["confidence"]},
-                      tree=_NEXUS, table=table, owner="chart")
+                      tree=_nexus(), table=table, owner="chart")
     rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth
@@ -350,18 +358,6 @@ def test_import_allowlist(root, orient_berth, constrain_berth):
         f"survey.py imports outside its allowlist: {offenders} — four composed "
         "doors only: the inspector's judge, chart's settled orient machinery, "
         "chart's tree verbs, and the orient instrument (the settled measurer)")
-
-
-def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            t = nexus_table(_NEXUS)
-            cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-    finally:
-        conn.close()
-
 
 
 def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth):
@@ -394,7 +390,6 @@ def test_refusal_is_one_pass_complete(root, orient_berth, constrain_berth):
         raise AssertionError("floor read a berth that does not exist")
     except SurveyRefused as e:
         assert "REMEDIATION" in str(e), str(e)
-
 
 
 def test_request_identity_is_physics(root, orient_berth, constrain_berth):
@@ -447,7 +442,7 @@ def _main() -> int:
             check(root, orient_berth, constrain_berth)
             print(f"  PASS  {check.__name__}")
     finally:
-        _cleanup()
+        _SCRATCH.close()
         shutil.rmtree(os.path.dirname(root), ignore_errors=True)  # tmp holds repo + commons sibling
     print("green — chart/survey: stage 3 fills only through an unbroken two-link "
           "chain, the floor surfaces census rows verbatim, the schema gate refuses "

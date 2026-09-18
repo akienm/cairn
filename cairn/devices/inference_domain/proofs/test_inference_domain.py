@@ -31,8 +31,9 @@ dropped on the way out, so the real `inference_calls` store is never touched by 
 
 from __future__ import annotations
 
-import os
+import contextlib
 import sys
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -45,8 +46,16 @@ from cairn.devices.db_domain.store import OwnershipError
 from cairn.devices.inference_domain import domain, host
 
 # Ephemeral table + a per-run tag on every canonical, so cleanup is exact and re-runs never collide.
-_NONCE = f"{os.getpid()}_{datetime.now(timezone.utc).strftime('%H%M%S%f')}"
-_TABLE = f"_probe_infer_{_NONCE}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_HELD: list[str] = []
+
+
+def _table() -> str:
+    """The proof's one table, minted on first use as scratch."""
+    if not _HELD:
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+    return _HELD[0]
 
 
 class _CountingResolver:
@@ -103,13 +112,12 @@ PROVES = {
 }
 
 
-
 def test_compile_once_a_repeat_does_not_touch_the_host():
     r = _CountingResolver()
-    first = domain.resolve({"q": "sky", "n": 1}, resolver=r, table=_TABLE)
+    first = domain.resolve({"q": "sky", "n": 1}, resolver=r, table=_table())
     assert first["hit"] is False and r.calls == 1, "the first ask is a miss that touches the host once"
 
-    second = domain.resolve({"q": "sky", "n": 1}, resolver=r, table=_TABLE)
+    second = domain.resolve({"q": "sky", "n": 1}, resolver=r, table=_table())
     assert second["hit"] is True, "a canonically-identical repeat must be served from the store"
     assert r.calls == 1, "a HIT must NOT touch the host — the resolver stays at one call (Telos 1)"
     # Law 7: what is served is exactly what was stored.
@@ -118,41 +126,41 @@ def test_compile_once_a_repeat_does_not_touch_the_host():
 
 def test_key_order_is_the_same_question():
     r = _CountingResolver()
-    domain.resolve({"q": "reorder", "a": 1, "b": 2}, resolver=r, table=_TABLE)
+    domain.resolve({"q": "reorder", "a": 1, "b": 2}, resolver=r, table=_table())
     assert r.calls == 1
     # same content, different key order -> same canonical form -> a hit, no new host call.
-    hit = domain.resolve({"b": 2, "q": "reorder", "a": 1}, resolver=r, table=_TABLE)
+    hit = domain.resolve({"b": 2, "q": "reorder", "a": 1}, resolver=r, table=_table())
     assert hit["hit"] is True and r.calls == 1, "key-ordering must not make a new question"
 
 
 def test_verify_before_answer_a_stale_entry_re_resolves():
     past = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
     r = _CountingResolver(horizon=past)
-    domain.resolve({"q": "stale"}, resolver=r, table=_TABLE)
+    domain.resolve({"q": "stale"}, resolver=r, table=_table())
     assert r.calls == 1, "first ask is a miss"
     # The stored answer is already past its horizon -> it must NOT be served; the host is touched again.
-    again = domain.resolve({"q": "stale"}, resolver=r, table=_TABLE)
+    again = domain.resolve({"q": "stale"}, resolver=r, table=_table())
     assert again["hit"] is False, "an expired answer must not be served (verify before answer, T1.3)"
     assert r.calls == 2, "a stale entry forces a re-resolve"
 
 
 def test_the_owner_gates_the_cache():
-    domain.ensure_cache(table=_TABLE)
+    domain.ensure_cache(table=_table())
     try:
-        store.write(_TABLE, "impostor", {"canonical": "x", "verdict": "miss"})
+        store.write(_table(), "impostor", {"canonical": "x", "verdict": "miss"})
         raise AssertionError("a non-owner write to the cache must be REFUSED (Law 6)")
     except OwnershipError:
         pass
 
 
 def test_the_meter_measures_spent_against_avoided():
-    tag = {"q": f"meter_{_NONCE}"}
+    tag = {"q": f"meter_{_RUN}"}
     r = _CountingResolver(cost=100.0)
-    domain.resolve(tag, resolver=r, table=_TABLE)       # miss  -> spends 100
-    domain.resolve(tag, resolver=r, table=_TABLE)       # hit   -> avoids 100
-    domain.resolve(tag, resolver=r, table=_TABLE)       # hit   -> avoids 100
+    domain.resolve(tag, resolver=r, table=_table())       # miss  -> spends 100
+    domain.resolve(tag, resolver=r, table=_table())       # hit   -> avoids 100
+    domain.resolve(tag, resolver=r, table=_table())       # hit   -> avoids 100
 
-    report = domain.yield_report(table=_TABLE)
+    report = domain.yield_report(table=_table())
     assert report["misses"] >= 1 and report["hits"] >= 2, f"every call must land a row: {report}"
     assert report["spent"] >= 100.0, f"a miss must be metered as spend: {report}"
     assert report["avoided"] >= 200.0, f"hits must be metered as avoided spend: {report}"
@@ -178,9 +186,9 @@ def test_a_bare_call_and_the_explicit_default_are_one_question():
     canonical is byte-for-byte the pre-domains form (no new key rides it)."""
     r = _CountingResolver()
     bare = domain.resolve({"q": "default-rides", "kind": "generate", "prompt": "p"},
-                          resolver=r, table=_TABLE)
+                          resolver=r, table=_table())
     named = domain.resolve({"q": "default-rides", "kind": "generate", "prompt": "p",
-                            "domain": "general"}, resolver=r, table=_TABLE)
+                            "domain": "general"}, resolver=r, table=_table())
     assert named["hit"] is True and r.calls == 1, \
         "naming the default must be the same question as not naming it"
     assert bare["canonical"] == named["canonical"]
@@ -195,8 +203,8 @@ def test_two_domains_are_never_one_question():
     r = _CountingResolver()
     stacks = _stacks_with_prompts("Ground your answer in the material provided.")
     tag = {"q": "collide", "kind": "generate", "prompt": "p"}
-    bare = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
-    dressed = domain.resolve({**tag, "domain": "research"}, resolver=r, table=_TABLE,
+    bare = domain.resolve(dict(tag), resolver=r, table=_table(), stacks=stacks)
+    dressed = domain.resolve({**tag, "domain": "research"}, resolver=r, table=_table(),
                              stacks=stacks)
     assert bare["canonical"] != dressed["canonical"], \
         "two requests differing only in (dressing-bearing) domain must never share a canonical"
@@ -209,12 +217,12 @@ def test_the_provenance_carries_the_domain_marker_on_both_paths():
     r = _CountingResolver()
     stacks = _stacks_with_prompts("dressing")
     tag = {"q": "marker", "kind": "generate", "prompt": "p", "domain": "research"}
-    miss = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
-    hit = domain.resolve(dict(tag), resolver=r, table=_TABLE, stacks=stacks)
+    miss = domain.resolve(dict(tag), resolver=r, table=_table(), stacks=stacks)
+    hit = domain.resolve(dict(tag), resolver=r, table=_table(), stacks=stacks)
     assert miss["provenance"]["domain"] == "research" and hit["hit"] is True
     assert hit["provenance"]["domain"] == "research", "the marker rides the hit path too"
     bare = domain.resolve({"q": "marker-bare", "kind": "generate", "prompt": "p"},
-                          resolver=r, table=_TABLE, stacks=stacks)
+                          resolver=r, table=_table(), stacks=stacks)
     assert bare["provenance"]["domain"] == "general", \
         "a bare call's row must still say which vertical rode (the default's name)"
 
@@ -224,9 +232,9 @@ def test_editing_a_rows_prompt_is_a_new_question():
     the dressing is in the canonical, so new dressing = new question = fresh miss."""
     r = _CountingResolver()
     tag = {"q": "edit", "kind": "generate", "prompt": "p", "domain": "research"}
-    domain.resolve(dict(tag), resolver=r, table=_TABLE,
+    domain.resolve(dict(tag), resolver=r, table=_table(),
                    stacks=_stacks_with_prompts("first dressing"))
-    again = domain.resolve(dict(tag), resolver=r, table=_TABLE,
+    again = domain.resolve(dict(tag), resolver=r, table=_table(),
                            stacks=_stacks_with_prompts("second dressing"))
     assert again["hit"] is False and r.calls == 2, \
         "an edited row's dressing must re-ask the host, never serve the stale answer"
@@ -239,7 +247,7 @@ def test_an_unknown_domain_is_refused_before_any_spend():
     r = _CountingResolver()
     try:
         domain.resolve({"q": "unknown", "kind": "generate", "prompt": "p",
-                        "domain": "no-such-vertical"}, resolver=r, table=_TABLE)
+                        "domain": "no-such-vertical"}, resolver=r, table=_table())
         raise AssertionError("an unknown domain must refuse loudly")
     except RouteRefused as e:
         assert "no-such-vertical" in str(e)
@@ -294,15 +302,15 @@ def test_a_refused_ask_leaves_a_row():
       (d) SPENT and AVOIDED are unmoved — a refusal costs nothing and avoids nothing.
       (e) an ordinary ask after the refusal is unchanged — the door still works.
     """
-    tag = {"q": f"refused_{_NONCE}"}
+    tag = {"q": f"refused_{_RUN}"}
     boom = RuntimeError("the host refused this ask")
     r = _RefusingResolver(boom)
 
-    before = domain.yield_report(table=_TABLE)
+    before = domain.yield_report(table=_table())
 
     # (a) the exception propagates — the SAME object, not a wrapper.
     try:
-        domain.resolve(tag, resolver=r, table=_TABLE)
+        domain.resolve(tag, resolver=r, table=_table())
         raise AssertionError("a raising resolver must PROPAGATE — recording is not handling")
     except AssertionError:
         raise
@@ -311,7 +319,7 @@ def test_a_refused_ask_leaves_a_row():
     assert r.calls == 1, "the ask must have reached the seam"
 
     # (b) THE TOOTH THE TICKET EXISTS FOR. Red on HEAD: no row is written today.
-    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%refused_{_NONCE}%",))
+    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%refused_{_RUN}%",))
     assert len(rows) == 1, (
         f"a refused ask must leave exactly one row; found {len(rows)}. "
         "On unmodified HEAD this is red because NO ROW WAS WRITTEN — resolve() writes only "
@@ -332,7 +340,7 @@ def test_a_refused_ask_leaves_a_row():
     # (c) the refusal must NEVER be served as a hit — the host is touched again.
     again = _RefusingResolver(RuntimeError("second refusal"))
     try:
-        domain.resolve(tag, resolver=again, table=_TABLE)
+        domain.resolve(tag, resolver=again, table=_table())
         raise AssertionError("the second ask must reach the seam, not be served from the refused row")
     except AssertionError:
         raise
@@ -341,7 +349,7 @@ def test_a_refused_ask_leaves_a_row():
     assert again.calls == 1, "a refused row must not satisfy a later ask (it is not an answer)"
 
     # (d) the meter is untouched by refusals — constrain's hard bound.
-    after = domain.yield_report(table=_TABLE)
+    after = domain.yield_report(table=_table())
     assert after["spent"] == before["spent"], f"a refusal must not move SPENT: {before} -> {after}"
     assert after["avoided"] == before["avoided"], f"a refusal must not move AVOIDED: {before} -> {after}"
     assert after["hits"] == before["hits"] and after["misses"] == before["misses"], (
@@ -356,7 +364,7 @@ def test_a_refused_ask_leaves_a_row():
 
     # (e) an ordinary ask still works, and is a plain miss.
     good = _CountingResolver()
-    ok = domain.resolve({"q": f"after_refusal_{_NONCE}"}, resolver=good, table=_TABLE)
+    ok = domain.resolve({"q": f"after_refusal_{_RUN}"}, resolver=good, table=_table())
     assert ok["hit"] is False and good.calls == 1, "the door must still answer after a refusal"
 
 
@@ -384,14 +392,14 @@ def test_the_standing_readers_are_unmoved_by_a_refused_row():
         does_the_route_leave_loopback as loopback,
     )
 
-    tag = {"kind": "generate", "q": f"readers_{_NONCE}"}
+    tag = {"kind": "generate", "q": f"readers_{_RUN}"}
     r = _RefusingResolver(RuntimeError("refused for the readers"))
     try:
-        domain.resolve(tag, resolver=r, table=_TABLE)
+        domain.resolve(tag, resolver=r, table=_table())
     except RuntimeError:
         pass
 
-    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%readers_{_NONCE}%",))
+    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%readers_{_RUN}%",))
     assert len(rows) == 1 and rows[0]["verdict"] == "refused", f"fixture must be a real refused row: {rows}"
 
     nf = nonfinal.judge_rows(rows)
@@ -426,14 +434,14 @@ def test_the_watch_reads_a_row_the_real_writer_made():
     from cairn.devices.inference_domain.probes import a_refused_ask_leaves_a_row as watch
 
     ok = _CountingResolver()
-    domain.resolve({"q": f"watchfix_ok_{_NONCE}"}, resolver=ok, table=_TABLE)
+    domain.resolve({"q": f"watchfix_ok_{_RUN}"}, resolver=ok, table=_table())
     bad = _RefusingResolver(RuntimeError("refused for the watch"))
     try:
-        domain.resolve({"q": f"watchfix_bad_{_NONCE}"}, resolver=bad, table=_TABLE)
+        domain.resolve({"q": f"watchfix_bad_{_RUN}"}, resolver=bad, table=_table())
     except RuntimeError:
         pass
 
-    rows = store.read(_TABLE, where="canonical LIKE %s", params=(f"%watchfix_%{_NONCE}%",))
+    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%watchfix_%{_RUN}%",))
     assert len(rows) == 2, f"expected one answered and one refused row from the real writer: {rows}"
 
     s = watch.judge_rows(rows)
@@ -488,16 +496,16 @@ def test_the_ticket_comes_back_whole():
     """
     # First, seed a PRE-BUILD row (no body on the answer) to test clause (c).
     plain = _CountingResolver()
-    domain.resolve({"q": f"prebuild_{_NONCE}"}, resolver=plain, table=_TABLE)
+    domain.resolve({"q": f"prebuild_{_RUN}"}, resolver=plain, table=_table())
 
     # Now seed a row whose answer carries the raw body.
     r = _BodyCarryingResolver()
-    request_dict = {"q": f"whole_{_NONCE}", "kind": "generate", "prompt": "p"}
-    domain.resolve(request_dict, resolver=r, table=_TABLE)
+    request_dict = {"q": f"whole_{_RUN}", "kind": "generate", "prompt": "p"}
+    domain.resolve(request_dict, resolver=r, table=_table())
     assert r.calls == 1
 
     canonical = domain.canonicalize(request_dict)
-    tickets = domain.read_ticket(canonical=canonical, table=_TABLE)
+    tickets = domain.read_ticket(canonical=canonical, table=_table())
     assert len(tickets) >= 1, f"the reader must find the row by canonical: {tickets}"
     ticket = tickets[0]
 
@@ -517,8 +525,8 @@ def test_the_ticket_comes_back_whole():
     assert body["_unparsed_key"] == "THIS KEY IS NEVER EXTRACTED BY THE PARSE"
 
     # (c) The pre-build row reads UNKNOWABLE, not empty.
-    pre_canonical = domain.canonicalize({"q": f"prebuild_{_NONCE}"})
-    pre_tickets = domain.read_ticket(canonical=pre_canonical, table=_TABLE)
+    pre_canonical = domain.canonicalize({"q": f"prebuild_{_RUN}"})
+    pre_tickets = domain.read_ticket(canonical=pre_canonical, table=_table())
     assert len(pre_tickets) >= 1
     assert pre_tickets[0]["body_status"] == "unknowable", (
         f"a pre-build row lacking the body must read UNKNOWABLE, never empty: "
@@ -542,7 +550,7 @@ def test_the_ticket_comes_back_whole():
     )
 
     # Recency: read_ticket with limit returns newest first.
-    all_tickets = domain.read_ticket(limit=5, table=_TABLE)
+    all_tickets = domain.read_ticket(limit=5, table=_table())
     assert len(all_tickets) >= 2, "the reader must see both rows"
     assert all_tickets[0]["created"] >= all_tickets[1]["created"], \
         "read_ticket must return rows newest first"
@@ -550,33 +558,33 @@ def test_the_ticket_comes_back_whole():
     # A refused row is also UNKNOWABLE (answer is None).
     bad = _RefusingResolver(RuntimeError("for wholeness"))
     try:
-        domain.resolve({"q": f"refused_whole_{_NONCE}"}, resolver=bad, table=_TABLE)
+        domain.resolve({"q": f"refused_whole_{_RUN}"}, resolver=bad, table=_table())
     except RuntimeError:
         pass
-    refused_canonical = domain.canonicalize({"q": f"refused_whole_{_NONCE}"})
-    refused_tickets = domain.read_ticket(canonical=refused_canonical, table=_TABLE)
+    refused_canonical = domain.canonicalize({"q": f"refused_whole_{_RUN}"})
+    refused_tickets = domain.read_ticket(canonical=refused_canonical, table=_table())
     assert len(refused_tickets) >= 1
     assert refused_tickets[0]["body_status"] == "unknowable", \
         "a refused row (answer=None) must read UNKNOWABLE"
 
 
 def test_an_out_of_vocabulary_verdict_is_refused_at_the_database():
-    domain.ensure_cache(table=_TABLE)
+    domain.ensure_cache(table=_table())
     conn = store.connect()
     try:
         with conn.cursor() as cur:
             for good in domain.VERDICT_VOCABULARY:
                 cur.execute(
-                    f'INSERT INTO "{_TABLE}" (canonical, verdict, cost) '
+                    f'INSERT INTO "{_table()}" (canonical, verdict, cost) '
                     f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_{good}_{_NONCE}", good),
+                    (f"vocab_check_{good}_{_RUN}", good),
                 )
             conn.commit()
             try:
                 cur.execute(
-                    f'INSERT INTO "{_TABLE}" (canonical, verdict, cost) '
+                    f'INSERT INTO "{_table()}" (canonical, verdict, cost) '
                     f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_invalid_{_NONCE}", "invalid"),
+                    (f"vocab_check_invalid_{_RUN}", "invalid"),
                 )
                 conn.commit()
                 raise AssertionError(
@@ -591,7 +599,7 @@ def test_an_out_of_vocabulary_verdict_is_refused_at_the_database():
 
 
 def test_the_verdict_constraint_exists_on_the_table():
-    domain.ensure_cache(table=_TABLE)
+    domain.ensure_cache(table=_table())
     conn = store.connect()
     try:
         with conn.cursor() as cur:
@@ -599,11 +607,11 @@ def test_the_verdict_constraint_exists_on_the_table():
                 "SELECT constraint_name FROM information_schema.table_constraints "
                 "WHERE table_name = %s AND constraint_type = 'CHECK' "
                 "AND constraint_name = 'verdict_vocabulary'",
-                (_TABLE,),
+                (_table(),),
             )
             row = cur.fetchone()
             assert row is not None, (
-                f"CHECK constraint 'verdict_vocabulary' must exist on {_TABLE} "
+                f"CHECK constraint 'verdict_vocabulary' must exist on {_table()} "
                 f"after ensure_cache()"
             )
     finally:
@@ -622,7 +630,7 @@ def _standing_table_refuses(verdict: str) -> str | None:
                 cur.execute(
                     f'INSERT INTO "{domain.CACHE}" (canonical, verdict, cost) '
                     f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_standing_{_NONCE}", verdict),
+                    (f"vocab_check_standing_{_RUN}", verdict),
                 )
             except Exception as exc:
                 conn.rollback()
@@ -676,19 +684,19 @@ def test_a_differing_toolset_is_a_different_question():
     tooth PINS the property so a later "optimisation" that strips tools before hashing — which
     would look like a harmless normalisation — reds here instead of silently serving an answer
     computed under somebody else's toolset."""
-    turns = [{"role": "user", "content": f"toolset_{_NONCE}"}]
+    turns = [{"role": "user", "content": f"toolset_{_RUN}"}]
     tools_a = [{"type": "function", "function": {"name": "alpha"}}]
     tools_b = [{"type": "function", "function": {"name": "beta"}}]
     r = _CountingResolver()
 
     domain.resolve({"kind": "chat", "messages": turns, "tools": tools_a},
-                   resolver=r, table=_TABLE)
+                   resolver=r, table=_table())
     assert r.calls == 1, "the first ask is a miss"
     domain.resolve({"kind": "chat", "messages": turns, "tools": tools_b},
-                   resolver=r, table=_TABLE)
+                   resolver=r, table=_table())
     assert r.calls == 2, "the SAME turns under a DIFFERENT toolset are a different question"
     again = domain.resolve({"kind": "chat", "messages": turns, "tools": tools_a},
-                           resolver=r, table=_TABLE)
+                           resolver=r, table=_table())
     assert again["hit"] is True and r.calls == 2, \
         "and the first toolset is still its own question — a hit, not a third call"
 
@@ -706,11 +714,11 @@ def test_an_agent_retry_gets_a_fresh_sample():
     the thing that can rot: if EXPIRED ever stopped parsing, _valid would read it as no-expiry and
     this lane would silently become the permanent cache it exists to avoid."""
     r = _CountingResolver(horizon=host.EXPIRED)
-    tag = {"kind": "chat", "messages": [{"role": "user", "content": f"agent_{_NONCE}"}]}
+    tag = {"kind": "chat", "messages": [{"role": "user", "content": f"agent_{_RUN}"}]}
 
-    first = domain.resolve(dict(tag), resolver=r, table=_TABLE)
+    first = domain.resolve(dict(tag), resolver=r, table=_table())
     assert first["hit"] is False and r.calls == 1, "the first ask is a miss"
-    second = domain.resolve(dict(tag), resolver=r, table=_TABLE)
+    second = domain.resolve(dict(tag), resolver=r, table=_table())
     assert second["hit"] is False, \
         "a byte-identical retry in the agent lane must NOT be served from the store"
     assert r.calls == 2, "the agent lane re-resolves — a replayed tool_call is how the loop hangs"
@@ -735,7 +743,7 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
     from cairn.tools.base import address
     from cairn.tools.base.breadcrumb_log import RECORD_NAME
 
-    turns = [{"role": "user", "content": f"both_records_{_NONCE}"},
+    turns = [{"role": "user", "content": f"both_records_{_RUN}"},
              {"role": "assistant", "content": "",
               "tool_calls": [{"function": {"name": "clock", "arguments": {}}}]},
              {"role": "tool", "content": "12:00"}]
@@ -750,10 +758,10 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
         assert not trail.exists(), f"the fixture world must start with no trail: {trail}"
 
         out = domain.resolve({"kind": "chat", "messages": turns, "tools": toolset},
-                             resolver=r, table=_TABLE)
+                             resolver=r, table=_table())
         assert out["hit"] is False and r.calls == 1, "the first agent ask is a miss"
 
-        rows = store.read(_TABLE, where="canonical = %s", params=(out["canonical"],))
+        rows = store.read(_table(), where="canonical = %s", params=(out["canonical"],))
         assert len(rows) == 1, \
             f"a tool-carrying call must land exactly one row in the meter, got {len(rows)}"
 
@@ -787,17 +795,6 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
             "the digest that joins the two records must carry the toolset — it does not"
     finally:
         domain.set_diagnostic_roots(outer)
-
-
-def _cleanup():
-    """Drop this run's ephemeral cache table and its registry row — leave no fixtures."""
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(f'DROP TABLE IF EXISTS "{_TABLE}"')
-            cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (_TABLE,))
-    finally:
-        conn.close()
 
 
 def _main() -> int:
@@ -844,7 +841,7 @@ def _main() -> int:
     finally:
         if _move_roots:
             _move_roots(None)
-        _cleanup()
+        _SCRATCH.close()
     print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
     return 0
 

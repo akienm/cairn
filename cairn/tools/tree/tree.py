@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import os
 import re
+from contextlib import contextmanager
 
 import cairn.devices.librarian.trees as trees
 from cairn.devices.librarian.loop import RESOLUTION_FLOOR
@@ -79,6 +80,17 @@ def nexus_table(nexus: str, *, owner: str = OWNER) -> str:
                 f"nexus_table: {role} {name!r} is not a legal name ([a-z][a-z0-9_]*) — "
                 "refusing to mint a table for a name that cannot be one")
     return f"{owner}_{nexus}_nodes"
+
+
+@contextmanager
+def scratch_nexus(kind: str, *, owner: str = OWNER):
+    """A nexus whose table cannot outlive this process (ticket 201a37bf1613): the leaf
+    table is minted through ``store.scratch()`` under the ``nexus_table`` rule and the
+    NEXUS NAME is yielded, so ``nexus_table(name, owner=owner)`` is exactly the scratch
+    table — dropped at exit, swept by pid if the process never gets there. For proofs
+    and one-shot drains; a standing nexus is minted by ``nexus_table`` alone."""
+    with trees.scratch_leaf(f"{owner}_{kind}", owner=owner, suffix="nodes") as table:
+        yield table[len(owner) + 1:-len("_nodes")]
 
 
 def deposit_learning(nexus: str, content: str, vector, provenance: dict, *,

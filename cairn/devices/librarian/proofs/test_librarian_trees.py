@@ -32,10 +32,11 @@ Unix socket is a file (db_domain's documented asymmetry, exercised for real here
 from __future__ import annotations
 
 import ast
+import contextlib
 import hashlib
 import json
-import os
 import sys
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -55,15 +56,18 @@ from cairn.devices.librarian.trees import (
     THREADS_TABLE, MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD,
 )
 
-_NONCE = f"{os.getpid()}_{datetime.now().strftime('%H%M%S%f')}"
-_TABLE = f"_trees_{_NONCE}"
-_TABLE2 = f"_trees2_{_NONCE}"
-_TABLE_TENANT = f"_tenant_{_NONCE}"
-_TABLE_EMPTY = f"_empty_{_NONCE}"
-_TABLE_RETIRE = f"_retire_{_NONCE}"
-_TABLE_CONTRA = f"_contra_{_NONCE}"
-_TABLE_CONSOL = f"_consol_{_NONCE}"
-_TABLE_WARM = f"_warm_{_NONCE}"
+_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+_SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
+_HELD: dict[str, str] = {}
+
+
+def _t(name: str) -> str:
+    """One of this proof's leaves, minted on first use as scratch."""
+    if name not in _HELD:
+        _HELD[name] = _SCRATCH.enter_context(trees.scratch_leaf(f"trees_{name}"))
+    return _HELD[name]
+
+
 _CREATED_NODES: list[str] = []
 
 _PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
@@ -94,25 +98,25 @@ def _refuses(exc, fn, *args, **kwargs):
 
 def test_the_door_refuses_the_untraceable():
     # No provenance at all, a non-dict, and a sourceless dict: none may land.
-    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], None, table=_TABLE)
-    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], "held-librarian", table=_TABLE)
+    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], None, table=_t("trees"))
+    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], "held-librarian", table=_t("trees"))
     msg = _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0],
-                   {"source": "  "}, table=_TABLE)
+                   {"source": "  "}, table=_t("trees"))
     assert "provenance" in msg and "source" in msg, "the refusal must name what was missing"
     # And content under the floor is invention, refused before any write.
-    _refuses(DepositRefused, deposit, "tiny", [1.0, 0.0], _PROV, table=_TABLE)
+    _refuses(DepositRefused, deposit, "tiny", [1.0, 0.0], _PROV, table=_t("trees"))
 
 
 def test_vectors_are_physics_at_both_doors():
     for bad in ([], ["a", "b"], [float("nan"), 1.0], [0.0, 0.0]):
-        _refuses(DepositRefused, deposit, "content long enough to land", bad, _PROV, table=_TABLE)
-        _refuses(WalkRefused, nearest, bad, tree="commons", table=_TABLE)
-    _refuses(WalkRefused, nearest, [1.0, 0.0], k=0, table=_TABLE)
+        _refuses(DepositRefused, deposit, "content long enough to land", bad, _PROV, table=_t("trees"))
+        _refuses(WalkRefused, nearest, bad, tree="commons", table=_t("trees"))
+    _refuses(WalkRefused, nearest, [1.0, 0.0], k=0, table=_t("trees"))
 
 
 def test_a_node_lands_and_is_born_a_hypothesis():
     r = deposit("the embedding is the path through the graph trees",
-                [1.0, 0.0, 0.0], _PROV, tree="t1", table=_TABLE)
+                [1.0, 0.0, 0.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r["node_id"])
     assert r["duplicate"] is False and r["dim"] == 3
     node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
@@ -123,7 +127,7 @@ def test_a_node_lands_and_is_born_a_hypothesis():
     emb_rows = store.read(trees.EMBEDDINGS_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert len(emb_rows) == 1, "an embedding must land in cairn_embeddings"
     assert emb_rows[0]["vector"] == [1.0, 0.0, 0.0], "the vector must round-trip exactly"
-    leaf_rows = store.read(_TABLE, where="node_id = %s", params=(r["node_id"],))
+    leaf_rows = store.read(_t("trees"), where="node_id = %s", params=(r["node_id"],))
     assert len(leaf_rows) == 1, "a leaf must land in the caller's table"
 
 
@@ -133,14 +137,14 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
     cur = conn.cursor()
     cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
     nodes_before = cur.fetchone()[0]
-    cur.execute(f"SELECT count(*) FROM {_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     leaves_before = cur.fetchone()[0]
-    r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_TABLE, conn=conn)
+    r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_t("trees"), conn=conn)
     assert r["duplicate"] is True, "the standing node must come back flagged"
     assert r["provenance_appended"] is True
     cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
     assert cur.fetchone()[0] == nodes_before, "a duplicate must grow cairn_nodes by NOTHING (Law 1)"
-    cur.execute(f"SELECT count(*) FROM {_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"
     node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],), conn=conn)[0]
     attests = node["provenance"].get("attestations") or []
@@ -152,33 +156,33 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
 
 def test_dimension_mismatch_is_refused_not_answered():
     _refuses(DepositRefused, deposit, "a node of the wrong dimension",
-             [1.0, 0.0], _PROV, tree="t1", table=_TABLE)
-    _refuses(WalkRefused, nearest, [1.0, 0.0], tree="t1", table=_TABLE)
+             [1.0, 0.0], _PROV, tree="t1", table=_t("trees"))
+    _refuses(WalkRefused, nearest, [1.0, 0.0], tree="t1", table=_t("trees"))
 
 
 def test_nearest_ranks_by_proximity_and_derives_the_path():
-    r1 = deposit("east-pointing node, the close one", [1.0, 0.1, 0.0], _PROV, tree="t1", table=_TABLE)
+    r1 = deposit("east-pointing node, the close one", [1.0, 0.1, 0.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r1["node_id"])
-    r2 = deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_TABLE)
+    r2 = deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r2["node_id"])
-    got = nearest([1.0, 0.05, 0.0], k=2, tree="t1", table=_TABLE)
+    got = nearest([1.0, 0.05, 0.0], k=2, tree="t1", table=_t("trees"))
     assert [n["content"] for n in got][0] == "east-pointing node, the close one"
     assert got[0]["similarity"] > got[1]["similarity"], "ranked by cosine, descending"
     assert all(-1.0 <= n["similarity"] <= 1.0 for n in got), "cosine stays in [-1, 1]"
-    assert nearest([1.0], k=3, tree="empty", table=_TABLE_EMPTY) == []
+    assert nearest([1.0], k=3, tree="empty", table=_t("empty")) == []
 
 
 def test_the_walk_itself_never_decays_a_tenant():
     aged = "an old resident a tenant's walk must still surface first"
-    r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_TABLE_TENANT)
+    r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_t("tenant"))
     _CREATED_NODES.append(r["node_id"])
     r2 = deposit("a nearer-in-time but farther-in-space node", [0.3, 0.9, 0.0], _PROV,
-                 tree="tenant", table=_TABLE_TENANT)
+                 tree="tenant", table=_t("tenant"))
     _CREATED_NODES.append(r2["node_id"])
     store.update(trees.NODES_TABLE, trees.OWNER,
                  {"created": datetime.now(timezone.utc) - timedelta(days=365)},
                  where="node_id = %s", params=(r["node_id"],))
-    got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_TABLE_TENANT)
+    got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_t("tenant"))
     assert got[0]["node_id"] == r["node_id"], \
         "a year-old node still ranks FIRST by raw cosine — no decay at the shared walk"
     assert got[0]["created"] is not None, "created rides the walk as data for the reader"
@@ -186,36 +190,36 @@ def test_the_walk_itself_never_decays_a_tenant():
 
 def test_trees_do_not_cross():
     r = deposit("a node that lives in another tree entirely", [1.0, 0.09, 0.0],
-                _PROV, tree="t2", table=_TABLE2)
+                _PROV, tree="t2", table=_t("trees2"))
     _CREATED_NODES.append(r["node_id"])
-    surfaced = nearest([1.0, 0.09, 0.0], k=50, tree="t1", table=_TABLE)
+    surfaced = nearest([1.0, 0.09, 0.0], k=50, tree="t1", table=_t("trees"))
     assert all("another tree" not in n["content"] for n in surfaced), \
-        "a walk of _TABLE must never surface a _TABLE2 node — leaf tables are separate trees"
+        "a walk of one leaf must never surface the other leaf's node — leaf tables are separate trees"
 
 
 def test_neighbors_are_derived_and_exclude_self():
     nid = trees.node_id_for("east-pointing node, the close one")
-    got = neighbors(nid, k=2, tree="t1", table=_TABLE)
+    got = neighbors(nid, k=2, tree="t1", table=_t("trees"))
     assert got, "a node among siblings has derived neighbors"
     assert all(n["node_id"] != nid for n in got), "a node is not its own neighbor"
-    _refuses(WalkRefused, neighbors, "no-such-node", tree="t1", table=_TABLE)
+    _refuses(WalkRefused, neighbors, "no-such-node", tree="t1", table=_t("trees"))
 
 
 def test_tree_state_moves_with_the_tree_and_only_with_it():
     # The livelock-fix primitive: same members -> same digest; a deposit moves it; a
     # DUPLICATE deposit (nothing written) leaves it exactly where it stood.
-    before = trees.tree_state("t1", table=_TABLE)
-    again = trees.tree_state("t1", table=_TABLE)
+    before = trees.tree_state("t1", table=_t("trees"))
+    again = trees.tree_state("t1", table=_t("trees"))
     assert before == again, "the fingerprint is a pure function of the tree's members"
     assert before["nodes"] > 0 and before["digest"] != "empty"
-    r = deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
+    r = deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r["node_id"])
-    moved = trees.tree_state("t1", table=_TABLE)
+    moved = trees.tree_state("t1", table=_t("trees"))
     assert moved["digest"] != before["digest"] and moved["nodes"] == before["nodes"] + 1
-    deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_TABLE)
-    assert trees.tree_state("t1", table=_TABLE) == moved, \
+    deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_t("trees"))
+    assert trees.tree_state("t1", table=_t("trees")) == moved, \
         "a duplicate writes nothing, so the fingerprint must not move"
-    assert trees.tree_state("never-touched", table=_TABLE_EMPTY) == {"digest": "empty", "nodes": 0}
+    assert trees.tree_state("never-touched", table=_t("empty")) == {"digest": "empty", "nodes": 0}
 
 
 def test_links_are_bounded_and_weighted():
@@ -223,7 +227,7 @@ def test_links_are_bounded_and_weighted():
     # What is banned is an UNBOUNDED edge table (the 2.5M wall), not stored weights
     # within a bounded tree — the stored weights ARE the learning mechanism (Akien,
     # 2026-08-21). cairn_links is bounded by link_neighbors' k parameter per node.
-    for name in ("librarian_edges", f"{_TABLE}_edges"):
+    for name in ("librarian_edges", f"{_t('trees')}_edges"):
         assert store.owner_of(name) is None, (
             f"an unbounded edge table {name!r} must NOT exist — "
             "bounded weighted links live in cairn_links, not per-tree edge tables"
@@ -252,7 +256,7 @@ def test_links_are_bounded_and_weighted():
 
 def test_the_owner_gate_holds_through_the_stack():
     try:
-        store.write(_TABLE, "impostor", {
+        store.write(_t("trees"), "impostor", {
             "leaf_id": "forced", "node_id": "forced", "embedding_id": "forced"})
         raise AssertionError("a non-librarian write must be REFUSED by db_domain (Law 6)")
     except OwnershipError:
@@ -262,17 +266,17 @@ def test_the_owner_gate_holds_through_the_stack():
 def test_crossings_breadcrumb_and_reads_stay_silent():
     dev = _fresh_librarian()
     r1 = dev.deposit("a breadcrumbed crossing, observed end to end",
-                     [0.5, 0.5, 0.0], _PROV, tree="t1", table=_TABLE)
+                     [0.5, 0.5, 0.0], _PROV, tree="t1", table=_t("trees"))
     dev.deposit("a breadcrumbed crossing, observed end to end",
-                [0.5, 0.5, 0.0], _PROV, tree="t1", table=_TABLE)
+                [0.5, 0.5, 0.0], _PROV, tree="t1", table=_t("trees"))
     crumbs = dev.held_diagnostics()
     assert len(crumbs) == 2, "every deposit crossing breadcrumbs — DEPOSITED and DUPLICATE alike"
     assert [c["values"]["verdict"] for c in crumbs] == ["DEPOSITED", "DUPLICATE"]
     assert crumbs[0]["pointer"] == r1["node_id"], "the pointer is the node that crossed"
     assert crumbs[0]["gate"] == "deposit" and crumbs[0]["source"] == "LibrarianDevice"
 
-    dev.nearest([1.0, 0.0, 0.0], tree="t1", table=_TABLE)
-    dev.neighbors(r1["node_id"], tree="t1", table=_TABLE)
+    dev.nearest([1.0, 0.0, 0.0], tree="t1", table=_t("trees"))
+    dev.neighbors(r1["node_id"], tree="t1", table=_t("trees"))
     assert len(dev.held_diagnostics()) == 2, "walks are reads — silent, no breadcrumb"
     assert dev.state()["deposits"] == 2 and dev.state()["verdicts"]["DUPLICATE"] == 1
 
@@ -289,8 +293,8 @@ def test_device_hood_and_the_ordered_surface():
 
 def test_trees_opens_no_door_of_its_own():
     # Allowlist, not blocklist: an import outside these prefixes is a second door and reds.
-    allowed = ("__future__", "hashlib", "math", "datetime", "cairn.tools.base", "cairn.devices.db_domain",
-               "psycopg2")
+    allowed = ("__future__", "contextlib", "hashlib", "math", "datetime", "cairn.tools.base",
+               "cairn.devices.db_domain", "psycopg2")   # contextlib: scratch_leaf is a context manager (201a37bf1613)
     src = Path(trees.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):
@@ -305,19 +309,12 @@ def test_trees_opens_no_door_of_its_own():
 
 
 def _cleanup():
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for t in (_TABLE, _TABLE2, _TABLE_TENANT, _TABLE_EMPTY, _TABLE_RETIRE, _TABLE_CONTRA, _TABLE_CONSOL, _TABLE_WARM):
-                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
-            for nid in _CREATED_NODES:
-                cur.execute(f'DELETE FROM "{trees.LINKS_TABLE}" WHERE source_id = %s OR target_id = %s', (nid, nid))
-                cur.execute(f'DELETE FROM "{trees.EMBEDDINGS_TABLE}" WHERE node_id = %s', (nid,))
-                cur.execute(f'DELETE FROM "{trees.NODES_TABLE}" WHERE node_id = %s', (nid,))
-    finally:
-        conn.close()
-
+    """This run's rows out of the shared tables, then every scratch leaf dropped."""
+    for nid in _CREATED_NODES:
+        store.delete(trees.LINKS_TABLE, trees.OWNER, where="source_id = %s OR target_id = %s", params=(nid, nid))
+    for t in _HELD.values():
+        trees.forget_leaf(t)
+    _SCRATCH.close()
 
 # ---------------------------------------------------------------------------
 # THE RETIREMENT DOOR (ticket revision-with-receipts) — the fifth tenure behaviour.
@@ -340,7 +337,7 @@ def _fingerprint(nid) -> str:
 
 def _land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
-    r = deposit(content + f" [{_NONCE}]", vector, prov, tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+    r = deposit(content + f" [{_RUN}]", vector, prov, tree=_RETIRE_TREE, table=_t("retire"))
     _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
@@ -367,7 +364,7 @@ def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
     trees.store.update = counting_update
     try:
         out = trees.refute(target, refuter, "the posted hours say six",
-                           tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                           tree=_RETIRE_TREE, table=_t("retire"))
     finally:
         trees.store.update = real_update
     assert len(calls) == 1, f"the retirement must be ONE update, saw {len(calls)}"
@@ -386,7 +383,7 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     target = _land("mondays are for the archive stacks", [0.5, 0.5])
     refuter = _land("the stacks are shut on mondays entirely", [0.4, 0.6], source="correction")
     dead = _land("a claim that will itself be retired", [0.1, 0.9], source="correction")
-    trees.refute(dead, refuter, "this one goes first", tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+    trees.refute(dead, refuter, "this one goes first", tree=_RETIRE_TREE, table=_t("retire"))
 
     # Each refusal raises BEFORE any write — the row's whole fingerprint is unmoved.
     before = _fingerprint(target)
@@ -399,26 +396,26 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     }
     for name, (n, r, e) in cases.items():
         msg = _refuses(trees.RefutationRefused, trees.refute, n, r, e,
-                       tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                       tree=_RETIRE_TREE, table=_t("retire"))
         assert "Nothing landed" in msg, f"{name}: the refusal must say nothing landed"
         assert _fingerprint(target) == before, f"{name}: the row moved on a REFUSED call"
 
     # Crossing honesty, unchanged: a node minted DURING this crossing cannot be the refuter.
     msg = _refuses(trees.RefutationRefused, trees.refute, target, refuter, "a fine reason",
-                   tree=_RETIRE_TREE, table=_TABLE, minted_this_crossing=(refuter,))
+                   tree=_RETIRE_TREE, table=_t("trees"), minted_this_crossing=(refuter,))
     assert "crossing honesty" in msg, msg
 
     # ONE PASS, not one per run: a call wrong in three ways names all three at once.
     msg = _refuses(trees.RefutationRefused, trees.refute, "0" * 16, "f" * 16, "",
-                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                   tree=_RETIRE_TREE, table=_t("retire"))
     for expected in ("evidence is empty", "0" * 16, "f" * 16):
         assert expected in msg, f"the door must name {expected!r} in the same pass: {msg}"
 
     # And the doubled retirement: the first receipt is who the record owes.
-    trees.refute(target, refuter, "the stacks are shut", tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+    trees.refute(target, refuter, "the stacks are shut", tree=_RETIRE_TREE, table=_t("retire"))
     after_first = _fingerprint(target)
     msg = _refuses(trees.RefutationRefused, trees.refute, target, refuter, "again",
-                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                   tree=_RETIRE_TREE, table=_t("retire"))
     assert "already refuted" in msg, msg
     assert _fingerprint(target) == after_first, "a doubled retirement overwrote the first receipt"
 
@@ -434,7 +431,7 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
 
     before = _fingerprint(earned_a)
     msg = _refuses(trees.RefutationRefused, trees.refute, earned_a, guess, "I reckon not",
-                   tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                   tree=_RETIRE_TREE, table=_t("retire"))
     assert "standing gate" in msg and "outvote" in msg, msg
     assert _fingerprint(earned_a) == before, "the earned node moved on a refused call"
 
@@ -444,13 +441,13 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
     earned_r = _land("an earned refuter with standing of its own", [0.2, 0.8])
     _make_earned(earned_r)
     assert trees.refute(earned_b, earned_r, "measured otherwise",
-                        tree=_RETIRE_TREE, table=_TABLE_RETIRE)["was"] == "earned"
+                        tree=_RETIRE_TREE, table=_t("retire"))["was"] == "earned"
 
     # hypothesis -> hypothesis passes: the gate guards EARNED knowledge, nothing else.
     hyp = _land("an ordinary hypothesis nobody corroborated", [0.55, 0.45])
     hyp_r = _land("another ordinary hypothesis that disagrees", [0.45, 0.55])
     assert trees.refute(hyp, hyp_r, "disagrees on the facts",
-                        tree=_RETIRE_TREE, table=_TABLE_RETIRE)["was"] == "hypothesis"
+                        tree=_RETIRE_TREE, table=_t("retire"))["was"] == "hypothesis"
 
     # LAW 9: a STATED CORRECTION is an input from outside, not the system's own guess —
     # it retires an earned node even though it is itself born a hypothesis.
@@ -458,7 +455,7 @@ def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
     _make_earned(earned_c)
     said = _land("no, that is not what the charter says", [0.75, 0.25], source="correction")
     out = trees.refute(earned_c, said, "no, that is not what the charter says",
-                       tree=_RETIRE_TREE, table=_TABLE_RETIRE)
+                       tree=_RETIRE_TREE, table=_t("retire"))
     assert out["was"] == "earned" and _row(earned_c)["standing"] == "refuted", out
 
 
@@ -483,8 +480,8 @@ def _fake_resolve(answers):
 
 def _contra_land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
-    r = deposit(content + f" [{_NONCE}]", vector, prov,
-                tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+    r = deposit(content + f" [{_RUN}]", vector, prov,
+                tree=_CONTRA_TREE, table=_t("contra"))
     _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
@@ -499,7 +496,7 @@ def test_contradiction_scan_refutes_a_contradicted_hypothesis():
     incoming = _contra_land("the library opens at noon, never nine", [0.85, 0.15])
     resolve = _fake_resolve(["YES"])
     refuted = contradiction_scan(incoming, [0.85, 0.15], resolve=resolve,
-                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+                                 tree=_CONTRA_TREE, table=_t("contra"))
     assert len(refuted) == 1, f"expected 1 refuted, got {len(refuted)}"
     assert refuted[0]["refuted_node_id"] == existing
     row = _contra_row(existing)
@@ -512,7 +509,7 @@ def test_contradiction_scan_leaves_non_contradictory_alone():
     incoming = _contra_land("the archive also holds maps from the seventeenth century", [0.35, 0.65])
     resolve = _fake_resolve(["NO"])
     refuted = contradiction_scan(incoming, [0.35, 0.65], resolve=resolve,
-                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+                                 tree=_CONTRA_TREE, table=_t("contra"))
     assert len(refuted) == 0, f"expected 0 refuted, got {len(refuted)}"
     row = _contra_row(existing)
     assert row["standing"] == "hypothesis", f"non-contradictory node must stay hypothesis"
@@ -525,7 +522,7 @@ def test_correction_source_refutes_earned_node():
                              source="correction")
     resolve = _fake_resolve(["YES"])
     refuted = contradiction_scan(corrector, [0.55, 0.45], resolve=resolve,
-                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+                                 tree=_CONTRA_TREE, table=_t("contra"))
     assert len(refuted) == 1
     row = _contra_row(earned)
     assert row["standing"] == "refuted", f"correction must refute earned, got {row['standing']}"
@@ -537,7 +534,7 @@ def test_hypothesis_cannot_refute_earned_via_scan():
     guess = _contra_land("the catalogue uses library of congress", [0.65, 0.35])
     resolve = _fake_resolve(["YES"])
     refuted = contradiction_scan(guess, [0.65, 0.35], resolve=resolve,
-                                 tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+                                 tree=_CONTRA_TREE, table=_t("contra"))
     assert len(refuted) == 0, "a hypothesis must not retire an earned node"
     row = _contra_row(earned)
     assert row["standing"] == "earned", f"earned must stay earned, got {row['standing']}"
@@ -548,7 +545,7 @@ def test_contradicts_provenance_field_is_set():
     incoming = _contra_land("the library is open every day including sundays", [0.25, 0.75])
     resolve = _fake_resolve(["YES"])
     contradiction_scan(incoming, [0.25, 0.75], resolve=resolve,
-                       tree=_CONTRA_TREE, table=_TABLE_CONTRA)
+                       tree=_CONTRA_TREE, table=_t("contra"))
     row = _contra_row(incoming)
     assert "contradicts" in row["provenance"], "refuter provenance must carry 'contradicts'"
     assert existing in row["provenance"]["contradicts"], "contradicts must name the refuted node"
@@ -563,10 +560,10 @@ def test_device_deposit_fires_contradiction_scan():
         if req["kind"] == "generate":
             return {"answer": {"text": "YES"}}
         return {"answer": {"vector": [0.0, 0.0]}}
-    r = dev.deposit("the returns desk moved to the first floor" + f" [{_NONCE}]",
+    r = dev.deposit("the returns desk moved to the first floor" + f" [{_RUN}]",
                     [0.45, 0.55],
                     {"source": "correction"},
-                    tree=_CONTRA_TREE, table=_TABLE_CONTRA,
+                    tree=_CONTRA_TREE, table=_t("contra"),
                     resolve=counting_resolve)
     _CREATED_NODES.append(r["node_id"])
     assert not r["duplicate"], "the deposit must land as new"
@@ -586,8 +583,8 @@ _CONSOL_DIM = 3
 
 def _consol_land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
-    r = deposit(content + f" [{_NONCE}]", vector, prov,
-                tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+    r = deposit(content + f" [{_RUN}]", vector, prov,
+                tree=_CONSOL_TREE, table=_t("consol"))
     _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
@@ -620,7 +617,7 @@ def test_consolidation_deposits_with_source_consolidated():
     _consol_attest(n3, "q3")
 
     result = consolidate(n1, [0.9, 0.1, 0.0], resolve=_consol_resolve("The archive has a comprehensive indexing system"),
-                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                         tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None, "consolidate must return a deposit result"
     _CREATED_NODES.append(result["node_id"])
     assert not result["duplicate"], "consolidated node must be new"
@@ -640,7 +637,7 @@ def test_consolidated_node_enters_as_hypothesis():
     _consol_attest(n3, "q6")
 
     result = consolidate(n1, [0.1, 0.9, 0.0], resolve=_consol_resolve("The library has a structured fine policy"),
-                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                         tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
     _CREATED_NODES.append(result["node_id"])
     row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
@@ -657,7 +654,7 @@ def test_source_nodes_in_provenance():
     _consol_attest(n3, "q9")
 
     result = consolidate(n1, [0.0, 0.1, 0.9], resolve=_consol_resolve("The reading room is a well-lit research space"),
-                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                         tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
     _CREATED_NODES.append(result["node_id"])
     row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
@@ -675,12 +672,12 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
     _consol_attest(base2, "q11")
 
     unearned_consol = deposit(
-        f"the basement is a combined periodical and microfilm store [{_NONCE}]",
+        f"the basement is a combined periodical and microfilm store [{_RUN}]",
         [0.57, 0.33, 0.1],
         {"source": "consolidated", "source_nodes": [base1, base2], "trigger": "promotion",
          "attestations": [{"source": "corroboration", "question": "q_synth",
                            "at": datetime.now(timezone.utc).isoformat()}]},
-        tree=_CONSOL_TREE, table=_TABLE_CONSOL,
+        tree=_CONSOL_TREE, table=_t("consol"),
     )
     _CREATED_NODES.append(unearned_consol["node_id"])
     unearned_row = store.read(trees.NODES_TABLE, where="node_id = %s",
@@ -691,7 +688,7 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
     _consol_attest(trigger, "q12")
     result = consolidate(trigger, [0.58, 0.32, 0.1],
                          resolve=_consol_resolve("The basement is a renovated storage facility"),
-                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                         tree=_CONSOL_TREE, table=_t("consol"))
     if result is not None:
         _CREATED_NODES.append(result["node_id"])
         row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
@@ -704,7 +701,7 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
     _consol_attest(trigger2, "q13")
     result2 = consolidate(trigger2, [0.56, 0.34, 0.1],
                           resolve=_consol_resolve("The basement is a climate-controlled storage facility"),
-                          tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                          tree=_CONSOL_TREE, table=_t("consol"))
     if result2 is not None:
         _CREATED_NODES.append(result2["node_id"])
         row2 = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result2["node_id"],))[0]
@@ -723,7 +720,7 @@ def test_consolidation_links_to_source_nodes():
 
     result = consolidate(n1, [0.4, 0.5, 0.1],
                          resolve=_consol_resolve("The front desk is the primary service point"),
-                         tree=_CONSOL_TREE, table=_TABLE_CONSOL)
+                         tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None, "consolidate must return a result"
     _CREATED_NODES.append(result["node_id"])
     assert not result["duplicate"], "consolidated node must be new"
@@ -758,9 +755,9 @@ def _warm_resolve(text):
 
 
 def _warm_land(content, vector):
-    r = deposit(content + f" [{_NONCE}]", vector,
+    r = deposit(content + f" [{_RUN}]", vector,
                 {"source": "proofs/warm-set", "ground": "fixture"},
-                tree=_WARM_TREE, table=_TABLE_WARM)
+                tree=_WARM_TREE, table=_t("warm"))
     _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
@@ -813,8 +810,8 @@ def test_awake_thread_boosts_walk():
         ensure_threads(conn=conn)
 
         v = [0.5, 0.5, 0.0]
-        walk_plain = nearest(v, k=50, tree=_WARM_TREE, table=_TABLE_WARM, conn=conn)
-        walk_boosted = nearest(v, k=50, tree=_WARM_TREE, table=_TABLE_WARM,
+        walk_plain = nearest(v, k=50, tree=_WARM_TREE, table=_t("warm"), conn=conn)
+        walk_boosted = nearest(v, k=50, tree=_WARM_TREE, table=_t("warm"),
                                warm_node_ids={n1}, conn=conn)
 
         plain_sim = {n["node_id"]: n["similarity"] for n in walk_plain}
@@ -924,9 +921,9 @@ def test_pure_topic_resolves_by_plain_cosine():
         n2 = _warm_land("the weather forecast predicts rain", [0.05, 0.9, 0.05])
 
         walk_plain = nearest([0.85, 0.1, 0.05], k=50, tree=_WARM_TREE,
-                             table=_TABLE_WARM, conn=conn)
+                             table=_t("warm"), conn=conn)
         walk_no_warm = nearest([0.85, 0.1, 0.05], k=50, tree=_WARM_TREE,
-                               table=_TABLE_WARM, warm_node_ids=None, conn=conn)
+                               table=_t("warm"), warm_node_ids=None, conn=conn)
 
         assert walk_plain[0]["node_id"] == walk_no_warm[0]["node_id"], \
             "without warm_node_ids, ranking must be identical"

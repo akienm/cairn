@@ -86,14 +86,21 @@ def latest_seal(path, *, artifact=False):
 def run_proof(path, *, sink="none", caller="unknown"):
     """Run ONE proof and return its record. Persists nothing — the caller decides.
 
-    A seal (``sink="validations"``) sweeps dead-minter scratch first (ticket 201a37bf1613):
-    the sweep lives at cairn/devices/tester/scratch_sweep.py, one address aside from the
-    device, and this door runs it and hands the result in — the device refuses to seal
-    without one, and a run that seals nothing sweeps nothing.
+    THIS DOOR SWEEPS NOTHING, AND SAYS SO ON THE EVIDENCE. The tester sweeps dead-minter
+    scratch before every seal (ticket 201a37bf1613), but the sweep opens db_domain and this
+    module sits on the inspector's fire path (``inspector.py -> cairn.tools.base.validation
+    -> cairn.devices.tester.device``; ``test_inspector_nexus`` reds any import of a database
+    along it — measured 2026-09-18, when a sweep here reached ``cairn.devices.db_domain``
+    through ``scratch_sweep`` and the nexus tooth caught it). So the two seal writers that
+    sweep are ``cli.py`` and ``reseal.py``, one address aside; a ``sink="validations"`` call
+    through THIS door hands the device a declared non-sweep rather than nothing, so the
+    device's refusal (which exists for a caller that forgot) stays a refusal of silence and
+    the record it seals still names that no sweep ran.
     """
     from cairn.devices.tester.device import TesterDevice
     swept = None
     if sink == "validations":
-        from cairn.devices.tester.scratch_sweep import sweep
-        swept = sweep()
+        swept = {"skipped": "cairn.tools.base.validation.run_proof sits on the inspector's "
+                            "fire path and may not reach db_domain; seals that sweep ride "
+                            "cairn/devices/tester/cli.py and reseal.py"}
     return TesterDevice().run_proof(path, sink=sink, caller=caller, scratch_sweep=swept)

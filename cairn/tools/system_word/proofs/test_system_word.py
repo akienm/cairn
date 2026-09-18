@@ -323,7 +323,9 @@ def test_learning_block_takes_uppercase_recordverdict_and_signal():
 
 def test_orient_chart_and_librarian_take_uppercase_verbs():
     from cairn.tools.orient import orient
-    lo, up = _same(orient._main, ["git"], ["GIT"])
+    # the imports verb answers from one file; the git verb reads the commons beside the
+    # repo, which a hollow worktree does not have (memory: hollow-worktree-has-no-commons-beside)
+    lo, up = _same(orient._main, ["imports", __file__], ["IMPORTS", __file__])
     assert lo[0] == 0 and json.loads(up[1])
 
     from skills.chart import live as chart_live

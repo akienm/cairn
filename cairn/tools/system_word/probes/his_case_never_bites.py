@@ -102,7 +102,13 @@ def _drive_python() -> list[tuple[str, bool]]:
     out.append(("ground_loop HELP", _quiet(gl_main, ["HELP"]) != 0))
 
     from cairn.tools.orient import orient
-    out.append(("orient GIT", _quiet(orient._main, ["GIT"]) != 0))
+    # IMPORTS, not GIT: the git verb reads the commons beside the repo, and a tree with no
+    # commons beside it (a hollow worktree, a bare clone) makes that verb refuse in BOTH
+    # cases — a refusal about the world, not about his shift key. A bite is the uppercase
+    # form answering differently from the lowercase one, so the two are driven side by side
+    # over a verb whose answer is derived from this file alone.
+    out.append(("orient IMPORTS", _quiet(orient._main, ["IMPORTS", __file__])
+                != _quiet(orient._main, ["imports", __file__])))
 
     from cairn.machines.skill_block.__main__ import main as sb_main
     out.append(("skill_block CONTRACT", _quiet(sb_main, ["CONTRACT", "sorted"]) != 0))

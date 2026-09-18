@@ -1,28 +1,32 @@
 {
   "cursor": {
-    "from": "BUILDME",
-    "to": "TICKETME",
-    "standing": "TICKETME",
-    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
-    "direction": "back",
-    "severity": 1,
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(one-status-everywhere) -> [PROVED]",
+    "direction": "forward",
     "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '3feb201c84ea'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/tools/operator_inbox/proofs/test_operator_inbox.py', 'cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py'] (seal 2026-09-17T23:02:37, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(one-status-everywhere) emitted the probe berthed at cairn/tools/operator_inbox/probes/one_status_everywhere.py (ticket '3feb201c84ea')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260906T204512-b1152d842c82.json",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
-        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "TICKETME",
+          "target": "PROVED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
             "BUILDME",
             "PROVEME",
+            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -36,205 +40,261 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> TICKETME moves the cursor off position 2",
-        "actual": "BUILDME -> TICKETME moves the cursor off position 2",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "TICKETME",
-          "cursor": 2,
-          "resolved": 1
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "BUILDME -> TICKETME",
-        "actual": "BUILDME -> TICKETME",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "TICKETME",
+          "target": "PROVED",
           "legal_from_here": [
+            "BUILDME",
             "DROPPED",
+            "PROVED",
             "PROVEME",
             "RETIRED",
             "SUPERSEDED",
             "THINKME",
             "TICKETME"
           ],
-          "direction": "back"
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(one-status-everywhere) crossing",
+        "actual": "a cast ticket for the WATCHME(one-status-everywhere) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "3feb201c84ea",
+          "watch_object": "one-status-everywhere",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3feb201c84ea-a-ticket-has-one-status-and-one-reader.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '3feb201c84ea' carries a watchme spec for 'one-status-everywhere'",
+        "actual": "ticket '3feb201c84ea' carries a watchme spec for 'one-status-everywhere'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "3feb201c84ea",
+          "watch_object": "one-status-everywhere",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "3feb201c84ea",
+          "watch_object": "one-status-everywhere",
+          "berth": "cairn/tools/operator_inbox/probes/one_status_everywhere.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "3feb201c84ea",
+          "component": "operator_inbox",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '3feb201c84ea' is cast",
+        "actual": "named ticket '3feb201c84ea' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "3feb201c84ea",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3feb201c84ea-a-ticket-has-one-status-and-one-reader.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "3feb201c84ea"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "3feb201c84ea",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "49656f12aea574391049dd298f7dc3f9a0244b11",
+              "upstream": "49656f12aea574391049dd298f7dc3f9a0244b11",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "root": "/home/akien/dev/src/cairn/cairn/tools/operator_inbox",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "efe80df354a89333ebce47c3195ac44346c8e0df",
+              "upstream": "efe80df354a89333ebce47c3195ac44346c8e0df",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'operator_inbox' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'operator_inbox' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "operator_inbox",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py) stands in proven-space",
+        "actual": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py) stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py)",
+          "named": [
+            "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/tools/operator_inbox/proofs/test_operator_inbox.py's seal at '2026-09-17T23:02:37'",
+        "actual": "the witness dates cairn/tools/operator_inbox/proofs/test_operator_inbox.py's seal at '2026-09-17T23:02:37'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+          "named": [
+            "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+          ],
+          "seal": "2026-09-17T23:02:37",
+          "claimed": "2026-09-17T23:02:37"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '3feb201c84ea' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "3feb201c84ea"
         }
       }
     ],
-    "checks_proved": 3,
+    "checks_proved": 15,
+    "cleared_by": "CC",
     "actor": "CC",
-    "ticket": "a705346aa75c",
-    "note": "kicked back to TICKETME so the build's BUILDME crossing is a FORWARD one the journal records (hollow derives the pre-build commit from it; the 2026-09-07 batch kick-back landed at BUILDME:waiting without one) — the build (resolve/show_item/lanes_searched, proof test_show.py sealed green) is staged and crosses BUILDME forward after the rehearsal",
-    "fingerprint": "3906ae85f19e97347fbf89f66a8db8594be1606216286b55f9966847850eca1f",
-    "at": "2026-09-17T11:17:32",
-    "seq": 20
+    "proven_by": [
+      "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+      "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+    ],
+    "proven_seal_date": "2026-09-17T23:02:37",
+    "delegated": false,
+    "ticket": "3feb201c84ea",
+    "note": "one status, one reader: every ticket wears the label operator_inbox derives, on the inbox, the dashboard and the harbor map; both proofs declare all seven clauses, bind the reader at call time, and the hollow reading at e0fe46e0 reds every touched file incl. the harbor charter",
+    "fingerprint": "10253d7f91ff5e1a0be84e6608fb337a709a309bba02a6ebdae1553792d650bd",
+    "at": "2026-09-17T23:35:29",
+    "seq": 21
   },
   "window": [
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the_lane_holds_only_his_decisions) -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'fb988505c5cb', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 4 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "fb988505c5cb",
-            "component": "operator_inbox",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'fb988505c5cb' is cast",
-          "actual": "named ticket 'fb988505c5cb' is cast",
-          "fatality": "none",
-          "source": "transitions.inspect_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "fb988505c5cb",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/fb988505c5cb-measurement-drains-the-review-lane.json"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "fb988505c5cb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "fb988505c5cb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "fb988505c5cb"
-          }
-        },
-        {
-          "identity": "the_ticket_has_every_answer_it_needs",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "fb988505c5cb"
-          }
-        }
-      ],
-      "checks_proved": 9,
-      "actor": "CC",
-      "ticket": "fb988505c5cb",
-      "note": "a ticket-side map (intent_berth/sorted_berth + from_idea via the idea file's berth), the ANY-terminal rule over transitions.TERMINAL_STATES, one predicate in pending_reviews behind drain=True, troubles under a CC-owned lane in bin/cmd/slate and inbox.format_inbox, the probe the_lane_holds_only_his_decisions, the charter falsifier — built in triage order under validate-20260915T105708-6bc98b60e90f",
-      "fingerprint": "8c539884bc4b3e1971b416b3c003acdd0e425f91a7842a346324ed5cd5d56b3b",
-      "at": "2026-09-15T10:57:50",
-      "seq": 16
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -1264,7 +1324,302 @@
       "fingerprint": "3906ae85f19e97347fbf89f66a8db8594be1606216286b55f9966847850eca1f",
       "at": "2026-09-17T11:17:32",
       "seq": 20
+    },
+    {
+      "from": "WATCHME",
+      "to": "PROVED",
+      "standing": "PROVED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(one-status-everywhere) -> [PROVED]",
+      "direction": "forward",
+      "entry_gate": "not_applicable",
+      "exit_gate": "clean — no unanswered chart claim stands against ticket '3feb201c84ea'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+      "clearance_gate": "cleared by 'CC' onto ['cairn/tools/operator_inbox/proofs/test_operator_inbox.py', 'cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py'] (seal 2026-09-17T23:02:37, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+      "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(one-status-everywhere) emitted the probe berthed at cairn/tools/operator_inbox/probes/one_status_everywhere.py (ticket '3feb201c84ea')",
+      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260906T204512-b1152d842c82.json",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVED' in the code-seam@v2 vocabulary",
+          "actual": "'PROVED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED moves the cursor off position 4",
+          "actual": "WATCHME -> PROVED moves the cursor off position 4",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "cursor": 4,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> PROVED",
+          "actual": "WATCHME -> PROVED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVED",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "PROVED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_names_a_cast_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "a cast ticket for the WATCHME(one-status-everywhere) crossing",
+          "actual": "a cast ticket for the WATCHME(one-status-everywhere) crossing",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "3feb201c84ea",
+            "watch_object": "one-status-everywhere",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3feb201c84ea-a-ticket-has-one-status-and-one-reader.json"
+          }
+        },
+        {
+          "identity": "the_ticket_carries_a_spec_for_this_watch",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "ticket '3feb201c84ea' carries a watchme spec for 'one-status-everywhere'",
+          "actual": "ticket '3feb201c84ea' carries a watchme spec for 'one-status-everywhere'",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "3feb201c84ea",
+            "watch_object": "one-status-everywhere",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_promised_probe_is_berthed_and_armed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_emission",
+          "expected": "the probe the spec promised is berthed and armed",
+          "actual": "the probe the spec promised is berthed and armed",
+          "fatality": "none",
+          "source": "transitions.inspect_emission",
+          "values": {
+            "ticket": "3feb201c84ea",
+            "watch_object": "one-status-everywhere",
+            "berth": "cairn/tools/operator_inbox/probes/one_status_everywhere.py",
+            "findings": []
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the PROVED crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the PROVED crossing, or 'operator_inbox' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "3feb201c84ea",
+            "component": "operator_inbox",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '3feb201c84ea' is cast",
+          "actual": "named ticket '3feb201c84ea' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "PROVED",
+            "ticket": "3feb201c84ea",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3feb201c84ea-a-ticket-has-one-status-and-one-reader.json"
+          }
+        },
+        {
+          "identity": "the_claiming_chart_is_answered",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_exit",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_exit",
+          "values": {
+            "findings": [],
+            "ticket": "3feb201c84ea"
+          }
+        },
+        {
+          "identity": "the_stones_are_pushed",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_durability",
+          "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+          "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+          "fatality": "none",
+          "source": "transitions.inspect_durability",
+          "values": {
+            "ticket": "3feb201c84ea",
+            "repos": [
+              {
+                "repo": "cairn",
+                "head": "49656f12aea574391049dd298f7dc3f9a0244b11",
+                "upstream": "49656f12aea574391049dd298f7dc3f9a0244b11",
+                "ahead_of_upstream": 0,
+                "behind_upstream": 0,
+                "dirty_paths": 0,
+                "root": "/home/akien/dev/src/cairn/cairn/tools/operator_inbox",
+                "toplevel": "/home/akien/dev/src/cairn",
+                "measured": true
+              },
+              {
+                "repo": "CairnCommons",
+                "head": "efe80df354a89333ebce47c3195ac44346c8e0df",
+                "upstream": "efe80df354a89333ebce47c3195ac44346c8e0df",
+                "ahead_of_upstream": 0,
+                "behind_upstream": 0,
+                "dirty_paths": 0,
+                "root": "/home/akien/dev/src/CairnCommons/tickets",
+                "toplevel": "/home/akien/dev/src/CairnCommons",
+                "measured": true
+              }
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_shows_clearance_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'operator_inbox' is on _CLEARANCE_EXEMPT_ROSTER",
+          "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'operator_inbox' is on _CLEARANCE_EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "component": "operator_inbox",
+            "cleared_by": "CC",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_witness_is_whole",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness carries every field the harbor's gate stamps",
+          "actual": "the witness carries every field the harbor's gate stamps",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "cleared_by": "CC",
+            "missing": [],
+            "demanded": [
+              "proven_by",
+              "proven_seal_date"
+            ]
+          }
+        },
+        {
+          "identity": "the_named_proof_stands_in_proven_space",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py) stands in proven-space",
+          "actual": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py) stands in proven-space",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "every one of 2 proofs (cairn/tools/operator_inbox/proofs/test_operator_inbox.py, cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py)",
+            "named": [
+              "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+              "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+            ],
+            "why": ""
+          }
+        },
+        {
+          "identity": "the_witness_agrees_with_the_seal_it_names",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clearance",
+          "expected": "the witness dates cairn/tools/operator_inbox/proofs/test_operator_inbox.py's seal at '2026-09-17T23:02:37'",
+          "actual": "the witness dates cairn/tools/operator_inbox/proofs/test_operator_inbox.py's seal at '2026-09-17T23:02:37'",
+          "fatality": "none",
+          "source": "transitions.inspect_clearance",
+          "values": {
+            "target": "PROVED",
+            "proof": "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+            "named": [
+              "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+              "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+            ],
+            "seal": "2026-09-17T23:02:37",
+            "claimed": "2026-09-17T23:02:37"
+          }
+        },
+        {
+          "identity": "demo_gate_binding_check",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::_require_demo",
+          "expected": "ticket carries demo flag, or does not",
+          "actual": "ticket '3feb201c84ea' has no demo flag — gate does not fire",
+          "fatality": "closes the gate",
+          "source": "transitions._require_demo",
+          "values": {
+            "ticket": "3feb201c84ea"
+          }
+        }
+      ],
+      "checks_proved": 15,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
+        "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
+      ],
+      "proven_seal_date": "2026-09-17T23:02:37",
+      "delegated": false,
+      "ticket": "3feb201c84ea",
+      "note": "one status, one reader: every ticket wears the label operator_inbox derives, on the inbox, the dashboard and the harbor map; both proofs declare all seven clauses, bind the reader at call time, and the hollow reading at e0fe46e0 reds every touched file incl. the harbor charter",
+      "fingerprint": "10253d7f91ff5e1a0be84e6608fb337a709a309bba02a6ebdae1553792d650bd",
+      "at": "2026-09-17T23:35:29",
+      "seq": 21
     }
   ],
-  "count": 21
+  "count": 22
 }

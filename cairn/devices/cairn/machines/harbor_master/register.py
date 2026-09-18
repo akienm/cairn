@@ -48,6 +48,7 @@ from pathlib import Path
 from cairn.tools.base import address
 from cairn.tools.charter import projector
 from cairn.tools.operator_inbox.inbox import (
+    TICKETS_DIR,
     is_stage_token,
     read_done_tickets,
     read_tickets,
@@ -56,7 +57,12 @@ from cairn.tools.operator_inbox.inbox import (
 _REPO_ROOT = Path(__file__).resolve().parents[5]   # cairn/devices/cairn/machines/harbor_master/register.py -> repo root
 _CAIRN = _REPO_ROOT / "cairn"
 _SRC_ROOT = _REPO_ROOT.parent                        # ~/dev/src — the common parent of the two repos
-_DEFAULT_TICKETS = _SRC_ROOT / "CairnCommons" / "tickets"
+# The tickets are read from where the ONE reader reads them (3feb201c84ea: one status,
+# one reader). Measured 2026-09-17: this default was ``_SRC_ROOT / "CairnCommons" /
+# "tickets"``, which in a worktree of this repo (a hollow reading, a scratch checkout) is
+# a path beside the worktree that holds nothing — the map printed 0 open boats while the
+# inbox and the dashboard, reading the inbox's root, printed 68. Same reader, same root.
+_DEFAULT_TICKETS = TICKETS_DIR
 
 
 def _rel(path: Path) -> str:

@@ -56,7 +56,6 @@ PROVES = {"3feb201c84ea": {
 
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
 _GROUP = re.compile(r"^\s*(\S+) \((\d+)\):$")
-_COMMONS = _REPO_ROOT.parent / "CairnCommons"
 
 # The four readers clause (3) greps — one label-deriving function among them, in the inbox.
 _READERS = (
@@ -87,6 +86,9 @@ class _world:
         self.format_dashboard = format_dashboard
         self.HarborMasterDevice = HarborMasterDevice
         self.register = register
+        # the commons the reader reads — not a path beside this file, which in a
+        # worktree (hollow, scratch) is beside nothing
+        self.COMMONS_ROOT = inbox.COMMONS_ROOT
 
 
 # --- the fixture -------------------------------------------------------------
@@ -331,7 +333,8 @@ def test_live_one_label_per_id_across_the_three_reports():
 def test_live_akienupdate_reports_agree():
     """The three files `akienupdate` writes — the exact text Akien reads. Every id on
     more than one of them wears one label."""
-    files = [_COMMONS / n for n in ("AkienInbox.txt", "AkienDashboard.txt", "AkienHMMap.txt")]
+    w = _world()
+    files = [w.COMMONS_ROOT / n for n in ("AkienInbox.txt", "AkienDashboard.txt", "AkienHMMap.txt")]
     missing = [str(f) for f in files if not f.is_file()]
     assert not missing, f"akienupdate has not written: {missing}"
     per_file = [_rows(f.read_text(encoding="utf-8")) for f in files]

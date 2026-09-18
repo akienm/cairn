@@ -227,18 +227,30 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
 
     # --- feedback receiver: the default mail handler --------------------------
 
+    # The holder's reading declaration (ticket a4c2be029f49, 2026-09-18). A device that
+    # reads its own inbound mail says how often, and whether reading drains it; the
+    # tool passes through exactly what the holder declares and invents no default —
+    # an undeclared holder produces an undeclared recorder, and that reads RED under
+    # cairn/tools/data_recorder/probes/reading_is_declared_and_current.py. Override
+    # per device class; None is the honest state of a device nobody reads.
+    RECORDER_READ_FREQUENCY_SECONDS: int | None = None
+    RECORDER_ON_READ: str | None = None
+
     def _get_recorder(self):
         """Lazy DataRecorder at the device's instance-space address.
 
         Every device that receives mail records it for later evaluation
         (scheduled-llm-gate-inspection reads these). The path follows the
         ruling 2026-08-14-tools-and-machines-remember-under-their-holder.
+        The recorder is handed the holder's own reading declaration, as declared.
         """
         if not hasattr(self, "_recorder") or self._recorder is None:
             from cairn.tools.data_recorder.data_recorder import DataRecorder
             from cairn.tools.base.address import instance_path
             self._recorder = DataRecorder(
-                instance_path(self.device_id, 0) / "tools" / "data_recorder" / "inbound")
+                instance_path(self.device_id, 0) / "tools" / "data_recorder" / "inbound",
+                expected_read_frequency_seconds=self.RECORDER_READ_FREQUENCY_SECONDS,
+                on_read=self.RECORDER_ON_READ)
         return self._recorder
 
     def receive(self, envelope: dict) -> dict:

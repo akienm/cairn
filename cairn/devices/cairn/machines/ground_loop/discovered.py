@@ -96,12 +96,21 @@ class _FeedbackDevice:
     def device_id(self) -> str:
         return self._device_id
 
+    # The reading declaration passed through to the recorder (ticket a4c2be029f49):
+    # a discovered device stands in for a class that declared nothing about reading
+    # its mail, so it declares nothing — and reads RED under the recorder's at-rest
+    # probe until a holder says how often it reads. No invented default.
+    RECORDER_READ_FREQUENCY_SECONDS: int | None = None
+    RECORDER_ON_READ: str | None = None
+
     def _get_recorder(self):
         if self._recorder is None:
             from cairn.tools.data_recorder.data_recorder import DataRecorder
             from cairn.tools.base.address import instance_path
             self._recorder = DataRecorder(
-                instance_path(self._device_id, 0) / "tools" / "data_recorder" / "inbound")
+                instance_path(self._device_id, 0) / "tools" / "data_recorder" / "inbound",
+                expected_read_frequency_seconds=self.RECORDER_READ_FREQUENCY_SECONDS,
+                on_read=self.RECORDER_ON_READ)
         return self._recorder
 
     def receive(self, envelope: dict) -> dict:

@@ -41,7 +41,19 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.system_word import canon, fold, fold_flags, fold_head, is_word, pick  # noqa: E402
+# THE SUBJECT IS BOUND AT CALL TIME, NOT AT IMPORT. A proof that binds its subject at
+# import prints NO teeth when the subject is missing — the hollow reading calls that UNRAN
+# and cannot tell it from a proof that never ran (ticket c5b6b128a376). So an absent module
+# binds stand-ins that red every tooth leaning on it, by name, and the rest still print.
+try:
+    from cairn.tools.system_word import canon, fold, fold_flags, fold_head, is_word, pick  # noqa: E402
+except ImportError as _exc:  # noqa: E402
+    _SUBJECT_ABSENT = f"cairn.tools.system_word is not importable: {_exc}"
+
+    def _missing(*_args, **_kwargs):
+        raise AssertionError(_SUBJECT_ABSENT)
+
+    canon = fold = fold_flags = fold_head = is_word = pick = _missing
 
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 
@@ -59,6 +71,21 @@ PROVES = {
         "7": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
         "8": "test_tester_cli_takes_uppercase_flags",
         "9": "test_bin_cairn_the_file_and_cairn_the_command_are_untouched",
+        # The build touched more files than the nine clauses name; each of those is a
+        # writes_to the hollow reading reverts, and each names the tooth that reds when it
+        # is. proof_coverage.lacks reads only the clause keys; hollow.py reads every value.
+        "ruling_cli": "test_the_real_ruling_list_takes_uppercase",
+        "orient_chart_librarian": "test_orient_chart_and_librarian_take_uppercase_verbs",
+        "sudo_relay": "test_sudo_relay_takes_uppercase_status_flag",
+        "harbor_master_filter": "test_harbor_master_filter_folds_open",
+        "stage_targets": "test_stage_targets_fold_at_render_and_resolve",
+        "codemother_launcher": "test_the_codemother_launcher_folds_its_subcommand",
+        "dispatcher_legacy": "test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim",
+        "dispatcher_device": "test_dispatcher_folds_the_device_and_verb_tokens_on_the_device_path",
+        "charters": "test_the_three_charters_say_the_words_fold",
+        "clearance": "test_clearance_folds_the_node_class_it_exempts",
+        "probe": "test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree",
+        "marker": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
     },
 }
 _CODEMOTHER = _REPO_ROOT / "cairn" / "devices" / "codemother" / "0" / "bin" / "codemother"
@@ -436,6 +463,59 @@ def test_stage_targets_fold_at_render_and_resolve():
     s = render(wf, "buildme")
     assert "[BUILDME" in s and "[buildme" not in s, (
         f"the stored string keeps the SYSTEM's case; folding is a compare: {s}")
+
+
+# ── the records the build wrote: charters, the clearance rung, the probe ──────
+
+def test_the_three_charters_say_the_words_fold():
+    """The build wrote three charters: system_word's own (new), bin's (the dispatcher folds
+    its two tokens) and ruling's (the marker folds). A charter is a record of the design;
+    a reverted one describes a dispatcher that compares bytes."""
+    own = json.loads((_REPO_ROOT / "cairn/tools/system_word/intention+why.json").read_text("utf-8"))
+    assert own["component"] == "system_word" and own["runtime_role"] == "tool", own.keys()
+    assert own.get("gated_by") and own.get("falsifier"), "a charter carries its gate and its falsifier"
+    bin_ = json.loads((_REPO_ROOT / "bin/intention+why.json").read_text("utf-8"))
+    assert "the dispatcher folds the two tokens it resolves" in bin_["what"], (
+        "bin's charter must say the dispatcher folds, since 2026-09-07")
+    rul = json.loads((_REPO_ROOT / "cairn/machines/ruling/intention+why.json").read_text("utf-8"))
+    assert "THE MARKER FOLDS SINCE 2026-09-07" in rul["provenance"], (
+        "ruling's charter must record that the marker folds")
+
+
+def test_clearance_folds_the_node_class_it_exempts():
+    """The harbor master's hollow rung exempts a concept-piece by FOLDED node_class — a
+    ticket that spells it Concept-Piece is still a concept-piece, and a code-seam with no
+    hollow reading is still refused (so the exemption is the fold deciding, not a bypass)."""
+    from cairn.devices.cairn.machines.harbor_master.clearance import hollow_lacks
+    seal_without_hollow = lambda *_a, **_k: {"evidence": {}}
+    assert hollow_lacks({"id": "fx", "node_class": "Concept-Piece"}, ["p.py"],
+                        seal_reader=seal_without_hollow) == []
+    assert hollow_lacks({"id": "fx", "node_class": "CONCEPT-PIECE"}, ["p.py"],
+                        seal_reader=seal_without_hollow) == []
+    lacks = hollow_lacks({"id": "fx", "node_class": "code-seam"}, ["p.py"],
+                         seal_reader=seal_without_hollow)
+    assert [one["kind"] for one in lacks] == ["hollow_evidence_absent"], lacks
+
+
+def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():
+    """WATCHME(system-words-fold): the probe berths beside what it watches, is a frozen
+    Probe with carry and enough, and its survey over the LIVE tree counts zero bites — an
+    invariant, never a snapshot. Patience and enough are read against a fixture context."""
+    from cairn.tools.base.probe import Probe
+    from cairn.tools.system_word.probes import his_case_never_bites as probe
+    assert isinstance(probe.PROBE, Probe) and probe.PROBE.to == "harbor_master"
+    assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough)
+    s = probe.survey()
+    assert s["entry_points"] == 10 and s["bites"] == 0 and s["bit"] == [], (
+        "the probe drives its ten cheap entry points and none bites")
+    ctx = {"survey": s}
+    assert probe.PROBE.trigger(None, ctx) is False, "no bite, no poke"
+    assert probe.PROBE.enough(ctx) is False, "one clean survey is not fourteen"
+    assert probe.PROBE.enough({"survey": s, "clean_streak": 14}) is True
+    bitten = {"survey": {"entry_points": 1, "bites": 1, "bit": ["fx"]}, "previous_bites": ["fx"]}
+    assert probe.PROBE.trigger(None, bitten) is True, "a bite seen twice pokes"
+    carry = probe.PROBE.carry(bitten)
+    assert carry["bit"] == ["fx"] and "clause (3)" in carry["against_falsifier"], carry
 
 
 # ── the marker, and wrong intent ───────────────────────────────────────────────

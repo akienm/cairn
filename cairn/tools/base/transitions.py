@@ -227,6 +227,29 @@ class WatchmeEmissionRed(IllegalTransition):
         self.findings = findings or []
 
 
+class ProofNamedRed(IllegalTransition):
+    """The forward crossing INTO PROVEME is refused: the crossing names a cast ticket and
+    NO PROOF stands behind its build — neither a crossing since the latest forward BUILDME
+    nor this crossing's own ``proven_by`` names one. Carries ``findings`` complete on the
+    first pass; name the proof on the crossing, never bypass.
+
+    WHY HERE AND NOT AT PROVED (ticket 7203db7f151e, 2026-09-17): the clearance gate already
+    refuses PROVED with ``[proof_named]`` when no crossing since BUILDME carries a proof — but
+    PROVED is the LAST crossing, and the crossing that should have carried the proof is
+    journaled append-only by then, so the only repair is a back-edge to TICKETME to drop the
+    proof and a fresh voyage. PROVEME is the last crossing where the lack can still be
+    supplied. The PROVED lacks stay as the backstop; this seat moves the *first* refusal to
+    where the refusal is still cheap.
+
+    Sibling of ``EntryGateRed`` / ``BuildGateRed`` / ``ExitGateRed`` / ``WatchmeEmissionRed``
+    — sharing the ``IllegalTransition`` parent, not each other, so a handler written for one
+    gate cannot silently swallow a different gate's refusal."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 # ---------------------------------------------------------------------------
 # THE PROOF RECORD — every check that ran, expected beside actual, PASSES INCLUDED.
 #
@@ -1282,6 +1305,63 @@ def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
     )
 
 
+def _named_on(journal_extra: dict) -> list[str]:
+    """This crossing's own ``proven_by``, read one-or-many the way crossings._named reads it:
+    a str is one, a list is many, None/'' is none."""
+    raw = journal_extra.get("proven_by")
+    if not raw:
+        return []
+    if isinstance(raw, str):
+        return [raw]
+    return [str(one) for one in raw if one]
+
+
+def inspect_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
+    """THE PROOF-NAMED SEAT'S RECORD — one lane, at the forward crossing into PROVEME.
+
+    The predicate is the UNION of every proof named since the latest forward BUILDME crossing
+    (``crossings.proven_by_since_buildme`` — the one rule hollow, proof_coverage and the shim
+    already read) and the proof this crossing itself names. Empty means the build has no
+    proof behind it yet, and PROVEME is the last crossing where one can still be supplied
+    without a back-edge (ticket 7203db7f151e). Both sides read the same sentence when the
+    lane passes; the names ride in ``values``.
+    """
+    from cairn.tools.base import crossings  # lazy: crossings reads the journals of both roots
+    code = "transitions.py::inspect_proof_named"
+    since = crossings.proven_by_since_buildme(ticket)
+    named = _named_on(journal_extra)
+    union = list(since)
+    for one in named:
+        if one not in union:
+            union.append(one)
+    shown = (f"the PROVEME crossing of ticket {ticket!r} names a proof — on this crossing "
+             f"(proven_by) or on one since its latest forward BUILDME")
+    return [_lane("the_proveme_crossing_names_its_proof",
+                  expected=shown,
+                  actual=shown if union else
+                  f"the PROVEME crossing of ticket {ticket!r} names NO proof: this crossing "
+                  f"carries no proven_by and no crossing since its latest forward BUILDME "
+                  f"names one — PROVED would refuse it as [proof_named], and by then the "
+                  f"only repair is a back-edge",
+                  code=code, ticket=ticket, named=named, since_buildme=list(since))]
+
+
+def _proof_named_gate(ticket: str, journal_extra: dict) -> tuple[str, list[dict]]:
+    """The gate is a VIEW over ``inspect_proof_named``: clean note rendered from the record,
+    refusal's findings read back out of its mismatches. Refuses BEFORE anything is written."""
+    record = inspect_proof_named(ticket, journal_extra)
+    bad = _mismatches(record)
+    if bad:
+        raise ProofNamedRed(
+            f"PROVEME crossing refused for ticket {ticket!r}: no proof is named — this "
+            f"crossing carries no proven_by and no crossing since the latest forward BUILDME "
+            f"names one. Name the proof on the crossing (proven_by=<path>); at PROVED the "
+            f"clearance gate would refuse this as [proof_named] with only a back-edge left.",
+            findings=_findings_of(record))
+    named = record[0]["values"]["named"] or record[0]["values"]["since_buildme"]
+    return f"clean — proof named: {', '.join(named)}", record
+
+
 def inspect_entry(ticket: str) -> list[dict]:
     """THE ENTRY GATE'S PROOF RECORD — one lane per composed sieve, ALL LANES ALWAYS RUN.
 
@@ -1368,8 +1448,8 @@ def _entry_gate(ticket: str) -> tuple[str, list[dict]]:
     return ENTRY_GATE.run(record, note=note, red_fn=_red)
 
 
-def inspect_exit(ticket: str) -> list[dict]:
-    """THE EXIT GATE'S PROOF RECORD — one lane, and one lane is not a formality.
+def inspect_exit(ticket: str, *, history_path: str | None = None) -> list[dict]:
+    """THE EXIT GATE'S PROOF RECORD — two lanes, and neither is a formality.
 
     The sieve it composes answers a compound question (every criterion of the claiming
     validate berth has a passing run verdict, every hypothesis is dispositioned), and the
@@ -1383,10 +1463,93 @@ def inspect_exit(ticket: str) -> list[dict]:
     from cairn.machines.build_inspector.inspector import proved_answers_the_chart as _check
 
     return [_sieve_lane("the_claiming_chart_is_answered", _check(ticket),
-                        code="transitions.py::inspect_exit", ticket=ticket)]
+                        code="transitions.py::inspect_exit", ticket=ticket),
+            inspect_durability(ticket, history_path=history_path)[0]]
 
 
-def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
+def _repo_toplevel(root: Path) -> Path | None:
+    """The first directory at or above ``root`` carrying a ``.git`` — a pure filesystem
+    walk, no git shelled. ``None`` when nothing above it is a repo (a proof's tempdir)."""
+    for p in (root, *root.parents):
+        if (p / ".git").exists():
+            return p
+    return None
+
+
+def _durability_roots(ticket: str, history_path: str | None) -> list[Path]:
+    """The directories THIS crossing's records live in: the history file's directory and
+    the ticket file's directory (``_TICKETS`` when the ticket resolves to no file). On a
+    real crossing that is cairn and CairnCommons; in a proof's fixture world it is whatever
+    the proof built, which is the point — the lane reads the repos of the records in front
+    of it, never the live checkouts by name."""
+    roots: list[Path] = []
+    if history_path:
+        roots.append(Path(history_path).resolve().parent)
+    tk = _find_ticket(str(ticket)) if ticket else None
+    roots.append((tk.parent if tk is not None else _TICKETS).resolve())
+    return roots
+
+
+def inspect_durability(ticket: str, *, history_path: str | None = None) -> list[dict]:
+    """THE DURABILITY LANE (ticket c2460ae6c3d1, 2026-09-17): ``the_stones_are_pushed``.
+
+    A PROVED crossing closes over stones, and a stone that exists only on this laptop is a
+    green nobody else can pull — which under Law 8 is a green nobody can lean on. The lane
+    measures every repo the crossing's own records live in (``_durability_roots``) with
+    ``cairn.tools.orient.orient.repo_truth`` — composed by import, the one instrument for
+    repo state, never a second ``git`` shelled here — and FAILS only when a measured repo is
+    ahead of its upstream. Working-tree dirt is journaled on every reading and never refused
+    (dirt is work in flight; unpushed commits are stones nobody else holds). A repo with no
+    upstream, a root with no ``.git`` above it, and a ``ScanRefused`` are journaled as
+    unmeasured, never refused: the lane reads what is in front of it and says so.
+    """
+    from cairn.tools.orient.orient import ScanRefused, repo_truth
+
+    readings: list[dict] = []
+    seen: set[str] = set()
+    for root in _durability_roots(ticket, history_path):
+        top = _repo_toplevel(root)
+        if top is None:
+            readings.append({"root": str(root), "toplevel": None, "measured": False,
+                             "why": f"no .git above {root}"})
+            continue
+        if str(top) in seen:
+            continue
+        seen.add(str(top))
+        try:
+            rows = repo_truth(repos=[top])["measured"]["repos"]
+        except ScanRefused as exc:
+            readings.append({"root": str(root), "toplevel": str(top), "measured": False,
+                             "why": str(exc)})
+            continue
+        readings.append({**rows[0], "root": str(root), "toplevel": str(top), "measured": True})
+    expected = ("every repo this crossing's records live in has 0 commits ahead of its "
+                "upstream (cairn.tools.orient.orient.repo_truth)")
+    ahead = [r for r in readings if r.get("measured")
+             and r.get("ahead_of_upstream") is not None and r["ahead_of_upstream"] > 0]
+    actual = expected if not ahead else "; ".join(
+        f"{r['repo']} is {r['ahead_of_upstream']} commit(s) ahead of {r['upstream']} — "
+        f"git -C {r['toplevel']} push" for r in ahead)
+    return [_lane("the_stones_are_pushed", expected=expected, actual=actual,
+                  code="transitions.py::inspect_durability", ticket=ticket, repos=readings)]
+
+
+def _ledger_durability_refusal(entry: dict) -> None:
+    """One JSON line per durability refusal, beside the sail record in instance-space, so
+    the WATCHME probe (cairn/tools/base/probes/the_durability_lane_refuses.py) can see the
+    first real bite without reading git history. NEVER RAISES: the refusal is the record of
+    truth and stands whether or not this convenience lands."""
+    try:
+        from cairn.tools.base import sail_record
+        path = sail_record.instance_home() / "durability_refusals.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry, default=str, ensure_ascii=False) + "\n")
+    except Exception:
+        return
+
+
+def _exit_gate(ticket: str, *, history_path: str | None = None) -> tuple[str, list[dict]]:
     """A cast ticket crossing forward into PROVED must have ANSWERED the chart that
     claims it — every criterion of the claiming validate berth a passing run verdict,
     every hypothesis dispositioned confirmed-or-killed, all in a durable verdict
@@ -1402,9 +1565,13 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
     instruments and reaches no tree or host, so a netns-sealed crossing gates
     identically to a live one.
     """
-    record = inspect_exit(ticket)
-    note = ("clean — no unanswered chart claim stands against ticket %r; %s"
-            % (ticket, EXIT_GATE._default_note(record)))
+    record = inspect_exit(ticket, history_path=history_path)
+    durability = next(e for e in record if e["identity"] == "the_stones_are_pushed")
+    measured = [r for r in durability["values"]["repos"] if r.get("measured")]
+    pushed = ", ".join(f"{r['repo']} ahead={r['ahead_of_upstream']} dirty={r['dirty_paths']}"
+                       for r in measured) or "no repo measured"
+    note = ("clean — no unanswered chart claim stands against ticket %r; stones pushed: %s; %s"
+            % (ticket, pushed, EXIT_GATE._default_note(record)))
 
     def _red(_record, bad):
         findings = TransitionGate._extract_findings(bad)
@@ -1413,12 +1580,22 @@ def _exit_gate(ticket: str) -> tuple[str, list[dict]]:
             f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
             for f in findings
         ]
-        return (
-            f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
-            "PROVED asserts done, and done is verified in the world by the instrument, "
-            "never the narration. Nothing was journaled. Run the claiming validate berth's "
-            "criteria, write the verdict artifact (cairn.devices.codemother.machines.verdict.verdict.write_verdict), "
-            "deposit it, then cross again:\n" + "\n".join(lines))
+        heads = []
+        if any(e["identity"] == "the_claiming_chart_is_answered" for e in bad):
+            heads.append(
+                f"PROVED crossing refused: cast ticket {ticket!r} has not answered its chart — "
+                "PROVED asserts done, and done is verified in the world by the instrument, "
+                "never the narration. Nothing was journaled. Run the claiming validate berth's "
+                "criteria, write the verdict artifact (cairn.devices.codemother.machines.verdict.verdict.write_verdict), "
+                "deposit it, then cross again:")
+        if any(e["identity"] == "the_stones_are_pushed" for e in bad):
+            _ledger_durability_refusal({"at": datetime.now().isoformat(timespec="seconds"),
+                                        "ticket": ticket, "repos": durability["values"]["repos"]})
+            heads.append(
+                f"PROVED crossing refused: cast ticket {ticket!r} would close over stones that "
+                f"exist only on this laptop — {durability['actual']}. A green nobody else can "
+                "pull is a green nobody can lean on (Law 8). Push, then cross again:")
+        return " AND ".join(heads) + "\n" + "\n".join(lines)
 
     return EXIT_GATE.run(record, note=note, red_fn=_red)
 
@@ -1814,6 +1991,22 @@ def emit(
                 proved += _rec
             else:
                 entry_note = "not_checked"
+        # THE PROOF-NAMED SEAT (ticket 7203db7f151e, 2026-09-17): a cast ticket's forward
+        # crossing INTO PROVEME must name a proof — on this crossing or on one since its
+        # latest forward BUILDME — else it refuses BEFORE anything is written. It sits BELOW
+        # the entry gate's re-run at this same crossing: the entry gate asks whether the
+        # build was CHARTED and this asks whether it is PROVEN, and in the voyage the chart
+        # comes first, so a builder wrong about both hears the earlier obligation first.
+        # Ticketless crossings are not builds (the entry gate's v0 jurisdiction) and record
+        # ``not_checked`` with no lane; back-edges retreat ungated like every sibling seat.
+        proof_note = None
+        if target == "PROVEME" and target_idx > wf.cursor:
+            _ticket = journal_extra.get("ticket")
+            if _ticket is not None:
+                proof_note, _rec = _proof_named_gate(_ticket, journal_extra)
+                proved += _rec
+            else:
+                proof_note = "not_checked"
         # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
         # — or the crossing's own component on the explicit exempt roster — else it
         # refuses BEFORE anything is written (ticket a-voyage-names-its-ticket,
@@ -1850,7 +2043,7 @@ def emit(
             if _exempt is not None:
                 exit_note = _exempt
             else:
-                exit_note, _rec = _exit_gate(_ticket)
+                exit_note, _rec = _exit_gate(_ticket, history_path=history_path)
                 proved += _rec
         clearance_note = None
         if not is_summons(target) and target_idx > wf.cursor:
@@ -1896,6 +2089,9 @@ def emit(
             # ALWAYS PRESENT (ticket the-buildme-gates-guard-a-crossing-not-a-state):
             # "not_applicable" when no build-relevant crossing, else the gate's note.
             "entry_gate": entry_note if entry_note is not None else "not_applicable",
+            # The record of truth says the proof-named seat ran: a forward PROVEME entry
+            # journals which proof stands behind the build, or that no ticket asked.
+            **({"proof_gate": proof_note} if proof_note else {}),
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),

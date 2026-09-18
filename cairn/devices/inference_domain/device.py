@@ -15,6 +15,14 @@ from __future__ import annotations
 from cairn.tools.base.device import BaseDevice
 
 
+def _with_kind(envelope: dict, kind: str) -> dict:
+    """The same envelope with the request's ``kind`` fixed — the verb decides the kind, a
+    caller's own ``kind`` key is overridden rather than argued with (``embed`` means embed)."""
+    body = dict(envelope.get("body") or {})
+    body["kind"] = kind
+    return {**envelope, "body": body}
+
+
 class InferenceDomainDevice(BaseDevice):
 
     def __init__(self) -> None:
@@ -28,7 +36,18 @@ class InferenceDomainDevice(BaseDevice):
         return self._device_id
 
     def declared_verbs(self) -> dict:
-        return {**super().declared_verbs(), "resolve": self._handle_resolve}
+        # ``embed`` and ``infer`` are the two named asks (ticket 87a7f1c7ae21, chart
+        # decompose-20260906T111035): each is ``resolve`` with the kind fixed, so a device
+        # that wants a vector or a completion asks for THAT over the bus and never needs the
+        # domain's request vocabulary — or its module — to ask.
+        return {**super().declared_verbs(), "resolve": self._handle_resolve,
+                "embed": self._handle_embed, "infer": self._handle_infer}
+
+    def _handle_embed(self, envelope: dict) -> dict:
+        return self._handle_resolve(_with_kind(envelope, "embed"))
+
+    def _handle_infer(self, envelope: dict) -> dict:
+        return self._handle_resolve(_with_kind(envelope, "generate"))
 
     def declared_views(self) -> dict:
         return {"yield": self._yield_view, "models": self._models_view}

@@ -189,6 +189,22 @@ def tool_path(device: str, instance: int, tool: str,
     return instance_path(device, instance, roots) / TOOLS / str(tool)
 
 
+def held_tool_paths(tool: str, roots: dict[str, Path] | None = None) -> list[Path]:
+    """Every ``<instance root>/devices/<device>/<instance>/tools/<tool>`` that EXISTS — where a
+    tool's held instances live, found by the tool's bare name.
+
+    A tool has users, not an owner (Law 6), so a tool INSTANCE berths under the holder that
+    assembled it, and a message addressed to the tool by name ("charter") has to find that
+    holder without the sender knowing it (ticket 65b34c57ab71: charter's own probe posted to
+    "charter" flat and nothing received it). The walk is over instance-space, not a registry:
+    the held part's address IS the declaration. Sorted, so two holders read the same way twice.
+    """
+    devices = resolve(f"instance/{DEVICES}", roots)
+    if not devices.is_dir():
+        return []
+    return sorted(p for p in devices.glob(f"*/*/{TOOLS}/{tool}") if p.is_dir())
+
+
 def machine_path(device: str, instance: int, machine: str,
                  roots: dict[str, Path] | None = None) -> Path:
     """``.../<device>/<instance>/machines/<machine>`` — a machine held by that instance.

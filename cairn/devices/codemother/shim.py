@@ -42,10 +42,43 @@ from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.tools.base.address import instance_path
+from cairn.tools.base.address import instance_path, tool_path
 
 _INSTANCE_ROOT = instance_path("codemother", 0)
 _MAIL_DIR = _INSTANCE_ROOT / "mail"
+
+# THE CHARTER TOOL'S HELD INSTANCE (ticket 65b34c57ab71) — the first code ownership transfer
+# from CC to another device. Charter is a tool and a tool has users, not an owner (Law 6),
+# but a tool INSTANCE needs a holder, and the holder is the one whose feedback loop can act
+# on it: charter is a building tool, so build-quality feedback belongs to the builder. The
+# instance berths at ``devices/codemother/0/tools/charter`` in both roots — class-space
+# carries its charter (``cairn/devices/codemother/0/tools/charter/intention+why.json``),
+# instance-space carries its life: an instanceizer naming the data_recorder backpack that
+# collects feedback, and the ``inbound/`` the bus delivers to when mail is addressed to
+# "charter". The instance is ensured on activate and by the ``charter`` verb; the tool class
+# gains no glue of its own, which is what keeps it a tool (the ticket's fourth clause).
+_CHARTER_TOOL = "charter"
+_CHARTER_BACKPACK = "cairn.tools.data_recorder.data_recorder.DataRecorder"
+_CHARTER_DATA = "inbound"
+
+
+def charter_instance(roots: dict | None = None) -> Path:
+    """Where codemother holds the charter tool's instance in instance-space."""
+    return tool_path("codemother", 0, _CHARTER_TOOL, roots)
+
+
+def ensure_charter_instance(roots: dict | None = None) -> dict:
+    """Ensure the held charter instance exists (instanceizer + backpack) and say what it holds.
+
+    Idempotent: ``instanceizer.ensure`` writes the declaration once and leaves it alone after;
+    the backpack's inbound folder is created by its first write. Returns the address, the
+    declaration path, and how many feedback records the backpack holds right now."""
+    from cairn.tools.instanceizer.instanceizer import ensure, load
+    home = charter_instance(roots)
+    decl = ensure(home, tool_class=_CHARTER_BACKPACK, data_path=_CHARTER_DATA)
+    recorder = load(home)
+    return {"address": str(home), "instanceizer": str(decl),
+            "tool_class": "cairn/tools/charter", "records": len(recorder.read())}
 
 # The harbor's bus address. A STRING, deliberately: naming the device is not importing
 # it, and this is the only thing codemother needs to know about the harbor.
@@ -102,6 +135,7 @@ class CodeMotherDevice(BaseDevice):
             "activate": self._handle_activate,
             "commit": self._handle_commit,
             "question": self._handle_question,
+            "charter": self._handle_charter,
         }
 
     # --- the door she fires -------------------------------------------------
@@ -364,8 +398,34 @@ class CodeMotherDevice(BaseDevice):
     def _handle_activate(self, envelope: dict) -> dict:
         from cairn.devices.codemother.watch import activate
         body = envelope.get("body", {}) or {}
-        return activate(body.get("area", ""), body.get("reason", "bus verb"),
-                        context=body.get("context"))
+        out = activate(body.get("area", ""), body.get("reason", "bus verb"),
+                       context=body.get("context"))
+        # activating codemother ensures what she holds (ticket 65b34c57ab71)
+        held = {"charter": ensure_charter_instance()}
+        if isinstance(out, dict):
+            return {**out, "held": held}
+        return {"activated": out, "held": held}
+
+    def _handle_charter(self, envelope: dict) -> dict:
+        """The held charter instance, by name: ensure it, write a feedback record into its
+        backpack if the body carries one, and answer with what the backpack holds.
+
+        ``body.record`` — a data_recorder record (finding, inspector_target, probe_source);
+        ``body.read`` — how many of the newest records to return (default 0)."""
+        from cairn.tools.instanceizer.instanceizer import load
+        body = envelope.get("body", {}) or {}
+        out = ensure_charter_instance()
+        recorder = load(charter_instance())
+        record = body.get("record")
+        if isinstance(record, dict):
+            out["written"] = recorder.write({
+                "probe_source": envelope.get("sender", "unknown"),
+                "inspector_target": "codemother/0/tools/charter", **record})
+        want = body.get("read", 0)
+        if isinstance(want, int) and want > 0:
+            out["read"] = recorder.read()[-want:]
+        out["records"] = len(recorder.read())
+        return out
 
     def _handle_commit(self, envelope: dict) -> dict:
         from cairn.devices.codemother.watch import on_commit

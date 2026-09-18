@@ -205,19 +205,47 @@ class BusDevice(BaseDevice):
         self._delivery_hooks.pop(device_id, None)
         self._channel_toggles.pop(device_id, None)
 
-    def _try_folder_delivery(self, addressee: str, envelope: dict) -> bool:
-        """Fallback delivery for non-device addressees via folder instanceizer.
+    @staticmethod
+    def _instance_folder(addressee: str):
+        """The instance-space folder a non-device addressee names, or None.
 
-        If ``~/.cairn/folders/<addressee>/`` has an instanceizer, load its DataRecorder
-        and write the envelope. Returns True if delivered, False if no folder exists."""
+        Three spellings, tried in order (ticket 65b34c57ab71 added the last two):
+          - a FOLDER, ``~/.cairn/folders/<addressee>/`` — a component with state but no device;
+          - a HELD TOOL by full address, ``<device>/<instance>/tools/<tool>``;
+          - a HELD TOOL by bare name — ``charter`` finds ``devices/*/*/tools/charter`` under
+            whichever holder assembled it, so a tool's own probes need not know their holder.
+        A bare name that two holders answer to is ambiguous and resolves to nothing: the bus
+        delivers to one addressee or none, never to whichever sorted first.
+        """
+        from cairn.tools.base import address as _address
+        fp = _address.folder_path(addressee)
+        if (fp / "instanceizer.json").is_file():
+            return fp
+        parts = addressee.split("/")
+        if len(parts) == 4 and parts[2] == _address.TOOLS and parts[1].isdigit():
+            tp = _address.tool_path(parts[0], int(parts[1]), parts[3])
+            return tp if (tp / "instanceizer.json").is_file() else None
+        if "/" not in addressee:
+            held = [p for p in _address.held_tool_paths(addressee)
+                    if (p / "instanceizer.json").is_file()]
+            if len(held) == 1:
+                return held[0]
+        return None
+
+    def _try_folder_delivery(self, addressee: str, envelope: dict) -> bool:
+        """Fallback delivery for non-device addressees via an instanceizer.
+
+        If the addressee names an instance-space folder (``_instance_folder``: a folder, a
+        held tool by address, or a held tool by bare name) that carries an instanceizer, load
+        its DataRecorder and write the envelope. Returns True if delivered, False if nothing
+        on disk answers to the name."""
         if addressee in self._folder_recorders:
             recorder = self._folder_recorders[addressee]
         else:
             try:
-                from cairn.tools.base.address import folder_path
                 from cairn.tools.instanceizer.instanceizer import load
-                fp = folder_path(addressee)
-                recorder = load(fp)
+                fp = self._instance_folder(addressee)
+                recorder = load(fp) if fp is not None else None
                 self._folder_recorders[addressee] = recorder
             except (FileNotFoundError, Exception):
                 self._folder_recorders[addressee] = None

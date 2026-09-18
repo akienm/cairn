@@ -1,0 +1,40 @@
+{
+  "component": "sleep_cycle",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape (as harbor_master's)",
+  "what": "The sleep-cycle token, handed round the roster by the cairn device. token.py: roster() (alpha-sorted device ids whose probes/ folder holds sleeps_when_the_token_arrives.py, read from the ground loop's own disk roster every call), mint() (open a cycle, hand the token to roster[0]; an empty roster closes at once as 'nothing to visit'; an open cycle is superseded and kept), receive_answer() (a device's answer: refused loudly when stale or out of turn, else recorded under visited and the next hand or the close), standing() (the standing cycle from instance-space). The cairn device fronts it with two verbs — sleep-token (a device's answer) and sleep-cycle (mint | show) — in cairn/devices/cairn/device.py.",
+  "why": "One token rotation replaces N independent sleep daemons — the same move the ground loop made for heartbeats — and it is serial by design (measured OOM history n=3; which sleep cycles are independent is unknown). The shape is a HUB because Probe.to is static and a probe may not import the roster: cairn hands to one device at a time and every device answers cairn, which hands onward. The announce feed is the RECORD of the rotation (n+1 records per complete cycle), never its transport — the bus delivers only on personal.",
+  "invoke": "import: `from cairn.devices.cairn.machines.sleep_cycle import token`; `token.mint(bus, roots=None, roster_root=None)`; `token.receive_answer(bus, body, roots=None)`; `token.standing(roots=None)`; `token.roster(root=None)`. Over the bus: verb `sleep-cycle` to cairn with body {\"act\": \"mint\"|\"show\"}; verb `sleep-token` is what a device's probe pokes (cairn/tools/base/mail_probe.py makes that three lines).",
+  "node_class": "code-seam",
+  "entry": "FRESH design under ticket bf146e9e3967 (child of 4de7baf7e255 sleep-cycle-token), decisions D1–D7 on the ticket; composes bus.post, BaseShim's beat and poke, _FeedbackDevice's mailbox and discovery.device_folders — nothing grafted.",
+  "state_and_history": "state.json + history.json beside this charter once a voyage freezes here (Law 5). Runtime state is instance-space only: ~/.cairn/devices/cairn/0/machines/sleep_cycle/cycle.json (the standing cycle) and superseded.jsonl (open cycles a later mint replaced).",
+  "filed_edges": [
+    "(a) no live device carries sleeps_when_the_token_arrives.py yet — 'what sleep work is' is out of this ticket's bounds (constrain-20260906T105321-ac8cedd9d817), so the live roster is empty and a live mint closes as 'nothing to visit'; the parent's WATCHME(sleep-rotation-completes) watches the live rotation.",
+    "(b) the idle trigger that mints a cycle is ticket 9b6b392ebcfe; today a mint is the sleep-cycle verb with act mint.",
+    "(c) a device that never answers holds the token forever; nothing here times a hand out — a stalled cycle is visible (standing() shows an open cycle with position < len(roster)) but not yet loud."
+  ],
+  "gates": "proof gate (tester) — proofs/test_token_rotation.py on BusDevice.scratch: order, single holder, n+1 announce records, close once, stale id refused, empty roster closes; durability gate — git commit.",
+  "falsifier": "RED on any of: a token that stops at a device that answered; two devices holding an unanswered token at once; a complete rotation over n devices leaving other than n+1 announce records for its cycle_id; a stale or out-of-turn answer accepted; a cycle closing twice or never; an empty roster that does not close at mint.",
+  "how_it_learns": "It does not. The rotation is a mechanism; what is learned from the answers each device returns is the parent ticket's question (4de7baf7e255), read off the announce feed and cycle.json.",
+  "traces_to": [
+    "Law 5 (the standing cycle is instance state; the record is the feed)",
+    "Law 6 (each device does its own work in its own probe; cairn only hands)",
+    "Law 7 (a stale or out-of-turn answer is refused on the record, never dropped)",
+    "Law 8 (the proof drives the rotation over fixture devices a hollow build could not satisfy)"
+  ],
+  "owner": "CC owns the code + proofs and gates writes to them; Akien owns the design (the hub shape, the opt-in roster).",
+  "gated_by": [
+    "codemother",
+    "CC"
+  ],
+  "gated_by_why": "the hands the owner-gate admits — codemother as owner of the care of the code, CC as the builder.",
+  "proof": "cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py",
+  "provenance": "Born 2026-09-18 under ticket bf146e9e3967 after the 2026-09-06 chart placed it under ground_loop/ — which is heartbeat + device list only (Akien, CC-- x4) — and the ticket was retreated to TICKETME to re-berth it here.",
+  "learns": "It does not; a mechanism with no adjustable parameter.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
+}

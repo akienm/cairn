@@ -2,19 +2,21 @@
   {
     "claim": "proof test_reading_declaration.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-18T08:54:28",
+    "date": "2026-09-18T09:09:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  pass  test_started_is_stamped_on_the_first_write_and_never_moves\n  pass  test_drain_drains_and_hold_holds_under_stamp_read\n  pass  test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home\n  pass  test_inside_the_declared_frequency_raises_nothing\n  pass  test_undeclared_raises_no_reader_and_never_overdue\n5 teeth: 5 pass, 0 fail",
+      "stdout_tail": "  pass  test_started_is_stamped_on_the_first_write_and_never_moves\n  pass  test_drain_drains_and_hold_holds_under_stamp_read\n  pass  test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home\n  pass  test_inside_the_declared_frequency_raises_nothing\n  pass  test_undeclared_raises_no_reader_and_never_overdue\n  pass  test_the_holders_pass_through_what_they_declare\n  pass  test_the_declaration_and_the_probe_end_to_end\n7 teeth: 7 pass, 0 fail",
       "stderr_tail": "",
       "teeth_green": [
         "test_started_is_stamped_on_the_first_write_and_never_moves",
         "test_drain_drains_and_hold_holds_under_stamp_read",
         "test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home",
         "test_inside_the_declared_frequency_raises_nothing",
-        "test_undeclared_raises_no_reader_and_never_overdue"
+        "test_undeclared_raises_no_reader_and_never_overdue",
+        "test_the_holders_pass_through_what_they_declare",
+        "test_the_declaration_and_the_probe_end_to_end"
       ],
       "teeth_red": [],
       "seal": {
@@ -25,23 +27,33 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "cc0e5f4599358bc26b9f8460d2805ea3bfa5530ba3f7c263bf8fbc4ceb32aeae",
+      "source_fingerprint": "a6b5c280bdd2b6ba2289ffa09cf3aa6ad13833dd5e61bc39a5a2bd5f545635a7",
       "fingerprint_closure": [
         "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
         "cairn/tools/data_recorder/__init__.py",
         "cairn/tools/data_recorder/data_recorder.py",
         "cairn/tools/data_recorder/probes/reading_is_declared_and_current.py",
-        "cairn/tools/data_recorder/proofs/test_reading_declaration.py"
+        "cairn/tools/data_recorder/proofs/test_reading_declaration.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1101612-6q3xhsb1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1149183-xvrqdyho/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -50,11 +62,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 178757001,
-          "disk_bytes": 192237568,
-          "entries": 5632,
+          "bytes": 178866177,
+          "disk_bytes": 192368640,
+          "entries": 5638,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "a4c2be029f49": {
+          "cairn/tools/data_recorder/data_recorder.py": [
+            "test_the_declaration_and_the_probe_end_to_end"
+          ],
+          "cairn/tools/base/device.py": [
+            "test_the_declaration_and_the_probe_end_to_end"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/discovered.py": [
+            "test_the_declaration_and_the_probe_end_to_end"
+          ],
+          "cairn/tools/data_recorder/probes/reading_is_declared_and_current.py": [
+            "test_the_declaration_and_the_probe_end_to_end"
+          ],
+          "cairn/tools/data_recorder/probes/declared_cadence_discriminates.py": []
         }
       }
     },

@@ -2,7 +2,8 @@
 expects reading — and the at-rest probe reds the undeclared and the overdue.
 
 Ticket a4c2be029f49. Five narrow teeth, each a clause a hollow build could pass without it,
-a sixth for the holders' pass-through, and a seventh (the declared one) that runs them all:
+a sixth for the holders' pass-through, a seventh for the WATCHME probe's count, and an
+eighth (the declared one) that runs them all:
 
   1. started is stamped on the FIRST write and never at construction, and does not move
   2. drain drains and hold holds under stamp_read; last_read moves under both
@@ -231,6 +232,42 @@ def test_the_holders_pass_through_what_they_declare():
         assert not rec.reading_path.exists(), "construction wrote a declaration at %s" % rec.reading_path
 
 
+def test_the_watch_counts_the_read_population_and_is_enough_at_three_under_two():
+    """P5 of the triage order: the WATCHME probe declared_cadence_discriminates is a frozen
+    Probe carrying both carry and enough; over a scratch population it counts the read
+    recorders and the distinct frequencies, fires on the first read recorder, and is enough
+    only once three are read under two distinct frequencies (D8, D12, D20)."""
+    import dataclasses
+    from cairn.tools.base.probe import Probe
+    from cairn.tools.data_recorder.probes import declared_cadence_discriminates as watch
+
+    assert isinstance(watch.PROBE, Probe) and dataclasses.is_dataclass(watch.PROBE)
+    assert watch.PROBE.carry is not None and watch.PROBE.enough is not None
+    assert watch.PROBE.body["ticket"] == "a4c2be029f49" and watch.PROBE.to == "harbor_master"
+    with tempfile.TemporaryDirectory() as tmp:
+        roots = _world(Path(tmp))
+        a = _recorder(roots, "alpha", expected_read_frequency_seconds=60, on_read="drain")
+        b = _recorder(roots, "beta", expected_read_frequency_seconds=60, on_read="hold")
+        c = _recorder(roots, "gamma", expected_read_frequency_seconds=300, on_read="hold")
+        d = _recorder(roots, "delta")                     # declares nothing, never read
+        for r in (a, b, c, d):
+            r.write(dict(RECORD), now=T0)
+        pop = watch.population(roots=roots)
+        assert (pop["recorders"], pop["declared"], pop["read"]) == (4, 3, 0), pop
+        assert not watch.discriminates(pop)
+        a.stamp_read(now=T0 + timedelta(seconds=30))
+        pop = watch.population(roots=roots)
+        assert pop["read"] == 1 and pop["read_names"] == ["alpha-0-inbound"], pop
+        assert not watch.discriminates(pop), "one read recorder under one frequency is not enough"
+        b.stamp_read(now=T0 + timedelta(seconds=30))
+        pop = watch.population(roots=roots)
+        assert pop["read"] == 2 and not watch.discriminates(pop), pop
+        c.stamp_read(now=T0 + timedelta(seconds=30))
+        pop = watch.population(roots=roots)
+        assert pop["read"] == 3 and pop["frequencies"] == [60, 300], pop
+        assert watch.discriminates(pop), pop
+
+
 NARROW = [
     test_started_is_stamped_on_the_first_write_and_never_moves,
     test_drain_drains_and_hold_holds_under_stamp_read,
@@ -238,6 +275,7 @@ NARROW = [
     test_inside_the_declared_frequency_raises_nothing,
     test_undeclared_raises_no_reader_and_never_overdue,
     test_the_holders_pass_through_what_they_declare,
+    test_the_watch_counts_the_read_population_and_is_enough_at_three_under_two,
 ]
 
 

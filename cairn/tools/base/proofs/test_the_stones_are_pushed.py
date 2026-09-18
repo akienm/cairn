@@ -49,6 +49,17 @@ _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME
 _LANE = "the_stones_are_pushed"
 _FIXTURE_SEAL_DATE = "2026-08-10T00:00:00"
 
+# THE NODE-CLASS TABLE IS THE ONE THING THE FIXTURE BORROWS FROM THE LIVE COMMONS, and it is
+# borrowed by COPY, never by path. `cairn test --hollow` runs this tooth from a git worktree
+# under /tmp with no CairnCommons beside it, so transitions' repo-relative _NODE_CLASSES points
+# at nothing there (measured 2026-09-18: "unknown node-class 'code-seam'" at HEAD inside the
+# hollow worktree, green everywhere else). The table is live SPEC, not live state — copying
+# code-seam.json into the fixture commons and handing emit `node_class_root=` keeps the
+# crossing off every live path. Resolution order is hollow.py's own: beside the repo, else $HOME.
+_LIVE_NODE_CLASSES = next((c / "node_classes" for c in (_REPO.parent / "CairnCommons",
+                                                        Path.home() / "dev" / "src" / "CairnCommons")
+                           if (c / "node_classes" / "code-seam.json").is_file()), None)
+
 _ANSWERED = {
     "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",
                   "evidence": "seen: exit 0 twice",
@@ -115,10 +126,19 @@ def _cleared(d: Path, **extra) -> dict:
             "proven_seal_date": _FIXTURE_SEAL_DATE, **extra}
 
 
-def _cross(comp: Path, witness: dict) -> tuple[str, str, str]:
+def _node_classes(commons: Path) -> Path:
+    """The fixture commons' own node-class table: code-seam.json copied from the live spec."""
+    assert _LIVE_NODE_CLASSES is not None, "no CairnCommons/node_classes beside the repo or under $HOME"
+    root = commons / "node_classes"
+    root.mkdir(exist_ok=True)
+    (root / "code-seam.json").write_bytes((_LIVE_NODE_CLASSES / "code-seam.json").read_bytes())
+    return root
+
+
+def _cross(comp: Path, witness: dict, node_class_root: Path) -> tuple[str, str, str]:
     hist, state = str(comp / "history.json"), str(comp / "state.json")
     new = transitions.emit(_AT_LEARN, "PROVED", history_path=hist, state_path=state,
-                           ticket="widget", **witness)
+                           ticket="widget", node_class_root=node_class_root, **witness)
     return new, hist, state
 
 
@@ -145,6 +165,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         commons = _repo(base, "commons")
         (commons / "tickets").mkdir()
         (commons / "tickets" / "widget.json").write_text("{}")
+        classes = _node_classes(commons)
         berths = _berths(commons)
         comp = code / "fixture_component"
         comp.mkdir()
@@ -163,7 +184,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             _git(code, "commit", "-q", "-m", "unpushed")
             hist_a, state_a = str(comp / "history.json"), str(comp / "state.json")
             try:
-                _cross(comp, witness)
+                _cross(comp, witness, classes)
             except transitions.ExitGateRed as e:
                 msg = str(e)
                 for needle in ("code", "1 commit(s) ahead", "git -C", "Law 8"):
@@ -186,7 +207,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             # (b) push, then untracked dirt -> lands; the lane is clean and the dirt is journaled
             _git(code, "push", "-q")
             (code / "dirt").write_text("untracked\n")
-            new, hist, _ = _cross(comp, witness)
+            new, hist, _ = _cross(comp, witness, classes)
             assert "[PROVED]" in new, new
             rec = projector.read_history(hist)[-1]
             assert rec["exit_gate"].startswith("clean —") and "stones pushed:" in rec["exit_gate"], rec["exit_gate"]
@@ -201,7 +222,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             # (c) a component with no .git above its history dir -> lands, journaled unmeasured
             plain = base / "plain_component"
             plain.mkdir()
-            new, hist, _ = _cross(plain, witness)
+            new, hist, _ = _cross(plain, witness, classes)
             assert "[PROVED]" in new, new
             lane = _lane_of(projector.read_history(hist)[-1])
             assert lane["expected"] == lane["actual"], lane
@@ -212,7 +233,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             _git(code, "remote", "remove", "origin")
             comp_d = code / "fixture_component_d"
             comp_d.mkdir()
-            new, hist, _ = _cross(comp_d, witness)
+            new, hist, _ = _cross(comp_d, witness, classes)
             assert "[PROVED]" in new, new
             lane = _lane_of(projector.read_history(hist)[-1])
             assert lane["expected"] == lane["actual"], lane

@@ -17,13 +17,17 @@ from __future__ import annotations
 import json
 import os
 import re
+from pathlib import Path
 
+from cairn.tools.base import sail_record
 from cairn.tools.base.probe import Probe, owning_ticket, once
 
 _OWNING_TICKET = "c2460ae6c3d1"
 _LANE = "the_stones_are_pushed"
-_CAIRN_ROOT = os.path.expanduser("~/dev/src/cairn")
-_LEDGER = os.path.expanduser("~/.cairn/devices/cairn/0/machines/sail/durability_refusals.jsonl")
+# resolved, never spelled: the repo is where this file sits, the ledger is where
+# transitions._ledger_durability_refusal writes it (sail_record.instance_home()).
+_CAIRN_ROOT = str(Path(__file__).resolve().parents[4])
+_LEDGER = str(sail_record.instance_home() / "durability_refusals.jsonl")
 _ENOUGH_REFUSALS = 1
 _SILENT_CROSSINGS = 20
 

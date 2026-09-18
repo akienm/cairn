@@ -149,14 +149,33 @@ def test_two_shims_one_loop() -> None:
                 break
             time.sleep(1)
         assert found and found["verdict"] == "LIVE", (found, outs)
-        pids = {p.name for p in Path("/proc").iterdir() if p.name.isdigit()
-                and _is_scratch_loop(p, home)}
+        pids = _scratch_loops(home, unit)
         assert len(pids) == 1, f"loops alive under {home}: {pids}; attempts {spawned}"
         print(f"ok test_two_shims_one_loop  (attempts {spawned}, one pid)")
     finally:
         _stop(unit)
         _kill_setsid_children(home)
         shutil.rmtree(home, ignore_errors=True)
+
+
+def _unit_main_pid(unit: str) -> str | None:
+    r = subprocess.run(["systemctl", "--user", "show", "-p", "MainPID", "--value", f"{unit}.service"],
+                       capture_output=True, text=True)
+    pid = r.stdout.strip()
+    return pid if pid.isdigit() and pid != "0" else None
+
+
+def _scratch_loops(home: Path, unit: str) -> set[str]:
+    """Every loop alive under the scratch HOME: the unit's MainPID as systemd reports it, plus
+    any setsid fall-through found by its environment. The unit's process is asked of systemd,
+    not read from /proc, because the seal runs this proof in a user namespace and /proc/<pid>/
+    environ of a process the user manager spawned OUTSIDE it is unreadable there — the proof
+    then counted zero loops with one plainly beating (sealed red 2026-09-17)."""
+    pids = {p.name for p in Path("/proc").iterdir() if p.name.isdigit() and _is_scratch_loop(p, home)}
+    main = _unit_main_pid(unit)
+    if main:
+        pids.add(main)
+    return pids
 
 
 def _is_scratch_loop(p: Path, home: Path) -> bool:

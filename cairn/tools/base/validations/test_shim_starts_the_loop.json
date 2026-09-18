@@ -1,0 +1,59 @@
+[
+  {
+    "claim": "proof test_shim_starts_the_loop.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-17T22:31:52",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "ok test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['none', 'unit'], one pid)\ntest_shim_starts_the_loop: green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_check_lives_in_the_base_only",
+        "test_ground_loop_package_untouched",
+        "test_live_record_spawns_nothing",
+        "test_dead_to_live_one_shim",
+        "test_two_shims_one_loop"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "4e4235ca9ee52e5f23a3b8b580995214218ad362364cfe0c47f65cfa716ebf7c",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3285808-qmygw03j/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 150879390,
+          "disk_bytes": 163078144,
+          "entries": 5077,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

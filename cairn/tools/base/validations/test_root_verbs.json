@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_root_verbs.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-17T22:11:01",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "ok test_resolve_lives_in_the_base_only\nok test_cold_list_starts_nothing\nok test_cold_show_never_run\nok test_hot_show_starts_and_stamps (2026-09-18T04:10:58.284313+00:00)\nok test_new_process_cold_show_is_cached\nok test_get_is_one_line_one_shape\nok test_settings_literal_and_rendered\nok test_start_then_stop\nok test_refusals_name_the_six\nok test_status_view_collision_refused\ntest_root_verbs: green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_resolve_lives_in_the_base_only",
+        "test_cold_list_starts_nothing",
+        "test_cold_show_never_run",
+        "test_hot_show_starts_and_stamps",
+        "test_new_process_cold_show_is_cached",
+        "test_get_is_one_line_one_shape",
+        "test_settings_literal_and_rendered",
+        "test_start_then_stop",
+        "test_refusals_name_the_six",
+        "test_status_view_collision_refused"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "1fc9f3a7f04ea2d2589164daf9344a651b0e5b70d9aab3fe9295ec352d0c141b",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_root_verbs.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3234263-b0g9ig5o/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 150867203,
+          "disk_bytes": 163065856,
+          "entries": 5077,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

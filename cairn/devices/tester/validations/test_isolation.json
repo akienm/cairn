@@ -2,13 +2,13 @@
   {
     "claim": "proof test_isolation.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-14T15:55:04",
+    "date": "2026-09-17T22:38:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 147.8MB disk, 4808 entries, live root read 1x this process\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 163.1MB disk, 5077 entries, live root read 1x this process",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 377, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 370, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 317, in test_the_seal_evidence_carries_what_it_cost\n    assert cost[\"disk_bytes\"] < 150_000_000, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: the per-proof sandbox is 163MB — ticket 1c4ae8f053fe's falsifier is under 150MB (it was ~850MB across two copies before 2026-09-08)",
       "teeth_green": [
         "test_no_isolation_is_honestly_open",
         "test_the_four_seal_verdicts_are_measured_not_assumed",
@@ -21,16 +21,14 @@
         "test_the_snapshot_leaves_the_trail_tree_empty_and_present",
         "test_a_batch_reads_the_live_root_once",
         "test_a_private_copy_is_private",
-        "test_the_pristine_is_rebuilt_when_the_top_level_moves",
-        "test_the_seal_evidence_carries_what_it_cost",
-        "test_the_probe_removes_its_own_exhaust"
+        "test_the_pristine_is_rebuilt_when_the_top_level_moves"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "7b0bd7d6d44d8c0f87758ca91993a8e057c5ae6521292928c966e2efb6dbb160",
+      "source_fingerprint": "5c34137816785dede4a63f5204d34dc2f181f013ee4878861f6f84f42cf8da93",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -54,27 +52,36 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2822025-28_10o77/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3296162-opfzkmx8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/tester/0/20260914.215458.945527.TesterDevice.run_proof.json",
-            "logs/tester/0/20260914.215500.411436.TesterDevice.run_proof.json",
-            "logs/tester/0/20260914.215501.621232.TesterDevice.run_proof.json",
-            "logs/tester/0/20260914.215502.737165.TesterDevice.run_proof.json",
-            "logs/tester/0/20260914.215503.762506.TesterDevice.run_proof.json"
+            "logs/tester/0/20260918.043832.951821.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.043835.231458.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.043837.570210.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.043839.922693.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.043842.283267.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136218385,
-          "disk_bytes": 147816448,
-          "entries": 4815,
+          "bytes": 150882667,
+          "disk_bytes": 163102720,
+          "entries": 5084,
           "builds": 1,
           "reuses": 11
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "fc7f1171f1d549d8548730fe871db6d2ee26ac3ed44687aadcc7a3bc0af7bc87",
+        "opened": "2026-09-17T22:38:43",
+        "last_red": "2026-09-17T22:38:43",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

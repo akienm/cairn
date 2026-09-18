@@ -19570,5 +19570,297 @@
     "fingerprint": "3af72bcf281550518c93237d18c0c54192b71413c67dd327067e38e1582b41aa",
     "at": "2026-09-17T22:46:11",
     "seq": 115
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-durability-lane-refuses-and-is-not-exempted) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'c2460ae6c3d1'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=2; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/tools/base/proofs/test_the_stones_are_pushed.py'] (seal 2026-09-17T22:42:34, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-durability-lane-refuses-and-is-not-exempted) emitted the probe berthed at cairn/tools/base/probes/the_durability_lane_refuses.py (ticket 'c2460ae6c3d1')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260917T224617-1db976897f63.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the-durability-lane-refuses-and-is-not-exempted) crossing",
+        "actual": "a cast ticket for the WATCHME(the-durability-lane-refuses-and-is-not-exempted) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "c2460ae6c3d1",
+          "watch_object": "the-durability-lane-refuses-and-is-not-exempted",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/c2460ae6c3d1-durability-of-stones-is-a-lane-on-the-exit-gate.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'c2460ae6c3d1' carries a watchme spec for 'the-durability-lane-refuses-and-is-not-exempted'",
+        "actual": "ticket 'c2460ae6c3d1' carries a watchme spec for 'the-durability-lane-refuses-and-is-not-exempted'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "c2460ae6c3d1",
+          "watch_object": "the-durability-lane-refuses-and-is-not-exempted",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "c2460ae6c3d1",
+          "watch_object": "the-durability-lane-refuses-and-is-not-exempted",
+          "berth": "cairn/tools/base/probes/the_durability_lane_refuses.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'base' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "c2460ae6c3d1",
+          "component": "base",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'c2460ae6c3d1' is cast",
+        "actual": "named ticket 'c2460ae6c3d1' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "c2460ae6c3d1",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/c2460ae6c3d1-durability-of-stones-is-a-lane-on-the-exit-gate.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "c2460ae6c3d1"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "c2460ae6c3d1",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "77ddf8a120ab690d247ce7ed96b7c6bb7e48a839",
+              "upstream": "77ddf8a120ab690d247ce7ed96b7c6bb7e48a839",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "root": "/home/akien/dev/src/cairn/cairn/tools/base",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "7ef434f63d78b694bc6f6a329138400ea589e5aa",
+              "upstream": "7ef434f63d78b694bc6f6a329138400ea589e5aa",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 2,
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'base' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "base",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/tools/base/proofs/test_the_stones_are_pushed.py stands in proven-space",
+        "actual": "cairn/tools/base/proofs/test_the_stones_are_pushed.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_the_stones_are_pushed.py",
+          "named": [
+            "cairn/tools/base/proofs/test_the_stones_are_pushed.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/tools/base/proofs/test_the_stones_are_pushed.py's seal at '2026-09-17T22:42:34'",
+        "actual": "the witness dates cairn/tools/base/proofs/test_the_stones_are_pushed.py's seal at '2026-09-17T22:42:34'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_the_stones_are_pushed.py",
+          "named": [
+            "cairn/tools/base/proofs/test_the_stones_are_pushed.py"
+          ],
+          "seal": "2026-09-17T22:42:34",
+          "claimed": "2026-09-17T22:42:34"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket 'c2460ae6c3d1' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "c2460ae6c3d1"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/tools/base/proofs/test_the_stones_are_pushed.py"
+    ],
+    "proven_seal_date": "2026-09-17T22:42:34",
+    "delegated": false,
+    "ticket": "c2460ae6c3d1",
+    "note": "the durability of stones is a lane on the PROVED exit gate: inspect_durability reads each repo above the history file through orient.repo_truth (never a subprocess), refuses the crossing by name when a repo is ahead of its upstream (ExitGateRed naming the repo, the count, the git -C command and Law 8) and ledgers the refusal beside the sail record; dirt is journaled on the record, never refused; a component with no .git above or no upstream reads measured False / upstream None and lands. Proof test_the_stones_are_pushed.py green twice, sealed green with a complete hollow reading (transitions.py, the probe and the commit charter each red the composite tooth when reverted); verdict verdict-20260917T224617-1db976897f63 — 4 criteria by instrument, 7 hypotheses confirmed. The probe the-durability-lane-refuses watches for the first real refusal. This crossing is the lane's own first live fire: both repos pushed, ahead 0.",
+    "fingerprint": "4baff86f0e938089837b460d35941d63c1f79c3535b819b78d6dea98473c2250",
+    "at": "2026-09-17T22:47:24",
+    "seq": 116
   }
 ]

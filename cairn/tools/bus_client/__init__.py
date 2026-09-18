@@ -29,7 +29,7 @@ from cairn.tools.bus_client.bus_client import (
     connect_bus,
     connect_system,
     harbor_source,
-    inference_seam,
+    inference_bus,
     models_stack,
     reach,
 )
@@ -38,7 +38,7 @@ __all__ = [
     "connect_bus",
     "connect_system",
     "harbor_source",
-    "inference_seam",
+    "inference_bus",
     "models_stack",
     "reach",
     "_wire",

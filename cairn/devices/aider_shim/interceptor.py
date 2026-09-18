@@ -173,7 +173,18 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     log = log if log is not None else SeenLog(record_path=DEFAULT_RECORD)
     # Resolved once, here, so every consumer below (model_cost, get_model_info) reads the
     # same answer and none of them has to know how the stack was reached.
-    models_stack = _stack(models_stack, bus)
+    _held = {"bus": bus}
+
+    def _bus():
+        """The bus this surface asks — the injected one, or a reach bus built once on
+        first need (bus_client.inference_bus). Built lazily so a surface with an
+        injected `resolve` and no bus never wires a device it will not ask."""
+        if _held["bus"] is None:
+            from cairn.tools.bus_client import inference_bus  # noqa: PLC0415
+            _held["bus"] = inference_bus()
+        return _held["bus"]
+
+    models_stack = _stack(models_stack, _bus)
     mod = _Surface(MODULE_NAME)
     #: Marks this as a Cairn surface rather than the real package. Identity via
     #: ``isinstance`` is the stronger check and :func:`installed` uses it; this flag is for
@@ -191,21 +202,22 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 
     def _do_resolve(request):
         if resolve is not None:
-            r = resolver if resolver is not None else None
-            if r is None:
-                from cairn.tools.bus_client import inference_seam  # noqa: PLC0415
-                _, _ollama_resolver = inference_seam()
-                r = _ollama_resolver(model=fence.models[0])
-            return resolve(request, resolver=r)
-        if bus is not None:
-            reply = bus.request(
-                sender="aider_shim", to="inference_domain", verb="resolve",
-                why="aider completion", body=request,
-            )
-            return reply["body"]
-        from cairn.tools.bus_client import inference_seam  # noqa: PLC0415
-        _resolve, _ollama_resolver = inference_seam()
-        return _resolve(request, resolver=_ollama_resolver(model=fence.models[0]))
+            # an injected door takes whatever resolver was injected beside it — a proof
+            # that injects `resolve` decides what it does with `resolver`; the surface
+            # never fills the gap by reaching for the real host (ticket 87a7f1c7ae21)
+            return resolve(request, resolver=resolver)
+        # THE ONE PATH TO INFERENCE IS THE BUS. A caller with no bus of its own (aider's
+        # venv subprocess) gets a reach bus from bus_client — the same `resolve` verb on
+        # the same door, not an in-process call into the domain. Until 2026-09-18 this
+        # fell back to bus_client.inference_seam(), which handed back domain.resolve and
+        # the host's resolver: the import was out of this device and the call was still
+        # off the bus. Ticket 87a7f1c7ae21: every inference call routes through
+        # bus.request(); a fallback that does not is the sole path with a side door.
+        reply = _bus().request(
+            sender="aider_shim", to="inference_domain", verb="resolve",
+            why="aider completion", body=request,
+        )
+        return reply["body"]
 
     def completion(*, model, messages, stream=False, **_kwargs):
         # BORDER CROSSING 1: ARRIVAL — what aider sent, BEFORE any fence or door.
@@ -415,30 +427,34 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     return mod
 
 
-def _stack(models_stack, bus=None):
+def _stack(models_stack, bus_of=None):
     """The models stack, asked for rather than reached for (ticket 50ad391f4e95).
 
     Until 2026-09-17 this walked ``parents[2] / "devices" / "inference_domain" / ... /
     "models.json"`` — a path into another device's file tree, which is a cross-device
     import spelled as a filesystem walk: the stack's owner could move the file and this
     device would red without either side having decided anything. Now the stack is an
-    answer, and there are three ways to get one, in the order the whole surface uses:
-    injected (a proof's fixture), over the bus (``get`` / ``what=models`` on
-    ``inference_domain`` — the same door ``_do_resolve`` uses for inference), or through
-    the ``bus_client`` seam for subprocess use without a bus, exactly as inference falls
-    back to ``inference_seam()``. Nothing here names inference_domain's tree.
+    answer, and there are two ways to get one: injected (a proof's fixture), or over
+    the bus — ``get`` / ``what=models`` on ``inference_domain``, the same door
+    ``_do_resolve`` uses for inference. ``bus_of`` is the surface's one bus accessor:
+    the injected bus, or the reach bus built on first need (ticket 87a7f1c7ae21 — the
+    former third way, ``bus_client.models_stack()``, was a seam that called the domain
+    in-process; a subprocess without a bus now gets one). A caller with neither
+    (``_model_info`` from the venv driver) gets the reach bus directly. Nothing here
+    names inference_domain's tree.
     """
     if models_stack is not None:
         return models_stack
-    if bus is not None:
-        reply = bus.request(
-            sender="aider_shim", to="inference_domain", verb="get",
-            why="aider's model_cost table is the stack the owner declares",
-            body={"what": "models"},
-        )
-        return reply["body"]["data"]
-    from cairn.tools.bus_client import models_stack as _seam  # noqa: PLC0415
-    return _seam()
+    if bus_of is None:
+        from cairn.tools.bus_client import inference_bus  # noqa: PLC0415
+        bus_of = inference_bus
+    reply = bus_of().request(
+        sender="aider_shim", to="inference_domain", verb="get",
+        why="aider's model_cost table is the stack the owner declares",
+        body={"what": "models"},
+    )
+    return reply["body"]["data"]
+
 
 
 def _model_cost(models_stack, fence: Fence | None = None) -> dict:

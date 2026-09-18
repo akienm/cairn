@@ -149,26 +149,39 @@ def harbor_source():
     return traffic_image
 
 
-def inference_seam():
-    """The inference domain's resolve + resolver — for subprocess use without a bus.
+def inference_bus():
+    """A bus that can ask inference_domain — for subprocess use without a bus of its own.
 
-    Returns ``(resolve_fn, ollama_resolver_factory)`` so the caller can build a
-    resolver for its model and call resolve with it, without importing
-    inference_domain directly (device isolation).
+    Until 2026-09-18 this tool held ``inference_seam()``: a direct import of
+    ``cairn.devices.inference_domain`` handing back ``domain.resolve`` and the host's
+    resolver factory, so a consumer with no bus (aider's venv subprocess) could call the
+    domain in-process "without importing inference_domain directly". That kept the
+    IMPORT out of the consumer and left the CALL off the bus — the half ticket
+    87a7f1c7ae21 is written against ("every inference call routes through bus.request()
+    or bus.post()"). A tool holding the door is still a path around it. Now the answer
+    is the same one every device gets: a ``reach`` bus with inference_domain's shim
+    pulsed, and the consumer asks ``resolve`` / ``get`` over it. Nothing here imports
+    the device; measured 2026-09-18, a reach bus answers ``get``/``what=models`` in ~3s
+    in-process, no DB, no host.
     """
-    from cairn.devices.inference_domain import domain, host
-    return domain.resolve, host.ollama_resolver
+    return reach("inference_domain")
 
 
 def models_stack() -> dict:
     """inference_domain's parsed models stack — for subprocess use without a bus.
 
-    The twin of :func:`inference_seam`: the tool holds the one import so a consumer
-    (aider_shim, ticket 50ad391f4e95) never reaches into inference_domain's tree for
-    ``stacks/models.json``. Over a bus the same answer is ``get`` / ``what=models``.
+    The twin of :func:`inference_bus`, and it rides it: ``get`` / ``what=models`` on
+    inference_domain, the same door a consumer WITH a bus uses (aider_shim's
+    ``_stack``). A consumer (aider_shim, ticket 50ad391f4e95) never reaches into
+    inference_domain's tree for ``stacks/models.json``, and since 87a7f1c7ae21 neither
+    does this tool.
     """
-    from cairn.devices.inference_domain.machines.route.route import load_stacks
-    return load_stacks()["models"]
+    reply = inference_bus().request(
+        sender="bus_client", to="inference_domain", verb="get",
+        why="the models stack, asked of its owner over the bus",
+        body={"what": "models"},
+    )
+    return reply["body"]["data"]
 
 
 def _device_shim_module(device_name: str) -> str | None:

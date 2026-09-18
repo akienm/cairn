@@ -187,6 +187,11 @@ def test_the_vocabulary_is_one_table_and_list_carries_it(home: Path) -> None:
     assert "semantics:" in lines, r.stdout
     for verb, meaning in table.items():
         assert f"{verb}: {meaning}" in lines, (verb, r.stdout)
+    r = _run(home, "extender", "--data", "list")
+    assert r.returncode == 0, r.stderr
+    data = json.loads(r.stdout)
+    assert data["semantics"] == table, "list's JSON does not carry the table"
+    assert data["verbs"] == list(_RULED), data["verbs"]
     assert not _snapshots(home), "a cold list woke the device"
     print("ok test_the_vocabulary_is_one_table_and_list_carries_it")
 
@@ -263,6 +268,12 @@ def _drive(argv: list[str]) -> int:
         s = cls()
         result = s.resolve(rest[1:])
         print(s.presence)
+        return result["exit"]
+    if rest and rest[0] == "--data":
+        # the JSON half of a root verb's answer — resolve() returns {exit, text, data, cached}
+        s = cls()
+        result = s.resolve(rest[1:])
+        print(json.dumps(result["data"], sort_keys=True))
         return result["exit"]
     return cli_main(cls, rest)
 

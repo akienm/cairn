@@ -161,11 +161,22 @@ def test_healthy_beat_does_not_exit():
 
 
 if __name__ == "__main__":
-    test_stale_property_set_on_drift()
-    test_stale_property_stays_false_when_clean()
-    test_command_exit_flag_causes_exit()
-    test_staleness_causes_exit_without_suppress_flag()
-    test_staleness_suppressed_by_do_not_restart()
-    test_flags_menu_created()
-    test_healthy_beat_does_not_exit()
-    print("7/7 green")
+    TEETH = [
+        test_stale_property_set_on_drift,
+        test_stale_property_stays_false_when_clean,
+        test_command_exit_flag_causes_exit,
+        test_staleness_causes_exit_without_suppress_flag,
+        test_staleness_suppressed_by_do_not_restart,
+        test_flags_menu_created,
+        test_healthy_beat_does_not_exit,
+    ]
+    red = 0
+    for t in TEETH:
+        try:
+            t()
+            print(f"  ok    {t.__name__}")
+        except BaseException as e:
+            red += 1
+            print(f"  FAIL  {t.__name__}: {type(e).__name__}: {e}")
+    print(f"7/7 green" if not red else f"RED — {red} of 7 teeth")
+    raise SystemExit(1 if red else 0)

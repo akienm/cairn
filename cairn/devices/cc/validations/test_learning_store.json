@@ -2,30 +2,47 @@
   {
     "claim": "proof test_learning_store.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-11T12:17:19",
+    "date": "2026-09-16T13:27:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "",
+      "stdout_tail": ".\n  ok   test_write_record_creates_a_file_at_the_store_path\n.\n  ok   test_read_records_retrieves_what_was_written\n.\n  ok   test_read_records_filters_by_gate\n.\n  ok   test_write_refuses_invalid_signal\n.\n  ok   test_write_refuses_empty_gate\n.\n  ok   test_record_has_v0_required_fields\n.\n  ok   test_read_records_returns_empty_for_missing_dir\n                                                                  [100%]\n7 passed in 0.03s",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_write_record_creates_a_file_at_the_store_path",
+        "test_read_records_retrieves_what_was_written",
+        "test_read_records_filters_by_gate",
+        "test_write_refuses_invalid_signal",
+        "test_write_refuses_empty_gate",
+        "test_record_has_v0_required_fields",
+        "test_read_records_returns_empty_for_missing_dir"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "d14228dfb907e960f4d361852be158cf8a5a093332140edb97ade34c9851142e",
+      "source_fingerprint": "145bae7f8e12ae44de168deabbbf5f6d7e145e798b5b09fda5c4d9ed5a509304",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
+        "cairn/devices/cc/__init__.py",
+        "cairn/devices/cc/learning.py",
         "cairn/devices/cc/proofs/test_learning_store.py",
         "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py"
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-371230-ny6g0x3x/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-9k4i1bu4/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -34,9 +51,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129248042,
-          "disk_bytes": 140148736,
-          "entries": 4500,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
           "builds": 1,
           "reuses": 1
         }

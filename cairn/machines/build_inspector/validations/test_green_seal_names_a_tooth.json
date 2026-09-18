@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_green_seal_names_a_tooth.py passes under python3",
+    "caller": "CC 77f15efd5a96 build",
+    "date": "2026-09-16T13:30:59",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_green_seal_with_empty_teeth_fires\n.\n  ok   test_a_green_seal_with_no_teeth_key_fires\n.\n  ok   test_a_green_seal_naming_a_tooth_is_quiet\n.\n  ok   test_a_red_seal_is_quiet\n.\n  ok   test_an_orphan_seal_is_caught\n.\n  ok   test_the_seat_is_in_the_nest\n.\n  ok   test_the_live_corpus_has_no_green_seal_naming_no_tooth\n                                                                  [100%]\n7 passed in 0.04s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_green_seal_with_empty_teeth_fires",
+        "test_a_green_seal_with_no_teeth_key_fires",
+        "test_a_green_seal_naming_a_tooth_is_quiet",
+        "test_a_red_seal_is_quiet",
+        "test_an_orphan_seal_is_caught",
+        "test_the_seat_is_in_the_nest",
+        "test_the_live_corpus_has_no_green_seal_naming_no_tooth"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "289eb5e03d71d5cc067c47bbfb81238a7e7d4f819bdb47c5f11254710513ef65",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/machines/__init__.py",
+        "cairn/devices/codemother/machines/verdict/__init__.py",
+        "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_green_seal_names_a_tooth.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1885649-a6vr6ks8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138095497,
+          "disk_bytes": 149909504,
+          "entries": 4908,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

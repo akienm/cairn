@@ -1,27 +1,81 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:49:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:27:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "",
+      "stdout_tail": ".\n  ok   test_children_are_ticket_ids_prose_entry\n.\n  ok   test_children_are_ticket_ids_clean\n.\n  ok   test_child_tickets_exist\n.\n  ok   test_owning_intention_resolves\n.\n  ok   test_workflow_matches_node_class\n.\n  ok   test_workflow_matches_node_class_clean\n.\n  ok   test_roster_coverage\n.\n  ok   test_corpus_sweep_produces_findings\n.\n  ok   test_finding_shape\n                                             [100%]\n28 passed in 0.07s",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_clean_ticket_is_clean",
+        "test_required_fields",
+        "test_required_falsifier",
+        "test_parseable_workflow_and_state",
+        "test_sorted_berth_present",
+        "test_sorted_berth_bare_none",
+        "test_sorted_berth_with_because_is_clean",
+        "test_intent_berth_present",
+        "test_chart_claim_present",
+        "test_chart_claim_not_required_at_thinkme",
+        "test_falsifier_structure",
+        "test_falsifier_string_accepted",
+        "test_node_class_resolves",
+        "test_traces_present",
+        "test_watchme_present",
+        "test_watchme_with_spec_is_clean",
+        "test_buildme_has_how",
+        "test_how_not_required_at_proveme",
+        "test_children_are_ticket_ids_prose_string",
+        "test_children_are_ticket_ids_prose_entry",
+        "test_children_are_ticket_ids_clean",
+        "test_child_tickets_exist",
+        "test_owning_intention_resolves",
+        "test_workflow_matches_node_class",
+        "test_workflow_matches_node_class_clean",
+        "test_roster_coverage",
+        "test_corpus_sweep_produces_findings",
+        "test_finding_shape"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "fb064f38d002379d78d36abcdebbc4bb4def82bcefdbd7bbbf0622149706ca7b",
+      "source_fingerprint": "74220a390d9571c5498e0f7d9034c93e2ab8d7257946b9ffe41d823b5ca5b657",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/ticket_inspector/__init__.py",
+        "cairn/tools/ticket_inspector/inspector.py",
+        "cairn/tools/ticket_inspector/proofs/__init__.py",
+        "cairn/tools/ticket_inspector/proofs/test_inspector.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-ld8u2gll/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-dk_ul0_i/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
+          "builds": 1,
+          "reuses": 5
         }
       }
     },

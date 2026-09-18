@@ -54,7 +54,8 @@ def test_discover_finds_cc_with_zero_failures():
     assert entry["probes"], "no probes loaded — the probes/ directory is empty or broken"
 
 
-def test_deliver_routes_through_the_shim():
+def test_deliver_routes_through_the_shim(tmp_path):
+    from unittest.mock import patch
     from cairn.devices.cc.shim import CCShim
 
     shim = CCShim()
@@ -65,12 +66,18 @@ def test_deliver_routes_through_the_shim():
         "body": {"test": True},
         "why": "proof: deliver routes through the shim",
     }
-    # No verb, no device behind the shim (_start_device returns None) — deliver
-    # attempts to route and bounces. The bounce with no bus raises
-    # NotImplementedError, which proves the message REACHED the shim's routing
-    # logic. A hollow shim that silently dropped mail would not raise.
-    with pytest.raises(NotImplementedError, match="cc was delivered mail"):
-        shim.deliver(envelope)
+    # No device behind the shim (_start_device returns None). Since 7f47beb1
+    # (superclaude-tmux-mode PROVED) deliver does not bounce — it persists the
+    # envelope as a file the mailcheck hook picks up. The file IS the receipt that
+    # the message reached the shim; a hollow shim that dropped mail writes nothing.
+    # (Until 2026-09-16 this tooth still expected the pre-7f47beb1 NotImplementedError
+    # bounce and had been red under a green seal that named no teeth — 77f15efd5a96.)
+    with patch("cairn.devices.cc.shim._MAIL_DIR", tmp_path / "mail"):
+        receipt = shim.deliver(envelope)
+    assert receipt["persisted"] is True, receipt
+    written = sorted((tmp_path / "mail").glob("msg-*.json"))
+    assert len(written) == 1, written
+    assert json.loads(written[0].read_text())["envelope"] == envelope
 
 
 def test_the_probe_module_declares_a_probe():
@@ -80,3 +87,7 @@ def test_the_probe_module_declares_a_probe():
     assert isinstance(PROBE, Probe)
     assert callable(PROBE.trigger)
     assert PROBE.to == "harbor_master"
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

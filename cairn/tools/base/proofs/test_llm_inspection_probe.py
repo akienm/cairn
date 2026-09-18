@@ -172,12 +172,23 @@ def test_carry_without_resolver():
 
 if __name__ == "__main__":
     print("test_llm_inspection_probe — scheduled-llm-gate-inspection")
-    test_probe_declares_correctly()
-    test_prompt_shape()
-    test_parse_valid_proposals()
-    test_parse_empty_response()
-    test_inspect_calls_resolver_and_adjust()
-    test_inspect_rejects_bad_proposal()
-    test_trigger_fires_on_threshold()
-    test_carry_without_resolver()
-    print("all 8 teeth pass")
+    TEETH = [
+        test_probe_declares_correctly,
+        test_prompt_shape,
+        test_parse_valid_proposals,
+        test_parse_empty_response,
+        test_inspect_calls_resolver_and_adjust,
+        test_inspect_rejects_bad_proposal,
+        test_trigger_fires_on_threshold,
+        test_carry_without_resolver,
+    ]
+    red = 0
+    for t in TEETH:
+        try:
+            t()
+            print(f"  ok    {t.__name__}")
+        except BaseException as e:
+            red += 1
+            print(f"  FAIL  {t.__name__}: {type(e).__name__}: {e}")
+    print(f"8/8 green" if not red else f"RED — {red} of 8 teeth")
+    raise SystemExit(1 if red else 0)

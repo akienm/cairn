@@ -1,31 +1,76 @@
 [
   {
     "claim": "proof test_list_toggle.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-06T10:40:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:27:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 9 items\n\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_empty_bus PASSED [ 11%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_list_shows_wired_device PASSED [ 22%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_unwire_removes_from_list PASSED [ 33%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_suppresses_delivery PASSED [ 44%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_restores_delivery PASSED [ 55%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_reflects_in_list PASSED [ 66%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_on_unwired_device_raises PASSED [ 77%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_toggle_unknown_channel_raises PASSED [ 88%]\ncairn/devices/cairn/machines/bus/proofs/test_list_toggle.py::test_roster_minimum PASSED [100%]\n\n============================== 9 passed in 0.04s ===============================\n\n\u001b[32m9 teeth green\u001b[0m",
+      "stdout_tail": ".\n  ok   test_list_empty_bus\n.\n  ok   test_list_shows_wired_device\n.\n  ok   test_unwire_removes_from_list\n.\n  ok   test_toggle_suppresses_delivery\n.\n  ok   test_toggle_restores_delivery\n.\n  ok   test_toggle_reflects_in_list\n.\n  ok   test_toggle_on_unwired_device_raises\n.\n  ok   test_toggle_unknown_channel_raises\n.\n  ok   test_roster_minimum\n                                                                [100%]\n9 passed in 0.03s",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_list_empty_bus",
+        "test_list_shows_wired_device",
+        "test_unwire_removes_from_list",
+        "test_toggle_suppresses_delivery",
+        "test_toggle_restores_delivery",
+        "test_toggle_reflects_in_list",
+        "test_toggle_on_unwired_device_raises",
+        "test_toggle_unknown_channel_raises",
+        "test_roster_minimum"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "3c64b9e830ca13eefc94d4b6dea87cebf331afe5fa5bd7bbc94689e038188909",
+      "source_fingerprint": "78eb0ae66cee25bf9ae2796bc6dd3e4d41afc9c47b6de09c711f0e621759a4e4",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/__init__.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_list_toggle.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1383647-0531o6rr/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-5uuoi9de/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20260906.164001.400260.BusDevice.post.json",
-            "logs/bus/0/20260906.164001.400453.BusDevice.post.json",
-            "logs/bus/0/20260906.164001.401598.BusDevice.post.json"
+            "logs/bus/0/20260916.192709.075230.BusDevice.post.json",
+            "logs/bus/0/20260916.192709.075466.BusDevice.post.json",
+            "logs/bus/0/20260916.192709.076596.BusDevice.post.json"
           ],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138095162,
+          "disk_bytes": 149921792,
+          "entries": 4913,
+          "builds": 1,
+          "reuses": 6
         }
       }
     },

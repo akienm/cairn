@@ -14,6 +14,34 @@ import pathlib
 import sys
 from pathlib import Path
 
+class _Teeth:
+    """Announce-style teeth for a monolithic proof (ticket 77f15efd5a96): the proof is one
+    main() of sections, so each section headline is a tooth — tooth(name) closes the
+    previous section as ok and opens the next, done() closes the last, failed(e) marks the
+    open one FAIL. teeth_printed reads the lines; a run that names no green tooth seals red."""
+
+    def __init__(self) -> None:
+        self.open: str | None = None
+
+    def __call__(self, name: str) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = name
+
+    def done(self) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = None
+
+    def failed(self, exc: BaseException) -> None:
+        print(f"  FAIL  {self.open or 'setup'}")
+        print(f"        {type(exc).__name__}: {exc}")
+        self.open = None
+
+
+tooth = _Teeth()
+
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
@@ -84,7 +112,7 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
         (d / "validations" / "test_x.json").write_text(json.dumps([{
             "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
             "method": "fixture", "verdict": "green",
-            "evidence": {"source_fingerprint": fp},
+            "evidence": {"source_fingerprint": fp, "teeth_green": ["test_the_fixture"]},
             "falsifier": "test", "horizon": "test",
         }]))
     return d
@@ -103,11 +131,13 @@ def main() -> None:
 
     # 1 — a healthy component is CLEAN: a gate that always fires is a smoke alarm
     #     nobody wires in (and 'plain_lib' shows silent_device scopes to devices only).
+    tooth('1 — a healthy component is CLEAN: a gate that always fires is a smoke alarm')
     r = inspect(root=root, component="healthy")
     assert r["clean"] and r["findings"] == [], r["findings"]
     assert inspect(root=root, component="plain_lib")["clean"]
 
     # 2 — each seeded failure fires exactly its sieve, nothing else.
+    tooth('2 — each seeded failure fires exactly its sieve, nothing else')
     for comp, expected in [("no_charter", "charter_on_disk"),
                            ("no_proofs", "proofs_exist"),
                            ("silent", "silent_device")]:
@@ -115,11 +145,13 @@ def main() -> None:
         assert [x["method"] for x in f] == [expected], (comp, f)
 
     # 3 — state_is_projection: a voyage written THROUGH THE DOOR is clean...
+    tooth('3 — state_is_projection: a voyage written THROUGH THE DOOR is clean')
     h, s = root / "healthy" / "history.json", root / "healthy" / "state.json"
     projector.append_entry(str(h), str(s), {"standing": "BUILDME", "note": "born"})
     assert inspect(root=root, component="healthy")["clean"]
 
     # 4 — ...and a HAND-EDIT to state.json is caught as drift, with the diverging keys.
+    tooth('4 — ...and a HAND-EDIT to state.json is caught as drift, with the diverging keys')
     edited = json.loads(s.read_text())
     edited["cursor"] = {"gate": "PROVED"}  # the lie: promotion without a crossing
     s.write_text(json.dumps(edited))
@@ -128,10 +160,12 @@ def main() -> None:
     assert "cursor" in f[0]["about"], f[0]
 
     # 5 — repair goes through the door (append), never an edit — and the gate agrees.
+    tooth('5 — repair goes through the door (append), never an edit — and the gate agrees')
     projector.append_entry(str(h), str(s), {"standing": "BUILDME", "note": "re-projected"})
     assert inspect(root=root, component="healthy")["clean"]
 
     # 6 — an orphan half of the pair is a finding (state without history).
+    tooth('6 — an orphan half of the pair is a finding (state without history)')
     orphan = _component(root, "orphan")
     (orphan / "state.json").write_text("{}")
     f = inspect(root=root, component="orphan")["findings"]
@@ -139,15 +173,18 @@ def main() -> None:
 
     # 7 — the gate cannot silently inspect nothing: unknown component refuses, and
     #     names what the census actually sees (complete on first pass).
+    tooth('7 — the gate cannot silently inspect nothing: unknown component refuses, and')
     _refuses(lambda: inspect(root=root, component="ghost"),
              "inspecting a nonexistent component must refuse — a gate that inspects "
              "nothing passes everything")
 
     # 8 — a bad root refuses (inherited from the census, verified at THIS surface).
+    tooth('8 — a bad root refuses (inherited from the census, verified at THIS surface)')
     _refuses(lambda: inspect(root=tmp / "nowhere"),
              "a sweep of nowhere must refuse, not report a clean empty world")
 
     # 9 — every finding is complete on first pass: full shape, non-empty why.
+    tooth('9 — every finding is complete on first pass: full shape, non-empty why')
     sweep = inspect(root=root)
     assert not sweep["clean"]
     for x in sweep["findings"]:
@@ -156,11 +193,13 @@ def main() -> None:
     # 10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance
     #      naming its seeding failure (dated or IOU-named) — a sieve nobody was
     #      taught by is refused here, same tooth as orient's scans.
+    tooth("10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance")
     for name, judge in SIEVES.items():
         doc = judge.__doc__ or ""
         assert "Provenance:" in doc, f"{name}: no provenance — a check nobody was taught by"
 
     # 11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably.
+    tooth('11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably')
     real = inspect()
     assert real["components_inspected"] >= 10, "the sweep barely saw the tree"
     assert real["sieves_run"] == sorted(SIEVES)
@@ -170,6 +209,7 @@ def main() -> None:
 
     # 12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,
     #      no outbound-capable module in inspector.py.
+    tooth('12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,')
     import ast as _ast
     src = (_REPO_ROOT / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text()
     tree = _ast.parse(src)
@@ -190,6 +230,7 @@ def main() -> None:
     # 13 — PACKET JURISDICTION (packet-inspector-wire, 2026-07-28): the gate finds a
     #      build's charted packets via history -> ticket -> berth and judges the
     #      charted refs at promotion. Fire-and-stay-quiet, berths on a synthetic root.
+    tooth('13 — PACKET JURISDICTION (packet-inspector-wire, 2026-07-28): the gate finds a')
     import cairn.machines.build_inspector.inspector as _insp
     berths = tmp / "berths"
     (berths / "0" / "packets").mkdir(parents=True)
@@ -219,6 +260,7 @@ def main() -> None:
 
         # 14 — an UNREADABLE berth is a named finding on the berth owner (chart)
         #      exactly once — never on every component's crossing, never skipped.
+        tooth('14 — an UNREADABLE berth is a named finding on the berth owner (chart)')
         _component(root, "chart")
         (p / "orient-20260728T000002-cccc.json").write_text("{not json")
         assert inspect(root=root, component="charted")["clean"], \
@@ -231,6 +273,7 @@ def main() -> None:
         #      bounds.out fires constraint_bounds_complete; a whole packet is quiet.
         #      (Installed before the constrain module exists — the fixtures here ARE
         #      the module's acceptance contract.)
+        tooth('15 — THE JUDGES BEFORE THE JUDGED (constrain-filters): a charted constrain')
         whole = {"ticket": "wire-proof",
                  "constraints": [{"text": "stay off the network", "source": "base",
                                   "kind": "charter"}],
@@ -254,6 +297,7 @@ def main() -> None:
         # 16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry sieves report exactly
         #      what the pure judge reports — no drift between door and gate is
         #      possible because there is nothing to drift between.
+        tooth('16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry sieves report exactly')
         from cairn.machines.build_inspector.inspector import judge_constrain
         assert not _jfindings(judge_constrain(whole))
         assert [x["judge"] for x in _jfindings(judge_constrain(minted))] == ["constraint_traces"]
@@ -266,6 +310,7 @@ def main() -> None:
         #      fires survey_coverage_complete; a whole packet is quiet. (Installed
         #      before the survey module exists — these fixtures ARE its acceptance
         #      contract, the pattern constrain-filters filed at edge (b).)
+        tooth('17 — THE JUDGES BEFORE THE JUDGED, SECOND INSTANCE (survey-filters): a')
         held = {"ticket": "wire-proof",
                 "sought": ["a settled measurer of the territory"],
                 "holdings": [{"what": "the base tool", "address": "base"}],
@@ -291,6 +336,7 @@ def main() -> None:
         assert "measure" in f[0]["about"], f[0]
 
         # 18 — one implementation, two mouths, for the survey judge too.
+        tooth('18 — one implementation, two mouths, for the survey judge too')
         from cairn.machines.build_inspector.inspector import judge_survey
         assert not _jfindings(judge_survey(held))
         assert [x["judge"] for x in _jfindings(judge_survey(phantom))] == ["survey_holdings_resolve"]
@@ -304,6 +350,7 @@ def main() -> None:
         #      absence fires decompose_builds_absences; a broken survey_ref is a
         #      loud finding; a derived split is quiet. (Installed before the
         #      decompose module exists — these fixtures ARE its acceptance contract.)
+        tooth('19 — THE JUDGES BEFORE THE JUDGED, THIRD APPLICATION (decompose-filters)')
         sb = tmp / "survey_berth_fixture.json"
         sb.write_text(json.dumps({
             "holdings": [{"what": "the base tool", "address": "base"}],
@@ -340,6 +387,7 @@ def main() -> None:
         dpath.unlink()
 
         # 20 — one implementation, two mouths, for the decompose judge too.
+        tooth('20 — one implementation, two mouths, for the decompose judge too')
         from cairn.machines.build_inspector.inspector import judge_decompose
         assert not _jfindings(judge_decompose(derived))
         assert [x["judge"] for x in _jfindings(judge_decompose(rebuilt))] == ["decompose_composes_holdings"]
@@ -353,6 +401,7 @@ def main() -> None:
         #       that is PRESENT and says nothing at all about one that is absent.
         #       Lettered rather than renumbered because the charter's falsifier and
         #       this file cite teeth by number — a number is an address.
+        tooth('20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket')
         addressed = dict(derived, sub_problems=[
             dict(derived["sub_problems"][0], writes_to=["cairn/tools/base/address.py"]),
             # Does NOT exist, and stays quiet: a build piece names the file it is
@@ -388,6 +437,7 @@ def main() -> None:
         # they were written (tooth 1, and Law 9's bound read the other way). The
         # count it actually saw is asserted non-zero: an invariant over zero berths
         # is a hollow green, and this proof's whole exposure is exactly that.
+        tooth('NO RETRO-RED, ASSERTED OVER THE REAL STANDING CORPUS AS AN INVARIANT')
         corpus, silent = 0, 0
         # The same glob _charted_packets sweeps: <instance>/packets/ under the root.
         for real in sorted(Path(saved_berths).glob("*/packets/decompose-*.json")):
@@ -421,6 +471,7 @@ def main() -> None:
         #      a broken decompose_ref is a loud finding; a complete reasoned order
         #      is quiet. (Installed before the triage module exists — these
         #      fixtures ARE its acceptance contract.)
+        tooth('21 — THE JUDGES BEFORE THE JUDGED, FOURTH APPLICATION (triage-filters)')
         db = tmp / "decompose_berth_fixture.json"
         db.write_text(json.dumps({
             "survey_ref": str(sb),
@@ -464,6 +515,7 @@ def main() -> None:
 
         # 22 — one implementation, two mouths, for the triage judge too; and the
         #      double-order fires with its counts in evidence.
+        tooth('22 — one implementation, two mouths, for the triage judge too; and the')
         from cairn.machines.build_inspector.inspector import judge_triage
         assert not _jfindings(judge_triage(ranked))
         assert [x["judge"] for x in _jfindings(judge_triage(dropped))] == ["triage_covers_the_split"]
@@ -483,6 +535,7 @@ def main() -> None:
         #      naming ALL missing fields at once; a broken triage_ref is loud; a
         #      full measured covering is quiet. (Installed before the hypothesize
         #      module exists — these fixtures ARE its acceptance contract.)
+        tooth('23 — THE JUDGES BEFORE THE JUDGED, FIFTH APPLICATION')
         tb = tmp / "triage_berth_fixture.json"
         tb.write_text(json.dumps({
             "decompose_ref": str(db),
@@ -531,6 +584,7 @@ def main() -> None:
         hpath.unlink()
 
         # 24 — one implementation, two mouths, for the hypothesize judge too.
+        tooth('24 — one implementation, two mouths, for the hypothesize judge too')
         from cairn.machines.build_inspector.inspector import judge_hypothesize
         assert not _jfindings(judge_hypothesize(expected))
         assert [x["judge"] for x in _jfindings(judge_hypothesize(uncovered))] == \
@@ -548,6 +602,7 @@ def main() -> None:
         #      uncovered piece; a broken hypothesize_ref is loud; a complete
         #      measured criteria set is quiet. (Installed before the validate
         #      module exists — these fixtures ARE its acceptance contract.)
+        tooth('25 — THE JUDGES BEFORE THE JUDGED, SIXTH APPLICATION')
         hb = tmp / "hypothesize_berth_fixture.json"
         hb.write_text(json.dumps({
             "triage_ref": str(tb),
@@ -598,6 +653,7 @@ def main() -> None:
         vpath.unlink()
 
         # 26 — one implementation, two mouths, for the validate judge too.
+        tooth('26 — one implementation, two mouths, for the validate judge too')
         from cairn.machines.build_inspector.inspector import judge_validate
         assert not _jfindings(judge_validate(done_set))
         assert [x["judge"] for x in _jfindings(judge_validate(unmeasured_c))] == \
@@ -611,6 +667,7 @@ def main() -> None:
         #       whose instrument reads post-crossing state is refused. Proved by
         #       refiring the two defective criteria from
         #       verdict-20260815T150437-70306f8bfca3's source berth verbatim.
+        tooth('26a — validate_criterion_is_runnable_before_the_crossing: a criterion')
         post_crossing_c = dict(done_set, criteria=[
             {"claim": "the compiler's history carries this ticket's crossings",
              "instrument": "read of the compiler's history.json/state.json "
@@ -646,6 +703,7 @@ def main() -> None:
         #       falsified the chart's own orient ref and four survey holdings. The
         #       disposition is a named successor on the ticket — and it is checked at
         #       BOTH ends, so it can never become a way to launder a missing address.
+        tooth('26b — THE FORWARDING ORDER (watchme-emits-a-probe, 2026-07-30). A charted')
         fwd_tickets = tmp / "CairnCommons" / "tickets"
         fwd_tickets.mkdir(parents=True)
         saved_troot = _insp._TICKETS_ROOT
@@ -675,6 +733,7 @@ def main() -> None:
         # stood were constraint sources ALREADY FORWARDED on the same tickets with the
         # successor resolving. Bounds are valid here on purpose, so `constraint_traces`
         # is the only constrain sieve that can speak in this fixture.
+        tooth("THE THIRD SIEVE OF THE FAMILY, added 2026-08-14. A constraint's `source` is")
         (mp / "constrain-20260730T000002-3333.json").write_text(json.dumps(
             {"ticket": "fwd-proof",
              "constraints": [{"text": "the moved thing bounds this build",
@@ -764,6 +823,7 @@ def main() -> None:
         #      ticket + searched root + the /chart disposition, complete first pass.
         #      Crossing-jurisdiction, deliberately NOT in SIEVES — a promotion sweep
         #      would retro-red every pre-chain component (the tooth-1 failure).
+        tooth('27 — THE ENTRY GATE (buildme-rides-the-chart, 2026-07-29): green iff a')
         from cairn.machines.build_inspector.inspector import SIEVES as _SIEVES
         from cairn.machines.build_inspector.inspector import buildme_rides_the_chart
         eroot = tmp / "entry-berths"
@@ -805,6 +865,7 @@ def main() -> None:
         #      claimed-and-unanswered is red naming each unanswered item; only a
         #      complete, passing verdict artifact answering the CLAIMING berth
         #      greens. Same crossing-jurisdiction, same NOT-in-SIEVES reason.
+        tooth("28 — THE EXIT GATE (proved-answers-the-chart, 2026-07-29): the loop's")
         from cairn.machines.build_inspector.inspector import proved_answers_the_chart
         xroot = tmp / "exit-berths"
         xp = xroot / "0" / "packets"
@@ -881,6 +942,7 @@ def main() -> None:
     # healthy tree above already proved the sieve stays quiet (section 1 ran with it
     # in the roster); without THIS tooth, that quiet is indistinguishable from a
     # sieve made of solid sheet metal — the leak-scan-coin-toss-red lesson.
+    tooth('DEFECT-FIRST: a component that grows a second door to the inference host. The')
     rogue = _component(root, "rogue")
     (rogue / "dialer.py").write_text("import urllib.request\n")
     _reseal(rogue)
@@ -902,6 +964,7 @@ def main() -> None:
     # ── durable_state_declared (relational-state-goes-through-the-one-door) ──
     # A charter declaring durable_state outside db_domain reds; one declaring
     # db_domain passes; one with no declaration passes silently.
+    tooth('durable_state_declared (relational-state-goes-through-the-one-door)')
     bad_ds = _component(root, "bad_durable")
     charter = json.loads((bad_ds / "intention+why.json").read_text())
     charter["durable_state"] = "local_file"
@@ -924,6 +987,7 @@ def main() -> None:
 
     # ── learning_declared (learning-as-a-pattern) ────────────────────────────
     # A charter with a blank learns field fires; a populated one passes.
+    tooth('learning_declared (learning-as-a-pattern)')
     bad_learn = _component(root, "bad_learns")
     charter = json.loads((bad_learn / "intention+why.json").read_text())
     charter["learns"] = ""
@@ -948,6 +1012,7 @@ def main() -> None:
 
     # ── claim_provenance (a-claim-carries-its-provenance) ────────────────────
     # A charter with missing or empty claim_provenance fires; a populated one passes.
+    tooth('claim_provenance (a-claim-carries-its-provenance)')
     bad_cp = _component(root, "bad_claim_prov")
     charter = json.loads((bad_cp / "intention+why.json").read_text())
     charter["claim_provenance"] = {}
@@ -975,6 +1040,7 @@ def main() -> None:
     # vacuously for every component above. These teeth use a purpose-built
     # git repo (following test_history_integrity.py's pattern) and call the
     # sieve directly.
+    tooth('working_tree_clean (nothing-rides-loose)')
 
     import subprocess as _wt_sp
 
@@ -986,6 +1052,7 @@ def main() -> None:
         return {"component": name, "dir": name, "charter_on_disk": True}
 
     # Tooth 1 — planted-graph: a dirty subtree fires working_tree_clean
+    tooth('Tooth 1 — planted-graph: a dirty subtree fires working_tree_clean')
     with scratch_dir("inspector-proof-wt-dirty-") as wt_root:
         _wt_git(wt_root, "init")
         _wt_git(wt_root, "config", "user.email", "test@test")
@@ -1008,6 +1075,7 @@ def main() -> None:
             f"dirty_count must be >= 1: {findings[0]}"
 
     # Tooth 2 — real-corpus: a clean subtree stays quiet
+    tooth('Tooth 2 — real-corpus: a clean subtree stays quiet')
     with scratch_dir("inspector-proof-wt-clean-") as wt_root:
         _wt_git(wt_root, "init")
         _wt_git(wt_root, "config", "user.email", "test@test")
@@ -1026,6 +1094,7 @@ def main() -> None:
 
     # ── history_reach (history-reach-feeds-a-migration) ──────────────────────
     # Law 5's new bound: history entries about PROVED tickets are stale.
+    tooth('history_reach (history-reach-feeds-a-migration)')
     from cairn.machines.build_inspector.inspector import history_reach, slate_reach
 
     # Tooth 1 — a component with PROVED-ticket history entries fires
@@ -1042,6 +1111,7 @@ def main() -> None:
     # (Patching ``_insp._TICKETS_ROOT`` was the OLD spelling and it never did anything:
     # history_reach's only reader of that constant was a dead local, removed in the same
     # act. The root argument is the seam.)
+    tooth('Tooth 1 — a component with PROVED-ticket history entries fires')
     with scratch_dir("inspector-proof-hr-stale-") as hr_root:
         repo_root = hr_root / "repo"
         comp = repo_root / "stale_history"
@@ -1068,6 +1138,7 @@ def main() -> None:
         assert findings[0]["values"]["stale"] == 2
 
     # Tooth 2 — a component with only active-ticket entries stays quiet
+    tooth('Tooth 2 — a component with only active-ticket entries stays quiet')
     with scratch_dir("inspector-proof-hr-active-") as hr_root:
         # Same shape as tooth 1: the fixture commons stays inside the scratch dir.
         repo_root = hr_root / "repo"
@@ -1092,6 +1163,7 @@ def main() -> None:
             f"a component with only active-ticket entries must not fire: {findings}"
 
     # Tooth 3 — a component with no history.json stays quiet
+    tooth('Tooth 3 — a component with no history.json stays quiet')
     with scratch_dir("inspector-proof-hr-none-") as hr_root:
         comp = hr_root / "no_history"
         comp.mkdir(parents=True)
@@ -1101,9 +1173,11 @@ def main() -> None:
 
     # ── slate_reach (history-reach-feeds-a-migration) ──────────────────────
     # Same shape as history at 142:1 — slates about PROVED tickets are stale.
+    tooth('slate_reach (history-reach-feeds-a-migration)')
 
     # Tooth 4 — a slates store with PROVED-ticket slates fires
     # root.parent.parent / "CairnCommons" must resolve, so: sr_root/repo/cairn
+    tooth('Tooth 4 — a slates store with PROVED-ticket slates fires')
     with scratch_dir("inspector-proof-sr-stale-") as sr_root:
         cairn_root = sr_root / "repo" / "cairn"
         cairn_root.mkdir(parents=True)
@@ -1126,6 +1200,7 @@ def main() -> None:
         assert findings[0]["values"]["stale"] == 1
 
     # Tooth 5 — a slates store with only active-ticket slates stays quiet
+    tooth('Tooth 5 — a slates store with only active-ticket slates stays quiet')
     with scratch_dir("inspector-proof-sr-active-") as sr_root:
         cairn_root = sr_root / "repo" / "cairn"
         cairn_root.mkdir(parents=True)
@@ -1152,6 +1227,7 @@ def main() -> None:
     # sieves take the subject — they are record sieves (band 1). The tooth verifies
     # that, and then mutates a sieve to take prior stamps and demands the phase MOVE
     # to postprocess (band 2) — DERIVED, never authored.
+    tooth('the nest (2026-08-06, ticket the-questions-are-the-sieve)')
     nest = _insp.the_nest()
     banded = {name: b for b, names in nest for name in names}
     assert all(b == 1 for b in banded.values()), (
@@ -1179,6 +1255,7 @@ def main() -> None:
         "a band literal appears in sieve code — bands are derived, never authored"
 
     # THE GRADATION: a score per sieve that RAN, and the vector Akien drew.
+    tooth('THE GRADATION: a score per sieve that RAN, and the vector Akien drew')
     rep = _insp.inspect()
     for comp, scores in rep["gradation"].items():
         assert set(scores) == set(_SIEVES), \
@@ -1194,6 +1271,7 @@ def main() -> None:
         # dir because two components answer to "orient"; correlating on the bare name here
         # would either KeyError (as it did the day the builder device landed) or, worse,
         # silently match the wrong subject's row and pronounce the pairing sound.
+        tooth("BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's")
         assert rep["gradation"][f["at"]][f["method"]] == 0.0, f
     for comp, scores in rep["gradation"].items():
         for name, s in scores.items():
@@ -1207,6 +1285,7 @@ def main() -> None:
     # ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the
     # gradation rather than scored zero. Akien refused a tri-value, so this is the only
     # place 'not applicable' can live, and it must be structurally reachable.
+    tooth('ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the')
     partial = dict(list(_SIEVES.items())[:2])
     saved_sieves = _insp.SIEVES
     saved_cache = _insp._NEST_CACHE
@@ -1232,6 +1311,7 @@ def main() -> None:
     # tail-matching a ticket slug, and a bare roster-command word. Measured at the fix,
     # 326 exemption reasons stood on filed tickets and 321 passed — 71% of them on
     # nothing checkable at all.
+    tooth('THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors')
     from cairn.machines.build_inspector.inspector import reason_has_referent as _rhr
 
     fr = tmp / "referent"
@@ -1248,6 +1328,7 @@ def main() -> None:
 
     # positive — the three forms the docstring names, each pointing at something the
     # world actually holds. A floor that refuses these is a floor nobody can satisfy.
+    tooth('positive — the three forms the docstring names, each pointing at something the')
     assert _floor("none, because cairn/tools/thing.py already does it"), \
         "a resolving repo path is the plainest referent there is and the floor missed it"
     assert _floor("none, because abcdef012345 covers it"), \
@@ -1262,6 +1343,7 @@ def main() -> None:
     # so any word ending a slug certified the sentence that contained it. Measured over
     # 270 filed tickets: ZERO carry their id as a suffix, so the tail match never once
     # served a real lookup — it only ever manufactured passes.
+    tooth("negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real")
     for tail in ("it", "about", "about-it", "thing-we-talked-about-it"):
         assert not _floor(f"none, because we talked {tail}"), (
             f"THE TAIL CHANNEL IS OPEN AGAIN: {tail!r} certified a prose reason because "
@@ -1271,11 +1353,13 @@ def main() -> None:
     # fixture wrote bin/cmd/ruling), and the old code accepted the bare word, so 32
     # reasons in the live corpus passed on the English word 'ruling' alone. The path
     # form above still resolves, so closing this costs a real referent nothing.
+    tooth("negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the")
     assert not _floor("none, because Akien gave a ruling"), \
         "THE BARE-COMMAND CHANNEL IS OPEN AGAIN: the word 'ruling' certified prose"
 
     # negative 3 — the shape the floor was built against in the first place: one
     # plausible sentence, pointing at nothing.
+    tooth('negative 3 — the shape the floor was built against in the first place: one')
     for hollow in ("none, because this is obvious",
                    "none, because every crossing already records the actor",
                    "none, because we agreed on this earlier"):
@@ -1288,6 +1372,7 @@ def main() -> None:
     # spelling read as pointing at nothing. Measured: 9 of 196 reds were exactly that,
     # every one honest. Fixture: the commons' PARENT holds the file, and neither repo/ nor
     # commons/ does — so only the third branch can pass this.
+    tooth('THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the')
     (fr / "CairnCommons" / "decisions").mkdir(parents=True)
     (fr / "CairnCommons" / "decisions" / "2026-01-01-a-thing-was-ruled.json").write_text("{}")
     assert not (_rr / "CairnCommons/decisions/2026-01-01-a-thing-was-ruled.json").exists()
@@ -1303,11 +1388,17 @@ def main() -> None:
 
     # AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries
     # commas and full stops, and the floor strips them before it looks.
+    tooth('AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries')
     assert _floor("none, because (cairn/tools/thing.py), which already does it."), \
         "a real referent wrapped in punctuation stopped resolving"
 
+    tooth.done()
     print("build_inspector proofs: all teeth green")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BaseException as e:
+        tooth.failed(e)
+        raise

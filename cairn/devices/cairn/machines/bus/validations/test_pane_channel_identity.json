@@ -1,27 +1,68 @@
 [
   {
     "claim": "proof test_pane_channel_identity.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-06T10:40:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:27:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 7 items\n\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_channel_has_a_pane PASSED [ 14%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_every_map_entry_names_a_real_channel PASSED [ 28%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_pane_kinds_are_unique_per_channel PASSED [ 42%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_structural_panes_are_not_channel_derived PASSED [ 57%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_full_pane_set_is_six PASSED [ 71%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::TestPaneChannelIdentity::test_map_keys_equal_channels_keys PASSED [ 85%]\ndevices/cairn/machines/bus/proofs/test_pane_channel_identity.py::test_roster_minimum PASSED [100%]\n\n============================== 7 passed in 0.05s ===============================\n\n\u001b[32m7 teeth green\u001b[0m",
+      "stdout_tail": ".\n  ok   test_every_channel_has_a_pane\n.\n  ok   test_every_map_entry_names_a_real_channel\n.\n  ok   test_pane_kinds_are_unique_per_channel\n.\n  ok   test_structural_panes_are_not_channel_derived\n.\n  ok   test_full_pane_set_is_six\n.\n  ok   test_map_keys_equal_channels_keys\n.\n  ok   test_roster_minimum\n                                                                  [100%]\n7 passed in 0.03s",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_every_channel_has_a_pane",
+        "test_every_map_entry_names_a_real_channel",
+        "test_pane_kinds_are_unique_per_channel",
+        "test_structural_panes_are_not_channel_derived",
+        "test_full_pane_set_is_six",
+        "test_map_keys_equal_channels_keys",
+        "test_roster_minimum"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "3c64b9e830ca13eefc94d4b6dea87cebf331afe5fa5bd7bbc94689e038188909",
+      "source_fingerprint": "f1da61522e7680fbf6e35d2434e8068265e591898336b9be798ee2ab7905c6b0",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/__init__.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_pane_channel_identity.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1383647-fx6yh4ov/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-jyd9_dvw/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
+          "builds": 1,
+          "reuses": 7
         }
       }
     },

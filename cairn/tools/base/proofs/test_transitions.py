@@ -259,7 +259,7 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
         (d / "validations" / "test_x.json").write_text(json.dumps([{
             "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
             "method": "fixture", "verdict": "green",
-            "evidence": {"source_fingerprint": fp},
+            "evidence": {"source_fingerprint": fp, "teeth_green": ["test_the_fixture"]},  # a green seal names a tooth (77f15efd5a96)
             "falsifier": "test", "horizon": "test",
         }]))
     return d
@@ -591,7 +591,7 @@ def _cleared(d: Path, **extra) -> dict:
         "date": _FIXTURE_SEAL_DATE,
         "method": "fixture seal — the trail is real, the code it seals is a stub",
         "verdict": "green",
-        "evidence": {"source_fingerprint": source_fingerprint(str(proof))},
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof)), "teeth_green": ["test_the_fixture"]},  # a green seal names a tooth (77f15efd5a96)
         "falsifier": "the component's source fingerprint moves",
         "horizon": "until any .py under the component root changes",
     }, proof_path=str(proof))
@@ -1033,7 +1033,7 @@ def _two_ended(d: Path, *, second_green: bool = True) -> dict:
             "date": _FIXTURE_SEAL_DATE,
             "method": "fixture seal — the trail is real, the code it seals is a stub",
             "verdict": verdict,
-            "evidence": {"source_fingerprint": source_fingerprint(str(one))},
+            "evidence": {"source_fingerprint": source_fingerprint(str(one)), "teeth_green": ["test_the_fixture"]},  # a green seal names a tooth (77f15efd5a96)
             "falsifier": "the component's source fingerprint moves",
             "horizon": "until any .py under the component root changes",
         }, proof_path=str(one))

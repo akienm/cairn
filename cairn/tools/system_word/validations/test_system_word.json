@@ -2,12 +2,12 @@
   {
     "claim": "proof test_system_word.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T14:09:52",
+    "date": "2026-09-16T19:39:33",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_ground_loop_takes_uppercase_help_and_status_word\n  PASS  test_harbor_master_filter_folds_open\n  PASS  test_is_word_compares_as_system_words\n  PASS  test_learning_block_takes_uppercase_recordverdict_and_signal\n  PASS  test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not\n  PASS  test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag\n  PASS  test_orient_chart_and_librarian_take_uppercase_verbs\n  PASS  test_pick_is_a_folded_lookup\n  PASS  test_ruling_cli_takes_uppercase_list\n  PASS  test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix\n  PASS  test_stage_targets_fold_at_render_and_resolve\n  PASS  test_sudo_relay_takes_uppercase_status_flag\n  PASS  test_tester_cli_takes_uppercase_flags\n  PASS  test_the_codemother_launcher_folds_its_subcommand\n  PASS  test_the_real_harbor_master_takes_uppercase_show_map_open\n  PASS  test_the_real_ruling_list_takes_uppercase\n  PASS  test_wrong_intent_a_stored_ticket_string_keeps_its_case\n  PASS  test_wrong_intent_free_text_lands_byte_identical\n\n25/25 green",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_ground_loop_takes_uppercase_help_and_status_word\n  PASS  test_harbor_master_filter_folds_open\n  PASS  test_is_word_compares_as_system_words\n  PASS  test_learning_block_takes_uppercase_recordverdict_and_signal\n  PASS  test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not\n  PASS  test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag\n  PASS  test_orient_chart_and_librarian_take_uppercase_verbs\n  PASS  test_pick_is_a_folded_lookup\n  PASS  test_ruling_cli_takes_uppercase_list\n  PASS  test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix\n  PASS  test_stage_targets_fold_at_render_and_resolve\n  PASS  test_sudo_relay_takes_uppercase_status_flag\n  PASS  test_tester_cli_takes_uppercase_flags\n  FAIL  test_the_codemother_launcher_folds_its_subcommand: AssertionError: an uppercase SHOW must reach the show branch (its own usage), not the default: rc=2 \"cairn codemother: no view 'not-a-view' — views: status settings\\n\" ''\n  PASS  test_the_real_harbor_master_takes_uppercase_show_map_open\n  PASS  test_the_real_ruling_list_takes_uppercase\n  PASS  test_wrong_intent_a_stored_ticket_string_keeps_its_case\n  PASS  test_wrong_intent_free_text_lands_byte_identical\n\n24/25 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_base_device_show_and_shim_verb_fold",
@@ -30,18 +30,19 @@
         "test_stage_targets_fold_at_render_and_resolve",
         "test_sudo_relay_takes_uppercase_status_flag",
         "test_tester_cli_takes_uppercase_flags",
-        "test_the_codemother_launcher_folds_its_subcommand",
         "test_the_real_harbor_master_takes_uppercase_show_map_open",
         "test_the_real_ruling_list_takes_uppercase",
         "test_wrong_intent_a_stored_ticket_string_keeps_its_case",
         "test_wrong_intent_free_text_lands_byte_identical"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_the_codemother_launcher_folds_its_subcommand"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "603edd25862223e2ff9811ad409aa1142529206bd4eef3e84b4f7b0c91b3988c",
+      "source_fingerprint": "4f2047efacd77518257d62c38031f362e443f2fa39dc029d7bf52a9b3d8c63f4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -151,26 +152,39 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2210943-fltpcwh1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2911842-q_8x9she/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 8,
           "paths": [
-            "logs/bus/0/20260915.200950.525714.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260915.200950.810791.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20260915.200951.521528.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20260915.200951.743197.HarborMasterDevice.reconciled.json"
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "devices/verb_device/0/last_known.json",
+            "logs/boot",
+            "logs/bus/0/20260917.013930.987035.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260917.013931.370529.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log",
+            "logs/harbor_master/0/20260917.013932.546385.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20260917.013932.881708.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136880668,
-          "disk_bytes": 148606976,
-          "entries": 4879,
+          "bytes": 139440502,
+          "disk_bytes": 151355392,
+          "entries": 4964,
           "builds": 1,
-          "reuses": 73
+          "reuses": 48
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "88e21166a7925278ec99c4fbcc2d9c571cccbcaa1a06aefefe24459d063e76bd",
+        "opened": "2026-09-16T19:39:33",
+        "last_red": "2026-09-16T19:39:33",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-system-word",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

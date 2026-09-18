@@ -2,20 +2,29 @@
   {
     "claim": "proof test_llm_inspection_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T14:08:27",
+    "date": "2026-09-17T21:34:40",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "test_llm_inspection_probe — scheduled-llm-gate-inspection\n  [a] probe declares trigger/carry/enough/horizon ... OK\n  [b] prompt carries feedback + current dials ....... OK\n  [c] parse_proposals extracts valid proposals ...... OK\n  [d] parse_proposals handles empty/bad responses ... OK\n  [e] inspect() calls resolver and routes adjust .. OK\n  [f] inspect() reports bad proposals as errors .... OK\n  [g] trigger fires at threshold ................... OK\n  [h] carry without resolver reports the lack ..... OK\nall 8 teeth pass",
+      "stdout_tail": "test_llm_inspection_probe — scheduled-llm-gate-inspection\n  [a] probe declares trigger/carry/enough/horizon ... OK\n  ok    test_probe_declares_correctly\n  [b] prompt carries feedback + current dials ....... OK\n  ok    test_prompt_shape\n  [c] parse_proposals extracts valid proposals ...... OK\n  ok    test_parse_valid_proposals\n  [d] parse_proposals handles empty/bad responses ... OK\n  ok    test_parse_empty_response\n  [e] inspect() calls resolver and routes adjust .. OK\n  ok    test_inspect_calls_resolver_and_adjust\n  [f] inspect() reports bad proposals as errors .... OK\n  ok    test_inspect_rejects_bad_proposal\n  [g] trigger fires at threshold ................... OK\n  ok    test_trigger_fires_on_threshold\n  [h] carry without resolver reports the lack ..... OK\n  ok    test_carry_without_resolver\n8/8 green",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_probe_declares_correctly",
+        "test_prompt_shape",
+        "test_parse_valid_proposals",
+        "test_parse_empty_response",
+        "test_inspect_calls_resolver_and_adjust",
+        "test_inspect_rejects_bad_proposal",
+        "test_trigger_fires_on_threshold",
+        "test_carry_without_resolver"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7f08837daa4707510ca92c1421a89cff09b2d703e251df8f85ca761aafc3eb92",
+      "source_fingerprint": "e20f95d2c9a8f9064494d091b2dfc4018367ebad2406045af3bf398ac2973b88",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -43,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2210943-qk5fzkj0/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3093215-ttnyju9m/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -52,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136879506,
-          "disk_bytes": 148590592,
-          "entries": 4871,
+          "bytes": 149153355,
+          "disk_bytes": 161312768,
+          "entries": 5061,
           "builds": 1,
-          "reuses": 50
+          "reuses": 24
         }
       }
     },

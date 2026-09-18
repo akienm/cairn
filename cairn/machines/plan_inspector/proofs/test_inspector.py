@@ -163,6 +163,7 @@ def main() -> None:
         try:
             t()
             passed += 1
+            print(f"  ok    {t.__name__}")
         except Exception as e:
             print(f"  FAIL: {t.__name__}: {e}")
             failed += 1

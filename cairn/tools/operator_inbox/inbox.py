@@ -797,7 +797,193 @@ def show_artifact(id_prefix: str) -> str:
             return f"ticket file unreadable: {path}"
         return _format_ticket(doc, path)
 
-    return f"no pending artifact or ticket matches {id_prefix!r}"
+    # Neither of the two lanes this view was born with. Fall through to every lane the
+    # inbox lists (ticket a705346aa75c) — the inbox printed the token, so the answer is
+    # never "no match" while the thing sits one lane over.
+    return show_item(id_prefix)
+
+
+# ---------------------------------------------------------------------------
+# Slug resolution across lanes (ticket a705346aa75c, 2026-09-17)
+#
+# The inbox prints ideas by their date-stripped stem, questions by ``open-<hex>``,
+# troubles by slug, tickets by hex id, berths by berth id. The operator types one of
+# those back and ``show`` must find it — in WHICHEVER lane the inbox listed it (Akien
+# 2026-09-01: typed the idea slug the inbox had just shown him and got "no pending
+# artifact matches"). ``resolve`` therefore walks the SAME readers ``gather_all`` walks,
+# not a second index of lanes: a lane added to gather_all is resolvable the moment it
+# is listed, and no hand-kept list can drift from the inbox.
+# ---------------------------------------------------------------------------
+
+# Where a lane's record lives when its items carry no ``source``/``path`` of their own.
+# The readers keep these dirs private, so the lane→dir map is the one thing named here;
+# a lane whose items carry a path (tickets: ``source``; adjudications: ``path``) needs no
+# entry, and a lane with neither shows the listed record itself.
+_LANE_FILES = {
+    "ideas": lambda kw: (kw.get("ideas_dir") or IDEAS_DIR, ".json"),
+    "questions": lambda kw: (kw.get("questions_dir") or QUESTIONS_DIR, ".json"),
+    "lap": lambda kw: (kw.get("adjudications_dir") or ADJUDICATIONS_DIR, ".json"),
+    "intentions": lambda kw: (kw.get("intentions_dir") or INTENTIONS_DIR, ".md"),
+    "troubles": lambda kw: (Path(kw["troubles_dir"]) if kw.get("troubles_dir")
+                            else COMMONS_ROOT / "troubles", ".json"),
+}
+
+# The list each lane payload carries its items under — the readers' own shapes.
+_ITEM_KEYS = ("items", "records", "open", "live", "findings")
+
+
+def _lane_items(payload) -> list:
+    if not isinstance(payload, dict):
+        return []
+    for key in _ITEM_KEYS:
+        if isinstance(payload.get(key), list):
+            return payload[key]
+    return []
+
+
+def _item_id(item) -> str:
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        return str(item.get("id") or item.get("berth_id") or "")
+    return ""
+
+
+# How well a token names a candidate — lower is closer. An EXACT id outranks a prefix,
+# and a prefix outranks the loose spellings (an idea's date-stripped tail, a slugified
+# title): ``c691e19d5464`` names the ticket, not also the trouble whose slug happens to end
+# in that id. Ambiguity is announced WITHIN a grade, never manufactured across grades.
+_EXACT, _PREFIX, _LOOSE = 0, 1, 2
+_HEXISH = re.compile(r"^(open-)?[0-9a-f]{4,}$")
+
+
+def _match_grade(token: str, ident: str, title: str) -> int | None:
+    """One token, one candidate. The token is what the inbox printed: the id itself, a
+    prefix of a hex id, the date-stripped tail of an idea stem, or the title slugified —
+    ``_slugify`` inverted, which is what makes a printed slug typeable back."""
+    ident = fold(ident)
+    if not ident:
+        return None
+    if ident == token:
+        return _EXACT
+    if _HEXISH.match(token) and ident.startswith(token):
+        return _PREFIX      # a prefix names only a hex id; `loop` is not `loop-not-beating`
+    slug = _slugify(token)
+    if ident.endswith("-" + token) or (
+            slug and (slug == _slugify(ident) or slug == _slugify(title or ""))):
+        return _LOOSE
+    return None
+
+
+def read_all_ideas(*, ideas_dir: Path | None = None) -> dict:
+    """Every idea on disk, moved-on included — the reference lane behind ``read_ideas``:
+    an idea that became a ticket left the inbox, and is still viewable by its stem."""
+    d = ideas_dir or IDEAS_DIR
+    if not d.exists():
+        return {"count": 0, "items": []}
+    items = [{"id": p.stem} for p in sorted(d.glob("*.json")) if not p.stem.startswith("_")]
+    return {"count": len(items), "items": items}
+
+
+def read_all_troubles(*, path: str | None = None) -> dict:
+    """Every trouble on disk, cleared included — the reference lane behind ``read_troubles``."""
+    from cairn.devices.trouble.trouble import TroubleDevice
+    items = TroubleDevice(path).all()
+    return {"count": len(items), "items": items}
+
+
+def _reference_lanes(**kw) -> dict:
+    """The lanes that hold what LEFT the inbox but keeps its id: done tickets, moved-on
+    ideas, cleared troubles. Reference stays readable by id; it just stops asking for eyes."""
+    return {
+        "tickets_done": read_done_tickets(tickets_dir=kw.get("tickets_dir")),
+        "ideas_all": read_all_ideas(ideas_dir=kw.get("ideas_dir")),
+        "troubles_all": read_all_troubles(path=kw.get("troubles_dir")),
+    }
+
+
+def resolve(token: str, **kw) -> list[dict]:
+    """Every lane's record the token names: ``[{lane, id, path, title, record}]``.
+
+    Walks ``gather_all(**kw)`` — the readers the inbox itself lists from — plus the
+    reference lanes (``_reference_lanes``: done tickets, all ideas, all troubles — what
+    left the inbox is still viewable by id). A candidate listed twice (open and reference)
+    counts once, under the inbox lane. Only the closest match grade is returned (an exact
+    id beats a prefix beats a slug); zero hits is the caller's "no match"; two or more is
+    an ambiguity the caller must announce — this function never picks."""
+    token = fold(token)
+    data = gather_all(**kw)
+    data.update(_reference_lanes(**kw))
+    graded: list[tuple[int, dict]] = []
+    seen: set[str] = set()
+    for lane, payload in data.items():
+        for item in _lane_items(payload):
+            ident = _item_id(item)
+            title = item.get("title", "") if isinstance(item, dict) else ""
+            grade = _match_grade(token, ident, title)
+            if grade is None or fold(ident) in seen:
+                continue
+            seen.add(fold(ident))
+            path = None
+            if isinstance(item, dict) and (item.get("source") or item.get("path")):
+                path = Path(item.get("source") or item.get("path"))
+            elif lane.split("_")[0] in _LANE_FILES:
+                d, ext = _LANE_FILES[lane.split("_")[0]](kw)
+                path = Path(d) / f"{ident}{ext}"
+            graded.append((grade, {"lane": lane, "id": ident, "path": path,
+                                   "title": title, "record": item}))
+    if not graded:
+        return []
+    best = min(g for g, _ in graded)
+    return [h for g, h in graded if g == best]
+
+
+def lanes_searched(**kw) -> list[str]:
+    """The lane names ``resolve`` walks — for the no-match line, read off the same dicts."""
+    return list(gather_all(**kw)) + list(_reference_lanes(**kw))
+
+
+def show_item(token: str, **kw) -> str:
+    """``cairn operator show <slug|id>`` — the resolved record, or a loud refusal.
+
+    Zero hits: says so ACROSS ALL LANES, naming them. Two or more: announces the ambiguity
+    listing every candidate with its lane — never a silent first pick (falsifier clause 3).
+    One: renders it — a ticket through ``_format_ticket``, a berth through
+    ``_format_artifact``, anything else as its record, JSON-pretty under a lane header."""
+    hits = resolve(token, **kw)
+    if not hits:
+        return (f"no pending artifact, ticket, idea, question, trouble, intention or "
+                f"adjudication matches {fold(token)!r} — searched lanes: "
+                + ", ".join(lanes_searched(**kw)))
+    if len(hits) > 1:
+        lines = [f"ambiguous — {len(hits)} match {fold(token)!r}:"]
+        for h in hits:
+            where = f"  {h['path']}" if h["path"] else ""
+            lines.append(f"  [{h['lane']}] {h['id']}{where}")
+        return "\n".join(lines)
+    hit = hits[0]
+    path = hit["path"]
+    doc = None
+    if path is not None and path.is_file() and path.suffix == ".json":
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            return f"[{hit['lane']}] {hit['id']} — file unreadable: {path}: {exc}"
+    if hit["lane"].startswith("tickets") and isinstance(doc, dict):
+        return _format_ticket(doc, path)
+    if hit["lane"] == "adjudications" and isinstance(doc, dict):
+        return _format_artifact(doc, path)
+    lines = ["=" * 76, f"  [{hit['lane']}] {hit['id']}"]
+    if path is not None:
+        lines.append(f"  path: {path}")
+    lines.append("=" * 76)
+    if doc is not None:
+        lines.append(json.dumps(doc, indent=2, ensure_ascii=False))
+    elif path is not None and path.is_file():
+        lines.append(path.read_text(encoding="utf-8"))
+    else:
+        lines.append(json.dumps(hit["record"], indent=2, ensure_ascii=False, default=str))
+    return "\n".join(lines)
 
 
 def _format_artifact(doc: dict, path: Path) -> str:
@@ -950,6 +1136,9 @@ commands:
   show inbox              full operator inbox
   show inbox --summary    one-line summary only
   show artifact <id>      deep view of a pending artifact or ticket (id prefix match)
+  show <slug|id>          any item the inbox lists — idea, question, trouble, ticket,
+                          intention, adjudication, artifact — by the id or slug it printed;
+                          exits 1 when nothing (or more than one thing) matches
 """
 
 
@@ -983,8 +1172,13 @@ def main(argv: list[str] | None = None) -> int:
             print(result)
             return 0
 
-        print(f"unknown target: {target!r}\n\n{USAGE}", file=sys.stderr)
-        return 2
+        # Any other token is an inbox item (ticket a705346aa75c): the id or slug the
+        # inbox printed, resolved across every lane it lists. Non-zero when the token
+        # names nothing or more than one thing — a refusal is never a quiet exit 0.
+        result = show_item(args[1])
+        print(result)
+        return 0 if not (result.startswith("no pending artifact")
+                         or result.startswith("ambiguous")) else 1
 
     # Bare invocation with no subcommand — show the inbox
     if len(args) == 1 and is_word(args[0], "inbox"):

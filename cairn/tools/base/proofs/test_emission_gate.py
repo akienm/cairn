@@ -147,7 +147,7 @@ def _cleared(comp: Path) -> dict:
         "date": _FIXTURE_SEAL_DATE,
         "method": "fixture seal — the trail is real, the code it seals is a stub",
         "verdict": "green",
-        "evidence": {"source_fingerprint": source_fingerprint(str(proof))},
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof)), "teeth_green": ["test_the_fixture"]},  # a green seal names a tooth (77f15efd5a96)
         "falsifier": "the component's source fingerprint moves",
         "horizon": "until any .py under the component root changes",
     }, proof_path=str(proof))

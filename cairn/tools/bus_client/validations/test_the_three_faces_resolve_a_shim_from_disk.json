@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_three_faces_resolve_a_shim_from_disk.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T14:08:54",
+    "date": "2026-09-17T13:06:22",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (30 file(s) named it · 18 module(s) imported for real · 15 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
+      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (32 file(s) named it · 18 module(s) imported for real · 17 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
       "stderr_tail": "",
       "teeth_green": [
         "test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost",
@@ -22,7 +22,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3f9287fd8b89045bea809dd4e02cb9a35fc8ffee164feb65ce07c41e6bf8806b",
+      "source_fingerprint": "50d0219c73f9f4bd266d13f41c67aa436a830676764d7a66a3989e90b0b4c192",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -133,33 +133,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2210943-39auwaj4/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1658907-v70zsyr0/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 12,
+          "count": 13,
           "paths": [
             "devices/cc/0/last_known.json",
-            "logs/bus/0/20260915.200853.298261.BusDevice.post.json",
-            "logs/bus/0/20260915.200853.329553.BusDevice.transit_table_ensured.json",
-            "logs/ground_loop/0/20260915.200853.293174.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.297041.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.297507.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.297781.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.340731.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.341064.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.384409.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.995901.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.200853.996380.GroundLoopDevice.subscribe.json"
+            "logs/bus/0/20260917.190620.596768.BusDevice.post.json",
+            "logs/bus/0/20260917.190620.635153.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop/0/20260917.190620.523866.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.547676.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.572573.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.596220.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.674675.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.699549.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190620.752035.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190621.367923.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.190621.389694.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136881795,
-          "disk_bytes": 148635648,
-          "entries": 4886,
+          "bytes": 143396378,
+          "disk_bytes": 155385856,
+          "entries": 4984,
           "builds": 1,
-          "reuses": 61
+          "reuses": 16
         }
       }
     },

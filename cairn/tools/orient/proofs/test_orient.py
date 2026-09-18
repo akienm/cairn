@@ -12,6 +12,34 @@ import shutil
 import sys
 from pathlib import Path
 
+class _Teeth:
+    """Announce-style teeth for a monolithic proof (ticket 77f15efd5a96): the proof is one
+    main() of sections, so each section headline is a tooth — tooth(name) closes the
+    previous section as ok and opens the next, done() closes the last, failed(e) marks the
+    open one FAIL. teeth_printed reads the lines; a run that names no green tooth seals red."""
+
+    def __init__(self) -> None:
+        self.open: str | None = None
+
+    def __call__(self, name: str) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = name
+
+    def done(self) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = None
+
+    def failed(self, exc: BaseException) -> None:
+        print(f"  FAIL  {self.open or 'setup'}")
+        print(f"        {type(exc).__name__}: {exc}")
+        self.open = None
+
+
+tooth = _Teeth()
+
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
@@ -56,6 +84,7 @@ def _synthetic_tree(tmp: Path) -> Path:
     # happens to be NAMED emit — a genuine call site of the word, but NOT the device's
     # DiagnosticBase surface (no ``self`` receiver). sudo_relay's audit emit and
     # harbor_master's transitions.emit both wore this shape and passed silent_device on it.
+    tooth('THE HOMONYM (measured on the real tree 2026-07-27): a module-level function that')
     (comp / "audit.py").write_text(
         "def emit(record):\n    return record\n\n\n"
         "def run(record):\n    emit(record)\n"
@@ -71,6 +100,7 @@ def main() -> None:
     #     device's self.emit AND the homonym audit call. The GENERIC scan honestly reports
     #     both (a call site of the word IS a call site); which one is the device surface is
     #     the CENSUS's sharper question (tooth 4).
+    tooth('1 — THE HEADLINE: capability, not mention. Five mentions, two call sites — the')
     r = call_sites("emit", root=root)
     outside = {(s["file"].rsplit("/", 1)[-1], s["line"])
                for s in r["measured"]["sites"] if not s["in_proofs"]}
@@ -81,15 +111,18 @@ def main() -> None:
     )
 
     # 2 — a string literal and a comment are not call sites.
+    tooth('2 — a string literal and a comment are not call sites')
     assert r["measured"]["call_sites_outside_proofs"] == 2
 
     # 3 — an unparseable file is a loud refusal, not a silently smaller world.
+    tooth('3 — an unparseable file is a loud refusal, not a silently smaller world')
     (root / "fakedev" / "broken.py").write_text("def broken(:\n")
     _refuses(lambda: call_sites("emit", root=root),
              "a file that does not parse must red the scan, not shrink the scanned world")
     (root / "fakedev" / "broken.py").unlink()
 
     # 4 — census measures the world: subclass found, charter found, verdict READ.
+    tooth('4 — census measures the world: subclass found, charter found, verdict READ')
     c = device_census(root=root)
     row = c["measured"]["components"][0]
     assert row["component"] == "fakedev" and row["charter_on_disk"] is True
@@ -99,18 +132,22 @@ def main() -> None:
     # RECEIVER CHECKED: the homonym (audit.py's module-level emit, called once) does NOT
     # count toward the device's emission — only self.emit does. Two call sites of the word
     # in this tree (tooth 1); exactly one is the DiagnosticBase surface.
+    tooth("RECEIVER CHECKED: the homonym (audit.py's module-level emit, called once) does NOT")
     assert row["self_emit_call_sites_outside_proofs"] == 1
 
     # 5 — a component whose charter is MISSING reads as missing (loud in the row).
+    tooth('5 — a component whose charter is MISSING reads as missing (loud in the row)')
     (root / "fakedev" / "intention+why.json").unlink()
     assert device_census(root=root)["measured"]["components"][0]["charter_on_disk"] is False
 
     # 6 — an unreadable validation is carried as UNREADABLE, never dropped (Law 7).
+    tooth('6 — an unreadable validation is carried as UNREADABLE, never dropped (Law 7)')
     (root / "fakedev" / "validations" / "test_dev.json").write_text("{not json")
     v = device_census(root=root)["measured"]["components"][0]["validations"][0]
     assert str(v["verdict"]).startswith("UNREADABLE"), v
 
     # 7 — census refuses an empty/wrong root rather than reporting an empty world.
+    tooth('7 — census refuses an empty/wrong root rather than reporting an empty world')
     _refuses(lambda: device_census(root=tmp / "nowhere"),
              "a census of a nonexistent root must refuse, not report zero components")
 
@@ -121,6 +158,7 @@ def main() -> None:
     #      are pinned here because the union is the point: the charter admits the
     #      markdown-implemented component, AND the charterless .py directory stays
     #      visible (dropping it would blind cairnmap --gate to exactly the row it reads).
+    tooth('7b — A COMPONENT IS NOT A PYTHON PACKAGE. Widened 2026-08-01 at the first skill to')
     markdowncomp = root / "zz_markdown_only"
     (markdowncomp / "proofs").mkdir(parents=True)
     (markdowncomp / "intention+why.json").write_text('{"component": "zz_markdown_only"}')
@@ -144,6 +182,7 @@ def main() -> None:
         shutil.rmtree(d)
 
     # 8 — REAL TREE, invariants only: floor honored, every row complete-shaped.
+    tooth('8 — REAL TREE, invariants only: floor honored, every row complete-shaped')
     real = device_census()
     assert real["measured"]["count"] >= 5, "the census barely saw the tree"
     for row in real["measured"]["components"]:
@@ -162,22 +201,26 @@ def main() -> None:
             "agree with the name it carries is two claims, not one"
 
     # 9 — real tree: the scan floor is enforced (a 3-file 'scan of cairn/' refuses).
+    tooth("9 — real tree: the scan floor is enforced (a 3-file 'scan of cairn/' refuses)")
     r = call_sites("emit")
     assert r["measured"]["modules_scanned"] >= 20
 
     # 10 — repo_truth reads plumbing: 40-hex HEAD, integer dirt, shape complete.
+    tooth('10 — repo_truth reads plumbing: 40-hex HEAD, integer dirt, shape complete')
     g = repo_truth(repos=[_REPO_ROOT])
     row = g["measured"]["repos"][0]
     assert len(row["head"]) == 40 and all(ch in "0123456789abcdef" for ch in row["head"])
     assert isinstance(row["dirty_paths"], int)
 
     # 11 — repo_truth refuses a non-repo rather than narrating one.
+    tooth('11 — repo_truth refuses a non-repo rather than narrating one')
     _refuses(lambda: repo_truth(repos=[tmp]),
              "a directory that is not a git repo must refuse, not report a clean fiction")
 
     # 12 — THE LEARNING-DEVICE SHAPE: every scan result carries scan/question/measured/
     #      provenance, and every provenance names a dated correction. A scan with no
     #      provenance is a check nobody was taught by.
+    tooth('12 — THE LEARNING-DEVICE SHAPE: every scan result carries scan/question/measured/')
     args = {"call_sites": lambda: call_sites("emit", root=root),
             "device_census": lambda: device_census(root=root),
             "repo_truth": lambda: repo_truth(repos=[_REPO_ROOT]),
@@ -189,12 +232,14 @@ def main() -> None:
         assert "2026-07-2" in res["provenance"], f"{name}: provenance names no dated correction"
 
     # 13 — deepen without an injected seam REFUSES — it never fabricates a deepening.
+    tooth('13 — deepen without an injected seam REFUSES — it never fabricates a deepening')
     _refuses(lambda: deepen("what is the bus for?", resolve=None),
              "failover with no seam must refuse; answering from nothing is the failure "
              "orient exists to end")
 
     # 14 — deepen's answer lands under `read`, never `measured`: inference is labeled
     #      inference by construction, and the sole-path seam is what got called.
+    tooth("14 — deepen's answer lands under `read`, never `measured`: inference is labeled")
     calls = []
     fake = lambda req: calls.append(req) or {"answer": "prose", "hit": False}  # noqa: E731
     d = deepen("what is the bus for?", resolve=fake)
@@ -203,6 +248,7 @@ def main() -> None:
 
     # 15 — orient itself never opens the host: no outbound-capable import in orient.py
     #      (deepen reaches inference only through the injected seam).
+    tooth('15 — orient itself never opens the host: no outbound-capable import in orient.py')
     import ast as _ast
     outbound = {"urllib", "http", "requests", "httpx", "aiohttp", "socket"}
     tree = _ast.parse((_REPO_ROOT / "cairn" / "tools" / "orient" / "orient.py").read_text())
@@ -223,6 +269,7 @@ def main() -> None:
     #      form, the precise form, and the from-module-import-name form of the same
     #      module all measure identically (the 2026-07-28 twice-fired red, ended);
     #      an unresolvable name honestly records its prefix; refusals stay loud.
+    tooth('16 — IMPORT_MAP measures the CAPABILITY, not the spelling: the loose package')
     fixture_root = tmp / "imp"
     (fixture_root / "a").mkdir(parents=True)
     (fixture_root / "a" / "b.py").write_text("name = 1\n")
@@ -250,8 +297,13 @@ def main() -> None:
              "an unparseable file has an unknowable import list — refusing beats "
              "narrating a smaller one")
 
+    tooth.done()
     print("orient proofs: all teeth green")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BaseException as e:
+        tooth.failed(e)
+        raise

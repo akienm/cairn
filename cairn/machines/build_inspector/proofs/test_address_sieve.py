@@ -24,6 +24,34 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+class _Teeth:
+    """Announce-style teeth for a monolithic proof (ticket 77f15efd5a96): the proof is one
+    main() of sections, so each section headline is a tooth — tooth(name) closes the
+    previous section as ok and opens the next, done() closes the last, failed(e) marks the
+    open one FAIL. teeth_printed reads the lines; a run that names no green tooth seals red."""
+
+    def __init__(self) -> None:
+        self.open: str | None = None
+
+    def __call__(self, name: str) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = name
+
+    def done(self) -> None:
+        if self.open:
+            print(f"  ok    {self.open}")
+        self.open = None
+
+    def failed(self, exc: BaseException) -> None:
+        print(f"  FAIL  {self.open or 'setup'}")
+        print(f"        {type(exc).__name__}: {exc}")
+        self.open = None
+
+
+tooth = _Teeth()
+
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
@@ -59,7 +87,9 @@ def _component(root: Path, rel: str) -> Path:
     (d / "validations" / "test_x.json").write_text(_json.dumps([{
         "claim": "fixture", "caller": "test", "date": "2026-01-01T00:00:00",
         "method": "fixture", "verdict": "green",
-        "evidence": {"source_fingerprint": fp},
+        # teeth_green: a green seal names at least one tooth (77f15efd5a96) — the sieve
+        # green_seal_names_a_tooth reds a nameless green, and this fixture must draw nothing.
+        "evidence": {"source_fingerprint": fp, "teeth_green": ["test_the_fixture"]},
         "falsifier": "test", "horizon": "test",
     }]))
     return d
@@ -85,6 +115,7 @@ def main() -> None:
     # 1 — THE CATCH. A component that builds the instance address by hand reds, and the
     #     finding names the site and the shape. Without this tooth every other assertion
     #     here is compatible with a sieve that never fires.
+    tooth('1 — THE CATCH. A component that builds the instance address by hand reds, and the')
     (spelled / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_A}\n")
     f = _sieved(root, "spelled")
     assert len(f) == 1, f"the planted spelling must be caught exactly once: {f}"
@@ -92,6 +123,7 @@ def main() -> None:
     assert f[0]["values"]["shape"], f[0]
 
     # 2 — the OTHER shape, so the seat is not proved on one dialect. Both are the corpus's.
+    tooth("2 — the OTHER shape, so the seat is not proved on one dialect. Both are the corpus's")
     (spelled / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_B}\n")
     f = _sieved(root, "spelled")
     assert len(f) == 1 and "berth.py:3" in f[0]["about"], f
@@ -100,6 +132,7 @@ def main() -> None:
     #     text scan. The regex the probe used to own caught prose — including a sentence in
     #     its OWN docstring — and the fix was to exclude that file by name, which does not
     #     generalise to the next file that talks about the address.
+    tooth('3 — A MENTION IS NOT A CATCH, and this is the whole reason the rule stopped being a')
     (mentions / "talk.py").write_text(
         f'"""A module that discusses {_SPELL_A} without building it."""\n\n'
         f"NOTE = 'somebody might write {_SPELL_B} here, and that would be a defect'\n")
@@ -109,12 +142,14 @@ def main() -> None:
     # 4 — a home-rooted path that is NOT instance space is left alone. venv.py's AIDER_SRC
     #     is the live case, and a sieve that redded it would be asking the corpus to route
     #     ~/dev through an instance-space resolver.
+    tooth("4 — a home-rooted path that is NOT instance space is left alone. venv.py's AIDER_SRC")
     (legit / "src.py").write_text(f"from pathlib import Path\n\nAIDER = {_LEGIT}\n")
     assert _sieved(root, "legit") == [], "Path.home() is not the defect; .cairn is"
 
     # 5 — THE EXEMPTION RIDES THROUGH THE SEAT. A proof asserting the rule has to construct
     #     what the rule forbids; counting it would make every proving component permanently
     #     dirty by its own teeth.
+    tooth('5 — THE EXEMPTION RIDES THROUGH THE SEAT. A proof asserting the rule has to construct')
     (proofy / "proofs" / "test_thing.py").write_text(
         f"from pathlib import Path\n\nFIXTURE = {_SPELL_A}\n")
     assert _sieved(root, "proofy") == [], "a proofs/ file is the rule's second exemption"
@@ -123,6 +158,7 @@ def main() -> None:
     #     containment-based scan would red the holder for its machine's line AND red the
     #     same site twice under two names. The finding belongs to the component that owns
     #     the file, and only to it.
+    tooth('6 — ATTRIBUTION IS BY DEEPEST OWNER. A device holds its machines in its own tree, so a')
     (nested / "berth.py").write_text(f"from pathlib import Path\n\nWHERE = {_SPELL_A}\n")
     fh, fn = _sieved(root, "holder"), _sieved(root, "nested")
     assert fh == [], f"the holder must not wear its machine's finding: {fh}"
@@ -130,12 +166,14 @@ def main() -> None:
 
     # 7 — a clean component stays clean while the tree above is dirty. Another component's
     #     hand-spelled path must never red an innocent row.
+    tooth("7 — a clean component stays clean while the tree above is dirty. Another component's")
     assert _sieved(root, "clean") == [], "a neighbour's defect is not this component's"
     assert inspect(root=root, component="clean")["clean"], \
         "the clean fixture must draw nothing from ANY sieve — else tooth 7 proves nothing"
 
     # 8 — THE SEAT IS IN THE NEST. A sieve that exists and is not registered judges nothing,
     #     which is the armed-by-hand failure in its build-gate costume.
+    tooth('8 — THE SEAT IS IN THE NEST. A sieve that exists and is not registered judges nothing,')
     assert _SIEVE in SIEVES, "the sieve must be registered or it never runs"
     r = inspect(root=root, component="clean")
     assert _SIEVE in r["sieves_run"], r["sieves_run"]
@@ -144,6 +182,7 @@ def main() -> None:
     #     the seat is that it stops being zero the moment somebody spells one. So what is
     #     asserted is that the sieve RAN against every real component, and that anything it
     #     caught names a file that exists on disk.
+    tooth('9 — THE LIVE CORPUS, BY INVARIANT AND NEVER BY COUNT. Today it is zero; the point of')
     live = inspect()
     for comp, scores in live["gradation"].items():
         assert _SIEVE in scores, \
@@ -156,6 +195,7 @@ def main() -> None:
             # THE SIEVE'S SECOND SHAPE: a component it could not shake (zero files under the
             # root — a charter cast ahead of its code, born red by Law 9). The finding names
             # the root, not a site, and the root must be real and really empty of code.
+            tooth("THE SIEVE'S SECOND SHAPE: a component it could not shake (zero files under the")
             root_dir = Path(f["values"]["root"])
             assert root_dir.is_dir() and not list(root_dir.rglob("*.py")), \
                 f"a refusal must name a real root the rule read zero files under: {f}"
@@ -164,8 +204,13 @@ def main() -> None:
         assert (site if site.is_absolute() else _REPO_ROOT / site).exists(), \
             f"the sieve named a file the world does not hold: {f}"
 
+    tooth.done()
     print("address sieve proofs: all teeth green")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BaseException as e:
+        tooth.failed(e)
+        raise

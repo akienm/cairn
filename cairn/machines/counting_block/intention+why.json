@@ -1,0 +1,22 @@
+{
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The counting block — a count table over (path class, verb, caller class) compiled from the two artifact journals; after arming, a write whose row is zero raises one trouble naming the triple, an akien-class clearance adds one to the row, a cc-class clearance adds nothing.",
+  "why": "I-the-system-is-a-learning-block: a door, a prior, an error signal, a local adjustment — and the artifact door already journals every record write with its caller measured from the kernel, so who-writes-what is the cheapest prior the system can learn. Law 1: a triple seen 400 times is settled and costs nobody attention; only the unseen one is the novel thing the resolver is for. Law 3: the table is measured from the journals, never authored, and is reproducible from them alone. Ticket 5a4ec289bf15.",
+  "falsifier": "A seeded journal entry with an unseen triple that raises no trouble, or two; a seen triple that raises; an akien-class clearance after which the same triple still raises, or a cc-class clearance after which it stops; a table that is not byte-identical when deleted and recompiled from the journals; a process of its own between beats; or, over the live corpus, one row per entry (no compression). WRONG INTENT if after 500 appends the raise rate does not fall as rows fill — the triple is the wrong prior and the block routes back to Akien with the table.",
+  "feedback": {},
+  "learns": "Yes — narrowly, by counting. The prior is the table; the error signal is a zero-count triple after arming; the local adjustment is an akien-class clearance adding one to the raised row so the triple stops raising. It does not learn from cc clearances (cc clearing its own novelty must not teach the table that cc's novelty is normal). The one knob is hard-zero vs smoothing, held at hard-zero until the raise_rate_falls_as_the_table_grows watch says otherwise.",
+  "runtime_role": "machine",
+  "gated_by": [
+    "ground_loop",
+    "trouble",
+    "Akien",
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  },
+  "arming": "the genesis entry of this file in the cairn artifact journal — everything before it is prior, everything after it is judged",
+  "owner": "cairn — the device whose beat runs it and under whose instance address (devices/cairn/0/machines/counting_block/) its table berths. CC builds and proves it; the trouble device owns every ticket it raises."
+}

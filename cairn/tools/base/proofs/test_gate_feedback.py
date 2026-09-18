@@ -190,14 +190,25 @@ def test_adjust_rejects_unserializable():
 
 if __name__ == "__main__":
     print("test_gate_feedback — scheduled-llm-gate-inspection")
-    test_green_produces_feedback()
-    test_red_produces_feedback()
-    test_feedback_carries_sieve_data()
-    test_no_feedback_without_construct()
-    test_adjust_valid_proposal()
-    test_adjust_revert()
-    test_adjust_rejects_missing_sieve()
-    test_adjust_rejects_empty_dial()
-    test_adjust_rejects_no_tree()
-    test_adjust_rejects_unserializable()
-    print("all 10 teeth pass")
+    TEETH = [
+        test_green_produces_feedback,
+        test_red_produces_feedback,
+        test_feedback_carries_sieve_data,
+        test_no_feedback_without_construct,
+        test_adjust_valid_proposal,
+        test_adjust_revert,
+        test_adjust_rejects_missing_sieve,
+        test_adjust_rejects_empty_dial,
+        test_adjust_rejects_no_tree,
+        test_adjust_rejects_unserializable,
+    ]
+    red = 0
+    for t in TEETH:
+        try:
+            t()
+            print(f"  ok    {t.__name__}")
+        except BaseException as e:
+            red += 1
+            print(f"  FAIL  {t.__name__}: {type(e).__name__}: {e}")
+    print(f"10/10 green" if not red else f"RED — {red} of 10 teeth")
+    raise SystemExit(1 if red else 0)

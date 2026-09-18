@@ -1,21 +1,32 @@
 [
   {
     "claim": "proof test_gate_feedback.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:19:11",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:23:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "test_gate_feedback — scheduled-llm-gate-inspection\n  [a] green path produces feedback record .......... OK\n  [b] red path produces feedback record ............ OK\n  [c] feedback record carries sieve input/output ... OK\n  [d] no feedback without construct ................. OK\n  [e] adjust() writes valid proposal to tree ....... OK\n  [f] adjust() returns prior for revert ............ OK\n  [g] adjust() rejects missing sieve .............. OK\n  [h] adjust() rejects empty dial .................. OK\n  [i] adjust() rejects call without construct ....... OK\n  [j] adjust() rejects unserializable value ........ OK\nall 10 teeth pass",
+      "stdout_tail": "  ok    test_green_produces_feedback\n  [b] red path produces feedback record ............ OK\n  ok    test_red_produces_feedback\n  [c] feedback record carries sieve input/output ... OK\n  ok    test_feedback_carries_sieve_data\n  [d] no feedback without construct ................. OK\n  ok    test_no_feedback_without_construct\n  [e] adjust() writes valid proposal to tree ....... OK\n  ok    test_adjust_valid_proposal\n  [f] adjust() returns prior for revert ............ OK\n  ok    test_adjust_revert\n  [g] adjust() rejects missing sieve .............. OK\n  ok    test_adjust_rejects_missing_sieve\n  [h] adjust() rejects empty dial .................. OK\n  ok    test_adjust_rejects_empty_dial\n  [i] adjust() rejects call without construct ....... OK\n  ok    test_adjust_rejects_no_tree\n  [j] adjust() rejects unserializable value ........ OK\n  ok    test_adjust_rejects_unserializable\n10/10 green",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_green_produces_feedback",
+        "test_red_produces_feedback",
+        "test_feedback_carries_sieve_data",
+        "test_no_feedback_without_construct",
+        "test_adjust_valid_proposal",
+        "test_adjust_revert",
+        "test_adjust_rejects_missing_sieve",
+        "test_adjust_rejects_empty_dial",
+        "test_adjust_rejects_no_tree",
+        "test_adjust_rejects_unserializable"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "615c3683f28c4fd1e9fd89ba02fbec0c94937fe52ab9ea20beed78f5d197a9fc",
+      "source_fingerprint": "44be11d329a9dc16637b97d8570a973e5096ec1b180af70627465b219dc05872",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -27,7 +38,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-ofui9gdi/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1851760-iqe7jbk2/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -36,11 +47,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123101502,
-          "disk_bytes": 133623808,
-          "entries": 4288,
+          "bytes": 138094163,
+          "disk_bytes": 149905408,
+          "entries": 4907,
           "builds": 1,
-          "reuses": 81
+          "reuses": 22
         }
       }
     },

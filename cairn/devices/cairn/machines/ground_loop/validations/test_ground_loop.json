@@ -2,7 +2,7 @@
   {
     "claim": "proof test_ground_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T12:20:27",
+    "date": "2026-09-16T19:34:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -37,7 +37,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "71957cc69195a00c5ae515133aa4125a64b3fd379da9f407618f1806e20d2ae9",
+      "source_fingerprint": "062e0b1ec1ca9cac83c33c6796b8b2a143f12f2a26df85b84e363fe84061c4fb",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -71,35 +71,43 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1914280-b5yh9u01/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2911842-p458u44r/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 14,
+          "count": 22,
           "paths": [
-            "logs/ground_loop/0/20260915.182025.741811.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182025.742050.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182025.815758.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182025.957135.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182025.957338.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182025.957469.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182026.024638.GroundLoopDevice.pulse_refused.json",
-            "logs/ground_loop/0/20260915.182026.024884.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182026.025015.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182026.400415.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182027.254044.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182027.254358.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182027.322986.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260915.182027.323154.GroundLoopDevice.subscribe.json"
+            "devices/a/0/last_known.json",
+            "devices/alpha/0/last_known.json",
+            "devices/b/0/last_known.json",
+            "devices/healthy/0/last_known.json",
+            "devices/rider/0/last_known.json",
+            "devices/sensor/0/last_known.json",
+            "devices/steady/0/last_known.json",
+            "logs/ground_loop/0/20260917.013408.528685.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.542041.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.646799.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.828611.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.841825.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.855661.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.939432.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260917.013408.965285.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013408.965488.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013409.425720.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013410.334831.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013410.347804.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013410.441656.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.013410.457397.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136763959,
-          "disk_bytes": 148504576,
-          "entries": 4877,
+          "bytes": 139450771,
+          "disk_bytes": 151429120,
+          "entries": 4992,
           "builds": 1,
-          "reuses": 15
+          "reuses": 11
         }
       }
     },

@@ -18,6 +18,11 @@ import pytest
 
 from cairn.devices.tester.scratch import scratch_dir
 
+# The repo root by address, never by cwd: the tester runs a proof from its own scratch dir, and
+# 'launchers/superclaude' relative to THAT was 4 teeth red under a green seal that named no
+# teeth (77f15efd5a96, 2026-09-16).
+_REPO = Path(__file__).resolve().parents[4]
+
 
 @pytest.fixture
 def mail_dir():
@@ -99,7 +104,7 @@ def test_mailcheck_outputs_notification_when_mail_waiting(fake_home):
         [sys.executable, "bin/cmd/mailcheck"],
         capture_output=True, text=True,
         env={**os.environ, "HOME": str(fake_home)},
-        cwd=os.getcwd(),
+        cwd=_REPO,
     )
     assert "waiting message" in result.stdout
     assert "tester" in result.stdout
@@ -110,7 +115,7 @@ def test_mailcheck_silent_when_no_mail(fake_home):
         [sys.executable, "bin/cmd/mailcheck"],
         capture_output=True, text=True,
         env={**os.environ, "HOME": str(fake_home)},
-        cwd=os.getcwd(),
+        cwd=_REPO,
     )
     assert result.stdout.strip() == ""
 
@@ -150,7 +155,7 @@ def test_inject_succeeds_when_idle():
 def test_launcher_dry_run_shows_tmux_when_flag_set():
     result = subprocess.run(
         ["bash", "launchers/superclaude", "--tmux", "--dry-run"],
-        capture_output=True, text=True, cwd=os.getcwd(),
+        capture_output=True, text=True, cwd=_REPO,
     )
     assert "tmux: on" in result.stdout
     assert "tmux new-session" in result.stdout
@@ -159,7 +164,7 @@ def test_launcher_dry_run_shows_tmux_when_flag_set():
 def test_launcher_dry_run_no_tmux_by_default():
     result = subprocess.run(
         ["bash", "launchers/superclaude", "--dry-run"],
-        capture_output=True, text=True, cwd=os.getcwd(),
+        capture_output=True, text=True, cwd=_REPO,
     )
     assert "tmux: off" in result.stdout
     assert "tmux new-session" not in result.stdout
@@ -168,7 +173,11 @@ def test_launcher_dry_run_no_tmux_by_default():
 def test_launcher_env_var_enables_tmux():
     result = subprocess.run(
         ["bash", "launchers/superclaude", "--dry-run"],
-        capture_output=True, text=True, cwd=os.getcwd(),
+        capture_output=True, text=True, cwd=_REPO,
         env={**os.environ, "CAIRN_SUPERCLAUDE_TMUX": "1"},
     )
     assert "tmux: on" in result.stdout
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

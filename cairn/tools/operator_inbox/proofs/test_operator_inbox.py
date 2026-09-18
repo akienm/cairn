@@ -442,3 +442,7 @@ def test_the_lane_probe_is_armed_and_measures_a_scratch_world():
     m2 = probe_mod._measure(dict(ctx))
     assert not m2["clean"] and [q["id"] for q in m2["re_raised"]] == ["open-000000000002"], m2
     assert "re-raised" in probe_mod._carry(dict(ctx))["finding"]
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

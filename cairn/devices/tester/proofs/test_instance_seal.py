@@ -56,6 +56,7 @@ root = Path.home() / ".cairn"
 (root / "logs" / "fixture_device" / "0" / "diagnostics.jsonl").write_text(
     '{"gate": "fixture", "at": "seeded-by-a-proof"}\\n')
 (root / "SEEDED-BY-A-PROOF").write_text("if you can read this on the host, the seal failed")
+print("  ok   test_the_writer_wrote")
 raise SystemExit(0)
 '''
 
@@ -67,6 +68,7 @@ root = Path.home() / ".cairn"
 entries = sorted(p.name for p in root.iterdir())
 assert "devices" in entries, f"read an empty world: {entries} — a hollow green"
 print("SAW:" + ",".join(entries))
+print("  ok   test_the_reader_saw_a_world")
 raise SystemExit(0)
 '''
 
@@ -277,6 +279,7 @@ def test_the_subject_can_still_execute_and_import_inside_the_seal():
     v = _run(_fixture(
         "import sys, json, sqlite3, pathlib\n"
         "print('RAN', sys.executable)\n"
+        "print('  ok   test_the_subject_ran')\n"
         "raise SystemExit(0)\n"))
     assert v["verdict"] == "green", v["evidence"]["stderr_tail"]
     assert "RAN" in v["evidence"]["stdout_tail"]

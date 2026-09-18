@@ -2,20 +2,28 @@
   {
     "claim": "proof test_stale_restart.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T12:20:33",
+    "date": "2026-09-16T19:34:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "7/7 green",
+      "stdout_tail": "  ok    test_stale_property_set_on_drift\n  ok    test_stale_property_stays_false_when_clean\n  ok    test_command_exit_flag_causes_exit\n  ok    test_staleness_causes_exit_without_suppress_flag\n  ok    test_staleness_suppressed_by_do_not_restart\n  ok    test_flags_menu_created\n  ok    test_healthy_beat_does_not_exit\n7/7 green",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_stale_property_set_on_drift",
+        "test_stale_property_stays_false_when_clean",
+        "test_command_exit_flag_causes_exit",
+        "test_staleness_causes_exit_without_suppress_flag",
+        "test_staleness_suppressed_by_do_not_restart",
+        "test_flags_menu_created",
+        "test_healthy_beat_does_not_exit"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "2b2f865b814f5b64cc13fcc588107d995158f418ab6f83ab9b0a8794508e7cd4",
+      "source_fingerprint": "b433c4a2eea65f20f503ea73e78886064a898657f677d1c9d2d5b989c4f22f96",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -48,24 +56,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1914280-b2c_w_h8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2911842-3m417s74/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 4,
           "paths": [
-            "logs/ground_loop/0/20260915.182032.628853.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260915.182032.702979.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260915.182032.703382.GroundLoopDevice.discovered.json"
+            "logs/ground_loop/0/20260917.013416.322427.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260917.013416.405667.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260917.013416.419038.GroundLoopDevice.discovered.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136762017,
-          "disk_bytes": 148459520,
-          "entries": 4866,
+          "bytes": 139439262,
+          "disk_bytes": 151347200,
+          "entries": 4960,
           "builds": 1,
-          "reuses": 18
+          "reuses": 14
         }
       }
     },

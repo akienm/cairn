@@ -2,20 +2,27 @@
   {
     "claim": "proof test_chat_pane.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T12:32:32",
+    "date": "2026-09-16T19:38:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/akien/.cairn/venv/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/akien/dev/src/cairn\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2\ncollecting ... collected 6 items\n\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_in_floor_without_bus PASSED [ 16%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages PASSED [ 33%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_does_not_alter_channels PASSED [ 50%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_is_not_in_declared_panes PASSED [ 66%]\ncairn/tools/base/proofs/test_chat_pane.py::TestChatPaneIsFloor::test_empty_personal_channel_renders_empty_turns PASSED [ 83%]\ncairn/tools/base/proofs/test_chat_pane.py::test_roster_minimum PASSED    [100%]\n\n============================== 6 passed in 0.29s ===============================\n\n\u001b[32m6 teeth green\u001b[0m",
+      "stdout_tail": ".\n  ok   test_chat_pane_in_floor_without_bus\n.\n  ok   test_chat_pane_shows_personal_messages\n.\n  ok   test_chat_pane_does_not_alter_channels\n.\n  ok   test_chat_pane_is_not_in_declared_panes\n.\n  ok   test_empty_personal_channel_renders_empty_turns\n.\n  ok   test_roster_minimum\n                                                                   [100%]\n6 passed in 0.33s",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_chat_pane_in_floor_without_bus",
+        "test_chat_pane_shows_personal_messages",
+        "test_chat_pane_does_not_alter_channels",
+        "test_chat_pane_is_not_in_declared_panes",
+        "test_empty_personal_channel_renders_empty_turns",
+        "test_roster_minimum"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "62b86c8baabbbff78718aa669928af974730d7e1001b1dd78f7d762f846a3935",
+      "source_fingerprint": "e72103f6432a7f69b2691fd58f8efacd46b77187675cfba1e9cdab66432305a2",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -23,6 +30,8 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/store.py",
         "cairn/tools/__init__.py",
@@ -35,31 +44,36 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_chat_pane.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1914280-vqo984eq/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2911842-8y99ri0t/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 6,
           "paths": [
-            "logs/bus/0/20260915.183231.193739.BusDevice.post.json",
-            "logs/bus/0/20260915.183231.194700.BusDevice.post.json",
-            "logs/bus/0/20260915.183231.242004.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260915.183231.309416.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260915.183231.376428.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260917.013826.506741.BusDevice.post.json",
+            "logs/bus/0/20260917.013826.507539.BusDevice.post.json",
+            "logs/bus/0/20260917.013826.552536.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260917.013826.638572.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260917.013826.747263.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136762536,
-          "disk_bytes": 148467712,
-          "entries": 4868,
+          "bytes": 139440357,
+          "disk_bytes": 151355392,
+          "entries": 4962,
           "builds": 1,
-          "reuses": 73
+          "reuses": 34
         }
       }
     },

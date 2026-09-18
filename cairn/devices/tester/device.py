@@ -492,6 +492,18 @@ class TesterDevice(BaseDevice):
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
                                       env=_env_pinned_to(proof_path))
                 verdict = GREEN if proc.returncode == 0 else RED
+                teeth = _teeth(proc.stdout)
+                stderr = proc.stderr
+                # A GREEN SEAL NAMES AT LEAST ONE TOOTH (ticket 77f15efd5a96, 2026-09-16).
+                # Exit 0 with no tooth named on stdout is a run that proved nothing that can
+                # be named — measured 2026-09-15 as 31 of 224 standing green seals, every one
+                # leaned on by a peer (Law 8: a hollow green is worse than a red). Same path
+                # as a timeout: the verdict is RED, teeth_green stays an EMPTY list, never
+                # absent, and the detail rides stderr_tail — never a ninth field.
+                if verdict == GREEN and not teeth["teeth_green"]:
+                    verdict = RED
+                    stderr = (stderr.rstrip("\n") + "\n" if stderr else "") + \
+                        "zero teeth printed: exit 0 with no tooth named on stdout\n"
                 # WHICH TEETH RAN GREEN — read from the FULL stdout, here, before it is
                 # tailed. Ticket feeb4c786b14: a green seal used to say only "exit 0", so a
                 # ticket could name any passing proof and nothing could tell whether that
@@ -507,8 +519,8 @@ class TesterDevice(BaseDevice):
                 evidence = {
                     "returncode": proc.returncode,
                     "stdout_tail": _tail(proc.stdout),
-                    "stderr_tail": _tail(proc.stderr),
-                    **_teeth(proc.stdout),
+                    "stderr_tail": _tail(stderr),
+                    **teeth,
                     **base_evidence,
                 }
             except subprocess.TimeoutExpired:

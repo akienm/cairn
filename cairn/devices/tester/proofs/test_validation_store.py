@@ -111,7 +111,7 @@ def _fake_proof(tmp: str) -> str:
     proofs = os.path.join(tmp, "somecomp", "proofs")
     os.makedirs(proofs, exist_ok=True)
     p = os.path.join(proofs, "test_thing.py")
-    Path(p).write_text("# stand-in proof\n", encoding="utf-8")
+    Path(p).write_text("# stand-in proof\nprint('  ok   test_the_stand_in_ran')\n", encoding="utf-8")
     return p
 
 

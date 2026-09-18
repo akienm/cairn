@@ -274,7 +274,6 @@ def test_reverting_the_predicate_reds_this_proof():
     w = standard_world()
     assert set(w.lane(drain=False)) - set(w.lane()) == {"proved-intent"}
 
-
 if __name__ == "__main__":
-    import pytest
-    sys.exit(pytest.main([__file__, "-q"]))
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

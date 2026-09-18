@@ -279,7 +279,9 @@ def main() -> int:
     ]
 
     for t in tests:
+        before = len(failures)
         t()
+        print(f"  {'ok  ' if len(failures) == before else 'FAIL'}  {t.__name__}")
 
     if failures:
         print(f"RED — {len(failures)} failure(s):")

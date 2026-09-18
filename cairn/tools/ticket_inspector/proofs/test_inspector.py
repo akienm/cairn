@@ -262,3 +262,7 @@ def test_finding_shape():
         assert "check" in f, f
         assert "finding" in f, f
         assert "evidence" in f, f
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

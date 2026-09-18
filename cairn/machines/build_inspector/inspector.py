@@ -3455,6 +3455,52 @@ def machine_imports_no_device(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def green_seal_names_a_tooth(row: dict, comp_dir: Path) -> list[dict]:
+    """A STANDING green seal whose evidence names no green tooth.
+
+    Provenance: 2026-09-15, ticket 77f15efd5a96 (a-green-seal-names-at-least-one-tooth).
+    Measured that day: 31 of 224 green seals in the corpus recorded ``teeth_green: []`` —
+    proofs with no ``__main__`` block that exit 0 having defined some functions, pytest
+    subprocess runners whose ``-v`` percent trailer defeats the reader, and aggregate
+    printers that say ``7/7 green`` and name nothing. Every one read green to
+    ``component_color`` and to the hollow reader, and a green that names no tooth is the
+    hollow build Law 8 exists to refuse, leaned on by a peer (Law 8's why). The tester now
+    refuses to MINT one (``run_proof``: exit 0 with zero teeth printed seals RED); this
+    sieve refuses to KEEP one, so a seal minted before the rule, or posed by hand, reds at
+    the next inspection instead of standing quietly green. It walks the SEALS, not the
+    proofs, so an orphan seal (proof deleted, seal still standing) is caught too — those
+    are invisible to ``component_color``, which starts from ``proofs/``. A red seal draws
+    nothing here: it already reads as distrusted. Absent and empty ``teeth_green`` are
+    reported apart (Law 7 — they are different claims about what was measured).
+    """
+    vals_dir = comp_dir / "validations"
+    if not vals_dir.is_dir():
+        return []
+    findings = []
+    for val_file in sorted(vals_dir.glob("*.json")):
+        try:
+            records = json.loads(val_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue  # component_color reports the unreadable seal; one mouth per defect
+        seal = records[-1] if isinstance(records, list) and records else records
+        if not isinstance(seal, dict) or seal.get("verdict") != "green":
+            continue
+        evidence = seal.get("evidence") or {}
+        teeth = evidence.get("teeth_green") if isinstance(evidence, dict) else None
+        if isinstance(teeth, list) and teeth:
+            continue
+        findings.append(_finding(
+            "green_seal_names_a_tooth", row["component"],
+            f"green seal {val_file.name} names at least one tooth",
+            expected=">= 1", actual=0,
+            seal=val_file.name,
+            teeth_green="absent" if teeth is None else "empty",
+            reason=("the seal is green but its evidence names no green tooth — the run "
+                    "proved nothing that can be named (ticket 77f15efd5a96)"),
+        ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -3493,6 +3539,7 @@ SIEVES = {
     "device_isolation_holds": device_isolation_holds,
     "machine_imports_no_device": machine_imports_no_device,
     "working_tree_clean": working_tree_clean,
+    "green_seal_names_a_tooth": green_seal_names_a_tooth,
 }
 
 

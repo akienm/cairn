@@ -2,30 +2,59 @@
   {
     "claim": "proof test_tmux_mode.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-11T12:17:22",
+    "date": "2026-09-16T13:27:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "",
+      "returncode": 1,
+      "stdout_tail": "test_tmux_mode.py:164: AssertionError\n______________________ test_launcher_env_var_enables_tmux ______________________\n\n    def test_launcher_env_var_enables_tmux():\n        result = subprocess.run(\n            [\"bash\", \"launchers/superclaude\", \"--dry-run\"],\n            capture_output=True, text=True, cwd=os.getcwd(),\n            env={**os.environ, \"CAIRN_SUPERCLAUDE_TMUX\": \"1\"},\n        )\n>       assert \"tmux: on\" in result.stdout\nE       AssertionError: assert 'tmux: on' in ''\nE        +  where '' = CompletedProcess(args=['bash', 'launchers/superclaude', '--dry-run'], returncode=127, stdout='', stderr='bash: launchers/superclaude: No such file or directory\\n').stdout\n\ntest_tmux_mode.py:174: AssertionError\n=========================== short test summary info ============================\nFAILED test_tmux_mode.py::test_mailcheck_outputs_notification_when_mail_waiting\nFAILED test_tmux_mode.py::test_launcher_dry_run_shows_tmux_when_flag_set - As...\nFAILED test_tmux_mode.py::test_launcher_dry_run_no_tmux_by_default - Assertio...\nFAILED test_tmux_mode.py::test_launcher_env_var_enables_tmux - AssertionError...\n4 failed, 8 passed in 0.11s",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [],
+      "teeth_green": [
+        "test_deliver_persists_mail_to_disk",
+        "test_pending_mail_reads_what_deliver_wrote",
+        "test_consume_mail_reads_and_removes",
+        "test_pending_mail_returns_empty_for_no_dir",
+        "test_mailcheck_silent_when_no_mail",
+        "test_is_idle_returns_false_when_no_tmux_session",
+        "test_inject_refuses_when_not_idle",
+        "test_inject_succeeds_when_idle"
+      ],
+      "teeth_red": [
+        "test_mailcheck_outputs_notification_when_mail_waiting",
+        "test_launcher_dry_run_shows_tmux_when_flag_set",
+        "test_launcher_dry_run_no_tmux_by_default",
+        "test_launcher_env_var_enables_tmux",
+        "test_tmux_mode"
+      ],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "b0e3111432dff0f01ea66654c7500f1232a86b6c70fb326a3902aadd1feb3a5f",
+      "source_fingerprint": "972d3cc95c5496d9c255828736045180823f3f09c81a659b61852a43e24057b7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
+        "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_tmux_mode.py",
+        "cairn/devices/cc/shim.py",
         "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py"
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-371230-s3id1sdz/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-k9zlgllq/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -34,12 +63,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129248042,
-          "disk_bytes": 140148736,
-          "entries": 4500,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
           "builds": 1,
           "reuses": 3
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "d83e0ef3cc91118f222c6403b4b0fc175e26802621ef579ac2d0ed7df3368e45",
+        "opened": "2026-09-16T13:27:04",
+        "last_red": "2026-09-16T13:27:04",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cc",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

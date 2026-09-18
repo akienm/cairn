@@ -2,20 +2,29 @@
   {
     "claim": "proof test_address_sieve.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T14:05:22",
+    "date": "2026-09-16T13:20:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "address sieve proofs: all teeth green",
-      "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [],
+      "returncode": 1,
+      "stdout_tail": "  ok    1 — THE CATCH. A component that builds the instance address by hand reds, and the\n  ok    2 — the OTHER shape, so the seat is not proved on one dialect. Both are the corpus's\n  ok    3 — A MENTION IS NOT A CATCH, and this is the whole reason the rule stopped being a\n  ok    4 — a home-rooted path that is NOT instance space is left alone. venv.py's AIDER_SRC\n  ok    5 — THE EXEMPTION RIDES THROUGH THE SEAT. A proof asserting the rule has to construct\n  ok    6 — ATTRIBUTION IS BY DEEPEST OWNER. A device holds its machines in its own tree, so a\n  FAIL  7 — a clean component stays clean while the tree above is dirty. Another component's\n        AssertionError: the clean fixture must draw nothing from ANY sieve — else tooth 7 proves nothing",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_address_sieve.py\", line 211, in <module>\n    main()\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_address_sieve.py\", line 169, in main\n    assert inspect(root=root, component=\"clean\")[\"clean\"], \\\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\nAssertionError: the clean fixture must draw nothing from ANY sieve — else tooth 7 proves nothing",
+      "teeth_green": [
+        "1 — THE CATCH. A component that builds the instance address by hand reds, and the",
+        "2 — the OTHER shape, so the seat is not proved on one dialect. Both are the corpus's",
+        "3 — A MENTION IS NOT A CATCH, and this is the whole reason the rule stopped being a",
+        "4 — a home-rooted path that is NOT instance space is left alone. venv.py's AIDER_SRC",
+        "5 — THE EXEMPTION RIDES THROUGH THE SEAT. A proof asserting the rule has to construct",
+        "6 — ATTRIBUTION IS BY DEEPEST OWNER. A device holds its machines in its own tree, so a"
+      ],
+      "teeth_red": [
+        "7 — a clean component stays clean while the tree above is dirty. Another component's"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "01c6f1e59564dcb567c4494f5249d3444e97e2f0da066594804182fca7edd008",
+      "source_fingerprint": "6ff59de8aaeee2deecfa9ce53beaee886a11e57f2593e5748723134f6458eb63",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -32,19 +41,12 @@
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_address_sieve.py",
-        "cairn/machines/corrosion/__init__.py",
-        "cairn/machines/corrosion/citation.py",
-        "cairn/machines/exemptions/__init__.py",
-        "cairn/machines/exemptions/justification.py",
         "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
-        "cairn/tools/base/crossings.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
@@ -52,8 +54,6 @@
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/validation.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -65,16 +65,12 @@
         "cairn/tools/import_sieve/sieve.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/question/__init__.py",
-        "cairn/tools/question/question.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2210943-tumgxuzu/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1851760-gjl15szq/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,12 +79,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136879506,
-          "disk_bytes": 148590592,
-          "entries": 4871,
+          "bytes": 138094163,
+          "disk_bytes": 149905408,
+          "entries": 4907,
           "builds": 1,
-          "reuses": 30
+          "reuses": 17
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "ce3d1370ae816715dcbcbf1d3ace1b90d6b72b94d778b84fbfc1e6b82043c639",
+        "opened": "2026-09-16T13:20:28",
+        "last_red": "2026-09-16T13:20:28",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

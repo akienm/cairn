@@ -2,26 +2,52 @@
   {
     "claim": "proof test_memory_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-11T12:17:20",
+    "date": "2026-09-16T13:27:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "",
+      "returncode": 1,
+      "stdout_tail": "=================================== FAILURES ===================================\n______________ test_probe_loads_via_probecache_with_zero_failures ______________\n\n    def test_probe_loads_via_probecache_with_zero_failures():\n        from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache\n    \n        probes, failures = ProbeCache().probes_for(Path(\"cairn/devices/cc/probes\"))\n        assert len(failures) == 0, f\"probe loading failures: {failures}\"\n        names = [p.why for p in probes]\n>       assert any(\"memory\" in w for w in names), (\n            f\"memory probe not found among {names}\"\n        )\nE       AssertionError: memory probe not found among []\nE       assert False\nE        +  where False = any(<generator object test_probe_loads_via_probecache_with_zero_failures.<locals>.<genexpr> at 0x77625c264d40>)\n\ntest_memory_probe.py:34: AssertionError\n=========================== short test summary info ============================\nFAILED test_memory_probe.py::test_probe_loads_via_probecache_with_zero_failures\n1 failed, 4 passed in 0.05s",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [],
+      "teeth_green": [
+        "test_sample_produces_nonempty_series_with_positive_cgroup",
+        "test_cgroup_matches_independent_read_within_one_page",
+        "test_rss_present_and_distinct_from_cgroup",
+        "test_series_grows_monotonically"
+      ],
+      "teeth_red": [
+        "test_probe_loads_via_probecache_with_zero_failures",
+        "test_memory_probe"
+      ],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "f99cbad4060b2d660cc78f2640fb0b0f569aacf8f34168ce016181271b9ad551",
+      "source_fingerprint": "51daa41968b85dc275af9dbe3b7fe21b1e32b792c76b091ee00d9c8998ba4e9f",
       "fingerprint_closure": [
-        "cairn/devices/cc/proofs/test_memory_probe.py"
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cc/__init__.py",
+        "cairn/devices/cc/probes/memory_curve.py",
+        "cairn/devices/cc/proofs/test_memory_probe.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-371230-12gnj0m5/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-m9u3nuew/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -30,12 +56,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 129248042,
-          "disk_bytes": 140148736,
-          "entries": 4500,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
           "builds": 1,
           "reuses": 2
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "8c719333ff975576281b47f193667ddfa8e4f922e69ee6084558acc395f24702",
+        "opened": "2026-09-16T13:27:03",
+        "last_red": "2026-09-16T13:27:03",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cc",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -58,7 +58,7 @@ def _cleared(comp: Path) -> dict:
         "date": "2026-08-28T00:00:00",
         "method": "fixture seal",
         "verdict": "green",
-        "evidence": {"source_fingerprint": source_fingerprint(str(proof))},
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof)), "teeth_green": ["test_the_fixture"]},  # a green seal names a tooth (77f15efd5a96)
         "falsifier": "source moves",
         "horizon": "until source changes",
     }, proof_path=str(proof))

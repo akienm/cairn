@@ -1,27 +1,56 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "plan-inspector",
-    "date": "2026-08-29T21:24:04",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:23:37",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS: open_filed_edges catches open edge and counts closed\n  PASS: all-closed component produces no open_filed_edges findings\n  PASS: charter_asserts_unbuilt catches 'not yet wired'\n  PASS: open edge without unbuilt pattern does not trigger charter_asserts_unbuilt\n  PASS: letter-prefixed CLOSED/LANDED edges are correctly detected\n  PASS: lettered charter counts open/closed correctly\n  PASS: inference_domain REDs with 2 finding(s)\n  PASS: db_domain REDs with 2 finding(s)\n\nplan_inspector proofs: 8 passed, 0 failed",
+      "stdout_tail": "  PASS: open_filed_edges catches open edge and counts closed\n  ok    test_open_filed_edges_catches_open\n  PASS: all-closed component produces no open_filed_edges findings\n  ok    test_open_filed_edges_clean\n  PASS: charter_asserts_unbuilt catches 'not yet wired'\n  ok    test_charter_asserts_unbuilt_catches\n  PASS: open edge without unbuilt pattern does not trigger charter_asserts_unbuilt\n  ok    test_charter_asserts_unbuilt_clean\n  PASS: letter-prefixed CLOSED/LANDED edges are correctly detected\n  ok    test_letter_prefix_closed\n  PASS: lettered charter counts open/closed correctly\n  ok    test_letter_prefix_in_charter\n  PASS: inference_domain REDs with 2 finding(s)\n  ok    test_live_tree_inference_domain_reds\n  PASS: db_domain REDs with 2 finding(s)\n  ok    test_live_tree_db_domain_reds\n\nplan_inspector proofs: 8 passed, 0 failed",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_open_filed_edges_catches_open",
+        "test_open_filed_edges_clean",
+        "test_charter_asserts_unbuilt_catches",
+        "test_charter_asserts_unbuilt_clean",
+        "test_letter_prefix_closed",
+        "test_letter_prefix_in_charter",
+        "test_live_tree_inference_domain_reds",
+        "test_live_tree_db_domain_reds"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "aaaf00a17e82c98acf7c89f26a0048388bdd7b768e04e774eb64420aa870f236",
+      "source_fingerprint": "cdd7060e7365e612a029023279dc76cd4210c0fdaecf5c4be7f2bfc341b232bf",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/plan_inspector/__init__.py",
+        "cairn/machines/plan_inspector/inspector.py",
+        "cairn/machines/plan_inspector/proofs/test_inspector.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-qm66xmuh/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1851760-g9vpoqjr/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138094163,
+          "disk_bytes": 149905408,
+          "entries": 4907,
+          "builds": 1,
+          "reuses": 20
         }
       }
     },

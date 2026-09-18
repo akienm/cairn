@@ -337,7 +337,6 @@ def test_route_respects_k():
     ranked = route([1.0, 0.0, 0.0], tables=tables, k=2)
     assert len(ranked) == 2
 
-
 if __name__ == "__main__":
-    import pytest
-    sys.exit(pytest.main([__file__, "-v"]))
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

@@ -1,16 +1,60 @@
 [
   {
     "claim": "proof test_installer.py passes under python3",
-    "caller": "sail/76cb8cf3fbed",
-    "date": "2026-09-03T23:59:04",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed)",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:23:36",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "GREEN — 11 teeth, all pass",
-      "source_fingerprint": "5682bea3aa9ed64432578b445e14a2adf8a8432aa2809b99f578979cc31f2c96"
+      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_chtm3mvk/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 11 teeth, all pass",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_discovery",
+        "test_verify_first_idempotent",
+        "test_operator_decline",
+        "test_red_on_verify_failure",
+        "test_dry_run",
+        "test_corpus_is_compiled",
+        "test_ask_user_yn",
+        "test_ask_user_bad_type",
+        "test_ask_user_bad_input",
+        "test_applied_and_verified",
+        "test_run_verify_no_command"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "source_fingerprint": "287a016d536f18bf86e7fa1babc60e77749528f042a1e537ab21999461e6cfb8",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/installer/__init__.py",
+        "cairn/machines/installer/installer.py",
+        "cairn/machines/installer/proofs/test_installer.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1851760-xe9v22ba/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138094163,
+          "disk_bytes": 149905408,
+          "entries": 4907,
+          "builds": 1,
+          "reuses": 19
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
-    "horizon": "valid until the proof file or the code it proves changes"
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
   }
 ]

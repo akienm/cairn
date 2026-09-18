@@ -1,27 +1,53 @@
 [
   {
     "claim": "proof test_compiler.py passes under python3",
-    "caller": "cc-inspector-sweep",
-    "date": "2026-09-02T14:39:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-16T13:27:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS: index has 1275 entries (not hollow)\n  PASS: every entry carries UNPROVEN-PRIOR-SYSTEM\n  PASS: Channel pattern resolves to 9 document(s)\n  PASS: calving resolves to 2 document(s)\n  PASS: calving doc names threshold and protected nodes\n  PASS: node record / memory resolves to 5 document(s)\n  PASS: 1080 entries have 'also_at' (dedup recorded); all hashes unique\n  PASS: persisted index matches compiled (1275 entries)\n\nquarry_index proofs: 8 passed, 0 failed",
+      "stdout_tail": "  PASS: index has 1275 entries (not hollow)\n  ok    test_index_not_hollow\n  PASS: every entry carries UNPROVEN-PRIOR-SYSTEM\n  ok    test_every_entry_stamped\n  PASS: Channel pattern resolves to 9 document(s)\n  ok    test_channel_pattern_resolves_to_document\n  PASS: calving resolves to 2 document(s)\n  ok    test_calving_resolves_to_document\n  PASS: calving doc names threshold and protected nodes\n  ok    test_calving_doc_names_threshold_and_protected\n  PASS: node record / memory resolves to 5 document(s)\n  ok    test_node_record_resolves_to_document\n  PASS: 1080 entries have 'also_at' (dedup recorded); all hashes unique\n  ok    test_dedup_across_trees\n  PASS: persisted index matches compiled (1275 entries)\n  ok    test_persisted_index_matches_compiled\n\nquarry_index proofs: 8 passed, 0 failed",
       "stderr_tail": "",
+      "teeth_green": [
+        "test_index_not_hollow",
+        "test_every_entry_stamped",
+        "test_channel_pattern_resolves_to_document",
+        "test_calving_resolves_to_document",
+        "test_calving_doc_names_threshold_and_protected",
+        "test_node_record_resolves_to_document",
+        "test_dedup_across_trees",
+        "test_persisted_index_matches_compiled"
+      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "466018c8850477957be825d72501fbfe825d224804c70daa629b5da4e860eba9",
+      "source_fingerprint": "f91f7d202f53106ae76115c86dec84dcf91b883d90763e0d4911d85f447989c9",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/quarry_index/__init__.py",
+        "cairn/machines/quarry_index/compiler.py",
+        "cairn/machines/quarry_index/proofs/test_compiler.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-kc4uajn3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-3hdfl2x8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
           "paths": [],
           "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
+          "builds": 1,
+          "reuses": 8
         }
       }
     },

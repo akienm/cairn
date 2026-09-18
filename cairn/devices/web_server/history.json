@@ -1572,5 +1572,85 @@
     "fingerprint": "5ef200679ed4f92a283828400bb41ebb78f87a048508c9e67203654261878d48",
     "at": "2026-09-03T20:53:28",
     "seq": 9
+  },
+  {
+    "from": "WATCHME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(web-server-serves-dynamic-panes) -> PROVED",
+    "direction": "back",
+    "severity": 3,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> TICKETME moves the cursor off position 4",
+        "actual": "WATCHME -> TICKETME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 4,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> TICKETME",
+        "actual": "WATCHME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "actor": "CC",
+    "ticket": "72e8e3509287",
+    "note": "kicked back from WATCHME: the graft crossed PROVEME on 2026-09-02 with no clause declared and no journaled forward BUILDME crossing, so the clearance gate reads every clause undeclared and hollow cannot frame the build; the five teeth are now declared in test_web_server.py (6c233e3c) and the voyage re-runs forward under the rehearsal lane so proven_by can be set on a forward BUILDME",
+    "fingerprint": "f1e2e396a6f9530d73792e4c687564dc14bc77698bc40fbccb226f976defbc9e",
+    "at": "2026-09-17T17:30:48",
+    "seq": 10
   }
 ]

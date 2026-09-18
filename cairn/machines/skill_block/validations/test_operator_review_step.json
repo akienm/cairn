@@ -2,26 +2,38 @@
   {
     "claim": "proof test_operator_review_step.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T11:19:10",
+    "date": "2026-09-16T13:27:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "",
+      "stdout_tail": ".\n  ok   test_review_heading_exists[idea]\n.\n  ok   test_review_heading_exists[intent]\n.\n  ok   test_review_heading_exists[sorted]\n.\n  ok   test_review_instructs_the_queue[idea]\n.\n  ok   test_review_instructs_the_queue[intent]\n.\n  ok   test_review_instructs_the_queue[sorted]\n.\n  ok   test_review_never_waits_on_the_operator[idea]\n.\n  ok   test_review_never_waits_on_the_operator[intent]\n.\n  ok   test_review_never_waits_on_the_operator[sorted]\n                                                                [100%]\n9 passed in 0.02s",
       "stderr_tail": "",
-      "teeth_green": [],
+      "teeth_green": [
+        "test_review_heading_exists",
+        "test_review_instructs_the_queue",
+        "test_review_never_waits_on_the_operator"
+      ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "456fa6267c2f5b2e759abf11c6595308e206527512ed0a06491a5eba5bd9fd9e",
+      "source_fingerprint": "5eb804cb48490b99384139a480cde7bb46ed0931d4d05741bbc870421b686352",
       "fingerprint_closure": [
-        "cairn/machines/skill_block/proofs/test_operator_review_step.py"
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/proofs/test_operator_review_step.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1732492-hj0ce_b2/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1874230-kyf3i60k/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -30,11 +42,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136616302,
-          "disk_bytes": 148267008,
-          "entries": 4840,
+          "bytes": 138094283,
+          "disk_bytes": 149909504,
+          "entries": 4908,
           "builds": 1,
-          "reuses": 11
+          "reuses": 4
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_trouble_panel.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-15T13:59:07",
+    "date": "2026-09-17T13:03:49",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_render_trouble_red_light_live\n.\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_probe_enough_returns_bool\n                                                           [100%]\n14 passed in 0.08s",
+      "stdout_tail": ".\n  ok   test_render_trouble_red_light_live\n.\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_probe_enough_returns_bool\n                                                           [100%]\n14 passed in 0.12s",
       "stderr_tail": "",
       "teeth_green": [
         "test_declared_panes_has_trouble",
@@ -30,12 +30,15 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "a2bf3ab65efb20ade354c34ff72ff273253bed403f78defca3bbb1b1f6a506f9",
+      "source_fingerprint": "4c273b5cfbe2c133a4553582c34847f9ab0541413d6b85d9124da8834cea123f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/device.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/cairn/probes/trouble_panel_surfaces_live_troubles.py",
         "cairn/devices/cairn/proofs/test_trouble_panel.py",
         "cairn/devices/trouble/__init__.py",
@@ -72,25 +75,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2210943-972hy6s7/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1658907-d5pzhvya/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20260915.195907.082143.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20260915.195907.084797.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20260915.195907.085882.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20260917.190348.244397.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20260917.190348.248725.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20260917.190348.250252.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 136880302,
-          "disk_bytes": 148602880,
-          "entries": 4876,
+          "bytes": 143388510,
+          "disk_bytes": 155344896,
+          "entries": 4973,
           "builds": 1,
-          "reuses": 9
+          "reuses": 6
         }
       }
     },

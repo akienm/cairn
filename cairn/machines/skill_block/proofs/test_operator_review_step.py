@@ -1,4 +1,9 @@
-"""Teeth: every gate-bearing skill markdown carries an operator review step."""
+"""Teeth: every gate-bearing skill markdown carries an operator review step.
+
+The step's shape is the review QUEUE (commit e72418ee, 2026-08-28): the artifact is queued,
+the operator reviews it with `cairn review <id> "words"`, and the skill does NOT block waiting.
+Until 2026-09-16 these teeth still asserted the earlier present-and-wait shape and were red under
+a green seal that named no teeth (77f15efd5a96)."""
 
 import pathlib
 import pytest
@@ -14,9 +19,9 @@ REVIEW_HEADING_MARKERS = {
 }
 
 REQUIRED_PHRASES = [
-    "present",
-    "operator",
-    "Wait for the operator",
+    "queued for operator review",
+    "cairn review <id>",
+    "Do not block waiting",
 ]
 
 
@@ -35,7 +40,7 @@ def test_review_heading_exists(skill_markdown):
     )
 
 
-def test_review_instructs_presentation(skill_markdown):
+def test_review_instructs_the_queue(skill_markdown):
     name, text = skill_markdown
     marker = REVIEW_HEADING_MARKERS[name]
     idx = text.index(marker)
@@ -46,12 +51,16 @@ def test_review_instructs_presentation(skill_markdown):
         )
 
 
-def test_review_names_three_outcomes(skill_markdown):
+def test_review_never_waits_on_the_operator(skill_markdown):
     name, text = skill_markdown
     marker = REVIEW_HEADING_MARKERS[name]
     idx = text.index(marker)
     section = text[idx:]
-    for outcome in ["Sign-off", "Correction", "Rejection"]:
-        assert outcome in section, (
-            f"{name}/SKILL.md review section missing outcome '{outcome}'"
+    for stale in ["Wait for the operator", "Sign-off", "Rejection"]:
+        assert stale not in section, (
+            f"{name}/SKILL.md review section still carries the pre-e72418ee '{stale}' step"
         )
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

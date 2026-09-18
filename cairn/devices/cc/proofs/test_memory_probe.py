@@ -28,7 +28,7 @@ def _isolate_series(tmp_path, monkeypatch):
 def test_probe_loads_via_probecache_with_zero_failures():
     from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache
 
-    probes, failures = ProbeCache().probes_for(Path("cairn/devices/cc/probes"))
+    probes, failures = ProbeCache().probes_for(Path(__file__).resolve().parent.parent / "probes")  # by address, not cwd (77f15efd5a96)
     assert len(failures) == 0, f"probe loading failures: {failures}"
     names = [p.why for p in probes]
     assert any("memory" in w for w in names), (
@@ -89,3 +89,7 @@ def test_series_grows_monotonically(_isolate_series):
         assert "cgroup_bytes" in rec and "rss_bytes" in rec
         sizes.append(rec["ts"])
     assert sizes == sorted(sizes), f"timestamps not monotonically increasing: {sizes}"
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

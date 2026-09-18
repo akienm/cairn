@@ -237,3 +237,7 @@ class TestLivenessProbe:
             with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
                        td_path):
                 assert _enough({}) is True
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

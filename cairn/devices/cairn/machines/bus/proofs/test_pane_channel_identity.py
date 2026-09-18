@@ -65,17 +65,6 @@ def test_roster_minimum():
         f"need >= {ROSTER_MIN} teeth, have {len(tests)}: {sorted(tests)}"
     )
 
-
 if __name__ == "__main__":
-    result = subprocess.run(
-        [sys.executable, "-m", "pytest", __file__, "-v", "--tb=short"],
-        cwd=str(REPO_ROOT),
-        env={**os.environ, "PYTHONPATH": str(REPO_ROOT)},
-    )
-    teeth = sum(1 for name in dir() if name.startswith("test_") and callable(eval(name)))
-    for cls_name, cls_obj in list(globals().items()):
-        if isinstance(cls_obj, type):
-            teeth += sum(1 for m in dir(cls_obj) if m.startswith("test_"))
-    color = "\033[32m" if result.returncode == 0 else "\033[31m"
-    print(f"\n{color}{teeth} teeth {'green' if result.returncode == 0 else 'RED'}\033[0m")
-    sys.exit(result.returncode)
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

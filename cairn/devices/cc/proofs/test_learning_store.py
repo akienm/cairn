@@ -96,3 +96,7 @@ def test_read_records_returns_empty_for_missing_dir():
 
     found = read_records(gate="anything", root="/tmp/nonexistent-cc-learning-test-dir")
     assert found == []
+
+if __name__ == "__main__":
+    from cairn.tools.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

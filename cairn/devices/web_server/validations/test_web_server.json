@@ -2,12 +2,12 @@
   {
     "claim": "proof test_web_server.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-16T19:38:21",
+    "date": "2026-09-17T17:30:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_the_trace_wire_counts_a_pass_and_a_refusal\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
+      "stdout_tail": "  PASS  test_the_nav_is_the_roster\n  PASS  test_a_device_page_renders_its_panes\n  PASS  test_an_unknown_device_is_a_coherent_404_that_still_shows_the_nav\n  PASS  test_everything_a_device_says_is_escaped\n  PASS  test_an_absent_pane_renders_its_reason\n  PASS  test_the_web_server_owns_no_state_and_is_a_device\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_the_trace_wire_counts_a_pass_and_a_refusal\n  PASS  test_there_is_one_web_server\n  PASS  test_device_logic_stays_out_of_the_transport\n  PASS  test_existing_pane_urls_render_identically_through_the_asgi_app\n  PASS  test_the_graft_brings_no_dependency_beyond_its_source\n  PASS  test_the_graft_carries_its_ticket_and_proof\ngreen — web_server: the nav IS the roster, a device page renders its panes pulled live through the heartbeat, an unknown device is a coherent 404, every device string is escaped, absent panes say why, and the surface owns no state",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_nav_is_the_roster",
@@ -17,14 +17,19 @@
         "test_an_absent_pane_renders_its_reason",
         "test_the_web_server_owns_no_state_and_is_a_device",
         "test_the_crossings_are_no_longer_silent",
-        "test_the_trace_wire_counts_a_pass_and_a_refusal"
+        "test_the_trace_wire_counts_a_pass_and_a_refusal",
+        "test_there_is_one_web_server",
+        "test_device_logic_stays_out_of_the_transport",
+        "test_existing_pane_urls_render_identically_through_the_asgi_app",
+        "test_the_graft_brings_no_dependency_beyond_its_source",
+        "test_the_graft_carries_its_ticket_and_proof"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "222fccf2767af9424038e8c35774c389c485a9ce4f8e984f9b3db597d444c26d",
+      "source_fingerprint": "e9545892ba3ada216ca52565685768c4c77a50ba54dd280e5e02b77c2ea1a229",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -39,6 +44,7 @@
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/scratch.py",
         "cairn/devices/web_server/__init__.py",
+        "cairn/devices/web_server/listener.py",
         "cairn/devices/web_server/proofs/test_web_server.py",
         "cairn/devices/web_server/render.py",
         "cairn/devices/web_server/server.py",
@@ -54,6 +60,8 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
         "cairn/tools/system_word/__init__.py",
@@ -61,38 +69,39 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2911842-kfaj042g/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2433877-1m4scocw/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 17,
+          "count": 18,
           "paths": [
-            "logs/ground_loop/0/20260917.013820.589932.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.590191.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.621200.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.621397.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.654073.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.654263.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.686012.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.686223.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.718367.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.718650.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.749932.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.750131.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.782586.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.782870.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.818503.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260917.013820.818785.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop_nohup.log"
+            "logs/ground_loop/0/20260917.233029.324671.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.324876.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.325460.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.325596.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.326228.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.326367.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.326917.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.327046.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.327721.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.327850.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.328509.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.328638.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.329210.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.329353.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.330163.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.330296.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.471591.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260917.233029.471760.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 139448974,
-          "disk_bytes": 151408640,
-          "entries": 4973,
+          "bytes": 147250103,
+          "disk_bytes": 159416320,
+          "entries": 5047,
           "builds": 1,
-          "reuses": 31
+          "reuses": 0
         }
       }
     },

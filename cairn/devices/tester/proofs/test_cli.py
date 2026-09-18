@@ -42,7 +42,7 @@ PROVES = {
 REPO = Path(__file__).resolve().parents[4]
 CAIRN = REPO / "bin" / "cairn"
 
-GREEN_FIXTURE = "print('the fixture ran and is happy')\nraise SystemExit(0)\n"
+GREEN_FIXTURE = "print('  ok   test_the_fixture_ran_and_is_happy')\nraise SystemExit(0)\n"
 # The red fixture prints a DISTINCTIVE token on the way down, so the test can prove the
 # evidence actually travelled rather than merely that something was printed.
 RED_FIXTURE = (

@@ -589,7 +589,7 @@ def test_the_check_set_is_discovered_never_enumerated(root, orient_berth):
     assert constrain_mod.discovered_instruments(orient_berth, root=root) == [], \
         "the fixture has no proofs yet — a non-empty before-set means discovery is " \
         "reaching outside the ref'd components and the after-reading proves nothing"
-    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    remove = _plant(root, test_planted_green="print('  ok   test_planted_green')\nraise SystemExit(0)\n")
     try:
         after = constrain_mod.discovered_instruments(orient_berth, root=root)
         assert after == [os.path.join(ALPHA_HOME, "proofs", "test_planted_green.py")], \
@@ -645,7 +645,7 @@ def test_one_red_check_does_not_blanket_the_report(root, orient_berth):
     is not a bound the build can be judged against, and the floor saying so is what keeps
     the state from being read as a bound that was met."""
     remove = _plant(root,
-                    test_planted_green="raise SystemExit(0)\n",
+                    test_planted_green="print('  ok   test_planted_green')\nraise SystemExit(0)\n",
                     test_planted_red="raise SystemExit(1)\n",
                     test_planted_broken="def (\n")
     try:
@@ -692,7 +692,7 @@ def test_a_check_source_must_name_the_instrument_not_merely_resolve(root, orient
     root (the same reason ``good_packet`` sources a live component name), so a fixture proof
     path is unresolvable there no matter how honest it is. Live, those same nine check
     sources pass that judge with no findings, measured at acceptance the same day."""
-    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    remove = _plant(root, test_planted_green="print('  ok   test_planted_green')\nraise SystemExit(0)\n")
     try:
         honest, fl = _floor_true_packet(root, orient_berth)
         assert any(c["kind"] == "check" for c in honest["constraints"]), \
@@ -727,7 +727,7 @@ def test_floor_kinds_names_every_kind_the_floor_emits(root, orient_berth):
     is the price paid. EQUALITY, not containment, in both directions: an emitted kind
     missing from the tuple silently moves the line ``crowding_out`` is drawn on, and a
     declared kind the floor never emits inflates the same line with a fiction."""
-    remove = _plant(root, test_planted_green="raise SystemExit(0)\n")
+    remove = _plant(root, test_planted_green="print('  ok   test_planted_green')\nraise SystemExit(0)\n")
     try:
         fl = constrain_mod.floor_packet(orient_berth, root=root)
         emitted = {c["kind"] for c in fl["constraints"]}

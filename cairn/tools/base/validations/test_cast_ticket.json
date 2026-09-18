@@ -1,16 +1,16 @@
 [
   {
     "claim": "proof test_cast_ticket.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-18T11:16:37",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-18T11:28:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  the sweep counts the four classes  — {'through_the_door': 2, 'journaled_beside': 1, 'pre_door': 1, 'unjournaled': 1}\n  PASS  the landing is the first door-cast's entry\n  PASS  underscore files are outside the sweep\n  PASS  the sweep never raises — an absent commons reads as empty\n5. the probe's enough\n  PASS  PROBE is a frozen Probe with carry and enough\n  PASS  not enough at nine\n  PASS  not enough at ten on one day\n  PASS  carry names the calendar as the finding  — the last ten casts span fewer than three calendar days\n  PASS  enough at ten consecutive across three distinct days  — {\"landing\": \"2026-09-10T00:00:00+00:00\", \"arrivals\": 12, \"through_the_door\": 12, \"journaled_beside\": [], \"unjournaled\": [], \"last_run_clean\": true, \"days_in_last_run\": [\"2026-09-10\", \"2026-09-11\", \"2026-09-12\"]}\n  PASS  one hand-dropped file takes it back down\n  PASS  carry names the offending path and the owning ticket\n  PASS  a creation through some other frame — even one named cast_ticket — takes it back down\n6. the callers and residues\n  PASS  SKILL.md step 5 fires cairn cast\n  PASS  the sorted charter's what names cast_ticket\n  PASS  watchme_spec's residue no longer says casting has no chokepoint\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  the landing is the first door-cast's entry\n  PASS  underscore files are outside the sweep\n  PASS  the sweep never raises — an absent commons reads as empty\n5. the probe's enough\n  PASS  PROBE is a frozen Probe with carry and enough\n  PASS  not enough at nine\n  PASS  not enough at ten on one day\n  PASS  carry names the calendar as the finding  — the last ten casts span fewer than three calendar days\n  PASS  enough at ten consecutive across three distinct days  — {\"landing\": \"2026-09-10T00:00:00+00:00\", \"arrivals\": 12, \"through_the_door\": 12, \"journaled_beside\": [], \"unjournaled\": [], \"last_run_clean\": true, \"days_in_last_run\": [\"2026-09-10\", \"2026-09-11\", \"2026-09-12\"]}\n  PASS  one hand-dropped file takes it back down\n  PASS  carry names the offending path and the owning ticket\n  PASS  a creation through some other frame — even one named cast_ticket — takes it back down\n6. the callers and residues\n  PASS  SKILL.md step 5 fires cairn cast\n  PASS  the sorted charter's what names cast_ticket\n  PASS  watchme_spec's residue no longer says casting has no chokepoint\n  PASS  the live journal never moved\n  PASS  test_the_door_the_sweep_and_the_watch_end_to_end\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "the cast lands at tickets/<id>-<slug>.json  — /tmp/cairn-cast-ticket-proof-njsultma/CairnCommons/tickets/abc123def456-casting-rides-a-door-proof.json",
+        "the cast lands at tickets/<id>-<slug>.json  — /tmp/cairn-cast-ticket-proof-f8x28zww/CairnCommons/tickets/abc123def456-casting-rides-a-door-proof.json",
         "the slug lower-cases and collapses non-alphanumerics",
         "cast is stamped with today's date when absent  — 2026-09-18",
         "no other key was touched",
@@ -41,7 +41,8 @@
         "SKILL.md step 5 fires cairn cast",
         "the sorted charter's what names cast_ticket",
         "watchme_spec's residue no longer says casting has no chokepoint",
-        "the live journal never moved"
+        "the live journal never moved",
+        "test_the_door_the_sweep_and_the_watch_end_to_end"
       ],
       "teeth_red": [],
       "seal": {
@@ -52,7 +53,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "02ab9b407f4773daef209dcde6b5b2bbf5c8251a9b6c32637d68b223a1d04500",
+      "source_fingerprint": "b22ab36aa38c2d8db21c8d1a3a7538bc2eeaea0a171beeeac61f470a06f564c6",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -99,7 +100,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1553471-d372em_n/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1588712-dabxwpd9/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -108,11 +109,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 183584717,
-          "disk_bytes": 197312512,
-          "entries": 5752,
+          "bytes": 183662496,
+          "disk_bytes": 197398528,
+          "entries": 5756,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "23089d52d805": {
+          "cairn/tools/base/transitions.py": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ],
+          "cairn/tools/base/cast.py": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ],
+          "bin/cmd/cast": [],
+          "cairn/tools/base/probes/the_casting_door_has_callers.py": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ],
+          "skills/sorted/SKILL.md": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ],
+          "skills/sorted/intention+why.json": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ],
+          "cairn/tools/base/watchme_spec.py": [
+            "test_the_door_the_sweep_and_the_watch_end_to_end"
+          ]
         }
       }
     },

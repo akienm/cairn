@@ -214,6 +214,28 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     s2 = _S.sweep_casts(tmp / "no-such-commons")
     check("the sweep never raises — an absent commons reads as empty",
           s2["counts"] == {c: 0 for c in s["counts"]} and s2["landing"] is None)
+    # THE SHIM IS RUN, NOT READ: bin/cmd/cast is a writes_to file of the build, and the
+    # hollow reading named it HOLLOW while no tooth fired it (2026-09-18).
+    import subprocess
+    shim = REPO / "bin" / "cmd" / "cast"
+    run = subprocess.run([str(shim), "--sweep", str(commons)], capture_output=True, text=True,
+                         timeout=120, cwd=str(REPO))
+    try:
+        via_shim = json.loads(run.stdout)
+    except ValueError:
+        via_shim = {}
+    check("bin/cmd/cast --sweep prints the same counts, exit 0",
+          run.returncode == 0 and via_shim.get("counts") == s["counts"],
+          f"rc={run.returncode} {run.stderr.strip()[-300:]}")
+    empty = tmp / "empty_fields.json"
+    empty.write_text("{}\n", encoding="utf-8")
+    files_before = sorted(p.name for p in tickets.iterdir())
+    run = subprocess.run([str(shim), str(empty), "--actor", "proof"], capture_output=True,
+                         text=True, timeout=120, cwd=str(REPO))
+    check("bin/cmd/cast refuses an empty cast on stderr with exit 1 and writes nothing",
+          run.returncode == 1 and "15 lacks" in run.stderr and "Nothing was written" in run.stderr
+          and sorted(p.name for p in tickets.iterdir()) == files_before,
+          f"rc={run.returncode} {run.stderr.strip()[-200:]}")
 
 
 def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A, tmp: Path) -> None:

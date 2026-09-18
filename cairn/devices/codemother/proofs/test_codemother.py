@@ -14,6 +14,11 @@ from pathlib import Path
 
 from cairn.devices.tester.scratch import scratch_dir
 
+# A seal sweeps dead-minter scratch first (ticket 201a37bf1613) and the device refuses a
+# seal without the sweep on hand. These fixtures seal stand-ins under a scratch dir; the
+# tooth measures the coverage rung, not the sweep, and the evidence says so.
+_NO_SWEEP = {"skipped": "test_codemother seals a fixture stand-in; nothing to sweep"}
+
 
 def _commons_root():
     """The operator's REAL commons, named the same from the live tree and from a worktree.
@@ -549,7 +554,8 @@ def _fixture_component(tag, *, seal=True, boat=None):
         json.dumps({"cursor": None, "window": [], "count": 0}), encoding="utf-8")
     if seal:
         from cairn.devices.tester.device import TesterDevice
-        TesterDevice().run_proof(str(proof), sink="validations", caller="cc")
+        TesterDevice().run_proof(str(proof), sink="validations", caller="cc",
+                                 scratch_sweep=_NO_SWEEP)
     return comp, proof
 
 
@@ -580,14 +586,14 @@ def _a_second_end(comp, boat, first_proof):
         f'    {_SECOND_TOOTH}()\n', encoding="utf-8")
     from cairn.devices.tester.device import TesterDevice
     tester = TesterDevice()
-    tester.run_proof(str(other), sink="validations", caller="cc")
+    tester.run_proof(str(other), sink="validations", caller="cc", scratch_sweep=_NO_SWEEP)
     # AND THE FIRST END IS RESEALED, because writing this file MOVED the component's
     # fingerprint and the seal already standing on the first proof is now about a tree that
     # no longer exists. That is the horizon rung doing its job — measured the first time
     # this fixture ran, where the refusal read "the code moved under the proof" and was
     # entirely correct. A fixture that left it stale would be measuring the horizon rung
     # instead of the coverage rung it is aimed at.
-    tester.run_proof(str(first_proof), sink="validations", caller="cc")
+    tester.run_proof(str(first_proof), sink="validations", caller="cc", scratch_sweep=_NO_SWEEP)
     return other
 
 

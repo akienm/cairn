@@ -2,13 +2,13 @@
   {
     "claim": "proof test_tester.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:46:41",
+    "date": "2026-09-18T03:38:59",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_tester_is_a_device_carrying_the_values\n  PASS  test_introspect_reports_the_form_in_order\n  PASS  test_green_proof_validates_green\n  PASS  test_red_proof_validates_red\n  PASS  test_state_reflects_the_runs\n  PASS  test_it_exercises_the_bases_armed_trap\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it\n  --- dogfood: the tester validates the real base proofs ---\n    VALIDATION  green  proof test_core_values.py passes under python3\n    VALIDATION  green  proof test_composition.py passes under python3\ngreen — TesterDevice runs proofs and emits VALIDATIONS; the red case bites",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_tester_is_a_device_carrying_the_values\n  PASS  test_introspect_reports_the_form_in_order\n  PASS  test_green_proof_validates_green\n  PASS  test_red_proof_validates_red\n  PASS  test_state_reflects_the_runs\n  PASS  test_it_exercises_the_bases_armed_trap\n  PASS  test_the_crossings_are_no_longer_silent",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_tester.py\", line 237, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_tester.py\", line 224, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_tester.py\", line 185, in test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it\n    record = t.run_proof(stand_in, sink=\"validations\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/device.py\", line 417, in run_proof\n    raise ValueError(\nValueError: run_proof: sink='validations' seals, and a seal sweeps scratch first — pass scratch_sweep=cairn.devices.tester.scratch_sweep.sweep() (ticket 201a37bf1613). got scratch_sweep=None",
       "teeth_green": [
         "test_tester_is_a_device_carrying_the_values",
         "test_introspect_reports_the_form_in_order",
@@ -16,15 +16,18 @@
         "test_red_proof_validates_red",
         "test_state_reflects_the_runs",
         "test_it_exercises_the_bases_armed_trap",
-        "test_the_crossings_are_no_longer_silent",
-        "test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it"
+        "test_the_crossings_are_no_longer_silent"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "60dd624dec6779f0b04c79bf594c7f31ac3536f18c45470e1b6841e6e6d07a0d",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "c0d8cf327def043bf4da05bbbfff912a68b3c22b7247fbae6e525af4019902ae",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -34,8 +37,6 @@
         "cairn/devices/tester/proofs/test_tester.py",
         "cairn/devices/tester/validation_store.py",
         "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
@@ -45,8 +46,6 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_composition.py",
         "cairn/tools/base/shim.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/system_word/__init__.py",
@@ -54,30 +53,36 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-6w1_un5x/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-76799-dxa5f9a7/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 5,
           "paths": [
-            "logs/tester/0/20260918.074626.095347.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074627.625646.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074629.172597.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074630.795399.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074635.445501.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074637.024350.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074638.630610.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074640.177848.TesterDevice.run_proof.json"
+            "logs/tester/0/20260918.093848.224971.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.093849.977281.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.093851.765983.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.093853.479141.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.093858.737555.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 161006869,
-          "disk_bytes": 173764608,
-          "entries": 5307,
+          "bytes": 167442510,
+          "disk_bytes": 180486144,
+          "entries": 5416,
           "builds": 1,
-          "reuses": 82
+          "reuses": 59
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "e3843f842b97a6502d11b4e3f250853a4426e0e8e44c81ca3a56e3afda655d12",
+        "opened": "2026-09-18T03:38:59",
+        "last_red": "2026-09-18T03:38:59",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

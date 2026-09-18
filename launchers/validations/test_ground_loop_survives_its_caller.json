@@ -2,47 +2,28 @@
   {
     "claim": "proof test_ground_loop_survives_its_caller.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:39:58",
+    "date": "2026-09-18T03:48:54",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  systemd-run unreachable: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  and the boot log carries the exec line  — boot log: ' web_server: systemd-run unavailable — spawned with setsid\\n20260913.103956.647877.2320897: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'\n  PASS  and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20260913.103956.623538.2320897: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)\n  PASS  unit name already taken: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  PASS  --dry-run still exits 0, prints its exec line and starts nothing  — rc=0\n\nONE READER — the cgroup parse exists once, and both consumers import it\n  PASS  the tool's own proof still reads the kernel directly (it must not go hollow)  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']\n  PASS  exactly one file READS /proc/<pid>/cgroup from python  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']\n  PASS  and every other mention of the path is declared with its reason  — undeclared: []\n  PASS  no declared exemption has gone stale (it would be a licence nothing uses)  — stale: []\n    declared, not a python read: cairn/devices/cairn/machines/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py\n      because prose only, in two places, and both are the record of the read LEAVING: the module docstring says what the probe carries home each beat, and the header where `cgroup_of` used to live quotes its own retired claim to be the sole reader. It imports the tool now; a read here again would be the extraction undone\n    declared, not a python read: launchers/proofs/test_ground_loop_survives_its_caller.py\n      because this file: prose in the docstring and the census pattern itself; the read it uses is the tool's, imported at the top and asserted by the next check\n    declared, not a python read: launchers/proofs/test_superclaude_memory_scope.py\n      because a bash one-liner (`cut -d: -f3 /proc/self/cgroup`) inside the stand-in that REPLACES the claude binary — it runs as the launched process, reporting its own cgroup from inside a scope this proof cannot enter, and it cannot import a python probe\n  PASS  and this proof reaches BOTH by importing, not by re-spelling either\n\nGREEN — the heartbeat is the manager's, and it kept beating over its caller's grave.",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "the heartbeat outlives its caller — scratch at /tmp/cairn-proof-heartbeat-qnmvnijb\n\nRESIDENCY AND SURVIVAL — the real launcher, a disposable caller, and the kernel\n  PASS  the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  FAIL  a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-qnmvnijb/home-1/.cairn/devices/cairn/0/machines/ground_loop/liveness.json: None",
+      "stderr_tail": "  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 672, in main\n    arms_one_and_two()\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 446, in arms_one_and_two\n    d.stop()\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 366, in stop\n    _run(\"systemctl\", \"--user\", \"stop\", self.loop_unit + \".service\", timeout=20)\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 115, in _run\n    return subprocess.run(list(argv), capture_output=True, text=True, timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 550, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 1209, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 2116, in _communicate\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\n  File \"/usr/lib/python3.12/subprocess.py\", line 1253, in _check_timeout\n    raise TimeoutExpired(\nsubprocess.TimeoutExpired: Command '['systemctl', '--user', 'stop', 'cairn-proof-loop-164532-1.service']' timed out after 20 seconds",
       "teeth_green": [
-        "the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'",
-        "a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-wq3zwqmm/home-1/.cairn/devices/cairn/0/machines/ground_loop/liveness.json: {'last_run': '2026-09-13T10:36:45.912774-06:00', 'state': {'beats': 1, 'subscribers': ['base', 'bin', 'build_inspector', 'bus_client', 'cairn', 'cairnmap', 'cc', 'charter', 'codemother', 'constrain', 'corrosion', 'db_domain', 'design', 'exemptions', 'ground_loop', 'harbor_master', 'idea', 'inference_domain', 'intent', 'intentions_model_compiler', 'launchers', 'learning_block', 'librarian', 'openai_wire', 'operator_inbox', 'orient', 'press_office', 'saveslate', 'sorted', 'survey', 'system_word', 'tester', 'ticket_inspector', 'trouble', 'validate', 'verdict'], 'last_pulsed_count': 36, 'pulse_services': [{'device': 'codemother', 'level': 'class', 'path': '/home/akien/dev/src/cairn/cairn/devices/codemother/groundloop/pulse.py', 'mtime': 1788481295.9602618, 'hook': True}], 'pulse_refusals': [], 'pulse_events': [{'event': 'activated', 'device': 'codemother', 'level': 'class', 'path': '/home/akien/dev/src/cairn/cairn/devices/codemother/groundloop/pulse.py', 'mtime': 1788481295.9602618, 'hook': True, 'beat': 1, 'at': '2026-09-13 10:36:45.912774-06:00'}], 'stale': False}, 'pid': 2311189}",
-        "the loop's cgroup is NOT the caller's, and not a descendant of it  — loop=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-loop-2311064-1.service caller=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-caller-2311064-1.scope",
-        "the loop sits in a unit the user manager OWNS, not a caller's scope  — {'leaf': 'cairn-proof-loop-2311064-1.service', 'kind': 'service', 'lifetime': 'manager', 'under_user_manager': True}",
-        "the launch left the operator's cairn-web-server unit alone  — live unit now logs to: 'StandardOutput=append\\nStandardError=append'",
-        "the loop is still alive after its caller's entire cgroup was killed  — pid 2311189",
-        "and its own trail shows beats CONTINUING across the kill  — beats before=1 after=2",
-        "exit 3 under SuccessExitStatus=3 is not a failure  — is-failed rc=4 out='inactive'",
-        "and the name is free for the next launch  — rc=0 err=''",
-        "a genuinely crashed unit DOES block its own name (why the clear is needed)  — rc=1 err='Failed to start transient service unit: Unit cairn-proof-wedge-b-2311064-2.service was already loaded or has a fragment file.'",
-        "and a blind reset-failed frees it  — reset rc=0 restart rc=0 err=''",
-        "reset-failed fired blind at a LIVE unit disturbs nothing  — MainPID '2317946' -> '2317946', is-active='active'",
-        "a first loop is up so a second can lose to it  — pid 2318088",
-        "the losing claimant's refusal GREW the nohup log  — 0 -> 351 bytes at /tmp/cairn-proof-heartbeat-wq3zwqmm/home-2/.cairn/logs/ground_loop_nohup.log",
-        "and the refusal names the claim, not a crash  — tail: 'the singleton claim at /tmp/cairn-proof-heartbeat-wq3zwqmm/home-2/.cairn/devices/cairn/0/machines/ground_loop/run.lock is already held — a ground loop is running (or holding its lock while slow); this claimant must not become a second one\\nground_loop: the record says pid 2318088 last ran 33.30s ago\\n'",
-        "a taken unit name also writes its refusal to the nohup log  — 351 -> 910 bytes; tail=\"s already loaded or has a fragment file.\\n2026-09-13T10:39:52-06:00 ground_loop: cairn-proof-loop-2311064-4.service refused the start — nothing was spawned, and NOTHING was spawned another way either, because the name being held means a loop already holds it; the lines above are systemd-run's reason\\n\"",
-        "systemd-run unreachable: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'",
-        "and the boot log carries the exec line  — boot log: ' web_server: systemd-run unavailable — spawned with setsid\\n20260913.103956.647877.2320897: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'",
-        "and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20260913.103956.623538.2320897: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)",
-        "unit name already taken: the launch still reaches the binary  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'",
-        "--dry-run still exits 0, prints its exec line and starts nothing  — rc=0",
-        "the tool's own proof still reads the kernel directly (it must not go hollow)  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']",
-        "exactly one file READS /proc/<pid>/cgroup from python  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']",
-        "and every other mention of the path is declared with its reason  — undeclared: []",
-        "no declared exemption has gone stale (it would be a licence nothing uses)  — stale: []",
-        "and this proof reaches BOTH by importing, not by re-spelling either"
+        "the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-qnmvnijb/home-1/.cairn/devices/cairn/0/machines/ground_loop/liveness.json: None"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "48b661f3d7b3a4b03eec87c3de1cf9ab5b2cadcca4a05413616b1806ad42bc91",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "5dc372033b982f8282b4602a5b38e0b4c84e8331a0052b4825c97649871c65f3",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -79,23 +60,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2311030-4q9zttgs/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-76799-xb6ep96_/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "devices/learning_block/0/traces/logger_for_bash.jsonl"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134771663,
-          "disk_bytes": 146239488,
-          "entries": 4758,
+          "bytes": 167441019,
+          "disk_bytes": 180465664,
+          "entries": 5409,
           "builds": 1,
-          "reuses": 0
+          "reuses": 94
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "95588744b1234cdc93e6de87f200633fae69641b1bc6ee79c97d6507327c0941",
+        "opened": "2026-09-18T03:48:54",
+        "last_red": "2026-09-18T03:48:54",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-launchers",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

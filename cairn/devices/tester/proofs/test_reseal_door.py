@@ -105,7 +105,8 @@ class _FakeTester:
     def __init__(self, verdict: str, *, tail: str = ""):
         self.verdict, self.tail, self.runs, self.callers = verdict, tail, 0, []
 
-    def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none"):
+    def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none",
+                  scratch_sweep=None):
         self.runs += 1
         self.callers.append(caller)
         assert sink == "none", f"the door must dispose of the record itself, not sink={sink!r}"
@@ -121,7 +122,8 @@ class _TimingOut:
     def __init__(self, timeout: int = 120):
         self.timeout, self.runs = timeout, 0
 
-    def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none"):
+    def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none",
+                  scratch_sweep=None):
         self.runs += 1
         return _record(Path(proof_path), RED, evidence={
             "returncode": None, "stdout_tail": "",

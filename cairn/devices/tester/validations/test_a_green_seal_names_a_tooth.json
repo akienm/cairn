@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_green_seal_names_a_tooth.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:42:44",
+    "date": "2026-09-18T03:34:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 2.92s",
+      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 6.01s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_exit_zero_run_that_names_no_tooth_seals_red",
@@ -18,7 +18,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "8ce781487cfa9a55ee5936cee16f15ac1364d3c32c2b04bb1ec572ab17460994",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "76185497beedcb158e644136bd0aaa04de6e425d06467ede2338c7c40570f499",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -42,23 +46,23 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-fegddnif/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-76799-8gfrqxku/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/20260918.074242.695588.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.074243.940321.TesterDevice.run_proof.json"
+            "logs/tester/0/20260918.093356.614286.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.093359.138589.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 161005226,
-          "disk_bytes": 173740032,
-          "entries": 5301,
+          "bytes": 167441666,
+          "disk_bytes": 180473856,
+          "entries": 5413,
           "builds": 1,
-          "reuses": 74
+          "reuses": 51
         }
       }
     },

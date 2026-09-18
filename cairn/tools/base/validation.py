@@ -84,6 +84,16 @@ def latest_seal(path, *, artifact=False):
 
 
 def run_proof(path, *, sink="none", caller="unknown"):
-    """Run ONE proof and return its record. Persists nothing — the caller decides."""
+    """Run ONE proof and return its record. Persists nothing — the caller decides.
+
+    A seal (``sink="validations"``) sweeps dead-minter scratch first (ticket 201a37bf1613):
+    the sweep lives at cairn/devices/tester/scratch_sweep.py, one address aside from the
+    device, and this door runs it and hands the result in — the device refuses to seal
+    without one, and a run that seals nothing sweeps nothing.
+    """
     from cairn.devices.tester.device import TesterDevice
-    return TesterDevice().run_proof(path, sink=sink, caller=caller)
+    swept = None
+    if sink == "validations":
+        from cairn.devices.tester.scratch_sweep import sweep
+        swept = sweep()
+    return TesterDevice().run_proof(path, sink=sink, caller=caller, scratch_sweep=swept)

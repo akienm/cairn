@@ -182,7 +182,10 @@ def test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it():
         t.run_proof(stand_in, sink="none")
         assert not trail.exists(), "sink='none' must write nothing at all"
 
-        record = t.run_proof(stand_in, sink="validations")
+        # A seal sweeps first (ticket 201a37bf1613) and the device refuses one without the
+        # sweep on hand; this tooth measures the seal door, not the sweep, and says so.
+        record = t.run_proof(stand_in, sink="validations",
+                             scratch_sweep={"skipped": "test_tester seals a stand-in; nothing to sweep"})
         assert trail.exists(), "sink='validations' must land a VALIDATION beside the proof"
         landed = json.loads(trail.read_text(encoding="utf-8"))
         assert len(landed) == 1, landed

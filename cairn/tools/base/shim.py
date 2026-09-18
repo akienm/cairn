@@ -86,9 +86,29 @@ ONLINE = "ONLINE"
 # THE ROOT VERBS, ruled 2026-09-06 (ticket 15d6a0ef9c11), resolved once in BaseShim.resolve
 # (ticket b41b0c0fff0e). `hot` is a modifier, never a verb; status and settings are the two
 # views every device has without declaring them.
-ROOT_VERBS = ("list", "show", "get", "stop", "start", "settings")
+#
+# THE VOCABULARY IS DATA, NOT PROSE (15d6a0ef9c11, WRONG INTENT clause): verb -> what it
+# means, one table, and ROOT_VERBS is DERIVED from it so the two cannot drift. `list`
+# carries the table so a caller reads the meaning from the device itself, never from a doc.
+ROOT_VERB_SEMANTICS = {
+    "list": "enumerates the verbs, views and panes — cold from the declared contract, hot from the device",
+    "show": "renders one view for a human — cold from last_known, hot from the device",
+    "get": "returns one view as one line of JSON: device, view, cached, timestamp, data",
+    "stop": "puts the device instance's process down; presence reads OFFLINE",
+    "start": "wakes the device instance's process; presence reads ONLINE",
+    "settings": "renders the settings view; 'No settings' when the device declares none",
+}
+ROOT_VERBS = tuple(ROOT_VERB_SEMANTICS)
 ROOT_VIEWS = ("status", "settings")
 HOT = "hot"
+
+
+class RootVerbCollision(ValueError):
+    """A device registered a view or a bus verb that steps on the ruled root vocabulary
+    (15d6a0ef9c11: "a verb that collides with a standard one is refused at registration
+    time"). Raised by ``BaseShim._register`` the moment the device wakes — before any
+    query resolves through it — so a colliding device never answers a root word with its
+    own meaning. ``resolve`` reads it as exit 2, the refusal shape of every other bad line."""
 
 # --- the first shim starts the ground loop (ticket d6eb399ab6ad) -----------------------
 
@@ -875,9 +895,38 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
 
     def _ensure_device(self) -> None:
         if self._presence != ONLINE:
-            self._device = self._start_device()
+            device = self._start_device()
+            self._register(device)
+            self._device = device
             self._presence = ONLINE
             self._capture_last_known()
+
+    @staticmethod
+    def _register(device) -> None:
+        """REGISTRATION TIME (15d6a0ef9c11 clause 3): the one moment a device's declared
+        vocabulary meets the root one. A declared VIEW named after a root view is refused —
+        `status` and `settings` are every device's without declaring them, so a device that
+        declares its own is two mouths for one word. A declared BUS VERB named after a root
+        verb is refused unless its handler is the device's own ``_handle_<verb>`` — the base
+        contract for that word (``show``/``get`` from BaseDevice) — so a device may keep or
+        override the root meaning but never rebind the word to something else. A device that
+        wakes to ``None`` registers nothing (it has declared nothing)."""
+        if device is None:
+            return
+        views = device.declared_views() if callable(getattr(device, "declared_views", None)) else {}
+        for view in views:
+            root = canon(view, ROOT_VIEWS)
+            if root is not None:
+                raise RootVerbCollision(f"device view {root!r} collides with the root view")
+        verbs = device.declared_verbs() if callable(getattr(device, "declared_verbs", None)) else {}
+        for verb, handler in verbs.items():
+            root = canon(verb, ROOT_VERBS)
+            if root is None:
+                continue
+            if handler != getattr(device, f"_handle_{root}", None):
+                raise RootVerbCollision(
+                    f"device verb {root!r} collides with the root verb — {ROOT_VERB_SEMANTICS[root]}; "
+                    f"a device keeps the root meaning through _handle_{root}, never rebinds the word")
 
     def _stop_device(self) -> None:
         """Put the device down — the other half of the process-manager role (ticket
@@ -905,6 +954,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         cold one. Nothing escapes: any error is exit 1 with its text (Law 7)."""
         try:
             return self._resolve(list(argv))
+        except RootVerbCollision as exc:
+            return {"exit": 2, "text": str(exc), "data": None, "cached": None}
         except Exception as exc:  # noqa: BLE001
             verb = argv[0] if argv else ""
             return {"exit": 1, "text": f"{self.device_id}: {verb} failed: {type(exc).__name__}: {exc}",
@@ -955,7 +1006,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                 contract = self.declared_contract()
                 views = list(contract.get("views") or [])
                 panes = list(contract.get("panes") or [])
-            data = {"verbs": list(ROOT_VERBS), "views": list(ROOT_VIEWS) + views, "panes": panes}
+            data = {"verbs": list(ROOT_VERBS), "views": list(ROOT_VIEWS) + views, "panes": panes,
+                    "semantics": dict(ROOT_VERB_SEMANTICS)}
             lines = []
             for key in ("verbs", "views", "panes"):
                 lines.append(f"{key}:")
@@ -963,6 +1015,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                     lines.extend(f"  {name}" for name in data[key])
                 else:
                     lines.append("  (none)")
+            lines.append("semantics:")
+            lines.extend(f"  {verb}: {meaning}" for verb, meaning in ROOT_VERB_SEMANTICS.items())
             if cached:
                 lines.append(f"(cold — the {dev} is not running; add hot for the device's own list)")
             return {"exit": 0, "text": "\n".join(lines), "data": data, "cached": cached}
@@ -976,10 +1030,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                     "data": None, "cached": cached}
         else:
             what = rest[0]
+        # a view colliding with a root view cannot reach here: _register refused it at wake
         device_views = self._device.declared_views() if live else {}
-        if canon(what, device_views) is not None and canon(what, ROOT_VIEWS) is not None:
-            return {"exit": 2, "text": f"device view {canon(what, ROOT_VIEWS)!r} collides with the root view",
-                    "data": None, "cached": cached}
         root = canon(what, ROOT_VIEWS)
         name = root or canon(what, device_views)
         if name is None:

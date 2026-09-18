@@ -258,6 +258,35 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
                or (isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "subprocess")]
     assert not shelled, "inspect_durability composes repo_truth — it shells no git of its own"
 
+    # (f) the watch is armed with what it watches: the WATCHME probe berths beside the lane,
+    #     declares a frozen PROBE carrying carry AND enough, names THIS lane, and reads no
+    #     exemption roster naming it today (a roster tenant is the corrosion the watch exists
+    #     for — asserted as an invariant over the live module, never a snapshot). Bound at
+    #     call time so a hollow reversion that removes the module reds here, not at import.
+    import importlib
+    try:
+        probe_mod = importlib.import_module("cairn.tools.base.probes.the_durability_lane_refuses")
+    except ImportError as e:
+        raise AssertionError(f"the WATCHME probe the_durability_lane_refuses is not berthed: {e}")
+    probe = getattr(probe_mod, "PROBE", None)
+    assert probe is not None, "the probe module declares no module-level PROBE"
+    assert callable(getattr(probe, "carry", None)) and callable(getattr(probe, "enough", None)), \
+        "PROBE must carry both a carry and an enough"
+    assert getattr(probe_mod, "_LANE", None) == _LANE, "the probe watches a different lane"
+    assert probe_mod._exemption_tenants() == [], \
+        f"an exemption roster names {_LANE}: {probe_mod._exemption_tenants()}"
+
+    # (g) the commit charter says the gate IS physics, naming the ticket — the IOU retired
+    #     in the same build (a reverted charter reads the old prose and reds here)
+    charter = json.loads((_REPO / "skills" / "commit" / "intention+why.json").read_text(encoding="utf-8"))
+    state = str(charter.get("state", ""))
+    assert "THE DURABILITY GATE IS PHYSICS" in state and "c2460ae6c3d1" in state, \
+        f"skills/commit charter state does not declare the durability gate physics: {state[:120]!r}"
+    traces = charter.get("traces_to", [])
+    traces = traces if isinstance(traces, list) else [traces]
+    assert any("physics since ticket c2460ae6c3d1" in str(t) for t in traces), \
+        f"skills/commit charter traces_to does not name the ticket as the physics: {traces}"
+
 
 if __name__ == "__main__":
     from cairn.tools.proof_coverage.proof_coverage import print_teeth_main
